@@ -3,18 +3,14 @@
 A framework for integrating heterogeneous knowledge bases using Wikidata as
 a lingua franca.
 
-See [KIF Middleware](https://github.ibm.com/brl-kbe/kif-middleware) for the middleware
-API.
-
 ## Documentation ##
 
-See the [API documentation](https://pages.github.ibm.com/brl-kbe/kif/) and
-the notebooks in [examples](./examples).
+See the notebooks in [examples](./examples).
 
 ## Installation ##
 
 ```shell
-$ git clone git@github.ibm.com:kcsys/kif.git
+$ git clone https://github.com/IBM/kif.git
 $ cd kif
 $ pip install -e .
 ```
@@ -31,6 +27,6 @@ Run all tests:
 $ make check
 ```
 
-
 ## License ##
-This module is released under the [Apache-2.0 license](LICENSE).
+
+Released under the [Apache-2.0 license](LICENSE).
