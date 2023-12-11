@@ -1,0 +1,114 @@
+@prefix bd: <http://www.bigdata.com/rdf#> .
+@prefix bds: <http://www.bigdata.com/rdf/search#> .
+@prefix gas: <http://www.bigdata.com/rdf/gas#> .
+@prefix hint: <http://www.bigdata.com/queryHints#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix p: <http://www.wikidata.org/prop/> .
+@prefix pq: <http://www.wikidata.org/prop/qualifier/> .
+@prefix pqn: <http://www.wikidata.org/prop/qualifier/value-normalized/> .
+@prefix pqv: <http://www.wikidata.org/prop/qualifier/value/> .
+@prefix pr: <http://www.wikidata.org/prop/reference/> .
+@prefix prn: <http://www.wikidata.org/prop/reference/value-normalized/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix prv: <http://www.wikidata.org/prop/reference/value/> .
+@prefix ps: <http://www.wikidata.org/prop/statement/> .
+@prefix psn: <http://www.wikidata.org/prop/statement/value-normalized/> .
+@prefix psv: <http://www.wikidata.org/prop/statement/value/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix wd: <http://www.wikidata.org/entity/> .
+@prefix wdata: <http://www.wikidata.org/wiki/Special:EntityData/> .
+@prefix wdno: <http://www.wikidata.org/prop/novalue/> .
+@prefix wdref: <http://www.wikidata.org/reference/> .
+@prefix wds: <http://www.wikidata.org/entity/statement/> .
+@prefix wdt: <http://www.wikidata.org/prop/direct/> .
+@prefix wdv: <http://www.wikidata.org/value/> .
+@prefix wikibase: <http://wikiba.se/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# InChIKey
+wd:P235
+    wikibase:propertyType wikibase:ExternalId ;
+    wdt:P31 wd:Q19833835 ;      # instance of
+    p:P31 [
+        a wikibase:BestRank ;
+        wikibase:rank wikibase:NormalRank ;
+        ps:P31 wd:Q19833835 ;
+        ] ;
+
+    wdt:P1659 wd:P234 ;         # related property
+    p:P1659 [
+        a wikibase:BestRank ;
+        wikibase:rank wikibase:NormalRank ;
+        ps:P1659 wd:P234 ;
+        ] .
+
+# benzene
+wd:Q2270
+    wdt:P31 wd:Q113145171 ;     # instance of
+    p:P31 [
+        a wikibase:BestRank ;
+        wikibase:rank wikibase:NormalRank ;
+        ps:P31 wd:Q113145171 ;
+        ] ;
+
+    wdt:P235 "UHOVQNZJYSORNB-UHFFFAOYSA-N" ;
+    p:P235 [
+        a wikibase:BestRank ;
+        wikibase:rank wikibase:NormalRank ;
+        ps:P235 "UHOVQNZJYSORNB-UHFFFAOYSA-N" ;
+        ] ;
+
+    wdt:P2067 "78.11"^^xsd:decimal ; # mass
+    p:P2067 [
+        a wikibase:BestRank ;
+        wikibase:rank wikibase:NormalRank ;
+        ps:P2067 "78.11"^^xsd:decimal ;
+        psv:P2067 [
+            a wikibase:QuantityValue ;
+            wikibase:quantityAmount "78.11"^^xsd:decimal ;
+            wikibase:quantityUnit wd:Q483261 ;
+            ] ;
+        prov:wasDerivedFrom [
+            pr:P248 wd:Q278487 ;    # stated in - PubChem
+            pr:P407 wd:Q1860 ;      # language of work or name - English
+            pr:P662 "241" ;         # PubChem CID
+            pr:P1476 "benzene"@en ; # title
+            prv:P813 [              # retrieved
+                a wikibase:TimeValue ;
+                wikibase:timeValue "2016-10-19T00:00:00+00:00"^^xsd:dateTime ;
+                wikibase:timePrecision "11"^^xsd:integer ;
+                wikibase:timeTimezone "0"^^xsd:integer ;
+                wikibase:timeCalendarModel wd:Q1985727 ;
+                ] ;
+            ] ;
+        ] ;
+
+    wdt:P2054 "0.88"^^xsd:decimal ; # density
+    p:P2054 [
+        a wikibase:BestRank ;
+        wikibase:rank wikibase:NormalRank ;
+        ps:P2054 "0.88"^^xsd:decimal ;
+        psv:P2054 [
+            a wikibase:QuantityValue ;
+            wikibase:quantityAmount "0.88"^^xsd:decimal ;
+            wikibase:quantityUnit wd:Q13147228 ;
+            wikibase:quantityLowerBound "0.87"^^xsd:decimal ;
+            wikibase:quantityUpperBound "0.89"^^xsd:decimal ;
+            ] ;
+        pq:P515 wd:Q11435 ;     # phase of matter - liquid
+        pq:P2076 "20"^^xsd:decimal ; # temperature
+        pqv:P2076 [
+            a wikibase:QuantityValue ;
+            wikibase:quantityAmount "20"^^xsd:decimal ;
+            wikibase:quantityUnit wd:Q25267 ;
+            wikibase:quantityLowerBound "19"^^xsd:decimal ;
+            wikibase:quantityUpperBound "21"^^xsd:decimal ;
+            ] ;
+        prov:wasDerivedFrom [
+            pr:P248 wd:Q5687720 ;   # stated in - HSDB
+            pr:P2062 "35#section=TSCA-Test-Submissions" ; # HSDB ID
+            ] ;
+        ] .

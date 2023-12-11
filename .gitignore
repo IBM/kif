@@ -1,0 +1,10 @@
+*.egg-info
+*~
+.coverage
+.tox
+/.docs
+/build
+/venv
+__pycache__
+.idea
+kifEnv
