@@ -22,6 +22,8 @@ include docs/snak.rst
 include docs/statement.rst
 include docs/store.rst
 include docs/value.rst
+include examples/.gitignore
+include examples/recipes.ipynb
 include kif/__init__.py
 include kif/cache.py
 include kif/codec/__init__.py
