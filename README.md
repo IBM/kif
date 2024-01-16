@@ -1,7 +1,6 @@
 # Knowledge Integration Framework #
 
-A framework for integrating heterogeneous knowledge bases using Wikidata as
-a lingua franca.
+A knowledge integration framework based on Wikidata.
 
 ## Documentation ##
 
