@@ -1,6 +1,6 @@
 # Knowledge Integration Framework #
 
-A knowledge integration framework based on Wikidata.
+A knowledge integration framework based on [Wikidata](https://www.wikidata.org/).
 
 ## Hello world! ##
 
