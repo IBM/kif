@@ -1,7 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif.cache import Cache
+from kif_lib.cache import Cache
 
 from .tests import kif_TestCase, main
 

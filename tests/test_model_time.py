@@ -3,10 +3,10 @@
 
 from rdflib import Literal, URIRef
 
-import kif.namespace as NS
-import kif.vocabulary as wd
-from kif import Time
-from kif.model import Datetime
+import kif_lib.namespace as NS
+import kif_lib.vocabulary as wd
+from kif_lib import Time
+from kif_lib.model import Datetime
 
 from .tests import kif_TestCase, main
 

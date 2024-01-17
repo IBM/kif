@@ -3,7 +3,7 @@
 
 from rdflib import Literal, URIRef
 
-from kif import String
+from kif_lib import String
 
 from .tests import kif_TestCase, main
 

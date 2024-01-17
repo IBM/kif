@@ -4,10 +4,15 @@ A knowledge integration framework based on Wikidata.
 
 ## Documentation ##
 
-See the notebooks in [examples](./examples).
+See the notebooks in [examples](https://github.com/IBM/kif/tree/main/examples).
 
 ## Installation ##
 
+```shell
+$ pip install kif-lib
+```
+
+Or, for the development version:
 ```shell
 $ git clone https://github.com/IBM/kif.git
 $ cd kif
@@ -28,4 +33,4 @@ $ make check
 
 ## License ##
 
-Released under the [Apache-2.0 license](LICENSE).
+Released under the [Apache-2.0 license](https://github.com/IBM/kif/blob/main/LICENSE).

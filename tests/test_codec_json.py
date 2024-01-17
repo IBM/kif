@@ -3,7 +3,7 @@
 
 import json
 
-from kif import Quantity
+from kif_lib import Quantity
 
 from .tests import kif_TestCase, main
 

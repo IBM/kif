@@ -3,7 +3,7 @@
 
 from rdflib.namespace import Namespace
 
-from kif.namespace import WIKIBASE, Wikidata
+from kif_lib.namespace import WIKIBASE, Wikidata
 
 from .tests import kif_TestCase, main
 

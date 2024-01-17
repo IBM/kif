@@ -3,8 +3,8 @@
 
 from rdflib import Literal, URIRef
 
-import kif.namespace as NS
-from kif import Entity, IRI, Item, Items
+import kif_lib.namespace as NS
+from kif_lib import Entity, IRI, Item, Items
 
 from .tests import kif_TestCase, main
 

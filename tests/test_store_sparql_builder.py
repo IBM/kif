@@ -1,8 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif import IRI, String
-from kif.store.sparql_builder import SPARQL_Builder
+from kif_lib import IRI, String
+from kif_lib.store.sparql_builder import SPARQL_Builder
 
 from .tests import kif_TestCase, main
 

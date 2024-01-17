@@ -6,9 +6,9 @@ import os
 import re
 from unittest import main, SkipTest, TestCase  # noqa: F401
 
-import kif.namespace as NS
-import kif.vocabulary as wd
-from kif import (
+import kif_lib.namespace as NS
+import kif_lib.vocabulary as wd
+from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
     DataValue,
@@ -46,9 +46,9 @@ from kif import (
     Value,
     ValueSnak,
 )
-from kif.error import ShouldNotGetHere
-from kif.model import Decimal, UTC
-from kif.model.object import Object
+from kif_lib.error import ShouldNotGetHere
+from kif_lib.model import Decimal, UTC
+from kif_lib.model.object import Object
 
 PUBCHEM_IBM_PW = 'http://power.br.ibm.com:8890/sparql/'
 PUBCHEM_IBM_OS = 'https://brl-kbe-virtuoso.bx.cloud9.ibm.com/sparql/'

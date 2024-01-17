@@ -3,8 +3,8 @@
 
 from rdflib import Literal, URIRef
 
-import kif.namespace as NS
-from kif import String, Text
+import kif_lib.namespace as NS
+from kif_lib import String, Text
 
 from .tests import kif_TestCase, main
 
