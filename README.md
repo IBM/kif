@@ -6,6 +6,14 @@ A knowledge integration framework based on Wikidata.
 
 See the notebooks in [examples](https://github.com/IBM/kif/tree/main/examples).
 
+## Hello world! ##
+
+Prints an arbitrary statement from [Wikidata](https://www.wikidata.org/):
+```python
+kb = Store('sparql', 'https://query.wikidata.org/sparql')
+print(next(kb.filter()))
+```
+
 ## Installation ##
 
 ```shell
