@@ -2,14 +2,11 @@
 
 A knowledge integration framework based on Wikidata.
 
-## Documentation ##
-
-See the notebooks in [examples](https://github.com/IBM/kif/tree/main/examples).
-
 ## Hello world! ##
 
 Prints an arbitrary statement from [Wikidata](https://www.wikidata.org/):
 ```python
+from kif_lib import Store
 kb = Store('sparql', 'https://query.wikidata.org/sparql')
 print(next(kb.filter()))
 ```
@@ -26,6 +23,10 @@ $ git clone https://github.com/IBM/kif.git
 $ cd kif
 $ pip install -e .
 ```
+
+## Documentation ##
+
+See the notebooks in [examples](https://github.com/IBM/kif/tree/main/examples).
 
 ## Testing ##
 
