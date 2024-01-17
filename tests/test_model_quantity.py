@@ -1,12 +1,12 @@
-# Copyright (C) 2023 IBM Corp.
+# Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
 from rdflib import Literal, URIRef
 
-import kif.namespace as NS
-import kif.vocabulary as wd
-from kif import IRI, Item, Quantity
-from kif.model import Decimal
+import kif_lib.namespace as NS
+import kif_lib.vocabulary as wd
+from kif_lib import IRI, Item, Quantity
+from kif_lib.model import Decimal
 
 from .tests import kif_TestCase, main
 

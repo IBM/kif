@@ -1,4 +1,3 @@
-# $Id: c19366f3954217e57581b33465602937d9df1e70 $
 me:= $(firstword $(MAKEFILE_LIST))
 
 # Prints usage message and exits.
@@ -31,8 +30,8 @@ COVERAGERC_OMIT?=
 DOCS_SRC?= docs
 DOCS_TGT?= .docs
 DOCS_TGT_BRANCH?= gh-pages
-FLAKE8RC?= .flake8rc
 FLAKE8_OPTIONS?= --color never --config .flake8rc
+FLAKE8RC?= .flake8rc
 ISORT_CFG?= .isort.cfg
 ISORT_CFG_INCLUDE_TRAILING_COMMA?= True
 ISORT_CFG_MULTI_LINE_OUTPUT?= 3
@@ -42,6 +41,7 @@ MANIFEST_IN?= Manifest.in
 MANIFEST_IN_GIT_LS_FILES_PATHSPEC?=
 MYPY_OPTIONS?= --show-error-context --show-error-codes
 PERL?= perl
+PIP?= ${PYTHON} -m pip
 PYTEST_INI?= pytest.ini
 PYTEST_OPTIONS?= -x
 PYTHON?= python
@@ -138,8 +138,12 @@ perl_check_copyright:=\
 
 # remove generated files
 .PHONY: clean
-clean: docs-clean htmlcov-clean
+clean: dist-clean docs-clean htmlcov-clean
 	-${PYTHON} setup.py clean --all
+
+.PHONY: dist-clean
+dist-clean:
+	-rm -rf ./dist ./${PACKAGE}.egg-info
 
 .PHONY: htmlcov-clean
 htmlcov-clean:
@@ -171,7 +175,7 @@ docs-init:
 	fi
 	-cd ${DOCS_TGT} && git pull origin ${DOCS_TGT_BRANCH}
 
-# build docs and copy them to ${DOCS_TGT}
+# publish docs
 .PHONY: docs-publish
 docs-publish: docs-clean docs
 	@if ! test -d ./${DOCS_TGT}; then\
@@ -266,13 +270,12 @@ ident:
 # install package
 .PHONY: install
 install:
-	pip install -e .
+	${PIP} install -e .
 
-# install doc-build and test dependencies
+# install doc-build, publish, and test dependencies
 .PHONY: install-deps
 install-deps:
-	pip install -e '.[docs]'
-	pip install -e '.[tests]'
+	${PIP} install --upgrade '.[docs]' '.[tests]' build twine
 
 # run tox
 .PHONY: tox
@@ -283,3 +286,9 @@ tox:
 .PHONY: uninstall
 uninstall:
 	${PYTHON} setup.py develop -u
+
+# publish package
+.PHONY: publish
+publish: dist-clean
+	${PYTHON} -m build
+	${PYTHON} -m twine upload dist/*

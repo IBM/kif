@@ -1,7 +1,7 @@
-# Copyright (C) 2023 IBM Corp.
+# Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif import (
+from kif_lib import (
     Deprecated,
     IRI,
     Item,
@@ -18,7 +18,7 @@ from kif import (
     Time,
     ValueSnak,
 )
-from kif.model import Datetime, Decimal, UTC
+from kif_lib.model import Datetime, Decimal, UTC
 
 from .tests import kif_TestCase, main
 

@@ -1,8 +1,15 @@
-# Copyright (C) 2023 IBM Corp.
+# Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import kif.vocabulary as wd
-from kif import AnnotationRecord, IRI, Normal, Quantity, ReferenceRecord, Store
+import kif_lib.vocabulary as wd
+from kif_lib import (
+    AnnotationRecord,
+    IRI,
+    Normal,
+    Quantity,
+    ReferenceRecord,
+    Store,
+)
 
 from .tests import kif_TestCase, main, skip_if_set, WIKIDATA
 

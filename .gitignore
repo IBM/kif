@@ -1,10 +1,10 @@
 *.egg-info
 *~
 .coverage
+.idea
 .tox
 /.docs
 /build
+/dist
 /venv
 __pycache__
-.idea
-kifEnv

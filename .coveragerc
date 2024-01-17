@@ -1,5 +1,5 @@
 [report]
-omit = kif/model/object.py
+omit = kif_lib/model/object.py
 exclude_lines =
     pragma: no cover
     def __repr__

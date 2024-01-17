@@ -1,9 +1,9 @@
-# Copyright (C) 2023 IBM Corp.
+# Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
 import json
 
-from kif import Quantity
+from kif_lib import Quantity
 
 from .tests import kif_TestCase, main
 
