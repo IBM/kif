@@ -48,7 +48,7 @@ from .model import (
 )
 from .store import Store, StoreError, StoreFlags
 
-__version__ = '0.1'
+__version__ = '0.3'
 
 __all__ = [
     'AnnotationRecord',
