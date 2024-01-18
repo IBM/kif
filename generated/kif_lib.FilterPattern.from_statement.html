@@ -1,0 +1,643 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>kif_lib.FilterPattern.from_statement &#8212; kif-lib  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=bd9e20870c6007c4c509" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=bd9e20870c6007c4c509" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=bd9e20870c6007c4c509" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=bd9e20870c6007c4c509" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=bd9e20870c6007c4c509" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=bd9e20870c6007c4c509" />
+  <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=bd9e20870c6007c4c509"></script>
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generated/kif_lib.FilterPattern.from_statement';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="kif_lib.FilterPattern.subject" href="kif_lib.FilterPattern.subject.html" />
+    <link rel="prev" title="kif_lib.FilterPattern.from_snak" href="kif_lib.FilterPattern.from_snak.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <header>
+  
+    <div class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">kif-lib  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../model.html">
+                        Model
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../store.html">
+                        Store
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../internal.html">
+                        Internal
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </div>
+  
+  </header>
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../model.html">
+                        Model
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../store.html">
+                        Store
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../internal.html">
+                        Internal
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Core</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../object.html">KIF Object</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.KIF_Object.html">kif_lib.KIF_Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.KIF_Object.Nil.html">kif_lib.KIF_Object.Nil</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.KIF_Object.test.html">kif_lib.KIF_Object.test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.KIF_Object.check.html">kif_lib.KIF_Object.check</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.KIF_Object.check_optional.html">kif_lib.KIF_Object.check_optional</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.KIF_Object.unpack.html">kif_lib.KIF_Object.unpack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.KIF_Object.args.html">kif_lib.KIF_Object.args</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.KIF_Object.get_args.html">kif_lib.KIF_Object.get_args</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.KIF_Object.digest.html">kif_lib.KIF_Object.digest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.KIF_Object.get_digest.html">kif_lib.KIF_Object.get_digest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.KIF_Object.copy.html">kif_lib.KIF_Object.copy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.KIF_Object.deepcopy.html">kif_lib.KIF_Object.deepcopy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.KIF_Object.replace.html">kif_lib.KIF_Object.replace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.KIF_ObjectSet.html">kif_lib.KIF_ObjectSet</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../value.html">Value</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Value.html">kif_lib.Value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Value.value.html">kif_lib.Value.value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Value.get_value.html">kif_lib.Value.get_value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Value.n3.html">kif_lib.Value.n3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Entity.html">kif_lib.Entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Entity.iri.html">kif_lib.Entity.iri</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Entity.get_iri.html">kif_lib.Entity.get_iri</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Item.html">kif_lib.Item</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Items.html">kif_lib.Items</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Property.html">kif_lib.Property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Properties.html">kif_lib.Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Descriptor.html">kif_lib.Descriptor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Descriptor.label.html">kif_lib.Descriptor.label</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Descriptor.get_label.html">kif_lib.Descriptor.get_label</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Descriptor.aliases.html">kif_lib.Descriptor.aliases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Descriptor.get_aliases.html">kif_lib.Descriptor.get_aliases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Descriptor.description.html">kif_lib.Descriptor.description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Descriptor.get_description.html">kif_lib.Descriptor.get_description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.DataValue.html">kif_lib.DataValue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.IRI.html">kif_lib.IRI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Text.html">kif_lib.Text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.String.html">kif_lib.String</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.DeepDataValue.html">kif_lib.DeepDataValue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Quantity.html">kif_lib.Quantity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Quantity.amount.html">kif_lib.Quantity.amount</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Quantity.get_amount.html">kif_lib.Quantity.get_amount</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Quantity.unit.html">kif_lib.Quantity.unit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Quantity.get_unit.html">kif_lib.Quantity.get_unit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Quantity.lower_bound.html">kif_lib.Quantity.lower_bound</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Quantity.get_lower_bound.html">kif_lib.Quantity.get_lower_bound</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Quantity.upper_bound.html">kif_lib.Quantity.upper_bound</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Quantity.get_upper_bound.html">kif_lib.Quantity.get_upper_bound</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Time.html">kif_lib.Time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Time.time.html">kif_lib.Time.time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Time.get_time.html">kif_lib.Time.get_time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Time.precision.html">kif_lib.Time.precision</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Time.get_precision.html">kif_lib.Time.get_precision</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Time.timezone.html">kif_lib.Time.timezone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Time.get_timezone.html">kif_lib.Time.get_timezone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Time.calendar_model.html">kif_lib.Time.calendar_model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Time.get_calendar_model.html">kif_lib.Time.get_calendar_model</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../snak.html">Snak</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Snak.html">kif_lib.Snak</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Snak.property.html">kif_lib.Snak.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Snak.get_property.html">kif_lib.Snak.get_property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Snak.snak_mask.html">kif_lib.Snak.snak_mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Snak.get_snak_mask.html">kif_lib.Snak.get_snak_mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Snak.VALUE_SNAK.html">kif_lib.Snak.VALUE_SNAK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Snak.SOME_VALUE_SNAK.html">kif_lib.Snak.SOME_VALUE_SNAK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Snak.NO_VALUE_SNAK.html">kif_lib.Snak.NO_VALUE_SNAK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Snak.ALL.html">kif_lib.Snak.ALL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.SnakMask.html">kif_lib.SnakMask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.SnakMask.VALUE_SNAK.html">kif_lib.SnakMask.VALUE_SNAK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.SnakMask.SOME_VALUE_SNAK.html">kif_lib.SnakMask.SOME_VALUE_SNAK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.SnakMask.NO_VALUE_SNAK.html">kif_lib.SnakMask.NO_VALUE_SNAK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.SnakMask.ALL.html">kif_lib.SnakMask.ALL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.ValueSnak.html">kif_lib.ValueSnak</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.ValueSnak.value.html">kif_lib.ValueSnak.value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.ValueSnak.get_value.html">kif_lib.ValueSnak.get_value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.SomeValueSnak.html">kif_lib.SomeValueSnak</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.NoValueSnak.html">kif_lib.NoValueSnak</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.SnakSet.html">kif_lib.SnakSet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.SnakSet.args_set.html">kif_lib.SnakSet.args_set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.SnakSet.get_args_set.html">kif_lib.SnakSet.get_args_set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.SnakSet.union.html">kif_lib.SnakSet.union</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference_record.html">Reference Record</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.ReferenceRecord.html">kif_lib.ReferenceRecord</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.ReferenceRecordSet.html">kif_lib.ReferenceRecordSet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.ReferenceRecordSet.args_set.html">kif_lib.ReferenceRecordSet.args_set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.ReferenceRecordSet.get_args_set.html">kif_lib.ReferenceRecordSet.get_args_set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.ReferenceRecordSet.union.html">kif_lib.ReferenceRecordSet.union</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../rank.html">Rank</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Rank.html">kif_lib.Rank</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.PreferredRank.html">kif_lib.PreferredRank</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.NormalRank.html">kif_lib.NormalRank</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.DeprecatedRank.html">kif_lib.DeprecatedRank</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Preferred.html">kif_lib.Preferred</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Normal.html">kif_lib.Normal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Deprecated.html">kif_lib.Deprecated</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../statement.html">Statement</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Statement.html">kif_lib.Statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Statement.subject.html">kif_lib.Statement.subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Statement.get_subject.html">kif_lib.Statement.get_subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Statement.snak.html">kif_lib.Statement.snak</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Statement.get_snak.html">kif_lib.Statement.get_snak</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.AnnotationRecord.html">kif_lib.AnnotationRecord</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.AnnotationRecord.qualifiers.html">kif_lib.AnnotationRecord.qualifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.AnnotationRecord.get_qualifiers.html">kif_lib.AnnotationRecord.get_qualifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.AnnotationRecord.references.html">kif_lib.AnnotationRecord.references</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.AnnotationRecord.get_references.html">kif_lib.AnnotationRecord.get_references</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.AnnotationRecord.rank.html">kif_lib.AnnotationRecord.rank</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.AnnotationRecord.get_rank.html">kif_lib.AnnotationRecord.get_rank</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.AnnotationRecordSet.html">kif_lib.AnnotationRecordSet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.AnnotationRecordSet.args_set.html">kif_lib.AnnotationRecordSet.args_set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.AnnotationRecordSet.get_args_set.html">kif_lib.AnnotationRecordSet.get_args_set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.AnnotationRecordSet.union.html">kif_lib.AnnotationRecordSet.union</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Patterns</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../fingerprint.html">Fingerprint</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Fingerprint.html">kif_lib.Fingerprint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Fingerprint.value.html">kif_lib.Fingerprint.value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Fingerprint.get_value.html">kif_lib.Fingerprint.get_value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Fingerprint.snak_set.html">kif_lib.Fingerprint.snak_set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Fingerprint.get_snak_set.html">kif_lib.Fingerprint.get_snak_set</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.EntityFingerprint.html">kif_lib.EntityFingerprint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.EntityFingerprint.entity.html">kif_lib.EntityFingerprint.entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.EntityFingerprint.get_entity.html">kif_lib.EntityFingerprint.get_entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.PropertyFingerprint.html">kif_lib.PropertyFingerprint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.PropertyFingerprint.property.html">kif_lib.PropertyFingerprint.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.PropertyFingerprint.get_property.html">kif_lib.PropertyFingerprint.get_property</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../pattern.html">Pattern</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.Pattern.html">kif_lib.Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.FilterPattern.html">kif_lib.FilterPattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.FilterPattern.from_snak.html">kif_lib.FilterPattern.from_snak</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">kif_lib.FilterPattern.from_statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.FilterPattern.subject.html">kif_lib.FilterPattern.subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.FilterPattern.get_subject.html">kif_lib.FilterPattern.get_subject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.FilterPattern.property.html">kif_lib.FilterPattern.property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.FilterPattern.get_property.html">kif_lib.FilterPattern.get_property</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.FilterPattern.value.html">kif_lib.FilterPattern.value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.FilterPattern.get_value.html">kif_lib.FilterPattern.get_value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.FilterPattern.snak_mask.html">kif_lib.FilterPattern.snak_mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.FilterPattern.get_snak_mask.html">kif_lib.FilterPattern.get_snak_mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.FilterPattern.is_empty.html">kif_lib.FilterPattern.is_empty</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.FilterPattern.is_nonempty.html">kif_lib.FilterPattern.is_nonempty</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kif_lib.FilterPattern.combine.html">kif_lib.FilterPattern.combine</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../model.html" class="nav-link">Model</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../pattern.html" class="nav-link">Pattern</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">kif_lib.Filt...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="kif-lib-filterpattern-from-statement">
+<h1>kif_lib.FilterPattern.from_statement<a class="headerlink" href="#kif-lib-filterpattern-from-statement" title="Link to this heading">#</a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.FilterPattern.from_statement">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">FilterPattern.</span></span><span class="sig-name descname"><span class="pre">from_statement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stmt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="kif_lib.Statement.html#kif_lib.Statement" title="kif_lib.model.statement.Statement"><span class="pre">Statement</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="kif_lib.FilterPattern.html#kif_lib.FilterPattern" title="kif_lib.model.pattern.FilterPattern"><span class="pre">FilterPattern</span></a></span></span><a class="reference internal" href="../_modules/kif_lib/model/pattern.html#FilterPattern.from_statement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.FilterPattern.from_statement" title="Link to this definition">#</a></dt>
+<dd><p>Creates filter pattern from statement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>stmt</strong> – Statement.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The resulting filter pattern.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="kif_lib.FilterPattern.from_snak.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">kif_lib.FilterPattern.from_snak</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="kif_lib.FilterPattern.subject.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">kif_lib.FilterPattern.subject</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#kif_lib.FilterPattern.from_statement"><code class="docutils literal notranslate"><span class="pre">FilterPattern.from_statement()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/generated/kif_lib.FilterPattern.from_statement.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=bd9e20870c6007c4c509"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=bd9e20870c6007c4c509"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023-2024, IBM Corp.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

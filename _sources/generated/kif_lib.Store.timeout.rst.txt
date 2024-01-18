@@ -1,0 +1,6 @@
+﻿kif\_lib.Store.timeout
+======================
+
+.. currentmodule:: kif_lib
+
+.. autoproperty:: Store.timeout

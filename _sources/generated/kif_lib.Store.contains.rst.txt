@@ -1,0 +1,6 @@
+﻿kif\_lib.Store.contains
+=======================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: Store.contains

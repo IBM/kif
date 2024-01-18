@@ -1,0 +1,6 @@
+﻿kif\_lib.Descriptor.label
+=========================
+
+.. currentmodule:: kif_lib
+
+.. autoproperty:: Descriptor.label

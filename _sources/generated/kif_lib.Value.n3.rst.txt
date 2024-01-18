@@ -1,0 +1,6 @@
+﻿kif\_lib.Value.n3
+=================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: Value.n3

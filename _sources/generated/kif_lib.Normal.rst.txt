@@ -1,0 +1,6 @@
+﻿kif\_lib.Normal
+===============
+
+.. currentmodule:: kif_lib
+
+.. autodata:: Normal

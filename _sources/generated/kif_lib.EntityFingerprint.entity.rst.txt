@@ -1,0 +1,6 @@
+﻿kif\_lib.EntityFingerprint.entity
+=================================
+
+.. currentmodule:: kif_lib
+
+.. autoproperty:: EntityFingerprint.entity

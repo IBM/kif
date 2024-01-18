@@ -1,0 +1,6 @@
+﻿kif\_lib.Store.get\_timeout
+===========================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: Store.get_timeout

@@ -1,0 +1,6 @@
+﻿kif\_lib.Store.filter\_snak
+===========================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: Store.filter_snak

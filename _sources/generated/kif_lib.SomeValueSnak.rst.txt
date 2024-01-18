@@ -1,0 +1,199 @@
+﻿kif\_lib.SomeValueSnak
+======================
+
+.. currentmodule:: kif_lib
+
+.. autoclass:: SomeValueSnak
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SomeValueSnak.__init__
+      ~SomeValueSnak.check
+      ~SomeValueSnak.check_annotation_record
+      ~SomeValueSnak.check_annotation_record_set
+      ~SomeValueSnak.check_data_value
+      ~SomeValueSnak.check_deep_data_value
+      ~SomeValueSnak.check_deprecated_rank
+      ~SomeValueSnak.check_descriptor
+      ~SomeValueSnak.check_entity
+      ~SomeValueSnak.check_entity_fingerprint
+      ~SomeValueSnak.check_filter_pattern
+      ~SomeValueSnak.check_fingerprint
+      ~SomeValueSnak.check_iri
+      ~SomeValueSnak.check_item
+      ~SomeValueSnak.check_kif_object
+      ~SomeValueSnak.check_kif_object_set
+      ~SomeValueSnak.check_no_value_snak
+      ~SomeValueSnak.check_normal_rank
+      ~SomeValueSnak.check_object
+      ~SomeValueSnak.check_optional
+      ~SomeValueSnak.check_pattern
+      ~SomeValueSnak.check_preferred_rank
+      ~SomeValueSnak.check_property
+      ~SomeValueSnak.check_property_fingerprint
+      ~SomeValueSnak.check_quantity
+      ~SomeValueSnak.check_rank
+      ~SomeValueSnak.check_reference_record
+      ~SomeValueSnak.check_reference_record_set
+      ~SomeValueSnak.check_snak
+      ~SomeValueSnak.check_snak_set
+      ~SomeValueSnak.check_some_value_snak
+      ~SomeValueSnak.check_statement
+      ~SomeValueSnak.check_string
+      ~SomeValueSnak.check_text
+      ~SomeValueSnak.check_text_set
+      ~SomeValueSnak.check_time
+      ~SomeValueSnak.check_value
+      ~SomeValueSnak.check_value_snak
+      ~SomeValueSnak.copy
+      ~SomeValueSnak.count
+      ~SomeValueSnak.deepcopy
+      ~SomeValueSnak.dump
+      ~SomeValueSnak.dumps
+      ~SomeValueSnak.from_json
+      ~SomeValueSnak.from_sexp
+      ~SomeValueSnak.from_sparql
+      ~SomeValueSnak.get_args
+      ~SomeValueSnak.get_digest
+      ~SomeValueSnak.get_property
+      ~SomeValueSnak.get_snak_mask
+      ~SomeValueSnak.index
+      ~SomeValueSnak.is_annotation_record
+      ~SomeValueSnak.is_annotation_record_set
+      ~SomeValueSnak.is_data_value
+      ~SomeValueSnak.is_deep_data_value
+      ~SomeValueSnak.is_deprecated_rank
+      ~SomeValueSnak.is_descriptor
+      ~SomeValueSnak.is_entity
+      ~SomeValueSnak.is_entity_fingerprint
+      ~SomeValueSnak.is_filter_pattern
+      ~SomeValueSnak.is_fingerprint
+      ~SomeValueSnak.is_iri
+      ~SomeValueSnak.is_item
+      ~SomeValueSnak.is_kif_object
+      ~SomeValueSnak.is_kif_object_set
+      ~SomeValueSnak.is_no_value_snak
+      ~SomeValueSnak.is_normal_rank
+      ~SomeValueSnak.is_object
+      ~SomeValueSnak.is_pattern
+      ~SomeValueSnak.is_preferred_rank
+      ~SomeValueSnak.is_property
+      ~SomeValueSnak.is_property_fingerprint
+      ~SomeValueSnak.is_quantity
+      ~SomeValueSnak.is_rank
+      ~SomeValueSnak.is_reference_record
+      ~SomeValueSnak.is_reference_record_set
+      ~SomeValueSnak.is_snak
+      ~SomeValueSnak.is_snak_set
+      ~SomeValueSnak.is_some_value_snak
+      ~SomeValueSnak.is_statement
+      ~SomeValueSnak.is_string
+      ~SomeValueSnak.is_text
+      ~SomeValueSnak.is_text_set
+      ~SomeValueSnak.is_time
+      ~SomeValueSnak.is_value
+      ~SomeValueSnak.is_value_snak
+      ~SomeValueSnak.load
+      ~SomeValueSnak.loads
+      ~SomeValueSnak.replace
+      ~SomeValueSnak.test
+      ~SomeValueSnak.test_annotation_record
+      ~SomeValueSnak.test_annotation_record_set
+      ~SomeValueSnak.test_data_value
+      ~SomeValueSnak.test_deep_data_value
+      ~SomeValueSnak.test_deprecated_rank
+      ~SomeValueSnak.test_descriptor
+      ~SomeValueSnak.test_entity
+      ~SomeValueSnak.test_entity_fingerprint
+      ~SomeValueSnak.test_filter_pattern
+      ~SomeValueSnak.test_fingerprint
+      ~SomeValueSnak.test_iri
+      ~SomeValueSnak.test_item
+      ~SomeValueSnak.test_kif_object
+      ~SomeValueSnak.test_kif_object_set
+      ~SomeValueSnak.test_no_value_snak
+      ~SomeValueSnak.test_normal_rank
+      ~SomeValueSnak.test_object
+      ~SomeValueSnak.test_pattern
+      ~SomeValueSnak.test_preferred_rank
+      ~SomeValueSnak.test_property
+      ~SomeValueSnak.test_property_fingerprint
+      ~SomeValueSnak.test_quantity
+      ~SomeValueSnak.test_rank
+      ~SomeValueSnak.test_reference_record
+      ~SomeValueSnak.test_reference_record_set
+      ~SomeValueSnak.test_snak
+      ~SomeValueSnak.test_snak_set
+      ~SomeValueSnak.test_some_value_snak
+      ~SomeValueSnak.test_statement
+      ~SomeValueSnak.test_string
+      ~SomeValueSnak.test_text
+      ~SomeValueSnak.test_text_set
+      ~SomeValueSnak.test_time
+      ~SomeValueSnak.test_value
+      ~SomeValueSnak.test_value_snak
+      ~SomeValueSnak.to_json
+      ~SomeValueSnak.to_markdown
+      ~SomeValueSnak.to_sexp
+      ~SomeValueSnak.unpack
+      ~SomeValueSnak.unpack_annotation_record
+      ~SomeValueSnak.unpack_annotation_record_set
+      ~SomeValueSnak.unpack_data_value
+      ~SomeValueSnak.unpack_deep_data_value
+      ~SomeValueSnak.unpack_deprecated_rank
+      ~SomeValueSnak.unpack_descriptor
+      ~SomeValueSnak.unpack_entity
+      ~SomeValueSnak.unpack_entity_fingerprint
+      ~SomeValueSnak.unpack_filter_pattern
+      ~SomeValueSnak.unpack_fingerprint
+      ~SomeValueSnak.unpack_iri
+      ~SomeValueSnak.unpack_item
+      ~SomeValueSnak.unpack_kif_object
+      ~SomeValueSnak.unpack_kif_object_set
+      ~SomeValueSnak.unpack_no_value_snak
+      ~SomeValueSnak.unpack_normal_rank
+      ~SomeValueSnak.unpack_object
+      ~SomeValueSnak.unpack_pattern
+      ~SomeValueSnak.unpack_preferred_rank
+      ~SomeValueSnak.unpack_property
+      ~SomeValueSnak.unpack_property_fingerprint
+      ~SomeValueSnak.unpack_quantity
+      ~SomeValueSnak.unpack_rank
+      ~SomeValueSnak.unpack_reference_record
+      ~SomeValueSnak.unpack_reference_record_set
+      ~SomeValueSnak.unpack_snak
+      ~SomeValueSnak.unpack_snak_set
+      ~SomeValueSnak.unpack_some_value_snak
+      ~SomeValueSnak.unpack_statement
+      ~SomeValueSnak.unpack_string
+      ~SomeValueSnak.unpack_text
+      ~SomeValueSnak.unpack_text_set
+      ~SomeValueSnak.unpack_time
+      ~SomeValueSnak.unpack_value
+      ~SomeValueSnak.unpack_value_snak
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SomeValueSnak.ALL
+      ~SomeValueSnak.NO_VALUE_SNAK
+      ~SomeValueSnak.Nil
+      ~SomeValueSnak.SOME_VALUE_SNAK
+      ~SomeValueSnak.VALUE_SNAK
+      ~SomeValueSnak.args
+      ~SomeValueSnak.digest
+      ~SomeValueSnak.property
+      ~SomeValueSnak.snak_mask
+   
+   

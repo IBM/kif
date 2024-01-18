@@ -1,0 +1,6 @@
+﻿kif\_lib.Store.unset\_flags
+===========================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: Store.unset_flags

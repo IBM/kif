@@ -1,0 +1,194 @@
+﻿kif\_lib.SnakSet
+================
+
+.. currentmodule:: kif_lib
+
+.. autoclass:: SnakSet
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SnakSet.__init__
+      ~SnakSet.check
+      ~SnakSet.check_annotation_record
+      ~SnakSet.check_annotation_record_set
+      ~SnakSet.check_data_value
+      ~SnakSet.check_deep_data_value
+      ~SnakSet.check_deprecated_rank
+      ~SnakSet.check_descriptor
+      ~SnakSet.check_entity
+      ~SnakSet.check_entity_fingerprint
+      ~SnakSet.check_filter_pattern
+      ~SnakSet.check_fingerprint
+      ~SnakSet.check_iri
+      ~SnakSet.check_item
+      ~SnakSet.check_kif_object
+      ~SnakSet.check_kif_object_set
+      ~SnakSet.check_no_value_snak
+      ~SnakSet.check_normal_rank
+      ~SnakSet.check_object
+      ~SnakSet.check_optional
+      ~SnakSet.check_pattern
+      ~SnakSet.check_preferred_rank
+      ~SnakSet.check_property
+      ~SnakSet.check_property_fingerprint
+      ~SnakSet.check_quantity
+      ~SnakSet.check_rank
+      ~SnakSet.check_reference_record
+      ~SnakSet.check_reference_record_set
+      ~SnakSet.check_snak
+      ~SnakSet.check_snak_set
+      ~SnakSet.check_some_value_snak
+      ~SnakSet.check_statement
+      ~SnakSet.check_string
+      ~SnakSet.check_text
+      ~SnakSet.check_text_set
+      ~SnakSet.check_time
+      ~SnakSet.check_value
+      ~SnakSet.check_value_snak
+      ~SnakSet.copy
+      ~SnakSet.count
+      ~SnakSet.deepcopy
+      ~SnakSet.dump
+      ~SnakSet.dumps
+      ~SnakSet.from_json
+      ~SnakSet.from_sexp
+      ~SnakSet.from_sparql
+      ~SnakSet.get_args
+      ~SnakSet.get_args_set
+      ~SnakSet.get_digest
+      ~SnakSet.index
+      ~SnakSet.is_annotation_record
+      ~SnakSet.is_annotation_record_set
+      ~SnakSet.is_data_value
+      ~SnakSet.is_deep_data_value
+      ~SnakSet.is_deprecated_rank
+      ~SnakSet.is_descriptor
+      ~SnakSet.is_entity
+      ~SnakSet.is_entity_fingerprint
+      ~SnakSet.is_filter_pattern
+      ~SnakSet.is_fingerprint
+      ~SnakSet.is_iri
+      ~SnakSet.is_item
+      ~SnakSet.is_kif_object
+      ~SnakSet.is_kif_object_set
+      ~SnakSet.is_no_value_snak
+      ~SnakSet.is_normal_rank
+      ~SnakSet.is_object
+      ~SnakSet.is_pattern
+      ~SnakSet.is_preferred_rank
+      ~SnakSet.is_property
+      ~SnakSet.is_property_fingerprint
+      ~SnakSet.is_quantity
+      ~SnakSet.is_rank
+      ~SnakSet.is_reference_record
+      ~SnakSet.is_reference_record_set
+      ~SnakSet.is_snak
+      ~SnakSet.is_snak_set
+      ~SnakSet.is_some_value_snak
+      ~SnakSet.is_statement
+      ~SnakSet.is_string
+      ~SnakSet.is_text
+      ~SnakSet.is_text_set
+      ~SnakSet.is_time
+      ~SnakSet.is_value
+      ~SnakSet.is_value_snak
+      ~SnakSet.load
+      ~SnakSet.loads
+      ~SnakSet.replace
+      ~SnakSet.test
+      ~SnakSet.test_annotation_record
+      ~SnakSet.test_annotation_record_set
+      ~SnakSet.test_data_value
+      ~SnakSet.test_deep_data_value
+      ~SnakSet.test_deprecated_rank
+      ~SnakSet.test_descriptor
+      ~SnakSet.test_entity
+      ~SnakSet.test_entity_fingerprint
+      ~SnakSet.test_filter_pattern
+      ~SnakSet.test_fingerprint
+      ~SnakSet.test_iri
+      ~SnakSet.test_item
+      ~SnakSet.test_kif_object
+      ~SnakSet.test_kif_object_set
+      ~SnakSet.test_no_value_snak
+      ~SnakSet.test_normal_rank
+      ~SnakSet.test_object
+      ~SnakSet.test_pattern
+      ~SnakSet.test_preferred_rank
+      ~SnakSet.test_property
+      ~SnakSet.test_property_fingerprint
+      ~SnakSet.test_quantity
+      ~SnakSet.test_rank
+      ~SnakSet.test_reference_record
+      ~SnakSet.test_reference_record_set
+      ~SnakSet.test_snak
+      ~SnakSet.test_snak_set
+      ~SnakSet.test_some_value_snak
+      ~SnakSet.test_statement
+      ~SnakSet.test_string
+      ~SnakSet.test_text
+      ~SnakSet.test_text_set
+      ~SnakSet.test_time
+      ~SnakSet.test_value
+      ~SnakSet.test_value_snak
+      ~SnakSet.to_json
+      ~SnakSet.to_markdown
+      ~SnakSet.to_sexp
+      ~SnakSet.union
+      ~SnakSet.unpack
+      ~SnakSet.unpack_annotation_record
+      ~SnakSet.unpack_annotation_record_set
+      ~SnakSet.unpack_data_value
+      ~SnakSet.unpack_deep_data_value
+      ~SnakSet.unpack_deprecated_rank
+      ~SnakSet.unpack_descriptor
+      ~SnakSet.unpack_entity
+      ~SnakSet.unpack_entity_fingerprint
+      ~SnakSet.unpack_filter_pattern
+      ~SnakSet.unpack_fingerprint
+      ~SnakSet.unpack_iri
+      ~SnakSet.unpack_item
+      ~SnakSet.unpack_kif_object
+      ~SnakSet.unpack_kif_object_set
+      ~SnakSet.unpack_no_value_snak
+      ~SnakSet.unpack_normal_rank
+      ~SnakSet.unpack_object
+      ~SnakSet.unpack_pattern
+      ~SnakSet.unpack_preferred_rank
+      ~SnakSet.unpack_property
+      ~SnakSet.unpack_property_fingerprint
+      ~SnakSet.unpack_quantity
+      ~SnakSet.unpack_rank
+      ~SnakSet.unpack_reference_record
+      ~SnakSet.unpack_reference_record_set
+      ~SnakSet.unpack_snak
+      ~SnakSet.unpack_snak_set
+      ~SnakSet.unpack_some_value_snak
+      ~SnakSet.unpack_statement
+      ~SnakSet.unpack_string
+      ~SnakSet.unpack_text
+      ~SnakSet.unpack_text_set
+      ~SnakSet.unpack_time
+      ~SnakSet.unpack_value
+      ~SnakSet.unpack_value_snak
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SnakSet.Nil
+      ~SnakSet.args
+      ~SnakSet.args_set
+      ~SnakSet.digest
+   
+   

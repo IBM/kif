@@ -1,0 +1,6 @@
+﻿kif\_lib.cache.Cache.size
+=========================
+
+.. currentmodule:: kif_lib.cache
+
+.. autoproperty:: Cache.size

@@ -1,0 +1,1184 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>kif_lib.model.value &#8212; kif-lib  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=bd9e20870c6007c4c509" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=bd9e20870c6007c4c509" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=bd9e20870c6007c4c509" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=bd9e20870c6007c4c509" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=bd9e20870c6007c4c509" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=bd9e20870c6007c4c509" />
+  <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=bd9e20870c6007c4c509"></script>
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/kif_lib/model/value';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <header>
+  
+    <div class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">kif-lib  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../model.html">
+                        Model
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../store.html">
+                        Store
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../internal.html">
+                        Internal
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </div>
+  
+  </header>
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../model.html">
+                        Model
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../store.html">
+                        Store
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../internal.html">
+                        Internal
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">kif_lib.model.value</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for kif_lib.model.value</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2023-2024 IBM Corp.</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">rdflib</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">URIRef</span>
+
+<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">namespace</span> <span class="k">as</span> <span class="n">NS</span>
+<span class="kn">from</span> <span class="nn">.kif_object</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Datetime</span><span class="p">,</span>
+    <span class="n">Decimal</span><span class="p">,</span>
+    <span class="n">KIF_Object</span><span class="p">,</span>
+    <span class="n">TCallable</span><span class="p">,</span>
+    <span class="n">TDatetime</span><span class="p">,</span>
+    <span class="n">TDecimal</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">T_IRI</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;IRI&#39;</span><span class="p">,</span> <span class="n">NS</span><span class="o">.</span><span class="n">T_URI</span><span class="p">]</span>
+<span class="n">TString</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;String&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+<span class="n">TText</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Text&#39;</span><span class="p">,</span> <span class="n">TString</span><span class="p">]</span>
+<span class="n">TTimePrecision</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Time.Precision&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Value">
+<a class="viewcode-back" href="../../../generated/kif_lib.Value.html#kif_lib.Value">[docs]</a>
+<span class="k">class</span> <span class="nc">Value</span><span class="p">(</span><span class="n">KIF_Object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for values.&quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_preprocess_arg_value</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span>
+            <span class="n">arg</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+            <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TCallable</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">Quantity</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">String</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Value</span><span class="p">,</span> <span class="n">Value</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">function</span> <span class="ow">or</span> <span class="bp">cls</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Value&#39;s simple value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Value.get_value">
+<a class="viewcode-back" href="../../../generated/kif_lib.Value.get_value.html#kif_lib.Value.get_value">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets value&#39;s simple value.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Simple value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_must_be_implemented_in_subclass</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Value.n3">
+<a class="viewcode-back" href="../../../generated/kif_lib.Value.n3.html#kif_lib.Value.n3">[docs]</a>
+    <span class="k">def</span> <span class="nf">n3</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets value&#39;s simple value in N3 format.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Simple value in N3 format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_rdflib</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Literal</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Literal</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">n3</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">URIRef</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">URIRef</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">n3</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span></div>
+
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_from_rdflib</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span>
+            <span class="n">node</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">,</span> <span class="n">URIRef</span><span class="p">],</span>
+            <span class="n">item_prefixes</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span>
+                <span class="n">NS</span><span class="o">.</span><span class="n">T_NS</span><span class="p">]</span> <span class="o">=</span> <span class="n">NS</span><span class="o">.</span><span class="n">Wikidata</span><span class="o">.</span><span class="n">default_item_prefixes</span><span class="p">,</span>
+            <span class="n">property_prefixes</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span>
+                <span class="n">NS</span><span class="o">.</span><span class="n">T_NS</span><span class="p">]</span> <span class="o">=</span> <span class="n">NS</span><span class="o">.</span><span class="n">Wikidata</span><span class="o">.</span><span class="n">default_property_prefixes</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Value&#39;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">rdflib.term</span> <span class="kn">import</span> <span class="n">_NUMERIC_LITERAL_TYPES</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_check_arg_isinstance</span><span class="p">(</span>
+            <span class="n">node</span><span class="p">,</span> <span class="p">(</span><span class="n">Literal</span><span class="p">,</span> <span class="n">URIRef</span><span class="p">),</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_from_rdflib</span><span class="p">,</span> <span class="s1">&#39;node&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">res</span><span class="p">:</span> <span class="n">Value</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">URIRef</span><span class="p">):</span>
+            <span class="n">uri</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">URIRef</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">NS</span><span class="o">.</span><span class="n">Wikidata</span><span class="o">.</span><span class="n">is_wd_item</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">item_prefixes</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">item_prefixes</span> <span class="o">==</span> <span class="n">NS</span><span class="o">.</span><span class="n">Wikidata</span><span class="o">.</span><span class="n">default_item_prefixes</span><span class="p">:</span>
+                    <span class="n">res</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">res</span> <span class="o">=</span> <span class="n">Item</span><span class="p">(</span><span class="n">NS</span><span class="o">.</span><span class="n">WD</span><span class="p">[</span><span class="n">NS</span><span class="o">.</span><span class="n">Wikidata</span><span class="o">.</span><span class="n">get_wikidata_name</span><span class="p">(</span><span class="n">uri</span><span class="p">)])</span>
+            <span class="k">elif</span> <span class="n">NS</span><span class="o">.</span><span class="n">Wikidata</span><span class="o">.</span><span class="n">is_wd_property</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">property_prefixes</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">property_prefixes</span> <span class="o">==</span> <span class="n">NS</span><span class="o">.</span><span class="n">Wikidata</span><span class="o">.</span><span class="n">default_property_prefixes</span><span class="p">:</span>
+                    <span class="n">res</span> <span class="o">=</span> <span class="n">Property</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">res</span> <span class="o">=</span> <span class="n">Property</span><span class="p">(</span><span class="n">NS</span><span class="o">.</span><span class="n">WD</span><span class="p">[</span><span class="n">NS</span><span class="o">.</span><span class="n">Wikidata</span><span class="o">.</span><span class="n">get_wikidata_name</span><span class="p">(</span><span class="n">uri</span><span class="p">)])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="n">IRI</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Literal</span><span class="p">):</span>
+            <span class="n">literal</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Literal</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">literal</span><span class="o">.</span><span class="n">datatype</span> <span class="ow">in</span> <span class="n">_NUMERIC_LITERAL_TYPES</span><span class="p">:</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="n">Quantity</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">literal</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="n">literal</span><span class="o">.</span><span class="n">datatype</span> <span class="o">==</span> <span class="n">NS</span><span class="o">.</span><span class="n">XSD</span><span class="o">.</span><span class="n">dateTime</span>
+                  <span class="ow">or</span> <span class="n">literal</span><span class="o">.</span><span class="n">datatype</span> <span class="o">==</span> <span class="n">NS</span><span class="o">.</span><span class="n">XSD</span><span class="o">.</span><span class="n">date</span><span class="p">):</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">literal</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">literal</span><span class="o">.</span><span class="n">datatype</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">literal</span><span class="o">.</span><span class="n">language</span><span class="p">:</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">literal</span><span class="p">),</span> <span class="n">literal</span><span class="o">.</span><span class="n">language</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="n">String</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">literal</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Value</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">res</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_to_rdflib</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">,</span> <span class="n">URIRef</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_entity</span><span class="p">()</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_iri</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">URIRef</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_quantity</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">Literal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="n">NS</span><span class="o">.</span><span class="n">XSD</span><span class="o">.</span><span class="n">decimal</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_time</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">Literal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="n">NS</span><span class="o">.</span><span class="n">XSD</span><span class="o">.</span><span class="n">dateTime</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_text</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">Literal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">cast</span><span class="p">(</span><span class="n">Text</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">language</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_string</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">Literal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="Entity">
+<a class="viewcode-back" href="../../../generated/kif_lib.Entity.html#kif_lib.Entity">[docs]</a>
+<span class="k">class</span> <span class="nc">Entity</span><span class="p">(</span><span class="n">Value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for entities.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_arg_iri</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">iri</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;IRI&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Entity IRI.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_iri</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Entity.get_iri">
+<a class="viewcode-back" href="../../../generated/kif_lib.Entity.get_iri.html#kif_lib.Entity.get_iri">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_iri</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;IRI&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets entity IRI.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Entity IRI.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Item">
+<a class="viewcode-back" href="../../../generated/kif_lib.Item.html#kif_lib.Item">[docs]</a>
+<span class="k">class</span> <span class="nc">Item</span><span class="p">(</span><span class="n">Entity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entity representing a thing.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">       arg1: IRI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Item.__init__">
+<a class="viewcode-back" href="../../../generated/kif_lib.Item.html#kif_lib.Item.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg1</span><span class="p">:</span> <span class="n">T_IRI</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">arg1</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Property">
+<a class="viewcode-back" href="../../../generated/kif_lib.Property.html#kif_lib.Property">[docs]</a>
+<span class="k">class</span> <span class="nc">Property</span><span class="p">(</span><span class="n">Entity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entity representing a relationship.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">       arg1: IRI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Property.__init__">
+<a class="viewcode-back" href="../../../generated/kif_lib.Property.html#kif_lib.Property.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg1</span><span class="p">:</span> <span class="n">T_IRI</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">arg1</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">arg2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Statement</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ValueSnak</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg2</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ValueSnak</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Items">
+<a class="viewcode-back" href="../../../generated/kif_lib.Items.html#kif_lib.Items">[docs]</a>
+<span class="k">def</span> <span class="nf">Items</span><span class="p">(</span><span class="n">arg1</span><span class="p">:</span> <span class="n">T_IRI</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">T_IRI</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Item</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructs one or more items.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">       arg1: IRI.</span>
+<span class="sd">       args: Remaining IRIs.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">       The resulting items.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="n">Item</span><span class="p">,</span> <span class="n">chain</span><span class="p">([</span><span class="n">arg1</span><span class="p">],</span> <span class="n">args</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="Properties">
+<a class="viewcode-back" href="../../../generated/kif_lib.Properties.html#kif_lib.Properties">[docs]</a>
+<span class="k">def</span> <span class="nf">Properties</span><span class="p">(</span><span class="n">arg1</span><span class="p">:</span> <span class="n">T_IRI</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">T_IRI</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Property</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructs one or more properties.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">       arg1: IRI.</span>
+<span class="sd">       args: Remaining IRIs.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">       The resulting properties.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="n">Property</span><span class="p">,</span> <span class="n">chain</span><span class="p">([</span><span class="n">arg1</span><span class="p">],</span> <span class="n">args</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="DataValue">
+<a class="viewcode-back" href="../../../generated/kif_lib.DataValue.html#kif_lib.DataValue">[docs]</a>
+<span class="k">class</span> <span class="nc">DataValue</span><span class="p">(</span><span class="n">Value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for data values.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="IRI">
+<a class="viewcode-back" href="../../../generated/kif_lib.IRI.html#kif_lib.IRI">[docs]</a>
+<span class="k">class</span> <span class="nc">IRI</span><span class="p">(</span><span class="n">DataValue</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;IRI value.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">       arg1: IRI.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_check_arg_iri</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span>
+            <span class="n">arg</span><span class="p">:</span> <span class="n">T_IRI</span><span class="p">,</span>
+            <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TCallable</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;IRI&#39;</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_check_arg_isinstance</span><span class="p">(</span>
+            <span class="n">arg</span><span class="p">,</span> <span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">URIRef</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">))</span>
+
+<div class="viewcode-block" id="IRI.__init__">
+<a class="viewcode-back" href="../../../generated/kif_lib.IRI.html#kif_lib.IRI.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg1</span><span class="p">:</span> <span class="n">T_IRI</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">arg1</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">IRI</span><span class="p">):</span>
+                <span class="n">arg</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">URIRef</span><span class="p">):</span>
+                <span class="n">arg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_arg_str</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="Text">
+<a class="viewcode-back" href="../../../generated/kif_lib.Text.html#kif_lib.Text">[docs]</a>
+<span class="k">class</span> <span class="nc">Text</span><span class="p">(</span><span class="n">DataValue</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Monolingual text value.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">       arg1: String.</span>
+<span class="sd">       arg2: Language tag.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#: Default language tag.</span>
+    <span class="n">default_language</span> <span class="o">=</span> <span class="s1">&#39;en&#39;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_check_arg_text</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span>
+            <span class="n">arg</span><span class="p">:</span> <span class="n">TText</span><span class="p">,</span>
+            <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TCallable</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Text&#39;</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_check_arg_isinstance</span><span class="p">(</span>
+            <span class="n">arg</span><span class="p">,</span> <span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Text.__init__">
+<a class="viewcode-back" href="../../../generated/kif_lib.Text.html#kif_lib.Text.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg1</span><span class="p">:</span> <span class="n">TText</span><span class="p">,</span> <span class="n">arg2</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TText</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">Text</span><span class="p">)</span> <span class="ow">and</span> <span class="n">arg2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">arg2</span> <span class="o">=</span> <span class="n">arg1</span><span class="o">.</span><span class="n">language</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">Text</span><span class="p">)):</span>
+            <span class="n">arg</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_arg_str</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_optional_arg_str</span><span class="p">(</span>
+                <span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_language</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Language tag.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_language</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets language tag.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Language tag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="String">
+<a class="viewcode-back" href="../../../generated/kif_lib.String.html#kif_lib.String">[docs]</a>
+<span class="k">class</span> <span class="nc">String</span><span class="p">(</span><span class="n">DataValue</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;String value.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">       arg1: String.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_check_arg_string</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span>
+            <span class="n">arg</span><span class="p">:</span> <span class="n">TString</span><span class="p">,</span>
+            <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TCallable</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;String&#39;</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_check_arg_isinstance</span><span class="p">(</span>
+            <span class="n">arg</span><span class="p">,</span> <span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">))</span>
+
+<div class="viewcode-block" id="String.__init__">
+<a class="viewcode-back" href="../../../generated/kif_lib.String.html#kif_lib.String.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg1</span><span class="p">:</span> <span class="n">TString</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">arg1</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">String</span><span class="p">):</span>
+                <span class="n">arg</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_arg_str</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="DeepDataValue">
+<a class="viewcode-back" href="../../../generated/kif_lib.DeepDataValue.html#kif_lib.DeepDataValue">[docs]</a>
+<span class="k">class</span> <span class="nc">DeepDataValue</span><span class="p">(</span><span class="n">DataValue</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for deep data values.&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="Quantity">
+<a class="viewcode-back" href="../../../generated/kif_lib.Quantity.html#kif_lib.Quantity">[docs]</a>
+<span class="k">class</span> <span class="nc">Quantity</span><span class="p">(</span><span class="n">DeepDataValue</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deep data value representing a quantity.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">       arg1: Amount.</span>
+<span class="sd">       arg2: Unit.</span>
+<span class="sd">       arg3: Lower bound.</span>
+<span class="sd">       arg4: Upper bound.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Quantity.__init__">
+<a class="viewcode-back" href="../../../generated/kif_lib.Quantity.html#kif_lib.Quantity.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">arg1</span><span class="p">:</span> <span class="n">TDecimal</span><span class="p">,</span>
+            <span class="n">arg2</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Item</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">arg3</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TDecimal</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">arg4</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TDecimal</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">,</span> <span class="n">arg3</span><span class="p">,</span> <span class="n">arg4</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_arg_decimal</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_optional_arg_item</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_optional_arg_decimal</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_optional_arg_decimal</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">amount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Decimal</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Quantity amount.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_amount</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Quantity.get_amount">
+<a class="viewcode-back" href="../../../generated/kif_lib.Quantity.get_amount.html#kif_lib.Quantity.get_amount">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_amount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Decimal</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets quantity amount.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Amount.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">unit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Item</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Quantity unit.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_unit</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Quantity.get_unit">
+<a class="viewcode-back" href="../../../generated/kif_lib.Quantity.get_unit.html#kif_lib.Quantity.get_unit">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_unit</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Item</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Item</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets quantity unit.</span>
+
+<span class="sd">        If quantity unit is ``None``, returns `default`.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           default: Default.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Quantity unit or `default` (quantity has no unit).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">unit</span> <span class="k">if</span> <span class="n">unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">default</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lower_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Decimal</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Quantity lower bound.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lower_bound</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Quantity.get_lower_bound">
+<a class="viewcode-back" href="../../../generated/kif_lib.Quantity.get_lower_bound.html#kif_lib.Quantity.get_lower_bound">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_lower_bound</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Decimal</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Decimal</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets quantity lower bound.</span>
+
+<span class="sd">        If quantity lower bound is ``None``, returns `default`.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           default: Default.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Lower bound or `default` (quantity has no lower bound).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">lb</span> <span class="k">if</span> <span class="n">lb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">default</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">upper_bound</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Decimal</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Quantity upper bound.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_upper_bound</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Quantity.get_upper_bound">
+<a class="viewcode-back" href="../../../generated/kif_lib.Quantity.get_upper_bound.html#kif_lib.Quantity.get_upper_bound">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_upper_bound</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Decimal</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Decimal</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets quantity upper bound.</span>
+
+<span class="sd">        If quantity upper bound is ``None``, returns `default`.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           default: Default.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Lower bound or `default` (quantity has no upper bound).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ub</span> <span class="k">if</span> <span class="n">ub</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">default</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Time">
+<a class="viewcode-back" href="../../../generated/kif_lib.Time.html#kif_lib.Time">[docs]</a>
+<span class="k">class</span> <span class="nc">Time</span><span class="p">(</span><span class="n">DeepDataValue</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deep data value representing a timestamp.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">       arg1: Time.</span>
+<span class="sd">       arg2: Precision.</span>
+<span class="sd">       arg3: Time zone.</span>
+<span class="sd">       arg4: Calendar model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># See:</span>
+    <span class="c1"># &lt;https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format#Time&gt;.</span>
+    <span class="c1"># &lt;https://www.mediawiki.org/wiki/Wikibase/DataModel#Dates_and_times&gt;.</span>
+
+    <span class="k">class</span> <span class="nc">Precision</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+        <span class="n">BILLION_YEARS</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">HUNDRED_MILLION_YEARS</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">TEN_MILLION_YEARS</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">MILLION_YEARS</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">HUNDRED_THOUSAND_YEARS</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">TEN_THOUSAND_YEARS</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="n">MILLENIA</span> <span class="o">=</span> <span class="mi">6</span>
+        <span class="n">CENTURY</span> <span class="o">=</span> <span class="mi">7</span>
+        <span class="n">DECADE</span> <span class="o">=</span> <span class="mi">8</span>
+        <span class="n">YEAR</span> <span class="o">=</span> <span class="mi">9</span>
+        <span class="n">MONTH</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="n">DAY</span> <span class="o">=</span> <span class="mi">11</span>
+        <span class="n">HOUR</span> <span class="o">=</span> <span class="mi">12</span>
+        <span class="n">MINUTE</span> <span class="o">=</span> <span class="mi">13</span>
+        <span class="n">SECOND</span> <span class="o">=</span> <span class="mi">14</span>
+
+    <span class="c1">#: Alias for :attr:`Time.Precision.BILLION_YEARS`.</span>
+    <span class="n">BILLION_YEARS</span> <span class="o">=</span> <span class="n">Precision</span><span class="o">.</span><span class="n">BILLION_YEARS</span>
+
+    <span class="c1">#: Alias for :attr:`Time.Precision.HUNDRED_MILLION_YEARS`.</span>
+    <span class="n">HUNDRED_MILLION_YEARS</span> <span class="o">=</span> <span class="n">Precision</span><span class="o">.</span><span class="n">HUNDRED_MILLION_YEARS</span>
+
+    <span class="c1">#: Alias for :attr:`Time.Precision.TEN_MILLION_YEARS`.</span>
+    <span class="n">TEN_MILLION_YEARS</span> <span class="o">=</span> <span class="n">Precision</span><span class="o">.</span><span class="n">TEN_MILLION_YEARS</span>
+
+    <span class="c1">#: Alias for :attr:`Time.Precision.MILLION_YEARS`.</span>
+    <span class="n">MILLION_YEARS</span> <span class="o">=</span> <span class="n">Precision</span><span class="o">.</span><span class="n">MILLION_YEARS</span>
+
+    <span class="c1">#: Alias for :attr:`Time.Precision.HUNDRED_THOUSAND_YEARS`.</span>
+    <span class="n">HUNDRED_THOUSAND_YEARS</span> <span class="o">=</span> <span class="n">Precision</span><span class="o">.</span><span class="n">HUNDRED_THOUSAND_YEARS</span>
+
+    <span class="c1">#: Alias for :attr:`Time.Precision.TEN_THOUSAND_YEARS`.</span>
+    <span class="n">TEN_THOUSAND_YEARS</span> <span class="o">=</span> <span class="n">Precision</span><span class="o">.</span><span class="n">TEN_THOUSAND_YEARS</span>
+
+    <span class="c1">#: Alias for :attr:`Time.Precision.MILLENIA`.</span>
+    <span class="n">MILLENIA</span> <span class="o">=</span> <span class="n">Precision</span><span class="o">.</span><span class="n">MILLENIA</span>
+
+    <span class="c1">#: Alias for :attr:`Time.Precision.CENTURY`.</span>
+    <span class="n">CENTURY</span> <span class="o">=</span> <span class="n">Precision</span><span class="o">.</span><span class="n">CENTURY</span>
+
+    <span class="c1">#: Alias for :attr:`Time.Precision.DECADE`.</span>
+    <span class="n">DECADE</span> <span class="o">=</span> <span class="n">Precision</span><span class="o">.</span><span class="n">DECADE</span>
+
+    <span class="c1">#: Alias for :attr:`Time.Precision.YEAR`.</span>
+    <span class="n">YEAR</span> <span class="o">=</span> <span class="n">Precision</span><span class="o">.</span><span class="n">YEAR</span>
+
+    <span class="c1">#: Alias for :attr:`Time.Precision.MONTH`.</span>
+    <span class="n">MONTH</span> <span class="o">=</span> <span class="n">Precision</span><span class="o">.</span><span class="n">MONTH</span>
+
+    <span class="c1">#: Alias for :attr:`Time.Precision.DAY`.</span>
+    <span class="n">DAY</span> <span class="o">=</span> <span class="n">Precision</span><span class="o">.</span><span class="n">DAY</span>
+
+    <span class="c1">#: Alias for :attr:`Time.Precision.HOUR`.</span>
+    <span class="n">HOUR</span> <span class="o">=</span> <span class="n">Precision</span><span class="o">.</span><span class="n">HOUR</span>
+
+    <span class="c1">#: Alias for :attr:`Time.Precision.MINUTE`.</span>
+    <span class="n">MINUTE</span> <span class="o">=</span> <span class="n">Precision</span><span class="o">.</span><span class="n">MINUTE</span>
+
+    <span class="c1">#: Alias for :attr:`Time.Precision.SECOND`.</span>
+    <span class="n">SECOND</span> <span class="o">=</span> <span class="n">Precision</span><span class="o">.</span><span class="n">SECOND</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_check_arg_precision</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span>
+            <span class="n">arg</span><span class="p">:</span> <span class="n">TTimePrecision</span><span class="p">,</span>
+            <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TCallable</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Time.Precision&#39;</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">]:</span>
+        <span class="n">arg</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_check_arg_isinstance</span><span class="p">(</span>
+            <span class="n">arg</span><span class="p">,</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">Precision</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">Precision</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_arg_error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;expected </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">Precision</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_check_optional_arg_precision</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span>
+            <span class="n">arg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TTimePrecision</span><span class="p">],</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;Time.Precision&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TCallable</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;Time.Precision&#39;</span><span class="p">],</span> <span class="n">NoReturn</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">arg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">default</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_check_arg_precision</span><span class="p">(</span>
+                <span class="n">arg</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_preprocess_arg_precision</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span>
+            <span class="n">arg</span><span class="p">:</span> <span class="n">TTimePrecision</span><span class="p">,</span>
+            <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TCallable</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Time.Precision&#39;</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_check_arg_precision</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">function</span> <span class="ow">or</span> <span class="bp">cls</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_preprocess_optional_arg_precision</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span>
+            <span class="n">arg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TTimePrecision</span><span class="p">],</span>
+            <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;Time.Precision&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TCallable</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;Time.Precision&#39;</span><span class="p">],</span> <span class="n">NoReturn</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_check_optional_arg_precision</span><span class="p">(</span>
+            <span class="n">arg</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">function</span> <span class="ow">or</span> <span class="bp">cls</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Time.__init__">
+<a class="viewcode-back" href="../../../generated/kif_lib.Time.html#kif_lib.Time.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">arg1</span><span class="p">:</span> <span class="n">TDatetime</span><span class="p">,</span>
+            <span class="n">arg2</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TTimePrecision</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">arg3</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">arg4</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Item</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">,</span> <span class="n">arg3</span><span class="p">,</span> <span class="n">arg4</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_arg_datetime</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_optional_arg_precision</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_optional_arg_int</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preprocess_optional_arg_item</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isoformat</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Datetime</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Time value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_time</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Time.get_time">
+<a class="viewcode-back" href="../../../generated/kif_lib.Time.get_time.html#kif_lib.Time.get_time">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Datetime</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets time value.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Time value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">precision</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Precision</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Time precision.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_precision</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Time.get_precision">
+<a class="viewcode-back" href="../../../generated/kif_lib.Time.get_precision.html#kif_lib.Time.get_precision">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_precision</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;Time.Precision&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Precision</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets time precision.</span>
+
+<span class="sd">        If time precision is ``None``, returns `default`.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           default: Default.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Precision or `default` (time has no precision).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">prec</span> <span class="k">if</span> <span class="n">prec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">default</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">timezone</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Timezone&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_timezone</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Time.get_timezone">
+<a class="viewcode-back" href="../../../generated/kif_lib.Time.get_timezone.html#kif_lib.Time.get_timezone">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_timezone</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets timezone.</span>
+
+<span class="sd">        If timezone is ``None``, returns `default`.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           default: Default.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Timezone or `default` (time has no timezone).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">tz</span> <span class="k">if</span> <span class="n">tz</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">default</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">calendar_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Item</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Time calendar model.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_calendar_model</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Time.get_calendar_model">
+<a class="viewcode-back" href="../../../generated/kif_lib.Time.get_calendar_model.html#kif_lib.Time.get_calendar_model">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_calendar_model</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Item</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Item</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets time calendar model.</span>
+
+<span class="sd">        If time calendar model is ``None``, returns `default`.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           default: Default.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Calendar model or `default` (calendar model).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">cal</span> <span class="k">if</span> <span class="n">cal</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">default</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=bd9e20870c6007c4c509"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=bd9e20870c6007c4c509"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023-2024, IBM Corp.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

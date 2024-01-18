@@ -1,0 +1,25 @@
+﻿kif\_lib.SnakMask
+=================
+
+.. currentmodule:: kif_lib
+
+.. autoclass:: SnakMask
+
+   
+   .. automethod:: __init__
+
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SnakMask.VALUE_SNAK
+      ~SnakMask.SOME_VALUE_SNAK
+      ~SnakMask.NO_VALUE_SNAK
+      ~SnakMask.ALL
+   
+   

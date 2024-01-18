@@ -1,0 +1,6 @@
+﻿kif\_lib.FilterPattern.get\_value
+=================================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: FilterPattern.get_value

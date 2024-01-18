@@ -1,0 +1,6 @@
+﻿kif\_lib.EntityFingerprint.get\_entity
+======================================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: EntityFingerprint.get_entity

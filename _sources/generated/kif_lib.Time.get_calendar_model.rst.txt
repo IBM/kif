@@ -1,0 +1,6 @@
+﻿kif\_lib.Time.get\_calendar\_model
+==================================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: Time.get_calendar_model

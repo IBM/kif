@@ -1,0 +1,6 @@
+﻿kif\_lib.PropertyFingerprint.property
+=====================================
+
+.. currentmodule:: kif_lib
+
+.. autoproperty:: PropertyFingerprint.property

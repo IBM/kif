@@ -1,0 +1,6 @@
+﻿kif\_lib.Deprecated
+===================
+
+.. currentmodule:: kif_lib
+
+.. autodata:: Deprecated

@@ -1,0 +1,6 @@
+﻿kif\_lib.cache.Cache.get\_size
+==============================
+
+.. currentmodule:: kif_lib.cache
+
+.. automethod:: Cache.get_size

@@ -1,0 +1,6 @@
+﻿kif\_lib.ReferenceRecordSet.get\_args\_set
+==========================================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: ReferenceRecordSet.get_args_set

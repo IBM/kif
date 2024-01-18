@@ -1,0 +1,194 @@
+﻿kif\_lib.DeepDataValue
+======================
+
+.. currentmodule:: kif_lib
+
+.. autoclass:: DeepDataValue
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DeepDataValue.__init__
+      ~DeepDataValue.check
+      ~DeepDataValue.check_annotation_record
+      ~DeepDataValue.check_annotation_record_set
+      ~DeepDataValue.check_data_value
+      ~DeepDataValue.check_deep_data_value
+      ~DeepDataValue.check_deprecated_rank
+      ~DeepDataValue.check_descriptor
+      ~DeepDataValue.check_entity
+      ~DeepDataValue.check_entity_fingerprint
+      ~DeepDataValue.check_filter_pattern
+      ~DeepDataValue.check_fingerprint
+      ~DeepDataValue.check_iri
+      ~DeepDataValue.check_item
+      ~DeepDataValue.check_kif_object
+      ~DeepDataValue.check_kif_object_set
+      ~DeepDataValue.check_no_value_snak
+      ~DeepDataValue.check_normal_rank
+      ~DeepDataValue.check_object
+      ~DeepDataValue.check_optional
+      ~DeepDataValue.check_pattern
+      ~DeepDataValue.check_preferred_rank
+      ~DeepDataValue.check_property
+      ~DeepDataValue.check_property_fingerprint
+      ~DeepDataValue.check_quantity
+      ~DeepDataValue.check_rank
+      ~DeepDataValue.check_reference_record
+      ~DeepDataValue.check_reference_record_set
+      ~DeepDataValue.check_snak
+      ~DeepDataValue.check_snak_set
+      ~DeepDataValue.check_some_value_snak
+      ~DeepDataValue.check_statement
+      ~DeepDataValue.check_string
+      ~DeepDataValue.check_text
+      ~DeepDataValue.check_text_set
+      ~DeepDataValue.check_time
+      ~DeepDataValue.check_value
+      ~DeepDataValue.check_value_snak
+      ~DeepDataValue.copy
+      ~DeepDataValue.count
+      ~DeepDataValue.deepcopy
+      ~DeepDataValue.dump
+      ~DeepDataValue.dumps
+      ~DeepDataValue.from_json
+      ~DeepDataValue.from_sexp
+      ~DeepDataValue.from_sparql
+      ~DeepDataValue.get_args
+      ~DeepDataValue.get_digest
+      ~DeepDataValue.get_value
+      ~DeepDataValue.index
+      ~DeepDataValue.is_annotation_record
+      ~DeepDataValue.is_annotation_record_set
+      ~DeepDataValue.is_data_value
+      ~DeepDataValue.is_deep_data_value
+      ~DeepDataValue.is_deprecated_rank
+      ~DeepDataValue.is_descriptor
+      ~DeepDataValue.is_entity
+      ~DeepDataValue.is_entity_fingerprint
+      ~DeepDataValue.is_filter_pattern
+      ~DeepDataValue.is_fingerprint
+      ~DeepDataValue.is_iri
+      ~DeepDataValue.is_item
+      ~DeepDataValue.is_kif_object
+      ~DeepDataValue.is_kif_object_set
+      ~DeepDataValue.is_no_value_snak
+      ~DeepDataValue.is_normal_rank
+      ~DeepDataValue.is_object
+      ~DeepDataValue.is_pattern
+      ~DeepDataValue.is_preferred_rank
+      ~DeepDataValue.is_property
+      ~DeepDataValue.is_property_fingerprint
+      ~DeepDataValue.is_quantity
+      ~DeepDataValue.is_rank
+      ~DeepDataValue.is_reference_record
+      ~DeepDataValue.is_reference_record_set
+      ~DeepDataValue.is_snak
+      ~DeepDataValue.is_snak_set
+      ~DeepDataValue.is_some_value_snak
+      ~DeepDataValue.is_statement
+      ~DeepDataValue.is_string
+      ~DeepDataValue.is_text
+      ~DeepDataValue.is_text_set
+      ~DeepDataValue.is_time
+      ~DeepDataValue.is_value
+      ~DeepDataValue.is_value_snak
+      ~DeepDataValue.load
+      ~DeepDataValue.loads
+      ~DeepDataValue.n3
+      ~DeepDataValue.replace
+      ~DeepDataValue.test
+      ~DeepDataValue.test_annotation_record
+      ~DeepDataValue.test_annotation_record_set
+      ~DeepDataValue.test_data_value
+      ~DeepDataValue.test_deep_data_value
+      ~DeepDataValue.test_deprecated_rank
+      ~DeepDataValue.test_descriptor
+      ~DeepDataValue.test_entity
+      ~DeepDataValue.test_entity_fingerprint
+      ~DeepDataValue.test_filter_pattern
+      ~DeepDataValue.test_fingerprint
+      ~DeepDataValue.test_iri
+      ~DeepDataValue.test_item
+      ~DeepDataValue.test_kif_object
+      ~DeepDataValue.test_kif_object_set
+      ~DeepDataValue.test_no_value_snak
+      ~DeepDataValue.test_normal_rank
+      ~DeepDataValue.test_object
+      ~DeepDataValue.test_pattern
+      ~DeepDataValue.test_preferred_rank
+      ~DeepDataValue.test_property
+      ~DeepDataValue.test_property_fingerprint
+      ~DeepDataValue.test_quantity
+      ~DeepDataValue.test_rank
+      ~DeepDataValue.test_reference_record
+      ~DeepDataValue.test_reference_record_set
+      ~DeepDataValue.test_snak
+      ~DeepDataValue.test_snak_set
+      ~DeepDataValue.test_some_value_snak
+      ~DeepDataValue.test_statement
+      ~DeepDataValue.test_string
+      ~DeepDataValue.test_text
+      ~DeepDataValue.test_text_set
+      ~DeepDataValue.test_time
+      ~DeepDataValue.test_value
+      ~DeepDataValue.test_value_snak
+      ~DeepDataValue.to_json
+      ~DeepDataValue.to_markdown
+      ~DeepDataValue.to_sexp
+      ~DeepDataValue.unpack
+      ~DeepDataValue.unpack_annotation_record
+      ~DeepDataValue.unpack_annotation_record_set
+      ~DeepDataValue.unpack_data_value
+      ~DeepDataValue.unpack_deep_data_value
+      ~DeepDataValue.unpack_deprecated_rank
+      ~DeepDataValue.unpack_descriptor
+      ~DeepDataValue.unpack_entity
+      ~DeepDataValue.unpack_entity_fingerprint
+      ~DeepDataValue.unpack_filter_pattern
+      ~DeepDataValue.unpack_fingerprint
+      ~DeepDataValue.unpack_iri
+      ~DeepDataValue.unpack_item
+      ~DeepDataValue.unpack_kif_object
+      ~DeepDataValue.unpack_kif_object_set
+      ~DeepDataValue.unpack_no_value_snak
+      ~DeepDataValue.unpack_normal_rank
+      ~DeepDataValue.unpack_object
+      ~DeepDataValue.unpack_pattern
+      ~DeepDataValue.unpack_preferred_rank
+      ~DeepDataValue.unpack_property
+      ~DeepDataValue.unpack_property_fingerprint
+      ~DeepDataValue.unpack_quantity
+      ~DeepDataValue.unpack_rank
+      ~DeepDataValue.unpack_reference_record
+      ~DeepDataValue.unpack_reference_record_set
+      ~DeepDataValue.unpack_snak
+      ~DeepDataValue.unpack_snak_set
+      ~DeepDataValue.unpack_some_value_snak
+      ~DeepDataValue.unpack_statement
+      ~DeepDataValue.unpack_string
+      ~DeepDataValue.unpack_text
+      ~DeepDataValue.unpack_text_set
+      ~DeepDataValue.unpack_time
+      ~DeepDataValue.unpack_value
+      ~DeepDataValue.unpack_value_snak
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DeepDataValue.Nil
+      ~DeepDataValue.args
+      ~DeepDataValue.digest
+      ~DeepDataValue.value
+   
+   

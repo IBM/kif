@@ -1,0 +1,6 @@
+﻿kif\_lib.cache.Cache.unset
+==========================
+
+.. currentmodule:: kif_lib.cache
+
+.. automethod:: Cache.unset

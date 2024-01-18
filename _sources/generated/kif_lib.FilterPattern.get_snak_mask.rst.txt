@@ -1,0 +1,6 @@
+﻿kif\_lib.FilterPattern.get\_snak\_mask
+======================================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: FilterPattern.get_snak_mask

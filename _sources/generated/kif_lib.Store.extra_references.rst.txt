@@ -1,0 +1,6 @@
+﻿kif\_lib.Store.extra\_references
+================================
+
+.. currentmodule:: kif_lib
+
+.. autoproperty:: Store.extra_references

@@ -1,0 +1,6 @@
+﻿kif\_lib.Value.value
+====================
+
+.. currentmodule:: kif_lib
+
+.. autoproperty:: Value.value

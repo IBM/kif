@@ -1,0 +1,6 @@
+﻿kif\_lib.Store.set\_extra\_references
+=====================================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: Store.set_extra_references

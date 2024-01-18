@@ -1,0 +1,194 @@
+﻿kif\_lib.DataValue
+==================
+
+.. currentmodule:: kif_lib
+
+.. autoclass:: DataValue
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DataValue.__init__
+      ~DataValue.check
+      ~DataValue.check_annotation_record
+      ~DataValue.check_annotation_record_set
+      ~DataValue.check_data_value
+      ~DataValue.check_deep_data_value
+      ~DataValue.check_deprecated_rank
+      ~DataValue.check_descriptor
+      ~DataValue.check_entity
+      ~DataValue.check_entity_fingerprint
+      ~DataValue.check_filter_pattern
+      ~DataValue.check_fingerprint
+      ~DataValue.check_iri
+      ~DataValue.check_item
+      ~DataValue.check_kif_object
+      ~DataValue.check_kif_object_set
+      ~DataValue.check_no_value_snak
+      ~DataValue.check_normal_rank
+      ~DataValue.check_object
+      ~DataValue.check_optional
+      ~DataValue.check_pattern
+      ~DataValue.check_preferred_rank
+      ~DataValue.check_property
+      ~DataValue.check_property_fingerprint
+      ~DataValue.check_quantity
+      ~DataValue.check_rank
+      ~DataValue.check_reference_record
+      ~DataValue.check_reference_record_set
+      ~DataValue.check_snak
+      ~DataValue.check_snak_set
+      ~DataValue.check_some_value_snak
+      ~DataValue.check_statement
+      ~DataValue.check_string
+      ~DataValue.check_text
+      ~DataValue.check_text_set
+      ~DataValue.check_time
+      ~DataValue.check_value
+      ~DataValue.check_value_snak
+      ~DataValue.copy
+      ~DataValue.count
+      ~DataValue.deepcopy
+      ~DataValue.dump
+      ~DataValue.dumps
+      ~DataValue.from_json
+      ~DataValue.from_sexp
+      ~DataValue.from_sparql
+      ~DataValue.get_args
+      ~DataValue.get_digest
+      ~DataValue.get_value
+      ~DataValue.index
+      ~DataValue.is_annotation_record
+      ~DataValue.is_annotation_record_set
+      ~DataValue.is_data_value
+      ~DataValue.is_deep_data_value
+      ~DataValue.is_deprecated_rank
+      ~DataValue.is_descriptor
+      ~DataValue.is_entity
+      ~DataValue.is_entity_fingerprint
+      ~DataValue.is_filter_pattern
+      ~DataValue.is_fingerprint
+      ~DataValue.is_iri
+      ~DataValue.is_item
+      ~DataValue.is_kif_object
+      ~DataValue.is_kif_object_set
+      ~DataValue.is_no_value_snak
+      ~DataValue.is_normal_rank
+      ~DataValue.is_object
+      ~DataValue.is_pattern
+      ~DataValue.is_preferred_rank
+      ~DataValue.is_property
+      ~DataValue.is_property_fingerprint
+      ~DataValue.is_quantity
+      ~DataValue.is_rank
+      ~DataValue.is_reference_record
+      ~DataValue.is_reference_record_set
+      ~DataValue.is_snak
+      ~DataValue.is_snak_set
+      ~DataValue.is_some_value_snak
+      ~DataValue.is_statement
+      ~DataValue.is_string
+      ~DataValue.is_text
+      ~DataValue.is_text_set
+      ~DataValue.is_time
+      ~DataValue.is_value
+      ~DataValue.is_value_snak
+      ~DataValue.load
+      ~DataValue.loads
+      ~DataValue.n3
+      ~DataValue.replace
+      ~DataValue.test
+      ~DataValue.test_annotation_record
+      ~DataValue.test_annotation_record_set
+      ~DataValue.test_data_value
+      ~DataValue.test_deep_data_value
+      ~DataValue.test_deprecated_rank
+      ~DataValue.test_descriptor
+      ~DataValue.test_entity
+      ~DataValue.test_entity_fingerprint
+      ~DataValue.test_filter_pattern
+      ~DataValue.test_fingerprint
+      ~DataValue.test_iri
+      ~DataValue.test_item
+      ~DataValue.test_kif_object
+      ~DataValue.test_kif_object_set
+      ~DataValue.test_no_value_snak
+      ~DataValue.test_normal_rank
+      ~DataValue.test_object
+      ~DataValue.test_pattern
+      ~DataValue.test_preferred_rank
+      ~DataValue.test_property
+      ~DataValue.test_property_fingerprint
+      ~DataValue.test_quantity
+      ~DataValue.test_rank
+      ~DataValue.test_reference_record
+      ~DataValue.test_reference_record_set
+      ~DataValue.test_snak
+      ~DataValue.test_snak_set
+      ~DataValue.test_some_value_snak
+      ~DataValue.test_statement
+      ~DataValue.test_string
+      ~DataValue.test_text
+      ~DataValue.test_text_set
+      ~DataValue.test_time
+      ~DataValue.test_value
+      ~DataValue.test_value_snak
+      ~DataValue.to_json
+      ~DataValue.to_markdown
+      ~DataValue.to_sexp
+      ~DataValue.unpack
+      ~DataValue.unpack_annotation_record
+      ~DataValue.unpack_annotation_record_set
+      ~DataValue.unpack_data_value
+      ~DataValue.unpack_deep_data_value
+      ~DataValue.unpack_deprecated_rank
+      ~DataValue.unpack_descriptor
+      ~DataValue.unpack_entity
+      ~DataValue.unpack_entity_fingerprint
+      ~DataValue.unpack_filter_pattern
+      ~DataValue.unpack_fingerprint
+      ~DataValue.unpack_iri
+      ~DataValue.unpack_item
+      ~DataValue.unpack_kif_object
+      ~DataValue.unpack_kif_object_set
+      ~DataValue.unpack_no_value_snak
+      ~DataValue.unpack_normal_rank
+      ~DataValue.unpack_object
+      ~DataValue.unpack_pattern
+      ~DataValue.unpack_preferred_rank
+      ~DataValue.unpack_property
+      ~DataValue.unpack_property_fingerprint
+      ~DataValue.unpack_quantity
+      ~DataValue.unpack_rank
+      ~DataValue.unpack_reference_record
+      ~DataValue.unpack_reference_record_set
+      ~DataValue.unpack_snak
+      ~DataValue.unpack_snak_set
+      ~DataValue.unpack_some_value_snak
+      ~DataValue.unpack_statement
+      ~DataValue.unpack_string
+      ~DataValue.unpack_text
+      ~DataValue.unpack_text_set
+      ~DataValue.unpack_time
+      ~DataValue.unpack_value
+      ~DataValue.unpack_value_snak
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DataValue.Nil
+      ~DataValue.args
+      ~DataValue.digest
+      ~DataValue.value
+   
+   

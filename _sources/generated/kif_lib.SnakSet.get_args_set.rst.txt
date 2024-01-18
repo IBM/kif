@@ -1,0 +1,6 @@
+﻿kif\_lib.SnakSet.get\_args\_set
+===============================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: SnakSet.get_args_set

@@ -1,0 +1,91 @@
+﻿kif\_lib.Store
+==============
+
+.. currentmodule:: kif_lib
+
+.. autoclass:: Store
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Store.__init__
+      ~Store.contains
+      ~Store.count
+      ~Store.count_snak
+      ~Store.filter
+      ~Store.filter_annotated
+      ~Store.filter_snak
+      ~Store.filter_snak_annotated
+      ~Store.get_annotations
+      ~Store.get_descriptor
+      ~Store.get_extra_references
+      ~Store.get_flags
+      ~Store.get_namespaces
+      ~Store.get_page_size
+      ~Store.get_timeout
+      ~Store.has_flags
+      ~Store.isdisjoint
+      ~Store.set_extra_references
+      ~Store.set_flags
+      ~Store.set_page_size
+      ~Store.set_timeout
+      ~Store.unset_flags
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Store.ALL
+      ~Store.BEST_RANK
+      ~Store.CACHE
+      ~Store.DEFAULT
+      ~Store.EARLY_FILTER
+      ~Store.LATE_FILTER
+      ~Store.NO_VALUE_SNAK
+      ~Store.SOME_VALUE_SNAK
+      ~Store.VALUE_SNAK
+      ~Store.extra_references
+      ~Store.flags
+      ~Store.namespaces
+      ~Store.owl
+      ~Store.p
+      ~Store.page_size
+      ~Store.pq
+      ~Store.pqn
+      ~Store.pqv
+      ~Store.pr
+      ~Store.prn
+      ~Store.prov
+      ~Store.prv
+      ~Store.ps
+      ~Store.psn
+      ~Store.psv
+      ~Store.rdf
+      ~Store.rdfs
+      ~Store.registry
+      ~Store.schema
+      ~Store.skos
+      ~Store.timeout
+      ~Store.wd
+      ~Store.wdata
+      ~Store.wdgenid
+      ~Store.wdno
+      ~Store.wdref
+      ~Store.wds
+      ~Store.wdt
+      ~Store.wdv
+      ~Store.wikibase
+      ~Store.xsd
+      ~Store.store_type
+      ~Store.store_description
+   
+   

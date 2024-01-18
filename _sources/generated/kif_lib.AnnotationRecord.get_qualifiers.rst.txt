@@ -1,0 +1,6 @@
+﻿kif\_lib.AnnotationRecord.get\_qualifiers
+=========================================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: AnnotationRecord.get_qualifiers

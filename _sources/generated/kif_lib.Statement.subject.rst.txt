@@ -1,0 +1,6 @@
+﻿kif\_lib.Statement.subject
+==========================
+
+.. currentmodule:: kif_lib
+
+.. autoproperty:: Statement.subject

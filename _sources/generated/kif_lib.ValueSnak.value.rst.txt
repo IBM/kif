@@ -1,0 +1,6 @@
+﻿kif\_lib.ValueSnak.value
+========================
+
+.. currentmodule:: kif_lib
+
+.. autoproperty:: ValueSnak.value

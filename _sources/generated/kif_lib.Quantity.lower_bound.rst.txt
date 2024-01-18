@@ -1,0 +1,6 @@
+﻿kif\_lib.Quantity.lower\_bound
+==============================
+
+.. currentmodule:: kif_lib
+
+.. autoproperty:: Quantity.lower_bound

@@ -1,0 +1,6 @@
+﻿kif\_lib.AnnotationRecord.references
+====================================
+
+.. currentmodule:: kif_lib
+
+.. autoproperty:: AnnotationRecord.references

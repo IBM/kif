@@ -1,0 +1,6 @@
+﻿kif\_lib.PropertyFingerprint.get\_property
+==========================================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: PropertyFingerprint.get_property

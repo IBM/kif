@@ -1,0 +1,6 @@
+﻿kif\_lib.Store.namespaces
+=========================
+
+.. currentmodule:: kif_lib
+
+.. autoproperty:: Store.namespaces

@@ -1,0 +1,6 @@
+﻿kif\_lib.FilterPattern.combine
+==============================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: FilterPattern.combine

@@ -1,0 +1,194 @@
+﻿kif\_lib.IRI
+============
+
+.. currentmodule:: kif_lib
+
+.. autoclass:: IRI
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~IRI.__init__
+      ~IRI.check
+      ~IRI.check_annotation_record
+      ~IRI.check_annotation_record_set
+      ~IRI.check_data_value
+      ~IRI.check_deep_data_value
+      ~IRI.check_deprecated_rank
+      ~IRI.check_descriptor
+      ~IRI.check_entity
+      ~IRI.check_entity_fingerprint
+      ~IRI.check_filter_pattern
+      ~IRI.check_fingerprint
+      ~IRI.check_iri
+      ~IRI.check_item
+      ~IRI.check_kif_object
+      ~IRI.check_kif_object_set
+      ~IRI.check_no_value_snak
+      ~IRI.check_normal_rank
+      ~IRI.check_object
+      ~IRI.check_optional
+      ~IRI.check_pattern
+      ~IRI.check_preferred_rank
+      ~IRI.check_property
+      ~IRI.check_property_fingerprint
+      ~IRI.check_quantity
+      ~IRI.check_rank
+      ~IRI.check_reference_record
+      ~IRI.check_reference_record_set
+      ~IRI.check_snak
+      ~IRI.check_snak_set
+      ~IRI.check_some_value_snak
+      ~IRI.check_statement
+      ~IRI.check_string
+      ~IRI.check_text
+      ~IRI.check_text_set
+      ~IRI.check_time
+      ~IRI.check_value
+      ~IRI.check_value_snak
+      ~IRI.copy
+      ~IRI.count
+      ~IRI.deepcopy
+      ~IRI.dump
+      ~IRI.dumps
+      ~IRI.from_json
+      ~IRI.from_sexp
+      ~IRI.from_sparql
+      ~IRI.get_args
+      ~IRI.get_digest
+      ~IRI.get_value
+      ~IRI.index
+      ~IRI.is_annotation_record
+      ~IRI.is_annotation_record_set
+      ~IRI.is_data_value
+      ~IRI.is_deep_data_value
+      ~IRI.is_deprecated_rank
+      ~IRI.is_descriptor
+      ~IRI.is_entity
+      ~IRI.is_entity_fingerprint
+      ~IRI.is_filter_pattern
+      ~IRI.is_fingerprint
+      ~IRI.is_iri
+      ~IRI.is_item
+      ~IRI.is_kif_object
+      ~IRI.is_kif_object_set
+      ~IRI.is_no_value_snak
+      ~IRI.is_normal_rank
+      ~IRI.is_object
+      ~IRI.is_pattern
+      ~IRI.is_preferred_rank
+      ~IRI.is_property
+      ~IRI.is_property_fingerprint
+      ~IRI.is_quantity
+      ~IRI.is_rank
+      ~IRI.is_reference_record
+      ~IRI.is_reference_record_set
+      ~IRI.is_snak
+      ~IRI.is_snak_set
+      ~IRI.is_some_value_snak
+      ~IRI.is_statement
+      ~IRI.is_string
+      ~IRI.is_text
+      ~IRI.is_text_set
+      ~IRI.is_time
+      ~IRI.is_value
+      ~IRI.is_value_snak
+      ~IRI.load
+      ~IRI.loads
+      ~IRI.n3
+      ~IRI.replace
+      ~IRI.test
+      ~IRI.test_annotation_record
+      ~IRI.test_annotation_record_set
+      ~IRI.test_data_value
+      ~IRI.test_deep_data_value
+      ~IRI.test_deprecated_rank
+      ~IRI.test_descriptor
+      ~IRI.test_entity
+      ~IRI.test_entity_fingerprint
+      ~IRI.test_filter_pattern
+      ~IRI.test_fingerprint
+      ~IRI.test_iri
+      ~IRI.test_item
+      ~IRI.test_kif_object
+      ~IRI.test_kif_object_set
+      ~IRI.test_no_value_snak
+      ~IRI.test_normal_rank
+      ~IRI.test_object
+      ~IRI.test_pattern
+      ~IRI.test_preferred_rank
+      ~IRI.test_property
+      ~IRI.test_property_fingerprint
+      ~IRI.test_quantity
+      ~IRI.test_rank
+      ~IRI.test_reference_record
+      ~IRI.test_reference_record_set
+      ~IRI.test_snak
+      ~IRI.test_snak_set
+      ~IRI.test_some_value_snak
+      ~IRI.test_statement
+      ~IRI.test_string
+      ~IRI.test_text
+      ~IRI.test_text_set
+      ~IRI.test_time
+      ~IRI.test_value
+      ~IRI.test_value_snak
+      ~IRI.to_json
+      ~IRI.to_markdown
+      ~IRI.to_sexp
+      ~IRI.unpack
+      ~IRI.unpack_annotation_record
+      ~IRI.unpack_annotation_record_set
+      ~IRI.unpack_data_value
+      ~IRI.unpack_deep_data_value
+      ~IRI.unpack_deprecated_rank
+      ~IRI.unpack_descriptor
+      ~IRI.unpack_entity
+      ~IRI.unpack_entity_fingerprint
+      ~IRI.unpack_filter_pattern
+      ~IRI.unpack_fingerprint
+      ~IRI.unpack_iri
+      ~IRI.unpack_item
+      ~IRI.unpack_kif_object
+      ~IRI.unpack_kif_object_set
+      ~IRI.unpack_no_value_snak
+      ~IRI.unpack_normal_rank
+      ~IRI.unpack_object
+      ~IRI.unpack_pattern
+      ~IRI.unpack_preferred_rank
+      ~IRI.unpack_property
+      ~IRI.unpack_property_fingerprint
+      ~IRI.unpack_quantity
+      ~IRI.unpack_rank
+      ~IRI.unpack_reference_record
+      ~IRI.unpack_reference_record_set
+      ~IRI.unpack_snak
+      ~IRI.unpack_snak_set
+      ~IRI.unpack_some_value_snak
+      ~IRI.unpack_statement
+      ~IRI.unpack_string
+      ~IRI.unpack_text
+      ~IRI.unpack_text_set
+      ~IRI.unpack_time
+      ~IRI.unpack_value
+      ~IRI.unpack_value_snak
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~IRI.Nil
+      ~IRI.args
+      ~IRI.digest
+      ~IRI.value
+   
+   

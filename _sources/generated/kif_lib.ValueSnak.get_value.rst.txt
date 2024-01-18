@@ -1,0 +1,6 @@
+﻿kif\_lib.ValueSnak.get\_value
+=============================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: ValueSnak.get_value

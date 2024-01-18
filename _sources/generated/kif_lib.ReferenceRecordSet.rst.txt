@@ -1,0 +1,194 @@
+﻿kif\_lib.ReferenceRecordSet
+===========================
+
+.. currentmodule:: kif_lib
+
+.. autoclass:: ReferenceRecordSet
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ReferenceRecordSet.__init__
+      ~ReferenceRecordSet.check
+      ~ReferenceRecordSet.check_annotation_record
+      ~ReferenceRecordSet.check_annotation_record_set
+      ~ReferenceRecordSet.check_data_value
+      ~ReferenceRecordSet.check_deep_data_value
+      ~ReferenceRecordSet.check_deprecated_rank
+      ~ReferenceRecordSet.check_descriptor
+      ~ReferenceRecordSet.check_entity
+      ~ReferenceRecordSet.check_entity_fingerprint
+      ~ReferenceRecordSet.check_filter_pattern
+      ~ReferenceRecordSet.check_fingerprint
+      ~ReferenceRecordSet.check_iri
+      ~ReferenceRecordSet.check_item
+      ~ReferenceRecordSet.check_kif_object
+      ~ReferenceRecordSet.check_kif_object_set
+      ~ReferenceRecordSet.check_no_value_snak
+      ~ReferenceRecordSet.check_normal_rank
+      ~ReferenceRecordSet.check_object
+      ~ReferenceRecordSet.check_optional
+      ~ReferenceRecordSet.check_pattern
+      ~ReferenceRecordSet.check_preferred_rank
+      ~ReferenceRecordSet.check_property
+      ~ReferenceRecordSet.check_property_fingerprint
+      ~ReferenceRecordSet.check_quantity
+      ~ReferenceRecordSet.check_rank
+      ~ReferenceRecordSet.check_reference_record
+      ~ReferenceRecordSet.check_reference_record_set
+      ~ReferenceRecordSet.check_snak
+      ~ReferenceRecordSet.check_snak_set
+      ~ReferenceRecordSet.check_some_value_snak
+      ~ReferenceRecordSet.check_statement
+      ~ReferenceRecordSet.check_string
+      ~ReferenceRecordSet.check_text
+      ~ReferenceRecordSet.check_text_set
+      ~ReferenceRecordSet.check_time
+      ~ReferenceRecordSet.check_value
+      ~ReferenceRecordSet.check_value_snak
+      ~ReferenceRecordSet.copy
+      ~ReferenceRecordSet.count
+      ~ReferenceRecordSet.deepcopy
+      ~ReferenceRecordSet.dump
+      ~ReferenceRecordSet.dumps
+      ~ReferenceRecordSet.from_json
+      ~ReferenceRecordSet.from_sexp
+      ~ReferenceRecordSet.from_sparql
+      ~ReferenceRecordSet.get_args
+      ~ReferenceRecordSet.get_args_set
+      ~ReferenceRecordSet.get_digest
+      ~ReferenceRecordSet.index
+      ~ReferenceRecordSet.is_annotation_record
+      ~ReferenceRecordSet.is_annotation_record_set
+      ~ReferenceRecordSet.is_data_value
+      ~ReferenceRecordSet.is_deep_data_value
+      ~ReferenceRecordSet.is_deprecated_rank
+      ~ReferenceRecordSet.is_descriptor
+      ~ReferenceRecordSet.is_entity
+      ~ReferenceRecordSet.is_entity_fingerprint
+      ~ReferenceRecordSet.is_filter_pattern
+      ~ReferenceRecordSet.is_fingerprint
+      ~ReferenceRecordSet.is_iri
+      ~ReferenceRecordSet.is_item
+      ~ReferenceRecordSet.is_kif_object
+      ~ReferenceRecordSet.is_kif_object_set
+      ~ReferenceRecordSet.is_no_value_snak
+      ~ReferenceRecordSet.is_normal_rank
+      ~ReferenceRecordSet.is_object
+      ~ReferenceRecordSet.is_pattern
+      ~ReferenceRecordSet.is_preferred_rank
+      ~ReferenceRecordSet.is_property
+      ~ReferenceRecordSet.is_property_fingerprint
+      ~ReferenceRecordSet.is_quantity
+      ~ReferenceRecordSet.is_rank
+      ~ReferenceRecordSet.is_reference_record
+      ~ReferenceRecordSet.is_reference_record_set
+      ~ReferenceRecordSet.is_snak
+      ~ReferenceRecordSet.is_snak_set
+      ~ReferenceRecordSet.is_some_value_snak
+      ~ReferenceRecordSet.is_statement
+      ~ReferenceRecordSet.is_string
+      ~ReferenceRecordSet.is_text
+      ~ReferenceRecordSet.is_text_set
+      ~ReferenceRecordSet.is_time
+      ~ReferenceRecordSet.is_value
+      ~ReferenceRecordSet.is_value_snak
+      ~ReferenceRecordSet.load
+      ~ReferenceRecordSet.loads
+      ~ReferenceRecordSet.replace
+      ~ReferenceRecordSet.test
+      ~ReferenceRecordSet.test_annotation_record
+      ~ReferenceRecordSet.test_annotation_record_set
+      ~ReferenceRecordSet.test_data_value
+      ~ReferenceRecordSet.test_deep_data_value
+      ~ReferenceRecordSet.test_deprecated_rank
+      ~ReferenceRecordSet.test_descriptor
+      ~ReferenceRecordSet.test_entity
+      ~ReferenceRecordSet.test_entity_fingerprint
+      ~ReferenceRecordSet.test_filter_pattern
+      ~ReferenceRecordSet.test_fingerprint
+      ~ReferenceRecordSet.test_iri
+      ~ReferenceRecordSet.test_item
+      ~ReferenceRecordSet.test_kif_object
+      ~ReferenceRecordSet.test_kif_object_set
+      ~ReferenceRecordSet.test_no_value_snak
+      ~ReferenceRecordSet.test_normal_rank
+      ~ReferenceRecordSet.test_object
+      ~ReferenceRecordSet.test_pattern
+      ~ReferenceRecordSet.test_preferred_rank
+      ~ReferenceRecordSet.test_property
+      ~ReferenceRecordSet.test_property_fingerprint
+      ~ReferenceRecordSet.test_quantity
+      ~ReferenceRecordSet.test_rank
+      ~ReferenceRecordSet.test_reference_record
+      ~ReferenceRecordSet.test_reference_record_set
+      ~ReferenceRecordSet.test_snak
+      ~ReferenceRecordSet.test_snak_set
+      ~ReferenceRecordSet.test_some_value_snak
+      ~ReferenceRecordSet.test_statement
+      ~ReferenceRecordSet.test_string
+      ~ReferenceRecordSet.test_text
+      ~ReferenceRecordSet.test_text_set
+      ~ReferenceRecordSet.test_time
+      ~ReferenceRecordSet.test_value
+      ~ReferenceRecordSet.test_value_snak
+      ~ReferenceRecordSet.to_json
+      ~ReferenceRecordSet.to_markdown
+      ~ReferenceRecordSet.to_sexp
+      ~ReferenceRecordSet.union
+      ~ReferenceRecordSet.unpack
+      ~ReferenceRecordSet.unpack_annotation_record
+      ~ReferenceRecordSet.unpack_annotation_record_set
+      ~ReferenceRecordSet.unpack_data_value
+      ~ReferenceRecordSet.unpack_deep_data_value
+      ~ReferenceRecordSet.unpack_deprecated_rank
+      ~ReferenceRecordSet.unpack_descriptor
+      ~ReferenceRecordSet.unpack_entity
+      ~ReferenceRecordSet.unpack_entity_fingerprint
+      ~ReferenceRecordSet.unpack_filter_pattern
+      ~ReferenceRecordSet.unpack_fingerprint
+      ~ReferenceRecordSet.unpack_iri
+      ~ReferenceRecordSet.unpack_item
+      ~ReferenceRecordSet.unpack_kif_object
+      ~ReferenceRecordSet.unpack_kif_object_set
+      ~ReferenceRecordSet.unpack_no_value_snak
+      ~ReferenceRecordSet.unpack_normal_rank
+      ~ReferenceRecordSet.unpack_object
+      ~ReferenceRecordSet.unpack_pattern
+      ~ReferenceRecordSet.unpack_preferred_rank
+      ~ReferenceRecordSet.unpack_property
+      ~ReferenceRecordSet.unpack_property_fingerprint
+      ~ReferenceRecordSet.unpack_quantity
+      ~ReferenceRecordSet.unpack_rank
+      ~ReferenceRecordSet.unpack_reference_record
+      ~ReferenceRecordSet.unpack_reference_record_set
+      ~ReferenceRecordSet.unpack_snak
+      ~ReferenceRecordSet.unpack_snak_set
+      ~ReferenceRecordSet.unpack_some_value_snak
+      ~ReferenceRecordSet.unpack_statement
+      ~ReferenceRecordSet.unpack_string
+      ~ReferenceRecordSet.unpack_text
+      ~ReferenceRecordSet.unpack_text_set
+      ~ReferenceRecordSet.unpack_time
+      ~ReferenceRecordSet.unpack_value
+      ~ReferenceRecordSet.unpack_value_snak
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ReferenceRecordSet.Nil
+      ~ReferenceRecordSet.args
+      ~ReferenceRecordSet.args_set
+      ~ReferenceRecordSet.digest
+   
+   

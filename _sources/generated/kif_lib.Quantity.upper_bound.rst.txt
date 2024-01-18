@@ -1,0 +1,6 @@
+﻿kif\_lib.Quantity.upper\_bound
+==============================
+
+.. currentmodule:: kif_lib
+
+.. autoproperty:: Quantity.upper_bound

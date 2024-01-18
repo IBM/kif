@@ -1,0 +1,6 @@
+﻿kif\_lib.Preferred
+==================
+
+.. currentmodule:: kif_lib
+
+.. autodata:: Preferred

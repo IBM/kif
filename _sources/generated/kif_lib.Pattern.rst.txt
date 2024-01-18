@@ -1,0 +1,191 @@
+﻿kif\_lib.Pattern
+================
+
+.. currentmodule:: kif_lib
+
+.. autoclass:: Pattern
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Pattern.__init__
+      ~Pattern.check
+      ~Pattern.check_annotation_record
+      ~Pattern.check_annotation_record_set
+      ~Pattern.check_data_value
+      ~Pattern.check_deep_data_value
+      ~Pattern.check_deprecated_rank
+      ~Pattern.check_descriptor
+      ~Pattern.check_entity
+      ~Pattern.check_entity_fingerprint
+      ~Pattern.check_filter_pattern
+      ~Pattern.check_fingerprint
+      ~Pattern.check_iri
+      ~Pattern.check_item
+      ~Pattern.check_kif_object
+      ~Pattern.check_kif_object_set
+      ~Pattern.check_no_value_snak
+      ~Pattern.check_normal_rank
+      ~Pattern.check_object
+      ~Pattern.check_optional
+      ~Pattern.check_pattern
+      ~Pattern.check_preferred_rank
+      ~Pattern.check_property
+      ~Pattern.check_property_fingerprint
+      ~Pattern.check_quantity
+      ~Pattern.check_rank
+      ~Pattern.check_reference_record
+      ~Pattern.check_reference_record_set
+      ~Pattern.check_snak
+      ~Pattern.check_snak_set
+      ~Pattern.check_some_value_snak
+      ~Pattern.check_statement
+      ~Pattern.check_string
+      ~Pattern.check_text
+      ~Pattern.check_text_set
+      ~Pattern.check_time
+      ~Pattern.check_value
+      ~Pattern.check_value_snak
+      ~Pattern.copy
+      ~Pattern.count
+      ~Pattern.deepcopy
+      ~Pattern.dump
+      ~Pattern.dumps
+      ~Pattern.from_json
+      ~Pattern.from_sexp
+      ~Pattern.from_sparql
+      ~Pattern.get_args
+      ~Pattern.get_digest
+      ~Pattern.index
+      ~Pattern.is_annotation_record
+      ~Pattern.is_annotation_record_set
+      ~Pattern.is_data_value
+      ~Pattern.is_deep_data_value
+      ~Pattern.is_deprecated_rank
+      ~Pattern.is_descriptor
+      ~Pattern.is_entity
+      ~Pattern.is_entity_fingerprint
+      ~Pattern.is_filter_pattern
+      ~Pattern.is_fingerprint
+      ~Pattern.is_iri
+      ~Pattern.is_item
+      ~Pattern.is_kif_object
+      ~Pattern.is_kif_object_set
+      ~Pattern.is_no_value_snak
+      ~Pattern.is_normal_rank
+      ~Pattern.is_object
+      ~Pattern.is_pattern
+      ~Pattern.is_preferred_rank
+      ~Pattern.is_property
+      ~Pattern.is_property_fingerprint
+      ~Pattern.is_quantity
+      ~Pattern.is_rank
+      ~Pattern.is_reference_record
+      ~Pattern.is_reference_record_set
+      ~Pattern.is_snak
+      ~Pattern.is_snak_set
+      ~Pattern.is_some_value_snak
+      ~Pattern.is_statement
+      ~Pattern.is_string
+      ~Pattern.is_text
+      ~Pattern.is_text_set
+      ~Pattern.is_time
+      ~Pattern.is_value
+      ~Pattern.is_value_snak
+      ~Pattern.load
+      ~Pattern.loads
+      ~Pattern.replace
+      ~Pattern.test
+      ~Pattern.test_annotation_record
+      ~Pattern.test_annotation_record_set
+      ~Pattern.test_data_value
+      ~Pattern.test_deep_data_value
+      ~Pattern.test_deprecated_rank
+      ~Pattern.test_descriptor
+      ~Pattern.test_entity
+      ~Pattern.test_entity_fingerprint
+      ~Pattern.test_filter_pattern
+      ~Pattern.test_fingerprint
+      ~Pattern.test_iri
+      ~Pattern.test_item
+      ~Pattern.test_kif_object
+      ~Pattern.test_kif_object_set
+      ~Pattern.test_no_value_snak
+      ~Pattern.test_normal_rank
+      ~Pattern.test_object
+      ~Pattern.test_pattern
+      ~Pattern.test_preferred_rank
+      ~Pattern.test_property
+      ~Pattern.test_property_fingerprint
+      ~Pattern.test_quantity
+      ~Pattern.test_rank
+      ~Pattern.test_reference_record
+      ~Pattern.test_reference_record_set
+      ~Pattern.test_snak
+      ~Pattern.test_snak_set
+      ~Pattern.test_some_value_snak
+      ~Pattern.test_statement
+      ~Pattern.test_string
+      ~Pattern.test_text
+      ~Pattern.test_text_set
+      ~Pattern.test_time
+      ~Pattern.test_value
+      ~Pattern.test_value_snak
+      ~Pattern.to_json
+      ~Pattern.to_markdown
+      ~Pattern.to_sexp
+      ~Pattern.unpack
+      ~Pattern.unpack_annotation_record
+      ~Pattern.unpack_annotation_record_set
+      ~Pattern.unpack_data_value
+      ~Pattern.unpack_deep_data_value
+      ~Pattern.unpack_deprecated_rank
+      ~Pattern.unpack_descriptor
+      ~Pattern.unpack_entity
+      ~Pattern.unpack_entity_fingerprint
+      ~Pattern.unpack_filter_pattern
+      ~Pattern.unpack_fingerprint
+      ~Pattern.unpack_iri
+      ~Pattern.unpack_item
+      ~Pattern.unpack_kif_object
+      ~Pattern.unpack_kif_object_set
+      ~Pattern.unpack_no_value_snak
+      ~Pattern.unpack_normal_rank
+      ~Pattern.unpack_object
+      ~Pattern.unpack_pattern
+      ~Pattern.unpack_preferred_rank
+      ~Pattern.unpack_property
+      ~Pattern.unpack_property_fingerprint
+      ~Pattern.unpack_quantity
+      ~Pattern.unpack_rank
+      ~Pattern.unpack_reference_record
+      ~Pattern.unpack_reference_record_set
+      ~Pattern.unpack_snak
+      ~Pattern.unpack_snak_set
+      ~Pattern.unpack_some_value_snak
+      ~Pattern.unpack_statement
+      ~Pattern.unpack_string
+      ~Pattern.unpack_text
+      ~Pattern.unpack_text_set
+      ~Pattern.unpack_time
+      ~Pattern.unpack_value
+      ~Pattern.unpack_value_snak
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Pattern.Nil
+      ~Pattern.args
+      ~Pattern.digest
+   
+   

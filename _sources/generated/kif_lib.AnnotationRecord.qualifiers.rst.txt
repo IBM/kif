@@ -1,0 +1,6 @@
+﻿kif\_lib.AnnotationRecord.qualifiers
+====================================
+
+.. currentmodule:: kif_lib
+
+.. autoproperty:: AnnotationRecord.qualifiers

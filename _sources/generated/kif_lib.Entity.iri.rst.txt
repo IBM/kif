@@ -1,0 +1,6 @@
+﻿kif\_lib.Entity.iri
+===================
+
+.. currentmodule:: kif_lib
+
+.. autoproperty:: Entity.iri

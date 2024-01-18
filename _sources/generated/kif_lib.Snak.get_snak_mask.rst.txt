@@ -1,0 +1,6 @@
+﻿kif\_lib.Snak.get\_snak\_mask
+=============================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: Snak.get_snak_mask

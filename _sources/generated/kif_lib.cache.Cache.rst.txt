@@ -1,0 +1,39 @@
+﻿kif\_lib.cache.Cache
+====================
+
+.. currentmodule:: kif_lib.cache
+
+.. autoclass:: Cache
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Cache.__init__
+      ~Cache.clear
+      ~Cache.disable
+      ~Cache.enable
+      ~Cache.get
+      ~Cache.get_size
+      ~Cache.is_disabled
+      ~Cache.is_enabled
+      ~Cache.set
+      ~Cache.unset
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Cache.disabled
+      ~Cache.enabled
+      ~Cache.size
+   
+   

@@ -1,0 +1,6 @@
+﻿kif\_lib.SnakMask.SOME\_VALUE\_SNAK
+===================================
+
+.. currentmodule:: kif_lib
+
+.. autoattribute:: SnakMask.SOME_VALUE_SNAK

@@ -1,0 +1,6 @@
+﻿kif\_lib.Properties
+===================
+
+.. currentmodule:: kif_lib
+
+.. autofunction:: Properties

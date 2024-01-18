@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>KIF &#8212; kif-lib  documentation</title>
+    <title>Internal &#8212; kif-lib  documentation</title>
   
   
   
@@ -39,10 +39,11 @@
     <script src="_static/documentation_options.js?v=5929fcd5"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'internal';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Model" href="model.html" />
+    <link rel="next" title="kif_lib.cache.Cache" href="generated/kif_lib.cache.Cache.html" />
+    <link rel="prev" title="kif_lib.StoreError" href="generated/kif_lib.StoreError.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -111,7 +112,7 @@
 
   
 
-<a class="navbar-brand logo" href="#">
+<a class="navbar-brand logo" href="index.html">
   
   
   
@@ -146,8 +147,8 @@
                     </li>
                 
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="internal.html">
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
                         Internal
                       </a>
                     </li>
@@ -222,9 +223,7 @@ document.write(`
       
       
       
-        
-      
-      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+      <div class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -251,8 +250,8 @@ document.write(`
                     </li>
                 
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="internal.html">
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
                         Internal
                       </a>
                     </li>
@@ -282,6 +281,30 @@ document.write(`
     
   </div>
   
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="generated/kif_lib.cache.Cache.html">kif_lib.cache.Cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/kif_lib.cache.Cache.enable.html">kif_lib.cache.Cache.enable</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/kif_lib.cache.Cache.enabled.html">kif_lib.cache.Cache.enabled</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/kif_lib.cache.Cache.is_enabled.html">kif_lib.cache.Cache.is_enabled</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/kif_lib.cache.Cache.disable.html">kif_lib.cache.Cache.disable</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/kif_lib.cache.Cache.disabled.html">kif_lib.cache.Cache.disabled</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/kif_lib.cache.Cache.is_disabled.html">kif_lib.cache.Cache.is_disabled</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/kif_lib.cache.Cache.size.html">kif_lib.cache.Cache.size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/kif_lib.cache.Cache.get_size.html">kif_lib.cache.Cache.get_size</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/kif_lib.cache.Cache.clear.html">kif_lib.cache.Cache.clear</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/kif_lib.cache.Cache.get.html">kif_lib.cache.Cache.get</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/kif_lib.cache.Cache.set.html">kif_lib.cache.Cache.set</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generated/kif_lib.cache.Cache.unset.html">kif_lib.cache.Cache.unset</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
   </div>
@@ -297,7 +320,33 @@ document.write(`
           <div class="bd-content">
             <div class="bd-article-container">
               
-              <div class="bd-header-article"></div>
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Internal</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
               
               
               
@@ -305,24 +354,54 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="kif">
-<h1>KIF<a class="headerlink" href="#kif" title="Link to this heading">#</a></h1>
-<div class="toctree-wrapper compound">
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="store.html">Store</a></li>
-<li class="toctree-l1"><a class="reference internal" href="internal.html">Internal</a></li>
-</ul>
-</div>
-<p>KIF is a knowledge integration framework based on Wikidata.</p>
+  <section id="internal">
+<h1>Internal<a class="headerlink" href="#internal" title="Link to this heading">#</a></h1>
+<section id="cache">
+<h2>Cache<a class="headerlink" href="#cache" title="Link to this heading">#</a></h2>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/kif_lib.cache.Cache.html#kif_lib.cache.Cache" title="kif_lib.cache.Cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cache</span></code></a>([enabled])</p></td>
+<td><p>Object cache.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/kif_lib.cache.Cache.enable.html#kif_lib.cache.Cache.enable" title="kif_lib.cache.Cache.enable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cache.enable</span></code></a>()</p></td>
+<td><p>Enables cache.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/kif_lib.cache.Cache.enabled.html#kif_lib.cache.Cache.enabled" title="kif_lib.cache.Cache.enabled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cache.enabled</span></code></a></p></td>
+<td><p>Whether cache is enabled.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/kif_lib.cache.Cache.is_enabled.html#kif_lib.cache.Cache.is_enabled" title="kif_lib.cache.Cache.is_enabled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cache.is_enabled</span></code></a>()</p></td>
+<td><p>Tests whether cache is enabled.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/kif_lib.cache.Cache.disable.html#kif_lib.cache.Cache.disable" title="kif_lib.cache.Cache.disable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cache.disable</span></code></a>()</p></td>
+<td><p>Disables cache.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/kif_lib.cache.Cache.disabled.html#kif_lib.cache.Cache.disabled" title="kif_lib.cache.Cache.disabled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cache.disabled</span></code></a></p></td>
+<td><p>Whether cache is disabled.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/kif_lib.cache.Cache.is_disabled.html#kif_lib.cache.Cache.is_disabled" title="kif_lib.cache.Cache.is_disabled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cache.is_disabled</span></code></a>()</p></td>
+<td><p>Tests whether cache is disabled.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/kif_lib.cache.Cache.size.html#kif_lib.cache.Cache.size" title="kif_lib.cache.Cache.size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cache.size</span></code></a></p></td>
+<td><p>Number of objects in cache.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/kif_lib.cache.Cache.get_size.html#kif_lib.cache.Cache.get_size" title="kif_lib.cache.Cache.get_size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cache.get_size</span></code></a>()</p></td>
+<td><p>Gets the number of objects in cache.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/kif_lib.cache.Cache.clear.html#kif_lib.cache.Cache.clear" title="kif_lib.cache.Cache.clear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cache.clear</span></code></a>()</p></td>
+<td><p>Clears cache.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/kif_lib.cache.Cache.get.html#kif_lib.cache.Cache.get" title="kif_lib.cache.Cache.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cache.get</span></code></a>(obj, key)</p></td>
+<td><p>Gets value attached to object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/kif_lib.cache.Cache.set.html#kif_lib.cache.Cache.set" title="kif_lib.cache.Cache.set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cache.set</span></code></a>(obj, key, value)</p></td>
+<td><p>Attaches value to object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/kif_lib.cache.Cache.unset.html#kif_lib.cache.Cache.unset" title="kif_lib.cache.Cache.unset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cache.unset</span></code></a>(obj[, key])</p></td>
+<td><p>Detaches value from object.</p></td>
+</tr>
+</tbody>
+</table>
 </section>
-<section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">#</a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
-</ul>
 </section>
 
 
@@ -335,12 +414,21 @@ document.write(`
                 <footer class="prev-next-footer">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="generated/kif_lib.StoreError.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">kif_lib.StoreError</p>
+      </div>
+    </a>
     <a class="right-next"
-       href="model.html"
+       href="generated/kif_lib.cache.Cache.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Model</p>
+        <p class="prev-next-title">kif_lib.cache.Cache</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -362,16 +450,14 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">KIF</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#indices-and-tables">Indices and tables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cache">Cache</a></li>
 </ul>
-
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="_sources/index.rst.txt">
+    <a href="_sources/internal.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

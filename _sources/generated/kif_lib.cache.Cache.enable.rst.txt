@@ -1,0 +1,6 @@
+﻿kif\_lib.cache.Cache.enable
+===========================
+
+.. currentmodule:: kif_lib.cache
+
+.. automethod:: Cache.enable

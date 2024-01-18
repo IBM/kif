@@ -1,0 +1,6 @@
+﻿kif\_lib.Store.has\_flags
+=========================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: Store.has_flags

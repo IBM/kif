@@ -1,0 +1,6 @@
+﻿kif\_lib.Store.get\_page\_size
+==============================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: Store.get_page_size

@@ -1,0 +1,6 @@
+﻿kif\_lib.ReferenceRecordSet.union
+=================================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: ReferenceRecordSet.union

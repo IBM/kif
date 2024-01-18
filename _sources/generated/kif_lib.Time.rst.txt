@@ -1,0 +1,217 @@
+﻿kif\_lib.Time
+=============
+
+.. currentmodule:: kif_lib
+
+.. autoclass:: Time
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Time.__init__
+      ~Time.check
+      ~Time.check_annotation_record
+      ~Time.check_annotation_record_set
+      ~Time.check_data_value
+      ~Time.check_deep_data_value
+      ~Time.check_deprecated_rank
+      ~Time.check_descriptor
+      ~Time.check_entity
+      ~Time.check_entity_fingerprint
+      ~Time.check_filter_pattern
+      ~Time.check_fingerprint
+      ~Time.check_iri
+      ~Time.check_item
+      ~Time.check_kif_object
+      ~Time.check_kif_object_set
+      ~Time.check_no_value_snak
+      ~Time.check_normal_rank
+      ~Time.check_object
+      ~Time.check_optional
+      ~Time.check_pattern
+      ~Time.check_preferred_rank
+      ~Time.check_property
+      ~Time.check_property_fingerprint
+      ~Time.check_quantity
+      ~Time.check_rank
+      ~Time.check_reference_record
+      ~Time.check_reference_record_set
+      ~Time.check_snak
+      ~Time.check_snak_set
+      ~Time.check_some_value_snak
+      ~Time.check_statement
+      ~Time.check_string
+      ~Time.check_text
+      ~Time.check_text_set
+      ~Time.check_time
+      ~Time.check_value
+      ~Time.check_value_snak
+      ~Time.copy
+      ~Time.count
+      ~Time.deepcopy
+      ~Time.dump
+      ~Time.dumps
+      ~Time.from_json
+      ~Time.from_sexp
+      ~Time.from_sparql
+      ~Time.get_args
+      ~Time.get_calendar_model
+      ~Time.get_digest
+      ~Time.get_precision
+      ~Time.get_time
+      ~Time.get_timezone
+      ~Time.get_value
+      ~Time.index
+      ~Time.is_annotation_record
+      ~Time.is_annotation_record_set
+      ~Time.is_data_value
+      ~Time.is_deep_data_value
+      ~Time.is_deprecated_rank
+      ~Time.is_descriptor
+      ~Time.is_entity
+      ~Time.is_entity_fingerprint
+      ~Time.is_filter_pattern
+      ~Time.is_fingerprint
+      ~Time.is_iri
+      ~Time.is_item
+      ~Time.is_kif_object
+      ~Time.is_kif_object_set
+      ~Time.is_no_value_snak
+      ~Time.is_normal_rank
+      ~Time.is_object
+      ~Time.is_pattern
+      ~Time.is_preferred_rank
+      ~Time.is_property
+      ~Time.is_property_fingerprint
+      ~Time.is_quantity
+      ~Time.is_rank
+      ~Time.is_reference_record
+      ~Time.is_reference_record_set
+      ~Time.is_snak
+      ~Time.is_snak_set
+      ~Time.is_some_value_snak
+      ~Time.is_statement
+      ~Time.is_string
+      ~Time.is_text
+      ~Time.is_text_set
+      ~Time.is_time
+      ~Time.is_value
+      ~Time.is_value_snak
+      ~Time.load
+      ~Time.loads
+      ~Time.n3
+      ~Time.replace
+      ~Time.test
+      ~Time.test_annotation_record
+      ~Time.test_annotation_record_set
+      ~Time.test_data_value
+      ~Time.test_deep_data_value
+      ~Time.test_deprecated_rank
+      ~Time.test_descriptor
+      ~Time.test_entity
+      ~Time.test_entity_fingerprint
+      ~Time.test_filter_pattern
+      ~Time.test_fingerprint
+      ~Time.test_iri
+      ~Time.test_item
+      ~Time.test_kif_object
+      ~Time.test_kif_object_set
+      ~Time.test_no_value_snak
+      ~Time.test_normal_rank
+      ~Time.test_object
+      ~Time.test_pattern
+      ~Time.test_preferred_rank
+      ~Time.test_property
+      ~Time.test_property_fingerprint
+      ~Time.test_quantity
+      ~Time.test_rank
+      ~Time.test_reference_record
+      ~Time.test_reference_record_set
+      ~Time.test_snak
+      ~Time.test_snak_set
+      ~Time.test_some_value_snak
+      ~Time.test_statement
+      ~Time.test_string
+      ~Time.test_text
+      ~Time.test_text_set
+      ~Time.test_time
+      ~Time.test_value
+      ~Time.test_value_snak
+      ~Time.to_json
+      ~Time.to_markdown
+      ~Time.to_sexp
+      ~Time.unpack
+      ~Time.unpack_annotation_record
+      ~Time.unpack_annotation_record_set
+      ~Time.unpack_data_value
+      ~Time.unpack_deep_data_value
+      ~Time.unpack_deprecated_rank
+      ~Time.unpack_descriptor
+      ~Time.unpack_entity
+      ~Time.unpack_entity_fingerprint
+      ~Time.unpack_filter_pattern
+      ~Time.unpack_fingerprint
+      ~Time.unpack_iri
+      ~Time.unpack_item
+      ~Time.unpack_kif_object
+      ~Time.unpack_kif_object_set
+      ~Time.unpack_no_value_snak
+      ~Time.unpack_normal_rank
+      ~Time.unpack_object
+      ~Time.unpack_pattern
+      ~Time.unpack_preferred_rank
+      ~Time.unpack_property
+      ~Time.unpack_property_fingerprint
+      ~Time.unpack_quantity
+      ~Time.unpack_rank
+      ~Time.unpack_reference_record
+      ~Time.unpack_reference_record_set
+      ~Time.unpack_snak
+      ~Time.unpack_snak_set
+      ~Time.unpack_some_value_snak
+      ~Time.unpack_statement
+      ~Time.unpack_string
+      ~Time.unpack_text
+      ~Time.unpack_text_set
+      ~Time.unpack_time
+      ~Time.unpack_value
+      ~Time.unpack_value_snak
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Time.BILLION_YEARS
+      ~Time.CENTURY
+      ~Time.DAY
+      ~Time.DECADE
+      ~Time.HOUR
+      ~Time.HUNDRED_MILLION_YEARS
+      ~Time.HUNDRED_THOUSAND_YEARS
+      ~Time.MILLENIA
+      ~Time.MILLION_YEARS
+      ~Time.MINUTE
+      ~Time.MONTH
+      ~Time.Nil
+      ~Time.SECOND
+      ~Time.TEN_MILLION_YEARS
+      ~Time.TEN_THOUSAND_YEARS
+      ~Time.YEAR
+      ~Time.args
+      ~Time.calendar_model
+      ~Time.digest
+      ~Time.precision
+      ~Time.time
+      ~Time.timezone
+      ~Time.value
+   
+   

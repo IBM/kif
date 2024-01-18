@@ -1,0 +1,6 @@
+﻿kif\_lib.StoreError
+===================
+
+.. currentmodule:: kif_lib
+
+.. autoexception:: StoreError

@@ -1,0 +1,191 @@
+﻿kif\_lib.KIF\_ObjectSet
+=======================
+
+.. currentmodule:: kif_lib
+
+.. autoclass:: KIF_ObjectSet
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~KIF_ObjectSet.__init__
+      ~KIF_ObjectSet.check
+      ~KIF_ObjectSet.check_annotation_record
+      ~KIF_ObjectSet.check_annotation_record_set
+      ~KIF_ObjectSet.check_data_value
+      ~KIF_ObjectSet.check_deep_data_value
+      ~KIF_ObjectSet.check_deprecated_rank
+      ~KIF_ObjectSet.check_descriptor
+      ~KIF_ObjectSet.check_entity
+      ~KIF_ObjectSet.check_entity_fingerprint
+      ~KIF_ObjectSet.check_filter_pattern
+      ~KIF_ObjectSet.check_fingerprint
+      ~KIF_ObjectSet.check_iri
+      ~KIF_ObjectSet.check_item
+      ~KIF_ObjectSet.check_kif_object
+      ~KIF_ObjectSet.check_kif_object_set
+      ~KIF_ObjectSet.check_no_value_snak
+      ~KIF_ObjectSet.check_normal_rank
+      ~KIF_ObjectSet.check_object
+      ~KIF_ObjectSet.check_optional
+      ~KIF_ObjectSet.check_pattern
+      ~KIF_ObjectSet.check_preferred_rank
+      ~KIF_ObjectSet.check_property
+      ~KIF_ObjectSet.check_property_fingerprint
+      ~KIF_ObjectSet.check_quantity
+      ~KIF_ObjectSet.check_rank
+      ~KIF_ObjectSet.check_reference_record
+      ~KIF_ObjectSet.check_reference_record_set
+      ~KIF_ObjectSet.check_snak
+      ~KIF_ObjectSet.check_snak_set
+      ~KIF_ObjectSet.check_some_value_snak
+      ~KIF_ObjectSet.check_statement
+      ~KIF_ObjectSet.check_string
+      ~KIF_ObjectSet.check_text
+      ~KIF_ObjectSet.check_text_set
+      ~KIF_ObjectSet.check_time
+      ~KIF_ObjectSet.check_value
+      ~KIF_ObjectSet.check_value_snak
+      ~KIF_ObjectSet.copy
+      ~KIF_ObjectSet.count
+      ~KIF_ObjectSet.deepcopy
+      ~KIF_ObjectSet.dump
+      ~KIF_ObjectSet.dumps
+      ~KIF_ObjectSet.from_json
+      ~KIF_ObjectSet.from_sexp
+      ~KIF_ObjectSet.from_sparql
+      ~KIF_ObjectSet.get_args
+      ~KIF_ObjectSet.get_digest
+      ~KIF_ObjectSet.index
+      ~KIF_ObjectSet.is_annotation_record
+      ~KIF_ObjectSet.is_annotation_record_set
+      ~KIF_ObjectSet.is_data_value
+      ~KIF_ObjectSet.is_deep_data_value
+      ~KIF_ObjectSet.is_deprecated_rank
+      ~KIF_ObjectSet.is_descriptor
+      ~KIF_ObjectSet.is_entity
+      ~KIF_ObjectSet.is_entity_fingerprint
+      ~KIF_ObjectSet.is_filter_pattern
+      ~KIF_ObjectSet.is_fingerprint
+      ~KIF_ObjectSet.is_iri
+      ~KIF_ObjectSet.is_item
+      ~KIF_ObjectSet.is_kif_object
+      ~KIF_ObjectSet.is_kif_object_set
+      ~KIF_ObjectSet.is_no_value_snak
+      ~KIF_ObjectSet.is_normal_rank
+      ~KIF_ObjectSet.is_object
+      ~KIF_ObjectSet.is_pattern
+      ~KIF_ObjectSet.is_preferred_rank
+      ~KIF_ObjectSet.is_property
+      ~KIF_ObjectSet.is_property_fingerprint
+      ~KIF_ObjectSet.is_quantity
+      ~KIF_ObjectSet.is_rank
+      ~KIF_ObjectSet.is_reference_record
+      ~KIF_ObjectSet.is_reference_record_set
+      ~KIF_ObjectSet.is_snak
+      ~KIF_ObjectSet.is_snak_set
+      ~KIF_ObjectSet.is_some_value_snak
+      ~KIF_ObjectSet.is_statement
+      ~KIF_ObjectSet.is_string
+      ~KIF_ObjectSet.is_text
+      ~KIF_ObjectSet.is_text_set
+      ~KIF_ObjectSet.is_time
+      ~KIF_ObjectSet.is_value
+      ~KIF_ObjectSet.is_value_snak
+      ~KIF_ObjectSet.load
+      ~KIF_ObjectSet.loads
+      ~KIF_ObjectSet.replace
+      ~KIF_ObjectSet.test
+      ~KIF_ObjectSet.test_annotation_record
+      ~KIF_ObjectSet.test_annotation_record_set
+      ~KIF_ObjectSet.test_data_value
+      ~KIF_ObjectSet.test_deep_data_value
+      ~KIF_ObjectSet.test_deprecated_rank
+      ~KIF_ObjectSet.test_descriptor
+      ~KIF_ObjectSet.test_entity
+      ~KIF_ObjectSet.test_entity_fingerprint
+      ~KIF_ObjectSet.test_filter_pattern
+      ~KIF_ObjectSet.test_fingerprint
+      ~KIF_ObjectSet.test_iri
+      ~KIF_ObjectSet.test_item
+      ~KIF_ObjectSet.test_kif_object
+      ~KIF_ObjectSet.test_kif_object_set
+      ~KIF_ObjectSet.test_no_value_snak
+      ~KIF_ObjectSet.test_normal_rank
+      ~KIF_ObjectSet.test_object
+      ~KIF_ObjectSet.test_pattern
+      ~KIF_ObjectSet.test_preferred_rank
+      ~KIF_ObjectSet.test_property
+      ~KIF_ObjectSet.test_property_fingerprint
+      ~KIF_ObjectSet.test_quantity
+      ~KIF_ObjectSet.test_rank
+      ~KIF_ObjectSet.test_reference_record
+      ~KIF_ObjectSet.test_reference_record_set
+      ~KIF_ObjectSet.test_snak
+      ~KIF_ObjectSet.test_snak_set
+      ~KIF_ObjectSet.test_some_value_snak
+      ~KIF_ObjectSet.test_statement
+      ~KIF_ObjectSet.test_string
+      ~KIF_ObjectSet.test_text
+      ~KIF_ObjectSet.test_text_set
+      ~KIF_ObjectSet.test_time
+      ~KIF_ObjectSet.test_value
+      ~KIF_ObjectSet.test_value_snak
+      ~KIF_ObjectSet.to_json
+      ~KIF_ObjectSet.to_markdown
+      ~KIF_ObjectSet.to_sexp
+      ~KIF_ObjectSet.unpack
+      ~KIF_ObjectSet.unpack_annotation_record
+      ~KIF_ObjectSet.unpack_annotation_record_set
+      ~KIF_ObjectSet.unpack_data_value
+      ~KIF_ObjectSet.unpack_deep_data_value
+      ~KIF_ObjectSet.unpack_deprecated_rank
+      ~KIF_ObjectSet.unpack_descriptor
+      ~KIF_ObjectSet.unpack_entity
+      ~KIF_ObjectSet.unpack_entity_fingerprint
+      ~KIF_ObjectSet.unpack_filter_pattern
+      ~KIF_ObjectSet.unpack_fingerprint
+      ~KIF_ObjectSet.unpack_iri
+      ~KIF_ObjectSet.unpack_item
+      ~KIF_ObjectSet.unpack_kif_object
+      ~KIF_ObjectSet.unpack_kif_object_set
+      ~KIF_ObjectSet.unpack_no_value_snak
+      ~KIF_ObjectSet.unpack_normal_rank
+      ~KIF_ObjectSet.unpack_object
+      ~KIF_ObjectSet.unpack_pattern
+      ~KIF_ObjectSet.unpack_preferred_rank
+      ~KIF_ObjectSet.unpack_property
+      ~KIF_ObjectSet.unpack_property_fingerprint
+      ~KIF_ObjectSet.unpack_quantity
+      ~KIF_ObjectSet.unpack_rank
+      ~KIF_ObjectSet.unpack_reference_record
+      ~KIF_ObjectSet.unpack_reference_record_set
+      ~KIF_ObjectSet.unpack_snak
+      ~KIF_ObjectSet.unpack_snak_set
+      ~KIF_ObjectSet.unpack_some_value_snak
+      ~KIF_ObjectSet.unpack_statement
+      ~KIF_ObjectSet.unpack_string
+      ~KIF_ObjectSet.unpack_text
+      ~KIF_ObjectSet.unpack_text_set
+      ~KIF_ObjectSet.unpack_time
+      ~KIF_ObjectSet.unpack_value
+      ~KIF_ObjectSet.unpack_value_snak
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~KIF_ObjectSet.Nil
+      ~KIF_ObjectSet.args
+      ~KIF_ObjectSet.digest
+   
+   

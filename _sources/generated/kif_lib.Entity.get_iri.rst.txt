@@ -1,0 +1,6 @@
+﻿kif\_lib.Entity.get\_iri
+========================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: Entity.get_iri

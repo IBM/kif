@@ -1,0 +1,6 @@
+﻿kif\_lib.Descriptor.get\_aliases
+================================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: Descriptor.get_aliases

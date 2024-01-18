@@ -1,0 +1,6 @@
+﻿kif\_lib.Descriptor.aliases
+===========================
+
+.. currentmodule:: kif_lib
+
+.. autoproperty:: Descriptor.aliases

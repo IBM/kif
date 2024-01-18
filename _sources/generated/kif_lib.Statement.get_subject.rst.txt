@@ -1,0 +1,6 @@
+﻿kif\_lib.Statement.get\_subject
+===============================
+
+.. currentmodule:: kif_lib
+
+.. automethod:: Statement.get_subject
