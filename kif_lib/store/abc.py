@@ -70,7 +70,16 @@ class StoreFlags(Flag):
     #: Whether to do late filtering.
     LATE_FILTER = auto()
 
-    #: Alias for "all flags set".
+    #: Alias for "default flags".
+    DEFAULT = (CACHE
+               | BEST_RANK
+               | VALUE_SNAK
+               | SOME_VALUE_SNAK
+               | NO_VALUE_SNAK
+               | EARLY_FILTER
+               | LATE_FILTER)
+
+    #: Alias for "all flags".
     ALL = (CACHE
            | BEST_RANK
            | VALUE_SNAK
@@ -158,7 +167,7 @@ class Store(Set):
 
     def _init_flags(self, flags: Optional[StoreFlags] = None):
         if flags is None:
-            self._flags = StoreFlags.ALL
+            self._flags = StoreFlags.DEFAULT
         else:
             self._flags = StoreFlags(flags)
 
@@ -317,6 +326,9 @@ class Store(Set):
 
     #: Alias for :attr:`StoreFlags.LATE_FILTER`.
     LATE_FILTER = StoreFlags.LATE_FILTER
+
+    #: Alias for :attr:`StoreFlags.DEFAULT`.
+    DEFAULT = StoreFlags.DEFAULT
 
     #: Alias for :attr:`StoreFlags.ALL`.
     ALL = StoreFlags.ALL

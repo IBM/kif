@@ -36,7 +36,7 @@ class TestMixerStore(kif_TestCase):
         # good arguments
         kb = Store('mixer')
         self.assertIsInstance(kb, MixerStore)
-        self.assertEqual(kb._flags, Store.ALL)
+        self.assertEqual(kb._flags, Store.DEFAULT)
 
     def test_get_sources(self):
         kb = self.mk_empty_mixer()
