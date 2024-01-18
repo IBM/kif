@@ -5,6 +5,7 @@ import kif_lib.vocabulary as wd
 from kif_lib import (
     AnnotationRecord,
     Deprecated,
+    Descriptor,
     EntityFingerprint,
     FilterPattern,
     Fingerprint,
@@ -197,7 +198,7 @@ class TestMarkdownEncoder(kif_TestCase):
             wd.mass(wd.benzene, Quantity(0)),
             self.md_sexp('Statement', wd.benzene, wd.mass(Quantity(0))))
 
-    def test_annotations_to_markdown(self):
+    def test_annotation_record_to_markdown(self):
         annots = AnnotationRecord([], [], Normal)
         self.assert_to_markdown(annots, '''\
 (**AnnotationRecord**
@@ -229,13 +230,10 @@ class TestMarkdownEncoder(kif_TestCase):
     - (**SomeValueSnak** (**Property** [q](http://q)))))
 - **DeprecatedRank**)''')
 
-    def test_snak_set_to_markdown(self):
-        s = SnakSet()
-        self.assert_to_markdown(s, '(**SnakSet**)')
-        s = SnakSet(wd.mass(wd.benzene))
-        self.assert_to_markdown(s, '''\
-(**SnakSet**
-- (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Item** [benzene](http://www.wikidata.org/entity/Q2270))))''')  # noqa: E501
+    def test_rank_to_markdown(self):
+        self.assert_to_markdown(Preferred, self.md_sexp('PreferredRank'))
+        self.assert_to_markdown(Normal, self.md_sexp('NormalRank'))
+        self.assert_to_markdown(Deprecated, self.md_sexp('DeprecatedRank'))
 
     def test_reference_record_to_markdown(self):
         ref = ReferenceRecord()
@@ -254,10 +252,24 @@ class TestMarkdownEncoder(kif_TestCase):
 - (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Quantity** 0))
 - (**ValueSnak** (**Property** [canonical SMILES](http://www.wikidata.org/entity/P233)) "ABC"))''')  # noqa: E501
 
-    def test_rank_to_markdown(self):
-        self.assert_to_markdown(Preferred, self.md_sexp('PreferredRank'))
-        self.assert_to_markdown(Normal, self.md_sexp('NormalRank'))
-        self.assert_to_markdown(Deprecated, self.md_sexp('DeprecatedRank'))
+    def test_descriptor_to_markdown(self):
+        desc = Descriptor()
+        self.assert_to_markdown(desc, '''\
+(**Descriptor**
+- *no label*
+- *no aliases*
+- *no description*)''')
+        desc = Descriptor(
+            Text("rótulo", 'pt'),
+            [Text('outro nome', 'pt'), Text('sinônimo', 'pt')],
+            Text('descrição', 'pt'))
+        self.assert_to_markdown(desc, '''\
+(**Descriptor**
+- "rótulo"@pt
+- (**TextSet**
+  - "outro nome"@pt
+  - "sinônimo"@pt)
+- "descrição"@pt)''')
 
     def test_fingerprint_to_markdown(self):
         fp = Fingerprint(Quantity(0))
@@ -302,6 +314,14 @@ class TestMarkdownEncoder(kif_TestCase):
     - (**NoValueSnak** (**Property** [date of birth](http://www.wikidata.org/entity/P569)))
     - (**ValueSnak** (**Property** [country](http://www.wikidata.org/entity/P17)) (**Item** [Brazil](http://www.wikidata.org/entity/Q155)))))
 - `0b100`)''')  # noqa: E501
+
+    def test_snak_set_to_markdown(self):
+        s = SnakSet()
+        self.assert_to_markdown(s, '(**SnakSet**)')
+        s = SnakSet(wd.mass(wd.benzene))
+        self.assert_to_markdown(s, '''\
+(**SnakSet**
+- (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Item** [benzene](http://www.wikidata.org/entity/Q2270))))''')  # noqa: E501
 
 
 if __name__ == '__main__':
