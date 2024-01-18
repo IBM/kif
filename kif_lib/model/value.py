@@ -76,7 +76,9 @@ class Value(KIF_Object):
             item_prefixes: Collection[
                 NS.T_NS] = NS.Wikidata.default_item_prefixes,
             property_prefixes: Collection[
-                NS.T_NS] = NS.Wikidata.default_property_prefixes
+                NS.T_NS] = NS.Wikidata.default_property_prefixes,
+            lexeme_prefixes: Collection[
+                NS.T_NS] = NS.Wikidata.default_lexeme_prefixes
     ) -> 'Value':
         from rdflib.term import _NUMERIC_LITERAL_TYPES
         cls._check_arg_isinstance(
@@ -94,6 +96,11 @@ class Value(KIF_Object):
                     res = Property(uri)
                 else:
                     res = Property(NS.WD[NS.Wikidata.get_wikidata_name(uri)])
+            elif NS.Wikidata.is_wd_lexeme(uri, lexeme_prefixes):
+                if lexeme_prefixes == NS.Wikidata.default_lexeme_prefixes:
+                    res = Lexeme(uri)
+                else:
+                    res = Lexeme(NS.WD[NS.Wikidata.get_wikidata_name(uri)])
             else:
                 res = IRI(uri)
         elif isinstance(node, Literal):
@@ -180,6 +187,17 @@ class Property(Entity):
             return self.ValueSnak(self, arg1)
 
 
+class Lexeme(Entity):
+    """Entity representing a lexical element.
+
+    Parameters:
+       arg1: IRI.
+    """
+
+    def __init__(self, arg1: T_IRI):
+        super().__init__(arg1)
+
+
 def Items(arg1: T_IRI, *args: T_IRI) -> Iterable[Item]:
     """Constructs one or more items.
 
@@ -204,6 +222,19 @@ def Properties(arg1: T_IRI, *args: T_IRI) -> Iterable[Property]:
        The resulting properties.
     """
     return map(Property, chain([arg1], args))
+
+
+def Lexemes(arg1: T_IRI, *args: T_IRI) -> Iterable[Lexeme]:
+    """Constructs one or more lexemes.
+
+    Parameters:
+       arg1: IRI.
+       args: Remaining IRIs.
+
+    Returns:
+       The resulting lexemes.
+    """
+    return map(Lexeme, chain([arg1], args))
 
 
 class DataValue(Value):

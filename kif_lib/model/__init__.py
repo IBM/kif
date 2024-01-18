@@ -55,6 +55,8 @@ from .value import (
     IRI,
     Item,
     Items,
+    Lexeme,
+    Lexemes,
     Properties,
     Property,
     Quantity,

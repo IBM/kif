@@ -4,7 +4,7 @@
 from typing import Any, cast, Optional, Union
 
 from ..cache import Cache
-from ..model import Entity, IRI, Item, Property
+from ..model import Entity, IRI, Item, Lexeme, Property
 from ..namespace import WD
 
 
@@ -63,6 +63,12 @@ class WikidataEntityRegistry(Cache):
     ) -> Property:
         return cast(Property, self._get_entity(
             Property(WD[f'P{name}']), label=label, description=description))
+
+    def L(
+            self,
+            name: Union[int, str]
+    ) -> Lexeme:
+        return cast(Lexeme, self._get_entity(Lexeme(WD[f'L{name}'])))
 
     def _get_entity(
             self,

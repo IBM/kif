@@ -22,6 +22,7 @@ from kif_lib import (
     Item,
     KIF_Object,
     KIF_ObjectSet,
+    Lexeme,
     NormalRank,
     NoValueSnak,
     Pattern,
@@ -127,6 +128,11 @@ class kif_TestCase(TestCase):
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Property)
         self.assertTrue(obj.is_property())
+
+    def assert_lexeme(self, obj, iri):
+        self.assert_entity(obj, iri)
+        self.assertIsInstance(obj, Lexeme)
+        self.assertTrue(obj.is_lexeme())
 
     def assert_data_value(self, obj):
         self.assert_value(obj)

@@ -9,6 +9,7 @@ from .registry import WikidataEntityRegistry
 _registry = WikidataEntityRegistry()
 Q = _registry.Q  # type: ignore
 P = _registry.P  # type: ignore
+L = _registry.L  # type: ignore
 
 
 def get_entity_label(entity: Entity) -> Optional[str]:

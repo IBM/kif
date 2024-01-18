@@ -16,6 +16,7 @@ from ..model import (
     Entity,
     IRI,
     Item,
+    Lexeme,
     NoValueSnak,
     Property,
     Quantity,
@@ -182,6 +183,8 @@ class Bindings(Mapping):
             return Item(uri)
         elif NS.Wikidata.is_wd_property(uri):
             return Property(uri)
+        elif NS.Wikidata.is_wd_lexeme(uri):
+            return Lexeme(uri)
         else:
             raise self._error_bad(var, 'a Wikidata entity', str(uri))
 
