@@ -153,6 +153,7 @@ htmlcov-clean:
 .PHONY: docs
 docs:
 	${MAKE} -C ./${DOCS_SRC} html\
+	 NAME='${NAME}'\
 	 PACKAGE='${PACKAGE}'\
 	 COPYRIGHT='${COPYRIGHT}'\
 	 COPYRIGHT_START_YEAR='${COPYRIGHT_START_YEAR}'

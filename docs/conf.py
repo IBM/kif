@@ -17,7 +17,7 @@ def get_copyright():
         return f'{end_year}, {copyright}'
 
 
-project = os.getenv('PACKAGE', 'unknown')
+project = os.getenv('NAME', 'unknown')
 copyright = get_copyright()
 
 extensions = [

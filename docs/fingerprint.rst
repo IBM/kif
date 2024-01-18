@@ -2,7 +2,7 @@
 Fingerprint
 ===========
 
-.. currentmodule:: kif
+.. currentmodule:: kif_lib
 
 Fingerprint
 -----------

@@ -9,6 +9,8 @@ KIF
    store
    internal
 
+KIF is a knowledge integration framework based on Wikidata.
+
 Indices and tables
 ==================
 

@@ -2,7 +2,7 @@
 Value
 =====
 
-.. currentmodule:: kif
+.. currentmodule:: kif_lib
 
 Value
 -----

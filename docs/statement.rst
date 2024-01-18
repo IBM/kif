@@ -2,7 +2,7 @@
 Statement
 =========
 
-.. currentmodule:: kif
+.. currentmodule:: kif_lib
 
 Statement
 ---------

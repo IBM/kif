@@ -2,7 +2,7 @@
 Pattern
 =======
 
-.. currentmodule:: kif
+.. currentmodule:: kif_lib
 
 Pattern
 -------

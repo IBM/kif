@@ -2,7 +2,7 @@
 Rank
 ====
 
-.. currentmodule:: kif
+.. currentmodule:: kif_lib
 
 .. autosummary::
    :toctree: generated/

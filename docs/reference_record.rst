@@ -2,7 +2,7 @@
 Reference Record
 ================
 
-.. currentmodule:: kif
+.. currentmodule:: kif_lib
 
 ReferenceRecord
 ---------------

@@ -5,7 +5,7 @@ Internal
 Cache
 -----
 
-.. currentmodule:: kif.cache
+.. currentmodule:: kif_lib.cache
 
 .. autosummary::
    :toctree: generated/

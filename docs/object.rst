@@ -2,7 +2,7 @@
 KIF Object
 ==========
 
-.. currentmodule:: kif
+.. currentmodule:: kif_lib
 
 KIF Object
 ----------

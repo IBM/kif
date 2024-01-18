@@ -2,7 +2,7 @@
 Snak
 ====
 
-.. currentmodule:: kif
+.. currentmodule:: kif_lib
 
 Snak
 ----
