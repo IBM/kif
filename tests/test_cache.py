@@ -21,14 +21,26 @@ class TestCache(kif_TestCase):
     def test_enable(self):
         c = Cache(False)
         self.assertFalse(c.enabled)
+        self.assertFalse(c.is_enabled())
+        self.assertTrue(c.disabled)
+        self.assertTrue(c.is_disabled())
         c.enable()
         self.assertTrue(c.enabled)
+        self.assertTrue(c.is_enabled())
+        self.assertFalse(c.disabled)
+        self.assertFalse(c.is_disabled())
 
     def test_disable(self):
         c = Cache(True)
         self.assertTrue(c.enabled)
+        self.assertTrue(c.is_enabled())
+        self.assertFalse(c.disabled)
+        self.assertFalse(c.is_disabled())
         c.disable()
         self.assertFalse(c.enabled)
+        self.assertFalse(c.is_enabled())
+        self.assertTrue(c.disabled)
+        self.assertTrue(c.is_disabled())
 
     def test_clear(self):
         c = Cache()
