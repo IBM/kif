@@ -529,7 +529,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
     @classmethod
     def _install_encoder(cls, encoder: type['Encoder']):
         def mk_to_(fmt: str):
-            def to_(obj: Object, **kwargs):
+            def to_(obj: Object, **kwargs: Any) -> str:
                 return obj.dumps(fmt, **kwargs)
             return to_
         f_to = mk_to_(encoder.format)

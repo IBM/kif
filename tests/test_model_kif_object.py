@@ -1,6 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import re
+
 from kif_lib import (
     Deprecated,
     IRI,
@@ -27,6 +29,16 @@ class TestModelKIF_Object(kif_TestCase):
 
     def test__init__(self):
         self.assertRaises(TypeError, KIF_Object)
+
+    def test_kif_object_pyi(self):
+        def get_decl(path):
+            with open(path) as fp:
+                return set(re.findall(r'def\b\s*([a-zA-Z]\w*)', fp.read()))
+        defined = {x for x in dir(KIF_Object) if re.match(r'[a-z]', x[0])}
+        defined -= {'count', 'index'}
+        declared = get_decl('kif_lib/model/object.py')
+        declared_pyi = get_decl('kif_lib/model/kif_object.pyi')
+        self.assertEqual(defined - declared, declared_pyi)
 
     def test_is(self):
         # is_kif_object
