@@ -35,6 +35,8 @@ Entity constructors
    Items
    Property
    Properties
+   Lexeme
+   Lexemes
 
 Entity descriptor
 ~~~~~~~~~~~~~~~~~
