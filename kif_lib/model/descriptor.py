@@ -9,13 +9,7 @@ from .value import Text, TText
 
 
 class Descriptor(KIF_Object):
-    """Entity descriptor (label, aliases, and description).
-
-    Parameters:
-       arg1: Label.
-       arg2: Aliases.
-       arg3: Description.
-    """
+    """Abstract base class for entity descriptors."""
 
     def __init__(
             self,
@@ -91,3 +85,57 @@ class Descriptor(KIF_Object):
         """
         desc = self.args[2]
         return desc if desc is not None else default
+
+
+class ItemDescriptor(Descriptor):
+    """Item descriptor.
+
+    Parameters:
+       arg1: Label.
+       arg2: Aliases.
+       arg3: Description.
+    """
+
+    def __init__(
+            self,
+            arg1: Optional[TText] = None,
+            arg2: Optional[TTextSet] = None,
+            arg3: Optional[TText] = None
+    ):
+        super().__init__(arg1, arg2, arg3)
+
+
+class PropertyDescriptor(Descriptor):
+    """Property descriptor.
+
+    Parameters:
+        arg1: Label.
+        arg2: Aliases.
+        arg3: Description.
+    """
+
+    def __init__(
+            self,
+            arg1: Optional[TText] = None,
+            arg2: Optional[TTextSet] = None,
+            arg3: Optional[TText] = None
+    ):
+        super().__init__(arg1, arg2, arg3)
+
+
+class LexemeDescriptor(Descriptor):
+    """Lexeme descriptor.
+
+    Parameters:
+        arg1: Label.
+        arg2: Aliases.
+        arg3: Description.
+    """
+
+    def __init__(
+            self,
+            arg1: Optional[TText] = None,
+            arg2: Optional[TTextSet] = None,
+            arg3: Optional[TText] = None
+    ):
+        super().__init__(arg1, arg2, arg3)

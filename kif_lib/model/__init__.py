@@ -4,7 +4,12 @@
 # flake8: noqa
 from .annotation_record import AnnotationRecord
 from .annotation_record_set import AnnotationRecordSet, TAnnotationRecordSet
-from .descriptor import Descriptor
+from .descriptor import (
+    Descriptor,
+    ItemDescriptor,
+    LexemeDescriptor,
+    PropertyDescriptor,
+)
 from .fingerprint import (
     EntityFingerprint,
     Fingerprint,

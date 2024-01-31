@@ -177,22 +177,27 @@ class MixerStore(Store, type='mixer', description='Mixer store'):
             self,
             entities: Iterable[Entity],
             language: str
-    ) -> Iterator[tuple[Entity, Descriptor]]:
+    ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
         return self._get_x_mixed(
-            entities, Descriptor(),
+            entities, None,
             lambda kb, b: kb._get_descriptor(b, language),
             self._get_descriptor_mixed)
 
     def _get_descriptor_mixed(
             self,
-            it: Iterator[tuple[Entity, Descriptor]],
-    ) -> tuple[Entity, Descriptor]:
-        entity, desc = next(it)
-        label = desc.label
-        aliases = set(desc.aliases)
-        description = desc.description
+            it: Iterator[tuple[Entity, Optional[Descriptor]]],
+    ) -> tuple[Entity, Optional[Descriptor]]:
+        entity0, desc = next(it)
+        found = bool(desc)
+        label = desc.label if desc is not None else None
+        aliases = set(desc.aliases) if desc is not None else set()
+        description = desc.description if desc is not None else None
         for entityi, desc in it:
-            assert entity == entityi
+            assert entity0 == entityi
+            if desc is None:
+                continue
+            else:
+                found |= bool(desc)
             if label is None and desc.label is not None:
                 label = desc.label
             elif (label is not None
@@ -201,4 +206,7 @@ class MixerStore(Store, type='mixer', description='Mixer store'):
             aliases.update(desc.aliases)
             if description is None and desc.description is not None:
                 description = desc.description
-        return entity, Descriptor(label, aliases, description)
+        if found:
+            return entity0, Descriptor(label, aliases, description)
+        else:
+            return entity0, None

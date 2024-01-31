@@ -188,7 +188,7 @@ class Property(Entity):
 
 
 class Lexeme(Entity):
-    """Entity representing a lexical element.
+    """Entity representing a word or phrase.
 
     Parameters:
        arg1: IRI.

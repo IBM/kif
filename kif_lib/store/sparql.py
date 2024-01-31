@@ -7,7 +7,6 @@ import sys
 from collections.abc import Collection, Hashable, Iterable, Mapping, Set
 from typing import Any, Callable, cast, Iterator, Optional, TypeVar, Union
 
-import more_itertools
 import requests
 import requests.exceptions
 from rdflib import BNode, Graph, URIRef
@@ -728,8 +727,7 @@ At line {line}, column {column}:
                 '?wds',
             )
     ) -> Iterator[tuple[Statement, Optional[Set[T_WDS]]]]:
-        batches = more_itertools.batched(stmts, self.page_size)
-        for batch in batches:
+        for batch in self._batched(stmts):
             reduced_batch: list[Statement] = []
             stmt2wdss: dict[Statement, set[T_WDS]] = dict()
             for stmt in batch:
@@ -859,8 +857,7 @@ At line {line}, column {column}:
             self,
             stmts: Iterable[Statement]
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
-        batches = more_itertools.batched(stmts, self.page_size)
-        for batch in batches:
+        for batch in self._batched(stmts):
             wds_batch = []
             stmt2wdss: dict[Statement, Set[T_WDS]] = dict()
             wds2stmt: dict[T_WDS, Statement] = dict()
@@ -1057,16 +1054,17 @@ At line {line}, column {column}:
             self,
             entities: Iterable[Entity],
             lang: str
-    ) -> Iterator[tuple[Entity, Descriptor]]:
-        batches = more_itertools.batched(entities, self.page_size)
-        for batch in batches:
+    ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
+        for batch in self._batched(entities):
             q = self._make_descriptor_query(set(batch), lang)
             it = self._eval_select_query(
                 q, lambda res: self._parse_get_descriptor_results(res))
+            found: set[Entity] = set()
             entity2label: dict[Entity, Text] = dict()
             entity2aliases: dict[Entity, set[Text]] = dict()
             entity2desc: dict[Entity, Text] = dict()
             for entity, label, alias, desc in it:
+                found.add(entity)
                 if label is not None:
                     entity2label[entity] = label
                 elif alias is not None:
@@ -1076,10 +1074,13 @@ At line {line}, column {column}:
                 elif desc is not None:
                     entity2desc[entity] = desc
             for entity in batch:
-                yield (entity, Descriptor(
-                    entity2label.get(entity),
-                    entity2aliases.get(entity, []),
-                    entity2desc.get(entity, None)))
+                if entity in found:
+                    yield (entity, Descriptor(
+                        entity2label.get(entity),
+                        entity2aliases.get(entity, []),
+                        entity2desc.get(entity, None)))
+                else:
+                    yield (entity, None)
 
     def _parse_get_descriptor_results(
             self,

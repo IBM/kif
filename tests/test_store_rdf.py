@@ -559,9 +559,6 @@ class TestRDF_Store(kif_TestCase):
 
     def test_get_descriptor(self):
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
-        self._test_get_descriptor(kb)
-
-    def _test_get_descriptor(self, kb):
         self.store_test_get_descriptor(
             kb,
             [(wd.Brazil, Descriptor(
@@ -570,7 +567,7 @@ class TestRDF_Store(kif_TestCase):
             wd.Brazil)
         self.store_test_get_descriptor(
             kb,
-            [(wd.Brazil, Descriptor())],
+            [(wd.Brazil, None)],
             'es',
             wd.Brazil)
         self.store_test_get_descriptor(

@@ -7,6 +7,7 @@ from enum import auto, Flag
 from itertools import chain
 from typing import Any, cast, Iterator, NoReturn, Optional, TypeVar, Union
 
+import more_itertools
 from rdflib.graph import Graph
 from rdflib.namespace import NamespaceManager
 
@@ -178,6 +179,8 @@ class Store(Set):
             self._nsm.bind(k, v)
             ns_dict[k] = v
 
+    # -- Extra references --------------------------------------------------
+
     @property
     def extra_references(self) -> ReferenceRecordSet:
         """Extra references."""
@@ -219,6 +222,8 @@ class Store(Set):
             ReferenceRecordSet._check_optional_arg_reference_record_set(
                 references, None, self.set_extra_references, 'references', 1)
 
+    # -- Page size ---------------------------------------------------------
+
     @property
     def page_size(self) -> int:
         """Response page size."""
@@ -255,6 +260,11 @@ class Store(Set):
         """
         self._page_size = KIF_Object._check_optional_arg_int(
             page_size, None, self.set_page_size, 'page_size', 1)
+
+    def _batched(self, it: Iterable[T]) -> Iterable[tuple[T, ...]]:
+        return more_itertools.batched(it, self.page_size)
+
+    # -- Timeout -----------------------------------------------------------
 
     @property
     def timeout(self) -> Optional[int]:
@@ -839,7 +849,7 @@ class Store(Set):
             self,
             entities: Union[Entity, Iterable[Entity]],
             language: str = Text.default_language
-    ) -> Iterator[tuple[Entity, Descriptor]]:
+    ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
         """Gets entities' descriptor.
 
         Parameters:
@@ -864,5 +874,5 @@ class Store(Set):
             self,
             entities: Iterable[Entity],
             language: str
-    ) -> Iterator[tuple[Entity, Descriptor]]:
+    ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
         raise MustBeImplementedInSubclass

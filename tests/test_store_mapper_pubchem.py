@@ -5,7 +5,6 @@ import kif_lib.vocabulary as wd
 from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
-    Descriptor,
     Quantity,
     Statement,
     Store,
@@ -143,8 +142,8 @@ class TestSPARQL_MapperStorePubChem(kif_TestCase):
         kb = self.new()
         self.store_test_get_descriptor(
             kb,
-            [(wd.Brazil, Descriptor()),
-             (wd.instance_of, Descriptor())],
+            [(wd.Brazil, None),
+             (wd.instance_of, None)],
             'en',
             wd.Brazil, wd.instance_of)
 

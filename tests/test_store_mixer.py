@@ -1,7 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import Statement, Store
+import kif_lib.vocabulary as wd
+from kif_lib import Descriptor, Statement, Store, Text
 from kif_lib.store import MixerStore
 
 from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL
@@ -102,9 +103,26 @@ class TestMixerStore(kif_TestCase):
     # -- Descriptor --------------------------------------------------------
 
     def test_get_descriptor(self):
-        from .test_store_rdf import TestRDF_Store
-        test = TestRDF_Store()
-        test._test_get_descriptor(self.mk_adam_benzene_brazil_mixer())
+        kb = self.mk_adam_benzene_brazil_mixer()
+        self.store_test_get_descriptor(
+            kb,
+            [(wd.Brazil, Descriptor(
+                'Brazil', None, 'country in South America'))],
+            'en',
+            wd.Brazil)
+        self.store_test_get_descriptor(
+            kb,
+            [(wd.Brazil, None)],
+            'es',
+            wd.Brazil)
+        self.store_test_get_descriptor(
+            kb,
+            [(wd.Brazil, Descriptor(
+                Text('Brasil', 'pt-br'),
+                [Text("🇧🇷", 'pt-br')],
+                Text('país na América do Sul', 'pt-br')))],
+            'pt-br',
+            wd.Brazil)
 
 
 if __name__ == '__main__':
