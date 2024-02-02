@@ -9,7 +9,7 @@ from kif_lib import Entity, IRI, Lexeme, Lexemes
 from .tests import kif_TestCase, main
 
 
-class TestModelItem(kif_TestCase):
+class TestModelLexeme(kif_TestCase):
 
     def test__init__(self):
         self.assertRaises(TypeError, Lexeme, 0)

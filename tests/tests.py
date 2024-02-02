@@ -13,21 +13,24 @@ from kif_lib import (
     AnnotationRecordSet,
     DataValue,
     DeprecatedRank,
-    Descriptor,
     Entity,
     EntityFingerprint,
+    ExternalId,
     FilterPattern,
     Fingerprint,
     IRI,
     Item,
+    ItemDescriptor,
     KIF_Object,
     KIF_ObjectSet,
     Lexeme,
+    LexemeDescriptor,
     NormalRank,
     NoValueSnak,
     Pattern,
     PreferredRank,
     Property,
+    PropertyDescriptor,
     PropertyFingerprint,
     Quantity,
     Rank,
@@ -139,15 +142,6 @@ class kif_TestCase(TestCase):
         self.assertIsInstance(obj, DataValue)
         self.assertTrue(obj.is_data_value())
 
-    def assert_string(self, obj, s):
-        self.assert_data_value(obj)
-        self.assertIsInstance(obj, String)
-        self.assertTrue(obj.is_string())
-        self.assertEqual(obj.args[0], s)
-        self.assertEqual(obj.value, obj.args[0])
-        self.assertEqual(obj.get_value(), obj.args[0])
-        self.assertEqual(obj.n3(), f'"{obj.value}"')
-
     def assert_text(self, obj, s, lang=None):
         self.assert_data_value(obj)
         self.assertIsInstance(obj, Text)
@@ -171,6 +165,24 @@ class kif_TestCase(TestCase):
         self.assertEqual(obj.get_args_set(), obj.args_set)
         for text in texts:
             self.assertIn(text, obj)
+
+    def assert_string(self, obj, s):
+        self.assert_data_value(obj)
+        self.assertIsInstance(obj, String)
+        self.assertTrue(obj.is_string())
+        self.assertEqual(obj.args[0], s)
+        self.assertEqual(obj.value, obj.args[0])
+        self.assertEqual(obj.get_value(), obj.args[0])
+        self.assertEqual(obj.n3(), f'"{obj.value}"')
+
+    def assert_external_id(self, obj, s):
+        self.assert_string(obj, s)
+        self.assertIsInstance(obj, ExternalId)
+        self.assertTrue(obj.is_external_id())
+        self.assertEqual(obj.args[0], s)
+        self.assertEqual(obj.value, obj.args[0])
+        self.assertEqual(obj.get_value(), obj.args[0])
+        self.assertEqual(obj.n3(), f'"{obj.value}"')
 
     def assert_iri(self, obj, iri):
         self.assert_data_value(obj)
@@ -356,18 +368,19 @@ class kif_TestCase(TestCase):
         for ref in annots:
             self.assertIn(ref, obj)
 
-    def assert_descriptor(self, obj, label, aliases, desc):
+    def assert_item_descriptor(self, obj, label, aliases, desc):
         self.assert_kif_object(obj)
-        self.assertIsInstance(obj, Descriptor)
+        self.assertIsInstance(obj, ItemDescriptor)
         self.assertTrue(obj.is_descriptor())
+        self.assertTrue(obj.is_item_descriptor())
         if label is None:
             self.assertIsNone(obj.args[0])
             self.assertIsNone(obj.label)
             self.assertIsNone(obj.get_label())
         else:
-            self.assert_text(obj.args[0], label.value)
-            self.assert_text(obj.label, label.value)
-            self.assert_text(obj.get_label(), label.value)
+            self.assert_text(obj.args[0], *label)
+            self.assert_text(obj.label, *label)
+            self.assert_text(obj.get_label(), *label)
         self.assert_text_set(obj.args[1], *aliases)
         self.assert_text_set(obj.aliases, *aliases)
         self.assert_text_set(obj.get_aliases(), *aliases)
@@ -376,9 +389,59 @@ class kif_TestCase(TestCase):
             self.assertIsNone(obj.description)
             self.assertIsNone(obj.get_description())
         else:
-            self.assert_text(obj.args[2], desc.value)
-            self.assert_text(obj.description, desc.value)
-            self.assert_text(obj.get_description(), desc.value)
+            self.assert_text(obj.args[2], *desc)
+            self.assert_text(obj.description, *desc)
+            self.assert_text(obj.get_description(), *desc)
+
+    def assert_property_descriptor(self, obj, label, aliases, desc, dt):
+        self.assert_kif_object(obj)
+        self.assertIsInstance(obj, PropertyDescriptor)
+        self.assertTrue(obj.is_descriptor())
+        self.assertTrue(obj.is_plain_descriptor())
+        self.assertTrue(obj.is_property_descriptor())
+        if label is None:
+            self.assertIsNone(obj.args[0])
+            self.assertIsNone(obj.label)
+            self.assertIsNone(obj.get_label())
+        else:
+            self.assert_text(obj.args[0], *label)
+            self.assert_text(obj.label, *label)
+            self.assert_text(obj.get_label(), *label)
+        self.assert_text_set(obj.args[1], *aliases)
+        self.assert_text_set(obj.aliases, *aliases)
+        self.assert_text_set(obj.get_aliases(), *aliases)
+        if desc is None:
+            self.assertIsNone(obj.args[2])
+            self.assertIsNone(obj.description)
+            self.assertIsNone(obj.get_description())
+        else:
+            self.assert_text(obj.args[2], *desc)
+            self.assert_text(obj.description, *desc)
+            self.assert_text(obj.get_description(), *desc)
+        if dt is None:
+            self.assertIsNone(obj.args[3])
+            self.assertIsNone(obj.datatype)
+            self.assertIsNone(obj.get_datatype())
+        else:
+            self.assert_iri(obj.args[3], *dt)
+            self.assert_iri(obj.datatype, *dt)
+            self.assert_iri(obj.get_datatype(), *dt)
+
+    def assert_lexeme_descriptor(self, obj, lemma, cat, lang):
+        self.assert_kif_object(obj)
+        self.assertIsInstance(obj, LexemeDescriptor)
+        self.assertTrue(obj.is_descriptor())
+        self.assertFalse(obj.is_plain_descriptor())
+        self.assertTrue(obj.is_lexeme_descriptor())
+        self.assert_text(obj.args[0], *lemma)
+        self.assert_text(obj.lemma, *lemma)
+        self.assert_text(obj.get_lemma(), *lemma)
+        self.assert_item(obj.args[1], *cat)
+        self.assert_item(obj.category, *cat)
+        self.assert_item(obj.get_category(), *cat)
+        self.assert_item(obj.args[2], *lang)
+        self.assert_item(obj.language, *lang)
+        self.assert_item(obj.get_language(), *lang)
 
     def assert_fingerprint(self, obj, val):
         self.assert_kif_object(obj)
@@ -465,9 +528,9 @@ class kif_TestCase(TestCase):
         # get_annotations
         self.store_test_get_annotations_bad_argument(kb)
         self.store_test_get_annotations_empty(kb)
-        # get descriptor
-        self.store_test_get_descriptor_bad_argument(kb)
-        self.store_test_get_descriptor_empty(kb)
+        # TODO: get descriptor
+        # self.store_test_get_descriptor_bad_argument(kb)
+        # self.store_test_get_descriptor_empty(kb)
 
     # -- extra references --
 

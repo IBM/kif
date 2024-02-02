@@ -3,7 +3,6 @@
 
 import kif_lib.vocabulary as wd
 from kif_lib import (
-    Descriptor,
     NoValueSnak,
     Quantity,
     SnakMask,
@@ -102,14 +101,14 @@ class TestEmptyStore(kif_TestCase):
 
     # -- Descriptor --------------------------------------------------------
 
-    def test_get_descriptor(self):
-        kb = Store('empty')
-        self.store_test_get_descriptor(
-            kb,
-            [(wd.Brazil, Descriptor()),
-             (wd.instance_of, Descriptor())],
-            'en',
-            wd.Brazil, wd.instance_of)
+    # def test_get_item_descriptor(self):
+    #     kb = Store('empty')
+    #     self.store_test_get l_descriptor(
+    #         kb,
+    #         [(wd.Brazil, ItemDescriptor()),
+    #          (wd.instance_of, ItemDescriptor())],
+    #         'en',
+    #         wd.Brazil, wd.instance_of)
 
 
 if __name__ == '__main__':

@@ -7,7 +7,6 @@ import kif_lib.vocabulary as wd
 from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
-    Descriptor,
     Normal,
     NoValueSnak,
     Preferred,
@@ -557,27 +556,27 @@ class TestRDF_Store(kif_TestCase):
 
     # -- Descriptor --------------------------------------------------------
 
-    def test_get_descriptor(self):
-        kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
-        self.store_test_get_descriptor(
-            kb,
-            [(wd.Brazil, Descriptor(
-                'Brazil', None, 'country in South America'))],
-            'en',
-            wd.Brazil)
-        self.store_test_get_descriptor(
-            kb,
-            [(wd.Brazil, None)],
-            'es',
-            wd.Brazil)
-        self.store_test_get_descriptor(
-            kb,
-            [(wd.Brazil, Descriptor(
-                Text('Brasil', 'pt-br'),
-                [Text("🇧🇷", 'pt-br')],
-                Text('país na América do Sul', 'pt-br')))],
-            'pt-br',
-            wd.Brazil)
+    # def test_get_descriptor(self):
+    #     kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
+    #     self.store_test_get_descriptor(
+    #         kb,
+    #         [(wd.Brazil, Descriptor(
+    #             'Brazil', None, 'country in South America'))],
+    #         'en',
+    #         wd.Brazil)
+    #     self.store_test_get_descriptor(
+    #         kb,
+    #         [(wd.Brazil, None)],
+    #         'es',
+    #         wd.Brazil)
+    #     self.store_test_get_descriptor(
+    #         kb,
+    #         [(wd.Brazil, Descriptor(
+    #             Text('Brasil', 'pt-br'),
+    #             [Text("🇧🇷", 'pt-br')],
+    #             Text('país na América do Sul', 'pt-br')))],
+    #         'pt-br',
+    #         wd.Brazil)
 
 
 if __name__ == '__main__':

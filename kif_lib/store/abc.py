@@ -17,13 +17,18 @@ from ..error import Error, MustBeImplementedInSubclass
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
-    Descriptor,
     Entity,
     EntityFingerprint,
     FilterPattern,
     Fingerprint,
     IRI,
+    Item,
+    ItemDescriptor,
     KIF_Object,
+    Lexeme,
+    LexemeDescriptor,
+    Property,
+    PropertyDescriptor,
     PropertyFingerprint,
     ReferenceRecordSet,
     Snak,
@@ -157,7 +162,7 @@ class Store(Set):
             namespaces: Optional[dict[str, T_IRI]] = None,
             page_size: Optional[int] = None,
             timeout: Optional[int] = None,
-            **kwargs: Any,
+            **kwargs: Any
     ):
         self._init_flags(flags)
         self._cache = Cache(self.has_flags(StoreFlags.CACHE))
@@ -422,6 +427,10 @@ class Store(Set):
         """
         return dict(map(
             lambda t: (t[0], IRI(t[1])), self._nsm.namespaces()))
+
+    @property
+    def dct(self) -> T_NS:
+        return NS.DCT
 
     @property
     def owl(self) -> T_NS:
@@ -754,8 +763,7 @@ class Store(Set):
            limit: Maximum number of statements to return.
 
         Returns:
-           An iterator of pairs (statement, annotation record set)
-           where statement matches pattern.
+           An iterator of pairs: statement, annotation record set.
         """
         return self._filter_annotated_tail(self.filter(
             subject, property, value, snak_mask, pattern, limit))
@@ -785,8 +793,7 @@ class Store(Set):
            limit: Maximum number of statements to return.
 
         Returns:
-           An iterator of pairs (statement, annotation record set)
-           where statement matches pattern.
+           An iterator of pairs: statement, annotation record set.
         """
         return self._filter_annotated_tail(self.filter_snak(
             subject, snak, limit))
@@ -795,13 +802,13 @@ class Store(Set):
             self,
             stmts: Union[Statement, Iterable[Statement]]
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
-        """Gets statements' annotations.
+        """Gets annotation records of statements.
 
         Parameters:
            stmts: Statements.
 
         Returns:
-           An iterator of pairs (statement, annotation record set).
+           An iterator of pairs: statement, annotation record set.
         """
         KIF_Object._check_arg_isinstance(
             stmts, (Statement, Iterable), self.get_annotations, 'stmts', 1)
@@ -845,34 +852,113 @@ class Store(Set):
 
     # -- Descriptors -------------------------------------------------------
 
-    def get_descriptor(
+    def get_item_descriptor(
             self,
-            entities: Union[Entity, Iterable[Entity]],
-            language: str = Text.default_language
-    ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
-        """Gets entities' descriptor.
+            items: Union[Item, Iterable[Item]],
+            language: str = Text.default_language,
+            descriptor_mask: Optional[ItemDescriptor.TMask] = None
+    ) -> Iterable[tuple[Item, Optional[ItemDescriptor]]]:
+        """Gets descriptor of items.
 
         Parameters:
-           entities: Entities.
+           items: Items.
+           language: Language tag.
+           descriptor_mask: Descriptor mask.
 
         Returns:
-           An iterator of pairs (entity, descriptor).
+           An iterator of pairs: item, descriptor.
         """
         KIF_Object._check_arg_isinstance(
-            entities, (Entity, Iterable),
-            self.get_descriptor, 'entities', 1)
+            items, (Item, Iterable),
+            self.get_item_descriptor, 'items', 1)
         KIF_Object._check_arg_str(
-            language, self.get_descriptor, 'language', 2)
-        if Entity.test(entities):
-            return self._get_descriptor([cast(Entity, entities)], language)
+            language, self.get_item_descriptor, 'language', 2)
+        mask = ItemDescriptor._check_optional_arg_plain_descriptor_mask(
+            descriptor_mask, ItemDescriptor.ALL,
+            self.get_item_descriptor, 'mask', 3)
+        assert mask is not None
+        if Item.test(items):
+            return self._get_item_descriptor(
+                [cast(Item, items)], language, mask)
         else:
-            return self._get_descriptor(map(
-                lambda e: cast(Entity, Entity.check(
-                    e, self.get_descriptor)), entities), language)
+            return self._get_item_descriptor(map(
+                lambda e: cast(Item, Item.check(
+                    e, self.get_item_descriptor)), items), language, mask)
 
-    def _get_descriptor(
+    def _get_item_descriptor(
             self,
-            entities: Iterable[Entity],
-            language: str
-    ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
+            items: Iterable[Item],
+            lang: str,
+            mask: ItemDescriptor.Mask
+    ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
+        raise MustBeImplementedInSubclass
+
+    def get_property_descriptor(
+            self,
+            properties: Union[Property, Iterable[Property]],
+            language: str = Text.default_language,
+            descriptor_mask: Optional[PropertyDescriptor.TMask] = None
+    ) -> Iterable[tuple[Property, Optional[PropertyDescriptor]]]:
+        """Gets descriptor of properties.
+
+        Parameters:
+           properties: Properties.
+           language: Language tag.
+           descriptor_mask: Descriptor mask.
+
+        Returns:
+           An iterator of pairs: property, descriptor.
+        """
+        KIF_Object._check_arg_isinstance(
+            properties, (Property, Iterable),
+            self.get_property_descriptor, 'properties', 1)
+        KIF_Object._check_arg_str(
+            language, self.get_property_descriptor, 'language', 2)
+        mask = PropertyDescriptor._check_optional_arg_plain_descriptor_mask(
+            descriptor_mask, PropertyDescriptor.ALL,
+            self.get_property_descriptor, 'mask', 3)
+        assert mask is not None
+        if Property.test(properties):
+            return self._get_property_descriptor(
+                [cast(Property, properties)], language, mask)
+        else:
+            return self._get_property_descriptor(map(
+                lambda e: cast(Property, Property.check(
+                    e, self.get_property_descriptor)),
+                properties), language, mask)
+
+    def _get_property_descriptor(
+            self,
+            properties: Iterable[Property],
+            lang: str,
+            mask: PropertyDescriptor.Mask
+    ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
+        raise MustBeImplementedInSubclass
+
+    def get_lexeme_descriptor(
+            self,
+            lexemes: Union[Lexeme, Iterable[Lexeme]]
+    ) -> Iterable[tuple[Lexeme, Optional[LexemeDescriptor]]]:
+        """Gets descriptor of lexemes.
+
+        Parameters:
+           lexemes: Lexemes.
+
+        Returns:
+           An iterator of pairs: lexeme, descriptor.
+        """
+        KIF_Object._check_arg_isinstance(
+            lexemes, (Lexeme, Iterable),
+            self.get_lexeme_descriptor, 'lexemes', 1)
+        if Lexeme.test(lexemes):
+            return self._get_lexeme_descriptor([cast(Lexeme, lexemes)])
+        else:
+            return self._get_lexeme_descriptor(map(
+                lambda e: cast(Lexeme, Lexeme.check(
+                    e, self.get_lexeme_descriptor)), lexemes))
+
+    def _get_lexeme_descriptor(
+            self,
+            lexemes: Iterable[Lexeme]
+    ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
         raise MustBeImplementedInSubclass

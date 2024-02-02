@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import abstractmethod
-from enum import Enum
+from enum import Enum, StrEnum
 from itertools import chain
-from typing import cast, Collection, Iterable, NoReturn, Optional, Union
+from typing import cast, Collection, Final, Iterable, NoReturn, Optional, Union
 
 from rdflib import Literal, URIRef
 
@@ -19,13 +19,119 @@ from .kif_object import (
 )
 
 T_IRI = Union['IRI', NS.T_URI]
+TExternalId = Union['ExternalId', 'String', str]
 TString = Union['String', str]
 TText = Union['Text', TString]
 TTimePrecision = Union['Time.Precision', int]
 
+_datatype_from_uri_dict: dict[URIRef, 'Datatype']
+_datatype_to_uri_dict: dict['Datatype', URIRef]
+
+_datatype_from_value_class_dict: dict[type['Value'], 'Datatype']
+_datatype_to_value_class_dict: dict['Datatype', type['Value']]
+
+
+class Datatype(StrEnum):
+    """Value datatype."""
+
+    #: Datatype for :class:`Time`.
+    ITEM = 'Item'
+
+    #: Datatype for :class:`Property`.
+    PROPERTY = 'Property'
+
+    #: Datatype for :class:`Lexeme`.
+    LEXEME = 'Lexeme'
+
+    #: Datatype for :class:`IRI`.
+    IRI = 'IRI'
+
+    #: Datatype for :class:`Text`.
+    TEXT = 'Text'
+
+    #: Datatype for :class:`String`.
+    STRING = 'String'
+
+    #: Datatype for :class:`ExternalId`.
+    EXTERNAL_ID = 'ExternalId'
+
+    #: Datatype for :class:`Quantity`.
+    QUANTITY = 'Quantity'
+
+    #: Datatype for :class:`Time`.
+    TIME = 'Time'
+
+    @classmethod
+    def _prologue(cls):
+        global _datatype_from_uri_dict
+        global _datatype_to_uri_dict
+        global _datatype_from_value_class_dict
+        global _datatype_to_value_class_dict
+        _datatype_from_uri_dict = {
+            NS.WIKIBASE.WikibaseItem: cls.ITEM,
+            NS.WIKIBASE.WikibaseProperty: cls.PROPERTY,
+            NS.WIKIBASE.WikibaseLexeme: cls.LEXEME,
+            NS.WIKIBASE.Url: cls.IRI,
+            NS.WIKIBASE.Monolingualtext: cls.TEXT,
+            NS.WIKIBASE.String: cls.STRING,
+            NS.WIKIBASE.ExternalId: cls.EXTERNAL_ID,
+            NS.WIKIBASE.Quantity: cls.QUANTITY,
+            NS.WIKIBASE.Time: cls.TIME,
+        }
+        _datatype_to_uri_dict = {
+            v: k for k, v in _datatype_from_uri_dict.items()
+        }
+        _datatype_from_value_class_dict = {
+            Item: cls.ITEM,
+            Property: cls.PROPERTY,
+            Lexeme: cls.LEXEME,
+            IRI: cls.IRI,
+            Text: cls.TEXT,
+            String: cls.STRING,
+            ExternalId: cls.EXTERNAL_ID,
+            Quantity: cls.QUANTITY,
+            Time: cls.TIME,
+        }
+        _datatype_to_value_class_dict = {
+            v: k for k, v in _datatype_from_value_class_dict.items()
+        }
+
+    @classmethod
+    def _from_uri(cls, uri: URIRef) -> 'Datatype':
+        global _datatype_from_uri_dict
+        return _datatype_from_uri_dict[uri]
+
+    def _to_uri(self) -> URIRef:
+        global _datatype_to_uri_dict
+        return _datatype_to_uri_dict[self]
+
+    @classmethod
+    def from_value_class(cls, value_class: type['Value']) -> 'Datatype':
+        """Gets datatype of value class.
+
+        Parameters:
+           value_class: Concrete subclass of value.
+
+        Returns:
+           Datatype.
+        """
+        global _datatype_from_value_class_dict
+        return _datatype_from_value_class_dict[value_class]
+
+    def to_value_class(self) -> type['Value']:
+        """Gets the value class of datatype.
+
+        Returns:
+           Value class of datatype.
+        """
+        global _datatype_to_value_class_dict
+        return _datatype_to_value_class_dict[self]
+
 
 class Value(KIF_Object):
     """Abstract base class for values."""
+
+    datatype: Datatype
 
     @classmethod
     def _preprocess_arg_value(
@@ -166,6 +272,9 @@ class Item(Entity):
        arg1: IRI.
     """
 
+    #: Item datatype.
+    datatype: Datatype = Datatype.ITEM
+
     def __init__(self, arg1: T_IRI):
         super().__init__(arg1)
 
@@ -176,6 +285,9 @@ class Property(Entity):
     Parameters:
        arg1: IRI.
     """
+
+    #: Property datatype.
+    datatype: Datatype = Datatype.PROPERTY
 
     def __init__(self, arg1: T_IRI):
         super().__init__(arg1)
@@ -193,6 +305,9 @@ class Lexeme(Entity):
     Parameters:
        arg1: IRI.
     """
+
+    #: Lexeme datatype.
+    datatype: Datatype = Datatype.LEXEME
 
     def __init__(self, arg1: T_IRI):
         super().__init__(arg1)
@@ -251,6 +366,9 @@ class IRI(DataValue):
        arg1: IRI.
     """
 
+    #: IRI datatype.
+    datatype: Datatype = Datatype.IRI
+
     @classmethod
     def _check_arg_iri(
             cls,
@@ -287,8 +405,15 @@ class Text(DataValue):
        arg2: Language tag.
     """
 
+    #: Text datatype.
+    datatype: Datatype = Datatype.TEXT
+
     #: Default language tag.
-    default_language = 'en'
+    default_language: Final[str] = 'en'
+
+    # @classmethod
+    # def _get_datatype_uri(cls, _dt=NS.WIKIBASE.Monolingualtext) -> URIRef:
+    #     return _dt
 
     @classmethod
     def _check_arg_text(
@@ -341,6 +466,9 @@ class String(DataValue):
        arg1: String.
     """
 
+    #: String datatype.
+    datatype: Datatype = Datatype.STRING
+
     @classmethod
     def _check_arg_string(
             cls,
@@ -364,6 +492,57 @@ class String(DataValue):
             raise self._should_not_get_here()
 
 
+class ExternalId(String):
+    """External id value.
+
+    Parameters:
+       arg1: External id.
+    """
+
+    #: External id datatype.
+    datatype: Datatype = Datatype.EXTERNAL_ID
+
+    @classmethod
+    def _check_arg_external_id(
+            cls,
+            arg: TExternalId,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union['ExternalId', NoReturn]:
+        return cls(cls._check_arg_isinstance(
+            arg, (cls, String, str), function, name, position))
+
+    @classmethod
+    def _from_rdflib(
+            cls,
+            node: Union[Literal, URIRef],
+            item_prefixes: Collection[
+                NS.T_NS] = NS.Wikidata.default_item_prefixes,
+            property_prefixes: Collection[
+                NS.T_NS] = NS.Wikidata.default_property_prefixes,
+            lexeme_prefixes: Collection[
+                NS.T_NS] = NS.Wikidata.default_lexeme_prefixes
+    ) -> 'Value':
+        res = Value._from_rdflib(
+            node, item_prefixes, property_prefixes, lexeme_prefixes)
+        if res.is_string():
+            return cls(cast(String, res))
+        else:
+            return cast(Value, cls.check(res))
+
+    def __init__(self, arg1: TExternalId):
+        super().__init__(arg1)
+
+    def _preprocess_arg(self, arg, i):
+        if i == 1:
+            if isinstance(arg, (ExternalId, String)):
+                arg = arg.args[0]
+            return self._preprocess_arg_str(arg, i)
+        else:
+            raise self._should_not_get_here()
+
+
 class DeepDataValue(DataValue):
     """Abstract base class for deep data values."""
 
@@ -377,6 +556,9 @@ class Quantity(DeepDataValue):
        arg3: Lower bound.
        arg4: Upper bound.
     """
+
+    #: Quantity datatype.
+    datatype: Datatype = Datatype.QUANTITY
 
     def __init__(
             self,
@@ -491,11 +673,16 @@ class Time(DeepDataValue):
        arg4: Calendar model.
     """
 
+    #: Time datatype.
+    datatype: Datatype = Datatype.TIME
+
     # See:
     # <https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format#Time>.
     # <https://www.mediawiki.org/wiki/Wikibase/DataModel#Dates_and_times>.
 
     class Precision(Enum):
+        """Time precision."""
+
         BILLION_YEARS = 0
         HUNDRED_MILLION_YEARS = 1
         TEN_MILLION_YEARS = 2
@@ -710,3 +897,6 @@ class Time(DeepDataValue):
         """
         cal = self.args[3]
         return cal if cal is not None else default
+
+
+Datatype._prologue()

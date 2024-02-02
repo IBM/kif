@@ -19,12 +19,17 @@ from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
     DeepDataValue,
-    Descriptor,
     Entity,
     FilterPattern,
     IRI,
+    Item,
+    ItemDescriptor,
+    Lexeme,
+    LexemeDescriptor,
     NoValueSnak,
+    PlainDescriptor,
     Property,
+    PropertyDescriptor,
     Quantity,
     Rank,
     ReferenceRecord,
@@ -740,14 +745,12 @@ At line {line}, column {column}:
                 q1, q2 = self._make_get_wdss_queries(enumerate(reduced_batch))
                 if q1 is not None:
                     it1 = self._eval_select_query(
-                        q1, lambda res: self._parse_get_wdss_results(res),
-                        vars=_vars)
+                        q1, self._parse_get_wdss_results, vars=_vars)
                 else:
                     it1 = iter([])
                 if q2 is not None:
                     it2 = self._eval_select_query(
-                        q2, lambda res: self._parse_get_wdss_results(res),
-                        vars=_vars)
+                        q2, self._parse_get_wdss_results, vars=_vars)
                 else:
                     it2 = iter([])
                 seen = set()
@@ -873,7 +876,7 @@ At line {line}, column {column}:
                 continue        # empty batch, nothing to do
             q = self._make_get_annotations_query(set(wds_batch))
             it = self._eval_select_query(
-                q, lambda res: self._parse_get_annotations_results(res))
+                q, self._parse_get_annotations_results)
             wds2rank: dict[T_WDS, Rank] = dict()
             wds2quals: dict[T_WDS, set[Snak]] = dict()
             wds2refs: dict[T_WDS, dict[T_WDS, set[Snak]]] = dict()
@@ -1050,79 +1053,203 @@ At line {line}, column {column}:
 
     # -- Descriptors -------------------------------------------------------
 
-    def _get_descriptor(
+    def _get_item_descriptor(
             self,
-            entities: Iterable[Entity],
-            lang: str
-    ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
-        for batch in self._batched(entities):
-            q = self._make_descriptor_query(set(batch), lang)
-            it = self._eval_select_query(
-                q, lambda res: self._parse_get_descriptor_results(res))
-            found: set[Entity] = set()
-            entity2label: dict[Entity, Text] = dict()
-            entity2aliases: dict[Entity, set[Text]] = dict()
-            entity2desc: dict[Entity, Text] = dict()
-            for entity, label, alias, desc in it:
-                found.add(entity)
-                if label is not None:
-                    entity2label[entity] = label
-                elif alias is not None:
-                    if entity not in entity2aliases:
-                        entity2aliases[entity] = set()
-                    entity2aliases[entity].add(alias)
-                elif desc is not None:
-                    entity2desc[entity] = desc
-            for entity in batch:
-                if entity in found:
-                    yield (entity, Descriptor(
-                        entity2label.get(entity),
-                        entity2aliases.get(entity, []),
-                        entity2desc.get(entity, None)))
-                else:
-                    yield (entity, None)
+            items: Iterable[Item],
+            lang: str,
+            mask: ItemDescriptor.Mask
+    ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
+        return cast(
+            Iterator[tuple[Item, Optional[ItemDescriptor]]],
+            self._get_item_or_property_descriptor(Item, items, lang, mask))
 
-    def _parse_get_descriptor_results(
+    def _get_property_descriptor(
+            self,
+            properties: Iterable[Property],
+            lang: str,
+            mask: PropertyDescriptor.Mask
+    ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
+        return cast(
+            Iterator[tuple[Property, Optional[PropertyDescriptor]]],
+            self._get_item_or_property_descriptor(
+                Property, properties, lang, mask))
+
+    def _get_item_or_property_descriptor(
+            self,
+            cls: type[Entity],
+            entities: Iterable[Union[Item, Property]],
+            lang: str,
+            mask: PlainDescriptor.Mask
+    ) -> Iterator[tuple[Union[Item, Property], Optional[Union[
+            ItemDescriptor, PropertyDescriptor]]]]:
+        for batch in self._batched(entities):
+            q = self._make_item_or_property_descriptor_query(
+                cls, set(batch), lang, mask)
+            it = self._eval_select_query(
+                q, lambda res:
+                self._parse_get_item_or_property_descriptor_results(
+                    res, cls))
+            desc: dict[Union[Item, Property], dict[str, Any]] = dict()
+            for entity, label, alias, description, datatype in it:
+                if entity not in desc:
+                    desc[entity] = {
+                        'label': None,
+                        'aliases': [],
+                        'description': None,
+                        'datatype': None
+                    }
+                if label is not None:
+                    desc[entity]['label'] = label
+                if alias is not None:
+                    desc[entity]['aliases'].append(alias)
+                if description is not None:
+                    desc[entity]['description'] = description
+                if datatype is not None:
+                    desc[entity]['datatype'] = datatype
+            for entity in batch:
+                if entity in desc:
+                    if entity.is_item() and cls is Item:
+                        yield (cast(Item, entity), ItemDescriptor(
+                            desc[entity].get('label'),
+                            desc[entity].get('aliases'),
+                            desc[entity].get('description')))
+                    elif entity.is_property() and cls is Property:
+                        yield (cast(Property, entity), PropertyDescriptor(
+                            desc[entity].get('label'),
+                            desc[entity].get('aliases'),
+                            desc[entity].get('description'),
+                            desc[entity].get('datatype')))
+                    else:
+                        yield entity, None
+                else:
+                    yield entity, None
+
+    def _parse_get_item_or_property_descriptor_results(
             self,
             results: SPARQL_Results,
+            cls: type[Entity]
     ) -> Iterator[Optional[tuple[
-            Entity, Optional[Text], Optional[Text], Optional[Text]]]]:
+        Union[Item, Property],
+            Optional[Text],
+            Optional[Text],
+            Optional[Text],
+            Optional[IRI]]]]:
         for entry in results.bindings:
-            entity = entry.check_entity('subject')
-            if 'label' in entry:
-                yield entity, entry.check_text('label'), None, None
-            elif 'alias' in entry:
-                yield entity, None, entry.check_text('alias'), None
-            elif 'description' in entry:
-                yield entity, None, None, entry.check_text('description')
+            if cls is Item:
+                entity: Union[Item, Property] = entry.check_item('subject')
+                dt: Optional[IRI] = None
+            elif cls is Property:
+                entity = entry.check_property('subject')
+                dt = entry.check_iri('datatype')
             else:
-                yield None      # ignore
+                raise ShouldNotGetHere
+            if 'label' in entry:
+                yield entity, entry.check_text('label'), None, None, dt
+            elif 'alias' in entry:
+                yield entity, None, entry.check_text('alias'), None, dt
+            elif 'description' in entry:
+                yield entity, None, None, entry.check_text('description'), dt
+            else:
+                yield entity, None, None, None, dt
 
-    def _make_descriptor_query(
+    def _make_item_or_property_descriptor_query(
             self,
-            entities: Collection[Entity],
-            lang: str
+            cls: type[Entity],
+            entities: Collection[Union[Item, Property]],
+            lang: str,
+            mask: PlainDescriptor.Mask
     ) -> SPARQL_Builder:
         q = SPARQL_Builder()
         t: Mapping[str, TTrm] = q.vars_dict(
             'alias',
+            'datatype',
             'description',
             'label',
-            'subject',
-        )
+            'subject')
         language = String(lang)
+        nmask = len(mask)
         with q.where():
-            with q.union() as cup:
-                q.triple(t['subject'], self.rdfs.label, t['label'])
-                q.filter(q.eq(q.lang(t['label']), language))
-                cup.branch()
+            # We use schema:version to ensure ?subject exists.
+            q.triple(t['subject'], self.schema.version, q.bnode())
+            if cls is Property:
                 q.triple(
-                    t['subject'], self.schema.description, t['description'])
-                q.filter(q.eq(q.lang(t['description']), language))
-                cup.branch()
-                q.triple(t['subject'], self.skos.altLabel, t['alias'])
-                q.filter(q.eq(q.lang(t['alias']), language))
+                    t['subject'], self.wikibase.propertyType, t['datatype'])
+            with q.optional(cond=nmask > 0):
+                with q.union(cond=nmask > 1) as cup:
+                    if mask & PlainDescriptor.LABEL:
+                        q.triple(t['subject'], self.rdfs.label, t['label'])
+                        q.filter(q.eq(q.lang(t['label']), language))
+                    if mask & PlainDescriptor.ALIASES:
+                        cup.branch()
+                        q.triple(
+                            t['subject'], self.skos.altLabel, t['alias'])
+                        q.filter(q.eq(q.lang(t['alias']), language))
+                    if mask & PlainDescriptor.DESCRIPTION:
+                        cup.branch()
+                        q.triple(
+                            t['subject'],
+                            self.schema.description, t['description'])
+                        q.filter(q.eq(q.lang(t['description']), language))
             with q.values(t['subject']) as values:
                 for entity in entities:
-                    values.push(entity.iri)
+                    if cls.test(entity):
+                        values.push(entity.iri)
+        return q
+
+    def _get_lexeme_descriptor(
+            self,
+            lexemes: Iterable[Lexeme]
+    ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
+        for batch in self._batched(lexemes):
+            q = self._make_lexeme_descriptor_query(set(batch))
+            it = self._eval_select_query(
+                q, self._parse_get_lexeme_descriptor_results)
+            desc: dict[Lexeme, dict[str, Any]] = dict()
+            for lexeme, lemma, category, language in it:
+                desc[lexeme] = {
+                    'lemma': lemma,
+                    'category': category,
+                    'language': language,
+                }
+            for lexeme in batch:
+                if lexeme in desc:
+                    yield (lexeme, LexemeDescriptor(
+                        desc[lexeme]['lemma'],
+                        desc[lexeme]['category'],
+                        desc[lexeme]['language']
+                    ))
+                else:
+                    yield (lexeme, None)
+
+    def _parse_get_lexeme_descriptor_results(
+            self,
+            results: SPARQL_Results,
+    ) -> Iterator[tuple[Lexeme, Text, IRI, IRI]]:
+        for entry in results.bindings:
+            yield (
+                entry.check_lexeme('subject'),
+                entry.check_text('lemma'),
+                entry.check_item('category'),
+                entry.check_item('language'))
+
+    def _make_lexeme_descriptor_query(
+            self,
+            lexemes: Collection[Lexeme]
+    ) -> SPARQL_Builder:
+        q = SPARQL_Builder()
+        t: Mapping[str, TTrm] = q.vars_dict(
+            'lemma',
+            'category',
+            'language',
+            'subject')
+        with q.where():
+            q.triple(t['subject'], self.schema.version, q.bnode())
+            q.triple(t['subject'], self.wikibase.lemma, t['lemma'])
+            q.triple(
+                t['subject'], self.wikibase.lexicalCategory, t['category'])
+            q.triple(t['subject'], self.dct.language, t['language'])
+            with q.values(t['subject']) as values:
+                for lexeme in lexemes:
+                    if Lexeme.test(lexeme):
+                        values.push(lexeme.iri)
         return q

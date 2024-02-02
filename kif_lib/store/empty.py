@@ -4,13 +4,7 @@
 from collections.abc import Iterable
 from typing import Iterator, Optional
 
-from ..model import (
-    AnnotationRecordSet,
-    Descriptor,
-    Entity,
-    FilterPattern,
-    Statement,
-)
+from ..model import AnnotationRecordSet, FilterPattern, Statement
 from .abc import Store
 
 
@@ -36,11 +30,3 @@ class EmptyStore(Store, type='empty', description='Empty store'):
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
         for stmt in stmts:
             yield stmt, None
-
-    def _get_descriptor(
-            self,
-            entities: Iterable[Entity],
-            language: str
-    ) -> Iterator[tuple[Entity, Descriptor]]:
-        for entity in entities:
-            yield entity, Descriptor(None, [], None)

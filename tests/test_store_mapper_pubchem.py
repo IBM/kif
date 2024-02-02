@@ -138,14 +138,14 @@ class TestSPARQL_MapperStorePubChem(kif_TestCase):
 
     # -- Descriptor --------------------------------------------------------
 
-    def test_get_descriptor(self):
-        kb = self.new()
-        self.store_test_get_descriptor(
-            kb,
-            [(wd.Brazil, None),
-             (wd.instance_of, None)],
-            'en',
-            wd.Brazil, wd.instance_of)
+    # def test_get_descriptor(self):
+    #     kb = self.new()
+    #     self.store_test_get_descriptor(
+    #         kb,
+    #         [(wd.Brazil, None),
+    #          (wd.instance_of, None)],
+    #         'en',
+    #         wd.Brazil, wd.instance_of)
 
 
 if __name__ == '__main__':

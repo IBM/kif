@@ -5,12 +5,12 @@ import kif_lib.vocabulary as wd
 from kif_lib import (
     AnnotationRecord,
     Deprecated,
-    Descriptor,
     EntityFingerprint,
     FilterPattern,
     Fingerprint,
     IRI,
     Item,
+    ItemDescriptor,
     KIF_Object,
     Normal,
     NoValueSnak,
@@ -252,19 +252,19 @@ class TestMarkdownEncoder(kif_TestCase):
 - (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Quantity** 0))
 - (**ValueSnak** (**Property** [canonical SMILES](http://www.wikidata.org/entity/P233)) "ABC"))''')  # noqa: E501
 
-    def test_descriptor_to_markdown(self):
-        desc = Descriptor()
+    def test_item_descriptor_to_markdown(self):
+        desc = ItemDescriptor()
         self.assert_to_markdown(desc, '''\
-(**Descriptor**
+(**ItemDescriptor**
 - *no label*
 - *no aliases*
 - *no description*)''')
-        desc = Descriptor(
+        desc = ItemDescriptor(
             Text("rótulo", 'pt'),
             [Text('outro nome', 'pt'), Text('sinônimo', 'pt')],
             Text('descrição', 'pt'))
         self.assert_to_markdown(desc, '''\
-(**Descriptor**
+(**ItemDescriptor**
 - "rótulo"@pt
 - (**TextSet**
   - "outro nome"@pt

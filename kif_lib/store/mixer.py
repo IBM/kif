@@ -8,14 +8,7 @@ from typing import Any, Iterator, Optional, TypeVar
 
 import more_itertools
 
-from ..model import (
-    AnnotationRecordSet,
-    Descriptor,
-    Entity,
-    FilterPattern,
-    KIF_Object,
-    Statement,
-)
+from ..model import AnnotationRecordSet, FilterPattern, KIF_Object, Statement
 from .abc import Store, StoreFlags
 
 T = TypeVar('T')
@@ -173,40 +166,40 @@ class MixerStore(Store, type='mixer', description='Mixer store'):
 
     # -- Descriptor --------------------------------------------------------
 
-    def _get_descriptor(
-            self,
-            entities: Iterable[Entity],
-            language: str
-    ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
-        return self._get_x_mixed(
-            entities, None,
-            lambda kb, b: kb._get_descriptor(b, language),
-            self._get_descriptor_mixed)
+    # def _get_descriptor(
+    #         self,
+    #         entities: Iterable[Entity],
+    #         language: str
+    # ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
+    #     return self._get_x_mixed(
+    #         entities, None,
+    #         lambda kb, b: kb._get_descriptor(b, language),
+    #         self._get_descriptor_mixed)
 
-    def _get_descriptor_mixed(
-            self,
-            it: Iterator[tuple[Entity, Optional[Descriptor]]],
-    ) -> tuple[Entity, Optional[Descriptor]]:
-        entity0, desc = next(it)
-        found = bool(desc)
-        label = desc.label if desc is not None else None
-        aliases = set(desc.aliases) if desc is not None else set()
-        description = desc.description if desc is not None else None
-        for entityi, desc in it:
-            assert entity0 == entityi
-            if desc is None:
-                continue
-            else:
-                found |= bool(desc)
-            if label is None and desc.label is not None:
-                label = desc.label
-            elif (label is not None
-                  and desc.label is not None and label != desc.label):
-                aliases.add(desc.label)
-            aliases.update(desc.aliases)
-            if description is None and desc.description is not None:
-                description = desc.description
-        if found:
-            return entity0, Descriptor(label, aliases, description)
-        else:
-            return entity0, None
+    # def _get_descriptor_mixed(
+    #         self,
+    #         it: Iterator[tuple[Entity, Optional[Descriptor]]],
+    # ) -> tuple[Entity, Optional[Descriptor]]:
+    #     entity0, desc = next(it)
+    #     found = bool(desc)
+    #     label = desc.label if desc is not None else None
+    #     aliases = set(desc.aliases) if desc is not None else set()
+    #     description = desc.description if desc is not None else None
+    #     for entityi, desc in it:
+    #         assert entity0 == entityi
+    #         if desc is None:
+    #             continue
+    #         else:
+    #             found |= bool(desc)
+    #         if label is None and desc.label is not None:
+    #             label = desc.label
+    #         elif (label is not None
+    #               and desc.label is not None and label != desc.label):
+    #             aliases.add(desc.label)
+    #         aliases.update(desc.aliases)
+    #         if description is None and desc.description is not None:
+    #             description = desc.description
+    #     if found:
+    #         return entity0, Descriptor(label, aliases, description)
+    #     else:
+    #         return entity0, None

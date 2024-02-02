@@ -7,11 +7,11 @@ from typing import cast, Generator, Optional
 from .. import vocabulary as wd
 from ..model import (
     AnnotationRecord,
-    Descriptor,
     Entity,
     FilterPattern,
     Fingerprint,
     IRI,
+    ItemDescriptor,
     KIF_Object,
     Quantity,
     Rank,
@@ -112,8 +112,8 @@ class MarkdownEncoder(
         elif obj.is_rank():
             rank = cast(Rank, obj)
             yield self._encode_kif_object_name(rank)
-        elif obj.is_descriptor():
-            desc = cast(Descriptor, obj)
+        elif obj.is_item_descriptor():
+            desc = cast(ItemDescriptor, obj)
             yield from self._iterencode_kif_object_start(desc, '')
             sep = f'{NL}{2 * SP * indent}-{SP}'
             yield sep

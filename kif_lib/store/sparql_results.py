@@ -217,6 +217,23 @@ class Bindings(Mapping):
                 raise self._error_bad(var, 'a Wikidata property', str(uri))
             return Property(uri)
 
+    def check_lexeme(
+            self,
+            var: str,
+            value: Optional[Lexeme] = None,
+            split=False
+    ) -> Lexeme:
+        if value:
+            return value
+        uri = self.check_uriref(var)
+        if split:
+            name = NS.Wikidata.get_wikidata_name(uri)
+            return Lexeme(NS.Wikidata.WD[name])
+        else:
+            if not NS.Wikidata.is_wd_lexeme(uri):
+                raise self._error_bad(var, 'a Wikidata lexeme', str(uri))
+            return Lexeme(uri)
+
     def check_iri(self, var: str) -> IRI:
         return IRI(self.check_uriref(var))
 

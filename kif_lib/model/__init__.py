@@ -8,6 +8,7 @@ from .descriptor import (
     Descriptor,
     ItemDescriptor,
     LexemeDescriptor,
+    PlainDescriptor,
     PropertyDescriptor,
 )
 from .fingerprint import (
@@ -54,9 +55,11 @@ from .snak_set import SnakSet, TSnakSet
 from .statement import Statement
 from .text_set import TextSet, TTextSet
 from .value import (
+    Datatype,
     DataValue,
     DeepDataValue,
     Entity,
+    ExternalId,
     IRI,
     Item,
     Items,
