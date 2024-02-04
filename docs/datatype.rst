@@ -4,6 +4,16 @@ Datatype
 
 .. currentmodule:: kif_lib
 
+.. inheritance-diagram:: Datatype ItemDatatype PropertyDatatype LexemeDatatype
+                         IRI_Datatype TextDatatype StringDatatype
+                         ExternalIdDatatype QuantityDatatype TimeDatatype
+   :top-classes: kif_lib.model.value.Datatype
+   :parts: -3
+   :caption: Datatype hierarchy.
+
+Datatype
+--------
+
 .. autosummary::
    :toctree: generated/
 

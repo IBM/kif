@@ -4,6 +4,11 @@ Snak
 
 .. currentmodule:: kif_lib
 
+.. inheritance-diagram:: Snak ValueSnak SomeValueSnak NoValueSnak
+   :top-classes: kif_lib.model.snak.Snak
+   :parts: -3
+   :caption: Snak hierarchy.
+
 Snak
 ----
 

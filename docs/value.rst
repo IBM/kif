@@ -4,6 +4,12 @@ Value
 
 .. currentmodule:: kif_lib
 
+.. inheritance-diagram:: Value Entity Item Property Lexeme DataValue IRI Text
+                         String ExternalId DeepDataValue Quantity Time
+   :top-classes: kif_lib.model.value.Value
+   :parts: -3
+   :caption: Value hierarchy.
+
 Value
 -----
 
@@ -11,6 +17,7 @@ Value
    :toctree: generated/
 
    Value
+   Value.get_datatype
    Value.value
    Value.get_value
    Value.n3

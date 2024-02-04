@@ -19,7 +19,6 @@ def get_copyright():
 
 project = os.getenv('NAME', 'unknown')
 copyright = get_copyright()
-
 extensions = [
     'myst_parser',
     'sphinx.ext.autodoc',
@@ -40,7 +39,6 @@ add_module_names = False
 # autodoc_member_order = 'groupwise'
 # autodoc_member_order = 'bysource'
 # autodoc_member_order = 'alphabetical'
-graphviz_output_format = 'svg'
 source_suffix = {
     '.rst': 'restructuredtext',
     '.txt': 'markdown',
@@ -49,3 +47,20 @@ source_suffix = {
 # html_static_path = ['_static']
 # html_theme = 'sphinx_rtd_theme'
 html_theme = 'pydata_sphinx_theme'
+
+graphviz_output_format = 'svg'
+inheritance_graph_attrs = dict(
+    rankdir='TB',
+    ratio='compress',
+    #size='16.0, 9.0',
+)
+inheritance_node_attrs = dict(
+    fillcolor='lightgray',
+    fontsize=10,
+    ordering='out',
+    # shape='ellipse',
+    style='filled',
+)
+inheritance_edge_attrs = dict(
+    dir='back',
+)
