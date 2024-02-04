@@ -6,12 +6,14 @@ from kif_lib import (
     AnnotationRecord,
     Deprecated,
     EntityFingerprint,
+    ExternalId,
     FilterPattern,
     Fingerprint,
     IRI,
     Item,
     ItemDescriptor,
     KIF_Object,
+    Lexeme,
     Normal,
     NoValueSnak,
     Preferred,
@@ -47,6 +49,26 @@ class TestMarkdownEncoder(kif_TestCase):
 
     def assert_to_markdown(self, obj, md):
         self.assertEqual(obj.to_markdown(), md)
+
+    def test_datatype_to_markdown(self):
+        self.assert_to_markdown(
+            Item.datatype, self.md_sexp('ItemDatatype'))
+        self.assert_to_markdown(
+            Property.datatype, self.md_sexp('PropertyDatatype'))
+        self.assert_to_markdown(
+            Lexeme.datatype, self.md_sexp('LexemeDatatype'))
+        self.assert_to_markdown(
+            IRI.datatype, self.md_sexp('IRI_Datatype'))
+        self.assert_to_markdown(
+            Text.datatype, self.md_sexp('TextDatatype'))
+        self.assert_to_markdown(
+            String.datatype, self.md_sexp('StringDatatype'))
+        self.assert_to_markdown(
+            ExternalId.datatype, self.md_sexp('ExternalIdDatatype'))
+        self.assert_to_markdown(
+            Quantity.datatype, self.md_sexp('QuantityDatatype'))
+        self.assert_to_markdown(
+            Time.datatype, self.md_sexp('TimeDatatype'))
 
     def test_item_to_markdown(self):
         # known prefix: know label

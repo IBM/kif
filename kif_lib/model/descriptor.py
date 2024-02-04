@@ -6,7 +6,7 @@ from typing import NoReturn, Optional, Union
 
 from .kif_object import KIF_Object, TCallable
 from .text_set import TextSet, TTextSet
-from .value import IRI, Item, T_IRI, Text, TText
+from .value import Datatype, Item, Text, TText
 
 
 class Descriptor(KIF_Object):
@@ -184,25 +184,25 @@ class PropertyDescriptor(PlainDescriptor):
             arg1: Optional[TText] = None,
             arg2: Optional[TTextSet] = None,
             arg3: Optional[TText] = None,
-            arg4: Optional[T_IRI] = None
+            arg4: Optional[Datatype] = None
     ):
         super().__init__(arg1, arg2, arg3, arg4)
 
     def _preprocess_arg(self, arg, i):
         if i == 4:
-            return self._preprocess_optional_arg_iri(arg, i)
+            return self._preprocess_optional_arg_datatype(arg, i)
         else:
             return super()._preprocess_arg(arg, i)
 
     @property
-    def datatype(self) -> Optional[IRI]:
+    def datatype(self) -> Optional[Datatype]:
         """Descriptor datatype."""
         return self.get_datatype()
 
     def get_datatype(
             self,
-            default: Optional[IRI] = None
-    ) -> Optional[IRI]:
+            default: Optional[Datatype] = None
+    ) -> Optional[Datatype]:
         """Gets descriptor datatype.
 
         If descriptor datatype is ``None``, returns `default`.

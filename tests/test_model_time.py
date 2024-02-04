@@ -39,22 +39,51 @@ class TestModelTime(kif_TestCase):
                 Time.Precision.YEAR, 1, Time.Precision.DAY))
 
     def test_precision_aliases(self):
-        self.assertIs(Time.Precision.BILLION_YEARS, Time.BILLION_YEARS)
-        self.assertIs(Time.HUNDRED_MILLION_YEARS, Time.HUNDRED_MILLION_YEARS)
-        self.assertIs(Time.TEN_MILLION_YEARS, Time.TEN_MILLION_YEARS)
-        self.assertIs(Time.MILLION_YEARS, Time.MILLION_YEARS)
         self.assertIs(
-            Time.HUNDRED_THOUSAND_YEARS, Time.HUNDRED_THOUSAND_YEARS)
-        self.assertIs(Time.TEN_THOUSAND_YEARS, Time.TEN_THOUSAND_YEARS)
-        self.assertIs(Time.MILLENIA, Time.MILLENIA)
-        self.assertIs(Time.CENTURY, Time.CENTURY)
-        self.assertIs(Time.DECADE, Time.DECADE)
-        self.assertIs(Time.YEAR, Time.YEAR)
-        self.assertIs(Time.MONTH, Time.MONTH)
-        self.assertIs(Time.DAY, Time.DAY)
-        self.assertIs(Time.HOUR, Time.HOUR)
-        self.assertIs(Time.MINUTE, Time.MINUTE)
-        self.assertIs(Time.SECOND, Time.SECOND)
+            Time.Precision.BILLION_YEARS,
+            Time.BILLION_YEARS)
+        self.assertIs(
+            Time.Precision.HUNDRED_MILLION_YEARS,
+            Time.HUNDRED_MILLION_YEARS)
+        self.assertIs(
+            Time.Precision.TEN_MILLION_YEARS,
+            Time.TEN_MILLION_YEARS)
+        self.assertIs(
+            Time.Precision.MILLION_YEARS,
+            Time.MILLION_YEARS)
+        self.assertIs(
+            Time.Precision.HUNDRED_THOUSAND_YEARS,
+            Time.HUNDRED_THOUSAND_YEARS)
+        self.assertIs(
+            Time.Precision.TEN_THOUSAND_YEARS,
+            Time.TEN_THOUSAND_YEARS)
+        self.assertIs(
+            Time.Precision.MILLENNIA,
+            Time.MILLENNIA)
+        self.assertIs(
+            Time.Precision.CENTURY,
+            Time.CENTURY)
+        self.assertIs(
+            Time.Precision.DECADE,
+            Time.DECADE)
+        self.assertIs(
+            Time.Precision.YEAR,
+            Time.YEAR)
+        self.assertIs(
+            Time.Precision.MONTH,
+            Time.MONTH)
+        self.assertIs(
+            Time.Precision.DAY,
+            Time.DAY)
+        self.assertIs(
+            Time.Precision.HOUR,
+            Time.HOUR)
+        self.assertIs(
+            Time.Precision.MINUTE,
+            Time.MINUTE)
+        self.assertIs(
+            Time.Precision.SECOND,
+            Time.SECOND)
 
     def test__init__(self):
         self.assertRaises(TypeError, Time, [])

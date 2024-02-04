@@ -11,6 +11,7 @@ from rdflib import BNode, Literal, URIRef
 from .. import namespace as NS
 from ..error import ShouldNotGetHere
 from ..model import (
+    Datatype,
     Datetime,
     Decimal,
     Entity,
@@ -170,6 +171,19 @@ class Bindings(Mapping):
         return bdn['value']
 
     # -- KIF checks --------------------------------------------------------
+
+    def check_datatype(
+            self,
+            var: str,
+            value: Optional[Datatype] = None
+    ) -> Datatype:
+        if value:
+            return value
+        uri = self.check_uriref(var)
+        try:
+            return Datatype._from_rdflib(uri)
+        except ValueError:
+            raise self._error_bad(var, 'a Wikibase datatype', uri)
 
     def check_entity(
             self,

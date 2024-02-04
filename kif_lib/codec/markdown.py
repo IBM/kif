@@ -7,6 +7,7 @@ from typing import cast, Generator, Optional
 from .. import vocabulary as wd
 from ..model import (
     AnnotationRecord,
+    Datatype,
     Entity,
     FilterPattern,
     Fingerprint,
@@ -25,8 +26,8 @@ from ..model import (
 from ..model.kif_object import Decimal, Encoder, Object
 from ..namespace import _DEFAULT_NSM
 
-SP = ' '
-NL = '\n'
+SP = ' '                        # space
+NL = '\n'                       # newline
 
 
 class MarkdownEncoder(
@@ -44,7 +45,10 @@ class MarkdownEncoder(
             obj: KIF_Object,
             indent: int
     ) -> Generator[str, None, None]:
-        if obj.is_entity():
+        if obj.is_datatype():
+            datatype = cast(Datatype, obj)
+            yield self._encode_kif_object_name(datatype)
+        elif obj.is_entity():
             entity = cast(Entity, obj)
             yield from self._iterencode_kif_object_start(entity)
             label = wd.get_entity_label(entity)

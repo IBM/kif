@@ -1,4 +1,4 @@
-# Copyright (C) 2023-2024 IBM Corp.
+# Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import PlainDescriptor
@@ -6,7 +6,7 @@ from kif_lib import PlainDescriptor
 from .tests import kif_TestCase, main
 
 
-class TestModelPlainDescriptorMask(kif_TestCase):
+class TestModelPlainDescriptor(kif_TestCase):
 
     def test__preprocess_arg_plain_descriptor_mask(self):
         self.assertRaises(

@@ -11,28 +11,35 @@ import kif_lib.vocabulary as wd
 from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
+    Datatype,
     DataValue,
     DeprecatedRank,
     Entity,
     EntityFingerprint,
     ExternalId,
+    ExternalIdDatatype,
     FilterPattern,
     Fingerprint,
     IRI,
+    IRI_Datatype,
     Item,
+    ItemDatatype,
     ItemDescriptor,
     KIF_Object,
     KIF_ObjectSet,
     Lexeme,
+    LexemeDatatype,
     LexemeDescriptor,
     NormalRank,
     NoValueSnak,
     Pattern,
     PreferredRank,
     Property,
+    PropertyDatatype,
     PropertyDescriptor,
     PropertyFingerprint,
     Quantity,
+    QuantityDatatype,
     Rank,
     ReferenceRecord,
     ReferenceRecordSet,
@@ -44,9 +51,12 @@ from kif_lib import (
     Store,
     StoreError,
     String,
+    StringDatatype,
     Text,
+    TextDatatype,
     TextSet,
     Time,
+    TimeDatatype,
     Value,
     ValueSnak,
 )
@@ -54,13 +64,8 @@ from kif_lib.error import ShouldNotGetHere
 from kif_lib.model import Decimal, UTC
 from kif_lib.model.object import Object
 
-PUBCHEM_IBM_PW = 'http://power.br.ibm.com:8890/sparql/'
-PUBCHEM_IBM_OS = 'https://brl-kbe-virtuoso.bx.cloud9.ibm.com/sparql/'
-PUBCHEM = os.getenv('PUBCHEM', PUBCHEM_IBM_PW)
-
-WIKIDATA_PUB = 'https://query.wikidata.org/sparql'
-WIKIDATA_IBM = 'https://blazegraph-wikidata.bx.cloud9.ibm.com/bigdata/sparql'
-WIKIDATA = os.getenv('WIKIDATA', WIKIDATA_IBM)
+PUBCHEM = os.getenv('PUBCHEM')
+WIKIDATA = os.getenv('WIKIDATA')
 
 
 def skip_if_set(var):
@@ -104,6 +109,11 @@ class kif_TestCase(TestCase):
         for arg in args:
             self.assertIn(arg, obj)
 
+    def assert_datatype(self, obj):
+        self.assert_kif_object(obj)
+        self.assertIsInstance(obj, Datatype)
+        self.assertTrue(obj.is_datatype())
+
     def assert_value(self, obj):
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Value)
@@ -126,26 +136,64 @@ class kif_TestCase(TestCase):
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Item)
         self.assertTrue(obj.is_item())
+        self.assert_item_datatype(obj.get_datatype())
+
+    def assert_item_datatype(self, obj):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, ItemDatatype)
+        self.assertTrue(obj.is_item_datatype())
+        self.assertEqual(obj._uri, NS.WIKIBASE.WikibaseItem)
 
     def assert_property(self, obj, iri):
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Property)
         self.assertTrue(obj.is_property())
+        self.assert_property_datatype(obj.get_datatype())
+
+    def assert_property_datatype(self, obj):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, PropertyDatatype)
+        self.assertTrue(obj.is_property_datatype())
+        self.assertEqual(obj._uri, NS.WIKIBASE.WikibaseProperty)
 
     def assert_lexeme(self, obj, iri):
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Lexeme)
         self.assertTrue(obj.is_lexeme())
+        self.assert_lexeme_datatype(obj.get_datatype())
+
+    def assert_lexeme_datatype(self, obj):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, LexemeDatatype)
+        self.assertTrue(obj.is_lexeme_datatype())
+        self.assertEqual(obj._uri, NS.WIKIBASE.WikibaseLexeme)
 
     def assert_data_value(self, obj):
         self.assert_value(obj)
         self.assertIsInstance(obj, DataValue)
         self.assertTrue(obj.is_data_value())
 
+    def assert_iri(self, obj, iri):
+        self.assert_data_value(obj)
+        self.assertIsInstance(obj, IRI)
+        self.assertTrue(obj.is_iri())
+        self.assert_iri_datatype(obj.get_datatype())
+        self.assertEqual(obj.args[0], iri)
+        self.assertEqual(obj.value, obj.args[0])
+        self.assertEqual(obj.get_value(), obj.args[0])
+        self.assertEqual(obj.n3(), f'<{obj.value}>')
+
+    def assert_iri_datatype(self, obj):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, IRI_Datatype)
+        self.assertTrue(obj.is_iri_datatype())
+        self.assertEqual(obj._uri, NS.WIKIBASE.Url)
+
     def assert_text(self, obj, s, lang=None):
         self.assert_data_value(obj)
         self.assertIsInstance(obj, Text)
         self.assertTrue(obj.is_text())
+        self.assert_text_datatype(obj.get_datatype())
         self.assertEqual(obj.args[0], s)
         if lang is None:
             lang = Text.default_language
@@ -153,6 +201,12 @@ class kif_TestCase(TestCase):
         self.assertEqual(obj.value, obj.args[0])
         self.assertEqual(obj.get_value(), obj.args[0])
         self.assertEqual(obj.n3(), f'"{obj.value}"@{lang}')
+
+    def assert_text_datatype(self, obj):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, TextDatatype)
+        self.assertTrue(obj.is_text_datatype())
+        self.assertEqual(obj._uri, NS.WIKIBASE.Monolingualtext)
 
     def assert_text_set(self, obj, *texts):
         self.assert_kif_object_set(obj, *texts)
@@ -170,33 +224,40 @@ class kif_TestCase(TestCase):
         self.assert_data_value(obj)
         self.assertIsInstance(obj, String)
         self.assertTrue(obj.is_string())
+        self.assert_string_datatype(obj.get_datatype())
         self.assertEqual(obj.args[0], s)
         self.assertEqual(obj.value, obj.args[0])
         self.assertEqual(obj.get_value(), obj.args[0])
         self.assertEqual(obj.n3(), f'"{obj.value}"')
+
+    def assert_string_datatype(self, obj):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, StringDatatype)
+        self.assertTrue(obj.is_string_datatype())
+        self.assertEqual(obj._uri, NS.WIKIBASE.String)
 
     def assert_external_id(self, obj, s):
-        self.assert_string(obj, s)
+        self.assert_data_value(obj)
+        self.assertIsInstance(obj, String)
         self.assertIsInstance(obj, ExternalId)
         self.assertTrue(obj.is_external_id())
+        self.assert_external_id_datatype(obj.get_datatype())
         self.assertEqual(obj.args[0], s)
         self.assertEqual(obj.value, obj.args[0])
         self.assertEqual(obj.get_value(), obj.args[0])
         self.assertEqual(obj.n3(), f'"{obj.value}"')
 
-    def assert_iri(self, obj, iri):
-        self.assert_data_value(obj)
-        self.assertIsInstance(obj, IRI)
-        self.assertTrue(obj.is_iri())
-        self.assertEqual(obj.args[0], iri)
-        self.assertEqual(obj.value, obj.args[0])
-        self.assertEqual(obj.get_value(), obj.args[0])
-        self.assertEqual(obj.n3(), f'<{obj.value}>')
+    def assert_external_id_datatype(self, obj):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, ExternalIdDatatype)
+        self.assertTrue(obj.is_external_id_datatype())
+        self.assertEqual(obj._uri, NS.WIKIBASE.ExternalId)
 
     def assert_quantity(self, obj, amount, unit=None, lb=None, ub=None):
         self.assert_data_value(obj)
         self.assertIsInstance(obj, Quantity)
         self.assertTrue(obj.is_quantity())
+        self.assert_quantity_datatype(obj.get_datatype())
         self.assertEqual(obj.args[0], Decimal(amount))
         self.assertEqual(obj.value, str(obj.args[0]))
         self.assertEqual(obj.get_value(), str(obj.args[0]))
@@ -215,10 +276,17 @@ class kif_TestCase(TestCase):
         self.assertEqual(obj.upper_bound, obj.args[3])
         self.assertEqual(obj.get_upper_bound(), obj.args[3])
 
+    def assert_quantity_datatype(self, obj):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, QuantityDatatype)
+        self.assertTrue(obj.is_quantity_datatype())
+        self.assertEqual(obj._uri, NS.WIKIBASE.Quantity)
+
     def assert_time(self, obj, time, prec=None, tz=None, cal=None):
         self.assert_data_value(obj)
         self.assertIsInstance(obj, Time)
         self.assertTrue(obj.is_time())
+        self.assert_time_datatype(obj.get_datatype())
         self.assertEqual(obj.args[0], time.replace(tzinfo=UTC))
         self.assertEqual(obj.value, obj.args[0].isoformat())
         self.assertEqual(obj.get_value(), obj.args[0].isoformat())
@@ -236,6 +304,12 @@ class kif_TestCase(TestCase):
             obj.args[3], cal if cal is not None else None)
         self.assertEqual(obj.calendar_model, obj.args[3])
         self.assertEqual(obj.get_calendar_model(), obj.args[3])
+
+    def assert_time_datatype(self, obj):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, TimeDatatype)
+        self.assertTrue(obj.is_time_datatype())
+        self.assertEqual(obj._uri, NS.WIKIBASE.Time)
 
     def assert_snak(self, obj, prop):
         self.assert_kif_object(obj)
@@ -423,9 +497,9 @@ class kif_TestCase(TestCase):
             self.assertIsNone(obj.datatype)
             self.assertIsNone(obj.get_datatype())
         else:
-            self.assert_iri(obj.args[3], *dt)
-            self.assert_iri(obj.datatype, *dt)
-            self.assert_iri(obj.get_datatype(), *dt)
+            self.assert_datatype(obj.args[3], *dt)
+            self.assert_datatype(obj.datatype, *dt)
+            self.assert_datatype(obj.get_datatype(), *dt)
 
     def assert_lexeme_descriptor(self, obj, lemma, cat, lang):
         self.assert_kif_object(obj)

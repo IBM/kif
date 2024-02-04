@@ -20,6 +20,7 @@ perl_usage=\
 usage:
 	@perl -wnle '${perl_usage}' ${MAKEFILE_LIST}
 
+CHECK_COPYRIGHT?= yes
 CHECK_DEPS?= htmlcov-clean
 CHECK_FLAKE8=? yes
 CHECK_ISORT?= yes
@@ -42,6 +43,7 @@ MANIFEST_IN_GIT_LS_FILES_PATHSPEC?=
 MYPY_OPTIONS?= --show-error-context --show-error-codes
 PERL?= perl
 PIP?= ${PYTHON} -m pip
+PYTEST_ENV?=
 PYTEST_INI?= pytest.ini
 PYTEST_OPTIONS?= -x
 PYTHON?= python
@@ -55,6 +57,7 @@ TOX_SETENV?=
 
 include Makefile.conf
 
+CHECK_DEPS+= $(if $(filter yes,${CHECK_COPYRIGHT}),check-copyright)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_FLAKE8}),check-flake8)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_ISORT}),check-isort)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_MYPY}),check-mypy)
@@ -66,7 +69,12 @@ split = $(shell printf '$(1)'\
 # run testsuite
 .PHONY: check
 check: ${CHECK_DEPS}
-	pytest ${PYTEST_OPTIONS}
+	${PYTEST_ENV} pytest ${PYTEST_OPTIONS} ${TESTS}
+
+# run testsuite skipping slow stuff
+.PHONY: checkfast
+checkfast:
+	${MAKE} check ${CHECKFAST}
 
 # check sources using flake8
 .PHONY: check-flake8
@@ -117,21 +125,21 @@ perl_check_copyright:=\
     my $$end = $$3 if defined $$3;\
     my $$exp_start = guess_year("A");\
     if ($$start ne $$exp_start) {\
-      put_error("bad start year: expected $$exp_start, got $$start");\
+      put_error("copyright: bad start-year (expected $$exp_start, got $$start)");\
     } else {\
       my $$exp_end = guess_year("M");\
       if ($$exp_end eq $$exp_start) {\
         if (defined $$end) {\
-          put_error("bad end year: expected none, got $$end");\
+          put_error("copyright: bad end-year (expected none, got $$end)");\
         }\
       } else {\
         if (!defined $$end) {\
-          put_error("bad end year: expected $$exp_end, got none");\
+          put_error("copyright: bad end-year (expected $$exp_end, got none)");\
         }\
       }\
     }\
   } else {\
-    put_error("bad or missing license tag");\
+    put_error("copyright: bad or missing license tag");\
   }\
   END { exit($$errcnt); }\
   ${NULL}

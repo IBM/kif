@@ -18,6 +18,7 @@ from ..error import ShouldNotGetHere
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
+    Datatype,
     DeepDataValue,
     Entity,
     FilterPattern,
@@ -1133,14 +1134,14 @@ At line {line}, column {column}:
             Optional[Text],
             Optional[Text],
             Optional[Text],
-            Optional[IRI]]]]:
+            Optional[Datatype]]]]:
         for entry in results.bindings:
             if cls is Item:
                 entity: Union[Item, Property] = entry.check_item('subject')
-                dt: Optional[IRI] = None
+                dt: Optional[Datatype] = None
             elif cls is Property:
                 entity = entry.check_property('subject')
-                dt = entry.check_iri('datatype')
+                dt = entry.check_datatype('datatype')
             else:
                 raise ShouldNotGetHere
             if 'label' in entry:

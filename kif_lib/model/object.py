@@ -248,11 +248,13 @@ class ObjectMeta(abc.ABCMeta):
                         i: int,
                         default: Optional[c] = None,
                         function: Optional[Union[TFun, str]] = None,
-                        _f_check_optional_arg: TFun = getattr(
-                            c, s_check_optional_arg)
+                        _f_preprocess_arg: TFun = getattr(
+                            c, s_preprocess_arg)
                 ) -> Union[Optional[c], NoReturn]:
-                    return _f_check_optional_arg(
-                        arg, default, function or cls_, None, i)
+                    if arg is None:
+                        return default
+                    else:
+                        return _f_preprocess_arg(arg, i, function)
                 return preprocess_optional_arg_
             f_preprocess_optional_arg = classmethod(
                 mk_preprocess_optional_arg_(cls))

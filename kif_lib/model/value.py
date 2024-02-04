@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import abstractmethod
-from enum import Enum, StrEnum
+from enum import Enum
+from functools import cache
 from itertools import chain
 from typing import cast, Collection, Final, Iterable, NoReturn, Optional, Union
 
@@ -19,119 +20,112 @@ from .kif_object import (
 )
 
 T_IRI = Union['IRI', NS.T_URI]
+TDatatype = Union['Datatype', T_IRI]
 TExternalId = Union['ExternalId', 'String', str]
 TString = Union['String', str]
 TText = Union['Text', TString]
 TTimePrecision = Union['Time.Precision', int]
 
-_datatype_from_uri_dict: dict[URIRef, 'Datatype']
-_datatype_to_uri_dict: dict['Datatype', URIRef]
 
-_datatype_from_value_class_dict: dict[type['Value'], 'Datatype']
-_datatype_to_value_class_dict: dict['Datatype', type['Value']]
+class Datatype(KIF_Object):
+    """Abstract base class for datatypes."""
 
+    #: Datatype of itme values.
+    item: 'ItemDatatype'
 
-class Datatype(StrEnum):
-    """Value datatype."""
+    #: Datatype of property values.
+    property: 'PropertyDatatype'
 
-    #: Datatype for :class:`Time`.
-    ITEM = 'Item'
+    #: Datatype of lexeme values.
+    lexeme: 'LexemeDatatype'
 
-    #: Datatype for :class:`Property`.
-    PROPERTY = 'Property'
+    #: Datatype of iri values.
+    iri: 'IRI_Datatype'
 
-    #: Datatype for :class:`Lexeme`.
-    LEXEME = 'Lexeme'
+    #: Datatype of text values.
+    text: 'TextDatatype'
 
-    #: Datatype for :class:`IRI`.
-    IRI = 'IRI'
+    #: Datatype of string values.
+    string: 'StringDatatype'
 
-    #: Datatype for :class:`Text`.
-    TEXT = 'Text'
+    #: Datatype of external id values.
+    external_id: 'ExternalIdDatatype'
 
-    #: Datatype for :class:`String`.
-    STRING = 'String'
+    #: Datatype of quantity values.
+    quantity: 'QuantityDatatype'
 
-    #: Datatype for :class:`ExternalId`.
-    EXTERNAL_ID = 'ExternalId'
+    #: Datatype of time values.
+    time: 'TimeDatatype'
 
-    #: Datatype for :class:`Quantity`.
-    QUANTITY = 'Quantity'
-
-    #: Datatype for :class:`Time`.
-    TIME = 'Time'
+    _uri: URIRef
 
     @classmethod
-    def _prologue(cls):
-        global _datatype_from_uri_dict
-        global _datatype_to_uri_dict
-        global _datatype_from_value_class_dict
-        global _datatype_to_value_class_dict
-        _datatype_from_uri_dict = {
-            NS.WIKIBASE.WikibaseItem: cls.ITEM,
-            NS.WIKIBASE.WikibaseProperty: cls.PROPERTY,
-            NS.WIKIBASE.WikibaseLexeme: cls.LEXEME,
-            NS.WIKIBASE.Url: cls.IRI,
-            NS.WIKIBASE.Monolingualtext: cls.TEXT,
-            NS.WIKIBASE.String: cls.STRING,
-            NS.WIKIBASE.ExternalId: cls.EXTERNAL_ID,
-            NS.WIKIBASE.Quantity: cls.QUANTITY,
-            NS.WIKIBASE.Time: cls.TIME,
-        }
-        _datatype_to_uri_dict = {
-            v: k for k, v in _datatype_from_uri_dict.items()
-        }
-        _datatype_from_value_class_dict = {
-            Item: cls.ITEM,
-            Property: cls.PROPERTY,
-            Lexeme: cls.LEXEME,
-            IRI: cls.IRI,
-            Text: cls.TEXT,
-            String: cls.STRING,
-            ExternalId: cls.EXTERNAL_ID,
-            Quantity: cls.QUANTITY,
-            Time: cls.TIME,
-        }
-        _datatype_to_value_class_dict = {
-            v: k for k, v in _datatype_from_value_class_dict.items()
-        }
+    def _preprocess_arg_datatype(
+            cls,
+            arg: TDatatype,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union['Datatype', NoReturn]:
+        if isinstance(arg, (IRI, URIRef, str)):
+            if isinstance(arg, IRI):
+                uri: URIRef = URIRef(arg.value)
+            elif isinstance(arg, URIRef):
+                uri = arg
+            elif isinstance(arg, str):
+                uri = URIRef(arg)
+            else:
+                raise cls._should_not_get_here()
+            try:
+                return cls._from_rdflib(uri)
+            except ValueError as err:
+                return cast(Datatype, cls._check_arg(
+                    arg, False, str(err), function or cls,
+                    None, i, ValueError))
+        else:
+            return cast(Datatype, Datatype.check(
+                arg, function or cls, None, i))
 
     @classmethod
-    def _from_uri(cls, uri: URIRef) -> 'Datatype':
-        global _datatype_from_uri_dict
-        return _datatype_from_uri_dict[uri]
-
-    def _to_uri(self) -> URIRef:
-        global _datatype_to_uri_dict
-        return _datatype_to_uri_dict[self]
+    @cache
+    def _from_rdflib(cls, uri: URIRef) -> 'Datatype':
+        if uri == cls.item._uri:
+            return cls.item
+        elif uri == cls.property._uri:
+            return cls.property
+        elif uri == cls.lexeme._uri:
+            return cls.lexeme
+        elif uri == cls.iri._uri:
+            return cls.iri
+        elif uri == cls.text._uri:
+            return cls.text
+        elif uri == cls.string._uri:
+            return cls.string
+        elif uri == cls.external_id._uri:
+            return cls.external_id
+        elif uri == cls.quantity._uri:
+            return cls.quantity
+        elif uri == cls.time._uri:
+            return cls.time
+        else:
+            raise ValueError(f'bad Wikibase datatype: {uri}')
 
     @classmethod
-    def from_value_class(cls, value_class: type['Value']) -> 'Datatype':
-        """Gets datatype of value class.
-
-        Parameters:
-           value_class: Concrete subclass of value.
-
-        Returns:
-           Datatype.
-        """
-        global _datatype_from_value_class_dict
-        return _datatype_from_value_class_dict[value_class]
-
-    def to_value_class(self) -> type['Value']:
-        """Gets the value class of datatype.
-
-        Returns:
-           Value class of datatype.
-        """
-        global _datatype_to_value_class_dict
-        return _datatype_to_value_class_dict[self]
+    def _to_rdflib(cls) -> URIRef:
+        return cls._uri
 
 
 class Value(KIF_Object):
     """Abstract base class for values."""
 
-    datatype: Datatype
+    @classmethod
+    @abstractmethod
+    def get_datatype(cls) -> Datatype:
+        """Gets value's datatype.
+
+        Returns:
+           Datatype
+        """
+        raise cls._must_be_implemented_in_subclass()
 
     @classmethod
     def _preprocess_arg_value(
@@ -239,6 +233,8 @@ class Value(KIF_Object):
             raise self._should_not_get_here()
 
 
+# -- Entity ----------------------------------------------------------------
+
 class Entity(Value):
     """Abstract base class for entities."""
 
@@ -265,6 +261,17 @@ class Entity(Value):
         return self.args[0]
 
 
+# -- Item --
+
+class ItemDatatype(Datatype):
+    """Datatype of item values."""
+
+    _uri: URIRef = NS.WIKIBASE.WikibaseItem
+
+    def __init__(self):
+        return super().__init__()
+
+
 class Item(Entity):
     """Entity representing a thing.
 
@@ -272,42 +279,12 @@ class Item(Entity):
        arg1: IRI.
     """
 
-    #: Item datatype.
-    datatype: Datatype = Datatype.ITEM
+    #: Datatype of item values.
+    datatype: ItemDatatype = ItemDatatype()
 
-    def __init__(self, arg1: T_IRI):
-        super().__init__(arg1)
-
-
-class Property(Entity):
-    """Entity representing a relationship.
-
-    Parameters:
-       arg1: IRI.
-    """
-
-    #: Property datatype.
-    datatype: Datatype = Datatype.PROPERTY
-
-    def __init__(self, arg1: T_IRI):
-        super().__init__(arg1)
-
-    def __call__(self, arg1, arg2=None):
-        if arg2 is not None:
-            return self.Statement(arg1, self.ValueSnak(self, arg2))
-        else:
-            return self.ValueSnak(self, arg1)
-
-
-class Lexeme(Entity):
-    """Entity representing a word or phrase.
-
-    Parameters:
-       arg1: IRI.
-    """
-
-    #: Lexeme datatype.
-    datatype: Datatype = Datatype.LEXEME
+    @classmethod
+    def get_datatype(cls) -> ItemDatatype:
+        return cls.datatype
 
     def __init__(self, arg1: T_IRI):
         super().__init__(arg1)
@@ -326,6 +303,42 @@ def Items(arg1: T_IRI, *args: T_IRI) -> Iterable[Item]:
     return map(Item, chain([arg1], args))
 
 
+# -- Property --
+
+
+class PropertyDatatype(Datatype):
+    """Datatype of property values."""
+
+    _uri: URIRef = NS.WIKIBASE.WikibaseProperty
+
+    def __init__(self):
+        return super().__init__()
+
+
+class Property(Entity):
+    """Entity representing a relationship.
+
+    Parameters:
+       arg1: IRI.
+    """
+
+    #: Datatype of property values.
+    datatype: PropertyDatatype = PropertyDatatype()
+
+    @classmethod
+    def get_datatype(cls) -> PropertyDatatype:
+        return cls.datatype
+
+    def __init__(self, arg1: T_IRI):
+        super().__init__(arg1)
+
+    def __call__(self, arg1, arg2=None):
+        if arg2 is not None:
+            return self.Statement(arg1, self.ValueSnak(self, arg2))
+        else:
+            return self.ValueSnak(self, arg1)
+
+
 def Properties(arg1: T_IRI, *args: T_IRI) -> Iterable[Property]:
     """Constructs one or more properties.
 
@@ -337,6 +350,35 @@ def Properties(arg1: T_IRI, *args: T_IRI) -> Iterable[Property]:
        The resulting properties.
     """
     return map(Property, chain([arg1], args))
+
+
+# -- Lexeme --
+
+class LexemeDatatype(Datatype):
+    """Datatype of lexeme values."""
+
+    _uri: URIRef = NS.WIKIBASE.WikibaseLexeme
+
+    def __init__(self):
+        return super().__init__()
+
+
+class Lexeme(Entity):
+    """Entity representing a word or phrase.
+
+    Parameters:
+       arg1: IRI.
+    """
+
+    #: Datatype of lexeme values.
+    datatype: LexemeDatatype = LexemeDatatype()
+
+    @classmethod
+    def get_datatype(cls) -> LexemeDatatype:
+        return cls.datatype
+
+    def __init__(self, arg1: T_IRI):
+        super().__init__(arg1)
 
 
 def Lexemes(arg1: T_IRI, *args: T_IRI) -> Iterable[Lexeme]:
@@ -352,11 +394,24 @@ def Lexemes(arg1: T_IRI, *args: T_IRI) -> Iterable[Lexeme]:
     return map(Lexeme, chain([arg1], args))
 
 
+# -- Data value ------------------------------------------------------------
+
 class DataValue(Value):
     """Abstract base class for data values."""
 
     def get_value(self) -> str:
         return self.args[0]
+
+
+# -- IRI --
+
+class IRI_Datatype(Datatype):
+    """Datatype of IRI values."""
+
+    _uri: URIRef = NS.WIKIBASE.Url
+
+    def __init__(self):
+        return super().__init__()
 
 
 class IRI(DataValue):
@@ -366,8 +421,12 @@ class IRI(DataValue):
        arg1: IRI.
     """
 
-    #: IRI datatype.
-    datatype: Datatype = Datatype.IRI
+    #: Datatype of IRI values.
+    datatype: IRI_Datatype = IRI_Datatype()
+
+    @classmethod
+    def get_datatype(cls) -> IRI_Datatype:
+        return cls.datatype
 
     @classmethod
     def _check_arg_iri(
@@ -397,6 +456,17 @@ class IRI(DataValue):
         return self.args[0]
 
 
+# -- Text --
+
+class TextDatatype(Datatype):
+    """Datatype for text values."""
+
+    _uri: URIRef = NS.WIKIBASE.Monolingualtext
+
+    def __init__(self):
+        return super().__init__()
+
+
 class Text(DataValue):
     """Monolingual text value.
 
@@ -405,15 +475,15 @@ class Text(DataValue):
        arg2: Language tag.
     """
 
-    #: Text datatype.
-    datatype: Datatype = Datatype.TEXT
+    #: Datatype of text values.
+    datatype: TextDatatype = TextDatatype()
+
+    @classmethod
+    def get_datatype(cls) -> TextDatatype:
+        return cls.datatype
 
     #: Default language tag.
     default_language: Final[str] = 'en'
-
-    # @classmethod
-    # def _get_datatype_uri(cls, _dt=NS.WIKIBASE.Monolingualtext) -> URIRef:
-    #     return _dt
 
     @classmethod
     def _check_arg_text(
@@ -459,6 +529,17 @@ class Text(DataValue):
         return self.args[1]
 
 
+# -- String --
+
+class StringDatatype(Datatype):
+    """Datatype of string values."""
+
+    _uri: URIRef = NS.WIKIBASE.String
+
+    def __init__(self):
+        return super().__init__()
+
+
 class String(DataValue):
     """String value.
 
@@ -466,8 +547,12 @@ class String(DataValue):
        arg1: String.
     """
 
-    #: String datatype.
-    datatype: Datatype = Datatype.STRING
+    #: Datatype of string values.
+    datatype: StringDatatype = StringDatatype()
+
+    @classmethod
+    def get_datatype(cls) -> StringDatatype:
+        return cls.datatype
 
     @classmethod
     def _check_arg_string(
@@ -492,6 +577,17 @@ class String(DataValue):
             raise self._should_not_get_here()
 
 
+# -- External id --
+
+class ExternalIdDatatype(StringDatatype):
+    """Datatype of external id values."""
+
+    _uri: URIRef = NS.WIKIBASE.ExternalId
+
+    def __init__(self):
+        return super().__init__()
+
+
 class ExternalId(String):
     """External id value.
 
@@ -499,8 +595,12 @@ class ExternalId(String):
        arg1: External id.
     """
 
-    #: External id datatype.
-    datatype: Datatype = Datatype.EXTERNAL_ID
+    #: Datatype of external id values.
+    datatype: ExternalIdDatatype = ExternalIdDatatype()
+
+    @classmethod
+    def get_datatype(cls) -> ExternalIdDatatype:
+        return cls.datatype
 
     @classmethod
     def _check_arg_external_id(
@@ -543,8 +643,21 @@ class ExternalId(String):
             raise self._should_not_get_here()
 
 
+# -- Deep data value -------------------------------------------------------
+
 class DeepDataValue(DataValue):
     """Abstract base class for deep data values."""
+
+
+# -- Quantity --
+
+class QuantityDatatype(Datatype):
+    """Datatype of quantity values."""
+
+    _uri: URIRef = NS.WIKIBASE.Quantity
+
+    def __init__(self):
+        return super().__init__()
 
 
 class Quantity(DeepDataValue):
@@ -557,8 +670,12 @@ class Quantity(DeepDataValue):
        arg4: Upper bound.
     """
 
-    #: Quantity datatype.
-    datatype: Datatype = Datatype.QUANTITY
+    #: Datatype of quantity values.
+    datatype: QuantityDatatype = QuantityDatatype()
+
+    @classmethod
+    def get_datatype(cls) -> QuantityDatatype:
+        return cls.datatype
 
     def __init__(
             self,
@@ -663,6 +780,17 @@ class Quantity(DeepDataValue):
         return ub if ub is not None else default
 
 
+# -- Time --
+
+class TimeDatatype(Datatype):
+    """Datatype of time values."""
+
+    _uri: URIRef = NS.WIKIBASE.Time
+
+    def __init__(self):
+        return super().__init__()
+
+
 class Time(DeepDataValue):
     """Deep data value representing a timestamp.
 
@@ -673,8 +801,12 @@ class Time(DeepDataValue):
        arg4: Calendar model.
     """
 
-    #: Time datatype.
-    datatype: Datatype = Datatype.TIME
+    #: Datatype of time values.
+    datatype: TimeDatatype = TimeDatatype()
+
+    @classmethod
+    def get_datatype(cls) -> TimeDatatype:
+        return cls.datatype
 
     # See:
     # <https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format#Time>.
@@ -683,20 +815,49 @@ class Time(DeepDataValue):
     class Precision(Enum):
         """Time precision."""
 
+        #: Billion years.
         BILLION_YEARS = 0
+
+        #: Hundred million years.
         HUNDRED_MILLION_YEARS = 1
+
+        #: Ten million years.
         TEN_MILLION_YEARS = 2
+
+        #: Million years.
         MILLION_YEARS = 3
+
+        #: Hundred thousand years.
         HUNDRED_THOUSAND_YEARS = 4
+
+        #: Ten thousand years.
         TEN_THOUSAND_YEARS = 5
-        MILLENIA = 6
+
+        #: Millennia.
+        MILLENNIA = 6
+
+        #: Century.
         CENTURY = 7
+
+        #: Decade.
         DECADE = 8
+
+        #: Year.
         YEAR = 9
+
+        #: Month.
         MONTH = 10
+
+        #: Day.
         DAY = 11
+
+        #: Hour.
         HOUR = 12
+
+        #: Minute.
         MINUTE = 13
+
+        #: Second.
         SECOND = 14
 
     #: Alias for :attr:`Time.Precision.BILLION_YEARS`.
@@ -717,8 +878,8 @@ class Time(DeepDataValue):
     #: Alias for :attr:`Time.Precision.TEN_THOUSAND_YEARS`.
     TEN_THOUSAND_YEARS = Precision.TEN_THOUSAND_YEARS
 
-    #: Alias for :attr:`Time.Precision.MILLENIA`.
-    MILLENIA = Precision.MILLENIA
+    #: Alias for :attr:`Time.Precision.MILLENNIA`.
+    MILLENNIA = Precision.MILLENNIA
 
     #: Alias for :attr:`Time.Precision.CENTURY`.
     CENTURY = Precision.CENTURY
@@ -899,4 +1060,14 @@ class Time(DeepDataValue):
         return cal if cal is not None else default
 
 
-Datatype._prologue()
+# -- Epilogue --------------------------------------------------------------
+
+Datatype.item = Item.datatype
+Datatype.property = Property.datatype
+Datatype.lexeme = Lexeme.datatype
+Datatype.iri = IRI.datatype
+Datatype.text = Text.datatype
+Datatype.string = String.datatype
+Datatype.external_id = ExternalId.datatype
+Datatype.quantity = Quantity.datatype
+Datatype.time = Time.datatype

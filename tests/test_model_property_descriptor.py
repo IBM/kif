@@ -1,4 +1,4 @@
-# Copyright (C) 2023-2024 IBM Corp.
+# Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import IRI, PropertyDescriptor, Text, TextSet
@@ -13,15 +13,18 @@ class TestModelPropertyDescriptor(kif_TestCase):
         self.assertRaises(TypeError, PropertyDescriptor, 0)
         self.assertRaises(TypeError, PropertyDescriptor, 'x', 0)
         self.assertRaises(TypeError, PropertyDescriptor, 'x', [], 0)
-        self.assertRaises(TypeError, PropertyDescriptor, 0, [], IRI('z'))
+        self.assertRaises(
+            TypeError, PropertyDescriptor, 0, [], Text.datatype)
         self.assertRaises(TypeError, PropertyDescriptor, 0, [], None, 0)
+        self.assertRaises(
+            ValueError, PropertyDescriptor, None, None, None, 'x')
         # good arguments
         self.assert_property_descriptor(
             PropertyDescriptor(), None, TextSet(), None, None)
         self.assert_property_descriptor(
-            PropertyDescriptor('x', ['a', 'b', 'c'], 'z', 'abc'),
+            PropertyDescriptor('x', ['a', 'b', 'c'], 'z', Text.datatype._uri),
             Text('x'), list(map(Text, ['a', 'b', 'c'])),
-            Text('z'), IRI('abc'))
+            Text('z'), Text.datatype)
 
     def test_get_label(self):
         self.assertEqual(PropertyDescriptor('x').get_label(), Text('x'))
@@ -42,10 +45,20 @@ class TestModelPropertyDescriptor(kif_TestCase):
 
     def test_get_datatype(self):
         self.assertEqual(
-            PropertyDescriptor(None, None, None, 'x').get_datatype(),
-            IRI('x'))
+            PropertyDescriptor(
+                None, None, None, IRI.datatype._uri).get_datatype(),
+            IRI.datatype)
         self.assertEqual(
-            PropertyDescriptor().get_datatype(IRI('x')), IRI('x'))
+            PropertyDescriptor(
+                None, None, None, IRI.datatype).get_datatype(),
+            IRI.datatype)
+        self.assertEqual(
+            PropertyDescriptor(
+                None, None, None, IRI(IRI.datatype._uri)).get_datatype(),
+            IRI.datatype)
+        self.assertEqual(
+            PropertyDescriptor().get_datatype(IRI.datatype),
+            IRI.datatype)
         self.assertIsNone(PropertyDescriptor().get_datatype())
 
 

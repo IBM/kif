@@ -38,20 +38,6 @@ Entity constructors
    Lexeme
    Lexemes
 
-Entity descriptor
-~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated/
-
-   Descriptor
-   Descriptor.label
-   Descriptor.get_label
-   Descriptor.aliases
-   Descriptor.get_aliases
-   Descriptor.description
-   Descriptor.get_description
-
 Data Value
 ----------
 
@@ -69,6 +55,7 @@ Data value constructors
    IRI
    Text
    String
+   ExternalId
 
 Deep Data Value
 ---------------

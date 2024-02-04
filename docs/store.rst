@@ -32,7 +32,6 @@ Queries
    Store.filter_snak
    Store.filter_snak_annotated
    Store.get_annotations
-   Store.get_descriptor
 
 Flags
 -----
