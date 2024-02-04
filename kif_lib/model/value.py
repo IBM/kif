@@ -30,7 +30,7 @@ TTimePrecision = Union['Time.Precision', int]
 class Datatype(KIF_Object):
     """Abstract base class for datatypes."""
 
-    #: Datatype of itme values.
+    #: Datatype of item values.
     item: 'ItemDatatype'
 
     #: Datatype of property values.
@@ -273,7 +273,7 @@ class ItemDatatype(Datatype):
 
 
 class Item(Entity):
-    """Entity representing a thing.
+    """Entity representing a person or thing.
 
     Parameters:
        arg1: IRI.
@@ -415,7 +415,7 @@ class IRI_Datatype(Datatype):
 
 
 class IRI(DataValue):
-    """IRI value.
+    """Data value representing an IRI.
 
     Parameters:
        arg1: IRI.
@@ -459,7 +459,7 @@ class IRI(DataValue):
 # -- Text --
 
 class TextDatatype(Datatype):
-    """Datatype for text values."""
+    """Datatype of text values."""
 
     _uri: URIRef = NS.WIKIBASE.Monolingualtext
 
@@ -468,7 +468,7 @@ class TextDatatype(Datatype):
 
 
 class Text(DataValue):
-    """Monolingual text value.
+    """Data value repressing a monolingual text.
 
     Parameters:
        arg1: String.
@@ -541,7 +541,7 @@ class StringDatatype(Datatype):
 
 
 class String(DataValue):
-    """String value.
+    """Data value representing a string.
 
     Parameters:
        arg1: String.
@@ -589,7 +589,7 @@ class ExternalIdDatatype(StringDatatype):
 
 
 class ExternalId(String):
-    """External id value.
+    """Data value representing an external id.
 
     Parameters:
        arg1: External id.

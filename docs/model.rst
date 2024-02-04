@@ -7,6 +7,7 @@ Model
    :caption: Core
 
    object
+   datatype
    value
    snak
    reference_record

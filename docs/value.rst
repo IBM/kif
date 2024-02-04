@@ -25,17 +25,34 @@ Entity
    Entity.iri
    Entity.get_iri
 
-Entity constructors
-~~~~~~~~~~~~~~~~~~~
+Item
+~~~~
 
 .. autosummary::
    :toctree: generated/
 
    Item
+   Item.datatype
    Items
+
+Property
+~~~~~~~~
+
+.. autosummary::
+   :toctree: generated/
+
    Property
+   Property.datatype
    Properties
+
+Lexeme
+~~~~~~
+
+.. autosummary::
+   :toctree: generated/
+
    Lexeme
+   Lexeme.datatype
    Lexemes
 
 Data Value
@@ -46,16 +63,41 @@ Data Value
 
    DataValue
 
-Data value constructors
-~~~~~~~~~~~~~~~~~~~~~~~
+IRI
+~~~
 
 .. autosummary::
    :toctree: generated/
 
    IRI
+   IRI.datatype
+
+Text
+~~~~
+
+.. autosummary::
+   :toctree: generated/
+
    Text
+   Text.datatype
+
+String
+~~~~~~
+
+.. autosummary::
+   :toctree: generated/
+
    String
+   String.datatype
+
+ExternalId
+~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated/
+
    ExternalId
+   ExternalId.datatype
 
 Deep Data Value
 ---------------
@@ -72,6 +114,7 @@ Quantity
    :toctree: generated/
 
    Quantity
+   Quantity.datatype
    Quantity.amount
    Quantity.get_amount
    Quantity.unit
@@ -88,6 +131,7 @@ Time
    :toctree: generated/
 
    Time
+   Time.datatype
    Time.time
    Time.get_time
    Time.precision
