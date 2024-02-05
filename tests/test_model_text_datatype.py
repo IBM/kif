@@ -2,16 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import kif_lib.namespace as NS
-from kif_lib import Datatype, Text, TextDatatype
+from kif_lib import Text, TextDatatype
 
 from .tests import kif_TestCase, main
 
 
 class TestModelTextDatatype(kif_TestCase):
 
-    def test_sanity(self):
-        self.assertIs(Datatype.text, Text.datatype)
-        self.assertEqual(Datatype.text, TextDatatype())
+    def test_value_class(self):
+        self.assert_datatype_value_class(TextDatatype, Text, 'text')
 
     def test__from_rdflib(self):
         self.assert_text_datatype(

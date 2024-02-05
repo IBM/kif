@@ -2,16 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import kif_lib.namespace as NS
-from kif_lib import Datatype, IRI, IRI_Datatype
+from kif_lib import IRI, IRI_Datatype
 
 from .tests import kif_TestCase, main
 
 
 class TestModelIRI_Datatype(kif_TestCase):
 
-    def test_sanity(self):
-        self.assertIs(Datatype.iri, IRI.datatype)
-        self.assertEqual(Datatype.iri, IRI_Datatype())
+    def test_value_class(self):
+        self.assert_datatype_value_class(IRI_Datatype, IRI, 'iri')
 
     def test__from_rdflib(self):
         self.assert_iri_datatype(IRI_Datatype._from_rdflib(NS.WIKIBASE.Url))

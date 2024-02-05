@@ -2,16 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import kif_lib.namespace as NS
-from kif_lib import Datatype, Lexeme, LexemeDatatype
+from kif_lib import Lexeme, LexemeDatatype
 
 from .tests import kif_TestCase, main
 
 
 class TestModelLexemeDatatype(kif_TestCase):
 
-    def test_sanity(self):
-        self.assertIs(Datatype.lexeme, Lexeme.datatype)
-        self.assertEqual(Datatype.lexeme, LexemeDatatype())
+    def test_value_class(self):
+        self.assert_datatype_value_class(LexemeDatatype, Lexeme, 'lexeme')
 
     def test__from_rdflib(self):
         self.assert_lexeme_datatype(

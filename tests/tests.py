@@ -114,6 +114,11 @@ class kif_TestCase(TestCase):
         self.assertIsInstance(obj, Datatype)
         self.assertTrue(obj.is_datatype())
 
+    def assert_datatype_value_class(self, cls, value_class, alias):
+        self.assertTrue(issubclass(cls, Datatype))
+        self.assertIs(cls.value_class, value_class)
+        self.assertIs(getattr(Datatype, alias), value_class.datatype)
+
     def assert_value(self, obj):
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Value)

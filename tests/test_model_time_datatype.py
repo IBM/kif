@@ -2,16 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import kif_lib.namespace as NS
-from kif_lib import Datatype, Time, TimeDatatype
+from kif_lib import Time, TimeDatatype
 
 from .tests import kif_TestCase, main
 
 
 class TestModelTimeDatatype(kif_TestCase):
 
-    def test_sanity(self):
-        self.assertIs(Datatype.time, Time.datatype)
-        self.assertEqual(Datatype.time, TimeDatatype())
+    def test_value_class(self):
+        self.assert_datatype_value_class(TimeDatatype, Time, 'time')
 
     def test__from_rdflib(self):
         self.assert_time_datatype(TimeDatatype._from_rdflib(NS.WIKIBASE.Time))

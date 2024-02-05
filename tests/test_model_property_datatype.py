@@ -2,16 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import kif_lib.namespace as NS
-from kif_lib import Datatype, Property, PropertyDatatype
+from kif_lib import Property, PropertyDatatype
 
 from .tests import kif_TestCase, main
 
 
 class TestModelPropertyDatatype(kif_TestCase):
 
-    def test_sanity(self):
-        self.assertIs(Datatype.property, Property.datatype)
-        self.assertEqual(Datatype.property, PropertyDatatype())
+    def test_value_class(self):
+        self.assert_datatype_value_class(
+            PropertyDatatype, Property, 'property')
 
     def test__from_rdflib(self):
         self.assert_property_datatype(

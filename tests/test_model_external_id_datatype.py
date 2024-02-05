@@ -2,16 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import kif_lib.namespace as NS
-from kif_lib import Datatype, ExternalId, ExternalIdDatatype
+from kif_lib import ExternalId, ExternalIdDatatype
 
 from .tests import kif_TestCase, main
 
 
 class TestModelExternalIdDatatype(kif_TestCase):
 
-    def test_sanity(self):
-        self.assertIs(Datatype.external_id, ExternalId.datatype)
-        self.assertEqual(Datatype.external_id, ExternalIdDatatype())
+    def test_value_class(self):
+        self.assert_datatype_value_class(
+            ExternalIdDatatype, ExternalId, 'external_id')
 
     def test__from_rdflib(self):
         self.assert_external_id_datatype(

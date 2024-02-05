@@ -57,6 +57,9 @@ class Datatype(KIF_Object):
     #: Datatype of time values.
     time: 'TimeDatatype'
 
+    #: Value class associated with this datatype.
+    value_class: type['Value']
+
     _uri: URIRef
 
     @classmethod
@@ -1061,6 +1064,16 @@ class Time(DeepDataValue):
 
 
 # -- Epilogue --------------------------------------------------------------
+
+ItemDatatype.value_class = Item
+PropertyDatatype.value_class = Property
+LexemeDatatype.value_class = Lexeme
+IRI_Datatype.value_class = IRI
+TextDatatype.value_class = Text
+StringDatatype.value_class = String
+ExternalIdDatatype.value_class = ExternalId
+QuantityDatatype.value_class = Quantity
+TimeDatatype.value_class = Time
 
 Datatype.item = Item.datatype
 Datatype.property = Property.datatype
