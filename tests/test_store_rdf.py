@@ -13,7 +13,7 @@ from kif_lib import (
     PropertyFingerprint,
     Quantity,
     ReferenceRecord,
-    SnakMask,
+    Snak,
     SomeValueSnak,
     Statement,
     Store,
@@ -188,7 +188,7 @@ class TestRDF_Store(kif_TestCase):
 
     def _test_count(self, kb):
         self.store_test_count(kb, 15)
-        self.store_test_count(kb, 12, snak_mask=SnakMask.VALUE_SNAK)
+        self.store_test_count(kb, 12, snak_mask=Snak.VALUE_SNAK)
         self.store_test_count(kb, 2, wd.InChIKey)
         self.store_test_count(kb, 4, wd.Brazil)
         self.store_test_count(kb, 1, wd.benzene, wd.mass)
@@ -239,16 +239,16 @@ class TestRDF_Store(kif_TestCase):
             '1822-09-07', None, None, wd.proleptic_Julian_calendar))
         # some value
         self.store_test_count(
-            kb, 1, None, None, None, SnakMask.SOME_VALUE_SNAK)
+            kb, 1, None, None, None, Snak.SOME_VALUE_SNAK)
         self.store_test_count(
-            kb, 1, None, wd.family_name, None, SnakMask.SOME_VALUE_SNAK)
+            kb, 1, None, wd.family_name, None, Snak.SOME_VALUE_SNAK)
         # no value
         self.store_test_count(
-            kb, 2, None, None, None, SnakMask.NO_VALUE_SNAK)
+            kb, 2, None, None, None, Snak.NO_VALUE_SNAK)
         self.store_test_count(
-            kb, 1, None, wd.date_of_birth, None, SnakMask.NO_VALUE_SNAK)
+            kb, 1, None, wd.date_of_birth, None, Snak.NO_VALUE_SNAK)
         self.store_test_count(
-            kb, 1, None, wd.father, None, SnakMask.NO_VALUE_SNAK)
+            kb, 1, None, wd.father, None, Snak.NO_VALUE_SNAK)
         # subject is snak set
         self.store_test_count(
             kb, 4, wd.instance_of(wd.type_of_a_chemical_entity))
@@ -375,21 +375,21 @@ class TestRDF_Store(kif_TestCase):
         self.store_test_filter(
             kb,
             [Statement(wd.Adam, SomeValueSnak(wd.family_name))],
-            None, wd.family_name, None, SnakMask.SOME_VALUE_SNAK)
+            None, wd.family_name, None, Snak.SOME_VALUE_SNAK)
         self.store_test_filter(
             kb,
             [Statement(wd.Adam, SomeValueSnak(wd.family_name))],
-            None, None, None, SnakMask.SOME_VALUE_SNAK)
+            None, None, None, Snak.SOME_VALUE_SNAK)
         # no value
         self.store_test_filter(
             kb,
             [Statement(wd.Adam, NoValueSnak(wd.date_of_birth))],
-            None, wd.date_of_birth, None, SnakMask.NO_VALUE_SNAK)
+            None, wd.date_of_birth, None, Snak.NO_VALUE_SNAK)
         self.store_test_filter(
             kb,
             [Statement(wd.Adam, NoValueSnak(wd.father)),
              Statement(wd.Adam, NoValueSnak(wd.date_of_birth))],
-            None, None, None, SnakMask.NO_VALUE_SNAK)
+            None, None, None, Snak.NO_VALUE_SNAK)
 
     def test_filter_any_rank(self):
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)

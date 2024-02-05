@@ -31,16 +31,16 @@ class PlainDescriptor(Descriptor):
         #: Mask for all fields.
         ALL = LABEL | ALIASES | DESCRIPTION
 
-    #: Alias for :attr:`PlainDescriptor.FieldMask.LABEL`.
+    #: Mask for the label field.
     LABEL = FieldMask.LABEL
 
-    #: Alias for :attr:`PlainDescriptor.FieldMask.ALIASES`.
+    #: Mask for the aliases field.
     ALIASES = FieldMask.ALIASES
 
-    #: Alias for :attr:`PlainDescriptor.FieldMask.DESCRIPTION`.
+    #: Mask for the description field.
     DESCRIPTION = FieldMask.DESCRIPTION
 
-    #: Alias for :attr:`PlainDescriptor.FieldMask.ALL`.
+    #: Mask for all fields.
     ALL = FieldMask.ALL
 
     TFieldMask = Union[FieldMask, int]
@@ -89,8 +89,11 @@ class PlainDescriptor(Descriptor):
             default: Optional[FieldMask] = None,
             function: Optional[Union[TCallable, str]] = None
     ) -> Union[Optional[FieldMask], NoReturn]:
-        return cls._check_optional_arg_plain_descriptor_field_mask(
-            arg, default, function or cls, None, i)
+        if arg is None:
+            return default
+        else:
+            return cls._preprocess_arg_plain_descriptor_field_mask(
+                arg, i, function)
 
     def _preprocess_arg(self, arg, i):
         if i == 1:

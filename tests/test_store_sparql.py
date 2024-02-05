@@ -10,7 +10,7 @@ from kif_lib import (
     Preferred,
     Quantity,
     ReferenceRecord,
-    SnakMask,
+    Snak,
     SomeValueSnak,
     Statement,
     Store,
@@ -160,14 +160,14 @@ class TestSPARQL_Store(kif_TestCase):
         self.assertEqual(n, 1)
         # empty criteria: some value
         kb.unset_flags(kb.SOME_VALUE_SNAK)
-        n = kb.count(snak_mask=SnakMask.SOME_VALUE_SNAK)
+        n = kb.count(snak_mask=Snak.SOME_VALUE_SNAK)
         self.assertEqual(n, 0)
         # empty criteria: no value
         kb.unset_flags(kb.NO_VALUE_SNAK)
-        n = kb.count(snak_mask=SnakMask.NO_VALUE_SNAK)
+        n = kb.count(snak_mask=Snak.NO_VALUE_SNAK)
         self.assertEqual(n, 0)
         # empty criteria: some value & no value
-        n = kb.count(snak_mask=SnakMask.SOME_VALUE_SNAK)
+        n = kb.count(snak_mask=Snak.SOME_VALUE_SNAK)
         self.assertEqual(n, 0)
         # with best rank flag disabled
         kb = Store('sparql', WIKIDATA)
@@ -262,11 +262,11 @@ class TestSPARQL_Store(kif_TestCase):
         self.assertTrue(stmt.snak.is_no_value_snak())
         # snak_class: some value
         some = list(sorted(kb.filter(
-            wd.Adam, None, None, SnakMask.SOME_VALUE_SNAK)))
+            wd.Adam, None, None, Snak.SOME_VALUE_SNAK)))
         self.assertEqual(len(some), 2)
         # snak_class: no value
         wdno = list(sorted(kb.filter(
-            wd.Adam, None, None, SnakMask.NO_VALUE_SNAK)))
+            wd.Adam, None, None, Snak.NO_VALUE_SNAK)))
         self.assert_statement(wdno[0], wd.Adam, NoValueSnak(wd.father))
         self.assert_statement(wdno[1], wd.Adam, NoValueSnak(wd.mother))
         self.assert_statement(wdno[2], wd.Adam, NoValueSnak(wd.date_of_birth))
@@ -278,12 +278,12 @@ class TestSPARQL_Store(kif_TestCase):
         # empty criteria: some value
         kb.unset_flags(kb.SOME_VALUE_SNAK)
         self.assertFalse(list(kb.filter(
-            snak_mask=SnakMask.SOME_VALUE_SNAK)))
+            snak_mask=Snak.SOME_VALUE_SNAK)))
         # empty criteria: no value
         kb.unset_flags(kb.NO_VALUE_SNAK)
-        self.assertFalse(list(kb.filter(snak_mask=SnakMask.NO_VALUE_SNAK)))
+        self.assertFalse(list(kb.filter(snak_mask=Snak.NO_VALUE_SNAK)))
         # empty criteria: some value & no value
-        self.assertFalse(list(kb.filter(snak_mask=SnakMask.SOME_VALUE_SNAK)))
+        self.assertFalse(list(kb.filter(snak_mask=Snak.SOME_VALUE_SNAK)))
         # limit
         kb = Store('sparql', WIKIDATA)
         stmts = list(kb.filter(wd.Adam, limit=120))

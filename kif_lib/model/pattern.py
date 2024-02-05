@@ -13,7 +13,7 @@ from .fingerprint import (
     TPropertyFingerprint,
 )
 from .kif_object import KIF_Object
-from .snak import Snak, SnakMask, TSnakMask, ValueSnak
+from .snak import Snak, ValueSnak
 from .statement import Statement
 
 
@@ -79,7 +79,7 @@ class FilterPattern(Pattern):
             arg1: Optional[TEntityFingerprint] = None,
             arg2: Optional[TPropertyFingerprint] = None,
             arg3: Optional[TFingerprint] = None,
-            arg4: Optional[TSnakMask] = None
+            arg4: Optional[Snak.TMask] = None
     ):
         super().__init__(arg1, arg2, arg3, arg4)
 
@@ -92,7 +92,7 @@ class FilterPattern(Pattern):
             return self._preprocess_optional_arg_fingerprint(arg, i)
         elif i == 4:
             return Snak._preprocess_optional_arg_snak_mask(
-                arg, i, SnakMask.ALL).value
+                arg, i, Snak.ALL).value
         else:
             self._should_not_get_here()
 
@@ -163,17 +163,17 @@ class FilterPattern(Pattern):
         return val if val is not None else default
 
     @at_property
-    def snak_mask(self) -> SnakMask:
+    def snak_mask(self) -> Snak.Mask:
         """Filter pattern snak mask."""
         return self.get_snak_mask()
 
-    def get_snak_mask(self) -> SnakMask:
+    def get_snak_mask(self) -> Snak.Mask:
         """Gets filter pattern snak mask.
 
         Returns:
            Filter pattern snak mask.
         """
-        return SnakMask(self.args[3])
+        return Snak.Mask(self.args[3])
 
     def is_full(self) -> bool:
         """Tests whether filter pattern is full.
@@ -185,7 +185,7 @@ class FilterPattern(Pattern):
         """
         return (
             self.subject is None and self.property is None
-            and self.value is None and self.snak_mask is SnakMask.ALL)
+            and self.value is None and self.snak_mask is Snak.ALL)
 
     def is_nonfull(self) -> bool:
         """Tests whether filter pattern is non-full.
@@ -206,7 +206,7 @@ class FilterPattern(Pattern):
         return (
             self.snak_mask.value == 0
             or (self.value is not None
-                and not (self.snak_mask & SnakMask.VALUE_SNAK)))
+                and not (self.snak_mask & Snak.VALUE_SNAK)))
 
     def is_nonempty(self) -> bool:
         """Tests whether filter pattern is non-empty.

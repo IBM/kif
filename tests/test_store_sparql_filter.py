@@ -8,7 +8,7 @@ from kif_lib import (
     Item,
     NoValueSnak,
     Quantity,
-    SnakMask,
+    Snak,
     SomeValueSnak,
     Statement,
     Store,
@@ -52,7 +52,7 @@ class TestSPARQL_StoreFilter(kif_TestCase):
 
     def test_filter_empty(self):
         kb = Store('sparql', WIKIDATA)
-        pat = FilterPattern(None, None, None, SnakMask(0))
+        pat = FilterPattern(None, None, None, Snak.Mask(0))
         self.assertEqual(len(list(kb.filter(pattern=pat, limit=1))), 0)
 
     def test_filter_subject_is_item(self):
@@ -205,27 +205,27 @@ class TestSPARQL_StoreFilter(kif_TestCase):
         kb = Store('sparql', WIKIDATA)
         kb.unset_flags(kb.BEST_RANK)
         stmt = next(kb.filter(
-            wd.Adam, wd.date_of_death, snak_mask=SnakMask.VALUE_SNAK))
+            wd.Adam, wd.date_of_death, snak_mask=Snak.VALUE_SNAK))
         self.assert_statement(
             stmt, wd.Adam, wd.date_of_death(
                 Time('3073-01-01', 9, 0, wd.proleptic_Julian_calendar)))
         kb.set_flags(kb.BEST_RANK)
         it = kb.filter(
-            wd.Adam, wd.date_of_death, snak_mask=SnakMask.VALUE_SNAK)
+            wd.Adam, wd.date_of_death, snak_mask=Snak.VALUE_SNAK)
         self.assertRaises(StopIteration, next, it)
 
     def test_filter_snak_mask_some_value_snak(self):
         kb = Store('sparql', WIKIDATA)
         kb.unset_flags(kb.BEST_RANK)
         stmt = next(kb.filter(
-            wd.Adam, wd.date_of_death, snak_mask=SnakMask.SOME_VALUE_SNAK))
+            wd.Adam, wd.date_of_death, snak_mask=Snak.SOME_VALUE_SNAK))
         self.assert_statement(
             stmt, wd.Adam, SomeValueSnak(wd.date_of_death))
 
     def test_filter_snak_mask_no_value_snak(self):
         kb = Store('sparql', WIKIDATA)
         stmt = next(kb.filter(
-            wd.Adam, wd.date_of_birth, snak_mask=SnakMask.NO_VALUE_SNAK))
+            wd.Adam, wd.date_of_birth, snak_mask=Snak.NO_VALUE_SNAK))
         self.assert_statement(
             stmt, wd.Adam, NoValueSnak(wd.date_of_birth))
 
@@ -233,12 +233,12 @@ class TestSPARQL_StoreFilter(kif_TestCase):
         kb = Store('sparql', WIKIDATA)
         kb.unset_flags(kb.EARLY_FILTER | kb.BEST_RANK)
         res = list(kb.filter(
-            wd.Adam, wd.date_of_death, None, SnakMask.SOME_VALUE_SNAK))
+            wd.Adam, wd.date_of_death, None, Snak.SOME_VALUE_SNAK))
         self.assertEqual(
             res, [Statement(wd.Adam, SomeValueSnak(wd.date_of_death))])
         kb.unset_flags(kb.LATE_FILTER)
         res = sorted(list(kb.filter(
-            wd.Adam, wd.date_of_death, None, SnakMask.SOME_VALUE_SNAK)))
+            wd.Adam, wd.date_of_death, None, Snak.SOME_VALUE_SNAK)))
         self.assertEqual(len(res), 2)
         self.assert_statement(
             res[0], wd.Adam, SomeValueSnak(wd.date_of_death))

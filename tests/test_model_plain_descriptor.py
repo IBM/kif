@@ -21,6 +21,25 @@ class TestModelPlainDescriptor(kif_TestCase):
             PlainDescriptor.FieldMask(0),
             PlainDescriptor._preprocess_arg_plain_descriptor_field_mask(0, 1))
 
+    def test__check_optional_arg_plain_descriptor_field_mask(self):
+        self.assertRaises(
+            TypeError,
+            PlainDescriptor.
+            _check_optional_arg_plain_descriptor_field_mask, 'abc')
+        self.assertIsNone(
+            PlainDescriptor.
+            _check_optional_arg_plain_descriptor_field_mask(None))
+        self.assertEqual(
+            PlainDescriptor.LABEL | PlainDescriptor.ALIASES,
+            PlainDescriptor.
+            _check_optional_arg_plain_descriptor_field_mask(
+                None, PlainDescriptor.ALIASES | PlainDescriptor.LABEL))
+        self.assertEqual(
+            PlainDescriptor.FieldMask(0),
+            PlainDescriptor.
+            _check_optional_arg_plain_descriptor_field_mask(
+                PlainDescriptor.FieldMask(0), PlainDescriptor.LABEL))
+
     def test__preprocess_optional_arg_plain_descriptor_field_mask(self):
         self.assertRaises(
             TypeError,

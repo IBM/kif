@@ -32,7 +32,6 @@ from ..model import (
     PropertyFingerprint,
     ReferenceRecordSet,
     Snak,
-    SnakMask,
     Statement,
     T_IRI,
     TCallable,
@@ -41,7 +40,6 @@ from ..model import (
     TFingerprint,
     TPropertyFingerprint,
     TReferenceRecordSet,
-    TSnakMask,
 )
 
 T = TypeVar('T')
@@ -570,7 +568,7 @@ class Store(Set):
             subject: Optional[TEntityFingerprint] = None,
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[TSnakMask] = None,
+            snak_mask: Optional[Snak.TMask] = None,
             pattern: Optional[FilterPattern] = None
     ) -> int:
         """Counts statements matching pattern.
@@ -619,7 +617,7 @@ class Store(Set):
             subject: Optional[TEntityFingerprint] = None,
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[TSnakMask] = None,
+            snak_mask: Optional[Snak.TMask] = None,
             pattern: Optional[FilterPattern] = None,
             function: Optional[Union[TCallable, str]] = None
     ) -> Union[FilterPattern, NoReturn]:
@@ -630,7 +628,7 @@ class Store(Set):
         val = Fingerprint._check_optional_arg_fingerprint(
             value, None, function, 'value', 3)
         mask = Snak._check_optional_arg_snak_mask(
-            snak_mask, SnakMask.ALL, function, 'snak_mask', 4)
+            snak_mask, Snak.ALL, function, 'snak_mask', 4)
         pat = FilterPattern(subj, prop, val, mask)
         if pattern is not None:
             pat = FilterPattern._combine(
@@ -654,13 +652,13 @@ class Store(Set):
             self,
             pat: FilterPattern
     ) -> FilterPattern:
-        store_snak_mask = SnakMask(0)
+        store_snak_mask = Snak.Mask(0)
         if self.has_flags(StoreFlags.VALUE_SNAK):
-            store_snak_mask |= SnakMask.VALUE_SNAK
+            store_snak_mask |= Snak.VALUE_SNAK
         if self.has_flags(StoreFlags.SOME_VALUE_SNAK):
-            store_snak_mask |= SnakMask.SOME_VALUE_SNAK
+            store_snak_mask |= Snak.SOME_VALUE_SNAK
         if self.has_flags(StoreFlags.NO_VALUE_SNAK):
-            store_snak_mask |= SnakMask.NO_VALUE_SNAK
+            store_snak_mask |= Snak.NO_VALUE_SNAK
         return cast(FilterPattern, pat.replace(
             None, None, None, pat.snak_mask & store_snak_mask))
 
@@ -675,7 +673,7 @@ class Store(Set):
             subject: Optional[TEntityFingerprint] = None,
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[TSnakMask] = None,
+            snak_mask: Optional[Snak.TMask] = None,
             pattern: Optional[FilterPattern] = None,
             limit: Optional[int] = None
     ) -> Iterator[Statement]:
@@ -745,7 +743,7 @@ class Store(Set):
             subject: Optional[TEntityFingerprint] = None,
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[TSnakMask] = None,
+            snak_mask: Optional[Snak.TMask] = None,
             pattern: Optional[FilterPattern] = None,
             limit: Optional[int] = None
     ) -> Iterator[tuple[Statement, AnnotationRecordSet]]:

@@ -43,14 +43,7 @@ from .rank import (
 )
 from .reference_record import ReferenceRecord, TReferenceRecord
 from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
-from .snak import (
-    NoValueSnak,
-    Snak,
-    SnakMask,
-    SomeValueSnak,
-    TSnakMask,
-    ValueSnak,
-)
+from .snak import NoValueSnak, Snak, SomeValueSnak, ValueSnak
 from .snak_set import SnakSet, TSnakSet
 from .statement import Statement
 from .text_set import TextSet, TTextSet

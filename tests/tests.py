@@ -44,7 +44,6 @@ from kif_lib import (
     ReferenceRecord,
     ReferenceRecordSet,
     Snak,
-    SnakMask,
     SnakSet,
     SomeValueSnak,
     Statement,
@@ -334,22 +333,19 @@ class kif_TestCase(TestCase):
         self.assertEqual(obj.args[1], value)
         self.assertEqual(obj.value, obj.args[1])
         self.assertEqual(obj.get_value(), obj.args[1])
-        self.assertEqual(obj.snak_mask, SnakMask.VALUE_SNAK)
-        self.assertEqual(obj.get_snak_mask(), SnakMask.VALUE_SNAK)
+        self.assertEqual(obj.snak_mask, Snak.VALUE_SNAK)
 
     def assert_some_value_snak(self, obj, prop):
         self.assert_snak(obj, prop)
         self.assertIsInstance(obj, SomeValueSnak)
         self.assertTrue(obj.is_some_value_snak())
-        self.assertEqual(obj.snak_mask, SnakMask.SOME_VALUE_SNAK)
-        self.assertEqual(obj.get_snak_mask(), SnakMask.SOME_VALUE_SNAK)
+        self.assertEqual(obj.snak_mask, Snak.SOME_VALUE_SNAK)
 
     def assert_no_value_snak(self, obj, prop):
         self.assert_snak(obj, prop)
         self.assertIsInstance(obj, NoValueSnak)
         self.assertTrue(obj.is_no_value_snak())
-        self.assertEqual(obj.snak_mask, SnakMask.NO_VALUE_SNAK)
-        self.assertEqual(obj.get_snak_mask(), SnakMask.NO_VALUE_SNAK)
+        self.assertEqual(obj.snak_mask, Snak.NO_VALUE_SNAK)
 
     def assert_snak_set(self, obj, *snaks):
         self.assert_kif_object_set(obj, *snaks)
@@ -553,8 +549,7 @@ class kif_TestCase(TestCase):
         self.assertTrue(obj.is_pattern())
 
     def assert_filter_pattern(
-            self, obj, subject=None, property=None, value=None,
-            mask=SnakMask.ALL):
+            self, obj, subject=None, property=None, value=None, mask=Snak.ALL):
         self.assert_pattern(obj)
         self.assertIsInstance(obj, FilterPattern)
         self.assertTrue(obj.is_filter_pattern())
@@ -573,9 +568,8 @@ class kif_TestCase(TestCase):
         self.assertEqual(obj.args[2], value)
         self.assertEqual(obj.value, value)
         self.assertEqual(obj.get_value(), value)
-        self.assertEqual(SnakMask(obj.args[3]), mask)
+        self.assertEqual(Snak.Mask(obj.args[3]), mask)
         self.assertEqual(obj.snak_mask, mask)
-        self.assertEqual(obj.get_snak_mask(), mask)
 
     # -- Store -------------------------------------------------------------
 
@@ -824,7 +818,7 @@ class kif_TestCase(TestCase):
         kb.unset_flags(kb.VALUE_SNAK | kb.SOME_VALUE_SNAK | kb.NO_VALUE_SNAK)
         self.assertEqual(kb.count(), 0)
         kb.flags = saved_flags
-        empty = FilterPattern(None, None, None, SnakMask(0))
+        empty = FilterPattern(None, None, None, Snak.Mask(0))
         self.assertEqual(kb.count(pattern=empty), 0)
 
     def store_test_count(
@@ -842,7 +836,7 @@ class kif_TestCase(TestCase):
             kb.flags = saved_flags
         elif (pattern is None
               and property is not None and property.is_property()
-              and snak_mask == SnakMask.SOME_VALUE_SNAK):
+              and snak_mask == Snak.SOME_VALUE_SNAK):
             some_value = SomeValueSnak(property)
             self.assertEqual(kb.count_snak(subject, some_value), n)
             saved_flags = kb.flags
@@ -851,7 +845,7 @@ class kif_TestCase(TestCase):
             kb.flags = saved_flags
         elif (pattern is None
               and property is not None and property.is_property()
-              and snak_mask == SnakMask.NO_VALUE_SNAK):
+              and snak_mask == Snak.NO_VALUE_SNAK):
             no_value = NoValueSnak(property)
             self.assertEqual(kb.count_snak(subject, no_value), n)
             saved_flags = kb.flags
@@ -892,7 +886,7 @@ class kif_TestCase(TestCase):
         kb.unset_flags(kb.VALUE_SNAK | kb.SOME_VALUE_SNAK | kb.NO_VALUE_SNAK)
         self.assertFalse(bool(set(kb.filter())))
         kb.flags = saved_flags
-        empty = FilterPattern(None, None, None, SnakMask(0))
+        empty = FilterPattern(None, None, None, Snak.Mask(0))
         self.assertFalse(bool(set(kb.filter(pattern=empty))))
         self.assertFalse(bool(set(kb.filter(limit=0))))
         self.assertFalse(bool(set(kb.filter(limit=-1))))
@@ -928,7 +922,7 @@ class kif_TestCase(TestCase):
             kb.flags = saved_flags
         elif (pattern is None
               and property is not None and property.is_property()
-              and snak_mask == SnakMask.SOME_VALUE_SNAK):
+              and snak_mask == Snak.SOME_VALUE_SNAK):
             some_value = SomeValueSnak(property)
             self.assertEqual(set(kb.filter_snak(subject, some_value)), res)
             saved_flags = kb.flags
@@ -937,7 +931,7 @@ class kif_TestCase(TestCase):
             kb.flags = saved_flags
         elif (pattern is None
               and property is not None and property.is_property()
-              and snak_mask == SnakMask.NO_VALUE_SNAK):
+              and snak_mask == Snak.NO_VALUE_SNAK):
             no_value = NoValueSnak(property)
             self.assertEqual(set(kb.filter_snak(subject, no_value)), res)
             saved_flags = kb.flags

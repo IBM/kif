@@ -35,7 +35,6 @@ from ..model import (
     Rank,
     ReferenceRecord,
     Snak,
-    SnakMask,
     SnakSet,
     Statement,
     String,
@@ -335,7 +334,7 @@ At line {line}, column {column}:
                 yield stmt      # success
                 continue
             # Snak mask mismatch.
-            if not bool(pattern.snak_mask & stmt.snak.get_snak_mask()):
+            if not bool(pattern.snak_mask & stmt.snak.snak_mask):
                 yield None      # pragma: no cover
                 continue        # pragma: no cover
             # Subject mismatch.
@@ -471,15 +470,15 @@ At line {line}, column {column}:
             # Push value.
             value_is_unknown = pat.value is None or pat.value.value is None
             try_value_snak = bool(
-                pat.snak_mask & SnakMask.VALUE_SNAK
+                pat.snak_mask & Snak.VALUE_SNAK
                 and self.has_flags(self.VALUE_SNAK))
             try_some_value_snak = bool(
                 value_is_unknown
-                and pat.snak_mask & SnakMask.SOME_VALUE_SNAK
+                and pat.snak_mask & Snak.SOME_VALUE_SNAK
                 and self.has_flags(self.SOME_VALUE_SNAK))
             try_no_value_snak = bool(
                 value_is_unknown
-                and pat.snak_mask & SnakMask.NO_VALUE_SNAK
+                and pat.snak_mask & Snak.NO_VALUE_SNAK
                 and self.has_flags(self.NO_VALUE_SNAK))
             cond = sum(
                 (try_value_snak,

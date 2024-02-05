@@ -10,7 +10,7 @@ from kif_lib import (
     NoValueSnak,
     Property,
     PropertyFingerprint,
-    SnakMask,
+    Snak,
     SnakSet,
     SomeValueSnak,
     Statement,
@@ -25,7 +25,7 @@ class TestModelFilterPattern(kif_TestCase):
         # snak is none
         pat = FilterPattern.from_snak(Item('x'), None)
         self.assert_filter_pattern(
-            pat, EntityFingerprint(Item('x')), None, None, SnakMask.ALL)
+            pat, EntityFingerprint(Item('x')), None, None, Snak.ALL)
         # value snak
         snak = Property('p')(Item('x'))
         pat = FilterPattern.from_snak(Item('x'), snak)
@@ -34,7 +34,7 @@ class TestModelFilterPattern(kif_TestCase):
             EntityFingerprint(Item('x')),
             PropertyFingerprint(Property('p')),
             Fingerprint(Item('x')),
-            SnakMask.VALUE_SNAK)
+            Snak.VALUE_SNAK)
         # some value snak
         snak = SomeValueSnak(Property('p'))
         pat = FilterPattern.from_snak(Item('x'), snak)
@@ -43,7 +43,7 @@ class TestModelFilterPattern(kif_TestCase):
             EntityFingerprint(Item('x')),
             PropertyFingerprint(Property('p')),
             None,
-            SnakMask.SOME_VALUE_SNAK)
+            Snak.SOME_VALUE_SNAK)
         # no value snak
         snak = NoValueSnak(Property('p'))
         pat = FilterPattern.from_snak(Item('x'), snak)
@@ -52,7 +52,7 @@ class TestModelFilterPattern(kif_TestCase):
             EntityFingerprint(Item('x')),
             PropertyFingerprint(Property('p')),
             None,
-            SnakMask.NO_VALUE_SNAK)
+            Snak.NO_VALUE_SNAK)
 
     def test_from_statement(self):
         # value snak
@@ -63,7 +63,7 @@ class TestModelFilterPattern(kif_TestCase):
             EntityFingerprint(Item('x')),
             PropertyFingerprint(Property('p')),
             Fingerprint(IRI('y')),
-            SnakMask.VALUE_SNAK)
+            Snak.VALUE_SNAK)
         # some value snak
         stmt = Statement(Item('x'), SomeValueSnak(Property('p')))
         pat = FilterPattern.from_statement(stmt)
@@ -72,7 +72,7 @@ class TestModelFilterPattern(kif_TestCase):
             EntityFingerprint(Item('x')),
             PropertyFingerprint(Property('p')),
             None,
-            SnakMask.SOME_VALUE_SNAK)
+            Snak.SOME_VALUE_SNAK)
         # no value snak
         stmt = Statement(Item('x'), NoValueSnak(Property('p')))
         pat = FilterPattern.from_statement(stmt)
@@ -81,7 +81,7 @@ class TestModelFilterPattern(kif_TestCase):
             EntityFingerprint(Item('x')),
             PropertyFingerprint(Property('p')),
             None,
-            SnakMask.NO_VALUE_SNAK)
+            Snak.NO_VALUE_SNAK)
 
     def test__init__(self):
         self.assertRaises(TypeError, FilterPattern, 0)
@@ -92,10 +92,10 @@ class TestModelFilterPattern(kif_TestCase):
         self.assertTrue(FilterPattern().is_nonempty())
         self.assertTrue(FilterPattern(None, None, None, 0).is_empty())
         self.assertFalse(FilterPattern(None, None, None, 0).is_nonempty())
-        pat = FilterPattern(None, None, IRI('x'), SnakMask.SOME_VALUE_SNAK)
+        pat = FilterPattern(None, None, IRI('x'), Snak.SOME_VALUE_SNAK)
         self.assertTrue(pat.is_empty())
         self.assertFalse(pat.is_nonempty())
-        pat = FilterPattern(None, None, IRI('x'), SnakMask.NO_VALUE_SNAK)
+        pat = FilterPattern(None, None, IRI('x'), Snak.NO_VALUE_SNAK)
         self.assertTrue(pat.is_empty())
         self.assertFalse(pat.is_nonempty())
 
@@ -165,9 +165,9 @@ class TestModelFilterPattern(kif_TestCase):
                 NoValueSnak(Property('q'))]))
         # snak mask
         self.assertEqual(
-            FilterPattern(None, None, None, SnakMask.ALL).combine(
-                FilterPattern(None, None, None, SnakMask.VALUE_SNAK)),
-            FilterPattern(None, None, None, SnakMask.VALUE_SNAK))
+            FilterPattern(None, None, None, Snak.ALL).combine(
+                FilterPattern(None, None, None, Snak.VALUE_SNAK)),
+            FilterPattern(None, None, None, Snak.VALUE_SNAK))
 
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@ import kif_lib.vocabulary as wd
 from kif_lib import (
     NoValueSnak,
     Quantity,
-    SnakMask,
+    Snak,
     SomeValueSnak,
     Statement,
     Store,
@@ -72,7 +72,7 @@ class TestEmptyStore(kif_TestCase):
     def test_count(self):
         kb = Store('empty')
         self.store_test_count(kb, 0)
-        self.store_test_count(kb, 0, snak_mask=SnakMask.VALUE_SNAK)
+        self.store_test_count(kb, 0, snak_mask=Snak.VALUE_SNAK)
         self.store_test_count(kb, 0, wd.InChIKey)
         self.store_test_count(kb, 0, wd.Brazil)
         self.store_test_count(kb, 0, wd.benzene, wd.mass)

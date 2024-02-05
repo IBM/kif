@@ -21,7 +21,7 @@ from kif_lib import (
     PropertyFingerprint,
     Quantity,
     ReferenceRecord,
-    SnakMask,
+    Snak,
     SnakSet,
     SomeValueSnak,
     String,
@@ -326,7 +326,7 @@ class TestMarkdownEncoder(kif_TestCase):
             None,
             None,
             [wd.country(wd.Brazil), NoValueSnak(wd.date_of_birth)],
-            SnakMask.NO_VALUE_SNAK)
+            Snak.NO_VALUE_SNAK)
         self.assert_to_markdown(
             pat, '''\
 (**FilterPattern**
