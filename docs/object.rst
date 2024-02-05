@@ -1,6 +1,6 @@
-==========
-KIF Object
-==========
+======
+Object
+======
 
 .. currentmodule:: kif_lib
 
@@ -23,11 +23,3 @@ KIF Object
    KIF_Object.copy
    KIF_Object.deepcopy
    KIF_Object.replace
-
-KIF Object Set
---------------
-
-.. autosummary::
-   :toctree: generated/
-
-   KIF_ObjectSet

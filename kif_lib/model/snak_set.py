@@ -15,7 +15,7 @@ class SnakSet(KIF_ObjectSet):
     """Set of snaks.
 
     Parameters:
-       args: Snaks.
+       snaks: Snaks.
     """
 
     @classmethod
@@ -29,27 +29,27 @@ class SnakSet(KIF_ObjectSet):
         return cast(SnakSet, cls._check_arg_kif_object_set(
             arg, function, name, position))
 
-    def __init__(self, *args: Snak):
-        super().__init__(*args)
+    def __init__(self, *snaks: Snak):
+        super().__init__(*snaks)
 
     def _preprocess_arg(self, arg, i):
         return self._preprocess_arg_snak(arg, i)
 
     @property
     def args_set(self) -> frozenset[Snak]:
-        """Set arguments as frozen set."""
+        """The set of arguments as a frozen set."""
         return self.get_args_set()
 
     def get_args_set(self) -> frozenset[Snak]:
-        """Gets set arguments as frozen set.
+        """Gets the set of arguments as a frozen set.
 
         Returns:
-           Set arguments as set.
+           Frozen set.
         """
         return cast(frozenset[Snak], self._get_args_set())
 
     def union(self, *others: 'SnakSet') -> 'SnakSet':
-        """Computes the union of set and `others`.
+        """Computes the union of self and `others`.
 
         Parameters:
            others: Snak sets.

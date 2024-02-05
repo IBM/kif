@@ -13,7 +13,7 @@ class KIF_ObjectSet(KIF_Object):
     """Set of KIF objects.
 
     Parameters:
-       args: objects.
+       objects: KIF objects.
     """
 
     @classmethod
@@ -35,8 +35,8 @@ class KIF_ObjectSet(KIF_Object):
 
     _args_set: frozenset[KIF_Object]
 
-    def __init__(self, *args: KIF_Object):
-        super().__init__(*args)
+    def __init__(self, *objects: KIF_Object):
+        super().__init__(*objects)
 
     def _set_args(self, args):
         self._args_set = frozenset(args)

@@ -14,6 +14,7 @@ Model
    reference_record
    rank
    statement
+   sets
 
 .. toctree::
    :maxdepth: 1
