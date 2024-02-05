@@ -18,6 +18,14 @@ Datatype
    :toctree: generated/
 
    Datatype
+   Datatype.value_class
+
+Concrete subclasses
+~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: generated/
+
    ItemDatatype
    PropertyDatatype
    LexemeDatatype
