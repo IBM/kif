@@ -34,17 +34,11 @@ extensions = [
 ]
 
 templates_path = ['_templates']
+source_suffix = ['.rst']
+
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 add_module_names = False
-# autodoc_member_order = 'groupwise'
-# autodoc_member_order = 'bysource'
-# autodoc_member_order = 'alphabetical'
-source_suffix = {
-    '.rst': 'restructuredtext',
-    '.txt': 'markdown',
-    '.md': 'markdown',
-}
-# html_static_path = ['_static']
+
 # html_theme = 'sphinx_rtd_theme'
 html_theme = 'pydata_sphinx_theme'
 
@@ -52,7 +46,6 @@ graphviz_output_format = 'svg'
 inheritance_graph_attrs = dict(
     rankdir='TB',
     ratio='compress',
-    #size='16.0, 9.0',
 )
 inheritance_node_attrs = dict(
     fillcolor='lightgray',

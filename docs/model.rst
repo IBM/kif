@@ -9,6 +9,7 @@ Model
    object
    datatype
    value
+   descriptor
    snak
    reference_record
    rank

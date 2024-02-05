@@ -10,77 +10,86 @@ from .value import Datatype, Item, Text, TText
 
 
 class Descriptor(KIF_Object):
-    """Abstract base class for entity descriptors."""
+    """Abstract base class for descriptors."""
 
 
 class PlainDescriptor(Descriptor):
-    """Abstract base class for item or property descriptors."""
+    """Abstract base class for plain descriptors."""
 
-    class Mask(Flag):
+    class FieldMask(Flag):
+        """Mask for plain descriptor fields."""
+
+        #: Mask for the label field.
         LABEL = auto()
+
+        #: Mask for the aliases field.
         ALIASES = auto()
+
+        #: Mask for the description field.
         DESCRIPTION = auto()
+
+        #: Mask for all fields.
         ALL = LABEL | ALIASES | DESCRIPTION
 
-    TMask = Union[Mask, int]
+    #: Alias for :attr:`PlainDescriptor.FieldMask.LABEL`.
+    LABEL = FieldMask.LABEL
 
-    #: Alias for :attr:`PlainDescriptor.Mask.LABEL`.
-    LABEL = Mask.LABEL
+    #: Alias for :attr:`PlainDescriptor.FieldMask.ALIASES`.
+    ALIASES = FieldMask.ALIASES
 
-    #: Alias for :attr:`PlainDescriptor.Mask.ALIASES`.
-    ALIASES = Mask.ALIASES
+    #: Alias for :attr:`PlainDescriptor.FieldMask.DESCRIPTION`.
+    DESCRIPTION = FieldMask.DESCRIPTION
 
-    #: Alias for :attr:`PlainDescriptor.Mask.DESCRIPTION`.
-    DESCRIPTION = Mask.DESCRIPTION
+    #: Alias for :attr:`PlainDescriptor.FieldMask.ALL`.
+    ALL = FieldMask.ALL
 
-    #: Alias for :attr:`PlainDescriptor.Mask.ALL`.
-    ALL = Mask.ALL
+    TFieldMask = Union[FieldMask, int]
 
     @classmethod
-    def _check_arg_plain_descriptor_mask(
+    def _check_arg_plain_descriptor_field_mask(
             cls,
-            arg: TMask,
+            arg: TFieldMask,
             function: Optional[Union[TCallable, str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Mask, NoReturn]:
-        return cls.Mask(cls._check_arg_isinstance(
-            arg, (cls.Mask, int), function, name, position))
+    ) -> Union[FieldMask, NoReturn]:
+        return cls.FieldMask(cls._check_arg_isinstance(
+            arg, (cls.FieldMask, int), function, name, position))
 
     @classmethod
-    def _check_optional_arg_plain_descriptor_mask(
+    def _check_optional_arg_plain_descriptor_field_mask(
             cls,
-            arg: Optional[TMask],
-            default: Optional[Mask] = None,
+            arg: Optional[TFieldMask],
+            default: Optional[FieldMask] = None,
             function: Optional[Union[TCallable, str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional[Mask], NoReturn]:
+    ) -> Union[Optional[FieldMask], NoReturn]:
         if arg is None:
             return default
         else:
-            return cls._check_arg_plain_descriptor_mask(
+            return cls._check_arg_plain_descriptor_field_mask(
                 arg, function, name, position)
 
     @classmethod
-    def _preprocess_arg_plain_descriptor_mask(
+    def _preprocess_arg_plain_descriptor_field_mask(
             cls,
-            arg: TMask,
+            arg: TFieldMask,
             i: int,
             function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Mask, NoReturn]:
-        return cls._check_arg_plain_descriptor_mask(
+    ) -> Union[FieldMask, NoReturn]:
+        return cls._check_arg_plain_descriptor_field_mask(
             arg, function or cls, None, i)
 
     @classmethod
-    def _preprocess_optional_arg_plain_descriptor_mask(
+    def _preprocess_optional_arg_plain_descriptor_field_mask(
             cls,
             arg,
             i: int,
-            default: Optional[Mask] = None,
+            default: Optional[FieldMask] = None,
             function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Optional[Mask], NoReturn]:
-        return cls._check_optional_arg_plain_descriptor_mask(
+    ) -> Union[Optional[FieldMask], NoReturn]:
+        return cls._check_optional_arg_plain_descriptor_field_mask(
             arg, default, function or cls, None, i)
 
     def _preprocess_arg(self, arg, i):
@@ -95,98 +104,98 @@ class PlainDescriptor(Descriptor):
 
     @property
     def label(self) -> Optional[Text]:
-        """Descriptor label."""
+        """The label field."""
         return self.get_label()
 
     def get_label(
             self,
             default: Optional[Text] = None
     ) -> Optional[Text]:
-        """Gets descriptor label.
+        """Gets the label field.
 
-        If descriptor label is ``None``, returns `default`.
+        If the label field is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default label.
 
         Returns:
-           Descriptor label.
+           Label.
         """
         label = self.args[0]
         return label if label is not None else default
 
     @property
     def aliases(self) -> TextSet:
-        """Descriptor aliases."""
+        """The aliases field."""
         return self.get_aliases()
 
     def get_aliases(self) -> TextSet:
-        """Gets descriptor aliases.
+        """Gets the aliases field.
 
         Returns:
-           Descriptor aliases.
+           Aliases.
         """
         return self.args[1]
 
     @property
     def description(self) -> Optional[Text]:
-        """Descriptor description."""
+        """The description field."""
         return self.get_description()
 
     def get_description(
             self,
             default: Optional[Text] = None
     ) -> Optional[Text]:
-        """Gets descriptor description.
+        """Gets the description field.
 
-        If descriptor description is ``None``, returns `default`.
+        If the description field is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default description.
 
         Returns:
-           Descriptor description.
+           Description.
         """
-        desc = self.args[2]
-        return desc if desc is not None else default
+        description = self.args[2]
+        return description if description is not None else default
 
 
 class ItemDescriptor(PlainDescriptor):
     """Item descriptor.
 
     Parameters:
-       arg1: Label.
-       arg2: Aliases.
-       arg3: Description.
+       label: Label.
+       aliases: Aliases.
+       description: Description.
     """
 
     def __init__(
             self,
-            arg1: Optional[TText] = None,
-            arg2: Optional[TTextSet] = None,
-            arg3: Optional[TText] = None
+            label: Optional[TText] = None,
+            aliases: Optional[TTextSet] = None,
+            description: Optional[TText] = None
     ):
-        super().__init__(arg1, arg2, arg3)
+        super().__init__(label, aliases, description)
 
 
 class PropertyDescriptor(PlainDescriptor):
     """Property descriptor.
 
     Parameters:
-        arg1: Label.
-        arg2: Aliases.
-        arg3: Description.
-        arg4: Datatype.
+        label: Label.
+        aliases: Aliases.
+        description: Description.
+        datatype: Datatype.
     """
 
     def __init__(
             self,
-            arg1: Optional[TText] = None,
-            arg2: Optional[TTextSet] = None,
-            arg3: Optional[TText] = None,
-            arg4: Optional[Datatype] = None
+            label: Optional[TText] = None,
+            aliases: Optional[TTextSet] = None,
+            description: Optional[TText] = None,
+            datatype: Optional[Datatype] = None
     ):
-        super().__init__(arg1, arg2, arg3, arg4)
+        super().__init__(label, aliases, description, datatype)
 
     def _preprocess_arg(self, arg, i):
         if i == 4:
@@ -196,43 +205,43 @@ class PropertyDescriptor(PlainDescriptor):
 
     @property
     def datatype(self) -> Optional[Datatype]:
-        """Descriptor datatype."""
+        """The datatype field."""
         return self.get_datatype()
 
     def get_datatype(
             self,
             default: Optional[Datatype] = None
     ) -> Optional[Datatype]:
-        """Gets descriptor datatype.
+        """Gets the datatype field.
 
-        If descriptor datatype is ``None``, returns `default`.
+        If the datatype field is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default datatype.
 
         Returns:
-           Descriptor datatype.
+           Datatype.
         """
-        dt = self.args[3]
-        return dt if dt is not None else default
+        datatype = self.args[3]
+        return datatype if datatype is not None else default
 
 
 class LexemeDescriptor(Descriptor):
     """Lexeme descriptor.
 
     Parameters:
-        arg1: Lemma.
-        arg2: Lexical category.
-        arg3: Language.
+        lemma: Lemma.
+        category: Lexical category.
+        language: Language.
     """
 
     def __init__(
             self,
-            arg1: TText,
-            arg2: Item,
-            arg3: Item,
+            lemma: TText,
+            category: Item,
+            language: Item,
     ):
-        super().__init__(arg1, arg2, arg3)
+        super().__init__(lemma, category, language)
 
     def _preprocess_arg(self, arg, i):
         if i == 1:
@@ -246,11 +255,11 @@ class LexemeDescriptor(Descriptor):
 
     @property
     def lemma(self) -> Text:
-        """Lexeme lemma."""
+        """The lemma field."""
         return self.get_lemma()
 
     def get_lemma(self) -> Text:
-        """Gets lexeme lemma.
+        """Gets the lemma field.
 
         Returns:
            Lemma.
@@ -259,11 +268,11 @@ class LexemeDescriptor(Descriptor):
 
     @property
     def category(self) -> Item:
-        """Lexeme lexical category."""
+        """The lexical category field."""
         return self.get_category()
 
     def get_category(self) -> Item:
-        """Gets lexeme lexical category.
+        """Gets the lexical category field.
 
         Returns:
            Lexical category.
@@ -272,11 +281,11 @@ class LexemeDescriptor(Descriptor):
 
     @property
     def language(self) -> Item:
-        """Lexeme language."""
+        """The language field."""
         return self.get_language()
 
     def get_language(self) -> Item:
-        """Gets lexeme language.
+        """Gets the language field.
 
         Returns:
            Language.

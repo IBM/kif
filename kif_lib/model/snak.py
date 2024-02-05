@@ -12,18 +12,18 @@ TSnakMask = Union['SnakMask', int]
 
 
 class SnakMask(Flag):
-    """Mask representing concrete snak classes."""
+    """Mask for concrete snak classes."""
 
-    #: Mask representing ValueSnak's.
+    #: Mask for :class:`ValueSnak`.
     VALUE_SNAK = auto()
 
-    #: Mask representing SomeValueSnak's.
+    #: Mask for :class:`SomeValueSnak`.
     SOME_VALUE_SNAK = auto()
 
-    #: Mask representing NoValueSnak's.
+    #: Mask for :class:`NoValueSnak`.
     NO_VALUE_SNAK = auto()
 
-    #: Mask representing all snak classes.
+    #: Mask for all snak classes.
     ALL = (VALUE_SNAK | SOME_VALUE_SNAK | NO_VALUE_SNAK)
 
 
