@@ -1,6 +1,8 @@
 KIF
 ===
 
+A knowledge integration framework based on Wikidata.
+
 .. toctree::
    :maxdepth: 1
    :caption: Contents
@@ -8,8 +10,6 @@ KIF
    model
    store
    internal
-
-KIF is a knowledge integration framework based on Wikidata.
 
 Indices and tables
 ==================
