@@ -481,7 +481,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
 
     # -- Copying -----------------------------------------------------------
 
-    def copy(self):
+    def copy(self) -> 'Object':
         """Makes a shallow copy of object.
 
         Returns:

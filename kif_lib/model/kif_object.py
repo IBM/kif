@@ -85,8 +85,10 @@ class KIF_Object(object.Object):
     @classmethod
     def _preprocess_optional_arg_datetime(
             cls, arg, i, default=None, function=None):
-        return cls._check_optional_arg_datetime(
-            arg, default, function or cls, None, i)
+        if arg is None:
+            return default
+        else:
+            return cls._preprocess_arg_datetime(arg, i, function)
 
     # -- decimal --
 
@@ -118,9 +120,13 @@ class KIF_Object(object.Object):
     @classmethod
     def _preprocess_optional_arg_decimal(
             cls, arg, i, default=None, function=None):
-        return cls._check_optional_arg_decimal(
-            arg, default, function or cls, None, i)
+        if arg is None:
+            return default
+        else:
+            return cls._preprocess_arg_decimal(arg, i, function)
 
+
+# -- Codecs ----------------------------------------------------------------
 
 class KIF_JSON_Encoder(
         object.JSON_Encoder, format='json', description='JSON encoder'):
