@@ -7,32 +7,44 @@ from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
     Deprecated,
+    EncoderError,
     EntityFingerprint,
     ExternalId,
+    ExternalIdDatatype,
     FilterPattern,
+    Fingerprint,
     IRI,
+    IRI_Datatype,
     Item,
+    ItemDatatype,
     ItemDescriptor,
     KIF_Object,
     KIF_ObjectSet,
     Lexeme,
+    LexemeDatatype,
     LexemeDescriptor,
     Normal,
     NoValueSnak,
     Preferred,
     Property,
+    PropertyDatatype,
     PropertyDescriptor,
     PropertyFingerprint,
     Quantity,
+    QuantityDatatype,
     ReferenceRecord,
     ReferenceRecordSet,
+    Snak,
     SnakSet,
     SomeValueSnak,
     Statement,
     String,
+    StringDatatype,
     Text,
+    TextDatatype,
     TextSet,
     Time,
+    TimeDatatype,
     ValueSnak,
 )
 from kif_lib.model import Datetime, Decimal, UTC
@@ -499,153 +511,543 @@ class TestModelKIF_Object(kif_TestCase):
     # -- test_check_ --
 
     def test_check(self):
-        # check_kif_object
-        self.assertEqual(Item('x').check_kif_object(), Item('x'))
-        # check_value
-        self.assertEqual(Item('x').check_value(), Item('x'))
-        stmt = Statement(Item('x'), NoValueSnak(Property('y')))
-        self.assertRaises(TypeError, stmt.check_value)
-        # check_entity
-        self.assertEqual(Item('x').check_entity(), Item('x'))
-        self.assertRaises(TypeError, String('x').check_entity)
-        # check_item
-        self.assertEqual(Item('x').check_item(), Item('x'))
-        self.assertRaises(TypeError, String('x').check_item)
-        # check_property
-        self.assertEqual(Property('x').check_property(), Property('x'))
-        self.assertRaises(TypeError, Item('x').check_property)
-        # check_data_value
+        self.assert_test_is_defined_for_all_object_classes('check_')
+
+    def test_check_annotation_record(self):
+        self.assertEqual(
+            AnnotationRecord().check_annotation_record(),
+            AnnotationRecord())
+        self.assertRaises(TypeError, Item('x').check_annotation_record)
+
+    def test_check_annotation_record_set(self):
+        annots = AnnotationRecordSet(AnnotationRecord())
+        self.assertEqual(annots.check_annotation_record_set(), annots)
+        self.assertRaises(TypeError, Item('x').check_annotation_record_set)
+
+    def test_check_data_value(self):
         self.assertEqual(IRI('x').check_data_value(), IRI('x'))
         self.assertRaises(TypeError, Item('x').check_data_value)
-        # check_string
-        self.assertEqual(String('x').check_string(), String('x'))
-        self.assertRaises(TypeError, Item('x').check_string)
-        # check_iri
-        self.assertEqual(IRI('x').check_iri(), IRI('x'))
-        self.assertRaises(TypeError, Item('x').check_iri)
-        # check_deep_data_value
+
+    def test_check_datatype(self):
+        self.assertEqual(IRI_Datatype().check_datatype(), IRI.datatype)
+        self.assertRaises(TypeError, Item('x').check_datatype)
+
+    def test_check_deep_data_value(self):
         self.assertEqual(Quantity(0).check_deep_data_value(), Quantity(0))
         self.assertRaises(TypeError, String('x').check_deep_data_value)
-        # check_quantity
-        self.assertEqual(Quantity(0).check_quantity(), Quantity(0))
-        self.assertRaises(TypeError, String('x').check_quantity)
-        # check_time
-        self.assertEqual(Time('2023-09-18').check_time(), Time('2023-09-18'))
-        self.assertRaises(TypeError, String('2023-09-18').check_time)
-        # check_snak
-        snak = ValueSnak(Property('x'), Item('y'))
-        self.assertEqual(snak.check_snak(), snak)
-        self.assertRaises(TypeError, String('x').check_snak)
-        # check_value_snak
-        snak = ValueSnak(Property('x'), Item('y'))
-        self.assertEqual(snak.check_value_snak(), snak)
-        self.assertRaises(TypeError, String('x').check_value_snak)
-        # check_some_value_snak
-        snak = SomeValueSnak(Property('x'))
-        self.assertEqual(snak.check_some_value_snak(), snak)
-        self.assertRaises(TypeError, String('x').check_some_value_snak)
-        # check_no_value_snak
+
+    def test_check_deprecated_rank(self):
+        self.assertEqual(Deprecated.check_deprecated_rank(), Deprecated)
+        self.assertRaises(TypeError, Preferred.check_deprecated_rank)
+
+    def test_check_descriptor(self):
+        self.assertEqual(
+            ItemDescriptor('x').check_descriptor(), ItemDescriptor('x'))
+        self.assertRaises(TypeError, String('x').check_descriptor)
+
+    def test_check_entity(self):
+        self.assertEqual(Item('x').check_entity(), Item('x'))
+        self.assertRaises(TypeError, String('x').check_entity)
+
+    def test_check_entity_fingerprint(self):
+        fp = EntityFingerprint(Item('x'))
+        self.assertEqual(fp.check_entity_fingerprint(), fp)
+        self.assertRaises(TypeError, String('x').check_entity_fingerprint)
+
+    def test_check_external_id(self):
+        self.assertEqual(
+            ExternalId('x').check_external_id(), ExternalId('x'))
+        self.assertRaises(TypeError, String('x').check_external_id)
+
+    def test_check_external_id_datatype(self):
+        self.assertEqual(
+            ExternalIdDatatype().check_external_id_datatype(),
+            ExternalId.datatype)
+        self.assertRaises(
+            TypeError, ItemDatatype().check_external_id_datatype)
+
+    def test_check_filter_pattern(self):
+        self.assertEqual(
+            FilterPattern().check_filter_pattern(), FilterPattern())
+        self.assertRaises(TypeError, Item('x').check_filter_pattern)
+
+    def test_check_fingerprint(self):
+        fp = Fingerprint(String('x'))
+        self.assertEqual(fp.check_fingerprint(), fp)
+        self.assertRaises(TypeError, Item('x').check_fingerprint)
+
+    def test_check_iri(self):
+        self.assertEqual(IRI('x').check_iri(), IRI('x'))
+        self.assertRaises(TypeError, Item('x').check_iri)
+
+    def test_check_iri_datatype(self):
+        self.assertEqual(
+            IRI_Datatype().check_iri_datatype(), IRI.datatype)
+        self.assertRaises(TypeError, Item('x').check_iri_datatype)
+
+    def test_check_item(self):
+        self.assertEqual(Item('x').check_item(), Item('x'))
+        self.assertRaises(TypeError, String('x').check_item)
+
+    def test_check_item_datatype(self):
+        self.assertEqual(ItemDatatype().check_item_datatype(), Item.datatype)
+        self.assertRaises(TypeError, String('x').check_item_datatype)
+
+    def test_check_item_descriptor(self):
+        self.assertEqual(
+            ItemDescriptor().check_item_descriptor(), ItemDescriptor())
+        self.assertRaises(
+            TypeError, PropertyDescriptor().check_item_descriptor)
+
+    def test_check_kif_object(self):
+        self.assertEqual(Item('x').check_kif_object(), Item('x'))
+
+    def test_check_kif_object_set(self):
+        objs = KIF_ObjectSet(Item('x'), Property('y'))
+        self.assertEqual(objs.check_kif_object_set(), objs)
+        self.assertEqual(SnakSet().check_kif_object_set(), SnakSet())
+        self.assertRaises(TypeError, Item('x').check_kif_object_set)
+
+    def test_check_lexeme(self):
+        self.assertEqual(Lexeme('x').check_lexeme(), Lexeme('x'))
+        self.assertRaises(TypeError, Item('x').check_lexeme)
+
+    def test_check_lexeme_datatype(self):
+        self.assertEqual(
+            LexemeDatatype().check_lexeme_datatype(), Lexeme.datatype)
+        self.assertRaises(TypeError, Item.datatype.check_lexeme_datatype)
+
+    def test_check_lexeme_descriptor(self):
+        desc = LexemeDescriptor('x', Item('x'), Item('y'))
+        self.assertEqual(desc.check_lexeme_descriptor(), desc)
+        self.assertRaises(TypeError, Item('x').check_lexeme_descriptor)
+
+    def test_check_no_value_snak(self):
         snak = NoValueSnak(Property('x'))
         self.assertEqual(snak.check_no_value_snak(), snak)
         self.assertRaises(TypeError, String('x').check_no_value_snak)
-        # check_reference_record
+
+    def test_check_normal_rank(self):
+        self.assertEqual(Normal.check_normal_rank(), Normal)
+        self.assertRaises(TypeError, Preferred.check_normal_rank)
+
+    def test_check_pattern(self):
+        self.assertEqual(FilterPattern().check_pattern(), FilterPattern())
+        self.assertRaises(TypeError, Item('x').check_filter_pattern)
+
+    def test_check_plain_descriptor(self):
+        self.assertEqual(
+            ItemDescriptor().check_plain_descriptor(), ItemDescriptor())
+        self.assertRaises(
+            TypeError,
+            LexemeDescriptor('abc', Item('x'),
+                             Item('y')).check_plain_descriptor)
+
+    def test_check_preferred_rank(self):
+        self.assertEqual(Preferred.check_preferred_rank(), Preferred)
+        self.assertRaises(TypeError, Normal.check_preferred_rank)
+
+    def test_check_property(self):
+        self.assertEqual(Property('x').check_property(), Property('x'))
+        self.assertRaises(TypeError, Item('x').check_property)
+
+    def test_check_property_datatype(self):
+        self.assertEqual(
+            PropertyDatatype().check_property_datatype(), Property.datatype)
+        self.assertRaises(TypeError, ItemDatatype().check_property_datatype)
+
+    def test_check_property_descriptor(self):
+        self.assertEqual(
+            PropertyDescriptor().check_property_descriptor(),
+            PropertyDescriptor())
+        self.assertRaises(
+            TypeError, ItemDescriptor().check_property_descriptor)
+
+    def test_check_property_fingerprint(self):
+        fp = PropertyFingerprint(Property('p'))
+        self.assertEqual(fp.check_property_fingerprint(), fp)
+        self.assertRaises(
+            TypeError, EntityFingerprint(Item('x')).check_property_fingerprint)
+
+    def test_check_quantity(self):
+        self.assertEqual(Quantity(0).check_quantity(), Quantity(0))
+        self.assertRaises(TypeError, String('x').check_quantity)
+
+    def test_check_quantity_datatype(self):
+        self.assertEqual(
+            QuantityDatatype().check_quantity_datatype(), Quantity.datatype)
+        self.assertRaises(TypeError, String('x').check_quantity_datatype)
+
+    def test_check_rank(self):
+        self.assertEqual(Preferred.check_rank(), Preferred)
+        self.assertRaises(TypeError, String('x').check_rank)
+
+    def test_check_reference_record(self):
         refr = ReferenceRecord(NoValueSnak(Property('p')))
         self.assertEqual(refr.check_reference_record(), refr)
         self.assertRaises(TypeError, String('x').check_reference_record)
-        # check_rank
-        self.assertEqual(Preferred.check_rank(), Preferred)
-        self.assertRaises(TypeError, String('x').check_rank)
-        # check_preferred_rank
-        self.assertEqual(Preferred.check_preferred_rank(), Preferred)
-        self.assertRaises(TypeError, Normal.check_preferred_rank)
-        # check_normal_rank
-        self.assertEqual(Normal.check_normal_rank(), Normal)
-        self.assertRaises(TypeError, Preferred.check_normal_rank)
-        # check_deprecated_rank
-        self.assertEqual(Deprecated.check_deprecated_rank(), Deprecated)
-        self.assertRaises(TypeError, Preferred.check_deprecated_rank)
-        # check_statement
+
+    def test_check_reference_record_set(self):
+        refs = ReferenceRecordSet(ReferenceRecord(NoValueSnak(Property('p'))))
+        self.assertEqual(refs.check_reference_record_set(), refs)
+        self.assertRaises(TypeError, SnakSet().check_reference_record_set)
+
+    def test_check_snak(self):
+        snak = ValueSnak(Property('x'), Item('y'))
+        self.assertEqual(snak.check_snak(), snak)
+        self.assertRaises(TypeError, String('x').check_snak)
+
+    def test_check_snak_set(self):
+        snak_set = SnakSet(ValueSnak(Property('x'), Item('y')))
+        self.assertEqual(snak_set.check_snak_set(), snak_set)
+        self.assertRaises(TypeError, String('x').check_snak_set)
+
+    def test_check_some_value_snak(self):
+        snak = SomeValueSnak(Property('x'))
+        self.assertEqual(snak.check_some_value_snak(), snak)
+        self.assertRaises(TypeError, String('x').check_some_value_snak)
+
+    def test_check_statement(self):
         stmt = Statement(Item('x'), NoValueSnak(Property('y')))
         self.assertEqual(stmt.check_statement(), stmt)
         self.assertRaises(TypeError, String('x').check_statement)
 
-    def test_unpack(self):
-        # unpack_kif_object
-        self.assertEqual(Item('x').unpack_kif_object(), (IRI('x'),))
-        # unpack_value
-        self.assertEqual(Item('x').unpack_value(), (IRI('x'),))
+    def test_check_string(self):
+        self.assertEqual(String('x').check_string(), String('x'))
+        self.assertEqual(ExternalId('x').check_string(), ExternalId('x'))
+        self.assertRaises(TypeError, Item('x').check_string)
+
+    def test_check_string_datatype(self):
+        self.assertEqual(
+            StringDatatype().check_string_datatype(), String.datatype)
+        self.assertRaises(TypeError, Item.datatype.check_string_datatype)
+
+    def test_check_text(self):
+        self.assertEqual(Text('abc').check_text(), Text('abc'))
+        self.assertRaises(TypeError, String('abc').check_text)
+
+    def test_check_text_datatype(self):
+        self.assertEqual(TextDatatype().check_text_datatype(), Text.datatype)
+        self.assertRaises(TypeError, String.datatype.check_text_datatype)
+
+    def test_check_text_set(self):
+        texts = TextSet(Text('abc'), Text('def'))
+        self.assertEqual(texts.check_text_set(), texts)
+        self.assertRaises(TypeError, Text('abc').check_text_set)
+
+    def test_check_time(self):
+        self.assertEqual(Time('2023-09-18').check_time(), Time('2023-09-18'))
+        self.assertRaises(TypeError, String('2023-09-18').check_time)
+
+    def test_check_time_datatype(self):
+        self.assertEqual(
+            TimeDatatype().check_time_datatype(), Time.datatype)
+        self.assertRaises(TypeError, Item.datatype.check_time_datatype)
+
+    def test_check_value(self):
+        self.assertEqual(Item('x').check_value(), Item('x'))
         stmt = Statement(Item('x'), NoValueSnak(Property('y')))
-        self.assertRaises(TypeError, stmt.unpack_value)
-        # unpack_entity
-        self.assertEqual(Item('x').unpack_entity(), (IRI('x'),))
-        self.assertRaises(TypeError, String('x').unpack_entity)
-        # unpack_item
-        self.assertEqual(Item('x').unpack_item(), (IRI('x'),))
-        self.assertRaises(TypeError, String('x').unpack_item)
-        # unpack_property
-        self.assertEqual(Property('x').unpack_property(), (IRI('x'),))
-        self.assertRaises(TypeError, Item('x').unpack_property)
-        # unpack_data_value
+        self.assertRaises(TypeError, stmt.check_value)
+
+    def test_check_value_snak(self):
+        snak = ValueSnak(Property('x'), Item('y'))
+        self.assertEqual(snak.check_value_snak(), snak)
+        self.assertRaises(TypeError, String('x').check_value_snak)
+
+    # -- test_unpack_ --
+
+    def test_unpack(self):
+        self.assert_test_is_defined_for_all_object_classes('unpack_')
+
+    def test_unpack_annotation_record(self):
+        quals = [ValueSnak(Property('p'), Item('y')),
+                 NoValueSnak(Property('q'))]
+        annot = AnnotationRecord(quals, [SnakSet(*quals)], Normal)
+        self.assertEqual(annot.unpack_annotation_record(), (
+            SnakSet(*quals),
+            ReferenceRecordSet(SnakSet(*quals)),
+            Normal))
+        self.assertRaises(TypeError, Item('x').unpack_annotation_record)
+
+    def test_unpack_annotation_record_set(self):
+        quals = [ValueSnak(Property('p'), Item('y')),
+                 NoValueSnak(Property('q'))]
+        annot = AnnotationRecord(quals, [SnakSet(*quals)], Normal)
+        annots = AnnotationRecordSet(annot)
+        self.assertEqual(
+            annots.unpack_annotation_record_set(), (annot,))
+        self.assertRaises(TypeError, Item('x').unpack_annotation_record_set)
+
+    def test_unpack_data_value(self):
         self.assertEqual(IRI('x').unpack_data_value(), ('x',))
         self.assertRaises(TypeError, Item('x').unpack_data_value)
-        # unpack_string
-        self.assertEqual(String('x').unpack_string(), ('x',))
-        self.assertRaises(TypeError, Item('x').unpack_string)
-        # unpack_iri
-        self.assertEqual(IRI('x').unpack_iri(), ('x',))
-        self.assertRaises(TypeError, Item('x').unpack_iri)
-        # unpack_deep_data_value
+
+    def test_unpack_datatype(self):
+        self.assertEqual(IRI.datatype.unpack_datatype(), ())
+        self.assertRaises(TypeError, Item('x').unpack_datatype)
+
+    def test_unpack_deep_data_value(self):
         self.assertEqual(
             Quantity(0).unpack_deep_data_value(), (0, None, None, None))
         self.assertRaises(TypeError, String('x').unpack_deep_data_value)
-        # unpack_quantity
-        self.assertEqual(Quantity(0).unpack_quantity(),
-                         (Decimal('0'), None, None, None))
-        self.assertRaises(TypeError, String('x').unpack_quantity)
-        # unpack_time
+
+    def test_unpack_deprecated_rank(self):
+        self.assertEqual(Deprecated.unpack_deprecated_rank(), ())
+        self.assertRaises(TypeError, Preferred.unpack_deprecated_rank)
+
+    def test_unpack_descriptor(self):
+        desc = ItemDescriptor('abc', ['x', 'y'], 'z')
+        self.assertEqual(desc.unpack_descriptor(), (
+            Text('abc'), TextSet('x', 'y'), Text('z')))
+        self.assertRaises(TypeError, Item('x').unpack_descriptor)
+
+    def test_unpack_entity(self):
+        self.assertEqual(Item('x').unpack_entity(), (IRI('x'),))
+        self.assertRaises(TypeError, String('x').unpack_entity)
+
+    def test_unpack_entity_fingerprint(self):
+        fp = EntityFingerprint(Item('x'))
+        self.assertEqual(fp.unpack_entity_fingerprint(), (Item('x'),))
+        self.assertRaises(TypeError, String('x').unpack_entity_fingerprint)
+
+    def test_unpack_external_id(self):
+        self.assertEqual(ExternalId('x').unpack_external_id(), ('x',))
+        self.assertRaises(TypeError, Item('x').unpack_external_id)
+
+    def test_unpack_external_id_datatype(self):
         self.assertEqual(
-            Time('2023-09-18').unpack_time(),
-            (Datetime(2023, 9, 18, tzinfo=UTC), None, None, None))
-        self.assertRaises(TypeError, String('2023-09-18').unpack_time)
-        # unpack_snak
-        snak = ValueSnak(Property('x'), Item('y'))
-        self.assertEqual(snak.unpack_snak(), (Property('x'), Item('y')))
-        self.assertRaises(TypeError, String('x').unpack_snak)
-        # unpack_value_snak
-        snak = ValueSnak(Property('x'), Item('y'))
-        self.assertEqual(snak.unpack_value_snak(), (Property('x'), Item('y')))
-        self.assertRaises(TypeError, String('x').unpack_value_snak)
-        # unpack_some_value_snak
-        snak = SomeValueSnak(Property('x'))
-        self.assertEqual(snak.unpack_some_value_snak(), (Property('x'),))
-        self.assertRaises(TypeError, String('x').unpack_some_value_snak)
-        # unpack_no_value_snak
+            ExternalId.datatype.unpack_external_id_datatype(), ())
+        self.assertRaises(TypeError, Item('x').unpack_external_id_datatype)
+
+    def test_unpack_filter_pattern(self):
+        pat = FilterPattern(
+            Item('x'), Property('p'), String('y'), Snak.VALUE_SNAK)
+        self.assertEqual(pat.unpack_filter_pattern(), (
+            EntityFingerprint(Item('x')),
+            PropertyFingerprint(Property('p')),
+            Fingerprint(String('y')),
+            1))
+        self.assertRaises(TypeError, Item('x').unpack_filter_pattern)
+
+    def test_unpack_fingerprint(self):
+        fp = EntityFingerprint(Item('x'))
+        self.assertEqual(fp.unpack_fingerprint(), (Item('x'),))
+        self.assertRaises(TypeError, String('x').unpack_fingerprint)
+
+    def test_unpack_item(self):
+        self.assertEqual(Item('x').unpack_item(), (IRI('x'),))
+        self.assertRaises(TypeError, String('x').unpack_item)
+
+    def test_unpack_item_datatype(self):
+        self.assertEqual(Item.datatype.unpack_item_datatype(), ())
+        self.assertRaises(TypeError, Item('x').unpack_item_datatype)
+
+    def test_unpack_item_descriptor(self):
+        desc = ItemDescriptor('x', ['y', 'z'], 'w')
+        self.assertEqual(desc.unpack_item_descriptor(), (
+            Text('x'), TextSet('z', 'y'), Text('w')))
+        self.assertRaises(TypeError, String('x').unpack_item_descriptor)
+
+    def test_unpack_iri(self):
+        self.assertEqual(IRI('x').unpack_iri(), ('x',))
+        self.assertRaises(TypeError, Item('x').unpack_iri)
+
+    def test_unpack_iri_datatype(self):
+        self.assertEqual(IRI.datatype.unpack_iri_datatype(), ())
+        self.assertRaises(TypeError, Item('x').unpack_iri_datatype)
+
+    def test_unpack_kif_object(self):
+        self.assertEqual(Item('x').unpack_kif_object(), (IRI('x'),))
+
+    def test_unpack_kif_object_set(self):
+        objs = KIF_ObjectSet(Item('x'), Property('y'))
+        self.assertEqual(
+            objs.unpack_kif_object_set(), (Item('x'), Property('y')))
+        self.assertRaises(TypeError, Item('x').unpack_kif_object_set)
+
+    def test_unpack_lexeme(self):
+        self.assertEqual(Lexeme('x').unpack_lexeme(), (IRI('x'),))
+        self.assertRaises(TypeError, String('x').unpack_lexeme)
+
+    def test_unpack_lexeme_datatype(self):
+        self.assertEqual(Lexeme.datatype.unpack_lexeme_datatype(), ())
+        self.assertRaises(TypeError, Item('x').unpack_lexeme_datatype)
+
+    def test_unpack_lexeme_descriptor(self):
+        desc = LexemeDescriptor('x', Item('y'), Item('z'))
+        self.assertEqual(desc.unpack_lexeme_descriptor(), (
+            Text('x'), Item('y'), Item('z')))
+        self.assertRaises(TypeError, String('x').unpack_lexeme_descriptor)
+
+    def test_unpack_no_value_snak(self):
         snak = NoValueSnak(Property('x'))
         self.assertEqual(snak.unpack_no_value_snak(), (Property('x'),))
         self.assertRaises(TypeError, String('x').unpack_no_value_snak)
-        # unpack_reference_record
+
+    def test_unpack_normal_rank(self):
+        self.assertEqual(Normal.unpack_normal_rank(), ())
+        self.assertRaises(TypeError, Preferred.unpack_normal_rank)
+
+    def test_unpack_pattern(self):
+        pat = FilterPattern(
+            Item('x'), Property('p'), Item('y'), Snak.VALUE_SNAK)
+        self.assertEqual(pat.unpack_pattern(), (
+            EntityFingerprint(Item('x')),
+            PropertyFingerprint(Property('p')),
+            Fingerprint(Item('y')),
+            1))
+        self.assertRaises(TypeError, Item('x').unpack_pattern)
+
+    def test_unpack_plain_descriptor(self):
+        desc = ItemDescriptor('x', ['y', 'z'], 'w')
+        self.assertEqual(desc.unpack_plain_descriptor(), (
+            Text('x'), TextSet('z', 'y'), Text('w')))
+        self.assertRaises(TypeError, String('x').unpack_plain_descriptor)
+
+    def test_unpack_preferred_rank(self):
+        self.assertEqual(Preferred.unpack_preferred_rank(), ())
+        self.assertRaises(TypeError, Normal.unpack_preferred_rank)
+
+    def test_unpack_property(self):
+        self.assertEqual(Property('x').unpack_property(), (IRI('x'),))
+        self.assertRaises(TypeError, Item('x').unpack_property)
+
+    def test_unpack_property_datatype(self):
+        self.assertEqual(Property.datatype.unpack_property_datatype(), ())
+        self.assertRaises(TypeError, Item('x').unpack_property_datatype)
+
+    def test_unpack_property_descriptor(self):
+        desc = PropertyDescriptor('x', ['x', 'y'], 'z', ExternalId.datatype)
+        self.assertEqual(desc.unpack_property_descriptor(), (
+            Text('x'),
+            TextSet('x', 'y'),
+            Text('z'),
+            ExternalId.datatype))
+        self.assertRaises(TypeError, Item('x').unpack_property_descriptor)
+
+    def test_unpack_property_fingerprint(self):
+        fp = PropertyFingerprint(Property('x'))
+        self.assertEqual(fp.unpack_property_fingerprint(), (Property('x'),))
+        self.assertRaises(TypeError, String('x').unpack_property_fingerprint)
+
+    def test_unpack_quantity(self):
+        self.assertEqual(Quantity(0).unpack_quantity(),
+                         (Decimal('0'), None, None, None))
+        self.assertRaises(TypeError, String('x').unpack_quantity)
+
+    def test_unpack_quantity_datatype(self):
+        self.assertEqual(Quantity.datatype.unpack_quantity_datatype(), ())
+        self.assertRaises(TypeError, Item('x').unpack_quantity_datatype)
+
+    def test_unpack_rank(self):
+        self.assertEqual(Preferred.unpack_rank(), ())
+        self.assertRaises(TypeError, String('x').unpack_rank)
+
+    def test_unpack_reference_record(self):
         refr = ReferenceRecord(NoValueSnak(Property('p')))
         self.assertEqual(
             refr.unpack_reference_record(), (NoValueSnak(Property('p')),))
         self.assertRaises(TypeError, String('x').unpack_reference_record)
-        # unpack_rank
-        self.assertEqual(Preferred.unpack_rank(), ())
-        self.assertRaises(TypeError, String('x').unpack_rank)
-        # unpack_preferred_rank
-        self.assertEqual(Preferred.unpack_preferred_rank(), ())
-        self.assertRaises(TypeError, Normal.unpack_preferred_rank)
-        # unpack_normal_rank
-        self.assertEqual(Normal.unpack_normal_rank(), ())
-        self.assertRaises(TypeError, Preferred.unpack_normal_rank)
-        # unpack_deprecated_rank
-        self.assertEqual(Deprecated.unpack_deprecated_rank(), ())
-        self.assertRaises(TypeError, Preferred.unpack_deprecated_rank)
-        # unpack_statement
+
+    def test_unpack_reference_record_set(self):
+        ref1 = ReferenceRecord(NoValueSnak(Property('p')))
+        ref2 = ReferenceRecord(ValueSnak(Property('p'), String('x')))
+        refs = ReferenceRecordSet(ref1, ref2)
+        self.assertEqual(
+            refs.unpack_reference_record_set(), (ref1, ref2))
+        self.assertRaises(TypeError, String('x').unpack_reference_record_set)
+
+    def test_unpack_snak(self):
+        snak = ValueSnak(Property('x'), Item('y'))
+        self.assertEqual(snak.unpack_snak(), (Property('x'), Item('y')))
+        self.assertRaises(TypeError, String('x').unpack_snak)
+
+    def test_unpack_snak_set(self):
+        snak1 = ValueSnak(Property('x'), Item('y'))
+        snak2 = NoValueSnak(Property('p'))
+        snaks = SnakSet(snak1, snak2)
+        self.assertEqual(snaks.unpack_snak_set(), (snak2, snak1))
+        self.assertRaises(TypeError, String('x').unpack_snak_set)
+
+    def test_unpack_some_value_snak(self):
+        snak = SomeValueSnak(Property('x'))
+        self.assertEqual(snak.unpack_some_value_snak(), (Property('x'),))
+        self.assertRaises(TypeError, String('x').unpack_some_value_snak)
+
+    def test_unpack_statement(self):
         stmt = Statement(Item('x'), NoValueSnak(Property('y')))
         self.assertEqual(
             stmt.unpack_statement(),
             (Item('x'), NoValueSnak(Property('y'))))
         self.assertRaises(TypeError, String('x').unpack_statement)
+
+    def test_unpack_string(self):
+        self.assertEqual(String('x').unpack_string(), ('x',))
+        self.assertRaises(TypeError, Item('x').unpack_string)
+
+    def test_unpack_string_datatype(self):
+        self.assertEqual(String.datatype.unpack_string_datatype(), ())
+        self.assertRaises(TypeError, Item('x').unpack_string_datatype)
+
+    def test_unpack_text(self):
+        self.assertEqual(Text('abc', 'pt').unpack_text(), ('abc', 'pt'))
+        self.assertRaises(TypeError, Time('2023-09-18').unpack_text)
+
+    def test_unpack_text_datatype(self):
+        self.assertEqual(Text.datatype.unpack_text_datatype(), ())
+        self.assertRaises(TypeError, Item('x').unpack_text_datatype)
+
+    def test_unpack_text_set(self):
+        text1 = Text('abc')
+        text2 = Text('def')
+        texts = TextSet('abc', 'def')
+        self.assertEqual(texts.unpack_text_set(), (text1, text2))
+        self.assertRaises(TypeError, Time('2023-09-18').unpack_text_set)
+
+    def test_unpack_time(self):
+        self.assertEqual(
+            Time('2023-09-18').unpack_time(),
+            (Datetime(2023, 9, 18, tzinfo=UTC), None, None, None))
+        self.assertRaises(TypeError, String('2023-09-18').unpack_time)
+
+    def test_unpack_time_datatype(self):
+        self.assertEqual(Time.datatype.unpack_time_datatype(), ())
+        self.assertRaises(TypeError, Item('x').unpack_time_datatype)
+
+    def test_unpack_value(self):
+        self.assertEqual(Item('x').unpack_value(), (IRI('x'),))
+        stmt = Statement(Item('x'), NoValueSnak(Property('y')))
+        self.assertRaises(TypeError, stmt.unpack_value)
+
+    def test_unpack_value_snak(self):
+        snak = ValueSnak(Property('x'), Item('y'))
+        self.assertEqual(snak.unpack_value_snak(), (Property('x'), Item('y')))
+        self.assertRaises(TypeError, String('x').unpack_value_snak)
+
+    # -- Codecs ------------------------------------------------------------
+
+    def test_json_encoder_extensions(self):
+        from kif_lib.model.kif_object import KIF_JSON_Encoder
+        enc = KIF_JSON_Encoder()
+        self.assertEqual(
+            enc.encode(IRI('x')), '{"class": "IRI", "args": ["x"]}')
+        self.assertEqual(
+            enc.encode(Datetime(2024, 2, 6)), '"2024-02-06 00:00:00"')
+        self.assertEqual(enc.encode(Decimal(0)), '"0"')
+        self.assertEqual(enc.encode(Decimal(3.5)), '"3.5"')
+        self.assertEqual(enc.encode(Snak.ALL), '"7"')
+        self.assertRaises(EncoderError, enc.encode, set())
+
+    def test_sexp_encoder_extensions(self):
+        from kif_lib.model.kif_object import KIF_SExpEncoder
+        enc = KIF_SExpEncoder()
+        self.assertEqual(enc.encode(Preferred), 'PreferredRank')
+        self.assertEqual(
+            enc.encode(Datetime(2024, 2, 6)), '2024-02-06 00:00:00')
+        self.assertEqual(enc.encode(Decimal(0)), '0')
+        self.assertEqual(enc.encode(Decimal(3.5)), '3.5')
+        self.assertEqual(enc.encode(Snak.ALL), '7')
+        self.assertRaises(EncoderError, enc.encode, set())
 
 
 if __name__ == '__main__':
