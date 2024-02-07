@@ -1,16 +1,18 @@
-===========
-Annotations
-===========
+=====================
+Statement annotations
+=====================
 
 .. currentmodule:: kif_lib
 
+.. inheritance-diagram:: DeprecatedRank KIF_Object NormalRank PreferredRank
+                         SnakSet Rank ReferenceRecord
+   :top-classes: kif_lib.model.kif_object.KIF_Object
+   :parts: -3
+   :caption: Annotation hierarchy.
+
+
 ReferenceRecord
 ---------------
-
-.. inheritance-diagram:: SnakSet ReferenceRecord
-   :top-classes: kif_lib.model.snak_set.SnakSet
-   :parts: -3
-   :caption: Snak set hierarchy.
 
 .. autosummary::
    :toctree: generated/
@@ -19,11 +21,6 @@ ReferenceRecord
 
 Rank
 ----
-
-.. inheritance-diagram:: Rank PreferredRank NormalRank DeprecatedRank
-   :top-classes: kif_lib.model.rank.Rank
-   :parts: -3
-   :caption: Rank hierarchy.
 
 .. autosummary::
    :toctree: generated/

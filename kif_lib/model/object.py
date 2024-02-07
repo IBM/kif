@@ -449,27 +449,27 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
 
     @property
     def args(self) -> TArgs:
-        """Object arguments."""
+        """The arguments of object."""
         return self.get_args()
 
     def get_args(self) -> TArgs:
-        """Gets object arguments.
+        """Gets the arguments of object.
 
         Returns:
-           Object arguments.
+           Arguments.
         """
         return self._args
 
     @property
     def digest(self) -> str:
-        """Object digest."""
+        """The string digest of object."""
         return self.get_digest()
 
     def get_digest(self) -> str:
-        """Gets object digest.
+        """Gets the string digest of object.
 
         Returns:
-           Object digest.
+           String digest.
         """
         if self._digest is None:
             self._digest = self._hexdigest(self.dumps())
