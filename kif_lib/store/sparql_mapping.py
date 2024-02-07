@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from collections.abc import Iterable
-from typing import Any, Callable, cast, Optional
 
 from .. import namespace as NS
 from ..error import ShouldNotGetHere
@@ -16,6 +15,7 @@ from ..model import (
     Time,
     Value,
 )
+from ..typing import Any, Callable, cast, Optional
 from .sparql_builder import SPARQL_Builder
 
 TTrm = SPARQL_Builder.TTrm

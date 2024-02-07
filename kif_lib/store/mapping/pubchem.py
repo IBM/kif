@@ -1,13 +1,13 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Callable, cast, NoReturn, TypeVar, Union
 
 from rdflib.namespace import Namespace
 
 from ... import namespace as NS
 from ... import vocabulary as wd
 from ...model import Item, Quantity, String, Text, Time, Value
+from ...typing import Callable, cast, NoReturn, TypeVar, Union
 from ..sparql_builder import SPARQL_Builder
 from ..sparql_mapping import SPARQL_Mapping
 

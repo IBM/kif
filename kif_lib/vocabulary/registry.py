@@ -1,11 +1,10 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Any, cast, Optional, Union
-
 from ..cache import Cache
 from ..model import Entity, IRI, Item, Lexeme, Property
 from ..namespace import WD
+from ..typing import Any, cast, Optional, Union
 
 
 class WikidataEntityRegistry(Cache):

@@ -3,7 +3,6 @@
 
 import logging
 from collections.abc import Iterable
-from typing import Any, cast, Iterator, Optional, Union
 
 from ..error import ShouldNotGetHere
 from ..model import (
@@ -17,6 +16,7 @@ from ..model import (
     Value,
     ValueSnak,
 )
+from ..typing import Any, cast, Iterator, Optional, Union
 from .sparql import SPARQL_Store
 from .sparql_builder import SPARQL_Builder
 from .sparql_mapping import SPARQL_Mapping

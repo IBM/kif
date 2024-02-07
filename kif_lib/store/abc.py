@@ -5,7 +5,6 @@ import sys
 from collections.abc import Iterable, Set
 from enum import auto, Flag
 from itertools import chain
-from typing import Any, cast, Iterator, NoReturn, Optional, TypeVar, Union
 
 import more_itertools
 from rdflib.graph import Graph
@@ -41,6 +40,7 @@ from ..model import (
     TPropertyFingerprint,
     TReferenceRecordSet,
 )
+from ..typing import Any, cast, Iterator, NoReturn, Optional, TypeVar, Union
 
 T = TypeVar('T')
 T_NS = NS.T_NS

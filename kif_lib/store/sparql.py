@@ -5,7 +5,6 @@ import itertools
 import logging
 import sys
 from collections.abc import Collection, Hashable, Iterable, Mapping, Set
-from typing import Any, Callable, cast, Iterator, Optional, TypeVar, Union
 
 import requests
 import requests.exceptions
@@ -43,6 +42,7 @@ from ..model import (
     Value,
     ValueSnak,
 )
+from ..typing import Any, Callable, cast, Iterator, Optional, TypeVar, Union
 from .abc import Store
 from .sparql_builder import SPARQL_Builder
 from .sparql_results import SPARQL_Results

@@ -5,13 +5,13 @@ import json
 import logging
 from itertools import chain
 from pathlib import PurePath
-from typing import Any, BinaryIO, cast, IO, Optional, TextIO, Union
 
 from rdflib import Graph
 from rdflib.exceptions import Error as RDFLibError
 from rdflib.parser import InputSource
 
 from ..model import KIF_Object
+from ..typing import Any, BinaryIO, cast, IO, Optional, TextIO, Union
 from .sparql import SPARQL_Store
 from .sparql_results import SPARQL_Results
 

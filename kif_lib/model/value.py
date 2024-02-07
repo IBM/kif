@@ -5,11 +5,19 @@ from abc import abstractmethod
 from enum import Enum
 from functools import cache
 from itertools import chain
-from typing import cast, Collection, Final, Iterable, NoReturn, Optional, Union
 
 from rdflib import Literal, URIRef
 
 from .. import namespace as NS
+from ..typing import (
+    cast,
+    Collection,
+    Final,
+    Iterable,
+    NoReturn,
+    Optional,
+    Union,
+)
 from .kif_object import (
     Datetime,
     Decimal,

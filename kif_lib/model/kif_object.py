@@ -5,8 +5,8 @@ import datetime
 import decimal
 import json
 from enum import Enum
-from typing import Any, cast, Generator, Union
 
+from ..typing import Any, cast, Generator, override, Union
 from . import object
 
 Datetime = datetime.datetime
@@ -130,6 +130,8 @@ class KIF_JSON_Encoder(
         object.JSON_Encoder, format='json', description='JSON encoder'):
 
     class Encoder(json.JSONEncoder):
+
+        @override
         def default(self, v: Any) -> Any:
             if isinstance(v, Object):
                 obj = cast(Object, v)
@@ -150,6 +152,8 @@ class KIF_JSON_Encoder(
 
 class KIF_SExpEncoder(
         object.SExpEncoder, format='sexp', description='S-expression encoder'):
+
+    @override
     def _iterencode(
             self,
             v: Any, n: int = 0,

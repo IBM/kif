@@ -10,12 +10,12 @@ class Statement(KIF_Object):
     """Entity-snak pair.
 
     Parameters:
-       arg1: Entity.
-       arg2: Snak.
+       entity: Entity.
+       snak: Snak.
     """
 
-    def __init__(self, arg1: Entity, arg2: Snak):
-        return super().__init__(arg1, arg2)
+    def __init__(self, entity: Entity, snak: Snak):
+        return super().__init__(entity, snak)
 
     def _preprocess_arg(self, arg, i):
         if i == 1:
@@ -27,26 +27,26 @@ class Statement(KIF_Object):
 
     @property
     def subject(self) -> Entity:
-        """Statement subject."""
+        """The subject field of statement."""
         return self.get_subject()
 
     def get_subject(self) -> Entity:
-        """Gets statement subject.
+        """Gets the subject field of statement.
 
         Returns:
-           Statement subject.
+           Subject.
         """
         return self.args[0]
 
     @property
     def snak(self) -> Snak:
-        """Statement snak."""
+        """The snak field of statement."""
         return self.get_snak()
 
     def get_snak(self) -> Snak:
-        """Gets statement snak.
+        """Gets the snak field of statement.
 
         Returns:
-           Statement snak.
+           Snak.
         """
         return self.args[1]

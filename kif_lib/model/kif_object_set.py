@@ -1,9 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from collections.abc import Collection, Iterable
-from typing import cast, NoReturn, Optional, Union
-
+from ..typing import cast, Collection, Iterable, NoReturn, Optional, Union
 from .kif_object import KIF_Object, TCallable
 
 T_KIF_ObjectSet = Union['KIF_ObjectSet', Iterable[KIF_Object]]
@@ -54,3 +52,27 @@ class KIF_ObjectSet(KIF_Object):
     def _union(self, others: Collection['KIF_ObjectSet']) -> 'KIF_ObjectSet':
         return self.__class__(*self._args_set.union(*map(
             KIF_ObjectSet._get_args_set, others)))
+
+    @property
+    def args_set(self) -> frozenset[KIF_Object]:
+        """The set of arguments as a frozen set."""
+        return self.get_args_set()
+
+    def get_args_set(self) -> frozenset[KIF_Object]:
+        """Gets the set of arguments as a frozen set.
+
+        Returns:
+           Frozen set.
+        """
+        return self._get_args_set()
+
+    def union(self, *others: 'KIF_ObjectSet') -> 'KIF_ObjectSet':
+        """Computes the union of self and `others`.
+
+        Parameters:
+           others: KIF object sets.
+
+        Returns:
+           The resulting KIF object set.
+        """
+        return self._union(others)

@@ -1,9 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Optional
-
 from ..model import Entity
+from ..typing import Optional
 from .registry import WikidataEntityRegistry
 
 _registry = WikidataEntityRegistry()

@@ -4,7 +4,8 @@ Sets
 
 .. currentmodule:: kif_lib
 
-.. inheritance-diagram:: KIF_ObjectSet SnakSet
+.. inheritance-diagram:: KIF_ObjectSet AnnotationRecordSet ReferenceRecordSet
+                         SnakSet TextSet
    :top-classes: kif_lib.model.kif_object_set.KIF_ObjectSet
    :parts: -3
    :caption: Object set hierarchy.
@@ -18,6 +19,24 @@ KIF_ObjectSet
    KIF_ObjectSet
 
 
+AnnotationRecordSet
+-------------------
+.. autosummary::
+   :toctree: generated/
+
+   AnnotationRecordSet
+   AnnotationRecordSet.args_set
+   AnnotationRecordSet.union
+
+ReferenceRecordSet
+------------------
+.. autosummary::
+   :toctree: generated/
+
+   ReferenceRecordSet
+   ReferenceRecordSet.args_set
+   ReferenceRecordSet.union
+
 SnakSet
 -------
 .. autosummary::
@@ -26,3 +45,12 @@ SnakSet
    SnakSet
    SnakSet.args_set
    SnakSet.union
+
+TextSet
+-------
+.. autosummary::
+   :toctree: generated/
+
+   TextSet
+   TextSet.args_set
+   TextSet.union

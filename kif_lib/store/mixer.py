@@ -4,11 +4,11 @@
 import sys
 from collections.abc import Callable, Collection, Iterable, Sequence
 from itertools import cycle
-from typing import Any, Iterator, Optional, TypeVar
 
 import more_itertools
 
 from ..model import AnnotationRecordSet, FilterPattern, KIF_Object, Statement
+from ..typing import Any, Iterator, Optional, TypeVar
 from .abc import Store, StoreFlags
 
 T = TypeVar('T')

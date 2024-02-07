@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from collections.abc import Iterable
-from typing import cast, NoReturn, Optional, Union
 
+from ..typing import cast, NoReturn, Optional, Union
 from .kif_object import KIF_Object, TCallable
 from .snak import Snak
 from .snak_set import SnakSet, TSnakSet

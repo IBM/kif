@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from enum import auto, Flag
-from typing import NoReturn, Optional, Union
 
+from ..typing import NoReturn, Optional, Union
 from .kif_object import KIF_Object, TCallable
 from .value import Property, Value
 

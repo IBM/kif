@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
-from typing import cast, Generator, Optional
 
 from .. import vocabulary as wd
 from ..model import (
@@ -25,6 +24,7 @@ from ..model import (
 )
 from ..model.kif_object import Decimal, Encoder, Object
 from ..namespace import _DEFAULT_NSM
+from ..typing import cast, Generator, Optional
 
 SP = ' '                        # space
 NL = '\n'                       # newline

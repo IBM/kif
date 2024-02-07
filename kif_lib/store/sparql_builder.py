@@ -4,12 +4,12 @@
 from abc import abstractmethod
 from collections.abc import Mapping, Sequence
 from itertools import chain
-from typing import Any, Hashable, Iterable, Iterator
-from typing import Optional as Opt
-from typing import Union as Uni
 
 from ..error import MustBeImplementedInSubclass
 from ..model import IRI, Value
+from ..typing import Any, Hashable, Iterable, Iterator
+from ..typing import Optional as Opt
+from ..typing import Union as Uni
 
 # See <http://www.w3.org/TR/sparql11-query/#grammar>.
 

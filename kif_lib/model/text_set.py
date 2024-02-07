@@ -1,9 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from collections.abc import Iterable
-from typing import cast, NoReturn, Optional, Union
-
+from ..typing import cast, Iterable, NoReturn, Optional, override, Union
 from .kif_object import TCallable
 from .kif_object_set import KIF_ObjectSet
 from .value import Text
@@ -15,7 +13,7 @@ class TextSet(KIF_ObjectSet):
     """Set of texts.
 
     Parameters:
-       args: Texts.
+       texts: Texts.
     """
 
     @classmethod
@@ -29,27 +27,29 @@ class TextSet(KIF_ObjectSet):
         return cast(TextSet, cls._check_arg_kif_object_set(
             arg, function, name, position))
 
-    def __init__(self, *args: Text):
-        super().__init__(*args)
+    def __init__(self, *texts: Text):
+        super().__init__(*texts)
 
     def _preprocess_arg(self, arg, i):
         return self._preprocess_arg_text(arg, i)
 
     @property
     def args_set(self) -> frozenset[Text]:
-        """Set arguments as frozen set."""
+        """The set arguments as a frozen set."""
         return self.get_args_set()
 
+    @override
     def get_args_set(self) -> frozenset[Text]:
-        """Gets set arguments as frozen set.
+        """Gets the set arguments as a frozen set.
 
         Returns:
-           Set arguments as set.
+           Frozen set
         """
         return cast(frozenset[Text], self._get_args_set())
 
-    def union(self, *others: 'TextSet') -> 'TextSet':
-        """Computes the union of set and `others`.
+    @override
+    def union(self, *others: KIF_ObjectSet) -> 'TextSet':
+        """Computes the union of self and `others`.
 
         Parameters:
            others: Text sets.

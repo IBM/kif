@@ -11,9 +11,8 @@ Model
    value
    descriptor
    snak
-   reference_record
-   rank
    statement
+   annotations
    sets
 
 .. toctree::

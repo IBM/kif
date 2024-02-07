@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from functools import reduce
-from typing import cast, Optional
 
+from ..typing import cast, Optional
 from .fingerprint import (
     EntityFingerprint,
     Fingerprint,

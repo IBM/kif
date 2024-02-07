@@ -3,8 +3,6 @@
 
 import io
 import json
-from collections.abc import Mapping
-from typing import Any, cast, Optional, Union
 
 from rdflib import BNode, Literal, URIRef
 
@@ -31,6 +29,7 @@ from ..model import (
     Value,
     ValueSnak,
 )
+from ..typing import Any, cast, Mapping, Optional, Union
 from .abc import StoreError
 
 # See <https://www.w3.org/TR/sparql11-results-json/>.

@@ -1,8 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Optional
-
+from ..typing import Optional
 from .kif_object import KIF_Object
 from .rank import Normal, Rank
 from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet

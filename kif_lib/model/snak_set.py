@@ -1,9 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from collections.abc import Iterable
-from typing import cast, NoReturn, Optional, Union
-
+from ..typing import cast, Iterable, NoReturn, Optional, override, Union
 from .kif_object import TCallable
 from .kif_object_set import KIF_ObjectSet
 from .snak import Snak
@@ -36,10 +34,12 @@ class SnakSet(KIF_ObjectSet):
         return self._preprocess_arg_snak(arg, i)
 
     @property
+    @override
     def args_set(self) -> frozenset[Snak]:
         """The set of arguments as a frozen set."""
         return self.get_args_set()
 
+    @override
     def get_args_set(self) -> frozenset[Snak]:
         """Gets the set of arguments as a frozen set.
 
@@ -48,7 +48,8 @@ class SnakSet(KIF_ObjectSet):
         """
         return cast(frozenset[Snak], self._get_args_set())
 
-    def union(self, *others: 'SnakSet') -> 'SnakSet':
+    @override
+    def union(self, *others: KIF_ObjectSet) -> 'SnakSet':
         """Computes the union of self and `others`.
 
         Parameters:

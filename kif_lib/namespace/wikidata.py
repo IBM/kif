@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
-from typing import Collection, Union
 
 from rdflib import URIRef
 from rdflib.namespace import DefinedNamespace, Namespace
 
+from ..typing import Collection, Union
 from .wikibase import WIKIBASE
 
 T_NS = Union[type[DefinedNamespace], Namespace]

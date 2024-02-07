@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from collections.abc import Iterable
-from typing import Iterator, Optional
 
 from ..model import AnnotationRecordSet, FilterPattern, Statement
+from ..typing import Iterator, Optional
 from .abc import Store
 
 
