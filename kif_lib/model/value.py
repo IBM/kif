@@ -235,7 +235,7 @@ class Value(KIF_Object):
         else:
             raise self._should_not_get_here()
 
-
+
 # -- Entity ----------------------------------------------------------------
 
 class Entity(Value):
@@ -263,7 +263,7 @@ class Entity(Value):
         """
         return self.args[0]
 
-
+
 # -- Item --
 
 class ItemDatatype(Datatype):
@@ -305,7 +305,7 @@ def Items(arg1: T_IRI, *args: T_IRI) -> Iterable[Item]:
     """
     return map(Item, chain([arg1], args))
 
-
+
 # -- Property --
 
 
@@ -354,7 +354,7 @@ def Properties(arg1: T_IRI, *args: T_IRI) -> Iterable[Property]:
     """
     return map(Property, chain([arg1], args))
 
-
+
 # -- Lexeme --
 
 class LexemeDatatype(Datatype):
@@ -396,7 +396,7 @@ def Lexemes(arg1: T_IRI, *args: T_IRI) -> Iterable[Lexeme]:
     """
     return map(Lexeme, chain([arg1], args))
 
-
+
 # -- Data value ------------------------------------------------------------
 
 class DataValue(Value):
@@ -405,7 +405,7 @@ class DataValue(Value):
     def get_value(self) -> str:
         return self.args[0]
 
-
+
 # -- IRI --
 
 class IRI_Datatype(Datatype):
@@ -458,7 +458,7 @@ class IRI(DataValue):
     def get_value(self) -> str:
         return self.args[0]
 
-
+
 # -- Text --
 
 class TextDatatype(Datatype):
@@ -531,7 +531,7 @@ class Text(DataValue):
         """
         return self.args[1]
 
-
+
 # -- String --
 
 class StringDatatype(Datatype):
@@ -579,7 +579,7 @@ class String(DataValue):
         else:
             raise self._should_not_get_here()
 
-
+
 # -- External id --
 
 class ExternalIdDatatype(StringDatatype):
@@ -645,13 +645,13 @@ class ExternalId(String):
         else:
             raise self._should_not_get_here()
 
-
+
 # -- Deep data value -------------------------------------------------------
 
 class DeepDataValue(DataValue):
     """Abstract base class for deep data values."""
 
-
+
 # -- Quantity --
 
 class QuantityDatatype(Datatype):
@@ -782,7 +782,7 @@ class Quantity(DeepDataValue):
         ub = self.args[3]
         return ub if ub is not None else default
 
-
+
 # -- Time --
 
 class TimeDatatype(Datatype):
@@ -1062,7 +1062,7 @@ class Time(DeepDataValue):
         cal = self.args[3]
         return cal if cal is not None else default
 
-
+
 # -- Epilogue --------------------------------------------------------------
 
 ItemDatatype.value_class = Item

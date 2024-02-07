@@ -1,11 +1,11 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-# $Id: 3b0a48a5e9b7a9eab912ee94301cbd5996d5bde2 $
+# $Id$
 #
-# SYNTACTICAL OBJECTS -- DO NOT EDIT!
+# Syntactical objects.
 #
-# Keep this file self-contained!
+# ** KEEP THIS FILE SELF-CONTAINED! **
 
 import abc
 import collections.abc

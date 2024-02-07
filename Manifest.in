@@ -1,5 +1,6 @@
 include .coveragerc
 include .flake8rc
+include .gitattributes
 include .gitignore
 include .isort.cfg
 include LICENSE
@@ -126,6 +127,7 @@ include tests/test_model_time.py
 include tests/test_model_time_datatype.py
 include tests/test_model_value_snak.py
 include tests/test_namespace_wikidata.py
+include tests/test_object.py
 include tests/test_store_empty.py
 include tests/test_store_mapper_pubchem.py
 include tests/test_store_mixer.py

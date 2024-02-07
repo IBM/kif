@@ -1,3 +1,12 @@
+# Copyright (C) 2023-2024 IBM Corp.
+# SPDX-License-Identifier: Apache-2.0
+
+# $Id$
+#
+# Maintainer's makefile.
+#
+# ** KEEP THIS FILE SELF-CONTAINED! **
+
 me:= $(firstword $(MAKEFILE_LIST))
 
 # Prints usage message and exits.
