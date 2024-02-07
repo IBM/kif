@@ -35,8 +35,9 @@ class Rank(KIF_Object):
         else:
             raise ValueError(f'bad Wikibase rank: {uri}')
 
-    def _to_rdflib(self) -> URIRef:
-        return self._uri
+    @classmethod
+    def _to_rdflib(cls) -> URIRef:
+        return cls._uri
 
 
 class PreferredRank(Rank):
