@@ -1,6 +1,6 @@
-=====================
-Statement annotations
-=====================
+===========
+Annotations
+===========
 
 .. currentmodule:: kif_lib
 
