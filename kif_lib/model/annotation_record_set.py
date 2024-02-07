@@ -13,7 +13,7 @@ class AnnotationRecordSet(KIF_ObjectSet):
     """Set of annotation records.
 
     Parameters:
-       annots: annotation records.
+       annots: Annotation records.
     """
 
     @classmethod
@@ -52,7 +52,7 @@ class AnnotationRecordSet(KIF_ObjectSet):
         """Computes the union of set and `others`.
 
         Parameters:
-           others: annotation record sets.
+           others: Annotation record sets.
 
         Returns:
            The resulting annotation record set.

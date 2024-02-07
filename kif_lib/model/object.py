@@ -18,6 +18,7 @@ from typing import (
     Any,
     Callable,
     cast,
+    Final,
     Generator,
     IO,
     NoReturn,
@@ -68,7 +69,7 @@ class NilType:
 
 
 #: Absence of value distinct from ``None``.
-Nil = NilType()
+Nil: Final[NilType] = NilType()
 
 T = TypeVar('T')
 TArgs = tuple[Any, ...]
@@ -271,7 +272,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
     _snake_case_name: str = 'object'
 
     #: Absence of value distinct from ``None``.
-    Nil: NilType = Nil
+    Nil: Final[NilType] = Nil
 
     @classmethod
     def test(cls, obj: Any) -> bool:
@@ -1090,7 +1091,7 @@ class CodecError(Error):
 class Codec(abc.ABC):
     """Abstract base class for codecs."""
 
-    registry: dict[str, type['Codec']] = dict()
+    registry: dict[str, type['Codec']]
     default: str
 
     format: str
