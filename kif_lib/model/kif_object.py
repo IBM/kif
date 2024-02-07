@@ -29,16 +29,14 @@ TDatetime = Union[Datetime, str]
 TDecimal = Union[Decimal, float, int, str]
 TNil = object.TNil
 
+
+# -- KIF Object ------------------------------------------------------------
 
 class KIF_Object(object.Object):
     """Abstract base class for objects."""
 
-    # -- IPython -----------------------------------------------------------
-
     def _repr_markdown_(self):
         return self.to_markdown()
-
-    # -- Argument checking -------------------------------------------------
 
     # -- datetime --
 
@@ -125,7 +123,7 @@ class KIF_Object(object.Object):
         else:
             return cls._preprocess_arg_decimal(arg, i, function)
 
-
+
 # -- Codecs ----------------------------------------------------------------
 
 class KIF_JSON_Encoder(
