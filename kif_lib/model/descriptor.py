@@ -3,7 +3,7 @@
 
 from enum import auto, Flag
 
-from ..typing import NoReturn, Optional, Union
+from ..typing import Final, NoReturn, Optional, Union
 from .kif_object import KIF_Object, TCallable
 from .text_set import TextSet, TTextSet
 from .value import Datatype, Item, Text, TText
@@ -32,16 +32,16 @@ class PlainDescriptor(Descriptor):
         ALL = LABEL | ALIASES | DESCRIPTION
 
     #: Mask for the label field.
-    LABEL = FieldMask.LABEL
+    LABEL: Final[FieldMask] = FieldMask.LABEL
 
     #: Mask for the aliases field.
-    ALIASES = FieldMask.ALIASES
+    ALIASES: Final[FieldMask] = FieldMask.ALIASES
 
     #: Mask for the description field.
-    DESCRIPTION = FieldMask.DESCRIPTION
+    DESCRIPTION: Final[FieldMask] = FieldMask.DESCRIPTION
 
     #: Mask for all fields.
-    ALL = FieldMask.ALL
+    ALL: Final[FieldMask] = FieldMask.ALL
 
     TFieldMask = Union[FieldMask, int]
 
@@ -185,10 +185,10 @@ class PropertyDescriptor(PlainDescriptor):
     """Property descriptor.
 
     Parameters:
-        label: Label.
-        aliases: Aliases.
-        description: Description.
-        datatype: Datatype.
+       label: Label.
+       aliases: Aliases.
+       description: Description.
+       datatype: Datatype.
     """
 
     def __init__(
@@ -233,9 +233,9 @@ class LexemeDescriptor(Descriptor):
     """Lexeme descriptor.
 
     Parameters:
-        lemma: Lemma.
-        category: Lexical category.
-        language: Language.
+       lemma: Lemma.
+       category: Lexical category.
+       language: Language.
     """
 
     def __init__(
