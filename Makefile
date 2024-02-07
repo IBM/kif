@@ -25,6 +25,7 @@ CHECK_DEPS?= htmlcov-clean
 CHECK_FLAKE8=? yes
 CHECK_ISORT?= yes
 CHECK_MYPY?= yes
+CHECK_PYTEST?= yes
 COVERAGERC?= .coveragerc
 COVERAGERC_EXCLUDE_LINES?=
 COVERAGERC_OMIT?=
@@ -43,9 +44,11 @@ MANIFEST_IN_GIT_LS_FILES_PATHSPEC?=
 MYPY_OPTIONS?= --show-error-context --show-error-codes
 PERL?= perl
 PIP?= ${PYTHON} -m pip
+PYTEST?= ${PYTHON} -m pytest
+PYTEST_COV_OPTIONS?= --cov=${PACKAGE} --cov-report=html
 PYTEST_ENV?=
 PYTEST_INI?= pytest.ini
-PYTEST_OPTIONS?= -x
+PYTEST_OPTIONS?= -x -ra
 PYTHON?= python
 TESTS?= tests
 TOX?= tox
@@ -61,20 +64,25 @@ CHECK_DEPS+= $(if $(filter yes,${CHECK_COPYRIGHT}),check-copyright)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_FLAKE8}),check-flake8)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_ISORT}),check-isort)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_MYPY}),check-mypy)
+CHECK_DEPS+= $(if $(filter yes,${CHECK_PYTEST}),check-pytest)
 PYTEST_OPTIONS+= $(if $(filter yes,${CHECK_MYPY}),--mypy)
 
 split = $(shell printf '$(1)'\
    | sed -e 's/\s*<line>/    /g' -e 's,</line>,\\n,g')
 
-# run testsuite
+# check sources and run testsuite
 .PHONY: check
 check: ${CHECK_DEPS}
-	${PYTEST_ENV} pytest ${PYTEST_OPTIONS} ${TESTS}
 
-# run testsuite skipping slow stuff
+# check sources and run testsuite skipping slow tests
 .PHONY: checkfast
 checkfast:
 	${MAKE} check ${CHECKFAST}
+
+# run testsuite
+.PHONY: check-pytest
+check-pytest:
+	${PYTEST_ENV} ${PYTEST} -c ${PYTEST_INI} --strict-config ${TESTS}
 
 # check sources using flake8
 .PHONY: check-flake8
@@ -250,7 +258,7 @@ gen-manifest-in:
 gen-pytest-ini:
 	@echo 'generating ${PYTEST_INI}'
 	@echo '[pytest]' >${PYTEST_INI}
-	@echo 'addopts = -ra --cov=${PACKAGE} --cov-report=html' >>${PYTEST_INI}
+	@echo 'addopts = ${PYTEST_OPTIONS} ${PYTEST_COV_OPTIONS}' >>${PYTEST_INI}
 	@echo 'testpaths = ${TESTS}' >>${PYTEST_INI}
 
 # generate tox.ini
