@@ -3,7 +3,7 @@
 
 from enum import auto, Flag
 
-from ..typing import NoReturn, Optional, Union
+from ..typing import Final, NoReturn, Optional, Union
 from .kif_object import KIF_Object, TCallable
 from .value import Property, Value
 
@@ -29,16 +29,16 @@ class Snak(KIF_Object):
         ALL = (VALUE_SNAK | SOME_VALUE_SNAK | NO_VALUE_SNAK)
 
     #: Mask for :class:`ValueSnak`.
-    VALUE_SNAK = Mask.VALUE_SNAK
+    VALUE_SNAK: Final[Mask] = Mask.VALUE_SNAK
 
     #: Mask for :class:`SomeValueSnak`.
-    SOME_VALUE_SNAK = Mask.SOME_VALUE_SNAK
+    SOME_VALUE_SNAK: Final[Mask] = Mask.SOME_VALUE_SNAK
 
     #: Mask for :class:`NoValueSnak`.
-    NO_VALUE_SNAK = Mask.NO_VALUE_SNAK
+    NO_VALUE_SNAK: Final[Mask] = Mask.NO_VALUE_SNAK
 
     #: Mask for all snak classes.
-    ALL = Mask.ALL
+    ALL: Final[Mask] = Mask.ALL
 
     TMask = Union[Mask, int]
 
