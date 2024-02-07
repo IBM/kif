@@ -4,8 +4,12 @@ Sets
 
 .. currentmodule:: kif_lib
 
-.. inheritance-diagram:: KIF_Object KIF_ObjectSet AnnotationRecordSet
-                         ReferenceRecordSet SnakSet TextSet
+.. inheritance-diagram:: KIF_Object
+                         AnnotationRecordSet
+                         KIF_ObjectSet
+                         ReferenceRecordSet
+                         SnakSet
+                         TextSet
    :top-classes: kif_lib.model.kif_object.KIF_Object
    :parts: -3
    :caption: Object set hierarchy.

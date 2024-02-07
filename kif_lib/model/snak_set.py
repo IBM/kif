@@ -36,12 +36,12 @@ class SnakSet(KIF_ObjectSet):
     @property
     @override
     def args_set(self) -> frozenset[Snak]:
-        """The set of arguments as a frozen set."""
+        """The set of snaks as a frozen set."""
         return self.get_args_set()
 
     @override
     def get_args_set(self) -> frozenset[Snak]:
-        """Gets the set of arguments as a frozen set.
+        """Gets the set of snaks as a frozen set.
 
         Returns:
            Frozen set.

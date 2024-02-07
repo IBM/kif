@@ -4,7 +4,8 @@ Object
 
 .. currentmodule:: kif_lib
 
-.. inheritance-diagram:: kif_lib.model.object.Object KIF_Object
+.. inheritance-diagram:: kif_lib.model.object.Object
+                         KIF_Object
    :top-classes: kif_lib.model.object.Object
    :parts: -3
    :caption: Object hierarchy.

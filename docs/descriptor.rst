@@ -4,8 +4,12 @@ Descriptors
 
 .. currentmodule:: kif_lib
 
-.. inheritance-diagram:: KIF_Object Descriptor PlainDescriptor ItemDescriptor
-                         PropertyDescriptor LexemeDescriptor
+.. inheritance-diagram:: KIF_Object
+                         Descriptor
+                         PlainDescriptor
+                         ItemDescriptor
+                         PropertyDescriptor
+                         LexemeDescriptor
    :top-classes: kif_lib.model.kif_object.KIF_Object
    :parts: -3
    :caption: Descriptor hierarchy.

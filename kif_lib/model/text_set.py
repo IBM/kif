@@ -35,12 +35,12 @@ class TextSet(KIF_ObjectSet):
 
     @property
     def args_set(self) -> frozenset[Text]:
-        """The set arguments as a frozen set."""
+        """The set of texts as a frozen set."""
         return self.get_args_set()
 
     @override
     def get_args_set(self) -> frozenset[Text]:
-        """Gets the set arguments as a frozen set.
+        """Gets the set of texts as a frozen set.
 
         Returns:
            Frozen set

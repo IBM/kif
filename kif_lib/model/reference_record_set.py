@@ -35,12 +35,12 @@ class ReferenceRecordSet(KIF_ObjectSet):
 
     @property
     def args_set(self) -> frozenset[ReferenceRecord]:
-        """The set arguments as a frozen set."""
+        """The set of reference records as a frozen set."""
         return self.get_args_set()
 
     @override
     def get_args_set(self) -> frozenset[ReferenceRecord]:
-        """Gets the set arguments as a frozen set.
+        """Gets the set of reference records as a frozen set.
 
         Returns:
            Frozen set.

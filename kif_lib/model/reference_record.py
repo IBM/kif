@@ -10,7 +10,7 @@ TReferenceRecord = Union['ReferenceRecord', SnakSet, Iterable[Snak]]
 
 
 class ReferenceRecord(SnakSet):
-    """Set of snaks representing provenance information.
+    """Reference record (set of snaks).
 
     Parameters:
        snaks: Snaks.

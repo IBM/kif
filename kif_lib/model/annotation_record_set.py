@@ -35,12 +35,12 @@ class AnnotationRecordSet(KIF_ObjectSet):
 
     @property
     def args_set(self) -> frozenset[AnnotationRecord]:
-        """The set of set arguments as a frozen set."""
+        """The set of annotation records as a frozen set."""
         return self.get_args_set()
 
     @override
     def get_args_set(self) -> frozenset[AnnotationRecord]:
-        """Gets the set of arguments as a frozen set.
+        """Gets the set of annotation records as a frozen set.
 
         Returns:
            Frozen set.

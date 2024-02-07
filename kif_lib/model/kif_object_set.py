@@ -55,11 +55,11 @@ class KIF_ObjectSet(KIF_Object):
 
     @property
     def args_set(self) -> frozenset[KIF_Object]:
-        """The set of arguments as a frozen set."""
+        """The set of KIF objects as a frozen set."""
         return self.get_args_set()
 
     def get_args_set(self) -> frozenset[KIF_Object]:
-        """Gets the set of arguments as a frozen set.
+        """Gets the set of KIF objects as a frozen set.
 
         Returns:
            Frozen set.
