@@ -8,7 +8,7 @@ from .tests import kif_TestCase, main
 
 class TestModelPlainDescriptor(kif_TestCase):
 
-    def test__preprocess_arg_plain_descriptor_field_field_mask(self):
+    def test__preprocess_arg_plain_descriptor_field_mask(self):
         self.assertRaises(
             TypeError,
             PlainDescriptor._preprocess_arg_plain_descriptor_field_mask,
