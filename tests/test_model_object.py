@@ -353,7 +353,7 @@ class TestObject(TestCase):
             args = ", ".join(args)
             return f'{{"class": "{A}", "args": [{args}]}}'
         self.assertRaisesRegex(
-            DecoderError, r"^missing field 'class'$", A.loads, '{}',
+            DecoderError, r"^missing attribute 'class'$", A.loads, '{}',
             format='json')
         self.assertRaisesRegex(
             DecoderError, r"^no such object class 'Z'$", A.loads,

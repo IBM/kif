@@ -95,11 +95,11 @@ class Snak(KIF_Object):
 
     @property
     def property(self) -> Property:
-        """The property field of snak."""
+        """The property attribute of snak."""
         return self.get_property()
 
     def get_property(self) -> Property:
-        """Gets the property field of snak.
+        """Gets the property attribute of snak.
 
         Returns:
            Property.
@@ -130,11 +130,11 @@ class ValueSnak(Snak):
 
     @property
     def value(self) -> Value:
-        """The value field of snak."""
+        """The value attribute of value snak."""
         return self.get_value()
 
     def get_value(self) -> Value:
-        """Gets the value field of snak.
+        """Gets the value attribute of value snak.
 
         Returns:
            Value.

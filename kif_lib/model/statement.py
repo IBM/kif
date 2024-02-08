@@ -27,11 +27,11 @@ class Statement(KIF_Object):
 
     @property
     def subject(self) -> Entity:
-        """The subject field of statement."""
+        """The subject attribute of statement."""
         return self.get_subject()
 
     def get_subject(self) -> Entity:
-        """Gets the subject field of statement.
+        """Gets the subject attribute of statement.
 
         Returns:
            Subject.
@@ -40,11 +40,11 @@ class Statement(KIF_Object):
 
     @property
     def snak(self) -> Snak:
-        """The snak field of statement."""
+        """The snak attribute of statement."""
         return self.get_snak()
 
     def get_snak(self) -> Snak:
-        """Gets the snak field of statement.
+        """Gets the snak attribute of statement.
 
         Returns:
            Snak.

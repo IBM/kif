@@ -38,11 +38,11 @@ class AnnotationRecord(KIF_Object):
 
     @property
     def qualifiers(self) -> SnakSet:
-        """The qualifiers field of annotation record."""
+        """The qualifiers attribute of annotation record."""
         return self.get_qualifiers()
 
     def get_qualifiers(self) -> SnakSet:
-        """Gets the qualifiers field of annotation record.
+        """Gets the qualifiers attribute of annotation record.
 
         Returns:
            Qualifiers.
@@ -51,11 +51,11 @@ class AnnotationRecord(KIF_Object):
 
     @property
     def references(self) -> ReferenceRecordSet:
-        """The references field of annotation record."""
+        """The references attribute of annotation record."""
         return self.get_references()
 
     def get_references(self) -> ReferenceRecordSet:
-        """Gets the references field of annotation record.
+        """Gets the references attribute of annotation record.
 
         Returns:
            References.
@@ -64,11 +64,11 @@ class AnnotationRecord(KIF_Object):
 
     @property
     def rank(self) -> Rank:
-        """The rank field of annotation record."""
+        """The rank attribute of annotation record."""
         return self.get_rank()
 
     def get_rank(self) -> Rank:
-        """Gets rank field of annotation record.
+        """Gets rank attribute of annotation record.
 
         Returns:
            Rank.

@@ -1409,7 +1409,7 @@ class JSON_Decoder(Decoder, format='json', description='JSON decoder'):
         def object_hook(self, o):
             assert isinstance(o, dict)
             if 'class' not in o:
-                raise DecoderError("missing field 'class'")
+                raise DecoderError("missing attribute 'class'")
             cls = Decoder.check_object_class(o['class'])
             return cls(*o.get('args', ()))
 
