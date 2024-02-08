@@ -21,6 +21,7 @@ def get_entity_description(entity: Entity) -> Optional[str]:
 # autopep8: off
 # flake8: noqa
 
+
 # items
 Adam = Q(70899, 'Adam')
 aromatic_hydrocarbon = Q(230731, 'aromatic hydrocarbon')
@@ -50,6 +51,7 @@ English_Wikipedia = Q(328, 'English Wikipedia')
 Eve = Q(830183, 'Eve')
 exact_match = Q(39893449, 'exact match')
 feminine = Q(1775415, 'feminine')
+flame_retardant = Q(902863, 'flame retardant')
 Garden_of_Eden = Q(19014, 'Garden of Eden')
 Germany = Q(183, 'Germany')
 Global_Substance_Registration_System = Q(116031405, 'Global Substance Registration System')
@@ -99,6 +101,7 @@ Wikidata_property_related_to_chemistry = Q(21294996, 'Wikidata property related 
 Wikidata_property_related_to_medicine = Q(19887775, 'Wikidata property related to medicine')
 Wikidata_property_to_identify_substances = Q(19833835, 'Wikidata property to identify substances')
 
+
 # properties
 afflicts = P(689)
 applies_to_part = P(518)
@@ -126,6 +129,7 @@ exact_match = Q(39893449)
 family_name = P(734)
 father = P(22)
 file_format = P(2701)
+has_use = P(366)
 highest_point = P(610)
 HSDB_ID = P(2062)
 imported_from_Wikimedia_project = P(143)
