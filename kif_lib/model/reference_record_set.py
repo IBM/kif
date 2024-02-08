@@ -6,6 +6,7 @@ from .kif_object import TCallable
 from .kif_object_set import KIF_ObjectSet
 from .reference_record import ReferenceRecord
 
+TFrozenset = frozenset
 TReferenceRecordSet = Union['ReferenceRecordSet', Iterable[ReferenceRecord]]
 
 
@@ -34,18 +35,19 @@ class ReferenceRecordSet(KIF_ObjectSet):
         return self._preprocess_arg_reference_record(arg, i)
 
     @property
-    def args_set(self) -> frozenset[ReferenceRecord]:
+    @override
+    def frozenset(self) -> TFrozenset[ReferenceRecord]:
         """The set of reference records as a frozen set."""
-        return self.get_args_set()
+        return self.get_frozenset()
 
     @override
-    def get_args_set(self) -> frozenset[ReferenceRecord]:
+    def get_frozenset(self) -> TFrozenset[ReferenceRecord]:
         """Gets the set of reference records as a frozen set.
 
         Returns:
            Frozen set.
         """
-        return cast(frozenset[ReferenceRecord], self._get_args_set())
+        return cast(frozenset[ReferenceRecord], self._get_frozenset())
 
     @override
     def union(self, *others: KIF_ObjectSet) -> 'ReferenceRecordSet':

@@ -29,7 +29,7 @@ AnnotationRecordSet
    :toctree: generated/
 
    AnnotationRecordSet
-   AnnotationRecordSet.args_set
+   AnnotationRecordSet.frozenset
    AnnotationRecordSet.union
 
 ReferenceRecordSet
@@ -38,7 +38,7 @@ ReferenceRecordSet
    :toctree: generated/
 
    ReferenceRecordSet
-   ReferenceRecordSet.args_set
+   ReferenceRecordSet.frozenset
    ReferenceRecordSet.union
 
 SnakSet
@@ -47,7 +47,7 @@ SnakSet
    :toctree: generated/
 
    SnakSet
-   SnakSet.args_set
+   SnakSet.frozenset
    SnakSet.union
 
 TextSet
@@ -56,5 +56,5 @@ TextSet
    :toctree: generated/
 
    TextSet
-   TextSet.args_set
+   TextSet.frozenset
    TextSet.union

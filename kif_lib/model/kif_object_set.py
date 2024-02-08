@@ -5,6 +5,7 @@ from ..typing import cast, Collection, Iterable, NoReturn, Optional, Union
 from .kif_object import KIF_Object, TCallable
 
 T_KIF_ObjectSet = Union['KIF_ObjectSet', Iterable[KIF_Object]]
+TFrozenset = frozenset
 
 
 class KIF_ObjectSet(KIF_Object):
@@ -28,43 +29,43 @@ class KIF_ObjectSet(KIF_Object):
             arg, KIF_ObjectSet, function, name, position))
 
     __slots__ = (
-        '_args_set',
+        '_frozenset',
     )
 
-    _args_set: frozenset[KIF_Object]
+    _frozenset: frozenset[KIF_Object]
 
     def __init__(self, *objects: KIF_Object):
         super().__init__(*objects)
 
     def _set_args(self, args):
-        self._args_set = frozenset(args)
-        self._args = tuple(sorted(self._args_set))
+        self._frozenset = frozenset(args)
+        self._args = tuple(sorted(self._frozenset))
 
     def _preprocess_arg(self, arg, i):
         return self._preprocess_arg_kif_object(arg, i)
 
     def __contains__(self, v):
-        return v in self._args_set if KIF_Object.test(v) else False
+        return v in self._frozenset if KIF_Object.test(v) else False
 
-    def _get_args_set(self) -> frozenset[KIF_Object]:
-        return self._args_set
+    def _get_frozenset(self) -> TFrozenset[KIF_Object]:
+        return self._frozenset
 
     def _union(self, others: Collection['KIF_ObjectSet']) -> 'KIF_ObjectSet':
-        return self.__class__(*self._args_set.union(*map(
-            KIF_ObjectSet._get_args_set, others)))
+        return self.__class__(*self._frozenset.union(*map(
+            KIF_ObjectSet._get_frozenset, others)))
 
     @property
-    def args_set(self) -> frozenset[KIF_Object]:
+    def frozenset(self) -> TFrozenset[KIF_Object]:
         """The set of KIF objects as a frozen set."""
-        return self.get_args_set()
+        return self.get_frozenset()
 
-    def get_args_set(self) -> frozenset[KIF_Object]:
+    def get_frozenset(self) -> TFrozenset[KIF_Object]:
         """Gets the set of KIF objects as a frozen set.
 
         Returns:
            Frozen set.
         """
-        return self._get_args_set()
+        return self._get_frozenset()
 
     def union(self, *others: 'KIF_ObjectSet') -> 'KIF_ObjectSet':
         """Computes the union of self and `others`.

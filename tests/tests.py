@@ -103,8 +103,8 @@ class kif_TestCase(TestCase):
         for i, arg in enumerate(obj):
             self.assertIsInstance(arg, KIF_Object)
             self.assertEqual(arg, args[i])
-        self.assertEqual(obj._args_set, set(args))
-        self.assertEqual(obj._get_args_set(), obj._args_set)
+        self.assertEqual(obj.frozenset, set(args))
+        self.assertEqual(obj.get_frozenset(), obj.frozenset)
         for arg in args:
             self.assertIn(arg, obj)
 
@@ -219,8 +219,8 @@ class kif_TestCase(TestCase):
         for i, arg in enumerate(obj):
             self.assertIsInstance(arg, Text)
             self.assertEqual(arg, texts[i])
-        self.assertEqual(obj.args_set, set(texts))
-        self.assertEqual(obj.get_args_set(), obj.args_set)
+        self.assertEqual(obj.frozenset, set(texts))
+        self.assertEqual(obj.get_frozenset(), obj.frozenset)
         for text in texts:
             self.assertIn(text, obj)
 
@@ -354,8 +354,8 @@ class kif_TestCase(TestCase):
         for i, arg in enumerate(obj):
             self.assertIsInstance(arg, Snak)
             self.assertEqual(arg, snaks[i])
-        self.assertEqual(obj.args_set, set(snaks))
-        self.assertEqual(obj.get_args_set(), obj.args_set)
+        self.assertEqual(obj.frozenset, set(snaks))
+        self.assertEqual(obj.get_frozenset(), obj.frozenset)
         for snak in snaks:
             self.assertIn(snak, obj)
 
@@ -371,8 +371,8 @@ class kif_TestCase(TestCase):
         for i, arg in enumerate(obj):
             self.assertIsInstance(arg, ReferenceRecord)
             self.assertEqual(arg, refs[i])
-        self.assertEqual(obj.args_set, set(refs))
-        self.assertEqual(obj.get_args_set(), obj.args_set)
+        self.assertEqual(obj.frozenset, set(refs))
+        self.assertEqual(obj.get_frozenset(), obj.frozenset)
         for ref in refs:
             self.assertIn(ref, obj)
 
@@ -438,8 +438,8 @@ class kif_TestCase(TestCase):
         for i, arg in enumerate(obj):
             self.assertIsInstance(arg, AnnotationRecord)
             self.assertEqual(arg, annots[i])
-        self.assertEqual(obj.args_set, set(annots))
-        self.assertEqual(obj.get_args_set(), obj.args_set)
+        self.assertEqual(obj.frozenset, set(annots))
+        self.assertEqual(obj.get_frozenset(), obj.frozenset)
         for ref in annots:
             self.assertIn(ref, obj)
 

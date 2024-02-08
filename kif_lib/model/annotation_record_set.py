@@ -7,6 +7,7 @@ from .kif_object import TCallable
 from .kif_object_set import KIF_ObjectSet
 
 TAnnotationRecordSet = Union['AnnotationRecordSet', Iterable[AnnotationRecord]]
+TFrozenset = frozenset
 
 
 class AnnotationRecordSet(KIF_ObjectSet):
@@ -34,18 +35,19 @@ class AnnotationRecordSet(KIF_ObjectSet):
         return self._preprocess_arg_annotation_record(arg, i)
 
     @property
-    def args_set(self) -> frozenset[AnnotationRecord]:
+    @override
+    def frozenset(self) -> TFrozenset[AnnotationRecord]:
         """The set of annotation records as a frozen set."""
-        return self.get_args_set()
+        return self.get_frozenset()
 
     @override
-    def get_args_set(self) -> frozenset[AnnotationRecord]:
+    def get_frozenset(self) -> TFrozenset[AnnotationRecord]:
         """Gets the set of annotation records as a frozen set.
 
         Returns:
            Frozen set.
         """
-        return cast(frozenset[AnnotationRecord], self._get_args_set())
+        return cast(frozenset[AnnotationRecord], self._get_frozenset())
 
     @override
     def union(self, *others: KIF_ObjectSet) -> 'AnnotationRecordSet':

@@ -6,6 +6,7 @@ from .kif_object import TCallable
 from .kif_object_set import KIF_ObjectSet
 from .snak import Snak
 
+TFrozenset = frozenset
 TSnakSet = Union['SnakSet', Iterable[Snak]]
 
 
@@ -35,18 +36,18 @@ class SnakSet(KIF_ObjectSet):
 
     @property
     @override
-    def args_set(self) -> frozenset[Snak]:
+    def frozenset(self) -> TFrozenset[Snak]:
         """The set of snaks as a frozen set."""
-        return self.get_args_set()
+        return self.get_frozenset()
 
     @override
-    def get_args_set(self) -> frozenset[Snak]:
+    def get_frozenset(self) -> TFrozenset[Snak]:
         """Gets the set of snaks as a frozen set.
 
         Returns:
            Frozen set.
         """
-        return cast(frozenset[Snak], self._get_args_set())
+        return cast(frozenset[Snak], self._get_frozenset())
 
     @override
     def union(self, *others: KIF_ObjectSet) -> 'SnakSet':

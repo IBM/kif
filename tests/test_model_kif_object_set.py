@@ -49,7 +49,7 @@ class TestModelKIF_ObjectSet(kif_TestCase):
             NoValueSnak(Property('p')),
             KIF_ObjectSet(NoValueSnak(Property('q'))))
 
-    def test__union(self):
+    def test_union(self):
         s1 = KIF_ObjectSet(
             Property('p')(IRI('x')),
             Property('q')(IRI('y')))
@@ -59,7 +59,7 @@ class TestModelKIF_ObjectSet(kif_TestCase):
             Property('q')(IRI('y')),
             Property('q')(IRI('z')))
         self.assertEqual(
-            s1._union([s2, s3, s4]),
+            s1.union(s2, s3, s4),
             KIF_ObjectSet(
                 NoValueSnak(Property('p')),
                 Property('p')(IRI('x')),

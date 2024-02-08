@@ -6,6 +6,7 @@ from .kif_object import TCallable
 from .kif_object_set import KIF_ObjectSet
 from .value import Text
 
+TFrozenset = frozenset
 TTextSet = Union['TextSet', Iterable[Text]]
 
 
@@ -34,18 +35,19 @@ class TextSet(KIF_ObjectSet):
         return self._preprocess_arg_text(arg, i)
 
     @property
-    def args_set(self) -> frozenset[Text]:
+    @override
+    def frozenset(self) -> TFrozenset[Text]:
         """The set of texts as a frozen set."""
-        return self.get_args_set()
+        return self.get_frozenset()
 
     @override
-    def get_args_set(self) -> frozenset[Text]:
+    def get_frozenset(self) -> TFrozenset[Text]:
         """Gets the set of texts as a frozen set.
 
         Returns:
            Frozen set
         """
-        return cast(frozenset[Text], self._get_args_set())
+        return cast(frozenset[Text], self._get_frozenset())
 
     @override
     def union(self, *others: KIF_ObjectSet) -> 'TextSet':
