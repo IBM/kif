@@ -1057,7 +1057,7 @@ At line {line}, column {column}:
             self,
             items: Iterable[Item],
             lang: str,
-            mask: ItemDescriptor.FieldMask
+            mask: ItemDescriptor.AttributeMask
     ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
         return cast(
             Iterator[tuple[Item, Optional[ItemDescriptor]]],
@@ -1067,7 +1067,7 @@ At line {line}, column {column}:
             self,
             properties: Iterable[Property],
             lang: str,
-            mask: PropertyDescriptor.FieldMask
+            mask: PropertyDescriptor.AttributeMask
     ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
         return cast(
             Iterator[tuple[Property, Optional[PropertyDescriptor]]],
@@ -1079,7 +1079,7 @@ At line {line}, column {column}:
             cls: type[Entity],
             entities: Iterable[Union[Item, Property]],
             lang: str,
-            mask: PlainDescriptor.FieldMask
+            mask: PlainDescriptor.AttributeMask
     ) -> Iterator[tuple[Union[Item, Property], Optional[Union[
             ItemDescriptor, PropertyDescriptor]]]]:
         for batch in self._batched(entities):
@@ -1157,7 +1157,7 @@ At line {line}, column {column}:
             cls: type[Entity],
             entities: Collection[Union[Item, Property]],
             lang: str,
-            mask: PlainDescriptor.FieldMask
+            mask: PlainDescriptor.AttributeMask
     ) -> SPARQL_Builder:
         q = SPARQL_Builder()
         t: Mapping[str, TTrm] = q.vars_dict(

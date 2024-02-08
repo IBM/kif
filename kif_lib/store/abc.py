@@ -854,7 +854,7 @@ class Store(Set):
             self,
             items: Union[Item, Iterable[Item]],
             language: str = Text.default_language,
-            descriptor_mask: Optional[ItemDescriptor.TFieldMask] = None
+            descriptor_mask: Optional[ItemDescriptor.TAttributeMask] = None
     ) -> Iterable[tuple[Item, Optional[ItemDescriptor]]]:
         """Gets descriptor of items.
 
@@ -872,7 +872,8 @@ class Store(Set):
         KIF_Object._check_arg_str(
             language, self.get_item_descriptor, 'language', 2)
         mask =\
-            ItemDescriptor._check_optional_arg_plain_descriptor_field_mask(
+            ItemDescriptor.\
+            _check_optional_arg_plain_descriptor_attribute_mask(
                 descriptor_mask, ItemDescriptor.ALL,
                 self.get_item_descriptor, 'mask', 3)
         assert mask is not None
@@ -888,7 +889,7 @@ class Store(Set):
             self,
             items: Iterable[Item],
             lang: str,
-            mask: ItemDescriptor.FieldMask
+            mask: ItemDescriptor.AttributeMask
     ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
         raise MustBeImplementedInSubclass
 
@@ -896,7 +897,7 @@ class Store(Set):
             self,
             properties: Union[Property, Iterable[Property]],
             language: str = Text.default_language,
-            descriptor_mask: Optional[PropertyDescriptor.TFieldMask] = None
+            descriptor_mask: Optional[PropertyDescriptor.TAttributeMask] = None
     ) -> Iterable[tuple[Property, Optional[PropertyDescriptor]]]:
         """Gets descriptor of properties.
 
@@ -914,7 +915,8 @@ class Store(Set):
         KIF_Object._check_arg_str(
             language, self.get_property_descriptor, 'language', 2)
         mask =\
-            PropertyDescriptor._check_optional_arg_plain_descriptor_field_mask(
+            PropertyDescriptor.\
+            _check_optional_arg_plain_descriptor_attribute_mask(
                 descriptor_mask, PropertyDescriptor.ALL,
                 self.get_property_descriptor, 'mask', 3)
         assert mask is not None
@@ -931,7 +933,7 @@ class Store(Set):
             self,
             properties: Iterable[Property],
             lang: str,
-            mask: PropertyDescriptor.FieldMask
+            mask: PropertyDescriptor.AttributeMask
     ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
         raise MustBeImplementedInSubclass
 

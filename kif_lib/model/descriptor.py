@@ -16,83 +16,83 @@ class Descriptor(KIF_Object):
 class PlainDescriptor(Descriptor):
     """Abstract base class for plain descriptors."""
 
-    class FieldMask(Flag):
-        """Mask for plain descriptor fields."""
+    class AttributeMask(Flag):
+        """Mask for plain descriptor attributes."""
 
-        #: Mask for the label field.
+        #: Mask for the label attribute of plain descriptor.
         LABEL = auto()
 
-        #: Mask for the aliases field.
+        #: Mask for the aliases attribute of plain descriptor.
         ALIASES = auto()
 
-        #: Mask for the description field.
+        #: Mask for the description attribute of plain.
         DESCRIPTION = auto()
 
-        #: Mask for all fields.
+        #: Mask for all attributes of plain descriptor.
         ALL = LABEL | ALIASES | DESCRIPTION
 
-    #: Mask for the label field of plain descriptor.
-    LABEL: Final[FieldMask] = FieldMask.LABEL
+    #: Mask for the label attribute of plain descriptor.
+    LABEL: Final[AttributeMask] = AttributeMask.LABEL
 
-    #: Mask for the aliases field of plain descriptor.
-    ALIASES: Final[FieldMask] = FieldMask.ALIASES
+    #: Mask for the aliases attribute of plain descriptor.
+    ALIASES: Final[AttributeMask] = AttributeMask.ALIASES
 
-    #: Mask for the description field of plain descriptor.
-    DESCRIPTION: Final[FieldMask] = FieldMask.DESCRIPTION
+    #: Mask for the description attribute of plain descriptor.
+    DESCRIPTION: Final[AttributeMask] = AttributeMask.DESCRIPTION
 
-    #: Mask for all fields of plain descriptor.
-    ALL: Final[FieldMask] = FieldMask.ALL
+    #: Mask for all attributes of plain descriptor.
+    ALL: Final[AttributeMask] = AttributeMask.ALL
 
-    TFieldMask = Union[FieldMask, int]
+    TAttributeMask = Union[AttributeMask, int]
 
     @classmethod
-    def _check_arg_plain_descriptor_field_mask(
+    def _check_arg_plain_descriptor_attribute_mask(
             cls,
-            arg: TFieldMask,
+            arg: TAttributeMask,
             function: Optional[Union[TCallable, str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[FieldMask, NoReturn]:
-        return cls.FieldMask(cls._check_arg_isinstance(
-            arg, (cls.FieldMask, int), function, name, position))
+    ) -> Union[AttributeMask, NoReturn]:
+        return cls.AttributeMask(cls._check_arg_isinstance(
+            arg, (cls.AttributeMask, int), function, name, position))
 
     @classmethod
-    def _check_optional_arg_plain_descriptor_field_mask(
+    def _check_optional_arg_plain_descriptor_attribute_mask(
             cls,
-            arg: Optional[TFieldMask],
-            default: Optional[FieldMask] = None,
+            arg: Optional[TAttributeMask],
+            default: Optional[AttributeMask] = None,
             function: Optional[Union[TCallable, str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional[FieldMask], NoReturn]:
+    ) -> Union[Optional[AttributeMask], NoReturn]:
         if arg is None:
             return default
         else:
-            return cls._check_arg_plain_descriptor_field_mask(
+            return cls._check_arg_plain_descriptor_attribute_mask(
                 arg, function, name, position)
 
     @classmethod
-    def _preprocess_arg_plain_descriptor_field_mask(
+    def _preprocess_arg_plain_descriptor_attribute_mask(
             cls,
-            arg: TFieldMask,
+            arg: TAttributeMask,
             i: int,
             function: Optional[Union[TCallable, str]] = None
-    ) -> Union[FieldMask, NoReturn]:
-        return cls._check_arg_plain_descriptor_field_mask(
+    ) -> Union[AttributeMask, NoReturn]:
+        return cls._check_arg_plain_descriptor_attribute_mask(
             arg, function or cls, None, i)
 
     @classmethod
-    def _preprocess_optional_arg_plain_descriptor_field_mask(
+    def _preprocess_optional_arg_plain_descriptor_attribute_mask(
             cls,
             arg,
             i: int,
-            default: Optional[FieldMask] = None,
+            default: Optional[AttributeMask] = None,
             function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Optional[FieldMask], NoReturn]:
+    ) -> Union[Optional[AttributeMask], NoReturn]:
         if arg is None:
             return default
         else:
-            return cls._preprocess_arg_plain_descriptor_field_mask(
+            return cls._preprocess_arg_plain_descriptor_attribute_mask(
                 arg, i, function)
 
     def _preprocess_arg(self, arg, i):
@@ -107,16 +107,16 @@ class PlainDescriptor(Descriptor):
 
     @property
     def label(self) -> Optional[Text]:
-        """The label field of plain descriptor."""
+        """The label attribute of plain descriptor."""
         return self.get_label()
 
     def get_label(
             self,
             default: Optional[Text] = None
     ) -> Optional[Text]:
-        """Gets the label field of plain descriptor.
+        """Gets the label attribute of plain descriptor.
 
-        If the label field is ``None``, returns `default`.
+        If the label attribute is ``None``, returns `default`.
 
         Parameters:
            default: Default label.
@@ -129,11 +129,11 @@ class PlainDescriptor(Descriptor):
 
     @property
     def aliases(self) -> TextSet:
-        """The aliases field of plain descriptor."""
+        """The aliases attribute of plain descriptor."""
         return self.get_aliases()
 
     def get_aliases(self) -> TextSet:
-        """Gets the aliases field of plain descriptor.
+        """Gets the aliases attribute of plain descriptor.
 
         Returns:
            Aliases.
@@ -142,16 +142,16 @@ class PlainDescriptor(Descriptor):
 
     @property
     def description(self) -> Optional[Text]:
-        """The description field of plain descriptor."""
+        """The description attribute of plain descriptor."""
         return self.get_description()
 
     def get_description(
             self,
             default: Optional[Text] = None
     ) -> Optional[Text]:
-        """Gets the description field of plain descriptor.
+        """Gets the description attribute of plain descriptor.
 
-        If the description field is ``None``, returns `default`.
+        If the description attribute is ``None``, returns `default`.
 
         Parameters:
            default: Default description.
@@ -208,16 +208,16 @@ class PropertyDescriptor(PlainDescriptor):
 
     @property
     def datatype(self) -> Optional[Datatype]:
-        """The datatype field of property descriptor."""
+        """The datatype attribute of property descriptor."""
         return self.get_datatype()
 
     def get_datatype(
             self,
             default: Optional[Datatype] = None
     ) -> Optional[Datatype]:
-        """Gets the datatype field of property descriptor.
+        """Gets the datatype attribute of property descriptor.
 
-        If the datatype field is ``None``, returns `default`.
+        If the datatype attribute is ``None``, returns `default`.
 
         Parameters:
            default: Default datatype.
@@ -253,11 +253,11 @@ class LexemeDescriptor(Descriptor):
 
     @property
     def lemma(self) -> Text:
-        """The lemma field of lexeme descriptor."""
+        """The lemma attribute of lexeme descriptor."""
         return self.get_lemma()
 
     def get_lemma(self) -> Text:
-        """Gets the lemma field of lexeme descriptor.
+        """Gets the lemma attribute of lexeme descriptor.
 
         Returns:
            Lemma.
@@ -266,11 +266,11 @@ class LexemeDescriptor(Descriptor):
 
     @property
     def category(self) -> Item:
-        """The lexical category field of lexeme descriptor."""
+        """The lexical category attribute of lexeme descriptor."""
         return self.get_category()
 
     def get_category(self) -> Item:
-        """Gets the lexical category field of lexeme descriptor.
+        """Gets the lexical category attribute of lexeme descriptor.
 
         Returns:
            Lexical category.
@@ -279,11 +279,11 @@ class LexemeDescriptor(Descriptor):
 
     @property
     def language(self) -> Item:
-        """The language field of lexeme descriptor."""
+        """The language attribute of lexeme descriptor."""
         return self.get_language()
 
     def get_language(self) -> Item:
-        """Gets the language field of lexeme descriptor.
+        """Gets the language attribute of lexeme descriptor.
 
         Returns:
            Language.
