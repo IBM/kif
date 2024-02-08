@@ -21,6 +21,8 @@ KIF_ObjectSet
    :toctree: generated/
 
    KIF_ObjectSet
+   KIF_ObjectSet.frozenset
+   KIF_ObjectSet.union
 
 
 AnnotationRecordSet
