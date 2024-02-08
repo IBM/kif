@@ -31,16 +31,16 @@ class PlainDescriptor(Descriptor):
         #: Mask for all fields.
         ALL = LABEL | ALIASES | DESCRIPTION
 
-    #: Mask for the label field.
+    #: Mask for the label field of plain descriptor.
     LABEL: Final[FieldMask] = FieldMask.LABEL
 
-    #: Mask for the aliases field.
+    #: Mask for the aliases field of plain descriptor.
     ALIASES: Final[FieldMask] = FieldMask.ALIASES
 
-    #: Mask for the description field.
+    #: Mask for the description field of plain descriptor.
     DESCRIPTION: Final[FieldMask] = FieldMask.DESCRIPTION
 
-    #: Mask for all fields.
+    #: Mask for all fields of plain descriptor.
     ALL: Final[FieldMask] = FieldMask.ALL
 
     TFieldMask = Union[FieldMask, int]
@@ -107,14 +107,14 @@ class PlainDescriptor(Descriptor):
 
     @property
     def label(self) -> Optional[Text]:
-        """The label field."""
+        """The label field of plain descriptor."""
         return self.get_label()
 
     def get_label(
             self,
             default: Optional[Text] = None
     ) -> Optional[Text]:
-        """Gets the label field.
+        """Gets the label field of plain descriptor.
 
         If the label field is ``None``, returns `default`.
 
@@ -129,11 +129,11 @@ class PlainDescriptor(Descriptor):
 
     @property
     def aliases(self) -> TextSet:
-        """The aliases field."""
+        """The aliases field of plain descriptor."""
         return self.get_aliases()
 
     def get_aliases(self) -> TextSet:
-        """Gets the aliases field.
+        """Gets the aliases field of plain descriptor.
 
         Returns:
            Aliases.
@@ -142,14 +142,14 @@ class PlainDescriptor(Descriptor):
 
     @property
     def description(self) -> Optional[Text]:
-        """The description field."""
+        """The description field of plain descriptor."""
         return self.get_description()
 
     def get_description(
             self,
             default: Optional[Text] = None
     ) -> Optional[Text]:
-        """Gets the description field.
+        """Gets the description field of plain descriptor.
 
         If the description field is ``None``, returns `default`.
 
@@ -208,14 +208,14 @@ class PropertyDescriptor(PlainDescriptor):
 
     @property
     def datatype(self) -> Optional[Datatype]:
-        """The datatype field."""
+        """The datatype field of property descriptor."""
         return self.get_datatype()
 
     def get_datatype(
             self,
             default: Optional[Datatype] = None
     ) -> Optional[Datatype]:
-        """Gets the datatype field.
+        """Gets the datatype field of property descriptor.
 
         If the datatype field is ``None``, returns `default`.
 
@@ -238,12 +238,7 @@ class LexemeDescriptor(Descriptor):
        language: Language.
     """
 
-    def __init__(
-            self,
-            lemma: TText,
-            category: Item,
-            language: Item,
-    ):
+    def __init__(self, lemma: TText, category: Item, language: Item):
         super().__init__(lemma, category, language)
 
     def _preprocess_arg(self, arg, i):
@@ -258,11 +253,11 @@ class LexemeDescriptor(Descriptor):
 
     @property
     def lemma(self) -> Text:
-        """The lemma field."""
+        """The lemma field of lexeme descriptor."""
         return self.get_lemma()
 
     def get_lemma(self) -> Text:
-        """Gets the lemma field.
+        """Gets the lemma field of lexeme descriptor.
 
         Returns:
            Lemma.
@@ -271,11 +266,11 @@ class LexemeDescriptor(Descriptor):
 
     @property
     def category(self) -> Item:
-        """The lexical category field."""
+        """The lexical category field of lexeme descriptor."""
         return self.get_category()
 
     def get_category(self) -> Item:
-        """Gets the lexical category field.
+        """Gets the lexical category field of lexeme descriptor.
 
         Returns:
            Lexical category.
@@ -284,11 +279,11 @@ class LexemeDescriptor(Descriptor):
 
     @property
     def language(self) -> Item:
-        """The language field."""
+        """The language field of lexeme descriptor."""
         return self.get_language()
 
     def get_language(self) -> Item:
-        """Gets the language field.
+        """Gets the language field of lexeme descriptor.
 
         Returns:
            Language.
