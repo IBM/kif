@@ -10,12 +10,12 @@ class Statement(KIF_Object):
     """Entity-snak pair.
 
     Parameters:
-       entity: Entity.
+       subject: Entity.
        snak: Snak.
     """
 
-    def __init__(self, entity: Entity, snak: Snak):
-        return super().__init__(entity, snak)
+    def __init__(self, subject: Entity, snak: Snak):
+        return super().__init__(subject, snak)
 
     def _preprocess_arg(self, arg, i):
         if i == 1:
