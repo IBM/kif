@@ -64,7 +64,7 @@ from .model import (
     ValueSet,
     ValueSnak,
 )
-from .store import Store, StoreError, StoreFlags
+from .store import Store, StoreError
 
 __version__ = '0.3'
 
@@ -124,7 +124,6 @@ __all__ = [
     'Statement',
     'Store',
     'StoreError',
-    'StoreFlags',
     'String',
     'StringDatatype',
     'Text',

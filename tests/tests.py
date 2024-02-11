@@ -79,10 +79,10 @@ def skip_if_not_set(var):
     if not os.getenv(var, False):
         raise SkipTest(f'{var} is not set')
 
+
+# -- kif_TestCase ----------------------------------------------------------
 
 class kif_TestCase(TestCase):
-
-    # -- KIF Object --------------------------------------------------------
 
     def assert_raises_bad_argument(
             self, exception, position, name, details, function,
@@ -614,7 +614,10 @@ class kif_TestCase(TestCase):
         self.assertEqual(Snak.Mask(obj.args[3]), mask)
         self.assertEqual(obj.snak_mask, mask)
 
-    # -- Store -------------------------------------------------------------
+
+# -- kif_StoreTestCase -----------------------------------------------------
+
+class kif_StoreTestCase(kif_TestCase):
 
     def store_sanity_checks(self, kb):
         self.assert_raises_bad_argument(

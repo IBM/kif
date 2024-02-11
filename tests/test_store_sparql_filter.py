@@ -18,12 +18,12 @@ from kif_lib import (
     ValueSnak,
 )
 
-from .tests import kif_TestCase, main, skip_if_set, WIKIDATA
+from .tests import kif_StoreTestCase, main, skip_if_set, WIKIDATA
 
 skip_if_set('SKIP_TEST_STORE_SPARQL')
 
 
-class TestSPARQL_StoreFilter(kif_TestCase):
+class TestSPARQL_StoreFilter(kif_StoreTestCase):
 
     def test_filter_bad_argument(self):
         kb = Store('sparql', WIKIDATA)

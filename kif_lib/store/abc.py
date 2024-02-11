@@ -49,49 +49,6 @@ class StoreError(Error):
     """Base class for store errors."""
 
 
-class StoreFlags(Flag):
-    """Store configuration flags."""
-
-    #: Whether to enable cache.
-    CACHE = auto()
-
-    #: Whether to fetch only best ranked statements.
-    BEST_RANK = auto()
-
-    #: Whether to fetch ValueSnak's.
-    VALUE_SNAK = auto()
-
-    #: Whether to fetch SomeValueSnak's.
-    SOME_VALUE_SNAK = auto()
-
-    #: Whether to fetch NoValueSnak's.
-    NO_VALUE_SNAK = auto()
-
-    #: Whether to do early filtering.
-    EARLY_FILTER = auto()
-
-    #: Whether to do late filtering.
-    LATE_FILTER = auto()
-
-    #: Alias for "default flags".
-    DEFAULT = (CACHE
-               | BEST_RANK
-               | VALUE_SNAK
-               | SOME_VALUE_SNAK
-               | NO_VALUE_SNAK
-               | EARLY_FILTER
-               | LATE_FILTER)
-
-    #: Alias for "all flags".
-    ALL = (CACHE
-           | BEST_RANK
-           | VALUE_SNAK
-           | SOME_VALUE_SNAK
-           | NO_VALUE_SNAK
-           | EARLY_FILTER
-           | LATE_FILTER)
-
-
 class Store(Set):
     """Store factory.
 
@@ -146,7 +103,7 @@ class Store(Set):
 
     _cache: Cache
     _extra_references: Optional[ReferenceRecordSet]
-    _flags: StoreFlags
+    _flags: 'Flags'
     _nsm: NamespaceManager
     _page_size: Optional[int]
     _timeout: Optional[int]
@@ -155,24 +112,24 @@ class Store(Set):
             self,
             *args: Any,
             extra_references: Optional[TReferenceRecordSet] = None,
-            flags: Optional[StoreFlags] = None,
+            flags: Optional['Flags'] = None,
             namespaces: Optional[dict[str, T_IRI]] = None,
             page_size: Optional[int] = None,
             timeout: Optional[int] = None,
             **kwargs: Any
     ):
         self._init_flags(flags)
-        self._cache = Cache(self.has_flags(StoreFlags.CACHE))
+        self._cache = Cache(self.has_flags(self.CACHE))
         self._init_nsm(namespaces or dict())
         self.set_extra_references(extra_references)
         self.set_page_size(page_size)
         self.set_timeout(timeout)
 
-    def _init_flags(self, flags: Optional[StoreFlags] = None):
+    def _init_flags(self, flags: Optional['Flags'] = None):
         if flags is None:
-            self._flags = StoreFlags.DEFAULT
+            self._flags = self.DEFAULT
         else:
-            self._flags = StoreFlags(flags)
+            self._flags = self.Flags(flags)
 
     def _init_nsm(self, namespaces: dict[str, T_IRI]):
         self._nsm = NamespaceManager(Graph())
@@ -318,79 +275,123 @@ class Store(Set):
 
     # -- Flags -------------------------------------------------------------
 
-    #: Alias for :attr:`StoreFlags.CACHE`.
-    CACHE = StoreFlags.CACHE
+    class Flags(Flag):
+        """Store flags."""
 
-    #: Alias for :attr:`StoreFlags.BEST_RANK`.
-    BEST_RANK = StoreFlags.BEST_RANK
+        #: Whether to enable cache.
+        CACHE = auto()
 
-    #: Alias for :attr:`StoreFlags.VALUE_SNAK`.
-    VALUE_SNAK = StoreFlags.VALUE_SNAK
+        #: Whether to fetch only the best ranked statements.
+        BEST_RANK = auto()
 
-    #: Alias for :attr:`StoreFlags.SOME_VALUE_SNAK`.
-    SOME_VALUE_SNAK = StoreFlags.SOME_VALUE_SNAK
+        #: Whether to fetch value snaks.
+        VALUE_SNAK = auto()
 
-    #: Alias for :attr:`StoreFlags.NO_VALUE_SNAK`.
-    NO_VALUE_SNAK = StoreFlags.NO_VALUE_SNAK
+        #: Whether to fetch some-value snaks.
+        SOME_VALUE_SNAK = auto()
 
-    #: Alias for :attr:`StoreFlags.EARLY_FILTER`.
-    EARLY_FILTER = StoreFlags.EARLY_FILTER
+        #: Whether to fetch no-value snaks.
+        NO_VALUE_SNAK = auto()
 
-    #: Alias for :attr:`StoreFlags.LATE_FILTER`.
-    LATE_FILTER = StoreFlags.LATE_FILTER
+        #: Whether to enable early filtering.
+        EARLY_FILTER = auto()
 
-    #: Alias for :attr:`StoreFlags.DEFAULT`.
-    DEFAULT = StoreFlags.DEFAULT
+        #: Whether to enable late filtering.
+        LATE_FILTER = auto()
 
-    #: Alias for :attr:`StoreFlags.ALL`.
-    ALL = StoreFlags.ALL
+        #: Default flags.
+        DEFAULT = (
+            CACHE
+            | BEST_RANK
+            | VALUE_SNAK
+            | SOME_VALUE_SNAK
+            | NO_VALUE_SNAK
+            | EARLY_FILTER
+            | LATE_FILTER)
+
+        #: All flags.
+        ALL = (
+            CACHE
+            | BEST_RANK
+            | VALUE_SNAK
+            | SOME_VALUE_SNAK
+            | NO_VALUE_SNAK
+            | EARLY_FILTER
+            | LATE_FILTER)
+
+    #: Whether to enable cache.
+    CACHE = Flags.CACHE
+
+    #: Whether to fetch only the best ranked statements.
+    BEST_RANK = Flags.BEST_RANK
+
+    #: Whether to fetch value snaks.
+    VALUE_SNAK = Flags.VALUE_SNAK
+
+    #: Whether to fetch some-value snaks.
+    SOME_VALUE_SNAK = Flags.SOME_VALUE_SNAK
+
+    #: Whether to fetch no-value snaks.
+    NO_VALUE_SNAK = Flags.NO_VALUE_SNAK
+
+    #: Whether to enable early filtering.
+    EARLY_FILTER = Flags.EARLY_FILTER
+
+    #: Whether to enable late filtering.
+    LATE_FILTER = Flags.LATE_FILTER
+
+    #: Default flags.
+    DEFAULT = Flags.DEFAULT
+
+    #: All flags.
+    ALL = Flags.ALL
 
     @property
-    def flags(self) -> StoreFlags:
-        """Store flags."""
+    def flags(self) -> Flags:
+        """The flags set in store."""
         return self.get_flags()
 
     @flags.setter
-    def flags(self, flags: StoreFlags):
+    def flags(self, flags: Flags):
         if flags != self._flags and self._do_set_flags(self._flags, flags):
-            self._flags = StoreFlags(flags)
+            self._flags = self.Flags(flags)
 
-    def _do_set_flags(self, old: StoreFlags, new: StoreFlags) -> bool:
+    def _do_set_flags(self, old: Flags, new: Flags) -> bool:
         self._cache.clear()
         return True
 
-    def get_flags(self) -> StoreFlags:
-        """Gets store flags.
+    def get_flags(self) -> Flags:
+        """Gets the flags set in store.
 
         Returns:
            Store flags.
         """
         return self._flags
 
-    def has_flags(self, flags: StoreFlags) -> bool:
-        """Tests whether store flags are set.
+    def has_flags(self, flags: Flags) -> bool:
+        """Tests whether `flags` are set in store.
 
         Parameters:
-           flags: Flags to test.
+           flags: Store flags.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
         return bool(self.flags & flags)
 
-    def set_flags(self, flags: StoreFlags):
-        """Set store flags.
+    def set_flags(self, flags: Flags):
+        """Sets `flags` in store.
 
         Parameters:
-           flags: Flags to set.
+           flags: Store flags.
         """
         self.flags |= flags
 
-    def unset_flags(self, flags: StoreFlags):
-        """Unset store flags.
+    def unset_flags(self, flags: Flags):
+        """Unset `flags` in store.
 
         Parameters:
-           flags: Flags to unset.
+           flags: Store flags.
         """
         self.flags &= ~flags
 
@@ -652,11 +653,11 @@ class Store(Set):
             pat: FilterPattern
     ) -> FilterPattern:
         store_snak_mask = Snak.Mask(0)
-        if self.has_flags(StoreFlags.VALUE_SNAK):
+        if self.has_flags(self.VALUE_SNAK):
             store_snak_mask |= Snak.VALUE_SNAK
-        if self.has_flags(StoreFlags.SOME_VALUE_SNAK):
+        if self.has_flags(self.SOME_VALUE_SNAK):
             store_snak_mask |= Snak.SOME_VALUE_SNAK
-        if self.has_flags(StoreFlags.NO_VALUE_SNAK):
+        if self.has_flags(self.NO_VALUE_SNAK):
             store_snak_mask |= Snak.NO_VALUE_SNAK
         return cast(FilterPattern, pat.replace(
             None, None, None, pat.snak_mask & store_snak_mask))

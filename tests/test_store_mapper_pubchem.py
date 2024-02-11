@@ -14,13 +14,19 @@ from kif_lib import (
 )
 from kif_lib.store.mapping import PubChemMapping
 
-from .tests import kif_TestCase, main, PUBCHEM, skip_if_not_set, skip_if_set
+from .tests import (
+    kif_StoreTestCase,
+    main,
+    PUBCHEM,
+    skip_if_not_set,
+    skip_if_set,
+)
 
 skip_if_not_set('PUBCHEM')
 skip_if_set('SKIP_TEST_STORE_PUBCHEM')
 
 
-class TestSPARQL_MapperStorePubChem(kif_TestCase):
+class TestSPARQL_MapperStorePubChem(kif_StoreTestCase):
 
     def new(self, **kwargs):
         return Store('sparql-mapper', PUBCHEM, PubChemMapping, **kwargs)

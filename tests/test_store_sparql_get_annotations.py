@@ -11,12 +11,12 @@ from kif_lib import (
     Store,
 )
 
-from .tests import kif_TestCase, main, skip_if_set, WIKIDATA
+from .tests import kif_StoreTestCase, main, skip_if_set, WIKIDATA
 
 skip_if_set('SKIP_TEST_STORE_SPARQL')
 
 
-class TestSPARQL_Store(kif_TestCase):
+class TestSPARQL_Store(kif_StoreTestCase):
 
     def test_get_annotations_bad_argument(self):
         kb = Store('sparql', WIKIDATA)

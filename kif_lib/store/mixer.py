@@ -15,7 +15,7 @@ from ..typing import (
     Sequence,
     TypeVar,
 )
-from .abc import Store, StoreFlags
+from .abc import Store
 
 T = TypeVar('T')
 S = TypeVar('S')
@@ -83,7 +83,7 @@ class MixerStore(Store, name='mixer', description='Mixer store'):
         """
         return self._sync_flags
 
-    def _do_set_flags(self, old: StoreFlags, new: StoreFlags) -> bool:
+    def _do_set_flags(self, old: Store.Flags, new: Store.Flags) -> bool:
         if not super()._do_set_flags(old, new):
             return False
         if self.sync_flags:

@@ -5,10 +5,10 @@ from kif_lib import Statement, Store
 from kif_lib.store import MixerStore
 
 from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL
-from .tests import kif_TestCase, main
+from .tests import kif_StoreTestCase, main
 
 
-class TestMixerStore(kif_TestCase):
+class TestMixerStore(kif_StoreTestCase):
 
     def mk_empty_mixer(self):
         return Store('mixer')

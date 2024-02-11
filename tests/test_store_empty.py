@@ -13,10 +13,10 @@ from kif_lib import (
 )
 from kif_lib.store import EmptyStore
 
-from .tests import kif_TestCase, main
+from .tests import kif_StoreTestCase, main
 
 
-class TestEmptyStore(kif_TestCase):
+class TestEmptyStore(kif_StoreTestCase):
 
     def test_sanity(self):
         self.store_sanity_checks(Store('empty'))

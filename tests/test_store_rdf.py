@@ -25,10 +25,10 @@ from kif_lib import (
 from kif_lib.store import RDF_Store
 
 from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL
-from .tests import kif_TestCase, main
+from .tests import kif_StoreTestCase, main
 
 
-class TestRDF_Store(kif_TestCase):
+class TestRDF_Store(kif_StoreTestCase):
 
     def test_sanity(self):
         self.store_sanity_checks(Store('rdf', BENZENE_TTL))
