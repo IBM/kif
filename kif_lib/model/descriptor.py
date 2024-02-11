@@ -19,25 +19,25 @@ class PlainDescriptor(Descriptor):
     class AttributeMask(Flag):
         """Mask for plain descriptor attributes."""
 
-        #: Mask for the label attribute of plain descriptor.
+        #: Mask for the label of plain descriptor.
         LABEL = auto()
 
-        #: Mask for the aliases attribute of plain descriptor.
+        #: Mask for the aliases of plain descriptor.
         ALIASES = auto()
 
-        #: Mask for the description attribute of plain.
+        #: Mask for the description of plain descriptor.
         DESCRIPTION = auto()
 
         #: Mask for all attributes of plain descriptor.
         ALL = LABEL | ALIASES | DESCRIPTION
 
-    #: Mask for the label attribute of plain descriptor.
+    #: Mask for the label of plain descriptor.
     LABEL: Final[AttributeMask] = AttributeMask.LABEL
 
-    #: Mask for the aliases attribute of plain descriptor.
+    #: Mask for the aliases of plain descriptor.
     ALIASES: Final[AttributeMask] = AttributeMask.ALIASES
 
-    #: Mask for the description attribute of plain descriptor.
+    #: Mask for the description of plain descriptor.
     DESCRIPTION: Final[AttributeMask] = AttributeMask.DESCRIPTION
 
     #: Mask for all attributes of plain descriptor.
@@ -107,14 +107,14 @@ class PlainDescriptor(Descriptor):
 
     @property
     def label(self) -> Optional[Text]:
-        """The label attribute of plain descriptor."""
+        """The label of plain descriptor."""
         return self.get_label()
 
     def get_label(
             self,
             default: Optional[Text] = None
     ) -> Optional[Text]:
-        """Gets the label attribute of plain descriptor.
+        """Gets the label of plain descriptor.
 
         If the label attribute is ``None``, returns `default`.
 
@@ -129,11 +129,11 @@ class PlainDescriptor(Descriptor):
 
     @property
     def aliases(self) -> TextSet:
-        """The aliases attribute of plain descriptor."""
+        """The aliases of plain descriptor."""
         return self.get_aliases()
 
     def get_aliases(self) -> TextSet:
-        """Gets the aliases attribute of plain descriptor.
+        """Gets the aliases of plain descriptor.
 
         Returns:
            Aliases.
@@ -142,14 +142,14 @@ class PlainDescriptor(Descriptor):
 
     @property
     def description(self) -> Optional[Text]:
-        """The description attribute of plain descriptor."""
+        """The description of plain descriptor."""
         return self.get_description()
 
     def get_description(
             self,
             default: Optional[Text] = None
     ) -> Optional[Text]:
-        """Gets the description attribute of plain descriptor.
+        """Gets the description of plain descriptor.
 
         If the description attribute is ``None``, returns `default`.
 
@@ -208,14 +208,14 @@ class PropertyDescriptor(PlainDescriptor):
 
     @property
     def datatype(self) -> Optional[Datatype]:
-        """The datatype attribute of property descriptor."""
+        """The datatype of property descriptor."""
         return self.get_datatype()
 
     def get_datatype(
             self,
             default: Optional[Datatype] = None
     ) -> Optional[Datatype]:
-        """Gets the datatype attribute of property descriptor.
+        """Gets the datatype of property descriptor.
 
         If the datatype attribute is ``None``, returns `default`.
 
@@ -253,11 +253,11 @@ class LexemeDescriptor(Descriptor):
 
     @property
     def lemma(self) -> Text:
-        """The lemma attribute of lexeme descriptor."""
+        """The lemma of lexeme descriptor."""
         return self.get_lemma()
 
     def get_lemma(self) -> Text:
-        """Gets the lemma attribute of lexeme descriptor.
+        """Gets the lemma of lexeme descriptor.
 
         Returns:
            Lemma.
@@ -266,11 +266,11 @@ class LexemeDescriptor(Descriptor):
 
     @property
     def category(self) -> Item:
-        """The lexical category attribute of lexeme descriptor."""
+        """The lexical category of lexeme descriptor."""
         return self.get_category()
 
     def get_category(self) -> Item:
-        """Gets the lexical category attribute of lexeme descriptor.
+        """Gets the lexical category of lexeme descriptor.
 
         Returns:
            Lexical category.
@@ -279,11 +279,11 @@ class LexemeDescriptor(Descriptor):
 
     @property
     def language(self) -> Item:
-        """The language attribute of lexeme descriptor."""
+        """The language of lexeme descriptor."""
         return self.get_language()
 
     def get_language(self) -> Item:
-        """Gets the language attribute of lexeme descriptor.
+        """Gets the language of lexeme descriptor.
 
         Returns:
            Language.

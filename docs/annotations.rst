@@ -19,7 +19,6 @@ Annotations
 
 AnnotationRecord
 ----------------
-
 .. autosummary::
    :toctree: generated/
 
@@ -31,7 +30,6 @@ AnnotationRecord
 
 ReferenceRecord
 ---------------
-
 .. autosummary::
    :toctree: generated/
 
@@ -39,21 +37,34 @@ ReferenceRecord
 
 Rank
 ----
-
 .. autosummary::
    :toctree: generated/
 
    Rank
-   PreferredRank
-   NormalRank
-   DeprecatedRank
 
 Predefined instances
 ~~~~~~~~~~~~~~~~~~~~
+.. autosummary::
+   :toctree: generated/
 
+   Rank.preferred
+   Rank.normal
+   Rank.deprecated
+
+Predefined instances (aliases)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autosummary::
    :toctree: generated/
 
    Preferred
    Normal
    Deprecated
+
+Concrete subclasses
+~~~~~~~~~~~~~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   PreferredRank
+   NormalRank
+   DeprecatedRank

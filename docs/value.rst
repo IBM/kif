@@ -25,7 +25,6 @@ Value
 
 Value
 -----
-
 .. autosummary::
    :toctree: generated/
 
@@ -55,7 +54,6 @@ Mask
 
 Entity
 ------
-
 .. autosummary::
    :toctree: generated/
 
@@ -64,7 +62,6 @@ Entity
 
 Item
 ~~~~
-
 .. autosummary::
    :toctree: generated/
 
@@ -73,7 +70,6 @@ Item
 
 Property
 ~~~~~~~~
-
 .. autosummary::
    :toctree: generated/
 
@@ -82,7 +78,6 @@ Property
 
 Lexeme
 ~~~~~~
-
 .. autosummary::
    :toctree: generated/
 
@@ -91,7 +86,6 @@ Lexeme
 
 DataValue
 ---------
-
 .. autosummary::
    :toctree: generated/
 
@@ -99,7 +93,6 @@ DataValue
 
 ShallowDataValue
 ----------------
-
 .. autosummary::
    :toctree: generated/
 
@@ -107,7 +100,6 @@ ShallowDataValue
 
 IRI
 ~~~
-
 .. autosummary::
    :toctree: generated/
 
@@ -115,7 +107,6 @@ IRI
 
 Text
 ~~~~
-
 .. autosummary::
    :toctree: generated/
 
@@ -124,7 +115,6 @@ Text
 
 String
 ~~~~~~
-
 .. autosummary::
    :toctree: generated/
 
@@ -132,7 +122,6 @@ String
 
 ExternalId
 ~~~~~~~~~~
-
 .. autosummary::
    :toctree: generated/
 
@@ -140,7 +129,6 @@ ExternalId
 
 DeepDataValue
 -------------
-
 .. autosummary::
    :toctree: generated/
 
@@ -148,7 +136,6 @@ DeepDataValue
 
 Quantity
 ~~~~~~~~
-
 .. autosummary::
    :toctree: generated/
 
@@ -160,7 +147,6 @@ Quantity
 
 Time
 ~~~~
-
 .. autosummary::
    :toctree: generated/
 
@@ -172,7 +158,6 @@ Time
 
 Precision
 """""""""
-
 .. autosummary::
    :toctree: generated/
 
