@@ -10,7 +10,8 @@ from rdflib.namespace import NamespaceManager
 
 from .. import namespace as NS
 from ..cache import Cache
-from ..error import Error, MustBeImplementedInSubclass
+from ..error import Error as KIF_Error
+from ..error import MustBeImplementedInSubclass, ShouldNotGetHere
 from ..itertools import batched, chain
 from ..model import (
     AnnotationRecord,
@@ -45,10 +46,6 @@ T = TypeVar('T')
 T_NS = NS.T_NS
 
 
-class StoreError(Error):
-    """Base class for store errors."""
-
-
 class Store(Set):
     """Store factory.
 
@@ -81,16 +78,58 @@ class Store(Set):
     def __init_subclass__(cls, name: str, description: str):
         Store._register(cls, name, description)
 
-    @classmethod
-    def _error(cls, msg: str) -> StoreError:
-        return StoreError(msg)
-
     def __new__(cls, store_name: str, *args: Any, **kwargs: Any):
         KIF_Object._check_arg(
             store_name, store_name in cls.registry,
             f"no such store plugin '{store_name}'",
             Store, 'store_name', 1, ValueError)
         return super(Store, cls).__new__(cls.registry[store_name])
+
+    class Error(KIF_Error):
+        """Base class for store errors."""
+        pass
+
+    @classmethod
+    def _error(cls, details: str) -> Error:
+        """Makes a store error.
+
+        Parameters:
+           details: Details.
+
+        Returns:
+           Store error.
+        """
+        return cls.Error(details)
+
+    @classmethod
+    def _must_be_implemented_in_subclass(
+            cls,
+            details: Optional[str] = None
+    ) -> MustBeImplementedInSubclass:
+        """Makes a "must be implemented in subclass" error.
+
+        Parameters:
+           details: Details.
+
+        Returns:
+           :class:`MustBeImplementedInSubclass` error.
+        """
+        return KIF_Object._must_be_implemented_in_subclass(details)
+
+    @classmethod
+    def _should_not_get_here(
+            cls,
+            details: Optional[str] = None
+    ) -> ShouldNotGetHere:
+        """Makes a "should not get here" error.
+
+        Parameters:
+           details: Details.
+
+        Returns:
+           :class:`ShouldNotGetHere` error.
+        """
+        return KIF_Object._should_not_get_here(details)
 
     __slots__ = (
         '_cache',
@@ -561,7 +600,7 @@ class Store(Set):
             return False
 
     def _contains(self, pattern: FilterPattern) -> bool:
-        raise MustBeImplementedInSubclass
+        raise self._must_be_implemented_in_subclass()
 
     def count(
             self,
@@ -610,7 +649,7 @@ class Store(Set):
             return 0
 
     def _count(self, pattern: FilterPattern) -> int:
-        raise MustBeImplementedInSubclass
+        raise self._must_be_implemented_in_subclass()
 
     def _check_filter_pattern(
             self,
@@ -734,7 +773,7 @@ class Store(Set):
             pattern: FilterPattern,
             limit: int
     ) -> Iterator[Statement]:
-        raise MustBeImplementedInSubclass
+        raise self._must_be_implemented_in_subclass()
 
     # -- Annotations -------------------------------------------------------
 
@@ -846,7 +885,7 @@ class Store(Set):
             self,
             stmts: Iterable[Statement],
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
-        raise MustBeImplementedInSubclass
+        raise self._must_be_implemented_in_subclass()
 
     # -- Descriptors -------------------------------------------------------
 
@@ -891,7 +930,7 @@ class Store(Set):
             lang: str,
             mask: ItemDescriptor.AttributeMask
     ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
-        raise MustBeImplementedInSubclass
+        raise self._must_be_implemented_in_subclass()
 
     def get_property_descriptor(
             self,
@@ -935,7 +974,7 @@ class Store(Set):
             lang: str,
             mask: PropertyDescriptor.AttributeMask
     ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
-        raise MustBeImplementedInSubclass
+        raise self._must_be_implemented_in_subclass()
 
     def get_lexeme_descriptor(
             self,
@@ -963,4 +1002,4 @@ class Store(Set):
             self,
             lexemes: Iterable[Lexeme]
     ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
-        raise MustBeImplementedInSubclass
+        raise self._must_be_implemented_in_subclass()

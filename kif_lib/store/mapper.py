@@ -4,7 +4,6 @@
 import logging
 from collections.abc import Iterable
 
-from ..error import ShouldNotGetHere
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -79,7 +78,7 @@ class SPARQL_MapperStore(
                             q, q.matched_subject, pat.subject.snak_set):
                         return q  # impossible condition
                 else:
-                    raise ShouldNotGetHere
+                    raise self._should_not_get_here()
             value: Optional[Value] = None
             if pat.value is not None:
                 if pat.value.value is not None:
@@ -94,7 +93,7 @@ class SPARQL_MapperStore(
                             q, q.matched_value, pat.value.snak_set):
                         return q  # impossible condition
                 else:
-                    raise ShouldNotGetHere
+                    raise self._should_not_get_here()
             with q.union() as cup:
                 for property, entry in self.mapping.items():
                     if pat.property is not None:

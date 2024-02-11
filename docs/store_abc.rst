@@ -1,9 +1,11 @@
-=========
-Store API
-=========
+===
+API
+===
 
 .. currentmodule:: kif_lib
 
+Store
+-----
 .. autosummary::
    :toctree: generated/
 

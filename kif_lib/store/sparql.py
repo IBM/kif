@@ -11,7 +11,6 @@ from rdflib.plugins.sparql import prepareQuery
 from rdflib.plugins.sparql.sparql import Query
 
 from .. import namespace as NS
-from ..error import ShouldNotGetHere
 from ..itertools import chain, starmap
 from ..model import (
     AnnotationRecord,
@@ -396,7 +395,7 @@ At line {line}, column {column}:
                         yield None  # pragma: no cover
                         continue    # pragma: no cover
                 else:
-                    raise ShouldNotGetHere
+                    raise self._should_not_get_here()
             # Success.
             yield stmt
 
@@ -609,7 +608,7 @@ At line {line}, column {column}:
                     if tm.calendar is not None:
                         tm_calendar = tm.calendar
                 else:
-                    raise ShouldNotGetHere
+                    raise self._should_not_get_here()
         values.push(
             i, subj, prop, pname, p, ps, psv, wdno, val,
             qt_amount, qt_unit, qt_lower, qt_upper,
@@ -701,7 +700,7 @@ At line {line}, column {column}:
                     (subj, self.p[pname], wds),
                     (wds, self.rdf.type, self.wdno[pname]))
             else:
-                raise ShouldNotGetHere
+                raise self._should_not_get_here()
         return q
 
     def _push_some_value_filter(
@@ -1150,7 +1149,7 @@ At line {line}, column {column}:
                 entity = entry.check_property('subject')
                 dt = entry.check_datatype('datatype')
             else:
-                raise ShouldNotGetHere
+                raise self._should_not_get_here()
             if 'label' in entry:
                 yield entity, entry.check_text('label'), None, None, dt
             elif 'alias' in entry:

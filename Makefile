@@ -226,17 +226,15 @@ gen-coveragerc:
 	@echo '[report]' >${COVERAGERC}
 	@echo 'omit = ${COVERAGERC_OMIT}' >>${COVERAGERC}
 	@echo 'exclude_lines =' >>${COVERAGERC}
-	@echo '    pragma: no cover' >>${COVERAGERC}
+	@echo '    @(abc\.)?abstractmethod' >>${COVERAGERC}
+	@echo '    class .*\\bProtocol\):' >>${COVERAGERC}
 	@echo '    def __repr__' >>${COVERAGERC}
 	@echo '    def __str__' >>${COVERAGERC}
-	@echo '    raise AssertionError' >>${COVERAGERC}
-	@echo '    raise NotImplementedError' >>${COVERAGERC}
 	@echo '    if 0:' >>${COVERAGERC}
 	@echo '    if __name__ == .__main__.:' >>${COVERAGERC}
-	@echo '    class .*\\bProtocol\):' >>${COVERAGERC}
-	@echo '    @(abc\.)?abstractmethod' >>${COVERAGERC}
-	@echo '    should_not_get_here' >>${COVERAGERC}
-	@echo '    ShouldNotGetHere' >>${COVERAGERC}
+	@echo '    pragma: no cover' >>${COVERAGERC}
+	@echo '    raise AssertionError' >>${COVERAGERC}
+	@echo '    raise NotImplementedError' >>${COVERAGERC}
 	@echo "$(call split,${COVERAGERC_EXCLUDE_LINES})" >>${COVERAGERC}
 
 # generate .flake8rc

@@ -103,7 +103,7 @@ class PlainDescriptor(Descriptor):
         elif i == 3:
             return self._preprocess_optional_arg_text(arg, i)
         else:
-            return self._should_not_get_here()
+            raise self._should_not_get_here()
 
     @property
     def label(self) -> Optional[Text]:
@@ -249,7 +249,7 @@ class LexemeDescriptor(Descriptor):
         elif i == 3:
             return self._preprocess_arg_item(arg, i)
         else:
-            return self._should_not_get_here()
+            raise self._should_not_get_here()
 
     @property
     def lemma(self) -> Text:

@@ -227,7 +227,7 @@ class Value(KIF_Object):
         elif isinstance(node, URIRef):
             return cast(URIRef, node).n3()
         else:
-            self._should_not_get_here()
+            raise self._should_not_get_here()
 
     @classmethod
     def _from_rdflib(

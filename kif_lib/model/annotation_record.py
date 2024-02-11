@@ -34,7 +34,7 @@ class AnnotationRecord(KIF_Object):
         elif i == 3:
             return self._preprocess_optional_arg_rank(arg, i, Normal)
         else:
-            return self._should_not_get_here()
+            raise self._should_not_get_here()
 
     @property
     def qualifiers(self) -> SnakSet:

@@ -3,7 +3,7 @@ Store
 =====
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    store_abc
    store_plugins

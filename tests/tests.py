@@ -50,7 +50,6 @@ from kif_lib import (
     SomeValueSnak,
     Statement,
     Store,
-    StoreError,
     String,
     StringDatatype,
     Text,
@@ -758,7 +757,7 @@ class kif_StoreTestCase(kif_TestCase):
 
     def store_test__error(self, kb):
         err = Store._error('x')
-        self.assertIsInstance(err, StoreError)
+        self.assertIsInstance(err, Store.Error)
         self.assertEqual(str(err), 'x')
 
     # -- contains --

@@ -1101,14 +1101,16 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         Returns:
            A new :class:`MustBeImplementedInSubclass` error.
         """
-        if details:
+        if details is not None:
             return MustBeImplementedInSubclass(details)
         else:
             return MustBeImplementedInSubclass()
 
     @classmethod
     def _should_not_get_here(
-            cls, details: Optional[str] = None) -> ShouldNotGetHere:
+            cls,
+            details: Optional[str] = None
+    ) -> ShouldNotGetHere:
         """Makes a "should not get here" error.
 
         Parameters:
@@ -1117,7 +1119,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         Returns:
            A new :class:`ShouldNotGetHere` error.
         """
-        if details:
+        if details is not None:
             return ShouldNotGetHere(details)
         else:
             return ShouldNotGetHere()

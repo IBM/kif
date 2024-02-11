@@ -17,7 +17,6 @@ from kif_lib import (
     SomeValueSnak,
     Statement,
     Store,
-    StoreError,
     String,
     Text,
     Time,
@@ -40,7 +39,7 @@ class TestRDF_Store(kif_StoreTestCase):
         # bad argument: directory
         self.assertRaises(IsADirectoryError, Store, 'rdf', '.')
         # bad argument: unknown format
-        self.assertRaises(StoreError, Store, 'rdf', data='x')
+        self.assertRaises(Store.Error, Store, 'rdf', data='x')
         # bad argument: syntax error
         self.assertRaises(SyntaxError, Store, 'rdf', data='x', format='ttl')
         # bad argument: mutually exclusive

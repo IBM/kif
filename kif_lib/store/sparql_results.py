@@ -7,7 +7,6 @@ import json
 from rdflib import BNode, Literal, URIRef
 
 from .. import namespace as NS
-from ..error import ShouldNotGetHere
 from ..model import (
     Datatype,
     Datetime,
@@ -30,7 +29,7 @@ from ..model import (
     ValueSnak,
 )
 from ..typing import Any, cast, Mapping, Optional, Union
-from .abc import StoreError
+from .abc import Store
 
 # See <https://www.w3.org/TR/sparql11-results-json/>.
 
@@ -56,15 +55,15 @@ class Bindings(Mapping):
     def __len__(self):
         return len(self._bindings)
 
-    def _error(self, msg: str) -> StoreError:
-        return StoreError(f'bad SPARQL results: {msg}')
+    def _error(self, msg: str) -> Store.Error:
+        return Store._error(f'bad SPARQL results: {msg}')
 
     def _error_bad(
             self,
             var: str,
             expected: Optional[str] = None,
             got: Optional[str] = None
-    ) -> StoreError:
+    ) -> Store.Error:
         msg = f"bad value for '{var}'"
         if expected and got:
             return self._error(f"{msg} (expected {expected}, got {got})")
@@ -73,7 +72,7 @@ class Bindings(Mapping):
         else:
             return self._error(msg)
 
-    def _error_missing(self, var: str) -> StoreError:
+    def _error_missing(self, var: str) -> Store.Error:
         return self._error(f"missing '{var}'")
 
     # -- RDFLib checks -----------------------------------------------------
@@ -359,7 +358,7 @@ class Bindings(Mapping):
                         var_tm_timezone, var_tm_calendar,
                         cast(Time, value)))
                 else:
-                    raise ShouldNotGetHere
+                    raise Store._should_not_get_here()
             else:
                 return ValueSnak(property, value)
         else:
@@ -390,7 +389,7 @@ class Bindings(Mapping):
             elif isinstance(val, Literal):
                 return ValueSnak(property, Value._from_rdflib(val))
             else:
-                raise ShouldNotGetHere
+                raise Store._should_not_get_here()
 
     def check_statement(
             self,
@@ -432,7 +431,7 @@ class Bindings(Mapping):
         elif isinstance(dt, date):
             return Datetime.combine(dt, time())
         else:
-            raise ShouldNotGetHere
+            raise Store._should_not_get_here()
 
     def check_decimal(self, var: str) -> Decimal:
         val = self.check_literal(var)
@@ -483,7 +482,7 @@ class SPARQL_Results(Mapping):
             format='txt', namespace_manager=NS._DEFAULT_NSM).decode('utf-8')
 
     def _error(self, msg):
-        return StoreError(f'bad SPARQL results: {msg}')
+        return Store._error(f'bad SPARQL results: {msg}')
 
     @property
     def vars(self):

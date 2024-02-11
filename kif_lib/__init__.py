@@ -64,7 +64,7 @@ from .model import (
     ValueSet,
     ValueSnak,
 )
-from .store import Store, StoreError
+from .store import Store
 
 __version__ = '0.3'
 

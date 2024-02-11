@@ -93,7 +93,7 @@ class FilterPattern(Pattern):
             return Snak._preprocess_optional_arg_snak_mask(
                 arg, i, Snak.ALL).value
         else:
-            self._should_not_get_here()
+            raise self._should_not_get_here()
 
     @at_property
     def subject(self) -> Optional[EntityFingerprint]:
