@@ -16,22 +16,21 @@ from .kif_object import KIF_Object
 from .snak import Snak, ValueSnak
 from .statement import Statement
 
+at_property = property
+
 
 class Pattern(KIF_Object):
     """Abstract base class for patterns."""
-
-
-at_property = property
 
 
 class FilterPattern(Pattern):
     """Filter pattern.
 
     Parameters:
-       arg1: Entity fingerprint.
-       arg2: Property fingerprint.
-       arg3: Fingerprint.
-       arg4: Snak mask.
+       subject: Entity fingerprint.
+       property: Property fingerprint.
+       value: Fingerprint.
+       snak_mask: Snak mask.
     """
 
     @classmethod
@@ -43,11 +42,11 @@ class FilterPattern(Pattern):
         """Creates filter pattern from snak.
 
         Parameters:
-           subject: Entity fingerprint.
+           subject_pattern: Entity fingerprint.
            snak: Snak.
 
         Returns:
-           The resulting filter pattern.
+           Filter pattern.
         """
         if snak is None:
             property = None
@@ -70,18 +69,18 @@ class FilterPattern(Pattern):
            stmt: Statement.
 
         Returns:
-           The resulting filter pattern.
+           Filter pattern.
         """
         return cls.from_snak(stmt.subject, stmt.snak)
 
     def __init__(
             self,
-            arg1: Optional[TEntityFingerprint] = None,
-            arg2: Optional[TPropertyFingerprint] = None,
-            arg3: Optional[TFingerprint] = None,
-            arg4: Optional[Snak.TMask] = None
+            subject: Optional[TEntityFingerprint] = None,
+            property: Optional[TPropertyFingerprint] = None,
+            value: Optional[TFingerprint] = None,
+            snak_mask: Optional[Snak.TMask] = None
     ):
-        super().__init__(arg1, arg2, arg3, arg4)
+        super().__init__(subject, property, value, snak_mask)
 
     def _preprocess_arg(self, arg, i):
         if i == 1:
@@ -98,44 +97,44 @@ class FilterPattern(Pattern):
 
     @at_property
     def subject(self) -> Optional[EntityFingerprint]:
-        """Filter pattern subject."""
+        """The subject of filter pattern."""
         return self.get_subject()
 
     def get_subject(
             self,
             default: Optional[EntityFingerprint] = None
     ) -> Optional[EntityFingerprint]:
-        """Gets filter pattern subject.
+        """Gets the subject of filter pattern.
 
-        If filter pattern subject is ``None``, returns `default`.
+        If the subject is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default subject.
 
         Returns:
-           Filter pattern subject or `default` (pattern has no subject).
+           Entity fingerprint.
         """
         subj = self.args[0]
         return subj if subj is not None else default
 
     @at_property
     def property(self) -> Optional[PropertyFingerprint]:
-        """Filter pattern property."""
+        """The property of filter pattern."""
         return self.get_property()
 
     def get_property(
             self,
             default: Optional[PropertyFingerprint] = None
     ) -> Optional[PropertyFingerprint]:
-        """Gets filter pattern property.
+        """Gets the property of filter pattern.
 
-        If filter pattern property is ``None``, returns `default`.
+        If the property is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default property.
 
         Returns:
-           Filter pattern property or `default` (pattern has no property).
+           Property fingerprint.
         """
         prop = self.args[1]
         return prop if prop is not None else default
@@ -149,29 +148,29 @@ class FilterPattern(Pattern):
             self,
             default: Optional[Fingerprint] = None
     ) -> Optional[Fingerprint]:
-        """Gets filter pattern value.
+        """Gets the value of filter pattern.
 
-        If filter pattern value is ``None``, returns `default`.
+        If the value is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default value.
 
         Returns:
-           Filter pattern value or `default` (pattern has no value).
+           Fingerprint.
         """
         val = self.args[2]
         return val if val is not None else default
 
     @at_property
     def snak_mask(self) -> Snak.Mask:
-        """Filter pattern snak mask."""
+        """The snak mask of filter pattern."""
         return self.get_snak_mask()
 
     def get_snak_mask(self) -> Snak.Mask:
-        """Gets filter pattern snak mask.
+        """Gets the snak mask of filter pattern.
 
         Returns:
-           Filter pattern snak mask.
+           Snak mask.
         """
         return Snak.Mask(self.args[3])
 

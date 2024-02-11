@@ -693,7 +693,7 @@ class Quantity(DeepDataValue):
     ) -> Optional[Item]:
         """Gets the unit of quantity.
 
-        If the unit attribute is ``None``, returns `default`.
+        If the unit is ``None``, returns `default`.
 
         Parameters:
            default: Default unit.
@@ -715,10 +715,10 @@ class Quantity(DeepDataValue):
     ) -> Optional[Decimal]:
         """Gets the lower bound of quantity.
 
-        If the lower bound attribute is ``None``, returns `default`.
+        If the lower bound is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default lower bound.
 
         Returns:
            Lower bound.
@@ -737,10 +737,10 @@ class Quantity(DeepDataValue):
     ) -> Optional[Decimal]:
         """Gets the upper bound of quantity.
 
-        If the upper bound attribute is ``None``, returns `default`.
+        If the upper bound is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default upper bound.
 
         Returns:
            Upper bound.
@@ -959,10 +959,10 @@ class Time(DeepDataValue):
     ) -> Optional[Precision]:
         """Gets the precision of time.
 
-        If the precision attribute is ``None``, returns `default`.
+        If the precision is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default precision.
 
         Returns:
            Precision.
@@ -981,10 +981,10 @@ class Time(DeepDataValue):
     ) -> Optional[int]:
         """Gets the timezone of time.
 
-        If the timezone attribute is ``None``, returns `default`.
+        If the timezone is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default timezone.
 
         Returns:
            Timezone.
@@ -1003,10 +1003,10 @@ class Time(DeepDataValue):
     ) -> Optional[Item]:
         """Gets calendar model of time.
 
-        If the calendar model attribute is ``None``, returns `default`.
+        If the calendar model is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default calendar model.
 
         Returns:
            Calendar model.

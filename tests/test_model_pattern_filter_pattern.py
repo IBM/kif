@@ -90,6 +90,7 @@ class TestFilterPattern(kif_TestCase):
     def test_is_empty(self):
         self.assertFalse(FilterPattern().is_empty())
         self.assertTrue(FilterPattern().is_nonempty())
+        self.assertTrue(FilterPattern().is_full())
         self.assertTrue(FilterPattern(None, None, None, 0).is_empty())
         self.assertFalse(FilterPattern(None, None, None, 0).is_nonempty())
         pat = FilterPattern(None, None, IRI('x'), Snak.SOME_VALUE_SNAK)
@@ -98,6 +99,10 @@ class TestFilterPattern(kif_TestCase):
         pat = FilterPattern(None, None, IRI('x'), Snak.NO_VALUE_SNAK)
         self.assertTrue(pat.is_empty())
         self.assertFalse(pat.is_nonempty())
+
+    def test_is_full(self):
+        self.assertTrue(FilterPattern().is_full())
+        self.assertFalse(FilterPattern().is_nonfull())
 
     def test_combine(self):
         # bad argument

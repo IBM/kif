@@ -28,6 +28,7 @@ Value
 .. autosummary::
    :toctree: generated/
 
+   Value
    Value.mask
    Value.value
    Value.n3
@@ -97,6 +98,7 @@ ShallowDataValue
    :toctree: generated/
 
    ShallowDataValue
+   ShallowDataValue.content
 
 IRI
 ~~~

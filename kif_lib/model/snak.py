@@ -11,7 +11,7 @@ at_property = property
 
 
 class Snak(KIF_Object):
-    """Abstract base class for snak types."""
+    """Abstract base class for snaks."""
 
     class Mask(Flag):
         """Mask for concrete snak classes."""

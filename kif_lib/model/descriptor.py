@@ -116,7 +116,7 @@ class PlainDescriptor(Descriptor):
     ) -> Optional[Text]:
         """Gets the label of plain descriptor.
 
-        If the label attribute is ``None``, returns `default`.
+        If the label is ``None``, returns `default`.
 
         Parameters:
            default: Default label.
@@ -151,7 +151,7 @@ class PlainDescriptor(Descriptor):
     ) -> Optional[Text]:
         """Gets the description of plain descriptor.
 
-        If the description attribute is ``None``, returns `default`.
+        If the description is ``None``, returns `default`.
 
         Parameters:
            default: Default description.
@@ -217,7 +217,7 @@ class PropertyDescriptor(PlainDescriptor):
     ) -> Optional[Datatype]:
         """Gets the datatype of property descriptor.
 
-        If the datatype attribute is ``None``, returns `default`.
+        If the datatype is ``None``, returns `default`.
 
         Parameters:
            default: Default datatype.
