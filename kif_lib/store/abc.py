@@ -55,7 +55,7 @@ class Store(Set):
        store_name: Store plugin to instantiate.
        args: Arguments to store plugin.
        flags: Store flags.
-       page_size: Maximum size of result pages.
+       page_size: Size of paginated responses.
        timeout: Timeout in seconds.
        kwargs: Keyword arguments to store plugin.
     """
@@ -376,14 +376,14 @@ class Store(Set):
     _page_size: Optional[int]
 
     #: The default page size.
-    _default_page_size: Final[int] = 100
+    default_page_size: Final[int] = 100
 
-    #: The maximum page size.
-    _maximum_page_size: Final[int] = sys.maxsize
+    #: The maximum page size (absolute upper limit).
+    maximum_page_size: Final[int] = sys.maxsize
 
     @property
     def page_size(self) -> int:
-        """Response page size."""
+        """The page size of paginated responses."""
         return self.get_page_size()
 
     @page_size.setter
@@ -392,33 +392,44 @@ class Store(Set):
 
     def get_page_size(
             self,
-            default: int = 100
+            default: int = default_page_size
     ) -> int:
-        """Gets response page size.
+        """Gets the page size of paginated responses.
 
-        If no page size is set, returns `default`.
+        If page size is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default page size.
 
         Returns:
-           Response page size.
+           Page size.
         """
-        return self._page_size or default
+        return self._page_size if self._page_size is not None else default
 
     def set_page_size(
             self,
             page_size: Optional[int] = None
     ):
-        """Sets response page size.
+        """Sets the page size of paginated responses.
+
+        If `page_size` is negative, assumes ``None``.
 
         Parameters:
            page_size: Page size.
         """
-        self._page_size = KIF_Object._check_optional_arg_int(
+        page_size = KIF_Object._check_optional_arg_int(
             page_size, None, self.set_page_size, 'page_size', 1)
+        if page_size is None or page_size < 0:
+            self._page_size = None
+        else:
+            self._page_size = page_size
 
     def _batched(self, it: Iterable[T]) -> Iterable[tuple[T, ...]]:
+        """Batches `it` into tuples of page-size length.
+
+        Returns:
+           The tuple batches.
+        """
         return batched(it, self.page_size)
 
     # -- Timeout -----------------------------------------------------------
@@ -602,12 +613,6 @@ class Store(Set):
         return cast(FilterPattern, pat.replace(
             None, None, None, pat.snak_mask & store_snak_mask))
 
-    def _check_filter_limit(self, limit: Optional[int]) -> int:
-        if limit is None:
-            return sys.maxsize
-        else:
-            return max(limit, 0)
-
     def filter(
             self,
             subject: Optional[TEntityFingerprint] = None,
@@ -663,7 +668,10 @@ class Store(Set):
             pattern: FilterPattern,
             limit: Optional[int]
     ) -> Iterator[Statement]:
-        limit = self._check_filter_limit(limit)
+        if limit is None:
+            limit = self.maximum_page_size
+        else:
+            limit = max(limit, 0)
         if limit > 0 and pattern.is_nonempty():
             return self._filter(pattern, limit=limit)
         else:

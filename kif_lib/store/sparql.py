@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-import sys
 
 import requests
 import requests.exceptions
@@ -135,7 +134,7 @@ class SPARQL_Store(Store, name='sparql', description='SPARQL endpoint'):
             self,
             query: SPARQL_Builder,
             parse_results_fn: Callable[[Graph], Iterator[Optional[T]]],
-            limit: int = sys.maxsize,
+            limit: int = Store.maximum_page_size,
             trim: bool = False
     ) -> Iterator[T]:
         def eval_fn(
@@ -154,7 +153,7 @@ class SPARQL_Store(Store, name='sparql', description='SPARQL endpoint'):
                 [SPARQL_Results], Iterator[Optional[T]]],
             vars: Collection[Union[TTrm, tuple[TTrm, TTrm]]] = [],
             order_by: Optional[TTrm] = None,
-            limit: int = sys.maxsize,
+            limit: int = Store.maximum_page_size,
             trim: bool = False
     ) -> Iterator[T]:
         def eval_fn(
@@ -173,7 +172,7 @@ class SPARQL_Store(Store, name='sparql', description='SPARQL endpoint'):
             query: SPARQL_Builder,
             eval_fn: Callable[
                 [Optional[int], Optional[int]], Iterator[Optional[T]]],
-            limit: int = sys.maxsize,
+            limit: int = Store.maximum_page_size,
             trim: bool = False,
             page_size: Optional[int] = None,
             offset: Optional[int] = None

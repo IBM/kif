@@ -10,6 +10,7 @@ Store
    :toctree: generated/
 
    Store
+   Store.page_size
 
 Flags
 -----

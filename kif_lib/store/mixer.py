@@ -1,8 +1,6 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import sys
-
 from ..itertools import batched, cycle
 from ..model import AnnotationRecordSet, FilterPattern, KIF_Object, Statement
 from ..typing import (
@@ -110,7 +108,7 @@ class MixerStore(Store, name='mixer', description='Mixer store'):
     def _filter_mixed(
             self,
             its: Collection[Iterator[T]],
-            limit: int = sys.maxsize
+            limit: int = Store.maximum_page_size
     ) -> Iterator[T]:
         cyc = cycle(its)
         exausted: set[Iterator[T]] = set()

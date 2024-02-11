@@ -41,6 +41,15 @@ Caching
    Store._cache_get_occurrence
    Store._cache_set_occurrence
 
+Pagination
+~~~~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   Store.default_page_size
+   Store.maximum_page_size
+   Store._batched
+
 Built-in stores
 ---------------
 

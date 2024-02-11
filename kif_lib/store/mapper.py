@@ -28,6 +28,13 @@ TTrm = SPARQL_Builder.TTrm
 class SPARQL_MapperStore(
         SPARQL_Store, name='sparql-mapper',
         description='SPARQL endpoint mapper'):
+    """SPARQL mapper store.
+
+    Parameters:
+       store_name: Store plugin to instantiate.
+       iri: SPARQL endpoint IRI.
+       mapping: SPARQL mapping.
+    """
 
     _mapping: SPARQL_Mapping
 
