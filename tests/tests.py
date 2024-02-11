@@ -618,7 +618,7 @@ class kif_TestCase(TestCase):
 
     def store_sanity_checks(self, kb):
         self.assert_raises_bad_argument(
-            ValueError, 1, 'store_type', None, Store, 'xxx')
+            ValueError, 1, 'store_name', None, Store, 'xxx')
         # extra references
         self.store_test_extra_references(kb)
         # flags

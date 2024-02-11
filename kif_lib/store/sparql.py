@@ -67,11 +67,11 @@ TOpq = Union[BNode, URIRef]
 TTrm = SPARQL_Builder.TTrm
 
 
-class SPARQL_Store(Store, type='sparql', description='SPARQL endpoint'):
+class SPARQL_Store(Store, name='sparql', description='SPARQL endpoint'):
     """SPARQL store.
 
     Parameters:
-       store_type: Type of concrete store to instantiate.
+       store_name: Store plugin to instantiate.
        iri: SPARQL endpoint IRI.
     """
 
@@ -99,12 +99,8 @@ class SPARQL_Store(Store, type='sparql', description='SPARQL endpoint'):
 
     _iri: IRI
 
-    def __init__(
-            self,
-            store_type: str,
-            iri: Union[IRI, str],
-            **kwargs: Any):
-        assert store_type == self.store_type
+    def __init__(self, store_name: str, iri: Union[IRI, str], **kwargs: Any):
+        assert store_name == self.store_name
         super().__init__(**kwargs)
         self._iri = IRI(iri)
 

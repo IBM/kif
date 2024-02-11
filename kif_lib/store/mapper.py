@@ -27,20 +27,20 @@ TTrm = SPARQL_Builder.TTrm
 
 
 class SPARQL_MapperStore(
-        SPARQL_Store, type='sparql-mapper',
+        SPARQL_Store, name='sparql-mapper',
         description='SPARQL endpoint mapper'):
 
     _mapping: SPARQL_Mapping
 
     def __init__(
             self,
-            store_type: str,
+            store_name: str,
             iri: Union[IRI, str],
             mapping: SPARQL_Mapping,
             **kwargs: Any
     ):
-        assert store_type == self.store_type
-        super().__init__(store_type, iri, **kwargs)
+        assert store_name == self.store_name
+        super().__init__(store_name, iri, **kwargs)
         self._mapping = mapping
 
     @property

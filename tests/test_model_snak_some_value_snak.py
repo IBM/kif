@@ -9,9 +9,17 @@ from .tests import kif_TestCase, main
 class TestSomeValueSnak(kif_TestCase):
 
     def test__init__(self):
-        self.assertRaises(TypeError, SomeValueSnak, 0)
-        self.assertRaises(TypeError, SomeValueSnak, 'abc')
-        self.assertRaises(TypeError, SomeValueSnak, String('abc'))
+        # bad argument
+        self.assert_raises_bad_argument(
+            TypeError, 1, None, 'expected Property, got int',
+            SomeValueSnak, 0)
+        self.assert_raises_bad_argument(
+            TypeError, 1, None, 'expected Property, got str',
+            SomeValueSnak, 'abc')
+        self.assert_raises_bad_argument(
+            TypeError, 1, None, 'expected Property, got String',
+            SomeValueSnak, String('abc'))
+        # good argument
         self.assert_some_value_snak(
             SomeValueSnak(Property('abc')), Property(IRI('abc')))
         self.assert_some_value_snak(

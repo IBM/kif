@@ -96,7 +96,7 @@ class Store(Set):
     """Store factory.
 
     Parameters:
-       store_type: Type of concrete store to instantiate.
+       store_name: Store plugin to instantiate.
        args: Arguments to concrete store.
        flags: Configuration flags.
        namespaces: Namespaces.
@@ -105,35 +105,35 @@ class Store(Set):
        kwargs: Keyword arguments to concrete store.
     """
 
+    #: Store plugin registry.
     registry: dict[str, type['Store']] = dict()
-    store_type: str
+
+    #: The name of store plugin.
+    store_name: str
+
+    #: The description of store plugin.
     store_description: str
 
     @classmethod
-    def _register(cls, store: type['Store'], type: str, description: str):
-        store.store_type = type
+    def _register(cls, store: type['Store'], name: str, description: str):
+        store.store_name = name
         store.store_description = description
-        cls.registry[store.store_type] = store
+        cls.registry[store.store_name] = store
 
     @classmethod
-    def __init_subclass__(cls, type: str, description: str):
-        Store._register(cls, type, description)
+    def __init_subclass__(cls, name: str, description: str):
+        Store._register(cls, name, description)
 
     @classmethod
     def _error(cls, msg: str) -> StoreError:
         return StoreError(msg)
 
-    # @classmethod
-    # def _generate_serial_number(cls) -> str:
-    #     from uuid import uuid4
-    #     return uuid4().hex
-
-    def __new__(cls, store_type: str, *args: Any, **kwargs: Any):
+    def __new__(cls, store_name: str, *args: Any, **kwargs: Any):
         KIF_Object._check_arg(
-            store_type, store_type in cls.registry,
-            f"no such store type '{store_type}'",
-            Store, 'store_type', 1, ValueError)
-        return super(Store, cls).__new__(cls.registry[store_type])
+            store_name, store_name in cls.registry,
+            f"no such store plugin '{store_name}'",
+            Store, 'store_name', 1, ValueError)
+        return super(Store, cls).__new__(cls.registry[store_name])
 
     __slots__ = (
         '_cache',

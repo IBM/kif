@@ -8,7 +8,7 @@ from ..typing import Iterator, Optional
 from .abc import Store
 
 
-class EmptyStore(Store, type='empty', description='Empty store'):
+class EmptyStore(Store, name='empty', description='Empty store'):
     """Empty store."""
 
     def _contains(self, pattern: FilterPattern) -> bool:

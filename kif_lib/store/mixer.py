@@ -21,11 +21,11 @@ T = TypeVar('T')
 S = TypeVar('S')
 
 
-class MixerStore(Store, type='mixer', description='Mixer store'):
+class MixerStore(Store, name='mixer', description='Mixer store'):
     """Mixer store.
 
     Parameters:
-       store_type: Type of concrete store to instantiate.
+       store_name: Store plugin to instantiate.
        sources: Sources to mix.
        sync_flags: Whether to sync flags.
     """
@@ -40,12 +40,12 @@ class MixerStore(Store, type='mixer', description='Mixer store'):
 
     def __init__(
             self,
-            store_type: str,
+            store_name: str,
             sources: Iterable[Store] = [],
             sync_flags: bool = True,
             **kwargs: Any
     ):
-        assert store_type == self.store_type
+        assert store_name == self.store_name
         super().__init__(**kwargs)
         self._init_sources(sources)
         self._sync_flags = sync_flags
