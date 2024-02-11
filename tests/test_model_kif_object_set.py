@@ -6,7 +6,7 @@ from kif_lib import IRI, KIF_Object, KIF_ObjectSet, NoValueSnak, Property
 from .tests import kif_TestCase, main
 
 
-class TestModelKIF_ObjectSet(kif_TestCase):
+class TestKIF_ObjectSet(kif_TestCase):
 
     def test__preprocess_arg_kif_object_set(self):
         s = KIF_ObjectSet(Property('p'), Property('q')(IRI('x')))

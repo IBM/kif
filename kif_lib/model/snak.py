@@ -65,8 +65,7 @@ class Snak(KIF_Object):
         if arg is None:
             return default
         else:
-            return cls._check_arg_snak_mask(
-                arg, function, name, position)
+            return cls._check_arg_snak_mask(arg, function, name, position)
 
     @classmethod
     def _preprocess_arg_snak_mask(
@@ -90,8 +89,17 @@ class Snak(KIF_Object):
         else:
             return cls._preprocess_arg_snak_mask(arg, i, function)
 
-    #: The mask of this snak class.
-    snak_mask: Mask = Mask.ALL
+    #: Mask of this snak class.
+    mask: Mask = Mask.ALL
+
+    @classmethod
+    def get_mask(cls) -> Mask:
+        """Gets the mask of this snak class.
+
+        Returns:
+           Mask
+        """
+        return cls.mask
 
     @property
     def property(self) -> Property:
@@ -115,7 +123,7 @@ class ValueSnak(Snak):
        value: Value.
     """
 
-    snak_mask = Snak.VALUE_SNAK
+    mask: Snak.Mask = Snak.VALUE_SNAK
 
     def __init__(self, property: Property, value: Value):
         return super().__init__(property, value)
@@ -149,7 +157,7 @@ class SomeValueSnak(Snak):
        property: Property.
     """
 
-    snak_mask = Snak.SOME_VALUE_SNAK
+    mask: Snak.Mask = Snak.SOME_VALUE_SNAK
 
     def __init__(self, property: Property):
         return super().__init__(property)
@@ -168,7 +176,7 @@ class NoValueSnak(Snak):
        property: Property.
     """
 
-    snak_mask = Snak.NO_VALUE_SNAK
+    mask: Snak.Mask = Snak.NO_VALUE_SNAK
 
     def __init__(self, property: Property):
         return super().__init__(property)

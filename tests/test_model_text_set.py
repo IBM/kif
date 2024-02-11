@@ -6,7 +6,7 @@ from kif_lib import KIF_Object, Property, Text, TextSet
 from .tests import kif_TestCase, main
 
 
-class TestModelTextSet(kif_TestCase):
+class TestTextSet(kif_TestCase):
 
     def test__preprocess_arg_text_set(self):
         tset = TextSet(Text('a'), Text('b'))

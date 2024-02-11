@@ -4,9 +4,22 @@ Value
 
 .. currentmodule:: kif_lib
 
-.. inheritance-diagram:: Value Entity Item Property Lexeme DataValue IRI Text
-                         String ExternalId DeepDataValue Quantity Time
-   :top-classes: kif_lib.model.value.Value
+.. inheritance-diagram:: KIF_Object
+                         DataValue
+                         DeepDataValue
+                         Entity
+                         ExternalId
+                         IRI
+                         Item
+                         Lexeme
+                         Property
+                         Quantity
+                         ShallowDataValue
+                         String
+                         Text
+                         Time
+                         Value
+   :top-classes: kif_lib.model.kif_object.KIF_Object
    :parts: -3
    :caption: Value hierarchy.
 
@@ -16,11 +29,29 @@ Value
 .. autosummary::
    :toctree: generated/
 
-   Value
-   Value.get_datatype
+   Value.mask
    Value.value
-   Value.get_value
    Value.n3
+
+Mask
+~~~~
+.. autosummary::
+   :toctree: generated/
+
+   Value.ITEM
+   Value.PROPERTY
+   Value.LEXEME
+   Value.IRI
+   Value.TEXT
+   Value.STRING
+   Value.EXTERNAL_ID
+   Value.QUANTITY
+   Value.TIME
+   Value.ENTITY
+   Value.SHALLOW_DATA_VALUE
+   Value.DEEP_DATA_VALUE
+   Value.DATA_VALUE
+   Value.ALL
 
 Entity
 ------
@@ -30,7 +61,6 @@ Entity
 
    Entity
    Entity.iri
-   Entity.get_iri
 
 Item
 ~~~~
@@ -39,7 +69,6 @@ Item
    :toctree: generated/
 
    Item
-   Item.datatype
    Items
 
 Property
@@ -49,7 +78,6 @@ Property
    :toctree: generated/
 
    Property
-   Property.datatype
    Properties
 
 Lexeme
@@ -59,16 +87,23 @@ Lexeme
    :toctree: generated/
 
    Lexeme
-   Lexeme.datatype
    Lexemes
 
-Data Value
-----------
+DataValue
+---------
 
 .. autosummary::
    :toctree: generated/
 
    DataValue
+
+ShallowDataValue
+----------------
+
+.. autosummary::
+   :toctree: generated/
+
+   ShallowDataValue
 
 IRI
 ~~~
@@ -77,7 +112,6 @@ IRI
    :toctree: generated/
 
    IRI
-   IRI.datatype
 
 Text
 ~~~~
@@ -86,7 +120,7 @@ Text
    :toctree: generated/
 
    Text
-   Text.datatype
+   Text.language
 
 String
 ~~~~~~
@@ -95,7 +129,6 @@ String
    :toctree: generated/
 
    String
-   String.datatype
 
 ExternalId
 ~~~~~~~~~~
@@ -104,10 +137,9 @@ ExternalId
    :toctree: generated/
 
    ExternalId
-   ExternalId.datatype
 
-Deep Data Value
----------------
+DeepDataValue
+-------------
 
 .. autosummary::
    :toctree: generated/
@@ -121,15 +153,10 @@ Quantity
    :toctree: generated/
 
    Quantity
-   Quantity.datatype
    Quantity.amount
-   Quantity.get_amount
    Quantity.unit
-   Quantity.get_unit
    Quantity.lower_bound
-   Quantity.get_lower_bound
    Quantity.upper_bound
-   Quantity.get_upper_bound
 
 Time
 ~~~~
@@ -138,12 +165,29 @@ Time
    :toctree: generated/
 
    Time
-   Time.datatype
    Time.time
-   Time.get_time
    Time.precision
-   Time.get_precision
    Time.timezone
-   Time.get_timezone
    Time.calendar_model
-   Time.get_calendar_model
+
+Precision
+"""""""""
+
+.. autosummary::
+   :toctree: generated/
+
+   Time.BILLION_YEARS
+   Time.HUNDRED_MILLION_YEARS
+   Time.TEN_MILLION_YEARS
+   Time.MILLION_YEARS
+   Time.HUNDRED_MILLION_YEARS
+   Time.TEN_THOUSAND_YEARS
+   Time.MILLENNIA
+   Time.CENTURY
+   Time.DECADE
+   Time.YEAR
+   Time.MONTH
+   Time.DAY
+   Time.HOUR
+   Time.MINUTE
+   Time.SECOND

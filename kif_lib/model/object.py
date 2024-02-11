@@ -96,7 +96,7 @@ class ObjectMeta(abc.ABCMeta):
     def _init(mcls, cls, name, bases, namespace, **kwargs):
         mcls._object_subclasses[name] = cls
         top = mcls._object_class or cls
-        setattr(top, name, cls)
+        setattr(top, '_' + name, cls)
         cls._snake_case_name = top._camel2snake(name)
         mcls._init_test_(top, cls)
         mcls._init_check_(top, cls)
@@ -736,7 +736,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
     # -- callable --
 
     _check_arg_callable_details = (
-        lambda x: f'expected callable, got {type(x).__qualname__}')
+        lambda arg: f'expected callable, got {type(arg).__qualname__}')
 
     @classmethod
     def _check_arg_callable(
@@ -765,6 +765,10 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
 
     # -- isinstance --
 
+    _check_arg_isinstance_details = (
+        lambda arg, ty_name:
+        f'expected {ty_name}, got {type(arg).__qualname__}')
+
     @classmethod
     def _check_arg_isinstance(
             cls,
@@ -773,7 +777,8 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
             function: Optional[Union[TFun, str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
-            test=isinstance
+            test=isinstance,
+            details: Callable[[T, str], str] = _check_arg_isinstance_details
     ) -> Union[T, NoReturn]:
         if test(arg, ty):
             return arg
@@ -784,8 +789,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
                 ty_name = ' or '.join(sorted(map(
                     lambda x: x.__qualname__, ty)))
             raise Object._arg_error(
-                f'expected {ty_name}, got {type(arg).__qualname__}',
-                function, name, position, TypeError)
+                details(arg, ty_name), function, name, position, TypeError)
 
     @classmethod
     def _check_optional_arg_isinstance(
@@ -796,13 +800,50 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
             function: Optional[Union[TFun, str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
-            test=isinstance
+            test=isinstance,
+            details: Callable[[T, str], str] = _check_arg_isinstance_details
     ) -> Union[Optional[T], NoReturn]:
         if arg is None:
             return default
         else:
             return cls._check_arg_isinstance(
-                arg, ty, function, name, position, test)
+                arg, ty, function, name, position, test, details)
+
+    # -- issubclass --
+
+    _check_arg_issubclass_details = (
+        lambda arg, ty_name:
+        f'expected subclass of {ty_name}, got {arg.__qualname__}')
+
+    @classmethod
+    def _check_arg_issubclass(
+            cls,
+            arg: T,
+            ty: Union[type, tuple[type, ...]],
+            function: Optional[Union[TFun, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[T, NoReturn]:
+        cls._check_arg_isinstance(arg, type, function, name, position)
+        return cls._check_arg_isinstance(
+            arg, ty, function, name, position, issubclass,
+            cls._check_arg_issubclass_details)
+
+    @classmethod
+    def _check_optional_arg_issubclass(
+            cls,
+            arg: Optional[T],
+            ty: Union[type, tuple[type, ...]],
+            default: Optional[T] = None,
+            function: Optional[Union[TFun, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[Optional[T], NoReturn]:
+        if arg is None:
+            return default
+        else:
+            return cls._check_arg_issubclass(
+                arg, ty, function, name, position)
 
     # -- bool --
 

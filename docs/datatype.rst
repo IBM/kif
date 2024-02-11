@@ -18,7 +18,8 @@ Datatype
    :toctree: generated/
 
    Datatype
-   Datatype.value_class
+   Datatype.from_value_class
+   Datatype.to_value_class
 
 Concrete subclasses
 ~~~~~~~~~~~~~~~~~~~

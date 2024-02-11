@@ -59,7 +59,7 @@ class FilterPattern(Pattern):
                 value = cast(ValueSnak, snak).value
             else:
                 value = None
-            snak_mask = snak.snak_mask
+            snak_mask = snak.mask
         return cls(subject, property, value, snak_mask)
 
     @classmethod

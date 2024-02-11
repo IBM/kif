@@ -13,6 +13,7 @@ from kif_lib import (
     AnnotationRecordSet,
     Datatype,
     DataValue,
+    DeepDataValue,
     DeprecatedRank,
     Entity,
     EntityFingerprint,
@@ -43,6 +44,7 @@ from kif_lib import (
     Rank,
     ReferenceRecord,
     ReferenceRecordSet,
+    ShallowDataValue,
     Snak,
     SnakSet,
     SomeValueSnak,
@@ -113,11 +115,6 @@ class kif_TestCase(TestCase):
         self.assertIsInstance(obj, Datatype)
         self.assertTrue(obj.is_datatype())
 
-    def assert_datatype_value_class(self, cls, value_class, alias):
-        self.assertTrue(issubclass(cls, Datatype))
-        self.assertIs(cls.value_class, value_class)
-        self.assertIs(getattr(Datatype, alias), value_class.datatype)
-
     def assert_value(self, obj):
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Value)
@@ -140,7 +137,9 @@ class kif_TestCase(TestCase):
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Item)
         self.assertTrue(obj.is_item())
-        self.assert_item_datatype(obj.get_datatype())
+        self.assertEqual(obj.mask, Value.ITEM)
+        self.assertEqual(obj.get_mask(), Value.ITEM)
+        self.assert_item_datatype(Datatype.from_value_class(type(obj)))
 
     def assert_item_datatype(self, obj):
         self.assert_datatype(obj)
@@ -152,7 +151,9 @@ class kif_TestCase(TestCase):
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Property)
         self.assertTrue(obj.is_property())
-        self.assert_property_datatype(obj.get_datatype())
+        self.assertEqual(obj.mask, Value.PROPERTY)
+        self.assertEqual(obj.get_mask(), Value.PROPERTY)
+        self.assert_property_datatype(Datatype.from_value_class(type(obj)))
 
     def assert_property_datatype(self, obj):
         self.assert_datatype(obj)
@@ -164,7 +165,9 @@ class kif_TestCase(TestCase):
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Lexeme)
         self.assertTrue(obj.is_lexeme())
-        self.assert_lexeme_datatype(obj.get_datatype())
+        self.assertEqual(obj.mask, Value.LEXEME)
+        self.assertEqual(obj.get_mask(), Value.LEXEME)
+        self.assert_lexeme_datatype(Datatype.from_value_class(type(obj)))
 
     def assert_lexeme_datatype(self, obj):
         self.assert_datatype(obj)
@@ -177,11 +180,20 @@ class kif_TestCase(TestCase):
         self.assertIsInstance(obj, DataValue)
         self.assertTrue(obj.is_data_value())
 
-    def assert_iri(self, obj, iri):
+    def assert_shallow_data_value(self, obj):
         self.assert_data_value(obj)
+        self.assertIsInstance(obj, ShallowDataValue)
+        self.assertTrue(obj.is_shallow_data_value())
+        self.assertIs(obj.content, obj.args[0])
+        self.assertIs(obj.get_content(), obj.args[0])
+
+    def assert_iri(self, obj, iri):
+        self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, IRI)
         self.assertTrue(obj.is_iri())
-        self.assert_iri_datatype(obj.get_datatype())
+        self.assertEqual(obj.mask, Value.IRI)
+        self.assertEqual(obj.get_mask(), Value.IRI)
+        self.assert_iri_datatype(Datatype.from_value_class(type(obj)))
         self.assertEqual(obj.args[0], iri)
         self.assertEqual(obj.value, obj.args[0])
         self.assertEqual(obj.get_value(), obj.args[0])
@@ -194,10 +206,12 @@ class kif_TestCase(TestCase):
         self.assertEqual(obj._uri, NS.WIKIBASE.Url)
 
     def assert_text(self, obj, s, lang=None):
-        self.assert_data_value(obj)
+        self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, Text)
         self.assertTrue(obj.is_text())
-        self.assert_text_datatype(obj.get_datatype())
+        self.assertEqual(obj.mask, Value.TEXT)
+        self.assertEqual(obj.get_mask(), Value.TEXT)
+        self.assert_text_datatype(Datatype.from_value_class(type(obj)))
         self.assertEqual(obj.args[0], s)
         if lang is None:
             lang = Text.default_language
@@ -225,10 +239,12 @@ class kif_TestCase(TestCase):
             self.assertIn(text, obj)
 
     def assert_string(self, obj, s):
-        self.assert_data_value(obj)
+        self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, String)
         self.assertTrue(obj.is_string())
-        self.assert_string_datatype(obj.get_datatype())
+        self.assertEqual(obj.mask, Value.STRING)
+        self.assertEqual(obj.get_mask(), Value.STRING)
+        self.assert_string_datatype(Datatype.from_value_class(type(obj)))
         self.assertEqual(obj.args[0], s)
         self.assertEqual(obj.value, obj.args[0])
         self.assertEqual(obj.get_value(), obj.args[0])
@@ -241,11 +257,13 @@ class kif_TestCase(TestCase):
         self.assertEqual(obj._uri, NS.WIKIBASE.String)
 
     def assert_external_id(self, obj, s):
-        self.assert_data_value(obj)
+        self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, String)
         self.assertIsInstance(obj, ExternalId)
+        self.assertEqual(obj.mask, Value.EXTERNAL_ID)
+        self.assertEqual(obj.get_mask(), Value.EXTERNAL_ID)
         self.assertTrue(obj.is_external_id())
-        self.assert_external_id_datatype(obj.get_datatype())
+        self.assert_external_id_datatype(Datatype.from_value_class(type(obj)))
         self.assertEqual(obj.args[0], s)
         self.assertEqual(obj.value, obj.args[0])
         self.assertEqual(obj.get_value(), obj.args[0])
@@ -257,11 +275,18 @@ class kif_TestCase(TestCase):
         self.assertTrue(obj.is_external_id_datatype())
         self.assertEqual(obj._uri, NS.WIKIBASE.ExternalId)
 
-    def assert_quantity(self, obj, amount, unit=None, lb=None, ub=None):
+    def assert_deep_data_value(self, obj):
         self.assert_data_value(obj)
+        self.assertIsInstance(obj, DeepDataValue)
+        self.assertTrue(obj.is_deep_data_value())
+
+    def assert_quantity(self, obj, amount, unit=None, lb=None, ub=None):
+        self.assert_deep_data_value(obj)
         self.assertIsInstance(obj, Quantity)
         self.assertTrue(obj.is_quantity())
-        self.assert_quantity_datatype(obj.get_datatype())
+        self.assertEqual(obj.mask, Value.QUANTITY)
+        self.assertEqual(obj.get_mask(), Value.QUANTITY)
+        self.assert_quantity_datatype(Datatype.from_value_class(type(obj)))
         self.assertEqual(obj.args[0], Decimal(amount))
         self.assertEqual(obj.value, str(obj.args[0]))
         self.assertEqual(obj.get_value(), str(obj.args[0]))
@@ -287,10 +312,12 @@ class kif_TestCase(TestCase):
         self.assertEqual(obj._uri, NS.WIKIBASE.Quantity)
 
     def assert_time(self, obj, time, prec=None, tz=None, cal=None):
-        self.assert_data_value(obj)
+        self.assert_deep_data_value(obj)
         self.assertIsInstance(obj, Time)
         self.assertTrue(obj.is_time())
-        self.assert_time_datatype(obj.get_datatype())
+        self.assertEqual(obj.mask, Value.TIME)
+        self.assertEqual(obj.get_mask(), Value.TIME)
+        self.assert_time_datatype(Datatype.from_value_class(type(obj)))
         self.assertEqual(obj.args[0], time.replace(tzinfo=UTC))
         self.assertEqual(obj.value, obj.args[0].isoformat())
         self.assertEqual(obj.get_value(), obj.args[0].isoformat())
@@ -333,19 +360,22 @@ class kif_TestCase(TestCase):
         self.assertEqual(obj.args[1], value)
         self.assertEqual(obj.value, obj.args[1])
         self.assertEqual(obj.get_value(), obj.args[1])
-        self.assertEqual(obj.snak_mask, Snak.VALUE_SNAK)
+        self.assertEqual(obj.mask, Snak.VALUE_SNAK)
+        self.assertEqual(obj.get_mask(), Snak.VALUE_SNAK)
 
     def assert_some_value_snak(self, obj, prop):
         self.assert_snak(obj, prop)
         self.assertIsInstance(obj, SomeValueSnak)
         self.assertTrue(obj.is_some_value_snak())
-        self.assertEqual(obj.snak_mask, Snak.SOME_VALUE_SNAK)
+        self.assertEqual(obj.mask, Snak.SOME_VALUE_SNAK)
+        self.assertEqual(obj.get_mask(), Snak.SOME_VALUE_SNAK)
 
     def assert_no_value_snak(self, obj, prop):
         self.assert_snak(obj, prop)
         self.assertIsInstance(obj, NoValueSnak)
         self.assertTrue(obj.is_no_value_snak())
-        self.assertEqual(obj.snak_mask, Snak.NO_VALUE_SNAK)
+        self.assertEqual(obj.mask, Snak.NO_VALUE_SNAK)
+        self.assertEqual(obj.get_mask(), Snak.NO_VALUE_SNAK)
 
     def assert_snak_set(self, obj, *snaks):
         self.assert_kif_object_set(obj, *snaks)

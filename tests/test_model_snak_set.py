@@ -6,7 +6,7 @@ from kif_lib import IRI, KIF_Object, NoValueSnak, Property, SnakSet
 from .tests import kif_TestCase, main
 
 
-class TestModelSnakSet(kif_TestCase):
+class TestSnakSet(kif_TestCase):
 
     def test__preprocess_arg_snak_set(self):
         sset = SnakSet(NoValueSnak(Property('p')), Property('q')(IRI('x')))

@@ -15,8 +15,8 @@ Snak
    :toctree: generated/
 
    Snak
+   Snak.mask
    Snak.property
-   Snak.snak_mask
 
 Mask
 ~~~~

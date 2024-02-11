@@ -16,7 +16,7 @@ from kif_lib import (
 from .tests import kif_TestCase, main
 
 
-class TestModelAnnotationRecordSet(kif_TestCase):
+class TestAnnotationRecordSet(kif_TestCase):
 
     def test__preprocess_arg_annotation_record_set(self):
         annots = AnnotationRecordSet(

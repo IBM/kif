@@ -67,6 +67,7 @@ from .value import (
     PropertyDatatype,
     Quantity,
     QuantityDatatype,
+    ShallowDataValue,
     String,
     StringDatatype,
     T_IRI,

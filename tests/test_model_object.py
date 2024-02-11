@@ -555,6 +555,46 @@ class TestObject(TestCase):
             Object._check_optional_arg_isinstance('abc', (int, str)),
             'abc')
 
+    # -- issubclass --
+
+    def test__check_arg_issubclass(self):
+        # bad argument
+        self.assertRaisesRegex(
+            TypeError, r'^bad argument \(expected type, got int\)$',
+            Object._check_arg_issubclass, 0, int)
+        self.assertRaisesRegex(
+            TypeError, r'^bad argument \(expected subclass of str, got int\)$',
+            Object._check_arg_issubclass, int, str)
+        self.assertRaisesRegex(
+            TypeError, r'^bad argument '
+            r'\(expected subclass of int or str, got float\)$',
+            Object._check_arg_issubclass, float, (str, int))
+        # good argument
+        self.assertEqual(Object._check_arg_issubclass(int, object), int)
+        self.assertEqual(Object._check_arg_issubclass(int, (object, str)), int)
+
+    def test__check_optional_arg_issubclass(self):
+        # bad argument
+        self.assertRaisesRegex(
+            TypeError, r'^bad argument \(expected type, got int\)$',
+            Object._check_optional_arg_issubclass, 0, int)
+        self.assertRaisesRegex(
+            TypeError, r'^bad argument \(expected subclass of str, got int\)$',
+            Object._check_optional_arg_issubclass, int, str)
+        self.assertRaisesRegex(
+            TypeError, r'^bad argument '
+            r'\(expected subclass of int or str, got float\)$',
+            Object._check_optional_arg_issubclass, float, (str, int))
+        # no argument
+        self.assertIsNone(Object._check_optional_arg_issubclass(None, int))
+        self.assertEqual(
+            Object._check_optional_arg_issubclass(None, (int, str), 'abc'),
+            'abc')
+        # good argument
+        self.assertEqual(
+            Object._check_optional_arg_issubclass(int, (object, str), 'abc'),
+            int)
+
     # -- _preprocess_arg ---------------------------------------------------
 
     def test__preprocess_arg(self):

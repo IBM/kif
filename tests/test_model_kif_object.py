@@ -52,12 +52,12 @@ from kif_lib.model import Datetime, Decimal, UTC
 from .tests import kif_TestCase, main
 
 
-class TestModelKIF_Object(kif_TestCase):
+class TestKIF_Object(kif_TestCase):
 
     ALL_KIF_OBJECT_CLASSES = set(filter(
         lambda c: isinstance(c, type) and issubclass(c, KIF_Object), map(
             lambda s: getattr(KIF_Object, s),
-            filter(lambda s: re.match('^[A-Z]', s), dir(KIF_Object)))))
+            filter(lambda s: re.match('^_[A-Z]', s), dir(KIF_Object)))))
 
     def test__init__(self):
         self.assertRaises(TypeError, KIF_Object)
@@ -214,8 +214,8 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(SnakSet().test_descriptor())
 
     def test_is_datatype(self):
-        self.assertTrue(Item.datatype.is_datatype())
-        self.assertTrue(IRI.datatype.test_datatype())
+        self.assertTrue(ItemDatatype().is_datatype())
+        self.assertTrue(IRI_Datatype().test_datatype())
         self.assertFalse(Item('x').is_datatype())
         self.assertFalse(Item('x').test_datatype())
 
@@ -268,9 +268,9 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(Item('x').test_external_id())
 
     def test_is_external_id_datatype(self):
-        self.assertTrue(ExternalId.datatype.is_external_id_datatype())
-        self.assertTrue(ExternalId.datatype.test_external_id_datatype())
-        self.assertFalse(Item.datatype.is_external_id_datatype())
+        self.assertTrue(ExternalIdDatatype().is_external_id_datatype())
+        self.assertTrue(ExternalIdDatatype().test_external_id_datatype())
+        self.assertFalse(ItemDatatype().is_external_id_datatype())
         self.assertFalse(Item('x').test_external_id_datatype())
 
     def test_is_filter_pattern(self):
@@ -292,9 +292,9 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(Item('x').test_iri())
 
     def test_is_iri_datatype(self):
-        self.assertTrue(IRI.datatype.is_iri_datatype())
-        self.assertTrue(IRI.datatype.test_iri_datatype())
-        self.assertFalse(Property.datatype.is_iri_datatype())
+        self.assertTrue(IRI_Datatype().is_iri_datatype())
+        self.assertTrue(IRI_Datatype().test_iri_datatype())
+        self.assertFalse(PropertyDatatype().is_iri_datatype())
         self.assertFalse(Item('x').test_iri_datatype())
 
     def test_is_item(self):
@@ -310,9 +310,9 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(PropertyDescriptor().test_item_descriptor())
 
     def test_is_item_datatype(self):
-        self.assertTrue(Item.datatype.is_item_datatype())
-        self.assertTrue(Item.datatype.test_item_datatype())
-        self.assertFalse(Property.datatype.is_item_datatype())
+        self.assertTrue(ItemDatatype().is_item_datatype())
+        self.assertTrue(ItemDatatype().test_item_datatype())
+        self.assertFalse(PropertyDatatype().is_item_datatype())
         self.assertFalse(Item('x').test_item_datatype())
 
     def test_is_lexeme(self):
@@ -322,9 +322,9 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(String('x').test_lexeme())
 
     def test_is_lexeme_datatype(self):
-        self.assertTrue(Lexeme.datatype.is_lexeme_datatype())
-        self.assertTrue(Lexeme.datatype.test_lexeme_datatype())
-        self.assertFalse(String('x').datatype.is_lexeme_datatype())
+        self.assertTrue(LexemeDatatype().is_lexeme_datatype())
+        self.assertTrue(LexemeDatatype().test_lexeme_datatype())
+        self.assertFalse(StringDatatype().is_lexeme_datatype())
         self.assertFalse(String('x').test_lexeme_datatype())
 
     def test_is_lexeme_descriptor(self):
@@ -374,9 +374,9 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(Item('x').test_property())
 
     def test_is_property_datatype(self):
-        self.assertTrue(Property.datatype.is_property_datatype())
-        self.assertTrue(Property.datatype.test_property_datatype())
-        self.assertFalse(Item.datatype.is_property_datatype())
+        self.assertTrue(PropertyDatatype().is_property_datatype())
+        self.assertTrue(PropertyDatatype().test_property_datatype())
+        self.assertFalse(ItemDatatype().is_property_datatype())
         self.assertFalse(Item('x').test_property_datatype())
 
     def test_is_property_descriptor(self):
@@ -400,9 +400,9 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(String('x').test_quantity())
 
     def test_is_quantity_datatype(self):
-        self.assertTrue(Quantity.datatype.is_quantity_datatype())
-        self.assertTrue(Quantity.datatype.test_quantity_datatype())
-        self.assertFalse(Item.datatype.is_quantity_datatype())
+        self.assertTrue(QuantityDatatype().is_quantity_datatype())
+        self.assertTrue(QuantityDatatype().test_quantity_datatype())
+        self.assertFalse(ItemDatatype().is_quantity_datatype())
         self.assertFalse(Item('x').test_quantity_datatype())
 
     def test_is_rank(self):
@@ -439,6 +439,12 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(String('x').is_snak_set())
         self.assertFalse(snak.test_snak_set())
 
+    def test_is_shallow_data_value(self):
+        self.assertTrue(String('').is_shallow_data_value())
+        self.assertTrue(Text('').test_shallow_data_value())
+        self.assertFalse(Quantity(0).is_shallow_data_value())
+        self.assertFalse(Quantity(0).test_shallow_data_value())
+
     def test_is_some_value_snak(self):
         snak = SomeValueSnak(Property('x'))
         self.assertTrue(snak.is_some_value_snak())
@@ -460,10 +466,10 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(Item('x').test_string())
 
     def test_is_string_datatype(self):
-        self.assertTrue(String.datatype.is_string_datatype())
-        self.assertTrue(String.datatype.test_string_datatype())
-        self.assertTrue(ExternalId.datatype.test_string_datatype())
-        self.assertFalse(Property.datatype.is_string_datatype())
+        self.assertTrue(StringDatatype().is_string_datatype())
+        self.assertTrue(StringDatatype().test_string_datatype())
+        self.assertTrue(ExternalIdDatatype().test_string_datatype())
+        self.assertFalse(PropertyDatatype().is_string_datatype())
         self.assertFalse(Item('x').test_string_datatype())
 
     def test_is_text(self):
@@ -473,9 +479,9 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(String('x').test_quantity())
 
     def test_is_text_datatype(self):
-        self.assertTrue(Text.datatype.is_text_datatype())
-        self.assertTrue(Text.datatype.test_text_datatype())
-        self.assertFalse(Property.datatype.is_text_datatype())
+        self.assertTrue(TextDatatype().is_text_datatype())
+        self.assertTrue(TextDatatype().test_text_datatype())
+        self.assertFalse(PropertyDatatype().is_text_datatype())
         self.assertFalse(Item('x').test_text_datatype())
 
     def test_is_text_set(self):
@@ -492,9 +498,9 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(String('2023-09-18').test_time())
 
     def test_is_time_datatype(self):
-        self.assertTrue(Time.datatype.is_time_datatype())
-        self.assertTrue(Time.datatype.test_time_datatype())
-        self.assertFalse(Property.datatype.is_time_datatype())
+        self.assertTrue(TimeDatatype().is_time_datatype())
+        self.assertTrue(TimeDatatype().test_time_datatype())
+        self.assertFalse(PropertyDatatype().is_time_datatype())
         self.assertFalse(Item('x').test_time_datatype())
 
     def test_is_value(self):
@@ -529,7 +535,7 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(TypeError, Item('x').check_data_value)
 
     def test_check_datatype(self):
-        self.assertEqual(IRI_Datatype().check_datatype(), IRI.datatype)
+        self.assertEqual(IRI_Datatype().check_datatype(), IRI_Datatype())
         self.assertRaises(TypeError, Item('x').check_datatype)
 
     def test_check_deep_data_value(self):
@@ -562,7 +568,7 @@ class TestModelKIF_Object(kif_TestCase):
     def test_check_external_id_datatype(self):
         self.assertEqual(
             ExternalIdDatatype().check_external_id_datatype(),
-            ExternalId.datatype)
+            ExternalIdDatatype())
         self.assertRaises(
             TypeError, ItemDatatype().check_external_id_datatype)
 
@@ -582,7 +588,7 @@ class TestModelKIF_Object(kif_TestCase):
 
     def test_check_iri_datatype(self):
         self.assertEqual(
-            IRI_Datatype().check_iri_datatype(), IRI.datatype)
+            IRI_Datatype().check_iri_datatype(), IRI_Datatype())
         self.assertRaises(TypeError, Item('x').check_iri_datatype)
 
     def test_check_item(self):
@@ -590,7 +596,7 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(TypeError, String('x').check_item)
 
     def test_check_item_datatype(self):
-        self.assertEqual(ItemDatatype().check_item_datatype(), Item.datatype)
+        self.assertEqual(ItemDatatype().check_item_datatype(), ItemDatatype())
         self.assertRaises(TypeError, String('x').check_item_datatype)
 
     def test_check_item_descriptor(self):
@@ -614,8 +620,8 @@ class TestModelKIF_Object(kif_TestCase):
 
     def test_check_lexeme_datatype(self):
         self.assertEqual(
-            LexemeDatatype().check_lexeme_datatype(), Lexeme.datatype)
-        self.assertRaises(TypeError, Item.datatype.check_lexeme_datatype)
+            LexemeDatatype().check_lexeme_datatype(), LexemeDatatype())
+        self.assertRaises(TypeError, ItemDatatype().check_lexeme_datatype)
 
     def test_check_lexeme_descriptor(self):
         desc = LexemeDescriptor('x', Item('x'), Item('y'))
@@ -653,7 +659,7 @@ class TestModelKIF_Object(kif_TestCase):
 
     def test_check_property_datatype(self):
         self.assertEqual(
-            PropertyDatatype().check_property_datatype(), Property.datatype)
+            PropertyDatatype().check_property_datatype(), PropertyDatatype())
         self.assertRaises(TypeError, ItemDatatype().check_property_datatype)
 
     def test_check_property_descriptor(self):
@@ -675,7 +681,7 @@ class TestModelKIF_Object(kif_TestCase):
 
     def test_check_quantity_datatype(self):
         self.assertEqual(
-            QuantityDatatype().check_quantity_datatype(), Quantity.datatype)
+            QuantityDatatype().check_quantity_datatype(), QuantityDatatype())
         self.assertRaises(TypeError, String('x').check_quantity_datatype)
 
     def test_check_rank(self):
@@ -702,6 +708,11 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(snak_set.check_snak_set(), snak_set)
         self.assertRaises(TypeError, String('x').check_snak_set)
 
+    def test_check_shallow_data_value(self):
+        self.assertEqual(
+            ExternalId('').check_shallow_data_value(), ExternalId(''))
+        self.assertRaises(TypeError, Item('x').check_shallow_data_value)
+
     def test_check_some_value_snak(self):
         snak = SomeValueSnak(Property('x'))
         self.assertEqual(snak.check_some_value_snak(), snak)
@@ -719,16 +730,16 @@ class TestModelKIF_Object(kif_TestCase):
 
     def test_check_string_datatype(self):
         self.assertEqual(
-            StringDatatype().check_string_datatype(), String.datatype)
-        self.assertRaises(TypeError, Item.datatype.check_string_datatype)
+            StringDatatype().check_string_datatype(), StringDatatype())
+        self.assertRaises(TypeError, ItemDatatype().check_string_datatype)
 
     def test_check_text(self):
         self.assertEqual(Text('abc').check_text(), Text('abc'))
         self.assertRaises(TypeError, String('abc').check_text)
 
     def test_check_text_datatype(self):
-        self.assertEqual(TextDatatype().check_text_datatype(), Text.datatype)
-        self.assertRaises(TypeError, String.datatype.check_text_datatype)
+        self.assertEqual(TextDatatype().check_text_datatype(), TextDatatype())
+        self.assertRaises(TypeError, StringDatatype().check_text_datatype)
 
     def test_check_text_set(self):
         texts = TextSet(Text('abc'), Text('def'))
@@ -741,8 +752,8 @@ class TestModelKIF_Object(kif_TestCase):
 
     def test_check_time_datatype(self):
         self.assertEqual(
-            TimeDatatype().check_time_datatype(), Time.datatype)
-        self.assertRaises(TypeError, Item.datatype.check_time_datatype)
+            TimeDatatype().check_time_datatype(), TimeDatatype())
+        self.assertRaises(TypeError, ItemDatatype().check_time_datatype)
 
     def test_check_value(self):
         self.assertEqual(Item('x').check_value(), Item('x'))
@@ -783,7 +794,7 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(TypeError, Item('x').unpack_data_value)
 
     def test_unpack_datatype(self):
-        self.assertEqual(IRI.datatype.unpack_datatype(), ())
+        self.assertEqual(IRI_Datatype().unpack_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_datatype)
 
     def test_unpack_deep_data_value(self):
@@ -816,7 +827,7 @@ class TestModelKIF_Object(kif_TestCase):
 
     def test_unpack_external_id_datatype(self):
         self.assertEqual(
-            ExternalId.datatype.unpack_external_id_datatype(), ())
+            ExternalIdDatatype().unpack_external_id_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_external_id_datatype)
 
     def test_unpack_filter_pattern(self):
@@ -839,7 +850,7 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(TypeError, String('x').unpack_item)
 
     def test_unpack_item_datatype(self):
-        self.assertEqual(Item.datatype.unpack_item_datatype(), ())
+        self.assertEqual(ItemDatatype().unpack_item_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_item_datatype)
 
     def test_unpack_item_descriptor(self):
@@ -853,7 +864,7 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(TypeError, Item('x').unpack_iri)
 
     def test_unpack_iri_datatype(self):
-        self.assertEqual(IRI.datatype.unpack_iri_datatype(), ())
+        self.assertEqual(IRI_Datatype().unpack_iri_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_iri_datatype)
 
     def test_unpack_kif_object(self):
@@ -870,7 +881,7 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(TypeError, String('x').unpack_lexeme)
 
     def test_unpack_lexeme_datatype(self):
-        self.assertEqual(Lexeme.datatype.unpack_lexeme_datatype(), ())
+        self.assertEqual(LexemeDatatype().unpack_lexeme_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_lexeme_datatype)
 
     def test_unpack_lexeme_descriptor(self):
@@ -913,16 +924,13 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(TypeError, Item('x').unpack_property)
 
     def test_unpack_property_datatype(self):
-        self.assertEqual(Property.datatype.unpack_property_datatype(), ())
+        self.assertEqual(PropertyDatatype().unpack_property_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_property_datatype)
 
     def test_unpack_property_descriptor(self):
-        desc = PropertyDescriptor('x', ['x', 'y'], 'z', ExternalId.datatype)
+        desc = PropertyDescriptor('x', ['x', 'y'], 'z', ExternalIdDatatype())
         self.assertEqual(desc.unpack_property_descriptor(), (
-            Text('x'),
-            TextSet('x', 'y'),
-            Text('z'),
-            ExternalId.datatype))
+            Text('x'), TextSet('x', 'y'), Text('z'), ExternalIdDatatype()))
         self.assertRaises(TypeError, Item('x').unpack_property_descriptor)
 
     def test_unpack_property_fingerprint(self):
@@ -936,7 +944,7 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(TypeError, String('x').unpack_quantity)
 
     def test_unpack_quantity_datatype(self):
-        self.assertEqual(Quantity.datatype.unpack_quantity_datatype(), ())
+        self.assertEqual(QuantityDatatype().unpack_quantity_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_quantity_datatype)
 
     def test_unpack_rank(self):
@@ -969,6 +977,12 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(snaks.unpack_snak_set(), (snak2, snak1))
         self.assertRaises(TypeError, String('x').unpack_snak_set)
 
+    def test_unpack_shallow_data_value(self):
+        self.assertEqual(String('abc').unpack_shallow_data_value(), ('abc',))
+        self.assertEqual(
+            Text('abc').unpack_shallow_data_value(), ('abc', 'en'))
+        self.assertRaises(TypeError, Quantity(0).unpack_shallow_data_value)
+
     def test_unpack_some_value_snak(self):
         snak = SomeValueSnak(Property('x'))
         self.assertEqual(snak.unpack_some_value_snak(), (Property('x'),))
@@ -986,7 +1000,7 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(TypeError, Item('x').unpack_string)
 
     def test_unpack_string_datatype(self):
-        self.assertEqual(String.datatype.unpack_string_datatype(), ())
+        self.assertEqual(StringDatatype().unpack_string_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_string_datatype)
 
     def test_unpack_text(self):
@@ -994,7 +1008,7 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(TypeError, Time('2023-09-18').unpack_text)
 
     def test_unpack_text_datatype(self):
-        self.assertEqual(Text.datatype.unpack_text_datatype(), ())
+        self.assertEqual(TextDatatype().unpack_text_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_text_datatype)
 
     def test_unpack_text_set(self):
@@ -1011,7 +1025,7 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(TypeError, String('2023-09-18').unpack_time)
 
     def test_unpack_time_datatype(self):
-        self.assertEqual(Time.datatype.unpack_time_datatype(), ())
+        self.assertEqual(TimeDatatype().unpack_time_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_time_datatype)
 
     def test_unpack_value(self):

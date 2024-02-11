@@ -334,7 +334,7 @@ At line {line}, column {column}:
                 yield stmt      # success
                 continue
             # Snak mask mismatch.
-            if not bool(pattern.snak_mask & stmt.snak.snak_mask):
+            if not bool(pattern.snak_mask & stmt.snak.mask):
                 yield None      # pragma: no cover
                 continue        # pragma: no cover
             # Subject mismatch.
