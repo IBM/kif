@@ -10,6 +10,7 @@ Sets
                          ReferenceRecordSet
                          SnakSet
                          TextSet
+                         ValueSet
    :top-classes: kif_lib.model.kif_object.KIF_Object
    :parts: -3
    :caption: Object set hierarchy.
@@ -24,39 +25,13 @@ KIF_ObjectSet
    KIF_ObjectSet.frozenset
    KIF_ObjectSet.union
 
-
-AnnotationRecordSet
--------------------
+Subclasses
+----------
 .. autosummary::
    :toctree: generated/
 
    AnnotationRecordSet
-   AnnotationRecordSet.frozenset
-   AnnotationRecordSet.union
-
-ReferenceRecordSet
-------------------
-.. autosummary::
-   :toctree: generated/
-
    ReferenceRecordSet
-   ReferenceRecordSet.frozenset
-   ReferenceRecordSet.union
-
-SnakSet
--------
-.. autosummary::
-   :toctree: generated/
-
    SnakSet
-   SnakSet.frozenset
-   SnakSet.union
-
-TextSet
--------
-.. autosummary::
-   :toctree: generated/
-
+   ValueSet
    TextSet
-   TextSet.frozenset
-   TextSet.union

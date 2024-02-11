@@ -45,6 +45,7 @@ from kif_lib import (
     TextSet,
     Time,
     TimeDatatype,
+    ValueSet,
     ValueSnak,
 )
 from kif_lib.model import Datetime, Decimal, UTC
@@ -507,6 +508,13 @@ class TestKIF_Object(kif_TestCase):
         self.assertTrue(Item('x').is_value())
         self.assertTrue(Item('x').test_value())
 
+    def test_is_value_set(self):
+        value = Item('x')
+        self.assertTrue(ValueSet().is_value_set())
+        self.assertTrue(ValueSet(value).test_value_set())
+        self.assertFalse(String('x').is_value_set())
+        self.assertFalse(SnakSet().test_value_set())
+
     def test_is_value_snak(self):
         snak = ValueSnak(Property('x'), Item('y'))
         self.assertTrue(snak.is_value_snak())
@@ -759,6 +767,11 @@ class TestKIF_Object(kif_TestCase):
         self.assertEqual(Item('x').check_value(), Item('x'))
         stmt = Statement(Item('x'), NoValueSnak(Property('y')))
         self.assertRaises(TypeError, stmt.check_value)
+
+    def test_check_value_set(self):
+        values = ValueSet(Item('abc'), Text('def'))
+        self.assertEqual(values.check_value_set(), values)
+        self.assertRaises(TypeError, Item('abc').check_value_set)
 
     def test_check_value_snak(self):
         snak = ValueSnak(Property('x'), Item('y'))
@@ -1032,6 +1045,13 @@ class TestKIF_Object(kif_TestCase):
         self.assertEqual(Item('x').unpack_value(), (IRI('x'),))
         stmt = Statement(Item('x'), NoValueSnak(Property('y')))
         self.assertRaises(TypeError, stmt.unpack_value)
+
+    def test_unpack_value_set(self):
+        value1 = String('abc')
+        value2 = Quantity(33)
+        values = ValueSet('abc', 33)
+        self.assertEqual(values.unpack_value_set(), (value2, value1))
+        self.assertRaises(TypeError, Time('2023-09-18').unpack_value_set)
 
     def test_unpack_value_snak(self):
         snak = ValueSnak(Property('x'), Item('y'))

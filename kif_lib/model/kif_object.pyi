@@ -31,7 +31,7 @@ from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
 from .snak import NoValueSnak, Snak, SomeValueSnak, ValueSnak
 from .snak_set import SnakSet
 from .statement import Statement
-from .text_set import TextSet
+from .value_set import TextSet, ValueSet
 from .value import (
     Datatype,
     DataValue,
@@ -621,6 +621,14 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[Value, NoReturn]:
         ...
 
+    def check_value_set(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[ValueSet, NoReturn]:
+        ...
+
     def check_value_snak(
             self,
             function: Optional[Union[TCallable, str]] = None,
@@ -704,6 +712,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     def is_time(self) -> bool: ...
     def is_time_datatype(self) -> bool: ...
     def is_value(self) -> bool: ...
+    def is_value_set(self) -> bool: ...
     def is_value_snak(self) -> bool: ...
 
     def test_annotation_record(self) -> bool: ...
@@ -757,6 +766,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     def test_time(self) -> bool: ...
     def test_time_datatype(self) -> bool: ...
     def test_value(self) -> bool: ...
+    def test_value_set(self) -> bool: ...
     def test_value_snak(self) -> bool: ...
 
     def to_json(self, **kwargs: Any) -> str: ...
@@ -1164,6 +1174,14 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     def unpack_value(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_value_set(
         self,
         function: Optional[Union[TCallable, str]] = None,
         name: Optional[str] = None,

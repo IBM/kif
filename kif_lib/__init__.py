@@ -61,6 +61,7 @@ from .model import (
     Time,
     TimeDatatype,
     Value,
+    ValueSet,
     ValueSnak,
 )
 from .store import Store, StoreError, StoreFlags
@@ -132,5 +133,6 @@ __all__ = [
     'Time',
     'TimeDatatype',
     'Value',
+    'ValueSet',
     'ValueSnak',
 ]

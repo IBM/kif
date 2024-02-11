@@ -59,6 +59,7 @@ from kif_lib import (
     Time,
     TimeDatatype,
     Value,
+    ValueSet,
     ValueSnak,
 )
 from kif_lib.error import ShouldNotGetHere
@@ -119,6 +120,18 @@ class kif_TestCase(TestCase):
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Value)
         self.assertTrue(obj.is_value())
+
+    def assert_value_set(self, obj, *values):
+        self.assert_kif_object_set(obj, *values)
+        self.assertIsInstance(obj, ValueSet)
+        self.assertTrue(obj.is_value_set())
+        for i, arg in enumerate(obj):
+            self.assertIsInstance(arg, Value)
+            self.assertEqual(arg, values[i])
+        self.assertEqual(obj.frozenset, set(values))
+        self.assertEqual(obj.get_frozenset(), obj.frozenset)
+        for value in values:
+            self.assertIn(value, obj)
 
     def assert_entity(self, obj, iri):
         self.assert_value(obj)
@@ -227,7 +240,7 @@ class kif_TestCase(TestCase):
         self.assertEqual(obj._uri, NS.WIKIBASE.Monolingualtext)
 
     def assert_text_set(self, obj, *texts):
-        self.assert_kif_object_set(obj, *texts)
+        self.assert_value_set(obj, *texts)
         self.assertIsInstance(obj, TextSet)
         self.assertTrue(obj.is_text_set())
         for i, arg in enumerate(obj):

@@ -5,8 +5,8 @@ from enum import auto, Flag
 
 from ..typing import Final, NoReturn, Optional, Union
 from .kif_object import KIF_Object, TCallable
-from .text_set import TextSet, TTextSet
 from .value import Datatype, Item, Text, TText
+from .value_set import TextSet, TTextSet
 
 
 class Descriptor(KIF_Object):

@@ -46,7 +46,6 @@ from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
 from .snak import NoValueSnak, Snak, SomeValueSnak, ValueSnak
 from .snak_set import SnakSet, TSnakSet
 from .statement import Statement
-from .text_set import TextSet, TTextSet
 from .value import (
     Datatype,
     DataValue,
@@ -78,3 +77,4 @@ from .value import (
     TTimePrecision,
     Value,
 )
+from .value_set import TextSet, TTextSet, TValueSet, ValueSet
