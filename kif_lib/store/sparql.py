@@ -1,10 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import itertools
 import logging
 import sys
-from collections.abc import Collection, Hashable, Iterable, Mapping, Set
 
 import requests
 import requests.exceptions
@@ -14,6 +12,7 @@ from rdflib.plugins.sparql.sparql import Query
 
 from .. import namespace as NS
 from ..error import ShouldNotGetHere
+from ..itertools import chain, starmap
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -42,7 +41,20 @@ from ..model import (
     Value,
     ValueSnak,
 )
-from ..typing import Any, Callable, cast, Iterator, Optional, TypeVar, Union
+from ..typing import (
+    Any,
+    Callable,
+    cast,
+    Collection,
+    Hashable,
+    Iterable,
+    Iterator,
+    Mapping,
+    Optional,
+    Set,
+    TypeVar,
+    Union,
+)
 from .abc import Store
 from .sparql_builder import SPARQL_Builder
 from .sparql_results import SPARQL_Results
@@ -754,7 +766,7 @@ At line {line}, column {column}:
                 else:
                     it2 = iter([])
                 seen = set()
-                for (stmt, wds, i) in itertools.chain(it1, it2):
+                for (stmt, wds, i) in chain(it1, it2):
                     seen.add(i)
                     if stmt != reduced_batch[i]:
                         continue  # nothing to do
@@ -917,7 +929,7 @@ At line {line}, column {column}:
                         else:
                             quals = set()
                         if wds in wds2refs:
-                            refs = set(itertools.starmap(
+                            refs = set(starmap(
                                 ReferenceRecord, wds2refs[wds].values()))
                         else:
                             refs = set()

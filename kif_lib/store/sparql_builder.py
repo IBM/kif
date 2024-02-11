@@ -3,9 +3,9 @@
 
 from abc import abstractmethod
 from collections.abc import Mapping, Sequence
-from itertools import chain
 
 from ..error import MustBeImplementedInSubclass
+from ..itertools import chain
 from ..model import IRI, Value
 from ..typing import Any, Hashable, Iterable, Iterator
 from ..typing import Optional as Opt

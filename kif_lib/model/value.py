@@ -4,11 +4,11 @@
 from abc import abstractmethod
 from enum import auto, Enum, Flag
 from functools import cache
-from itertools import chain
 
 from rdflib import Literal, URIRef
 
 from .. import namespace as NS
+from ..itertools import chain
 from ..typing import (
     cast,
     Collection,

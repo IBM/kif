@@ -3,13 +3,13 @@
 
 import json
 import logging
-from itertools import chain
 from pathlib import PurePath
 
 from rdflib import Graph
 from rdflib.exceptions import Error as RDFLibError
 from rdflib.parser import InputSource
 
+from ..itertools import chain
 from ..model import KIF_Object
 from ..typing import Any, BinaryIO, cast, IO, Optional, TextIO, Union
 from .sparql import SPARQL_Store

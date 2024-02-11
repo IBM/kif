@@ -2,13 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import sys
-from collections.abc import Callable, Collection, Iterable, Sequence
-from itertools import cycle
 
-import more_itertools
-
+from ..itertools import batched, cycle
 from ..model import AnnotationRecordSet, FilterPattern, KIF_Object, Statement
-from ..typing import Any, Iterator, Optional, TypeVar
+from ..typing import (
+    Any,
+    Callable,
+    Collection,
+    Iterable,
+    Iterator,
+    Optional,
+    Sequence,
+    TypeVar,
+)
 from .abc import Store, StoreFlags
 
 T = TypeVar('T')
@@ -152,7 +158,7 @@ class MixerStore(Store, type='mixer', description='Mixer store'):
             for t in it:
                 yield t, empty
         else:
-            batches = more_itertools.batched(it, self.page_size)
+            batches = batched(it, self.page_size)
             for batch in batches:
                 its = list(map(lambda kb: get(kb, batch), self._sources))
                 n = 0

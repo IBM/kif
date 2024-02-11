@@ -4,15 +4,14 @@
 import sys
 from collections.abc import Iterable, Set
 from enum import auto, Flag
-from itertools import chain
 
-import more_itertools
 from rdflib.graph import Graph
 from rdflib.namespace import NamespaceManager
 
 from .. import namespace as NS
 from ..cache import Cache
 from ..error import Error, MustBeImplementedInSubclass
+from ..itertools import batched, chain
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -265,7 +264,7 @@ class Store(Set):
             page_size, None, self.set_page_size, 'page_size', 1)
 
     def _batched(self, it: Iterable[T]) -> Iterable[tuple[T, ...]]:
-        return more_itertools.batched(it, self.page_size)
+        return batched(it, self.page_size)
 
     # -- Timeout -----------------------------------------------------------
 

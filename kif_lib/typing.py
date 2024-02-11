@@ -9,6 +9,8 @@ from collections.abc import (
     Iterable,
     Iterator,
     Mapping,
+    Sequence,
+    Set,
 )
 from typing import (
     Any,
@@ -41,6 +43,8 @@ __all__ = (
     'NoReturn',
     'Optional',
     'override',
+    'Sequence',
+    'Set',
     'TextIO',
     'TypeVar',
     'Union',
