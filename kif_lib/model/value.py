@@ -993,11 +993,11 @@ class Time(DeepDataValue):
         return tz if tz is not None else default
 
     @property
-    def calendar_model(self) -> Optional[Item]:
+    def calendar(self) -> Optional[Item]:
         """The calendar model of time."""
-        return self.get_calendar_model()
+        return self.get_calendar()
 
-    def get_calendar_model(
+    def get_calendar(
             self,
             default: Optional[Item] = None
     ) -> Optional[Item]:

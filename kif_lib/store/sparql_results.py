@@ -327,7 +327,7 @@ class Bindings(Mapping):
         if var_tm_calendar in self:
             tm_cal = self.check_item(var_tm_calendar)
         elif value:
-            tm_cal = value.calendar_model
+            tm_cal = value.calendar
         else:
             tm_cal = None
         return Time(tm_value, tm_prec, tm_tz, tm_cal)

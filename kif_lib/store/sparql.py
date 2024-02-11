@@ -383,8 +383,8 @@ At line {line}, column {column}:
                             and pat_tm.precision != tm.precision)
                         or (pat_tm.timezone is not None
                             and pat_tm.timezone != tm.timezone)
-                        or (pat_tm.calendar_model is not None
-                            and pat_tm.calendar_model != tm.calendar_model)):
+                        or (pat_tm.calendar is not None
+                            and pat_tm.calendar != tm.calendar)):
                         yield None  # pragma: no cover
                         continue    # pragma: no cover
                 else:
@@ -598,8 +598,8 @@ At line {line}, column {column}:
                         tm_precision = tm.precision.value
                     if tm.timezone is not None:
                         tm_timezone = tm.timezone
-                    if tm.calendar_model is not None:
-                        tm_calendar = tm.calendar_model
+                    if tm.calendar is not None:
+                        tm_calendar = tm.calendar
                 else:
                     raise ShouldNotGetHere
         values.push(
@@ -666,7 +666,7 @@ At line {line}, column {column}:
                         t[wdv], self.wikibase.timeTimezone, t[tm_timezone])
                 with q.optional(
                         cond=(value is None or cast(
-                            Time, value).calendar_model is None)):
+                            Time, value).calendar is None)):
                     q.triple(
                         t[wdv], self.wikibase.timeCalendarModel,
                         t[tm_calendar])

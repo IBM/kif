@@ -115,12 +115,12 @@ class TestTime(kif_TestCase):
         self.assertEqual(Time('2023-09-04').get_timezone(1), 1)
         self.assertIsNone(Time('2023-09-04').get_timezone())
 
-    def test_get_calendar_model(self):
+    def test_get_calendar(self):
         self.assertEqual(Time(
             '2023-09-04', 11, None,
-            wd.proleptic_Gregorian_calendar).get_calendar_model(),
+            wd.proleptic_Gregorian_calendar).get_calendar(),
             wd.proleptic_Gregorian_calendar)
-        self.assertIsNone(Time('2023-09-04').get_calendar_model())
+        self.assertIsNone(Time('2023-09-04').get_calendar())
 
     def test__from_rdflib(self):
         # bad argument: uri

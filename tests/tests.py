@@ -333,8 +333,8 @@ class kif_TestCase(TestCase):
         self.assertEqual(obj.get_timezone(), obj.args[2])
         self.assertEqual(
             obj.args[3], cal if cal is not None else None)
-        self.assertEqual(obj.calendar_model, obj.args[3])
-        self.assertEqual(obj.get_calendar_model(), obj.args[3])
+        self.assertEqual(obj.calendar, obj.args[3])
+        self.assertEqual(obj.get_calendar(), obj.args[3])
 
     def assert_time_datatype(self, obj):
         self.assert_datatype(obj)

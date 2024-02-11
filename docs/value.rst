@@ -154,7 +154,7 @@ Time
    Time.time
    Time.precision
    Time.timezone
-   Time.calendar_model
+   Time.calendar
 
 Precision
 """""""""

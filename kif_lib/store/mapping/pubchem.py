@@ -162,8 +162,8 @@ def wd_publication_date(entry: Entry, q: Builder, s: TTrm, p: TTrm, v: TTrm):
              and tm.precision != entry.kwargs.get('precision'))
             or (tm.timezone is not None
                 and tm.timezone != entry.kwargs.get('timezone'))
-            or (tm.calendar_model is not None
-                and tm.calendar_model != entry.kwargs.get('calendar'))):
+            or (tm.calendar is not None
+                and tm.calendar != entry.kwargs.get('calendar'))):
             raise entry.Skip
     q.triple(s, PATENT.publicationDate, v)
 
