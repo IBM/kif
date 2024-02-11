@@ -24,12 +24,6 @@ class TestEmptyStore(kif_StoreTestCase):
     def test__init__(self):
         kb = Store('empty')
         self.assertIsInstance(kb, EmptyStore)
-        # namespaces
-        ns = {'ex': 'http://example.org/'}
-        kb = Store('empty', namespaces=ns)
-        self.assertEqual(kb._nsm.qname(
-            'http://www.wikidata.org/entity/Q1'), 'wd:Q1')
-        self.assertEqual(kb._nsm.qname('http://example.org/x'), 'ex:x')
 
     # -- Set interface -----------------------------------------------------
 

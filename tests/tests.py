@@ -625,8 +625,6 @@ class kif_StoreTestCase(kif_TestCase):
         self.store_test_extra_references(kb)
         # flags
         self.store_test_flags(kb)
-        # namespaces
-        self.store_test_namespaces(kb)
         # page size
         self.store_test_page_size(kb)
         # timeout
@@ -700,36 +698,6 @@ class kif_StoreTestCase(kif_TestCase):
         kb.set_flags(Store.CACHE | Store.BEST_RANK)
         self.assertEqual(kb.flags, Store.ALL)
         kb.flags = saved_flags
-
-    # -- namespaces --
-
-    def store_test_namespaces(self, kb):
-        self.assertTrue(bool(kb.namespaces))
-        self.assertEqual(kb.owl, NS.OWL)
-        self.assertEqual(kb.p, NS.P)
-        self.assertEqual(kb.pq, NS.PQ)
-        self.assertEqual(kb.pqn, NS.PQN)
-        self.assertEqual(kb.pqv, NS.PQV)
-        self.assertEqual(kb.pr, NS.PR)
-        self.assertEqual(kb.prn, NS.PRN)
-        self.assertEqual(kb.prov, NS.PROV)
-        self.assertEqual(kb.prv, NS.PRV)
-        self.assertEqual(kb.ps, NS.PS)
-        self.assertEqual(kb.psn, NS.PSN)
-        self.assertEqual(kb.psv, NS.PSV)
-        self.assertEqual(kb.rdf, NS.RDF)
-        self.assertEqual(kb.rdfs, NS.RDFS)
-        self.assertEqual(kb.skos, NS.SKOS)
-        self.assertEqual(kb.wd, NS.WD)
-        self.assertEqual(kb.wdata, NS.WDATA)
-        self.assertEqual(kb.wdgenid, NS.WDGENID)
-        self.assertEqual(kb.wdno, NS.WDNO)
-        self.assertEqual(kb.wdref, NS.WDREF)
-        self.assertEqual(kb.wds, NS.WDS)
-        self.assertEqual(kb.wdt, NS.WDT)
-        self.assertEqual(kb.wdv, NS.WDV)
-        self.assertEqual(kb.wikibase, NS.WIKIBASE)
-        self.assertEqual(kb.xsd, NS.XSD)
 
     # -- page size --
 

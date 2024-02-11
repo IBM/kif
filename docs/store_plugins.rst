@@ -32,6 +32,15 @@ Error
    Store._must_be_implemented_in_subclass
    Store._should_not_get_here
 
+Caching
+~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   Store._cache
+   Store._cache_get_occurrence
+   Store._cache_set_occurrence
+
 Built-in stores
 ---------------
 

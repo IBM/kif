@@ -5,14 +5,10 @@ import sys
 from collections.abc import Iterable, Set
 from enum import auto, Flag
 
-from rdflib.graph import Graph
-from rdflib.namespace import NamespaceManager
-
-from .. import namespace as NS
 from ..cache import Cache
 from ..error import Error as KIF_Error
 from ..error import MustBeImplementedInSubclass, ShouldNotGetHere
-from ..itertools import batched, chain
+from ..itertools import batched
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -20,7 +16,6 @@ from ..model import (
     EntityFingerprint,
     FilterPattern,
     Fingerprint,
-    IRI,
     Item,
     ItemDescriptor,
     KIF_Object,
@@ -32,7 +27,6 @@ from ..model import (
     ReferenceRecordSet,
     Snak,
     Statement,
-    T_IRI,
     TCallable,
     TEntityFingerprint,
     Text,
@@ -40,10 +34,18 @@ from ..model import (
     TPropertyFingerprint,
     TReferenceRecordSet,
 )
-from ..typing import Any, cast, Iterator, NoReturn, Optional, TypeVar, Union
+from ..typing import (
+    Any,
+    cast,
+    Final,
+    Iterator,
+    NoReturn,
+    Optional,
+    TypeVar,
+    Union,
+)
 
 T = TypeVar('T')
-T_NS = NS.T_NS
 
 
 class Store(Set):
@@ -51,21 +53,20 @@ class Store(Set):
 
     Parameters:
        store_name: Store plugin to instantiate.
-       args: Arguments to concrete store.
-       flags: Configuration flags.
-       namespaces: Namespaces.
+       args: Arguments to store plugin.
+       flags: Store flags.
        page_size: Maximum size of result pages.
        timeout: Timeout in seconds.
-       kwargs: Keyword arguments to concrete store.
+       kwargs: Keyword arguments to store plugin.
     """
 
-    #: Store plugin registry.
+    #: The plugin registry.
     registry: dict[str, type['Store']] = dict()
 
-    #: The name of store plugin.
+    #: The name of this store plugin.
     store_name: str
 
-    #: The description of store plugin.
+    #: The description of this store plugin.
     store_description: str
 
     @classmethod
@@ -135,182 +136,65 @@ class Store(Set):
         '_cache',
         '_extra_references',
         '_flags',
-        '_nsm',
         '_page_size',
         '_timeout',
     )
-
-    _cache: Cache
-    _extra_references: Optional[ReferenceRecordSet]
-    _flags: 'Flags'
-    _nsm: NamespaceManager
-    _page_size: Optional[int]
-    _timeout: Optional[int]
 
     def __init__(
             self,
             *args: Any,
             extra_references: Optional[TReferenceRecordSet] = None,
             flags: Optional['Flags'] = None,
-            namespaces: Optional[dict[str, T_IRI]] = None,
             page_size: Optional[int] = None,
             timeout: Optional[int] = None,
             **kwargs: Any
     ):
         self._init_flags(flags)
-        self._cache = Cache(self.has_flags(self.CACHE))
-        self._init_nsm(namespaces or dict())
+        self._init_cache(self.has_flags(self.CACHE))
         self.set_extra_references(extra_references)
         self.set_page_size(page_size)
         self.set_timeout(timeout)
 
-    def _init_flags(self, flags: Optional['Flags'] = None):
-        if flags is None:
-            self._flags = self.DEFAULT
+    # -- Caching -----------------------------------------------------------
+
+    #: Object cache.
+    _cache: Cache
+
+    def _init_cache(self, enabled: bool):
+        self._cache = Cache(enabled)
+
+    def _cache_get_occurrence(
+            self,
+            obj: Union[Entity, Statement]
+    ) -> Optional[bool]:
+        """Gets the status of `obj` "occurrence" in cache.
+
+        Returns:
+           ``True`` if `obj` presence in store was confirmed;
+           ``False`` if `obj` absence from store was confirmed;
+           ``None`` otherwise (presence or absence is unknown).
+
+        """
+        return self._cache.get(obj, 'occurrence')
+
+    def _cache_set_occurrence(
+            self,
+            obj: Union[Entity, Statement],
+            status: Optional[bool] = None
+    ) -> Optional[bool]:
+        """Sets the status of `obj` "occurrence" in cache.
+
+        Parameter:
+           status: Occurrence status.
+
+        Returns:
+           Status.
+        """
+        if status is None:
+            self._cache.unset(obj, 'occurrence')
+            return None
         else:
-            self._flags = self.Flags(flags)
-
-    def _init_nsm(self, namespaces: dict[str, T_IRI]):
-        self._nsm = NamespaceManager(Graph())
-        ns_dict = dict()
-        for k, v in chain(NS._DEFAULT_NSM.namespaces(), namespaces.items()):
-            self._nsm.bind(k, v)
-            ns_dict[k] = v
-
-    # -- Extra references --------------------------------------------------
-
-    @property
-    def extra_references(self) -> ReferenceRecordSet:
-        """Extra references."""
-        return self.get_extra_references()
-
-    @extra_references.setter
-    def extra_references(
-            self,
-            references: Optional[TReferenceRecordSet] = None
-    ):
-        self.set_extra_references(references)
-
-    def get_extra_references(
-            self,
-            default=ReferenceRecordSet()
-    ) -> ReferenceRecordSet:
-        """Gets extra references.
-
-        If no extra references are set, returns `default`.
-
-        Parameters:
-           default: Default.
-
-        Returns:
-           Extra references.
-        """
-        return self._extra_references or default
-
-    def set_extra_references(
-            self,
-            references: Optional[TReferenceRecordSet] = None
-    ):
-        """Sets extra references.
-
-        Parameters:
-           references: References.
-        """
-        self._extra_references =\
-            ReferenceRecordSet._check_optional_arg_reference_record_set(
-                references, None, self.set_extra_references, 'references', 1)
-
-    # -- Page size ---------------------------------------------------------
-
-    @property
-    def page_size(self) -> int:
-        """Response page size."""
-        return self.get_page_size()
-
-    @page_size.setter
-    def page_size(self, page_size: Optional[int] = None):
-        self.set_page_size(page_size)
-
-    def get_page_size(
-            self,
-            default: int = 100
-    ) -> int:
-        """Gets response page size.
-
-        If no page size is set, returns `default`.
-
-        Parameters:
-           default: Default.
-
-        Returns:
-           Response page size.
-        """
-        return self._page_size or default
-
-    def set_page_size(
-            self,
-            page_size: Optional[int] = None
-    ):
-        """Sets response page size.
-
-        Parameters:
-           page_size: Page size.
-        """
-        self._page_size = KIF_Object._check_optional_arg_int(
-            page_size, None, self.set_page_size, 'page_size', 1)
-
-    def _batched(self, it: Iterable[T]) -> Iterable[tuple[T, ...]]:
-        return batched(it, self.page_size)
-
-    # -- Timeout -----------------------------------------------------------
-
-    @property
-    def timeout(self) -> Optional[int]:
-        """Timeout in seconds."""
-        return self.get_timeout()
-
-    @timeout.setter
-    def timeout(self, timeout: Optional[int] = None):
-        self.set_timeout(timeout)
-
-    def get_timeout(
-            self,
-            default: Optional[int] = None
-    ) -> Optional[int]:
-        """Gets timeout in seconds.
-
-        If no timeout is set, returns `default`.
-
-        Parameters:
-           default: Default.
-
-        Returns:
-           Timeout in seconds or ``None`` (no timeout).
-        """
-        return self._timeout or default
-
-    def set_timeout(
-            self,
-            timeout: Optional[int] = None
-    ):
-        """Sets timeout in seconds.
-
-        Parameters:
-           timeout: Timeout in seconds.
-        """
-        self._timeout = KIF_Object._check_optional_arg_int(
-            timeout, None, self.set_timeout, 'timeout', 1)
-
-    # -- Set interface -----------------------------------------------------
-
-    def __contains__(self, v):
-        return self.contains(v) if Statement.test(v) else False
-
-    def __iter__(self):
-        return self.filter()
-
-    def __len__(self):
-        return self.count()
+            return self._cache.set(obj, 'occurrence', status)
 
     # -- Flags -------------------------------------------------------------
 
@@ -385,6 +269,14 @@ class Store(Set):
     #: All flags.
     ALL = Flags.ALL
 
+    _flags: 'Flags'
+
+    def _init_flags(self, flags: Optional['Flags'] = None):
+        if flags is None:
+            self._flags = self.DEFAULT
+        else:
+            self._flags = self.Flags(flags)
+
     @property
     def flags(self) -> Flags:
         """The flags set in store."""
@@ -434,144 +326,152 @@ class Store(Set):
         """
         self.flags &= ~flags
 
-    # -- Caching -----------------------------------------------------------
+    # -- Extra references --------------------------------------------------
 
-    def _cache_get_occurrence(
-            self,
-            obj: Union[Entity, Statement]
-    ) -> Optional[bool]:
-        return self._cache.get(obj, 'occurrence')
-
-    def _cache_set_occurrence(
-            self,
-            obj: Union[Entity, Statement],
-            status: bool
-    ) -> bool:
-        return self._cache.set(obj, 'occurrence', status)
-
-    # -- Namespaces --------------------------------------------------------
+    _extra_references: Optional[ReferenceRecordSet]
 
     @property
-    def namespaces(self) -> dict[str, IRI]:
-        """The namespace dictionary of store."""
-        return self.get_namespaces()
+    def extra_references(self) -> ReferenceRecordSet:
+        """Extra references."""
+        return self.get_extra_references()
 
-    def get_namespaces(self) -> dict[str, IRI]:
-        """Gets the namespace dictionary of store.
+    @extra_references.setter
+    def extra_references(
+            self,
+            references: Optional[TReferenceRecordSet] = None
+    ):
+        self.set_extra_references(references)
+
+    def get_extra_references(
+            self,
+            default=ReferenceRecordSet()
+    ) -> ReferenceRecordSet:
+        """Gets extra references.
+
+        If no extra references are set, returns `default`.
+
+        Parameters:
+           default: Default.
 
         Returns:
-           The namespace dictionary of store.
+           Extra references.
         """
-        return dict(map(
-            lambda t: (t[0], IRI(t[1])), self._nsm.namespaces()))
+        return self._extra_references or default
+
+    def set_extra_references(
+            self,
+            references: Optional[TReferenceRecordSet] = None
+    ):
+        """Sets extra references.
+
+        Parameters:
+           references: References.
+        """
+        self._extra_references =\
+            ReferenceRecordSet._check_optional_arg_reference_record_set(
+                references, None, self.set_extra_references, 'references', 1)
+
+    # -- Page size ---------------------------------------------------------
+
+    _page_size: Optional[int]
+
+    #: The default page size.
+    _default_page_size: Final[int] = 100
+
+    #: The maximum page size.
+    _maximum_page_size: Final[int] = sys.maxsize
 
     @property
-    def dct(self) -> T_NS:
-        return NS.DCT
+    def page_size(self) -> int:
+        """Response page size."""
+        return self.get_page_size()
+
+    @page_size.setter
+    def page_size(self, page_size: Optional[int] = None):
+        self.set_page_size(page_size)
+
+    def get_page_size(
+            self,
+            default: int = 100
+    ) -> int:
+        """Gets response page size.
+
+        If no page size is set, returns `default`.
+
+        Parameters:
+           default: Default.
+
+        Returns:
+           Response page size.
+        """
+        return self._page_size or default
+
+    def set_page_size(
+            self,
+            page_size: Optional[int] = None
+    ):
+        """Sets response page size.
+
+        Parameters:
+           page_size: Page size.
+        """
+        self._page_size = KIF_Object._check_optional_arg_int(
+            page_size, None, self.set_page_size, 'page_size', 1)
+
+    def _batched(self, it: Iterable[T]) -> Iterable[tuple[T, ...]]:
+        return batched(it, self.page_size)
+
+    # -- Timeout -----------------------------------------------------------
+
+    _timeout: Optional[int]
 
     @property
-    def owl(self) -> T_NS:
-        return NS.OWL
+    def timeout(self) -> Optional[int]:
+        """Timeout in seconds."""
+        return self.get_timeout()
 
-    @property
-    def p(self) -> T_NS:
-        return NS.P
+    @timeout.setter
+    def timeout(self, timeout: Optional[int] = None):
+        self.set_timeout(timeout)
 
-    @property
-    def pq(self) -> T_NS:
-        return NS.PQ
+    def get_timeout(
+            self,
+            default: Optional[int] = None
+    ) -> Optional[int]:
+        """Gets timeout in seconds.
 
-    @property
-    def pqn(self) -> T_NS:
-        return NS.PQN
+        If no timeout is set, returns `default`.
 
-    @property
-    def pqv(self) -> T_NS:
-        return NS.PQV
+        Parameters:
+           default: Default.
 
-    @property
-    def pr(self) -> T_NS:
-        return NS.PR
+        Returns:
+           Timeout in seconds or ``None`` (no timeout).
+        """
+        return self._timeout or default
 
-    @property
-    def prn(self) -> T_NS:
-        return NS.PRN
+    def set_timeout(
+            self,
+            timeout: Optional[int] = None
+    ):
+        """Sets timeout in seconds.
 
-    @property
-    def prov(self) -> T_NS:
-        return NS.PROV
+        Parameters:
+           timeout: Timeout in seconds.
+        """
+        self._timeout = KIF_Object._check_optional_arg_int(
+            timeout, None, self.set_timeout, 'timeout', 1)
 
-    @property
-    def prv(self) -> T_NS:
-        return NS.PRV
+    # -- Set interface -----------------------------------------------------
 
-    @property
-    def ps(self) -> T_NS:
-        return NS.PS
+    def __contains__(self, v):
+        return self.contains(v) if Statement.test(v) else False
 
-    @property
-    def psn(self) -> T_NS:
-        return NS.PSN
+    def __iter__(self):
+        return self.filter()
 
-    @property
-    def psv(self) -> T_NS:
-        return NS.PSV
-
-    @property
-    def rdf(self) -> T_NS:
-        return NS.RDF
-
-    @property
-    def rdfs(self) -> T_NS:
-        return NS.RDFS
-
-    @property
-    def schema(self) -> T_NS:
-        return NS.SCHEMA
-
-    @property
-    def skos(self) -> T_NS:
-        return NS.SKOS
-
-    @property
-    def wd(self) -> T_NS:
-        return NS.WD
-
-    @property
-    def wdata(self) -> T_NS:
-        return NS.WDATA
-
-    @property
-    def wdgenid(self) -> T_NS:
-        return NS.WDGENID
-
-    @property
-    def wdno(self) -> T_NS:
-        return NS.WDNO
-
-    @property
-    def wdref(self) -> T_NS:
-        return NS.WDREF
-
-    @property
-    def wds(self) -> T_NS:
-        return NS.WDS
-
-    @property
-    def wdt(self) -> T_NS:
-        return NS.WDT
-
-    @property
-    def wdv(self) -> T_NS:
-        return NS.WDV
-
-    @property
-    def wikibase(self) -> T_NS:
-        return NS.WIKIBASE
-
-    @property
-    def xsd(self) -> T_NS:
-        return NS.XSD
+    def __len__(self):
+        return self.count()
 
     # -- Queries -----------------------------------------------------------
 
@@ -591,6 +491,7 @@ class Store(Set):
                 FilterPattern.from_statement(stmt))
             status = self._contains_tail(pat)
             status = self._cache_set_occurrence(stmt, status)
+        assert status is not None
         return status
 
     def _contains_tail(self, pattern: FilterPattern) -> bool:

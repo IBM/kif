@@ -283,9 +283,9 @@ At line {line}, column {column}:
             with q.where():
                 wds = q.var('wds')
                 if self.has_flags(self.BEST_RANK):
-                    q.triple(wds, self.rdf.type, self.wikibase.BestRank)
+                    q.triple(wds, NS.RDF.type, NS.WIKIBASE.BestRank)
                 else:
-                    q.triple(wds, self.wikibase.rank, q.var('rank'))
+                    q.triple(wds, NS.WIKIBASE.rank, q.var('rank'))
             return q
 
     def _parse_count_query_results(self, results: SPARQL_Results) -> int:
@@ -447,27 +447,27 @@ At line {line}, column {column}:
         # Push wds.
         q.triples(
             (t['subject'], t['p'], t['wds']),
-            (t['wds'], self.wikibase.rank, q.bnode()))
+            (t['wds'], NS.WIKIBASE.rank, q.bnode()))
         if self.has_flags(self.BEST_RANK):
-            q.triple(t['wds'], self.rdf.type, self.wikibase.BestRank)
+            q.triple(t['wds'], NS.RDF.type, NS.WIKIBASE.BestRank)
         if pat.property is None or pat.property.property is None:
             if pat.property is not None:
                 # Property is snak set: use ?property as basis.
                 assert pat.property.snak_set is not None
                 q.bind(
-                    q.substr(q.str_(t['property']), len(self.wd) + 1),
+                    q.substr(q.str_(t['property']), len(NS.WD) + 1),
                     cast(SPARQL_Builder.Variable, t['pname']))
                 self._push_filter_pattern_bind_pname_as(
-                    q, t, (self.p, 'p'))
+                    q, t, (NS.P, 'p'))
             else:
                 # Property is unknown: use ?p as basis.
                 q.bind(
-                    q.substr(q.str_(t['p']), len(self.p) + 1),
+                    q.substr(q.str_(t['p']), len(NS.P) + 1),
                     cast(SPARQL_Builder.Variable, t['pname']))
                 self._push_filter_pattern_bind_pname_as(
-                    q, t, (self.wd, 'property'))
+                    q, t, (NS.WD, 'property'))
             self._push_filter_pattern_bind_pname_as(
-                q, t, (self.ps, 'ps'), (self.psv, 'psv'), (self.wdno, 'wdno'))
+                q, t, (NS.PS, 'ps'), (NS.PSV, 'psv'), (NS.WDNO, 'wdno'))
         # Value.
         if pat.value is not None and pat.value.snak_set is not None:
             # Push value snak set.
@@ -515,7 +515,7 @@ At line {line}, column {column}:
                                     pass  # nothing to do
                 if try_no_value_snak:
                     cup.branch()
-                    q.triple(t['wds'], self.rdf.type, t['wdno'])
+                    q.triple(t['wds'], NS.RDF.type, t['wdno'])
         # Push subject, property, value entities/literals (if any).
         self._push_filter_patterns_as_values(q, t, [(0, pat)])
         return q
@@ -580,10 +580,10 @@ At line {line}, column {column}:
             name = NS.Wikidata.get_wikidata_name(prop_.iri.value)
             prop = prop_
             pname = String(name)
-            p = self.p[name]
-            ps = self.ps[name]
-            psv = self.psv[name]
-            wdno = self.wdno[name]
+            p = NS.P[name]
+            ps = NS.PS[name]
+            psv = NS.PSV[name]
+            wdno = NS.WDNO[name]
         # Value:
         if pat.value is not None and pat.value.value is not None:
             value = cast(Value, pat.value.value)
@@ -638,44 +638,44 @@ At line {line}, column {column}:
                 cup.branch()
                 q.triples(
                     (t[wds], t[psv], t[wdv]),
-                    (t[wdv], self.rdf.type, self.wikibase.QuantityValue),
-                    (t[wdv], self.wikibase.quantityAmount, t[qt_amount]))
+                    (t[wdv], NS.RDF.type, NS.WIKIBASE.QuantityValue),
+                    (t[wdv], NS.WIKIBASE.quantityAmount, t[qt_amount]))
                 with q.optional(
                         cond=(value is None or cast(
                             Quantity, value).unit is None)):
                     q.triple(
-                        t[wdv], self.wikibase.quantityUnit, t[qt_unit])
+                        t[wdv], NS.WIKIBASE.quantityUnit, t[qt_unit])
                 with q.optional(
                         cond=(value is None or cast(
                             Quantity, value).lower_bound is None)):
                     q.triple(
-                        t[wdv], self.wikibase.quantityLowerBound, t[qt_lower])
+                        t[wdv], NS.WIKIBASE.quantityLowerBound, t[qt_lower])
                 with q.optional(
                         cond=(value is None or cast(
                             Quantity, value).upper_bound is None)):
                     q.triple(
-                        t[wdv], self.wikibase.quantityUpperBound, t[qt_upper])
+                        t[wdv], NS.WIKIBASE.quantityUpperBound, t[qt_upper])
             if value is None or value.is_time():
                 cup.branch()
                 q.triples(
                     (t[wds], t[psv], t[wdv]),
-                    (t[wdv], self.rdf.type, self.wikibase.TimeValue),
-                    (t[wdv], self.wikibase.timeValue, t[tm_value]))
+                    (t[wdv], NS.RDF.type, NS.WIKIBASE.TimeValue),
+                    (t[wdv], NS.WIKIBASE.timeValue, t[tm_value]))
                 with q.optional(
                         cond=(value is None or cast(
                             Time, value).precision is None)):
                     q.triple(
-                        t[wdv], self.wikibase.timePrecision, t[tm_precision])
+                        t[wdv], NS.WIKIBASE.timePrecision, t[tm_precision])
                 with q.optional(
                         cond=(value is None or cast(
                             Time, value).timezone is None)):
                     q.triple(
-                        t[wdv], self.wikibase.timeTimezone, t[tm_timezone])
+                        t[wdv], NS.WIKIBASE.timeTimezone, t[tm_timezone])
                 with q.optional(
                         cond=(value is None or cast(
                             Time, value).calendar is None)):
                     q.triple(
-                        t[wdv], self.wikibase.timeCalendarModel,
+                        t[wdv], NS.WIKIBASE.timeCalendarModel,
                         t[tm_calendar])
         return q
 
@@ -689,16 +689,16 @@ At line {line}, column {column}:
             pname = NS.Wikidata.get_wikidata_name(snak.property.iri.value)
             if snak.is_value_snak():
                 val = cast(ValueSnak, snak).value
-                q.triple(subj, self.wdt[pname], val)
+                q.triple(subj, NS.WDT[pname], val)
             elif snak.is_some_value_snak():
                 some = q.var()
-                q.triple(subj, self.wdt[pname], some)
+                q.triple(subj, NS.WDT[pname], some)
                 self._push_some_value_filter(q, some)
             elif snak.is_no_value_snak():
                 wds = q.bnode()
                 q.triples(
-                    (subj, self.p[pname], wds),
-                    (wds, self.rdf.type, self.wdno[pname]))
+                    (subj, NS.P[pname], wds),
+                    (wds, NS.RDF.type, NS.WDNO[pname]))
             else:
                 raise self._should_not_get_here()
         return q
@@ -712,7 +712,7 @@ At line {line}, column {column}:
         cond = q.or_(
             q.isBlank(val),
             q.and_(q.isURI(val), q.strstarts(
-                q.str_(val), String(str(self.wdgenid)))))
+                q.str_(val), String(str(NS.WDGENID)))))
         if negate:
             return q.filter(q.not_(cond))
         else:
@@ -832,7 +832,7 @@ At line {line}, column {column}:
             q1 = None
         if no_values:           # q2 applies to no value stmts
             q2, t2 = self._make_get_wdss_query_start()
-            q2.triple(t2['wds'], self.rdf.type, t2['wdno'])
+            q2.triple(t2['wds'], NS.RDF.type, t2['wdno'])
             self._make_get_wdss_query_end(q2, t2, no_values)
         else:
             q2 = None
@@ -846,9 +846,9 @@ At line {line}, column {column}:
         q.where_start()
         q.triples(
             (t['subject'], t['p'], t['wds']),
-            (t['wds'], self.wikibase.rank, q.bnode()))
+            (t['wds'], NS.WIKIBASE.rank, q.bnode()))
         if self.has_flags(self.BEST_RANK):
-            q.triple(t['wds'], self.rdf.type, self.wikibase.BestRank)
+            q.triple(t['wds'], NS.RDF.type, NS.WIKIBASE.BestRank)
         return q, t
 
     def _make_get_wdss_query_end(
@@ -948,19 +948,19 @@ At line {line}, column {column}:
                     yield None
                     continue    # ignore unexpected prefix
                 ns, name = NS.Wikidata.split_wikidata_uri(pq)
-                if ns == self.pqn:
+                if ns == NS.PQN:
                     yield None
                     continue    # ignore normalized value
-                if ns != self.pq and ns != self.pqv:
+                if ns != NS.PQ and ns != NS.PQV:
                     yield None
                     continue    # ignore unexpected prefix
                 if 'datatype' in entry['qvalue']:
                     dt = entry['qvalue']['datatype']
-                    if (dt == str(self.xsd.dateTime)
-                            or dt == str(self.xsd.decimal)):
+                    if (dt == str(NS.XSD.dateTime)
+                            or dt == str(NS.XSD.decimal)):
                         yield None
                         continue  # ignore simple value
-                prop = Property(self.wd[name])
+                prop = Property(NS.WD[name])
                 snak = entry.check_snak(
                     prop, 'qvalue',
                     'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
@@ -972,25 +972,25 @@ At line {line}, column {column}:
                     yield None
                     continue    # ignore unexpected prefix
                 ns, name = NS.Wikidata.split_wikidata_uri(qvalue)
-                if ns != self.wdno:
+                if ns != NS.WDNO:
                     yield None
                     continue    # ignore unexpected prefix
-                prop = Property(self.wd[name])
+                prop = Property(NS.WD[name])
                 yield wds, rank, None, NoValueSnak(prop)
             elif 'pr' in entry and 'rvalue' in entry and 'wdref' in entry:
                 wdref = entry.check_uriref('wdref')
                 pr = entry.check_uriref('pr')
                 ns, name = NS.Wikidata.split_wikidata_uri(pr)
-                if ns == self.prn:
+                if ns == NS.PRN:
                     yield None
                     continue    # ignore normalized value
                 if 'datatype' in entry['rvalue']:
                     dt = entry['rvalue']['datatype']
-                    if (dt == str(self.xsd.dateTime)
-                            or dt == str(self.xsd.decimal)):
+                    if (dt == str(NS.XSD.dateTime)
+                            or dt == str(NS.XSD.decimal)):
                         yield None
                         continue  # ignore simple value
-                prop = Property(self.wd[name])
+                prop = Property(NS.WD[name])
                 snak = entry.check_snak(
                     prop, 'rvalue',
                     'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
@@ -1024,33 +1024,33 @@ At line {line}, column {column}:
             'wdv',
         )
         q.where_start()
-        q.triple(t['wds'], self.wikibase.rank, t['rank'])
+        q.triple(t['wds'], NS.WIKIBASE.rank, t['rank'])
         with q.values(t['wds']) as values:
             for wds in wdss:
                 values.push(wds)
         if self.has_flags(self.BEST_RANK):
-            q.triple(t['wds'], self.rdf.type, self.wikibase.BestRank)
+            q.triple(t['wds'], NS.RDF.type, NS.WIKIBASE.BestRank)
         q.optional_start()
         with q.union() as cup:
             # Qualifiers:
             cup.branch()
             q.triple(t['wds'], t['pq'], t['qvalue'])
             if self.has_flags(self.EARLY_FILTER):
-                q.filter(q.strstarts(q.str_(t['pq']), String(str(self.pq))))
+                q.filter(q.strstarts(q.str_(t['pq']), String(str(NS.PQ))))
             with q.optional():
                 self._push_deep_data_value(
                     q, t, None, 'wds', 'pq', 'qvalue')
             cup.branch()
-            q.triple(t['wds'], self.rdf.type, t['qvalue'])
+            q.triple(t['wds'], NS.RDF.type, t['qvalue'])
             if self.has_flags(self.EARLY_FILTER):
                 q.filter(q.strstarts(
-                    q.str_(t['qvalue']), String(str(self.wdno))))
+                    q.str_(t['qvalue']), String(str(NS.WDNO))))
             # References:
             cup.branch()
-            q.triple(t['wds'], self.prov.wasDerivedFrom, t['wdref'])
+            q.triple(t['wds'], NS.PROV.wasDerivedFrom, t['wdref'])
             q.triple(t['wdref'], t['pr'], t['rvalue'])
             if self.has_flags(self.EARLY_FILTER):
-                q.filter(q.strstarts(q.str_(t['pr']), String(str(self.pr))))
+                q.filter(q.strstarts(q.str_(t['pr']), String(str(NS.PR))))
             with q.optional():
                 self._push_deep_data_value(
                     q, t, None, 'wdref', 'pr', 'rvalue')
@@ -1177,25 +1177,25 @@ At line {line}, column {column}:
         nmask = len(mask)
         with q.where():
             # We use schema:version to ensure ?subject exists.
-            q.triple(t['subject'], self.schema.version, q.bnode())
+            q.triple(t['subject'], NS.SCHEMA.version, q.bnode())
             if cls is Property:
                 q.triple(
-                    t['subject'], self.wikibase.propertyType, t['datatype'])
+                    t['subject'], NS.WIKIBASE.propertyType, t['datatype'])
             with q.optional(cond=nmask > 0):
                 with q.union(cond=nmask > 1) as cup:
                     if mask & PlainDescriptor.LABEL:
-                        q.triple(t['subject'], self.rdfs.label, t['label'])
+                        q.triple(t['subject'], NS.RDFS.label, t['label'])
                         q.filter(q.eq(q.lang(t['label']), language))
                     if mask & PlainDescriptor.ALIASES:
                         cup.branch()
                         q.triple(
-                            t['subject'], self.skos.altLabel, t['alias'])
+                            t['subject'], NS.SKOS.altLabel, t['alias'])
                         q.filter(q.eq(q.lang(t['alias']), language))
                     if mask & PlainDescriptor.DESCRIPTION:
                         cup.branch()
                         q.triple(
                             t['subject'],
-                            self.schema.description, t['description'])
+                            NS.SCHEMA.description, t['description'])
                         q.filter(q.eq(q.lang(t['description']), language))
             with q.values(t['subject']) as values:
                 for entity in entities:
@@ -1250,11 +1250,11 @@ At line {line}, column {column}:
             'language',
             'subject')
         with q.where():
-            q.triple(t['subject'], self.schema.version, q.bnode())
-            q.triple(t['subject'], self.wikibase.lemma, t['lemma'])
+            q.triple(t['subject'], NS.SCHEMA.version, q.bnode())
+            q.triple(t['subject'], NS.WIKIBASE.lemma, t['lemma'])
             q.triple(
-                t['subject'], self.wikibase.lexicalCategory, t['category'])
-            q.triple(t['subject'], self.dct.language, t['language'])
+                t['subject'], NS.WIKIBASE.lexicalCategory, t['category'])
+            q.triple(t['subject'], NS.DCT.language, t['language'])
             with q.values(t['subject']) as values:
                 for lexeme in lexemes:
                     if Lexeme.test(lexeme):
