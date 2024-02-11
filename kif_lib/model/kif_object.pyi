@@ -31,7 +31,6 @@ from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
 from .snak import NoValueSnak, Snak, SomeValueSnak, ValueSnak
 from .snak_set import SnakSet
 from .statement import Statement
-from .value_set import TextSet, ValueSet
 from .value import (
     Datatype,
     DataValue,
@@ -58,6 +57,7 @@ from .value import (
     TimeDatatype,
     Value,
 )
+from .value_set import TextSet, ValueSet
 
 Datetime = datetime.datetime
 Decimal = decimal.Decimal

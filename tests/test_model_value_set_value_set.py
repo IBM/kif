@@ -1,15 +1,7 @@
-# Copyright (C) 2023-2024 IBM Corp.
+# Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import (
-    KIF_Object,
-    Property,
-    Quantity,
-    String,
-    Text,
-    Value,
-    ValueSet,
-)
+from kif_lib import KIF_Object, Property, Quantity, String, Text, ValueSet
 
 from .tests import kif_TestCase, main
 
