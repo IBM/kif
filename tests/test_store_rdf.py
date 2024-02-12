@@ -47,24 +47,24 @@ class TestRDF_Store(kif_StoreTestCase):
         # zero sources
         kb = Store('rdf')
         self.assertIsInstance(kb, RDF_Store)
-        self.assertEqual(kb._flags, Store.DEFAULT)
+        self.assertEqual(kb._flags, Store.default_flags)
         # one source
         kb = Store('rdf', BENZENE_TTL)
         self.assertIsInstance(kb, RDF_Store)
-        self.assertEqual(kb._flags, Store.DEFAULT)
+        self.assertEqual(kb._flags, Store.default_flags)
         # two sources
         kb = Store('rdf', BENZENE_TTL, BRAZIL_TTL)
         self.assertIsInstance(kb, RDF_Store)
-        self.assertEqual(kb._flags, Store.DEFAULT)
+        self.assertEqual(kb._flags, Store.default_flags)
         # data
         kb = Store('rdf', data=open(BENZENE_TTL).read(), format='ttl')
         self.assertIsInstance(kb, RDF_Store)
-        self.assertEqual(kb._flags, Store.DEFAULT)
+        self.assertEqual(kb._flags, Store.default_flags)
         # graph
         g = Graph()
         kb = Store('rdf', graph=g, skolemize=False)
         self.assertIsInstance(kb, RDF_Store)
-        self.assertEqual(kb._flags, Store.DEFAULT)
+        self.assertEqual(kb._flags, Store.default_flags)
         self.assertIs(kb._graph, g)
 
     # -- Set interface -----------------------------------------------------

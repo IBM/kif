@@ -46,9 +46,15 @@ Pagination
 .. autosummary::
    :toctree: generated/
 
-   Store.default_page_size
    Store.maximum_page_size
    Store._batched
+
+Timeout
+~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   Store.maximum_timeout
 
 Built-in stores
 ---------------

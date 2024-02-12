@@ -41,7 +41,7 @@ class TestSPARQL_Store(kif_StoreTestCase):
         # good arguments
         kb = Store('sparql', WIKIDATA)
         self.assertIsInstance(kb, SPARQL_Store)
-        self.assertEqual(kb._flags, Store.DEFAULT)
+        self.assertEqual(kb._flags, Store.default_flags)
 
     # -- Set interface -----------------------------------------------------
 

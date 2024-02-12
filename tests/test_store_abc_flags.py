@@ -8,15 +8,19 @@ from .tests import kif_StoreTestCase, main
 
 class TestStoreFlags(kif_StoreTestCase):
 
+    def test_flags_default(self):
+        kb = Store('empty')
+        self.assertEqual(kb.default_flags, kb.ALL)
+
     def test_flags_init(self):
         kb = Store('empty')
-        self.assertEqual(kb.flags, kb.DEFAULT)
+        self.assertEqual(kb.flags, kb.default_flags)
         kb = Store('empty', flags=0)
         self.assertEqual(kb.flags, kb.Flags(0))
 
     def test_get_flags(self):
         kb = Store('empty')
-        self.assertEqual(kb.flags, kb.DEFAULT)
+        self.assertEqual(kb.flags, kb.default_flags)
         self.assertEqual(kb.get_flags(), kb.flags)
         kb = Store('empty', flags=0)
         self.assertEqual(kb.flags, kb.Flags(0))

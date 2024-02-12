@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import sys
+
 from kif_lib import Items, Store
 
 from .tests import kif_StoreTestCase, main
@@ -8,13 +10,18 @@ from .tests import kif_StoreTestCase, main
 
 class TestStorePageSize(kif_StoreTestCase):
 
+    def test_page_size_defaults(self):
+        kb = Store('empty')
+        self.assertEqual(kb.default_page_size, 100)
+        self.assertEqual(kb.maximum_page_size, sys.maxsize)
+
     def test_page_size_init(self):
         kb = Store('empty')
-        self.assertTrue(kb.page_size, kb.default_page_size)
+        self.assertEqual(kb.page_size, kb.default_page_size)
         kb = Store('empty', page_size=33)
-        self.assertTrue(kb.page_size, 33)
+        self.assertEqual(kb.page_size, 33)
         kb = Store('empty', page_size=-1)
-        self.assertTrue(kb.page_size, kb.default_page_size)
+        self.assertEqual(kb.page_size, kb.default_page_size)
 
     def test_get_page_size(self):
         kb = Store('empty')

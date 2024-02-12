@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import sys
-from collections.abc import Iterable, Set
 from enum import auto, Flag
 
 from ..cache import Cache
@@ -38,9 +37,11 @@ from ..typing import (
     Any,
     cast,
     Final,
+    Iterable,
     Iterator,
     NoReturn,
     Optional,
+    Set,
     TypeVar,
     Union,
 )
@@ -54,13 +55,14 @@ class Store(Set):
     Parameters:
        store_name: Store plugin to instantiate.
        args: Arguments to store plugin.
-       flags: Store flags.
-       page_size: Size of paginated responses.
-       timeout: Timeout in seconds.
+       extra_references: Set of extra references to attach to statements.
+       flags: Configuration flags.
+       page_size: Page size of paginated responses.
+       timeout: Timeout (in seconds) of responses.
        kwargs: Keyword arguments to store plugin.
     """
 
-    #: The plugin registry.
+    #: The store plugin registry.
     registry: dict[str, type['Store']] = dict()
 
     #: The name of this store plugin.
@@ -154,10 +156,10 @@ class Store(Set):
         self.set_extra_references(extra_references)
         self.set_page_size(page_size)
         self.set_timeout(timeout)
+
+# -- Caching ---------------------------------------------------------------
 
-    # -- Caching -----------------------------------------------------------
-
-    #: Object cache.
+    #: The object cache of store.
     _cache: Cache
 
     def _init_cache(self, enabled: bool):
@@ -195,8 +197,58 @@ class Store(Set):
             return None
         else:
             return self._cache.set(obj, 'occurrence', status)
+
+# -- Extra references ------------------------------------------------------
 
-    # -- Flags -------------------------------------------------------------
+    #: The default set of extra references.
+    default_extra_references: Final[ReferenceRecordSet] =\
+        ReferenceRecordSet()
+
+    _extra_references: Optional[ReferenceRecordSet]
+
+    @property
+    def extra_references(self) -> ReferenceRecordSet:
+        """The set of extra references to attach to statements."""
+        return self.get_extra_references()
+
+    @extra_references.setter
+    def extra_references(
+            self,
+            references: Optional[TReferenceRecordSet] = None
+    ):
+        self.set_extra_references(references)
+
+    def get_extra_references(
+            self,
+            default=default_extra_references
+    ) -> ReferenceRecordSet:
+        """Gets the set of extra references to attach to statements.
+
+        If the set of extra references is ``None``, returns `default`.
+
+        Parameters:
+           default: Default set of references.
+
+        Returns:
+           Set of references.
+        """
+        return (self._extra_references
+                if self._extra_references is not None else default)
+
+    def set_extra_references(
+            self,
+            references: Optional[TReferenceRecordSet] = None
+    ):
+        """Sets the set of extra references to attach to statements.
+
+        Parameters:
+           references: Set of references.
+        """
+        self._extra_references =\
+            ReferenceRecordSet._check_optional_arg_reference_record_set(
+                references, None, self.set_extra_references, 'references', 1)
+
+# -- Flags -----------------------------------------------------------------
 
     class Flags(Flag):
         """Store flags."""
@@ -221,16 +273,6 @@ class Store(Set):
 
         #: Whether to enable late filtering.
         LATE_FILTER = auto()
-
-        #: Default flags.
-        DEFAULT = (
-            CACHE
-            | BEST_RANK
-            | VALUE_SNAK
-            | SOME_VALUE_SNAK
-            | NO_VALUE_SNAK
-            | EARLY_FILTER
-            | LATE_FILTER)
 
         #: All flags.
         ALL = (
@@ -263,17 +305,17 @@ class Store(Set):
     #: Whether to enable late filtering.
     LATE_FILTER = Flags.LATE_FILTER
 
-    #: Default flags.
-    DEFAULT = Flags.DEFAULT
-
     #: All flags.
     ALL = Flags.ALL
+
+    #: The default flags.
+    default_flags: Final['Flags'] = Flags.ALL
 
     _flags: 'Flags'
 
     def _init_flags(self, flags: Optional['Flags'] = None):
         if flags is None:
-            self._flags = self.DEFAULT
+            self._flags = self.default_flags
         else:
             self._flags = self.Flags(flags)
 
@@ -325,61 +367,16 @@ class Store(Set):
            flags: Store flags.
         """
         self.flags &= ~flags
-
-    # -- Extra references --------------------------------------------------
-
-    _extra_references: Optional[ReferenceRecordSet]
-
-    @property
-    def extra_references(self) -> ReferenceRecordSet:
-        """Extra references."""
-        return self.get_extra_references()
-
-    @extra_references.setter
-    def extra_references(
-            self,
-            references: Optional[TReferenceRecordSet] = None
-    ):
-        self.set_extra_references(references)
-
-    def get_extra_references(
-            self,
-            default=ReferenceRecordSet()
-    ) -> ReferenceRecordSet:
-        """Gets extra references.
-
-        If no extra references are set, returns `default`.
-
-        Parameters:
-           default: Default.
-
-        Returns:
-           Extra references.
-        """
-        return self._extra_references or default
-
-    def set_extra_references(
-            self,
-            references: Optional[TReferenceRecordSet] = None
-    ):
-        """Sets extra references.
-
-        Parameters:
-           references: References.
-        """
-        self._extra_references =\
-            ReferenceRecordSet._check_optional_arg_reference_record_set(
-                references, None, self.set_extra_references, 'references', 1)
-
-    # -- Page size ---------------------------------------------------------
-
-    _page_size: Optional[int]
+
+# -- Page size -------------------------------------------------------------
 
     #: The default page size.
     default_page_size: Final[int] = 100
 
     #: The maximum page size (absolute upper limit).
     maximum_page_size: Final[int] = sys.maxsize
+
+    _page_size: Optional[int]
 
     @property
     def page_size(self) -> int:
@@ -396,7 +393,7 @@ class Store(Set):
     ) -> int:
         """Gets the page size of paginated responses.
 
-        If page size is ``None``, returns `default`.
+        If the page size is ``None``, returns `default`.
 
         Parameters:
            default: Default page size.
@@ -410,7 +407,7 @@ class Store(Set):
             self,
             page_size: Optional[int] = None
     ):
-        """Sets the page size of paginated responses.
+        """Sets page size of paginated responses.
 
         If `page_size` is negative, assumes ``None``.
 
@@ -428,17 +425,23 @@ class Store(Set):
         """Batches `it` into tuples of page-size length.
 
         Returns:
-           The tuple batches.
+           The resulting batches.
         """
         return batched(it, self.page_size)
+
+# -- Timeout ---------------------------------------------------------------
 
-    # -- Timeout -----------------------------------------------------------
+    #: The default timeout (in seconds).
+    default_timeout: Final[Optional[int]] = None
+
+    #: The maximum timeout (absolute upper limit in seconds).
+    maximum_timeout: Final[int] = sys.maxsize
 
     _timeout: Optional[int]
 
     @property
     def timeout(self) -> Optional[int]:
-        """Timeout in seconds."""
+        """The timeout (in seconds) of responses."""
         return self.get_timeout()
 
     @timeout.setter
@@ -449,31 +452,37 @@ class Store(Set):
             self,
             default: Optional[int] = None
     ) -> Optional[int]:
-        """Gets timeout in seconds.
+        """Gets the timeout (in seconds) of responses.
 
-        If no timeout is set, returns `default`.
+        If the timeout is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default timeout.
 
         Returns:
-           Timeout in seconds or ``None`` (no timeout).
+           Timeout.
         """
-        return self._timeout or default
+        return self._timeout if self._timeout is not None else default
 
     def set_timeout(
             self,
             timeout: Optional[int] = None
     ):
-        """Sets timeout in seconds.
+        """Sets the timeout (in seconds) of responses.
+
+        If `timeout` is negative, assumes ``None``.
 
         Parameters:
-           timeout: Timeout in seconds.
+           timeout: Timeout (in seconds).
         """
-        self._timeout = KIF_Object._check_optional_arg_int(
+        timeout = self._timeout = KIF_Object._check_optional_arg_int(
             timeout, None, self.set_timeout, 'timeout', 1)
-
-    # -- Set interface -----------------------------------------------------
+        if timeout is None or timeout < 0:
+            self._timeout = None
+        else:
+            self._timeout = timeout
+
+# -- Set interface ---------------------------------------------------------
 
     def __contains__(self, v):
         return self.contains(v) if Statement.test(v) else False
