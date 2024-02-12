@@ -25,28 +25,32 @@ Datatype
    :toctree: generated/
 
    Datatype
-   Datatype.from_value_class
-   Datatype.to_value_class
 
-
-Predefined instances
-~~~~~~~~~~~~~~~~~~~~
+Attributes
+~~~~~~~~~~
 .. autosummary::
    :toctree: generated/
 
-   Datatype.item
-   Datatype.property
-   Datatype.lexeme
-   Datatype.iri
-   Datatype.text
-   Datatype.string
    Datatype.external_id
+   Datatype.iri
+   Datatype.item
+   Datatype.lexeme
+   Datatype.property
    Datatype.quantity
+   Datatype.string
+   Datatype.text
    Datatype.time
 
+Methods
+~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   Datatype.from_value_class
+   Datatype.to_value_class
 
 Concrete subclasses
-~~~~~~~~~~~~~~~~~~~
+-------------------
 .. autosummary::
    :toctree: generated/
 

@@ -6,7 +6,7 @@ Model
    :maxdepth: 1
    :caption: Core
 
-   object
+   kif_object
    datatype
    value
    descriptor
@@ -21,3 +21,9 @@ Model
 
    fingerprint
    pattern
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Errors
+
+   errors

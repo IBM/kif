@@ -97,7 +97,7 @@ class Snak(KIF_Object):
         """Gets the mask of this snak class.
 
         Returns:
-           Mask
+           Mask.
         """
         return cls.mask
 

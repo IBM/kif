@@ -27,10 +27,22 @@ PlainDescriptor
    :toctree: generated/
 
    PlainDescriptor
+
+.. rubric:: Attributes
+.. autosummary::
+   :toctree: generated/
+
    PlainDescriptor.label
    PlainDescriptor.aliases
    PlainDescriptor.description
 
+.. rubric:: Methods
+.. autosummary::
+   :toctree: generated/
+
+   PlainDescriptor.get_label
+   PlainDescriptor.get_aliases
+   PlainDescriptor.get_description
 
 ItemDescriptor
 --------------
@@ -39,15 +51,26 @@ ItemDescriptor
 
    ItemDescriptor
 
-
 PropertyDescriptor
 ------------------
 .. autosummary::
    :toctree: generated/
 
    PropertyDescriptor
+
+Attributes
+~~~~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
    PropertyDescriptor.datatype
 
+Methods
+~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   PropertyDescriptor.get_datatype
 
 LexemeDescriptor
 ----------------
@@ -55,6 +78,21 @@ LexemeDescriptor
    :toctree: generated/
 
    LexemeDescriptor
+
+Attributes
+~~~~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
    LexemeDescriptor.lemma
    LexemeDescriptor.category
    LexemeDescriptor.language
+
+Methods
+~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   LexemeDescriptor.get_lemma
+   LexemeDescriptor.get_category
+   LexemeDescriptor.get_language

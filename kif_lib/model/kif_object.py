@@ -33,7 +33,7 @@ TNil = object.TNil
 # -- KIF Object ------------------------------------------------------------
 
 class KIF_Object(object.Object):
-    """Abstract base class for objects."""
+    """Abstract base class for KIF objects."""
 
     def _repr_markdown_(self):
         return self.to_markdown()

@@ -183,7 +183,7 @@ class Value(KIF_Object):
         """Gets the mask of this value class.
 
         Returns:
-           Mask
+           Mask.
         """
         return cls.mask
 
@@ -1020,31 +1020,31 @@ class Time(DeepDataValue):
 class Datatype(KIF_Object):
     """Abstract base class for datatypes."""
 
-    #: Datatype of :class:`Item`.
+    #: The datatype of :class:`Item`.
     item: 'ItemDatatype'
 
-    #: Datatype of :class:`Property`.
+    #: The datatype of :class:`Property`.
     property: 'PropertyDatatype'
 
-    #: Datatype of :class:`Lexeme`.
+    #: The datatype of :class:`Lexeme`.
     lexeme: 'LexemeDatatype'
 
-    #: Datatype of :class:`IRI`.
+    #: The datatype of :class:`IRI`.
     iri: 'IRI_Datatype'
 
-    #: Datatype of :class:`Text`.
+    #: The datatype of :class:`Text`.
     text: 'TextDatatype'
 
-    #: Datatype of :class:`String`.
+    #: The datatype of :class:`String`.
     string: 'StringDatatype'
 
-    #: Datatype of :class:`ExternalId`.
+    #: The datatype of :class:`ExternalId`.
     external_id: 'ExternalIdDatatype'
 
-    #: Datatype of :class:`Quantity`.
+    #: The datatype of :class:`Quantity`.
     quantity: 'QuantityDatatype'
 
-    #: Datatype of :class:`Time`.
+    #: The datatype of :class:`Time`.
     time: 'TimeDatatype'
 
     @classmethod
@@ -1106,7 +1106,7 @@ class Datatype(KIF_Object):
     @classmethod
     @cache
     def from_value_class(cls, value_class: type[Value]) -> 'Datatype':
-        """Gets the datatype of value class.
+        """Gets the datatype of `value_class`.
 
         Parameters:
            value_class: Value class.

@@ -109,7 +109,7 @@ class ObjectMeta(abc.ABCMeta):
         def f_test(arg: Any) -> bool:
             return cls.test(arg)
         f_test.__doc__ = f"""\
-        Tests whether object is :class:`{cls.__qualname__}`.
+        Tests whether object is of class :class:`{cls.__qualname__}`.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
@@ -131,7 +131,7 @@ class ObjectMeta(abc.ABCMeta):
         s = 'check_' + cls._snake_case_name
         f_check = mk_check_(s)
         f_check.__doc__ = f"""\
-        Checks whether object is :class:`{cls.__qualname__}`.
+        Checks whether object is of class :class:`{cls.__qualname__}`.
 
         Parameters:
            function: Function or function name.
@@ -139,10 +139,10 @@ class ObjectMeta(abc.ABCMeta):
            position: Argument position.
 
         Returns:
-           :class:`{cls.__qualname__}`.
+           Object.
 
         Raises:
-           TypeError: Object is not :class:`{cls.__qualname__}`.
+           TypeError: Object is not of :class:`{cls.__qualname__}`.
         """
         setattr(top, s, f_check)
 
@@ -157,13 +157,13 @@ class ObjectMeta(abc.ABCMeta):
             return cls.unpack(
                 arg, function=function, name=name, position=position)
         f_unpack.__doc__ = f"""\
-        Unpacks arguments of :class:`{cls.__qualname__}`.
+        Unpacks arguments of object of class :class:`{cls.__qualname__}`.
 
         Returns:
-           :class:`{cls.__qualname__}`'s arguments unpacked.
+           The arguments of object unpacked.
 
         Raises:
-           TypeError: Object is not :class:`{cls.__qualname__}`.
+           TypeError: Object is not of class :class:`{cls.__qualname__}`.
         """
         s = 'unpack_' + cls._snake_case_name
         setattr(top, s, f_unpack)
@@ -261,7 +261,7 @@ class ObjectMeta(abc.ABCMeta):
                 mk_preprocess_optional_arg_(cls))
         setattr(top, s_preprocess_optional_arg, f_preprocess_optional_arg)
 
-
+
 # -- Object ----------------------------------------------------------------
 
 @functools.total_ordering
@@ -276,14 +276,13 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
 
     @classmethod
     def test(cls, obj: Any) -> bool:
-        """Tests `obj` class.
+        """Tests whether `obj` is of this class.
 
         Parameters:
            obj: Value.
 
         Returns:
-           ``True`` if `obj` is an instance of this class;
-           ``False`` otherwise.
+           ``True`` if `obj` is of this class; ``False`` otherwise.
         """
         return isinstance(obj, cls)
 
@@ -295,7 +294,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union['Object', NoReturn]:
-        """Checks `obj` class.
+        """Checks whether `obj` is of this class.
 
         Parameters:
            obj: Value.
@@ -320,7 +319,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union[Optional['Object'], NoReturn]:
-        """Checks optional `obj` class.
+        """Checks whether optional `obj` is of this class.
 
         If `obj` is ``None``, returns `default`.
 
@@ -332,7 +331,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
            position: Argument position.
 
         Returns:
-           `obj`.
+           `obj` or `default`.
 
         Raises:
            TypeError: `obj` is not an instance of this class.
@@ -373,7 +372,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union[TArgs, NoReturn]:
-        """Unpacks `obj`'s arguments.
+        """Unpacks arguments of `obj` of this class.
 
         Parameters:
            obj: Object.
@@ -382,7 +381,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
            position: Argument position.
 
         Returns:
-           `obj`'s arguments unpacked.
+           The arguments of `obj` unpacked.
 
         Raises:
            TypeError: `obj` is not an instance of this class.
@@ -463,14 +462,14 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
 
     @property
     def digest(self) -> str:
-        """The string digest of object."""
+        """The digest of object."""
         return self.get_digest()
 
     def get_digest(self) -> str:
-        """Gets the string digest of object.
+        """Gets the digest of object.
 
         Returns:
-           String digest.
+           Digest.
         """
         if self._digest is None:
             self._digest = self._hexdigest(self.dumps())
@@ -502,13 +501,13 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         return copy.deepcopy(self, memo=memo)
 
     def replace(self, *args: Any) -> 'Object':
-        """Shallow-copies object overwriting the given arguments.
+        """Shallow-copies object overwriting its arguments.
 
-        If a given argument is `None`, keeps the value of the corresponding
-        argument in the resulting object.
+        If an argument is ``None`` in `args`, keeps the value of the
+        corresponding argument in the resulting object.
 
-        If a given argument is :attr:`Nil`, sets the corresponding argument
-        to `None` in the resulting object.
+        If an argument is :attr:`Nil` in `args`, sets the corresponding
+        argument to ``None`` in the resulting object.
 
         Parameters:
            args: Arguments.
@@ -546,7 +545,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
            The resulting string.
 
         Raises:
-           `EncoderError`: Encoder error
+           `EncoderError`: Encoder error.
         """
         setattr(cls, 'to_' + encoder.format, f_to)
 
