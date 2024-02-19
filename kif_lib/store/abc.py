@@ -53,12 +53,12 @@ class Store(Set):
     """Store factory.
 
     Parameters:
-       store_name: Store plugin to instantiate.
+       store_name: Name of the store plugin to instantiate.
        args: Arguments to store plugin.
        extra_references: Set of extra references to attach to statements.
        flags: Configuration flags.
        page_size: Page size of paginated responses.
-       timeout: Timeout (in seconds) of responses.
+       timeout: Timeout of responses (in seconds).
        kwargs: Keyword arguments to store plugin.
     """
 
@@ -165,11 +165,11 @@ class Store(Set):
     def _init_cache(self, enabled: bool):
         self._cache = Cache(enabled)
 
-    def _cache_get_occurrence(
+    def _cache_get_presence(
             self,
             obj: Union[Entity, Statement]
     ) -> Optional[bool]:
-        """Gets the status of `obj` "occurrence" in cache.
+        """Gets the status of `obj` presence in cache.
 
         Returns:
            ``True`` if `obj` presence in store was confirmed;
@@ -177,26 +177,26 @@ class Store(Set):
            ``None`` otherwise (presence or absence is unknown).
 
         """
-        return self._cache.get(obj, 'occurrence')
+        return self._cache.get(obj, 'presence')
 
-    def _cache_set_occurrence(
+    def _cache_set_presence(
             self,
             obj: Union[Entity, Statement],
             status: Optional[bool] = None
     ) -> Optional[bool]:
-        """Sets the status of `obj` "occurrence" in cache.
+        """Sets the status of `obj` presence in cache.
 
         Parameter:
-           status: Occurrence status.
+           status: Presence status.
 
         Returns:
            Status.
         """
         if status is None:
-            self._cache.unset(obj, 'occurrence')
+            self._cache.unset(obj, 'presence')
             return None
         else:
-            return self._cache.set(obj, 'occurrence', status)
+            return self._cache.set(obj, 'presence', status)
 
 # -- Extra references ------------------------------------------------------
 
@@ -389,11 +389,13 @@ class Store(Set):
 
     def get_page_size(
             self,
-            default: int = default_page_size
+            default: Optional[int] = None
     ) -> int:
         """Gets the page size of paginated responses.
 
         If the page size is ``None``, returns `default`.
+
+        If `default` is ``None``, assumes :attr:`Store.default_page_size`.
 
         Parameters:
            default: Default page size.
@@ -401,7 +403,12 @@ class Store(Set):
         Returns:
            Page size.
         """
-        return self._page_size if self._page_size is not None else default
+        if self._page_size is not None:
+            return self._page_size
+        elif default is not None:
+            return min(default, self.maximum_page_size)
+        else:
+            return self.default_page_size
 
     def set_page_size(
             self,
@@ -434,14 +441,14 @@ class Store(Set):
     #: The default timeout (in seconds).
     default_timeout: Final[Optional[int]] = None
 
-    #: The maximum timeout (absolute upper limit in seconds).
+    #: The maximum timeout (absolute upper limit, in seconds).
     maximum_timeout: Final[int] = sys.maxsize
 
     _timeout: Optional[int]
 
     @property
     def timeout(self) -> Optional[int]:
-        """The timeout (in seconds) of responses."""
+        """The timeout of responses (in seconds)."""
         return self.get_timeout()
 
     @timeout.setter
@@ -452,9 +459,11 @@ class Store(Set):
             self,
             default: Optional[int] = None
     ) -> Optional[int]:
-        """Gets the timeout (in seconds) of responses.
+        """Gets the timeout of responses (in seconds).
 
         If the timeout is ``None``, returns `default`.
+
+        If `default` is ``None``, assumes :attr:`Store.default_timeout`.
 
         Parameters:
            default: Default timeout.
@@ -462,13 +471,18 @@ class Store(Set):
         Returns:
            Timeout.
         """
-        return self._timeout if self._timeout is not None else default
+        if self._timeout is not None:
+            return self._timeout
+        elif default is not None:
+            return min(default, self.maximum_timeout)
+        else:
+            return self.default_timeout
 
     def set_timeout(
             self,
             timeout: Optional[int] = None
     ):
-        """Sets the timeout (in seconds) of responses.
+        """Sets the timeout of responses (in seconds).
 
         If `timeout` is negative, assumes ``None``.
 
@@ -505,12 +519,12 @@ class Store(Set):
            ``True`` if successful; ``False`` otherwise.
         """
         Statement.check(stmt, self.contains, 'stmt', 1)
-        status = self._cache_get_occurrence(stmt)
+        status = self._cache_get_presence(stmt)
         if status is None:
             pat = self._normalize_filter_pattern(
                 FilterPattern.from_statement(stmt))
             status = self._contains_tail(pat)
-            status = self._cache_set_occurrence(stmt, status)
+            status = self._cache_set_presence(stmt, status)
         assert status is not None
         return status
 

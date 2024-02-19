@@ -1,8 +1,8 @@
-=======
-Plugins
-=======
+==========
+Plugin API
+==========
 
-.. currentmodule:: kif_lib.store
+.. currentmodule:: kif_lib
 
 .. inheritance-diagram:: Store
                          EmptyStore
@@ -14,20 +14,19 @@ Plugins
    :parts: -3
    :caption: Store plugin hierarchy.
 
-Internal API
-------------
+Identification
+--------------
 .. autosummary::
-   :toctree: generated/
-
    Store.store_name
    Store.store_description
    Store.registry
 
-Error
-~~~~~
-.. autosummary::
-   :toctree: generated/
+Internal API
+------------
 
+Error handling
+~~~~~~~~~~~~~~
+.. autosummary::
    Store._error
    Store._must_be_implemented_in_subclass
    Store._should_not_get_here
@@ -35,61 +34,51 @@ Error
 Caching
 ~~~~~~~
 .. autosummary::
-   :toctree: generated/
-
    Store._cache
-   Store._cache_get_occurrence
-   Store._cache_set_occurrence
+   Store._cache_get_presence
+   Store._cache_set_presence
 
 Pagination
 ~~~~~~~~~~
 .. autosummary::
-   :toctree: generated/
-
    Store.maximum_page_size
    Store._batched
 
 Timeout
 ~~~~~~~
 .. autosummary::
-   :toctree: generated/
-
    Store.maximum_timeout
 
 Built-in stores
 ---------------
 
+.. currentmodule:: kif_lib.store
+
 EmptyStore
 ~~~~~~~~~~
 .. autosummary::
-   :toctree: generated/
-
    EmptyStore
 
 MixerStore
 ~~~~~~~~~~
 .. autosummary::
-   :toctree: generated/
-
    MixerStore
+   MixerStore.sources
+   MixerStore.sync_flags
 
 RDF_Store
 ~~~~~~~~~
 .. autosummary::
-   :toctree: generated/
-
    RDF_Store
 
 SPARQL_MapperStore
 ~~~~~~~~~~~~~~~~~~
 .. autosummary::
-   :toctree: generated/
-
    SPARQL_MapperStore
+   SPARQL_MapperStore.mapping
 
 SPARQL_Store
 ~~~~~~~~~~~~
 .. autosummary::
-   :toctree: generated/
-
    SPARQL_Store
+   SPARQL_Store.iri

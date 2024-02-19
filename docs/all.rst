@@ -10,10 +10,6 @@ Datatype
    :toctree: generated/
 
    Datatype
-
-.. autosummary::
-   :toctree: generated/
-
    Datatype.external_id
    Datatype.from_value_class
    Datatype.iri
@@ -25,6 +21,15 @@ Datatype
    Datatype.text
    Datatype.time
    Datatype.to_value_class
+
+EmptyStore
+----------
+.. autosummary::
+   :toctree: generated/
+
+   ~kif_lib.store.EmptyStore
+   ~kif_lib.store.EmptyStore.store_description
+   ~kif_lib.store.EmptyStore.store_name
 
 ExternalIdDatatype
 ------------------
@@ -300,6 +305,19 @@ LexemeDatatype
 
    LexemeDatatype
 
+MixerStore
+----------
+.. autosummary::
+   :toctree: generated/
+
+   ~kif_lib.store.MixerStore
+   ~kif_lib.store.MixerStore.get_sources
+   ~kif_lib.store.MixerStore.get_sync_flags
+   ~kif_lib.store.MixerStore.sources
+   ~kif_lib.store.MixerStore.store_description
+   ~kif_lib.store.MixerStore.store_name
+   ~kif_lib.store.MixerStore.sync_flags
+
 PropertyDatatype
 ----------------
 .. autosummary::
@@ -313,6 +331,82 @@ QuantityDatatype
    :toctree: generated/
 
    QuantityDatatype
+
+RDF_Store
+---------
+.. autosummary::
+   :toctree: generated/
+
+   ~kif_lib.store.RDF_Store
+   ~kif_lib.store.RDF_Store.store_description
+   ~kif_lib.store.RDF_Store.store_name
+
+SPARQL_MapperStore
+------------------
+.. autosummary::
+   :toctree: generated/
+
+   ~kif_lib.store.SPARQL_MapperStore
+   ~kif_lib.store.SPARQL_MapperStore.get_mapping
+   ~kif_lib.store.SPARQL_MapperStore.mapping
+   ~kif_lib.store.SPARQL_MapperStore.store_description
+   ~kif_lib.store.SPARQL_MapperStore.store_name
+
+SPARQL_Store
+------------
+.. autosummary::
+   :toctree: generated/
+
+   ~kif_lib.store.SPARQL_Store
+   ~kif_lib.store.SPARQL_Store.get_iri
+   ~kif_lib.store.SPARQL_Store.iri
+   ~kif_lib.store.SPARQL_Store.store_description
+   ~kif_lib.store.SPARQL_Store.store_name
+
+Store
+-----
+.. autosummary::
+   :toctree: generated/
+
+   Store
+   Store.ALL
+   Store.BEST_RANK
+   Store.CACHE
+   Store.EARLY_FILTER
+   Store.LATE_FILTER
+   Store.NO_VALUE_SNAK
+   Store.SOME_VALUE_SNAK
+   Store.VALUE_SNAK
+   Store._batched
+   Store._cache
+   Store._cache_get_presence
+   Store._cache_set_presence
+   Store._error
+   Store._must_be_implemented_in_subclass
+   Store._should_not_get_here
+   Store.default_extra_references
+   Store.default_flags
+   Store.default_page_size
+   Store.default_timeout
+   Store.extra_references
+   Store.flags
+   Store.get_extra_references
+   Store.get_flags
+   Store.get_page_size
+   Store.get_timeout
+   Store.has_flags
+   Store.maximum_page_size
+   Store.maximum_timeout
+   Store.page_size
+   Store.registry
+   Store.set_extra_references
+   Store.set_flags
+   Store.set_page_size
+   Store.set_timeout
+   Store.store_description
+   Store.store_name
+   Store.timeout
+   Store.unset_flags
 
 StringDatatype
 --------------
