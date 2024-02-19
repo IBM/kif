@@ -10,7 +10,7 @@ A knowledge integration framework based on Wikidata.
    model
    store
    internal
-   definitions
+   all
 
 Indices and tables
 ==================

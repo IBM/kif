@@ -35,7 +35,6 @@ Copying
    KIF_Object.deepcopy
    KIF_Object.replace
 
-
 Encoding
 --------
 .. autosummary::

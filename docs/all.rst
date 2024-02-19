@@ -1,12 +1,54 @@
-===========
-Definitions
-===========
+===
+All
+===
 
 .. currentmodule:: kif_lib
 
+Datatype
+--------
+.. autosummary::
+   :toctree: generated/
+
+   Datatype
+
+.. autosummary::
+   :toctree: generated/
+
+   Datatype.external_id
+   Datatype.from_value_class
+   Datatype.iri
+   Datatype.item
+   Datatype.lexeme
+   Datatype.property
+   Datatype.quantity
+   Datatype.string
+   Datatype.text
+   Datatype.time
+   Datatype.to_value_class
+
+ExternalIdDatatype
+------------------
+.. autosummary::
+   :toctree: generated/
+
+   ExternalIdDatatype
+
+IRI_Datatype
+------------
+.. autosummary::
+   :toctree: generated/
+
+   IRI_Datatype
+
+ItemDatatype
+------------
+.. autosummary::
+   :toctree: generated/
+
+   ItemDatatype
+
 KIF Object
 ----------
-
 .. autosummary::
    :toctree: generated/
    :template: autosummary/class_with_inherited_members.rst
@@ -250,3 +292,45 @@ KIF Object
    KIF_Object.unpack_value
    KIF_Object.unpack_value_set
    KIF_Object.unpack_value_snak
+
+LexemeDatatype
+--------------
+.. autosummary::
+   :toctree: generated/
+
+   LexemeDatatype
+
+PropertyDatatype
+----------------
+.. autosummary::
+   :toctree: generated/
+
+   PropertyDatatype
+
+QuantityDatatype
+----------------
+.. autosummary::
+   :toctree: generated/
+
+   QuantityDatatype
+
+StringDatatype
+--------------
+.. autosummary::
+   :toctree: generated/
+
+   StringDatatype
+
+TextDatatype
+------------
+.. autosummary::
+   :toctree: generated/
+
+   TextDatatype
+
+TimeDatatype
+------------
+.. autosummary::
+   :toctree: generated/
+
+   TimeDatatype

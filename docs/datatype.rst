@@ -19,41 +19,12 @@ Datatype
    :parts: -3
    :caption: Datatype hierarchy.
 
-Datatype
---------
 .. autosummary::
-   :toctree: generated/
-
    Datatype
-
-Attributes
-~~~~~~~~~~
-.. autosummary::
-   :toctree: generated/
-
-   Datatype.external_id
-   Datatype.iri
-   Datatype.item
-   Datatype.lexeme
-   Datatype.property
-   Datatype.quantity
-   Datatype.string
-   Datatype.text
-   Datatype.time
-
-Methods
-~~~~~~~
-.. autosummary::
-   :toctree: generated/
-
-   Datatype.from_value_class
-   Datatype.to_value_class
 
 Concrete subclasses
 -------------------
 .. autosummary::
-   :toctree: generated/
-
    ItemDatatype
    PropertyDatatype
    LexemeDatatype
@@ -63,3 +34,9 @@ Concrete subclasses
    ExternalIdDatatype
    QuantityDatatype
    TimeDatatype
+
+Value-class conversion
+----------------------
+.. autosummary::
+   Datatype.from_value_class
+   Datatype.to_value_class

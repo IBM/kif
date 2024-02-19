@@ -142,7 +142,7 @@ class ObjectMeta(abc.ABCMeta):
            Object.
 
         Raises:
-           TypeError: Object is not of :class:`{cls.__qualname__}`.
+           TypeError: Object is not of class :class:`{cls.__qualname__}`.
         """
         setattr(top, s, f_check)
 
@@ -276,13 +276,14 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
 
     @classmethod
     def test(cls, obj: Any) -> bool:
-        """Tests whether `obj` is of this class.
+        """Tests whether `obj` is an instance of this class.
 
         Parameters:
            obj: Value.
 
         Returns:
-           ``True`` if `obj` is of this class; ``False`` otherwise.
+           ``True`` if `obj` is an instance of this class;
+           ``False`` otherwise.
         """
         return isinstance(obj, cls)
 
@@ -294,7 +295,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union['Object', NoReturn]:
-        """Checks whether `obj` is of this class.
+        """Checks whether `obj` is an instance of this class.
 
         Parameters:
            obj: Value.
@@ -319,7 +320,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union[Optional['Object'], NoReturn]:
-        """Checks whether optional `obj` is of this class.
+        """Checks whether optional `obj` is an instance of this class.
 
         If `obj` is ``None``, returns `default`.
 
@@ -334,7 +335,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
            `obj` or `default`.
 
         Raises:
-           TypeError: `obj` is not an instance of this class.
+           TypeError: `obj` is not an instance an instance of this class.
         """
         return cls._check_optional(
             obj, default, function or cls.check_optional, name, position)
@@ -503,10 +504,10 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
     def replace(self, *args: Any) -> 'Object':
         """Shallow-copies object overwriting its arguments.
 
-        If an argument is ``None`` in `args`, keeps the value of the
+        If argument is ``None`` in `args`, keeps the value of the
         corresponding argument in the resulting object.
 
-        If an argument is :attr:`Nil` in `args`, sets the corresponding
+        If argument is :attr:`Nil` in `args`, sets the corresponding
         argument to ``None`` in the resulting object.
 
         Parameters:
@@ -549,11 +550,11 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         """
         setattr(cls, 'to_' + encoder.format, f_to)
 
-    def dump(self, fp: IO[Any], format: Optional[str] = None, **kwargs):
-        """Encodes object and writes the result to stream.
+    def dump(self, stream: IO[Any], format: Optional[str] = None, **kwargs):
+        """Encodes object and writes the result to `stream`.
 
         Parameters:
-           fp: A ``.write()``-supporting file-like object.
+           stream: A ``.write()``-supporting file-like object.
            format: Encoding format.
            kwargs: Encoder options.
 
@@ -562,7 +563,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         """
         enc = Encoder.from_format(format, self.dump, 'format', 2)
         for chunk in enc(**kwargs).iterencode(self):
-            fp.write(chunk)
+            stream.write(chunk)
 
     def dumps(self, format: Optional[str] = None, **kwargs) -> str:
         """Encodes object and returns the resulting string.
@@ -610,14 +611,14 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
     @classmethod
     def load(
             cls,
-            fp: IO[Any],
+            stream: IO[Any],
             format: Optional[str] = None,
             **kwargs
     ) -> Union['Object', NoReturn]:
-        """Decodes stream and returns the resulting object.
+        """Decodes `stream` and returns the resulting object.
 
         Parameters:
-           fp: A ``.read()``-supporting file-like object.
+           stream: A ``.read()``-supporting file-like object.
            format: Decoding format.
            kwargs: Decoder options.
 
@@ -627,7 +628,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         Raises:
            `DecoderError`: Decoder error.
         """
-        return cls.loads(fp.read(), format, **kwargs)
+        return cls.loads(stream.read(), format, **kwargs)
 
     @classmethod
     def loads(
@@ -647,7 +648,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
            The resulting object.
 
         Raises:
-           `DecoderError`: Decoder error
+           `DecoderError`: Decoder error.
         """
         dec = Decoder.from_format(format, cls.loads, 'format', 2)
         return cls.check(dec(**kwargs).decode(s), cls.load)
@@ -1076,10 +1077,10 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
 
     @classmethod
     def _camel2snake(cls, name: str) -> str:
-        """Converts from camel-case name to snake-case.
+        """Converts camel-case `name` to snake-case.
 
         Parameters:
-           name: Name (i.e., id-like :class:`str`).
+           name: Id-like name.
 
         Returns:
            `name` converted to snake-case.
