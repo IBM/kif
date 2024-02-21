@@ -19,7 +19,7 @@ T = TypeVar('T')
 S = TypeVar('S')
 
 
-class MixerStore(Store, name='mixer', description='Mixer store'):
+class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
     """Mixer store.
 
     Parameters:

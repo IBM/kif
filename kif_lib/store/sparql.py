@@ -65,7 +65,8 @@ TOpq = Union[BNode, URIRef]
 TTrm = SPARQL_Builder.TTrm
 
 
-class SPARQL_Store(Store, name='sparql', description='SPARQL endpoint'):
+class SPARQL_Store(
+        Store, store_name='sparql', store_description='SPARQL endpoint'):
     """SPARQL store.
 
     Parameters:
@@ -1173,15 +1174,14 @@ At line {line}, column {column}:
             'label',
             'subject')
         language = String(lang)
-        nmask = len(mask)
         with q.where():
             # We use schema:version to ensure ?subject exists.
             q.triple(t['subject'], NS.SCHEMA.version, q.bnode())
             if cls is Property:
                 q.triple(
                     t['subject'], NS.WIKIBASE.propertyType, t['datatype'])
-            with q.optional(cond=nmask > 0):
-                with q.union(cond=nmask > 1) as cup:
+            with q.optional(cond=(mask & PlainDescriptor.ALL)):
+                with q.union() as cup:
                     if mask & PlainDescriptor.LABEL:
                         q.triple(t['subject'], NS.RDFS.label, t['label'])
                         q.filter(q.eq(q.lang(t['label']), language))

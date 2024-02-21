@@ -18,7 +18,7 @@ from .sparql_results import SPARQL_Results
 LOG = logging.getLogger(__name__)
 
 
-class RDF_Store(SPARQL_Store, name='rdf', description='RDF file'):
+class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
     """RDF store.
 
     Parameters:

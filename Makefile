@@ -277,14 +277,14 @@ gen-tox-ini:
 	@echo 'skip_missing_interpreters = true' >>${TOX_INI}
 	@echo '' >>${TOX_INI}
 	@echo '[testenv]' >>${TOX_INI}
-	@echo 'commands = py.test {posargs}' >>${TOX_INI}
+	@echo 'commands = {posargs:py.test}' >>${TOX_INI}
 	@echo 'extras = tests' >>${TOX_INI}
 	@echo 'passenv =' >>${TOX_INI}
 	@echo "$(call split,${TOX_PASSENV})" >> ${TOX_INI}
 	@echo '[testenv:mypy]' >>${TOX_INI}
 	@echo 'commands = mypy -p ${PACKAGE}' >>${TOX_INI}
 
-# refresh idents
+# refresh indents
 .PHONY: ident
 ident:
 	for f in `grep ident .gitattributes | sed 's/\s*ident$$//'`; do\
@@ -304,7 +304,12 @@ install-deps:
 # run tox
 .PHONY: tox
 tox:
-	${TOX_SETENV} ${TOX} ${TOX_OPTIONS}
+	${TOX_SETENV} ${TOX} ${TOX_OPTIONS} $(if ${ENV},-e ${ENV})
+
+# debug tox environment
+.PHONY: tox-debug
+tox-debug:
+	${TOX_SETENV} ${TOX} -e $(or ${ENV},py311) -- python
 
 # uninstall package
 .PHONY: uninstall

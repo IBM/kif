@@ -72,14 +72,19 @@ class Store(Set):
     store_description: str
 
     @classmethod
-    def _register(cls, store: type['Store'], name: str, description: str):
-        store.store_name = name
-        store.store_description = description
+    def _register(
+            cls,
+            store: type['Store'],
+            store_name: str,
+            store_description: str
+    ):
+        store.store_name = store_name
+        store.store_description = store_description
         cls.registry[store.store_name] = store
 
     @classmethod
-    def __init_subclass__(cls, name: str, description: str):
-        Store._register(cls, name, description)
+    def __init_subclass__(cls, store_name: str, store_description: str):
+        Store._register(cls, store_name, store_description)
 
     def __new__(cls, store_name: str, *args: Any, **kwargs: Any):
         KIF_Object._check_arg(
