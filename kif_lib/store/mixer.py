@@ -23,9 +23,9 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
     """Mixer store.
 
     Parameters:
-       store_name: Store plugin to instantiate.
+       store_name: Name of the store plugin to instantiate.
        sources: Sources to mix.
-       sync_flags: Whether to sync flags.
+       sync_flags: Whether to sync store flags.
     """
 
     __slots__ = (
@@ -33,8 +33,8 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
         '_sync_flags',
     )
 
-    _sources: Sequence[Store]   # sources to mix
-    _sync_flags: bool           # whether to sync flag changes
+    _sources: Sequence[Store]
+    _sync_flags: bool
 
     def __init__(
             self,
@@ -57,24 +57,24 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
 
     @property
     def sources(self) -> Iterable[Store]:
-        """Underlying sources."""
+        """The mixed sources."""
         return self.get_sources()
 
     def get_sources(self) -> Iterable[Store]:
-        """Get underlying sources.
+        """Gets the mixed underlying sources.
 
         Returns:
-           Underlying sources.
+           Mixed sources.
         """
         return self._sources
 
     @property
     def sync_flags(self) -> bool:
-        """Whether to sync flags."""
+        """Whether to sync store flags."""
         return self.get_sync_flags()
 
     def get_sync_flags(self) -> bool:
-        """Tests whether to sync flags.
+        """Tests whether to sync store flags.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
@@ -88,8 +88,8 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
             for src in self.sources:
                 src.flags = new
         return True
-
-    # -- Queries -----------------------------------------------------------
+
+# -- Filtering -------------------------------------------------------------
 
     def _contains(self, pattern: FilterPattern) -> bool:
         return any(map(lambda kb: kb._contains(pattern), self._sources))
@@ -121,8 +121,8 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
                 limit -= 1
             except StopIteration:
                 exausted.add(src)
-
-    # -- Annotations -------------------------------------------------------
+
+# -- Annotations -----------------------------------------------------------
 
     def _get_annotations(
             self,
@@ -167,8 +167,8 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
                     except StopIteration:
                         break
                 assert len(batch) == n
-
-    # -- Descriptor --------------------------------------------------------
+
+# -- Descriptors -----------------------------------------------------------
 
     # def _get_descriptor(
     #         self,

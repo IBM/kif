@@ -22,7 +22,7 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
     """RDF store.
 
     Parameters:
-       store_name: Store plugin to instantiate.
+       store_name: Name of the store plugin to instantiate.
        source: An input source, file, path, or string.
        args: More input sources, files, paths, or strings.
        publicID: Logical URI to use as the document base.

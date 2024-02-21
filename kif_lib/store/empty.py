@@ -1,15 +1,31 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from collections.abc import Iterable
-
-from ..model import AnnotationRecordSet, FilterPattern, Statement
-from ..typing import Iterator, Optional
+from ..model import (
+    AnnotationRecordSet,
+    FilterPattern,
+    Item,
+    ItemDescriptor,
+    Lexeme,
+    LexemeDescriptor,
+    Property,
+    PropertyDescriptor,
+    Statement,
+)
+from ..typing import Any, Iterable, Iterator, Optional
 from .abc import Store
 
 
 class EmptyStore(Store, store_name='empty', store_description='Empty store'):
-    """Empty store."""
+    """Empty store.
+
+    Parameters:
+       store_name: Name of the store plugin to instantiate.
+    """
+
+    def __init__(self, store_name: str, *args, **kwargs: Any):
+        assert store_name == self.store_name
+        super().__init__(*args, **kwargs)
 
     def _contains(self, pattern: FilterPattern) -> bool:
         return False
@@ -28,5 +44,26 @@ class EmptyStore(Store, store_name='empty', store_description='Empty store'):
             self,
             stmts: Iterable[Statement],
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
-        for stmt in stmts:
-            yield stmt, None
+        return map(lambda stmt: (stmt, None), stmts)
+
+    def _get_item_descriptor(
+            self,
+            items: Iterable[Item],
+            lang: str,
+            mask: ItemDescriptor.AttributeMask
+    ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
+        return map(lambda item: (item, None), items)
+
+    def _get_property_descriptor(
+            self,
+            properties: Iterable[Property],
+            lang: str,
+            mask: PropertyDescriptor.AttributeMask
+    ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
+        return map(lambda property: (property, None), properties)
+
+    def _get_lexeme_descriptor(
+            self,
+            lexemes: Iterable[Lexeme],
+    ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
+        return map(lambda lexeme: (lexeme, None), lexemes)

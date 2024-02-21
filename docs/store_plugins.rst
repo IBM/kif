@@ -5,11 +5,11 @@ Plugin API
 .. currentmodule:: kif_lib
 
 .. inheritance-diagram:: Store
-                         EmptyStore
-                         MixerStore
-                         RDF_Store
-                         SPARQL_MapperStore
-                         SPARQL_Store
+                         kif_lib.store.empty.EmptyStore
+                         kif_lib.store.mixer.MixerStore
+                         kif_lib.store.rdf.RDF_Store
+                         kif_lib.store.mapper.SPARQL_MapperStore
+                         kif_lib.store.sparql.SPARQL_Store
    :top-classes: kif_lib.store.abc.Store
    :parts: -3
    :caption: Store plugin hierarchy.

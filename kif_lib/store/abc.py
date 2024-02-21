@@ -62,8 +62,8 @@ class Store(Set):
        kwargs: Keyword arguments to store plugin.
     """
 
-    #: The store plugin registry.
-    registry: dict[str, type['Store']] = dict()
+    #: The global plugin registry.
+    registry: Final[dict[str, type['Store']]] = dict()
 
     #: The name of this store plugin.
     store_name: str
@@ -177,9 +177,9 @@ class Store(Set):
         """Gets the status of `obj` presence in cache.
 
         Returns:
-           ``True`` if `obj` presence in store was confirmed;
-           ``False`` if `obj` absence from store was confirmed;
-           ``None`` otherwise (presence or absence is unknown).
+           ``True`` if `obj` is present;
+           ``False`` if `obj` is not present;
+           ``None`` otherwise (`obj` presence is unknown).
 
         """
         return self._cache.get(obj, 'presence')
@@ -366,7 +366,7 @@ class Store(Set):
         self.flags |= flags
 
     def unset_flags(self, flags: Flags):
-        """Unset `flags` in store.
+        """Unsets `flags` in store.
 
         Parameters:
            flags: Store flags.
@@ -511,8 +511,8 @@ class Store(Set):
 
     def __len__(self):
         return self.count()
-
-    # -- Queries -----------------------------------------------------------
+
+# -- Statements ------------------------------------------------------------
 
     def contains(self, stmt: Statement) -> bool:
         """Tests whether statement is in store.
@@ -711,8 +711,8 @@ class Store(Set):
             limit: int
     ) -> Iterator[Statement]:
         raise self._must_be_implemented_in_subclass()
-
-    # -- Annotations -------------------------------------------------------
+
+# -- Annotations -------------------------------------------------------
 
     def filter_annotated(
             self,
@@ -823,8 +823,24 @@ class Store(Set):
             stmts: Iterable[Statement],
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
         raise self._must_be_implemented_in_subclass()
+
+# -- Entities --------------------------------------------------------------
 
-    # -- Descriptors -------------------------------------------------------
+    def has_item(
+        self,
+        items: Union[Item, Iterable[Item]],
+    ) -> Iterable[tuple[Item, bool]]:
+        """Tests whether items are in store.
+
+        Parameters:
+           items: Items.
+
+        Returns:
+           An iterator of pairs: item, status.
+        """
+        return iter([])
+
+# -- Descriptors -----------------------------------------------------------
 
     def get_item_descriptor(
             self,
@@ -851,7 +867,7 @@ class Store(Set):
             ItemDescriptor.\
             _check_optional_arg_plain_descriptor_attribute_mask(
                 descriptor_mask, ItemDescriptor.ALL,
-                self.get_item_descriptor, 'mask', 3)
+                self.get_item_descriptor, 'descriptor_mask', 3)
         assert mask is not None
         if Item.test(items):
             return self._get_item_descriptor(
@@ -894,7 +910,7 @@ class Store(Set):
             PropertyDescriptor.\
             _check_optional_arg_plain_descriptor_attribute_mask(
                 descriptor_mask, PropertyDescriptor.ALL,
-                self.get_property_descriptor, 'mask', 3)
+                self.get_property_descriptor, 'descriptor_mask', 3)
         assert mask is not None
         if Property.test(properties):
             return self._get_property_descriptor(
