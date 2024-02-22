@@ -45,6 +45,8 @@ class EmptyStore(Store, store_name='empty', store_description='Empty store'):
             stmts: Iterable[Statement],
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
         return map(lambda stmt: (stmt, None), stmts)
+
+# -- Descriptors -----------------------------------------------------------
 
     def _get_item_descriptor(
             self,

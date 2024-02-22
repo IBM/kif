@@ -845,7 +845,7 @@ class Store(Set):
     def get_item_descriptor(
             self,
             items: Union[Item, Iterable[Item]],
-            language: str = Text.default_language,
+            language: Optional[str] = None,
             descriptor_mask: Optional[ItemDescriptor.TAttributeMask] = None
     ) -> Iterable[tuple[Item, Optional[ItemDescriptor]]]:
         """Gets descriptor of items.
@@ -861,8 +861,10 @@ class Store(Set):
         KIF_Object._check_arg_isinstance(
             items, (Item, Iterable),
             self.get_item_descriptor, 'items', 1)
-        KIF_Object._check_arg_str(
-            language, self.get_item_descriptor, 'language', 2)
+        lang = KIF_Object._check_optional_arg_str(
+            language, Text.default_language,
+            self.get_item_descriptor, 'language', 2)
+        assert lang is not None
         mask =\
             ItemDescriptor.\
             _check_optional_arg_plain_descriptor_attribute_mask(
@@ -870,12 +872,11 @@ class Store(Set):
                 self.get_item_descriptor, 'descriptor_mask', 3)
         assert mask is not None
         if Item.test(items):
-            return self._get_item_descriptor(
-                [cast(Item, items)], language, mask)
+            return self._get_item_descriptor([cast(Item, items)], lang, mask)
         else:
             return self._get_item_descriptor(map(
                 lambda e: cast(Item, Item.check(
-                    e, self.get_item_descriptor)), items), language, mask)
+                    e, self.get_item_descriptor)), items), lang, mask)
 
     def _get_item_descriptor(
             self,

@@ -123,7 +123,6 @@ __all__ = [
     'SomeValueSnak',
     'Statement',
     'Store',
-    'StoreError',
     'String',
     'StringDatatype',
     'Text',

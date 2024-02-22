@@ -20,7 +20,6 @@
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix wd: <http://www.wikidata.org/entity/> .
 @prefix wdata: <http://www.wikidata.org/wiki/Special:EntityData/> .
-@prefix wdgenid: <http://www.wikidata.org/.well-known/genid/> .
 @prefix wdno: <http://www.wikidata.org/prop/novalue/> .
 @prefix wdref: <http://www.wikidata.org/reference/> .
 @prefix wds: <http://www.wikidata.org/entity/statement/> .
@@ -29,55 +28,13 @@
 @prefix wikibase: <http://wikiba.se/ontology#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-# adam
-wd:Q70899
-
-    # description
+# instance of
+wd:P31
     schema:version "0"^^xsd:integer ;
-    rdfs:label "Adam"@en ;
-    rdfs:label "Adão"@pt-br ;
-    schema:description "first man according to the Abrahamic creation and religions such as Judaism, Christianity, and Islam"@en ;
-    schema:description "figura bíblica do livro de Gênesis"@pt-br ;
-
-    # family name
-    wdt:P734 wdgenid:some_family_name ;
-    p:P734 [
-        a wikibase:BestRank ;
-        wikibase:rank wikibase:NormalRank ;
-        ps:P734 wdgenid:some_family_name ;
-        ] ;
-
-
-    # father
-    p:P22 [
-        a wikibase:BestRank ;
-        wikibase:rank wikibase:NormalRank ;
-        a wdno:P22 ;
-        ] ;
-
-    # date of birth
-    p:P569 [
-        a wikibase:BestRank ;
-        wikibase:rank wikibase:PreferredRank ;
-        a wdno:P569 ;
-        prov:wasDerivedFrom [
-            pr:P854 "http://islamqa.info/ar/20907" ;
-            ] ;
-        ] ;
-
-    # date of birth
-    p:P569 [
-        wikibase:rank wikibase:NormalRank ;
-        ps:P569 "4003-01-01T00:00:00Z"^^xsd:dateTime ;
-        psv:P569 [
-            a wikibase:TimeValue ;
-            wikibase:timeValue "4003-01-01T00:00:00Z"^^xsd:dateTime ;
-            wikibase:timePrecision "9"^^xsd:integer ;
-            wikibase:timeTimezone "0"^^xsd:integer ;
-            wikibase:timeCalendarModel wd:Q1985786 ;
-            ] ;
-        pq:P3680 "https://amazingbibletimeline.com/timeline_online/" ;
-        prov:wasDerivedFrom [
-            pr:P854 "https://amazingbibletimeline.com/timeline_online/" ;
-            ] ;
-        ] .
+    wikibase:propertyType wikibase:WikibaseItem ;
+    rdfs:label "instance of"@en ;
+    skos:altLabel "is a"@en ;
+    skos:altLabel "type"@en ;
+    skos:altLabel "is of type"@en ;
+    skos:altLabel "has type"@en ;
+    schema:description "that class of which this subject is a particular example and member; different from P279 (subclass of); for example: K2 is an instance of mountain; volcano is a subclass of mountain (and an instance of volcanic landform)"@en .

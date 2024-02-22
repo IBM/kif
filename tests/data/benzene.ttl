@@ -30,15 +30,21 @@
 
 # InChIKey
 wd:P235
+
+    # description
+    schema:version "0"^^xsd:integer ;
     wikibase:propertyType wikibase:ExternalId ;
-    wdt:P31 wd:Q19833835 ;      # instance of
+
+    # instance of
+    wdt:P31 wd:Q19833835 ;
     p:P31 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:NormalRank ;
         ps:P31 wd:Q19833835 ;
         ] ;
 
-    wdt:P1659 wd:P234 ;         # related property
+    # related property
+    wdt:P1659 wd:P234 ;
     p:P1659 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:NormalRank ;

@@ -1057,8 +1057,8 @@ At line {line}, column {column}:
         q.optional_end()
         q.where_end()
         return q
-
-    # -- Descriptors -------------------------------------------------------
+
+# -- Descriptors -----------------------------------------------------------
 
     def _get_item_descriptor(
             self,
@@ -1175,7 +1175,7 @@ At line {line}, column {column}:
             'subject')
         language = String(lang)
         with q.where():
-            # We use schema:version to ensure ?subject exists.
+            # We use schema:version check whether ?subject exists.
             q.triple(t['subject'], NS.SCHEMA.version, q.bnode())
             if cls is Property:
                 q.triple(

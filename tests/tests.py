@@ -26,15 +26,18 @@ from kif_lib import (
     Item,
     ItemDatatype,
     ItemDescriptor,
+    Items,
     KIF_Object,
     KIF_ObjectSet,
     Lexeme,
     LexemeDatatype,
     LexemeDescriptor,
+    Lexemes,
     NormalRank,
     NoValueSnak,
     Pattern,
     PreferredRank,
+    Properties,
     Property,
     PropertyDatatype,
     PropertyDescriptor,
@@ -618,6 +621,12 @@ class kif_TestCase(TestCase):
 
 class kif_StoreTestCase(kif_TestCase):
 
+    def parse(self, text):
+        from kif_lib.namespace import PREFIXES
+        pre = '\n'.join(
+            map(lambda t: f'@prefix {t[0]}: <{t[1]}> .', PREFIXES.items()))
+        return Store('rdf', format='ttl', data=pre + '\n\n' + text)
+
     def store_sanity_checks(self, kb):
         self.assert_raises_bad_argument(
             ValueError, 1, 'store_name', None, Store, 'xxx')
@@ -1026,22 +1035,114 @@ class kif_StoreTestCase(kif_TestCase):
             self.assertEqual(stmt, pairs[i][0])
             self.assertIsNone(annots)
         kb.flags = saved_flags
+
+# -- Descriptors -----------------------------------------------------------
 
-    # -- get_descriptor --
+    # -- get_item_descriptor --
 
-    def store_test_get_descriptor_bad_argument(self, kb):
+    def sanity_check_get_item_descriptor(self, kb):
+        self.sanity_check_get_item_descriptor_bad_args(kb)
+        self.sanity_check_get_item_descriptor_vacuous_calls(kb)
+
+    def sanity_check_get_item_descriptor_bad_args(self, kb):
         self.assert_raises_bad_argument(
-            TypeError, 1, 'entities', None, kb.get_descriptor, 0)
+            TypeError, 1, 'items', 'expected Item or Iterable, got int',
+            kb.get_item_descriptor, 0)
         self.assert_raises_bad_argument(
-            TypeError, 2, 'language', None, kb.get_descriptor, [], 0)
+            TypeError, 2, 'language', 'expected str, got int',
+            kb.get_item_descriptor, Item('Q1'), 0)
+        self.assert_raises_bad_argument(
+            TypeError, 3, 'descriptor_mask',
+            'expected PlainDescriptor.AttributeMask or int, got str',
+            kb.get_item_descriptor, Item('Q1'), 'pt', 'abc')
 
-    def store_test_get_descriptor_empty(self, kb):
-        self.assertRaises(StopIteration, next, kb.get_descriptor([]))
+    def sanity_check_get_item_descriptor_vacuous_calls(self, kb):
+        items = list(Items('_Q0', '_Q1', '_Q2', '_Q0'))
+        desc = list(kb.get_item_descriptor([]))
+        self.assertEqual(desc, list())
+        desc = list(kb.get_item_descriptor(items[0]))
+        self.assertEqual(desc, [(items[0], None)])
+        desc = list(kb.get_item_descriptor(items, 'pt'))
+        self.assertEqual(desc, [
+            (items[0], None),
+            (items[1], None),
+            (items[2], None),
+            (items[0], None),
+        ])
+        desc = list(kb.get_item_descriptor(items[1:], descriptor_mask=0))
+        self.assertEqual(desc, [
+            (items[1], None),
+            (items[2], None),
+            (items[0], None),
+        ])
 
-    def store_test_get_descriptor(self, kb, pairs, lang, entity, *entities):
-        # single entity
-        got = list(kb.get_descriptor(entity, lang))
-        self.assertEqual(got[0], pairs[0])
-        # multiple entities
-        got = list(kb.get_descriptor(entities, lang))
-        self.assertEqual(got, pairs[1:])
+    # -- get_property_descriptor --
+
+    def sanity_check_get_property_descriptor(self, kb):
+        self.sanity_check_get_property_descriptor_bad_args(kb)
+        self.sanity_check_get_property_descriptor_vacuous_calls(kb)
+
+    def sanity_check_get_property_descriptor_bad_args(self, kb):
+        self.assert_raises_bad_argument(
+            TypeError, 1,
+            'properties', 'expected Iterable or Property, got int',
+            kb.get_property_descriptor, 0)
+        self.assert_raises_bad_argument(
+            TypeError, 2, 'language', 'expected str, got int',
+            kb.get_property_descriptor, Property('P1'), 0)
+        self.assert_raises_bad_argument(
+            TypeError, 3, 'descriptor_mask',
+            'expected PlainDescriptor.AttributeMask or int, got str',
+            kb.get_property_descriptor, Property('P1'), 'pt', 'abc')
+
+    def sanity_check_get_property_descriptor_vacuous_calls(self, kb):
+        props = list(Properties('_P0', '_P1', '_P2', '_P0'))
+        desc = list(kb.get_property_descriptor([]))
+        self.assertEqual(desc, list())
+        desc = list(kb.get_property_descriptor(props[0]))
+        self.assertEqual(desc, [(props[0], None)])
+        desc = list(kb.get_property_descriptor(props, 'pt'))
+        self.assertEqual(desc, [
+            (props[0], None),
+            (props[1], None),
+            (props[2], None),
+            (props[0], None),
+        ])
+        desc = list(kb.get_property_descriptor(props[1:], descriptor_mask=0))
+        self.assertEqual(desc, [
+            (props[1], None),
+            (props[2], None),
+            (props[0], None),
+        ])
+
+    # -- get_lexeme_descriptor --
+
+    def sanity_check_get_lexeme_descriptor(self, kb):
+        self.sanity_check_get_lexeme_descriptor_bad_args(kb)
+        self.sanity_check_get_lexeme_descriptor_vacuous_calls(kb)
+
+    def sanity_check_get_lexeme_descriptor_bad_args(self, kb):
+        self.assert_raises_bad_argument(
+            TypeError, 1,
+            'lexemes', 'expected Iterable or Lexeme, got int',
+            kb.get_lexeme_descriptor, 0)
+
+    def sanity_check_get_lexeme_descriptor_vacuous_calls(self, kb):
+        lexs = list(Lexemes('_L0', '_L1', '_L2', '_L0'))
+        desc = list(kb.get_lexeme_descriptor([]))
+        self.assertEqual(desc, list())
+        desc = list(kb.get_lexeme_descriptor(lexs[0]))
+        self.assertEqual(desc, [(lexs[0], None)])
+        desc = list(kb.get_lexeme_descriptor(lexs))
+        self.assertEqual(desc, [
+            (lexs[0], None),
+            (lexs[1], None),
+            (lexs[2], None),
+            (lexs[0], None),
+        ])
+        desc = list(kb.get_lexeme_descriptor(lexs[1:]))
+        self.assertEqual(desc, [
+            (lexs[1], None),
+            (lexs[2], None),
+            (lexs[0], None)
+        ])
