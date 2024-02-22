@@ -170,6 +170,16 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     # -- inherited from Object --
 
     @classmethod
+    def _check_arg_statement(
+            cls,
+            arg: Optional[Statement],
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Statement, NoReturn]:
+        ...
+
+    @classmethod
     def _check_optional_arg_fingerprint(
             cls,
             arg: Optional[TFingerprint],

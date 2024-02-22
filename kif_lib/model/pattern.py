@@ -15,6 +15,7 @@ from .fingerprint import (
 from .kif_object import KIF_Object
 from .snak import Snak, ValueSnak
 from .statement import Statement
+from .value import Quantity, Time
 
 at_property = property
 
@@ -214,6 +215,68 @@ class FilterPattern(Pattern):
            ``True`` if successful; ``False`` otherwise.
         """
         return not self.is_empty()
+
+    def match(self, stmt: Statement) -> bool:
+        """Tests whether filter pattern shallow-matches statement.
+
+        Parameters:
+            stmt: Statement.
+
+        Returns:
+            ``True`` if successful; ``False`` otherwise.
+        """
+        self._check_arg_statement(stmt, self.match, 'stmt', 1)
+        # Snak mask mismatch.
+        if not bool(self.snak_mask & stmt.snak.mask):
+            return False
+        # Subject mismatch.
+        if (self.subject is not None
+            and self.subject.entity is not None
+                and self.subject.entity != stmt.subject):
+            return False
+        # Property mismatch.
+        if (self.property is not None
+            and self.property.property is not None
+                and self.property.property != stmt.snak.property):
+            return False
+        # Value mismatch.
+        if (self.value is not None
+                and self.value.value is not None):
+            assert stmt.snak.is_value_snak()
+            value = cast(ValueSnak, stmt.snak).value
+            if type(self.value.value) is not type(value):
+                return False
+            if not value.is_deep_data_value():
+                if self.value.value != value:
+                    return False
+            elif value.is_quantity():
+                assert self.value.value.is_quantity()
+                pat_qt = cast(Quantity, self.value.value)
+                qt = cast(Quantity, value)
+                if (pat_qt.amount != qt.amount
+                    or (pat_qt.unit is not None
+                        and pat_qt.unit != qt.unit)
+                    or (pat_qt.lower_bound is not None
+                        and pat_qt.lower_bound != qt.lower_bound)
+                    or (pat_qt.upper_bound is not None
+                        and pat_qt.upper_bound != qt.upper_bound)):
+                    return False
+            elif value.is_time():
+                assert self.value.value.is_time()
+                pat_tm = cast(Time, self.value.value)
+                tm = cast(Time, value)
+                if (pat_tm.time != tm.time
+                    or (pat_tm.precision is not None
+                        and pat_tm.precision != tm.precision)
+                    or (pat_tm.timezone is not None
+                        and pat_tm.timezone != tm.timezone)
+                    or (pat_tm.calendar is not None
+                        and pat_tm.calendar != tm.calendar)):
+                    return False
+            else:
+                raise self._should_not_get_here()
+        # Success.
+        return True
 
     def combine(self, *others: 'FilterPattern') -> 'FilterPattern':
         """Combines filter pattern with `others`.

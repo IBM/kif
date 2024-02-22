@@ -337,67 +337,10 @@ At line {line}, column {column}:
                 'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
             wds = entry.check_bnode_or_uriref('wds')
             self._cache_add_wds(stmt, wds)
-            if not self.has_flags(self.LATE_FILTER):
-                yield stmt      # success
-                continue
-            # Snak mask mismatch.
-            if not bool(pattern.snak_mask & stmt.snak.mask):
-                yield None      # pragma: no cover
-                continue        # pragma: no cover
-            # Subject mismatch.
-            if (pattern.subject is not None
-                and pattern.subject.entity is not None
-                    and pattern.subject.entity != stmt.subject):
-                yield None      # pragma: no cover
-                continue        # pragma: no cover
-            # Property mismatch.
-            if (pattern.property is not None
-                and pattern.property.property is not None
-                    and pattern.property.property != stmt.snak.property):
-                yield None      # pragma: no cover
-                continue        # pragma: no cover
-            # Value mismatch.
-            if (pattern.value is not None
-                    and pattern.value.value is not None):
-                assert stmt.snak.is_value_snak()
-                value = cast(ValueSnak, stmt.snak).value
-                if type(pattern.value.value) is not type(value):
-                    yield None  # pragma: no cover
-                    continue    # pragma: no cover
-                if not value.is_deep_data_value():
-                    if pattern.value.value != value:
-                        yield None  # pragma: no cover
-                        continue    # pragma: no cover
-                elif value.is_quantity():
-                    assert pattern.value.value.is_quantity()
-                    pat_qt = cast(Quantity, pattern.value.value)
-                    qt = cast(Quantity, value)
-                    if (pat_qt.amount != qt.amount
-                        or (pat_qt.unit is not None
-                            and pat_qt.unit != qt.unit)
-                        or (pat_qt.lower_bound is not None
-                            and pat_qt.lower_bound != qt.lower_bound)
-                        or (pat_qt.upper_bound is not None
-                            and pat_qt.upper_bound != qt.upper_bound)):
-                        yield None  # pragma: no cover
-                        continue    # pragma: no cover
-                elif value.is_time():
-                    assert pattern.value.value.is_time()
-                    pat_tm = cast(Time, pattern.value.value)
-                    tm = cast(Time, value)
-                    if (pat_tm.time != tm.time
-                        or (pat_tm.precision is not None
-                            and pat_tm.precision != tm.precision)
-                        or (pat_tm.timezone is not None
-                            and pat_tm.timezone != tm.timezone)
-                        or (pat_tm.calendar is not None
-                            and pat_tm.calendar != tm.calendar)):
-                        yield None  # pragma: no cover
-                        continue    # pragma: no cover
-                else:
-                    raise self._should_not_get_here()
-            # Success.
-            yield stmt
+            if self.has_flags(self.LATE_FILTER) and not pattern.match(stmt):
+                yield None
+            else:
+                yield stmt
 
     def _make_filter_query(self, pattern: FilterPattern) -> SPARQL_Builder:
         q = SPARQL_Builder()
