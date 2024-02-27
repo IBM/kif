@@ -34,8 +34,12 @@ wd:P235
     # description
     schema:version "0"^^xsd:integer ;
     wikibase:propertyType wikibase:ExternalId ;
+    rdfs:label "InChIKey"@en ;
+    rdfs:label "InChIKey"@es ;
+    schema:description "A hashed version of the full standard InChI - designed to create an identifier that encodes structural information and can also be practically used in web searching."@en ;
+    schema:description "código condensado para la identificación de un compuesto químico"@es ;
 
-    # instance of
+    # instance of - Wikidata property to identify substances
     wdt:P31 wd:Q19833835 ;
     p:P31 [
         a wikibase:BestRank ;
@@ -53,13 +57,16 @@ wd:P235
 
 # benzene
 wd:Q2270
-    wdt:P31 wd:Q113145171 ;     # instance of
+
+    # instance of - type of chemical entity
+    wdt:P31 wd:Q113145171 ;
     p:P31 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:NormalRank ;
         ps:P31 wd:Q113145171 ;
         ] ;
 
+    # InChIKey
     wdt:P235 "UHOVQNZJYSORNB-UHFFFAOYSA-N" ;
     p:P235 [
         a wikibase:BestRank ;
@@ -67,7 +74,8 @@ wd:Q2270
         ps:P235 "UHOVQNZJYSORNB-UHFFFAOYSA-N" ;
         ] ;
 
-    wdt:P2067 "78.11"^^xsd:decimal ; # mass
+    # mass
+    wdt:P2067 "78.11"^^xsd:decimal ;
     p:P2067 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:NormalRank ;

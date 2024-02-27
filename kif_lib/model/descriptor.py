@@ -12,41 +12,85 @@ from .value_set import TextSet, TTextSet
 class Descriptor(KIF_Object):
     """Abstract base class for descriptors."""
 
-
-class PlainDescriptor(Descriptor):
-    """Abstract base class for plain descriptors."""
-
     class AttributeMask(Flag):
-        """Mask for plain descriptor attributes."""
+        """Mask for descriptor attributes."""
 
-        #: Mask for the label of plain descriptor.
+        #: Mask for the label attribute of descriptor.
         LABEL = auto()
 
-        #: Mask for the aliases of plain descriptor.
+        #: Mask for the aliases attribute of descriptor.
         ALIASES = auto()
 
-        #: Mask for the description of plain descriptor.
+        #: Mask for the description attribute of descriptor.
         DESCRIPTION = auto()
 
-        #: Mask for all attributes of plain descriptor.
-        ALL = LABEL | ALIASES | DESCRIPTION
+        #: Mask for the datatype attribute of descriptor.
+        DATATYPE = auto()
 
-    #: Mask for the label of plain descriptor.
+        #: Mask for the lemma attribute of descriptor.
+        LEMMA = auto()
+
+        #: Mask for the lexical category attribute of descriptor.
+        CATEGORY = auto()
+
+        #: Mask for the language attribute of descriptor.
+        LANGUAGE = auto()
+
+        #: Mask for all attributes of item descriptor.
+        ITEM_DESCRIPTOR_ATTRIBUTES = LABEL | ALIASES | DESCRIPTION
+
+        #: Mask for all attributes of property descriptor.
+        PROPERTY_DESCRIPTOR_ATTRIBUTES = ITEM_DESCRIPTOR_ATTRIBUTES | DATATYPE
+
+        #: Mask for all attributes of lexeme descriptor.
+        LEXEME_DESCRIPTOR_ATTRIBUTES = LEMMA | CATEGORY | LANGUAGE
+
+        #: Mask for all attributes of descriptor.
+        ALL = (
+            ITEM_DESCRIPTOR_ATTRIBUTES
+            | PROPERTY_DESCRIPTOR_ATTRIBUTES
+            | LEXEME_DESCRIPTOR_ATTRIBUTES)
+
+    #: Mask for the label attribute of descriptor.
     LABEL: Final[AttributeMask] = AttributeMask.LABEL
 
-    #: Mask for the aliases of plain descriptor.
+    #: Mask for the aliases attribute of descriptor.
     ALIASES: Final[AttributeMask] = AttributeMask.ALIASES
 
-    #: Mask for the description of plain descriptor.
+    #: Mask for the description attribute of descriptor.
     DESCRIPTION: Final[AttributeMask] = AttributeMask.DESCRIPTION
 
-    #: Mask for all attributes of plain descriptor.
+    #: Mask for the datatype attribute of descriptor.
+    DATATYPE: Final[AttributeMask] = AttributeMask.DATATYPE
+
+    #: Mask for the lemma attribute of descriptor.
+    LEMMA: Final[AttributeMask] = AttributeMask.LEMMA
+
+    #: Mask for the lexical category attribute of descriptor.
+    CATEGORY: Final[AttributeMask] = AttributeMask.CATEGORY
+
+    #: Mask for the language attribute of descriptor.
+    LANGUAGE: Final[AttributeMask] = AttributeMask.LANGUAGE
+
+    #: Mask for all attributes of item descriptor.
+    ITEM_DESCRIPTOR_ATTRIBUTES: Final[AttributeMask] =\
+        AttributeMask.ITEM_DESCRIPTOR_ATTRIBUTES
+
+    #: Mask for all attributes of property descriptor.
+    PROPERTY_DESCRIPTOR_ATTRIBUTES: Final[AttributeMask] =\
+        AttributeMask.PROPERTY_DESCRIPTOR_ATTRIBUTES
+
+    #: Mask for all attributes of lexeme descriptor.
+    LEXEME_DESCRIPTOR_ATTRIBUTES: Final[AttributeMask] =\
+        AttributeMask.LEXEME_DESCRIPTOR_ATTRIBUTES
+
+    #: Mask for all attributes of descriptor.
     ALL: Final[AttributeMask] = AttributeMask.ALL
 
     TAttributeMask = Union[AttributeMask, int]
 
     @classmethod
-    def _check_arg_plain_descriptor_attribute_mask(
+    def _check_arg_descriptor_attribute_mask(
             cls,
             arg: TAttributeMask,
             function: Optional[Union[TCallable, str]] = None,
@@ -57,7 +101,7 @@ class PlainDescriptor(Descriptor):
             arg, (cls.AttributeMask, int), function, name, position))
 
     @classmethod
-    def _check_optional_arg_plain_descriptor_attribute_mask(
+    def _check_optional_arg_descriptor_attribute_mask(
             cls,
             arg: Optional[TAttributeMask],
             default: Optional[AttributeMask] = None,
@@ -68,21 +112,21 @@ class PlainDescriptor(Descriptor):
         if arg is None:
             return default
         else:
-            return cls._check_arg_plain_descriptor_attribute_mask(
+            return cls._check_arg_descriptor_attribute_mask(
                 arg, function, name, position)
 
     @classmethod
-    def _preprocess_arg_plain_descriptor_attribute_mask(
+    def _preprocess_arg_descriptor_attribute_mask(
             cls,
             arg: TAttributeMask,
             i: int,
             function: Optional[Union[TCallable, str]] = None
     ) -> Union[AttributeMask, NoReturn]:
-        return cls._check_arg_plain_descriptor_attribute_mask(
+        return cls._check_arg_descriptor_attribute_mask(
             arg, function or cls, None, i)
 
     @classmethod
-    def _preprocess_optional_arg_plain_descriptor_attribute_mask(
+    def _preprocess_optional_arg_descriptor_attribute_mask(
             cls,
             arg,
             i: int,
@@ -92,8 +136,12 @@ class PlainDescriptor(Descriptor):
         if arg is None:
             return default
         else:
-            return cls._preprocess_arg_plain_descriptor_attribute_mask(
+            return cls._preprocess_arg_descriptor_attribute_mask(
                 arg, i, function)
+
+
+class PlainDescriptor(Descriptor):
+    """Abstract base class for plain descriptors."""
 
     def _preprocess_arg(self, arg, i):
         if i == 1:
@@ -238,54 +286,77 @@ class LexemeDescriptor(Descriptor):
        language: Language.
     """
 
-    def __init__(self, lemma: TText, category: Item, language: Item):
+    def __init__(
+            self,
+            lemma: Optional[TText] = None,
+            category: Optional[Item] = None,
+            language: Optional[Item] = None
+    ):
         super().__init__(lemma, category, language)
 
     def _preprocess_arg(self, arg, i):
         if i == 1:
-            return self._preprocess_arg_text(arg, i)
+            return self._preprocess_optional_arg_text(arg, i)
         elif i == 2:
-            return self._preprocess_arg_item(arg, i)
+            return self._preprocess_optional_arg_item(arg, i)
         elif i == 3:
-            return self._preprocess_arg_item(arg, i)
+            return self._preprocess_optional_arg_item(arg, i)
         else:
             raise self._should_not_get_here()
 
     @property
-    def lemma(self) -> Text:
+    def lemma(self) -> Optional[Text]:
         """The lemma of lexeme descriptor."""
         return self.get_lemma()
 
-    def get_lemma(self) -> Text:
+    def get_lemma(self, default: Optional[Text] = None) -> Optional[Text]:
         """Gets the lemma of lexeme descriptor.
+
+        If the lemma is ``None``, returns `default`.
+
+        Parameters:
+           default: Default lemma.
 
         Returns:
            Lemma.
         """
-        return self.args[0]
+        lemma = self.args[0]
+        return lemma if lemma is not None else default
 
     @property
-    def category(self) -> Item:
+    def category(self) -> Optional[Item]:
         """The lexical category of lexeme descriptor."""
         return self.get_category()
 
-    def get_category(self) -> Item:
+    def get_category(self, default: Optional[Item] = None) -> Optional[Item]:
         """Gets the lexical category of lexeme descriptor.
+
+        If the lexical category is ``None``, returns `default`.
+
+        Parameters:
+           default: Default lexical category.
 
         Returns:
            Lexical category.
         """
-        return self.args[1]
+        category = self.args[1]
+        return category if category is not None else default
 
     @property
-    def language(self) -> Item:
+    def language(self) -> Optional[Item]:
         """The language of lexeme descriptor."""
         return self.get_language()
 
-    def get_language(self) -> Item:
+    def get_language(self, default: Optional[Item] = None) -> Optional[Item]:
         """Gets the language of lexeme descriptor.
+
+        If the language is ``None``, returns `default`.
+
+        Parameters:
+           default: Default language.
 
         Returns:
            Language.
         """
-        return self.args[2]
+        language = self.args[2]
+        return language if language is not None else default

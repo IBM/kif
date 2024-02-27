@@ -12,7 +12,9 @@ class TestPropertyDescriptor(kif_TestCase):
         # bad arguments
         self.assertRaises(TypeError, PropertyDescriptor, 0)
         self.assertRaises(TypeError, PropertyDescriptor, 'x', 0)
+        self.assertRaises(TypeError, PropertyDescriptor, None, 0)
         self.assertRaises(TypeError, PropertyDescriptor, 'x', [], 0)
+        self.assertRaises(TypeError, PropertyDescriptor, 'x', None, 0)
         self.assertRaises(
             TypeError, PropertyDescriptor, 0, [], Datatype.text)
         self.assertRaises(TypeError, PropertyDescriptor, 0, [], None, 0)

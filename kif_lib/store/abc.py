@@ -11,6 +11,7 @@ from ..itertools import batched
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
+    Descriptor,
     Entity,
     EntityFingerprint,
     FilterPattern,
@@ -846,7 +847,7 @@ class Store(Set):
             self,
             items: Union[Item, Iterable[Item]],
             language: Optional[str] = None,
-            descriptor_mask: Optional[ItemDescriptor.TAttributeMask] = None
+            descriptor_mask: Optional[Descriptor.TAttributeMask] = None
     ) -> Iterable[tuple[Item, Optional[ItemDescriptor]]]:
         """Gets descriptor of items.
 
@@ -865,11 +866,9 @@ class Store(Set):
             language, Text.default_language,
             self.get_item_descriptor, 'language', 2)
         assert lang is not None
-        mask =\
-            ItemDescriptor.\
-            _check_optional_arg_plain_descriptor_attribute_mask(
-                descriptor_mask, ItemDescriptor.ALL,
-                self.get_item_descriptor, 'descriptor_mask', 3)
+        mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
+            descriptor_mask, Descriptor.ALL,
+            self.get_item_descriptor, 'descriptor_mask', 3)
         assert mask is not None
         if Item.test(items):
             return self._get_item_descriptor([cast(Item, items)], lang, mask)
@@ -882,15 +881,15 @@ class Store(Set):
             self,
             items: Iterable[Item],
             lang: str,
-            mask: ItemDescriptor.AttributeMask
+            mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
         raise self._must_be_implemented_in_subclass()
 
     def get_property_descriptor(
             self,
             properties: Union[Property, Iterable[Property]],
-            language: str = Text.default_language,
-            descriptor_mask: Optional[PropertyDescriptor.TAttributeMask] = None
+            language: Optional[str] = None,
+            descriptor_mask: Optional[Descriptor.TAttributeMask] = None
     ) -> Iterable[tuple[Property, Optional[PropertyDescriptor]]]:
         """Gets descriptor of properties.
 
@@ -905,34 +904,35 @@ class Store(Set):
         KIF_Object._check_arg_isinstance(
             properties, (Property, Iterable),
             self.get_property_descriptor, 'properties', 1)
-        KIF_Object._check_arg_str(
-            language, self.get_property_descriptor, 'language', 2)
-        mask =\
-            PropertyDescriptor.\
-            _check_optional_arg_plain_descriptor_attribute_mask(
-                descriptor_mask, PropertyDescriptor.ALL,
-                self.get_property_descriptor, 'descriptor_mask', 3)
+        lang = KIF_Object._check_optional_arg_str(
+            language, Text.default_language,
+            self.get_property_descriptor, 'language', 2)
+        assert lang is not None
+        mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
+            descriptor_mask, Descriptor.ALL,
+            self.get_property_descriptor, 'descriptor_mask', 3)
         assert mask is not None
         if Property.test(properties):
             return self._get_property_descriptor(
-                [cast(Property, properties)], language, mask)
+                [cast(Property, properties)], lang, mask)
         else:
             return self._get_property_descriptor(map(
                 lambda e: cast(Property, Property.check(
                     e, self.get_property_descriptor)),
-                properties), language, mask)
+                properties), lang, mask)
 
     def _get_property_descriptor(
             self,
             properties: Iterable[Property],
             lang: str,
-            mask: PropertyDescriptor.AttributeMask
+            mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
         raise self._must_be_implemented_in_subclass()
 
     def get_lexeme_descriptor(
             self,
-            lexemes: Union[Lexeme, Iterable[Lexeme]]
+            lexemes: Union[Lexeme, Iterable[Lexeme]],
+            descriptor_mask: Optional[Descriptor.TAttributeMask] = None
     ) -> Iterable[tuple[Lexeme, Optional[LexemeDescriptor]]]:
         """Gets descriptor of lexemes.
 
@@ -945,15 +945,21 @@ class Store(Set):
         KIF_Object._check_arg_isinstance(
             lexemes, (Lexeme, Iterable),
             self.get_lexeme_descriptor, 'lexemes', 1)
+        mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
+            descriptor_mask, Descriptor.ALL,
+            self.get_lexeme_descriptor, 'descriptor_mask', 3)
+        assert mask is not None
         if Lexeme.test(lexemes):
-            return self._get_lexeme_descriptor([cast(Lexeme, lexemes)])
+            return self._get_lexeme_descriptor(
+                [cast(Lexeme, lexemes)], mask)
         else:
             return self._get_lexeme_descriptor(map(
                 lambda e: cast(Lexeme, Lexeme.check(
-                    e, self.get_lexeme_descriptor)), lexemes))
+                    e, self.get_lexeme_descriptor)), lexemes), mask)
 
     def _get_lexeme_descriptor(
             self,
-            lexemes: Iterable[Lexeme]
+            lexemes: Iterable[Lexeme],
+            mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
         raise self._must_be_implemented_in_subclass()

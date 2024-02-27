@@ -2,13 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ADAM_TTL = 'tests/data/adam.ttl'
+ANDAR_TTL = 'tests/data/andar.ttl'
 BENZENE_TTL = 'tests/data/benzene.ttl'
 BRAZIL_TTL = 'tests/data/brazil.ttl'
 INSTANCE_OF_TTL = 'tests/data/instance_of.ttl'
+PAINT_TTL = 'tests/data/paint.ttl'
 
 __all__ = (
     'ADAM_TTL',
+    'ANDAR_TTL',
     'BENZENE_TTL',
     'BRAZIL_TTL',
-    'INSTANCE_OF',
+    'INSTANCE_OF_TTL',
+    'PAINT_TTL',
 )

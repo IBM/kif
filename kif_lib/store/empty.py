@@ -3,6 +3,7 @@
 
 from ..model import (
     AnnotationRecordSet,
+    Descriptor,
     FilterPattern,
     Item,
     ItemDescriptor,
@@ -52,7 +53,7 @@ class EmptyStore(Store, store_name='empty', store_description='Empty store'):
             self,
             items: Iterable[Item],
             lang: str,
-            mask: ItemDescriptor.AttributeMask
+            mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
         return map(lambda item: (item, None), items)
 
@@ -60,12 +61,13 @@ class EmptyStore(Store, store_name='empty', store_description='Empty store'):
             self,
             properties: Iterable[Property],
             lang: str,
-            mask: PropertyDescriptor.AttributeMask
+            mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
         return map(lambda property: (property, None), properties)
 
     def _get_lexeme_descriptor(
             self,
             lexemes: Iterable[Lexeme],
+            mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
         return map(lambda lexeme: (lexeme, None), lexemes)

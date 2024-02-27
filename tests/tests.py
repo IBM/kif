@@ -553,15 +553,30 @@ class kif_TestCase(TestCase):
         self.assertTrue(obj.is_descriptor())
         self.assertFalse(obj.is_plain_descriptor())
         self.assertTrue(obj.is_lexeme_descriptor())
-        self.assert_text(obj.args[0], *lemma)
-        self.assert_text(obj.lemma, *lemma)
-        self.assert_text(obj.get_lemma(), *lemma)
-        self.assert_item(obj.args[1], *cat)
-        self.assert_item(obj.category, *cat)
-        self.assert_item(obj.get_category(), *cat)
-        self.assert_item(obj.args[2], *lang)
-        self.assert_item(obj.language, *lang)
-        self.assert_item(obj.get_language(), *lang)
+        if lemma is None:
+            self.assertIsNone(obj.args[0])
+            self.assertIsNone(obj.lemma)
+            self.assertIsNone(obj.get_lemma())
+        else:
+            self.assert_text(obj.args[0], *lemma)
+            self.assert_text(obj.lemma, *lemma)
+            self.assert_text(obj.get_lemma(), *lemma)
+        if cat is None:
+            self.assertIsNone(obj.args[1])
+            self.assertIsNone(obj.category)
+            self.assertIsNone(obj.get_category())
+        else:
+            self.assert_item(obj.args[1], *cat)
+            self.assert_item(obj.category, *cat)
+            self.assert_item(obj.get_category(), *cat)
+        if lang is None:
+            self.assertIsNone(obj.args[2])
+            self.assertIsNone(obj.language)
+            self.assertIsNone(obj.get_language())
+        else:
+            self.assert_item(obj.args[2], *lang)
+            self.assert_item(obj.language, *lang)
+            self.assert_item(obj.get_language(), *lang)
 
     def assert_fingerprint(self, obj, val):
         self.assert_kif_object(obj)
@@ -1053,7 +1068,7 @@ class kif_StoreTestCase(kif_TestCase):
             kb.get_item_descriptor, Item('Q1'), 0)
         self.assert_raises_bad_argument(
             TypeError, 3, 'descriptor_mask',
-            'expected PlainDescriptor.AttributeMask or int, got str',
+            'expected Descriptor.AttributeMask or int, got str',
             kb.get_item_descriptor, Item('Q1'), 'pt', 'abc')
 
     def sanity_check_get_item_descriptor_vacuous_calls(self, kb):
@@ -1092,7 +1107,7 @@ class kif_StoreTestCase(kif_TestCase):
             kb.get_property_descriptor, Property('P1'), 0)
         self.assert_raises_bad_argument(
             TypeError, 3, 'descriptor_mask',
-            'expected PlainDescriptor.AttributeMask or int, got str',
+            'expected Descriptor.AttributeMask or int, got str',
             kb.get_property_descriptor, Property('P1'), 'pt', 'abc')
 
     def sanity_check_get_property_descriptor_vacuous_calls(self, kb):
