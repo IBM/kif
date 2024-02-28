@@ -1053,6 +1053,63 @@ class kif_StoreTestCase(kif_TestCase):
 
 # -- Descriptors -----------------------------------------------------------
 
+    # -- get_descriptor --
+
+    def sanity_check_get_descriptor(self, kb):
+        self.sanity_check_get_descriptor_bad_args(kb)
+        self.sanity_check_get_descriptor_vacuous_calls(kb)
+
+    def sanity_check_get_descriptor_bad_args(self, kb):
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'entities', 'expected Entity or Iterable, got int',
+            kb.get_descriptor, 0)
+        self.assert_raises_bad_argument(
+            TypeError, 2, 'language', 'expected str, got int',
+            kb.get_descriptor, Item('Q1'), 0)
+        self.assert_raises_bad_argument(
+            TypeError, 3, 'mask',
+            'expected Descriptor.AttributeMask or int, got str',
+            kb.get_descriptor, Item('Q1'), 'pt', 'abc')
+
+    def sanity_check_get_descriptor_vacuous_calls(self, kb):
+        items = list(Items('_Q0', '_Q1', '_Q2', '_Q0'))
+        props = list(Properties('_P0', '_P1', '_P2', '_P0'))
+        lexemes = list(Lexemes('_L0', '_L1', '_L2', '_L0'))
+        entities = items + props + lexemes
+        desc = list(kb.get_descriptor([]))
+        self.assertEqual(desc, list())
+        desc = list(kb.get_descriptor(items[0]))
+        self.assertEqual(desc, [(items[0], None)])
+        desc = list(kb.get_descriptor(entities, 'pt'))
+        self.assertEqual(desc, [
+            (items[0], None),
+            (items[1], None),
+            (items[2], None),
+            (items[0], None),
+            (props[0], None),
+            (props[1], None),
+            (props[2], None),
+            (props[0], None),
+            (lexemes[0], None),
+            (lexemes[1], None),
+            (lexemes[2], None),
+            (lexemes[0], None)
+        ])
+        desc = list(kb.get_descriptor(entities[1:], None, 0))
+        self.assertEqual(desc, [
+            (items[1], None),
+            (items[2], None),
+            (items[0], None),
+            (props[0], None),
+            (props[1], None),
+            (props[2], None),
+            (props[0], None),
+            (lexemes[0], None),
+            (lexemes[1], None),
+            (lexemes[2], None),
+            (lexemes[0], None)
+        ])
+
     # -- get_item_descriptor --
 
     def sanity_check_get_item_descriptor(self, kb):

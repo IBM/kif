@@ -53,7 +53,7 @@ class EmptyStore(Store, store_name='empty', store_description='Empty store'):
     def _get_item_descriptor(
             self,
             items: Iterable[Item],
-            lang: str,
+            language: str,
             mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
         return map(lambda item: (item, None), items)
@@ -62,7 +62,7 @@ class EmptyStore(Store, store_name='empty', store_description='Empty store'):
     def _get_property_descriptor(
             self,
             properties: Iterable[Property],
-            lang: str,
+            language: str,
             mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
         return map(lambda property: (property, None), properties)

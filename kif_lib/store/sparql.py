@@ -1008,40 +1008,40 @@ At line {line}, column {column}:
     def _get_item_descriptor(
             self,
             items: Iterable[Item],
-            lang: str,
+            language: str,
             mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
         return cast(
             Iterator[tuple[Item, Optional[ItemDescriptor]]],
-            self._get_item_or_property_descriptor(Item, items, lang, mask))
+            self._get_item_or_property_descriptor(Item, items, language, mask))
 
     @override
     def _get_property_descriptor(
             self,
             properties: Iterable[Property],
-            lang: str,
+            language: str,
             mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
         return cast(
             Iterator[tuple[Property, Optional[PropertyDescriptor]]],
             self._get_item_or_property_descriptor(
-                Property, properties, lang, mask))
+                Property, properties, language, mask))
 
     def _get_item_or_property_descriptor(
             self,
             cls: type[Entity],
             entities: Iterable[Union[Item, Property]],
-            lang: str,
+            language: str,
             mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Union[Item, Property], Optional[Union[
             ItemDescriptor, PropertyDescriptor]]]]:
         for batch in self._batched(entities):
             q = self._make_item_or_property_descriptor_query(
-                set(batch), cls, lang, mask)
+                set(batch), cls, language, mask)
             it = self._eval_select_query(
                 q, lambda res:
                 self._parse_get_item_or_property_descriptor_results(
-                    res, cls, lang, mask))
+                    res, cls, language, mask))
             desc: dict[Union[Item, Property], dict[str, Any]] = dict()
             for entity, label, alias, description, datatype in it:
                 if entity not in desc:
@@ -1133,7 +1133,7 @@ At line {line}, column {column}:
             self,
             results: SPARQL_Results,
             cls: type[Entity],
-            lang: str,
+            language: str,
             mask: Descriptor.AttributeMask
     ) -> Iterator[Optional[tuple[
         Union[Item, Property],
@@ -1166,15 +1166,15 @@ At line {line}, column {column}:
                 datatype = None
             if get_label and 'label' in entry:
                 label = entry.check_text('label')
-                if label.language == lang or not late_filter:
+                if label.language == language or not late_filter:
                     yield entity, label, None, None, datatype
             elif get_aliases and 'alias' in entry:
                 alias = entry.check_text('alias')
-                if alias.language == lang or not late_filter:
+                if alias.language == language or not late_filter:
                     yield entity, None, alias, None, datatype
             elif get_description and 'description' in entry:
                 description = entry.check_text('description')
-                if description.language == lang or not late_filter:
+                if description.language == language or not late_filter:
                     yield entity, None, None, description, datatype
             else:
                 yield entity, None, None, None, datatype

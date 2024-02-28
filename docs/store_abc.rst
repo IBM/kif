@@ -34,6 +34,7 @@ Flags
 Descriptors
 -----------
 .. autosummary::
+   Store.get_descriptor
    Store.get_item_descriptor
    Store.get_property_descriptor
    Store.get_lexeme_descriptor

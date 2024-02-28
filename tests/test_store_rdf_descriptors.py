@@ -27,13 +27,22 @@ from .data import (
 from .tests import kif_StoreTestCase, main
 
 
-class TestStoreDescriptors(kif_StoreTestCase):
+class TestStoreRDF_Descriptors(kif_StoreTestCase):
 
     Adam_en = (
         Text('Adam'),
         TextSet(),
         Text('first man according to the Abrahamic creation and '
              'religions such as Judaism, Christianity, and Islam'))
+
+    Adam_es = (
+        Text('Adán', 'es'),
+        TextSet(
+            Text('Adánico', 'es'),
+            Text('Adam', 'es'),
+            Text('Adan', 'es'),
+            Text('Adanico', 'es')),
+        Text('primer hombre, según la Biblia', 'es'))
 
     Adam_pt_br = (
         Text('Adão', 'pt-br'),
@@ -102,6 +111,116 @@ class TestStoreDescriptors(kif_StoreTestCase):
         Text('paint', 'en'),
         wd.verb,
         wd.English)
+
+# -- get_descriptor --------------------------------------------------------
+
+    def test_get_descriptor_sanity(self):
+        kb = Store('rdf', BENZENE_TTL, INSTANCE_OF_TTL, PAINT_TTL)
+        self.sanity_check_get_descriptor(kb)
+        it = kb.get_descriptor([Item('x'), Text('x')])
+        self.assertRaisesRegex(
+            TypeError, r"bad argument to 'Store\.get_descriptor' "
+            r'\(expected Entity, got Text\)', list, it)
+
+    def test_get_descriptor_single_entity(self):
+        kb = Store('rdf', ADAM_TTL, INSTANCE_OF_TTL, PAINT_TTL)
+        ((item, desc),) = kb.get_descriptor(wd.Adam)
+        self.assertEqual(item, wd.Adam)
+        self.assert_item_descriptor(desc, *self.Adam_en)
+        ((prop, desc),) = kb.get_descriptor(wd.instance_of)
+        self.assertEqual(prop, wd.instance_of)
+        self.assert_property_descriptor(desc, *self.instance_of_en)
+        ((lexeme, desc),) = kb.get_descriptor(wd.L(96))
+        self.assertEqual(lexeme, wd.L(96))
+        self.assert_lexeme_descriptor(desc, *self.paint_verb_en)
+
+    def test_get_descriptor_multiple_entities(self):
+        kb = Store('rdf', ADAM_TTL, INSTANCE_OF_TTL, PAINT_TTL)
+        ds = list(kb.get_descriptor(
+            [wd.Adam,
+             Item('x'),
+             wd.instance_of,
+             Property('y'),
+             wd.L(96),
+             wd.L('z')], 'es'))
+        self.assertEqual(len(ds), 6)
+        self.assertEqual(ds[0][0], wd.Adam)
+        self.assert_item_descriptor(ds[0][1], *self.Adam_es)
+        self.assertEqual(ds[1][0], Item('x'))
+        self.assertIsNone(ds[1][1])
+        self.assertEqual(ds[2][0], wd.instance_of)
+        self.assert_property_descriptor(ds[2][1], *self.instance_of_es)
+        self.assertEqual(ds[3][0], Property('y'))
+        self.assertIsNone(ds[3][1])
+        self.assertEqual(ds[4][0], wd.L(96))
+        self.assert_lexeme_descriptor(ds[4][1], *self.paint_verb_en)
+        self.assertEqual(ds[5][0], wd.L('z'))
+        self.assertIsNone(ds[5][1])
+
+    def test_get_descriptor_mask(self):
+        def test_case(kb, flags, desc01, desc21, desc41):
+            ds = list(kb.get_descriptor(
+                [wd.Adam,
+                 Item('x'),
+                 wd.instance_of,
+                 Property('y'),
+                 wd.L(96),
+                 wd.L('z')], 'en'))
+            self.assertEqual(len(ds), 6)
+            self.assertEqual(ds[0][0], wd.Adam)
+            self.assert_item_descriptor(ds[0][1], *self.Adam_en)
+            self.assertEqual(ds[1][0], Item('x'))
+            self.assertIsNone(ds[1][1])
+            self.assertEqual(ds[2][0], wd.instance_of)
+            self.assert_property_descriptor(ds[2][1], *self.instance_of_en)
+            self.assertEqual(ds[3][0], Property('y'))
+            self.assertIsNone(ds[3][1])
+            self.assertEqual(ds[4][0], wd.L(96))
+            self.assert_lexeme_descriptor(ds[4][1], *self.paint_verb_en)
+            self.assertEqual(ds[5][0], wd.L('z'))
+            self.assertIsNone(ds[5][1])
+        kb = Store('rdf', ADAM_TTL, INSTANCE_OF_TTL, PAINT_TTL)
+        test_case(
+            kb, 0,
+            ItemDescriptor(),
+            PropertyDescriptor(),
+            LexemeDescriptor())
+        test_case(
+            kb, Descriptor.LABEL,
+            ItemDescriptor(self.Adam_en[0]),
+            PropertyDescriptor(self.instance_of_en[0]),
+            LexemeDescriptor())
+        test_case(
+            kb, Descriptor.ALIASES | Descriptor.LEMMA,
+            ItemDescriptor(None, self.Adam_en[1]),
+            PropertyDescriptor(None, self.instance_of_en[1]),
+            LexemeDescriptor(self.paint_verb_en[0]))
+        test_case(
+            kb,
+            Descriptor.DESCRIPTION | Descriptor.CATEGORY | Descriptor.LANGUAGE,
+            ItemDescriptor(None, None, self.Adam_en[2]),
+            PropertyDescriptor(None, None, self.instance_of_en[2]),
+            LexemeDescriptor(
+                None, self.paint_verb_en[1], self.paint_verb_en[2]))
+        test_case(
+            kb, Descriptor.ALIASES | Descriptor.LEMMA,
+            ItemDescriptor(None, self.Adam_en[1]),
+            PropertyDescriptor(None, self.instance_of_en[1]),
+            LexemeDescriptor(self.paint_verb_en[0]))
+        # no early filter
+        kb.unset_flags(kb.EARLY_FILTER)
+        test_case(
+            kb, 0,
+            ItemDescriptor(),
+            PropertyDescriptor(),
+            LexemeDescriptor())
+        # no late filter
+        kb.unset_flags(kb.LATE_FILTER)
+        test_case(
+            kb, 0,
+            ItemDescriptor(*self.Adam_en),
+            PropertyDescriptor(*self.instance_of_en),
+            LexemeDescriptor(*self.paint_verb_en))
 
 # -- get_item_descriptor ---------------------------------------------------
 

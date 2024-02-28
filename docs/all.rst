@@ -390,6 +390,7 @@ Store
    Store.default_timeout
    Store.extra_references
    Store.flags
+   Store.get_descriptor
    Store.get_extra_references
    Store.get_flags
    Store.get_item_descriptor

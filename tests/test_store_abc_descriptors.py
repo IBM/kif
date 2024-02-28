@@ -8,6 +8,9 @@ from .tests import kif_StoreTestCase, main
 
 class TestStoreDescriptors(kif_StoreTestCase):
 
+    def test_get_descriptor(self):
+        self.sanity_check_get_descriptor(Store('empty'))
+
     def test_get_item_descriptor(self):
         self.sanity_check_get_item_descriptor(Store('empty'))
 
