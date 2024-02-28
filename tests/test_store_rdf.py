@@ -49,7 +49,7 @@ class TestRDF_Store(kif_StoreTestCase):
         self.assertIsInstance(kb, RDF_Store)
         self.assertEqual(kb._flags, Store.default_flags)
         # one source
-        kb = Store('rdf', BENZENE_TTL)
+        kb = Store('rdf', BENZENE_TTL.path)
         self.assertIsInstance(kb, RDF_Store)
         self.assertEqual(kb._flags, Store.default_flags)
         # two sources
@@ -57,7 +57,7 @@ class TestRDF_Store(kif_StoreTestCase):
         self.assertIsInstance(kb, RDF_Store)
         self.assertEqual(kb._flags, Store.default_flags)
         # data
-        kb = Store('rdf', data=open(BENZENE_TTL).read(), format='ttl')
+        kb = Store('rdf', data=open(BENZENE_TTL.path).read(), format='ttl')
         self.assertIsInstance(kb, RDF_Store)
         self.assertEqual(kb._flags, Store.default_flags)
         # graph

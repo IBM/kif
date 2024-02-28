@@ -58,6 +58,11 @@ wd:P235
 # benzene
 wd:Q2270
 
+    # description
+    schema:version "0"^^xsd:integer ;
+    rdfs:label "benzene"@en ;
+    skos:altLabel "benzol"@en ;
+
     # instance of - type of chemical entity
     wdt:P31 wd:Q113145171 ;
     p:P31 [

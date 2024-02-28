@@ -636,7 +636,8 @@ class kif_TestCase(TestCase):
 
 class kif_StoreTestCase(kif_TestCase):
 
-    def parse(self, text):
+    @classmethod
+    def parse(cls, text):
         from kif_lib.namespace import PREFIXES
         pre = '\n'.join(
             map(lambda t: f'@prefix {t[0]}: <{t[1]}> .', PREFIXES.items()))
@@ -1058,6 +1059,10 @@ class kif_StoreTestCase(kif_TestCase):
     def sanity_check_get_descriptor(self, kb):
         self.sanity_check_get_descriptor_bad_args(kb)
         self.sanity_check_get_descriptor_vacuous_calls(kb)
+        it = kb.get_descriptor([Item('x'), Text('x')])
+        self.assertRaisesRegex(
+            TypeError, r"bad argument to 'Store\.get_descriptor' "
+            r'\(expected Entity, got Text\)', list, it)
 
     def sanity_check_get_descriptor_bad_args(self, kb):
         self.assert_raises_bad_argument(
@@ -1115,6 +1120,10 @@ class kif_StoreTestCase(kif_TestCase):
     def sanity_check_get_item_descriptor(self, kb):
         self.sanity_check_get_item_descriptor_bad_args(kb)
         self.sanity_check_get_item_descriptor_vacuous_calls(kb)
+        it = kb.get_item_descriptor([Item('x'), Property('x')])
+        self.assertRaisesRegex(
+            TypeError, r"bad argument to 'Store\.get_item_descriptor' "
+            r'\(expected Item, got Property\)', list, it)
 
     def sanity_check_get_item_descriptor_bad_args(self, kb):
         self.assert_raises_bad_argument(
@@ -1153,6 +1162,10 @@ class kif_StoreTestCase(kif_TestCase):
     def sanity_check_get_property_descriptor(self, kb):
         self.sanity_check_get_property_descriptor_bad_args(kb)
         self.sanity_check_get_property_descriptor_vacuous_calls(kb)
+        it = kb.get_property_descriptor([Property('x'), Item('x')])
+        self.assertRaisesRegex(
+            TypeError, r"bad argument to 'Store\.get_property_descriptor' "
+            r'\(expected Property, got Item\)', list, it)
 
     def sanity_check_get_property_descriptor_bad_args(self, kb):
         self.assert_raises_bad_argument(
@@ -1192,6 +1205,10 @@ class kif_StoreTestCase(kif_TestCase):
     def sanity_check_get_lexeme_descriptor(self, kb):
         self.sanity_check_get_lexeme_descriptor_bad_args(kb)
         self.sanity_check_get_lexeme_descriptor_vacuous_calls(kb)
+        it = kb.get_lexeme_descriptor([Lexeme('x'), Property('x')])
+        self.assertRaisesRegex(
+            TypeError, r"bad argument to 'Store\.get_lexeme_descriptor' "
+            r'\(expected Lexeme, got Property\)', list, it)
 
     def sanity_check_get_lexeme_descriptor_bad_args(self, kb):
         self.assert_raises_bad_argument(

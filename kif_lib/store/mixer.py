@@ -1,8 +1,20 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..itertools import batched, cycle
-from ..model import AnnotationRecordSet, FilterPattern, KIF_Object, Statement
+from ..itertools import cycle
+from ..model import (
+    AnnotationRecordSet,
+    Descriptor,
+    FilterPattern,
+    Item,
+    ItemDescriptor,
+    KIF_Object,
+    Lexeme,
+    LexemeDescriptor,
+    Property,
+    PropertyDescriptor,
+    Statement,
+)
 from ..typing import (
     Any,
     Callable,
@@ -10,6 +22,7 @@ from ..typing import (
     Iterable,
     Iterator,
     Optional,
+    override,
     Sequence,
     TypeVar,
 )
@@ -88,6 +101,28 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
             for src in self.sources:
                 src.flags = new
         return True
+
+    def _mix_get_x(
+            self,
+            it: Iterable[T],
+            empty: S,
+            get: Callable[[Store, Iterable[T]], Iterator[tuple[T, S]]],
+            mix: Callable[[Iterator[tuple[T, S]]], tuple[T, S]]
+    ) -> Iterator[tuple[T, S]]:
+        if not self._sources:
+            for t in it:
+                yield t, empty
+        else:
+            for batch in self._batched(it):
+                its = list(map(lambda kb: get(kb, batch), self._sources))
+                n = 0
+                while True:
+                    try:
+                        yield mix(map(next, its))
+                        n += 1
+                    except StopIteration:
+                        break
+                assert len(batch) == n
 
 # -- Filtering -------------------------------------------------------------
 
@@ -128,7 +163,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
             self,
             stmts: Iterable[Statement]
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
-        return self._get_x_mixed(
+        return self._mix_get_x(
             stmts, None, lambda kb, b: kb._get_annotations_tail(b),
             self._get_annotations_mixed)
 
@@ -144,66 +179,101 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
             elif annots is None:
                 annots = annotsi
         return stmt, annots
-
-    def _get_x_mixed(
-            self,
-            it: Iterable[T],
-            empty: S,
-            get: Callable[[Store, Iterable[T]], Iterator[tuple[T, S]]],
-            mix: Callable[[Iterator[tuple[T, S]]], tuple[T, S]]
-    ) -> Iterator[tuple[T, S]]:
-        if not self._sources:
-            for t in it:
-                yield t, empty
-        else:
-            batches = batched(it, self.page_size)
-            for batch in batches:
-                its = list(map(lambda kb: get(kb, batch), self._sources))
-                n = 0
-                while True:
-                    try:
-                        yield mix(map(next, its))
-                        n += 1
-                    except StopIteration:
-                        break
-                assert len(batch) == n
 
 # -- Descriptors -----------------------------------------------------------
 
-    # def _get_descriptor(
-    #         self,
-    #         entities: Iterable[Entity],
-    #         language: str
-    # ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
-    #     return self._get_x_mixed(
-    #         entities, None,
-    #         lambda kb, b: kb._get_descriptor(b, language),
-    #         self._get_descriptor_mixed)
+    @override
+    def _get_item_descriptor(
+            self,
+            items: Iterable[Item],
+            language: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
+        return self._get_x_descriptor(
+            items,
+            lambda kb, batch: kb._get_item_descriptor(batch, language, mask),
+            self._merge_item_descriptors)
 
-    # def _get_descriptor_mixed(
-    #         self,
-    #         it: Iterator[tuple[Entity, Optional[Descriptor]]],
-    # ) -> tuple[Entity, Optional[Descriptor]]:
-    #     entity0, desc = next(it)
-    #     found = bool(desc)
-    #     label = desc.label if desc is not None else None
-    #     aliases = set(desc.aliases) if desc is not None else set()
-    #     description = desc.description if desc is not None else None
-    #     for entityi, desc in it:
-    #         assert entity0 == entityi
-    #         if desc is None:
-    #             continue
-    #         else:
-    #             found |= bool(desc)
-    #         if label is None and desc.label is not None:
-    #             label = desc.label
-    #         elif (label is not None
-    #               and desc.label is not None and label != desc.label):
-    #             aliases.add(desc.label)
-    #         aliases.update(desc.aliases)
-    #         if description is None and desc.description is not None:
-    #             description = desc.description
-    #     if found:
-    #         return entity0, Descriptor(label, aliases, description)
-    #     else:
-    #         return entity0, None
+    def _merge_item_descriptors(
+            self,
+            d1: Optional[ItemDescriptor],
+            d2: Optional[ItemDescriptor]
+    ) -> ItemDescriptor:
+        assert d1 is not None
+        assert d2 is not None
+        return ItemDescriptor(
+            d1.label if d1.label is not None else d2.label,
+            d1.aliases.frozenset | d2.aliases.frozenset,
+            d1.description if d1.description is not None else d2.description)
+
+    @override
+    def _get_property_descriptor(
+            self,
+            properties: Iterable[Property],
+            language: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
+        return self._get_x_descriptor(
+            properties,
+            lambda kb, batch: kb._get_property_descriptor(
+                batch, language, mask),
+            self._merge_property_descriptors)
+
+    def _merge_property_descriptors(
+            self,
+            d1: Optional[PropertyDescriptor],
+            d2: Optional[PropertyDescriptor]
+    ) -> PropertyDescriptor:
+        assert d1 is not None
+        assert d2 is not None
+        return PropertyDescriptor(
+            d1.label if d1.label is not None else d2.label,
+            d1.aliases.frozenset | d2.aliases.frozenset,
+            d1.description if d1.description is not None else d2.description,
+            d1.datatype if d1.datatype is not None else d2.datatype)
+
+    @override
+    def _get_lexeme_descriptor(
+            self,
+            lexemes: Iterable[Lexeme],
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
+        return self._get_x_descriptor(
+            lexemes,
+            lambda kb, batch: kb._get_lexeme_descriptor(batch, mask),
+            self._merge_lexeme_descriptors)
+
+    def _merge_lexeme_descriptors(
+            self,
+            d1: Optional[LexemeDescriptor],
+            d2: Optional[LexemeDescriptor]
+    ) -> LexemeDescriptor:
+        assert d1 is not None
+        assert d2 is not None
+        return LexemeDescriptor(
+            d1.lemma if d1.lemma is not None else d2.lemma,
+            d1.category if d1.category is not None else d2.category,
+            d1.language if d1.language is not None else d2.language)
+
+    def _get_x_descriptor(
+            self,
+            entities: Iterable[T],
+            get: Callable[[Store, Iterable[T]],
+                          Iterator[tuple[T, Optional[S]]]],
+            merge: Callable[[S, S], S]
+    ) -> Iterator[tuple[T, Optional[S]]]:
+        for batch in self._batched(entities):
+            desc: dict[T, S] = dict()
+            for kb in self._sources:
+                for entity, entity_desc in get(kb, batch):
+                    if entity_desc is None:
+                        continue
+                    if entity not in desc:
+                        desc[entity] = entity_desc
+                    else:
+                        desc[entity] = merge(desc[entity], entity_desc)
+            for entity in batch:
+                if entity in desc:
+                    yield entity, desc[entity]
+                else:
+                    yield entity, None
