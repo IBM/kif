@@ -15,24 +15,8 @@ Properties
    Store.page_size
    Store.timeout
 
-Defaults
-~~~~~~~~
-.. autosummary::
-   Store.default_extra_references
-   Store.default_flags
-   Store.default_page_size
-   Store.default_timeout
-
 Flags
------
-.. autosummary::
-   Store.has_flags
-   Store.get_flags
-   Store.set_flags
-   Store.unset_flags
-
-Constants
-~~~~~~~~~
+~~~~~
 .. autosummary::
    Store.CACHE
    Store.BEST_RANK
@@ -42,3 +26,14 @@ Constants
    Store.EARLY_FILTER
    Store.LATE_FILTER
    Store.ALL
+   Store.has_flags
+   Store.get_flags
+   Store.set_flags
+   Store.unset_flags
+
+Descriptors
+-----------
+.. autosummary::
+   Store.get_item_descriptor
+   Store.get_property_descriptor
+   Store.get_lexeme_descriptor

@@ -392,7 +392,10 @@ Store
    Store.flags
    Store.get_extra_references
    Store.get_flags
+   Store.get_item_descriptor
+   Store.get_lexeme_descriptor
    Store.get_page_size
+   Store.get_property_descriptor
    Store.get_timeout
    Store.has_flags
    Store.maximum_page_size

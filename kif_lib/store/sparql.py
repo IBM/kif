@@ -49,6 +49,7 @@ from ..typing import (
     Iterator,
     Mapping,
     Optional,
+    override,
     Set,
     TypeVar,
     Union,
@@ -1003,6 +1004,7 @@ At line {line}, column {column}:
 
 # -- Descriptors -----------------------------------------------------------
 
+    @override
     def _get_item_descriptor(
             self,
             items: Iterable[Item],
@@ -1013,6 +1015,7 @@ At line {line}, column {column}:
             Iterator[tuple[Item, Optional[ItemDescriptor]]],
             self._get_item_or_property_descriptor(Item, items, lang, mask))
 
+    @override
     def _get_property_descriptor(
             self,
             properties: Iterable[Property],
@@ -1034,11 +1037,11 @@ At line {line}, column {column}:
             ItemDescriptor, PropertyDescriptor]]]]:
         for batch in self._batched(entities):
             q = self._make_item_or_property_descriptor_query(
-                cls, set(batch), lang, mask)
+                set(batch), cls, lang, mask)
             it = self._eval_select_query(
                 q, lambda res:
                 self._parse_get_item_or_property_descriptor_results(
-                    res, cls))
+                    res, cls, lang, mask))
             desc: dict[Union[Item, Property], dict[str, Any]] = dict()
             for entity, label, alias, description, datatype in it:
                 if entity not in desc:
@@ -1070,40 +1073,14 @@ At line {line}, column {column}:
                             desc[entity].get('description'),
                             desc[entity].get('datatype')))
                     else:
-                        yield entity, None
+                        raise self._should_not_get_here()
                 else:
                     yield entity, None
 
-    def _parse_get_item_or_property_descriptor_results(
-            self,
-            results: SPARQL_Results,
-            cls: type[Entity]
-    ) -> Iterator[Optional[tuple[
-        Union[Item, Property],
-            Optional[Text],
-            Optional[Text],
-            Optional[Text],
-            Optional[Datatype]]]]:
-        for entry in results.bindings:
-            if cls is Item:
-                entity: Union[Item, Property] = entry.check_item('subject')
-            elif cls is Property:
-                entity = entry.check_property('subject')
-            else:
-                raise self._should_not_get_here()
-            yield (
-                entity,
-                entry.check_text('label') if 'label' in entry else None,
-                entry.check_text('alias') if 'alias' in entry else None,
-                entry.check_text('description')
-                if 'description' in entry else None,
-                entry.check_datatype('datatype')
-                if cls is Property and 'datatype' in entry else None)
-
     def _make_item_or_property_descriptor_query(
             self,
-            cls: type[Entity],
             entities: Collection[Union[Item, Property]],
+            cls: type[Entity],
             lang: str,
             mask: Descriptor.AttributeMask
     ) -> SPARQL_Builder:
@@ -1115,23 +1092,32 @@ At line {line}, column {column}:
             'label',
             'subject')
         language = String(lang)
+        if self.has_flags(self.EARLY_FILTER):
+            get_label = bool(mask & Descriptor.LABEL)
+            get_aliases = bool(mask & Descriptor.ALIASES)
+            get_description = bool(mask & Descriptor.DESCRIPTION)
+            get_datatype = cls is Property and bool(mask & Descriptor.DATATYPE)
+        else:
+            get_label = True
+            get_aliases = True
+            get_description = True
+            get_datatype = cls is Property
         with q.where():
             # We use schema:version check whether ?subject exists.
             q.triple(t['subject'], NS.SCHEMA.version, q.bnode())
-            if cls is Property and mask & Descriptor.DATATYPE:
-                q.triple(
-                    t['subject'], NS.WIKIBASE.propertyType, t['datatype'])
-            with q.optional(cond=(mask & Descriptor.ALL)):
+            if get_datatype:
+                q.triple(t['subject'], NS.WIKIBASE.propertyType, t['datatype'])
+            with q.optional(cond=get_label or get_aliases or get_description):
                 with q.union() as cup:
-                    if mask & Descriptor.LABEL:
+                    if get_label:
                         q.triple(t['subject'], NS.RDFS.label, t['label'])
                         q.filter(q.eq(q.lang(t['label']), language))
-                    if mask & Descriptor.ALIASES:
+                    if get_aliases:
                         cup.branch()
                         q.triple(
                             t['subject'], NS.SKOS.altLabel, t['alias'])
                         q.filter(q.eq(q.lang(t['alias']), language))
-                    if mask & Descriptor.DESCRIPTION:
+                    if get_description:
                         cup.branch()
                         q.triple(
                             t['subject'],
@@ -1143,6 +1129,57 @@ At line {line}, column {column}:
                         values.push(entity.iri)
         return q
 
+    def _parse_get_item_or_property_descriptor_results(
+            self,
+            results: SPARQL_Results,
+            cls: type[Entity],
+            lang: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[Optional[tuple[
+        Union[Item, Property],
+            Optional[Text],
+            Optional[Text],
+            Optional[Text],
+            Optional[Datatype]]]]:
+        if self.has_flags(self.LATE_FILTER):
+            late_filter = True
+            get_label = bool(mask & Descriptor.LABEL)
+            get_aliases = bool(mask & Descriptor.ALIASES)
+            get_description = bool(mask & Descriptor.DESCRIPTION)
+            get_datatype = cls is Property and bool(mask & Descriptor.DATATYPE)
+        else:
+            late_filter = False
+            get_label = True
+            get_aliases = True
+            get_description = True
+            get_datatype = cls is Property
+        for entry in results.bindings:
+            if cls is Item:
+                entity: Union[Item, Property] = entry.check_item('subject')
+            elif cls is Property:
+                entity = entry.check_property('subject')
+            else:
+                raise self._should_not_get_here()
+            if get_datatype and 'datatype' in entry:
+                datatype: Optional[Datatype] = entry.check_datatype('datatype')
+            else:
+                datatype = None
+            if get_label and 'label' in entry:
+                label = entry.check_text('label')
+                if label.language == lang or not late_filter:
+                    yield entity, label, None, None, datatype
+            elif get_aliases and 'alias' in entry:
+                alias = entry.check_text('alias')
+                if alias.language == lang or not late_filter:
+                    yield entity, None, alias, None, datatype
+            elif get_description and 'description' in entry:
+                description = entry.check_text('description')
+                if description.language == lang or not late_filter:
+                    yield entity, None, None, description, datatype
+            else:
+                yield entity, None, None, None, datatype
+
+    @override
     def _get_lexeme_descriptor(
             self,
             lexemes: Iterable[Lexeme],
@@ -1151,7 +1188,8 @@ At line {line}, column {column}:
         for batch in self._batched(lexemes):
             q = self._make_lexeme_descriptor_query(set(batch), mask)
             it = self._eval_select_query(
-                q, self._parse_get_lexeme_descriptor_results)
+                q, lambda res:
+                self._parse_get_lexeme_descriptor_results(res, mask))
             desc: dict[Lexeme, dict[str, Any]] = dict()
             for lexeme, lemma, category, language in it:
                 desc[lexeme] = {
@@ -1167,18 +1205,7 @@ At line {line}, column {column}:
                         desc[lexeme]['language']
                     ))
                 else:
-                    yield (lexeme, None)
-
-    def _parse_get_lexeme_descriptor_results(
-            self,
-            results: SPARQL_Results,
-    ) -> Iterator[tuple[Lexeme, Text, IRI, IRI]]:
-        for entry in results.bindings:
-            yield (
-                entry.check_lexeme('subject'),
-                entry.check_text('lemma') if 'lemma' in entry else None,
-                entry.check_item('category') if 'category' in entry else None,
-                entry.check_item('language') if 'language' in entry else None)
+                    yield lexeme, None
 
     def _make_lexeme_descriptor_query(
             self,
@@ -1191,17 +1218,54 @@ At line {line}, column {column}:
             'category',
             'language',
             'subject')
+        if self.has_flags(self.EARLY_FILTER):
+            get_lemma = bool(mask & Descriptor.LEMMA)
+            get_category = bool(mask & Descriptor.CATEGORY)
+            get_language = bool(mask & Descriptor.LANGUAGE)
+        else:
+            get_lemma = True
+            get_category = True
+            get_language = True
         with q.where():
             q.triple(t['subject'], NS.SCHEMA.version, q.bnode())
-            if mask & Descriptor.LEMMA:
+            if get_lemma:
                 q.triple(t['subject'], NS.WIKIBASE.lemma, t['lemma'])
-            if mask & Descriptor.CATEGORY:
+            if get_category:
                 q.triple(
                     t['subject'], NS.WIKIBASE.lexicalCategory, t['category'])
-            if mask & Descriptor.LANGUAGE:
+            if get_language:
                 q.triple(t['subject'], NS.DCT.language, t['language'])
             with q.values(t['subject']) as values:
                 for lexeme in lexemes:
                     if Lexeme.test(lexeme):
                         values.push(lexeme.iri)
         return q
+
+    def _parse_get_lexeme_descriptor_results(
+            self,
+            results: SPARQL_Results,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Lexeme, Text, IRI, IRI]]:
+        if self.has_flags(self.LATE_FILTER):
+            get_lemma = bool(mask & Descriptor.LEMMA)
+            get_category = bool(mask & Descriptor.CATEGORY)
+            get_language = bool(mask & Descriptor.LANGUAGE)
+        else:
+            get_lemma = True
+            get_category = True
+            get_language = True
+        for entry in results.bindings:
+            subject = entry.check_lexeme('subject')
+            if get_lemma and 'lemma' in entry:
+                lemma = entry.check_text('lemma')
+            else:
+                lemma = None
+            if get_category and 'category' in entry:
+                category = entry.check_item('category')
+            else:
+                category = None
+            if get_language and 'language' in entry:
+                language = entry.check_item('language')
+            else:
+                language = None
+            yield subject, lemma, category, language

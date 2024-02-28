@@ -108,6 +108,10 @@ class TestStoreDescriptors(kif_StoreTestCase):
     def test_get_item_descriptor_sanity(self):
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         self.sanity_check_get_item_descriptor(kb)
+        it = kb.get_item_descriptor([Item('x'), Property('x')])
+        self.assertRaisesRegex(
+            TypeError, r"bad argument to 'Store\.get_item_descriptor' "
+            r'\(expected Item, got Property\)', list, it)
 
     def test_get_item_descriptor_single_item(self):
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
@@ -128,8 +132,7 @@ class TestStoreDescriptors(kif_StoreTestCase):
         self.assert_item_descriptor(ds[2][1], *self.Brazil_pt_br)
 
     def test_get_item_descriptor_mask(self):
-        def test_case(flags, desc01, desc21):
-            kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
+        def test_case(kb, flags, desc01, desc21):
             ds = list(kb.get_item_descriptor(
                 [wd.Brazil, Item('x'), wd.Latin_America], None, flags))
             self.assertEqual(len(ds), 3)
@@ -139,27 +142,40 @@ class TestStoreDescriptors(kif_StoreTestCase):
             self.assertIsNone(ds[1][1])
             self.assertEqual(ds[2][0], wd.Latin_America)
             self.assertEqual(ds[2][1], desc21)
+        kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         test_case(
-            0,
+            kb, 0,
             ItemDescriptor(),
             ItemDescriptor())
         test_case(
-            Descriptor.LABEL,
+            kb, Descriptor.LABEL,
             ItemDescriptor(self.Brazil_en[0]),
             ItemDescriptor(self.Latin_America_en[0]))
         test_case(
-            Descriptor.ALIASES,
+            kb, Descriptor.ALIASES,
             ItemDescriptor(None, self.Brazil_en[1]),
             ItemDescriptor(None, self.Latin_America_en[1]))
         test_case(
-            Descriptor.DESCRIPTION,
+            kb, Descriptor.DESCRIPTION,
             ItemDescriptor(None, None, self.Brazil_en[2]),
             ItemDescriptor(None, None, self.Latin_America_en[2]))
         test_case(
-            Descriptor.ALIASES | Descriptor.DESCRIPTION | Descriptor.LEMMA,
+            kb, Descriptor.ALIASES | Descriptor.DESCRIPTION | Descriptor.LEMMA,
             ItemDescriptor(None, self.Brazil_en[1], self.Brazil_en[2]),
             ItemDescriptor(
                 None, self.Latin_America_en[1], self.Latin_America_en[2]))
+        # no early filter
+        kb.unset_flags(kb.EARLY_FILTER)
+        test_case(
+            kb, 0,
+            ItemDescriptor(),
+            ItemDescriptor())
+        # no late filter
+        kb.unset_flags(kb.LATE_FILTER)
+        test_case(
+            kb, 0,
+            ItemDescriptor(*self.Brazil_en),
+            ItemDescriptor(*self.Latin_America_en))
 
     def test_get_item_descriptor_missing_attribute(self):
         def test_case(comments, desc):
@@ -195,6 +211,10 @@ class TestStoreDescriptors(kif_StoreTestCase):
     def test_get_property_descriptor_sanity(self):
         kb = Store('rdf', INSTANCE_OF_TTL)
         self.sanity_check_get_property_descriptor(kb)
+        it = kb.get_property_descriptor([Property('x'), Item('x')])
+        self.assertRaisesRegex(
+            TypeError, r"bad argument to 'Store\.get_property_descriptor' "
+            r'\(expected Property, got Item\)', list, it)
 
     def test_get_property_descriptor_single_property(self):
         kb = Store('rdf', BENZENE_TTL, INSTANCE_OF_TTL)
@@ -215,8 +235,7 @@ class TestStoreDescriptors(kif_StoreTestCase):
         self.assert_property_descriptor(ds[2][1], *self.InChIKey_es)
 
     def test_get_property_descriptor_mask(self):
-        def test_case(flags, desc01, desc21):
-            kb = Store('rdf', BENZENE_TTL, INSTANCE_OF_TTL)
+        def test_case(kb, flags, desc01, desc21):
             ds = list(kb.get_property_descriptor(
                 [wd.instance_of, Property('x'), wd.InChIKey], None, flags))
             self.assertEqual(len(ds), 3)
@@ -226,26 +245,39 @@ class TestStoreDescriptors(kif_StoreTestCase):
             self.assertIsNone(ds[1][1])
             self.assertEqual(ds[2][0], wd.InChIKey)
             self.assertEqual(ds[2][1], desc21)
+        kb = Store('rdf', BENZENE_TTL, INSTANCE_OF_TTL)
         test_case(
-            0,
+            kb, 0,
             PropertyDescriptor(),
             PropertyDescriptor())
         test_case(
-            Descriptor.LABEL,
+            kb, Descriptor.LABEL,
             PropertyDescriptor(self.instance_of_en[0]),
             PropertyDescriptor(self.InChIKey_en[0]))
         test_case(
-            Descriptor.ALIASES,
+            kb, Descriptor.ALIASES,
             PropertyDescriptor(None, self.instance_of_en[1]),
             PropertyDescriptor(None, self.InChIKey_en[1]))
         test_case(
-            Descriptor.DESCRIPTION,
+            kb, Descriptor.DESCRIPTION,
             PropertyDescriptor(None, None, self.instance_of_en[2]),
             PropertyDescriptor(None, None, self.InChIKey_en[2]))
         test_case(
-            Descriptor.DATATYPE,
+            kb, Descriptor.DATATYPE,
             PropertyDescriptor(None, None, None, self.instance_of_en[3]),
             PropertyDescriptor(None, None, None, self.InChIKey_en[3]))
+        # no early filter
+        kb.unset_flags(kb.EARLY_FILTER)
+        test_case(
+            kb, 0,
+            PropertyDescriptor(),
+            PropertyDescriptor())
+        # no late filter
+        kb.unset_flags(kb.LATE_FILTER)
+        test_case(
+            kb, 0,
+            PropertyDescriptor(*self.instance_of_en),
+            PropertyDescriptor(*self.InChIKey_en))
 
     def test_get_property_descriptor_missing_attribute(self):
         def test_case(comments, desc):
@@ -281,9 +313,13 @@ class TestStoreDescriptors(kif_StoreTestCase):
 
 # -- get_lexeme_descriptor -------------------------------------------------
 
-    def test_get_lexeme_descriptor(self):
+    def test_get_lexeme_descriptor_sanity(self):
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         self.sanity_check_get_lexeme_descriptor(kb)
+        it = kb.get_lexeme_descriptor([Lexeme('x'), Property('x')])
+        self.assertRaisesRegex(
+            TypeError, r"bad argument to 'Store\.get_lexeme_descriptor' "
+            r'\(expected Lexeme, got Property\)', list, it)
 
     def test_get_lexeme_descriptor_single_lexeme(self):
         kb = Store('rdf', PAINT_TTL)
@@ -304,8 +340,7 @@ class TestStoreDescriptors(kif_StoreTestCase):
         self.assert_lexeme_descriptor(ds[2][1], *self.paint_verb_en)
 
     def test_get_lexeme_descriptor_mask(self):
-        def test_case(flags, desc01, desc21):
-            kb = Store('rdf', ANDAR_TTL, PAINT_TTL)
+        def test_case(kb, flags, desc01, desc21):
             ds = list(kb.get_lexeme_descriptor(
                 [wd.L(46803), Lexeme('x'), wd.L(96)], flags))
             self.assertEqual(len(ds), 3)
@@ -315,22 +350,35 @@ class TestStoreDescriptors(kif_StoreTestCase):
             self.assertIsNone(ds[1][1])
             self.assertEqual(ds[2][0], wd.L(96))
             self.assertEqual(ds[2][1], desc21)
+        kb = Store('rdf', ANDAR_TTL, PAINT_TTL)
         test_case(
-            0,
+            kb, 0,
             LexemeDescriptor(),
             LexemeDescriptor())
         test_case(
-            Descriptor.LEMMA,
+            kb, Descriptor.LEMMA,
             LexemeDescriptor(self.andar_verb_pt[0]),
             LexemeDescriptor(self.paint_verb_en[0]))
         test_case(
-            Descriptor.CATEGORY,
+            kb, Descriptor.CATEGORY,
             LexemeDescriptor(None, self.andar_verb_pt[1]),
             LexemeDescriptor(None, self.paint_verb_en[1]))
         test_case(
-            Descriptor.LANGUAGE,
+            kb, Descriptor.LANGUAGE,
             LexemeDescriptor(None, None, self.andar_verb_pt[2]),
             LexemeDescriptor(None, None, self.paint_verb_en[2]))
+        # no early filter
+        kb.unset_flags(kb.EARLY_FILTER)
+        test_case(
+            kb, 0,
+            LexemeDescriptor(),
+            LexemeDescriptor())
+        # no late filter
+        kb.unset_flags(kb.LATE_FILTER)
+        test_case(
+            kb, 0,
+            LexemeDescriptor(*self.andar_verb_pt),
+            LexemeDescriptor(*self.paint_verb_en))
 
 
 if __name__ == '__main__':

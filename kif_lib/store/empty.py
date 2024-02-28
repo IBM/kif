@@ -13,7 +13,7 @@ from ..model import (
     PropertyDescriptor,
     Statement,
 )
-from ..typing import Any, Iterable, Iterator, Optional
+from ..typing import Any, Iterable, Iterator, Optional, override
 from .abc import Store
 
 
@@ -49,6 +49,7 @@ class EmptyStore(Store, store_name='empty', store_description='Empty store'):
 
 # -- Descriptors -----------------------------------------------------------
 
+    @override
     def _get_item_descriptor(
             self,
             items: Iterable[Item],
@@ -57,6 +58,7 @@ class EmptyStore(Store, store_name='empty', store_description='Empty store'):
     ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
         return map(lambda item: (item, None), items)
 
+    @override
     def _get_property_descriptor(
             self,
             properties: Iterable[Property],
@@ -65,6 +67,7 @@ class EmptyStore(Store, store_name='empty', store_description='Empty store'):
     ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
         return map(lambda property: (property, None), properties)
 
+    @override
     def _get_lexeme_descriptor(
             self,
             lexemes: Iterable[Lexeme],

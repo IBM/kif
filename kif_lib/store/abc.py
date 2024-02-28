@@ -847,14 +847,14 @@ class Store(Set):
             self,
             items: Union[Item, Iterable[Item]],
             language: Optional[str] = None,
-            descriptor_mask: Optional[Descriptor.TAttributeMask] = None
+            mask: Optional[Descriptor.TAttributeMask] = None
     ) -> Iterable[tuple[Item, Optional[ItemDescriptor]]]:
-        """Gets descriptor of items.
+        """Gets the descriptor of `items`.
 
         Parameters:
            items: Items.
            language: Language tag.
-           descriptor_mask: Descriptor mask.
+           mask: Descriptor mask.
 
         Returns:
            An iterator of pairs: item, descriptor.
@@ -867,8 +867,7 @@ class Store(Set):
             self.get_item_descriptor, 'language', 2)
         assert lang is not None
         mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
-            descriptor_mask, Descriptor.ALL,
-            self.get_item_descriptor, 'descriptor_mask', 3)
+            mask, Descriptor.ALL, self.get_item_descriptor, 'mask', 3)
         assert mask is not None
         if Item.test(items):
             return self._get_item_descriptor([cast(Item, items)], lang, mask)
@@ -889,14 +888,14 @@ class Store(Set):
             self,
             properties: Union[Property, Iterable[Property]],
             language: Optional[str] = None,
-            descriptor_mask: Optional[Descriptor.TAttributeMask] = None
+            mask: Optional[Descriptor.TAttributeMask] = None
     ) -> Iterable[tuple[Property, Optional[PropertyDescriptor]]]:
-        """Gets descriptor of properties.
+        """Gets the descriptor of `properties`.
 
         Parameters:
            properties: Properties.
            language: Language tag.
-           descriptor_mask: Descriptor mask.
+           mask: Descriptor mask.
 
         Returns:
            An iterator of pairs: property, descriptor.
@@ -909,8 +908,7 @@ class Store(Set):
             self.get_property_descriptor, 'language', 2)
         assert lang is not None
         mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
-            descriptor_mask, Descriptor.ALL,
-            self.get_property_descriptor, 'descriptor_mask', 3)
+            mask, Descriptor.ALL, self.get_property_descriptor, 'mask', 3)
         assert mask is not None
         if Property.test(properties):
             return self._get_property_descriptor(
@@ -932,9 +930,9 @@ class Store(Set):
     def get_lexeme_descriptor(
             self,
             lexemes: Union[Lexeme, Iterable[Lexeme]],
-            descriptor_mask: Optional[Descriptor.TAttributeMask] = None
+            mask: Optional[Descriptor.TAttributeMask] = None
     ) -> Iterable[tuple[Lexeme, Optional[LexemeDescriptor]]]:
-        """Gets descriptor of lexemes.
+        """Gets the descriptor of `lexemes`.
 
         Parameters:
            lexemes: Lexemes.
@@ -946,8 +944,7 @@ class Store(Set):
             lexemes, (Lexeme, Iterable),
             self.get_lexeme_descriptor, 'lexemes', 1)
         mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
-            descriptor_mask, Descriptor.ALL,
-            self.get_lexeme_descriptor, 'descriptor_mask', 3)
+            mask, Descriptor.ALL, self.get_lexeme_descriptor, 'mask', 3)
         assert mask is not None
         if Lexeme.test(lexemes):
             return self._get_lexeme_descriptor(

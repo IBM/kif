@@ -1067,7 +1067,7 @@ class kif_StoreTestCase(kif_TestCase):
             TypeError, 2, 'language', 'expected str, got int',
             kb.get_item_descriptor, Item('Q1'), 0)
         self.assert_raises_bad_argument(
-            TypeError, 3, 'descriptor_mask',
+            TypeError, 3, 'mask',
             'expected Descriptor.AttributeMask or int, got str',
             kb.get_item_descriptor, Item('Q1'), 'pt', 'abc')
 
@@ -1084,7 +1084,7 @@ class kif_StoreTestCase(kif_TestCase):
             (items[2], None),
             (items[0], None),
         ])
-        desc = list(kb.get_item_descriptor(items[1:], descriptor_mask=0))
+        desc = list(kb.get_item_descriptor(items[1:], None, 0))
         self.assertEqual(desc, [
             (items[1], None),
             (items[2], None),
@@ -1106,7 +1106,7 @@ class kif_StoreTestCase(kif_TestCase):
             TypeError, 2, 'language', 'expected str, got int',
             kb.get_property_descriptor, Property('P1'), 0)
         self.assert_raises_bad_argument(
-            TypeError, 3, 'descriptor_mask',
+            TypeError, 3, 'mask',
             'expected Descriptor.AttributeMask or int, got str',
             kb.get_property_descriptor, Property('P1'), 'pt', 'abc')
 
@@ -1123,7 +1123,7 @@ class kif_StoreTestCase(kif_TestCase):
             (props[2], None),
             (props[0], None),
         ])
-        desc = list(kb.get_property_descriptor(props[1:], descriptor_mask=0))
+        desc = list(kb.get_property_descriptor(props[1:], None, 0))
         self.assertEqual(desc, [
             (props[1], None),
             (props[2], None),
