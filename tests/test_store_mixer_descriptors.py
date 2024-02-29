@@ -7,6 +7,8 @@ from kif_lib import (
     Descriptor,
     Item,
     ItemDescriptor,
+    Lexeme,
+    LexemeDescriptor,
     Nil,
     Property,
     PropertyDescriptor,
@@ -348,6 +350,71 @@ wd:P31
         self.assertEqual(len(ds), 1)
         self.assertEqual(ds[0][0], wd.L(96))
         self.assert_lexeme_descriptor(ds[0][1], *PAINT_TTL.paint_verb_en)
+
+    def test_get_lexeme_descriptor_multiple_lexemes(self):
+        kb = Store('mixer', [self.kb_andar, self.kb_paint])
+        ds = list(kb.get_lexeme_descriptor(
+            [wd.L(96), Lexeme('x'), wd.L(46803)]))
+        self.assertEqual(len(ds), 3)
+        self.assertEqual(ds[0][0], wd.L(96))
+        self.assert_lexeme_descriptor(ds[0][1], *PAINT_TTL.paint_verb_en)
+        self.assertEqual(ds[1][0], Lexeme('x'))
+        self.assertIsNone(ds[1][1])
+        self.assertEqual(ds[2][0], wd.L(46803))
+        self.assert_lexeme_descriptor(ds[2][1], *ANDAR_TTL.andar_verb_pt)
+
+    def test_get_lexeme_descriptor_mask(self):
+        def test_case(kb, mask, desc01, desc21):
+            ds = list(kb.get_lexeme_descriptor(
+                [wd.L(96), Lexeme('x'), wd.L(46803)], mask))
+            self.assertEqual(len(ds), 3)
+            self.assertEqual(ds[0][0], wd.L(96))
+            self.assert_lexeme_descriptor(ds[0][1], *desc01)
+            self.assertEqual(ds[1][0], Lexeme('x'))
+            self.assertIsNone(ds[1][1])
+            self.assertEqual(ds[2][0], wd.L(46803))
+            self.assert_lexeme_descriptor(ds[2][1], *desc21)
+        kb = Store('mixer', [self.kb_andar, self.kb_paint])
+        test_case(
+            kb, 0,
+            LexemeDescriptor(),
+            LexemeDescriptor())
+        test_case(
+            kb, Descriptor.LEMMA,
+            LexemeDescriptor(PAINT_TTL.paint_verb_en[0]),
+            LexemeDescriptor(ANDAR_TTL.andar_verb_pt[0]))
+        test_case(
+            kb, Descriptor.CATEGORY,
+            LexemeDescriptor(None, PAINT_TTL.paint_verb_en[1]),
+            LexemeDescriptor(None, ANDAR_TTL.andar_verb_pt[1]))
+        test_case(
+            kb, Descriptor.LANGUAGE,
+            LexemeDescriptor(None, None, PAINT_TTL.paint_verb_en[2]),
+            LexemeDescriptor(None, None, ANDAR_TTL.andar_verb_pt[2]))
+        test_case(
+            kb, Descriptor.LEMMA,
+            LexemeDescriptor(PAINT_TTL.paint_verb_en[0]),
+            LexemeDescriptor(ANDAR_TTL.andar_verb_pt[0]))
+        test_case(
+            kb, Descriptor.LEMMA | Descriptor.LANGUAGE,
+            LexemeDescriptor(
+                PAINT_TTL.paint_verb_en[0], None, PAINT_TTL.paint_verb_en[2]),
+            LexemeDescriptor(
+                ANDAR_TTL.andar_verb_pt[0], None, ANDAR_TTL.andar_verb_pt[2]))
+        # no early filter
+        kb.unset_flags(kb.EARLY_FILTER)
+        test_case(
+            kb, 0,
+            LexemeDescriptor(),
+            LexemeDescriptor())
+        # no late filter
+        kb.unset_flags(kb.LATE_FILTER)
+        test_case(
+            kb, 0,
+            LexemeDescriptor(*PAINT_TTL.paint_verb_en),
+            LexemeDescriptor(*ANDAR_TTL.andar_verb_pt))
+        # reset
+        kb.set_flags(kb.EARLY_FILTER | kb.LATE_FILTER)
 
 
 if __name__ == '__main__':
