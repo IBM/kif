@@ -15,16 +15,25 @@ from kif_lib import (
     TextSet,
 )
 
-from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL, INSTANCE_OF_TTL
+from .data import (
+    ADAM_TTL,
+    ANDAR_TTL,
+    BENZENE_TTL,
+    BRAZIL_TTL,
+    INSTANCE_OF_TTL,
+    PAINT_TTL,
+)
 from .tests import kif_StoreTestCase, main
 
 
 class TestStoreMixer_Descriptors(kif_StoreTestCase):
 
     kb_adam = Store('rdf', ADAM_TTL)
+    kb_andar = Store('rdf', ANDAR_TTL)
     kb_benzene = Store('rdf', BENZENE_TTL)
     kb_brazil = Store('rdf', BRAZIL_TTL)
     kb_instance_of = Store('rdf', INSTANCE_OF_TTL)
+    kb_paint = Store('rdf', PAINT_TTL)
 
     kb_extra = kif_StoreTestCase.parse('''
 # benzene
@@ -204,6 +213,8 @@ wd:P31
                 TextSet(*self.extra_Brazil_pt_br[1],
                         *BRAZIL_TTL.Brazil_pt_br[1])),
             self.extra_benzene_pt_br)
+        # reset
+        kb.set_flags(kb.EARLY_FILTER | kb.LATE_FILTER)
 
 # -- get_property_descriptor -----------------------------------------------
 
@@ -322,12 +333,21 @@ wd:P31
                     *INSTANCE_OF_TTL.instance_of_es[1]),
                 *self.extra_instance_of_es[2:]),
             PropertyDescriptor(*BENZENE_TTL.InChIKey_es))
+        # reset
+        kb.set_flags(kb.EARLY_FILTER | kb.LATE_FILTER)
 
 # -- get_lexeme_descriptor -----------------------------------------------
 
     def test_get_lexeme_descriptor_sanity(self):
         kb = Store('mixer', [self.kb_adam, self.kb_benzene, self.kb_brazil])
         self.sanity_check_get_lexeme_descriptor(kb)
+
+    def test_get_lexeme_descriptor_single_lexeme(self):
+        kb = Store('mixer', [self.kb_andar, self.kb_paint])
+        ds = list(kb.get_lexeme_descriptor(wd.L(96)))
+        self.assertEqual(len(ds), 1)
+        self.assertEqual(ds[0][0], wd.L(96))
+        self.assert_lexeme_descriptor(ds[0][1], *PAINT_TTL.paint_verb_en)
 
 
 if __name__ == '__main__':
