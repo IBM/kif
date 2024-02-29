@@ -5,8 +5,9 @@ import datetime
 import decimal
 import json
 from enum import Enum
+from functools import cache
 
-from ..typing import Any, cast, Generator, NoReturn, override, Union
+from ..typing import Any, cast, Generator, override, Union
 from . import object
 
 Datetime = datetime.datetime
@@ -153,12 +154,10 @@ class KIF_JSON_Encoder(
 class KIF_ReprDecoder(
         object.ReprDecoder, format='repr', description='Repr. decoder'):
 
-    def decode(self, s: str) -> Union[Object, NoReturn]:
-        return eval(s, {
-            'Decimal': Decimal,
-            'datetime': datetime,
-            **object.ObjectMeta._object_subclasses
-        })
+    @override
+    @cache
+    def _globals(self):
+        return {'Decimal': Decimal, 'datetime': datetime, **super()._globals()}
 
 
 class KIF_ReprEncoder(

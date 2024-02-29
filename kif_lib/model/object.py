@@ -1294,7 +1294,10 @@ class ReprEncoder(
         if isinstance(v, list):
             yield ']'
         elif isinstance(v, tuple):
-            yield ')'
+            if len(v) == 1:
+                yield ',)'
+            else:
+                yield ')'
         else:
             raise Object._should_not_get_here()
 
@@ -1424,7 +1427,13 @@ class ReprDecoder(
     """Repr. decoder."""
 
     def decode(self, s: str) -> Union[Object, NoReturn]:
-        return eval(s, ObjectMeta._object_subclasses)
+        return eval(s, self._globals(), self._locals())
+
+    def _globals(self):
+        return ObjectMeta._object_subclasses
+
+    def _locals(self, _empty_locals=dict()):
+        return _empty_locals
 
 
 class SExpDecoder(

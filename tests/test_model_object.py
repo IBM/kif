@@ -169,8 +169,8 @@ class TestObject(TestCase):
         self.assertNotEqual(A([1, 2, 3]).digest, A((1, 2, 3)).digest)
         self.assertNotEqual(A(1).digest, A(2).digest)
         self.assertNotEqual(A().digest, B().digest)
-
-    # -- Copying -----------------------------------------------------------
+
+# -- Copying ---------------------------------------------------------------
 
     def test_copy(self):
         a = A(1, A(2, 3), A(4))
@@ -190,8 +190,8 @@ class TestObject(TestCase):
         self.assertEqual(c.replace(2), C(2, *c[1:]))
         self.assertEqual(c.replace(None), c)
         self.assertEqual(c.replace(None, c.Nil), C(1, None, C(4)))
-
-    # -- Encoding ----------------------------------------------------------
+
+# -- Encoding --------------------------------------------------------------
 
     @classmethod
     def reset_codecs(cls):
@@ -209,6 +209,9 @@ class TestObject(TestCase):
             with open(path, 'r') as fp:
                 self.assertEqual(fp.read(), s)
 
+    def assert_dump_repr(self, obj, s, **kwargs):
+        self.assert_dump(obj, s, format='repr', **kwargs)
+
     def assert_dump_sexp(self, obj, s, **kwargs):
         self.assert_dump(obj, s, format='sexp', **kwargs)
 
@@ -225,6 +228,31 @@ class TestObject(TestCase):
             r"^bad argument #1 \(format\) to "
             r"'Object\.dumps' \(no such encoder 'x'\)$",
             A().dumps, 'x')
+
+    def test_dump_repr(self):
+        self.assert_dump_repr(A(), 'A()')
+        self.assert_dump_repr(A(1), 'A(1)')
+        self.assert_dump_repr(A([1]), 'A([1])')
+        self.assert_dump_repr(A((1,)), 'A((1,))')
+        self.assert_dump_repr(A('"x"'), "A('\"x\"')")
+        self.assert_dump_repr(A(1, 2, 3), 'A(1, 2, 3)')
+        self.assert_dump_repr(A(1, '2', 3), "A(1, '2', 3)")
+        self.assert_dump_repr(A(1, ['2', 3]), "A(1, ['2', 3])")
+        self.assert_dump_repr(A(1, ['2', [3]]), "A(1, ['2', [3]])")
+        self.assert_dump_repr(B(A(), True), 'B(A(), True)')
+        self.assert_dump_repr(B(A(1.0), False), 'B(A(1.0), False)')
+        self.assert_dump_repr(B(A(B(A()))), 'B(A(B(A())))')
+        # indent
+        self.assert_dump_repr(A(1), 'A(\n  1\n)', indent=2)
+        self.assert_dump_repr(B(A(B(A(), False))), '''\
+B(
+    A(
+        B(
+            A(),
+            False
+        )
+    )
+)''', indent=4)
 
     def test_dump_sexp(self):
         self.assertRaises(EncoderError, A(set()).dumps, format='sexp')
@@ -286,8 +314,8 @@ class TestObject(TestCase):
     }
   ]
 }''')
-
-    # -- Decoding ----------------------------------------------------------
+
+# -- Decoding --------------------------------------------------------------
 
     def assert_load(self, obj, s, format=None, **kwargs):
         self.assertEqual(obj.loads(s, format, **kwargs), obj)
@@ -346,6 +374,15 @@ class TestObject(TestCase):
     )
 )''')
 
+    def test_from_repr(self):
+        self.assertRaisesRegex(
+            TypeError,
+            r"^bad argument to 'Object.load' \(expected B, got A\)$",
+            B.from_repr, ('A(B())'))
+        self.assertEqual(A(), A.from_repr('A()'))
+        self.assertEqual(A(), A.from_repr('  A()  #'))
+        self.assertEqual(A(B()), A.from_repr('A(\n  B(\n)\n)'))
+
     def test_from_sexp(self):
         self.assertRaisesRegex(
             TypeError,
@@ -396,8 +433,8 @@ class TestObject(TestCase):
     }
   ]
 }'''))
-
-    # -- _check_arg --------------------------------------------------------
+
+# -- _check_arg ------------------------------------------------------------
 
     def test__check_arg(self):
         self.assertRaisesRegex(
@@ -819,8 +856,8 @@ class TestObject(TestCase):
             Object._preprocess_optional_arg_str('abc', 8), 'abc')
         self.assertEqual(
             Object._preprocess_optional_arg_str('abc', 8, 'x'), 'abc')
-
-    # -- Utility -----------------------------------------------------------
+
+# -- Utility ---------------------------------------------------------------
 
     def test_camel2snake(self):
         self.assertEqual(
