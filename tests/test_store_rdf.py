@@ -553,30 +553,6 @@ class TestRDF_Store(kif_StoreTestCase):
             wd.date_of_birth(wd.Adam, Time(
                 '4003-01-01', 9, 0, wd.proleptic_Julian_calendar)))
 
-    # -- Descriptor --------------------------------------------------------
-
-    # def test_get_descriptor(self):
-    #     kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
-    #     self.store_test_get_descriptor(
-    #         kb,
-    #         [(wd.Brazil, Descriptor(
-    #             'Brazil', None, 'country in South America'))],
-    #         'en',
-    #         wd.Brazil)
-    #     self.store_test_get_descriptor(
-    #         kb,
-    #         [(wd.Brazil, None)],
-    #         'es',
-    #         wd.Brazil)
-    #     self.store_test_get_descriptor(
-    #         kb,
-    #         [(wd.Brazil, Descriptor(
-    #             Text('Brasil', 'pt-br'),
-    #             [Text("🇧🇷", 'pt-br')],
-    #             Text('país na América do Sul', 'pt-br')))],
-    #         'pt-br',
-    #         wd.Brazil)
-
 
 if __name__ == '__main__':
     main()

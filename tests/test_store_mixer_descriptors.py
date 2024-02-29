@@ -2,7 +2,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import kif_lib.vocabulary as wd
-from kif_lib import Descriptor, Item, ItemDescriptor, Nil, Store, Text, TextSet
+from kif_lib import (
+    Datatype,
+    Descriptor,
+    Item,
+    ItemDescriptor,
+    Nil,
+    Property,
+    PropertyDescriptor,
+    Store,
+    Text,
+    TextSet,
+)
 
 from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL, INSTANCE_OF_TTL
 from .tests import kif_StoreTestCase, main
@@ -38,6 +49,13 @@ wd:Q155
     rdfs:label "Brasil"@pt-br ;
     skos:altLabel "🇧🇷"@en ;
     skos:altLabel "BRA"@pt-br .
+
+# instance of
+wd:P31
+    schema:version "0"^^xsd:integer ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    skos:altLabel "∈"@en ;
+    skos:altLabel "rdf:type"@en .
 ''')
 
     extra_benzene_en = ItemDescriptor(
@@ -53,6 +71,9 @@ wd:Q155
 
     extra_Brazil_pt_br = ItemDescriptor(
         Text('Brasil', 'pt-br'), [Text('BRA', 'pt-br')])
+
+    extra_instance_of_en = PropertyDescriptor(
+        None, [Text('∈'), Text('rdf:type')], None, Datatype.item)
 
 # -- get_descriptor --------------------------------------------------------
 
@@ -185,7 +206,7 @@ wd:Q155
         kb = Store('mixer', [self.kb_adam, self.kb_benzene, self.kb_brazil])
         self.sanity_check_get_property_descriptor(kb)
 
-    def test_get_property_descriptor_single_item(self):
+    def test_get_property_descriptor_single_property(self):
         kb = Store('mixer', [self.kb_benzene, self.kb_instance_of])
         res = list(kb.get_property_descriptor(wd.instance_of))
         self.assertEqual(len(res), 1)
@@ -193,6 +214,20 @@ wd:Q155
         self.assertEqual(item, wd.instance_of)
         self.assert_property_descriptor(
             desc, *INSTANCE_OF_TTL.instance_of_en)
+
+    def test_get_property_descriptor_single_property_with_merges(self):
+        kb = Store('mixer', [self.kb_extra, self.kb_instance_of])
+        res = list(kb.get_property_descriptor(wd.instance_of))
+        self.assertEqual(len(res), 1)
+        prop, desc = res[0]
+        self.assertEqual(prop, wd.instance_of)
+        self.assert_property_descriptor(
+            desc,
+            INSTANCE_OF_TTL.instance_of_en[0],
+            TextSet(*INSTANCE_OF_TTL.instance_of_en[1],
+                    *self.extra_instance_of_en[1]),
+            INSTANCE_OF_TTL.instance_of_en[2],
+            INSTANCE_OF_TTL.instance_of_en[3])
 
 # -- get_lexeme_descriptor -----------------------------------------------
 

@@ -93,17 +93,6 @@ class TestEmptyStore(kif_StoreTestCase):
                 '4003-01-01', 9, 0, wd.proleptic_Julian_calendar)),
             wd.inception(wd.Brazil, Time('1822-09-07')))
 
-    # -- Descriptor --------------------------------------------------------
-
-    # def test_get_item_descriptor(self):
-    #     kb = Store('empty')
-    #     self.store_test_get l_descriptor(
-    #         kb,
-    #         [(wd.Brazil, ItemDescriptor()),
-    #          (wd.instance_of, ItemDescriptor())],
-    #         'en',
-    #         wd.Brazil, wd.instance_of)
-
 
 if __name__ == '__main__':
     main()

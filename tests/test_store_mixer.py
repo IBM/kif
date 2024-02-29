@@ -99,30 +99,6 @@ class TestMixerStore(kif_StoreTestCase):
         test = TestRDF_Store()
         test._test_get_annotations(self.mk_adam_benzene_brazil_mixer())
 
-    # -- Descriptor --------------------------------------------------------
-
-    # def test_get_descriptor(self):
-    #     kb = self.mk_adam_benzene_brazil_mixer()
-    #     self.store_test_get_descriptor(
-    #         kb,
-    #         [(wd.Brazil, Descriptor(
-    #             'Brazil', None, 'country in South America'))],
-    #         'en',
-    #         wd.Brazil)
-    #     self.store_test_get_descriptor(
-    #         kb,
-    #         [(wd.Brazil, None)],
-    #         'es',
-    #         wd.Brazil)
-    #     self.store_test_get_descriptor(
-    #         kb,
-    #         [(wd.Brazil, Descriptor(
-    #             Text('Brasil', 'pt-br'),
-    #             [Text("🇧🇷", 'pt-br')],
-    #             Text('país na América do Sul', 'pt-br')))],
-    #         'pt-br',
-    #         wd.Brazil)
-
 
 if __name__ == '__main__':
     main()
