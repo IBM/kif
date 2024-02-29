@@ -8,6 +8,7 @@ from kif_lib import (
     Item,
     ItemDescriptor,
     Nil,
+    Property,
     PropertyDescriptor,
     Store,
     Text,
@@ -53,8 +54,10 @@ wd:Q155
 wd:P31
     schema:version "0"^^xsd:integer ;
     wikibase:propertyType wikibase:WikibaseItem ;
+    rdfs:label "instancia de"@es ;
     skos:altLabel "∈"@en ;
-    skos:altLabel "rdf:type"@en .
+    skos:altLabel "rdf:type"@en ;
+    skos:altLabel "∈"@es .
 ''')
 
     extra_benzene_en = ItemDescriptor(
@@ -73,6 +76,9 @@ wd:P31
 
     extra_instance_of_en = PropertyDescriptor(
         None, [Text('∈'), Text('rdf:type')], None, Datatype.item)
+
+    extra_instance_of_es = PropertyDescriptor(
+        Text('instancia de', 'es'), [Text('∈', 'es')], None, Datatype.item)
 
 # -- get_descriptor --------------------------------------------------------
 
@@ -137,9 +143,9 @@ wd:P31
         self.assert_item_descriptor(ds[3][1], *self.extra_benzene_pt_br)
 
     def test_get_item_descriptor_mask(self):
-        def test_case(kb, flags, desc01, desc21, desc31):
+        def test_case(kb, mask, desc01, desc21, desc31):
             ds = list(kb.get_item_descriptor(
-                [wd.Adam, Item('x'), wd.Brazil, wd.benzene], 'pt-br', flags))
+                [wd.Adam, Item('x'), wd.Brazil, wd.benzene], 'pt-br', mask))
             self.assertEqual(len(ds), 4)
             self.assertEqual(ds[0][0], wd.Adam)
             self.assert_item_descriptor(ds[0][1], *desc01)
@@ -207,26 +213,115 @@ wd:P31
 
     def test_get_property_descriptor_single_property(self):
         kb = Store('mixer', [self.kb_benzene, self.kb_instance_of])
-        res = list(kb.get_property_descriptor(wd.instance_of))
-        self.assertEqual(len(res), 1)
-        item, desc = res[0]
-        self.assertEqual(item, wd.instance_of)
+        ds = list(kb.get_property_descriptor(wd.instance_of))
+        self.assertEqual(len(ds), 1)
+        self.assertEqual(ds[0][0], wd.instance_of)
         self.assert_property_descriptor(
-            desc, *INSTANCE_OF_TTL.instance_of_en)
+            ds[0][1], *INSTANCE_OF_TTL.instance_of_en)
 
     def test_get_property_descriptor_single_property_with_merges(self):
         kb = Store('mixer', [self.kb_extra, self.kb_instance_of])
-        res = list(kb.get_property_descriptor(wd.instance_of))
-        self.assertEqual(len(res), 1)
-        prop, desc = res[0]
-        self.assertEqual(prop, wd.instance_of)
+        ds = list(kb.get_property_descriptor(wd.instance_of))
+        self.assertEqual(len(ds), 1)
+        self.assertEqual(ds[0][0], wd.instance_of)
         self.assert_property_descriptor(
-            desc,
+            ds[0][1],
             INSTANCE_OF_TTL.instance_of_en[0],
             TextSet(*INSTANCE_OF_TTL.instance_of_en[1],
                     *self.extra_instance_of_en[1]),
             INSTANCE_OF_TTL.instance_of_en[2],
             INSTANCE_OF_TTL.instance_of_en[3])
+
+    def test_get_property_descriptor_multiple_properties(self):
+        kb = Store('mixer', [self.kb_benzene, self.kb_instance_of])
+        ds = list(kb.get_property_descriptor(
+            [wd.instance_of, Property('x'), wd.InChIKey]))
+        self.assertEqual(len(ds), 3)
+        self.assertEqual(ds[0][0], wd.instance_of)
+        self.assert_property_descriptor(
+            ds[0][1], *INSTANCE_OF_TTL.instance_of_en)
+        self.assertEqual(ds[1][0], Property('x'))
+        self.assertIsNone(ds[1][1])
+        self.assertEqual(ds[2][0], wd.InChIKey)
+        self.assert_property_descriptor(ds[2][1], *BENZENE_TTL.InChIKey_en)
+
+    def test_get_property_descriptor_multiple_properties_with_merges(self):
+        kb = Store(
+            'mixer', [self.kb_extra, self.kb_benzene, self.kb_instance_of])
+        ds = list(kb.get_property_descriptor(
+            [wd.instance_of, Property('x'), wd.InChIKey]))
+        self.assertEqual(len(ds), 3)
+        self.assertEqual(ds[0][0], wd.instance_of)
+        self.assert_property_descriptor(
+            ds[0][1],
+            INSTANCE_OF_TTL.instance_of_en[0],
+            TextSet(*INSTANCE_OF_TTL.instance_of_en[1],
+                    *self.extra_instance_of_en[1]),
+            *INSTANCE_OF_TTL.instance_of_en[2:])
+        self.assertEqual(ds[1][0], Property('x'))
+        self.assertIsNone(ds[1][1])
+        self.assertEqual(ds[2][0], wd.InChIKey)
+        self.assert_property_descriptor(ds[2][1], *BENZENE_TTL.InChIKey_en)
+
+    def test_get_property_descriptor_mask(self):
+        def test_case(kb, mask, desc01, desc21):
+            ds = list(kb.get_property_descriptor(
+                [wd.instance_of, Property('x'),
+                 wd.InChIKey, wd.instance_of], 'es', mask))
+            self.assertEqual(len(ds), 4)
+            self.assertEqual(ds[0][0], wd.instance_of)
+            self.assert_property_descriptor(ds[0][1], *desc01)
+            self.assertEqual(ds[1][0], Property('x'))
+            self.assertIsNone(ds[1][1])
+            self.assertEqual(ds[2][0], wd.InChIKey)
+            self.assert_property_descriptor(ds[2][1], *desc21)
+            self.assertEqual(ds[3][0], wd.instance_of)
+            self.assert_property_descriptor(ds[3][1], *desc01)
+        kb = Store(
+            'mixer', [self.kb_extra, self.kb_benzene, self.kb_instance_of])
+        test_case(
+            kb, 0,
+            PropertyDescriptor(),
+            PropertyDescriptor())
+        test_case(
+            kb, Descriptor.LABEL,
+            PropertyDescriptor(self.extra_instance_of_es[0]),
+            PropertyDescriptor(BENZENE_TTL.InChIKey_es[0]))
+        test_case(
+            kb, Descriptor.ALIASES,
+            PropertyDescriptor(None, TextSet(
+                *self.extra_instance_of_es[1],
+                *INSTANCE_OF_TTL.instance_of_es[1])),
+            PropertyDescriptor(None, BENZENE_TTL.InChIKey_es[1]))
+        test_case(
+            kb, Descriptor.DESCRIPTION,
+            PropertyDescriptor(
+                None, None, INSTANCE_OF_TTL.instance_of_es[2]),
+            PropertyDescriptor(
+                None, None, BENZENE_TTL.InChIKey_es[2]))
+        test_case(
+            kb, Descriptor.LABEL | Descriptor.ALIASES,
+            PropertyDescriptor(self.extra_instance_of_es[0], TextSet(
+                *self.extra_instance_of_es[1],
+                *INSTANCE_OF_TTL.instance_of_es[1])),
+            PropertyDescriptor(
+                BENZENE_TTL.InChIKey_es[0], BENZENE_TTL.InChIKey_es[1]))
+        # no early filter
+        kb.unset_flags(kb.EARLY_FILTER)
+        test_case(
+            kb, 0,
+            PropertyDescriptor(),
+            PropertyDescriptor())
+        # no late filter
+        kb.unset_flags(kb.LATE_FILTER)
+        test_case(
+            kb, 0,
+            PropertyDescriptor(
+                self.extra_instance_of_es[0], TextSet(
+                    *self.extra_instance_of_es[1],
+                    *INSTANCE_OF_TTL.instance_of_es[1]),
+                *self.extra_instance_of_es[2:]),
+            PropertyDescriptor(*BENZENE_TTL.InChIKey_es))
 
 # -- get_lexeme_descriptor -----------------------------------------------
 
