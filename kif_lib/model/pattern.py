@@ -240,9 +240,9 @@ class FilterPattern(Pattern):
                 and self.property.property != stmt.snak.property):
             return False
         # Value mismatch.
-        if (self.value is not None
-                and self.value.value is not None):
-            assert stmt.snak.is_value_snak()
+        if (self.value is not None and self.value.value is not None):
+            if not stmt.snak.is_value_snak():
+                return False
             value = cast(ValueSnak, stmt.snak).value
             if type(self.value.value) is not type(value):
                 return False
