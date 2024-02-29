@@ -36,6 +36,7 @@ from ..model import (
 )
 from ..typing import (
     Any,
+    Callable,
     cast,
     Final,
     Iterable,
@@ -48,6 +49,7 @@ from ..typing import (
 )
 
 T = TypeVar('T')
+S = TypeVar('S')
 
 
 class Store(Set):
@@ -439,7 +441,7 @@ class Store(Set):
             it: Iterable[T],
             page_size: Optional[int] = None
     ) -> Iterable[tuple[T, ...]]:
-        """Batches `it` into tuples of page-size length.
+        """Batches `it` into tuples of at most page-size length.
 
         If `page_size` is ``None``, assumes :attr:`Store.page_size`.
 
@@ -448,10 +450,30 @@ class Store(Set):
            page_size: Page size.
 
         Returns:
-           The resulting batches.
+           The resulting tuples.
         """
         return batched(
             it, page_size if page_size is not None else self.page_size)
+
+    def _chain_map_batched(
+            self,
+            op: Callable[[Iterable[T]], Iterator[S]],
+            it: Iterable[T],
+            page_size: Optional[int] = None
+    ) -> Iterator[S]:
+        """Batches `it`, applies `op` to the batches, and chain them.
+
+        If `page_size` is ``None``, assumes :attr:`Store.page_size`.
+
+        Parameters:
+           op: Callable.
+           it: Iterable.
+           page_size: Page size.
+
+        Returns:
+           The resulting iterator.
+        """
+        return chain.from_iterable(map(op, self._batched(it, page_size)))
 
 # -- Timeout ---------------------------------------------------------------
 
@@ -880,12 +902,22 @@ class Store(Set):
             mask, Descriptor.ALL, self.get_descriptor, 'mask', 3)
         assert mask is not None
         if Entity.test(entities):
-            return self._get_descriptor(
+            return self._get_descriptor_batched(
                 [cast(Entity, entities)], language, mask)
         else:
-            return self._get_descriptor(map(
+            return self._get_descriptor_batched(map(
                 lambda e: cast(Entity, Entity.check(
                     e, self.get_descriptor)), entities), language, mask)
+
+    def _get_descriptor_batched(
+            self,
+            entities: Iterable[Entity],
+            language: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
+        return self._chain_map_batched(
+            lambda batch: self._get_descriptor(batch, language, mask),
+            entities, min(3 * self.page_size, self.maximum_page_size))
 
     def _get_descriptor(
             self,
@@ -893,27 +925,28 @@ class Store(Set):
             language: str,
             mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
-        page_size = min(3 * self.page_size, self.maximum_page_size)
-        for batch in self._batched(entities, page_size):
-            items: list[Item] = []
-            properties: list[Property] = []
-            lexemes: list[Lexeme] = []
-            for entity in batch:
-                if entity.is_item():
-                    items.append(cast(Item, entity))
-                elif entity.is_property():
-                    properties.append(cast(Property, entity))
-                elif entity.is_lexeme():
-                    lexemes.append(cast(Lexeme, entity))
-                else:
-                    raise self._should_not_get_here()
-            desc = dict(chain(
-                self._get_item_descriptor(items, language, mask),
-                self._get_property_descriptor(properties, language, mask),
-                self._get_lexeme_descriptor(lexemes, mask)))
-            for entity in batch:
-                assert entity in desc
-                yield entity, desc[entity]
+        items: list[Item] = []
+        properties: list[Property] = []
+        lexemes: list[Lexeme] = []
+        for entity in entities:
+            if entity.is_item():
+                items.append(cast(Item, entity))
+            elif entity.is_property():
+                properties.append(cast(Property, entity))
+            elif entity.is_lexeme():
+                lexemes.append(cast(Lexeme, entity))
+            else:
+                raise self._should_not_get_here()
+        desc = dict(chain(
+            self._get_item_descriptor(items, language, mask)
+            if items else iter(()),
+            self._get_property_descriptor(properties, language, mask)
+            if properties else iter(()),
+            self._get_lexeme_descriptor(lexemes, mask)
+            if lexemes else iter(())))
+        for entity in entities:
+            assert entity in desc
+            yield entity, desc[entity]
 
     def get_item_descriptor(
             self,
@@ -942,12 +975,22 @@ class Store(Set):
             mask, Descriptor.ALL, self.get_item_descriptor, 'mask', 3)
         assert mask is not None
         if Item.test(items):
-            return self._get_item_descriptor(
+            return self._get_item_descriptor_batched(
                 [cast(Item, items)], language, mask)
         else:
-            return self._get_item_descriptor(map(
+            return self._get_item_descriptor_batched(map(
                 lambda e: cast(Item, Item.check(
                     e, self.get_item_descriptor)), items), language, mask)
+
+    def _get_item_descriptor_batched(
+            self,
+            items: Iterable[Item],
+            language: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
+        return self._chain_map_batched(
+            lambda batch: self._get_item_descriptor(batch, language, mask),
+            items)
 
     def _get_item_descriptor(
             self,
@@ -984,13 +1027,23 @@ class Store(Set):
             mask, Descriptor.ALL, self.get_property_descriptor, 'mask', 3)
         assert mask is not None
         if Property.test(properties):
-            return self._get_property_descriptor(
+            return self._get_property_descriptor_batched(
                 [cast(Property, properties)], language, mask)
         else:
-            return self._get_property_descriptor(map(
+            return self._get_property_descriptor_batched(map(
                 lambda e: cast(Property, Property.check(
                     e, self.get_property_descriptor)),
                 properties), language, mask)
+
+    def _get_property_descriptor_batched(
+            self,
+            properties: Iterable[Property],
+            language: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
+        return self._chain_map_batched(
+            lambda batch: self._get_property_descriptor(batch, language, mask),
+            properties)
 
     def _get_property_descriptor(
             self,
@@ -1020,12 +1073,20 @@ class Store(Set):
             mask, Descriptor.ALL, self.get_lexeme_descriptor, 'mask', 3)
         assert mask is not None
         if Lexeme.test(lexemes):
-            return self._get_lexeme_descriptor(
+            return self._get_lexeme_descriptor_batched(
                 [cast(Lexeme, lexemes)], mask)
         else:
-            return self._get_lexeme_descriptor(map(
+            return self._get_lexeme_descriptor_batched(map(
                 lambda e: cast(Lexeme, Lexeme.check(
                     e, self.get_lexeme_descriptor)), lexemes), mask)
+
+    def _get_lexeme_descriptor_batched(
+            self,
+            lexemes: Iterable[Lexeme],
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
+        return self._chain_map_batched(
+            lambda batch: self._get_lexeme_descriptor(batch, mask), lexemes)
 
     def _get_lexeme_descriptor(
             self,

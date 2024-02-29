@@ -43,6 +43,7 @@ Pagination
 .. autosummary::
    Store.maximum_page_size
    Store._batched
+   Store._chain_map_batched
 
 Timeout
 ~~~~~~~

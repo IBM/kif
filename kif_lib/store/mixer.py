@@ -215,8 +215,8 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
     ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
         return self._get_x_descriptor(
             properties,
-            lambda kb, batch: kb._get_property_descriptor(
-                batch, language, mask),
+            lambda kb, batch:
+            kb._get_property_descriptor(batch, language, mask),
             self._merge_property_descriptors)
 
     def _merge_property_descriptors(
@@ -262,18 +262,17 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
                           Iterator[tuple[T, Optional[S]]]],
             merge: Callable[[S, S], S]
     ) -> Iterator[tuple[T, Optional[S]]]:
-        for batch in self._batched(entities):
-            desc: dict[T, S] = dict()
-            for kb in self._sources:
-                for entity, entity_desc in get(kb, batch):
-                    if entity_desc is None:
-                        continue
-                    if entity not in desc:
-                        desc[entity] = entity_desc
-                    else:
-                        desc[entity] = merge(desc[entity], entity_desc)
-            for entity in batch:
-                if entity in desc:
-                    yield entity, desc[entity]
+        desc: dict[T, S] = dict()
+        for kb in self._sources:
+            for entity, entity_desc in get(kb, entities):
+                if entity_desc is None:
+                    continue
+                if entity not in desc:
+                    desc[entity] = entity_desc
                 else:
-                    yield entity, None
+                    desc[entity] = merge(desc[entity], entity_desc)
+        for entity in entities:
+            if entity in desc:
+                yield entity, desc[entity]
+            else:
+                yield entity, None

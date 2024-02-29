@@ -1035,47 +1035,46 @@ At line {line}, column {column}:
             mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Union[Item, Property], Optional[Union[
             ItemDescriptor, PropertyDescriptor]]]]:
-        for batch in self._batched(entities):
-            q = self._make_item_or_property_descriptor_query(
-                set(batch), cls, language, mask)
-            it = self._eval_select_query(
-                q, lambda res:
-                self._parse_get_item_or_property_descriptor_results(
-                    res, cls, language, mask))
-            desc: dict[Union[Item, Property], dict[str, Any]] = dict()
-            for entity, label, alias, description, datatype in it:
-                if entity not in desc:
-                    desc[entity] = {
-                        'label': None,
-                        'aliases': [],
-                        'description': None,
-                        'datatype': None
-                    }
-                if label is not None:
-                    desc[entity]['label'] = label
-                if alias is not None:
-                    desc[entity]['aliases'].append(alias)
-                if description is not None:
-                    desc[entity]['description'] = description
-                if datatype is not None:
-                    desc[entity]['datatype'] = datatype
-            for entity in batch:
-                if entity in desc:
-                    if entity.is_item() and cls is Item:
-                        yield (cast(Item, entity), ItemDescriptor(
-                            desc[entity].get('label'),
-                            desc[entity].get('aliases'),
-                            desc[entity].get('description')))
-                    elif entity.is_property() and cls is Property:
-                        yield (cast(Property, entity), PropertyDescriptor(
-                            desc[entity].get('label'),
-                            desc[entity].get('aliases'),
-                            desc[entity].get('description'),
-                            desc[entity].get('datatype')))
-                    else:
-                        raise self._should_not_get_here()
+        q = self._make_item_or_property_descriptor_query(
+            set(entities), cls, language, mask)
+        it = self._eval_select_query(
+            q, lambda res:
+            self._parse_get_item_or_property_descriptor_results(
+                res, cls, language, mask))
+        desc: dict[Union[Item, Property], dict[str, Any]] = dict()
+        for entity, label, alias, description, datatype in it:
+            if entity not in desc:
+                desc[entity] = {
+                    'label': None,
+                    'aliases': [],
+                    'description': None,
+                    'datatype': None
+                }
+            if label is not None:
+                desc[entity]['label'] = label
+            if alias is not None:
+                desc[entity]['aliases'].append(alias)
+            if description is not None:
+                desc[entity]['description'] = description
+            if datatype is not None:
+                desc[entity]['datatype'] = datatype
+        for entity in entities:
+            if entity in desc:
+                if entity.is_item() and cls is Item:
+                    yield (cast(Item, entity), ItemDescriptor(
+                        desc[entity].get('label'),
+                        desc[entity].get('aliases'),
+                        desc[entity].get('description')))
+                elif entity.is_property() and cls is Property:
+                    yield (cast(Property, entity), PropertyDescriptor(
+                        desc[entity].get('label'),
+                        desc[entity].get('aliases'),
+                        desc[entity].get('description'),
+                        desc[entity].get('datatype')))
                 else:
-                    yield entity, None
+                    raise self._should_not_get_here()
+            else:
+                yield entity, None
 
     def _make_item_or_property_descriptor_query(
             self,
