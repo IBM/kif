@@ -737,7 +737,7 @@ class Store(Set):
         if limit > 0 and pattern.is_nonempty():
             return self._filter(pattern, limit=limit)
         else:
-            return iter([])
+            return iter(())
 
     def _filter(
             self,
@@ -872,7 +872,7 @@ class Store(Set):
         Returns:
            An iterator of pairs "(item, status)".
         """
-        return iter([])
+        return iter(())
 
 # -- Descriptors -----------------------------------------------------------
 

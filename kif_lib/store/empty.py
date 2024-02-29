@@ -39,7 +39,7 @@ class EmptyStore(Store, store_name='empty', store_description='Empty store'):
             pattern: FilterPattern,
             limit: int
     ) -> Iterator[Statement]:
-        return iter([])
+        return iter(())
 
     def _get_annotations(
             self,

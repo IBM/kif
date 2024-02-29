@@ -324,7 +324,7 @@ At line {line}, column {column}:
             LOG.debug(
                 '%s(): nothing to select:\n%s', self._filter.__qualname__,
                 q.select(*self._filter_vars))
-            return iter([])     # query is empty
+            return iter(())     # query is empty
 
     def _parse_filter_results(
             self,
@@ -698,12 +698,12 @@ At line {line}, column {column}:
                     it1 = self._eval_select_query(
                         q1, self._parse_get_wdss_results, vars=_vars)
                 else:
-                    it1 = iter([])
+                    it1 = iter(())
                 if q2 is not None:
                     it2 = self._eval_select_query(
                         q2, self._parse_get_wdss_results, vars=_vars)
                 else:
-                    it2 = iter([])
+                    it2 = iter(())
                 seen = set()
                 for (stmt, wds, i) in chain(it1, it2):
                     seen.add(i)
