@@ -165,7 +165,8 @@ class TestObject(TestCase):
         self.assertGreater(B(), A())
 
     def test_digest(self):
-        self.assertEqual(A([1, 2, 3]).digest, A((1, 2, 3)).digest)
+        self.assertEqual(A([1, 2, 3]).digest, A([1, 2, 3]).digest)
+        self.assertNotEqual(A([1, 2, 3]).digest, A((1, 2, 3)).digest)
         self.assertNotEqual(A(1).digest, A(2).digest)
         self.assertNotEqual(A().digest, B().digest)
 
@@ -208,6 +209,9 @@ class TestObject(TestCase):
             with open(path, 'r') as fp:
                 self.assertEqual(fp.read(), s)
 
+    def assert_dump_sexp(self, obj, s, **kwargs):
+        self.assert_dump(obj, s, format='sexp', **kwargs)
+
     def test_dump(self):
         self.assertRaisesRegex(
             ValueError,
@@ -223,19 +227,19 @@ class TestObject(TestCase):
             A().dumps, 'x')
 
     def test_dump_sexp(self):
-        self.assertRaises(EncoderError, A(set()).dumps)
-        self.assert_dump(A(), 'A')
-        self.assert_dump(A(1), '(A 1)', 'sexp')
-        self.assert_dump(A(1, 2, 3), '(A 1 2 3)')
-        self.assert_dump(A(1, '2', 3), '(A 1 "2" 3)', 'sexp')
-        self.assert_dump(A(1, ['2', 3]), '(A 1 ["2" 3])')
-        self.assert_dump(A(1, ['2', (3,)]), '(A 1 ["2" [3]])')
-        self.assert_dump(B(A(), True), '(B A true)')
-        self.assert_dump(B(A(1.0), False), '(B (A 1.0) false)')
-        self.assert_dump(B(A(B(A()))), '(B (A (B A)))')
+        self.assertRaises(EncoderError, A(set()).dumps, format='sexp')
+        self.assert_dump_sexp(A(), 'A')
+        self.assert_dump_sexp(A(1), '(A 1)')
+        self.assert_dump_sexp(A(1, 2, 3), '(A 1 2 3)')
+        self.assert_dump_sexp(A(1, '2', 3), '(A 1 "2" 3)')
+        self.assert_dump_sexp(A(1, ['2', 3]), '(A 1 ["2" 3])')
+        self.assert_dump_sexp(A(1, ['2', [3]]), '(A 1 ["2" [3]])')
+        self.assert_dump_sexp(B(A(), True), '(B A true)')
+        self.assert_dump_sexp(B(A(1.0), False), '(B (A 1.0) false)')
+        self.assert_dump_sexp(B(A(B(A()))), '(B (A (B A)))')
         # indent
-        self.assert_dump(A(1), '(A\n  1\n)', indent=2)
-        self.assert_dump(B(A(B(A()))), '''\
+        self.assert_dump_sexp(A(1), '(A\n  1\n)', indent=2)
+        self.assert_dump_sexp(B(A(B(A()))), '''\
 (B
     (A
         (B
@@ -294,6 +298,9 @@ class TestObject(TestCase):
             with open(path, 'r') as fp:
                 self.assertEqual(obj.load(fp, format), obj)
 
+    def assert_load_sexp(self, obj, s, **kwargs):
+        self.assert_load(obj, s, format='sexp', **kwargs)
+
     def test_load(self):
         class FP():
             def read(self):
@@ -316,21 +323,21 @@ class TestObject(TestCase):
             DecoderError, 'syntax error', A.loads, '{}')
         self.assertRaisesRegex(
             DecoderError, r"^no such object class 'Z'$", A.loads, 'Z')
-        self.assert_load(A(), 'A')
-        self.assert_load(A(), '(A)')
+        self.assert_load_sexp(A(), 'A')
+        self.assert_load_sexp(A(), '(A)')
         self.assertRaisesRegex(
             DecoderError, 'syntax error', A.loads, '((A))')
-        self.assert_load(A(1), '(A 1)', 'sexp')
-        self.assert_load(A(1, 2, 3), '(A 1 2 3)')
-        self.assert_load(A(1, '2', 3), '(A 1 "2" 3)', 'sexp')
-        self.assert_load(A(1, ['2', 3]), '(A 1 ["2" 3])')
-        self.assert_load(A(1, ['2', [3]]), '(A 1 ["2" [3]])')
-        self.assert_load(B(A(), True), '(B A true)')
-        self.assert_load(B(A(1.0), False), '(B (A 1.0) false)')
-        self.assert_load(B(A(B(A()))), '(B (A (B A)))')
+        self.assert_load_sexp(A(1), '(A 1)')
+        self.assert_load_sexp(A(1, 2, 3), '(A 1 2 3)')
+        self.assert_load_sexp(A(1, '2', 3), '(A 1 "2" 3)')
+        self.assert_load_sexp(A(1, ['2', 3]), '(A 1 ["2" 3])')
+        self.assert_load_sexp(A(1, ['2', [3]]), '(A 1 ["2" [3]])')
+        self.assert_load_sexp(B(A(), True), '(B A true)')
+        self.assert_load_sexp(B(A(1.0), False), '(B (A 1.0) false)')
+        self.assert_load_sexp(B(A(B(A()))), '(B (A (B A)))')
         # indent
-        self.assert_load(A(1), '(A\n  1\n)')
-        self.assert_load(B(A(B(A()))), '''\
+        self.assert_load_sexp(A(1), '(A\n  1\n)')
+        self.assert_load_sexp(B(A(B(A()))), '''\
 (B
     (A # this is a comment
         (B

@@ -445,6 +445,9 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         else:
             return self.args < other.args
 
+    def __repr__(self):
+        return self.dumps()
+
     def __str__(self):
         return self.dumps()
 
@@ -1231,9 +1234,9 @@ class Encoder(Codec):
         raise MustBeImplementedInSubclass
 
 
-class SExpEncoder(
-        Encoder, format='sexp', description='S-expression encoder'):
-    """S-expression encoder."""
+class ReprEncoder(
+        Encoder, format='repr', description='Repr. encoder'):
+    """Repr. encoder."""
 
     def __init__(self, indent: int = 0):
         self.indent = indent
@@ -1245,38 +1248,98 @@ class SExpEncoder(
             self,
             v: Any,
             n: int = 0,
-            indent: int = 0) -> Generator[str, None, None]:
-        dl = '\n' if indent > 0 else ''
-        sp = '\n' if indent > 0 else ' '
-        yield ' ' * indent * n
-        if isinstance(v, (Object, list, tuple)):
+            indent: int = 0
+    ) -> Generator[str, None, None]:
+        yield from self._indent(n, indent)
+        if self._is_object_or_collection(v):
             if Object.test(v):
-                if v:
-                    yield '('
-                yield v.__class__.__qualname__
-                if v and indent == 0:
-                    yield ' '
+                yield from self._start_object(v, indent)
             else:
-                yield '['
+                yield from self._start_collection(v, indent)
             if v:
-                yield dl
+                yield from self._delim(indent)
                 for i in range(len(v) - 1):
                     yield from self._iterencode(v[i], n + 1, indent)
-                    yield sp
+                    yield from self._sep(indent)
                 yield from self._iterencode(v[-1], n + 1, indent)
             if v:
-                yield dl
-                yield ' ' * indent * n
+                yield from self._delim(indent)
+                yield from self._indent(n, indent)
             if Object.test(v):
-                if v:
-                    yield ')'
+                yield from self._end_object(v)
             else:
-                yield ']'
+                yield from self._end_collection(v)
         else:
-            try:
-                yield json.dumps(v, ensure_ascii=False)
-            except TypeError as err:
-                raise EncoderError(str(err)) from None
+            yield from self._repr(v)
+
+    def _is_object_or_collection(self, v):
+        return isinstance(v, (Object, list, tuple))
+
+    def _start_object(self, obj, indent):
+        yield obj.__class__.__qualname__
+        yield '('
+
+    def _end_object(self, obj):
+        yield ')'
+
+    def _start_collection(self, v, indent):
+        if isinstance(v, list):
+            yield '['
+        elif isinstance(v, tuple):
+            yield '('
+        else:
+            raise Object._should_not_get_here()
+
+    def _end_collection(self, v):
+        if isinstance(v, list):
+            yield ']'
+        elif isinstance(v, tuple):
+            yield ')'
+        else:
+            raise Object._should_not_get_here()
+
+    def _repr(self, v):
+        yield repr(v)
+
+    def _indent(self, n, indent):
+        yield ' ' * indent * n
+
+    def _delim(self, indent):
+        yield '\n' if indent > 0 else ''
+
+    def _sep(self, indent):
+        yield ',\n' if indent > 0 else ', '
+
+
+class SExpEncoder(
+        ReprEncoder, format='sexp', description='S-expression encoder'):
+    """S-expression encoder."""
+
+    def _start_object(self, obj, indent):
+        if obj:
+            yield '('
+        yield obj.__class__.__qualname__
+        if obj and indent == 0:
+            yield ' '
+
+    def _end_object(self, obj):
+        if obj:
+            yield ')'
+
+    def _start_collection(self, v, indent):
+        yield '['
+
+    def _end_collection(self, v):
+        yield ']'
+
+    def _repr(self, v):
+        try:
+            yield json.dumps(v, ensure_ascii=False)
+        except TypeError as err:
+            raise EncoderError(str(err)) from None
+
+    def _sep(self, indent):
+        yield '\n' if indent > 0 else ' '
 
 
 class JSON_Encoder(Encoder, format='json', description='JSON encoder'):
@@ -1354,6 +1417,14 @@ class Decoder(Codec):
            `DecoderError`: Decoder error.
         """
         raise MustBeImplementedInSubclass
+
+
+class ReprDecoder(
+        Decoder, format='repr', description='Repr. decoder'):
+    """Repr. decoder."""
+
+    def decode(self, s: str) -> Union[Object, NoReturn]:
+        return eval(s, ObjectMeta._object_subclasses)
 
 
 class SExpDecoder(
@@ -1466,5 +1537,5 @@ class JSON_Decoder(Decoder, format='json', description='JSON decoder'):
 # -- Defaults --------------------------------------------------------------
 
 Decoder.default = SExpDecoder.format
-Encoder.default = SExpEncoder.format
+Encoder.default = ReprEncoder.format
 ObjectMeta._object_class = Object

@@ -6,7 +6,7 @@ import decimal
 import json
 from enum import Enum
 
-from ..typing import Any, cast, Generator, override, Union
+from ..typing import Any, cast, Generator, NoReturn, override, Union
 from . import object
 
 Datetime = datetime.datetime
@@ -150,6 +150,37 @@ class KIF_JSON_Encoder(
                     raise EncoderError(str(err)) from None
 
 
+class KIF_ReprDecoder(
+        object.ReprDecoder, format='repr', description='Repr. decoder'):
+
+    def decode(self, s: str) -> Union[Object, NoReturn]:
+        return eval(s, {
+            'Decimal': Decimal,
+            'datetime': datetime,
+            **object.ObjectMeta._object_subclasses
+        })
+
+
+class KIF_ReprEncoder(
+        object.ReprEncoder, format='repr', description='Repr. encoder'):
+
+    @override
+    def _iterencode(
+            self,
+            v: Any,
+            n: int = 0,
+            indent: int = 0
+    ) -> Generator[str, None, None]:
+        if isinstance(v, (Datetime, Decimal)):
+            yield from self._indent(n, indent)
+            yield repr(v)
+        elif isinstance(v, Enum):
+            yield from self._indent(n, indent)
+            yield repr(v.value)
+        else:
+            yield from super()._iterencode(v, n, indent)
+
+
 class KIF_SExpEncoder(
         object.SExpEncoder, format='sexp', description='S-expression encoder'):
 
@@ -160,8 +191,10 @@ class KIF_SExpEncoder(
             indent: int = 0
     ) -> Generator[str, None, None]:
         if isinstance(v, (Datetime, Decimal)):
+            yield from self._indent(n, indent)
             yield str(v)
         elif isinstance(v, Enum):
+            yield from self._indent(n, indent)
             yield str(v.value)
         else:
             yield from super()._iterencode(v, n, indent)

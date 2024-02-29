@@ -656,6 +656,14 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def from_repr(
+        cls,
+        s: str,
+        **kwargs: Any
+    ) -> Union['KIF_Object', NoReturn]:
+        ...
+
+    @classmethod
     def from_sexp(
         cls,
         s: str,
@@ -781,6 +789,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
 
     def to_json(self, **kwargs: Any) -> str: ...
     def to_markdown(self, **kwargs: Any) -> str: ...
+    def to_repr(self, **kwargs: Any) -> str: ...
     def to_sexp(self, **kwargs: Any) -> str: ...
 
     def unpack_annotation_record(

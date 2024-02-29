@@ -8,7 +8,6 @@ from kif_lib import (
     Item,
     ItemDescriptor,
     Nil,
-    Property,
     PropertyDescriptor,
     Store,
     Text,
