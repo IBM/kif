@@ -1,19 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..model import (
-    AnnotationRecordSet,
-    Descriptor,
-    FilterPattern,
-    Item,
-    ItemDescriptor,
-    Lexeme,
-    LexemeDescriptor,
-    Property,
-    PropertyDescriptor,
-    Statement,
-)
-from ..typing import Any, Iterable, Iterator, Optional, override
+from ..model import AnnotationRecordSet, FilterPattern, Statement
+from ..typing import Any, Iterable, Iterator, Optional
 from .abc import Store
 
 
@@ -46,31 +35,3 @@ class EmptyStore(Store, store_name='empty', store_description='Empty store'):
             stmts: Iterable[Statement],
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
         return map(lambda stmt: (stmt, None), stmts)
-
-# -- Descriptors -----------------------------------------------------------
-
-    @override
-    def _get_item_descriptor(
-            self,
-            items: Iterable[Item],
-            language: str,
-            mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
-        return map(lambda item: (item, None), items)
-
-    @override
-    def _get_property_descriptor(
-            self,
-            properties: Iterable[Property],
-            language: str,
-            mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
-        return map(lambda property: (property, None), properties)
-
-    @override
-    def _get_lexeme_descriptor(
-            self,
-            lexemes: Iterable[Lexeme],
-            mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
-        return map(lambda lexeme: (lexeme, None), lexemes)

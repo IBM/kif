@@ -998,7 +998,7 @@ class Store(Set):
             language: str,
             mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
-        raise self._must_be_implemented_in_subclass()
+        return map(lambda item: (item, None), items)
 
     def get_property_descriptor(
             self,
@@ -1051,7 +1051,7 @@ class Store(Set):
             language: str,
             mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
-        raise self._must_be_implemented_in_subclass()
+        return map(lambda property: (property, None), properties)
 
     def get_lexeme_descriptor(
             self,
@@ -1093,4 +1093,4 @@ class Store(Set):
             lexemes: Iterable[Lexeme],
             mask: Descriptor.AttributeMask
     ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
-        raise self._must_be_implemented_in_subclass()
+        return map(lambda lexeme: (lexeme, None), lexemes)
