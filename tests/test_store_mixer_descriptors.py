@@ -38,6 +38,15 @@ class TestStoreMixer_Descriptors(kif_StoreTestCase):
     kb_paint = Store('rdf', PAINT_TTL)
 
     kb_extra = kif_StoreTestCase.parse('''
+# andar - verb - portuguese
+wd:L46803
+
+    # description
+    schema:version "0"^^xsd:integer ;
+    wikibase:lemma "andar"@pt ;
+    wikibase:lexicalCategory wd:Q24905 ;
+    dct:language wd:Q5146 .
+
 # benzene
 wd:Q2270
 
@@ -352,7 +361,7 @@ wd:P31
         self.assert_lexeme_descriptor(ds[0][1], *PAINT_TTL.paint_verb_en)
 
     def test_get_lexeme_descriptor_multiple_lexemes(self):
-        kb = Store('mixer', [self.kb_andar, self.kb_paint])
+        kb = Store('mixer', [self.kb_andar, self.kb_extra, self.kb_paint])
         ds = list(kb.get_lexeme_descriptor(
             [wd.L(96), Lexeme('x'), wd.L(46803)]))
         self.assertEqual(len(ds), 3)
