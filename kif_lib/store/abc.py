@@ -574,7 +574,7 @@ class Store(Set):
             return False
 
     def _contains(self, pattern: FilterPattern) -> bool:
-        raise self._must_be_implemented_in_subclass()
+        return False
 
     def count(
             self,
@@ -623,7 +623,7 @@ class Store(Set):
             return 0
 
     def _count(self, pattern: FilterPattern) -> int:
-        raise self._must_be_implemented_in_subclass()
+        return 0
 
     def _check_filter_pattern(
             self,
@@ -744,7 +744,7 @@ class Store(Set):
             pattern: FilterPattern,
             limit: int
     ) -> Iterator[Statement]:
-        raise self._must_be_implemented_in_subclass()
+        return iter(())
 
 # -- Annotations -------------------------------------------------------
 
@@ -856,7 +856,7 @@ class Store(Set):
             self,
             stmts: Iterable[Statement],
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
-        raise self._must_be_implemented_in_subclass()
+        return map(lambda stmt: (stmt, None), stmts)
 
 # -- Entities --------------------------------------------------------------
 
@@ -902,14 +902,14 @@ class Store(Set):
             mask, Descriptor.ALL, self.get_descriptor, 'mask', 3)
         assert mask is not None
         if Entity.test(entities):
-            return self._get_descriptor_batched(
+            return self._get_descriptor_tail(
                 [cast(Entity, entities)], language, mask)
         else:
-            return self._get_descriptor_batched(map(
+            return self._get_descriptor_tail(map(
                 lambda e: cast(Entity, Entity.check(
                     e, self.get_descriptor)), entities), language, mask)
 
-    def _get_descriptor_batched(
+    def _get_descriptor_tail(
             self,
             entities: Iterable[Entity],
             language: str,
@@ -975,14 +975,14 @@ class Store(Set):
             mask, Descriptor.ALL, self.get_item_descriptor, 'mask', 3)
         assert mask is not None
         if Item.test(items):
-            return self._get_item_descriptor_batched(
+            return self._get_item_descriptor_tail(
                 [cast(Item, items)], language, mask)
         else:
-            return self._get_item_descriptor_batched(map(
+            return self._get_item_descriptor_tail(map(
                 lambda e: cast(Item, Item.check(
                     e, self.get_item_descriptor)), items), language, mask)
 
-    def _get_item_descriptor_batched(
+    def _get_item_descriptor_tail(
             self,
             items: Iterable[Item],
             language: str,
@@ -1027,15 +1027,15 @@ class Store(Set):
             mask, Descriptor.ALL, self.get_property_descriptor, 'mask', 3)
         assert mask is not None
         if Property.test(properties):
-            return self._get_property_descriptor_batched(
+            return self._get_property_descriptor_tail(
                 [cast(Property, properties)], language, mask)
         else:
-            return self._get_property_descriptor_batched(map(
+            return self._get_property_descriptor_tail(map(
                 lambda e: cast(Property, Property.check(
                     e, self.get_property_descriptor)),
                 properties), language, mask)
 
-    def _get_property_descriptor_batched(
+    def _get_property_descriptor_tail(
             self,
             properties: Iterable[Property],
             language: str,
@@ -1073,14 +1073,14 @@ class Store(Set):
             mask, Descriptor.ALL, self.get_lexeme_descriptor, 'mask', 3)
         assert mask is not None
         if Lexeme.test(lexemes):
-            return self._get_lexeme_descriptor_batched(
+            return self._get_lexeme_descriptor_tail(
                 [cast(Lexeme, lexemes)], mask)
         else:
-            return self._get_lexeme_descriptor_batched(map(
+            return self._get_lexeme_descriptor_tail(map(
                 lambda e: cast(Lexeme, Lexeme.check(
                     e, self.get_lexeme_descriptor)), lexemes), mask)
 
-    def _get_lexeme_descriptor_batched(
+    def _get_lexeme_descriptor_tail(
             self,
             lexemes: Iterable[Lexeme],
             mask: Descriptor.AttributeMask

@@ -124,14 +124,17 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
                         break
                 assert len(batch) == n
 
-# -- Filtering -------------------------------------------------------------
+# -- Statements ------------------------------------------------------------
 
+    @override
     def _contains(self, pattern: FilterPattern) -> bool:
         return any(map(lambda kb: kb._contains(pattern), self._sources))
 
+    @override
     def _count(self, pattern: FilterPattern) -> int:
         return sum(map(lambda kb: kb._count(pattern), self._sources))
 
+    @override
     def _filter(
             self,
             pattern: FilterPattern,
@@ -159,6 +162,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
 
 # -- Annotations -----------------------------------------------------------
 
+    @override
     def _get_annotations(
             self,
             stmts: Iterable[Statement]

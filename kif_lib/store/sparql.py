@@ -116,8 +116,8 @@ class SPARQL_Store(
            SPARQL endpoint IRI.
         """
         return self._iri
-
-    # -- Caching -----------------------------------------------------------
+
+# -- Caching ---------------------------------------------------------------
 
     def _cache_get_wdss(self, stmt: Statement) -> Optional[Set[T_WDS]]:
         return self._cache.get(stmt, 'wdss')
@@ -129,8 +129,8 @@ class SPARQL_Store(
             wdss = self._cache.set(stmt, 'wdss', set())
         wdss.add(wds)
         return wdss
-
-    # -- Query evaluation (internal) ---------------------------------------
+
+# -- Query evaluation (internal) -------------------------------------------
 
     def _eval_construct_query(
             self,
@@ -259,9 +259,10 @@ At line {line}, column {column}:
             return res
         except requests.exceptions.RequestException as err:
             raise err
+
+# -- Statements ------------------------------------------------------------
 
-    # -- Queries -----------------------------------------------------------
-
+    @override
     def _contains(self, pat: FilterPattern) -> bool:
         it = self._filter(pat, limit=1)
         try:
@@ -270,6 +271,7 @@ At line {line}, column {column}:
         except StopIteration:
             return False
 
+    @override
     def _count(self, pattern: FilterPattern) -> int:
         q = self._make_count_query(pattern)
         text = q.select('(count (*) as ?count)')
@@ -307,6 +309,7 @@ At line {line}, column {column}:
         '?wds',
     )
 
+    @override
     def _filter(
             self,
             pattern: FilterPattern,
@@ -804,9 +807,10 @@ At line {line}, column {column}:
         self._push_filter_patterns_as_values(q, t, map(
             lambda x: (x[0], FilterPattern.from_statement(x[1])), stmts))
         q.where_end()
+
+# -- Annotations -----------------------------------------------------------
 
-    # -- Annotations -------------------------------------------------------
-
+    @override
     def _get_annotations(
             self,
             stmts: Iterable[Statement]

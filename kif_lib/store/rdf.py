@@ -11,7 +11,7 @@ from rdflib.parser import InputSource
 
 from ..itertools import chain
 from ..model import KIF_Object
-from ..typing import Any, BinaryIO, cast, IO, Optional, TextIO, Union
+from ..typing import Any, BinaryIO, cast, IO, Optional, override, TextIO, Union
 from .sparql import SPARQL_Store
 from .sparql_results import SPARQL_Results
 
@@ -91,6 +91,7 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
         else:
             self._graph = graph
 
+    @override
     def _eval_construct_query_string(
             self,
             text: str,
@@ -99,6 +100,7 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
     ) -> Graph:
         raise NotImplementedError
 
+    @override
     def _eval_select_query_string(
             self,
             text: str,

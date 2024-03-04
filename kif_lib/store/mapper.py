@@ -15,7 +15,7 @@ from ..model import (
     Value,
     ValueSnak,
 )
-from ..typing import Any, cast, Iterator, Optional, Union
+from ..typing import Any, cast, Iterator, Optional, override, Union
 from .sparql import SPARQL_Store
 from .sparql_builder import SPARQL_Builder
 from .sparql_mapping import SPARQL_Mapping
@@ -62,15 +62,17 @@ class SPARQL_MapperStore(
            SPARQL mapping.
         """
         return self._mapping
+
+# -- Statements ------------------------------------------------------------
 
-    # -- Queries -----------------------------------------------------------
-
+    @override
     def _count(self, pattern: FilterPattern) -> int:
         q = self._make_filter_query(pattern)
         text = q.select('(count (*) as ?count)')
         res = self._eval_select_query_string(text)
         return self._parse_count_query_results(res)
 
+    @override
     def _make_filter_query(
             self,
             pat: FilterPattern,
@@ -133,6 +135,8 @@ class SPARQL_MapperStore(
                 cast(SPARQL_Mapping.Builder, q), target, None,
                 self.mapping.normalize_value(vsnak.value, vsnak.property))
         return True
+
+# -- Annotations -----------------------------------------------------------
 
     def _get_annotations(
             self,
