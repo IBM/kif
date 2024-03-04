@@ -2,20 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import Item, Lexeme, Property, Store, Text
-import kif_lib.vocabulary as wd
+from kif_lib.vocabulary import wd
 
-
-from .tests import (
-    kif_StoreTestCase,
-    main,
-    skip_if_not_set,
-    WIKIDATA,
-)
-
-skip_if_not_set('WIKIDATA')
+from .tests import kif_StoreTestCase, main, WIKIDATA
 
 
 class TestStoreSPARQL_Descriptors(kif_StoreTestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        from .tests import skip_if_not_set
+        skip_if_not_set('WIKIDATA')
 
     @classmethod
     def new_Store_SPARQL(self, iri=WIKIDATA, **kwargs):

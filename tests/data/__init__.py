@@ -3,7 +3,6 @@
 
 from pathlib import Path
 
-import kif_lib.vocabulary as wd
 from kif_lib import (
     Datatype,
     ItemDescriptor,
@@ -12,6 +11,7 @@ from kif_lib import (
     Text,
     TextSet,
 )
+from kif_lib.vocabulary import wd
 
 __all__ = (
     'ADAM',

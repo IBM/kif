@@ -4,10 +4,10 @@
 
 from rdflib.namespace import Namespace
 
-from ... import namespace as NS
-from ... import vocabulary as wd
 from ...model import Item, Quantity, String, Text, Time, Value
+from ...namespace import RDF, WD, XSD
 from ...typing import Callable, cast, NoReturn, TypeVar, Union
+from ...vocabulary import wd
 from ..sparql_builder import SPARQL_Builder
 from ..sparql_mapping import SPARQL_Mapping
 
@@ -28,8 +28,8 @@ VCARD = Namespace('http://www.w3.org/2006/vcard/ns#')
 
 PubChemMapping = SPARQL_Mapping()
 
-COMPOUND_REPL = (PUBCHEM_COMPOUND, NS.WD.Q_PUBCHEM_COMPOUND_)
-PATENT_REPL = (PUBCHEM_PATENT, NS.WD.Q_PUBCHEM_PATENT_)
+COMPOUND_REPL = (PUBCHEM_COMPOUND, WD.Q_PUBCHEM_COMPOUND_)
+PATENT_REPL = (PUBCHEM_PATENT, WD.Q_PUBCHEM_PATENT_)
 
 
 class Check:
@@ -83,7 +83,7 @@ def wd_described_by_source(
     substance = q.bnode()
     q.triples(
         (substance, CITO.isDiscussedBy, v),
-        (v, NS.RDF.type, PATENT.Publication),
+        (v, RDF.type, PATENT.Publication),
         (substance, SEMSCI.CHEMINF_000477, s))
 
 
@@ -100,7 +100,7 @@ def wd_InChI(entry: Entry, q: Builder, s: TTrm, p: TTrm, v: TTrm):
         sv = Check.InChI(cast(Value, v))
         v = Text(sv, 'en')
     with q.sp(s, SEMSCI.SIO_000008) as sp:
-        sp.pair(NS.RDF.type, SEMSCI.CHEMINF_000396)
+        sp.pair(RDF.type, SEMSCI.CHEMINF_000396)
         sp.pair(SEMSCI.SIO_000300, v)
 
 
@@ -108,7 +108,7 @@ def wd_InChI(entry: Entry, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     wd.mass, Quantity,
     unit=wd.gram_per_mole,
     subject_replace_prefix=COMPOUND_REPL,
-    value_set_datatype=NS.XSD.decimal)
+    value_set_datatype=XSD.decimal)
 def wd_mass(entry: Entry, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
         qt = Check.quantity(cast(Value, v))
@@ -117,7 +117,7 @@ def wd_mass(entry: Entry, q: Builder, s: TTrm, p: TTrm, v: TTrm):
                 or qt.upper_bound is not None):
             raise entry.Skip
     with q.sp(s, SEMSCI.SIO_000008) as sp:
-        sp.pair(NS.RDF.type, SEMSCI.CHEMINF_000338)
+        sp.pair(RDF.type, SEMSCI.CHEMINF_000338)
         sp.pair(SEMSCI.SIO_000300, v)
 
 
@@ -140,7 +140,7 @@ def wd_main_subject(entry: Entry, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     substance = q.bnode()
     q.triples(
         (substance, CITO.isDiscussedBy, s),
-        (s, NS.RDF.type, PATENT.Publication),
+        (s, RDF.type, PATENT.Publication),
         (substance, SEMSCI.CHEMINF_000477, v))
 
 

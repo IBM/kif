@@ -3,7 +3,6 @@
 
 from typing import cast
 
-import kif_lib.vocabulary as wd
 from kif_lib import (
     Normal,
     NoValueSnak,
@@ -20,6 +19,7 @@ from kif_lib import (
     ValueSnak,
 )
 from kif_lib.store import SPARQL_Store
+from kif_lib.vocabulary import wd
 
 from .tests import (
     kif_StoreTestCase,

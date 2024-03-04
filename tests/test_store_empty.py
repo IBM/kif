@@ -1,7 +1,6 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import kif_lib.vocabulary as wd
 from kif_lib import (
     NoValueSnak,
     Quantity,
@@ -12,6 +11,7 @@ from kif_lib import (
     Time,
 )
 from kif_lib.store import EmptyStore
+from kif_lib.vocabulary import wd
 
 from .tests import kif_StoreTestCase, main
 

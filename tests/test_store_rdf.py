@@ -3,7 +3,6 @@
 
 from rdflib import Graph
 
-import kif_lib.vocabulary as wd
 from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -22,6 +21,7 @@ from kif_lib import (
     Time,
 )
 from kif_lib.store import RDF_Store
+from kif_lib.vocabulary import wd
 
 from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL
 from .tests import kif_StoreTestCase, main

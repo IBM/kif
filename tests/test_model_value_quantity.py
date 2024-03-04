@@ -3,10 +3,10 @@
 
 from rdflib import Literal, URIRef
 
-import kif_lib.namespace as NS
-import kif_lib.vocabulary as wd
 from kif_lib import IRI, Item, Quantity
 from kif_lib.model import Decimal
+from kif_lib.namespace import XSD
+from kif_lib.vocabulary import wd
 
 from .tests import kif_TestCase, main
 
@@ -65,19 +65,19 @@ class TestQuantity(kif_TestCase):
         # bad argument: ill-typed literal
         self.assertRaises(
             TypeError, Quantity._from_rdflib, Literal(
-                '2023-10-03', datatype=NS.XSD.dateTime))
+                '2023-10-03', datatype=XSD.dateTime))
         # good arguments
         self.assert_quantity(
-            Quantity._from_rdflib(Literal('1.55', datatype=NS.XSD.decimal)),
+            Quantity._from_rdflib(Literal('1.55', datatype=XSD.decimal)),
             Decimal('1.55'))
         self.assert_quantity(
-            Quantity._from_rdflib(Literal('-8', datatype=NS.XSD.decimal)),
+            Quantity._from_rdflib(Literal('-8', datatype=XSD.decimal)),
             Decimal('-8'))
 
     def test__to_rdflib(self):
         self.assertEqual(
             Quantity(-1, wd.kilogram)._to_rdflib(),
-            Literal('-1', datatype=NS.XSD.decimal))
+            Literal('-1', datatype=XSD.decimal))
 
 
 if __name__ == '__main__':

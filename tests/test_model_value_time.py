@@ -3,10 +3,10 @@
 
 from rdflib import Literal, URIRef
 
-import kif_lib.namespace as NS
-import kif_lib.vocabulary as wd
 from kif_lib import Time
 from kif_lib.model import Datetime
+from kif_lib.namespace import XSD
+from kif_lib.vocabulary import wd
 
 from .tests import kif_TestCase, main
 
@@ -130,22 +130,22 @@ class TestTime(kif_TestCase):
         # bad argument: ill-typed literal
         self.assertRaises(
             TypeError, Time._from_rdflib, Literal(
-                '1.0', datatype=NS.XSD.decimal))
+                '1.0', datatype=XSD.decimal))
         # good arguments
-        t = Literal('2023-10-03T00:00:00', datatype=NS.XSD.dateTime)
+        t = Literal('2023-10-03T00:00:00', datatype=XSD.dateTime)
         self.assert_time(
             Time._from_rdflib(t), Datetime(2023, 10, 3))
-        t = Literal('2023-10-03', datatype=NS.XSD.date)
+        t = Literal('2023-10-03', datatype=XSD.date)
         self.assert_time(
             Time._from_rdflib(t), Datetime(2023, 10, 3))
-        t = Literal('2023-10-03T11:11:11', datatype=NS.XSD.dateTime)
+        t = Literal('2023-10-03T11:11:11', datatype=XSD.dateTime)
         self.assert_time(
             Time._from_rdflib(t), Datetime(2023, 10, 3, 11, 11, 11))
 
     def test__to_rdflib(self):
         self.assertEqual(
             Time('2023-10-03')._to_rdflib(),
-            Literal('2023-10-03T00:00:00+00:00', datatype=NS.XSD.dateTime))
+            Literal('2023-10-03T00:00:00+00:00', datatype=XSD.dateTime))
 
 
 if __name__ == '__main__':

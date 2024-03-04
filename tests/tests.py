@@ -6,8 +6,6 @@ import os
 import re
 from unittest import main, SkipTest, TestCase  # noqa: F401
 
-import kif_lib.namespace as NS
-import kif_lib.vocabulary as wd
 from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -67,6 +65,8 @@ from kif_lib import (
 from kif_lib.error import ShouldNotGetHere
 from kif_lib.model import Decimal, UTC
 from kif_lib.model.object import Object
+from kif_lib.namespace import WIKIBASE, XSD
+from kif_lib.vocabulary import wd
 
 PUBCHEM = os.getenv('PUBCHEM')
 WIKIDATA = os.getenv('WIKIDATA')
@@ -160,7 +160,7 @@ class kif_TestCase(TestCase):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, ItemDatatype)
         self.assertTrue(obj.is_item_datatype())
-        self.assertEqual(obj._uri, NS.WIKIBASE.WikibaseItem)
+        self.assertEqual(obj._uri, WIKIBASE.WikibaseItem)
 
     def assert_property(self, obj, iri):
         self.assert_entity(obj, iri)
@@ -174,7 +174,7 @@ class kif_TestCase(TestCase):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, PropertyDatatype)
         self.assertTrue(obj.is_property_datatype())
-        self.assertEqual(obj._uri, NS.WIKIBASE.WikibaseProperty)
+        self.assertEqual(obj._uri, WIKIBASE.WikibaseProperty)
 
     def assert_lexeme(self, obj, iri):
         self.assert_entity(obj, iri)
@@ -188,7 +188,7 @@ class kif_TestCase(TestCase):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, LexemeDatatype)
         self.assertTrue(obj.is_lexeme_datatype())
-        self.assertEqual(obj._uri, NS.WIKIBASE.WikibaseLexeme)
+        self.assertEqual(obj._uri, WIKIBASE.WikibaseLexeme)
 
     def assert_data_value(self, obj):
         self.assert_value(obj)
@@ -218,7 +218,7 @@ class kif_TestCase(TestCase):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, IRI_Datatype)
         self.assertTrue(obj.is_iri_datatype())
-        self.assertEqual(obj._uri, NS.WIKIBASE.Url)
+        self.assertEqual(obj._uri, WIKIBASE.Url)
 
     def assert_text(self, obj, s, lang=None):
         self.assert_shallow_data_value(obj)
@@ -239,7 +239,7 @@ class kif_TestCase(TestCase):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, TextDatatype)
         self.assertTrue(obj.is_text_datatype())
-        self.assertEqual(obj._uri, NS.WIKIBASE.Monolingualtext)
+        self.assertEqual(obj._uri, WIKIBASE.Monolingualtext)
 
     def assert_text_set(self, obj, *texts):
         self.assert_value_set(obj, *texts)
@@ -269,7 +269,7 @@ class kif_TestCase(TestCase):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, StringDatatype)
         self.assertTrue(obj.is_string_datatype())
-        self.assertEqual(obj._uri, NS.WIKIBASE.String)
+        self.assertEqual(obj._uri, WIKIBASE.String)
 
     def assert_external_id(self, obj, s):
         self.assert_shallow_data_value(obj)
@@ -288,7 +288,7 @@ class kif_TestCase(TestCase):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, ExternalIdDatatype)
         self.assertTrue(obj.is_external_id_datatype())
-        self.assertEqual(obj._uri, NS.WIKIBASE.ExternalId)
+        self.assertEqual(obj._uri, WIKIBASE.ExternalId)
 
     def assert_deep_data_value(self, obj):
         self.assert_data_value(obj)
@@ -305,7 +305,7 @@ class kif_TestCase(TestCase):
         self.assertEqual(obj.args[0], Decimal(amount))
         self.assertEqual(obj.value, str(obj.args[0]))
         self.assertEqual(obj.get_value(), str(obj.args[0]))
-        self.assertEqual(obj.n3(), f'"{obj.value}"^^<{NS.XSD.decimal}>')
+        self.assertEqual(obj.n3(), f'"{obj.value}"^^<{XSD.decimal}>')
         self.assertEqual(obj.amount, obj.args[0])
         self.assertEqual(obj.get_amount(), obj.args[0])
         self.assertEqual(obj.args[1], unit)
@@ -324,7 +324,7 @@ class kif_TestCase(TestCase):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, QuantityDatatype)
         self.assertTrue(obj.is_quantity_datatype())
-        self.assertEqual(obj._uri, NS.WIKIBASE.Quantity)
+        self.assertEqual(obj._uri, WIKIBASE.Quantity)
 
     def assert_time(self, obj, time, prec=None, tz=None, cal=None):
         self.assert_deep_data_value(obj)
@@ -336,7 +336,7 @@ class kif_TestCase(TestCase):
         self.assertEqual(obj.args[0], time.replace(tzinfo=UTC))
         self.assertEqual(obj.value, obj.args[0].isoformat())
         self.assertEqual(obj.get_value(), obj.args[0].isoformat())
-        self.assertEqual(obj.n3(), f'"{obj.value}"^^<{NS.XSD.dateTime}>')
+        self.assertEqual(obj.n3(), f'"{obj.value}"^^<{XSD.dateTime}>')
         self.assertEqual(obj.time, obj.args[0])
         self.assertEqual(obj.get_time(), obj.args[0])
         self.assertEqual(obj.args[1], prec)
@@ -355,7 +355,7 @@ class kif_TestCase(TestCase):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, TimeDatatype)
         self.assertTrue(obj.is_time_datatype())
-        self.assertEqual(obj._uri, NS.WIKIBASE.Time)
+        self.assertEqual(obj._uri, WIKIBASE.Time)
 
     def assert_snak(self, obj, prop):
         self.assert_kif_object(obj)

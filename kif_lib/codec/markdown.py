@@ -3,7 +3,6 @@
 
 import re
 
-from .. import vocabulary as wd
 from ..model import (
     AnnotationRecord,
     Datatype,
@@ -34,6 +33,11 @@ class MarkdownEncoder(
         Encoder, format='markdown', description='Markdown encoder'):
     """Markdown encoder."""
 
+    @property
+    def wd(self):
+        from .. import vocabulary
+        return vocabulary.wd
+
     def iterencode(self, obj: Object) -> Generator[str, None, None]:
         if KIF_Object.test(obj):
             yield from self._iterencode(cast(KIF_Object, obj), 0)
@@ -51,7 +55,7 @@ class MarkdownEncoder(
         elif obj.is_entity():
             entity = cast(Entity, obj)
             yield from self._iterencode_kif_object_start(entity)
-            label = wd.get_entity_label(entity)
+            label = self.wd.get_entity_label(entity)
             if label:
                 yield f'[{label}]({entity.iri.value})'
             else:

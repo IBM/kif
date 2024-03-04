@@ -1,7 +1,6 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import kif_lib.vocabulary as wd
 from kif_lib import (
     FilterPattern,
     IRI,
@@ -17,9 +16,17 @@ from kif_lib import (
     Time,
     ValueSnak,
 )
+from kif_lib.vocabulary import wd
 
-from .tests import kif_StoreTestCase, main, skip_if_set, WIKIDATA
+from .tests import (
+    kif_StoreTestCase,
+    main,
+    skip_if_not_set,
+    skip_if_set,
+    WIKIDATA,
+)
 
+skip_if_not_set('WIKIDATA')
 skip_if_set('SKIP_TEST_STORE_SPARQL')
 
 

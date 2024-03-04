@@ -1,8 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import kif_lib.vocabulary as wd
 from kif_lib import LexemeDescriptor, Text
+from kif_lib.vocabulary import wd
 
 from .tests import kif_TestCase, main
 
