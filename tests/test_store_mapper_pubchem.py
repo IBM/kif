@@ -6,49 +6,35 @@ from kif_lib import (
     AnnotationRecordSet,
     Quantity,
     Statement,
-    Store,
     String,
     Text,
     Time,
 )
-from kif_lib.store.mapping import PubChemMapping
 from kif_lib.vocabulary import wd
 
-from .tests import (
-    kif_StoreTestCase,
-    main,
-    PUBCHEM,
-    skip_if_not_set,
-    skip_if_set,
-)
-
-skip_if_not_set('PUBCHEM')
-skip_if_set('SKIP_TEST_STORE_PUBCHEM')
+from .tests import kif_PubChemSPARQL_StoreTestCase
 
 
-class TestSPARQL_MapperStorePubChem(kif_StoreTestCase):
-
-    def new(self, **kwargs):
-        return Store('sparql-mapper', PUBCHEM, PubChemMapping, **kwargs)
+class TestSPARQL_MapperStorePubChem(kif_PubChemSPARQL_StoreTestCase):
 
     def test_sanity(self):
-        self.store_sanity_checks(self.new())
+        self.store_sanity_checks(self.new_Store())
 
     # -- Set interface -----------------------------------------------------
 
     def test__iter__(self):
-        kb = self.new()
+        kb = self.new_Store()
         stmt = next(iter(kb))
         self.assertIsInstance(stmt, Statement)
         # force pagination
-        it = iter(self.new(page_size=1))
+        it = iter(self.new_Store(page_size=1))
         for i in range(3):
             self.assertIsInstance(next(it), Statement)
 
     # -- Queries -----------------------------------------------------------
 
     def test_contains(self):
-        kb = self.new()
+        kb = self.new_Store()
         self.store_test_contains(
             kb,
             # entity
@@ -112,12 +98,12 @@ class TestSPARQL_MapperStorePubChem(kif_StoreTestCase):
         )
 
     def test_count(self):
-        kb = self.new()
+        kb = self.new_Store()
         self.store_test_count(
             kb, 1, wd.Q('_PUBCHEM_PATENT_AP-1072-A'), wd.publication_date)
 
     def test_filter(self):
-        kb = self.new()
+        kb = self.new_Store()
         self.store_test_filter(
             kb,
             [wd.title(
@@ -130,7 +116,7 @@ class TestSPARQL_MapperStorePubChem(kif_StoreTestCase):
     # -- Annotations -------------------------------------------------------
 
     def test_get_annotations(self):
-        kb = self.new()
+        kb = self.new_Store()
         stmt1 = wd.title(
             wd.Q('_PUBCHEM_PATENT_AU-2010262786-A1'),
             Text('Improved method for quantifying DNA in a biological sample'))
@@ -143,17 +129,6 @@ class TestSPARQL_MapperStorePubChem(kif_StoreTestCase):
             stmt1,
             stmt2)
 
-    # -- Descriptor --------------------------------------------------------
-
-    # def test_get_descriptor(self):
-    #     kb = self.new()
-    #     self.store_test_get_descriptor(
-    #         kb,
-    #         [(wd.Brazil, None),
-    #          (wd.instance_of, None)],
-    #         'en',
-    #         wd.Brazil, wd.instance_of)
-
 
 if __name__ == '__main__':
-    main()
+    TestSPARQL_MapperStorePubChem.main()

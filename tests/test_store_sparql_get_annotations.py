@@ -1,48 +1,21 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import (
-    AnnotationRecord,
-    IRI,
-    Normal,
-    Quantity,
-    ReferenceRecord,
-    Store,
-)
+from kif_lib import AnnotationRecord, IRI, Normal, Quantity, ReferenceRecord
 from kif_lib.vocabulary import wd
 
-from .tests import (
-    kif_StoreTestCase,
-    main,
-    skip_if_not_set,
-    skip_if_set,
-    WIKIDATA,
-)
-
-skip_if_not_set('WIKIDATA')
-skip_if_set('SKIP_TEST_STORE_SPARQL')
+from .tests import kif_WikidataSPARQL_StoreTestCase
 
 
-class TestSPARQL_Store(kif_StoreTestCase):
+class TestSPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
 
     def test_get_annotations_bad_argument(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         self.assertRaises(TypeError, kb.get_annotations, 0)
         self.assertRaises(TypeError, next, kb.get_annotations(IRI('x')))
 
-    def test_get_annotations_empty(self):
-        kb = Store('empty', WIKIDATA)
-        stmt, annots = next(kb.get_annotations(
-            wd.continent(wd.Brazil, wd.South_America)))
-        self.assertEqual(stmt, wd.continent(wd.Brazil, wd.South_America))
-        self.assertIsNone(annots)
-        stmt, annots = next(kb.get_annotations(
-            [wd.continent(wd.Brazil, wd.South_America)]))
-        self.assertEqual(stmt, wd.continent(wd.Brazil, wd.South_America))
-        self.assertIsNone(annots)
-
     def test_get_annotations_quantity(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         qt = Quantity('.88', wd.gram_per_cubic_centimetre, '.87', '.89')
         sin = wd.density(wd.benzene, qt)
         sout, annots = next(kb.get_annotations([sin]))
@@ -58,7 +31,7 @@ class TestSPARQL_Store(kif_StoreTestCase):
                 Normal))
 
     def test_get_annotations_more_than_one(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         qt = Quantity(20000, wd.parts_per_million, 19999, 20001)
         sin = wd.minimal_lethal_dose(wd.benzene, qt)
         sout, annots = next(kb.get_annotations([sin]))
@@ -99,4 +72,4 @@ class TestSPARQL_Store(kif_StoreTestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestSPARQL_Store.main()

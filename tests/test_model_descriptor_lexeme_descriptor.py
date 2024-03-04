@@ -4,7 +4,7 @@
 from kif_lib import LexemeDescriptor, Text
 from kif_lib.vocabulary import wd
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestLexemeDescriptor(kif_TestCase):
@@ -50,4 +50,4 @@ class TestLexemeDescriptor(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestLexemeDescriptor.main()

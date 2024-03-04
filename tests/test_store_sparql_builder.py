@@ -4,7 +4,7 @@
 from kif_lib import IRI, String
 from kif_lib.store.sparql_builder import SPARQL_Builder
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestSPARQL_Builder(kif_TestCase):
@@ -170,4 +170,4 @@ select (count (*) as ?c) where {
 
 
 if __name__ == '__main__':
-    main()
+    TestSPARQL_Builder.main()

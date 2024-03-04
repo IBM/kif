@@ -3,10 +3,10 @@
 
 from rdflib import Literal, URIRef
 
-import kif_lib.namespace as NS
 from kif_lib import Entity, IRI, Item, Items
+from kif_lib.namespace import WD, WDT
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestItem(kif_TestCase):
@@ -25,20 +25,18 @@ class TestItem(kif_TestCase):
     def test__from_rdflib(self):
         # bad argument: literal
         self.assertRaises(TypeError, Item._from_rdflib, Literal('x'))
-        # bad argument: result is a IRI
+        # bad argument: result is an IRI
         self.assertRaises(TypeError, Item._from_rdflib, URIRef('x'))
         # bad argument: result is a property
-        self.assertRaises(TypeError, Item._from_rdflib, NS.WD.P31)
+        self.assertRaises(TypeError, Item._from_rdflib, WD.P31)
         # good arguments
-        self.assert_item(Item._from_rdflib(NS.WD.Q5), IRI(NS.WD.Q5))
-        self.assert_item(
-            Item._from_rdflib(NS.WDT.Q5, [NS.WDT]), IRI(NS.WD.Q5))
-        self.assert_item(
-            Entity._from_rdflib(NS.WDT.Q5, [NS.WDT]), IRI(NS.WD.Q5))
+        self.assert_item(Item._from_rdflib(WD.Q5), IRI(WD.Q5))
+        self.assert_item(Item._from_rdflib(WDT.Q5, [WDT]), IRI(WD.Q5))
+        self.assert_item(Entity._from_rdflib(WDT.Q5, [WDT]), IRI(WD.Q5))
 
     def test__to_rdflib(self):
-        self.assertEqual(Item(NS.WD.Q5)._to_rdflib(), NS.WD.Q5)
+        self.assertEqual(Item(WD.Q5)._to_rdflib(), WD.Q5)
 
 
 if __name__ == '__main__':
-    main()
+    TestItem.main()

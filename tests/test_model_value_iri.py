@@ -3,10 +3,10 @@
 
 from rdflib import Literal, URIRef
 
-import kif_lib.namespace as NS
 from kif_lib import IRI
+from kif_lib.namespace import WD, XSD
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestIRI(kif_TestCase):
@@ -28,7 +28,7 @@ class TestIRI(kif_TestCase):
     def test__init__(self):
         self.assertRaises(TypeError, IRI, 0)
         self.assert_iri(
-            IRI(NS.XSD.decimal), 'http://www.w3.org/2001/XMLSchema#decimal')
+            IRI(XSD.decimal), 'http://www.w3.org/2001/XMLSchema#decimal')
         self.assert_iri(IRI('abc'), 'abc')
         self.assert_iri(IRI(IRI(IRI('abc'))), 'abc')
 
@@ -36,9 +36,9 @@ class TestIRI(kif_TestCase):
         # bad argument: literal
         self.assertRaises(TypeError, IRI._from_rdflib, Literal('x'))
         # bad argument: result is an item
-        self.assertRaises(TypeError, IRI._from_rdflib, URIRef(NS.WD.Q155))
+        self.assertRaises(TypeError, IRI._from_rdflib, URIRef(WD.Q155))
         # bad argument: result is a property
-        self.assertRaises(TypeError, IRI._from_rdflib, URIRef(NS.WD.P31))
+        self.assertRaises(TypeError, IRI._from_rdflib, URIRef(WD.P31))
         # good arguments
         self.assert_iri(
             IRI._from_rdflib(URIRef('http://www.abc.org/')),
@@ -50,4 +50,4 @@ class TestIRI(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestIRI.main()

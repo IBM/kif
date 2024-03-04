@@ -3,7 +3,7 @@
 
 from kif_lib import Descriptor
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestDescriptor(kif_TestCase):
@@ -59,4 +59,4 @@ class TestDescriptor(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestDescriptor.main()

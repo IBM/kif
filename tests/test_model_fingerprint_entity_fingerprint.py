@@ -10,7 +10,7 @@ from kif_lib import (
     SnakSet,
 )
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestEntityFingerprint(kif_TestCase):
@@ -72,4 +72,4 @@ class TestEntityFingerprint(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestEntityFingerprint.main()

@@ -25,7 +25,7 @@ from .data import (
     INSTANCE_OF_TTL,
     PAINT_TTL,
 )
-from .tests import kif_StoreTestCase, main
+from .tests import kif_StoreTestCase
 
 
 class TestStoreMixer_Descriptors(kif_StoreTestCase):
@@ -548,4 +548,4 @@ wd:P31
 
 
 if __name__ == '__main__':
-    main()
+    TestStoreMixer_Descriptors.main()

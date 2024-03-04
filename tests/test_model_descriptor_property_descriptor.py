@@ -3,7 +3,7 @@
 
 from kif_lib import Datatype, IRI, PropertyDescriptor, Text, TextSet
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestPropertyDescriptor(kif_TestCase):
@@ -65,4 +65,4 @@ class TestPropertyDescriptor(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestPropertyDescriptor.main()

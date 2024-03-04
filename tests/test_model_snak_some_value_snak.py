@@ -3,7 +3,7 @@
 
 from kif_lib import IRI, Property, SomeValueSnak, String
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestSomeValueSnak(kif_TestCase):
@@ -27,4 +27,4 @@ class TestSomeValueSnak(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestSomeValueSnak.main()

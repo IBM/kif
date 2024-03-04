@@ -21,32 +21,23 @@ from kif_lib import (
 from kif_lib.store import SPARQL_Store
 from kif_lib.vocabulary import wd
 
-from .tests import (
-    kif_StoreTestCase,
-    main,
-    skip_if_not_set,
-    skip_if_set,
-    WIKIDATA,
-)
-
-skip_if_not_set('WIKIDATA')
-skip_if_set('SKIP_TEST_STORE_SPARQL')
+from .tests import kif_WikidataSPARQL_StoreTestCase
 
 
-class TestSPARQL_Store(kif_StoreTestCase):
+class TestSPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
 
     def test__init__(self):
         # bad argument: format
         self.assertRaises(ValueError, Store, 'xxx')
         # good arguments
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         self.assertIsInstance(kb, SPARQL_Store)
         self.assertEqual(kb._flags, Store.default_flags)
 
     # -- Set interface -----------------------------------------------------
 
     def test__contains__(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         self.assertNotIn(0, kb)
         stmt = wd.subclass_of(wd.benzene, wd.aromatic_hydrocarbon)
         self.assertIn(stmt, kb)
@@ -58,23 +49,23 @@ class TestSPARQL_Store(kif_StoreTestCase):
         self.assertNotIn(stmt, kb)
 
     def test__iter__(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmt = next(iter(kb))
         self.assertIsInstance(stmt, Statement)
         # force pagination
-        it = iter(Store('sparql', WIKIDATA, page_size=5))
+        it = iter(self.new_Store(page_size=5))
         for i in range(12):
             self.assertIsInstance(next(it), Statement)
 
     def test__len__(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         self.assertTrue(len(kb) > 1_000_000_000)
 
     # -- Queries -----------------------------------------------------------
 
     def test__eval_construct_query_string(self):
         from rdflib import Graph
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         res = kb._eval_construct_query_string(
             'construct {?s ?p ?o} where {?s ?p ?o} limit 1')
         self.assertIsInstance(res, Graph)
@@ -88,14 +79,14 @@ class TestSPARQL_Store(kif_StoreTestCase):
             'construct {?s ?p ?o} where {?s ?p ?o} limit 1')
 
     def test__eval_select_query_string(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         res = kb._eval_select_query_string(
             'select * where {?s ?p ?o} limit 1')
         self.assertEqual(res['head'], {'vars': ['s', 'p', 'o']})
         self.assertIn('bindings', res['results'])
 
     def test_contains(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmt = wd.subclass_of(wd.benzene, wd.aromatic_hydrocarbon)
         self.assertTrue(kb.contains(stmt))
         # bad argument
@@ -139,7 +130,7 @@ class TestSPARQL_Store(kif_StoreTestCase):
         self.assertIn(wd.inception(wd.Brazil, tm), kb)
 
     def test_count(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         # bad argument: subject
         self.assertRaises(TypeError, kb.count, 0)
         # bad argument: property
@@ -176,7 +167,7 @@ class TestSPARQL_Store(kif_StoreTestCase):
         n = kb.count(snak_mask=Snak.SOME_VALUE_SNAK)
         self.assertEqual(n, 0)
         # with best rank flag disabled
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         kb.unset_flags(kb.BEST_RANK)
         n = kb.count(wd.Adam, wd.date_of_birth)
         self.assertEqual(n, 2)
@@ -186,7 +177,7 @@ class TestSPARQL_Store(kif_StoreTestCase):
         self.assertEqual(n, 1)
 
     def test_count_snak(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         # bad argument: subject
         self.assertRaises(TypeError, kb.count_snak, 0)
         # bad argument: snak
@@ -196,7 +187,7 @@ class TestSPARQL_Store(kif_StoreTestCase):
         self.assertEqual(kb.count_snak(None, snak), 1)
 
     def test_filter(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         # good arguments
         stmt = next(kb.filter())
         self.assertIsInstance(stmt, Statement)
@@ -277,7 +268,7 @@ class TestSPARQL_Store(kif_StoreTestCase):
         self.assert_statement(wdno[1], wd.Adam, NoValueSnak(wd.mother))
         self.assert_statement(wdno[2], wd.Adam, NoValueSnak(wd.date_of_birth))
         # subject & property: some value (newer Wikidata)
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         it = kb.filter(wd.Adam, wd.date_of_death)
         self.assertTrue(next(it).snak.is_some_value_snak())
         self.assertRaises(StopIteration, next, it)
@@ -291,12 +282,12 @@ class TestSPARQL_Store(kif_StoreTestCase):
         # empty criteria: some value & no value
         self.assertFalse(list(kb.filter(snak_mask=Snak.SOME_VALUE_SNAK)))
         # limit
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmts = list(kb.filter(wd.Adam, limit=120))
         self.assertEqual(len(stmts), 120)
 
     def test_filter_snak(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         # bad argument: subject
         self.assertRaises(TypeError, kb.filter_snak, 0)
         # bad argument: snak
@@ -324,14 +315,14 @@ class TestSPARQL_Store(kif_StoreTestCase):
         stmt = next(kb.filter_snak(wd.Adam, NoValueSnak(wd.father)))
         self.assert_statement(stmt, wd.Adam, NoValueSnak(wd.father))
         # limit
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmts = list(kb.filter_snak(wd.Adam, limit=0))
         self.assertEqual(len(stmts), 0)
 
     # -- Annotations -------------------------------------------------------
 
     def test_get_qualifiers(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
 
         def get_qualifiers(stmt):
             stmt, annots = next(kb.get_annotations([stmt]))
@@ -418,7 +409,7 @@ class TestSPARQL_Store(kif_StoreTestCase):
         self.assert_no_value_snak(quals[0], wd.P(1365))
 
     def test_get_references(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
 
         def get_references(stmt):
             stmt, annots = next(kb.get_annotations([stmt]))
@@ -491,7 +482,7 @@ class TestSPARQL_Store(kif_StoreTestCase):
         ###
 
     def test_get_rank(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
 
         def get_rank(stmt):
             stmt, annots = next(kb.get_annotations([stmt]))
@@ -520,4 +511,4 @@ class TestSPARQL_Store(kif_StoreTestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestSPARQL_Store.main()

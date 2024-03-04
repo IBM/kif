@@ -1,44 +1,36 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import (
-    NoValueSnak,
-    Quantity,
-    Snak,
-    SomeValueSnak,
-    Statement,
-    Store,
-    Time,
-)
-from kif_lib.store import EmptyStore
+from kif_lib import NoValueSnak, Quantity, Snak, SomeValueSnak, Statement, Time
 from kif_lib.vocabulary import wd
 
-from .tests import kif_StoreTestCase, main
+from .tests import kif_EmptyStoreTestCase
 
 
-class TestEmptyStore(kif_StoreTestCase):
+class TestEmptyStore(kif_EmptyStoreTestCase):
 
     def test_sanity(self):
-        self.store_sanity_checks(Store('empty'))
+        self.store_sanity_checks(self.new_Store())
 
     def test__init__(self):
-        kb = Store('empty')
+        from kif_lib.store import EmptyStore
+        kb = self.new_Store()
         self.assertIsInstance(kb, EmptyStore)
 
     # -- Set interface -----------------------------------------------------
 
     def test__iter__(self):
-        kb = Store('empty')
+        kb = self.new_Store()
         self.assertRaises(StopIteration, next, iter(kb))
 
     def test__len__(self):
-        kb = Store('empty')
+        kb = self.new_Store()
         self.assertEqual(len(kb), 0)
 
     # -- Queries -----------------------------------------------------------
 
     def test_contains(self):
-        kb = Store('empty')
+        kb = self.new_Store()
         self.store_test_not_contains(
             kb,
             wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),
@@ -64,7 +56,7 @@ class TestEmptyStore(kif_StoreTestCase):
             Statement(wd.Adam, NoValueSnak(wd.date_of_birth)))
 
     def test_count(self):
-        kb = Store('empty')
+        kb = self.new_Store()
         self.store_test_count(kb, 0)
         self.store_test_count(kb, 0, snak_mask=Snak.VALUE_SNAK)
         self.store_test_count(kb, 0, wd.InChIKey)
@@ -73,7 +65,7 @@ class TestEmptyStore(kif_StoreTestCase):
         self.store_test_count(kb, 0, None, wd.part_of, wd.Latin_America)
 
     def test_filter(self):
-        kb = Store('empty')
+        kb = self.new_Store()
         self.store_test_filter(kb, [], subject=wd.benzene)
         self.store_test_filter(kb, [], property=wd.mass)
         self.store_test_filter(kb, [], value=wd.Latin_America)
@@ -81,7 +73,7 @@ class TestEmptyStore(kif_StoreTestCase):
     # -- Annotations -------------------------------------------------------
 
     def test_get_annotations(self):
-        kb = Store('empty')
+        kb = self.new_Store()
         self.store_test_get_annotations(
             kb,
             [(Statement(wd.Adam, NoValueSnak(wd.date_of_birth)), None),
@@ -95,4 +87,4 @@ class TestEmptyStore(kif_StoreTestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestEmptyStore.main()

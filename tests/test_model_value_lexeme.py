@@ -3,10 +3,10 @@
 
 from rdflib import Literal, URIRef
 
-import kif_lib.namespace as NS
 from kif_lib import Entity, IRI, Lexeme, Lexemes
+from kif_lib.namespace import WD, WDT
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestLexeme(kif_TestCase):
@@ -25,24 +25,24 @@ class TestLexeme(kif_TestCase):
     def test__from_rdflib(self):
         # bad argument: literal
         self.assertRaises(TypeError, Lexeme._from_rdflib, Literal('x'))
-        # bad argument: result is a IRI
+        # bad argument: result is an IRI
         self.assertRaises(TypeError, Lexeme._from_rdflib, URIRef('x'))
         # bad argument: result is an item
-        self.assertRaises(TypeError, Lexeme._from_rdflib, NS.WD.Q5)
+        self.assertRaises(TypeError, Lexeme._from_rdflib, WD.Q5)
         # bad argument: result is a property
-        self.assertRaises(TypeError, Lexeme._from_rdflib, NS.WD.P31)
+        self.assertRaises(TypeError, Lexeme._from_rdflib, WD.P31)
         # good arguments
-        self.assert_lexeme(Lexeme._from_rdflib(NS.WD.L3873), IRI(NS.WD.L3873))
+        self.assert_lexeme(Lexeme._from_rdflib(WD.L3873), IRI(WD.L3873))
         self.assert_lexeme(
-            Lexeme._from_rdflib(NS.WDT.L3873, lexeme_prefixes=[NS.WDT]),
-            IRI(NS.WD.L3873))
+            Lexeme._from_rdflib(WDT.L3873, lexeme_prefixes=[WDT]),
+            IRI(WD.L3873))
         self.assert_lexeme(
-            Entity._from_rdflib(NS.WDT.L3873, lexeme_prefixes=[NS.WDT]),
-            IRI(NS.WD.L3873))
+            Entity._from_rdflib(WDT.L3873, lexeme_prefixes=[WDT]),
+            IRI(WD.L3873))
 
     def test__to_rdflib(self):
-        self.assertEqual(Lexeme(NS.WD.L3873)._to_rdflib(), NS.WD.L3873)
+        self.assertEqual(Lexeme(WD.L3873)._to_rdflib(), WD.L3873)
 
 
 if __name__ == '__main__':
-    main()
+    TestLexeme.main()

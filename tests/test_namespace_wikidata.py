@@ -5,7 +5,7 @@ from rdflib.namespace import Namespace
 
 from kif_lib.namespace import WIKIBASE, Wikidata
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestNamespaceWikidata(kif_TestCase):
@@ -158,4 +158,4 @@ class TestNamespaceWikidata(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestNamespaceWikidata.main()

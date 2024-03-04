@@ -10,7 +10,6 @@ from kif_lib import (
     Snak,
     SomeValueSnak,
     Statement,
-    Store,
     String,
     Text,
     Time,
@@ -18,22 +17,13 @@ from kif_lib import (
 )
 from kif_lib.vocabulary import wd
 
-from .tests import (
-    kif_StoreTestCase,
-    main,
-    skip_if_not_set,
-    skip_if_set,
-    WIKIDATA,
-)
-
-skip_if_not_set('WIKIDATA')
-skip_if_set('SKIP_TEST_STORE_SPARQL')
+from .tests import kif_WikidataSPARQL_StoreTestCase
 
 
-class TestSPARQL_StoreFilter(kif_StoreTestCase):
+class TestSPARQL_StoreFilter(kif_WikidataSPARQL_StoreTestCase):
 
     def test_filter_bad_argument(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         # bad argument: subject
         self.assertRaises(TypeError, kb.filter, 0)
         self.assertRaises(TypeError, kb.filter, IRI('x'))
@@ -53,22 +43,22 @@ class TestSPARQL_StoreFilter(kif_StoreTestCase):
         self.assertRaises(TypeError, kb.filter, limit=Item('x'))
 
     def test_filter_full(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         pat = FilterPattern()
         self.assertEqual(len(list(kb.filter(pattern=pat, limit=1))), 1)
 
     def test_filter_empty(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         pat = FilterPattern(None, None, None, Snak.Mask(0))
         self.assertEqual(len(list(kb.filter(pattern=pat, limit=1))), 0)
 
     def test_filter_subject_is_item(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmt = next(kb.filter(wd.Brazil))
         self.assertEqual(stmt.subject, wd.Brazil)
 
     def test_filter_subject_is_snak_set(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmt = next(kb.filter([
             wd.official_language(wd.Portuguese),
             wd.part_of(wd.Latin_America)]))
@@ -87,12 +77,12 @@ class TestSPARQL_StoreFilter(kif_StoreTestCase):
             stmt, stmt.subject, NoValueSnak(wd.date_of_birth))
 
     def test_filter_property_is_property(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmt = next(kb.filter(property=wd.part_of))
         self.assertEqual(stmt.snak.property, wd.part_of)
 
     def test_filter_property_is_snak_set(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmt = next(kb.filter(
             subject=wd.Brazil,
             property=wd.Wikidata_item_of_this_property(wd.part),
@@ -101,19 +91,19 @@ class TestSPARQL_StoreFilter(kif_StoreTestCase):
             stmt, wd.Brazil, ValueSnak(wd.part_of, wd.Latin_America))
 
     def test_filter_value_is_item(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmt = next(kb.filter(wd.Brazil, wd.continent, wd.South_America))
         self.assert_statement(
             stmt, wd.Brazil, wd.continent(wd.South_America))
 
     def test_filter_value_is_property(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmt = next(kb.filter(None, wd.Wikidata_property, wd.continent))
         self.assert_statement(
             stmt, wd.continent_, wd.Wikidata_property(wd.continent))
 
     def test_filter_value_is_iri(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmt = next(kb.filter(wd.benzene, wd.chemical_structure))
         self.assert_statement(
             stmt, wd.benzene, wd.chemical_structure(IRI(
@@ -121,7 +111,7 @@ class TestSPARQL_StoreFilter(kif_StoreTestCase):
                 'Benzene-2D-full.svg')))
 
     def test_filter_value_is_text(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmt = next(kb.filter(
             value=Text('Federative Republic of Brazil', 'en')))
         self.assert_statement(
@@ -129,14 +119,14 @@ class TestSPARQL_StoreFilter(kif_StoreTestCase):
                 'Federative Republic of Brazil', 'en')))
 
     def test_filter_value_is_string(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmt = next(kb.filter(value=String('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
         self.assert_statement(
             stmt, wd.benzene,
             wd.InChIKey(String('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
 
     def test_filter_value_is_quantity(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmt = next(kb.filter(wd.benzene, value=Quantity('78.11')))
         self.assert_statement(
             stmt, wd.benzene, wd.mass(Quantity('78.11', wd.dalton)))
@@ -164,7 +154,7 @@ class TestSPARQL_StoreFilter(kif_StoreTestCase):
                     None, qt.Nil, qt.Nil, '.88')))
 
     def test_filter_value_is_time(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         tm = Time(
             '1822-09-07', Time.DAY, 0, wd.proleptic_Gregorian_calendar)
         stmt = next(kb.filter(wd.Brazil, wd.inception, tm))
@@ -190,7 +180,7 @@ class TestSPARQL_StoreFilter(kif_StoreTestCase):
                     None, tm.Nil, 0, wd.proleptic_Julian_calendar)))
 
     def test_filter_value_is_snak_set(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmt = next(kb.filter(value=[
             wd.official_language(wd.Portuguese),
             wd.inception(Time('1822-09-07')),
@@ -209,7 +199,7 @@ class TestSPARQL_StoreFilter(kif_StoreTestCase):
             stmt, stmt.subject, NoValueSnak(wd.date_of_birth))
 
     def test_filter_snak_mask_value_snak(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         kb.unset_flags(kb.BEST_RANK)
         stmt = next(kb.filter(
             wd.Adam, wd.date_of_death, snak_mask=Snak.VALUE_SNAK))
@@ -222,7 +212,7 @@ class TestSPARQL_StoreFilter(kif_StoreTestCase):
         self.assertRaises(StopIteration, next, it)
 
     def test_filter_snak_mask_some_value_snak(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         kb.unset_flags(kb.BEST_RANK)
         stmt = next(kb.filter(
             wd.Adam, wd.date_of_death, snak_mask=Snak.SOME_VALUE_SNAK))
@@ -230,14 +220,14 @@ class TestSPARQL_StoreFilter(kif_StoreTestCase):
             stmt, wd.Adam, SomeValueSnak(wd.date_of_death))
 
     def test_filter_snak_mask_no_value_snak(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         stmt = next(kb.filter(
             wd.Adam, wd.date_of_birth, snak_mask=Snak.NO_VALUE_SNAK))
         self.assert_statement(
             stmt, wd.Adam, NoValueSnak(wd.date_of_birth))
 
     def test_filter_store_flag_early_late_filter(self):
-        kb = Store('sparql', WIKIDATA)
+        kb = self.new_Store()
         kb.unset_flags(kb.EARLY_FILTER | kb.BEST_RANK)
         res = list(kb.filter(
             wd.Adam, wd.date_of_death, None, Snak.SOME_VALUE_SNAK))
@@ -254,4 +244,4 @@ class TestSPARQL_StoreFilter(kif_StoreTestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestSPARQL_StoreFilter.main()

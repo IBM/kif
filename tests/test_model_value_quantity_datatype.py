@@ -1,21 +1,20 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import kif_lib.namespace as NS
 from kif_lib import Datatype, Quantity, QuantityDatatype
+from kif_lib.namespace import WIKIBASE
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestQuantityDatatype(kif_TestCase):
 
     def test__from_rdflib(self):
         self.assert_quantity_datatype(
-            QuantityDatatype._from_rdflib(NS.WIKIBASE.Quantity))
+            QuantityDatatype._from_rdflib(WIKIBASE.Quantity))
 
     def test__to_rdflib(self):
-        self.assertEqual(
-            QuantityDatatype._to_rdflib(), NS.WIKIBASE.Quantity)
+        self.assertEqual(QuantityDatatype._to_rdflib(), WIKIBASE.Quantity)
 
     def test_from_value_class(self):
         self.assert_quantity_datatype(Datatype.from_value_class(Quantity))
@@ -25,4 +24,4 @@ class TestQuantityDatatype(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestQuantityDatatype.main()

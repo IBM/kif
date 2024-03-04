@@ -3,7 +3,7 @@
 
 from kif_lib import Snak
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestSnak(kif_TestCase):
@@ -49,4 +49,4 @@ class TestSnak(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestSnak.main()

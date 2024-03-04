@@ -11,7 +11,7 @@ from kif_lib import (
     ValueSnak,
 )
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestStatement(kif_TestCase):
@@ -37,4 +37,4 @@ class TestStatement(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestStatement.main()

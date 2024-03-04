@@ -5,7 +5,7 @@ from rdflib import Literal, URIRef
 
 from kif_lib import ExternalId, String
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestExternalId(kif_TestCase):
@@ -49,4 +49,4 @@ class TestExternalId(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestExternalId.main()

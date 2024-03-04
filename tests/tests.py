@@ -4,7 +4,7 @@
 import itertools
 import os
 import re
-from unittest import main, SkipTest, TestCase  # noqa: F401
+import unittest
 
 from kif_lib import (
     AnnotationRecord,
@@ -66,25 +66,15 @@ from kif_lib.error import ShouldNotGetHere
 from kif_lib.model import Decimal, UTC
 from kif_lib.model.object import Object
 from kif_lib.namespace import WIKIBASE, XSD
+from kif_lib.typing import override
 from kif_lib.vocabulary import wd
 
-PUBCHEM = os.getenv('PUBCHEM')
-WIKIDATA = os.getenv('WIKIDATA')
 
+class kif_TestCase(unittest.TestCase):
 
-def skip_if_set(var):
-    if os.getenv(var, False):
-        raise SkipTest(f'{var} is set')
-
-
-def skip_if_not_set(var):
-    if not os.getenv(var, False):
-        raise SkipTest(f'{var} is not set')
-
-
-# -- kif_TestCase ----------------------------------------------------------
-
-class kif_TestCase(TestCase):
+    @classmethod
+    def main(cls):
+        return unittest.main()
 
     def assert_raises_bad_argument(
             self, exception, position, name, details, function,
@@ -632,9 +622,13 @@ class kif_TestCase(TestCase):
         self.assertEqual(obj.snak_mask, mask)
 
 
-# -- kif_StoreTestCase -----------------------------------------------------
+# == kif_StoreTestCase =====================================================
 
 class kif_StoreTestCase(kif_TestCase):
+
+    @classmethod
+    def new_Store(cls, store_name, *args, **kwargs):
+        return Store(store_name, *args, **kwargs)
 
     @classmethod
     def parse(cls, text):
@@ -673,8 +667,6 @@ class kif_StoreTestCase(kif_TestCase):
         # self.store_test_get_descriptor_bad_argument(kb)
         # self.store_test_get_descriptor_empty(kb)
 
-    # -- extra references --
-
     def store_test_extra_references(self, kb, default=ReferenceRecordSet()):
         self.assertRaises(TypeError, kb.set_extra_references, 'abc')
         self.assertEqual(kb.extra_references, default)
@@ -685,8 +677,6 @@ class kif_StoreTestCase(kif_TestCase):
                 ReferenceRecord(), ReferenceRecord(wd.stated_in(wd.PubChem))))
         kb.extra_references = None
         self.assertEqual(kb.extra_references, default)
-
-    # -- flags --
 
     def store_test_flags(self, kb):
         saved_flags = kb.flags
@@ -724,8 +714,6 @@ class kif_StoreTestCase(kif_TestCase):
         self.assertEqual(kb.flags, Store.ALL)
         kb.flags = saved_flags
 
-    # -- page size --
-
     def store_test_page_size(self, kb, default=100):
         self.assert_raises_bad_argument(
             TypeError, 1, 'page_size', None, kb.set_page_size, 'abc')
@@ -734,8 +722,6 @@ class kif_StoreTestCase(kif_TestCase):
         self.assertEqual(kb.page_size, 10)
         kb.page_size = None
         self.assertEqual(kb.page_size, default)
-
-    # -- timeout --
 
     def store_test_timeout(self, kb, default=None):
         self.assert_raises_bad_argument(
@@ -746,14 +732,10 @@ class kif_StoreTestCase(kif_TestCase):
         kb.timeout = None
         self.assertIsNone(kb.timeout)
 
-    # -- internal stuff --
-
     def store_test__error(self, kb):
         err = Store._error('x')
         self.assertIsInstance(err, Store.Error)
         self.assertEqual(str(err), 'x')
-
-    # -- contains --
 
     def store_test_contains_bad_argument(self, kb):
         self.assert_raises_bad_argument(
@@ -827,8 +809,6 @@ class kif_StoreTestCase(kif_TestCase):
         kb._cache.clear()
         self.assertNotIn(stmt, kb)
 
-    # -- count, count_snak --
-
     def store_test_count_bad_argument(self, kb):
         self.assert_raises_bad_argument(
             TypeError, 1, 'subject', None, kb.count, 0)
@@ -890,8 +870,6 @@ class kif_StoreTestCase(kif_TestCase):
             kb.unset_flags(kb.NO_VALUE_SNAK)
             self.assertEqual(kb.count_snak(subject, no_value), 0)
             kb.flags = saved_flags
-
-    # -- filter, filter_snak --
 
     def store_test_filter_bad_argument(self, kb):
         self.assert_raises_bad_argument(
@@ -977,8 +955,6 @@ class kif_StoreTestCase(kif_TestCase):
             self.assertFalse(bool(set(kb.filter_snak(subject, no_value))))
             kb.flags = saved_flags
 
-    # -- get_annotations --
-
     def store_test_get_annotations_bad_argument(self, kb):
         self.assert_raises_bad_argument(
             TypeError, 1, 'stmts', None, kb.get_annotations, 0)
@@ -1054,8 +1030,6 @@ class kif_StoreTestCase(kif_TestCase):
 
 # -- Descriptors -----------------------------------------------------------
 
-    # -- get_descriptor --
-
     def sanity_check_get_descriptor(self, kb):
         self.sanity_check_get_descriptor_bad_args(kb)
         self.sanity_check_get_descriptor_vacuous_calls(kb)
@@ -1063,6 +1037,8 @@ class kif_StoreTestCase(kif_TestCase):
         self.assertRaisesRegex(
             TypeError, r"bad argument to 'Store\.get_descriptor' "
             r'\(expected Entity, got Text\)', list, it)
+
+    # -- get_descriptor --
 
     def sanity_check_get_descriptor_bad_args(self, kb):
         self.assert_raises_bad_argument(
@@ -1235,3 +1211,59 @@ class kif_StoreTestCase(kif_TestCase):
             (lexs[2], None),
             (lexs[0], None)
         ])
+
+
+# == kif_EmptyStoreTestCase ================================================
+
+class kif_EmptyStoreTestCase(kif_StoreTestCase):
+
+    @override
+    @classmethod
+    def new_Store(cls, *args, **kwargs):
+        return super().new_Store('empty', *args, **kwargs)
+
+
+# == kif_SPARQL_StoreTestCase ==============================================
+
+class kif_SPARQL_StoreTestCase(kif_StoreTestCase):
+
+    @override
+    @classmethod
+    def new_Store(cls, *args, **kwargs):
+        return super().new_Store('sparql', *args, **kwargs)
+
+
+# == kif_WikidataSPARQL_StoreTestCase ======================================
+
+class kif_WikidataSPARQL_StoreTestCase(kif_SPARQL_StoreTestCase):
+
+    WIKIDATA = os.getenv('WIKIDATA')
+
+    @classmethod
+    def setUpClass(cls):
+        if not cls.WIKIDATA:
+            raise unittest.SkipTest('WIKIDATA is not set')
+
+    @override
+    @classmethod
+    def new_Store(cls, *args, **kwargs):
+        return super().new_Store(cls.WIKIDATA, *args, **kwargs)
+
+
+# == kif_PubChemSPARQL_StoreTestCase =======================================
+
+class kif_PubChemSPARQL_StoreTestCase(kif_SPARQL_StoreTestCase):
+
+    PUBCHEM = os.getenv('PUBCHEM')
+
+    @classmethod
+    def setUpClass(cls):
+        if not cls.PUBCHEM:
+            raise unittest.SkipTest('PUBCHEM is not set')
+
+    @override
+    @classmethod
+    def new_Store(cls, *args, **kwargs):
+        from kif_lib.store.mapping import PubChemMapping
+        return Store(
+            'sparql-mapper', cls.PUBCHEM, PubChemMapping, *args, **kwargs)

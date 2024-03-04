@@ -5,7 +5,7 @@ from rdflib import Literal, URIRef
 
 from kif_lib import String
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestString(kif_TestCase):
@@ -46,4 +46,4 @@ class TestString(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestString.main()

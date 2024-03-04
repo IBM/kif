@@ -24,7 +24,7 @@ from kif_lib.store import RDF_Store
 from kif_lib.vocabulary import wd
 
 from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL
-from .tests import kif_StoreTestCase, main
+from .tests import kif_StoreTestCase
 
 
 class TestRDF_Store(kif_StoreTestCase):
@@ -555,4 +555,4 @@ class TestRDF_Store(kif_StoreTestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestRDF_Store.main()

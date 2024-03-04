@@ -3,10 +3,10 @@
 
 from rdflib import Literal, URIRef
 
-import kif_lib.namespace as NS
 from kif_lib import String, Text
+from kif_lib.namespace import XSD
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestText(kif_TestCase):
@@ -31,8 +31,7 @@ class TestText(kif_TestCase):
         self.assertRaises(TypeError, Text._from_rdflib, Literal('x'))
         # bad argument: typed literal
         self.assertRaises(
-            TypeError, Text._from_rdflib, Literal(
-                '1.0', datatype=NS.XSD.decimal))
+            TypeError, Text._from_rdflib, Literal('1.0', datatype=XSD.decimal))
         # good arguments
         self.assert_text(
             Text._from_rdflib(Literal('abc', 'es')), 'abc', 'es')
@@ -44,4 +43,4 @@ class TestText(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestText.main()

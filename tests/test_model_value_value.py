@@ -18,7 +18,7 @@ from kif_lib import (
     Value,
 )
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestValue(kif_TestCase):
@@ -86,4 +86,4 @@ class TestValue(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestValue.main()

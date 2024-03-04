@@ -5,7 +5,7 @@ from kif_lib import Statement, Store
 from kif_lib.store import MixerStore
 
 from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL
-from .tests import kif_StoreTestCase, main
+from .tests import kif_StoreTestCase
 
 
 class TestMixerStore(kif_StoreTestCase):
@@ -101,4 +101,4 @@ class TestMixerStore(kif_StoreTestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestMixerStore.main()

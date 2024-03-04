@@ -3,7 +3,7 @@
 
 from kif_lib import IRI, KIF_Object, KIF_ObjectSet, NoValueSnak, Property
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestKIF_ObjectSet(kif_TestCase):
@@ -68,4 +68,4 @@ class TestKIF_ObjectSet(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestKIF_ObjectSet.main()

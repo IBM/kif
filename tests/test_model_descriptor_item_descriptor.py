@@ -3,7 +3,7 @@
 
 from kif_lib import IRI, ItemDescriptor, Text, TextSet
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestItemDescriptor(kif_TestCase):
@@ -39,4 +39,4 @@ class TestItemDescriptor(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestItemDescriptor.main()

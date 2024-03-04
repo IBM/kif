@@ -23,7 +23,7 @@ from .data import (
     INSTANCE_OF_TTL,
     PAINT_TTL,
 )
-from .tests import kif_StoreTestCase, main
+from .tests import kif_StoreTestCase
 
 
 class TestStoreRDF_Descriptors(kif_StoreTestCase):
@@ -405,4 +405,4 @@ class TestStoreRDF_Descriptors(kif_StoreTestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestStoreRDF_Descriptors.main()

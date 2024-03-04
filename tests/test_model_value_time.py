@@ -8,7 +8,7 @@ from kif_lib.model import Datetime
 from kif_lib.namespace import XSD
 from kif_lib.vocabulary import wd
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestTime(kif_TestCase):
@@ -149,4 +149,4 @@ class TestTime(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestTime.main()

@@ -3,7 +3,7 @@
 
 from kif_lib.cache import Cache
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestCache(kif_TestCase):
@@ -119,4 +119,4 @@ class TestCache(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestCache.main()

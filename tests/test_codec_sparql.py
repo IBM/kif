@@ -11,7 +11,7 @@ from kif_lib import (
 )
 from kif_lib.vocabulary import wd
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestSPARQL_Decoder(kif_TestCase):
@@ -116,4 +116,4 @@ SELECT ?report WHERE {
 
 
 if __name__ == '__main__':
-    main()
+    TestSPARQL_Decoder.main()

@@ -1,26 +1,26 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import Item, Items, Property, Store
+from kif_lib import Item, Items, Property
 
-from .tests import kif_StoreTestCase, main
+from .tests import kif_EmptyStoreTestCase
 
 
-class TestStoreCache(kif_StoreTestCase):
+class TestStoreCache(kif_EmptyStoreTestCase):
 
     def test__cache_init(self):
-        kb = Store('empty')
+        kb = self.new_Store()
         self.assertTrue(kb._cache.enabled)
-        kb = Store('empty', flags=0)
+        kb = self.new_Store(flags=0)
         self.assertFalse(kb._cache.enabled)
         self.assertEqual(kb._cache.size, 0)
 
     def test__cache_get_presence(self):
-        kb = Store('empty')
+        kb = self.new_Store()
         self.assertIsNone(kb._cache_get_presence(Item('x')))
 
     def test__cache_set_presence(self):
-        kb = Store('empty')
+        kb = self.new_Store()
         x, y = Items('x', 'y')
         stmt = Property('p')(x, y)
         self.assertIsNone(kb._cache_get_presence(x))
@@ -34,4 +34,4 @@ class TestStoreCache(kif_StoreTestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestStoreCache.main()

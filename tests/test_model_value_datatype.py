@@ -4,7 +4,7 @@
 from kif_lib import Datatype, Entity, IRI
 from kif_lib.error import MustBeImplementedInSubclass
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestDatatype(kif_TestCase):
@@ -53,4 +53,4 @@ class TestDatatype(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestDatatype.main()
