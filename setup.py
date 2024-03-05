@@ -55,5 +55,5 @@ setuptools.setup(
         ],
     },
     keywords=NAME,
-    zip_safe=False,             # required to make mypy work
+    zip_safe=True,
 )
