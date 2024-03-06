@@ -62,8 +62,6 @@ class SPARQL_MapperStore(
            SPARQL mapping.
         """
         return self._mapping
-
-# -- Statements ------------------------------------------------------------
 
     @override
     def _count(self, pattern: FilterPattern) -> int:
@@ -105,18 +103,19 @@ class SPARQL_MapperStore(
                 else:
                     raise self._should_not_get_here()
             with q.union() as cup:
-                for property, entry in self.mapping.items():
+                for property, spec in self.mapping.specs.items():
                     if pat.property is not None:
                         if pat.property.property != property:
                             continue
+                    value_class = spec.datatype.to_value_class()
                     if pat.value is not None and pat.value.snak_set:
-                        if not issubclass(entry.datatype, Entity):
+                        if not issubclass(value_class, Entity):
                             continue
                     if value is not None:
-                        if not entry.datatype.test(value):
+                        if not value_class.test(value):
                             continue
                     cup.branch()
-                    entry.define(q, with_binds=True)
+                    spec._define(q, with_binds=True)
         return q
 
     def _try_push_snak_set(
@@ -129,14 +128,12 @@ class SPARQL_MapperStore(
             if not snak.is_value_snak():
                 return False
             vsnak = cast(ValueSnak, snak)
-            if vsnak.property not in self.mapping.entries:
+            if vsnak.property not in self.mapping.specs:
                 return False
-            self.mapping.entries[vsnak.property].define(
+            self.mapping.specs[vsnak.property]._define(
                 cast(SPARQL_Mapping.Builder, q), target, None,
                 self.mapping.normalize_value(vsnak.value, vsnak.property))
         return True
-
-# -- Annotations -----------------------------------------------------------
 
     def _get_annotations(
             self,

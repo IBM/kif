@@ -51,6 +51,7 @@ from .value import (
     ShallowDataValue,
     String,
     StringDatatype,
+    T_IRI,
     Text,
     TextDatatype,
     Time,
@@ -170,6 +171,36 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     # -- inherited from Object --
 
     @classmethod
+    def _check_arg_datatype(
+            cls,
+            arg: Optional[Datatype],
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Datatype, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_iri(
+            cls,
+            arg: T_IRI,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[IRI, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_property(
+            cls,
+            arg: Optional[Property],
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Property, NoReturn]:
+        ...
+
+    @classmethod
     def _check_arg_statement(
             cls,
             arg: Optional[Statement],
@@ -177,6 +208,17 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[Statement, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_entity_fingerprint(
+            cls,
+            arg: Optional[TEntityFingerprint],
+            default: Optional[EntityFingerprint] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[EntityFingerprint], NoReturn]:
         ...
 
     @classmethod
@@ -191,14 +233,14 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
-    def _check_optional_arg_entity_fingerprint(
+    def _check_optional_arg_iri(
             cls,
-            arg: Optional[TEntityFingerprint],
-            default: Optional[EntityFingerprint] = ...,
+            arg: Optional[T_IRI],
+            default: Optional[IRI] = ...,
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
-    ) -> Union[Optional[EntityFingerprint], NoReturn]:
+    ) -> Union[Optional[IRI], NoReturn]:
         ...
 
     @classmethod

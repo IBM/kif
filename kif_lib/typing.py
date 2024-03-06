@@ -21,6 +21,7 @@ from typing import (
     NoReturn,
     Optional,
     TextIO,
+    TypeAlias,
     TypeVar,
     Union,
 )
@@ -46,6 +47,7 @@ __all__ = (
     'Sequence',
     'Set',
     'TextIO',
+    'TypeAlias',
     'TypeVar',
     'Union',
 )
