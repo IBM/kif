@@ -2,10 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from collections.abc import Iterable
-from typing import Any, cast, Iterator, Optional, Union
 
-from ..error import ShouldNotGetHere
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -17,30 +14,43 @@ from ..model import (
     Value,
     ValueSnak,
 )
-from .sparql import SPARQL_Store
-from .sparql_builder import SPARQL_Builder
+from ..typing import Any, cast, Iterable, Iterator, Optional, override, Union
+from .sparql import (
+    BNode,
+    NS,
+    SPARQL_Builder,
+    SPARQL_Results,
+    SPARQL_Store,
+    URIRef,
+)
 from .sparql_mapping import SPARQL_Mapping
 
 LOG = logging.getLogger(__name__)
 
-TTrm = SPARQL_Builder.TTrm
-
 
 class SPARQL_MapperStore(
-        SPARQL_Store, type='sparql-mapper',
-        description='SPARQL endpoint mapper'):
+        SPARQL_Store,
+        store_name='sparql-mapper',
+        store_description='SPARQL endpoint mapper'):
+    """SPARQL mapper store.
+
+    Parameters:
+       store_name: Store plugin to instantiate.
+       iri: SPARQL endpoint IRI.
+       mapping: SPARQL mapping.
+    """
 
     _mapping: SPARQL_Mapping
 
     def __init__(
             self,
-            store_type: str,
+            store_name: str,
             iri: Union[IRI, str],
             mapping: SPARQL_Mapping,
             **kwargs: Any
     ):
-        assert store_type == self.store_type
-        super().__init__(store_type, iri, **kwargs)
+        assert store_name == self.store_name
+        super().__init__(store_name, iri, **kwargs)
         self._mapping = mapping
 
     @property
@@ -56,14 +66,14 @@ class SPARQL_MapperStore(
         """
         return self._mapping
 
-    # -- Queries -----------------------------------------------------------
-
+    @override
     def _count(self, pattern: FilterPattern) -> int:
         q = self._make_filter_query(pattern)
         text = q.select('(count (*) as ?count)')
         res = self._eval_select_query_string(text)
         return self._parse_count_query_results(res)
 
+    @override
     def _make_filter_query(
             self,
             pat: FilterPattern,
@@ -79,7 +89,7 @@ class SPARQL_MapperStore(
                             q, q.matched_subject, pat.subject.snak_set):
                         return q  # impossible condition
                 else:
-                    raise ShouldNotGetHere
+                    raise self._should_not_get_here()
             value: Optional[Value] = None
             if pat.value is not None:
                 if pat.value.value is not None:
@@ -94,35 +104,43 @@ class SPARQL_MapperStore(
                             q, q.matched_value, pat.value.snak_set):
                         return q  # impossible condition
                 else:
-                    raise ShouldNotGetHere
+                    raise self._should_not_get_here()
             with q.union() as cup:
-                for property, entry in self.mapping.items():
+                for property, spec in self.mapping.specs.items():
                     if pat.property is not None:
                         if pat.property.property != property:
                             continue
+                    value_class = spec.datatype.to_value_class()
                     if pat.value is not None and pat.value.snak_set:
-                        if not issubclass(entry.datatype, Entity):
+                        if not issubclass(value_class, Entity):
                             continue
                     if value is not None:
-                        if not entry.datatype.test(value):
+                        if not value_class.test(value):
                             continue
                     cup.branch()
-                    entry.define(q, with_binds=True)
+                    spec._define(q, with_binds=True)
         return q
+
+    def _parse_filter_results_check_wds(
+            self,
+            entry: SPARQL_Results.Bindings,
+            stmt: Statement
+    ) -> Union[BNode, URIRef]:
+        return NS.WDS[stmt.digest]
 
     def _try_push_snak_set(
             self,
             q: SPARQL_Builder,
-            target: TTrm,
+            target: SPARQL_Builder.TTrm,
             snaks: SnakSet
     ) -> bool:
         for snak in snaks:
             if not snak.is_value_snak():
                 return False
             vsnak = cast(ValueSnak, snak)
-            if vsnak.property not in self.mapping.entries:
+            if vsnak.property not in self.mapping.specs:
                 return False
-            self.mapping.entries[vsnak.property].define(
+            self.mapping.specs[vsnak.property]._define(
                 cast(SPARQL_Mapping.Builder, q), target, None,
                 self.mapping.normalize_value(vsnak.value, vsnak.property))
         return True

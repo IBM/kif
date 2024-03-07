@@ -2,79 +2,78 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from enum import auto, Flag
-from typing import NoReturn, Optional, Union
 
+from ..typing import Final, NoReturn, Optional, Union
 from .kif_object import KIF_Object, TCallable
 from .value import Property, Value
 
 at_property = property
-TSnakMask = Union['SnakMask', int]
-
-
-class SnakMask(Flag):
-    """Mask representing concrete snak classes."""
-
-    #: Mask representing ValueSnak's.
-    VALUE_SNAK = auto()
-
-    #: Mask representing SomeValueSnak's.
-    SOME_VALUE_SNAK = auto()
-
-    #: Mask representing NoValueSnak's.
-    NO_VALUE_SNAK = auto()
-
-    #: Mask representing all snak classes.
-    ALL = (VALUE_SNAK | SOME_VALUE_SNAK | NO_VALUE_SNAK)
 
 
 class Snak(KIF_Object):
     """Abstract base class for snaks."""
 
-    #: Alias for :attr:`SnakMask.VALUE_SNAK`.
-    VALUE_SNAK = SnakMask.VALUE_SNAK
+    class Mask(Flag):
+        """Mask for concrete snak classes."""
 
-    #: Alias for :attr:`SnakMask.SOME_VALUE_SNAK`.
-    SOME_VALUE_SNAK = SnakMask.SOME_VALUE_SNAK
+        #: Mask for :class:`ValueSnak`.
+        VALUE_SNAK = auto()
 
-    #: Alias for :attr:`SnakMask.NO_VALUE_SNAK`.
-    NO_VALUE_SNAK = SnakMask.NO_VALUE_SNAK
+        #: Mask for :class:`SomeValueSnak`.
+        SOME_VALUE_SNAK = auto()
 
-    #: Alias for :attr:`SnakMask.ALL`.
-    ALL = SnakMask.ALL
+        #: Mask for :class:`NoValueSnak`.
+        NO_VALUE_SNAK = auto()
+
+        #: Mask for all snak classes.
+        ALL = (VALUE_SNAK | SOME_VALUE_SNAK | NO_VALUE_SNAK)
+
+    #: Mask for :class:`ValueSnak`.
+    VALUE_SNAK: Final[Mask] = Mask.VALUE_SNAK
+
+    #: Mask for :class:`SomeValueSnak`.
+    SOME_VALUE_SNAK: Final[Mask] = Mask.SOME_VALUE_SNAK
+
+    #: Mask for :class:`NoValueSnak`.
+    NO_VALUE_SNAK: Final[Mask] = Mask.NO_VALUE_SNAK
+
+    #: Mask for all snak classes.
+    ALL: Final[Mask] = Mask.ALL
+
+    TMask = Union[Mask, int]
 
     @classmethod
     def _check_arg_snak_mask(
             cls,
-            arg: TSnakMask,
+            arg: TMask,
             function: Optional[Union[TCallable, str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[SnakMask, NoReturn]:
-        return SnakMask(cls._check_arg_isinstance(
-            arg, (SnakMask, int), function, name, position))
+    ) -> Union[Mask, NoReturn]:
+        return cls.Mask(cls._check_arg_isinstance(
+            arg, (cls.Mask, int), function, name, position))
 
     @classmethod
     def _check_optional_arg_snak_mask(
             cls,
-            arg: Optional[TSnakMask],
-            default: Optional[SnakMask] = None,
+            arg: Optional[TMask],
+            default: Optional[Mask] = None,
             function: Optional[Union[TCallable, str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional[SnakMask], NoReturn]:
+    ) -> Union[Optional[Mask], NoReturn]:
         if arg is None:
             return default
         else:
-            return cls._check_arg_snak_mask(
-                arg, function, name, position)
+            return cls._check_arg_snak_mask(arg, function, name, position)
 
     @classmethod
     def _preprocess_arg_snak_mask(
             cls,
-            arg: TSnakMask,
+            arg: TMask,
             i: int,
             function: Optional[Union[TCallable, str]] = None
-    ) -> Union[SnakMask, NoReturn]:
+    ) -> Union[Mask, NoReturn]:
         return cls._check_arg_snak_mask(arg, function or cls, None, i)
 
     @classmethod
@@ -82,53 +81,52 @@ class Snak(KIF_Object):
             cls,
             arg,
             i: int,
-            default: Optional[SnakMask] = None,
+            default: Optional[Mask] = None,
             function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Optional[SnakMask], NoReturn]:
-        return cls._check_optional_arg_snak_mask(
-            arg, default, function or cls, None, i)
+    ) -> Union[Optional[Mask], NoReturn]:
+        if arg is None:
+            return default
+        else:
+            return cls._preprocess_arg_snak_mask(arg, i, function)
+
+    #: Mask of this snak class.
+    mask: Mask = Mask.ALL
+
+    @classmethod
+    def get_mask(cls) -> Mask:
+        """Gets the mask of this snak class.
+
+        Returns:
+           Mask.
+        """
+        return cls.mask
 
     @property
     def property(self) -> Property:
-        """Snak property."""
+        """The property of snak."""
         return self.get_property()
 
     def get_property(self) -> Property:
-        """Gets snak property.
+        """Gets the property of snak.
 
         Returns:
-           Snak property.
+           Property.
         """
         return self.args[0]
 
-    _snak_mask = SnakMask.ALL
-
-    @at_property
-    def snak_mask(self) -> SnakMask:
-        """The most specific snak mask for snak."""
-        return self.get_snak_mask()
-
-    def get_snak_mask(self) -> SnakMask:
-        """Gets the most specific snak mask for snak.
-
-        Returns:
-           The most specific snak mask for snak.
-        """
-        return self._snak_mask
-
 
 class ValueSnak(Snak):
-    """Snak associating a property to a value.
+    """Property-value snak.
 
     Parameters:
-       arg1: Property.
-       arg2: Value.
+       property: Property.
+       value: Value.
     """
 
-    _snak_mask = SnakMask.VALUE_SNAK
+    mask: Snak.Mask = Snak.VALUE_SNAK
 
-    def __init__(self, arg1: Property, arg2: Value):
-        return super().__init__(arg1, arg2)
+    def __init__(self, property: Property, value: Value):
+        return super().__init__(property, value)
 
     def _preprocess_arg(self, arg, i):
         if i == 1:
@@ -140,29 +138,29 @@ class ValueSnak(Snak):
 
     @property
     def value(self) -> Value:
-        """Snak value."""
+        """The value of value snak."""
         return self.get_value()
 
     def get_value(self) -> Value:
-        """Gets snak value.
+        """Gets the value of value snak.
 
         Returns:
-           Snak value.
+           Value.
         """
         return self.args[1]
 
 
 class SomeValueSnak(Snak):
-    """Snak associating a property to some unspecified value.
+    """Property-"some value" snak.
 
     Parameters:
-       arg1: Property.
+       property: Property.
     """
 
-    _snak_mask = SnakMask.SOME_VALUE_SNAK
+    mask: Snak.Mask = Snak.SOME_VALUE_SNAK
 
-    def __init__(self, arg1: Property):
-        return super().__init__(arg1)
+    def __init__(self, property: Property):
+        return super().__init__(property)
 
     def _preprocess_arg(self, arg, i):
         if i == 1:
@@ -172,16 +170,16 @@ class SomeValueSnak(Snak):
 
 
 class NoValueSnak(Snak):
-    """Snak associating a property to no value.
+    """Property-"no value" snak.
 
     Parameters:
-       arg1: Property.
+       property: Property.
     """
 
-    _snak_mask = SnakMask.NO_VALUE_SNAK
+    mask: Snak.Mask = Snak.NO_VALUE_SNAK
 
-    def __init__(self, arg1: Property):
-        return super().__init__(arg1)
+    def __init__(self, property: Property):
+        return super().__init__(property)
 
     def _preprocess_arg(self, arg, i):
         if i == 1:

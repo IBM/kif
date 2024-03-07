@@ -1,3 +1,12 @@
+# Copyright (C) 2023-2024 IBM Corp.
+# SPDX-License-Identifier: Apache-2.0
+
+# $Id$
+#
+# Maintainer's makefile.
+#
+# ** KEEP THIS FILE SELF-CONTAINED! **
+
 me:= $(firstword $(MAKEFILE_LIST))
 
 # Prints usage message and exits.
@@ -20,10 +29,12 @@ perl_usage=\
 usage:
 	@perl -wnle '${perl_usage}' ${MAKEFILE_LIST}
 
+CHECK_COPYRIGHT?= yes
 CHECK_DEPS?= htmlcov-clean
 CHECK_FLAKE8=? yes
 CHECK_ISORT?= yes
 CHECK_MYPY?= yes
+CHECK_PYTEST?= yes
 COVERAGERC?= .coveragerc
 COVERAGERC_EXCLUDE_LINES?=
 COVERAGERC_OMIT?=
@@ -42,8 +53,11 @@ MANIFEST_IN_GIT_LS_FILES_PATHSPEC?=
 MYPY_OPTIONS?= --show-error-context --show-error-codes
 PERL?= perl
 PIP?= ${PYTHON} -m pip
+PYTEST?= ${PYTHON} -m pytest
+PYTEST_COV_OPTIONS?= --cov=${PACKAGE} --cov-report=html
+PYTEST_ENV?=
 PYTEST_INI?= pytest.ini
-PYTEST_OPTIONS?= -x
+PYTEST_OPTIONS?= -ra
 PYTHON?= python
 TESTS?= tests
 TOX?= tox
@@ -55,18 +69,29 @@ TOX_SETENV?=
 
 include Makefile.conf
 
+CHECK_DEPS+= $(if $(filter yes,${CHECK_COPYRIGHT}),check-copyright)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_FLAKE8}),check-flake8)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_ISORT}),check-isort)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_MYPY}),check-mypy)
+CHECK_DEPS+= $(if $(filter yes,${CHECK_PYTEST}),check-pytest)
 PYTEST_OPTIONS+= $(if $(filter yes,${CHECK_MYPY}),--mypy)
 
 split = $(shell printf '$(1)'\
    | sed -e 's/\s*<line>/    /g' -e 's,</line>,\\n,g')
 
-# run testsuite
+# check sources and run testsuite
 .PHONY: check
 check: ${CHECK_DEPS}
-	pytest ${PYTEST_OPTIONS}
+
+# check sources and run testsuite skipping slow tests
+.PHONY: checkfast
+checkfast:
+	${MAKE} check ${CHECKFAST}
+
+# run testsuite
+.PHONY: check-pytest
+check-pytest:
+	${PYTEST_ENV} ${PYTEST} -c ${PYTEST_INI} --strict-config ${TESTS}
 
 # check sources using flake8
 .PHONY: check-flake8
@@ -117,21 +142,21 @@ perl_check_copyright:=\
     my $$end = $$3 if defined $$3;\
     my $$exp_start = guess_year("A");\
     if ($$start ne $$exp_start) {\
-      put_error("bad start year: expected $$exp_start, got $$start");\
+      put_error("copyright: bad start-year (expected $$exp_start, got $$start)");\
     } else {\
       my $$exp_end = guess_year("M");\
       if ($$exp_end eq $$exp_start) {\
         if (defined $$end) {\
-          put_error("bad end year: expected none, got $$end");\
+          put_error("copyright: bad end-year (expected none, got $$end)");\
         }\
       } else {\
         if (!defined $$end) {\
-          put_error("bad end year: expected $$exp_end, got none");\
+          put_error("copyright: bad end-year (expected $$exp_end, got none)");\
         }\
       }\
     }\
   } else {\
-    put_error("bad or missing license tag");\
+    put_error("copyright: bad or missing license tag");\
   }\
   END { exit($$errcnt); }\
   ${NULL}
@@ -153,6 +178,7 @@ htmlcov-clean:
 .PHONY: docs
 docs:
 	${MAKE} -C ./${DOCS_SRC} html\
+	 NAME='${NAME}'\
 	 PACKAGE='${PACKAGE}'\
 	 COPYRIGHT='${COPYRIGHT}'\
 	 COPYRIGHT_START_YEAR='${COPYRIGHT_START_YEAR}'
@@ -200,17 +226,15 @@ gen-coveragerc:
 	@echo '[report]' >${COVERAGERC}
 	@echo 'omit = ${COVERAGERC_OMIT}' >>${COVERAGERC}
 	@echo 'exclude_lines =' >>${COVERAGERC}
-	@echo '    pragma: no cover' >>${COVERAGERC}
+	@echo '    @(abc\.)?abstractmethod' >>${COVERAGERC}
+	@echo '    class .*\\bProtocol\):' >>${COVERAGERC}
 	@echo '    def __repr__' >>${COVERAGERC}
 	@echo '    def __str__' >>${COVERAGERC}
-	@echo '    raise AssertionError' >>${COVERAGERC}
-	@echo '    raise NotImplementedError' >>${COVERAGERC}
 	@echo '    if 0:' >>${COVERAGERC}
 	@echo '    if __name__ == .__main__.:' >>${COVERAGERC}
-	@echo '    class .*\\bProtocol\):' >>${COVERAGERC}
-	@echo '    @(abc\.)?abstractmethod' >>${COVERAGERC}
-	@echo '    should_not_get_here' >>${COVERAGERC}
-	@echo '    ShouldNotGetHere' >>${COVERAGERC}
+	@echo '    pragma: no cover' >>${COVERAGERC}
+	@echo '    raise AssertionError' >>${COVERAGERC}
+	@echo '    raise NotImplementedError' >>${COVERAGERC}
 	@echo "$(call split,${COVERAGERC_EXCLUDE_LINES})" >>${COVERAGERC}
 
 # generate .flake8rc
@@ -241,7 +265,7 @@ gen-manifest-in:
 gen-pytest-ini:
 	@echo 'generating ${PYTEST_INI}'
 	@echo '[pytest]' >${PYTEST_INI}
-	@echo 'addopts = -ra --cov=${PACKAGE} --cov-report=html' >>${PYTEST_INI}
+	@echo 'addopts = ${PYTEST_OPTIONS} ${PYTEST_COV_OPTIONS}' >>${PYTEST_INI}
 	@echo 'testpaths = ${TESTS}' >>${PYTEST_INI}
 
 # generate tox.ini
@@ -253,14 +277,14 @@ gen-tox-ini:
 	@echo 'skip_missing_interpreters = true' >>${TOX_INI}
 	@echo '' >>${TOX_INI}
 	@echo '[testenv]' >>${TOX_INI}
-	@echo 'commands = py.test {posargs}' >>${TOX_INI}
+	@echo 'commands = {posargs:py.test}' >>${TOX_INI}
 	@echo 'extras = tests' >>${TOX_INI}
 	@echo 'passenv =' >>${TOX_INI}
 	@echo "$(call split,${TOX_PASSENV})" >> ${TOX_INI}
 	@echo '[testenv:mypy]' >>${TOX_INI}
 	@echo 'commands = mypy -p ${PACKAGE}' >>${TOX_INI}
 
-# refresh idents
+# refresh indents
 .PHONY: ident
 ident:
 	for f in `grep ident .gitattributes | sed 's/\s*ident$$//'`; do\
@@ -280,7 +304,12 @@ install-deps:
 # run tox
 .PHONY: tox
 tox:
-	${TOX_SETENV} ${TOX} ${TOX_OPTIONS}
+	${TOX_SETENV} ${TOX} ${TOX_OPTIONS} $(if ${ENV},-e ${ENV})
+
+# debug tox environment
+.PHONY: tox-debug
+tox-debug:
+	${TOX_SETENV} ${TOX} -e $(or ${ENV},py311) -- python
 
 # uninstall package
 .PHONY: uninstall

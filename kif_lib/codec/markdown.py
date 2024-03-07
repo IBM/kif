@@ -2,16 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
-from typing import cast, Generator, Optional
 
-from .. import vocabulary as wd
 from ..model import (
     AnnotationRecord,
-    Descriptor,
+    Datatype,
     Entity,
     FilterPattern,
     Fingerprint,
     IRI,
+    ItemDescriptor,
     KIF_Object,
     Quantity,
     Rank,
@@ -24,14 +23,20 @@ from ..model import (
 )
 from ..model.kif_object import Decimal, Encoder, Object
 from ..namespace import _DEFAULT_NSM
+from ..typing import cast, Generator, Optional
 
-SP = ' '
-NL = '\n'
+SP = ' '                        # space
+NL = '\n'                       # newline
 
 
 class MarkdownEncoder(
         Encoder, format='markdown', description='Markdown encoder'):
     """Markdown encoder."""
+
+    @property
+    def wd(self):
+        from .. import vocabulary
+        return vocabulary.wd
 
     def iterencode(self, obj: Object) -> Generator[str, None, None]:
         if KIF_Object.test(obj):
@@ -44,10 +49,13 @@ class MarkdownEncoder(
             obj: KIF_Object,
             indent: int
     ) -> Generator[str, None, None]:
-        if obj.is_entity():
+        if obj.is_datatype():
+            datatype = cast(Datatype, obj)
+            yield self._encode_kif_object_name(datatype)
+        elif obj.is_entity():
             entity = cast(Entity, obj)
             yield from self._iterencode_kif_object_start(entity)
-            label = wd.get_entity_label(entity)
+            label = self.wd.get_entity_label(entity)
             if label:
                 yield f'[{label}]({entity.iri.value})'
             else:
@@ -112,8 +120,8 @@ class MarkdownEncoder(
         elif obj.is_rank():
             rank = cast(Rank, obj)
             yield self._encode_kif_object_name(rank)
-        elif obj.is_descriptor():
-            desc = cast(Descriptor, obj)
+        elif obj.is_item_descriptor():
+            desc = cast(ItemDescriptor, obj)
             yield from self._iterencode_kif_object_start(desc, '')
             sep = f'{NL}{2 * SP * indent}-{SP}'
             yield sep

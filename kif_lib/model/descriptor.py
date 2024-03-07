@@ -1,29 +1,147 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Optional
+from enum import auto, Flag
 
-from .kif_object import KIF_Object
-from .text_set import TextSet, TTextSet
-from .value import Text, TText
+from ..typing import Final, NoReturn, Optional, Union
+from .kif_object import KIF_Object, TCallable
+from .value import Datatype, Item, Text, TText
+from .value_set import TextSet, TTextSet
 
 
 class Descriptor(KIF_Object):
-    """Entity descriptor (label, aliases, and description).
+    """Abstract base class for descriptors."""
 
-    Parameters:
-       arg1: Label.
-       arg2: Aliases.
-       arg3: Description.
-    """
+    class AttributeMask(Flag):
+        """Mask for descriptor attributes."""
 
-    def __init__(
-            self,
-            arg1: Optional[TText] = None,
-            arg2: Optional[TTextSet] = None,
-            arg3: Optional[TText] = None
-    ):
-        super().__init__(arg1, arg2, arg3)
+        #: Mask for the label attribute of descriptor.
+        LABEL = auto()
+
+        #: Mask for the aliases attribute of descriptor.
+        ALIASES = auto()
+
+        #: Mask for the description attribute of descriptor.
+        DESCRIPTION = auto()
+
+        #: Mask for the datatype attribute of descriptor.
+        DATATYPE = auto()
+
+        #: Mask for the lemma attribute of descriptor.
+        LEMMA = auto()
+
+        #: Mask for the lexical category attribute of descriptor.
+        CATEGORY = auto()
+
+        #: Mask for the language attribute of descriptor.
+        LANGUAGE = auto()
+
+        #: Mask for all attributes of item descriptor.
+        ITEM_DESCRIPTOR_ATTRIBUTES = LABEL | ALIASES | DESCRIPTION
+
+        #: Mask for all attributes of property descriptor.
+        PROPERTY_DESCRIPTOR_ATTRIBUTES = ITEM_DESCRIPTOR_ATTRIBUTES | DATATYPE
+
+        #: Mask for all attributes of lexeme descriptor.
+        LEXEME_DESCRIPTOR_ATTRIBUTES = LEMMA | CATEGORY | LANGUAGE
+
+        #: Mask for all attributes of descriptor.
+        ALL = (
+            ITEM_DESCRIPTOR_ATTRIBUTES
+            | PROPERTY_DESCRIPTOR_ATTRIBUTES
+            | LEXEME_DESCRIPTOR_ATTRIBUTES)
+
+    #: Mask for the label attribute of descriptor.
+    LABEL: Final[AttributeMask] = AttributeMask.LABEL
+
+    #: Mask for the aliases attribute of descriptor.
+    ALIASES: Final[AttributeMask] = AttributeMask.ALIASES
+
+    #: Mask for the description attribute of descriptor.
+    DESCRIPTION: Final[AttributeMask] = AttributeMask.DESCRIPTION
+
+    #: Mask for the datatype attribute of descriptor.
+    DATATYPE: Final[AttributeMask] = AttributeMask.DATATYPE
+
+    #: Mask for the lemma attribute of descriptor.
+    LEMMA: Final[AttributeMask] = AttributeMask.LEMMA
+
+    #: Mask for the lexical category attribute of descriptor.
+    CATEGORY: Final[AttributeMask] = AttributeMask.CATEGORY
+
+    #: Mask for the language attribute of descriptor.
+    LANGUAGE: Final[AttributeMask] = AttributeMask.LANGUAGE
+
+    #: Mask for all attributes of item descriptor.
+    ITEM_DESCRIPTOR_ATTRIBUTES: Final[AttributeMask] =\
+        AttributeMask.ITEM_DESCRIPTOR_ATTRIBUTES
+
+    #: Mask for all attributes of property descriptor.
+    PROPERTY_DESCRIPTOR_ATTRIBUTES: Final[AttributeMask] =\
+        AttributeMask.PROPERTY_DESCRIPTOR_ATTRIBUTES
+
+    #: Mask for all attributes of lexeme descriptor.
+    LEXEME_DESCRIPTOR_ATTRIBUTES: Final[AttributeMask] =\
+        AttributeMask.LEXEME_DESCRIPTOR_ATTRIBUTES
+
+    #: Mask for all attributes of descriptor.
+    ALL: Final[AttributeMask] = AttributeMask.ALL
+
+    TAttributeMask = Union[AttributeMask, int]
+
+    @classmethod
+    def _check_arg_descriptor_attribute_mask(
+            cls,
+            arg: TAttributeMask,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[AttributeMask, NoReturn]:
+        return cls.AttributeMask(cls._check_arg_isinstance(
+            arg, (cls.AttributeMask, int), function, name, position))
+
+    @classmethod
+    def _check_optional_arg_descriptor_attribute_mask(
+            cls,
+            arg: Optional[TAttributeMask],
+            default: Optional[AttributeMask] = None,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[Optional[AttributeMask], NoReturn]:
+        if arg is None:
+            return default
+        else:
+            return cls._check_arg_descriptor_attribute_mask(
+                arg, function, name, position)
+
+    @classmethod
+    def _preprocess_arg_descriptor_attribute_mask(
+            cls,
+            arg: TAttributeMask,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union[AttributeMask, NoReturn]:
+        return cls._check_arg_descriptor_attribute_mask(
+            arg, function or cls, None, i)
+
+    @classmethod
+    def _preprocess_optional_arg_descriptor_attribute_mask(
+            cls,
+            arg,
+            i: int,
+            default: Optional[AttributeMask] = None,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union[Optional[AttributeMask], NoReturn]:
+        if arg is None:
+            return default
+        else:
+            return cls._preprocess_arg_descriptor_attribute_mask(
+                arg, i, function)
+
+
+class PlainDescriptor(Descriptor):
+    """Abstract base class for plain descriptors."""
 
     def _preprocess_arg(self, arg, i):
         if i == 1:
@@ -33,61 +151,212 @@ class Descriptor(KIF_Object):
         elif i == 3:
             return self._preprocess_optional_arg_text(arg, i)
         else:
-            return self._should_not_get_here()
+            raise self._should_not_get_here()
 
     @property
     def label(self) -> Optional[Text]:
-        """Descriptor label."""
+        """The label of plain descriptor."""
         return self.get_label()
 
     def get_label(
             self,
             default: Optional[Text] = None
     ) -> Optional[Text]:
-        """Gets descriptor label.
+        """Gets the label of plain descriptor.
 
-        If descriptor label is ``None``, returns `default`.
+        If the label is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default label.
 
         Returns:
-           Descriptor label.
+           Label.
         """
         label = self.args[0]
         return label if label is not None else default
 
     @property
     def aliases(self) -> TextSet:
-        """Descriptor aliases."""
+        """The aliases of plain descriptor."""
         return self.get_aliases()
 
     def get_aliases(self) -> TextSet:
-        """Gets descriptor aliases.
+        """Gets the aliases of plain descriptor.
 
         Returns:
-           Descriptor aliases.
+           Aliases.
         """
         return self.args[1]
 
     @property
     def description(self) -> Optional[Text]:
-        """Descriptor description."""
+        """The description of plain descriptor."""
         return self.get_description()
 
     def get_description(
             self,
             default: Optional[Text] = None
     ) -> Optional[Text]:
-        """Gets descriptor description.
+        """Gets the description of plain descriptor.
 
-        If descriptor description is ``None``, returns `default`.
+        If the description is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default description.
 
         Returns:
-           Descriptor description.
+           Description.
         """
-        desc = self.args[2]
-        return desc if desc is not None else default
+        description = self.args[2]
+        return description if description is not None else default
+
+
+class ItemDescriptor(PlainDescriptor):
+    """Item descriptor.
+
+    Parameters:
+       label: Label.
+       aliases: Aliases.
+       description: Description.
+    """
+
+    def __init__(
+            self,
+            label: Optional[TText] = None,
+            aliases: Optional[TTextSet] = None,
+            description: Optional[TText] = None
+    ):
+        super().__init__(label, aliases, description)
+
+
+class PropertyDescriptor(PlainDescriptor):
+    """Property descriptor.
+
+    Parameters:
+       label: Label.
+       aliases: Aliases.
+       description: Description.
+       datatype: Datatype.
+    """
+
+    def __init__(
+            self,
+            label: Optional[TText] = None,
+            aliases: Optional[TTextSet] = None,
+            description: Optional[TText] = None,
+            datatype: Optional[Datatype] = None
+    ):
+        super().__init__(label, aliases, description, datatype)
+
+    def _preprocess_arg(self, arg, i):
+        if i == 4:
+            return self._preprocess_optional_arg_datatype(arg, i)
+        else:
+            return super()._preprocess_arg(arg, i)
+
+    @property
+    def datatype(self) -> Optional[Datatype]:
+        """The datatype of property descriptor."""
+        return self.get_datatype()
+
+    def get_datatype(
+            self,
+            default: Optional[Datatype] = None
+    ) -> Optional[Datatype]:
+        """Gets the datatype of property descriptor.
+
+        If the datatype is ``None``, returns `default`.
+
+        Parameters:
+           default: Default datatype.
+
+        Returns:
+           Datatype.
+        """
+        datatype = self.args[3]
+        return datatype if datatype is not None else default
+
+
+class LexemeDescriptor(Descriptor):
+    """Lexeme descriptor.
+
+    Parameters:
+       lemma: Lemma.
+       category: Lexical category.
+       language: Language.
+    """
+
+    def __init__(
+            self,
+            lemma: Optional[TText] = None,
+            category: Optional[Item] = None,
+            language: Optional[Item] = None
+    ):
+        super().__init__(lemma, category, language)
+
+    def _preprocess_arg(self, arg, i):
+        if i == 1:
+            return self._preprocess_optional_arg_text(arg, i)
+        elif i == 2:
+            return self._preprocess_optional_arg_item(arg, i)
+        elif i == 3:
+            return self._preprocess_optional_arg_item(arg, i)
+        else:
+            raise self._should_not_get_here()
+
+    @property
+    def lemma(self) -> Optional[Text]:
+        """The lemma of lexeme descriptor."""
+        return self.get_lemma()
+
+    def get_lemma(self, default: Optional[Text] = None) -> Optional[Text]:
+        """Gets the lemma of lexeme descriptor.
+
+        If the lemma is ``None``, returns `default`.
+
+        Parameters:
+           default: Default lemma.
+
+        Returns:
+           Lemma.
+        """
+        lemma = self.args[0]
+        return lemma if lemma is not None else default
+
+    @property
+    def category(self) -> Optional[Item]:
+        """The lexical category of lexeme descriptor."""
+        return self.get_category()
+
+    def get_category(self, default: Optional[Item] = None) -> Optional[Item]:
+        """Gets the lexical category of lexeme descriptor.
+
+        If the lexical category is ``None``, returns `default`.
+
+        Parameters:
+           default: Default lexical category.
+
+        Returns:
+           Lexical category.
+        """
+        category = self.args[1]
+        return category if category is not None else default
+
+    @property
+    def language(self) -> Optional[Item]:
+        """The language of lexeme descriptor."""
+        return self.get_language()
+
+    def get_language(self, default: Optional[Item] = None) -> Optional[Item]:
+        """Gets the language of lexeme descriptor.
+
+        If the language is ``None``, returns `default`.
+
+        Parameters:
+           default: Default language.
+
+        Returns:
+           Language.
+        """
+        language = self.args[2]
+        return language if language is not None else default

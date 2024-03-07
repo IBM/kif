@@ -4,7 +4,13 @@
 # flake8: noqa
 from .annotation_record import AnnotationRecord
 from .annotation_record_set import AnnotationRecordSet, TAnnotationRecordSet
-from .descriptor import Descriptor
+from .descriptor import (
+    Descriptor,
+    ItemDescriptor,
+    LexemeDescriptor,
+    PlainDescriptor,
+    PropertyDescriptor,
+)
 from .fingerprint import (
     EntityFingerprint,
     Fingerprint,
@@ -37,31 +43,38 @@ from .rank import (
 )
 from .reference_record import ReferenceRecord, TReferenceRecord
 from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
-from .snak import (
-    NoValueSnak,
-    Snak,
-    SnakMask,
-    SomeValueSnak,
-    TSnakMask,
-    ValueSnak,
-)
+from .snak import NoValueSnak, Snak, SomeValueSnak, ValueSnak
 from .snak_set import SnakSet, TSnakSet
 from .statement import Statement
-from .text_set import TextSet, TTextSet
 from .value import (
+    Datatype,
     DataValue,
     DeepDataValue,
     Entity,
+    ExternalId,
+    ExternalIdDatatype,
     IRI,
+    IRI_Datatype,
     Item,
+    ItemDatatype,
     Items,
+    Lexeme,
+    LexemeDatatype,
+    Lexemes,
     Properties,
     Property,
+    PropertyDatatype,
     Quantity,
+    QuantityDatatype,
+    ShallowDataValue,
     String,
+    StringDatatype,
     T_IRI,
     Text,
+    TextDatatype,
     Time,
+    TimeDatatype,
     TTimePrecision,
     Value,
 )
+from .value_set import TextSet, TTextSet, TValueSet, ValueSet

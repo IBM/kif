@@ -1,7 +1,6 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import kif_lib.vocabulary as wd
 from kif_lib import (
     DecoderError,
     EntityFingerprint,
@@ -10,11 +9,12 @@ from kif_lib import (
     Quantity,
     Value,
 )
+from kif_lib.vocabulary import wd
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
-class TestSPARQL_Decoder(kif_TestCase):
+class TestCodecSPARQL(kif_TestCase):
 
     def test_from_sparql(self):
         # bad query
@@ -116,4 +116,4 @@ SELECT ?report WHERE {
 
 
 if __name__ == '__main__':
-    main()
+    TestCodecSPARQL.main()

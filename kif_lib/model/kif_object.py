@@ -5,8 +5,9 @@ import datetime
 import decimal
 import json
 from enum import Enum
-from typing import Any, cast, Generator, Union
+from functools import cache
 
+from ..typing import Any, cast, Generator, override, Union
 from . import object
 
 Datetime = datetime.datetime
@@ -29,16 +30,14 @@ TDatetime = Union[Datetime, str]
 TDecimal = Union[Decimal, float, int, str]
 TNil = object.TNil
 
+
+# -- KIF Object ------------------------------------------------------------
 
 class KIF_Object(object.Object):
-    """Abstract base class for objects."""
-
-    # -- IPython -----------------------------------------------------------
+    """Abstract base class for KIF objects."""
 
     def _repr_markdown_(self):
         return self.to_markdown()
-
-    # -- Argument checking -------------------------------------------------
 
     # -- datetime --
 
@@ -85,8 +84,10 @@ class KIF_Object(object.Object):
     @classmethod
     def _preprocess_optional_arg_datetime(
             cls, arg, i, default=None, function=None):
-        return cls._check_optional_arg_datetime(
-            arg, default, function or cls, None, i)
+        if arg is None:
+            return default
+        else:
+            return cls._preprocess_arg_datetime(arg, i, function)
 
     # -- decimal --
 
@@ -118,14 +119,20 @@ class KIF_Object(object.Object):
     @classmethod
     def _preprocess_optional_arg_decimal(
             cls, arg, i, default=None, function=None):
-        return cls._check_optional_arg_decimal(
-            arg, default, function or cls, None, i)
+        if arg is None:
+            return default
+        else:
+            return cls._preprocess_arg_decimal(arg, i, function)
 
+
+# -- Codecs ----------------------------------------------------------------
 
 class KIF_JSON_Encoder(
         object.JSON_Encoder, format='json', description='JSON encoder'):
 
     class Encoder(json.JSONEncoder):
+
+        @override
         def default(self, v: Any) -> Any:
             if isinstance(v, Object):
                 obj = cast(Object, v)
@@ -144,16 +151,49 @@ class KIF_JSON_Encoder(
                     raise EncoderError(str(err)) from None
 
 
+class KIF_ReprDecoder(
+        object.ReprDecoder, format='repr', description='Repr. decoder'):
+
+    @override
+    @cache
+    def _globals(self):
+        return {'Decimal': Decimal, 'datetime': datetime, **super()._globals()}
+
+
+class KIF_ReprEncoder(
+        object.ReprEncoder, format='repr', description='Repr. encoder'):
+
+    @override
+    def _iterencode(
+            self,
+            v: Any,
+            n: int = 0,
+            indent: int = 0
+    ) -> Generator[str, None, None]:
+        if isinstance(v, (Datetime, Decimal)):
+            yield from self._indent(n, indent)
+            yield repr(v)
+        elif isinstance(v, Enum):
+            yield from self._indent(n, indent)
+            yield repr(v.value)
+        else:
+            yield from super()._iterencode(v, n, indent)
+
+
 class KIF_SExpEncoder(
         object.SExpEncoder, format='sexp', description='S-expression encoder'):
+
+    @override
     def _iterencode(
             self,
             v: Any, n: int = 0,
             indent: int = 0
     ) -> Generator[str, None, None]:
         if isinstance(v, (Datetime, Decimal)):
+            yield from self._indent(n, indent)
             yield str(v)
         elif isinstance(v, Enum):
+            yield from self._indent(n, indent)
             yield str(v.value)
         else:
             yield from super()._iterencode(v, n, indent)

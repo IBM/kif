@@ -6,12 +6,14 @@ Model
    :maxdepth: 1
    :caption: Core
 
-   object
+   kif_object
+   datatype
    value
+   descriptor
    snak
-   reference_record
-   rank
    statement
+   annotations
+   sets
 
 .. toctree::
    :maxdepth: 1
@@ -19,3 +21,9 @@ Model
 
    fingerprint
    pattern
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Errors
+
+   errors

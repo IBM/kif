@@ -30,10 +30,14 @@
 
 # Latin America
 wd:Q12585
+    schema:version "0"^^xsd:integer ;
     rdfs:label "Latin America"@en ;
+    skos:altLabel "LatAm"@en ;
+    schema:description "region of the Americas where Romance languages are primarily spoken"@en ;
 
+    # demonym
     wdt:P1549 "Latinoamericano"@es ;
-    p:P1549 [                   # demonym
+    p:P1549 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:NormalRank ;
         ps:P1549 "Latinoamericano"@es ;
@@ -41,7 +45,7 @@ wd:Q12585
         ] ;
 
     wdt:P1549 "Latinoamericana"@es ;
-    p:P1549 [                   # demonym
+    p:P1549 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:NormalRank ;
         ps:P1549 "Latinoamericana"@es ;
@@ -50,28 +54,33 @@ wd:Q12585
 
 # Brazil
 wd:Q155
+
+    # description
+    schema:version "0"^^xsd:integer ;
     rdfs:label "Brazil"@en ;
     rdfs:label "Brasil"@pt-br ;
-
     skos:altLabel "🇧🇷"@pt-br ;
-
+    skos:altLabel "pindorama"@pt-br ;
     schema:description "country in South America"@en ;
     schema:description "país na América do Sul"@pt-br ;
 
-    wdt:P31 wd:Q6256 ;     # instance of - country
+    # instance of - country
+    wdt:P31 wd:Q6256 ;
     p:P31 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:NormalRank ;
         ps:P31 wd:Q6256 ;
         ] ;
 
-    wdt:P361 wd:Q12585 ;        # part of - Latin America
+    # part of - Latin America
+    wdt:P361 wd:Q12585 ;
     p:P361 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:NormalRank ;
         ps:P361 wd:Q12585 ;
         ] ;
 
+    # official name
     wdt:P1448 "República Federativa do Brasil"@pt ;
     p:P1448 [
         a wikibase:BestRank ;
@@ -79,8 +88,8 @@ wd:Q155
         ps:P1448 "República Federativa do Brasil"@pt ;
         ] ;
 
-    wdt:P571 "1822-09-07T00:00:00Z"^^xsd:dateTime ; # inception
-
+    # inception
+    wdt:P571 "1822-09-07T00:00:00Z"^^xsd:dateTime ;
     p:P571 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:NormalRank ;

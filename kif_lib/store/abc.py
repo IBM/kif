@@ -2,17 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import sys
-from collections.abc import Iterable, Set
 from enum import auto, Flag
-from itertools import chain
-from typing import Any, cast, Iterator, NoReturn, Optional, TypeVar, Union
 
-from rdflib.graph import Graph
-from rdflib.namespace import NamespaceManager
-
-from .. import namespace as NS
 from ..cache import Cache
-from ..error import Error, MustBeImplementedInSubclass
+from ..error import Error as KIF_Error
+from ..error import MustBeImplementedInSubclass, ShouldNotGetHere
+from ..itertools import batched, chain
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -21,157 +16,207 @@ from ..model import (
     EntityFingerprint,
     FilterPattern,
     Fingerprint,
-    IRI,
+    Item,
+    ItemDescriptor,
     KIF_Object,
+    Lexeme,
+    LexemeDescriptor,
+    Property,
+    PropertyDescriptor,
     PropertyFingerprint,
     ReferenceRecordSet,
     Snak,
-    SnakMask,
     Statement,
-    T_IRI,
     TCallable,
     TEntityFingerprint,
     Text,
     TFingerprint,
     TPropertyFingerprint,
     TReferenceRecordSet,
-    TSnakMask,
+)
+from ..typing import (
+    Any,
+    Callable,
+    cast,
+    Final,
+    Iterable,
+    Iterator,
+    NoReturn,
+    Optional,
+    Set,
+    TypeVar,
+    Union,
 )
 
 T = TypeVar('T')
-T_NS = NS.T_NS
-
-
-class StoreError(Error):
-    """Base class for store errors."""
-
-
-class StoreFlags(Flag):
-    """Store configuration flags."""
-
-    #: Whether to enable cache.
-    CACHE = auto()
-
-    #: Whether to fetch only best ranked statements.
-    BEST_RANK = auto()
-
-    #: Whether to fetch ValueSnak's.
-    VALUE_SNAK = auto()
-
-    #: Whether to fetch SomeValueSnak's.
-    SOME_VALUE_SNAK = auto()
-
-    #: Whether to fetch NoValueSnak's.
-    NO_VALUE_SNAK = auto()
-
-    #: Whether to do early filtering.
-    EARLY_FILTER = auto()
-
-    #: Whether to do late filtering.
-    LATE_FILTER = auto()
-
-    #: Alias for "all flags set".
-    ALL = (CACHE
-           | BEST_RANK
-           | VALUE_SNAK
-           | SOME_VALUE_SNAK
-           | NO_VALUE_SNAK
-           | EARLY_FILTER
-           | LATE_FILTER)
+S = TypeVar('S')
 
 
 class Store(Set):
     """Store factory.
 
     Parameters:
-       store_type: Type of concrete store to instantiate.
-       args: Arguments to concrete store.
+       store_name: Name of the store plugin to instantiate.
+       args: Arguments to store plugin.
+       extra_references: Set of extra references to attach to statements.
        flags: Configuration flags.
-       namespaces: Namespaces.
-       page_size: Maximum size of result pages.
-       timeout: Timeout in seconds.
-       kwargs: Keyword arguments to concrete store.
+       page_size: Page size of paginated responses.
+       timeout: Timeout of responses (in seconds).
+       kwargs: Keyword arguments to store plugin.
     """
 
-    registry: dict[str, type['Store']] = dict()
-    store_type: str
+    #: The global plugin registry.
+    registry: Final[dict[str, type['Store']]] = dict()
+
+    #: The name of this store plugin.
+    store_name: str
+
+    #: The description of this store plugin.
     store_description: str
 
     @classmethod
-    def _register(cls, store: type['Store'], type: str, description: str):
-        store.store_type = type
-        store.store_description = description
-        cls.registry[store.store_type] = store
+    def _register(
+            cls,
+            store: type['Store'],
+            store_name: str,
+            store_description: str
+    ):
+        store.store_name = store_name
+        store.store_description = store_description
+        cls.registry[store.store_name] = store
 
     @classmethod
-    def __init_subclass__(cls, type: str, description: str):
-        Store._register(cls, type, description)
+    def __init_subclass__(cls, store_name: str, store_description: str):
+        Store._register(cls, store_name, store_description)
 
-    @classmethod
-    def _error(cls, msg: str) -> StoreError:
-        return StoreError(msg)
-
-    # @classmethod
-    # def _generate_serial_number(cls) -> str:
-    #     from uuid import uuid4
-    #     return uuid4().hex
-
-    def __new__(cls, store_type: str, *args: Any, **kwargs: Any):
+    def __new__(cls, store_name: str, *args: Any, **kwargs: Any):
         KIF_Object._check_arg(
-            store_type, store_type in cls.registry,
-            f"no such store type '{store_type}'",
-            Store, 'store_type', 1, ValueError)
-        return super(Store, cls).__new__(cls.registry[store_type])
+            store_name, store_name in cls.registry,
+            f"no such store plugin '{store_name}'",
+            Store, 'store_name', 1, ValueError)
+        return super(Store, cls).__new__(cls.registry[store_name])
+
+    class Error(KIF_Error):
+        """Base class for store errors."""
+        pass
+
+    @classmethod
+    def _error(cls, details: str) -> Error:
+        """Makes a store error.
+
+        Parameters:
+           details: Details.
+
+        Returns:
+           Store error.
+        """
+        return cls.Error(details)
+
+    @classmethod
+    def _must_be_implemented_in_subclass(
+            cls,
+            details: Optional[str] = None
+    ) -> MustBeImplementedInSubclass:
+        """Makes a "must be implemented in subclass" error.
+
+        Parameters:
+           details: Details.
+
+        Returns:
+           :class:`MustBeImplementedInSubclass` error.
+        """
+        return KIF_Object._must_be_implemented_in_subclass(details)
+
+    @classmethod
+    def _should_not_get_here(
+            cls,
+            details: Optional[str] = None
+    ) -> ShouldNotGetHere:
+        """Makes a "should not get here" error.
+
+        Parameters:
+           details: Details.
+
+        Returns:
+           :class:`ShouldNotGetHere` error.
+        """
+        return KIF_Object._should_not_get_here(details)
 
     __slots__ = (
         '_cache',
         '_extra_references',
         '_flags',
-        '_nsm',
         '_page_size',
         '_timeout',
     )
-
-    _cache: Cache
-    _extra_references: Optional[ReferenceRecordSet]
-    _flags: StoreFlags
-    _nsm: NamespaceManager
-    _page_size: Optional[int]
-    _timeout: Optional[int]
 
     def __init__(
             self,
             *args: Any,
             extra_references: Optional[TReferenceRecordSet] = None,
-            flags: Optional[StoreFlags] = None,
-            namespaces: Optional[dict[str, T_IRI]] = None,
+            flags: Optional['Flags'] = None,
             page_size: Optional[int] = None,
             timeout: Optional[int] = None,
-            **kwargs: Any,
+            **kwargs: Any
     ):
         self._init_flags(flags)
-        self._cache = Cache(self.has_flags(StoreFlags.CACHE))
-        self._init_nsm(namespaces or dict())
+        self._init_cache(self.has_flags(self.CACHE))
         self.set_extra_references(extra_references)
         self.set_page_size(page_size)
         self.set_timeout(timeout)
+
+# -- Caching ---------------------------------------------------------------
 
-    def _init_flags(self, flags: Optional[StoreFlags] = None):
-        if flags is None:
-            self._flags = StoreFlags.ALL
+    #: The object cache of store.
+    _cache: Cache
+
+    def _init_cache(self, enabled: bool):
+        self._cache = Cache(enabled)
+
+    def _cache_get_presence(
+            self,
+            obj: Union[Entity, Statement]
+    ) -> Optional[bool]:
+        """Gets the status of `obj` presence in cache.
+
+        Returns:
+           ``True`` if `obj` is present;
+           ``False`` if `obj` is not present;
+           ``None`` otherwise (`obj` presence is unknown).
+
+        """
+        return self._cache.get(obj, 'presence')
+
+    def _cache_set_presence(
+            self,
+            obj: Union[Entity, Statement],
+            status: Optional[bool] = None
+    ) -> Optional[bool]:
+        """Sets the status of `obj` presence in cache.
+
+        Parameter:
+           status: Presence status.
+
+        Returns:
+           Status.
+        """
+        if status is None:
+            self._cache.unset(obj, 'presence')
+            return None
         else:
-            self._flags = StoreFlags(flags)
+            return self._cache.set(obj, 'presence', status)
+
+# -- Extra references ------------------------------------------------------
 
-    def _init_nsm(self, namespaces: dict[str, T_IRI]):
-        self._nsm = NamespaceManager(Graph())
-        ns_dict = dict()
-        for k, v in chain(NS._DEFAULT_NSM.namespaces(), namespaces.items()):
-            self._nsm.bind(k, v)
-            ns_dict[k] = v
+    #: The default set of extra references.
+    default_extra_references: Final[ReferenceRecordSet] =\
+        ReferenceRecordSet()
+
+    _extra_references: Optional[ReferenceRecordSet]
 
     @property
     def extra_references(self) -> ReferenceRecordSet:
-        """Extra references."""
+        """The set of extra references to attach to statements."""
         return self.get_extra_references()
 
     @extra_references.setter
@@ -183,36 +228,167 @@ class Store(Set):
 
     def get_extra_references(
             self,
-            default=ReferenceRecordSet()
+            default=default_extra_references
     ) -> ReferenceRecordSet:
-        """Gets extra references.
+        """Gets the set of extra references to attach to statements.
 
-        If no extra references are set, returns `default`.
+        If the set of extra references is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default set of references.
 
         Returns:
-           Extra references.
+           Set of references.
         """
-        return self._extra_references or default
+        return (self._extra_references
+                if self._extra_references is not None else default)
 
     def set_extra_references(
             self,
             references: Optional[TReferenceRecordSet] = None
     ):
-        """Sets extra references.
+        """Sets the set of extra references to attach to statements.
 
         Parameters:
-           references: References.
+           references: Set of references.
         """
         self._extra_references =\
             ReferenceRecordSet._check_optional_arg_reference_record_set(
                 references, None, self.set_extra_references, 'references', 1)
+
+# -- Flags -----------------------------------------------------------------
+
+    class Flags(Flag):
+        """Store flags."""
+
+        #: Whether to enable cache.
+        CACHE = auto()
+
+        #: Whether to fetch only the best ranked statements.
+        BEST_RANK = auto()
+
+        #: Whether to fetch value snaks.
+        VALUE_SNAK = auto()
+
+        #: Whether to fetch some-value snaks.
+        SOME_VALUE_SNAK = auto()
+
+        #: Whether to fetch no-value snaks.
+        NO_VALUE_SNAK = auto()
+
+        #: Whether to enable early filtering.
+        EARLY_FILTER = auto()
+
+        #: Whether to enable late filtering.
+        LATE_FILTER = auto()
+
+        #: All flags.
+        ALL = (
+            CACHE
+            | BEST_RANK
+            | VALUE_SNAK
+            | SOME_VALUE_SNAK
+            | NO_VALUE_SNAK
+            | EARLY_FILTER
+            | LATE_FILTER)
+
+    #: Whether to enable cache.
+    CACHE = Flags.CACHE
+
+    #: Whether to fetch only the best ranked statements.
+    BEST_RANK = Flags.BEST_RANK
+
+    #: Whether to fetch value snaks.
+    VALUE_SNAK = Flags.VALUE_SNAK
+
+    #: Whether to fetch some-value snaks.
+    SOME_VALUE_SNAK = Flags.SOME_VALUE_SNAK
+
+    #: Whether to fetch no-value snaks.
+    NO_VALUE_SNAK = Flags.NO_VALUE_SNAK
+
+    #: Whether to enable early filtering.
+    EARLY_FILTER = Flags.EARLY_FILTER
+
+    #: Whether to enable late filtering.
+    LATE_FILTER = Flags.LATE_FILTER
+
+    #: All flags.
+    ALL = Flags.ALL
+
+    #: The default flags.
+    default_flags: Final['Flags'] = Flags.ALL
+
+    _flags: 'Flags'
+
+    def _init_flags(self, flags: Optional['Flags'] = None):
+        if flags is None:
+            self._flags = self.default_flags
+        else:
+            self._flags = self.Flags(flags)
+
+    @property
+    def flags(self) -> Flags:
+        """The flags set in store."""
+        return self.get_flags()
+
+    @flags.setter
+    def flags(self, flags: Flags):
+        if flags != self._flags and self._do_set_flags(self._flags, flags):
+            self._flags = self.Flags(flags)
+
+    def _do_set_flags(self, old: Flags, new: Flags) -> bool:
+        self._cache.clear()
+        return True
+
+    def get_flags(self) -> Flags:
+        """Gets the flags set in store.
+
+        Returns:
+           Store flags.
+        """
+        return self._flags
+
+    def has_flags(self, flags: Flags) -> bool:
+        """Tests whether `flags` are set in store.
+
+        Parameters:
+           flags: Store flags.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        return bool(self.flags & flags)
+
+    def set_flags(self, flags: Flags):
+        """Sets `flags` in store.
+
+        Parameters:
+           flags: Store flags.
+        """
+        self.flags |= flags
+
+    def unset_flags(self, flags: Flags):
+        """Unsets `flags` in store.
+
+        Parameters:
+           flags: Store flags.
+        """
+        self.flags &= ~flags
+
+# -- Page size -------------------------------------------------------------
+
+    #: The default page size.
+    default_page_size: Final[int] = 100
+
+    #: The maximum page size (absolute upper limit).
+    maximum_page_size: Final[int] = sys.maxsize
+
+    _page_size: Optional[int]
 
     @property
     def page_size(self) -> int:
-        """Response page size."""
+        """The page size of paginated responses."""
         return self.get_page_size()
 
     @page_size.setter
@@ -221,35 +397,97 @@ class Store(Set):
 
     def get_page_size(
             self,
-            default: int = 100
+            default: Optional[int] = None
     ) -> int:
-        """Gets response page size.
+        """Gets the page size of paginated responses.
 
-        If no page size is set, returns `default`.
+        If the page size is ``None``, returns `default`.
+
+        If `default` is ``None``, assumes :attr:`Store.default_page_size`.
 
         Parameters:
-           default: Default.
+           default: Default page size.
 
         Returns:
-           Response page size.
+           Page size.
         """
-        return self._page_size or default
+        if self._page_size is not None:
+            return self._page_size
+        elif default is not None:
+            return min(default, self.maximum_page_size)
+        else:
+            return self.default_page_size
 
     def set_page_size(
             self,
             page_size: Optional[int] = None
     ):
-        """Sets response page size.
+        """Sets page size of paginated responses.
+
+        If `page_size` is negative, assumes ``None``.
 
         Parameters:
            page_size: Page size.
         """
-        self._page_size = KIF_Object._check_optional_arg_int(
+        page_size = KIF_Object._check_optional_arg_int(
             page_size, None, self.set_page_size, 'page_size', 1)
+        if page_size is None or page_size < 0:
+            self._page_size = None
+        else:
+            self._page_size = page_size
+
+    def _batched(
+            self,
+            it: Iterable[T],
+            page_size: Optional[int] = None
+    ) -> Iterable[tuple[T, ...]]:
+        """Batches `it` into tuples of at most page-size length.
+
+        If `page_size` is ``None``, assumes :attr:`Store.page_size`.
+
+        Parameters:
+           it: Iterable.
+           page_size: Page size.
+
+        Returns:
+           The resulting tuples.
+        """
+        return batched(
+            it, page_size if page_size is not None else self.page_size)
+
+    def _chain_map_batched(
+            self,
+            op: Callable[[Iterable[T]], Iterator[S]],
+            it: Iterable[T],
+            page_size: Optional[int] = None
+    ) -> Iterator[S]:
+        """Batches `it`, applies `op` to the batches, and chain them.
+
+        If `page_size` is ``None``, assumes :attr:`Store.page_size`.
+
+        Parameters:
+           op: Callable.
+           it: Iterable.
+           page_size: Page size.
+
+        Returns:
+           The resulting iterator.
+        """
+        return chain.from_iterable(map(op, self._batched(it, page_size)))
+
+# -- Timeout ---------------------------------------------------------------
+
+    #: The default timeout (in seconds).
+    default_timeout: Final[Optional[int]] = None
+
+    #: The maximum timeout (absolute upper limit, in seconds).
+    maximum_timeout: Final[int] = sys.maxsize
+
+    _timeout: Optional[int]
 
     @property
     def timeout(self) -> Optional[int]:
-        """Timeout in seconds."""
+        """The timeout of responses (in seconds)."""
         return self.get_timeout()
 
     @timeout.setter
@@ -260,31 +498,44 @@ class Store(Set):
             self,
             default: Optional[int] = None
     ) -> Optional[int]:
-        """Gets timeout in seconds.
+        """Gets the timeout of responses (in seconds).
 
-        If no timeout is set, returns `default`.
+        If the timeout is ``None``, returns `default`.
+
+        If `default` is ``None``, assumes :attr:`Store.default_timeout`.
 
         Parameters:
-           default: Default.
+           default: Default timeout.
 
         Returns:
-           Timeout in seconds or ``None`` (no timeout).
+           Timeout.
         """
-        return self._timeout or default
+        if self._timeout is not None:
+            return self._timeout
+        elif default is not None:
+            return min(default, self.maximum_timeout)
+        else:
+            return self.default_timeout
 
     def set_timeout(
             self,
             timeout: Optional[int] = None
     ):
-        """Sets timeout in seconds.
+        """Sets the timeout of responses (in seconds).
+
+        If `timeout` is negative, assumes ``None``.
 
         Parameters:
-           timeout: Timeout in seconds.
+           timeout: Timeout (in seconds).
         """
-        self._timeout = KIF_Object._check_optional_arg_int(
+        timeout = self._timeout = KIF_Object._check_optional_arg_int(
             timeout, None, self.set_timeout, 'timeout', 1)
-
-    # -- Set interface -----------------------------------------------------
+        if timeout is None or timeout < 0:
+            self._timeout = None
+        else:
+            self._timeout = timeout
+
+# -- Set interface ---------------------------------------------------------
 
     def __contains__(self, v):
         return self.contains(v) if Statement.test(v) else False
@@ -294,218 +545,8 @@ class Store(Set):
 
     def __len__(self):
         return self.count()
-
-    # -- Flags -------------------------------------------------------------
-
-    #: Alias for :attr:`StoreFlags.CACHE`.
-    CACHE = StoreFlags.CACHE
-
-    #: Alias for :attr:`StoreFlags.BEST_RANK`.
-    BEST_RANK = StoreFlags.BEST_RANK
-
-    #: Alias for :attr:`StoreFlags.VALUE_SNAK`.
-    VALUE_SNAK = StoreFlags.VALUE_SNAK
-
-    #: Alias for :attr:`StoreFlags.SOME_VALUE_SNAK`.
-    SOME_VALUE_SNAK = StoreFlags.SOME_VALUE_SNAK
-
-    #: Alias for :attr:`StoreFlags.NO_VALUE_SNAK`.
-    NO_VALUE_SNAK = StoreFlags.NO_VALUE_SNAK
-
-    #: Alias for :attr:`StoreFlags.EARLY_FILTER`.
-    EARLY_FILTER = StoreFlags.EARLY_FILTER
-
-    #: Alias for :attr:`StoreFlags.LATE_FILTER`.
-    LATE_FILTER = StoreFlags.LATE_FILTER
-
-    #: Alias for :attr:`StoreFlags.ALL`.
-    ALL = StoreFlags.ALL
-
-    @property
-    def flags(self) -> StoreFlags:
-        """Store flags."""
-        return self.get_flags()
-
-    @flags.setter
-    def flags(self, flags: StoreFlags):
-        if flags != self._flags and self._do_set_flags(self._flags, flags):
-            self._flags = StoreFlags(flags)
-
-    def _do_set_flags(self, old: StoreFlags, new: StoreFlags) -> bool:
-        self._cache.clear()
-        return True
-
-    def get_flags(self) -> StoreFlags:
-        """Gets store flags.
-
-        Returns:
-           Store flags.
-        """
-        return self._flags
-
-    def has_flags(self, flags: StoreFlags) -> bool:
-        """Tests whether store flags are set.
-
-        Parameters:
-           flags: Flags to test.
-
-        Returns:
-           ``True`` if successful; ``False`` otherwise.
-        """
-        return bool(self.flags & flags)
-
-    def set_flags(self, flags: StoreFlags):
-        """Set store flags.
-
-        Parameters:
-           flags: Flags to set.
-        """
-        self.flags |= flags
-
-    def unset_flags(self, flags: StoreFlags):
-        """Unset store flags.
-
-        Parameters:
-           flags: Flags to unset.
-        """
-        self.flags &= ~flags
-
-    # -- Caching -----------------------------------------------------------
-
-    def _cache_get_occurrence(
-            self,
-            obj: Union[Entity, Statement]
-    ) -> Optional[bool]:
-        return self._cache.get(obj, 'occurrence')
-
-    def _cache_set_occurrence(
-            self,
-            obj: Union[Entity, Statement],
-            status: bool
-    ) -> bool:
-        return self._cache.set(obj, 'occurrence', status)
-
-    # -- Namespaces --------------------------------------------------------
-
-    @property
-    def namespaces(self) -> dict[str, IRI]:
-        """The namespace dictionary of store."""
-        return self.get_namespaces()
-
-    def get_namespaces(self) -> dict[str, IRI]:
-        """Gets the namespace dictionary of store.
-
-        Returns:
-           The namespace dictionary of store.
-        """
-        return dict(map(
-            lambda t: (t[0], IRI(t[1])), self._nsm.namespaces()))
-
-    @property
-    def owl(self) -> T_NS:
-        return NS.OWL
-
-    @property
-    def p(self) -> T_NS:
-        return NS.P
-
-    @property
-    def pq(self) -> T_NS:
-        return NS.PQ
-
-    @property
-    def pqn(self) -> T_NS:
-        return NS.PQN
-
-    @property
-    def pqv(self) -> T_NS:
-        return NS.PQV
-
-    @property
-    def pr(self) -> T_NS:
-        return NS.PR
-
-    @property
-    def prn(self) -> T_NS:
-        return NS.PRN
-
-    @property
-    def prov(self) -> T_NS:
-        return NS.PROV
-
-    @property
-    def prv(self) -> T_NS:
-        return NS.PRV
-
-    @property
-    def ps(self) -> T_NS:
-        return NS.PS
-
-    @property
-    def psn(self) -> T_NS:
-        return NS.PSN
-
-    @property
-    def psv(self) -> T_NS:
-        return NS.PSV
-
-    @property
-    def rdf(self) -> T_NS:
-        return NS.RDF
-
-    @property
-    def rdfs(self) -> T_NS:
-        return NS.RDFS
-
-    @property
-    def schema(self) -> T_NS:
-        return NS.SCHEMA
-
-    @property
-    def skos(self) -> T_NS:
-        return NS.SKOS
-
-    @property
-    def wd(self) -> T_NS:
-        return NS.WD
-
-    @property
-    def wdata(self) -> T_NS:
-        return NS.WDATA
-
-    @property
-    def wdgenid(self) -> T_NS:
-        return NS.WDGENID
-
-    @property
-    def wdno(self) -> T_NS:
-        return NS.WDNO
-
-    @property
-    def wdref(self) -> T_NS:
-        return NS.WDREF
-
-    @property
-    def wds(self) -> T_NS:
-        return NS.WDS
-
-    @property
-    def wdt(self) -> T_NS:
-        return NS.WDT
-
-    @property
-    def wdv(self) -> T_NS:
-        return NS.WDV
-
-    @property
-    def wikibase(self) -> T_NS:
-        return NS.WIKIBASE
-
-    @property
-    def xsd(self) -> T_NS:
-        return NS.XSD
-
-    # -- Queries -----------------------------------------------------------
+
+# -- Statements ------------------------------------------------------------
 
     def contains(self, stmt: Statement) -> bool:
         """Tests whether statement is in store.
@@ -517,12 +558,13 @@ class Store(Set):
            ``True`` if successful; ``False`` otherwise.
         """
         Statement.check(stmt, self.contains, 'stmt', 1)
-        status = self._cache_get_occurrence(stmt)
+        status = self._cache_get_presence(stmt)
         if status is None:
             pat = self._normalize_filter_pattern(
                 FilterPattern.from_statement(stmt))
             status = self._contains_tail(pat)
-            status = self._cache_set_occurrence(stmt, status)
+            status = self._cache_set_presence(stmt, status)
+        assert status is not None
         return status
 
     def _contains_tail(self, pattern: FilterPattern) -> bool:
@@ -532,14 +574,14 @@ class Store(Set):
             return False
 
     def _contains(self, pattern: FilterPattern) -> bool:
-        raise MustBeImplementedInSubclass
+        return False
 
     def count(
             self,
             subject: Optional[TEntityFingerprint] = None,
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[TSnakMask] = None,
+            snak_mask: Optional[Snak.TMask] = None,
             pattern: Optional[FilterPattern] = None
     ) -> int:
         """Counts statements matching pattern.
@@ -581,14 +623,14 @@ class Store(Set):
             return 0
 
     def _count(self, pattern: FilterPattern) -> int:
-        raise MustBeImplementedInSubclass
+        return 0
 
     def _check_filter_pattern(
             self,
             subject: Optional[TEntityFingerprint] = None,
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[TSnakMask] = None,
+            snak_mask: Optional[Snak.TMask] = None,
             pattern: Optional[FilterPattern] = None,
             function: Optional[Union[TCallable, str]] = None
     ) -> Union[FilterPattern, NoReturn]:
@@ -599,7 +641,7 @@ class Store(Set):
         val = Fingerprint._check_optional_arg_fingerprint(
             value, None, function, 'value', 3)
         mask = Snak._check_optional_arg_snak_mask(
-            snak_mask, SnakMask.ALL, function, 'snak_mask', 4)
+            snak_mask, Snak.ALL, function, 'snak_mask', 4)
         pat = FilterPattern(subj, prop, val, mask)
         if pattern is not None:
             pat = FilterPattern._combine(
@@ -623,28 +665,22 @@ class Store(Set):
             self,
             pat: FilterPattern
     ) -> FilterPattern:
-        store_snak_mask = SnakMask(0)
-        if self.has_flags(StoreFlags.VALUE_SNAK):
-            store_snak_mask |= SnakMask.VALUE_SNAK
-        if self.has_flags(StoreFlags.SOME_VALUE_SNAK):
-            store_snak_mask |= SnakMask.SOME_VALUE_SNAK
-        if self.has_flags(StoreFlags.NO_VALUE_SNAK):
-            store_snak_mask |= SnakMask.NO_VALUE_SNAK
+        store_snak_mask = Snak.Mask(0)
+        if self.has_flags(self.VALUE_SNAK):
+            store_snak_mask |= Snak.VALUE_SNAK
+        if self.has_flags(self.SOME_VALUE_SNAK):
+            store_snak_mask |= Snak.SOME_VALUE_SNAK
+        if self.has_flags(self.NO_VALUE_SNAK):
+            store_snak_mask |= Snak.NO_VALUE_SNAK
         return cast(FilterPattern, pat.replace(
             None, None, None, pat.snak_mask & store_snak_mask))
-
-    def _check_filter_limit(self, limit: Optional[int]) -> int:
-        if limit is None:
-            return sys.maxsize
-        else:
-            return max(limit, 0)
 
     def filter(
             self,
             subject: Optional[TEntityFingerprint] = None,
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[TSnakMask] = None,
+            snak_mask: Optional[Snak.TMask] = None,
             pattern: Optional[FilterPattern] = None,
             limit: Optional[int] = None
     ) -> Iterator[Statement]:
@@ -694,27 +730,30 @@ class Store(Set):
             pattern: FilterPattern,
             limit: Optional[int]
     ) -> Iterator[Statement]:
-        limit = self._check_filter_limit(limit)
+        if limit is None:
+            limit = self.maximum_page_size
+        else:
+            limit = max(limit, 0)
         if limit > 0 and pattern.is_nonempty():
             return self._filter(pattern, limit=limit)
         else:
-            return iter([])
+            return iter(())
 
     def _filter(
             self,
             pattern: FilterPattern,
             limit: int
     ) -> Iterator[Statement]:
-        raise MustBeImplementedInSubclass
-
-    # -- Annotations -------------------------------------------------------
+        return iter(())
+
+# -- Annotations -------------------------------------------------------
 
     def filter_annotated(
             self,
             subject: Optional[TEntityFingerprint] = None,
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[TSnakMask] = None,
+            snak_mask: Optional[Snak.TMask] = None,
             pattern: Optional[FilterPattern] = None,
             limit: Optional[int] = None
     ) -> Iterator[tuple[Statement, AnnotationRecordSet]]:
@@ -732,8 +771,7 @@ class Store(Set):
            limit: Maximum number of statements to return.
 
         Returns:
-           An iterator of pairs (statement, annotation record set)
-           where statement matches pattern.
+           An iterator of pairs "(statement, annotation record set)".
         """
         return self._filter_annotated_tail(self.filter(
             subject, property, value, snak_mask, pattern, limit))
@@ -763,8 +801,7 @@ class Store(Set):
            limit: Maximum number of statements to return.
 
         Returns:
-           An iterator of pairs (statement, annotation record set)
-           where statement matches pattern.
+           An iterator of pairs "(statement, annotation record set)".
         """
         return self._filter_annotated_tail(self.filter_snak(
             subject, snak, limit))
@@ -773,13 +810,13 @@ class Store(Set):
             self,
             stmts: Union[Statement, Iterable[Statement]]
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
-        """Gets statements' annotations.
+        """Gets annotation records of statements.
 
         Parameters:
            stmts: Statements.
 
         Returns:
-           An iterator of pairs (statement, annotation record set).
+           An iterator of pairs "(statement, annotation record set)".
         """
         KIF_Object._check_arg_isinstance(
             stmts, (Statement, Iterable), self.get_annotations, 'stmts', 1)
@@ -819,38 +856,241 @@ class Store(Set):
             self,
             stmts: Iterable[Statement],
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
-        raise MustBeImplementedInSubclass
+        return map(lambda stmt: (stmt, None), stmts)
+
+# -- Entities --------------------------------------------------------------
 
-    # -- Descriptors -------------------------------------------------------
+    def has_item(
+        self,
+        items: Union[Item, Iterable[Item]],
+    ) -> Iterator[tuple[Item, bool]]:
+        """Tests whether items are in store.
+
+        Parameters:
+           items: Items.
+
+        Returns:
+           An iterator of pairs "(item, status)".
+        """
+        return iter(())
+
+# -- Descriptors -----------------------------------------------------------
 
     def get_descriptor(
             self,
             entities: Union[Entity, Iterable[Entity]],
-            language: str = Text.default_language
-    ) -> Iterator[tuple[Entity, Descriptor]]:
-        """Gets entities' descriptor.
+            language: Optional[str] = None,
+            mask: Optional[Descriptor.TAttributeMask] = None
+    ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
+        """Gets the descriptor of `entities`.
 
         Parameters:
            entities: Entities.
+           language: Language tag.
+           mask: Descriptor mask.
 
         Returns:
-           An iterator of pairs (entity, descriptor).
+           An iterator of pairs "(entity, descriptor)".
         """
         KIF_Object._check_arg_isinstance(
-            entities, (Entity, Iterable),
-            self.get_descriptor, 'entities', 1)
-        KIF_Object._check_arg_str(
-            language, self.get_descriptor, 'language', 2)
+            entities, (Entity, Iterable), self.get_descriptor, 'entities', 1)
+        language = KIF_Object._check_optional_arg_str(
+            language, Text.default_language,
+            self.get_descriptor, 'language', 2)
+        assert language is not None
+        mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
+            mask, Descriptor.ALL, self.get_descriptor, 'mask', 3)
+        assert mask is not None
         if Entity.test(entities):
-            return self._get_descriptor([cast(Entity, entities)], language)
+            return self._get_descriptor_tail(
+                [cast(Entity, entities)], language, mask)
         else:
-            return self._get_descriptor(map(
+            return self._get_descriptor_tail(map(
                 lambda e: cast(Entity, Entity.check(
-                    e, self.get_descriptor)), entities), language)
+                    e, self.get_descriptor)), entities), language, mask)
+
+    def _get_descriptor_tail(
+            self,
+            entities: Iterable[Entity],
+            language: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
+        return self._chain_map_batched(
+            lambda batch: self._get_descriptor(batch, language, mask),
+            entities, min(3 * self.page_size, self.maximum_page_size))
 
     def _get_descriptor(
             self,
             entities: Iterable[Entity],
-            language: str
-    ) -> Iterator[tuple[Entity, Descriptor]]:
-        raise MustBeImplementedInSubclass
+            language: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
+        items: list[Item] = []
+        properties: list[Property] = []
+        lexemes: list[Lexeme] = []
+        for entity in entities:
+            if entity.is_item():
+                items.append(cast(Item, entity))
+            elif entity.is_property():
+                properties.append(cast(Property, entity))
+            elif entity.is_lexeme():
+                lexemes.append(cast(Lexeme, entity))
+            else:
+                raise self._should_not_get_here()
+        desc = dict(chain(
+            self._get_item_descriptor(items, language, mask)
+            if items else iter(()),
+            self._get_property_descriptor(properties, language, mask)
+            if properties else iter(()),
+            self._get_lexeme_descriptor(lexemes, mask)
+            if lexemes else iter(())))
+        for entity in entities:
+            assert entity in desc
+            yield entity, desc[entity]
+
+    def get_item_descriptor(
+            self,
+            items: Union[Item, Iterable[Item]],
+            language: Optional[str] = None,
+            mask: Optional[Descriptor.TAttributeMask] = None
+    ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
+        """Gets the descriptor of `items`.
+
+        Parameters:
+           items: Items.
+           language: Language tag.
+           mask: Descriptor mask.
+
+        Returns:
+           An iterator of pairs "(item, descriptor)".
+        """
+        KIF_Object._check_arg_isinstance(
+            items, (Item, Iterable),
+            self.get_item_descriptor, 'items', 1)
+        language = KIF_Object._check_optional_arg_str(
+            language, Text.default_language,
+            self.get_item_descriptor, 'language', 2)
+        assert language is not None
+        mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
+            mask, Descriptor.ALL, self.get_item_descriptor, 'mask', 3)
+        assert mask is not None
+        if Item.test(items):
+            return self._get_item_descriptor_tail(
+                [cast(Item, items)], language, mask)
+        else:
+            return self._get_item_descriptor_tail(map(
+                lambda e: cast(Item, Item.check(
+                    e, self.get_item_descriptor)), items), language, mask)
+
+    def _get_item_descriptor_tail(
+            self,
+            items: Iterable[Item],
+            language: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
+        return self._chain_map_batched(
+            lambda batch: self._get_item_descriptor(batch, language, mask),
+            items)
+
+    def _get_item_descriptor(
+            self,
+            items: Iterable[Item],
+            language: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
+        return map(lambda item: (item, None), items)
+
+    def get_property_descriptor(
+            self,
+            properties: Union[Property, Iterable[Property]],
+            language: Optional[str] = None,
+            mask: Optional[Descriptor.TAttributeMask] = None
+    ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
+        """Gets the descriptor of `properties`.
+
+        Parameters:
+           properties: Properties.
+           language: Language tag.
+           mask: Descriptor mask.
+
+        Returns:
+           An iterator of pairs "(property, descriptor)".
+        """
+        KIF_Object._check_arg_isinstance(
+            properties, (Property, Iterable),
+            self.get_property_descriptor, 'properties', 1)
+        language = KIF_Object._check_optional_arg_str(
+            language, Text.default_language,
+            self.get_property_descriptor, 'language', 2)
+        assert language is not None
+        mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
+            mask, Descriptor.ALL, self.get_property_descriptor, 'mask', 3)
+        assert mask is not None
+        if Property.test(properties):
+            return self._get_property_descriptor_tail(
+                [cast(Property, properties)], language, mask)
+        else:
+            return self._get_property_descriptor_tail(map(
+                lambda e: cast(Property, Property.check(
+                    e, self.get_property_descriptor)),
+                properties), language, mask)
+
+    def _get_property_descriptor_tail(
+            self,
+            properties: Iterable[Property],
+            language: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
+        return self._chain_map_batched(
+            lambda batch: self._get_property_descriptor(batch, language, mask),
+            properties)
+
+    def _get_property_descriptor(
+            self,
+            properties: Iterable[Property],
+            language: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
+        return map(lambda property: (property, None), properties)
+
+    def get_lexeme_descriptor(
+            self,
+            lexemes: Union[Lexeme, Iterable[Lexeme]],
+            mask: Optional[Descriptor.TAttributeMask] = None
+    ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
+        """Gets the descriptor of `lexemes`.
+
+        Parameters:
+           lexemes: Lexemes.
+
+        Returns:
+           An iterator of pairs "(lexeme, descriptor)".
+        """
+        KIF_Object._check_arg_isinstance(
+            lexemes, (Lexeme, Iterable),
+            self.get_lexeme_descriptor, 'lexemes', 1)
+        mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
+            mask, Descriptor.ALL, self.get_lexeme_descriptor, 'mask', 3)
+        assert mask is not None
+        if Lexeme.test(lexemes):
+            return self._get_lexeme_descriptor_tail(
+                [cast(Lexeme, lexemes)], mask)
+        else:
+            return self._get_lexeme_descriptor_tail(map(
+                lambda e: cast(Lexeme, Lexeme.check(
+                    e, self.get_lexeme_descriptor)), lexemes), mask)
+
+    def _get_lexeme_descriptor_tail(
+            self,
+            lexemes: Iterable[Lexeme],
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
+        return self._chain_map_batched(
+            lambda batch: self._get_lexeme_descriptor(batch, mask), lexemes)
+
+    def _get_lexeme_descriptor(
+            self,
+            lexemes: Iterable[Lexeme],
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
+        return map(lambda lexeme: (lexeme, None), lexemes)

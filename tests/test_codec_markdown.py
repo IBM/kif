@@ -1,15 +1,16 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import kif_lib.vocabulary as wd
 from kif_lib import (
     AnnotationRecord,
+    Datatype,
     Deprecated,
     EntityFingerprint,
     FilterPattern,
     Fingerprint,
     IRI,
     Item,
+    ItemDescriptor,
     KIF_Object,
     Normal,
     NoValueSnak,
@@ -18,18 +19,19 @@ from kif_lib import (
     PropertyFingerprint,
     Quantity,
     ReferenceRecord,
-    SnakMask,
+    Snak,
     SnakSet,
     SomeValueSnak,
     String,
     Text,
     Time,
 )
+from kif_lib.vocabulary import wd
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
-class TestMarkdownEncoder(kif_TestCase):
+class TestCodecMarkdown(kif_TestCase):
 
     def md_link(self, label, url=None):
         return f'[{label}]({url or label})'
@@ -46,6 +48,26 @@ class TestMarkdownEncoder(kif_TestCase):
 
     def assert_to_markdown(self, obj, md):
         self.assertEqual(obj.to_markdown(), md)
+
+    def test_datatype_to_markdown(self):
+        self.assert_to_markdown(
+            Datatype.item, self.md_sexp('ItemDatatype'))
+        self.assert_to_markdown(
+            Datatype.property, self.md_sexp('PropertyDatatype'))
+        self.assert_to_markdown(
+            Datatype.lexeme, self.md_sexp('LexemeDatatype'))
+        self.assert_to_markdown(
+            Datatype.iri, self.md_sexp('IRI_Datatype'))
+        self.assert_to_markdown(
+            Datatype.text, self.md_sexp('TextDatatype'))
+        self.assert_to_markdown(
+            Datatype.string, self.md_sexp('StringDatatype'))
+        self.assert_to_markdown(
+            Datatype.external_id, self.md_sexp('ExternalIdDatatype'))
+        self.assert_to_markdown(
+            Datatype.quantity, self.md_sexp('QuantityDatatype'))
+        self.assert_to_markdown(
+            Datatype.time, self.md_sexp('TimeDatatype'))
 
     def test_item_to_markdown(self):
         # known prefix: know label
@@ -197,7 +219,7 @@ class TestMarkdownEncoder(kif_TestCase):
             wd.mass(wd.benzene, Quantity(0)),
             self.md_sexp('Statement', wd.benzene, wd.mass(Quantity(0))))
 
-    def test_annotations_to_markdown(self):
+    def test_annotation_record_to_markdown(self):
         annots = AnnotationRecord([], [], Normal)
         self.assert_to_markdown(annots, '''\
 (**AnnotationRecord**
@@ -229,13 +251,10 @@ class TestMarkdownEncoder(kif_TestCase):
     - (**SomeValueSnak** (**Property** [q](http://q)))))
 - **DeprecatedRank**)''')
 
-    def test_snak_set_to_markdown(self):
-        s = SnakSet()
-        self.assert_to_markdown(s, '(**SnakSet**)')
-        s = SnakSet(wd.mass(wd.benzene))
-        self.assert_to_markdown(s, '''\
-(**SnakSet**
-- (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Item** [benzene](http://www.wikidata.org/entity/Q2270))))''')  # noqa: E501
+    def test_rank_to_markdown(self):
+        self.assert_to_markdown(Preferred, self.md_sexp('PreferredRank'))
+        self.assert_to_markdown(Normal, self.md_sexp('NormalRank'))
+        self.assert_to_markdown(Deprecated, self.md_sexp('DeprecatedRank'))
 
     def test_reference_record_to_markdown(self):
         ref = ReferenceRecord()
@@ -254,10 +273,24 @@ class TestMarkdownEncoder(kif_TestCase):
 - (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Quantity** 0))
 - (**ValueSnak** (**Property** [canonical SMILES](http://www.wikidata.org/entity/P233)) "ABC"))''')  # noqa: E501
 
-    def test_rank_to_markdown(self):
-        self.assert_to_markdown(Preferred, self.md_sexp('PreferredRank'))
-        self.assert_to_markdown(Normal, self.md_sexp('NormalRank'))
-        self.assert_to_markdown(Deprecated, self.md_sexp('DeprecatedRank'))
+    def test_item_descriptor_to_markdown(self):
+        desc = ItemDescriptor()
+        self.assert_to_markdown(desc, '''\
+(**ItemDescriptor**
+- *no label*
+- *no aliases*
+- *no description*)''')
+        desc = ItemDescriptor(
+            Text("rótulo", 'pt'),
+            [Text('outro nome', 'pt'), Text('sinônimo', 'pt')],
+            Text('descrição', 'pt'))
+        self.assert_to_markdown(desc, '''\
+(**ItemDescriptor**
+- "rótulo"@pt
+- (**TextSet**
+  - "outro nome"@pt
+  - "sinônimo"@pt)
+- "descrição"@pt)''')
 
     def test_fingerprint_to_markdown(self):
         fp = Fingerprint(Quantity(0))
@@ -292,7 +325,7 @@ class TestMarkdownEncoder(kif_TestCase):
             None,
             None,
             [wd.country(wd.Brazil), NoValueSnak(wd.date_of_birth)],
-            SnakMask.NO_VALUE_SNAK)
+            Snak.NO_VALUE_SNAK)
         self.assert_to_markdown(
             pat, '''\
 (**FilterPattern**
@@ -303,6 +336,14 @@ class TestMarkdownEncoder(kif_TestCase):
     - (**ValueSnak** (**Property** [country](http://www.wikidata.org/entity/P17)) (**Item** [Brazil](http://www.wikidata.org/entity/Q155)))))
 - `0b100`)''')  # noqa: E501
 
+    def test_snak_set_to_markdown(self):
+        s = SnakSet()
+        self.assert_to_markdown(s, '(**SnakSet**)')
+        s = SnakSet(wd.mass(wd.benzene))
+        self.assert_to_markdown(s, '''\
+(**SnakSet**
+- (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Item** [benzene](http://www.wikidata.org/entity/Q2270))))''')  # noqa: E501
+
 
 if __name__ == '__main__':
-    main()
+    TestCodecMarkdown.main()

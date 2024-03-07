@@ -1,16 +1,17 @@
 [report]
-omit = kif_lib/model/object.py
+omit = 
 exclude_lines =
-    pragma: no cover
+    @(abc\.)?abstractmethod
+    class .*\bProtocol\):
     def __repr__
     def __str__
-    raise AssertionError
-    raise NotImplementedError
     if 0:
     if __name__ == .__main__.:
-    class .*\bProtocol\):
-    @(abc\.)?abstractmethod
-    should_not_get_here
-    ShouldNotGetHere
-    MustBeImplementedInSubclass
+    pragma: no cover
+    raise AssertionError
+    raise NotImplementedError
+    raise \w+\._must_be_implemented_in_subclass
+    raise \w+\._should_not_get_here
+    raise MustBeImplementedInSubclass
+    raise ShouldNotGetHere
 

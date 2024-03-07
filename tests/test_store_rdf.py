@@ -3,33 +3,31 @@
 
 from rdflib import Graph
 
-import kif_lib.vocabulary as wd
 from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
-    Descriptor,
     Normal,
     NoValueSnak,
     Preferred,
     PropertyFingerprint,
     Quantity,
     ReferenceRecord,
-    SnakMask,
+    Snak,
     SomeValueSnak,
     Statement,
     Store,
-    StoreError,
     String,
     Text,
     Time,
 )
 from kif_lib.store import RDF_Store
+from kif_lib.vocabulary import wd
 
 from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL
-from .tests import kif_TestCase, main
+from .tests import kif_StoreTestCase
 
 
-class TestRDF_Store(kif_TestCase):
+class TestStoreRDF(kif_StoreTestCase):
 
     def test_sanity(self):
         self.store_sanity_checks(Store('rdf', BENZENE_TTL))
@@ -41,7 +39,7 @@ class TestRDF_Store(kif_TestCase):
         # bad argument: directory
         self.assertRaises(IsADirectoryError, Store, 'rdf', '.')
         # bad argument: unknown format
-        self.assertRaises(StoreError, Store, 'rdf', data='x')
+        self.assertRaises(Store.Error, Store, 'rdf', data='x')
         # bad argument: syntax error
         self.assertRaises(SyntaxError, Store, 'rdf', data='x', format='ttl')
         # bad argument: mutually exclusive
@@ -49,24 +47,24 @@ class TestRDF_Store(kif_TestCase):
         # zero sources
         kb = Store('rdf')
         self.assertIsInstance(kb, RDF_Store)
-        self.assertEqual(kb._flags, Store.ALL)
+        self.assertEqual(kb._flags, Store.default_flags)
         # one source
-        kb = Store('rdf', BENZENE_TTL)
+        kb = Store('rdf', BENZENE_TTL.path)
         self.assertIsInstance(kb, RDF_Store)
-        self.assertEqual(kb._flags, Store.ALL)
+        self.assertEqual(kb._flags, Store.default_flags)
         # two sources
         kb = Store('rdf', BENZENE_TTL, BRAZIL_TTL)
         self.assertIsInstance(kb, RDF_Store)
-        self.assertEqual(kb._flags, Store.ALL)
+        self.assertEqual(kb._flags, Store.default_flags)
         # data
-        kb = Store('rdf', data=open(BENZENE_TTL).read(), format='ttl')
+        kb = Store('rdf', data=open(BENZENE_TTL.path).read(), format='ttl')
         self.assertIsInstance(kb, RDF_Store)
-        self.assertEqual(kb._flags, Store.ALL)
+        self.assertEqual(kb._flags, Store.default_flags)
         # graph
         g = Graph()
         kb = Store('rdf', graph=g, skolemize=False)
         self.assertIsInstance(kb, RDF_Store)
-        self.assertEqual(kb._flags, Store.ALL)
+        self.assertEqual(kb._flags, Store.default_flags)
         self.assertIs(kb._graph, g)
 
     # -- Set interface -----------------------------------------------------
@@ -189,7 +187,7 @@ class TestRDF_Store(kif_TestCase):
 
     def _test_count(self, kb):
         self.store_test_count(kb, 15)
-        self.store_test_count(kb, 12, snak_mask=SnakMask.VALUE_SNAK)
+        self.store_test_count(kb, 12, snak_mask=Snak.VALUE_SNAK)
         self.store_test_count(kb, 2, wd.InChIKey)
         self.store_test_count(kb, 4, wd.Brazil)
         self.store_test_count(kb, 1, wd.benzene, wd.mass)
@@ -240,16 +238,16 @@ class TestRDF_Store(kif_TestCase):
             '1822-09-07', None, None, wd.proleptic_Julian_calendar))
         # some value
         self.store_test_count(
-            kb, 1, None, None, None, SnakMask.SOME_VALUE_SNAK)
+            kb, 1, None, None, None, Snak.SOME_VALUE_SNAK)
         self.store_test_count(
-            kb, 1, None, wd.family_name, None, SnakMask.SOME_VALUE_SNAK)
+            kb, 1, None, wd.family_name, None, Snak.SOME_VALUE_SNAK)
         # no value
         self.store_test_count(
-            kb, 2, None, None, None, SnakMask.NO_VALUE_SNAK)
+            kb, 2, None, None, None, Snak.NO_VALUE_SNAK)
         self.store_test_count(
-            kb, 1, None, wd.date_of_birth, None, SnakMask.NO_VALUE_SNAK)
+            kb, 1, None, wd.date_of_birth, None, Snak.NO_VALUE_SNAK)
         self.store_test_count(
-            kb, 1, None, wd.father, None, SnakMask.NO_VALUE_SNAK)
+            kb, 1, None, wd.father, None, Snak.NO_VALUE_SNAK)
         # subject is snak set
         self.store_test_count(
             kb, 4, wd.instance_of(wd.type_of_a_chemical_entity))
@@ -376,21 +374,21 @@ class TestRDF_Store(kif_TestCase):
         self.store_test_filter(
             kb,
             [Statement(wd.Adam, SomeValueSnak(wd.family_name))],
-            None, wd.family_name, None, SnakMask.SOME_VALUE_SNAK)
+            None, wd.family_name, None, Snak.SOME_VALUE_SNAK)
         self.store_test_filter(
             kb,
             [Statement(wd.Adam, SomeValueSnak(wd.family_name))],
-            None, None, None, SnakMask.SOME_VALUE_SNAK)
+            None, None, None, Snak.SOME_VALUE_SNAK)
         # no value
         self.store_test_filter(
             kb,
             [Statement(wd.Adam, NoValueSnak(wd.date_of_birth))],
-            None, wd.date_of_birth, None, SnakMask.NO_VALUE_SNAK)
+            None, wd.date_of_birth, None, Snak.NO_VALUE_SNAK)
         self.store_test_filter(
             kb,
             [Statement(wd.Adam, NoValueSnak(wd.father)),
              Statement(wd.Adam, NoValueSnak(wd.date_of_birth))],
-            None, None, None, SnakMask.NO_VALUE_SNAK)
+            None, None, None, Snak.NO_VALUE_SNAK)
 
     def test_filter_any_rank(self):
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
@@ -555,33 +553,6 @@ class TestRDF_Store(kif_TestCase):
             wd.date_of_birth(wd.Adam, Time(
                 '4003-01-01', 9, 0, wd.proleptic_Julian_calendar)))
 
-    # -- Descriptor --------------------------------------------------------
-
-    def test_get_descriptor(self):
-        kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
-        self._test_get_descriptor(kb)
-
-    def _test_get_descriptor(self, kb):
-        self.store_test_get_descriptor(
-            kb,
-            [(wd.Brazil, Descriptor(
-                'Brazil', None, 'country in South America'))],
-            'en',
-            wd.Brazil)
-        self.store_test_get_descriptor(
-            kb,
-            [(wd.Brazil, Descriptor())],
-            'es',
-            wd.Brazil)
-        self.store_test_get_descriptor(
-            kb,
-            [(wd.Brazil, Descriptor(
-                Text('Brasil', 'pt-br'),
-                [Text("🇧🇷", 'pt-br')],
-                Text('país na América do Sul', 'pt-br')))],
-            'pt-br',
-            wd.Brazil)
-
 
 if __name__ == '__main__':
-    main()
+    TestStoreRDF.main()

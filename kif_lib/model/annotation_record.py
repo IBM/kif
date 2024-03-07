@@ -1,8 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Optional
-
+from ..typing import Optional
 from .kif_object import KIF_Object
 from .rank import Normal, Rank
 from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
@@ -13,18 +12,18 @@ class AnnotationRecord(KIF_Object):
     """Annotation record (qualifiers, references, and rank).
 
     Parameters:
-       arg1: Qualifiers.
-       arg2: References.
-       arg3: Rank.
+       qualifiers: Qualifiers.
+       references: References.
+       rank: Rank.
     """
 
     def __init__(
             self,
-            arg1: Optional[TSnakSet] = None,
-            arg2: Optional[TReferenceRecordSet] = None,
-            arg3: Optional[Rank] = None
+            qualifiers: Optional[TSnakSet] = None,
+            references: Optional[TReferenceRecordSet] = None,
+            rank: Optional[Rank] = None
     ):
-        super().__init__(arg1, arg2, arg3)
+        super().__init__(qualifiers, references, rank)
 
     def _preprocess_arg(self, arg, i):
         if i == 1:
@@ -35,43 +34,43 @@ class AnnotationRecord(KIF_Object):
         elif i == 3:
             return self._preprocess_optional_arg_rank(arg, i, Normal)
         else:
-            return self._should_not_get_here()
+            raise self._should_not_get_here()
 
     @property
     def qualifiers(self) -> SnakSet:
-        """Annotated qualifiers."""
+        """The qualifiers of annotation record."""
         return self.get_qualifiers()
 
     def get_qualifiers(self) -> SnakSet:
-        """Gets annotated qualifiers.
+        """Gets the qualifiers of annotation record.
 
         Returns:
-           Annotated qualifiers.
+           Qualifiers.
         """
         return self.args[0]
 
     @property
     def references(self) -> ReferenceRecordSet:
-        """Annotated references."""
+        """The references of annotation record."""
         return self.get_references()
 
     def get_references(self) -> ReferenceRecordSet:
-        """Gets annotated references.
+        """Gets the references of annotation record.
 
         Returns:
-           Annotated references.
+           References.
         """
         return self.args[1]
 
     @property
     def rank(self) -> Rank:
-        """Annotated rank."""
+        """The rank of annotation record."""
         return self.get_rank()
 
     def get_rank(self) -> Rank:
-        """Gets annotated rank.
+        """Gets rank of annotation record.
 
         Returns:
-           Annotated rank.
+           Rank.
         """
         return self.args[2]

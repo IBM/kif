@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from rdflib import Graph
+from rdflib.namespace import DCTERMS as DCT
 from rdflib.namespace import (
     Namespace,
     NamespaceManager,
@@ -19,6 +20,7 @@ from .wikidata import T_URI as T_URI_
 from .wikidata import Wikidata
 
 __all__ = [
+    'DCT',
     'OWL',
     'P',
     'PQ',
@@ -71,6 +73,7 @@ WDT = Wikidata.WDT
 WDV = Wikidata.WDV
 
 PREFIXES = {
+    'dct': DCT,
     'owl': OWL,
     'prov': PROV,
     'rdf': RDF,

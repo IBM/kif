@@ -3,7 +3,7 @@
 
 from kif_lib.cache import Cache
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestCache(kif_TestCase):
@@ -21,14 +21,26 @@ class TestCache(kif_TestCase):
     def test_enable(self):
         c = Cache(False)
         self.assertFalse(c.enabled)
+        self.assertFalse(c.is_enabled())
+        self.assertTrue(c.disabled)
+        self.assertTrue(c.is_disabled())
         c.enable()
         self.assertTrue(c.enabled)
+        self.assertTrue(c.is_enabled())
+        self.assertFalse(c.disabled)
+        self.assertFalse(c.is_disabled())
 
     def test_disable(self):
         c = Cache(True)
         self.assertTrue(c.enabled)
+        self.assertTrue(c.is_enabled())
+        self.assertFalse(c.disabled)
+        self.assertFalse(c.is_disabled())
         c.disable()
         self.assertFalse(c.enabled)
+        self.assertFalse(c.is_enabled())
+        self.assertTrue(c.disabled)
+        self.assertTrue(c.is_disabled())
 
     def test_clear(self):
         c = Cache()
@@ -107,4 +119,4 @@ class TestCache(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestCache.main()

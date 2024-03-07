@@ -1,7 +1,6 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import kif_lib.vocabulary as wd
 from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -12,8 +11,9 @@ from kif_lib import (
     ReferenceRecord,
     SomeValueSnak,
 )
+from kif_lib.vocabulary import wd
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestModelAnnotationRecordSet(kif_TestCase):
@@ -105,4 +105,4 @@ class TestModelAnnotationRecordSet(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestModelAnnotationRecordSet.main()

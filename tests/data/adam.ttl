@@ -31,18 +31,40 @@
 
 # adam
 wd:Q70899
-    wdt:P734 wdgenid:some_family_name ; # family name
+
+    # description
+    schema:version "0"^^xsd:integer ;
+    rdfs:label "Adam"@en ;
+    rdfs:label "Adán"@es ;
+    rdfs:label "Adão"@pt-br ;
+
+    skos:altLabel "Adánico"@es ;
+    skos:altLabel "Adam"@es ;
+    skos:altLabel "Adan"@es ;
+    skos:altLabel "Adanico"@es ;
+
+    schema:description "first man according to the Abrahamic creation and religions such as Judaism, Christianity, and Islam"@en ;
+    schema:description "primer hombre, según la Biblia"@es ;
+    schema:description "figura bíblica do livro de Gênesis"@pt-br ;
+
+    # family name
+    wdt:P734 wdgenid:some_family_name ;
     p:P734 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:NormalRank ;
         ps:P734 wdgenid:some_family_name ;
         ] ;
-    p:P22 [                     # father
+
+
+    # father
+    p:P22 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:NormalRank ;
         a wdno:P22 ;
         ] ;
-    p:P569 [                    # date of birth
+
+    # date of birth
+    p:P569 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:PreferredRank ;
         a wdno:P569 ;
@@ -50,7 +72,9 @@ wd:Q70899
             pr:P854 "http://islamqa.info/ar/20907" ;
             ] ;
         ] ;
-    p:P569 [                    # date of birth
+
+    # date of birth
+    p:P569 [
         wikibase:rank wikibase:NormalRank ;
         ps:P569 "4003-01-01T00:00:00Z"^^xsd:dateTime ;
         psv:P569 [

@@ -1,7 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Any, Hashable, Optional, TypeVar
+from .typing import Any, Hashable, Optional, TypeVar
 
 T = TypeVar('T')
 
@@ -61,7 +61,7 @@ class Cache:
 
     @property
     def size(self) -> int:
-        """Number of objects in cache."""
+        """The number of objects in cache."""
         return self.get_size()
 
     def get_size(self) -> int:
@@ -77,14 +77,14 @@ class Cache:
         self._cache = dict()
 
     def get(self, obj: Hashable, key: str) -> Any:
-        """Gets value attached to object.
+        """Gets the value attached to `key` of `obj` in cache.
 
         Parameters:
            obj: Object.
            key: Key.
 
         Returns:
-           The value attached to object or ``None``.
+           Value or ``None``.
         """
         if not self._enabled:
             return None
@@ -93,7 +93,7 @@ class Cache:
         return self._cache[obj].get(key, None)
 
     def set(self, obj, key: str, value: T) -> T:
-        """Attaches value to object.
+        """Attaches `value` to `key` of `obj` in cache.
 
         Parameters:
            obj: Object.
@@ -110,10 +110,10 @@ class Cache:
         return value
 
     def unset(self, obj: Hashable, key: Optional[str] = None) -> Any:
-        """Detaches value from object.
+        """Detaches value from `key` of `obj` in cache.
 
-        If `key` is ``None``, detaches all values from object and removes
-        object from cache.
+        If `key` is ``None``, detaches all values from `obj` and removes it
+        from cache.
 
         Parameters:
            obj: Object.

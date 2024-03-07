@@ -1,13 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import itertools
 import logging
-import sys
-from collections.abc import Collection, Hashable, Iterable, Mapping, Set
-from typing import Any, Callable, cast, Iterator, Optional, TypeVar, Union
 
-import more_itertools
 import requests
 import requests.exceptions
 from rdflib import BNode, Graph, URIRef
@@ -15,22 +10,27 @@ from rdflib.plugins.sparql import prepareQuery
 from rdflib.plugins.sparql.sparql import Query
 
 from .. import namespace as NS
-from ..error import ShouldNotGetHere
+from ..itertools import chain, starmap
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
+    Datatype,
     DeepDataValue,
     Descriptor,
     Entity,
     FilterPattern,
     IRI,
+    Item,
+    ItemDescriptor,
+    Lexeme,
+    LexemeDescriptor,
     NoValueSnak,
     Property,
+    PropertyDescriptor,
     Quantity,
     Rank,
     ReferenceRecord,
     Snak,
-    SnakMask,
     SnakSet,
     Statement,
     String,
@@ -38,6 +38,21 @@ from ..model import (
     Time,
     Value,
     ValueSnak,
+)
+from ..typing import (
+    Any,
+    Callable,
+    cast,
+    Collection,
+    Hashable,
+    Iterable,
+    Iterator,
+    Mapping,
+    Optional,
+    override,
+    Set,
+    TypeVar,
+    Union,
 )
 from .abc import Store
 from .sparql_builder import SPARQL_Builder
@@ -51,11 +66,12 @@ TOpq = Union[BNode, URIRef]
 TTrm = SPARQL_Builder.TTrm
 
 
-class SPARQL_Store(Store, type='sparql', description='SPARQL endpoint'):
+class SPARQL_Store(
+        Store, store_name='sparql', store_description='SPARQL endpoint'):
     """SPARQL store.
 
     Parameters:
-       store_type: Type of concrete store to instantiate.
+       store_name: Store plugin to instantiate.
        iri: SPARQL endpoint IRI.
     """
 
@@ -83,12 +99,8 @@ class SPARQL_Store(Store, type='sparql', description='SPARQL endpoint'):
 
     _iri: IRI
 
-    def __init__(
-            self,
-            store_type: str,
-            iri: Union[IRI, str],
-            **kwargs: Any):
-        assert store_type == self.store_type
+    def __init__(self, store_name: str, iri: Union[IRI, str], **kwargs: Any):
+        assert store_name == self.store_name
         super().__init__(**kwargs)
         self._iri = IRI(iri)
 
@@ -104,8 +116,8 @@ class SPARQL_Store(Store, type='sparql', description='SPARQL endpoint'):
            SPARQL endpoint IRI.
         """
         return self._iri
-
-    # -- Caching -----------------------------------------------------------
+
+# -- Caching ---------------------------------------------------------------
 
     def _cache_get_wdss(self, stmt: Statement) -> Optional[Set[T_WDS]]:
         return self._cache.get(stmt, 'wdss')
@@ -117,14 +129,14 @@ class SPARQL_Store(Store, type='sparql', description='SPARQL endpoint'):
             wdss = self._cache.set(stmt, 'wdss', set())
         wdss.add(wds)
         return wdss
-
-    # -- Query evaluation (internal) ---------------------------------------
+
+# -- Query evaluation (internal) -------------------------------------------
 
     def _eval_construct_query(
             self,
             query: SPARQL_Builder,
             parse_results_fn: Callable[[Graph], Iterator[Optional[T]]],
-            limit: int = sys.maxsize,
+            limit: int = Store.maximum_page_size,
             trim: bool = False
     ) -> Iterator[T]:
         def eval_fn(
@@ -143,7 +155,7 @@ class SPARQL_Store(Store, type='sparql', description='SPARQL endpoint'):
                 [SPARQL_Results], Iterator[Optional[T]]],
             vars: Collection[Union[TTrm, tuple[TTrm, TTrm]]] = [],
             order_by: Optional[TTrm] = None,
-            limit: int = sys.maxsize,
+            limit: int = Store.maximum_page_size,
             trim: bool = False
     ) -> Iterator[T]:
         def eval_fn(
@@ -162,7 +174,7 @@ class SPARQL_Store(Store, type='sparql', description='SPARQL endpoint'):
             query: SPARQL_Builder,
             eval_fn: Callable[
                 [Optional[int], Optional[int]], Iterator[Optional[T]]],
-            limit: int = sys.maxsize,
+            limit: int = Store.maximum_page_size,
             trim: bool = False,
             page_size: Optional[int] = None,
             offset: Optional[int] = None
@@ -247,9 +259,10 @@ At line {line}, column {column}:
             return res
         except requests.exceptions.RequestException as err:
             raise err
+
+# -- Statements ------------------------------------------------------------
 
-    # -- Queries -----------------------------------------------------------
-
+    @override
     def _contains(self, pat: FilterPattern) -> bool:
         it = self._filter(pat, limit=1)
         try:
@@ -258,6 +271,7 @@ At line {line}, column {column}:
         except StopIteration:
             return False
 
+    @override
     def _count(self, pattern: FilterPattern) -> int:
         q = self._make_count_query(pattern)
         text = q.select('(count (*) as ?count)')
@@ -272,9 +286,9 @@ At line {line}, column {column}:
             with q.where():
                 wds = q.var('wds')
                 if self.has_flags(self.BEST_RANK):
-                    q.triple(wds, self.rdf.type, self.wikibase.BestRank)
+                    q.triple(wds, NS.RDF.type, NS.WIKIBASE.BestRank)
                 else:
-                    q.triple(wds, self.wikibase.rank, q.var('rank'))
+                    q.triple(wds, NS.WIKIBASE.rank, q.var('rank'))
             return q
 
     def _parse_count_query_results(self, results: SPARQL_Results) -> int:
@@ -295,6 +309,7 @@ At line {line}, column {column}:
         '?wds',
     )
 
+    @override
     def _filter(
             self,
             pattern: FilterPattern,
@@ -312,81 +327,7 @@ At line {line}, column {column}:
             LOG.debug(
                 '%s(): nothing to select:\n%s', self._filter.__qualname__,
                 q.select(*self._filter_vars))
-            return iter([])     # query is empty
-
-    def _parse_filter_results(
-            self,
-            results: SPARQL_Results,
-            pattern: FilterPattern
-    ) -> Iterator[Optional[Statement]]:
-        for entry in results.bindings:
-            stmt = entry.check_statement(
-                'subject', 'property', 'value',
-                'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
-                'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
-            wds = entry.check_bnode_or_uriref('wds')
-            self._cache_add_wds(stmt, wds)
-            if not self.has_flags(self.LATE_FILTER):
-                yield stmt      # success
-                continue
-            # Snak mask mismatch.
-            if not bool(pattern.snak_mask & stmt.snak.get_snak_mask()):
-                yield None      # pragma: no cover
-                continue        # pragma: no cover
-            # Subject mismatch.
-            if (pattern.subject is not None
-                and pattern.subject.entity is not None
-                    and pattern.subject.entity != stmt.subject):
-                yield None      # pragma: no cover
-                continue        # pragma: no cover
-            # Property mismatch.
-            if (pattern.property is not None
-                and pattern.property.property is not None
-                    and pattern.property.property != stmt.snak.property):
-                yield None      # pragma: no cover
-                continue        # pragma: no cover
-            # Value mismatch.
-            if (pattern.value is not None
-                    and pattern.value.value is not None):
-                assert stmt.snak.is_value_snak()
-                value = cast(ValueSnak, stmt.snak).value
-                if type(pattern.value.value) is not type(value):
-                    yield None  # pragma: no cover
-                    continue    # pragma: no cover
-                if not value.is_deep_data_value():
-                    if pattern.value.value != value:
-                        yield None  # pragma: no cover
-                        continue    # pragma: no cover
-                elif value.is_quantity():
-                    assert pattern.value.value.is_quantity()
-                    pat_qt = cast(Quantity, pattern.value.value)
-                    qt = cast(Quantity, value)
-                    if (pat_qt.amount != qt.amount
-                        or (pat_qt.unit is not None
-                            and pat_qt.unit != qt.unit)
-                        or (pat_qt.lower_bound is not None
-                            and pat_qt.lower_bound != qt.lower_bound)
-                        or (pat_qt.upper_bound is not None
-                            and pat_qt.upper_bound != qt.upper_bound)):
-                        yield None  # pragma: no cover
-                        continue    # pragma: no cover
-                elif value.is_time():
-                    assert pattern.value.value.is_time()
-                    pat_tm = cast(Time, pattern.value.value)
-                    tm = cast(Time, value)
-                    if (pat_tm.time != tm.time
-                        or (pat_tm.precision is not None
-                            and pat_tm.precision != tm.precision)
-                        or (pat_tm.timezone is not None
-                            and pat_tm.timezone != tm.timezone)
-                        or (pat_tm.calendar_model is not None
-                            and pat_tm.calendar_model != tm.calendar_model)):
-                        yield None  # pragma: no cover
-                        continue    # pragma: no cover
-                else:
-                    raise ShouldNotGetHere
-            # Success.
-            yield stmt
+            return iter(())     # query is empty
 
     def _make_filter_query(self, pattern: FilterPattern) -> SPARQL_Builder:
         q = SPARQL_Builder()
@@ -436,27 +377,27 @@ At line {line}, column {column}:
         # Push wds.
         q.triples(
             (t['subject'], t['p'], t['wds']),
-            (t['wds'], self.wikibase.rank, q.bnode()))
+            (t['wds'], NS.WIKIBASE.rank, q.bnode()))
         if self.has_flags(self.BEST_RANK):
-            q.triple(t['wds'], self.rdf.type, self.wikibase.BestRank)
+            q.triple(t['wds'], NS.RDF.type, NS.WIKIBASE.BestRank)
         if pat.property is None or pat.property.property is None:
             if pat.property is not None:
                 # Property is snak set: use ?property as basis.
                 assert pat.property.snak_set is not None
                 q.bind(
-                    q.substr(q.str_(t['property']), len(self.wd) + 1),
+                    q.substr(q.str_(t['property']), len(NS.WD) + 1),
                     cast(SPARQL_Builder.Variable, t['pname']))
                 self._push_filter_pattern_bind_pname_as(
-                    q, t, (self.p, 'p'))
+                    q, t, (NS.P, 'p'))
             else:
                 # Property is unknown: use ?p as basis.
                 q.bind(
-                    q.substr(q.str_(t['p']), len(self.p) + 1),
+                    q.substr(q.str_(t['p']), len(NS.P) + 1),
                     cast(SPARQL_Builder.Variable, t['pname']))
                 self._push_filter_pattern_bind_pname_as(
-                    q, t, (self.wd, 'property'))
+                    q, t, (NS.WD, 'property'))
             self._push_filter_pattern_bind_pname_as(
-                q, t, (self.ps, 'ps'), (self.psv, 'psv'), (self.wdno, 'wdno'))
+                q, t, (NS.PS, 'ps'), (NS.PSV, 'psv'), (NS.WDNO, 'wdno'))
         # Value.
         if pat.value is not None and pat.value.snak_set is not None:
             # Push value snak set.
@@ -466,15 +407,15 @@ At line {line}, column {column}:
             # Push value.
             value_is_unknown = pat.value is None or pat.value.value is None
             try_value_snak = bool(
-                pat.snak_mask & SnakMask.VALUE_SNAK
+                pat.snak_mask & Snak.VALUE_SNAK
                 and self.has_flags(self.VALUE_SNAK))
             try_some_value_snak = bool(
                 value_is_unknown
-                and pat.snak_mask & SnakMask.SOME_VALUE_SNAK
+                and pat.snak_mask & Snak.SOME_VALUE_SNAK
                 and self.has_flags(self.SOME_VALUE_SNAK))
             try_no_value_snak = bool(
                 value_is_unknown
-                and pat.snak_mask & SnakMask.NO_VALUE_SNAK
+                and pat.snak_mask & Snak.NO_VALUE_SNAK
                 and self.has_flags(self.NO_VALUE_SNAK))
             cond = sum(
                 (try_value_snak,
@@ -504,7 +445,7 @@ At line {line}, column {column}:
                                     pass  # nothing to do
                 if try_no_value_snak:
                     cup.branch()
-                    q.triple(t['wds'], self.rdf.type, t['wdno'])
+                    q.triple(t['wds'], NS.RDF.type, t['wdno'])
         # Push subject, property, value entities/literals (if any).
         self._push_filter_patterns_as_values(q, t, [(0, pat)])
         return q
@@ -569,10 +510,10 @@ At line {line}, column {column}:
             name = NS.Wikidata.get_wikidata_name(prop_.iri.value)
             prop = prop_
             pname = String(name)
-            p = self.p[name]
-            ps = self.ps[name]
-            psv = self.psv[name]
-            wdno = self.wdno[name]
+            p = NS.P[name]
+            ps = NS.PS[name]
+            psv = NS.PSV[name]
+            wdno = NS.WDNO[name]
         # Value:
         if pat.value is not None and pat.value.value is not None:
             value = cast(Value, pat.value.value)
@@ -594,10 +535,10 @@ At line {line}, column {column}:
                         tm_precision = tm.precision.value
                     if tm.timezone is not None:
                         tm_timezone = tm.timezone
-                    if tm.calendar_model is not None:
-                        tm_calendar = tm.calendar_model
+                    if tm.calendar is not None:
+                        tm_calendar = tm.calendar
                 else:
-                    raise ShouldNotGetHere
+                    raise self._should_not_get_here()
         values.push(
             i, subj, prop, pname, p, ps, psv, wdno, val,
             qt_amount, qt_unit, qt_lower, qt_upper,
@@ -627,44 +568,44 @@ At line {line}, column {column}:
                 cup.branch()
                 q.triples(
                     (t[wds], t[psv], t[wdv]),
-                    (t[wdv], self.rdf.type, self.wikibase.QuantityValue),
-                    (t[wdv], self.wikibase.quantityAmount, t[qt_amount]))
+                    (t[wdv], NS.RDF.type, NS.WIKIBASE.QuantityValue),
+                    (t[wdv], NS.WIKIBASE.quantityAmount, t[qt_amount]))
                 with q.optional(
                         cond=(value is None or cast(
                             Quantity, value).unit is None)):
                     q.triple(
-                        t[wdv], self.wikibase.quantityUnit, t[qt_unit])
+                        t[wdv], NS.WIKIBASE.quantityUnit, t[qt_unit])
                 with q.optional(
                         cond=(value is None or cast(
                             Quantity, value).lower_bound is None)):
                     q.triple(
-                        t[wdv], self.wikibase.quantityLowerBound, t[qt_lower])
+                        t[wdv], NS.WIKIBASE.quantityLowerBound, t[qt_lower])
                 with q.optional(
                         cond=(value is None or cast(
                             Quantity, value).upper_bound is None)):
                     q.triple(
-                        t[wdv], self.wikibase.quantityUpperBound, t[qt_upper])
+                        t[wdv], NS.WIKIBASE.quantityUpperBound, t[qt_upper])
             if value is None or value.is_time():
                 cup.branch()
                 q.triples(
                     (t[wds], t[psv], t[wdv]),
-                    (t[wdv], self.rdf.type, self.wikibase.TimeValue),
-                    (t[wdv], self.wikibase.timeValue, t[tm_value]))
+                    (t[wdv], NS.RDF.type, NS.WIKIBASE.TimeValue),
+                    (t[wdv], NS.WIKIBASE.timeValue, t[tm_value]))
                 with q.optional(
                         cond=(value is None or cast(
                             Time, value).precision is None)):
                     q.triple(
-                        t[wdv], self.wikibase.timePrecision, t[tm_precision])
+                        t[wdv], NS.WIKIBASE.timePrecision, t[tm_precision])
                 with q.optional(
                         cond=(value is None or cast(
                             Time, value).timezone is None)):
                     q.triple(
-                        t[wdv], self.wikibase.timeTimezone, t[tm_timezone])
+                        t[wdv], NS.WIKIBASE.timeTimezone, t[tm_timezone])
                 with q.optional(
                         cond=(value is None or cast(
-                            Time, value).calendar_model is None)):
+                            Time, value).calendar is None)):
                     q.triple(
-                        t[wdv], self.wikibase.timeCalendarModel,
+                        t[wdv], NS.WIKIBASE.timeCalendarModel,
                         t[tm_calendar])
         return q
 
@@ -678,18 +619,18 @@ At line {line}, column {column}:
             pname = NS.Wikidata.get_wikidata_name(snak.property.iri.value)
             if snak.is_value_snak():
                 val = cast(ValueSnak, snak).value
-                q.triple(subj, self.wdt[pname], val)
+                q.triple(subj, NS.WDT[pname], val)
             elif snak.is_some_value_snak():
                 some = q.var()
-                q.triple(subj, self.wdt[pname], some)
+                q.triple(subj, NS.WDT[pname], some)
                 self._push_some_value_filter(q, some)
             elif snak.is_no_value_snak():
                 wds = q.bnode()
                 q.triples(
-                    (subj, self.p[pname], wds),
-                    (wds, self.rdf.type, self.wdno[pname]))
+                    (subj, NS.P[pname], wds),
+                    (wds, NS.RDF.type, NS.WDNO[pname]))
             else:
-                raise ShouldNotGetHere
+                raise self._should_not_get_here()
         return q
 
     def _push_some_value_filter(
@@ -701,11 +642,35 @@ At line {line}, column {column}:
         cond = q.or_(
             q.isBlank(val),
             q.and_(q.isURI(val), q.strstarts(
-                q.str_(val), String(str(self.wdgenid)))))
+                q.str_(val), String(str(NS.WDGENID)))))
         if negate:
             return q.filter(q.not_(cond))
         else:
             return q.filter(cond)
+
+    def _parse_filter_results(
+            self,
+            results: SPARQL_Results,
+            pattern: FilterPattern
+    ) -> Iterator[Optional[Statement]]:
+        for entry in results.bindings:
+            stmt = entry.check_statement(
+                'subject', 'property', 'value',
+                'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
+                'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
+            wds = self._parse_filter_results_check_wds(entry, stmt)
+            self._cache_add_wds(stmt, wds)
+            if self.has_flags(self.LATE_FILTER) and not pattern.match(stmt):
+                yield None
+            else:
+                yield stmt
+
+    def _parse_filter_results_check_wds(
+            self,
+            entry: SPARQL_Results.Bindings,
+            stmt: Statement
+    ) -> Union[BNode, URIRef]:
+        return entry.check_bnode_or_uriref('wds')
 
     def _get_wdss(
             self,
@@ -728,8 +693,7 @@ At line {line}, column {column}:
                 '?wds',
             )
     ) -> Iterator[tuple[Statement, Optional[Set[T_WDS]]]]:
-        batches = more_itertools.batched(stmts, self.page_size)
-        for batch in batches:
+        for batch in self._batched(stmts):
             reduced_batch: list[Statement] = []
             stmt2wdss: dict[Statement, set[T_WDS]] = dict()
             for stmt in batch:
@@ -742,18 +706,16 @@ At line {line}, column {column}:
                 q1, q2 = self._make_get_wdss_queries(enumerate(reduced_batch))
                 if q1 is not None:
                     it1 = self._eval_select_query(
-                        q1, lambda res: self._parse_get_wdss_results(res),
-                        vars=_vars)
+                        q1, self._parse_get_wdss_results, vars=_vars)
                 else:
-                    it1 = iter([])
+                    it1 = iter(())
                 if q2 is not None:
                     it2 = self._eval_select_query(
-                        q2, lambda res: self._parse_get_wdss_results(res),
-                        vars=_vars)
+                        q2, self._parse_get_wdss_results, vars=_vars)
                 else:
-                    it2 = iter([])
+                    it2 = iter(())
                 seen = set()
-                for (stmt, wds, i) in itertools.chain(it1, it2):
+                for (stmt, wds, i) in chain(it1, it2):
                     seen.add(i)
                     if stmt != reduced_batch[i]:
                         continue  # nothing to do
@@ -775,19 +737,6 @@ At line {line}, column {column}:
                             stmt2wdss[stmt].add(wds)
             for stmt in batch:
                 yield stmt, stmt2wdss.get(stmt, None)
-
-    def _parse_get_wdss_results(
-            self,
-            results: SPARQL_Results,
-    ) -> Iterator[Optional[tuple[Statement, T_WDS, int]]]:
-        for entry in results.bindings:
-            i = entry.check_integer('i')
-            stmt = entry.check_statement(
-                'subject', 'property', 'value',
-                'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
-                'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
-            wds = entry.check_bnode_or_uriref('wds')
-            yield stmt, wds, i
 
     def _make_get_wdss_queries(
             self,
@@ -824,7 +773,7 @@ At line {line}, column {column}:
             q1 = None
         if no_values:           # q2 applies to no value stmts
             q2, t2 = self._make_get_wdss_query_start()
-            q2.triple(t2['wds'], self.rdf.type, t2['wdno'])
+            q2.triple(t2['wds'], NS.RDF.type, t2['wdno'])
             self._make_get_wdss_query_end(q2, t2, no_values)
         else:
             q2 = None
@@ -838,9 +787,9 @@ At line {line}, column {column}:
         q.where_start()
         q.triples(
             (t['subject'], t['p'], t['wds']),
-            (t['wds'], self.wikibase.rank, q.bnode()))
+            (t['wds'], NS.WIKIBASE.rank, q.bnode()))
         if self.has_flags(self.BEST_RANK):
-            q.triple(t['wds'], self.rdf.type, self.wikibase.BestRank)
+            q.triple(t['wds'], NS.RDF.type, NS.WIKIBASE.BestRank)
         return q, t
 
     def _make_get_wdss_query_end(
@@ -853,14 +802,27 @@ At line {line}, column {column}:
             lambda x: (x[0], FilterPattern.from_statement(x[1])), stmts))
         q.where_end()
 
-    # -- Annotations -------------------------------------------------------
+    def _parse_get_wdss_results(
+            self,
+            results: SPARQL_Results,
+    ) -> Iterator[Optional[tuple[Statement, T_WDS, int]]]:
+        for entry in results.bindings:
+            i = entry.check_integer('i')
+            stmt = entry.check_statement(
+                'subject', 'property', 'value',
+                'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
+                'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
+            wds = entry.check_bnode_or_uriref('wds')
+            yield stmt, wds, i
+
+# -- Annotations -----------------------------------------------------------
 
+    @override
     def _get_annotations(
             self,
             stmts: Iterable[Statement]
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
-        batches = more_itertools.batched(stmts, self.page_size)
-        for batch in batches:
+        for batch in self._batched(stmts):
             wds_batch = []
             stmt2wdss: dict[Statement, Set[T_WDS]] = dict()
             wds2stmt: dict[T_WDS, Statement] = dict()
@@ -876,7 +838,7 @@ At line {line}, column {column}:
                 continue        # empty batch, nothing to do
             q = self._make_get_annotations_query(set(wds_batch))
             it = self._eval_select_query(
-                q, lambda res: self._parse_get_annotations_results(res))
+                q, self._parse_get_annotations_results)
             wds2rank: dict[T_WDS, Rank] = dict()
             wds2quals: dict[T_WDS, set[Snak]] = dict()
             wds2refs: dict[T_WDS, dict[T_WDS, set[Snak]]] = dict()
@@ -917,7 +879,7 @@ At line {line}, column {column}:
                         else:
                             quals = set()
                         if wds in wds2refs:
-                            refs = set(itertools.starmap(
+                            refs = set(starmap(
                                 ReferenceRecord, wds2refs[wds].values()))
                         else:
                             refs = set()
@@ -941,19 +903,19 @@ At line {line}, column {column}:
                     yield None
                     continue    # ignore unexpected prefix
                 ns, name = NS.Wikidata.split_wikidata_uri(pq)
-                if ns == self.pqn:
+                if ns == NS.PQN:
                     yield None
                     continue    # ignore normalized value
-                if ns != self.pq and ns != self.pqv:
+                if ns != NS.PQ and ns != NS.PQV:
                     yield None
                     continue    # ignore unexpected prefix
                 if 'datatype' in entry['qvalue']:
                     dt = entry['qvalue']['datatype']
-                    if (dt == str(self.xsd.dateTime)
-                            or dt == str(self.xsd.decimal)):
+                    if (dt == str(NS.XSD.dateTime)
+                            or dt == str(NS.XSD.decimal)):
                         yield None
                         continue  # ignore simple value
-                prop = Property(self.wd[name])
+                prop = Property(NS.WD[name])
                 snak = entry.check_snak(
                     prop, 'qvalue',
                     'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
@@ -965,25 +927,25 @@ At line {line}, column {column}:
                     yield None
                     continue    # ignore unexpected prefix
                 ns, name = NS.Wikidata.split_wikidata_uri(qvalue)
-                if ns != self.wdno:
+                if ns != NS.WDNO:
                     yield None
                     continue    # ignore unexpected prefix
-                prop = Property(self.wd[name])
+                prop = Property(NS.WD[name])
                 yield wds, rank, None, NoValueSnak(prop)
             elif 'pr' in entry and 'rvalue' in entry and 'wdref' in entry:
                 wdref = entry.check_uriref('wdref')
                 pr = entry.check_uriref('pr')
                 ns, name = NS.Wikidata.split_wikidata_uri(pr)
-                if ns == self.prn:
+                if ns == NS.PRN:
                     yield None
                     continue    # ignore normalized value
                 if 'datatype' in entry['rvalue']:
                     dt = entry['rvalue']['datatype']
-                    if (dt == str(self.xsd.dateTime)
-                            or dt == str(self.xsd.decimal)):
+                    if (dt == str(NS.XSD.dateTime)
+                            or dt == str(NS.XSD.decimal)):
                         yield None
                         continue  # ignore simple value
-                prop = Property(self.wd[name])
+                prop = Property(NS.WD[name])
                 snak = entry.check_snak(
                     prop, 'rvalue',
                     'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
@@ -1017,111 +979,303 @@ At line {line}, column {column}:
             'wdv',
         )
         q.where_start()
-        q.triple(t['wds'], self.wikibase.rank, t['rank'])
+        q.triple(t['wds'], NS.WIKIBASE.rank, t['rank'])
         with q.values(t['wds']) as values:
             for wds in wdss:
                 values.push(wds)
         if self.has_flags(self.BEST_RANK):
-            q.triple(t['wds'], self.rdf.type, self.wikibase.BestRank)
+            q.triple(t['wds'], NS.RDF.type, NS.WIKIBASE.BestRank)
         q.optional_start()
         with q.union() as cup:
             # Qualifiers:
             cup.branch()
             q.triple(t['wds'], t['pq'], t['qvalue'])
             if self.has_flags(self.EARLY_FILTER):
-                q.filter(q.strstarts(q.str_(t['pq']), String(str(self.pq))))
+                q.filter(q.strstarts(q.str_(t['pq']), String(str(NS.PQ))))
             with q.optional():
                 self._push_deep_data_value(
                     q, t, None, 'wds', 'pq', 'qvalue')
             cup.branch()
-            q.triple(t['wds'], self.rdf.type, t['qvalue'])
+            q.triple(t['wds'], NS.RDF.type, t['qvalue'])
             if self.has_flags(self.EARLY_FILTER):
                 q.filter(q.strstarts(
-                    q.str_(t['qvalue']), String(str(self.wdno))))
+                    q.str_(t['qvalue']), String(str(NS.WDNO))))
             # References:
             cup.branch()
-            q.triple(t['wds'], self.prov.wasDerivedFrom, t['wdref'])
+            q.triple(t['wds'], NS.PROV.wasDerivedFrom, t['wdref'])
             q.triple(t['wdref'], t['pr'], t['rvalue'])
             if self.has_flags(self.EARLY_FILTER):
-                q.filter(q.strstarts(q.str_(t['pr']), String(str(self.pr))))
+                q.filter(q.strstarts(q.str_(t['pr']), String(str(NS.PR))))
             with q.optional():
                 self._push_deep_data_value(
                     q, t, None, 'wdref', 'pr', 'rvalue')
         q.optional_end()
         q.where_end()
         return q
+
+# -- Descriptors -----------------------------------------------------------
 
-    # -- Descriptors -------------------------------------------------------
-
-    def _get_descriptor(
+    @override
+    def _get_item_descriptor(
             self,
-            entities: Iterable[Entity],
-            lang: str
-    ) -> Iterator[tuple[Entity, Descriptor]]:
-        batches = more_itertools.batched(entities, self.page_size)
-        for batch in batches:
-            q = self._make_descriptor_query(set(batch), lang)
-            it = self._eval_select_query(
-                q, lambda res: self._parse_get_descriptor_results(res))
-            entity2label: dict[Entity, Text] = dict()
-            entity2aliases: dict[Entity, set[Text]] = dict()
-            entity2desc: dict[Entity, Text] = dict()
-            for entity, label, alias, desc in it:
-                if label is not None:
-                    entity2label[entity] = label
-                elif alias is not None:
-                    if entity not in entity2aliases:
-                        entity2aliases[entity] = set()
-                    entity2aliases[entity].add(alias)
-                elif desc is not None:
-                    entity2desc[entity] = desc
-            for entity in batch:
-                yield (entity, Descriptor(
-                    entity2label.get(entity),
-                    entity2aliases.get(entity, []),
-                    entity2desc.get(entity, None)))
+            items: Iterable[Item],
+            language: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
+        return cast(
+            Iterator[tuple[Item, Optional[ItemDescriptor]]],
+            self._get_item_or_property_descriptor(Item, items, language, mask))
 
-    def _parse_get_descriptor_results(
+    @override
+    def _get_property_descriptor(
             self,
-            results: SPARQL_Results,
-    ) -> Iterator[Optional[tuple[
-            Entity, Optional[Text], Optional[Text], Optional[Text]]]]:
-        for entry in results.bindings:
-            entity = entry.check_entity('subject')
-            if 'label' in entry:
-                yield entity, entry.check_text('label'), None, None
-            elif 'alias' in entry:
-                yield entity, None, entry.check_text('alias'), None
-            elif 'description' in entry:
-                yield entity, None, None, entry.check_text('description')
+            properties: Iterable[Property],
+            language: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
+        return cast(
+            Iterator[tuple[Property, Optional[PropertyDescriptor]]],
+            self._get_item_or_property_descriptor(
+                Property, properties, language, mask))
+
+    def _get_item_or_property_descriptor(
+            self,
+            cls: type[Entity],
+            entities: Iterable[Union[Item, Property]],
+            language: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Union[Item, Property], Optional[Union[
+            ItemDescriptor, PropertyDescriptor]]]]:
+        q = self._make_item_or_property_descriptor_query(
+            set(entities), cls, language, mask)
+        it = self._eval_select_query(
+            q, lambda res:
+            self._parse_get_item_or_property_descriptor_results(
+                res, cls, language, mask))
+        desc: dict[Union[Item, Property], dict[str, Any]] = dict()
+        for entity, label, alias, description, datatype in it:
+            if entity not in desc:
+                desc[entity] = {
+                    'label': None,
+                    'aliases': [],
+                    'description': None,
+                    'datatype': None
+                }
+            if label is not None:
+                desc[entity]['label'] = label
+            if alias is not None:
+                desc[entity]['aliases'].append(alias)
+            if description is not None:
+                desc[entity]['description'] = description
+            if datatype is not None:
+                desc[entity]['datatype'] = datatype
+        for entity in entities:
+            if entity in desc:
+                if entity.is_item() and cls is Item:
+                    yield (cast(Item, entity), ItemDescriptor(
+                        desc[entity].get('label'),
+                        desc[entity].get('aliases'),
+                        desc[entity].get('description')))
+                elif entity.is_property() and cls is Property:
+                    yield (cast(Property, entity), PropertyDescriptor(
+                        desc[entity].get('label'),
+                        desc[entity].get('aliases'),
+                        desc[entity].get('description'),
+                        desc[entity].get('datatype')))
+                else:
+                    raise self._should_not_get_here()
             else:
-                yield None      # ignore
+                yield entity, None
 
-    def _make_descriptor_query(
+    def _make_item_or_property_descriptor_query(
             self,
-            entities: Collection[Entity],
-            lang: str
+            entities: Collection[Union[Item, Property]],
+            cls: type[Entity],
+            lang: str,
+            mask: Descriptor.AttributeMask
     ) -> SPARQL_Builder:
         q = SPARQL_Builder()
         t: Mapping[str, TTrm] = q.vars_dict(
             'alias',
+            'datatype',
             'description',
             'label',
-            'subject',
-        )
+            'subject')
         language = String(lang)
+        if self.has_flags(self.EARLY_FILTER):
+            get_label = bool(mask & Descriptor.LABEL)
+            get_aliases = bool(mask & Descriptor.ALIASES)
+            get_description = bool(mask & Descriptor.DESCRIPTION)
+            get_datatype = cls is Property and bool(mask & Descriptor.DATATYPE)
+        else:
+            get_label = True
+            get_aliases = True
+            get_description = True
+            get_datatype = cls is Property
         with q.where():
-            with q.union() as cup:
-                q.triple(t['subject'], self.rdfs.label, t['label'])
-                q.filter(q.eq(q.lang(t['label']), language))
-                cup.branch()
-                q.triple(
-                    t['subject'], self.schema.description, t['description'])
-                q.filter(q.eq(q.lang(t['description']), language))
-                cup.branch()
-                q.triple(t['subject'], self.skos.altLabel, t['alias'])
-                q.filter(q.eq(q.lang(t['alias']), language))
+            # We use schema:version check whether ?subject exists.
+            q.triple(t['subject'], NS.SCHEMA.version, q.bnode())
+            if get_datatype:
+                q.triple(t['subject'], NS.WIKIBASE.propertyType, t['datatype'])
+            with q.optional(cond=get_label or get_aliases or get_description):
+                with q.union() as cup:
+                    if get_label:
+                        q.triple(t['subject'], NS.RDFS.label, t['label'])
+                        q.filter(q.eq(q.lang(t['label']), language))
+                    if get_aliases:
+                        cup.branch()
+                        q.triple(
+                            t['subject'], NS.SKOS.altLabel, t['alias'])
+                        q.filter(q.eq(q.lang(t['alias']), language))
+                    if get_description:
+                        cup.branch()
+                        q.triple(
+                            t['subject'],
+                            NS.SCHEMA.description, t['description'])
+                        q.filter(q.eq(q.lang(t['description']), language))
             with q.values(t['subject']) as values:
                 for entity in entities:
-                    values.push(entity.iri)
+                    if cls.test(entity):
+                        values.push(entity.iri)
         return q
+
+    def _parse_get_item_or_property_descriptor_results(
+            self,
+            results: SPARQL_Results,
+            cls: type[Entity],
+            language: str,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[Optional[tuple[
+        Union[Item, Property],
+            Optional[Text],
+            Optional[Text],
+            Optional[Text],
+            Optional[Datatype]]]]:
+        if self.has_flags(self.LATE_FILTER):
+            late_filter = True
+            get_label = bool(mask & Descriptor.LABEL)
+            get_aliases = bool(mask & Descriptor.ALIASES)
+            get_description = bool(mask & Descriptor.DESCRIPTION)
+            get_datatype = cls is Property and bool(mask & Descriptor.DATATYPE)
+        else:
+            late_filter = False
+            get_label = True
+            get_aliases = True
+            get_description = True
+            get_datatype = cls is Property
+        for entry in results.bindings:
+            if cls is Item:
+                entity: Union[Item, Property] = entry.check_item('subject')
+            elif cls is Property:
+                entity = entry.check_property('subject')
+            else:
+                raise self._should_not_get_here()
+            if get_datatype and 'datatype' in entry:
+                datatype: Optional[Datatype] = entry.check_datatype('datatype')
+            else:
+                datatype = None
+            if get_label and 'label' in entry:
+                label = entry.check_text('label')
+                if label.language == language or not late_filter:
+                    yield entity, label, None, None, datatype
+            elif get_aliases and 'alias' in entry:
+                alias = entry.check_text('alias')
+                if alias.language == language or not late_filter:
+                    yield entity, None, alias, None, datatype
+            elif get_description and 'description' in entry:
+                description = entry.check_text('description')
+                if description.language == language or not late_filter:
+                    yield entity, None, None, description, datatype
+            else:
+                yield entity, None, None, None, datatype
+
+    @override
+    def _get_lexeme_descriptor(
+            self,
+            lexemes: Iterable[Lexeme],
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
+        for batch in self._batched(lexemes):
+            q = self._make_lexeme_descriptor_query(set(batch), mask)
+            it = self._eval_select_query(
+                q, lambda res:
+                self._parse_get_lexeme_descriptor_results(res, mask))
+            desc: dict[Lexeme, dict[str, Any]] = dict()
+            for lexeme, lemma, category, language in it:
+                desc[lexeme] = {
+                    'lemma': lemma,
+                    'category': category,
+                    'language': language,
+                }
+            for lexeme in batch:
+                if lexeme in desc:
+                    yield (lexeme, LexemeDescriptor(
+                        desc[lexeme]['lemma'],
+                        desc[lexeme]['category'],
+                        desc[lexeme]['language']
+                    ))
+                else:
+                    yield lexeme, None
+
+    def _make_lexeme_descriptor_query(
+            self,
+            lexemes: Collection[Lexeme],
+            mask: Descriptor.AttributeMask
+    ) -> SPARQL_Builder:
+        q = SPARQL_Builder()
+        t: Mapping[str, TTrm] = q.vars_dict(
+            'lemma',
+            'category',
+            'language',
+            'subject')
+        if self.has_flags(self.EARLY_FILTER):
+            get_lemma = bool(mask & Descriptor.LEMMA)
+            get_category = bool(mask & Descriptor.CATEGORY)
+            get_language = bool(mask & Descriptor.LANGUAGE)
+        else:
+            get_lemma = True
+            get_category = True
+            get_language = True
+        with q.where():
+            q.triple(t['subject'], NS.SCHEMA.version, q.bnode())
+            if get_lemma:
+                q.triple(t['subject'], NS.WIKIBASE.lemma, t['lemma'])
+            if get_category:
+                q.triple(
+                    t['subject'], NS.WIKIBASE.lexicalCategory, t['category'])
+            if get_language:
+                q.triple(t['subject'], NS.DCT.language, t['language'])
+            with q.values(t['subject']) as values:
+                for lexeme in lexemes:
+                    if Lexeme.test(lexeme):
+                        values.push(lexeme.iri)
+        return q
+
+    def _parse_get_lexeme_descriptor_results(
+            self,
+            results: SPARQL_Results,
+            mask: Descriptor.AttributeMask
+    ) -> Iterator[tuple[Lexeme, Text, IRI, IRI]]:
+        if self.has_flags(self.LATE_FILTER):
+            get_lemma = bool(mask & Descriptor.LEMMA)
+            get_category = bool(mask & Descriptor.CATEGORY)
+            get_language = bool(mask & Descriptor.LANGUAGE)
+        else:
+            get_lemma = True
+            get_category = True
+            get_language = True
+        for entry in results.bindings:
+            subject = entry.check_lexeme('subject')
+            if get_lemma and 'lemma' in entry:
+                lemma = entry.check_text('lemma')
+            else:
+                lemma = None
+            if get_category and 'category' in entry:
+                category = entry.check_item('category')
+            else:
+                category = None
+            if get_language and 'language' in entry:
+                language = entry.check_item('language')
+            else:
+                language = None
+            yield subject, lemma, category, language

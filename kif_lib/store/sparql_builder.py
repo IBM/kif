@@ -3,13 +3,13 @@
 
 from abc import abstractmethod
 from collections.abc import Mapping, Sequence
-from itertools import chain
-from typing import Any, Hashable, Iterable, Iterator
-from typing import Optional as Opt
-from typing import Union as Uni
 
 from ..error import MustBeImplementedInSubclass
+from ..itertools import chain
 from ..model import IRI, Value
+from ..typing import Any, Hashable, Iterable, Iterator
+from ..typing import Optional as Opt
+from ..typing import Union as Uni
 
 # See <http://www.w3.org/TR/sparql11-query/#grammar>.
 
@@ -460,9 +460,18 @@ class SPARQL_Builder(Sequence):
 
     # -- Patterns ----------------------------------------------------------
 
-    def bind(self, val: TTrm, var: TTrm) -> 'SPARQL_Builder':
+    def bind(self, term: TTrm, var: TTrm) -> 'SPARQL_Builder':
+        """Binds term to variable.
+
+        Parameters:
+           term: Term.
+           var: Variable.
+
+        Returns:
+           `self`.
+        """
         assert isinstance(var, self.Variable)
-        return self._push(f'bind({self._n3(val)} as {self._n3(var)})')
+        return self._push(f'bind({self._n3(term)} as {self._n3(var)})')
 
     def filter(self, val: TTrm) -> 'SPARQL_Builder':
         return self._push(f'filter({self._n3(val)})')

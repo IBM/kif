@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from collections.abc import Collection, Iterable, Mapping
-from typing import Any, cast, NoReturn, Optional, Union
 
 from rdflib.paths import Path
 from rdflib.plugins.sparql import prepareQuery
@@ -23,6 +22,7 @@ from ..model import (
     ValueSnak,
 )
 from ..model.kif_object import Decoder, DecoderError, Object
+from ..typing import Any, cast, NoReturn, Optional, Union
 
 
 class SPARQL_Decoder(

@@ -1,9 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from collections.abc import Iterable
-from typing import cast, NoReturn, Optional, Union
-
+from ..typing import cast, Iterable, NoReturn, Optional, Union
 from .kif_object import KIF_Object, TCallable
 from .snak import Snak
 from .snak_set import SnakSet
@@ -12,10 +10,10 @@ TReferenceRecord = Union['ReferenceRecord', SnakSet, Iterable[Snak]]
 
 
 class ReferenceRecord(SnakSet):
-    """Set of snaks representing provenance information.
+    """Reference record (set of snaks).
 
     Parameters:
-       args: Snaks.
+       snaks: Snaks.
     """
 
     @classmethod
@@ -36,5 +34,5 @@ class ReferenceRecord(SnakSet):
         return cls._check_arg_isinstance(
             refs, ReferenceRecord, function, name, position)
 
-    def __init__(self, *args: Snak):
-        super().__init__(*args)
+    def __init__(self, *snaks: Snak):
+        super().__init__(*snaks)

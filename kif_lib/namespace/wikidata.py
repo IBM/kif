@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
-from typing import Collection, Union
 
 from rdflib import URIRef
 from rdflib.namespace import DefinedNamespace, Namespace
 
+from ..typing import Collection, Union
 from .wikibase import WIKIBASE
 
 T_NS = Union[type[DefinedNamespace], Namespace]
@@ -81,6 +81,7 @@ class Wikidata:
     default_entity_prefixes = [WD]
     default_item_prefixes = [WD]
     default_property_prefixes = [WD]
+    default_lexeme_prefixes = [WD]
     default_some_value_prefixes = [WDGENID]
 
     PREFERRED = WIKIBASE.PreferredRank
@@ -131,7 +132,7 @@ class Wikidata:
             name: str,
             prefixes: Collection[T_NS]
     ) -> bool:
-        return prefix in prefixes and (name[0] == 'Q' or name[0] == 'P')
+        return prefix in prefixes and name[0] in 'QPL'
 
     @classmethod
     def is_wd_item(
@@ -176,6 +177,28 @@ class Wikidata:
             prefixes: Collection[T_NS]
     ) -> bool:
         return prefix in prefixes and name[0] == 'P'
+
+    @classmethod
+    def is_wd_lexeme(
+            cls,
+            uri: T_URI,
+            prefixes: Collection[T_NS] = default_lexeme_prefixes
+    ) -> bool:
+        try:
+            pfx, name = cls.split_wikidata_uri(uri)
+        except ValueError:
+            return False
+        else:
+            return cls._is_wd_lexeme(pfx, name, prefixes)
+
+    @classmethod
+    def _is_wd_lexeme(
+            cls,
+            prefix: T_NS,
+            name: str,
+            prefixes: Collection[T_NS]
+    ) -> bool:
+        return prefix in prefixes and name[0] == 'L'
 
     @classmethod
     def is_wd_some_value(

@@ -26,7 +26,7 @@ $ pip install -e .
 
 ## Documentation ##
 
-See the notebooks in [examples](https://github.com/IBM/kif/tree/main/examples).
+See the [API documentation](https://ibm.github.io/kif/) and [examples](https://github.com/IBM/kif/tree/main/examples).
 
 ## Testing ##
 

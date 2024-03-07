@@ -3,26 +3,26 @@
 
 import json
 import logging
-from itertools import chain
 from pathlib import PurePath
-from typing import Any, BinaryIO, cast, IO, Optional, TextIO, Union
 
 from rdflib import Graph
 from rdflib.exceptions import Error as RDFLibError
 from rdflib.parser import InputSource
 
+from ..itertools import chain
 from ..model import KIF_Object
+from ..typing import Any, BinaryIO, cast, IO, Optional, override, TextIO, Union
 from .sparql import SPARQL_Store
 from .sparql_results import SPARQL_Results
 
 LOG = logging.getLogger(__name__)
 
 
-class RDF_Store(SPARQL_Store, type='rdf', description='RDF file'):
+class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
     """RDF store.
 
     Parameters:
-       store_type: Type of concrete store to instantiate.
+       store_name: Name of the store plugin to instantiate.
        source: An input source, file, path, or string.
        args: More input sources, files, paths, or strings.
        publicID: Logical URI to use as the document base.
@@ -42,7 +42,7 @@ class RDF_Store(SPARQL_Store, type='rdf', description='RDF file'):
 
     def __init__(
             self,
-            store_type: str,
+            store_name: str,
             source: Optional[Union[IO[bytes], TextIO, InputSource,
                                    str, bytes, PurePath]] = None,
             *args: Optional[Union[IO[bytes], TextIO, InputSource,
@@ -56,7 +56,7 @@ class RDF_Store(SPARQL_Store, type='rdf', description='RDF file'):
             skolemize: bool = True,
             **kwargs: Any
     ):
-        super().__init__(store_type, 'file:///dev/null', **kwargs)
+        super().__init__(store_name, 'file:///dev/null', **kwargs)
         sources = [s for s in chain([source], args) if s is not None]
         input = {
             'source': sources,
@@ -91,6 +91,7 @@ class RDF_Store(SPARQL_Store, type='rdf', description='RDF file'):
         else:
             self._graph = graph
 
+    @override
     def _eval_construct_query_string(
             self,
             text: str,
@@ -99,6 +100,7 @@ class RDF_Store(SPARQL_Store, type='rdf', description='RDF file'):
     ) -> Graph:
         raise NotImplementedError
 
+    @override
     def _eval_select_query_string(
             self,
             text: str,

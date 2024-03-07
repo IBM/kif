@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from functools import reduce
-from typing import cast, Optional
 
+from ..typing import cast, Optional
 from .fingerprint import (
     EntityFingerprint,
     Fingerprint,
@@ -13,25 +13,25 @@ from .fingerprint import (
     TPropertyFingerprint,
 )
 from .kif_object import KIF_Object
-from .snak import Snak, SnakMask, TSnakMask, ValueSnak
+from .snak import Snak, ValueSnak
 from .statement import Statement
+from .value import Quantity, Time
+
+at_property = property
 
 
 class Pattern(KIF_Object):
     """Abstract base class for patterns."""
 
 
-at_property = property
-
-
 class FilterPattern(Pattern):
     """Filter pattern.
 
     Parameters:
-       arg1: Entity fingerprint.
-       arg2: Property fingerprint.
-       arg3: Fingerprint.
-       arg4: Snak mask.
+       subject: Entity fingerprint.
+       property: Property fingerprint.
+       value: Fingerprint.
+       snak_mask: Snak mask.
     """
 
     @classmethod
@@ -43,11 +43,11 @@ class FilterPattern(Pattern):
         """Creates filter pattern from snak.
 
         Parameters:
-           subject: Entity fingerprint.
+           subject_pattern: Entity fingerprint.
            snak: Snak.
 
         Returns:
-           The resulting filter pattern.
+           Filter pattern.
         """
         if snak is None:
             property = None
@@ -59,7 +59,7 @@ class FilterPattern(Pattern):
                 value = cast(ValueSnak, snak).value
             else:
                 value = None
-            snak_mask = snak.snak_mask
+            snak_mask = snak.mask
         return cls(subject, property, value, snak_mask)
 
     @classmethod
@@ -70,18 +70,18 @@ class FilterPattern(Pattern):
            stmt: Statement.
 
         Returns:
-           The resulting filter pattern.
+           Filter pattern.
         """
         return cls.from_snak(stmt.subject, stmt.snak)
 
     def __init__(
             self,
-            arg1: Optional[TEntityFingerprint] = None,
-            arg2: Optional[TPropertyFingerprint] = None,
-            arg3: Optional[TFingerprint] = None,
-            arg4: Optional[TSnakMask] = None
+            subject: Optional[TEntityFingerprint] = None,
+            property: Optional[TPropertyFingerprint] = None,
+            value: Optional[TFingerprint] = None,
+            snak_mask: Optional[Snak.TMask] = None
     ):
-        super().__init__(arg1, arg2, arg3, arg4)
+        super().__init__(subject, property, value, snak_mask)
 
     def _preprocess_arg(self, arg, i):
         if i == 1:
@@ -92,50 +92,50 @@ class FilterPattern(Pattern):
             return self._preprocess_optional_arg_fingerprint(arg, i)
         elif i == 4:
             return Snak._preprocess_optional_arg_snak_mask(
-                arg, i, SnakMask.ALL).value
+                arg, i, Snak.ALL).value
         else:
-            self._should_not_get_here()
+            raise self._should_not_get_here()
 
     @at_property
     def subject(self) -> Optional[EntityFingerprint]:
-        """Filter pattern subject."""
+        """The subject of filter pattern."""
         return self.get_subject()
 
     def get_subject(
             self,
             default: Optional[EntityFingerprint] = None
     ) -> Optional[EntityFingerprint]:
-        """Gets filter pattern subject.
+        """Gets the subject of filter pattern.
 
-        If filter pattern subject is ``None``, returns `default`.
+        If the subject is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default subject.
 
         Returns:
-           Filter pattern subject or `default` (pattern has no subject).
+           Entity fingerprint.
         """
         subj = self.args[0]
         return subj if subj is not None else default
 
     @at_property
     def property(self) -> Optional[PropertyFingerprint]:
-        """Filter pattern property."""
+        """The property of filter pattern."""
         return self.get_property()
 
     def get_property(
             self,
             default: Optional[PropertyFingerprint] = None
     ) -> Optional[PropertyFingerprint]:
-        """Gets filter pattern property.
+        """Gets the property of filter pattern.
 
-        If filter pattern property is ``None``, returns `default`.
+        If the property is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default property.
 
         Returns:
-           Filter pattern property or `default` (pattern has no property).
+           Property fingerprint.
         """
         prop = self.args[1]
         return prop if prop is not None else default
@@ -149,31 +149,31 @@ class FilterPattern(Pattern):
             self,
             default: Optional[Fingerprint] = None
     ) -> Optional[Fingerprint]:
-        """Gets filter pattern value.
+        """Gets the value of filter pattern.
 
-        If filter pattern value is ``None``, returns `default`.
+        If the value is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default value.
 
         Returns:
-           Filter pattern value or `default` (pattern has no value).
+           Fingerprint.
         """
         val = self.args[2]
         return val if val is not None else default
 
     @at_property
-    def snak_mask(self) -> SnakMask:
-        """Filter pattern snak mask."""
+    def snak_mask(self) -> Snak.Mask:
+        """The snak mask of filter pattern."""
         return self.get_snak_mask()
 
-    def get_snak_mask(self) -> SnakMask:
-        """Gets filter pattern snak mask.
+    def get_snak_mask(self) -> Snak.Mask:
+        """Gets the snak mask of filter pattern.
 
         Returns:
-           Filter pattern snak mask.
+           Snak mask.
         """
-        return SnakMask(self.args[3])
+        return Snak.Mask(self.args[3])
 
     def is_full(self) -> bool:
         """Tests whether filter pattern is full.
@@ -185,7 +185,7 @@ class FilterPattern(Pattern):
         """
         return (
             self.subject is None and self.property is None
-            and self.value is None and self.snak_mask is SnakMask.ALL)
+            and self.value is None and self.snak_mask is Snak.ALL)
 
     def is_nonfull(self) -> bool:
         """Tests whether filter pattern is non-full.
@@ -206,7 +206,7 @@ class FilterPattern(Pattern):
         return (
             self.snak_mask.value == 0
             or (self.value is not None
-                and not (self.snak_mask & SnakMask.VALUE_SNAK)))
+                and not (self.snak_mask & Snak.VALUE_SNAK)))
 
     def is_nonempty(self) -> bool:
         """Tests whether filter pattern is non-empty.
@@ -215,6 +215,68 @@ class FilterPattern(Pattern):
            ``True`` if successful; ``False`` otherwise.
         """
         return not self.is_empty()
+
+    def match(self, stmt: Statement) -> bool:
+        """Tests whether filter pattern shallow-matches statement.
+
+        Parameters:
+            stmt: Statement.
+
+        Returns:
+            ``True`` if successful; ``False`` otherwise.
+        """
+        self._check_arg_statement(stmt, self.match, 'stmt', 1)
+        # Snak mask mismatch.
+        if not bool(self.snak_mask & stmt.snak.mask):
+            return False
+        # Subject mismatch.
+        if (self.subject is not None
+            and self.subject.entity is not None
+                and self.subject.entity != stmt.subject):
+            return False
+        # Property mismatch.
+        if (self.property is not None
+            and self.property.property is not None
+                and self.property.property != stmt.snak.property):
+            return False
+        # Value mismatch.
+        if (self.value is not None and self.value.value is not None):
+            if not stmt.snak.is_value_snak():
+                return False
+            value = cast(ValueSnak, stmt.snak).value
+            if type(self.value.value) is not type(value):
+                return False
+            if not value.is_deep_data_value():
+                if self.value.value != value:
+                    return False
+            elif value.is_quantity():
+                assert self.value.value.is_quantity()
+                pat_qt = cast(Quantity, self.value.value)
+                qt = cast(Quantity, value)
+                if (pat_qt.amount != qt.amount
+                    or (pat_qt.unit is not None
+                        and pat_qt.unit != qt.unit)
+                    or (pat_qt.lower_bound is not None
+                        and pat_qt.lower_bound != qt.lower_bound)
+                    or (pat_qt.upper_bound is not None
+                        and pat_qt.upper_bound != qt.upper_bound)):
+                    return False
+            elif value.is_time():
+                assert self.value.value.is_time()
+                pat_tm = cast(Time, self.value.value)
+                tm = cast(Time, value)
+                if (pat_tm.time != tm.time
+                    or (pat_tm.precision is not None
+                        and pat_tm.precision != tm.precision)
+                    or (pat_tm.timezone is not None
+                        and pat_tm.timezone != tm.timezone)
+                    or (pat_tm.calendar is not None
+                        and pat_tm.calendar != tm.calendar)):
+                    return False
+            else:
+                raise self._should_not_get_here()
+        # Success.
+        return True
 
     def combine(self, *others: 'FilterPattern') -> 'FilterPattern':
         """Combines filter pattern with `others`.

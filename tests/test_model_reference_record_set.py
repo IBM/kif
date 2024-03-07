@@ -12,7 +12,7 @@ from kif_lib import (
     SomeValueSnak,
 )
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
 class TestModelReferenceRecordSet(kif_TestCase):
@@ -93,4 +93,4 @@ class TestModelReferenceRecordSet(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestModelReferenceRecordSet.main()

@@ -1,11 +1,11 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-# $Id: 3b0a48a5e9b7a9eab912ee94301cbd5996d5bde2 $
+# $Id$
 #
-# SYNTACTICAL OBJECTS -- DO NOT EDIT!
+# Syntactical objects.
 #
-# Keep this file self-contained!
+# ** KEEP THIS FILE SELF-CONTAINED! **
 
 import abc
 import collections.abc
@@ -18,6 +18,7 @@ from typing import (
     Any,
     Callable,
     cast,
+    Final,
     Generator,
     IO,
     NoReturn,
@@ -68,7 +69,7 @@ class NilType:
 
 
 #: Absence of value distinct from ``None``.
-Nil = NilType()
+Nil: Final[NilType] = NilType()
 
 T = TypeVar('T')
 TArgs = tuple[Any, ...]
@@ -95,7 +96,7 @@ class ObjectMeta(abc.ABCMeta):
     def _init(mcls, cls, name, bases, namespace, **kwargs):
         mcls._object_subclasses[name] = cls
         top = mcls._object_class or cls
-        setattr(top, name, cls)
+        setattr(top, '_' + name, cls)
         cls._snake_case_name = top._camel2snake(name)
         mcls._init_test_(top, cls)
         mcls._init_check_(top, cls)
@@ -108,7 +109,7 @@ class ObjectMeta(abc.ABCMeta):
         def f_test(arg: Any) -> bool:
             return cls.test(arg)
         f_test.__doc__ = f"""\
-        Tests whether object is :class:`{cls.__qualname__}`.
+        Tests whether object is of class :class:`{cls.__qualname__}`.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
@@ -130,7 +131,7 @@ class ObjectMeta(abc.ABCMeta):
         s = 'check_' + cls._snake_case_name
         f_check = mk_check_(s)
         f_check.__doc__ = f"""\
-        Checks whether object is :class:`{cls.__qualname__}`.
+        Checks whether object is of class :class:`{cls.__qualname__}`.
 
         Parameters:
            function: Function or function name.
@@ -138,10 +139,10 @@ class ObjectMeta(abc.ABCMeta):
            position: Argument position.
 
         Returns:
-           :class:`{cls.__qualname__}`.
+           Object.
 
         Raises:
-           TypeError: Object is not :class:`{cls.__qualname__}`.
+           TypeError: Object is not of class :class:`{cls.__qualname__}`.
         """
         setattr(top, s, f_check)
 
@@ -156,13 +157,13 @@ class ObjectMeta(abc.ABCMeta):
             return cls.unpack(
                 arg, function=function, name=name, position=position)
         f_unpack.__doc__ = f"""\
-        Unpacks arguments of :class:`{cls.__qualname__}`.
+        Unpacks arguments of object of class :class:`{cls.__qualname__}`.
 
         Returns:
-           :class:`{cls.__qualname__}`'s arguments unpacked.
+           The arguments of object unpacked.
 
         Raises:
-           TypeError: Object is not :class:`{cls.__qualname__}`.
+           TypeError: Object is not of class :class:`{cls.__qualname__}`.
         """
         s = 'unpack_' + cls._snake_case_name
         setattr(top, s, f_unpack)
@@ -248,17 +249,19 @@ class ObjectMeta(abc.ABCMeta):
                         i: int,
                         default: Optional[c] = None,
                         function: Optional[Union[TFun, str]] = None,
-                        _f_check_optional_arg: TFun = getattr(
-                            c, s_check_optional_arg)
+                        _f_preprocess_arg: TFun = getattr(
+                            c, s_preprocess_arg)
                 ) -> Union[Optional[c], NoReturn]:
-                    return _f_check_optional_arg(
-                        arg, default, function or cls_, None, i)
+                    if arg is None:
+                        return default
+                    else:
+                        return _f_preprocess_arg(arg, i, function)
                 return preprocess_optional_arg_
             f_preprocess_optional_arg = classmethod(
                 mk_preprocess_optional_arg_(cls))
         setattr(top, s_preprocess_optional_arg, f_preprocess_optional_arg)
 
-
+
 # -- Object ----------------------------------------------------------------
 
 @functools.total_ordering
@@ -269,11 +272,11 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
     _snake_case_name: str = 'object'
 
     #: Absence of value distinct from ``None``.
-    Nil: NilType = Nil
+    Nil: Final[NilType] = Nil
 
     @classmethod
     def test(cls, obj: Any) -> bool:
-        """Tests `obj` class.
+        """Tests whether `obj` is an instance of this class.
 
         Parameters:
            obj: Value.
@@ -292,7 +295,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union['Object', NoReturn]:
-        """Checks `obj` class.
+        """Checks whether `obj` is an instance of this class.
 
         Parameters:
            obj: Value.
@@ -317,7 +320,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union[Optional['Object'], NoReturn]:
-        """Checks optional `obj` class.
+        """Checks whether optional `obj` is an instance of this class.
 
         If `obj` is ``None``, returns `default`.
 
@@ -329,10 +332,10 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
            position: Argument position.
 
         Returns:
-           `obj`.
+           `obj` or `default`.
 
         Raises:
-           TypeError: `obj` is not an instance of this class.
+           TypeError: `obj` is not an instance an instance of this class.
         """
         return cls._check_optional(
             obj, default, function or cls.check_optional, name, position)
@@ -370,7 +373,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union[TArgs, NoReturn]:
-        """Unpacks `obj`'s arguments.
+        """Unpacks arguments of `obj` of this class.
 
         Parameters:
            obj: Object.
@@ -379,7 +382,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
            position: Argument position.
 
         Returns:
-           `obj`'s arguments unpacked.
+           The arguments of `obj` unpacked.
 
         Raises:
            TypeError: `obj` is not an instance of this class.
@@ -442,32 +445,35 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         else:
             return self.args < other.args
 
+    def __repr__(self):
+        return self.dumps()
+
     def __str__(self):
         return self.dumps()
 
     @property
     def args(self) -> TArgs:
-        """Object arguments."""
+        """The arguments of object."""
         return self.get_args()
 
     def get_args(self) -> TArgs:
-        """Gets object arguments.
+        """Gets the arguments of object.
 
         Returns:
-           Object arguments.
+           Arguments.
         """
         return self._args
 
     @property
     def digest(self) -> str:
-        """Object digest."""
+        """The digest of object."""
         return self.get_digest()
 
     def get_digest(self) -> str:
-        """Gets object digest.
+        """Gets the digest of object.
 
         Returns:
-           Object digest.
+           Digest.
         """
         if self._digest is None:
             self._digest = self._hexdigest(self.dumps())
@@ -479,7 +485,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
 
     # -- Copying -----------------------------------------------------------
 
-    def copy(self):
+    def copy(self) -> 'Object':
         """Makes a shallow copy of object.
 
         Returns:
@@ -499,13 +505,13 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         return copy.deepcopy(self, memo=memo)
 
     def replace(self, *args: Any) -> 'Object':
-        """Shallow-copies object overwriting the given arguments.
+        """Shallow-copies object overwriting its arguments.
 
-        If a given argument is `None`, keeps the value of the corresponding
-        argument in the resulting object.
+        If argument is ``None`` in `args`, keeps the value of the
+        corresponding argument in the resulting object.
 
-        If a given argument is :attr:`Nil`, sets the corresponding argument
-        to `None` in the resulting object.
+        If argument is :attr:`Nil` in `args`, sets the corresponding
+        argument to ``None`` in the resulting object.
 
         Parameters:
            args: Arguments.
@@ -529,7 +535,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
     @classmethod
     def _install_encoder(cls, encoder: type['Encoder']):
         def mk_to_(fmt: str):
-            def to_(obj: Object, **kwargs):
+            def to_(obj: Object, **kwargs: Any) -> str:
                 return obj.dumps(fmt, **kwargs)
             return to_
         f_to = mk_to_(encoder.format)
@@ -543,15 +549,15 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
            The resulting string.
 
         Raises:
-           `EncoderError`: Encoder error
+           `EncoderError`: Encoder error.
         """
         setattr(cls, 'to_' + encoder.format, f_to)
 
-    def dump(self, fp: IO[Any], format: Optional[str] = None, **kwargs):
-        """Encodes object and writes the result to stream.
+    def dump(self, stream: IO[Any], format: Optional[str] = None, **kwargs):
+        """Encodes object and writes the result to `stream`.
 
         Parameters:
-           fp: A ``.write()``-supporting file-like object.
+           stream: A ``.write()``-supporting file-like object.
            format: Encoding format.
            kwargs: Encoder options.
 
@@ -560,7 +566,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         """
         enc = Encoder.from_format(format, self.dump, 'format', 2)
         for chunk in enc(**kwargs).iterencode(self):
-            fp.write(chunk)
+            stream.write(chunk)
 
     def dumps(self, format: Optional[str] = None, **kwargs) -> str:
         """Encodes object and returns the resulting string.
@@ -608,14 +614,14 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
     @classmethod
     def load(
             cls,
-            fp: IO[Any],
+            stream: IO[Any],
             format: Optional[str] = None,
             **kwargs
     ) -> Union['Object', NoReturn]:
-        """Decodes stream and returns the resulting object.
+        """Decodes `stream` and returns the resulting object.
 
         Parameters:
-           fp: A ``.read()``-supporting file-like object.
+           stream: A ``.read()``-supporting file-like object.
            format: Decoding format.
            kwargs: Decoder options.
 
@@ -625,7 +631,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         Raises:
            `DecoderError`: Decoder error.
         """
-        return cls.loads(fp.read(), format, **kwargs)
+        return cls.loads(stream.read(), format, **kwargs)
 
     @classmethod
     def loads(
@@ -645,7 +651,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
            The resulting object.
 
         Raises:
-           `DecoderError`: Decoder error
+           `DecoderError`: Decoder error.
         """
         dec = Decoder.from_format(format, cls.loads, 'format', 2)
         return cls.check(dec(**kwargs).decode(s), cls.load)
@@ -733,7 +739,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
     # -- callable --
 
     _check_arg_callable_details = (
-        lambda x: f'expected callable, got {type(x).__qualname__}')
+        lambda arg: f'expected callable, got {type(arg).__qualname__}')
 
     @classmethod
     def _check_arg_callable(
@@ -762,6 +768,10 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
 
     # -- isinstance --
 
+    _check_arg_isinstance_details = (
+        lambda arg, ty_name:
+        f'expected {ty_name}, got {type(arg).__qualname__}')
+
     @classmethod
     def _check_arg_isinstance(
             cls,
@@ -770,7 +780,8 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
             function: Optional[Union[TFun, str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
-            test=isinstance
+            test=isinstance,
+            details: Callable[[T, str], str] = _check_arg_isinstance_details
     ) -> Union[T, NoReturn]:
         if test(arg, ty):
             return arg
@@ -781,8 +792,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
                 ty_name = ' or '.join(sorted(map(
                     lambda x: x.__qualname__, ty)))
             raise Object._arg_error(
-                f'expected {ty_name}, got {type(arg).__qualname__}',
-                function, name, position, TypeError)
+                details(arg, ty_name), function, name, position, TypeError)
 
     @classmethod
     def _check_optional_arg_isinstance(
@@ -793,13 +803,50 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
             function: Optional[Union[TFun, str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
-            test=isinstance
+            test=isinstance,
+            details: Callable[[T, str], str] = _check_arg_isinstance_details
     ) -> Union[Optional[T], NoReturn]:
         if arg is None:
             return default
         else:
             return cls._check_arg_isinstance(
-                arg, ty, function, name, position, test)
+                arg, ty, function, name, position, test, details)
+
+    # -- issubclass --
+
+    _check_arg_issubclass_details = (
+        lambda arg, ty_name:
+        f'expected subclass of {ty_name}, got {arg.__qualname__}')
+
+    @classmethod
+    def _check_arg_issubclass(
+            cls,
+            arg: T,
+            ty: Union[type, tuple[type, ...]],
+            function: Optional[Union[TFun, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[T, NoReturn]:
+        cls._check_arg_isinstance(arg, type, function, name, position)
+        return cls._check_arg_isinstance(
+            arg, ty, function, name, position, issubclass,
+            cls._check_arg_issubclass_details)
+
+    @classmethod
+    def _check_optional_arg_issubclass(
+            cls,
+            arg: Optional[T],
+            ty: Union[type, tuple[type, ...]],
+            default: Optional[T] = None,
+            function: Optional[Union[TFun, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[Optional[T], NoReturn]:
+        if arg is None:
+            return default
+        else:
+            return cls._check_arg_issubclass(
+                arg, ty, function, name, position)
 
     # -- bool --
 
@@ -1033,10 +1080,10 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
 
     @classmethod
     def _camel2snake(cls, name: str) -> str:
-        """Converts from camel-case name to snake-case.
+        """Converts camel-case `name` to snake-case.
 
         Parameters:
-           name: Name (i.e., id-like :class:`str`).
+           name: Id-like name.
 
         Returns:
            `name` converted to snake-case.
@@ -1057,14 +1104,16 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         Returns:
            A new :class:`MustBeImplementedInSubclass` error.
         """
-        if details:
+        if details is not None:
             return MustBeImplementedInSubclass(details)
         else:
             return MustBeImplementedInSubclass()
 
     @classmethod
     def _should_not_get_here(
-            cls, details: Optional[str] = None) -> ShouldNotGetHere:
+            cls,
+            details: Optional[str] = None
+    ) -> ShouldNotGetHere:
         """Makes a "should not get here" error.
 
         Parameters:
@@ -1073,7 +1122,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         Returns:
            A new :class:`ShouldNotGetHere` error.
         """
-        if details:
+        if details is not None:
             return ShouldNotGetHere(details)
         else:
             return ShouldNotGetHere()
@@ -1088,7 +1137,7 @@ class CodecError(Error):
 class Codec(abc.ABC):
     """Abstract base class for codecs."""
 
-    registry: dict[str, type['Codec']] = dict()
+    registry: dict[str, type['Codec']]
     default: str
 
     format: str
@@ -1185,9 +1234,9 @@ class Encoder(Codec):
         raise MustBeImplementedInSubclass
 
 
-class SExpEncoder(
-        Encoder, format='sexp', description='S-expression encoder'):
-    """S-expression encoder."""
+class ReprEncoder(
+        Encoder, format='repr', description='Repr. encoder'):
+    """Repr. encoder."""
 
     def __init__(self, indent: int = 0):
         self.indent = indent
@@ -1199,38 +1248,101 @@ class SExpEncoder(
             self,
             v: Any,
             n: int = 0,
-            indent: int = 0) -> Generator[str, None, None]:
-        dl = '\n' if indent > 0 else ''
-        sp = '\n' if indent > 0 else ' '
-        yield ' ' * indent * n
-        if isinstance(v, (Object, list, tuple)):
+            indent: int = 0
+    ) -> Generator[str, None, None]:
+        yield from self._indent(n, indent)
+        if self._is_object_or_collection(v):
             if Object.test(v):
-                if v:
-                    yield '('
-                yield v.__class__.__qualname__
-                if v and indent == 0:
-                    yield ' '
+                yield from self._start_object(v, indent)
             else:
-                yield '['
+                yield from self._start_collection(v, indent)
             if v:
-                yield dl
+                yield from self._delim(indent)
                 for i in range(len(v) - 1):
                     yield from self._iterencode(v[i], n + 1, indent)
-                    yield sp
+                    yield from self._sep(indent)
                 yield from self._iterencode(v[-1], n + 1, indent)
             if v:
-                yield dl
-                yield ' ' * indent * n
+                yield from self._delim(indent)
+                yield from self._indent(n, indent)
             if Object.test(v):
-                if v:
-                    yield ')'
+                yield from self._end_object(v)
             else:
-                yield ']'
+                yield from self._end_collection(v)
         else:
-            try:
-                yield json.dumps(v, ensure_ascii=False)
-            except TypeError as err:
-                raise EncoderError(str(err)) from None
+            yield from self._repr(v)
+
+    def _is_object_or_collection(self, v):
+        return isinstance(v, (Object, list, tuple))
+
+    def _start_object(self, obj, indent):
+        yield obj.__class__.__qualname__
+        yield '('
+
+    def _end_object(self, obj):
+        yield ')'
+
+    def _start_collection(self, v, indent):
+        if isinstance(v, list):
+            yield '['
+        elif isinstance(v, tuple):
+            yield '('
+        else:
+            raise Object._should_not_get_here()
+
+    def _end_collection(self, v):
+        if isinstance(v, list):
+            yield ']'
+        elif isinstance(v, tuple):
+            if len(v) == 1:
+                yield ',)'
+            else:
+                yield ')'
+        else:
+            raise Object._should_not_get_here()
+
+    def _repr(self, v):
+        yield repr(v)
+
+    def _indent(self, n, indent):
+        yield ' ' * indent * n
+
+    def _delim(self, indent):
+        yield '\n' if indent > 0 else ''
+
+    def _sep(self, indent):
+        yield ',\n' if indent > 0 else ', '
+
+
+class SExpEncoder(
+        ReprEncoder, format='sexp', description='S-expression encoder'):
+    """S-expression encoder."""
+
+    def _start_object(self, obj, indent):
+        if obj:
+            yield '('
+        yield obj.__class__.__qualname__
+        if obj and indent == 0:
+            yield ' '
+
+    def _end_object(self, obj):
+        if obj:
+            yield ')'
+
+    def _start_collection(self, v, indent):
+        yield '['
+
+    def _end_collection(self, v):
+        yield ']'
+
+    def _repr(self, v):
+        try:
+            yield json.dumps(v, ensure_ascii=False)
+        except TypeError as err:
+            raise EncoderError(str(err)) from None
+
+    def _sep(self, indent):
+        yield '\n' if indent > 0 else ' '
 
 
 class JSON_Encoder(Encoder, format='json', description='JSON encoder'):
@@ -1308,6 +1420,20 @@ class Decoder(Codec):
            `DecoderError`: Decoder error.
         """
         raise MustBeImplementedInSubclass
+
+
+class ReprDecoder(
+        Decoder, format='repr', description='Repr. decoder'):
+    """Repr. decoder."""
+
+    def decode(self, s: str) -> Union[Object, NoReturn]:
+        return eval(s, self._globals(), self._locals())
+
+    def _globals(self):
+        return ObjectMeta._object_subclasses
+
+    def _locals(self, _empty_locals=dict()):
+        return _empty_locals
 
 
 class SExpDecoder(
@@ -1406,7 +1532,7 @@ class JSON_Decoder(Decoder, format='json', description='JSON decoder'):
         def object_hook(self, o):
             assert isinstance(o, dict)
             if 'class' not in o:
-                raise DecoderError("missing field 'class'")
+                raise DecoderError("missing attribute 'class'")
             cls = Decoder.check_object_class(o['class'])
             return cls(*o.get('args', ()))
 
@@ -1420,5 +1546,5 @@ class JSON_Decoder(Decoder, format='json', description='JSON decoder'):
 # -- Defaults --------------------------------------------------------------
 
 Decoder.default = SExpDecoder.format
-Encoder.default = SExpEncoder.format
+Encoder.default = ReprEncoder.format
 ObjectMeta._object_class = Object

@@ -5,10 +5,10 @@ import json
 
 from kif_lib import Quantity
 
-from .tests import kif_TestCase, main
+from .tests import kif_TestCase
 
 
-class TestJSON_Encoder(kif_TestCase):
+class TestCodecJSON(kif_TestCase):
 
     def assert_to_json(self, obj, data):
         self.assertEqual(obj.to_json(), json.dumps(data))
@@ -21,4 +21,4 @@ class TestJSON_Encoder(kif_TestCase):
 
 
 if __name__ == '__main__':
-    main()
+    TestCodecJSON.main()

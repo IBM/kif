@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from collections.abc import Iterable
-from typing import cast, NoReturn, Optional, Union
 
+from ..typing import cast, NoReturn, Optional, Union
 from .kif_object import KIF_Object, TCallable
 from .snak import Snak
 from .snak_set import SnakSet, TSnakSet
@@ -18,7 +18,7 @@ class Fingerprint(KIF_Object):
     """Fingerprint.
 
     Parameters:
-       arg1: Value or snak set.
+       value_spec: Value or snak set.
     """
 
     @classmethod
@@ -33,8 +33,8 @@ class Fingerprint(KIF_Object):
             arg, (cls, Value, Snak, SnakSet, Iterable),
             function, name, position))
 
-    def __init__(self, arg1: TFingerprint):
-        return super().__init__(arg1)
+    def __init__(self, value_spec: TFingerprint):
+        return super().__init__(value_spec)
 
     def _preprocess_arg(self, arg, i):
         if i == 1:
@@ -51,41 +51,41 @@ class Fingerprint(KIF_Object):
 
     @property
     def value(self) -> Optional[Value]:
-        """Fingerprint value."""
+        """The value of fingerprint."""
         return self.get_value()
 
     def get_value(self, default: Optional[Value] = None) -> Optional[Value]:
-        """Gets fingerprint value.
+        """Gets the value of fingerprint.
 
-        If fingerprint has no value, returns `default`.
+        If the value is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default value.
 
         Returns:
-           Fingerprint value or `default` (fingerprint has no value).
+           Value.
         """
         val = self.args[0]
         return val if isinstance(val, Value) else default
 
     @property
     def snak_set(self) -> Optional[SnakSet]:
-        """Fingerprint snak set."""
+        """The snak set of fingerprint."""
         return self.get_snak_set()
 
     def get_snak_set(
             self,
             default: Optional[SnakSet] = None
     ) -> Optional[SnakSet]:
-        """Gets fingerprint snak set.
+        """Gets the snak set of fingerprint.
 
-        If fingerprint has no snak set, returns `default`.
+        If the snak set is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default snak set.
 
         Returns:
-           Fingerprint snak set or `default` (fingerprint has no snak set).
+           Snak set.
         """
         snaks = self.args[0]
         return snaks if isinstance(snaks, SnakSet) else default
@@ -95,7 +95,7 @@ class EntityFingerprint(Fingerprint):
     """Entity fingerprint.
 
     Parameters:
-       arg1: Entity or snak set.
+       entity_spec: Entity or snak set.
     """
 
     @classmethod
@@ -109,8 +109,8 @@ class EntityFingerprint(Fingerprint):
         return cls(cls._check_arg_isinstance(
             arg, (cls, Entity, SnakSet, Iterable), function, name, position))
 
-    def __init__(self, arg1: TEntityFingerprint):
-        return super().__init__(arg1)
+    def __init__(self, entity_spec: TEntityFingerprint):
+        return super().__init__(entity_spec)
 
     def _preprocess_arg(self, arg, i):
         if i == 1:
@@ -127,22 +127,22 @@ class EntityFingerprint(Fingerprint):
 
     @property
     def entity(self) -> Optional[Entity]:
-        """Fingerprint entity."""
+        """The entity of fingerprint."""
         return self.get_entity()
 
     def get_entity(
             self,
             default: Optional[Entity] = None
     ) -> Optional[Entity]:
-        """Gets fingerprint entity.
+        """Gets the entity of fingerprint.
 
-        If fingerprint has no entity, returns `default`.
+        If the entity is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default entity.
 
         Returns:
-           Fingerprint entity or `default` (fingerprint has no entity).
+           Entity.
         """
         return cast(Optional[Entity], self.get_value(default))
 
@@ -151,7 +151,7 @@ class PropertyFingerprint(Fingerprint):
     """Property fingerprint.
 
     Parameters:
-       arg1: Property or snak set.
+       property_spec: Property or snak set.
     """
 
     @classmethod
@@ -166,8 +166,8 @@ class PropertyFingerprint(Fingerprint):
             arg, (cls, Property, SnakSet, Iterable),
             function, name, position))
 
-    def __init__(self, arg1: TPropertyFingerprint):
-        return super().__init__(arg1)
+    def __init__(self, property_spec: TPropertyFingerprint):
+        return super().__init__(property_spec)
 
     def _preprocess_arg(self, arg, i):
         if i == 1:
@@ -184,21 +184,21 @@ class PropertyFingerprint(Fingerprint):
 
     @property
     def property(self) -> Optional[Property]:
-        """Fingerprint property."""
+        """The property of fingerprint."""
         return self.get_property()
 
     def get_property(
             self,
             default: Optional[Property] = None
     ) -> Optional[Property]:
-        """Gets fingerprint property.
+        """Gets the property of fingerprint.
 
-        If fingerprint has no property, returns `default`.
+        If the property is ``None``, returns `default`.
 
         Parameters:
-           default: Default.
+           default: Default property.
 
         Returns:
-           Fingerprint property or `default` (fingerprint has no property).
+           Property.
         """
         return cast(Optional[Property], self.get_value(default))

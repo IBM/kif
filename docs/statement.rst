@@ -2,7 +2,13 @@
 Statement
 =========
 
-.. currentmodule:: kif
+.. currentmodule:: kif_lib
+
+.. inheritance-diagram:: KIF_Object
+                         Statement
+   :top-classes: kif_lib.model.kif_object.KIF_Object
+   :parts: -3
+   :caption: Statement hierarchy.
 
 Statement
 ---------
@@ -12,31 +18,4 @@ Statement
 
    Statement
    Statement.subject
-   Statement.get_subject
    Statement.snak
-   Statement.get_snak
-
-AnnotationRecord
-----------------
-
-.. autosummary::
-   :toctree: generated/
-
-   AnnotationRecord
-   AnnotationRecord.qualifiers
-   AnnotationRecord.get_qualifiers
-   AnnotationRecord.references
-   AnnotationRecord.get_references
-   AnnotationRecord.rank
-   AnnotationRecord.get_rank
-
-AnnotationRecordSet
--------------------
-
-.. autosummary::
-   :toctree: generated/
-
-   AnnotationRecordSet
-   AnnotationRecordSet.args_set
-   AnnotationRecordSet.get_args_set
-   AnnotationRecordSet.union
