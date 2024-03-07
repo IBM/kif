@@ -9,7 +9,7 @@ from kif_lib.namespace import WD, WDT
 from .tests import kif_TestCase
 
 
-class TestLexeme(kif_TestCase):
+class TestModelValueLexeme(kif_TestCase):
 
     def test__init__(self):
         self.assertRaises(TypeError, Lexeme, 0)
@@ -45,4 +45,4 @@ class TestLexeme(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestLexeme.main()
+    TestModelValueLexeme.main()

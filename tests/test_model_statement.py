@@ -14,7 +14,7 @@ from kif_lib import (
 from .tests import kif_TestCase
 
 
-class TestStatement(kif_TestCase):
+class TestModelStatement(kif_TestCase):
 
     def test__init__(self):
         # bad arguments
@@ -37,4 +37,4 @@ class TestStatement(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestStatement.main()
+    TestModelStatement.main()

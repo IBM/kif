@@ -9,7 +9,7 @@ from kif_lib.namespace import XSD
 from .tests import kif_TestCase
 
 
-class TestText(kif_TestCase):
+class TestModelValueText(kif_TestCase):
 
     def test__check_arg_text(self):
         self.assertRaises(TypeError, Text._check_arg_text, 55)
@@ -43,4 +43,4 @@ class TestText(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestText.main()
+    TestModelValueText.main()

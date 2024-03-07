@@ -1,4 +1,4 @@
-# Copyright (C) 2023-2024 IBM Corp.
+# Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
@@ -15,7 +15,7 @@ from kif_lib.vocabulary import wd
 from .tests import kif_PubChemSPARQL_StoreTestCase
 
 
-class TestSPARQL_MapperStorePubChem(kif_PubChemSPARQL_StoreTestCase):
+class TestStoreMapperMappingPubChem(kif_PubChemSPARQL_StoreTestCase):
 
     def test_sanity(self):
         self.store_sanity_checks(self.new_Store())
@@ -131,4 +131,4 @@ class TestSPARQL_MapperStorePubChem(kif_PubChemSPARQL_StoreTestCase):
 
 
 if __name__ == '__main__':
-    TestSPARQL_MapperStorePubChem.main()
+    TestStoreMapperMappingPubChem.main()

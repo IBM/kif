@@ -13,7 +13,7 @@ from kif_lib import (
 from .tests import kif_TestCase
 
 
-class TestEntityFingerprint(kif_TestCase):
+class TestModelFingerprintEntityFingerprint(kif_TestCase):
 
     def test__preprocess_arg_entity_fingerprint(self):
         self.assertEqual(
@@ -72,4 +72,4 @@ class TestEntityFingerprint(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestEntityFingerprint.main()
+    TestModelFingerprintEntityFingerprint.main()

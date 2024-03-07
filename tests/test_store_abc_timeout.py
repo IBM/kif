@@ -6,7 +6,7 @@ import sys
 from .tests import kif_EmptyStoreTestCase
 
 
-class TestStoreTimeout(kif_EmptyStoreTestCase):
+class TestStoreABC_Timeout(kif_EmptyStoreTestCase):
 
     def test_timeout_defaults(self):
         kb = self.new_Store()
@@ -54,4 +54,4 @@ class TestStoreTimeout(kif_EmptyStoreTestCase):
 
 
 if __name__ == '__main__':
-    TestStoreTimeout.main()
+    TestStoreABC_Timeout.main()

@@ -7,7 +7,7 @@ from kif_lib.error import MustBeImplementedInSubclass, ShouldNotGetHere
 from .tests import kif_StoreTestCase
 
 
-class TestStoreError(kif_StoreTestCase):
+class TestStoreABC_Error(kif_StoreTestCase):
 
     def test__error(self):
         err = Store._error('hello')
@@ -32,4 +32,4 @@ class TestStoreError(kif_StoreTestCase):
 
 
 if __name__ == '__main__':
-    TestStoreError.main()
+    TestStoreABC_Error.main()

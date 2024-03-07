@@ -7,7 +7,8 @@ from kif_lib.vocabulary import wd
 from .tests import kif_WikidataSPARQL_StoreTestCase
 
 
-class TestStoreSPARQL_Descriptors(kif_WikidataSPARQL_StoreTestCase):
+class TestStoreSPARQL_SPARQL_StoreDescriptors(
+        kif_WikidataSPARQL_StoreTestCase):
 
     def test_get_descriptor_sanity(self):
         kb = self.new_Store()
@@ -55,4 +56,4 @@ class TestStoreSPARQL_Descriptors(kif_WikidataSPARQL_StoreTestCase):
 
 
 if __name__ == '__main__':
-    TestStoreSPARQL_Descriptors.main()
+    TestStoreSPARQL_SPARQL_StoreDescriptors.main()

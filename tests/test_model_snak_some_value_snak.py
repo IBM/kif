@@ -6,7 +6,7 @@ from kif_lib import IRI, Property, SomeValueSnak, String
 from .tests import kif_TestCase
 
 
-class TestSomeValueSnak(kif_TestCase):
+class TestModelSnakSomeValueSnak(kif_TestCase):
 
     def test__init__(self):
         # bad argument
@@ -27,4 +27,4 @@ class TestSomeValueSnak(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestSomeValueSnak.main()
+    TestModelSnakSomeValueSnak.main()

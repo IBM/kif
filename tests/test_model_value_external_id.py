@@ -8,7 +8,7 @@ from kif_lib import ExternalId, String
 from .tests import kif_TestCase
 
 
-class TestExternalId(kif_TestCase):
+class TestModelValueExternalId(kif_TestCase):
 
     def test__preprocess_arg_external_id(self):
         self.assertEqual(
@@ -49,4 +49,4 @@ class TestExternalId(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestExternalId.main()
+    TestModelValueExternalId.main()

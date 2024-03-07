@@ -9,7 +9,7 @@ from kif_lib.namespace import P, WD
 from .tests import kif_TestCase
 
 
-class TestProperty(kif_TestCase):
+class TestModelValueProperty(kif_TestCase):
 
     def test__init__(self):
         self.assertRaises(TypeError, Property, 0)
@@ -53,4 +53,4 @@ class TestProperty(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestProperty.main()
+    TestModelValueProperty.main()

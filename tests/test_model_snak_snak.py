@@ -6,7 +6,7 @@ from kif_lib import Snak
 from .tests import kif_TestCase
 
 
-class TestSnak(kif_TestCase):
+class TestModelSnakSnak(kif_TestCase):
 
     def test__preprocess_arg_snak_mask(self):
         self.assertRaises(
@@ -49,4 +49,4 @@ class TestSnak(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestSnak.main()
+    TestModelSnakSnak.main()

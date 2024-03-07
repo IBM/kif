@@ -6,7 +6,7 @@ from kif_lib import IRI, Item, Property, Quantity, String, ValueSnak
 from .tests import kif_TestCase
 
 
-class TestValueSnak(kif_TestCase):
+class TestModelSnakValueSnak(kif_TestCase):
 
     def test__init__(self):
         self.assertRaises(TypeError, ValueSnak, 0, 0)
@@ -37,4 +37,4 @@ class TestValueSnak(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestValueSnak.main()
+    TestModelSnakValueSnak.main()

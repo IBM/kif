@@ -16,7 +16,7 @@ from kif_lib.vocabulary import wd
 from .tests import kif_TestCase
 
 
-class TestAnnotationRecordSet(kif_TestCase):
+class TestModelAnnotationRecordSet(kif_TestCase):
 
     def test__preprocess_arg_annotation_record_set(self):
         annots = AnnotationRecordSet(
@@ -105,4 +105,4 @@ class TestAnnotationRecordSet(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestAnnotationRecordSet.main()
+    TestModelAnnotationRecordSet.main()

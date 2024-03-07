@@ -28,7 +28,7 @@ from .data import (
 from .tests import kif_StoreTestCase
 
 
-class TestStoreMixer_Descriptors(kif_StoreTestCase):
+class TestStoreMixerDescriptors(kif_StoreTestCase):
 
     kb_adam = Store('rdf', ADAM_TTL)
     kb_andar = Store('rdf', ANDAR_TTL)
@@ -548,4 +548,4 @@ wd:P31
 
 
 if __name__ == '__main__':
-    TestStoreMixer_Descriptors.main()
+    TestStoreMixerDescriptors.main()

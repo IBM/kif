@@ -7,7 +7,7 @@ from kif_lib.vocabulary import wd
 from .tests import kif_TestCase
 
 
-class TestLexemeDescriptor(kif_TestCase):
+class TestModelDescriptorLexemeDescriptor(kif_TestCase):
 
     def test__init__(self):
         # bad arguments
@@ -50,4 +50,4 @@ class TestLexemeDescriptor(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestLexemeDescriptor.main()
+    TestModelDescriptorLexemeDescriptor.main()

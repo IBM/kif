@@ -7,7 +7,7 @@ from kif_lib.namespace import WIKIBASE
 from .tests import kif_TestCase
 
 
-class TestPreferredRank(kif_TestCase):
+class TestModelRankPreferredRank(kif_TestCase):
 
     def test__init__(self):
         self.assert_preferred_rank(PreferredRank())
@@ -23,4 +23,4 @@ class TestPreferredRank(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestPreferredRank.main()
+    TestModelRankPreferredRank.main()

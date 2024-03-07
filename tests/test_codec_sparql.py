@@ -14,7 +14,7 @@ from kif_lib.vocabulary import wd
 from .tests import kif_TestCase
 
 
-class TestSPARQL_Decoder(kif_TestCase):
+class TestCodecSPARQL(kif_TestCase):
 
     def test_from_sparql(self):
         # bad query
@@ -116,4 +116,4 @@ SELECT ?report WHERE {
 
 
 if __name__ == '__main__':
-    TestSPARQL_Decoder.main()
+    TestCodecSPARQL.main()

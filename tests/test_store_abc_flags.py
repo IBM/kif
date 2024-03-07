@@ -6,7 +6,7 @@ from kif_lib import Store
 from .tests import kif_EmptyStoreTestCase
 
 
-class TestStoreFlags(kif_EmptyStoreTestCase):
+class TestStoreABC_Flags(kif_EmptyStoreTestCase):
 
     def test_flags_default(self):
         kb = self.new_Store()
@@ -54,4 +54,4 @@ class TestStoreFlags(kif_EmptyStoreTestCase):
 
 
 if __name__ == '__main__':
-    TestStoreFlags.main()
+    TestStoreABC_Flags.main()

@@ -4,7 +4,7 @@
 from .tests import kif_EmptyStoreTestCase
 
 
-class TestStoreDescriptors(kif_EmptyStoreTestCase):
+class TestStoreABC_Descriptors(kif_EmptyStoreTestCase):
 
     def test_get_descriptor(self):
         self.sanity_check_get_descriptor(self.new_Store())
@@ -20,4 +20,4 @@ class TestStoreDescriptors(kif_EmptyStoreTestCase):
 
 
 if __name__ == '__main__':
-    TestStoreDescriptors.main()
+    TestStoreABC_Descriptors.main()

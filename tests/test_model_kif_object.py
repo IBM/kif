@@ -53,7 +53,7 @@ from kif_lib.model import Datetime, Decimal, UTC
 from .tests import kif_TestCase
 
 
-class TestKIF_Object(kif_TestCase):
+class TestModelKIF_Object(kif_TestCase):
 
     ALL_KIF_OBJECT_CLASSES = set(filter(
         lambda c: isinstance(c, type) and issubclass(c, KIF_Object), map(
@@ -1085,4 +1085,4 @@ class TestKIF_Object(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestKIF_Object.main()
+    TestModelKIF_Object.main()

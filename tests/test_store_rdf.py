@@ -27,7 +27,7 @@ from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL
 from .tests import kif_StoreTestCase
 
 
-class TestRDF_Store(kif_StoreTestCase):
+class TestStoreRDF(kif_StoreTestCase):
 
     def test_sanity(self):
         self.store_sanity_checks(Store('rdf', BENZENE_TTL))
@@ -555,4 +555,4 @@ class TestRDF_Store(kif_StoreTestCase):
 
 
 if __name__ == '__main__':
-    TestRDF_Store.main()
+    TestStoreRDF.main()

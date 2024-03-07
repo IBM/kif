@@ -9,7 +9,7 @@ from kif_lib.namespace import WD, XSD
 from .tests import kif_TestCase
 
 
-class TestIRI(kif_TestCase):
+class TestModelValueIRI(kif_TestCase):
 
     def test__preprocess_arg_iri(self):
         self.assertEqual(
@@ -50,4 +50,4 @@ class TestIRI(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestIRI.main()
+    TestModelValueIRI.main()

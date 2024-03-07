@@ -57,7 +57,7 @@ PYTEST?= ${PYTHON} -m pytest
 PYTEST_COV_OPTIONS?= --cov=${PACKAGE} --cov-report=html
 PYTEST_ENV?=
 PYTEST_INI?= pytest.ini
-PYTEST_OPTIONS?= -x -ra
+PYTEST_OPTIONS?= -ra
 PYTHON?= python
 TESTS?= tests
 TOX?= tox

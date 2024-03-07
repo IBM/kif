@@ -15,7 +15,7 @@ from kif_lib import (
 from .tests import kif_TestCase
 
 
-class TestReferenceRecordSet(kif_TestCase):
+class TestModelReferenceRecordSet(kif_TestCase):
 
     def test__preprocess_arg_reference_record_set(self):
         refs = ReferenceRecordSet(
@@ -93,4 +93,4 @@ class TestReferenceRecordSet(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestReferenceRecordSet.main()
+    TestModelReferenceRecordSet.main()

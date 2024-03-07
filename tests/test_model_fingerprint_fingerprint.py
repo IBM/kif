@@ -6,7 +6,7 @@ from kif_lib import Fingerprint, IRI, Item, NoValueSnak, Property, SnakSet
 from .tests import kif_TestCase
 
 
-class TestFingerprint(kif_TestCase):
+class TestModelFingerprintFingerprint(kif_TestCase):
 
     def test__preprocess_arg_fingerprint(self):
         self.assertEqual(
@@ -64,4 +64,4 @@ class TestFingerprint(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestFingerprint.main()
+    TestModelFingerprintFingerprint.main()

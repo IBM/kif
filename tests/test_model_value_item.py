@@ -9,7 +9,7 @@ from kif_lib.namespace import WD, WDT
 from .tests import kif_TestCase
 
 
-class TestItem(kif_TestCase):
+class TestModelValueItem(kif_TestCase):
 
     def test__init__(self):
         self.assertRaises(TypeError, Item, 0)
@@ -39,4 +39,4 @@ class TestItem(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestItem.main()
+    TestModelValueItem.main()

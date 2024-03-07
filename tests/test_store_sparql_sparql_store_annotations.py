@@ -1,4 +1,4 @@
-# Copyright (C) 2023-2024 IBM Corp.
+# Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import AnnotationRecord, IRI, Normal, Quantity, ReferenceRecord
@@ -7,7 +7,8 @@ from kif_lib.vocabulary import wd
 from .tests import kif_WikidataSPARQL_StoreTestCase
 
 
-class TestSPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
+class TestStoreSPARQL_SPARQL_StoreAnnotations(
+        kif_WikidataSPARQL_StoreTestCase):
 
     def test_get_annotations_bad_argument(self):
         kb = self.new_Store()
@@ -72,4 +73,4 @@ class TestSPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
 
 
 if __name__ == '__main__':
-    TestSPARQL_Store.main()
+    TestStoreSPARQL_SPARQL_StoreAnnotations.main()

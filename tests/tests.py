@@ -3,6 +3,7 @@
 
 import itertools
 import os
+import pathlib
 import re
 import unittest
 
@@ -69,12 +70,27 @@ from kif_lib.namespace import WIKIBASE, XSD
 from kif_lib.typing import override
 from kif_lib.vocabulary import wd
 
+ME = pathlib.Path(__file__)
+
 
 class kif_TestCase(unittest.TestCase):
 
     @classmethod
     def main(cls):
         return unittest.main()
+
+    def test_test_case_class_name(self):
+        import inspect
+        path = pathlib.Path(inspect.getfile(self.__class__))
+        if path == ME:
+            return              # nothing to do
+        name = self.__class__.__name__
+        self.assertEqual(path.stem, KIF_Object._camel2snake(name))
+        text = open(path).read()
+        self.assertTrue(text.endswith(f'''\
+if __name__ == '__main__':
+    {name}.main()
+'''))
 
     def assert_raises_bad_argument(
             self, exception, position, name, details, function,
@@ -1250,9 +1266,19 @@ class kif_WikidataSPARQL_StoreTestCase(kif_SPARQL_StoreTestCase):
         return super().new_Store(cls.WIKIDATA, *args, **kwargs)
 
 
+# == kif_SPARQL_MapperStoreTestCase ========================================
+
+class kif_SPARQL_MapperStoreTestCase(kif_SPARQL_StoreTestCase):
+
+    @override
+    @classmethod
+    def new_Store(cls, *args, **kwargs):
+        return kif_StoreTestCase.new_Store('sparql-mapper', *args, **kwargs)
+
+
 # == kif_PubChemSPARQL_StoreTestCase =======================================
 
-class kif_PubChemSPARQL_StoreTestCase(kif_SPARQL_StoreTestCase):
+class kif_PubChemSPARQL_StoreTestCase(kif_SPARQL_MapperStoreTestCase):
 
     PUBCHEM = os.getenv('PUBCHEM')
 
@@ -1265,5 +1291,4 @@ class kif_PubChemSPARQL_StoreTestCase(kif_SPARQL_StoreTestCase):
     @classmethod
     def new_Store(cls, *args, **kwargs):
         from kif_lib.store.mapping import PubChemMapping
-        return Store(
-            'sparql-mapper', cls.PUBCHEM, PubChemMapping, *args, **kwargs)
+        return super().new_Store(cls.PUBCHEM, PubChemMapping, *args, **kwargs)

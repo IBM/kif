@@ -6,7 +6,7 @@ from kif_lib import Property, ReferenceRecord, ReferenceRecordSet
 from .tests import kif_EmptyStoreTestCase
 
 
-class TestStoreExtraReferences(kif_EmptyStoreTestCase):
+class TestStoreABC_ExtraReferences(kif_EmptyStoreTestCase):
 
     def test_extra_references_default(self):
         kb = self.new_Store()
@@ -67,4 +67,4 @@ class TestStoreExtraReferences(kif_EmptyStoreTestCase):
 
 
 if __name__ == '__main__':
-    TestStoreExtraReferences.main()
+    TestStoreABC_ExtraReferences.main()

@@ -7,7 +7,7 @@ from kif_lib.namespace import WIKIBASE
 from .tests import kif_TestCase
 
 
-class TestDeprecatedRank(kif_TestCase):
+class TestModelRankDeprecatedRank(kif_TestCase):
 
     def test__init__(self):
         self.assert_deprecated_rank(DeprecatedRank())
@@ -23,4 +23,4 @@ class TestDeprecatedRank(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestDeprecatedRank.main()
+    TestModelRankDeprecatedRank.main()

@@ -8,7 +8,7 @@ from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL
 from .tests import kif_StoreTestCase
 
 
-class TestMixerStore(kif_StoreTestCase):
+class TestStoreMixer(kif_StoreTestCase):
 
     def mk_empty_mixer(self):
         return Store('mixer')
@@ -63,42 +63,42 @@ class TestMixerStore(kif_StoreTestCase):
     # -- Queries -----------------------------------------------------------
 
     def test_contains(self):
-        from .test_store_rdf import TestRDF_Store
-        test = TestRDF_Store()
+        from .test_store_rdf import TestStoreRDF
+        test = TestStoreRDF()
         test._test_contains(self.mk_adam_benzene_brazil_mixer())
 
     def test_contains_any_rank(self):
-        from .test_store_rdf import TestRDF_Store
-        test = TestRDF_Store()
+        from .test_store_rdf import TestStoreRDF
+        test = TestStoreRDF()
         test._test_contains_any_rank(self.mk_adam_benzene_brazil_mixer())
 
     def test_count(self):
-        from .test_store_rdf import TestRDF_Store
-        test = TestRDF_Store()
+        from .test_store_rdf import TestStoreRDF
+        test = TestStoreRDF()
         test._test_count(self.mk_adam_benzene_brazil_mixer())
 
     def test_count_any_rank(self):
-        from .test_store_rdf import TestRDF_Store
-        test = TestRDF_Store()
+        from .test_store_rdf import TestStoreRDF
+        test = TestStoreRDF()
         test._test_count_any_rank(self.mk_adam_benzene_brazil_mixer())
 
     def test_filter(self):
-        from .test_store_rdf import TestRDF_Store
-        test = TestRDF_Store()
+        from .test_store_rdf import TestStoreRDF
+        test = TestStoreRDF()
         test._test_filter(self.mk_adam_benzene_brazil_mixer())
 
     def test_filter_any_rank(self):
-        from .test_store_rdf import TestRDF_Store
-        test = TestRDF_Store()
+        from .test_store_rdf import TestStoreRDF
+        test = TestStoreRDF()
         test._test_filter_any_rank(self.mk_adam_benzene_brazil_mixer())
 
     # -- Annotations -------------------------------------------------------
 
     def test_get_annotations(self):
-        from .test_store_rdf import TestRDF_Store
-        test = TestRDF_Store()
+        from .test_store_rdf import TestStoreRDF
+        test = TestStoreRDF()
         test._test_get_annotations(self.mk_adam_benzene_brazil_mixer())
 
 
 if __name__ == '__main__':
-    TestMixerStore.main()
+    TestStoreMixer.main()

@@ -7,7 +7,7 @@ from kif_lib.namespace import WIKIBASE
 from .tests import kif_TestCase
 
 
-class TestIRI_Datatype(kif_TestCase):
+class TestModelValueIRI_Datatype(kif_TestCase):
 
     def test__from_rdflib(self):
         self.assert_iri_datatype(IRI_Datatype._from_rdflib(WIKIBASE.Url))
@@ -23,4 +23,4 @@ class TestIRI_Datatype(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestIRI_Datatype.main()
+    TestModelValueIRI_Datatype.main()

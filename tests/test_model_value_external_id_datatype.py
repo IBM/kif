@@ -7,7 +7,7 @@ from kif_lib.namespace import WIKIBASE
 from .tests import kif_TestCase
 
 
-class TestExternalIdDatatype(kif_TestCase):
+class TestModelValueExternalIdDatatype(kif_TestCase):
 
     def test__from_rdflib(self):
         self.assert_external_id_datatype(
@@ -25,4 +25,4 @@ class TestExternalIdDatatype(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestExternalIdDatatype.main()
+    TestModelValueExternalIdDatatype.main()

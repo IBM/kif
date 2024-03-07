@@ -6,7 +6,7 @@ from kif_lib import Datatype, IRI, PropertyDescriptor, Text, TextSet
 from .tests import kif_TestCase
 
 
-class TestPropertyDescriptor(kif_TestCase):
+class TestModelDescriptorPropertyDescriptor(kif_TestCase):
 
     def test__init__(self):
         # bad arguments
@@ -65,4 +65,4 @@ class TestPropertyDescriptor(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestPropertyDescriptor.main()
+    TestModelDescriptorPropertyDescriptor.main()

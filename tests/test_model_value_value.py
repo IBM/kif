@@ -21,7 +21,7 @@ from kif_lib import (
 from .tests import kif_TestCase
 
 
-class TestValue(kif_TestCase):
+class TestModelValueValue(kif_TestCase):
 
     def test__preprocess_arg_value_mask(self):
         self.assertRaises(
@@ -86,4 +86,4 @@ class TestValue(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestValue.main()
+    TestModelValueValue.main()

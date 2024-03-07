@@ -13,7 +13,7 @@ from kif_lib import (
 from .tests import kif_TestCase
 
 
-class TestPropertyFingerprint(kif_TestCase):
+class TestModelFingerprintPropertyFingerprint(kif_TestCase):
 
     def test__preprocess_arg_property_fingerprint(self):
         self.assertEqual(
@@ -74,4 +74,4 @@ class TestPropertyFingerprint(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestPropertyFingerprint.main()
+    TestModelFingerprintPropertyFingerprint.main()

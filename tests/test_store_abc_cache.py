@@ -6,7 +6,7 @@ from kif_lib import Item, Items, Property
 from .tests import kif_EmptyStoreTestCase
 
 
-class TestStoreCache(kif_EmptyStoreTestCase):
+class TestStoreABC_Cache(kif_EmptyStoreTestCase):
 
     def test__cache_init(self):
         kb = self.new_Store()
@@ -34,4 +34,4 @@ class TestStoreCache(kif_EmptyStoreTestCase):
 
 
 if __name__ == '__main__':
-    TestStoreCache.main()
+    TestStoreABC_Cache.main()

@@ -16,7 +16,7 @@ from kif_lib import (
 from .tests import kif_TestCase
 
 
-class TestAnnotationRecord(kif_TestCase):
+class TestModelAnnotationRecord(kif_TestCase):
 
     def test__init__(self):
         # bad arguments
@@ -41,4 +41,4 @@ class TestAnnotationRecord(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestAnnotationRecord.main()
+    TestModelAnnotationRecord.main()

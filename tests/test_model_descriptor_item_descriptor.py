@@ -6,7 +6,7 @@ from kif_lib import IRI, ItemDescriptor, Text, TextSet
 from .tests import kif_TestCase
 
 
-class TestItemDescriptor(kif_TestCase):
+class TestModelDescriptorItemDescriptor(kif_TestCase):
 
     def test__init__(self):
         # bad arguments
@@ -39,4 +39,4 @@ class TestItemDescriptor(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestItemDescriptor.main()
+    TestModelDescriptorItemDescriptor.main()

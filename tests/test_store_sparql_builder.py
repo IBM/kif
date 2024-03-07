@@ -7,7 +7,7 @@ from kif_lib.store.sparql_builder import SPARQL_Builder
 from .tests import kif_TestCase
 
 
-class TestSPARQL_Builder(kif_TestCase):
+class TestStoreSPARQL_Builder(kif_TestCase):
 
     def test__init__(self):
         q = SPARQL_Builder()
@@ -170,4 +170,4 @@ select (count (*) as ?c) where {
 
 
 if __name__ == '__main__':
-    TestSPARQL_Builder.main()
+    TestStoreSPARQL_Builder.main()

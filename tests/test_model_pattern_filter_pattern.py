@@ -19,7 +19,7 @@ from kif_lib import (
 from .tests import kif_TestCase
 
 
-class TestFilterPattern(kif_TestCase):
+class TestModelPatternFilterPattern(kif_TestCase):
 
     def test_from_snak(self):
         # snak is none
@@ -176,4 +176,4 @@ class TestFilterPattern(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestFilterPattern.main()
+    TestModelPatternFilterPattern.main()

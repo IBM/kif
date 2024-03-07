@@ -8,7 +8,7 @@ from kif_lib import String
 from .tests import kif_TestCase
 
 
-class TestString(kif_TestCase):
+class TestModelValueString(kif_TestCase):
 
     def test__check_arg_string(self):
         self.assertRaises(TypeError, String._check_arg_string, 55)
@@ -46,4 +46,4 @@ class TestString(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestString.main()
+    TestModelValueString.main()

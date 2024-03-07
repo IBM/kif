@@ -11,7 +11,7 @@ from kif_lib.vocabulary import wd
 from .tests import kif_TestCase
 
 
-class TestQuantity(kif_TestCase):
+class TestModelValueQuantity(kif_TestCase):
 
     def test__init__(self):
         self.assertRaises(ValueError, Quantity, 'abc', 0)
@@ -81,4 +81,4 @@ class TestQuantity(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestQuantity.main()
+    TestModelValueQuantity.main()

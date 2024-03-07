@@ -11,7 +11,7 @@ from kif_lib.vocabulary import wd
 from .tests import kif_TestCase
 
 
-class TestTime(kif_TestCase):
+class TestModelValueTime(kif_TestCase):
 
     def test__check_arg_precision(self):
         self.assertRaises(TypeError, Time._check_arg_precision, 'abc')
@@ -149,4 +149,4 @@ class TestTime(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestTime.main()
+    TestModelValueTime.main()

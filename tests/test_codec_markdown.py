@@ -31,7 +31,7 @@ from kif_lib.vocabulary import wd
 from .tests import kif_TestCase
 
 
-class TestMarkdownEncoder(kif_TestCase):
+class TestCodecMarkdown(kif_TestCase):
 
     def md_link(self, label, url=None):
         return f'[{label}]({url or label})'
@@ -346,4 +346,4 @@ class TestMarkdownEncoder(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestMarkdownEncoder.main()
+    TestCodecMarkdown.main()

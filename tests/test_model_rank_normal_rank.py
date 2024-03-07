@@ -7,7 +7,7 @@ from kif_lib.namespace import WIKIBASE
 from .tests import kif_TestCase
 
 
-class TestNormalRank(kif_TestCase):
+class TestModelRankNormalRank(kif_TestCase):
 
     def test__init__(self):
         self.assert_normal_rank(NormalRank())
@@ -23,4 +23,4 @@ class TestNormalRank(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestNormalRank.main()
+    TestModelRankNormalRank.main()

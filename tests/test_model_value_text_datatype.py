@@ -7,7 +7,7 @@ from kif_lib.namespace import WIKIBASE
 from .tests import kif_TestCase
 
 
-class TestTextDatatype(kif_TestCase):
+class TestModelValueTextDatatype(kif_TestCase):
 
     def test__from_rdflib(self):
         self.assert_text_datatype(
@@ -24,4 +24,4 @@ class TestTextDatatype(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestTextDatatype.main()
+    TestModelValueTextDatatype.main()

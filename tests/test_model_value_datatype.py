@@ -7,7 +7,7 @@ from kif_lib.error import MustBeImplementedInSubclass
 from .tests import kif_TestCase
 
 
-class TestDatatype(kif_TestCase):
+class TestModelValueDatatype(kif_TestCase):
 
     def test__preprocess_arg_datatype(self):
         self.assertRaises(TypeError, Datatype._preprocess_arg_datatype, 0, 1)
@@ -53,4 +53,4 @@ class TestDatatype(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestDatatype.main()
+    TestModelValueDatatype.main()

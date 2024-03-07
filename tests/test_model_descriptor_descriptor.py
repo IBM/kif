@@ -6,7 +6,7 @@ from kif_lib import Descriptor
 from .tests import kif_TestCase
 
 
-class TestDescriptor(kif_TestCase):
+class TestModelDescriptorDescriptor(kif_TestCase):
 
     def test__preprocess_arg_descriptor_attribute_mask(self):
         self.assertRaises(
@@ -59,4 +59,4 @@ class TestDescriptor(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestDescriptor.main()
+    TestModelDescriptorDescriptor.main()

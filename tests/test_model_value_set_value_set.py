@@ -6,7 +6,7 @@ from kif_lib import KIF_Object, Property, Quantity, String, Text, ValueSet
 from .tests import kif_TestCase
 
 
-class TestValueSet(kif_TestCase):
+class TestModelValueSetValueSet(kif_TestCase):
 
     def test__preprocess_arg_value_set(self):
         vset = ValueSet(Text('a'), Property('b'))
@@ -55,4 +55,4 @@ class TestValueSet(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestValueSet.main()
+    TestModelValueSetValueSet.main()

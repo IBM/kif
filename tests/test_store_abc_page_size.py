@@ -8,7 +8,7 @@ from kif_lib import Items
 from .tests import kif_EmptyStoreTestCase
 
 
-class TestStorePageSize(kif_EmptyStoreTestCase):
+class TestStoreABC_PageSize(kif_EmptyStoreTestCase):
 
     def test_page_size_defaults(self):
         kb = self.new_Store()
@@ -63,4 +63,4 @@ class TestStorePageSize(kif_EmptyStoreTestCase):
 
 
 if __name__ == '__main__':
-    TestStorePageSize.main()
+    TestStoreABC_PageSize.main()

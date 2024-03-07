@@ -7,7 +7,7 @@ from kif_lib.namespace import WIKIBASE
 from .tests import kif_TestCase
 
 
-class TestLexemeDatatype(kif_TestCase):
+class TestModelValueLexemeDatatype(kif_TestCase):
 
     def test__from_rdflib(self):
         self.assert_lexeme_datatype(
@@ -24,4 +24,4 @@ class TestLexemeDatatype(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestLexemeDatatype.main()
+    TestModelValueLexemeDatatype.main()

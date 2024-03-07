@@ -7,7 +7,7 @@ from kif_lib.vocabulary import wd
 from .tests import kif_EmptyStoreTestCase
 
 
-class TestEmptyStore(kif_EmptyStoreTestCase):
+class TestStoreEmpty(kif_EmptyStoreTestCase):
 
     def test_sanity(self):
         self.store_sanity_checks(self.new_Store())
@@ -87,4 +87,4 @@ class TestEmptyStore(kif_EmptyStoreTestCase):
 
 
 if __name__ == '__main__':
-    TestEmptyStore.main()
+    TestStoreEmpty.main()

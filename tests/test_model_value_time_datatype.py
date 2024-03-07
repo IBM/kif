@@ -7,7 +7,7 @@ from kif_lib.namespace import WIKIBASE
 from .tests import kif_TestCase
 
 
-class TestTimeDatatype(kif_TestCase):
+class TestModelValueTimeDatatype(kif_TestCase):
 
     def test__from_rdflib(self):
         self.assert_time_datatype(TimeDatatype._from_rdflib(WIKIBASE.Time))
@@ -23,4 +23,4 @@ class TestTimeDatatype(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestTimeDatatype.main()
+    TestModelValueTimeDatatype.main()
