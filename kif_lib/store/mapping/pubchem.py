@@ -99,7 +99,7 @@ def wd_described_by_source(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.InChI,
-    datatype=Datatype.string,
+    datatype=Datatype.string,   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_InChI(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
@@ -130,7 +130,7 @@ def wd_mass(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
             raise spec.Skip
         ###
         # IMPORTANT: Mass literals in PubChem have datatype float.  We have
-        # to force this datatype when a mass literal value is given.
+        # to force this datatype when matching a mass literal.
         ###
         v = Literal(qt.value, datatype=XSD.float)
     with q.sp(s, SEMSCI.SIO_000008) as sp:
