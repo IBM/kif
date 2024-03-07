@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from collections.abc import Iterable
 
 from ..model import (
     AnnotationRecord,
@@ -15,14 +14,18 @@ from ..model import (
     Value,
     ValueSnak,
 )
-from ..typing import Any, cast, Iterator, Optional, override, Union
-from .sparql import SPARQL_Store
-from .sparql_builder import SPARQL_Builder
+from ..typing import Any, cast, Iterable, Iterator, Optional, override, Union
+from .sparql import (
+    BNode,
+    NS,
+    SPARQL_Builder,
+    SPARQL_Results,
+    SPARQL_Store,
+    URIRef,
+)
 from .sparql_mapping import SPARQL_Mapping
 
 LOG = logging.getLogger(__name__)
-
-TTrm = SPARQL_Builder.TTrm
 
 
 class SPARQL_MapperStore(
@@ -118,10 +121,17 @@ class SPARQL_MapperStore(
                     spec._define(q, with_binds=True)
         return q
 
+    def _parse_filter_results_check_wds(
+            self,
+            entry: SPARQL_Results.Bindings,
+            stmt: Statement
+    ) -> Union[BNode, URIRef]:
+        return NS.WDS[stmt.digest]
+
     def _try_push_snak_set(
             self,
             q: SPARQL_Builder,
-            target: TTrm,
+            target: SPARQL_Builder.TTrm,
             snaks: SnakSet
     ) -> bool:
         for snak in snaks:

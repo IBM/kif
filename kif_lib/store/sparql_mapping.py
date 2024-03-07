@@ -29,39 +29,44 @@ Variable = SPARQL_Builder.Variable
 
 class SPARQL_Mapping(ABC):
     """Base class for SPARQL mappings."""
+
+# -- Builder ---------------------------------------------------------------
 
     class Builder(SPARQL_Builder):
         """SPARQL builder of SPARQL mapping."""
 
+        #: The Matched subject.
+        matched_subject: TTrm
+
         #: The matched property.
         matched_property: TTrm
-
-        #: The matched subject.
-        matched_subject: TTrm
 
         #: The matched value.
         matched_value: TTrm
 
+        #: The resulting subject.
+        subject: Variable
+
         #: The resulting property.
         property: Variable
+
+        #: The resulting (simple) value.
+        value: Variable
 
         #: The resulting quantity amount (if any).
         qt_amount: Variable
 
-        #: The resulting quantity lower bound (if any).
-        qt_lower: Variable
-
         #: The resulting quantity unit (if any).
         qt_unit: Variable
+
+        #: The resulting quantity lower bound (if any).
+        qt_lower: Variable
 
         #: The resulting quantity upper bound (if any).
         qt_upper: Variable
 
-        #: The resulting subject.
-        subject: Variable
-
-        #: The resulting time calendar model (if any).
-        tm_calendar: Variable
+        #: The resulting time value (if any).
+        tm_value: Variable
 
         #: The resulting time precision (if any).
         tm_precision: Variable
@@ -69,32 +74,25 @@ class SPARQL_Mapping(ABC):
         #: The resulting timezone (if any).
         tm_timezone: Variable
 
-        #: The resulting time value (if any).
-        tm_value: Variable
-
-        #: The resulting simple value.
-        value: Variable
-
-        #: The resulting statement id.
-        wds: Variable
+        #: The resulting time calendar model (if any).
+        tm_calendar: Variable
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self.matched_property = self.var('matched_property')
             self.matched_subject = self.var('matched_subject')
+            self.matched_property = self.var('matched_property')
             self.matched_value = self.var('matched_value')
-            self.property = self.var('property')
-            self.qt_amount = self.var('qt_amount')
-            self.qt_lower = self.var('qt_lower')
-            self.qt_unit = self.var('qt_unit')
-            self.qt_upper = self.var('qt_upper')
             self.subject = self.var('subject')
-            self.tm_calendar = self.var('tm_calendar')
+            self.property = self.var('property')
+            self.value = self.var('value')
+            self.qt_amount = self.var('qt_amount')
+            self.qt_unit = self.var('qt_unit')
+            self.qt_lower = self.var('qt_lower')
+            self.qt_upper = self.var('qt_upper')
+            self.tm_value = self.var('tm_value')
             self.tm_precision = self.var('tm_precision')
             self.tm_timezone = self.var('tm_timezone')
-            self.tm_value = self.var('tm_value')
-            self.value = self.var('value')
-            self.wds = self.var('wds')
+            self.tm_calendar = self.var('tm_calendar')
 
         def bind_uri(
                 self,
@@ -102,6 +100,18 @@ class SPARQL_Mapping(ABC):
                 var: Variable,
                 replace_prefix: Optional[tuple[str, str]] = None
         ) -> 'SPARQL_Mapping.Builder':
+            """Binds URI term to variable`.
+
+            If `replace_prefix` is not ``None``, applies the given
+            replacement before binding the term.
+
+            Parameters:
+               term: URI term.
+               var: Variable.
+
+            Returns:
+               `self`.
+            """
             if replace_prefix is not None:
                 pfx, by = replace_prefix
                 q = self.bind(self.uri(self.concat(
@@ -110,9 +120,14 @@ class SPARQL_Mapping(ABC):
             else:
                 q = self.bind(self.uri(term), var)
             return cast(SPARQL_Mapping.Builder, q)
+
+# -- Mapping spec. ---------------------------------------------------------
 
     class Spec:
-        """A mapping specification in a SPARQL mapping."""
+        """An entry (specification) in a SPARQL mapping."""
+
+        #: Parent mapping.
+        mapping: 'SPARQL_Mapping'
 
         #: Target property.
         property: Property
@@ -257,12 +272,6 @@ class SPARQL_Mapping(ABC):
             pname = NS.Wikidata.get_wikidata_name(self.property.iri.value)
             q.bind_uri(
                 q.concat(String(str(NS.WD)), String(pname)), q.property)
-            # wds
-            q.bind_uri(q.concat(
-                String(NS.WDS),
-                q.md5(q.subject),
-                String('_' + pname + '_'),
-                q.md5(q.value)), q.wds)
             # value
             if issubclass(self.datatype.to_value_class(), Entity):
                 q.bind_uri(
@@ -308,6 +317,27 @@ class SPARQL_Mapping(ABC):
                 q.bind(value, q.value)
             else:
                 raise ShouldNotGetHere
+
+# -- Mapping ---------------------------------------------------------------
+
+    #: The registered specs.
+    specs: dict[Property, 'SPARQL_Mapping.Spec']
+
+    #: The registered IRI prefix replacements.
+    iri_prefix_replacements: dict[IRI, IRI]
+
+    #: Inverse of IRI prefix replacements dict.
+    iri_prefix_replacements_inv: dict[IRI, IRI]
+
+    @classmethod
+    def __init_subclass__(cls):
+        cls._init()
+
+    @classmethod
+    def _init(cls):
+        cls.specs = dict()
+        cls.iri_prefix_replacements = dict()
+        cls.iri_prefix_replacements_inv = dict()
 
     @classmethod
     def register(
@@ -318,7 +348,7 @@ class SPARQL_Mapping(ABC):
             value_prefix: Optional[T_IRI] = None,
             **kwargs: Any
     ) -> Callable[..., Any]:
-        """Decorator to register new specification into mapping.
+        """Decorator to register a new specification into mapping.
 
         Parameters:
            property: Target property.
@@ -345,12 +375,11 @@ class SPARQL_Mapping(ABC):
 
     @classmethod
     def _register(cls, spec: Spec):
-        # Install prefix replacements, if any.
         for key in ['subject', 'value']:
             tgt = spec.kwargs[f'{key}_prefix']
             if tgt is None:
                 continue
-            src = cls.repls_inv[tgt]
+            src = cls.iri_prefix_replacements_inv[tgt]
             spec.kwargs[f'{key}_replace_prefix'] = (src.value, tgt.value)
         cls.specs[spec.property] = spec
 
@@ -359,19 +388,19 @@ class SPARQL_Mapping(ABC):
         """Registers a prefix replacement into mapping.
 
         Parameters:
-           source: Source IRI prefix as string.
-           target: Target IRI prefix as string.
+           source: IRI.
+           target: IRI.
         """
         src = IRI._check_arg_iri(
             source, cls.register_iri_prefix_replacement, 'source', 1)
         tgt = IRI._check_arg_iri(
             target, cls.register_iri_prefix_replacement, 'target', 2)
-        cls.repls[src] = tgt
-        cls.repls_inv[tgt] = src
+        cls.iri_prefix_replacements[src] = tgt
+        cls.iri_prefix_replacements_inv[tgt] = src
 
     @classmethod
     def normalize_entity(cls, entity: Entity) -> TTrm:
-        for k, v in cls.repls.items():
+        for k, v in cls.iri_prefix_replacements.items():
             if entity.iri.value.startswith(v.value):
                 return cast(Entity, entity.replace(
                     k.value + entity.iri.value.removeprefix(v.value)))
@@ -387,19 +416,3 @@ class SPARQL_Mapping(ABC):
             return cls.normalize_entity(cast(Entity, value))
         else:
             return value
-
-    #: Specifications.
-    specs: dict[Property, 'SPARQL_Mapping.Spec'] = dict()
-
-    #: IRI prefix replacements.
-    repls: dict[IRI, IRI] = dict()
-
-    #: Inverse of IRI prefix replacements dict.
-    repls_inv: dict[IRI, IRI] = dict()
-
-    @classmethod
-    def __init_subclass__(cls):
-        from copy import deepcopy
-        cls.specs = deepcopy(cls.__bases__[0].specs)
-        cls.repls = deepcopy(cls.__bases__[0].repls)
-        cls.repls_inv = deepcopy(cls.__bases__[0].repls)

@@ -460,9 +460,18 @@ class SPARQL_Builder(Sequence):
 
     # -- Patterns ----------------------------------------------------------
 
-    def bind(self, val: TTrm, var: TTrm) -> 'SPARQL_Builder':
+    def bind(self, term: TTrm, var: TTrm) -> 'SPARQL_Builder':
+        """Binds term to variable.
+
+        Parameters:
+           term: Term.
+           var: Variable.
+
+        Returns:
+           `self`.
+        """
         assert isinstance(var, self.Variable)
-        return self._push(f'bind({self._n3(val)} as {self._n3(var)})')
+        return self._push(f'bind({self._n3(term)} as {self._n3(var)})')
 
     def filter(self, val: TTrm) -> 'SPARQL_Builder':
         return self._push(f'filter({self._n3(val)})')

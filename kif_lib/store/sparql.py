@@ -329,23 +329,6 @@ At line {line}, column {column}:
                 q.select(*self._filter_vars))
             return iter(())     # query is empty
 
-    def _parse_filter_results(
-            self,
-            results: SPARQL_Results,
-            pattern: FilterPattern
-    ) -> Iterator[Optional[Statement]]:
-        for entry in results.bindings:
-            stmt = entry.check_statement(
-                'subject', 'property', 'value',
-                'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
-                'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
-            wds = entry.check_bnode_or_uriref('wds')
-            self._cache_add_wds(stmt, wds)
-            if self.has_flags(self.LATE_FILTER) and not pattern.match(stmt):
-                yield None
-            else:
-                yield stmt
-
     def _make_filter_query(self, pattern: FilterPattern) -> SPARQL_Builder:
         q = SPARQL_Builder()
         t = self._make_filter_query_vars_dict(q)
@@ -665,6 +648,30 @@ At line {line}, column {column}:
         else:
             return q.filter(cond)
 
+    def _parse_filter_results(
+            self,
+            results: SPARQL_Results,
+            pattern: FilterPattern
+    ) -> Iterator[Optional[Statement]]:
+        for entry in results.bindings:
+            stmt = entry.check_statement(
+                'subject', 'property', 'value',
+                'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
+                'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
+            wds = self._parse_filter_results_check_wds(entry, stmt)
+            self._cache_add_wds(stmt, wds)
+            if self.has_flags(self.LATE_FILTER) and not pattern.match(stmt):
+                yield None
+            else:
+                yield stmt
+
+    def _parse_filter_results_check_wds(
+            self,
+            entry: SPARQL_Results.Bindings,
+            stmt: Statement
+    ) -> Union[BNode, URIRef]:
+        return entry.check_bnode_or_uriref('wds')
+
     def _get_wdss(
             self,
             stmts: Iterable[Statement],
@@ -731,19 +738,6 @@ At line {line}, column {column}:
             for stmt in batch:
                 yield stmt, stmt2wdss.get(stmt, None)
 
-    def _parse_get_wdss_results(
-            self,
-            results: SPARQL_Results,
-    ) -> Iterator[Optional[tuple[Statement, T_WDS, int]]]:
-        for entry in results.bindings:
-            i = entry.check_integer('i')
-            stmt = entry.check_statement(
-                'subject', 'property', 'value',
-                'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
-                'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
-            wds = entry.check_bnode_or_uriref('wds')
-            yield stmt, wds, i
-
     def _make_get_wdss_queries(
             self,
             stmts: Iterator[tuple[int, Statement]]
@@ -807,6 +801,19 @@ At line {line}, column {column}:
         self._push_filter_patterns_as_values(q, t, map(
             lambda x: (x[0], FilterPattern.from_statement(x[1])), stmts))
         q.where_end()
+
+    def _parse_get_wdss_results(
+            self,
+            results: SPARQL_Results,
+    ) -> Iterator[Optional[tuple[Statement, T_WDS, int]]]:
+        for entry in results.bindings:
+            i = entry.check_integer('i')
+            stmt = entry.check_statement(
+                'subject', 'property', 'value',
+                'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
+                'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
+            wds = entry.check_bnode_or_uriref('wds')
+            yield stmt, wds, i
 
 # -- Annotations -----------------------------------------------------------
 

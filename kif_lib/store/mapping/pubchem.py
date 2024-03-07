@@ -23,18 +23,15 @@ VCARD = Namespace('http://www.w3.org/2006/vcard/ns#')
 class PubChemMapping(SPARQL_Mapping):
     """PubChem SPARQL mapping."""
 
-    COMPOUND = WD.Q_PUBCHEM_COMPOUND_
-    PATENT = WD.Q_PUBCHEM_PATENT_
-
     class Spec(SPARQL_Mapping.Spec):
-        """Entry in PubChem SPARQL mapping."""
+        """Mapping specification in the PubChem SPARQL mapping."""
 
         @classmethod
         def check_InChI(cls, v: Value) -> str:
             """Checks whether `v` an InChI.
 
             Returns:
-               `v`.
+               The string value of `v`.
 
             Raises:
                Spec.Skip: `v` is not an InChI.
@@ -42,6 +39,16 @@ class PubChemMapping(SPARQL_Mapping):
             return cls._check(
                 cls.check_string(v).value,
                 lambda s: s.startswith('InChI='))
+
+    COMPOUND = WD.Q_PUBCHEM_COMPOUND_
+    PATENT = WD.Q_PUBCHEM_PATENT_
+
+    @classmethod
+    def _init(cls):
+        cls.specs = dict()
+        cls.iri_prefix_replacements = dict()
+        cls.iri_prefix_replacements_inv = dict()
+        print(super())
 
 
 PubChemMapping.register_iri_prefix_replacement(
