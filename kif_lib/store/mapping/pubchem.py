@@ -4,7 +4,7 @@
 
 from rdflib.namespace import Namespace
 
-from ...model import Datatype, String, Text, Time, Value
+from ...model import Datatype, IRI, String, T_IRI, Text, Time, Value
 from ...namespace import RDF, WD, XSD
 from ...typing import cast, TypeAlias
 from ...vocabulary import wd
@@ -28,7 +28,7 @@ class PubChemMapping(SPARQL_Mapping):
 
         @classmethod
         def check_InChI(cls, v: Value) -> str:
-            """Checks whether `v` an InChI.
+            """Checks whether `v` is an InChI.
 
             Returns:
                The string value of `v`.
@@ -40,15 +40,37 @@ class PubChemMapping(SPARQL_Mapping):
                 cls.check_string(v).value,
                 lambda s: s.startswith('InChI='))
 
+    #: The IRI prefix of compounds.
     COMPOUND = WD.Q_PUBCHEM_COMPOUND_
+
+    #: The IRI prefix of patents.
     PATENT = WD.Q_PUBCHEM_PATENT_
 
     @classmethod
-    def _init(cls):
-        cls.specs = dict()
-        cls.iri_prefix_replacements = dict()
-        cls.iri_prefix_replacements_inv = dict()
-        print(super())
+    def is_pubchem_compound_iri(cls, iri: T_IRI) -> bool:
+        """Tests whether IRI prefix matches that of a PubChem compound.
+
+        Parameters:
+           iri: IRI.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        iri = IRI._check_arg_iri(iri, cls.is_pubchem_compound_iri, 'iri', 1)
+        return iri.value.startswith(cls.COMPOUND)
+
+    @classmethod
+    def is_pubchem_patent_iri(cls, iri: T_IRI) -> bool:
+        """Tests whether IRI prefix matches that of a PubChem patent.
+
+        Parameters:
+           iri: IRI.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        iri = IRI._check_arg_iri(iri, cls.is_pubchem_patent_iri, 'iri', 1)
+        return iri.value.startswith(cls.PATENT)
 
 
 PubChemMapping.register_iri_prefix_replacement(
@@ -136,7 +158,7 @@ def wd_main_subject(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.patent_number,
-    datatype=Datatype.string,
+    datatype=Datatype.external_id,
     subject_prefix=PubChemMapping.PATENT)
 def wd_patent_number(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     q.triple(s, PATENT.publicationNumber, v)

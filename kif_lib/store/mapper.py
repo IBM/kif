@@ -65,6 +65,8 @@ class SPARQL_MapperStore(
            SPARQL mapping.
         """
         return self._mapping
+
+# -- Statements ------------------------------------------------------------
 
     @override
     def _count(self, pattern: FilterPattern) -> int:
@@ -144,6 +146,8 @@ class SPARQL_MapperStore(
                 cast(SPARQL_Mapping.Builder, q), target, None,
                 self.mapping.normalize_value(vsnak.value, vsnak.property))
         return True
+
+# -- Annotations -----------------------------------------------------------
 
     def _get_annotations(
             self,
