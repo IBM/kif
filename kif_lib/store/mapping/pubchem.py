@@ -1,7 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-
+from rdflib import Literal
 from rdflib.namespace import Namespace
 
 from ...model import Datatype, IRI, String, T_IRI, Text, Time, Value
@@ -120,7 +120,7 @@ def wd_InChI(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     datatype=Datatype.quantity,
     unit=wd.gram_per_mole,
     subject_prefix=PubChemMapping.COMPOUND,
-    value_set_datatype=XSD.decimal)
+    value_datatype=XSD.decimal)
 def wd_mass(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
         qt = spec.check_quantity(cast(Value, v))
@@ -128,6 +128,11 @@ def wd_mass(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
             or qt.lower_bound is not None
                 or qt.upper_bound is not None):
             raise spec.Skip
+        ###
+        # IMPORTANT: Mass literals in PubChem have datatype float.  We have
+        # to force this datatype when a mass literal value is given.
+        ###
+        v = Literal(qt.value, datatype=XSD.float)
     with q.sp(s, SEMSCI.SIO_000008) as sp:
         sp.pair(RDF.type, SEMSCI.CHEMINF_000338)
         sp.pair(SEMSCI.SIO_000300, v)
@@ -158,7 +163,7 @@ def wd_main_subject(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.patent_number,
-    datatype=Datatype.external_id,
+    datatype=Datatype.string,   # FIXME: ExternalId
     subject_prefix=PubChemMapping.PATENT)
 def wd_patent_number(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     q.triple(s, PATENT.publicationNumber, v)

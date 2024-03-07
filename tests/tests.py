@@ -64,7 +64,7 @@ from kif_lib import (
     ValueSnak,
 )
 from kif_lib.error import ShouldNotGetHere
-from kif_lib.model import Decimal, UTC
+from kif_lib.model import Decimal
 from kif_lib.model.object import Object
 from kif_lib.namespace import WIKIBASE, XSD
 from kif_lib.typing import override
@@ -339,7 +339,7 @@ if __name__ == '__main__':
         self.assertEqual(obj.mask, Value.TIME)
         self.assertEqual(obj.get_mask(), Value.TIME)
         self.assert_time_datatype(Datatype.from_value_class(type(obj)))
-        self.assertEqual(obj.args[0], time.replace(tzinfo=UTC))
+        self.assertEqual(obj.args[0], time)
         self.assertEqual(obj.value, obj.args[0].isoformat())
         self.assertEqual(obj.get_value(), obj.args[0].isoformat())
         self.assertEqual(obj.n3(), f'"{obj.value}"^^<{XSD.dateTime}>')

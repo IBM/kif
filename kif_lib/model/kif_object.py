@@ -54,17 +54,20 @@ class KIF_Object(object.Object):
                 ###
                 arg = arg[1:]
             try:
-                ###
-                # IMPORTANT: Do not forget to reset tzinfo to UTC.
-                # In KIF, the actual timezone is stored in the Time object.
-                ###
-                return Datetime.fromisoformat(arg).replace(tzinfo=UTC)
+                dt = Datetime.fromisoformat(arg)
+                if dt.tzinfo is None:
+                    ###
+                    # IMPORTANT: If no timezone is given, we assume UTC.
+                    ###
+                    return dt.replace(tzinfo=UTC)
+                else:
+                    return dt
             except Exception:
                 raise cls._arg_error(
                     f'expected {Datetime.__qualname__}',
                     function, name, position, ValueError)
         elif isinstance(arg, Datetime):
-            return arg.replace(tzinfo=UTC)
+            return arg
         else:
             raise cls._should_not_get_here()
 

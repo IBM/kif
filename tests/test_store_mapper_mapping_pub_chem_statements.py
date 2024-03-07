@@ -1,7 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import Item, Quantity, Statement, String, Time
+from kif_lib import Item, Quantity, String, Time
 from kif_lib.vocabulary import wd
 
 from .tests import kif_PubChemSPARQL_StoreTestCase
@@ -19,6 +19,7 @@ class TestStoreMapperMappingPubChemStatements(
         self.assertEqual(len(stmts), limit)
         for (s, (p, v)) in stmts:
             f(kb, s, p, v)
+        self.assertIn(stmts[0], kb)
 
     def test_filter_property_described_by_source(self):
         def check(kb, s, p, v):

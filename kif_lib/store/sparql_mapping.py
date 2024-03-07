@@ -280,7 +280,7 @@ class SPARQL_Mapping(ABC):
             elif issubclass(self.datatype.to_value_class(), DataValue):
                 value: Optional[TTrm] = None
                 if self.datatype.is_quantity_datatype():
-                    dt = self.kwargs.get('value_set_datatype')
+                    dt = self.kwargs.get('value_datatype')
                     if (dt is not None
                             and isinstance(q.matched_value, Variable)):
                         value = q.strdt(q.matched_value, dt)
@@ -300,7 +300,12 @@ class SPARQL_Mapping(ABC):
                     else:
                         value = q.matched_value
                 elif self.datatype.is_time_datatype():
-                    value = q.matched_value
+                    dt = self.kwargs.get('value_datatype')
+                    if (dt is not None
+                            and isinstance(q.matched_value, Variable)):
+                        value = q.strdt(q.matched_value, dt)
+                    else:
+                        value = q.matched_value
                     q.bind(value, q.tm_value)
                     prec = self.kwargs.get('precision')
                     if prec is not None:

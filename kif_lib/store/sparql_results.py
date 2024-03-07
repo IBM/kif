@@ -24,7 +24,6 @@ from ..model import (
     Statement,
     Text,
     Time,
-    UTC,
     Value,
     ValueSnak,
 )
@@ -139,13 +138,25 @@ class SPARQL_Results(Mapping):
             lang: Optional[str] = None
             if 'xml:lang' in bdn:
                 lang = bdn['xml:lang']
-            if (datatype == NS.XSD.dateTime
-                    and (value[0] == '+' or value[0] == '-')):
-                ###
-                # FIXME: RDFLib does not support the +/- sign used by
-                # Wikidata at the start of date-time literals.
-                ###
-                value = value[1:]
+            if datatype == NS.XSD.dateTime or datatype == NS.XSD.date:
+                if value[0] == '+' or value[0] == '-':
+                    ###
+                    # FIXME: RDFLib does not support the +/- sign used by
+                    # Wikidata at the start of date-time literals.
+                    ###
+                    value = value[1:]
+                datatype = NS.XSD.dateTime
+                if 'T' not in value:
+                    ###
+                    # FIXME: This is a hack! We should use an external lib
+                    # to do this kind of thing.
+                    ###
+                    for fmt in ['%Y-%m-%d', '%Y-%m-%d%z']:
+                        try:
+                            value = Datetime.strptime(value, fmt).isoformat()
+                            break
+                        except ValueError:
+                            pass
             return Literal(value, datatype=datatype, lang=lang)
 
         def _check_binding(self, var: str) -> TRes:
@@ -313,12 +324,7 @@ class SPARQL_Results(Mapping):
             if value:
                 tm_value = cast(Time, value).time
             else:
-                ###
-                # IMPORTANT: Do not forget to reset tzinfo to UTC.
-                # In KIF, the actual timezone is stored in the Time object.
-                ###
-                tm_value = self.check_datetime(
-                    var_tm_value).replace(tzinfo=UTC)
+                tm_value = self.check_datetime(var_tm_value)
             if var_tm_precision in self:
                 tm_prec = self.check_integer(var_tm_precision)
             elif value and value.precision is not None:

@@ -90,7 +90,8 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(KIF_Object._check_arg_datetime('+2024-02-05'), dt)
         self.assertEqual(KIF_Object._check_arg_datetime('-2024-02-05'), dt)
         self.assertEqual(
-            KIF_Object._check_arg_datetime(Datetime(2024, 2, 5)), dt)
+            KIF_Object._check_arg_datetime(
+                Datetime(2024, 2, 5, tzinfo=UTC)), dt)
 
     def test__check_optional_arg_datetime(self):
         self.assertRaises(

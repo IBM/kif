@@ -4,7 +4,7 @@
 from rdflib import Literal, URIRef
 
 from kif_lib import Time
-from kif_lib.model import Datetime
+from kif_lib.model import Datetime, UTC
 from kif_lib.namespace import XSD
 from kif_lib.vocabulary import wd
 
@@ -92,15 +92,20 @@ class TestModelValueTime(kif_TestCase):
         self.assertRaises(ValueError, Time, '2023-09-04', -1)
         self.assertRaises(TypeError, Time, '2023-09-04', 1, 'abc')
         self.assertRaises(TypeError, Time, '2023-09-04', 1, 1, 0)
-        self.assert_time(Time('2023-09-04'), Datetime(2023, 9, 4))
-        self.assert_time(Time(Datetime(2023, 9, 4)), Datetime(2023, 9, 4))
         self.assert_time(
-            Time('2023-09-04', 11), Datetime(2023, 9, 4), Time.Precision(11))
+            Time('2023-09-04'), Datetime(2023, 9, 4, tzinfo=UTC))
         self.assert_time(
-            Time('2023-09-04', None, 44), Datetime(2023, 9, 4), None, 44)
+            Time(Datetime(2023, 9, 4)), Datetime(2023, 9, 4))
+        self.assert_time(
+            Time('2023-09-04', 11),
+            Datetime(2023, 9, 4, tzinfo=UTC), Time.Precision(11))
+        self.assert_time(
+            Time('2023-09-04', None, 44),
+            Datetime(2023, 9, 4, tzinfo=UTC), None, 44)
         self.assert_time(
             Time('2023-09-04', None, None, wd.proleptic_Gregorian_calendar),
-            Datetime(2023, 9, 4), None, None, wd.proleptic_Gregorian_calendar)
+            Datetime(2023, 9, 4, tzinfo=UTC),
+            None, None, wd.proleptic_Gregorian_calendar)
 
     def test_get_precision(self):
         self.assertEqual(
@@ -134,13 +139,14 @@ class TestModelValueTime(kif_TestCase):
         # good arguments
         t = Literal('2023-10-03T00:00:00', datatype=XSD.dateTime)
         self.assert_time(
-            Time._from_rdflib(t), Datetime(2023, 10, 3))
+            Time._from_rdflib(t), Datetime(2023, 10, 3, tzinfo=UTC))
         t = Literal('2023-10-03', datatype=XSD.date)
         self.assert_time(
-            Time._from_rdflib(t), Datetime(2023, 10, 3))
+            Time._from_rdflib(t), Datetime(2023, 10, 3, tzinfo=UTC))
         t = Literal('2023-10-03T11:11:11', datatype=XSD.dateTime)
         self.assert_time(
-            Time._from_rdflib(t), Datetime(2023, 10, 3, 11, 11, 11))
+            Time._from_rdflib(t),
+            Datetime(2023, 10, 3, 11, 11, 11, tzinfo=UTC))
 
     def test__to_rdflib(self):
         self.assertEqual(

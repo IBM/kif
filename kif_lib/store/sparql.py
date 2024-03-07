@@ -658,12 +658,12 @@ At line {line}, column {column}:
                 'subject', 'property', 'value',
                 'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
                 'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
-            wds = self._parse_filter_results_check_wds(entry, stmt)
-            self._cache_add_wds(stmt, wds)
             if self.has_flags(self.LATE_FILTER) and not pattern.match(stmt):
                 yield None
-            else:
-                yield stmt
+                continue
+            wds = self._parse_filter_results_check_wds(entry, stmt)
+            self._cache_add_wds(stmt, wds)
+            yield stmt
 
     def _parse_filter_results_check_wds(
             self,

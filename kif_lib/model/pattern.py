@@ -263,9 +263,11 @@ class FilterPattern(Pattern):
                     return False
             elif value.is_time():
                 assert self.value.value.is_time()
-                pat_tm = cast(Time, self.value.value)
-                tm = cast(Time, value)
-                if (pat_tm.time != tm.time
+                pat_tm, tm = cast(Time, self.value.value), cast(Time, value)
+                pat_tm_time, tm_time = pat_tm.time, tm.time
+                if pat_tm_time.tzinfo is None:
+                    tm_time = tm_time.replace(tzinfo=None)
+                if (pat_tm_time != tm_time
                     or (pat_tm.precision is not None
                         and pat_tm.precision != tm.precision)
                     or (pat_tm.timezone is not None
