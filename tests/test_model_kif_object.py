@@ -72,17 +72,15 @@ class TestModelKIF_Object(kif_TestCase):
         declared = get_decl('kif_lib/model/object.py')
         declared_pyi = get_decl('kif_lib/model/kif_object.pyi')
         self.assertEqual(defined - declared, declared_pyi)
-
-    # -- IPython -----------------------------------------------------------
+
+# == IPython ===============================================================
 
     def test__repr_markdown_(self):
         self.assertEqual(
             Item('x')._repr_markdown_(),
             '(**Item** [x](http://x))')
-
-    # -- Argument checking -------------------------------------------------
-
-    # -- datetime --
+
+# == Argument checking =====================================================
 
     def test__check_arg_datetime(self):
         self.assertRaises(TypeError, KIF_Object._check_arg_datetime, 0)
@@ -128,8 +126,6 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(
             KIF_Object._preprocess_optional_arg_datetime(
                 '2024-02-05', 1, None), dt)
-
-    # -- decimal --
 
     def test__check_arg_decimal(self):
         self.assertRaises(TypeError, KIF_Object._check_arg_decimal, dict())
@@ -178,8 +174,8 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(
             KIF_Object._preprocess_optional_arg_decimal(None, 1, 5.81),
             Decimal(5.81))
-
-    # -- Auto-defined stuff ------------------------------------------------
+
+# == Auto-defined stuff ====================================================
 
     def assert_test_is_defined_for_all_object_classes(self, prefix):
         tests = set(filter(
@@ -188,8 +184,8 @@ class TestModelKIF_Object(kif_TestCase):
             lambda c: 'test_' + prefix + c._snake_case_name,
             self.ALL_KIF_OBJECT_CLASSES))
         self.assertEqual(meths, tests)
-
-    # -- test_is_ --
+
+# -- test_is_ --------------------------------------------------------------
 
     def test_is(self):
         self.assert_test_is_defined_for_all_object_classes('is_')
@@ -521,8 +517,8 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertTrue(snak.test_value_snak())
         self.assertFalse(String('x').is_value_snak())
         self.assertFalse(String('x').test_value_snak())
-
-    # -- test_check_ --
+
+# -- test_check_ -----------------------------------------------------------
 
     def test_check(self):
         self.assert_test_is_defined_for_all_object_classes('check_')
@@ -777,8 +773,8 @@ class TestModelKIF_Object(kif_TestCase):
         snak = ValueSnak(Property('x'), Item('y'))
         self.assertEqual(snak.check_value_snak(), snak)
         self.assertRaises(TypeError, String('x').check_value_snak)
-
-    # -- test_unpack_ --
+
+# -- test_unpack_ ----------------------------------------------------------
 
     def test_unpack(self):
         self.assert_test_is_defined_for_all_object_classes('unpack_')
@@ -1057,8 +1053,29 @@ class TestModelKIF_Object(kif_TestCase):
         snak = ValueSnak(Property('x'), Item('y'))
         self.assertEqual(snak.unpack_value_snak(), (Property('x'), Item('y')))
         self.assertRaises(TypeError, String('x').unpack_value_snak)
+
+# == Codecs ================================================================
 
-    # -- Codecs ------------------------------------------------------------
+    def test_repr_decoder_extensions(self):
+        from kif_lib.model.kif_object import KIF_ReprDecoder
+        dec = KIF_ReprDecoder()
+        self.assertEqual(dec.decode('5'), 5)
+        self.assertEqual(
+            dec.decode('datetime.datetime(2024, 2, 6)'), Datetime(2024, 2, 6))
+        self.assertEqual(dec.decode("Decimal('.5')"), Decimal('.5'))
+        self.assertEqual(dec.decode("set()"), set())
+
+    def test_repr_encoder_extensions(self):
+        from kif_lib.model.kif_object import KIF_ReprEncoder
+        enc = KIF_ReprEncoder()
+        self.assertEqual(enc.encode(IRI('x')), "IRI('x')")
+        self.assertEqual(
+            enc.encode(Datetime(2024, 2, 6)),
+            'datetime.datetime(2024, 2, 6, 0, 0)')
+        self.assertEqual(enc.encode(Decimal(0)), "Decimal('0')")
+        self.assertEqual(enc.encode(Decimal(3.5)), "Decimal('3.5')")
+        self.assertEqual(enc.encode(Snak.ALL), '7')
+        self.assertEqual(enc.encode(set()), 'set()')
 
     def test_json_encoder_extensions(self):
         from kif_lib.model.kif_object import KIF_JSON_Encoder
