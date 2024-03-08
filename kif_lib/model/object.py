@@ -79,7 +79,7 @@ TNum = Union[float, int]
 TObj = type['Object']
 
 
-# -- ObjectMeta ------------------------------------------------------------
+# == ObjectMeta ============================================================
 
 class ObjectMeta(abc.ABCMeta):
     """Meta-class for syntactical objects."""
@@ -262,7 +262,7 @@ class ObjectMeta(abc.ABCMeta):
         setattr(top, s_preprocess_optional_arg, f_preprocess_optional_arg)
 
 
-# -- Object ----------------------------------------------------------------
+# == Object ================================================================
 
 @functools.total_ordering
 class Object(collections.abc.Sequence, metaclass=ObjectMeta):
@@ -482,8 +482,8 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
     def _hexdigest(self, s: str):
         import hashlib
         return hashlib.sha256(s.encode('utf-8')).hexdigest()
-
-    # -- Copying -----------------------------------------------------------
+
+# -- Copying ---------------------------------------------------------------
 
     def copy(self) -> 'Object':
         """Makes a shallow copy of object.
@@ -529,8 +529,8 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
             return None
         else:
             return y
-
-    # -- Encoding ----------------------------------------------------------
+
+# -- Encoding --------------------------------------------------------------
 
     @classmethod
     def _install_encoder(cls, encoder: type['Encoder']):
@@ -583,8 +583,8 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         """
         enc = Encoder.from_format(format, self.dumps, 'format', 1)
         return enc(**kwargs).encode(self)
-
-    # -- Decoding ----------------------------------------------------------
+
+# -- Decoding --------------------------------------------------------------
 
     @classmethod
     def _install_decoder(cls, decoder: type['Decoder']):
@@ -655,8 +655,8 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         """
         dec = Decoder.from_format(format, cls.loads, 'format', 2)
         return cls.check(dec(**kwargs).decode(s), cls.load)
-
-    # -- Argument checking -------------------------------------------------
+
+# -- Argument checking -----------------------------------------------------
 
     _arg_error_default_prefix = 'bad argument'
     _arg_error_default_exception = ValueError
@@ -1072,8 +1072,8 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
     ) -> Union[Optional[str], NoReturn]:
         return cls._check_optional_arg_str(
             arg, default, function or cls, None, i)
-
-    # -- Utility -----------------------------------------------------------
+
+# -- Utility ---------------------------------------------------------------
 
     _camel2snake_re1 = re.compile(r'([^_])([A-Z][a-z]+)')
     _camel2snake_re2 = re.compile(r'([a-z0-9])([A-Z])')
@@ -1128,7 +1128,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
             return ShouldNotGetHere()
 
 
-# -- Codec -----------------------------------------------------------------
+# == Codec =================================================================
 
 class CodecError(Error):
     """Base class for codec errors."""
@@ -1543,7 +1543,7 @@ class JSON_Decoder(Decoder, format='json', description='JSON decoder'):
         return self.dec.decode(s)
 
 
-# -- Defaults --------------------------------------------------------------
+# == Defaults ==============================================================
 
 Decoder.default = SExpDecoder.format
 Encoder.default = ReprEncoder.format
