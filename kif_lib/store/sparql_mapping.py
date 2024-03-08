@@ -11,12 +11,14 @@ from ..model import (
     Entity,
     ExternalId,
     IRI,
+    Item,
     Property,
     Quantity,
     String,
     T_IRI,
     Text,
     Time,
+    TString,
     Value,
 )
 from ..typing import Any, Callable, cast, NoReturn, Optional, TypeVar, Union
@@ -35,46 +37,46 @@ class SPARQL_Mapping(ABC):
     class Builder(SPARQL_Builder):
         """SPARQL builder of SPARQL mapping."""
 
-        #: The Matched subject.
+        #: The matched (encoded) subject.
         matched_subject: TTrm
 
-        #: The matched property.
+        #: The matched (encoded) property.
         matched_property: TTrm
 
-        #: The matched value.
+        #: The matched (encoded) value.
         matched_value: TTrm
 
-        #: The resulting subject.
+        #: The resulting (decoded) subject.
         subject: Variable
 
-        #: The resulting property.
+        #: The resulting (decoded) property.
         property: Variable
 
-        #: The resulting (simple) value.
+        #: The resulting (decoded) simple value.
         value: Variable
 
-        #: The resulting quantity amount (if any).
+        #: The resulting (decoded) quantity amount.
         qt_amount: Variable
 
-        #: The resulting quantity unit (if any).
+        #: The resulting (decoded) quantity unit.
         qt_unit: Variable
 
-        #: The resulting quantity lower bound (if any).
+        #: The resulting (decoded) quantity lower bound.
         qt_lower: Variable
 
-        #: The resulting quantity upper bound (if any).
+        #: The resulting (decoded) quantity upper bound.
         qt_upper: Variable
 
-        #: The resulting time value (if any).
+        #: The resulting (decoded) time value.
         tm_value: Variable
 
-        #: The resulting time precision (if any).
+        #: The resulting (decoded) time precision.
         tm_precision: Variable
 
-        #: The resulting timezone (if any).
+        #: The resulting (decoded) timezone.
         tm_timezone: Variable
 
-        #: The resulting time calendar model (if any).
+        #: The resulting (decoded) time calendar model.
         tm_calendar: Variable
 
         def __init__(self, *args, **kwargs):
@@ -100,7 +102,7 @@ class SPARQL_Mapping(ABC):
                 var: Variable,
                 replace_prefix: Optional[tuple[str, str]] = None
         ) -> 'SPARQL_Mapping.Builder':
-            """Binds URI term to variable`.
+            """Binds URI term to variable.
 
             If `replace_prefix` is not ``None``, applies the given
             replacement before binding the term.
@@ -124,31 +126,14 @@ class SPARQL_Mapping(ABC):
 # -- Mapping spec. ---------------------------------------------------------
 
     class Spec:
-        """An entry (specification) in a SPARQL mapping."""
-
-        #: Parent mapping.
-        mapping: 'SPARQL_Mapping'
-
-        #: Target property.
-        property: Property
-
-        #: Datatype of the target property.
-        datatype: Datatype
-
-        #: Function matching and mapping an (s,p,v) to the target property.
-        definition: Callable[
-            ['SPARQL_Mapping.Spec', SPARQL_Builder,
-             TTrm, TTrm, TTrm], Optional[bool]]
-
-        #: Extra keyword-arguments.
-        kwargs: dict[str, Any]
+        """A mapping specification (spec.) in a SPARQL mapping."""
 
         class Skip(Exception):
-            """Skips the processing of the current specification."""
+            """Skips the processing of the current spec."""
 
         @classmethod
         def skip(cls) -> NoReturn:
-            """Skips the processing of the current specification."""
+            """Skips the processing of the current spec."""
             raise cls.Skip
 
         @classmethod
@@ -227,8 +212,26 @@ class SPARQL_Mapping(ABC):
             """
             return cast(Time, cls._check(v, Time.test))
 
+        #: The parent mapping.
+        mapping: type['SPARQL_Mapping']
+
+        #: The (decoded) property being mapped.
+        property: Property
+
+        #: The datatype of the property being mapped.
+        datatype: Datatype
+
+        #: The function that expands to the definition of the mapping.
+        definition: Callable[
+            ['SPARQL_Mapping.Spec', SPARQL_Builder,
+             TTrm, TTrm, TTrm], Optional[bool]]
+
+        #: The other keyword-arguments of spec.
+        kwargs: dict[str, Any]
+
         def __init__(
                 self,
+                mapping: type['SPARQL_Mapping'],
                 property: Property,
                 datatype: Datatype,
                 definition: Callable[
@@ -236,6 +239,7 @@ class SPARQL_Mapping(ABC):
                      TTrm, TTrm, TTrm], Optional[bool]],
                 **kwargs: Any
         ):
+            self.mapping = mapping
             self.property = property
             self.datatype = datatype
             self.definition = definition
@@ -267,7 +271,7 @@ class SPARQL_Mapping(ABC):
             # subject
             q.bind_uri(
                 q.matched_subject, q.subject,
-                self.kwargs.get('subject_replace_prefix', None))
+                self.kwargs.get('subject_prefix_replacement', None))
             # property
             pname = NS.Wikidata.get_wikidata_name(self.property.iri.value)
             q.bind_uri(
@@ -276,36 +280,29 @@ class SPARQL_Mapping(ABC):
             if issubclass(self.datatype.to_value_class(), Entity):
                 q.bind_uri(
                     q.matched_value, q.value,
-                    self.kwargs.get('value_replace_prefix', None))
+                    self.kwargs.get('value_prefix_replacement', None))
             elif issubclass(self.datatype.to_value_class(), DataValue):
                 value: Optional[TTrm] = None
+                dt = self.kwargs.get('value_datatype')
+                if dt is not None and isinstance(q.matched_value, Variable):
+                    value = q.strdt(q.matched_value, dt)
+                else:
+                    value = q.matched_value
                 if self.datatype.is_quantity_datatype():
-                    dt = self.kwargs.get('value_datatype')
-                    if (dt is not None
-                            and isinstance(q.matched_value, Variable)):
-                        value = q.strdt(q.matched_value, dt)
-                    else:
-                        value = q.matched_value
                     q.bind(value, q.qt_amount)
-                    unit = self.kwargs.get('unit')
+                    unit = self.kwargs.get('value_unit')
                     if unit is not None:
                         q.bind(unit, q.qt_unit)
                 elif self.datatype.is_string_datatype():
                     value = q.str_(q.matched_value)
                 elif self.datatype.is_text_datatype():
-                    lang = self.kwargs.get('value_set_language')
+                    lang = self.kwargs.get('value_language')
                     if (lang is not None
                             and isinstance(q.matched_value, Variable)):
                         value = q.strlang(q.matched_value, String(lang))
                     else:
                         value = q.matched_value
                 elif self.datatype.is_time_datatype():
-                    dt = self.kwargs.get('value_datatype')
-                    if (dt is not None
-                            and isinstance(q.matched_value, Variable)):
-                        value = q.strdt(q.matched_value, dt)
-                    else:
-                        value = q.matched_value
                     q.bind(value, q.tm_value)
                     prec = self.kwargs.get('precision')
                     if prec is not None:
@@ -328,7 +325,7 @@ class SPARQL_Mapping(ABC):
     #: The registered specs.
     specs: dict[Property, 'SPARQL_Mapping.Spec']
 
-    #: The registered IRI prefix replacements.
+    #: The registered IRI prefix replacements "(encoded, decoded)".
     iri_prefix_replacements: dict[IRI, IRI]
 
     #: Inverse of IRI prefix replacements dict.
@@ -351,60 +348,85 @@ class SPARQL_Mapping(ABC):
             datatype: Datatype,
             subject_prefix: Optional[T_IRI] = None,
             value_prefix: Optional[T_IRI] = None,
+            value_datatype: Optional[T_IRI] = None,
+            value_language: Optional[TString] = None,
+            value_unit: Optional[Item] = None,
             **kwargs: Any
     ) -> Callable[..., Any]:
-        """Decorator to register a new specification into mapping.
+        """Decorator used to register a new specification into mapping.
 
         Parameters:
-           property: Target property.
-           datatype: Datatype of target property.
-           subject_prefix: IRI prefix of target subject.
-           value_prefix: IRI prefix of target value.
+           property: Property.
+           datatype: Datatype of property.
+           subject_prefix: The desired IRI prefix for ?subject.
+           value_prefix: The desired IRI prefix for ?value.
+           value_datatype: The desired datatype for ?value.
+           value_language: The desired language for ?value.
+           value_unit: The desired value for ?qt_unit.
            kwargs: Extra keyword-arguments.
 
-        Returns:
-           A function that associates a definition a registers to a new
-           mapping specification.
+        Returns: A function that takes a definition and associates it with
+           new spec in mapping.
         """
+        property = Property._check_arg_property(
+            property, cls.register, 'property', 1)
+        datatype = Datatype._check_arg_datatype(
+            datatype, cls.register, 'datatype', 2)
+        subject_prefix = IRI._check_optional_arg_iri(
+            subject_prefix, None, cls.register, 'subject_prefix', 3)
+        value_prefix = IRI._check_optional_arg_iri(
+            value_prefix, None, cls.register, 'value_prefix', 4)
+        value_datatype = IRI._check_optional_arg_iri(
+            value_datatype, None, cls.register, 'value_datatype', 5)
+        value_language = String._check_optional_arg_string(
+            value_language, None, cls.register, 'value_language', 6)
+        value_unit = Item._check_optional_arg_item(
+            value_unit, None, cls.register, 'value_unit', 7)
         return lambda definition: cls._register(cls.Spec(
-            Property._check_arg_property(
-                property, cls.register, 'property', 1),
-            Datatype._check_arg_datatype(
-                datatype, cls.register, 'datatype', 2),
-            definition,
-            subject_prefix=IRI._check_optional_arg_iri(
-                subject_prefix, None, cls.register, 'subject_prefix', 3),
-            value_prefix=IRI._check_optional_arg_iri(
-                value_prefix, None, cls.register, 'value_prefix', 4),
+            cls, property, datatype, definition,
+            subject_prefix=subject_prefix,
+            value_prefix=value_prefix,
+            value_datatype=value_datatype,
+            value_language=value_language,
+            value_unit=value_unit,
             **kwargs))
 
     @classmethod
     def _register(cls, spec: Spec):
+        # IRI prefix replacements.
         for key in ['subject', 'value']:
             tgt = spec.kwargs[f'{key}_prefix']
             if tgt is None:
                 continue
             src = cls.iri_prefix_replacements_inv[tgt]
-            spec.kwargs[f'{key}_replace_prefix'] = (src.value, tgt.value)
+            spec.kwargs[f'{key}_prefix_replacement'] = (src.value, tgt.value)
         cls.specs[spec.property] = spec
 
     @classmethod
-    def register_iri_prefix_replacement(cls, source: T_IRI, target: T_IRI):
-        """Registers a prefix replacement into mapping.
+    def register_iri_prefix_replacement(cls, encoded: T_IRI, decoded: T_IRI):
+        """Registers prefix replacement into mapping.
 
         Parameters:
-           source: IRI.
-           target: IRI.
+           encoded: IRI.
+           decoded: IRI.
         """
-        src = IRI._check_arg_iri(
-            source, cls.register_iri_prefix_replacement, 'source', 1)
-        tgt = IRI._check_arg_iri(
-            target, cls.register_iri_prefix_replacement, 'target', 2)
-        cls.iri_prefix_replacements[src] = tgt
-        cls.iri_prefix_replacements_inv[tgt] = src
+        encoded = IRI._check_arg_iri(
+            encoded, cls.register_iri_prefix_replacement, 'encoded', 1)
+        decoded = IRI._check_arg_iri(
+            decoded, cls.register_iri_prefix_replacement, 'decoded', 2)
+        cls.iri_prefix_replacements[encoded] = decoded
+        cls.iri_prefix_replacements_inv[decoded] = encoded
 
     @classmethod
-    def normalize_entity(cls, entity: Entity) -> TTrm:
+    def encode_entity(cls, entity: Entity) -> TTrm:
+        """Encodes entity using mapping.
+
+        Parameters:
+           entity: Entity.
+
+        Returns:
+           The resulting term.
+        """
         for k, v in cls.iri_prefix_replacements.items():
             if entity.iri.value.startswith(v.value):
                 return cast(Entity, entity.replace(
@@ -412,12 +434,16 @@ class SPARQL_Mapping(ABC):
         return entity
 
     @classmethod
-    def normalize_value(
-            cls,
-            value: Value,
-            property: Optional[Property] = None
-    ) -> TTrm:
+    def encode_value(cls, value: Value) -> TTrm:
+        """Encodes value using mapping.
+
+        Parameters:
+           value: Value.
+
+        Returns:
+           The resulting term.
+        """
         if value.is_entity():
-            return cls.normalize_entity(cast(Entity, value))
+            return cls.encode_entity(cast(Entity, value))
         else:
             return value

@@ -64,11 +64,23 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(TypeError, KIF_Object)
 
     def test_kif_object_pyi(self):
+        defined = set(filter(
+            re.compile(r'^([a-z]|_check_arg_|_check_optional_arg_)').match,
+            dir(KIF_Object)))
+        defined -= {
+            '_check_arg_callable_details',
+            '_check_arg_isinstance_details',
+            '_check_arg_issubclass_details',
+            'count',
+            'index',
+        }
+
         def get_decl(path):
             with open(path) as fp:
-                return set(re.findall(r'def\b\s*([a-zA-Z]\w*)', fp.read()))
-        defined = {x for x in dir(KIF_Object) if re.match(r'[a-z]', x[0])}
-        defined -= {'count', 'index'}
+                return set(re.findall(
+                    r'def\b\s*'
+                    r'([a-z]\w*|_check_arg_\w*|_check_optional_arg_\w*)',
+                    fp.read()))
         declared = get_decl('kif_lib/model/object.py')
         declared_pyi = get_decl('kif_lib/model/kif_object.pyi')
         self.assertEqual(defined - declared, declared_pyi)

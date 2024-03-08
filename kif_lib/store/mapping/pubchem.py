@@ -24,7 +24,7 @@ class PubChemMapping(SPARQL_Mapping):
     """PubChem SPARQL mapping."""
 
     class Spec(SPARQL_Mapping.Spec):
-        """Mapping specification in the PubChem SPARQL mapping."""
+        """Mapping spec. of the PubChem SPARQL mapping."""
 
         @classmethod
         def check_InChI(cls, v: Value) -> str:
@@ -118,13 +118,14 @@ def wd_InChI(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 @PubChemMapping.register(
     property=wd.mass,
     datatype=Datatype.quantity,
-    unit=wd.gram_per_mole,
     subject_prefix=PubChemMapping.COMPOUND,
-    value_datatype=XSD.decimal)
+    value_datatype=XSD.decimal,
+    value_unit=wd.gram_per_mole)
 def wd_mass(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
         qt = spec.check_quantity(cast(Value, v))
-        if (qt.unit is not None and qt.unit != spec.kwargs.get('unit')
+        if ((qt.unit is not None
+             and qt.unit != spec.kwargs.get('value_unit'))
             or qt.lower_bound is not None
                 or qt.upper_bound is not None):
             raise spec.Skip
@@ -202,7 +203,7 @@ def wd_sponsor(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     property=wd.title,
     datatype=Datatype.text,
     subject_prefix=PubChemMapping.PATENT,
-    value_set_language='en')
+    value_language='en')
 def wd_title(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
         v = String(spec.check_text(cast(Value, v)).value)

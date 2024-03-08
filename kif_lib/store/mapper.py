@@ -84,7 +84,7 @@ class SPARQL_MapperStore(
         with q.where():
             if pat.subject is not None:
                 if pat.subject.entity is not None:
-                    q.matched_subject = self.mapping.normalize_entity(
+                    q.matched_subject = self.mapping.encode_entity(
                         pat.subject.entity)
                 elif pat.subject.snak_set is not None:
                     if not self._try_push_snak_set(
@@ -96,11 +96,7 @@ class SPARQL_MapperStore(
             if pat.value is not None:
                 if pat.value.value is not None:
                     value = pat.value.value
-                    if pat.property is None:
-                        q.matched_value = self.mapping.normalize_value(value)
-                    else:
-                        q.matched_value = self.mapping.normalize_value(
-                            value, pat.property.property)
+                    q.matched_value = self.mapping.encode_value(value)
                 elif pat.value.snak_set is not None:
                     if not self._try_push_snak_set(
                             q, q.matched_value, pat.value.snak_set):
@@ -144,7 +140,7 @@ class SPARQL_MapperStore(
                 return False
             self.mapping.specs[vsnak.property]._define(
                 cast(SPARQL_Mapping.Builder, q), target, None,
-                self.mapping.normalize_value(vsnak.value, vsnak.property))
+                self.mapping.encode_value(vsnak.value))
         return True
 
 # -- Annotations -----------------------------------------------------------

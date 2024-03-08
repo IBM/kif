@@ -153,6 +153,7 @@ include tests/test_store_abc_page_size.py
 include tests/test_store_abc_timeout.py
 include tests/test_store_empty.py
 include tests/test_store_mapper_mapping_pub_chem.py
+include tests/test_store_mapper_mapping_pub_chem_statements.py
 include tests/test_store_mixer.py
 include tests/test_store_mixer_descriptors.py
 include tests/test_store_rdf.py
