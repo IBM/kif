@@ -6,7 +6,6 @@ import logging
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
-    Entity,
     FilterPattern,
     IRI,
     SnakSet,
@@ -89,7 +88,7 @@ class SPARQL_MapperStore(
                 elif pat.subject.snak_set is not None:
                     if not self._try_push_snak_set(
                             q, q.matched_subject, pat.subject.snak_set):
-                        return q  # impossible condition
+                        return q  # cannot match, empty query
                 else:
                     raise self._should_not_get_here()
             value: Optional[Value] = None
@@ -100,21 +99,13 @@ class SPARQL_MapperStore(
                 elif pat.value.snak_set is not None:
                     if not self._try_push_snak_set(
                             q, q.matched_value, pat.value.snak_set):
-                        return q  # impossible condition
+                        return q  # cannot match, empty query
                 else:
                     raise self._should_not_get_here()
             with q.union() as cup:
                 for property, spec in self.mapping.specs.items():
-                    if pat.property is not None:
-                        if pat.property.property != property:
-                            continue
-                    value_class = spec.datatype.to_value_class()
-                    if pat.value is not None and pat.value.snak_set:
-                        if not issubclass(value_class, Entity):
-                            continue
-                    if value is not None:
-                        if not value_class.test(value):
-                            continue
+                    if not spec._match(pat):
+                        continue  # cannot match, skip spec
                     cup.branch()
                     spec._define(q, with_binds=True)
         return q

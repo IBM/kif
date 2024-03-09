@@ -10,15 +10,17 @@ from ..model import (
     DataValue,
     Entity,
     ExternalId,
+    FilterPattern,
     IRI,
     Item,
     Property,
     Quantity,
+    Snak,
     String,
     T_IRI,
     Text,
     Time,
-    TString,
+    TTimePrecision,
     Value,
 )
 from ..typing import Any, Callable, cast, NoReturn, Optional, TypeVar, Union
@@ -104,8 +106,8 @@ class SPARQL_Mapping(ABC):
         ) -> 'SPARQL_Mapping.Builder':
             """Binds URI term to variable.
 
-            If `replace_prefix` is not ``None``, applies the given
-            replacement before binding the term.
+            If `replace_prefix` is not ``None``, applies replacement before
+            binding the term.
 
             Parameters:
                term: URI term.
@@ -304,13 +306,13 @@ class SPARQL_Mapping(ABC):
                         value = q.matched_value
                 elif self.datatype.is_time_datatype():
                     q.bind(value, q.tm_value)
-                    prec = self.kwargs.get('precision')
+                    prec = self.kwargs.get('value_precision')
                     if prec is not None:
                         q.bind(prec.value, q.tm_precision)
-                    tz = self.kwargs.get('timezone')
+                    tz = self.kwargs.get('value_timezone')
                     if tz is not None:
                         q.bind(tz, q.tm_timezone)
-                    cal = self.kwargs.get('calendar')
+                    cal = self.kwargs.get('value_calendar')
                     if cal is not None:
                         q.bind(cal, q.tm_calendar)
                 else:
@@ -319,6 +321,80 @@ class SPARQL_Mapping(ABC):
                 q.bind(value, q.value)
             else:
                 raise ShouldNotGetHere
+
+        def _match(self, pat: FilterPattern) -> bool:
+            # Property mismatch.
+            if (pat.property is not None
+                    and pat.property.property != self.property):
+                return False
+            # Subject mismatch.
+            if pat.subject is not None and pat.subject.entity is not None:
+                subject = pat.subject.entity
+                assert subject is not None
+                if not self._match_kwargs(
+                        'subject_prefix', subject.value,
+                        lambda x, y: x.startswith(y.value)):
+                    return False
+            # Snak mask mismatch.
+            if not (pat.snak_mask & Snak.VALUE_SNAK):
+                return False
+            # Value mismatch.
+            if pat.value is not None:
+                value_class = self.datatype.to_value_class()
+                if pat.value.value is not None:
+                    value = pat.value.value
+                    assert value is not None
+                    if not value_class.test(value):
+                        return False
+                    if issubclass(value_class, Entity):
+                        if not self._match_kwargs(
+                                'value_prefix', value.value,
+                                lambda x, y: x.startswith(y.value)):
+                            return False
+                    elif value_class is Text:
+                        text = cast(Text, value)
+                        if not self._match_kwargs(
+                                'value_language', text.language):
+                            return False
+                    elif value_class is Quantity:
+                        qt = cast(Quantity, value)
+                        if not self._match_kwargs('value_unit', qt.unit):
+                            return False
+                        if qt.lower_bound is not None:
+                            return False
+                        if qt.upper_bound is not None:
+                            return False
+                    elif value_class is Time:
+                        tm = cast(Time, value)
+                        if (tm.precision is not None
+                            and not self._match_kwargs(
+                                'value_precision', tm.precision)):
+                            return False
+                        if (tm.timezone is not None
+                            and not self._match_kwargs(
+                                'value_timezone', tm.timezone)):
+                            return False
+                        if (tm.calendar is not None
+                            and not self._match_kwargs(
+                                'value_calendar', tm.calendar)):
+                            return False
+                elif pat.value.snak_set is not None:
+                    if not issubclass(value_class, Entity):
+                        return False
+            # Success.
+            return True
+
+        def _match_kwargs(
+                self,
+                k: str,
+                v: Any,
+                cmp: Callable[[Any, Any], bool] = (lambda x, y: x == y)
+        ) -> bool:
+            if k not in self.kwargs:
+                return True
+            else:
+                return cmp(v, self.kwargs[k])
+
 
 # -- Mapping ---------------------------------------------------------------
 
@@ -349,8 +425,11 @@ class SPARQL_Mapping(ABC):
             subject_prefix: Optional[T_IRI] = None,
             value_prefix: Optional[T_IRI] = None,
             value_datatype: Optional[T_IRI] = None,
-            value_language: Optional[TString] = None,
+            value_language: Optional[str] = None,
             value_unit: Optional[Item] = None,
+            value_precision: Optional[TTimePrecision] = None,
+            value_timezone: Optional[int] = None,
+            value_calendar: Optional[Item] = None,
             **kwargs: Any
     ) -> Callable[..., Any]:
         """Decorator used to register a new specification into mapping.
@@ -362,7 +441,10 @@ class SPARQL_Mapping(ABC):
            value_prefix: The desired IRI prefix for ?value.
            value_datatype: The desired datatype for ?value.
            value_language: The desired language for ?value.
-           value_unit: The desired value for ?qt_unit.
+           value_unit: The desired ?qt_unit.
+           value_precision: The desired ?tm_precision.
+           value_timezone: The desired ?tm_timezone.
+           value_calendar: The desired ?tm_calendar.
            kwargs: Extra keyword-arguments.
 
         Returns: A function that takes a definition and associates it with
@@ -378,10 +460,16 @@ class SPARQL_Mapping(ABC):
             value_prefix, None, cls.register, 'value_prefix', 4)
         value_datatype = IRI._check_optional_arg_iri(
             value_datatype, None, cls.register, 'value_datatype', 5)
-        value_language = String._check_optional_arg_string(
+        value_language = Value._check_optional_arg_str(
             value_language, None, cls.register, 'value_language', 6)
         value_unit = Item._check_optional_arg_item(
             value_unit, None, cls.register, 'value_unit', 7)
+        value_precision = Time._check_optional_arg_precision(
+            value_precision, None, cls.register, 'value_precision', 8)
+        value_timezone = Value._check_optional_arg_int(
+            value_timezone, None, cls.register, 'value_timezone', 9)
+        value_calendar = Value._check_optional_arg_item(
+            value_calendar, None, cls.register, 'value_calendar', 10)
         return lambda definition: cls._register(cls.Spec(
             cls, property, datatype, definition,
             subject_prefix=subject_prefix,
@@ -389,6 +477,9 @@ class SPARQL_Mapping(ABC):
             value_datatype=value_datatype,
             value_language=value_language,
             value_unit=value_unit,
+            value_precision=value_precision,
+            value_timezone=value_timezone,
+            value_calendar=value_calendar,
             **kwargs))
 
     @classmethod

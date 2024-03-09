@@ -53,7 +53,7 @@ class TestStoreMapperMappingPubChem(kif_PubChemSPARQL_StoreTestCase):
             # quantity
             wd.mass(
                 wd.Q('_PUBCHEM_COMPOUND_CID734888'),
-                Quantity('340.1310119628906', wd.gram_per_mole)),
+                Quantity('340.4', wd.gram_per_mole)),
             # time
             wd.publication_date(
                 wd.Q('_PUBCHEM_PATENT_AP-1072-A'), Time('2002-05-29:04')),
@@ -75,13 +75,13 @@ class TestStoreMapperMappingPubChem(kif_PubChemSPARQL_StoreTestCase):
             # quantity
             wd.mass(
                 wd.Q('_PUBCHEM_COMPOUND_CID734888'),
-                Quantity('340.1310119628906', wd.kilogram)),
+                Quantity('340.4', wd.kilogram)),
             wd.mass(
                 wd.Q('_PUBCHEM_COMPOUND_CID734888'),
-                Quantity('340.1310119628906', wd.gram_per_mole, 33)),
+                Quantity('340.4', wd.gram_per_mole, 33)),
             wd.mass(
                 wd.Q('_PUBCHEM_COMPOUND_CID734888'),
-                Quantity('340.1310119628906', wd.gram_per_mole, None, 3333)),
+                Quantity('340.4', wd.gram_per_mole, None, 3333)),
             # time
             wd.publication_date(
                 wd.Q('_PUBCHEM_PATENT_AP-1072-A'), Time('2002-05-29:00')),

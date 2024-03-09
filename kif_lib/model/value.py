@@ -293,7 +293,7 @@ class Value(KIF_Object):
             raise self._should_not_get_here()
 
 
-# -- Entity ----------------------------------------------------------------
+# == Entity ================================================================
 
 class Entity(Value):
     """Abstract base class for entities."""
@@ -323,7 +323,7 @@ class Entity(Value):
         return self.args[0]
 
 
-# -- Item --
+# -- Item ------------------------------------------------------------------
 
 class Item(Entity):
     """Person or thing.
@@ -351,7 +351,7 @@ def Items(iri: T_IRI, *iris: T_IRI) -> Iterable[Item]:
     return map(Item, chain([iri], iris))
 
 
-# -- Property --
+# -- Property --------------------------------------------------------------
 
 class Property(Entity):
     """Binary relationship.
@@ -385,7 +385,7 @@ def Properties(iri: T_IRI, *iris: T_IRI) -> Iterable[Property]:
     return map(Property, chain([iri], iris))
 
 
-# -- Lexeme --
+# -- Lexeme ----------------------------------------------------------------
 
 class Lexeme(Entity):
     """Word or phrase.
@@ -413,7 +413,7 @@ def Lexemes(iri: T_IRI, *iris: T_IRI) -> Iterable[Lexeme]:
     return map(Lexeme, chain([iri], iris))
 
 
-# -- Data value ------------------------------------------------------------
+# == Data value ============================================================
 
 class DataValue(Value):
     """Abstract base class for data values."""
@@ -421,7 +421,7 @@ class DataValue(Value):
     mask: Value.Mask = Value.DATA_VALUE
 
 
-# -- Shallow data value ----------------------------------------------------
+# == Shallow data value ====================================================
 
 class ShallowDataValue(DataValue):
     """Abstract base class for shallow data values."""
@@ -445,7 +445,7 @@ class ShallowDataValue(DataValue):
         return self.args[0]
 
 
-# -- IRI --
+# -- IRI -------------------------------------------------------------------
 
 class IRI(ShallowDataValue):
     """IRI.
@@ -481,7 +481,7 @@ class IRI(ShallowDataValue):
             raise self._should_not_get_here()
 
 
-# -- Text --
+# -- Text ------------------------------------------------------------------
 
 class Text(ShallowDataValue):
     """Monolingual text.
@@ -537,7 +537,7 @@ class Text(ShallowDataValue):
         return self.args[1]
 
 
-# -- String --
+# -- String ----------------------------------------------------------------
 
 class String(ShallowDataValue):
     """String.
@@ -571,7 +571,7 @@ class String(ShallowDataValue):
             raise self._should_not_get_here()
 
 
-# -- External id --
+# -- External id -----------------------------------------------------------
 
 class ExternalId(String):
     """External id.
@@ -624,7 +624,7 @@ class ExternalId(String):
             raise self._should_not_get_here()
 
 
-# -- Deep data value -------------------------------------------------------
+# == Deep data value =======================================================
 
 class DeepDataValue(DataValue):
     """Abstract base class for deep data values."""
@@ -632,7 +632,7 @@ class DeepDataValue(DataValue):
     mask: Value.Mask = Value.DEEP_DATA_VALUE
 
 
-# -- Quantity --
+# -- Quantity --------------------------------------------------------------
 
 class Quantity(DeepDataValue):
     """Quantity.
@@ -749,7 +749,7 @@ class Quantity(DeepDataValue):
         return ub if ub is not None else default
 
 
-# -- Time --
+# -- Time ------------------------------------------------------------------
 
 class Time(DeepDataValue):
     """Time.
@@ -1015,7 +1015,7 @@ class Time(DeepDataValue):
         return cal if cal is not None else default
 
 
-# -- Datatype --------------------------------------------------------------
+# == Datatype ==============================================================
 
 class Datatype(KIF_Object):
     """Abstract base class for datatypes."""

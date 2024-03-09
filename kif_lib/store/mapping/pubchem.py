@@ -1,11 +1,13 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import re
+
 from rdflib import Literal
 from rdflib.namespace import Namespace
 
 from ...model import Datatype, IRI, String, T_IRI, Text, Time, Value
-from ...namespace import RDF, WD, XSD
+from ...namespace import DCT, RDF, WD, XSD
 from ...typing import cast, TypeAlias
 from ...vocabulary import wd
 from ..sparql_mapping import SPARQL_Mapping
@@ -14,10 +16,41 @@ CITO = Namespace('http://purl.org/spar/cito/')
 PATENT = Namespace('http://data.epo.org/linked-data/def/patent/')
 PUBCHEM = Namespace('http://rdf.ncbi.nlm.nih.gov/pubchem/')
 PUBCHEM_COMPOUND = Namespace(str(PUBCHEM) + 'compound/')
+PUBCHEM_CONCEPT = Namespace(str(PUBCHEM) + 'concept/')
 PUBCHEM_DESCRIPTOR = Namespace(str(PUBCHEM) + 'descriptor/')
 PUBCHEM_PATENT = Namespace(str(PUBCHEM) + 'patent/')
+PUBCHEM_SOURCE = Namespace(str(PUBCHEM) + 'source/')
 SEMSCI = Namespace('http://semanticscience.org/resource/')
 VCARD = Namespace('http://www.w3.org/2006/vcard/ns#')
+
+
+class SIO:
+    has_attribute = SEMSCI.SIO_000008
+    has_value = SEMSCI.SIO_000300
+    is_attribute_of = SEMSCI.SIO_000011
+
+
+class CHEMINF:
+    # See <https://www.ebi.ac.uk/ols4/>.
+    canonical_smiles_generated_by_OEChem = SEMSCI.CHEMINF_000376
+    CAS_registry_number = SEMSCI.CHEMINF_000446
+    ChEBI_identifier = SEMSCI.CHEMINF_000407
+    ChEMBL_identifier = SEMSCI.CHEMINF_000412
+    drug_trade_name = SEMSCI.CHEMINF_000561
+    exact_mass_calculated_by_pubchem_software_library = SEMSCI.CHEMINF_000338
+    has_component = SEMSCI.CHEMINF_000478
+    has_component_with_uncharged_counterpart = SEMSCI.CHEMINF_000480
+    has_PubChem_normalized_counterpart = SEMSCI.CHEMINF_000477
+    InChI_calculated_by_library_version_1_0_4 = SEMSCI.CHEMINF_000396
+    InChIKey_generated_by_software_version_1_0_4 = SEMSCI.CHEMINF_000399
+    is_stereoisomer_of = SEMSCI.CHEMINF_000461
+    isomeric_SMILES_generated_by_OEChem = SEMSCI.CHEMINF_000379
+    molecular_formula_calculated_by_the_pubchem_software_library =\
+        SEMSCI.CHEMINF_000335
+    molecular_weight_calculated_by_the_pubchem_software_library =\
+        SEMSCI.CHEMINF_000334
+    PubChem_compound_identifier_CID = SEMSCI.CHEMINF_000140
+    similar_to_by_PubChem_2D_similarity_algorithm = SEMSCI.CHEMINF_000482
 
 
 class PubChemMapping(SPARQL_Mapping):
@@ -25,6 +58,30 @@ class PubChemMapping(SPARQL_Mapping):
 
     class Spec(SPARQL_Mapping.Spec):
         """Mapping spec. of the PubChem SPARQL mapping."""
+
+        @classmethod
+        def check_canonical_SMILES(cls, v: Value) -> str:
+            """Checks whether `v` is a canonical SMILES.
+
+            Returns:
+               The string value of `v`.
+
+            Raises:
+               Spec.Skip: `v` is not a canonical SMILES.
+            """
+            return cls.check_string(v).value
+
+        @classmethod
+        def check_chemical_formula(cls, v: Value) -> str:
+            """Checks whether `v` is a chemical formula.
+
+            Returns:
+               The string value of `v`.
+
+            Raises:
+               Spec.Skip: `v` is not a chemical formula.
+            """
+            return cls.check_string(v).value
 
         @classmethod
         def check_InChI(cls, v: Value) -> str:
@@ -40,11 +97,57 @@ class PubChemMapping(SPARQL_Mapping):
                 cls.check_string(v).value,
                 lambda s: s.startswith('InChI='))
 
+        @classmethod
+        def check_InChIKey(cls, v: Value) -> str:
+            """Checks whether `v` is an InChIKey.
+
+            Returns:
+               The string value of `v`.
+
+            Raises:
+               Spec.Skip: `v` is not an InChIKey.
+            """
+            return cls.check_string(v).value
+
+        @classmethod
+        def check_isomeric_SMILES(cls, v: Value) -> str:
+            """Checks whether `v` is an isomeric SMILES.
+
+            Returns:
+               The string value of `v`.
+
+            Raises:
+               Spec.Skip: `v` is not an isomeric SMILES.
+            """
+            return cls.check_canonical_SMILES(v)
+
+        @classmethod
+        def check_PubChem_CID(
+                cls,
+                v: Value,
+                _re=re.compile('^[0-9]+$')
+        ) -> str:
+            """Checks whether `v` is a PubChem CID.
+
+            Returns:
+               The string value of `v`.
+
+            Raises:
+               Spec.Skip: `v` is not a PubChem CID.
+            """
+            return cls._check(cls.check_string(v).value, _re.match)
+
+
+# == IRI prefix mappings ===================================================
+
     #: The IRI prefix of compounds.
     COMPOUND = WD.Q_PUBCHEM_COMPOUND_
 
     #: The IRI prefix of patents.
     PATENT = WD.Q_PUBCHEM_PATENT_
+
+    #: The IRI prefix of sources.
+    SOURCE = WD.Q_PUBCHEM_SOURCE_
 
     @classmethod
     def is_pubchem_compound_iri(cls, iri: T_IRI) -> bool:
@@ -72,6 +175,19 @@ class PubChemMapping(SPARQL_Mapping):
         iri = IRI._check_arg_iri(iri, cls.is_pubchem_patent_iri, 'iri', 1)
         return iri.value.startswith(cls.PATENT)
 
+    @classmethod
+    def is_pubchem_source_iri(cls, iri: T_IRI) -> bool:
+        """Tests whether IRI prefix matches that of a PubChem source.
+
+        Parameters:
+           iri: IRI.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        iri = IRI._check_arg_iri(iri, cls.is_pubchem_source_iri, 'iri', 1)
+        return iri.value.startswith(cls.SOURCE)
+
 
 PubChemMapping.register_iri_prefix_replacement(
     PUBCHEM_COMPOUND, PubChemMapping.COMPOUND)
@@ -79,9 +195,104 @@ PubChemMapping.register_iri_prefix_replacement(
 PubChemMapping.register_iri_prefix_replacement(
     PUBCHEM_PATENT, PubChemMapping.PATENT)
 
+PubChemMapping.register_iri_prefix_replacement(
+    PUBCHEM_SOURCE, PubChemMapping.SOURCE)
+
+
+# == Property mappings =====================================================
+
 Builder: TypeAlias = PubChemMapping.Builder
 Spec: TypeAlias = PubChemMapping.Spec
 TTrm: TypeAlias = PubChemMapping.Builder.TTrm
+
+
+# -- Compound --------------------------------------------------------------
+
+@PubChemMapping.register(
+    property=wd.canonical_SMILES,
+    datatype=Datatype.string,
+    subject_prefix=PubChemMapping.COMPOUND)
+def wd_canonical_SMILES(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    if Value.test(v):
+        ###
+        # IMPORTANT: Canonical SMILES values in PubChem are tagged with @en.
+        ###
+        v = Text(spec.check_canonical_SMILES(cast(Value, v)), 'en')
+    with q.sp(s, SIO.has_attribute) as sp:
+        sp.pairs(
+            (RDF.type, CHEMINF.canonical_smiles_generated_by_OEChem),
+            (SIO.has_value, v))
+
+
+@PubChemMapping.register(
+    property=wd.chemical_formula,
+    datatype=Datatype.string,
+    subject_prefix=PubChemMapping.COMPOUND)
+def wd_chemical_formula(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    if Value.test(v):
+        ###
+        # IMPORTANT: Chemical formula values in PubChem are tagged with @en.
+        ###
+        v = Text(spec.check_chemical_formula(cast(Value, v)), 'en')
+    with q.sp(s, SIO.has_attribute) as sp:
+        sp.pairs(
+            (RDF.type, CHEMINF.
+             molecular_formula_calculated_by_the_pubchem_software_library),
+            (SIO.has_value, v))
+
+
+@PubChemMapping.register(
+    property=wd.CAS_Registry_Number,
+    datatype=Datatype.string,   # FIXME: ExternalId
+    subject_prefix=PubChemMapping.COMPOUND)
+def wd_CAS_Registry_Number(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    attr = q.bnode()
+    q.triples(
+        (attr, SIO.is_attribute_of, s),
+        (attr, RDF.type, CHEMINF.CAS_registry_number),
+        (attr, SIO.has_value, v))
+
+
+@PubChemMapping.register(
+    property=wd.ChEBI_ID,
+    datatype=Datatype.string,   # FIXME: ExternalId
+    subject_prefix=PubChemMapping.COMPOUND)
+def wd_ChEBI_ID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    attr = q.bnode()
+    q.triples(
+        (attr, SIO.is_attribute_of, s),
+        (attr, RDF.type, CHEMINF.ChEBI_identifier),
+        (attr, SIO.has_value, v))
+
+
+@PubChemMapping.register(
+    property=wd.ChEMBL_ID,
+    datatype=Datatype.string,   # FIXME: ExternalId
+    subject_prefix=PubChemMapping.COMPOUND)
+def wd_ChEMBL_ID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    attr = q.bnode()
+    q.triples(
+        (attr, SIO.is_attribute_of, s),
+        (attr, RDF.type, CHEMINF.ChEMBL_identifier),
+        (attr, SIO.has_value, v))
+
+
+@PubChemMapping.register(
+    property=wd.trading_name,
+    datatype=Datatype.text,
+    subject_prefix=PubChemMapping.COMPOUND,
+    value_language='en')
+def wd_trading_name(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    if Value.test(v):
+        ###
+        # IMPORTANT: Trading name values in PubChem have no language tag.
+        ###
+        v = String(spec.check_text(cast(Value, v)).value)
+    attr = q.bnode()
+    q.triples(
+        (attr, SIO.is_attribute_of, s),
+        (attr, RDF.type, CHEMINF.drug_trade_name),
+        (attr, SIO.has_value, v))
 
 
 @PubChemMapping.register(
@@ -92,9 +303,18 @@ TTrm: TypeAlias = PubChemMapping.Builder.TTrm
 def wd_described_by_source(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     substance = q.bnode()
     q.triples(
+        (substance, CHEMINF.has_PubChem_normalized_counterpart, s),
         (substance, CITO.isDiscussedBy, v),
-        (v, RDF.type, PATENT.Publication),
-        (substance, SEMSCI.CHEMINF_000477, s))
+        (v, RDF.type, PATENT.Publication))
+
+
+@PubChemMapping.register(
+    property=wd.has_part,
+    datatype=Datatype.item,
+    subject_prefix=PubChemMapping.COMPOUND,
+    value_prefix=PubChemMapping.COMPOUND)
+def wd_has_part(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    q.triple(s, CHEMINF.has_component_with_uncharged_counterpart, v)
 
 
 @PubChemMapping.register(
@@ -104,15 +324,47 @@ def wd_described_by_source(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 def wd_InChI(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
         ###
-        # IMPORTANT: InChI literals in PubChem are tagged with @en.  We have
-        # to add [remove] this tag when converting InChI values to [from]
-        # PubChem.
+        # IMPORTANT: InChI values in PubChem are tagged with @en.
         ###
-        sv = spec.check_InChI(cast(Value, v))
-        v = Text(sv, 'en')
-    with q.sp(s, SEMSCI.SIO_000008) as sp:
-        sp.pair(RDF.type, SEMSCI.CHEMINF_000396)
-        sp.pair(SEMSCI.SIO_000300, v)
+        v = Text(spec.check_InChI(cast(Value, v)), 'en')
+    with q.sp(s, SIO.has_attribute) as sp:
+        sp.pairs(
+            (RDF.type, CHEMINF.InChI_calculated_by_library_version_1_0_4),
+            (SIO.has_value, v))
+
+
+@PubChemMapping.register(
+    property=wd.InChIKey,
+    datatype=Datatype.string,   # FIXME: ExternalId
+    subject_prefix=PubChemMapping.COMPOUND)
+def wd_InChIKey(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    if Value.test(v):
+        ###
+        # IMPORTANT: InChIKey values in PubChem are tagged with @en.
+        ###
+        v = Text(spec.check_InChIKey(cast(Value, v)), 'en')
+    attr = q.bnode()
+    q.triples(
+        (attr, SIO.is_attribute_of, s),
+        (attr, RDF.type, CHEMINF.
+         InChIKey_generated_by_software_version_1_0_4),
+        (attr, SIO.has_value, v))
+
+
+@PubChemMapping.register(
+    property=wd.isomeric_SMILES,
+    datatype=Datatype.string,
+    subject_prefix=PubChemMapping.COMPOUND)
+def wd_isomeric_SMILES(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    if Value.test(v):
+        ###
+        # IMPORTANT: Isomeric SMILES values in PubChem are tagged with @en.
+        ###
+        v = Text(spec.check_isomeric_SMILES(cast(Value, v)), 'en')
+    with q.sp(s, SIO.has_attribute) as sp:
+        sp.pairs(
+            (RDF.type, CHEMINF.isomeric_SMILES_generated_by_OEChem),
+            (SIO.has_value, v))
 
 
 @PubChemMapping.register(
@@ -123,21 +375,57 @@ def wd_InChI(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     value_unit=wd.gram_per_mole)
 def wd_mass(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
+        ###
+        # IMPORTANT: Mass values in PubChem have datatype float.
+        ###
         qt = spec.check_quantity(cast(Value, v))
-        if ((qt.unit is not None
-             and qt.unit != spec.kwargs.get('value_unit'))
-            or qt.lower_bound is not None
-                or qt.upper_bound is not None):
-            raise spec.Skip
-        ###
-        # IMPORTANT: Mass literals in PubChem have datatype float.  We have
-        # to force this datatype when matching a mass literal.
-        ###
         v = Literal(qt.value, datatype=XSD.float)
-    with q.sp(s, SEMSCI.SIO_000008) as sp:
-        sp.pair(RDF.type, SEMSCI.CHEMINF_000338)
-        sp.pair(SEMSCI.SIO_000300, v)
+    with q.sp(s, SIO.has_attribute) as sp:
+        sp.pairs(
+            (RDF.type, CHEMINF.
+             molecular_weight_calculated_by_the_pubchem_software_library),
+            (SIO.has_value, v))
 
+
+@PubChemMapping.register(
+    property=wd.manufacturer,
+    datatype=Datatype.item,
+    subject_prefix=PubChemMapping.COMPOUND,
+    value_prefix=PubChemMapping.SOURCE)
+def wd_manufacturer(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    substance = q.bnode()
+    q.triples(
+        (substance, CHEMINF.has_PubChem_normalized_counterpart, s),
+        (substance, DCT.source, v),
+        (v, DCT.subject, PUBCHEM_CONCEPT.Chemical_Vendors))
+
+
+@PubChemMapping.register(
+    property=wd.PubChem_CID,
+    datatype=Datatype.string,   # FIXME: ExternalId
+    subject_prefix=PubChemMapping.COMPOUND)
+def wd_PubChem_CID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    if Value.test(v):
+        ###
+        # IMPORTANT: CID values in PubChem are tagged with @en.
+        ###
+        v = Text(spec.check_PubChem_CID(cast(Value, v)), 'en')
+    with q.sp(s, SIO.has_attribute) as sp:
+        sp.pairs(
+            (RDF.type, CHEMINF.PubChem_compound_identifier_CID),
+            (SIO.has_value, v))
+
+
+@PubChemMapping.register(
+    property=wd.stereoisomer_of,
+    datatype=Datatype.item,
+    subject_prefix=PubChemMapping.COMPOUND,
+    value_prefix=PubChemMapping.COMPOUND)
+def wd_stereoisomer_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    q.triple(s, CHEMINF.is_stereoisomer_of, v)
+
+
+# -- Patent ----------------------------------------------------------------
 
 @PubChemMapping.register(
     property=wd.author_name_string,
@@ -159,7 +447,7 @@ def wd_main_subject(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     q.triples(
         (substance, CITO.isDiscussedBy, s),
         (s, RDF.type, PATENT.Publication),
-        (substance, SEMSCI.CHEMINF_000477, v))
+        (substance, CHEMINF.has_PubChem_normalized_counterpart, v))
 
 
 @PubChemMapping.register(
@@ -174,19 +462,10 @@ def wd_patent_number(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     property=wd.publication_date,
     datatype=Datatype.time,
     subject_prefix=PubChemMapping.PATENT,
-    precision=Time.DAY,
-    timezone=0,
-    calendar=wd.proleptic_Gregorian_calendar)
+    value_precision=Time.DAY,
+    value_timezone=0,
+    value_calendar=wd.proleptic_Gregorian_calendar)
 def wd_publication_date(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
-        tm = spec.check_time(cast(Value, v))
-        if ((tm.precision is not None
-             and tm.precision != spec.kwargs.get('precision'))
-            or (tm.timezone is not None
-                and tm.timezone != spec.kwargs.get('timezone'))
-            or (tm.calendar is not None
-                and tm.calendar != spec.kwargs.get('calendar'))):
-            raise spec.Skip
     q.triple(s, PATENT.publicationDate, v)
 
 
@@ -206,5 +485,8 @@ def wd_sponsor(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     value_language='en')
 def wd_title(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
+        ###
+        # IMPORTANT: Title values in PubChem have no language tag.
+        ###
         v = String(spec.check_text(cast(Value, v)).value)
     q.triple(s, PATENT.titleOfInvention, v)
