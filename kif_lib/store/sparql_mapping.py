@@ -282,7 +282,8 @@ class SPARQL_Mapping(ABC):
             if self.kwargs.get('value') is not None:
                 fixed_value = self.kwargs.get('value')
                 assert fixed_value is not None
-                q.bind(fixed_value, q.matched_value)
+                if isinstance(q.matched_value, Variable):
+                    q.bind(fixed_value, q.matched_value)
             if issubclass(self.datatype.to_value_class(), Entity):
                 q.bind_uri(
                     q.matched_value, q.value,

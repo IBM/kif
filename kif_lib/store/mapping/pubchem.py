@@ -547,4 +547,12 @@ def wd_title(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     q.triple(s, PATENT.titleOfInvention, v)
 
 
-# == Aliases ===============================================================
+# -- Compound --------------------------------------------------------------
+
+@PubChemMapping.register(
+    property=wd.instance_of,
+    datatype=Datatype.item,
+    subject_prefix=PubChemMapping.SOURCE,
+    value=wd.business)
+def wd_SOURCE_instance_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    q.triple(s, DCT.subject, PUBCHEM_CONCEPT.Chemical_Vendors)
