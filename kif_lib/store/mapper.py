@@ -6,6 +6,7 @@ import logging
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
+    Entity,
     FilterPattern,
     IRI,
     SnakSet,
@@ -81,33 +82,55 @@ class SPARQL_MapperStore(
     ) -> SPARQL_Builder:
         q = self.mapping.Builder()
         with q.where():
+            subject_prefix: Optional[IRI] = None
             if pat.subject is not None:
                 if pat.subject.entity is not None:
                     q.matched_subject = self.mapping.encode_entity(
                         pat.subject.entity)
                 elif pat.subject.snak_set is not None:
-                    if not self._try_push_snak_set(
-                            q, q.matched_subject, pat.subject.snak_set):
-                        return q  # cannot match, empty query
+                    status, subject_prefix = self._try_push_snak_set(
+                        q, q.matched_subject, pat.subject.snak_set)
+                    if not status:
+                        return q  # empty query
+                    assert subject_prefix is not None
                 else:
                     raise self._should_not_get_here()
             value: Optional[Value] = None
+            value_prefix: Optional[IRI] = None
             if pat.value is not None:
                 if pat.value.value is not None:
                     value = pat.value.value
                     q.matched_value = self.mapping.encode_value(value)
                 elif pat.value.snak_set is not None:
-                    if not self._try_push_snak_set(
-                            q, q.matched_value, pat.value.snak_set):
-                        return q  # cannot match, empty query
+                    status, value_prefix = self._try_push_snak_set(
+                        q, q.matched_value, pat.value.snak_set)
+                    if not status:
+                        return q  # empty query
+                    assert value_prefix is not None
                 else:
                     raise self._should_not_get_here()
             with q.union() as cup:
-                for property, spec in self.mapping.specs.items():
-                    if not spec._match(pat):
-                        continue  # cannot match, skip spec
-                    cup.branch()
-                    spec._define(q, with_binds=True)
+                for property, specs in self.mapping.specs.items():
+                    for spec in specs:
+                        if subject_prefix is not None:
+                            if not spec._match_kwargs(
+                                    'subject_prefix', subject_prefix):
+                                continue  # subject mismatch
+                        if value_prefix is not None:
+                            if not spec._match_kwargs(
+                                    'value_prefix', value_prefix):
+                                continue  # value mismatch
+                            value = spec.kwargs.get('value')
+                            if value is not None:
+                                if not Entity.test(value):
+                                    continue  # value mismatch
+                                if not value.value.startswith(
+                                        value_prefix.value):
+                                    continue  # mismatch value
+                        if not spec._match(pat):
+                            continue  # spec does not match pattern
+                        cup.branch()
+                        spec._define(q, with_binds=True)
         return q
 
     def _parse_filter_results_check_wds(
@@ -122,17 +145,26 @@ class SPARQL_MapperStore(
             q: SPARQL_Builder,
             target: SPARQL_Builder.TTrm,
             snaks: SnakSet
-    ) -> bool:
+    ) -> tuple[bool, Optional[IRI]]:
+        subject_prefixes = set()
         for snak in snaks:
             if not snak.is_value_snak():
-                return False
+                return False, None  # no such snak
             vsnak = cast(ValueSnak, snak)
             if vsnak.property not in self.mapping.specs:
-                return False
-            self.mapping.specs[vsnak.property]._define(
-                cast(SPARQL_Mapping.Builder, q), target, None,
-                self.mapping.encode_value(vsnak.value))
-        return True
+                return False, None  # no such property
+            for spec in self.mapping.specs[vsnak.property]:
+                pat = FilterPattern.from_snak(None, vsnak)
+                if not spec._match(pat):
+                    continue    # spec does not match snak
+                spec._define(
+                    cast(SPARQL_Mapping.Builder, q), target, None,
+                    self.mapping.encode_value(vsnak.value))
+                if spec.kwargs.get('subject_prefix') is not None:
+                    subject_prefixes.add(spec.kwargs.get('subject_prefix'))
+        if len(subject_prefixes) != 1:
+            return False, None  # no such subject
+        return True, next(iter(subject_prefixes))
 
 # -- Annotations -----------------------------------------------------------
 

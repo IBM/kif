@@ -6,7 +6,7 @@ import re
 from rdflib import Literal
 from rdflib.namespace import Namespace
 
-from ...model import Datatype, IRI, String, T_IRI, Text, Time, Value
+from ...model import Datatype, IRI, Item, String, T_IRI, Text, Time, Value
 from ...namespace import DCT, RDF, WD, XSD
 from ...typing import cast, TypeAlias
 from ...vocabulary import wd
@@ -150,6 +150,42 @@ class PubChemMapping(SPARQL_Mapping):
     SOURCE = WD.Q_PUBCHEM_SOURCE_
 
     @classmethod
+    def compound(cls, id: str) -> Item:
+        """Makes an item from compound id.
+
+        Parameters:
+           id: Compound id.
+
+        Returns:
+           The resulting item.
+        """
+        return Item(cls.COMPOUND + id)
+
+    @classmethod
+    def patent(cls, id: str) -> Item:
+        """Makes an item from patent id.
+
+        Parameters:
+           id: Patent id.
+
+        Returns:
+           The resulting item.
+        """
+        return Item(cls.PATENT + id)
+
+    @classmethod
+    def source(cls, id: str) -> Item:
+        """Makes an item from source id.
+
+        Parameters:
+           id: Source id.
+
+        Returns:
+           The resulting item.
+        """
+        return Item(cls.SOURCE + id)
+
+    @classmethod
     def is_pubchem_compound_iri(cls, iri: T_IRI) -> bool:
         """Tests whether IRI prefix matches that of a PubChem compound.
 
@@ -278,24 +314,6 @@ def wd_ChEMBL_ID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.trading_name,
-    datatype=Datatype.text,
-    subject_prefix=PubChemMapping.COMPOUND,
-    value_language='en')
-def wd_trading_name(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
-        ###
-        # IMPORTANT: Trading name values in PubChem have no language tag.
-        ###
-        v = String(spec.check_text(cast(Value, v)).value)
-    attr = q.bnode()
-    q.triples(
-        (attr, SIO.is_attribute_of, s),
-        (attr, RDF.type, CHEMINF.drug_trade_name),
-        (attr, SIO.has_value, v))
-
-
-@PubChemMapping.register(
     property=wd.described_by_source,
     datatype=Datatype.item,
     subject_prefix=PubChemMapping.COMPOUND,
@@ -349,6 +367,16 @@ def wd_InChIKey(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
         (attr, RDF.type, CHEMINF.
          InChIKey_generated_by_software_version_1_0_4),
         (attr, SIO.has_value, v))
+
+
+@PubChemMapping.register(
+    property=wd.instance_of,
+    datatype=Datatype.item,
+    subject_prefix=PubChemMapping.COMPOUND,
+    value=wd.type_of_a_chemical_entity)
+def wd_COMPOUND_instance_of(
+        spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    q.triple(q.bnode(), CHEMINF.has_PubChem_normalized_counterpart, s)
 
 
 @PubChemMapping.register(
@@ -424,6 +452,24 @@ def wd_PubChem_CID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 def wd_stereoisomer_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     q.triple(s, CHEMINF.is_stereoisomer_of, v)
 
+
+@PubChemMapping.register(
+    property=wd.trading_name,
+    datatype=Datatype.text,
+    subject_prefix=PubChemMapping.COMPOUND,
+    value_language='en')
+def wd_trading_name(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    if Value.test(v):
+        ###
+        # IMPORTANT: Trading name values in PubChem have no language tag.
+        ###
+        v = String(spec.check_text(cast(Value, v)).value)
+    attr = q.bnode()
+    q.triples(
+        (attr, SIO.is_attribute_of, s),
+        (attr, RDF.type, CHEMINF.drug_trade_name),
+        (attr, SIO.has_value, v))
+
 
 # -- Patent ----------------------------------------------------------------
 
@@ -435,6 +481,15 @@ def wd_author_name_string(
         spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     with q.sp(s, PATENT.inventorVC) as sp:
         sp.pair(VCARD.fn, v)
+
+
+@PubChemMapping.register(
+    property=wd.instance_of,
+    datatype=Datatype.item,
+    subject_prefix=PubChemMapping.PATENT,
+    value=wd.patent)
+def wd_PATENT_instance_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    q.triple(s, PATENT.publicationNumber, q.bnode())
 
 
 @PubChemMapping.register(
@@ -490,3 +545,6 @@ def wd_title(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
         ###
         v = String(spec.check_text(cast(Value, v)).value)
     q.triple(s, PATENT.titleOfInvention, v)
+
+
+# == Aliases ===============================================================

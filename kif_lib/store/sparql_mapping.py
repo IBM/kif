@@ -279,6 +279,10 @@ class SPARQL_Mapping(ABC):
             q.bind_uri(
                 q.concat(String(str(NS.WD)), String(pname)), q.property)
             # value
+            if self.kwargs.get('value') is not None:
+                fixed_value = self.kwargs.get('value')
+                assert fixed_value is not None
+                q.bind(fixed_value, q.matched_value)
             if issubclass(self.datatype.to_value_class(), Entity):
                 q.bind_uri(
                     q.matched_value, q.value,
@@ -346,6 +350,9 @@ class SPARQL_Mapping(ABC):
                     assert value is not None
                     if not value_class.test(value):
                         return False
+                    if self.kwargs.get('value') is not None:
+                        if self.kwargs.get('value') != value:
+                            return False
                     if issubclass(value_class, Entity):
                         if not self._match_kwargs(
                                 'value_prefix', value.value,
@@ -392,6 +399,8 @@ class SPARQL_Mapping(ABC):
         ) -> bool:
             if k not in self.kwargs:
                 return True
+            elif self.kwargs[k] is None:
+                return True
             else:
                 return cmp(v, self.kwargs[k])
 
@@ -399,7 +408,7 @@ class SPARQL_Mapping(ABC):
 # -- Mapping ---------------------------------------------------------------
 
     #: The registered specs.
-    specs: dict[Property, 'SPARQL_Mapping.Spec']
+    specs: dict[Property, list['SPARQL_Mapping.Spec']]
 
     #: The registered IRI prefix replacements "(encoded, decoded)".
     iri_prefix_replacements: dict[IRI, IRI]
@@ -423,6 +432,7 @@ class SPARQL_Mapping(ABC):
             property: Property,
             datatype: Datatype,
             subject_prefix: Optional[T_IRI] = None,
+            value: Optional[Value] = None,
             value_prefix: Optional[T_IRI] = None,
             value_datatype: Optional[T_IRI] = None,
             value_language: Optional[str] = None,
@@ -438,6 +448,7 @@ class SPARQL_Mapping(ABC):
            property: Property.
            datatype: Datatype of property.
            subject_prefix: The desired IRI prefix for ?subject.
+           value: The desired value for ?value.
            value_prefix: The desired IRI prefix for ?value.
            value_datatype: The desired datatype for ?value.
            value_language: The desired language for ?value.
@@ -456,23 +467,26 @@ class SPARQL_Mapping(ABC):
             datatype, cls.register, 'datatype', 2)
         subject_prefix = IRI._check_optional_arg_iri(
             subject_prefix, None, cls.register, 'subject_prefix', 3)
+        value = Value._check_optional_arg_value(
+            value, None, cls.register, 'value', 4)
         value_prefix = IRI._check_optional_arg_iri(
-            value_prefix, None, cls.register, 'value_prefix', 4)
+            value_prefix, None, cls.register, 'value_prefix', 5)
         value_datatype = IRI._check_optional_arg_iri(
-            value_datatype, None, cls.register, 'value_datatype', 5)
+            value_datatype, None, cls.register, 'value_datatype', 6)
         value_language = Value._check_optional_arg_str(
-            value_language, None, cls.register, 'value_language', 6)
+            value_language, None, cls.register, 'value_language', 7)
         value_unit = Item._check_optional_arg_item(
-            value_unit, None, cls.register, 'value_unit', 7)
+            value_unit, None, cls.register, 'value_unit', 8)
         value_precision = Time._check_optional_arg_precision(
-            value_precision, None, cls.register, 'value_precision', 8)
+            value_precision, None, cls.register, 'value_precision', 9)
         value_timezone = Value._check_optional_arg_int(
-            value_timezone, None, cls.register, 'value_timezone', 9)
+            value_timezone, None, cls.register, 'value_timezone', 10)
         value_calendar = Value._check_optional_arg_item(
-            value_calendar, None, cls.register, 'value_calendar', 10)
+            value_calendar, None, cls.register, 'value_calendar', 11)
         return lambda definition: cls._register(cls.Spec(
             cls, property, datatype, definition,
             subject_prefix=subject_prefix,
+            value=value,
             value_prefix=value_prefix,
             value_datatype=value_datatype,
             value_language=value_language,
@@ -491,7 +505,9 @@ class SPARQL_Mapping(ABC):
                 continue
             src = cls.iri_prefix_replacements_inv[tgt]
             spec.kwargs[f'{key}_prefix_replacement'] = (src.value, tgt.value)
-        cls.specs[spec.property] = spec
+        if spec.property not in cls.specs:
+            cls.specs[spec.property] = list()
+        cls.specs[spec.property].append(spec)
 
     @classmethod
     def register_iri_prefix_replacement(cls, encoded: T_IRI, decoded: T_IRI):
