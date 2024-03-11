@@ -177,3 +177,6 @@ class SPARQL_MapperStore(
                 yield stmt, AnnotationRecordSet(AnnotationRecord())
             else:
                 yield stmt, None
+
+
+# -- Descriptors -----------------------------------------------------------

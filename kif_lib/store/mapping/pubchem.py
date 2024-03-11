@@ -547,7 +547,7 @@ def wd_title(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     q.triple(s, PATENT.titleOfInvention, v)
 
 
-# -- Compound --------------------------------------------------------------
+# -- Source ----------------------------------------------------------------
 
 @PubChemMapping.register(
     property=wd.instance_of,
