@@ -1048,10 +1048,16 @@ At line {line}, column {column}:
             ItemDescriptor, PropertyDescriptor]]]]:
         q = self._make_item_or_property_descriptor_query(
             set(entities), cls, language, mask)
-        it = self._eval_select_query(
-            q, lambda res:
-            self._parse_get_item_or_property_descriptor_results(
-                res, cls, language, mask))
+        if q.has_variable(q.var('subject')):
+            it = self._eval_select_query(
+                q, lambda res:
+                self._parse_get_item_or_property_descriptor_results(
+                    res, cls, language, mask))
+        else:
+            it = iter(())
+            LOG.debug(
+                '%s(): nothing to select:\n%s',
+                self._filter.__qualname__, q.select())
         desc: dict[Union[Item, Property], dict[str, Any]] = dict()
         for entity, label, alias, description, datatype in it:
             if entity not in desc:
@@ -1178,16 +1184,18 @@ At line {line}, column {column}:
                 label = entry.check_text('label')
                 if label.language == language or not late_filter:
                     yield entity, label, None, None, datatype
+                    continue    # found label
             elif get_aliases and 'alias' in entry:
                 alias = entry.check_text('alias')
                 if alias.language == language or not late_filter:
                     yield entity, None, alias, None, datatype
+                    continue    # found alias
             elif get_description and 'description' in entry:
                 description = entry.check_text('description')
                 if description.language == language or not late_filter:
                     yield entity, None, None, description, datatype
-            else:
-                yield entity, None, None, None, datatype
+                    continue    # found description
+            yield entity, None, None, None, datatype  # fallback
 
     @override
     def _get_lexeme_descriptor(
@@ -1197,9 +1205,15 @@ At line {line}, column {column}:
     ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
         for batch in self._batched(lexemes):
             q = self._make_lexeme_descriptor_query(set(batch), mask)
-            it = self._eval_select_query(
-                q, lambda res:
-                self._parse_get_lexeme_descriptor_results(res, mask))
+            if q.has_variable(q.var('subject')):
+                it = self._eval_select_query(
+                    q, lambda res:
+                    self._parse_get_lexeme_descriptor_results(res, mask))
+            else:
+                it = iter(())
+                LOG.debug(
+                    '%s(): nothing to select:\n%s',
+                    self._filter.__qualname__, q.select())
             desc: dict[Lexeme, dict[str, Any]] = dict()
             for lexeme, lemma, category, language in it:
                 desc[lexeme] = {

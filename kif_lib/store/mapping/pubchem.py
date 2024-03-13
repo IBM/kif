@@ -43,6 +43,7 @@ class CHEMINF:
     has_PubChem_normalized_counterpart = SEMSCI.CHEMINF_000477
     InChI_calculated_by_library_version_1_0_4 = SEMSCI.CHEMINF_000396
     InChIKey_generated_by_software_version_1_0_4 = SEMSCI.CHEMINF_000399
+    IUPAC_Name_generated_by_LexiChem = SEMSCI.CHEMINF_000382
     is_stereoisomer_of = SEMSCI.CHEMINF_000461
     isomeric_SMILES_generated_by_OEChem = SEMSCI.CHEMINF_000379
     molecular_formula_calculated_by_the_pubchem_software_library =\
@@ -141,13 +142,13 @@ class PubChemMapping(SPARQL_Mapping):
 # == IRI prefix mappings ===================================================
 
     #: The IRI prefix of compounds.
-    COMPOUND = WD.Q_PUBCHEM_COMPOUND_
+    COMPOUND = IRI(WD.Q_PUBCHEM_COMPOUND_)
 
     #: The IRI prefix of patents.
-    PATENT = WD.Q_PUBCHEM_PATENT_
+    PATENT = IRI(WD.Q_PUBCHEM_PATENT_)
 
     #: The IRI prefix of sources.
-    SOURCE = WD.Q_PUBCHEM_SOURCE_
+    SOURCE = IRI(WD.Q_PUBCHEM_SOURCE_)
 
     @classmethod
     def compound(cls, id: str) -> Item:
@@ -159,7 +160,7 @@ class PubChemMapping(SPARQL_Mapping):
         Returns:
            The resulting item.
         """
-        return Item(cls.COMPOUND + id)
+        return Item(cls.COMPOUND.value + id)
 
     @classmethod
     def patent(cls, id: str) -> Item:
@@ -171,7 +172,7 @@ class PubChemMapping(SPARQL_Mapping):
         Returns:
            The resulting item.
         """
-        return Item(cls.PATENT + id)
+        return Item(cls.PATENT.value + id)
 
     @classmethod
     def source(cls, id: str) -> Item:
@@ -183,7 +184,7 @@ class PubChemMapping(SPARQL_Mapping):
         Returns:
            The resulting item.
         """
-        return Item(cls.SOURCE + id)
+        return Item(cls.SOURCE.value + id)
 
     @classmethod
     def is_pubchem_compound_iri(cls, iri: T_IRI) -> bool:
@@ -196,7 +197,7 @@ class PubChemMapping(SPARQL_Mapping):
            ``True`` if successful; ``False`` otherwise.
         """
         iri = IRI._check_arg_iri(iri, cls.is_pubchem_compound_iri, 'iri', 1)
-        return iri.value.startswith(cls.COMPOUND)
+        return iri.value.startswith(cls.COMPOUND.value)
 
     @classmethod
     def is_pubchem_patent_iri(cls, iri: T_IRI) -> bool:
@@ -209,7 +210,7 @@ class PubChemMapping(SPARQL_Mapping):
            ``True`` if successful; ``False`` otherwise.
         """
         iri = IRI._check_arg_iri(iri, cls.is_pubchem_patent_iri, 'iri', 1)
-        return iri.value.startswith(cls.PATENT)
+        return iri.value.startswith(cls.PATENT.value)
 
     @classmethod
     def is_pubchem_source_iri(cls, iri: T_IRI) -> bool:
@@ -222,7 +223,7 @@ class PubChemMapping(SPARQL_Mapping):
            ``True`` if successful; ``False`` otherwise.
         """
         iri = IRI._check_arg_iri(iri, cls.is_pubchem_source_iri, 'iri', 1)
-        return iri.value.startswith(cls.SOURCE)
+        return iri.value.startswith(cls.SOURCE.value)
 
 
 PubChemMapping.register_iri_prefix_replacement(
@@ -243,6 +244,17 @@ TTrm: TypeAlias = PubChemMapping.Builder.TTrm
 
 
 # -- Compound --------------------------------------------------------------
+
+@PubChemMapping.register_label(
+    subject_prefix=PubChemMapping.COMPOUND,
+    value_language='en')
+def wd_COMPOUND_label(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    attr = q.bnode()
+    q.triples(
+        (attr, SIO.is_attribute_of, s),
+        (attr, SIO.has_value, v),
+        (attr, RDF.type, CHEMINF.IUPAC_Name_generated_by_LexiChem))
+
 
 @PubChemMapping.register(
     property=wd.canonical_SMILES,
@@ -400,6 +412,7 @@ def wd_isomeric_SMILES(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     datatype=Datatype.quantity,
     subject_prefix=PubChemMapping.COMPOUND,
     value_datatype=XSD.decimal,
+    value_datatype_encoded=XSD.float,
     value_unit=wd.gram_per_mole)
 def wd_mass(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
@@ -472,6 +485,13 @@ def wd_trading_name(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 # -- Patent ----------------------------------------------------------------
+
+@PubChemMapping.register_label(
+    subject_prefix=PubChemMapping.PATENT,
+    value_language='en')
+def wd_PATENT_label(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    q.triple(s, PATENT.titleOfInvention, v)
+
 
 @PubChemMapping.register(
     property=wd.author_name_string,
@@ -548,6 +568,15 @@ def wd_title(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 # -- Source ----------------------------------------------------------------
+
+@PubChemMapping.register_label(
+    subject_prefix=PubChemMapping.SOURCE,
+    value_language='en')
+def wd_SOURCE_label(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    q.triples(
+        (s, DCT.subject, PUBCHEM_CONCEPT.Chemical_Vendors),
+        (s, DCT.title, v))
+
 
 @PubChemMapping.register(
     property=wd.instance_of,

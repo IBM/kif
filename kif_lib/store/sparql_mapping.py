@@ -12,7 +12,6 @@ from ..model import (
     ExternalId,
     FilterPattern,
     IRI,
-    Item,
     Property,
     Quantity,
     Snak,
@@ -20,7 +19,6 @@ from ..model import (
     T_IRI,
     Text,
     Time,
-    TTimePrecision,
     Value,
 )
 from ..typing import Any, Callable, cast, NoReturn, Optional, TypeVar, Union
@@ -214,9 +212,6 @@ class SPARQL_Mapping(ABC):
             """
             return cast(Time, cls._check(v, Time.test))
 
-        #: The parent mapping.
-        mapping: type['SPARQL_Mapping']
-
         #: The (decoded) property being mapped.
         property: Property
 
@@ -233,7 +228,6 @@ class SPARQL_Mapping(ABC):
 
         def __init__(
                 self,
-                mapping: type['SPARQL_Mapping'],
                 property: Property,
                 datatype: Datatype,
                 definition: Callable[
@@ -241,7 +235,6 @@ class SPARQL_Mapping(ABC):
                      TTrm, TTrm, TTrm], Optional[bool]],
                 **kwargs: Any
         ):
-            self.mapping = mapping
             self.property = property
             self.datatype = datatype
             self.definition = definition
@@ -366,7 +359,8 @@ class SPARQL_Mapping(ABC):
                             return False
                     elif value_class is Quantity:
                         qt = cast(Quantity, value)
-                        if not self._match_kwargs('value_unit', qt.unit):
+                        if (qt.unit is not None and not self._match_kwargs(
+                                'value_unit', qt.unit)):
                             return False
                         if qt.lower_bound is not None:
                             return False
@@ -411,6 +405,9 @@ class SPARQL_Mapping(ABC):
     #: The registered specs.
     specs: dict[Property, list['SPARQL_Mapping.Spec']]
 
+    #: The registered descriptor specs.
+    descriptor_specs: dict[Property, list['SPARQL_Mapping.Spec']]
+
     #: The registered IRI prefix replacements "(encoded, decoded)".
     iri_prefix_replacements: dict[IRI, IRI]
 
@@ -424,6 +421,7 @@ class SPARQL_Mapping(ABC):
     @classmethod
     def _init(cls):
         cls.specs = dict()
+        cls.descriptor_specs = dict()
         cls.iri_prefix_replacements = dict()
         cls.iri_prefix_replacements_inv = dict()
 
@@ -432,15 +430,6 @@ class SPARQL_Mapping(ABC):
             cls,
             property: Property,
             datatype: Datatype,
-            subject_prefix: Optional[T_IRI] = None,
-            value: Optional[Value] = None,
-            value_prefix: Optional[T_IRI] = None,
-            value_datatype: Optional[T_IRI] = None,
-            value_language: Optional[str] = None,
-            value_unit: Optional[Item] = None,
-            value_precision: Optional[TTimePrecision] = None,
-            value_timezone: Optional[int] = None,
-            value_calendar: Optional[Item] = None,
             **kwargs: Any
     ) -> Callable[..., Any]:
         """Decorator used to register a new specification into mapping.
@@ -448,16 +437,7 @@ class SPARQL_Mapping(ABC):
         Parameters:
            property: Property.
            datatype: Datatype of property.
-           subject_prefix: The desired IRI prefix for ?subject.
-           value: The desired value for ?value.
-           value_prefix: The desired IRI prefix for ?value.
-           value_datatype: The desired datatype for ?value.
-           value_language: The desired language for ?value.
-           value_unit: The desired ?qt_unit.
-           value_precision: The desired ?tm_precision.
-           value_timezone: The desired ?tm_timezone.
-           value_calendar: The desired ?tm_calendar.
-           kwargs: Extra keyword-arguments.
+           kwargs: Keyword-arguments to be passed to :class:`Spec`.
 
         Returns: A function that takes a definition and associates it with
            new spec in mapping.
@@ -466,49 +446,30 @@ class SPARQL_Mapping(ABC):
             property, cls.register, 'property', 1)
         datatype = Datatype._check_arg_datatype(
             datatype, cls.register, 'datatype', 2)
-        subject_prefix = IRI._check_optional_arg_iri(
-            subject_prefix, None, cls.register, 'subject_prefix', 3)
-        value = Value._check_optional_arg_value(
-            value, None, cls.register, 'value', 4)
-        value_prefix = IRI._check_optional_arg_iri(
-            value_prefix, None, cls.register, 'value_prefix', 5)
-        value_datatype = IRI._check_optional_arg_iri(
-            value_datatype, None, cls.register, 'value_datatype', 6)
-        value_language = Value._check_optional_arg_str(
-            value_language, None, cls.register, 'value_language', 7)
-        value_unit = Item._check_optional_arg_item(
-            value_unit, None, cls.register, 'value_unit', 8)
-        value_precision = Time._check_optional_arg_precision(
-            value_precision, None, cls.register, 'value_precision', 9)
-        value_timezone = Value._check_optional_arg_int(
-            value_timezone, None, cls.register, 'value_timezone', 10)
-        value_calendar = Value._check_optional_arg_item(
-            value_calendar, None, cls.register, 'value_calendar', 11)
-        return lambda definition: cls._register(cls.Spec(
-            cls, property, datatype, definition,
-            subject_prefix=subject_prefix,
-            value=value,
-            value_prefix=value_prefix,
-            value_datatype=value_datatype,
-            value_language=value_language,
-            value_unit=value_unit,
-            value_precision=value_precision,
-            value_timezone=value_timezone,
-            value_calendar=value_calendar,
-            **kwargs))
+        return lambda definition: cls._register(cls.specs, cls.Spec(
+            property, datatype, definition, **kwargs))
 
     @classmethod
-    def _register(cls, spec: Spec):
+    def register_label(cls, **kwargs: Any) -> Callable[..., Any]:
+        return lambda definition: cls._register(
+            cls.descriptor_specs, cls.Spec(
+                Property('label'), Datatype.text, definition, **kwargs))
+
+    @classmethod
+    def _register(
+            cls,
+            specs: dict[Property, list['SPARQL_Mapping.Spec']],
+            spec: Spec):
         # IRI prefix replacements.
         for key in ['subject', 'value']:
-            tgt = spec.kwargs[f'{key}_prefix']
+            tgt = spec.kwargs.get(f'{key}_prefix', None)
             if tgt is None:
                 continue
             src = cls.iri_prefix_replacements_inv[tgt]
             spec.kwargs[f'{key}_prefix_replacement'] = (src.value, tgt.value)
-        if spec.property not in cls.specs:
-            cls.specs[spec.property] = list()
-        cls.specs[spec.property].append(spec)
+        if spec.property not in specs:
+            specs[spec.property] = list()
+        specs[spec.property].append(spec)
 
     @classmethod
     def register_iri_prefix_replacement(cls, encoded: T_IRI, decoded: T_IRI):

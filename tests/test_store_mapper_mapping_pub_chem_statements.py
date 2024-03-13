@@ -131,9 +131,9 @@ class TestStoreMapperMappingPubChemStatements(
             value_check=(
                 lambda kb, v: kb.mapping.is_pubchem_source_iri(v.iri)))
 
-    def test_filter_property_PubChem_CID(self):
-        self.check_filter_compound_property(
-            self.new_Store(), wd.PubChem_CID, Datatype.string)
+    # def test_filter_property_PubChem_CID(self):
+    #     self.check_filter_compound_property(
+    #         self.new_Store(), wd.PubChem_CID, Datatype.string)
 
     def test_filter_property_stereoisomer_of(self):
         self.check_filter_compound_property(

@@ -6,15 +6,29 @@ import logging
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
+    Descriptor,
     Entity,
     FilterPattern,
     IRI,
+    Item,
+    Lexeme,
+    Property,
     SnakSet,
     Statement,
+    String,
     Value,
     ValueSnak,
 )
-from ..typing import Any, cast, Iterable, Iterator, Optional, override, Union
+from ..typing import (
+    Any,
+    cast,
+    Collection,
+    Iterable,
+    Iterator,
+    Optional,
+    override,
+    Union,
+)
 from .sparql import (
     BNode,
     NS,
@@ -177,6 +191,61 @@ class SPARQL_MapperStore(
                 yield stmt, AnnotationRecordSet(AnnotationRecord())
             else:
                 yield stmt, None
-
 
 # -- Descriptors -----------------------------------------------------------
+
+    def _make_item_or_property_descriptor_query(
+            self,
+            entities: Collection[Union[Item, Property]],
+            cls: type[Entity],
+            lang: str,
+            mask: Descriptor.AttributeMask
+    ) -> SPARQL_Builder:
+        q = self.mapping.Builder()
+        if self.has_flags(self.EARLY_FILTER):
+            get_label = bool(mask & Descriptor.LABEL)
+            get_aliases = bool(mask & Descriptor.ALIASES)
+            get_description = bool(mask & Descriptor.DESCRIPTION)
+        else:
+            get_label = True
+            get_aliases = True
+            get_description = True
+        with q.where():
+            with q.optional(cond=get_label or get_aliases or get_description):
+                with q.union() as cup:
+                    label_specs: list[SPARQL_Mapping.Spec] =\
+                        self.mapping.descriptor_specs.get(
+                            Property('label'), [])
+                    for spec in label_specs:
+                        matched_entities = [
+                            e for e in entities
+                            if spec._match(FilterPattern(e))]
+                        if not matched_entities:
+                            continue
+                        cup.branch()
+                        spec._define(cast(SPARQL_Mapping.Builder, q))
+                        lang = spec.kwargs.get('value_language', None)
+                        if get_label:
+                            if lang is not None:
+                                q.bind(
+                                    q.strlang(q.matched_value, String(lang)),
+                                    q.var('label'))
+                            else:
+                                q.bind(q.matched_value, q.var('label'))
+                        values = q.values(q.matched_subject, q.subject)
+                        with values:
+                            for entity in matched_entities:
+                                values.push(
+                                    self.mapping.encode_entity(entity),
+                                    entity)
+        return q
+
+    def _make_lexeme_descriptor_query(
+            self,
+            lexemes: Collection[Lexeme],
+            mask: Descriptor.AttributeMask
+    ) -> SPARQL_Builder:
+        q = self.mapping.Builder()
+        with q.where():
+            pass
+        return q
