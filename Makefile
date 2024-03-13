@@ -30,6 +30,7 @@ usage:
 	@perl -wnle '${perl_usage}' ${MAKEFILE_LIST}
 
 CHECK_COPYRIGHT?= yes
+CHECK_COPYRIGHT_IGNORE?=
 CHECK_DEPS?= htmlcov-clean
 CHECK_FLAKE8=? yes
 CHECK_ISORT?= yes
@@ -41,7 +42,8 @@ COVERAGERC_OMIT?=
 DOCS_SRC?= docs
 DOCS_TGT?= .docs
 DOCS_TGT_BRANCH?= gh-pages
-FLAKE8_OPTIONS?= --color never --config .flake8rc
+FLAKE8_IGNORE?= E741, W503
+FLAKE8_OPTIONS?= --config .flake8rc
 FLAKE8RC?= .flake8rc
 ISORT_CFG?= .isort.cfg
 ISORT_CFG_INCLUDE_TRAILING_COMMA?= True
@@ -114,7 +116,8 @@ check-copyright: check-copyright-python
 
 .PHONY: check-copyright-python
 check-copyright-python:
-	@${CHECK_COPYRIGHT} `git ls-files '${PACKAGE}/*.py' '${TESTS}/*.py'`
+	@${CHECK_COPYRIGHT} $(filter-out\
+	  ${CHECK_COPYRIGHT_IGNORE}, $(shell git ls-files '*.py'))
 
 CHECK_COPYRIGHT= ${PERL} -s -0777 -wnle '${perl_check_copyright}'
 perl_check_copyright:=\
@@ -242,7 +245,7 @@ gen-coveragerc:
 gen-flake8rc:
 	@echo 'generating ${FLAKE8RC}'
 	@echo '[flake8]' >${FLAKE8RC}
-	@echo 'ignore = E741,F403,F405,W503' >>${FLAKE8RC}
+	@echo 'ignore = ${FLAKE8_IGNORE}' >>${FLAKE8RC}
 
 # generage .isort.cfg
 .PHONY: gen-isort-cfg
