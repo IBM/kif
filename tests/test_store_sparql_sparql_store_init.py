@@ -7,7 +7,7 @@ from kif_lib.store.sparql import SPARQL_Store
 from .tests import kif_StoreTestCase
 
 
-class TestStoreSPARQL_Init(kif_StoreTestCase):
+class TestStoreSPARQL_SPARQL_StoreInit(kif_StoreTestCase):
 
     def test__init__(self):
         # bad argument: iri
@@ -20,4 +20,4 @@ class TestStoreSPARQL_Init(kif_StoreTestCase):
 
 
 if __name__ == '__main__':
-    TestStoreSPARQL_Init.main()
+    TestStoreSPARQL_SPARQL_StoreInit.main()
