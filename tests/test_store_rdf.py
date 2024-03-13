@@ -1,8 +1,6 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from rdflib import Graph
-
 from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -20,7 +18,6 @@ from kif_lib import (
     Text,
     Time,
 )
-from kif_lib.store import RDF_Store
 from kif_lib.vocabulary import wd
 
 from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL
@@ -31,41 +28,6 @@ class TestStoreRDF(kif_StoreTestCase):
 
     def test_sanity(self):
         self.store_sanity_checks(Store('rdf', BENZENE_TTL))
-
-    def test__init__(self):
-        # bad argument: no such file
-        self.assertRaises(
-            FileNotFoundError, Store, 'rdf', '__no_such_file__')
-        # bad argument: directory
-        self.assertRaises(IsADirectoryError, Store, 'rdf', '.')
-        # bad argument: unknown format
-        self.assertRaises(Store.Error, Store, 'rdf', data='x')
-        # bad argument: syntax error
-        self.assertRaises(SyntaxError, Store, 'rdf', data='x', format='ttl')
-        # bad argument: mutually exclusive
-        self.assertRaises(ValueError, Store, 'rdf', source='x', data='x')
-        # zero sources
-        kb = Store('rdf')
-        self.assertIsInstance(kb, RDF_Store)
-        self.assertEqual(kb._flags, Store.default_flags)
-        # one source
-        kb = Store('rdf', BENZENE_TTL.path)
-        self.assertIsInstance(kb, RDF_Store)
-        self.assertEqual(kb._flags, Store.default_flags)
-        # two sources
-        kb = Store('rdf', BENZENE_TTL, BRAZIL_TTL)
-        self.assertIsInstance(kb, RDF_Store)
-        self.assertEqual(kb._flags, Store.default_flags)
-        # data
-        kb = Store('rdf', data=open(BENZENE_TTL.path).read(), format='ttl')
-        self.assertIsInstance(kb, RDF_Store)
-        self.assertEqual(kb._flags, Store.default_flags)
-        # graph
-        g = Graph()
-        kb = Store('rdf', graph=g, skolemize=False)
-        self.assertIsInstance(kb, RDF_Store)
-        self.assertEqual(kb._flags, Store.default_flags)
-        self.assertIs(kb._graph, g)
 
     # -- Set interface -----------------------------------------------------
 

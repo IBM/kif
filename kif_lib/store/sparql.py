@@ -22,6 +22,7 @@ from ..model import (
     IRI,
     Item,
     ItemDescriptor,
+    KIF_Object,
     Lexeme,
     LexemeDescriptor,
     NoValueSnak,
@@ -34,6 +35,7 @@ from ..model import (
     SnakSet,
     Statement,
     String,
+    T_IRI,
     Text,
     Time,
     Value,
@@ -99,10 +101,10 @@ class SPARQL_Store(
 
     _iri: IRI
 
-    def __init__(self, store_name: str, iri: Union[IRI, str], **kwargs: Any):
+    def __init__(self, store_name: str, iri: T_IRI, **kwargs: Any):
         assert store_name == self.store_name
         super().__init__(**kwargs)
-        self._iri = IRI(iri)
+        self._iri = KIF_Object._check_arg_iri(iri, self.__class__, 'iri', 2)
 
     @property
     def iri(self) -> IRI:

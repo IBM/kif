@@ -63,10 +63,13 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
 
     def _init_sources(self, sources: Iterable[Store]):
         KIF_Object._check_arg_isinstance(
-            sources, Iterable, self.__class__, 'sources')
-        self._sources = list(map(
-            lambda s: KIF_Object._check_arg_isinstance(
-                s, Store, self.__class__, 'sources'), sources))
+            sources, Iterable, self.__class__, 'sources', 2)
+        self._sources = [
+            KIF_Object._check_arg(
+                src, isinstance(src, Store),
+                'expected Iterable[Store]',
+                self.__class__, 'sources', 2, TypeError)
+            for src in sources]
 
     @property
     def sources(self) -> Iterable[Store]:

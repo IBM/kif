@@ -11,11 +11,13 @@ from ..model import (
     FilterPattern,
     IRI,
     Item,
+    KIF_Object,
     Lexeme,
     Property,
     SnakSet,
     Statement,
     String,
+    T_IRI,
     Value,
     ValueSnak,
 )
@@ -59,13 +61,14 @@ class SPARQL_MapperStore(
     def __init__(
             self,
             store_name: str,
-            iri: Union[IRI, str],
+            iri: T_IRI,
             mapping: SPARQL_Mapping,
             **kwargs: Any
     ):
         assert store_name == self.store_name
         super().__init__(store_name, iri, **kwargs)
-        self._mapping = mapping
+        self._mapping = KIF_Object._check_arg_isinstance(
+            mapping, SPARQL_Mapping, self.__class__, 'mapping', 3)
 
     @property
     def mapping(self) -> SPARQL_Mapping:

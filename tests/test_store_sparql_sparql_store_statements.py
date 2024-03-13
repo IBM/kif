@@ -1,4 +1,4 @@
-# Copyright (C) 2023-2024 IBM Corp.
+# Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
@@ -20,7 +20,7 @@ from kif_lib.vocabulary import wd
 from .tests import kif_WikidataSPARQL_StoreTestCase
 
 
-class TestStoreSPARQL_SPARQL_StoreFilter(kif_WikidataSPARQL_StoreTestCase):
+class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
 
     def test_filter_bad_argument(self):
         kb = self.new_Store()
@@ -244,4 +244,4 @@ class TestStoreSPARQL_SPARQL_StoreFilter(kif_WikidataSPARQL_StoreTestCase):
 
 
 if __name__ == '__main__':
-    TestStoreSPARQL_SPARQL_StoreFilter.main()
+    TestStoreSPARQL_SPARQL_StoreStatements.main()

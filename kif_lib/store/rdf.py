@@ -71,8 +71,8 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
             msg = ', '.join(names[:-1]) + sep + names[-1]
             raise KIF_Object._arg_error(
                 f'{msg} are mutually exclusive', self.__class__, names[0])
-        if graph is None:
-            graph = Graph()
+        graph = KIF_Object._check_optional_arg_isinstance(
+            graph, Graph, Graph(), self.__class__, 'graph', None)
         assert graph is not None
         try:
             if location or file or data:

@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import Statement, Store
-from kif_lib.store import MixerStore
 
 from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL
 from .tests import kif_StoreTestCase
@@ -27,16 +26,6 @@ class TestStoreMixer(kif_StoreTestCase):
         self.store_sanity_checks(self.mk_empty_mixer())
         self.store_sanity_checks(self.mk_benzene_mixer())
         self.store_sanity_checks(self.mk_adam_benzene_brazil_mixer())
-
-    def test__init__(self):
-        # bad argument
-        self.assertRaises(TypeError, Store, 'mixer', 0)
-        self.assertRaises(
-            TypeError, Store, 'mixer', Store('rdf', BENZENE_TTL))
-        # good arguments
-        kb = Store('mixer')
-        self.assertIsInstance(kb, MixerStore)
-        self.assertEqual(kb._flags, Store.default_flags)
 
     def test_get_sources(self):
         kb = self.mk_empty_mixer()

@@ -1291,4 +1291,5 @@ class kif_PubChemSPARQL_StoreTestCase(kif_SPARQL_MapperStoreTestCase):
     @classmethod
     def new_Store(cls, *args, **kwargs):
         from kif_lib.store.mapping import PubChemMapping
-        return super().new_Store(cls.PUBCHEM, PubChemMapping, *args, **kwargs)
+        return super().new_Store(
+            cls.PUBCHEM, PubChemMapping(), *args, **kwargs)

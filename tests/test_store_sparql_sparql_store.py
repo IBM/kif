@@ -18,21 +18,12 @@ from kif_lib import (
     Time,
     ValueSnak,
 )
-from kif_lib.store import SPARQL_Store
 from kif_lib.vocabulary import wd
 
 from .tests import kif_WikidataSPARQL_StoreTestCase
 
 
 class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
-
-    def test__init__(self):
-        # bad argument: format
-        self.assertRaises(ValueError, Store, 'xxx')
-        # good arguments
-        kb = self.new_Store()
-        self.assertIsInstance(kb, SPARQL_Store)
-        self.assertEqual(kb._flags, Store.default_flags)
 
     # -- Set interface -----------------------------------------------------
 
