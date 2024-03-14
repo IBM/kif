@@ -456,6 +456,18 @@ class SPARQL_Mapping(ABC):
                 Property('label'), Datatype.text, definition, **kwargs))
 
     @classmethod
+    def register_alias(cls, **kwargs: Any) -> Callable[..., Any]:
+        return lambda definition: cls._register(
+            cls.descriptor_specs, cls.Spec(
+                Property('alias'), Datatype.text, definition, **kwargs))
+
+    @classmethod
+    def register_description(cls, **kwargs: Any) -> Callable[..., Any]:
+        return lambda definition: cls._register(
+            cls.descriptor_specs, cls.Spec(
+                Property('description'), Datatype.text, definition, **kwargs))
+
+    @classmethod
     def _register(
             cls,
             specs: dict[Property, list['SPARQL_Mapping.Spec']],

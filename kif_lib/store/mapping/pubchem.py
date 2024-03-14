@@ -13,6 +13,7 @@ from ...vocabulary import wd
 from ..sparql_mapping import SPARQL_Mapping
 
 CITO = Namespace('http://purl.org/spar/cito/')
+OBO = Namespace('http://purl.obolibrary.org/obo/')
 PATENT = Namespace('http://data.epo.org/linked-data/def/patent/')
 PUBCHEM = Namespace('http://rdf.ncbi.nlm.nih.gov/pubchem/')
 PUBCHEM_COMPOUND = Namespace(str(PUBCHEM) + 'compound/')
@@ -23,10 +24,9 @@ SEMSCI = Namespace('http://semanticscience.org/resource/')
 VCARD = Namespace('http://www.w3.org/2006/vcard/ns#')
 
 
-class SIO:
-    has_attribute = SEMSCI.SIO_000008
-    has_value = SEMSCI.SIO_000300
-    is_attribute_of = SEMSCI.SIO_000011
+class IAO:
+    # See <https://www.ebi.ac.uk/ols4/>.
+    definition = OBO.IAO_0000115
 
 
 class CHEMINF:
@@ -50,7 +50,15 @@ class CHEMINF:
     molecular_weight_calculated_by_the_pubchem_software_library =\
         SEMSCI.CHEMINF_000334
     PubChem_compound_identifier_CID = SEMSCI.CHEMINF_000140
+    pubchem_depositor_supplied_molecular_entity_name = SEMSCI.CHEMINF_000339
     similar_to_by_PubChem_2D_similarity_algorithm = SEMSCI.CHEMINF_000482
+    structure_complexity_calculated_by_cactvs = SEMSCI.CHEMINF_000390
+
+
+class SIO:
+    has_attribute = SEMSCI.SIO_000008
+    has_value = SEMSCI.SIO_000300
+    is_attribute_of = SEMSCI.SIO_000011
 
 
 class PubChemMapping(SPARQL_Mapping):
@@ -255,6 +263,28 @@ def wd_COMPOUND_label(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
         (attr, RDF.type, CHEMINF.IUPAC_Name_generated_by_LexiChem))
 
 
+@PubChemMapping.register_alias(
+    subject_prefix=PubChemMapping.COMPOUND,
+    value_language='en')
+def wd_COMPOUND_alias(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    attr = q.bnode()
+    q.triples(
+        (attr, SIO.is_attribute_of, s),
+        (attr, SIO.has_value, v),
+        (attr, RDF.type, CHEMINF.
+         pubchem_depositor_supplied_molecular_entity_name))
+
+
+@PubChemMapping.register_description(
+    subject_prefix=PubChemMapping.COMPOUND,
+    value_language='en')
+def wd_COMPOUND_description(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    chebi_class = q.bnode()
+    q.triples(
+        (s, RDF.type, chebi_class),
+        (chebi_class, IAO.definition, v))
+
+
 @PubChemMapping.register(
     property=wd.canonical_SMILES,
     datatype=Datatype.string,
@@ -387,7 +417,10 @@ def wd_InChIKey(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     value=wd.type_of_a_chemical_entity)
 def wd_COMPOUND_instance_of(
         spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    q.triple(q.bnode(), CHEMINF.has_PubChem_normalized_counterpart, s)
+    attr = q.bnode()
+    q.triples(
+        (s, SIO.has_attribute, attr),
+        (attr, RDF.type, CHEMINF.structure_complexity_calculated_by_cactvs))
 
 
 @PubChemMapping.register(
@@ -492,6 +525,13 @@ def wd_PATENT_label(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     q.triple(s, PATENT.titleOfInvention, v)
 
 
+@PubChemMapping.register_description(
+    subject_prefix=PubChemMapping.PATENT,
+    value_language='en')
+def wd_PATENT_description(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    q.triple(s, DCT.abstract, v)
+
+
 @PubChemMapping.register(
     property=wd.author_name_string,
     datatype=Datatype.string,
@@ -508,7 +548,7 @@ def wd_author_name_string(
     subject_prefix=PubChemMapping.PATENT,
     value=wd.patent)
 def wd_PATENT_instance_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    q.triple(s, PATENT.publicationNumber, q.bnode())
+    q.triple(s, RDF.type, PATENT.Publication)
 
 
 @PubChemMapping.register(
@@ -572,9 +612,14 @@ def wd_title(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     subject_prefix=PubChemMapping.SOURCE,
     value_language='en')
 def wd_SOURCE_label(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    q.triples(
-        (s, DCT.subject, PUBCHEM_CONCEPT.Chemical_Vendors),
-        (s, DCT.title, v))
+    q.triple(s, DCT.title, v)
+
+
+@PubChemMapping.register_alias(
+    subject_prefix=PubChemMapping.SOURCE,
+    value_language='en')
+def wd_SOURCE_alias(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    q.triple(s, DCT.alternative, v)
 
 
 @PubChemMapping.register(

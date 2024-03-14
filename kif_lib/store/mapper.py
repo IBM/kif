@@ -16,11 +16,11 @@ from ..model import (
     Property,
     SnakSet,
     Statement,
-    String,
     T_IRI,
     Value,
     ValueSnak,
 )
+from ..namespace import WD
 from ..typing import (
     Any,
     cast,
@@ -204,7 +204,7 @@ class SPARQL_MapperStore(
             lang: str,
             mask: Descriptor.AttributeMask
     ) -> SPARQL_Builder:
-        q = self.mapping.Builder()
+        q = cast(SPARQL_Mapping.Builder, self.mapping.Builder())
         if self.has_flags(self.EARLY_FILTER):
             get_label = bool(mask & Descriptor.LABEL)
             get_aliases = bool(mask & Descriptor.ALIASES)
@@ -213,34 +213,68 @@ class SPARQL_MapperStore(
             get_label = True
             get_aliases = True
             get_description = True
+        instance_of_specs = self.mapping.specs.get(
+            Property(WD['P31']), [])
+        label_specs = self.mapping.descriptor_specs.get(
+            Property('label'), [])
+        alias_specs = self.mapping.descriptor_specs.get(
+            Property('alias'), [])
+        description_specs = self.mapping.descriptor_specs.get(
+            Property('description'), [])
         with q.where():
-            with q.optional(cond=get_label or get_aliases or get_description):
-                with q.union() as cup:
-                    label_specs: list[SPARQL_Mapping.Spec] =\
-                        self.mapping.descriptor_specs.get(
-                            Property('label'), [])
-                    for spec in label_specs:
-                        matched_entities = [
-                            e for e in entities
-                            if spec._match(FilterPattern(e))]
-                        if not matched_entities:
-                            continue
-                        cup.branch()
-                        spec._define(cast(SPARQL_Mapping.Builder, q))
-                        lang = spec.kwargs.get('value_language', None)
-                        if get_label:
-                            if lang is not None:
-                                q.bind(
-                                    q.strlang(q.matched_value, String(lang)),
-                                    q.var('label'))
-                            else:
-                                q.bind(q.matched_value, q.var('label'))
-                        values = q.values(q.matched_subject, q.subject)
-                        with values:
+            with q.union() as cup:
+                for instance_of_spec in instance_of_specs:
+                    matched_entities = [
+                        e for e in entities
+                        if instance_of_spec._match(FilterPattern(e))]
+                    if not matched_entities:
+                        continue  # nothing to do
+
+                    def push_values(spec):
+                        with q.values(q.matched_subject) as values:
                             for entity in matched_entities:
-                                values.push(
-                                    self.mapping.encode_entity(entity),
-                                    entity)
+                                values.push(self.mapping.encode_entity(
+                                    entity))
+                        q.bind_uri(
+                            q.matched_subject, q.subject,
+                            spec.kwargs.get('subject_prefix_replacement'))
+                    cup.branch()
+                    pat = FilterPattern(matched_entities[0])
+                    matched_specs = dict()
+                    if get_label:
+                        matched_specs['label'] = [
+                            s for s in label_specs if s._match(pat)]
+                    if get_aliases:
+                        matched_specs['alias'] = [
+                            s for s in alias_specs if s._match(pat)]
+                    if get_description:
+                        matched_specs['description'] = [
+                            s for s in description_specs if s._match(pat)]
+                    if not any(map(bool, matched_specs.values())):
+                        instance_of_spec._define(q)
+                        push_values(instance_of_spec)
+                        continue  # test presence, nothing else to do
+                    with q.union() as cup2:
+                        for attr, specs in matched_specs.items():
+                            for spec in specs:
+                                cup2.branch()
+                                instance_of_spec._define(q)
+                                with q.optional():
+                                    spec._define(q)
+                                    ###
+                                    # FIXME: This crashes Virtuoso!
+                                    ###
+                                    # value_language = spec.kwargs.get(
+                                    #     'value_language')
+                                    # if value_language is not None:
+                                    #     q.bind(q.strlang(
+                                    #         q.matched_value,
+                                    #         String(value_language)),
+                                    # else:
+                                    #     q.bind(q.matched_value, q.var(attr))
+                                    ###
+                                    q.bind(q.matched_value, q.var(attr))
+                                push_values(spec)
         return q
 
     def _make_lexeme_descriptor_query(

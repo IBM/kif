@@ -69,26 +69,25 @@ class TestStoreRDF_Descriptors(kif_StoreTestCase):
         self.assertIsNone(ds[5][1])
 
     def test_get_descriptor_mask(self):
-        def test_case(kb, flags, desc01, desc21, desc41):
+        def test_case(kb, mask, desc01, desc21, desc41):
             ds = list(kb.get_descriptor(
                 [wd.Adam,
                  Item('x'),
                  wd.instance_of,
                  Property('y'),
                  wd.L(96),
-                 wd.L('z')], 'en'))
+                 wd.L('z')], None, mask))
             self.assertEqual(len(ds), 6)
             self.assertEqual(ds[0][0], wd.Adam)
-            self.assert_item_descriptor(ds[0][1], *ADAM_TTL.Adam_en)
+            self.assert_item_descriptor(ds[0][1], *desc01)
             self.assertEqual(ds[1][0], Item('x'))
             self.assertIsNone(ds[1][1])
             self.assertEqual(ds[2][0], wd.instance_of)
-            self.assert_property_descriptor(
-                ds[2][1], *INSTANCE_OF_TTL.instance_of_en)
+            self.assert_property_descriptor(ds[2][1], *desc21)
             self.assertEqual(ds[3][0], Property('y'))
             self.assertIsNone(ds[3][1])
             self.assertEqual(ds[4][0], wd.L(96))
-            self.assert_lexeme_descriptor(ds[4][1], *PAINT_TTL.paint_verb_en)
+            self.assert_lexeme_descriptor(ds[4][1], *desc41)
             self.assertEqual(ds[5][0], wd.L('z'))
             self.assertIsNone(ds[5][1])
         kb = Store('rdf', ADAM_TTL, INSTANCE_OF_TTL, PAINT_TTL)
@@ -159,9 +158,9 @@ class TestStoreRDF_Descriptors(kif_StoreTestCase):
         self.assert_item_descriptor(ds[2][1], *BRAZIL_TTL.Brazil_pt_br)
 
     def test_get_item_descriptor_mask(self):
-        def test_case(kb, flags, desc01, desc21):
+        def test_case(kb, mask, desc01, desc21):
             ds = list(kb.get_item_descriptor(
-                [wd.Brazil, Item('x'), wd.Latin_America], None, flags))
+                [wd.Brazil, Item('x'), wd.Latin_America], None, mask))
             self.assertEqual(len(ds), 3)
             self.assertEqual(ds[0][0], wd.Brazil)
             self.assertEqual(ds[0][1], desc01)
@@ -261,9 +260,9 @@ class TestStoreRDF_Descriptors(kif_StoreTestCase):
         self.assert_property_descriptor(ds[2][1], *BENZENE_TTL.InChIKey_es)
 
     def test_get_property_descriptor_mask(self):
-        def test_case(kb, flags, desc01, desc21):
+        def test_case(kb, mask, desc01, desc21):
             ds = list(kb.get_property_descriptor(
-                [wd.instance_of, Property('x'), wd.InChIKey], None, flags))
+                [wd.instance_of, Property('x'), wd.InChIKey], None, mask))
             self.assertEqual(len(ds), 3)
             self.assertEqual(ds[0][0], wd.instance_of)
             self.assertEqual(ds[0][1], desc01)
@@ -363,9 +362,9 @@ class TestStoreRDF_Descriptors(kif_StoreTestCase):
         self.assert_lexeme_descriptor(ds[2][1], *PAINT_TTL.paint_verb_en)
 
     def test_get_lexeme_descriptor_mask(self):
-        def test_case(kb, flags, desc01, desc21):
+        def test_case(kb, mask, desc01, desc21):
             ds = list(kb.get_lexeme_descriptor(
-                [wd.L(46803), Lexeme('x'), wd.L(96)], flags))
+                [wd.L(46803), Lexeme('x'), wd.L(96)], mask))
             self.assertEqual(len(ds), 3)
             self.assertEqual(ds[0][0], wd.L(46803))
             self.assertEqual(ds[0][1], desc01)
