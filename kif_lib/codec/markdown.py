@@ -10,8 +10,9 @@ from ..model import (
     FilterPattern,
     Fingerprint,
     IRI,
-    ItemDescriptor,
     KIF_Object,
+    PlainDescriptor,
+    PropertyDescriptor,
     Quantity,
     Rank,
     Snak,
@@ -120,8 +121,8 @@ class MarkdownEncoder(
         elif obj.is_rank():
             rank = cast(Rank, obj)
             yield self._encode_kif_object_name(rank)
-        elif obj.is_item_descriptor():
-            desc = cast(ItemDescriptor, obj)
+        elif obj.is_plain_descriptor():
+            desc = cast(PlainDescriptor, obj)
             yield from self._iterencode_kif_object_start(desc, '')
             sep = f'{NL}{2 * SP * indent}-{SP}'
             yield sep
@@ -139,6 +140,13 @@ class MarkdownEncoder(
                 yield from self._iterencode(desc.description, indent + 1)
             else:
                 yield '*no description*'
+            if obj.is_property_descriptor():
+                yield sep
+                desc = cast(PropertyDescriptor, obj)
+                if desc.datatype is not None:
+                    yield from self._iterencode(desc.datatype, indent + 1)
+                else:
+                    yield '*no datatype*'
             yield ''
             yield from self._iterencode_kif_object_end(desc)
         elif obj.is_fingerprint():

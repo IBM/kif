@@ -299,11 +299,8 @@ class SPARQL_Mapping(ABC):
                     value = q.strdt(q.matched_value, dt)
                 else:
                     value = q.matched_value
-                if self.datatype.is_quantity_datatype():
-                    q.bind(value, q.qt_amount)
-                    unit = self.kwargs.get('value_unit')
-                    if unit is not None:
-                        q.bind(unit, q.qt_unit)
+                if self.datatype.is_iri_datatype():
+                    pass        # nothing to do
                 elif self.datatype.is_string_datatype():
                     value = q.str_(q.matched_value)
                 elif self.datatype.is_text_datatype():
@@ -313,6 +310,11 @@ class SPARQL_Mapping(ABC):
                         value = q.strlang(q.matched_value, String(lang))
                     else:
                         value = q.matched_value
+                elif self.datatype.is_quantity_datatype():
+                    q.bind(value, q.qt_amount)
+                    unit = self.kwargs.get('value_unit')
+                    if unit is not None:
+                        q.bind(unit, q.qt_unit)
                 elif self.datatype.is_time_datatype():
                     q.bind(value, q.tm_value)
                     prec = self.kwargs.get('value_precision')

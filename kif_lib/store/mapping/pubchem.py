@@ -12,6 +12,7 @@ from ...model import (
     FilterPattern,
     IRI,
     Item,
+    KIF_Object,
     Property,
     Quantity,
     Statement,
@@ -21,8 +22,8 @@ from ...model import (
     Time,
     Value,
 )
-from ...namespace import DCT, RDF, WD, XSD
-from ...typing import Any, cast, Iterable, Iterator, override, TypeAlias
+from ...namespace import DCT, FOAF, RDF, WD, XSD
+from ...typing import Any, cast, Iterable, Iterator, override, TypeAlias, Union
 from ...vocabulary import wd
 from ..abc import Store
 from ..sparql_mapping import SPARQL_Mapping
@@ -220,9 +221,9 @@ class PubChemMapping(SPARQL_Mapping):
                         if original_pattern.match(stmt):
                             yield stmt
                             count += 1
-                        if count > original_limit:
+                        if count >= original_limit:
                             break
-                    if count > original_limit:
+                    if count >= original_limit:
                         break
             return mk_it()
 
@@ -276,17 +277,18 @@ class PubChemMapping(SPARQL_Mapping):
     def _parse_toxicity_dose(
             cls,
             dose: str,
-            _re=re.compile(r'^(\d+\.?\d*)\s*(.*)$')
+            _re=re.compile(r'^(\d+\.?\d*)\s*(\S*)$'),
+            _unit={
+                'mg/kg': wd.milligram_per_kilogram,
+                'ug/kg': wd.microgram_per_kilogram,
+                'gm/kg': wd.gram_per_kilogram,
+            }
     ) -> Quantity:
         m = _re.match(dose)
         if m is None:
             raise ValueError
-        amount, unit_str = m.groups()
-        if unit_str == 'mg/kg':
-            unit = wd.milligram_per_kilogram
-        else:
-            unit = None
-        return Quantity(amount, unit)
+        amount, unit_key = m.groups()
+        return Quantity(amount, _unit[unit_key])
 
 
 # == IRI prefix mappings ===================================================
@@ -301,7 +303,7 @@ class PubChemMapping(SPARQL_Mapping):
     SOURCE = IRI(WD.Q_PUBCHEM_SOURCE_)
 
     @classmethod
-    def compound(cls, id: str) -> Item:
+    def compound(cls, id: Union[int, str]) -> Item:
         """Makes an item from compound id.
 
         Parameters:
@@ -310,6 +312,15 @@ class PubChemMapping(SPARQL_Mapping):
         Returns:
            The resulting item.
         """
+        KIF_Object._check_arg_isinstance(
+            id, (int, str), cls.compound, 'id', 1)
+        if isinstance(id, int):
+            id = f'CID{id}'
+        elif isinstance(id, str):
+            try:
+                id = f'CID{int(id)}'
+            except ValueError:
+                pass
         return Item(cls.COMPOUND.value + id)
 
     @classmethod
@@ -772,3 +783,25 @@ def wd_SOURCE_alias(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     value=wd.business)
 def wd_SOURCE_instance_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     q.triple(s, DCT.subject, PUBCHEM_CONCEPT.Chemical_Vendors)
+
+
+@PubChemMapping.register(
+    property=wd.official_website,
+    datatype=Datatype.iri,
+    subject_prefix=PubChemMapping.SOURCE)
+def wd_SOURCE_official_website(
+        spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    q.triples(
+        (s, DCT.subject, PUBCHEM_CONCEPT.Chemical_Vendors),
+        (s, FOAF.homepage, v))
+
+
+@PubChemMapping.register(
+    property=wd.short_name,
+    datatype=Datatype.string,
+    subject_prefix=PubChemMapping.SOURCE)
+def wd_SOURCE_short_name(
+        spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    q.triples(
+        (s, DCT.subject, PUBCHEM_CONCEPT.Chemical_Vendors),
+        (s, DCT.alternative, v))

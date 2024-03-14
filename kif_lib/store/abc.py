@@ -734,6 +734,13 @@ class Store(Set):
             limit = self.maximum_page_size
         else:
             limit = max(limit, 0)
+        return self._filter_with_hooks(pattern, limit)
+
+    def _filter_with_hooks(
+            self,
+            pattern: FilterPattern,
+            limit: int
+    ) -> Iterator[Statement]:
         pattern, limit, data = self._filter_pre_hook(pattern, limit)
         if limit > 0 and pattern.is_nonempty():
             it = self._filter(pattern, limit)

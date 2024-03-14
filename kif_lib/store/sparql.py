@@ -266,7 +266,7 @@ At line {line}, column {column}:
 
     @override
     def _contains(self, pat: FilterPattern) -> bool:
-        it = self._filter(pat, limit=1)
+        it = self._filter_with_hooks(pat, limit=1)
         try:
             next(it)
             return True

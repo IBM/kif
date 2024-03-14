@@ -4,6 +4,7 @@
 from rdflib import Graph
 from rdflib.namespace import DCTERMS as DCT
 from rdflib.namespace import (
+    FOAF,
     Namespace,
     NamespaceManager,
     OWL,
@@ -21,6 +22,7 @@ from .wikidata import Wikidata
 
 __all__ = [
     'DCT',
+    'FOAF',
     'OWL',
     'P',
     'PQ',
