@@ -1249,6 +1249,16 @@ class kif_SPARQL_StoreTestCase(kif_StoreTestCase):
         return super().new_Store('sparql', *args, **kwargs)
 
 
+# == kif_RDF_StoreTestCase =================================================
+
+class kif_RDF_StoreTestCase(kif_StoreTestCase):
+
+    @override
+    @classmethod
+    def new_Store(cls, *args, **kwargs):
+        return super().new_Store('rdf', *args, **kwargs)
+
+
 # == kif_WikidataSPARQL_StoreTestCase ======================================
 
 class kif_WikidataSPARQL_StoreTestCase(kif_SPARQL_StoreTestCase):
