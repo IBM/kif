@@ -15,13 +15,24 @@ from ..model import (
     Property,
     Quantity,
     Snak,
+    Statement,
     String,
     T_IRI,
     Text,
     Time,
     Value,
 )
-from ..typing import Any, Callable, cast, NoReturn, Optional, TypeVar, Union
+from ..store.abc import Store
+from ..typing import (
+    Any,
+    Callable,
+    cast,
+    Iterator,
+    NoReturn,
+    Optional,
+    TypeVar,
+    Union,
+)
 from .sparql_builder import SPARQL_Builder
 
 T = TypeVar('T')
@@ -528,3 +539,23 @@ class SPARQL_Mapping(ABC):
             return cls.encode_entity(cast(Entity, value))
         else:
             return value
+
+    @classmethod
+    def filter_pre_hook(
+            cls,
+            store: Store,
+            pattern: FilterPattern,
+            limit: int
+    ) -> tuple[FilterPattern, int, Any]:
+        return pattern, limit, None
+
+    @classmethod
+    def filter_post_hook(
+            cls,
+            store: Store,
+            pattern: FilterPattern,
+            limit: int,
+            data: Any,
+            it: Iterator[Statement]
+    ) -> Iterator[Statement]:
+        return it

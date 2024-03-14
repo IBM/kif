@@ -734,10 +734,28 @@ class Store(Set):
             limit = self.maximum_page_size
         else:
             limit = max(limit, 0)
+        pattern, limit, data = self._filter_pre_hook(pattern, limit)
         if limit > 0 and pattern.is_nonempty():
-            return self._filter(pattern, limit=limit)
+            it = self._filter(pattern, limit)
         else:
-            return iter(())
+            it = iter(())
+        return self._filter_post_hook(pattern, limit, data, it)
+
+    def _filter_pre_hook(
+            self,
+            pattern: FilterPattern,
+            limit: int
+    ) -> tuple[FilterPattern, int, Any]:
+        return pattern, limit, None
+
+    def _filter_post_hook(
+            self,
+            pattern: FilterPattern,
+            limit: int,
+            data: Any,
+            it: Iterator[Statement]
+    ) -> Iterator[Statement]:
+        return it
 
     def _filter(
             self,

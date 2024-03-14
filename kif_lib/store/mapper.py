@@ -93,6 +93,24 @@ class SPARQL_MapperStore(
         return self._parse_count_query_results(res)
 
     @override
+    def _filter_pre_hook(
+            self,
+            pattern: FilterPattern,
+            limit: int
+    ) -> tuple[FilterPattern, int, Any]:
+        return self.mapping.filter_pre_hook(self, pattern, limit)
+
+    @override
+    def _filter_post_hook(
+            self,
+            pattern: FilterPattern,
+            limit: int,
+            data: Any,
+            it: Iterator[Statement]
+    ) -> Iterator[Statement]:
+        return self.mapping.filter_post_hook(self, pattern, limit, data, it)
+
+    @override
     def _make_filter_query(
             self,
             pat: FilterPattern,

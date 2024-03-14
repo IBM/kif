@@ -10,7 +10,6 @@ from kif_lib import (
     LexemeDescriptor,
     Property,
     PropertyDescriptor,
-    Store,
     Text,
 )
 from kif_lib.vocabulary import wd

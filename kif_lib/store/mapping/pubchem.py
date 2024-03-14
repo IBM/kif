@@ -6,10 +6,25 @@ import re
 from rdflib import Literal
 from rdflib.namespace import Namespace
 
-from ...model import Datatype, IRI, Item, String, T_IRI, Text, Time, Value
+from ...itertools import batched
+from ...model import (
+    Datatype,
+    FilterPattern,
+    IRI,
+    Item,
+    Property,
+    Quantity,
+    Statement,
+    String,
+    T_IRI,
+    Text,
+    Time,
+    Value,
+)
 from ...namespace import DCT, RDF, WD, XSD
-from ...typing import cast, TypeAlias
+from ...typing import Any, cast, Iterable, Iterator, override, TypeAlias
 from ...vocabulary import wd
+from ..abc import Store
 from ..sparql_mapping import SPARQL_Mapping
 
 CITO = Namespace('http://purl.org/spar/cito/')
@@ -144,6 +159,134 @@ class PubChemMapping(SPARQL_Mapping):
                Spec.Skip: `v` is not a PubChem CID.
             """
             return cls._check(cls.check_string(v).value, _re.match)
+
+# == Pre/post filter hooks =================================================
+
+    _toxicity_properties = {
+        'LD50': wd.median_lethal_dose,
+        'LDLo': wd.minimal_lethal_dose,
+    }
+
+    _toxicity_properties_inv = {v: k for k, v in _toxicity_properties.items()}
+
+    @override
+    @classmethod
+    def filter_pre_hook(
+            cls,
+            store: Store,
+            pattern: FilterPattern,
+            limit: int,
+    ) -> tuple[FilterPattern, int, Any]:
+        if (pattern.property is None
+                or pattern.property.property
+                not in cls._toxicity_properties_inv):
+            return pattern, limit, None
+        else:
+            new_pattern = FilterPattern(
+                pattern.subject,
+                wd.instance_of,
+                wd.type_of_a_chemical_entity,
+                pattern.snak_mask)
+            return new_pattern, store.maximum_page_size, dict(
+                original_pattern=pattern,
+                original_limit=limit)
+
+    @override
+    @classmethod
+    def filter_post_hook(
+            cls,
+            store: Store,
+            pattern: FilterPattern,
+            limit: int,
+            data: Any,
+            it: Iterator[Statement]
+    ) -> Iterator[Statement]:
+        if data is None:
+            return it           # nothing to do
+        else:
+            def mk_it():
+                assert isinstance(data, dict)
+                original_pattern = data['original_pattern']
+                assert isinstance(original_pattern, FilterPattern)
+                original_limit = data['original_limit']
+                assert isinstance(original_limit, int)
+                count = 0
+                cids_it = map(
+                    lambda iri: iri.value[len(cls.COMPOUND.value) + 3:],
+                    filter(cls.is_pubchem_compound_iri, map(
+                        lambda stmt: stmt.subject.iri, it)))
+                for batch in batched(cids_it, store.default_page_size):
+                    for stmt in cls._get_toxicity(set(batch)):
+                        if original_pattern.match(stmt):
+                            yield stmt
+                            count += 1
+                        if count > original_limit:
+                            break
+                    if count > original_limit:
+                        break
+            return mk_it()
+
+    @classmethod
+    def _get_toxicity(cls, cids: Iterable[str]) -> Iterator[Statement]:
+        import json
+
+        import requests
+        ors = list(map(lambda cid: dict(cid=cid), cids))
+        if not ors:
+            return iter(())
+        res = requests.get(
+            'https://pubchem.ncbi.nlm.nih.gov/sdq/sdqagent.cgi',
+            params=dict(
+                infmt='json',
+                outfmt='json',
+                query=json.dumps({
+                    'download': '*',
+                    'collection': 'chemidplus',
+                    'start': 1,
+                    'limit': 10000000,
+                    'where': {'ors': ors},
+                })))
+        res.raise_for_status()
+        return cls._parse_toxicity(res.json())
+
+    @classmethod
+    def _parse_toxicity(
+            cls,
+            response: Iterable[dict[str, Any]]
+    ) -> Iterator[Statement]:
+        for entry in response:
+            # print(entry)
+            try:
+                subject = cls._parse_toxicity_cid(entry['cid'])
+                property = cls._parse_toxicity_testtype(entry['testtype'])
+                value = cls._parse_toxicity_dose(entry['dose'])
+                yield property(subject, value)
+            except (KeyError, ValueError):
+                continue        # skip
+
+    @classmethod
+    def _parse_toxicity_cid(cls, cid: str) -> Item:
+        return cls.compound(f'CID{int(cid)}')
+
+    @classmethod
+    def _parse_toxicity_testtype(cls, testtype: str) -> Property:
+        return cls._toxicity_properties[testtype]
+
+    @classmethod
+    def _parse_toxicity_dose(
+            cls,
+            dose: str,
+            _re=re.compile(r'^(\d+\.?\d*)\s*(.*)$')
+    ) -> Quantity:
+        m = _re.match(dose)
+        if m is None:
+            raise ValueError
+        amount, unit_str = m.groups()
+        if unit_str == 'mg/kg':
+            unit = wd.milligram_per_kilogram
+        else:
+            unit = None
+        return Quantity(amount, unit)
 
 
 # == IRI prefix mappings ===================================================
