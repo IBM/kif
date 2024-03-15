@@ -145,23 +145,31 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
             distinct: bool
     ) -> Iterator[Statement]:
         its = map(
-            lambda kb: kb._filter(pattern, limit, distinct), self._sources)
-        # TODO: Handle distinct!
-        return self._filter_mixed(list(its), limit)
+            lambda kb: kb._filter_with_hooks(pattern, limit, distinct),
+            self._sources)
+        return self._filter_mixed(list(its), limit, distinct)
 
     def _filter_mixed(
             self,
-            its: Collection[Iterator[T]],
+            its: Collection[Iterator[Statement]],
             limit: int,
-    ) -> Iterator[T]:
+            distinct: bool
+    ) -> Iterator[Statement]:
         cyc = cycle(its)
-        exausted: set[Iterator[T]] = set()
+        exausted: set[Iterator[Statement]] = set()
+        seen: set[Statement] = set()
         while limit > 0 and len(exausted) < len(its):
             try:
                 src = next(cyc)
                 if src in exausted:
-                    continue    # skip
-                yield next(src)
+                    continue    # skip source
+                stmt = next(src)
+                if distinct:
+                    if stmt in seen:
+                        continue  # skip statement
+                    else:
+                        seen.add(stmt)
+                yield stmt
                 limit -= 1
             except StopIteration:
                 exausted.add(src)

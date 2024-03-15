@@ -283,6 +283,7 @@ class PubChemMapping(SPARQL_Mapping):
             response: Iterable[dict[str, Any]]
     ) -> Iterator[tuple[Statement, AnnotationRecordSet]]:
         for entry in response:
+            assert isinstance(entry, dict)
             try:
                 subject = cls._parse_toxicity_cid(entry['cid'])
                 property = cls._parse_toxicity_testtype(entry['testtype'])
