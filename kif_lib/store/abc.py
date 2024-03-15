@@ -872,17 +872,17 @@ class Store(Set):
             stmts: Union[Statement, Iterable[Statement]]
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
         if Statement.test(stmts):
-            it = self._get_annotations([cast(Statement, stmts)])
+            it = self._get_annotations_with_hooks([cast(Statement, stmts)])
         else:
-            it = self._get_annotations(map(
+            it = self._get_annotations_with_hooks(map(
                 lambda s: cast(Statement, Statement.check(
                     s, self.get_annotations)), stmts))
         if self.extra_references:
-            return self._get_annotations_with_default_references(it)
+            return self._get_annotations_attach_extra_references(it)
         else:
             return it
 
-    def _get_annotations_with_default_references(
+    def _get_annotations_attach_extra_references(
             self,
             it: Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
@@ -896,6 +896,28 @@ class Store(Set):
                         a.references.union(self.extra_references),
                         a.rank)
                 yield stmt, AnnotationRecordSet(*map(patch, annots))
+
+    def _get_annotations_with_hooks(
+            self,
+            stmts: Iterable[Statement]
+    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+        return self._get_annotations_post_hook(
+            *self._get_annotations_pre_hook(stmts),
+            self._get_annotations(stmts))
+
+    def _get_annotations_pre_hook(
+            self,
+            stmts: Iterable[Statement]
+    ) -> tuple[Iterable[Statement], Any]:
+        return stmts, None
+
+    def _get_annotations_post_hook(
+            self,
+            stmts: Iterable[Statement],
+            data: Any,
+            it: Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]
+    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+        return it
 
     def _get_annotations(
             self,

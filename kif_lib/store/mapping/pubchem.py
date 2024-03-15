@@ -8,6 +8,8 @@ from rdflib.namespace import Namespace
 
 from ...itertools import batched
 from ...model import (
+    AnnotationRecord,
+    AnnotationRecordSet,
     Datatype,
     FilterPattern,
     IRI,
@@ -15,6 +17,7 @@ from ...model import (
     KIF_Object,
     Property,
     Quantity,
+    ReferenceRecord,
     Statement,
     String,
     T_IRI,
@@ -22,8 +25,17 @@ from ...model import (
     Time,
     Value,
 )
-from ...namespace import DCT, FOAF, RDF, WD, XSD
-from ...typing import Any, cast, Iterable, Iterator, override, TypeAlias, Union
+from ...namespace import DCT, FOAF, RDF, WD, WDS, XSD
+from ...typing import (
+    Any,
+    cast,
+    Iterable,
+    Iterator,
+    Optional,
+    override,
+    TypeAlias,
+    Union,
+)
 from ...vocabulary import wd
 from ..abc import Store
 from ..sparql_mapping import SPARQL_Mapping
@@ -169,7 +181,7 @@ class PubChemMapping(SPARQL_Mapping):
             """
             return cls._check(cls.check_string(v).value, _re.match)
 
-# == Pre/post filter hooks =================================================
+# == Hooks =================================================================
 
     _toxicity_properties = {
         'LD50': wd.median_lethal_dose,
@@ -227,8 +239,10 @@ class PubChemMapping(SPARQL_Mapping):
                     filter(cls.is_pubchem_compound_iri, map(
                         lambda stmt: stmt.subject.iri, it)))
                 for batch in batched(cids_it, store.default_page_size):
-                    for stmt in cls._get_toxicity(set(batch)):
+                    for stmt, annots in cls._get_toxicity(set(batch)):
                         if original_pattern.match(stmt):
+                            store._cache_add_wds(stmt, WDS[stmt.digest])
+                            store._cache.set(stmt, 'annotations', annots)
                             yield stmt
                             count += 1
                         if count >= original_limit:
@@ -238,7 +252,10 @@ class PubChemMapping(SPARQL_Mapping):
             return mk_it()
 
     @classmethod
-    def _get_toxicity(cls, cids: Iterable[str]) -> Iterator[Statement]:
+    def _get_toxicity(
+            cls,
+            cids: Iterable[str]
+    ) -> Iterator[tuple[Statement, AnnotationRecordSet]]:
         import json
 
         import requests
@@ -264,14 +281,15 @@ class PubChemMapping(SPARQL_Mapping):
     def _parse_toxicity(
             cls,
             response: Iterable[dict[str, Any]]
-    ) -> Iterator[Statement]:
+    ) -> Iterator[tuple[Statement, AnnotationRecordSet]]:
         for entry in response:
-            # print(entry)
             try:
                 subject = cls._parse_toxicity_cid(entry['cid'])
                 property = cls._parse_toxicity_testtype(entry['testtype'])
                 value = cls._parse_toxicity_dose(entry['dose'])
-                yield property(subject, value)
+                stmt = property(subject, value)
+                annots = cls._parse_toxicity_annotations(entry)
+                yield stmt, annots
             except (KeyError, ValueError):
                 continue        # skip
 
@@ -300,6 +318,72 @@ class PubChemMapping(SPARQL_Mapping):
         amount, unit_key = m.groups()
         return Quantity(amount, _unit[unit_key])
 
+    @classmethod
+    def _parse_toxicity_annotations(
+            cls,
+            entry: dict[str, Any],
+            _organism={
+                'child': wd.child,
+                'dog': wd.dog,
+                'frog': wd.frog,
+                'guinea pig': wd.Guinea_pig,
+                'human': wd.human,
+                'infant': wd.infant,
+                'mammal (species unspecified)': wd.mammal,
+                'mammal': wd.mammal,
+                'man': wd.man,
+                'mouse': wd.laboratory_rat,
+                'rabbit': wd.rabbit,
+                'rat': wd.laboratory_rat,
+                'woman': wd.woman,
+            },
+            _route={
+                'intraperitoneal': wd.intraperitoneal_injection,
+                'intravenous': wd.intravenous_injection,
+                'oral': wd.oral_administration,
+                'rectal': wd.rectal_administration,
+                'skin': wd.skin_absorption,
+                'subcutaneous': wd.subcutaneous_injection,
+            }
+    ) -> AnnotationRecordSet:
+        try:
+            quals = []
+            if 'effect' in entry:
+                quals.append(wd.has_effect(Text(entry['effect'])))
+            if 'organism' in entry:
+                organism_key = entry['organism']
+                quals.append(wd.afflicts(_organism.get(
+                    organism_key, organism_key)))
+            if 'route' in entry:
+                route_key = entry['route']
+                if route_key != 'unreported':
+                    quals.append(wd.route_of_administration(_route.get(
+                        route_key, route_key)))
+            ref = []
+            if 'reference' in entry:
+                ref.append(wd.stated_in(Text(entry['reference'])))
+            return AnnotationRecordSet(
+                AnnotationRecord(
+                    quals,
+                    ReferenceRecord(*ref)))
+        except (KeyError, ValueError):
+            return AnnotationRecordSet(AnnotationRecord())  # skip
+
+    @classmethod
+    def get_annotations_post_hook(
+            cls,
+            store: Store,
+            stmts: Iterable[Statement],
+            data: Any,
+            it: Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]
+    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+        for stmt, annots in it:
+            if stmt.snak.property in cls._toxicity_properties_inv:
+                saved_annots = store._cache.get(stmt, 'annotations')
+                if saved_annots is not None:
+                    assert isinstance(saved_annots, AnnotationRecordSet)
+                    annots = saved_annots
+            yield stmt, annots
 
 # == IRI prefix mappings ===================================================
 
@@ -652,7 +736,9 @@ def wd_manufacturer(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     datatype=Datatype.quantity,
     subject_prefix=PubChemMapping.COMPOUND,
     value_datatype=XSD.decimal,
-    value_datatype_encoded=XSD.float)
+    value_datatype_encoded=XSD.float,
+    annotations=[
+        AnnotationRecord([wd.based_on_heuristic(wd.machine_learning)])])
 def wd_partition_coefficient_water_octanol(
         spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):

@@ -6,6 +6,7 @@ from abc import ABC
 from .. import namespace as NS
 from ..error import ShouldNotGetHere
 from ..model import (
+    AnnotationRecordSet,
     Datatype,
     DataValue,
     Entity,
@@ -27,6 +28,7 @@ from ..typing import (
     Any,
     Callable,
     cast,
+    Iterable,
     Iterator,
     NoReturn,
     Optional,
@@ -541,6 +543,8 @@ class SPARQL_Mapping(ABC):
             return cls.encode_entity(cast(Entity, value))
         else:
             return value
+
+# -- Hooks -----------------------------------------------------------------
 
     @classmethod
     def filter_pre_hook(
@@ -562,4 +566,22 @@ class SPARQL_Mapping(ABC):
             data: Any,
             it: Iterator[Statement]
     ) -> Iterator[Statement]:
+        return it
+
+    @classmethod
+    def get_annotations_pre_hook(
+            cls,
+            store: Store,
+            stmts: Iterable[Statement]
+    ) -> tuple[Iterable[Statement], Any]:
+        return stmts, None
+
+    @classmethod
+    def get_annotations_post_hook(
+            self,
+            store: Store,
+            stmts: Iterable[Statement],
+            data: Any,
+            it: Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]
+    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
         return it

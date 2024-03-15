@@ -206,13 +206,41 @@ class SPARQL_MapperStore(
 
 # -- Annotations -----------------------------------------------------------
 
+    @override
+    def _get_annotations_pre_hook(
+            self,
+            stmts: Iterable[Statement]
+    ) -> tuple[Iterable[Statement], Any]:
+        return self.mapping.get_annotations_pre_hook(self, stmts)
+
+    @override
+    def _get_annotations_post_hook(
+            self,
+            stmts: Iterable[Statement],
+            data: Any,
+            it: Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]
+    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+        return self.mapping.get_annotations_post_hook(self, stmts, data, it)
+
+    @override
     def _get_annotations(
             self,
             stmts: Iterable[Statement],
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
         for stmt in stmts:
             if self._cache_get_wdss(stmt) or stmt in self:
-                yield stmt, AnnotationRecordSet(AnnotationRecord())
+                assert self._cache_get_wdss(stmt)
+
+                def it():
+                    for spec in self.mapping.specs.get(
+                            stmt.snak.property, []):
+                        annots = spec.kwargs.get('annotations', [])
+                        for annot in annots:
+                            yield annot
+                annots = AnnotationRecordSet(*it())
+                if not annots:
+                    annots = AnnotationRecordSet(AnnotationRecord())
+                yield stmt, annots
             else:
                 yield stmt, None
 
