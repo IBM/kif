@@ -158,6 +158,7 @@ class SPARQL_Store(
             vars: Collection[Union[TTrm, tuple[TTrm, TTrm]]] = [],
             order_by: Optional[TTrm] = None,
             limit: int = Store.maximum_page_size,
+            distinct: bool = False,
             trim: bool = False
     ) -> Iterator[T]:
         def eval_fn(
@@ -167,7 +168,7 @@ class SPARQL_Store(
             return parse_results_fn(
                 self._eval_select_query_string(
                     query.select(
-                        *vars, order_by=order_by,
+                        *vars, distinct=distinct, order_by=order_by,
                         limit=eval_limit, offset=eval_offset)))
         return self._eval_query(query, eval_fn, limit, trim)
 
@@ -266,7 +267,7 @@ At line {line}, column {column}:
 
     @override
     def _contains(self, pat: FilterPattern) -> bool:
-        it = self._filter_with_hooks(pat, limit=1)
+        it = self._filter_with_hooks(pat, 1, False)
         try:
             next(it)
             return True
@@ -315,7 +316,8 @@ At line {line}, column {column}:
     def _filter(
             self,
             pattern: FilterPattern,
-            limit: int
+            limit: int,
+            distinct: bool
     ) -> Iterator[Statement]:
         assert limit > 0
         q = self._make_filter_query(pattern)
@@ -324,11 +326,12 @@ At line {line}, column {column}:
                 and q.has_variable(q.var('value'))):
             return self._eval_select_query(
                 q, lambda res: self._parse_filter_results(res, pattern),
-                vars=self._filter_vars, limit=limit, trim=True)
+                vars=self._filter_vars,
+                limit=limit, distinct=distinct, trim=True)
         else:
             LOG.debug(
                 '%s(): nothing to select:\n%s', self._filter.__qualname__,
-                q.select(*self._filter_vars))
+                q.select(*self._filter_vars, limit=limit, distinct=distinct))
             return iter(())     # query is empty
 
     def _make_filter_query(self, pattern: FilterPattern) -> SPARQL_Builder:

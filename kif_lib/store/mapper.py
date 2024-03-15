@@ -96,19 +96,22 @@ class SPARQL_MapperStore(
     def _filter_pre_hook(
             self,
             pattern: FilterPattern,
-            limit: int
-    ) -> tuple[FilterPattern, int, Any]:
-        return self.mapping.filter_pre_hook(self, pattern, limit)
+            limit: int,
+            distinct: bool
+    ) -> tuple[FilterPattern, int, bool, Any]:
+        return self.mapping.filter_pre_hook(self, pattern, limit, distinct)
 
     @override
     def _filter_post_hook(
             self,
             pattern: FilterPattern,
             limit: int,
+            distinct: bool,
             data: Any,
             it: Iterator[Statement]
     ) -> Iterator[Statement]:
-        return self.mapping.filter_post_hook(self, pattern, limit, data, it)
+        return self.mapping.filter_post_hook(
+            self, pattern, limit, distinct, data, it)
 
     @override
     def _make_filter_query(
@@ -208,7 +211,7 @@ class SPARQL_MapperStore(
             stmts: Iterable[Statement],
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
         for stmt in stmts:
-            if self._cache_get_wdss(stmt):
+            if self._cache_get_wdss(stmt) or stmt in self:
                 yield stmt, AnnotationRecordSet(AnnotationRecord())
             else:
                 yield stmt, None

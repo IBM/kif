@@ -547,9 +547,10 @@ class SPARQL_Mapping(ABC):
             cls,
             store: Store,
             pattern: FilterPattern,
-            limit: int
-    ) -> tuple[FilterPattern, int, Any]:
-        return pattern, limit, None
+            limit: int,
+            distinct: bool
+    ) -> tuple[FilterPattern, int, bool, Any]:
+        return pattern, limit, distinct, None
 
     @classmethod
     def filter_post_hook(
@@ -557,6 +558,7 @@ class SPARQL_Mapping(ABC):
             store: Store,
             pattern: FilterPattern,
             limit: int,
+            distinct: bool,
             data: Any,
             it: Iterator[Statement]
     ) -> Iterator[Statement]:

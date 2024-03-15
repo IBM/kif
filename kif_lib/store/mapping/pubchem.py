@@ -36,6 +36,7 @@ PUBCHEM_COMPOUND = Namespace(str(PUBCHEM) + 'compound/')
 PUBCHEM_CONCEPT = Namespace(str(PUBCHEM) + 'concept/')
 PUBCHEM_PATENT = Namespace(str(PUBCHEM) + 'patent/')
 PUBCHEM_SOURCE = Namespace(str(PUBCHEM) + 'source/')
+PUBCHEM_VOCABULARY = Namespace(str(PUBCHEM) + 'vocabulary#')
 SEMSCI = Namespace('http://semanticscience.org/resource/')
 VCARD = Namespace('http://www.w3.org/2006/vcard/ns#')
 
@@ -45,8 +46,14 @@ class IAO:
     definition = OBO.IAO_0000115
 
 
+class RO:
+    # See <https://www.ebi.ac.uk/ols4/>.
+    has_role = OBO.RO_0000087
+
+
 class CHEMINF:
     # See <https://www.ebi.ac.uk/ols4/>.
+    # See <http://doi.org/10.1186/s13321-015-0084-4>.
     canonical_smiles_generated_by_OEChem = SEMSCI.CHEMINF_000376
     CAS_registry_number = SEMSCI.CHEMINF_000446
     ChEBI_identifier = SEMSCI.CHEMINF_000407
@@ -177,18 +184,19 @@ class PubChemMapping(SPARQL_Mapping):
             store: Store,
             pattern: FilterPattern,
             limit: int,
-    ) -> tuple[FilterPattern, int, Any]:
+            distinct: bool
+    ) -> tuple[FilterPattern, int, bool, Any]:
         if (pattern.property is None
                 or pattern.property.property
                 not in cls._toxicity_properties_inv):
-            return pattern, limit, None
+            return pattern, limit, distinct, None
         else:
             new_pattern = FilterPattern(
                 pattern.subject,
                 wd.instance_of,
                 wd.type_of_a_chemical_entity,
                 pattern.snak_mask)
-            return new_pattern, store.maximum_page_size, dict(
+            return new_pattern, store.maximum_page_size, distinct, dict(
                 original_pattern=pattern,
                 original_limit=limit)
 
@@ -199,6 +207,7 @@ class PubChemMapping(SPARQL_Mapping):
             store: Store,
             pattern: FilterPattern,
             limit: int,
+            distinct: bool,
             data: Any,
             it: Iterator[Statement]
     ) -> Iterator[Statement]:
@@ -591,6 +600,16 @@ def wd_isomeric_SMILES(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
         sp.pairs(
             (RDF.type, CHEMINF.isomeric_SMILES_generated_by_OEChem),
             (SIO.has_value, v))
+
+
+@PubChemMapping.register(
+    property=wd.legal_status,
+    datatype=Datatype.item,
+    subject_prefix=PubChemMapping.COMPOUND,
+    value=wd.FDA_approved)
+def wd_legal_status(
+        spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    q.triple(s, RO.has_role, PUBCHEM_VOCABULARY.FDAApprovedDrugs)
 
 
 @PubChemMapping.register(

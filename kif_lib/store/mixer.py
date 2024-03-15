@@ -141,15 +141,18 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
     def _filter(
             self,
             pattern: FilterPattern,
-            limit: int
+            limit: int,
+            distinct: bool
     ) -> Iterator[Statement]:
-        its = map(lambda kb: kb._filter(pattern, limit), self._sources)
+        its = map(
+            lambda kb: kb._filter(pattern, limit, distinct), self._sources)
+        # TODO: Handle distinct!
         return self._filter_mixed(list(its), limit)
 
     def _filter_mixed(
             self,
             its: Collection[Iterator[T]],
-            limit: int = Store.maximum_page_size
+            limit: int,
     ) -> Iterator[T]:
         cyc = cycle(its)
         exausted: set[Iterator[T]] = set()

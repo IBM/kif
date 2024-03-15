@@ -264,6 +264,9 @@ class Store(Set):
         #: Whether to enable cache.
         CACHE = auto()
 
+        #: Whether to remove duplicates.
+        DISTINCT = auto()
+
         #: Whether to fetch only the best ranked statements.
         BEST_RANK = auto()
 
@@ -285,6 +288,7 @@ class Store(Set):
         #: All flags.
         ALL = (
             CACHE
+            | DISTINCT
             | BEST_RANK
             | VALUE_SNAK
             | SOME_VALUE_SNAK
@@ -294,6 +298,9 @@ class Store(Set):
 
     #: Whether to enable cache.
     CACHE = Flags.CACHE
+
+    #: Whether to remove duplicates.
+    DISTINCT = Flags.DISTINCT
 
     #: Whether to fetch only the best ranked statements.
     BEST_RANK = Flags.BEST_RANK
@@ -682,7 +689,8 @@ class Store(Set):
             value: Optional[TFingerprint] = None,
             snak_mask: Optional[Snak.TMask] = None,
             pattern: Optional[FilterPattern] = None,
-            limit: Optional[int] = None
+            limit: Optional[int] = None,
+            distinct: Optional[bool] = None
     ) -> Iterator[Statement]:
         """Filters statements matching pattern.
 
@@ -693,6 +701,7 @@ class Store(Set):
            snak_mask: Snak mask.
            pattern: Filter pattern.
            limit: Maximum number of statements to return.
+           distinct: Whether to remove duplicates.
 
         Returns:
            An iterator of statements matching pattern.
@@ -701,13 +710,16 @@ class Store(Set):
             subject, property, value, snak_mask, pattern, self.filter)
         KIF_Object._check_optional_arg_int(
             limit, None, self.filter, 'limit', 6)
-        return self._filter_tail(pat, limit)
+        KIF_Object._check_optional_arg_bool(
+            distinct, None, self.filter, 'distinct', 7)
+        return self._filter_tail(pat, limit, distinct)
 
     def filter_snak(
             self,
             subject: Optional[TEntityFingerprint] = None,
             snak: Optional[Snak] = None,
-            limit: Optional[int] = None
+            limit: Optional[int] = None,
+            distinct: Optional[bool] = None
     ) -> Iterator[Statement]:
         """Filters statements matching pattern.
 
@@ -715,6 +727,7 @@ class Store(Set):
            subject: Entity.
            snak: Snak.
            limit: Maximum number of statements to return.
+           distinct: Whether to remove duplicates.
 
         Returns:
            An iterator of statements matching pattern.
@@ -723,42 +736,48 @@ class Store(Set):
             subject, snak, self.filter_snak)
         KIF_Object._check_optional_arg_int(
             limit, None, self.filter_snak, 'limit', 3)
-        return self._filter_tail(pat, limit)
+        KIF_Object._check_optional_arg_bool(
+            distinct, None, self.filter_snak, 'distinct', 4)
+        return self._filter_tail(pat, limit, distinct)
 
     def _filter_tail(
             self,
             pattern: FilterPattern,
-            limit: Optional[int]
+            limit: Optional[int],
+            distinct: Optional[bool]
     ) -> Iterator[Statement]:
-        if limit is None:
-            limit = self.maximum_page_size
-        else:
-            limit = max(limit, 0)
-        return self._filter_with_hooks(pattern, limit)
+        return self._filter_with_hooks(
+            pattern,
+            self.maximum_page_size if limit is None else max(limit, 0),
+            self.has_flags(self.DISTINCT) if distinct is None else distinct)
 
     def _filter_with_hooks(
             self,
             pattern: FilterPattern,
-            limit: int
+            limit: int,
+            distinct: bool
     ) -> Iterator[Statement]:
-        pattern, limit, data = self._filter_pre_hook(pattern, limit)
+        pattern, limit, distint, data = self._filter_pre_hook(
+            pattern, limit, distinct)
         if limit > 0 and pattern.is_nonempty():
-            it = self._filter(pattern, limit)
+            it = self._filter(pattern, limit, distinct)
         else:
             it = iter(())
-        return self._filter_post_hook(pattern, limit, data, it)
+        return self._filter_post_hook(pattern, limit, distinct, data, it)
 
     def _filter_pre_hook(
             self,
             pattern: FilterPattern,
-            limit: int
-    ) -> tuple[FilterPattern, int, Any]:
-        return pattern, limit, None
+            limit: int,
+            distinct: bool
+    ) -> tuple[FilterPattern, int, bool, Any]:
+        return pattern, limit, distinct, None
 
     def _filter_post_hook(
             self,
             pattern: FilterPattern,
             limit: int,
+            distinct: bool,
             data: Any,
             it: Iterator[Statement]
     ) -> Iterator[Statement]:
@@ -767,7 +786,8 @@ class Store(Set):
     def _filter(
             self,
             pattern: FilterPattern,
-            limit: int
+            limit: int,
+            distinct: bool
     ) -> Iterator[Statement]:
         return iter(())
 

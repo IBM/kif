@@ -414,6 +414,8 @@ class SPARQL_Builder(Sequence):
             offset: Opt[int] = None
     ) -> Iterator[str]:
         yield 'select'
+        if distinct:
+            yield 'distinct'
         if not args or args == ('*',):
             yield '*'
         else:
