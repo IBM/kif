@@ -82,11 +82,6 @@ class TestStoreMapperMappingPubChemStatements(
         self.check_filter_compound_property(
             self.new_Store(), wd.ChEMBL_ID, Datatype.string)
 
-    def test_filter_property_trading_name(self):
-        self.check_filter_compound_property(
-            self.new_Store(), wd.trading_name, Datatype.text,
-            value_check=lambda kb, v: v.language == 'en')
-
     def test_filter_property_described_by_source(self):
         self.check_filter_compound_property(
             self.new_Store(), wd.described_by_source, Datatype.item,
@@ -118,6 +113,10 @@ class TestStoreMapperMappingPubChemStatements(
         self.check_filter_compound_property(
             self.new_Store(), wd.isomeric_SMILES, Datatype.string)
 
+    def test_filter_property_legal_status(self):
+        self.check_filter_compound_property(
+            self.new_Store(), wd.legal_status, Datatype.item)
+
     def test_filter_property_mass(self):
         self.check_filter_compound_property(
             self.new_Store(), wd.mass, Datatype.quantity,
@@ -131,6 +130,13 @@ class TestStoreMapperMappingPubChemStatements(
             value_check=(
                 lambda kb, v: kb.mapping.is_pubchem_source_iri(v.iri)))
 
+    def test_filter_property_partition_coefficient_water_octanol(self):
+        self.check_filter_compound_property(
+            self.new_Store(), wd.partition_coefficient_water_octanol,
+            Datatype.quantity, value_check=(
+                lambda kb, v: v.unit is None
+                and v.lower_bound is None and v.upper_bound is None))
+
     # def test_filter_property_PubChem_CID(self):
     #     self.check_filter_compound_property(
     #         self.new_Store(), wd.PubChem_CID, Datatype.string)
@@ -140,6 +146,11 @@ class TestStoreMapperMappingPubChemStatements(
             self.new_Store(), wd.stereoisomer_of, Datatype.item,
             value_check=(
                 lambda kb, v: kb.mapping.is_pubchem_compound_iri(v.iri)))
+
+    def test_filter_property_trading_name(self):
+        self.check_filter_compound_property(
+            self.new_Store(), wd.trading_name, Datatype.text,
+            value_check=lambda kb, v: v.language == 'en')
 
 # -- Patent ----------------------------------------------------------------
 
@@ -206,6 +217,14 @@ class TestStoreMapperMappingPubChemStatements(
             self.new_Store(), wd.instance_of, Datatype.item,
             subject=wd.instance_of(wd.business),
             value_check=(lambda kb, v: v == wd.business))
+
+    def test_filter_property_official_website(self):
+        self.check_filter_source_property(
+            self.new_Store(), wd.official_website, Datatype.iri)
+
+    def test_filter_property_short_name(self):
+        self.check_filter_source_property(
+            self.new_Store(), wd.short_name, Datatype.string)
 
 
 if __name__ == '__main__':

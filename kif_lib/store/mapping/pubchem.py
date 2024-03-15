@@ -76,6 +76,7 @@ class CHEMINF:
     pubchem_depositor_supplied_molecular_entity_name = SEMSCI.CHEMINF_000339
     similar_to_by_PubChem_2D_similarity_algorithm = SEMSCI.CHEMINF_000482
     structure_complexity_calculated_by_cactvs = SEMSCI.CHEMINF_000390
+    xlogp3_calculated_by_the_xlogp3_software = SEMSCI.CHEMINF_000395
 
 
 class SIO:
@@ -644,6 +645,26 @@ def wd_manufacturer(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
         (substance, CHEMINF.has_PubChem_normalized_counterpart, s),
         (substance, DCT.source, v),
         (v, DCT.subject, PUBCHEM_CONCEPT.Chemical_Vendors))
+
+
+@PubChemMapping.register(
+    property=wd.partition_coefficient_water_octanol,
+    datatype=Datatype.quantity,
+    subject_prefix=PubChemMapping.COMPOUND,
+    value_datatype=XSD.decimal,
+    value_datatype_encoded=XSD.float)
+def wd_partition_coefficient_water_octanol(
+        spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
+    if Value.test(v):
+        ###
+        # IMPORTANT: LogP values in PubChem have datatype float.
+        ###
+        qt = spec.check_quantity(cast(Value, v))
+        v = Literal(qt.value, datatype=XSD.float)
+    with q.sp(s, SIO.has_attribute) as sp:
+        sp.pairs(
+            (RDF.type, CHEMINF.xlogp3_calculated_by_the_xlogp3_software),
+            (SIO.has_value, v))
 
 
 @PubChemMapping.register(
