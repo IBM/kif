@@ -34,6 +34,7 @@ include docs/store_abc.rst
 include docs/store_plugins.rst
 include docs/value.rst
 include examples/.gitignore
+include examples/pubchem.ipynb
 include examples/recipes.ipynb
 include kif_lib/__init__.py
 include kif_lib/cache.py
@@ -154,6 +155,7 @@ include tests/test_store_abc_timeout.py
 include tests/test_store_empty.py
 include tests/test_store_mapper_init.py
 include tests/test_store_mapper_mapping_pub_chem.py
+include tests/test_store_mapper_mapping_pub_chem_descriptors.py
 include tests/test_store_mapper_mapping_pub_chem_statements.py
 include tests/test_store_mixer.py
 include tests/test_store_mixer_descriptors.py
