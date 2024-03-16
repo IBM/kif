@@ -23,6 +23,7 @@ def get_entity_description(entity: Entity) -> Optional[str]:
 
 
 # items
+acetone = Q(49546, 'acetone')
 Adam = Q(70899, 'Adam')
 aromatic_hydrocarbon = Q(230731, 'aromatic hydrocarbon')
 Atlantic_Ocean = Q(97, 'Atlantic Ocean')
@@ -65,7 +66,7 @@ gram_per_100_gram_of_solvent = Q(21127659, 'gram per 100 gram of solvent')
 gram_per_cubic_centimetre = Q(13147228, 'gram per cubic centimetre')
 gram_per_kilogram = Q(21061369, 'gram per kilogram')
 gram_per_mole = Q(28924752, 'gram per mole')
-Guinea_pig = Q(286088, 'Guinea pig')
+Guinea_pig = Q(79803, 'Guinea pig')
 Hazardous_Substances_Data_Bank = Q(5687720, 'Hazardous Substances Data Bank')
 human = Q(5, 'human')
 IBM = Q(37156, 'IBM')
@@ -127,6 +128,7 @@ woman = Q(467, 'woman')
 # properties
 afflicts = P(689)
 applies_to_part = P(518)
+applies_to_taxon = P(2352)
 assessment = P(5021)
 author_name_string = P(2093)
 based_on_heuristic = P(887)

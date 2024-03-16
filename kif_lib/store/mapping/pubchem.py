@@ -353,7 +353,7 @@ class PubChemMapping(SPARQL_Mapping):
                 quals.append(wd.has_effect(Text(entry['effect'])))
             if 'organism' in entry:
                 organism_key = entry['organism']
-                quals.append(wd.afflicts(_organism.get(
+                quals.append(wd.applies_to_taxon(_organism.get(
                     organism_key, organism_key)))
             if 'route' in entry:
                 route_key = entry['route']
