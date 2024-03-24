@@ -1184,7 +1184,7 @@ At line {line}, column {column}:
             if get_datatype and 'datatype' in entry:
                 datatype: Optional[Datatype] = None
                 try:
-                    entry.check_datatype('datatype')
+                    datatype = entry.check_datatype('datatype')
                 except Store.Error as e:
                     LOG.warning(e)
             else:
