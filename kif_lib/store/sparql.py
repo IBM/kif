@@ -1182,10 +1182,11 @@ At line {line}, column {column}:
             else:
                 raise self._should_not_get_here()
             if get_datatype and 'datatype' in entry:
+                datatype: Optional[Datatype] = None
                 try:
-                    datatype: Optional[Datatype] = entry.check_datatype('datatype')
-                except ValueError:
-                    datatype = None
+                    entry.check_datatype('datatype')
+                except Store.Error as e:
+                    LOG.warning(e)
             else:
                 datatype = None
             if get_label and 'label' in entry:
