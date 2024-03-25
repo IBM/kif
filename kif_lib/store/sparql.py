@@ -67,6 +67,8 @@ T_WDS = Hashable
 TOpq = Union[BNode, URIRef]
 TTrm = SPARQL_Builder.TTrm
 
+SPARQL_Bindings = SPARQL_Results.Bindings
+
 
 class SPARQL_Store(
         Store, store_name='sparql', store_description='SPARQL endpoint'):
@@ -672,7 +674,7 @@ At line {line}, column {column}:
 
     def _parse_filter_results_check_wds(
             self,
-            entry: SPARQL_Results.Bindings,
+            entry: SPARQL_Bindings,
             stmt: Statement
     ) -> Union[BNode, URIRef]:
         return entry.check_bnode_or_uriref('wds')
@@ -1175,36 +1177,45 @@ At line {line}, column {column}:
             get_description = True
             get_datatype = cls is Property
         for entry in results.bindings:
-            if cls is Item:
-                entity: Union[Item, Property] = entry.check_item('subject')
-            elif cls is Property:
-                entity = entry.check_property('subject')
-            else:
-                raise self._should_not_get_here()
-            if get_datatype and 'datatype' in entry:
-                datatype: Optional[Datatype] = None
-                try:
-                    datatype = entry.check_datatype('datatype')
-                except Store.Error as e:
-                    LOG.warning(e)
-            else:
-                datatype = None
-            if get_label and 'label' in entry:
-                label = entry.check_text('label')
-                if label.language == language or not late_filter:
-                    yield entity, label, None, None, datatype
-                    continue    # found label
-            elif get_aliases and 'alias' in entry:
-                alias = entry.check_text('alias')
-                if alias.language == language or not late_filter:
-                    yield entity, None, alias, None, datatype
-                    continue    # found alias
-            elif get_description and 'description' in entry:
-                description = entry.check_text('description')
-                if description.language == language or not late_filter:
-                    yield entity, None, None, description, datatype
-                    continue    # found description
-            yield entity, None, None, None, datatype  # fallback
+            try:
+                entity = self._check_subject(cls, entry)
+                datatype = self._check_datatype(entry, get_datatype)
+                if get_label and 'label' in entry:
+                    label = entry.check_text('label')
+                    if label.language == language or not late_filter:
+                        yield entity, label, None, None, datatype
+                        continue    # found label
+                elif get_aliases and 'alias' in entry:
+                    alias = entry.check_text('alias')
+                    if alias.language == language or not late_filter:
+                        yield entity, None, alias, None, datatype
+                        continue    # found alias
+                elif get_description and 'description' in entry:
+                    description = entry.check_text('description')
+                    if description.language == language or not late_filter:
+                        yield entity, None, None, description, datatype
+                        continue    # found description
+                yield entity, None, None, None, datatype  # fallback
+            except Store.Error as e:
+                LOG.error(e)
+                LOG.warning(f"Skipping {entry}")
+
+    @staticmethod
+    def _check_datatype(entry: SPARQL_Bindings, get_datatype: bool):
+        if get_datatype and 'datatype' in entry:
+            datatype: Optional[Datatype] = entry.check_datatype('datatype')
+        else:
+            datatype = None
+        return datatype
+
+    def _check_subject(self, cls: type[Entity], entry: SPARQL_Bindings):
+        if cls is Item:
+            entity: Union[Item, Property] = entry.check_item('subject')
+        elif cls is Property:
+            entity = entry.check_property('subject')
+        else:
+            raise self._should_not_get_here()
+        return entity
 
     @override
     def _get_lexeme_descriptor(
