@@ -41,6 +41,7 @@ setuptools.setup(
         'rdflib',
         'requests',
         'types-requests',
+        'typing-extensions',
     ],
     extras_require={
         'docs': [
