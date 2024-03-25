@@ -199,7 +199,7 @@ class SPARQL_Results(Mapping):
             try:
                 return Datatype._from_rdflib(uri)
             except ValueError:
-                raise self._error_bad(var, 'a Wikibase datatype', uri)
+                return Datatype.string  # unknown datatype, fallback to string
 
         def check_entity(
                 self,
