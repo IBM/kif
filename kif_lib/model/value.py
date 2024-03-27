@@ -35,6 +35,8 @@ TString = Union['String', str]
 TText = Union['Text', TString]
 TTimePrecision = Union['Time.Precision', int]
 
+
+# == Value =================================================================
 
 class Value(KIF_Object):
     """Abstract base class for values."""
