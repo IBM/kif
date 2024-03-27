@@ -509,15 +509,15 @@ class Text(ShallowDataValue):
         return cls(cls._check_arg_isinstance(
             arg, (cls, str), function, name, position))
 
-    def __init__(self, content: TText, language: Optional[TText] = None):
+    def __init__(self, content: TText, language: Optional[str] = None):
         if isinstance(content, Text) and language is None:
             language = content.language
         super().__init__(content, language)
 
     def _preprocess_arg(self, arg, i):
-        if isinstance(arg, (String, Text)):
-            arg = arg.args[0]
         if i == 1:
+            if isinstance(arg, (String, Text)):
+                arg = arg.args[0]
             return self._preprocess_arg_str(arg, i)
         elif i == 2:
             return self._preprocess_optional_arg_str(
