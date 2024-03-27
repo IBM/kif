@@ -50,8 +50,6 @@ ISORT_CFG_INCLUDE_TRAILING_COMMA?= True
 ISORT_CFG_MULTI_LINE_OUTPUT?= 3
 ISORT_CFG_ORDER_BY_TYPE?= False
 ISORT_OPTIONS?= --check --diff
-MANIFEST_IN?= Manifest.in
-MANIFEST_IN_GIT_LS_FILES_PATHSPEC?=
 MYPY_OPTIONS?= --show-error-context --show-error-codes
 PERL?= perl
 PIP?= ${PYTHON} -m pip
@@ -219,8 +217,7 @@ docs-publish: docs-clean docs
 
 # run all gen-* targets
 .PHONY: gen-all
-gen-all: gen-coveragerc gen-isort-cfg gen-flake8rc gen-manifest-in\
-  gen-pytest-ini gen-tox-ini
+gen-all: gen-coveragerc gen-isort-cfg gen-flake8rc gen-pytest-ini gen-tox-ini
 
 # generate .coveragerc
 .PHONY: gen-coveragerc
@@ -255,13 +252,6 @@ gen-isort-cfg:
 	@echo 'include_trailing_comma = ${ISORT_CFG_INCLUDE_TRAILING_COMMA}' >>${ISORT_CFG}
 	@echo 'multi_line_output = ${ISORT_CFG_MULTI_LINE_OUTPUT}' >>${ISORT_CFG}
 	@echo 'order_by_type = ${ISORT_CFG_ORDER_BY_TYPE}' >>${ISORT_CFG}
-
-# generate Manifest.in
-.PHONY: gen-manifest-in
-gen-manifest-in:
-	@echo 'generating ${MANIFEST_IN}'
-	@git ls-files ${MANIFEST_IN_GIT_LS_FILES_PATHSPEC} |\
-	 sed 's,\(.*\),include \1,' >${MANIFEST_IN}
 
 # generate pytest.ini
 .PHONY: gen-pytest-ini

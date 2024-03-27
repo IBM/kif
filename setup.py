@@ -32,8 +32,9 @@ setuptools.setup(
     url=URL,
     license=LICENSE,
     python_requires='>=3.9',
-    packages=[PACKAGE],
+    packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
     package_data={PACKAGE: ['py.typed']},
+    package_dir={'kif_lib': 'kif_lib'},
     include_package_data=True,
     install_requires=[
         'lark',
@@ -58,6 +59,5 @@ setuptools.setup(
             'tox',
         ],
     },
-    keywords=NAME,
-    zip_safe=True,
+    zip_safe=False,
 )

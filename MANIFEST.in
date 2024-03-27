@@ -1,0 +1,10 @@
+include Makefile
+include Makefile.conf
+include README.md
+include VERSION
+include kif_lib/py.typed
+
+recursive-exclude docs *
+recursive-exclude tests *
+
+global-exclude __pycache__ *.pyc
