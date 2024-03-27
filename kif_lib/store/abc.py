@@ -43,6 +43,7 @@ from ..typing import (
     Iterator,
     NoReturn,
     Optional,
+    Sequence,
     Set,
     TypeVar,
     Union,
@@ -447,7 +448,7 @@ class Store(Set):
             self,
             it: Iterable[T],
             page_size: Optional[int] = None
-    ) -> Iterable[tuple[T, ...]]:
+    ) -> Iterable[Sequence[T]]:
         """Batches `it` into tuples of at most page-size length.
 
         If `page_size` is ``None``, assumes :attr:`Store.page_size`.
@@ -939,7 +940,27 @@ class Store(Set):
         Returns:
            An iterator of pairs "(item, status)".
         """
-        return iter(())
+        KIF_Object._check_arg_isinstance(
+            items, (Item, Iterable),
+            self.has_item, 'items', 1)
+        if Item.test(items):
+            return self._has_item_tail([cast(Item, items)])
+        else:
+            return self._has_item_tail(map(
+                lambda e: cast(Item, Item.check(e, self.has_item)), items))
+
+    def _has_item_tail(
+        self,
+        items: Union[Item, Iterable[Item]],
+    ) -> Iterator[tuple[Item, bool]]:
+        return self._chain_map_batched(self._has_item, items)
+
+    def _has_item(
+            self,
+            items: Iterable[Item]
+    ) -> Iterator[tuple[Item, bool]]:
+        for item in items:
+            yield item, False
 
 # -- Descriptors -----------------------------------------------------------
 
