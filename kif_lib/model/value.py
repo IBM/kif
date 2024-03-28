@@ -303,6 +303,10 @@ class Entity(Value):
     mask: Value.Mask = Value.ENTITY
 
     def _preprocess_arg(self, arg, i):
+        return self._static_preprocess_arg(self, arg, i)
+
+    @staticmethod
+    def _static_preprocess_arg(self, arg, i):
         if i == 1:
             return self._preprocess_arg_iri(arg, i)
         else:
@@ -473,6 +477,10 @@ class IRI(ShallowDataValue):
         super().__init__(content)
 
     def _preprocess_arg(self, arg, i):
+        return self._static_preprocess_arg(self, arg, i)
+
+    @staticmethod
+    def _static_preprocess_arg(self, arg, i):
         if i == 1:
             if isinstance(arg, IRI):
                 arg = arg.args[0]
@@ -509,19 +517,25 @@ class Text(ShallowDataValue):
         return cls(cls._check_arg_isinstance(
             arg, (cls, str), function, name, position))
 
-    def __init__(self, content: TText, language: Optional[str] = None):
+    def __init__(self, content: TText, language: Optional[TString] = None):
         if isinstance(content, Text) and language is None:
             language = content.language
         super().__init__(content, language)
 
     def _preprocess_arg(self, arg, i):
+        return self._static_preprocess_arg(self, arg, i)
+
+    @staticmethod
+    def _static_preprocess_arg(self, arg, i):
         if i == 1:
             if isinstance(arg, (String, Text)):
                 arg = arg.args[0]
             return self._preprocess_arg_str(arg, i)
         elif i == 2:
+            if isinstance(arg, String):
+                arg = arg.args[0]
             return self._preprocess_optional_arg_str(
-                arg, i, self.default_language)
+                arg, i, Text.default_language)
         else:
             raise self._should_not_get_here()
 
@@ -565,6 +579,10 @@ class String(ShallowDataValue):
         super().__init__(content)
 
     def _preprocess_arg(self, arg, i):
+        return self._static_preprocess_arg(self, arg, i)
+
+    @staticmethod
+    def _static_preprocess_arg(self, arg, i):
         if i == 1:
             if isinstance(arg, String):
                 arg = arg.args[0]
@@ -657,6 +675,10 @@ class Quantity(DeepDataValue):
         super().__init__(amount, unit, lower_bound, upper_bound)
 
     def _preprocess_arg(self, arg, i):
+        return self._static_preprocess_arg(self, arg, i)
+
+    @staticmethod
+    def _static_preprocess_arg(self, arg, i):
         if i == 1:
             return self._preprocess_arg_decimal(arg, i)
         elif i == 2:

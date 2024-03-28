@@ -46,6 +46,15 @@ from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
 from .snak import NoValueSnak, Snak, SomeValueSnak, ValueSnak
 from .snak_set import SnakSet, TSnakSet
 from .statement import Statement
+from .template import (
+    EntityTemplate,
+    IRI_Template,
+    ItemTemplate,
+    PropertyTemplate,
+    StringTemplate,
+    Template,
+    TextTemplate,
+)
 from .value import (
     Datatype,
     DataValue,
@@ -82,3 +91,12 @@ from .value import (
     Value,
 )
 from .value_set import TextSet, TTextSet, TValueSet, ValueSet
+from .variable import (
+    DataValueVariable,
+    IRI_Variable,
+    ItemVariable,
+    StringVariable,
+    TextVariable,
+    ValueVariable,
+    Variable,
+)
