@@ -1,10 +1,10 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from rdflib import Graph
-from rdflib.namespace import DCTERMS as DCT
-from rdflib.namespace import (
+from ..rdflib import (
+    DCT,
     FOAF,
+    Graph,
     Namespace,
     NamespaceManager,
     OWL,
@@ -13,7 +13,6 @@ from rdflib.namespace import (
     SKOS,
     XSD,
 )
-
 from .prov import PROV
 from .wikibase import WIKIBASE
 from .wikidata import T_NS as T_NS_

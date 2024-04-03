@@ -3,9 +3,7 @@
 
 import re
 
-from rdflib import URIRef
-from rdflib.namespace import DefinedNamespace, Namespace
-
+from ..rdflib import DefinedNamespace, Namespace, URIRef
 from ..typing import Collection, Union
 from .wikibase import WIKIBASE
 

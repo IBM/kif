@@ -3,9 +3,6 @@
 
 import re
 
-from rdflib import Literal
-from rdflib.namespace import Namespace
-
 from ...itertools import batched
 from ...model import (
     AnnotationRecord,
@@ -26,6 +23,7 @@ from ...model import (
     Value,
 )
 from ...namespace import DCT, FOAF, RDF, WD, WDS, XSD
+from ...rdflib import Literal, Namespace
 from ...typing import (
     Any,
     cast,

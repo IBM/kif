@@ -3,9 +3,8 @@
 
 from functools import cache
 
-from rdflib import URIRef
-
 from ..namespace import Wikidata
+from ..rdflib import URIRef
 from .kif_object import KIF_Object
 
 

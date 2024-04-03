@@ -5,7 +5,6 @@ import logging
 
 import requests
 import requests.exceptions
-from rdflib import BNode, Graph, URIRef
 from rdflib.plugins.sparql import prepareQuery
 from rdflib.plugins.sparql.sparql import Query
 
@@ -41,6 +40,7 @@ from ..model import (
     Value,
     ValueSnak,
 )
+from ..rdflib import BNode, Graph, URIRef
 from ..typing import (
     Any,
     Callable,

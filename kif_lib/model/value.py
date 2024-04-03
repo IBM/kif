@@ -5,10 +5,9 @@ from abc import abstractmethod
 from enum import auto, Enum, Flag
 from functools import cache
 
-from rdflib import Literal, URIRef
-
 from .. import namespace as NS
 from ..itertools import chain
+from ..rdflib import Literal, URIRef
 from ..typing import (
     cast,
     Collection,
@@ -362,7 +361,7 @@ class Value(KIF_Object):
             lexeme_prefixes: Collection[
                 NS.T_NS] = NS.Wikidata.default_lexeme_prefixes
     ) -> 'Value':
-        from rdflib.term import _NUMERIC_LITERAL_TYPES
+        from ..rdflib import _NUMERIC_LITERAL_TYPES
         cls._check_arg_isinstance(
             node, (Literal, URIRef), cls._from_rdflib, 'node', 1)
         res: Value

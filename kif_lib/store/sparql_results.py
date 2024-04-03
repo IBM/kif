@@ -4,8 +4,6 @@
 import io
 import json
 
-from rdflib import BNode, Literal, URIRef
-
 from .. import namespace as NS
 from ..model import (
     Datatype,
@@ -27,6 +25,7 @@ from ..model import (
     Value,
     ValueSnak,
 )
+from ..rdflib import BNode, Literal, Result, URIRef
 from ..typing import Any, cast, Mapping, Optional, Union
 from .abc import Store
 
@@ -493,9 +492,7 @@ class SPARQL_Results(Mapping):
         return len(self._results)
 
     def __str__(self):
-        from rdflib.query import Result
-        res = Result.parse(
-            io.StringIO(json.dumps(dict(self))), format='json')
+        res = Result.parse(io.StringIO(json.dumps(dict(self))), format='json')
         return res.serialize(
             format='txt', namespace_manager=NS._DEFAULT_NSM).decode('utf-8')
 

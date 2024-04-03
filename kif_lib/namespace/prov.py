@@ -1,8 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from rdflib import URIRef
-from rdflib.namespace import DefinedNamespace, Namespace
+from ..rdflib import DefinedNamespace, Namespace, URIRef
 
 
 class PROV(DefinedNamespace):

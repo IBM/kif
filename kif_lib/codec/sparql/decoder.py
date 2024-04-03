@@ -1,4 +1,4 @@
-# Copyright (C) 2023-2024 IBM Corp.
+# Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
 from collections.abc import Collection, Iterable, Mapping
@@ -9,9 +9,9 @@ from rdflib.plugins.sparql.parserutils import CompValue
 from rdflib.term import Identifier as Id
 from rdflib.term import Literal, URIRef, Variable
 
-from .. import namespace as NS
-from ..error import ShouldNotGetHere
-from ..model import (
+from ... import namespace as NS
+from ...error import ShouldNotGetHere
+from ...model import (
     EntityFingerprint,
     FilterPattern,
     Fingerprint,
@@ -21,8 +21,8 @@ from ..model import (
     Value,
     ValueSnak,
 )
-from ..model.kif_object import Decoder, DecoderError, Object
-from ..typing import Any, cast, NoReturn, Optional, Union
+from ...model.kif_object import Decoder, DecoderError, Object
+from ...typing import Any, cast, NoReturn, Optional, Union
 
 
 class SPARQL_Decoder(
