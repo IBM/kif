@@ -31,10 +31,22 @@ TDecimal = Union[Decimal, float, int, str]
 TNil = object.TNil
 
 
-# -- KIF Object ------------------------------------------------------------
+# == KIF Object ============================================================
 
 class KIF_Object(object.Object):
     """Abstract base class for KIF objects."""
+
+    def __new__(cls, *args):
+        if (hasattr(cls, 'template_class') and any(map(
+                cls._is_template_or_variable, args))):
+            return cls.template_class(*args)
+        else:
+            return super().__new__(cls)
+
+    @classmethod
+    def _is_template_or_variable(cls, arg):
+        from .pattern import Template, Variable
+        return isinstance(arg, (Template, Variable))
 
     def _repr_markdown_(self):
         return self.to_markdown()
@@ -128,7 +140,7 @@ class KIF_Object(object.Object):
             return cls._preprocess_arg_decimal(arg, i, function)
 
 
-# -- Codecs ----------------------------------------------------------------
+# == Codecs ================================================================
 
 class KIF_JSON_Encoder(
         object.JSON_Encoder, format='json', description='JSON encoder'):

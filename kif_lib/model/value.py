@@ -30,11 +30,15 @@ from .kif_object import (
 )
 from .pattern import Template, Variable
 
-# == Aliases ===============================================================
-
 # -- Value --
 
 TValue: TypeAlias = Union['Value', NS.T_URI, TDatetime, TDecimal, str]
+
+VValue: TypeAlias = Union['ValueTemplate', 'ValueVariable', TValue]
+
+# -- Entity --
+
+VEntity: TypeAlias = Union['EntityTemplate', 'EntityVariable', 'Entity']
 
 # -- Item --
 
@@ -70,7 +74,7 @@ V_IRI_Content: TypeAlias = Union['StringVariable', T_IRI]
 
 V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', T_IRI]
 
-# -- Text--
+# -- Text --
 
 TText: TypeAlias = Union['Text', 'TString']
 
@@ -236,16 +240,6 @@ class Value(KIF_Object):
     ALL: Final[Mask] = Mask.ALL
 
     TMask = Union[Mask, int]
-
-    def __new__(
-            cls,
-            *args,
-            _test=lambda x: isinstance(x, (Variable, Template))
-    ):
-        if any(map(_test, args)):
-            return cls.template_class(*args)
-        else:
-            return super().__new__(cls)
 
     @classmethod
     def _check_arg_value_mask(
@@ -426,6 +420,18 @@ class Value(KIF_Object):
 class EntityTemplate(ValueTemplate):
     """Abstract base class for entity templates."""
 
+    @override
+    def _preprocess_arg(self, arg, i):
+        if i == 1:              # iri
+            if Template.test(arg):
+                return self._preprocess_arg_iri_template(arg, i)
+            elif Variable.test(arg):
+                return self._preprocess_arg_iri_variable(arg, i)
+            else:
+                return Entity._static_preprocess_arg(self, arg, i)
+        else:
+            raise self._should_not_get_here()
+
 
 class EntityVariable(ValueVariable):
     """Entity variable.
@@ -442,6 +448,7 @@ class Entity(Value):
 
     mask: Value.Mask = Value.ENTITY
 
+    @override
     def _preprocess_arg(self, arg, i):
         return self._static_preprocess_arg(self, arg, i)
 
@@ -476,7 +483,7 @@ class ItemTemplate(EntityTemplate):
     """Item template.
 
     Parameters:
-        iri: IRI template.
+        iri: IRI.
     """
 
     def __init__(self, iri: VItemContent):
@@ -538,7 +545,7 @@ class PropertyTemplate(EntityTemplate):
     """Property template.
 
     Parameters:
-       iri: IRI template.
+       iri: IRI.
     """
 
     def __init__(self, iri: VPropertyContent):
@@ -609,7 +616,7 @@ class LexemeTemplate(EntityTemplate):
     """Lexeme template.
 
     Parameters:
-       iri: IRI template.
+       iri: IRI.
     """
 
     def __init__(self, iri: VLexemeContent):
@@ -737,6 +744,7 @@ class IRI_Template(ShallowDataValueTemplate):
     def __init__(self, content: V_IRI_Content):
         super().__init__(content)
 
+    @override
     def _preprocess_arg(self, arg, i):
         if i == 1:              # content
             if Variable.test(arg):
@@ -782,6 +790,7 @@ class IRI(ShallowDataValue):
     def __init__(self, content: V_IRI_Content):
         super().__init__(content)
 
+    @override
     def _preprocess_arg(self, arg, i):
         return self._static_preprocess_arg(self, arg, i)
 
@@ -814,6 +823,7 @@ class TextTemplate(ShallowDataValueTemplate):
     ):
         super().__init__(content, language)
 
+    @override
     def _preprocess_arg(self, arg, i):
         if i == 1:              # content
             if Variable.test(arg):
@@ -874,6 +884,7 @@ class Text(ShallowDataValue):
             language = content.language
         super().__init__(content, language)
 
+    @override
     def _preprocess_arg(self, arg, i):
         return self._static_preprocess_arg(self, arg, i)
 
@@ -915,6 +926,7 @@ class StringTemplate(ShallowDataValueTemplate):
     def __init__(self, content: VStringContent):
         super().__init__(content)
 
+    @override
     def _preprocess_arg(self, arg, i):
         if i == 1:              # content
             if Variable.test(arg):
@@ -960,6 +972,7 @@ class String(ShallowDataValue):
     def __init__(self, content: VStringContent):
         super().__init__(content)
 
+    @override
     def _preprocess_arg(self, arg, i):
         return self._static_preprocess_arg(self, arg, i)
 
@@ -984,6 +997,7 @@ class ExternalIdTemplate(StringTemplate):
     def __init__(self, content: VExternalIdContent):
         super().__init__(content)
 
+    @override
     def _preprocess_arg(self, arg, i):
         if i == 1:              # content
             if Variable.test(arg):
@@ -1048,6 +1062,7 @@ class ExternalId(String):
     def __init__(self, content: VExternalIdContent):
         super().__init__(content)
 
+    @override
     def _preprocess_arg(self, arg, i):
         if i == 1:              # content
             return self._preprocess_arg_str(
@@ -1099,6 +1114,7 @@ class QuantityTemplate(DeepDataValueTemplate):
             upper_bound: Optional[VQuantityContent] = None):
         super().__init__(amount, unit, lower_bound, upper_bound)
 
+    @override
     def _preprocess_arg(self, arg, i):
         if i == 1:              # amount
             if Variable.test(arg):
@@ -1169,6 +1185,7 @@ class Quantity(DeepDataValue):
             upper_bound: Optional[VQuantityContent] = None):
         super().__init__(amount, unit, lower_bound, upper_bound)
 
+    @override
     def _preprocess_arg(self, arg, i):
         return self._static_preprocess_arg(self, arg, i)
 
@@ -1291,6 +1308,7 @@ class TimeTemplate(DeepDataValueTemplate):
             calendar: Optional[VItem] = None):
         super().__init__(time, precision, timezone, calendar)
 
+    @override
     def _preprocess_arg(self, arg, i):
         if i == 1:              # time
             if Variable.test(arg):
@@ -1568,6 +1586,7 @@ class Time(DeepDataValue):
             calendar: Optional[VItem] = None):
         super().__init__(time, precision, timezone, calendar)
 
+    @override
     def _preprocess_arg(self, arg, i):
         return self._static_preprocess_arg(self, arg, i)
 
