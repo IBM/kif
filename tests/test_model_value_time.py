@@ -14,7 +14,7 @@ from .tests import kif_TestCase
 class TestModelValueTime(kif_TestCase):
 
     def test__check_arg_precision(self):
-        self.assertRaises(TypeError, Time._check_arg_precision, 'abc')
+        self.assertRaises(ValueError, Time._check_arg_precision, 'abc')
         self.assertRaises(ValueError, Time._check_arg_precision, 99)
         self.assertEqual(
             Time.Precision.DAY,
@@ -88,9 +88,9 @@ class TestModelValueTime(kif_TestCase):
     def test__init__(self):
         self.assertRaises(TypeError, Time, [])
         self.assertRaises(ValueError, Time, 'abc')
-        self.assertRaises(TypeError, Time, '2023-09-04', 'abc')
+        self.assertRaises(ValueError, Time, '2023-09-04', 'abc')
         self.assertRaises(ValueError, Time, '2023-09-04', -1)
-        self.assertRaises(TypeError, Time, '2023-09-04', 1, 'abc')
+        self.assertRaises(ValueError, Time, '2023-09-04', 1, 'abc')
         self.assertRaises(TypeError, Time, '2023-09-04', 1, 1, 0)
         self.assert_time(
             Time('2023-09-04'), Datetime(2023, 9, 4, tzinfo=UTC))

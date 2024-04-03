@@ -15,8 +15,8 @@ class TestModelValueQuantity(kif_TestCase):
 
     def test__init__(self):
         self.assertRaises(ValueError, Quantity, 'abc', 0)
-        self.assertRaises(TypeError, Quantity, 0, 'x', 'abc')
-        self.assertRaises(TypeError, Quantity, 0, 'x', None, 'abc')
+        self.assertRaises(ValueError, Quantity, 0, 'x', 'abc')
+        self.assertRaises(ValueError, Quantity, 0, 'x', None, 'abc')
         self.assert_quantity(Quantity(1), 1)
         self.assert_quantity(Quantity(-1), '-1')
         self.assert_quantity(Quantity(1.), '1.0')

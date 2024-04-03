@@ -12,7 +12,8 @@ class TestStoreSPARQL_SPARQL_StoreInit(kif_StoreTestCase):
     def test__init__(self):
         # bad argument: iri
         self.assert_raises_bad_argument(
-            TypeError, 2, 'iri', 'expected IRI or URIRef or str, got int',
+            TypeError, 2, 'iri',
+            'expected IRI or String or URIRef or str, got int',
             SPARQL_Store, 'sparql', 0)
         # success
         kb = Store('sparql', 'https://query.wikidata.org/sparql')

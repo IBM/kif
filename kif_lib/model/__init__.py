@@ -31,7 +31,8 @@ from .kif_object import (
     UTC,
 )
 from .kif_object_set import KIF_ObjectSet, T_KIF_ObjectSet
-from .pattern import FilterPattern, Pattern
+from .pattern import Pattern, Template, Variable
+from .pattern_deprecated import FilterPattern
 from .rank import (
     Deprecated,
     DeprecatedRank,
@@ -46,7 +47,6 @@ from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
 from .snak import NoValueSnak, Snak, SomeValueSnak, ValueSnak
 from .snak_set import SnakSet, TSnakSet
 from .statement import Statement
-from .template import Template
 from .value import (
     Datatype,
     DataValue,
@@ -83,4 +83,3 @@ from .value import (
     Value,
 )
 from .value_set import TextSet, TTextSet, TValueSet, ValueSet
-from .variable import Variable

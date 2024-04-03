@@ -28,40 +28,101 @@ from .kif_object import (
     TDatetime,
     TDecimal,
 )
-from .template import Template
-from .variable import Variable
+from .pattern import Template, Variable
 
-T_IRI = Union['IRI', 'String', NS.T_URI]
-TString = Union['String', str]
-TText = Union['Text', TString]
-TExternalId = Union['ExternalId', TString]
-TQuantity = Union['Quantity', TDecimal]
-TTime = Union['Time', TDatetime]
-TTimePrecision = Union['Time.Precision', TQuantity]
-TTimeTimezone = TQuantity
+# == Aliases ===============================================================
+
+# -- Value --
+
+TValue: TypeAlias = Union['Value', NS.T_URI, TDatetime, TDecimal, str]
+
+# -- Item --
+
+TItem: TypeAlias = Union['Item', 'T_IRI']
+
+VItemContent: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'TItem']
+
+VItem: TypeAlias = Union['ItemTemplate', 'ItemVariable', TItem]
+
+# -- Property --
+
+TProperty: TypeAlias = Union['Property', 'T_IRI']
+
+VPropertyContent: TypeAlias =\
+    Union['IRI_Template', 'IRI_Variable', 'TProperty']
+
+VProperty: TypeAlias =\
+    Union['PropertyTemplate', 'PropertyVariable', TProperty]
+
+# -- Lexeme --
+
+TLexeme: TypeAlias = Union['Lexeme', 'T_IRI']
+
+VLexemeContent: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'TLexeme']
+
+VLexeme: TypeAlias = Union['LexemeTemplate', 'LexemeVariable', TLexeme]
+
+# -- IRI --
+
+T_IRI: TypeAlias = Union['IRI', 'String', NS.T_URI]
+
+V_IRI_Content: TypeAlias = Union['StringVariable', T_IRI]
+
+V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', T_IRI]
+
+# -- Text--
+
+TText: TypeAlias = Union['Text', 'TString']
+
+VTextContent: TypeAlias = Union['StringVariable', TText]
+
+VText: TypeAlias = Union['TextTemplate', 'TextVariable', TText]
+
+# -- String --
+
+TString: TypeAlias = Union['String', str]
+
+VStringContent: TypeAlias = Union['StringVariable', TString]
+
+VString: TypeAlias = Union['StringTemplate', 'StringVariable', TString]
+
+# -- External id --
+
+TExternalId: TypeAlias = Union['ExternalId', TString]
+
+VExternalIdContent: TypeAlias = Union['StringVariable', TExternalId]
+
+VExternalId: TypeAlias =\
+    Union['ExternalIdTemplate', 'ExternalIdVariable', TExternalId]
+
+# -- Quantity --
+
+TQuantity: TypeAlias = Union['Quantity', TDecimal]
+
+VQuantityContent: TypeAlias = Union['QuantityVariable', TQuantity]
+
+VQuantity: TypeAlias =\
+    Union['QuantityTemplate', 'QuantityVariable', TQuantity]
+
+# -- Time --
+
+TTime: TypeAlias = Union['Time', TDatetime]
+
+VTimeContent: TypeAlias = Union['TimeVariable', TTime]
+
+VTime: TypeAlias = Union['TimeTemplate', 'TimeVariable', TTime]
+
+TTimePrecision: TypeAlias = Union['Time.Precision', TQuantity]
+
+VTimePrecisionContent: TypeAlias = Union['QuantityVariable', TTimePrecision]
+
+TTimeTimezone: TypeAlias = TQuantity
+
+VTimeTimezoneContent: TypeAlias = VQuantityContent
+
+# -- Datatype --
 
 TDatatype = Union['Datatype', T_IRI]
-
-TEntityContent: TypeAlias =\
-    Union['IRI_Template', 'IRI_Variable', 'Entity', T_IRI]
-TItemContent: TypeAlias = TEntityContent
-TLexemeContent: TypeAlias = TEntityContent
-TPropertyContent: TypeAlias = TEntityContent
-
-T_IRI_Content: TypeAlias = Union['StringVariable', T_IRI]
-TStringContent: TypeAlias = Union['StringVariable', TString]
-TTextContent: TypeAlias = Union['StringVariable', TText]
-
-TDecimalContent: TypeAlias = Union['QuantityVariable', TQuantity]
-TQuantityAmountContent: TypeAlias = Union['QuantityVariable', TQuantity]
-TQuantityUnitContent: TypeAlias = Union['ItemTemplate', 'ItemVariable', 'Item']
-TQuantityLowerBoundContent: TypeAlias = TQuantityAmountContent
-TQuantityUpperBoundContent: TypeAlias = TQuantityAmountContent
-
-TTimeTimeContent: TypeAlias = Union['TimeVariable', TTime]
-TTimePrecisionContent: TypeAlias = Union['QuantityVariable', TTimePrecision]
-TTimeTimezoneContent: TypeAlias = Union['QuantityVariable', TTimeTimezone]
-TTimeCalendarContent: TypeAlias = Union['ItemTemplate', 'ItemVariable', 'Item']
 
 
 # == Value =================================================================
@@ -246,18 +307,27 @@ class Value(KIF_Object):
         return cls.mask
 
     @classmethod
-    def _preprocess_arg_value(
+    def _check_arg_value(
             cls,
-            arg: Union['Value', float, int, str],
-            i: int,
-            function: Optional[Union[TCallable, str]] = None
+            arg: TValue,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
     ) -> Union['Value', NoReturn]:
-        if isinstance(arg, (float, int)):
+        arg = cls._check_arg_isinstance(
+            arg, (cls, URIRef, Datetime, float, int, str),
+            function, name, position)
+        if isinstance(arg, URIRef):
+            return IRI(arg)
+        elif isinstance(arg, Datetime):
+            return Time(arg)
+        elif isinstance(arg, (float, int)):
             return Quantity(arg)
         elif isinstance(arg, str):
             return String(arg)
         else:
-            return cast(Value, Value.check(arg, function or cls, None, i))
+            assert isinstance(arg, Value)
+            return arg
 
     @property
     def value(self) -> str:
@@ -356,17 +426,6 @@ class Value(KIF_Object):
 class EntityTemplate(ValueTemplate):
     """Abstract base class for entity templates."""
 
-    def _preprocess_arg_value(self, arg, i):
-        if i == 1:              # iri
-            if Template.test(arg):
-                return self._preprocess_arg_iri_template(arg, i)
-            elif Variable.test(arg):
-                return self._preprocess_arg_iri_variable(arg, i)
-            else:
-                self.__class__._static_preprocess_arg(self, arg, i)
-        else:
-            raise self._should_not_get_here()
-
 
 class EntityVariable(ValueVariable):
     """Entity variable.
@@ -420,7 +479,7 @@ class ItemTemplate(EntityTemplate):
         iri: IRI template.
     """
 
-    def __init__(self, iri: TItemContent):
+    def __init__(self, iri: VItemContent):
         super().__init__(iri)
 
 
@@ -445,11 +504,22 @@ class Item(Entity):
 
     mask: Value.Mask = Value.ITEM
 
-    def __init__(self, iri: TItemContent):
+    @classmethod
+    def _check_arg_item(
+            cls,
+            arg: TItem,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union['Item', NoReturn]:
+        return cls(cls._check_arg_isinstance(
+            arg, (cls, IRI, URIRef, String, str), function, name, position))
+
+    def __init__(self, iri: VItemContent):
         super().__init__(iri)
 
 
-def Items(iri: TItemContent, *iris: TItemContent) -> Iterable[Item]:
+def Items(iri: VItemContent, *iris: VItemContent) -> Iterable[Item]:
     """Constructs one or more items.
 
     Parameters:
@@ -471,7 +541,7 @@ class PropertyTemplate(EntityTemplate):
        iri: IRI template.
     """
 
-    def __init__(self, iri: TPropertyContent):
+    def __init__(self, iri: VPropertyContent):
         super().__init__(iri)
 
 
@@ -496,7 +566,18 @@ class Property(Entity):
 
     mask: Value.Mask = Value.PROPERTY
 
-    def __init__(self, iri: TPropertyContent):
+    @classmethod
+    def _check_arg_property(
+            cls,
+            arg: TProperty,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union['Property', NoReturn]:
+        return cls(cls._check_arg_isinstance(
+            arg, (cls, IRI, URIRef, String, str), function, name, position))
+
+    def __init__(self, iri: VPropertyContent):
         super().__init__(iri)
 
     def __call__(self, value1, value2=None):
@@ -507,8 +588,8 @@ class Property(Entity):
 
 
 def Properties(
-        iri: TPropertyContent,
-        *iris: TPropertyContent
+        iri: VPropertyContent,
+        *iris: VPropertyContent
 ) -> Iterable[Property]:
     """Constructs one or more properties.
 
@@ -531,7 +612,7 @@ class LexemeTemplate(EntityTemplate):
        iri: IRI template.
     """
 
-    def __init__(self, iri: TLexemeContent):
+    def __init__(self, iri: VLexemeContent):
         super().__init__(iri)
 
 
@@ -556,11 +637,22 @@ class Lexeme(Entity):
 
     mask: Value.Mask = Value.LEXEME
 
-    def __init__(self, iri: TLexemeContent):
+    @classmethod
+    def _check_arg_lexeme(
+            cls,
+            arg: TLexeme,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union['Lexeme', NoReturn]:
+        return cls(cls._check_arg_isinstance(
+            arg, (cls, IRI, URIRef, String, str), function, name, position))
+
+    def __init__(self, iri: VLexemeContent):
         super().__init__(iri)
 
 
-def Lexemes(iri: TLexemeContent, *iris: TLexemeContent) -> Iterable[Lexeme]:
+def Lexemes(iri: VLexemeContent, *iris: VLexemeContent) -> Iterable[Lexeme]:
     """Constructs one or more lexemes.
 
     Parameters:
@@ -642,7 +734,7 @@ class IRI_Template(ShallowDataValueTemplate):
        content: IRI content.
     """
 
-    def __init__(self, content: T_IRI_Content):
+    def __init__(self, content: V_IRI_Content):
         super().__init__(content)
 
     def _preprocess_arg(self, arg, i):
@@ -687,7 +779,7 @@ class IRI(ShallowDataValue):
         return cls(cls._check_arg_isinstance(
             arg, (cls, URIRef, String, str), function, name, position))
 
-    def __init__(self, content: T_IRI_Content):
+    def __init__(self, content: V_IRI_Content):
         super().__init__(content)
 
     def _preprocess_arg(self, arg, i):
@@ -717,8 +809,8 @@ class TextTemplate(ShallowDataValueTemplate):
 
     def __init__(
             self,
-            content: TTextContent,
-            language: Optional[TStringContent] = None
+            content: VTextContent,
+            language: Optional[VStringContent] = None
     ):
         super().__init__(content, language)
 
@@ -775,8 +867,8 @@ class Text(ShallowDataValue):
 
     def __init__(
             self,
-            content: TTextContent,
-            language: Optional[TStringContent] = None
+            content: VTextContent,
+            language: Optional[VStringContent] = None
     ):
         if isinstance(content, Text) and language is None:
             language = content.language
@@ -820,7 +912,7 @@ class StringTemplate(ShallowDataValueTemplate):
        content: String content.
     """
 
-    def __init__(self, content: TStringContent):
+    def __init__(self, content: VStringContent):
         super().__init__(content)
 
     def _preprocess_arg(self, arg, i):
@@ -865,7 +957,7 @@ class String(ShallowDataValue):
         return cls(cls._check_arg_isinstance(
             arg, (cls, str), function, name, position))
 
-    def __init__(self, content: TStringContent):
+    def __init__(self, content: VStringContent):
         super().__init__(content)
 
     def _preprocess_arg(self, arg, i):
@@ -888,6 +980,18 @@ class ExternalIdTemplate(StringTemplate):
     Parameters:
        content: External id content.
     """
+
+    def __init__(self, content: VExternalIdContent):
+        super().__init__(content)
+
+    def _preprocess_arg(self, arg, i):
+        if i == 1:              # content
+            if Variable.test(arg):
+                return self._preprocess_arg_string_variable(arg, i)
+            else:
+                return ExternalId._static_preprocess_arg(self, arg, i)
+        else:
+            raise self._should_not_get_here()
 
 
 class ExternalIdVariable(StringVariable):
@@ -941,7 +1045,7 @@ class ExternalId(String):
         else:
             return cast(Value, cls.check(res))
 
-    def __init__(self, content: TExternalId):
+    def __init__(self, content: VExternalIdContent):
         super().__init__(content)
 
     def _preprocess_arg(self, arg, i):
@@ -989,10 +1093,10 @@ class QuantityTemplate(DeepDataValueTemplate):
 
     def __init__(
             self,
-            amount: TQuantityAmountContent,
-            unit: Optional[TQuantityUnitContent] = None,
-            lower_bound: Optional[TQuantityLowerBoundContent] = None,
-            upper_bound: Optional[TQuantityUpperBoundContent] = None):
+            amount: VQuantityContent,
+            unit: Optional[VItem] = None,
+            lower_bound: Optional[VQuantityContent] = None,
+            upper_bound: Optional[VQuantityContent] = None):
         super().__init__(amount, unit, lower_bound, upper_bound)
 
     def _preprocess_arg(self, arg, i):
@@ -1059,10 +1163,10 @@ class Quantity(DeepDataValue):
 
     def __init__(
             self,
-            amount: TQuantityAmountContent,
-            unit: Optional[TQuantityUnitContent] = None,
-            lower_bound: Optional[TQuantityLowerBoundContent] = None,
-            upper_bound: Optional[TQuantityUpperBoundContent] = None):
+            amount: VQuantityContent,
+            unit: Optional[VItem] = None,
+            lower_bound: Optional[VQuantityContent] = None,
+            upper_bound: Optional[VQuantityContent] = None):
         super().__init__(amount, unit, lower_bound, upper_bound)
 
     def _preprocess_arg(self, arg, i):
@@ -1181,10 +1285,10 @@ class TimeTemplate(DeepDataValueTemplate):
 
     def __init__(
             self,
-            time: TTimeTimeContent,
-            precision: Optional[TTimePrecisionContent] = None,
-            timezone: Optional[TTimeTimezoneContent] = None,
-            calendar: Optional[TTimeCalendarContent] = None):
+            time: VTimeContent,
+            precision: Optional[VTimePrecisionContent] = None,
+            timezone: Optional[VTimeTimezoneContent] = None,
+            calendar: Optional[VItem] = None):
         super().__init__(time, precision, timezone, calendar)
 
     def _preprocess_arg(self, arg, i):
@@ -1409,7 +1513,7 @@ class Time(DeepDataValue):
                 return int(arg)
         except ValueError:
             raise cls._arg_error(
-                f'expected timezone', function, name, position, ValueError)
+                'expected timezone', function, name, position, ValueError)
 
     @classmethod
     def _check_optional_arg_timezone(
@@ -1458,10 +1562,10 @@ class Time(DeepDataValue):
 
     def __init__(
             self,
-            time: TTimeTimeContent,
-            precision: Optional[TTimePrecisionContent] = None,
-            timezone: Optional[TTimeTimezoneContent] = None,
-            calendar: Optional[TTimeCalendarContent] = None):
+            time: VTimeContent,
+            precision: Optional[VTimePrecisionContent] = None,
+            timezone: Optional[VTimeTimezoneContent] = None,
+            calendar: Optional[VItem] = None):
         super().__init__(time, precision, timezone, calendar)
 
     def _preprocess_arg(self, arg, i):

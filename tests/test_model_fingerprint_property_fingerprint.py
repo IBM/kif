@@ -44,8 +44,9 @@ class TestModelFingerprintPropertyFingerprint(kif_TestCase):
 
     def test__init__(self):
         self.assertRaises(TypeError, PropertyFingerprint, 0)
-        self.assertRaises(TypeError, PropertyFingerprint, IRI('x'))
         self.assertRaises(TypeError, PropertyFingerprint, Item('x'))
+        self.assert_property_fingerprint(
+            PropertyFingerprint(IRI('x')), Property('x'))
         self.assert_property_fingerprint(
             PropertyFingerprint(Property('x')), Property('x'))
         self.assert_property_fingerprint(
