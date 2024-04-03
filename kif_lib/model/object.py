@@ -204,13 +204,13 @@ class ObjectMeta(abc.ABCMeta):
                         default: Optional[c] = None,
                         function: Optional[Union[TFun, str]] = None,
                         name: Optional[str] = None,
-                        position: Optional[int] = None,
-                        _f_check_arg: TFun = getattr(c, s_check_arg)
+                        position: Optional[int] = None
                 ) -> Union[Optional[c], NoReturn]:
                     if arg is None:
                         return default
                     else:
-                        return _f_check_arg(arg, function, name, position)
+                        return getattr(cls_, s_check_arg)(
+                            arg, function, name, position)
                 return check_optional_arg_
             f_check_optional_arg = classmethod(mk_check_optional_arg_(cls))
         setattr(top, s_check_optional_arg, f_check_optional_arg)
@@ -226,10 +226,10 @@ class ObjectMeta(abc.ABCMeta):
                         cls_,
                         arg: Any,
                         i: int,
-                        function: Optional[Union[TFun, str]] = None,
-                        _f_check_arg: TFun = getattr(c, s_check_arg)
+                        function: Optional[Union[TFun, str]] = None
                 ) -> Union[c, NoReturn]:
-                    return _f_check_arg(arg, function or cls_, None, i)
+                    return getattr(cls_, s_check_arg)(
+                        arg, function or cls_, None, i)
                 return preprocess_arg_
             f_preprocess_arg = classmethod(mk_preprocess_arg_(cls))
         setattr(top, s_preprocess_arg, f_preprocess_arg)
@@ -248,14 +248,13 @@ class ObjectMeta(abc.ABCMeta):
                         arg: Any,
                         i: int,
                         default: Optional[c] = None,
-                        function: Optional[Union[TFun, str]] = None,
-                        _f_preprocess_arg: TFun = getattr(
-                            c, s_preprocess_arg)
+                        function: Optional[Union[TFun, str]] = None
                 ) -> Union[Optional[c], NoReturn]:
                     if arg is None:
                         return default
                     else:
-                        return _f_preprocess_arg(arg, i, function)
+                        return getattr(
+                            cls_, s_preprocess_arg)(arg, i, function)
                 return preprocess_optional_arg_
             f_preprocess_optional_arg = classmethod(
                 mk_preprocess_optional_arg_(cls))
