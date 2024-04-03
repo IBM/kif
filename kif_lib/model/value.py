@@ -17,6 +17,7 @@ from ..typing import (
     NoReturn,
     Optional,
     override,
+    TypeAlias,
     Union,
 )
 from .kif_object import (
@@ -27,19 +28,64 @@ from .kif_object import (
     TDatetime,
     TDecimal,
 )
+from .template import Template
+from .variable import Variable
 
-T_IRI = Union['IRI', NS.T_URI]
-TDatatype = Union['Datatype', T_IRI]
-TExternalId = Union['ExternalId', 'String', str]
+T_IRI = Union['IRI', 'String', NS.T_URI]
 TString = Union['String', str]
 TText = Union['Text', TString]
-TTimePrecision = Union['Time.Precision', int]
+TExternalId = Union['ExternalId', TString]
+TQuantity = Union['Quantity', TDecimal]
+TTime = Union['Time', TDatetime]
+TTimePrecision = Union['Time.Precision', TQuantity]
+TTimeTimezone = TQuantity
+
+TDatatype = Union['Datatype', T_IRI]
+
+TEntityContent: TypeAlias =\
+    Union['IRI_Template', 'IRI_Variable', 'Entity', T_IRI]
+TItemContent: TypeAlias = TEntityContent
+TLexemeContent: TypeAlias = TEntityContent
+TPropertyContent: TypeAlias = TEntityContent
+
+T_IRI_Content: TypeAlias = Union['StringVariable', T_IRI]
+TStringContent: TypeAlias = Union['StringVariable', TString]
+TTextContent: TypeAlias = Union['StringVariable', TText]
+
+TDecimalContent: TypeAlias = Union['QuantityVariable', TQuantity]
+TQuantityAmountContent: TypeAlias = Union['QuantityVariable', TQuantity]
+TQuantityUnitContent: TypeAlias = Union['ItemTemplate', 'ItemVariable', 'Item']
+TQuantityLowerBoundContent: TypeAlias = TQuantityAmountContent
+TQuantityUpperBoundContent: TypeAlias = TQuantityAmountContent
+
+TTimeTimeContent: TypeAlias = Union['TimeVariable', TTime]
+TTimePrecisionContent: TypeAlias = Union['QuantityVariable', TTimePrecision]
+TTimeTimezoneContent: TypeAlias = Union['QuantityVariable', TTimeTimezone]
+TTimeCalendarContent: TypeAlias = Union['ItemTemplate', 'ItemVariable', 'Item']
 
 
 # == Value =================================================================
 
+class ValueTemplate(Template):
+    """Abstract base class for value templates."""
+
+
+class ValueVariable(Variable):
+    """Value variable.
+
+    Parameters:
+       name: String.
+    """
+
+
 class Value(KIF_Object):
     """Abstract base class for values."""
+
+    #: Concrete template class associated with this value class (if any).
+    template_class: type[Template]
+
+    #: Variable class associated with this value class.
+    variable_class: type[Variable] = ValueVariable
 
     class Mask(Flag):
         """Mask for concrete value classes."""
@@ -129,6 +175,16 @@ class Value(KIF_Object):
     ALL: Final[Mask] = Mask.ALL
 
     TMask = Union[Mask, int]
+
+    def __new__(
+            cls,
+            *args,
+            _test=lambda x: isinstance(x, (Variable, Template))
+    ):
+        if any(map(_test, args)):
+            return cls.template_class(*args)
+        else:
+            return super().__new__(cls)
 
     @classmethod
     def _check_arg_value_mask(
@@ -297,8 +353,33 @@ class Value(KIF_Object):
 
 # == Entity ================================================================
 
+class EntityTemplate(ValueTemplate):
+    """Abstract base class for entity templates."""
+
+    def _preprocess_arg_value(self, arg, i):
+        if i == 1:              # iri
+            if Template.test(arg):
+                return self._preprocess_arg_iri_template(arg, i)
+            elif Variable.test(arg):
+                return self._preprocess_arg_iri_variable(arg, i)
+            else:
+                self.__class__._static_preprocess_arg(self, arg, i)
+        else:
+            raise self._should_not_get_here()
+
+
+class EntityVariable(ValueVariable):
+    """Entity variable.
+
+    Parameters:
+       name: String.
+    """
+
+
 class Entity(Value):
     """Abstract base class for entities."""
+
+    variable_class: type[Variable] = EntityVariable
 
     mask: Value.Mask = Value.ENTITY
 
@@ -307,8 +388,9 @@ class Entity(Value):
 
     @staticmethod
     def _static_preprocess_arg(self, arg, i):
-        if i == 1:
-            return self._preprocess_arg_iri(arg, i)
+        if i == 1:              # iri
+            return self._preprocess_arg_iri(
+                arg.args[0] if isinstance(arg, Entity) else arg, i)
         else:
             raise self._should_not_get_here()
 
@@ -331,6 +413,25 @@ class Entity(Value):
 
 # -- Item ------------------------------------------------------------------
 
+class ItemTemplate(EntityTemplate):
+    """Item template.
+
+    Parameters:
+        iri: IRI template.
+    """
+
+    def __init__(self, iri: TItemContent):
+        super().__init__(iri)
+
+
+class ItemVariable(EntityVariable):
+    """Item variable.
+
+    Parameters:
+        name: String.
+    """
+
+
 class Item(Entity):
     """Person or thing.
 
@@ -338,13 +439,17 @@ class Item(Entity):
        iri: IRI.
     """
 
+    template_class: type[Template] = ItemTemplate
+
+    variable_class: type[Variable] = ItemVariable
+
     mask: Value.Mask = Value.ITEM
 
-    def __init__(self, iri: T_IRI):
+    def __init__(self, iri: TItemContent):
         super().__init__(iri)
 
 
-def Items(iri: T_IRI, *iris: T_IRI) -> Iterable[Item]:
+def Items(iri: TItemContent, *iris: TItemContent) -> Iterable[Item]:
     """Constructs one or more items.
 
     Parameters:
@@ -359,6 +464,25 @@ def Items(iri: T_IRI, *iris: T_IRI) -> Iterable[Item]:
 
 # -- Property --------------------------------------------------------------
 
+class PropertyTemplate(EntityTemplate):
+    """Property template.
+
+    Parameters:
+       iri: IRI template.
+    """
+
+    def __init__(self, iri: TPropertyContent):
+        super().__init__(iri)
+
+
+class PropertyVariable(EntityVariable):
+    """Property variable.
+
+    Parameters:
+        name: String.
+    """
+
+
 class Property(Entity):
     """Binary relationship.
 
@@ -366,9 +490,13 @@ class Property(Entity):
        iri: IRI.
     """
 
+    template_class: type[Template] = PropertyTemplate
+
+    variable_class: type[Variable] = PropertyVariable
+
     mask: Value.Mask = Value.PROPERTY
 
-    def __init__(self, iri: T_IRI):
+    def __init__(self, iri: TPropertyContent):
         super().__init__(iri)
 
     def __call__(self, value1, value2=None):
@@ -378,7 +506,10 @@ class Property(Entity):
             return self._ValueSnak(self, value1)
 
 
-def Properties(iri: T_IRI, *iris: T_IRI) -> Iterable[Property]:
+def Properties(
+        iri: TPropertyContent,
+        *iris: TPropertyContent
+) -> Iterable[Property]:
     """Constructs one or more properties.
 
     Parameters:
@@ -393,6 +524,25 @@ def Properties(iri: T_IRI, *iris: T_IRI) -> Iterable[Property]:
 
 # -- Lexeme ----------------------------------------------------------------
 
+class LexemeTemplate(EntityTemplate):
+    """Lexeme template.
+
+    Parameters:
+       iri: IRI template.
+    """
+
+    def __init__(self, iri: TLexemeContent):
+        super().__init__(iri)
+
+
+class LexemeVariable(EntityVariable):
+    """Lexeme variable.
+
+    Parameters:
+        name: String.
+    """
+
+
 class Lexeme(Entity):
     """Word or phrase.
 
@@ -400,13 +550,17 @@ class Lexeme(Entity):
        iri: IRI.
     """
 
+    template_class: type[Template] = LexemeTemplate
+
+    variable_class: type[Variable] = LexemeVariable
+
     mask: Value.Mask = Value.LEXEME
 
-    def __init__(self, iri: T_IRI):
+    def __init__(self, iri: TLexemeContent):
         super().__init__(iri)
 
 
-def Lexemes(iri: T_IRI, *iris: T_IRI) -> Iterable[Lexeme]:
+def Lexemes(iri: TLexemeContent, *iris: TLexemeContent) -> Iterable[Lexeme]:
     """Constructs one or more lexemes.
 
     Parameters:
@@ -421,16 +575,44 @@ def Lexemes(iri: T_IRI, *iris: T_IRI) -> Iterable[Lexeme]:
 
 # == Data value ============================================================
 
+class DataValueTemplate(ValueTemplate):
+    """Abstract base class for data value templates."""
+
+
+class DataValueVariable(ValueVariable):
+    """Data value variable.
+
+    Parameters:
+       name: String.
+    """
+
+
 class DataValue(Value):
     """Abstract base class for data values."""
+
+    variable_class: type[Variable] = DataValueVariable
 
     mask: Value.Mask = Value.DATA_VALUE
 
 
 # == Shallow data value ====================================================
 
+class ShallowDataValueTemplate(DataValueTemplate):
+    """Abstract base class for shallow data value templates."""
+
+
+class ShallowDataValueVariable(DataValueVariable):
+    """Shallow data value variable.
+
+    Parameters:
+       name: String.
+    """
+
+
 class ShallowDataValue(DataValue):
     """Abstract base class for shallow data values."""
+
+    variable_class: type[Variable] = ShallowDataValueVariable
 
     mask: Value.Mask = Value.SHALLOW_DATA_VALUE
 
@@ -453,12 +635,44 @@ class ShallowDataValue(DataValue):
 
 # -- IRI -------------------------------------------------------------------
 
+class IRI_Template(ShallowDataValueTemplate):
+    """IRI template.
+
+    Parameters:
+       content: IRI content.
+    """
+
+    def __init__(self, content: T_IRI_Content):
+        super().__init__(content)
+
+    def _preprocess_arg(self, arg, i):
+        if i == 1:              # content
+            if Variable.test(arg):
+                return self._preprocess_arg_string_variable(arg, i)
+            else:
+                return IRI._static_preprocess_arg(self, arg, i)
+        else:
+            raise self._should_not_get_here()
+
+
+class IRI_Variable(ShallowDataValueVariable):
+    """IRI variable.
+
+    Parameters:
+        name: String.
+    """
+
+
 class IRI(ShallowDataValue):
     """IRI.
 
     Parameters:
        content: IRI content.
     """
+
+    template_class: type[Template] = IRI_Template
+
+    variable_class: type[Variable] = IRI_Variable
 
     mask: Value.Mask = Value.IRI
 
@@ -471,9 +685,9 @@ class IRI(ShallowDataValue):
             position: Optional[int] = None
     ) -> Union['IRI', NoReturn]:
         return cls(cls._check_arg_isinstance(
-            arg, (cls, URIRef, str), function, name, position))
+            arg, (cls, URIRef, String, str), function, name, position))
 
-    def __init__(self, content: T_IRI):
+    def __init__(self, content: T_IRI_Content):
         super().__init__(content)
 
     def _preprocess_arg(self, arg, i):
@@ -481,8 +695,8 @@ class IRI(ShallowDataValue):
 
     @staticmethod
     def _static_preprocess_arg(self, arg, i):
-        if i == 1:
-            if isinstance(arg, IRI):
+        if i == 1:              # content
+            if isinstance(arg, (IRI, String)):
                 arg = arg.args[0]
             elif isinstance(arg, URIRef):
                 arg = str(arg)
@@ -493,6 +707,44 @@ class IRI(ShallowDataValue):
 
 # -- Text ------------------------------------------------------------------
 
+class TextTemplate(ShallowDataValueTemplate):
+    """Text template.
+
+    Parameters:
+       content: Text content.
+       language: Language tag.
+    """
+
+    def __init__(
+            self,
+            content: TTextContent,
+            language: Optional[TStringContent] = None
+    ):
+        super().__init__(content, language)
+
+    def _preprocess_arg(self, arg, i):
+        if i == 1:              # content
+            if Variable.test(arg):
+                return self._preprocess_arg_string_variable(arg, i)
+            else:
+                return Text._static_preprocess_arg(self, arg, i)
+        elif i == 2:            # language
+            if Variable.test(arg):
+                return self._preprocess_arg_string_variable(arg, i)
+            else:
+                return Text._static_preprocess_arg(self, arg, i)
+        else:
+            raise self._should_not_get_here()
+
+
+class TextVariable(ShallowDataValueVariable):
+    """Text variable.
+
+    Parameters:
+        name: String.
+    """
+
+
 class Text(ShallowDataValue):
     """Monolingual text.
 
@@ -500,6 +752,10 @@ class Text(ShallowDataValue):
        content: Text content.
        language: Language tag.
     """
+
+    template_class: type[Template] = TextTemplate
+
+    variable_class: type[Variable] = TextVariable
 
     mask: Value.Mask = Value.TEXT
 
@@ -517,7 +773,11 @@ class Text(ShallowDataValue):
         return cls(cls._check_arg_isinstance(
             arg, (cls, str), function, name, position))
 
-    def __init__(self, content: TText, language: Optional[TString] = None):
+    def __init__(
+            self,
+            content: TTextContent,
+            language: Optional[TStringContent] = None
+    ):
         if isinstance(content, Text) and language is None:
             language = content.language
         super().__init__(content, language)
@@ -527,15 +787,13 @@ class Text(ShallowDataValue):
 
     @staticmethod
     def _static_preprocess_arg(self, arg, i):
-        if i == 1:
-            if isinstance(arg, (String, Text)):
-                arg = arg.args[0]
-            return self._preprocess_arg_str(arg, i)
-        elif i == 2:
-            if isinstance(arg, String):
-                arg = arg.args[0]
+        if i == 1:              # content
+            return self._preprocess_arg_str(
+                arg.args[0] if isinstance(arg, (String, Text)) else arg, i)
+        elif i == 2:            # language
             return self._preprocess_optional_arg_str(
-                arg, i, Text.default_language)
+                arg.args[0] if isinstance(arg, String) else arg, i,
+                Text.default_language)
         else:
             raise self._should_not_get_here()
 
@@ -555,12 +813,44 @@ class Text(ShallowDataValue):
 
 # -- String ----------------------------------------------------------------
 
+class StringTemplate(ShallowDataValueTemplate):
+    """Base class for string templates.
+
+    Parameters:
+       content: String content.
+    """
+
+    def __init__(self, content: TStringContent):
+        super().__init__(content)
+
+    def _preprocess_arg(self, arg, i):
+        if i == 1:              # content
+            if Variable.test(arg):
+                return self._preprocess_arg_string_variable(arg, i)
+            else:
+                return String._static_preprocess_arg(self, arg, i)
+        else:
+            raise self._should_not_get_here()
+
+
+class StringVariable(ShallowDataValueVariable):
+    """String variable.
+
+    Parameters:
+        name: String.
+    """
+
+
 class String(ShallowDataValue):
     """String.
 
     Parameters:
-       content: String.
+       content: String content.
     """
+
+    template_class: type[Template] = StringTemplate
+
+    variable_class: type[Variable] = StringVariable
 
     mask: Value.Mask = Value.STRING
 
@@ -575,7 +865,7 @@ class String(ShallowDataValue):
         return cls(cls._check_arg_isinstance(
             arg, (cls, str), function, name, position))
 
-    def __init__(self, content: TString):
+    def __init__(self, content: TStringContent):
         super().__init__(content)
 
     def _preprocess_arg(self, arg, i):
@@ -583,22 +873,41 @@ class String(ShallowDataValue):
 
     @staticmethod
     def _static_preprocess_arg(self, arg, i):
-        if i == 1:
-            if isinstance(arg, String):
-                arg = arg.args[0]
-            return self._preprocess_arg_str(arg, i)
+        if i == 1:              # content
+            return self._preprocess_arg_str(
+                arg.args[0] if isinstance(arg, String) else arg, i)
         else:
             raise self._should_not_get_here()
 
 
 # -- External id -----------------------------------------------------------
 
+class ExternalIdTemplate(StringTemplate):
+    """External id template.
+
+    Parameters:
+       content: External id content.
+    """
+
+
+class ExternalIdVariable(StringVariable):
+    """External id variable.
+
+    Parameters:
+        name: String.
+    """
+
+
 class ExternalId(String):
     """External id.
 
     Parameters:
-       content: External id.
+       content: External id content.
     """
+
+    template_class: type[Template] = ExternalIdTemplate
+
+    variable_class: type[Variable] = ExternalIdVariable
 
     mask: Value.Mask = Value.EXTERNAL_ID
 
@@ -618,12 +927,12 @@ class ExternalId(String):
     def _from_rdflib(
             cls,
             node: Union[Literal, URIRef],
-            item_prefixes: Collection[
-                NS.T_NS] = NS.Wikidata.default_item_prefixes,
-            property_prefixes: Collection[
-                NS.T_NS] = NS.Wikidata.default_property_prefixes,
-            lexeme_prefixes: Collection[
-                NS.T_NS] = NS.Wikidata.default_lexeme_prefixes
+            item_prefixes: Collection[NS.T_NS]
+            = NS.Wikidata.default_item_prefixes,
+            property_prefixes: Collection[NS.T_NS]
+            = NS.Wikidata.default_property_prefixes,
+            lexeme_prefixes: Collection[NS.T_NS]
+            = NS.Wikidata.default_lexeme_prefixes
     ) -> 'Value':
         res = Value._from_rdflib(
             node, item_prefixes, property_prefixes, lexeme_prefixes)
@@ -636,23 +945,90 @@ class ExternalId(String):
         super().__init__(content)
 
     def _preprocess_arg(self, arg, i):
-        if i == 1:
-            if isinstance(arg, (ExternalId, String)):
-                arg = arg.args[0]
-            return self._preprocess_arg_str(arg, i)
+        if i == 1:              # content
+            return self._preprocess_arg_str(
+                arg.args[0] if isinstance(arg, (ExternalId, String))
+                else arg, i)
         else:
             raise self._should_not_get_here()
 
 
 # == Deep data value =======================================================
 
+class DeepDataValueTemplate(DataValueTemplate):
+    """Abstract base class for deep data value templates."""
+
+
+class DeepDataValueVariable(DataValueVariable):
+    """Deep data value variable.
+
+    Parameters:
+       name: String.
+    """
+
+
 class DeepDataValue(DataValue):
     """Abstract base class for deep data values."""
+
+    variable_class: type[Variable] = DeepDataValueVariable
 
     mask: Value.Mask = Value.DEEP_DATA_VALUE
 
 
 # -- Quantity --------------------------------------------------------------
+
+class QuantityTemplate(DeepDataValueTemplate):
+    """Quantity template.
+
+    Parameters:
+       amount: Amount.
+       unit: Unit.
+       lower_bound: Lower bound.
+       upper_bound: Upper bound.
+    """
+
+    def __init__(
+            self,
+            amount: TQuantityAmountContent,
+            unit: Optional[TQuantityUnitContent] = None,
+            lower_bound: Optional[TQuantityLowerBoundContent] = None,
+            upper_bound: Optional[TQuantityUpperBoundContent] = None):
+        super().__init__(amount, unit, lower_bound, upper_bound)
+
+    def _preprocess_arg(self, arg, i):
+        if i == 1:              # amount
+            if Variable.test(arg):
+                return self._preprocess_arg_quantity_variable(arg, i)
+            else:
+                return Quantity._static_preprocess_arg(self, arg, i)
+        elif i == 2:            # unit
+            if Template.test(arg):
+                return self._preprocess_arg_item_template(arg, i)
+            elif Variable.test(arg):
+                return self._preprocess_arg_item_variable(arg, i)
+            else:
+                return Quantity._static_preprocess_arg(self, arg, i)
+        elif i == 3:            # lower-bound
+            if Variable.test(arg):
+                return self._preprocess_arg_quantity_variable(arg, i)
+            else:
+                return Quantity._static_preprocess_arg(self, arg, i)
+        elif i == 4:            # upper-bound
+            if Variable.test(arg):
+                return self._preprocess_arg_quantity_variable(arg, i)
+            else:
+                return Quantity._static_preprocess_arg(self, arg, i)
+        else:
+            raise self._should_not_get_here()
+
+
+class QuantityVariable(DeepDataValueVariable):
+    """Quantity variable.
+
+    Parameters:
+       name: String.
+    """
+
 
 class Quantity(DeepDataValue):
     """Quantity.
@@ -664,14 +1040,29 @@ class Quantity(DeepDataValue):
        upper_bound: Upper bound.
     """
 
+    template_class: type[Template] = QuantityTemplate
+
+    variable_class: type[Variable] = QuantityVariable
+
     mask: Value.Mask = Value.QUANTITY
+
+    @classmethod
+    def _check_arg_quantity(
+            cls,
+            arg: TQuantity,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union['Quantity', NoReturn]:
+        return cls(cls._check_arg_isinstance(
+            arg, (cls, Decimal, float, int, str), function, name, position))
 
     def __init__(
             self,
-            amount: TDecimal,
-            unit: Optional[Item] = None,
-            lower_bound: Optional[TDecimal] = None,
-            upper_bound: Optional[TDecimal] = None):
+            amount: TQuantityAmountContent,
+            unit: Optional[TQuantityUnitContent] = None,
+            lower_bound: Optional[TQuantityLowerBoundContent] = None,
+            upper_bound: Optional[TQuantityUpperBoundContent] = None):
         super().__init__(amount, unit, lower_bound, upper_bound)
 
     def _preprocess_arg(self, arg, i):
@@ -679,14 +1070,17 @@ class Quantity(DeepDataValue):
 
     @staticmethod
     def _static_preprocess_arg(self, arg, i):
-        if i == 1:
-            return self._preprocess_arg_decimal(arg, i)
-        elif i == 2:
+        if i == 1:              # amount
+            return self._preprocess_arg_decimal(
+                arg.args[0] if isinstance(arg, Quantity) else arg, i)
+        elif i == 2:            # unit
             return self._preprocess_optional_arg_item(arg, i)
-        elif i == 3:
-            return self._preprocess_optional_arg_decimal(arg, i)
-        elif i == 4:
-            return self._preprocess_optional_arg_decimal(arg, i)
+        elif i == 3:            # lower-bound
+            return self._preprocess_optional_arg_decimal(
+                arg.args[0] if isinstance(arg, Quantity) else arg, i)
+        elif i == 4:            # upper-bound
+            return self._preprocess_optional_arg_decimal(
+                arg.args[0] if isinstance(arg, Quantity) else arg, i)
         else:
             raise self._should_not_get_here()
 
@@ -775,6 +1169,59 @@ class Quantity(DeepDataValue):
 
 # -- Time ------------------------------------------------------------------
 
+class TimeTemplate(DeepDataValueTemplate):
+    """Time template.
+
+    Parameters:
+       time: Time.
+       precision: Precision.
+       timezone: Time zone.
+       calendar: Calendar model.
+    """
+
+    def __init__(
+            self,
+            time: TTimeTimeContent,
+            precision: Optional[TTimePrecisionContent] = None,
+            timezone: Optional[TTimeTimezoneContent] = None,
+            calendar: Optional[TTimeCalendarContent] = None):
+        super().__init__(time, precision, timezone, calendar)
+
+    def _preprocess_arg(self, arg, i):
+        if i == 1:              # time
+            if Variable.test(arg):
+                return self._preprocess_arg_time_variable(arg, i)
+            else:
+                return Time._static_preprocess_arg(self, arg, i)
+        elif i == 2:            # precision
+            if Variable.test(arg):
+                return self._preprocess_arg_quantity_variable(arg, i)
+            else:
+                return Time._static_preprocess_arg(self, arg, i)
+        elif i == 3:            # timezone
+            if Variable.test(arg):
+                return self._preprocess_arg_quantity_variable(arg, i)
+            else:
+                return Time._static_preprocess_arg(self, arg, i)
+        elif i == 4:            # calendar
+            if Template.test(arg):
+                return self._preprocess_arg_item_template(arg, i)
+            elif Variable.test(arg):
+                return self._preprocess_arg_item_variable(arg, i)
+            else:
+                return Time._static_preprocess_arg(self, arg, i)
+        else:
+            raise self._should_not_get_here()
+
+
+class TimeVariable(DeepDataValueVariable):
+    """Time variable.
+
+    Parameters:
+       name: String.
+    """
+
+
 class Time(DeepDataValue):
     """Time.
 
@@ -784,6 +1231,10 @@ class Time(DeepDataValue):
        timezone: Time zone.
        calendar: Calendar model.
     """
+
+    template_class: type[Template] = TimeTemplate
+
+    variable_class: type[Variable] = TimeVariable
 
     mask: Value.Mask = Value.TIME
 
@@ -893,8 +1344,13 @@ class Time(DeepDataValue):
             position: Optional[int] = None
     ) -> Union['Time.Precision', NoReturn]:
         arg = cls._check_arg_isinstance(
-            arg, (cls.Precision, int), function, name, position)
+            arg, (cls.Precision, Quantity, Decimal, float, int, str),
+            function, name, position)
         try:
+            if isinstance(arg, Quantity):
+                arg = int(arg.args[0])
+            if not isinstance(arg, (int, cls.Precision)):
+                arg = int(arg)
             return cls.Precision(arg)
         except ValueError:
             raise cls._arg_error(
@@ -913,8 +1369,7 @@ class Time(DeepDataValue):
         if arg is None:
             return default
         else:
-            return cls._check_arg_precision(
-                arg, function, name, position)
+            return cls._check_arg_precision(arg, function, name, position)
 
     @classmethod
     def _preprocess_arg_precision(
@@ -936,22 +1391,92 @@ class Time(DeepDataValue):
         return cls._check_optional_arg_precision(
             arg, default, function or cls, None, i)
 
+    @classmethod
+    def _check_arg_timezone(
+            cls,
+            arg: TTimeTimezone,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[int, NoReturn]:
+        arg = cls._check_arg_isinstance(
+            arg, (Quantity, Decimal, float, int, str),
+            function, name, position)
+        try:
+            if isinstance(arg, Quantity):
+                return int(arg.args[0])
+            else:
+                return int(arg)
+        except ValueError:
+            raise cls._arg_error(
+                f'expected timezone', function, name, position, ValueError)
+
+    @classmethod
+    def _check_optional_arg_timezone(
+            cls,
+            arg: Optional[TTimeTimezone],
+            default: Optional[int] = None,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[Optional[int], NoReturn]:
+        if arg is None:
+            return default
+        else:
+            return cls._check_arg_timezone(arg, function, name, position)
+
+    @classmethod
+    def _preprocess_arg_timezone(
+            cls,
+            arg: TTimeTimezone,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union[int, NoReturn]:
+        return cls._check_arg_timezone(arg, function or cls, None, i)
+
+    @classmethod
+    def _preprocess_optional_arg_timezone(
+            cls,
+            arg: Optional[TTimeTimezone],
+            i: int,
+            default: Optional[int] = None,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union[Optional[int], NoReturn]:
+        return cls._check_optional_arg_timezone(
+            arg, default, function or cls, None, i)
+
+    @classmethod
+    def _check_arg_time(
+            cls,
+            arg: TTime,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union['Time', NoReturn]:
+        return cls(cls._check_arg_isinstance(
+            arg, (cls, Datetime, str), function, name, position))
+
     def __init__(
             self,
-            time: TDatetime,
-            precision: Optional[TTimePrecision] = None,
-            timezone: Optional[int] = None,
-            calendar: Optional[Item] = None):
+            time: TTimeTimeContent,
+            precision: Optional[TTimePrecisionContent] = None,
+            timezone: Optional[TTimeTimezoneContent] = None,
+            calendar: Optional[TTimeCalendarContent] = None):
         super().__init__(time, precision, timezone, calendar)
 
     def _preprocess_arg(self, arg, i):
-        if i == 1:
-            return self._preprocess_arg_datetime(arg, i)
-        elif i == 2:
-            return self._preprocess_optional_arg_precision(arg, i)
-        elif i == 3:
-            return self._preprocess_optional_arg_int(arg, i)
-        elif i == 4:
+        return self._static_preprocess_arg(self, arg, i)
+
+    @staticmethod
+    def _static_preprocess_arg(self, arg, i):
+        if i == 1:              # time
+            return self._preprocess_arg_datetime(
+                arg.args[0] if isinstance(arg, Time) else arg, i)
+        elif i == 2:            # precision
+            return Time._preprocess_optional_arg_precision(arg, i)
+        elif i == 3:            # timezone
+            return Time._preprocess_optional_arg_timezone(arg, i)
+        elif i == 4:            # calendar
             return self._preprocess_optional_arg_item(arg, i)
         else:
             raise self._should_not_get_here()
