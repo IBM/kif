@@ -1,7 +1,6 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import sys
 from collections.abc import (
     Callable,
     Collection,
@@ -26,12 +25,7 @@ from typing import (
     Union,
 )
 
-from typing_extensions import override
-
-if sys.version_info >= (3, 10):
-    from typing import TypeAlias
-else:
-    from typing_extensions import TypeAlias
+from typing_extensions import override, TypeAlias
 
 __all__ = (
     'Any',

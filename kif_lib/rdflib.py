@@ -17,7 +17,7 @@ from rdflib.namespace import (
 )
 from rdflib.parser import InputSource
 from rdflib.query import Result
-from rdflib.term import _NUMERIC_LITERAL_TYPES
+from rdflib.term import _NUMERIC_LITERAL_TYPES, Identifier, Variable
 
 __all__ = (
     '_NUMERIC_LITERAL_TYPES',
@@ -26,6 +26,7 @@ __all__ = (
     'DefinedNamespace',
     'FOAF',
     'Graph',
+    'Identifier',
     'InputSource',
     'Literal',
     'Namespace',
@@ -37,5 +38,6 @@ __all__ = (
     'Result',
     'SKOS',
     'URIRef',
+    'Variable',
     'XSD',
 )
