@@ -3,17 +3,17 @@
 
 # $Id$
 #
-# RDFLib-based SPARQL builder.
+# RDFLib-based SPARQL query builder.
 #
 # ** KEEP THIS FILE SELF-CONTAINED! **
 
-import decimal
 import datetime
-
+import decimal
 from abc import ABC, abstractmethod
 from collections.abc import Generator, Iterator, MutableSequence, Sequence
+from functools import cache
 from itertools import chain
-from typing import Any, cast, Optional, Union, TypeVar
+from typing import Any, cast, Final, Optional, TypeVar, Union
 
 from rdflib import BNode, Literal, URIRef, Variable
 from typing_extensions import override, TypeAlias
@@ -42,8 +42,54 @@ TTriple: TypeAlias = tuple[TSubject, TPredicate, TObject]
 TDataBlockValue: TypeAlias = Optional[Union[URIRef, Literal]]
 TDataBlockLine: TypeAlias = Sequence[TDataBlockValue]
 
+
+# == Prelude ===============================================================
+
+class Encodable(ABC):
+    """Abstract base class for "encodable" objects."""
+
+    @classmethod
+    def _n3(cls, v: Union[URIRef, BNode, Literal, Variable]) -> str:
+        if isinstance(v, Literal):
+            return v._literal_n3(use_plain=True)
+        else:
+            return v.n3()
+
+    def __str__(self):
+        return self.encode()
+
+    def encode(self) -> str:
+        return ''.join(self.iterencode())
+
+    @abstractmethod
+    def iterencode(self) -> TGenStr:
+        raise NotImplementedError
+
+
+class Symbol:
+    """Symbol table."""
+
+    AND: Final[str] = '&&'
+    AS: Final[str] = 'AS'
+    BIND: Final[str] = 'BIND'
+    DISTINCT: Final[str] = '!='
+    EQUAL: Final[str] = '='
+    FILTER: Final[str] = 'FILTER'
+    GREATER_THAN: Final[str] = '>'
+    GREATER_THAN_OR_EQUAL: Final[str] = '>='
+    INDENT: Final[str] = '  '
+    LESS_THAN: Final[str] = '<'
+    LESS_THAN_OR_EQUAL: Final[str] = '<='
+    OPTIONAL: Final[str] = 'OPTIONAL'
+    OR: Final[str] = '||'
+    STR: Final[str] = 'STR'
+    UNDEF: Final[str] = 'UNDEF'
+    UNION: Final[str] = 'UNION'
+    VALUES: Final[str] = 'VALUES'
+
 
 class Coerce:
+    """Type-checking and coercion functions."""
 
     @classmethod
     def _check(
@@ -135,47 +181,6 @@ class Coerce:
     def data_block_line(cls, v: TDataBlockLine) -> TDataBlockLine:
         return cls._check(v, Sequence)
 
-
-class Symbol:
-    AND = '&&'
-    AS = 'AS'
-    BIND = 'BIND'
-    DISTINCT = '!='
-    EQUAL = '='
-    FILTER = 'FILTER'
-    GREATER_THAN = '>'
-    GREATER_THAN_OR_EQUAL = '>='
-    INDENT = '  '
-    LESS_THAN = '<'
-    LESS_THAN_OR_EQUAL = '<='
-    OPTIONAL = 'OPTIONAL'
-    OR = '||'
-    STR = 'STR'
-    UNDEF = 'UNDEF'
-    UNION = 'UNION'
-    VALUES = 'VALUES'
-
-
-class Encodable(ABC):
-    """Abstract base class for "encodable" objects."""
-
-    @classmethod
-    def _n3(cls, v: Union[URIRef, BNode, Literal, Variable]) -> str:
-        if isinstance(v, Literal):
-            return v._literal_n3(use_plain=True)
-        else:
-            return v.n3()
-
-    def __str__(self):
-        return self.encode()
-
-    def encode(self) -> str:
-        return ''.join(self.iterencode())
-
-    @abstractmethod
-    def iterencode(self) -> TGenStr:
-        raise NotImplementedError
-
 
 # == Expression ============================================================
 
@@ -192,54 +197,30 @@ class BooleanExpression(Expression):
 class LogicExpression(BooleanExpression):
     """Abstract base class for logic expressions."""
 
-    _connective: str
-    _args: Sequence[BooleanExpression]
-
-    __slots__ = (
-        '_connective',
-        '_args',
-    )
+    operator: str
+    args: Sequence[BooleanExpression]
 
     def __init__(self, arg: BooleanExpression, *args: BooleanExpression):
-        self._args = (arg, *args)
-
-    @property
-    def connective(self) -> str:
-        return self.get_connective()
-
-    def get_connective(self) -> str:
-        return self._connective
-
-    @property
-    def args(self) -> Sequence[BooleanExpression]:
-        return self.get_args()
-
-    def get_args(self) -> Sequence[BooleanExpression]:
-        return self._args
+        self.args = (arg, *args)
 
     @override
     def iterencode(self) -> TGenStr:
         if len(self.args) == 0:
             yield ''
         elif len(self.args) == 1:
-            yield from self.args[0].iterencode()
+            yield self.args[0].encode()
         else:
             yield '('
-            for i, arg in enumerate(self.args, 1):
-                if i > 1:
-                    yield ' '
-                    yield self._connective
-                    yield ' '
-                yield from arg.iterencode()
+            yield f' {self.operator} '.join(map(Encodable.encode, self.args))
             yield ')'
 
 
 class Or(LogicExpression):
-    _connective: str = Symbol.OR
+    operator: str = Symbol.OR
 
 
 class And(LogicExpression):
-    _connective: str = Symbol.AND
+    operator: str = Symbol.AND
 
 
 # -- Relational expression -------------------------------------------------
@@ -247,124 +228,91 @@ class And(LogicExpression):
 class RelationalExpression(BooleanExpression):
     """Abstract base class for relational expressions."""
 
-    _relation: str
-    _args: tuple['NumericExpression', 'NumericExpression']
-
-    __slots__ = (
-        '_relation',
-        '_args',
-    )
+    operator: str
+    args: tuple['NumericExpression', 'NumericExpression']
 
     def __init__(self, arg1: TNumericExpression, arg2: TNumericExpression):
-        self._args = (
+        self.args = (
             Coerce.numeric_expression(arg1),
             Coerce.numeric_expression(arg2))
-
-    @property
-    def relation(self) -> str:
-        return self.get_relation()
-
-    def get_relation(self) -> str:
-        return self._relation
-
-    @property
-    def args(self) -> tuple['NumericExpression', 'NumericExpression']:
-        return self.get_args()
-
-    def get_args(self) -> tuple['NumericExpression', 'NumericExpression']:
-        return self._args
 
     @override
     def iterencode(self) -> TGenStr:
         yield '('
-        yield from self.args[0].iterencode()
+        yield self.args[0].encode()
         yield ' '
-        yield self.relation
+        yield self.operator
         yield ' '
-        yield from self.args[1].iterencode()
+        yield self.args[1].encode()
         yield ')'
 
 
 class Equal(RelationalExpression):
-    _relation: str = Symbol.EQUAL
+    operator: str = Symbol.EQUAL
 
 
 class Distinct(RelationalExpression):
-    _relation: str = Symbol.DISTINCT
+    operator: str = Symbol.DISTINCT
 
 
 class LessThan(RelationalExpression):
-    _relation: str = Symbol.LESS_THAN
+    operator: str = Symbol.LESS_THAN
 
 
 class LessThanOrEqual(RelationalExpression):
-    _relation: str = Symbol.LESS_THAN_OR_EQUAL
+    operator: str = Symbol.LESS_THAN_OR_EQUAL
 
 
 class GreaterThan(RelationalExpression):
-    _relation: str = Symbol.GREATER_THAN
+    operator: str = Symbol.GREATER_THAN
 
 
 class GreaterThanOrEqual(RelationalExpression):
-    _relation: str = Symbol.GREATER_THAN_OR_EQUAL
+    operator: str = Symbol.GREATER_THAN_OR_EQUAL
 
 
 # -- Numeric expression ----------------------------------------------------
 
-class NumericExpression(Expression):
+class NumericExpression(BooleanExpression):
     """Abstract base class for numeric expressions."""
 
 
 class BuiltInCall(NumericExpression):
     """Abstract base class for built-in calls."""
 
-    _function: str
-    _args: Sequence[NumericExpression]
-
-    __slots__ = (
-        '_function',
-        '_args',
-    )
-
-    @property
-    def function(self) -> str:
-        return self.get_function()
-
-    def get_function(self) -> str:
-        return self._function
-
-    @property
-    def args(self) -> Sequence[NumericExpression]:
-        return self.get_args()
-
-    def get_args(self) -> Sequence[NumericExpression]:
-        return self._args
+    operator: str
+    args: Sequence[NumericExpression]
 
     @override
     def iterencode(self) -> TGenStr:
-        yield self.function
+        yield self.operator
         yield '('
-        for arg in self.args:
-            yield from arg.iterencode()
+        yield ', '.join(map(Encodable.encode, self.args))
         yield ')'
 
 
 class UnaryBuiltInCall(BuiltInCall):
     """Abstract base class for 1-ary built-in calls."""
 
-    def __init__(self, arg: NumericExpression):
-        self._args = (arg,)
+    def __init__(self, arg: TNumericExpression):
+        self.args = (Coerce.numeric_expression(arg),)
 
 
 class BinaryBuiltInCall(BuiltInCall):
     """Abstract base class for 2-ary built-in calls."""
 
-    def __init__(self, arg1: NumericExpression, arg2: NumericExpression):
-        self._args = (arg1, arg2)
+    def __init__(self, arg1: TNumericExpression, arg2: TNumericExpression):
+        self.args = (
+            Coerce.numeric_expression(arg1),
+            Coerce.numeric_expression(arg2))
 
 
 class STR(UnaryBuiltInCall):
-    _function: str = 'str'
+    operator: str = 'str'
+
+
+class STRSTARTS(BinaryBuiltInCall):
+    operator: str = 'strstarts'
 
 
 class NumericLiteral(NumericExpression):
@@ -392,39 +340,16 @@ class NumericLiteral(NumericExpression):
 class Pattern(Encodable):
     """Abstract base class for patterns."""
 
-    _query: 'Query'
-    _parent: Optional['GraphPattern']
-
-    __slots__ = (
-        '_query',
-        '_parent',
-        '_level',
-    )
+    query: 'Query'
+    parent: Optional['GraphPattern']
 
     def __init__(
             self,
             query: 'Query',
             parent: Optional['GraphPattern'] = None
     ):
-        self._query = query
-        self._parent = parent
-
-    @property
-    def query(self) -> 'Query':
-        return self.get_query()
-
-    def get_query(self) -> 'Query':
-        return self._query
-
-    @property
-    def parent(self) -> Optional['GraphPattern']:
-        return self.get_parent()
-
-    def get_parent(
-            self,
-            default: Optional['GraphPattern'] = None
-    ) -> Optional['GraphPattern']:
-        return self._parent if self._parent is not None else default
+        self.query = query
+        self.parent = parent
 
 
 # -- Bind ------------------------------------------------------------------
@@ -432,13 +357,8 @@ class Pattern(Encodable):
 class Bind(Pattern):
     """Bind pattern."""
 
-    _expression: Expression
-    _variable: Variable
-
-    __slots__ = (
-        '_expression',
-        '_variable',
-    )
+    expression: Expression
+    variable: Variable
 
     def __init__(
             self,
@@ -448,28 +368,14 @@ class Bind(Pattern):
             parent: Optional['GraphPattern'] = None
     ):
         super().__init__(query, parent)
-        self._expression = Coerce.expression(expression)
-        self._variable = Coerce.variable(variable)
-
-    @property
-    def expression(self) -> Expression:
-        return self.get_expression()
-
-    def get_expression(self) -> Expression:
-        return self._expression
-
-    @property
-    def variable(self) -> Variable:
-        return self.get_variable()
-
-    def get_variable(self) -> Variable:
-        return self._variable
+        self.expression = Coerce.expression(expression)
+        self.variable = Coerce.variable(variable)
 
     @override
     def iterencode(self) -> TGenStr:
         yield Symbol.BIND
         yield ' ('
-        yield from self.expression.iterencode()
+        yield self.expression.encode()
         yield ' '
         yield Symbol.AS
         yield ' '
@@ -482,11 +388,7 @@ class Bind(Pattern):
 class DataBlockLine(Pattern):
     """Data block line pattern."""
 
-    _args: Sequence[TDataBlockValue]
-
-    __slots__ = (
-        '_args',
-    )
+    args: Sequence[TDataBlockValue]
 
     def __init__(
             self,
@@ -495,25 +397,14 @@ class DataBlockLine(Pattern):
             parent: Optional['GraphPattern'] = None
     ):
         super().__init__(query, parent)
-        self._args = tuple(map(Coerce.data_block_value, args))
-
-    @property
-    def args(self) -> Sequence[TDataBlockValue]:
-        return self.get_args()
-
-    def get_args(self) -> Sequence[TDataBlockValue]:
-        return self._args
+        self.args = tuple(map(Coerce.data_block_value, args))
 
     @override
     def iterencode(self) -> TGenStr:
         yield '('
-        for i, value in enumerate(self.args, 1):
-            if i > 1:
-                yield ' '
-            if value is None:
-                yield Symbol.UNDEF
-            else:
-                yield self._n3(value)
+        yield ' '.join(map(
+            lambda arg: self._n3(arg) if arg is not None else Symbol.UNDEF,
+            self.args))
         yield ')'
 
 
@@ -522,11 +413,7 @@ class DataBlockLine(Pattern):
 class Filter(Pattern):
     """Filter pattern."""
 
-    _expression: Expression
-
-    __slots__ = (
-        '_expression',
-    )
+    expression: Expression
 
     def __init__(
             self,
@@ -535,20 +422,13 @@ class Filter(Pattern):
             parent: Optional['GraphPattern'] = None
     ):
         super().__init__(query, parent)
-        self._expression = Coerce.expression(expression)
-
-    @property
-    def expression(self) -> Expression:
-        return self.get_expression()
-
-    def get_expression(self) -> Expression:
-        return self._expression
+        self.expression = Coerce.expression(expression)
 
     @override
     def iterencode(self) -> TGenStr:
         yield Symbol.FILTER
         yield ' ('
-        yield from self.expression.iterencode()
+        yield self.expression.encode()
         yield ')'
 
 
@@ -557,15 +437,9 @@ class Filter(Pattern):
 class Triple(Pattern):
     """Triple pattern."""
 
-    _subject: TSubject
-    _predicate: TPredicate
-    _object: TObject
-
-    __slots__ = (
-        '_subject',
-        '_predicate',
-        '_object',
-    )
+    subject: TSubject
+    predicate: TPredicate
+    object: TObject
 
     def __init__(
             self,
@@ -576,30 +450,9 @@ class Triple(Pattern):
             parent: Optional['GraphPattern'] = None
     ):
         super().__init__(query, parent)
-        self._subject = Coerce.subject(subject)
-        self._predicate = Coerce.predicate(predicate)
-        self._object = Coerce.object(object)
-
-    @property
-    def subject(self) -> TSubject:
-        return self.get_subject()
-
-    def get_subject(self) -> TSubject:
-        return self._subject
-
-    @property
-    def predicate(self) -> TPredicate:
-        return self.get_predicate()
-
-    def get_predicate(self) -> TPredicate:
-        return self._predicate
-
-    @property
-    def object(self) -> TObject:
-        return self.get_object()
-
-    def get_object(self) -> TObject:
-        return self._object
+        self.subject = Coerce.subject(subject)
+        self.predicate = Coerce.predicate(predicate)
+        self.object = Coerce.object(object)
 
     @override
     def iterencode(self) -> TGenStr:
@@ -616,17 +469,10 @@ class Triple(Pattern):
 class GraphPattern(Pattern):
     """Abstract base class for graph patterns."""
 
-    _binds: MutableSequence[Bind]
-    _filters: MutableSequence[Filter]
-    _triples: MutableSequence[Triple]
-    _children: MutableSequence['GraphPattern']
-
-    __slots__ = (
-        '_binds',
-        '_filters',
-        '_triples',
-        '_children',
-    )
+    binds: MutableSequence[Bind]
+    filters: MutableSequence[Filter]
+    triples: MutableSequence[Triple]
+    children: MutableSequence['GraphPattern']
 
     def __init__(
             self,
@@ -634,10 +480,10 @@ class GraphPattern(Pattern):
             parent: Optional['GraphPattern'] = None
     ):
         super().__init__(query, parent)
-        self._binds = list()
-        self._filters = list()
-        self._triples = list()
-        self._children = list()
+        self.binds = list()
+        self.filters = list()
+        self.triples = list()
+        self.children = list()
 
     def __enter__(self):
         return self.query._begin(self)
@@ -648,62 +494,38 @@ class GraphPattern(Pattern):
         else:
             raise err_val
 
-    @property
-    def binds(self) -> Sequence[Bind]:
-        return self.get_binds()
-
-    def get_binds(self) -> Sequence[Bind]:
-        return self._binds
-
     def add_bind(self, bind: Bind) -> Bind:
-        return cast(Bind, self._add(bind, self._binds))
-
-    @property
-    def filters(self) -> Sequence[Filter]:
-        return self.get_filters()
-
-    def get_filters(self) -> Sequence[Filter]:
-        return self._filters
+        return cast(Bind, self._add(bind, self.binds))
 
     def add_filter(self, filter: Filter) -> Filter:
-        return cast(Filter, self._add(filter, self._filters))
-
-    @property
-    def triples(self) -> Sequence[Triple]:
-        return self.get_triples()
-
-    def get_triples(self) -> Sequence[Triple]:
-        return self._triples
+        return cast(Filter, self._add(filter, self.filters))
 
     def add_triple(self, triple: Triple) -> Triple:
-        return cast(Triple, self._add(triple, self._triples))
-
-    @property
-    def children(self) -> Sequence['GraphPattern']:
-        return self.get_children()
-
-    def get_children(self) -> Sequence['GraphPattern']:
-        return self._children
+        return cast(Triple, self._add(triple, self.triples))
 
     def add_child(self, child: 'GraphPattern') -> 'GraphPattern':
-        return cast(GraphPattern, self._add(child, self._children))
+        return cast(GraphPattern, self._add(child, self.children))
 
     def _add(self, child: Pattern, dest: MutableSequence[Any]) -> Pattern:
         assert child.query == self.query
         assert child.parent is None
-        child._parent = self
+        child.parent = self
         dest.append(child)
         return child
 
     def _subs(self) -> Iterator[Pattern]:
-        return chain(self.triples, self.children, self.binds, self.filters)
+        return chain(
+            self.triples,
+            self.children,
+            self.binds,
+            self.filters)
 
     @override
     def iterencode(self) -> TGenStr:
         yield from self._iterencode(0)
 
     def _iterencode(self, n: int) -> TGenStr:
-        yield from self._indent(n)
+        yield self._indent(n)
         yield from self._iterencode_start(n)
         for i, sub in enumerate(self._subs(), 1):
             if i > 1:
@@ -712,16 +534,17 @@ class GraphPattern(Pattern):
             if isinstance(sub, GraphPattern):
                 yield from sub._iterencode(n + 1)
             elif isinstance(sub, Pattern):
-                yield from self._indent(n + 1)
+                yield self._indent(n + 1)
                 yield from sub.iterencode()
             else:
                 raise RuntimeError('should not get here')
             yield from self._iterencode_sub_end(sub, i, n)
-        yield from self._indent(n)
+        yield self._indent(n)
         yield from self._iterencode_end(n)
 
-    def _indent(self, n: int) -> TGenStr:
-        yield Symbol.INDENT * n
+    @cache
+    def _indent(self, n: int) -> str:
+        return Symbol.INDENT * n
 
     def _iterencode_start(self, n: int) -> TGenStr:
         yield '{\n'
@@ -803,13 +626,8 @@ class UnionGraphPattern(GraphPattern):
 class ValuesGraphPattern(GraphPattern):
     """Values graph pattern."""
 
-    _variables: Sequence[Variable]
-    _data_block_lines: MutableSequence[DataBlockLine]
-
-    __slots__ = (
-        '_variables',
-        '_data_block_lines',
-    )
+    variables: Sequence[Variable]
+    lines: MutableSequence[DataBlockLine]
 
     def __init__(
             self,
@@ -819,9 +637,9 @@ class ValuesGraphPattern(GraphPattern):
             parent: Optional['GraphPattern'] = None
     ):
         super().__init__(query, parent)
-        self._variables = tuple(map(
+        self.variables = tuple(map(
             Coerce.variable, chain((variable,), variables)))
-        self._data_block_lines = list()
+        self.lines = list()
 
     @override
     def add_bind(self, bind: Bind) -> Bind:
@@ -839,29 +657,15 @@ class ValuesGraphPattern(GraphPattern):
     def add_child(self, child: GraphPattern) -> GraphPattern:
         raise SyntaxError('cannot add child patterns here')
 
-    @property
-    def variables(self) -> Sequence[Variable]:
-        return self.get_variables()
-
-    def get_variables(self) -> Sequence[Variable]:
-        return self._variables
-
-    @property
-    def data_block_lines(self) -> Sequence[DataBlockLine]:
-        return self.get_data_block_lines()
-
-    def get_data_block_lines(self) -> Sequence[DataBlockLine]:
-        return self._data_block_lines
-
-    def add_data_block_line(self, line: DataBlockLine) -> DataBlockLine:
+    def add_line(self, line: DataBlockLine) -> DataBlockLine:
         if len(line.args) < len(self.variables):
             raise ValueError('bad values line (too many values)')
         elif len(line.args) > len(self.variables):
             raise ValueError('bad values line (not enough values)')
-        return cast(DataBlockLine, self._add(line, self._data_block_lines))
+        return cast(DataBlockLine, self._add(line, self.lines))
 
     def _subs(self) -> Iterator[Pattern]:
-        return iter(self.data_block_lines)
+        return iter(self.lines)
 
     @override
     def _iterencode_start(self, n: int) -> TGenStr:
@@ -871,10 +675,13 @@ class ValuesGraphPattern(GraphPattern):
         yield ') {\n'
 
 
+# == Clause ================================================================
+
+
 # == Query =================================================================
 
 class Query(Encodable):
-    """SPARQL builder.
+    """SPARQL query builder.
 
     See <https://www.w3.org/TR/sparql11-query/#grammar>.
     """
@@ -893,92 +700,244 @@ class Query(Encodable):
 
     @property
     def root(self) -> GroupGraphPattern:
+        """The root graph pattern."""
         return self.get_root()
 
     def get_root(self) -> GroupGraphPattern:
+        """Gets the root graph pattern.
+
+        Returns:
+           The root graph pattern.
+        """
         return self._root
 
     @property
     def current(self) -> GraphPattern:
+        """The currently targeted graph pattern."""
         return self.get_current()
 
     def get_current(self) -> GraphPattern:
+        """Gets the currently targeted graph pattern.
+
+        Returns:
+           The currently targeted graph pattern.
+        """
         return self._current
 
     def uri(self, content: T_URI) -> URIRef:
+        """Constructs :class:`URIRef`.
+
+        Parameters:
+           content: URI content.
+
+        Returns:
+           :class:`URIRef`.
+        """
         return Coerce.uri(content)
 
     def bnode(self) -> BNode:
+        """Constructs :class:`BNode`.
+
+        Returns:
+           :class:`BNode`.
+        """
         return BNode()
 
     def var(self, name: TVariable) -> Variable:
+        """Constructs :class:`Variable`.
+
+        Returns:
+           :class:`Variable`.
+        """
         return Coerce.variable(name)
 
-    def triple(self, s: TSubject, p: TPredicate, o: TObject) -> 'Query':
-        self.current.add_triple(Triple(s, p, o, self))
+    def triple(
+            self,
+            subject: TSubject,
+            predicate: TPredicate,
+            object: TObject
+    ) -> 'Query':
+        """Pushes triple pattern.
+
+        Parameters:
+           subject: Subject.
+           predicate: Predicate.
+           object: Object.
+
+        Returns:
+           :class:`Query`.
+        """
+        self.current.add_triple(Triple(subject, predicate, object, self))
         return self
 
     def triples(self, *triples: TTriple) -> 'Query':
+        """Pushes triple patterns.
+
+        Parameters:
+           triples: Triples.
+
+        Returns:
+           :class:`Query`.
+        """
         for triple in triples:
             self.triple(*Coerce.triple(triple))
         return self
 
     def bind(self, expression: TExpression, variable: TVariable) -> 'Query':
+        """Pushes BIND.
+
+        Parameters:
+           expression: Expression.
+           variable: Variable.
+
+        Returns:
+           :class:`Query`.
+        """
         self.current.add_bind(Bind(expression, variable, self))
         return self
 
     def filter(self, expression: TExpression) -> 'Query':
+        """Pushes FILTER.
+
+        Parameters:
+           expression: Expression.
+
+        Returns:
+           :class:`Query`.
+        """
         self.current.add_filter(Filter(expression, self))
         return self
 
     def group(self) -> GroupGraphPattern:
+        """Constructs group graph pattern.
+
+        Returns:
+           :class:`GroupGraphPattern` owned by query.
+        """
         return GroupGraphPattern(self)
 
     def optional(self) -> OptionalGraphPattern:
+        """Constructs optional graph pattern.
+
+        Returns:
+           :class:`OptionalGraphPattern` owned by query.
+        """
         return OptionalGraphPattern(self)
 
     def union(self) -> UnionGraphPattern:
+        """Constructs union graph pattern.
+
+        Returns:
+           :class:`UnionGraphPattern` owned by query.
+        """
         return UnionGraphPattern(self)
 
-    def values(self, *vars: TVariable) -> ValuesGraphPattern:
-        return ValuesGraphPattern(*vars, query=self)
+    def values(self, *variables: TVariable) -> ValuesGraphPattern:
+        """Constructs "values" graph pattern.
+
+        Parameters:
+           variables: Variables.
+
+        Returns:
+           :class:`ValuesGraphPattern` owned by query.
+        """
+        return ValuesGraphPattern(*variables, query=self)
 
     def begin_group(self) -> GroupGraphPattern:
+        """Pushes group graph pattern.
+
+        Returns:
+           :class:`GroupGraphPattern`.
+        """
         return cast(GroupGraphPattern, self._begin(self.group()))
 
     def end_group(self) -> GroupGraphPattern:
+        """Pops group graph pattern.
+
+        Returns:
+           :class:`GroupGraphPattern`.
+        """
         assert isinstance(self.current, GroupGraphPattern)
         return cast(GroupGraphPattern, self._end())
 
     def begin_optional(self) -> OptionalGraphPattern:
+        """Pushes optional graph pattern.
+
+        Returns:
+           :class:`OptionalGraphPattern`.
+        """
         return cast(OptionalGraphPattern, self._begin(self.optional()))
 
     def end_optional(self) -> OptionalGraphPattern:
+        """Pops optional graph pattern.
+
+        Returns:
+           :class:`OptionalGraphPattern`.
+        """
         assert isinstance(self.current, OptionalGraphPattern)
         return cast(OptionalGraphPattern, self._end())
 
     def begin_union(self) -> UnionGraphPattern:
+        """Pushes union graph pattern.
+
+        Returns:
+           :class:`UnionGraphPattern`.
+        """
         return cast(UnionGraphPattern, self._begin(self.union()))
 
     def end_union(self) -> UnionGraphPattern:
+        """Pops union graph pattern.
+
+        Returns:
+           :class:`UnionGraphPattern`.
+        """
         assert isinstance(self.current, UnionGraphPattern)
         return cast(UnionGraphPattern, self._end())
 
-    def begin_values(self, *vars: TVariable) -> ValuesGraphPattern:
-        return cast(ValuesGraphPattern, self._begin(self.values(*vars)))
+    def begin_values(self, *variables: TVariable) -> ValuesGraphPattern:
+        """Pushes "values" graph pattern.
+
+        Parameters:
+           variables: Variables.
+
+        Returns:
+           :class:`ValuesGraphPattern`.
+        """
+        return cast(ValuesGraphPattern, self._begin(self.values(*variables)))
 
     def line(self, *values: TDataBlockValue) -> 'Query':
+        """Pushes "values" line.
+
+        Parameters:
+           values: Line values.
+
+        Returns:
+           :class:`Query`.
+        """
         assert isinstance(self.current, ValuesGraphPattern)
         current = cast(ValuesGraphPattern, self.current)
-        current.add_data_block_line(DataBlockLine(*values, query=self))
+        current.add_line(DataBlockLine(*values, query=self))
         return self
 
     def lines(self, *lines: TDataBlockLine) -> 'Query':
+        """Pushes "values" lines.
+
+        Parameters:
+           lines: Lines.
+
+        Returns:
+           :class:`Query`.
+        """
         for line in lines:
             self.line(*Coerce.data_block_line(line))
         return self
 
     def end_values(self) -> ValuesGraphPattern:
+        """Pops "values" graph pattern.
+
+        Returns:
+           :class:`ValuesGraphPattern`.
+        """
         assert isinstance(self.current, ValuesGraphPattern)
         return cast(ValuesGraphPattern, self._end())
 
@@ -996,4 +955,4 @@ class Query(Encodable):
 
     @override
     def iterencode(self) -> TGenStr:
-        yield from self.root.iterencode()
+        yield self.root.encode()
