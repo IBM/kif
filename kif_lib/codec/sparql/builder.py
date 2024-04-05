@@ -11,7 +11,6 @@ import datetime
 import decimal
 from abc import ABC, abstractmethod
 from collections.abc import Generator, Iterator, MutableSequence, Sequence
-from copy import deepcopy
 from functools import cache
 from itertools import chain
 from typing import Any, cast, Final, Optional, TypeVar, Union
@@ -34,7 +33,6 @@ TNumericLiteral: TypeAlias = Union[
 TNumericExpression: TypeAlias = Union['NumericExpression', TNumericLiteral]
 TExpression: TypeAlias = Union['Expression', TNumericExpression]
 
-
 TSubject: TypeAlias = Union[URIRef, BNode, Variable]
 TPredicate: TypeAlias = TSubject
 TObject: TypeAlias = Union[TSubject, Literal]
@@ -42,6 +40,8 @@ TTriple: TypeAlias = tuple[TSubject, TPredicate, TObject]
 
 TDataBlockValue: TypeAlias = Optional[Union[URIRef, Literal]]
 TDataBlockLine: TypeAlias = Sequence[TDataBlockValue]
+
+TInlineBind: TypeAlias = tuple[TExpression, TVariable]
 
 
 # == Prelude ===============================================================
@@ -82,10 +82,14 @@ class Symbol:
     INDENT: Final[str] = '  '
     LESS_THAN: Final[str] = '<'
     LESS_THAN_OR_EQUAL: Final[str] = '<='
+    LIMIT: Final[str] = 'LIMIT'
     NOT_EQUAL: Final[str] = '!='
+    OFFSET: Final[str] = 'OFFSET'
     OPTIONAL: Final[str] = 'OPTIONAL'
     OR: Final[str] = '||'
+    REDUCED: Final[str] = 'REDUCED'
     SELECT: Final[str] = 'SELECT'
+    STAR: Final[str] = '*'
     STR: Final[str] = 'STR'
     UNDEF: Final[str] = 'UNDEF'
     UNION: Final[str] = 'UNION'
@@ -378,13 +382,18 @@ class Bind(Pattern):
 
     @override
     def iterencode(self) -> TGenStr:
-        yield Symbol.BIND
-        yield ' ('
+        yield from self._iterencode()
+
+    def _iterencode(self, omit_bind_symbol: bool = False) -> TGenStr:
+        if not omit_bind_symbol:
+            yield Symbol.BIND
+            yield ' '
+        yield '('
         yield self.expression.encode()
         yield ' '
         yield Symbol.AS
         yield ' '
-        yield from self._n3(self.variable)
+        yield self._n3(self.variable)
         yield ')'
 
 
@@ -716,9 +725,45 @@ class AskClause(Clause):
 class SelectClause(Clause):
     """SELECT clause."""
 
+    variables: Sequence[Union[Variable, Bind]]
+    distinct: bool
+    reduced: bool
+
+    def __init__(
+            self,
+            *variables: Union[TVariable, TInlineBind],
+            distinct: Optional[bool] = None,
+            reduced: Optional[bool] = None
+    ):
+        super().__init__()
+        self.variables = tuple(map(
+            lambda v: Bind(*v, self)
+            if isinstance(v, tuple) else Coerce.variable(v),
+            variables))
+        self.distinct = distinct if distinct is not None else False
+        self.reduced = reduced if reduced is not None else False
+
     @override
     def iterencode(self):
         yield Symbol.SELECT
+        if self.distinct:
+            yield ' '
+            yield Symbol.DISTINCT
+        elif self.reduced:
+            yield ' '
+            yield Symbol.REDUCED
+        if not self.variables:
+            yield ' '
+            yield Symbol.STAR
+        else:
+            for i, var in enumerate(self.variables, 1):
+                yield ' '
+                if isinstance(var, Variable):
+                    yield self._n3(var)
+                elif isinstance(var, Bind):
+                    yield from var._iterencode(omit_bind_symbol=True)
+                else:
+                    raise RuntimeError('should not get here')
 
 
 class WhereClause(Clause):
@@ -732,18 +777,72 @@ class WhereClause(Clause):
         yield '\n'
         yield self.root.encode()
 
+
+class LimitClause(Clause):
+    """LIMIT clause."""
+
+    limit: Optional[int]
+
+    def __init__(self, limit: Optional[int] = None):
+        super().__init__()
+        self.limit = limit
+
+    @override
+    def iterencode(self):
+        if self.limit is not None:
+            yield Symbol.LIMIT
+            yield ' '
+            yield str(self.limit)
+
+
+class OffsetClause(Clause):
+    """OFFSET clause."""
+
+    offset: Optional[int]
+
+    def __init__(self, offset: Optional[int] = None):
+        super().__init__()
+        self.offset = offset
+
+    @override
+    def iterencode(self):
+        if self.offset is not None:
+            yield Symbol.OFFSET
+            yield ' '
+            yield str(self.offset)
+
 
 # == Query =================================================================
 
 class Query(Encodable):
     """Abstract base class for queries."""
 
-    where: WhereClause          # WHERE clause
-    clause: Clause              # currently targeted clause
+    clause: Clause
+    where: WhereClause
+    _limit: LimitClause
+    _offset: OffsetClause
 
+    @abstractmethod
+    def __init__(
+            self,
+            limit: Optional[int] = None,
+            offset: Optional[int] = None,
+            where: Optional[WhereClause] = None
+    ):
+        self.where = where if where is not None else WhereClause()
+        self.clause = self.where
+        self._limit = LimitClause(limit)
+        self._offset = OffsetClause(offset)
+
+    @override
+    def iterencode(self) -> TGenStr:
+        yield self.where.encode()
+        for s in filter(bool, map(
+                Encodable.encode, (self._limit, self._offset))):
+            yield '\n'
+            yield s
 
 # -- Term constructors -----------------------------------------------------
-
 
     def uri(self, content: T_URI) -> URIRef:
         """Constructs :class:`URIRef`.
@@ -968,31 +1067,81 @@ class Query(Encodable):
         assert isinstance(self.clause.current, ValuesGraphPattern)
         return cast(ValuesGraphPattern, self.clause._end())
 
+# -- Solution modifiers ----------------------------------------------------
+
+    @property
+    def limit(self) -> Optional[int]:
+        """The LIMIT modifier."""
+        return self._limit.limit
+
+    @limit.setter
+    def limit(self, limit: Optional[int]):
+        self._limit.limit = limit
+
+    @property
+    def offset(self) -> Optional[int]:
+        """The OFFSET modifier."""
+        return self._offset.offset
+
+    @offset.setter
+    def offset(self, offset: Optional[int]):
+        self._offset.offset = offset
+
 # -- Query conversion ------------------------------------------------------
 
-    def ask(self, deepcopy=True) -> 'AskQuery':
+    def ask(
+            self,
+            limit: Optional[int] = None,
+            offset: Optional[int] = None,
+            deepcopy: bool = True
+    ) -> 'AskQuery':
         """Converts query to an ASK query.
 
         Parameters:
+           limit: Limit.
+           offset: Offset.
            deepcopy: Whether to deep-copy the common clauses.
 
         Returns:
            :class:`AskQuery`.
         """
-        return AskQuery(where=self._deepcopy(deepcopy, self.where))
+        return AskQuery(
+            limit=limit if limit is not None else self._limit.limit,
+            offset=offset if offset is not None else self._offset.offset,
+            where=self._deepcopy(deepcopy, self.where))
 
-    def select(self, deepcopy=True) -> 'SelectQuery':
+    def select(
+            self,
+            *variables: Union[TVariable, TInlineBind],
+            distinct: Optional[bool] = None,
+            reduced: Optional[bool] = None,
+            limit: Optional[int] = None,
+            offset: Optional[int] = None,
+            deepcopy: bool = True,
+    ) -> 'SelectQuery':
         """Converts query to a SELECT query.
 
         Parameters:
+           variables: Variables or inline binds.
+           distinct: Whether to enable distinct modifier.
+           reduced: Whether to enable reduced modifier.
+           limit: Limit.
+           offset: Offset.
            deepcopy: Whether to deep-copy the common clauses.
 
         Returns:
            :class:`SelectQuery`.
         """
-        return SelectQuery(where=self._deepcopy(deepcopy, self.where))
+        return SelectQuery(
+            *variables,
+            distinct=distinct,
+            reduced=reduced,
+            limit=limit if limit is not None else self._limit.limit,
+            offset=offset if offset is not None else self._offset.offset,
+            where=self._deepcopy(deepcopy, self.where))
 
     def _deepcopy(self, do_it: bool, v: T) -> T:
+        from copy import deepcopy
         return deepcopy(v) if do_it else v
 
 
@@ -1003,16 +1152,20 @@ class AskQuery(Query):
 
     _ask: AskClause
 
-    def __init__(self, where: Optional[WhereClause] = None):
+    def __init__(
+            self,
+            limit: Optional[int] = None,
+            offset: Optional[int] = None,
+            where: Optional[WhereClause] = None
+    ):
+        super().__init__(limit=limit, offset=offset, where=where)
         self._ask = AskClause()
-        self.where = where if where is not None else WhereClause()
-        self.clause = self.where
 
     @override
     def iterencode(self) -> TGenStr:
         yield self._ask.encode()
         yield ' '
-        yield self.where.encode()
+        yield from super().iterencode()
 
 
 class SelectQuery(Query):
@@ -1022,15 +1175,37 @@ class SelectQuery(Query):
 
     def __init__(
             self,
-            select: Optional[SelectClause] = None,
+            *variables: Union[TVariable, tuple[TExpression, TVariable]],
+            distinct: Optional[bool] = None,
+            reduced: Optional[bool] = None,
+            limit: Optional[int] = None,
+            offset: Optional[int] = None,
             where: Optional[WhereClause] = None
     ):
-        self._select = select if select is not None else SelectClause()
-        self.where = where if where is not None else WhereClause()
-        self.clause = self.where
+        super().__init__(limit=limit, offset=offset, where=where)
+        self._select = SelectClause(
+            *variables, distinct=distinct, reduced=reduced)
+
+    @property
+    def distinct(self) -> bool:
+        """The DISTINCT modifier."""
+        return self._select.distinct
+
+    @distinct.setter
+    def distinct(self, distinct: bool):
+        self._select.distinct = distinct
+
+    @property
+    def reduced(self) -> bool:
+        """The REDUCED modifier."""
+        return self._select.reduced
+
+    @reduced.setter
+    def reduced(self, reduced: bool):
+        self._select.reduced = reduced
 
     @override
     def iterencode(self) -> TGenStr:
         yield self._select.encode()
         yield ' '
-        yield self.where.encode()
+        yield from super().iterencode()
