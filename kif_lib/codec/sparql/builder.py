@@ -11,6 +11,7 @@ import datetime
 import decimal
 from abc import ABC, abstractmethod
 from collections.abc import Generator, Iterator, MutableSequence, Sequence
+from copy import deepcopy
 from functools import cache
 from itertools import chain
 from typing import Any, cast, Final, Optional, TypeVar, Union
@@ -71,8 +72,9 @@ class Symbol:
 
     AND: Final[str] = '&&'
     AS: Final[str] = 'AS'
+    ASK: Final[str] = 'ASK'
     BIND: Final[str] = 'BIND'
-    DISTINCT: Final[str] = '!='
+    DISTINCT: Final[str] = 'DISTINCT'
     EQUAL: Final[str] = '='
     FILTER: Final[str] = 'FILTER'
     GREATER_THAN: Final[str] = '>'
@@ -80,12 +82,15 @@ class Symbol:
     INDENT: Final[str] = '  '
     LESS_THAN: Final[str] = '<'
     LESS_THAN_OR_EQUAL: Final[str] = '<='
+    NOT_EQUAL: Final[str] = '!='
     OPTIONAL: Final[str] = 'OPTIONAL'
     OR: Final[str] = '||'
+    SELECT: Final[str] = 'SELECT'
     STR: Final[str] = 'STR'
     UNDEF: Final[str] = 'UNDEF'
     UNION: Final[str] = 'UNION'
     VALUES: Final[str] = 'VALUES'
+    WHERE: Final[str] = 'WHERE'
 
 
 class Coerce:
@@ -251,8 +256,8 @@ class Equal(RelationalExpression):
     operator: str = Symbol.EQUAL
 
 
-class Distinct(RelationalExpression):
-    operator: str = Symbol.DISTINCT
+class NotEqual(RelationalExpression):
+    operator: str = Symbol.NOT_EQUAL
 
 
 class LessThan(RelationalExpression):
@@ -340,15 +345,15 @@ class NumericLiteral(NumericExpression):
 class Pattern(Encodable):
     """Abstract base class for patterns."""
 
-    query: 'Query'
+    clause: 'Clause'
     parent: Optional['GraphPattern']
 
     def __init__(
             self,
-            query: 'Query',
+            clause: 'Clause',
             parent: Optional['GraphPattern'] = None
     ):
-        self.query = query
+        self.clause = clause
         self.parent = parent
 
 
@@ -364,10 +369,10 @@ class Bind(Pattern):
             self,
             expression: TExpression,
             variable: TVariable,
-            query: 'Query',
+            clause: 'Clause',
             parent: Optional['GraphPattern'] = None
     ):
-        super().__init__(query, parent)
+        super().__init__(clause, parent)
         self.expression = Coerce.expression(expression)
         self.variable = Coerce.variable(variable)
 
@@ -393,10 +398,10 @@ class DataBlockLine(Pattern):
     def __init__(
             self,
             *args: TDataBlockValue,
-            query: 'Query',
+            clause: 'Clause',
             parent: Optional['GraphPattern'] = None
     ):
-        super().__init__(query, parent)
+        super().__init__(clause, parent)
         self.args = tuple(map(Coerce.data_block_value, args))
 
     @override
@@ -418,10 +423,10 @@ class Filter(Pattern):
     def __init__(
             self,
             expression: TExpression,
-            query: 'Query',
+            clause: 'Clause',
             parent: Optional['GraphPattern'] = None
     ):
-        super().__init__(query, parent)
+        super().__init__(clause, parent)
         self.expression = Coerce.expression(expression)
 
     @override
@@ -446,10 +451,10 @@ class Triple(Pattern):
             subject: TSubject,
             predicate: TPredicate,
             object: TObject,
-            query: 'Query',
+            clause: 'Clause',
             parent: Optional['GraphPattern'] = None
     ):
-        super().__init__(query, parent)
+        super().__init__(clause, parent)
         self.subject = Coerce.subject(subject)
         self.predicate = Coerce.predicate(predicate)
         self.object = Coerce.object(object)
@@ -476,21 +481,21 @@ class GraphPattern(Pattern):
 
     def __init__(
             self,
-            query: 'Query',
+            clause: 'Clause',
             parent: Optional['GraphPattern'] = None
     ):
-        super().__init__(query, parent)
+        super().__init__(clause, parent)
         self.binds = list()
         self.filters = list()
         self.triples = list()
         self.children = list()
 
     def __enter__(self):
-        return self.query._begin(self)
+        return self.clause._begin(self)
 
     def __exit__(self, err_type, err_val, err_bt):
         if err_val is None:
-            self.query._end()
+            self.clause._end()
         else:
             raise err_val
 
@@ -507,7 +512,7 @@ class GraphPattern(Pattern):
         return cast(GraphPattern, self._add(child, self.children))
 
     def _add(self, child: Pattern, dest: MutableSequence[Any]) -> Pattern:
-        assert child.query == self.query
+        assert child.clause == self.clause
         assert child.parent is None
         child.parent = self
         dest.append(child)
@@ -586,7 +591,7 @@ class GroupGraphPattern(GraphPattern):
 # -- Optional graph pattern ------------------------------------------------
 
 class OptionalGraphPattern(GraphPattern):
-    """Optional graph pattern."""
+    """OPTIONAL graph pattern."""
 
     @override
     def _iterencode_start(self, n: int) -> TGenStr:
@@ -597,7 +602,7 @@ class OptionalGraphPattern(GraphPattern):
 # -- Union graph pattern ---------------------------------------------------
 
 class UnionGraphPattern(GraphPattern):
-    """Union graph pattern."""
+    """UNION graph pattern."""
 
     @override
     def add_triple(self, triple: Triple) -> Triple:
@@ -624,7 +629,7 @@ class UnionGraphPattern(GraphPattern):
 # -- Values pattern --------------------------------------------------------
 
 class ValuesGraphPattern(GraphPattern):
-    """Values graph pattern."""
+    """VALUES graph pattern."""
 
     variables: Sequence[Variable]
     lines: MutableSequence[DataBlockLine]
@@ -633,10 +638,10 @@ class ValuesGraphPattern(GraphPattern):
             self,
             variable: TVariable,
             *variables: TVariable,
-            query: 'Query',
+            clause: 'Clause',
             parent: Optional['GraphPattern'] = None
     ):
-        super().__init__(query, parent)
+        super().__init__(clause, parent)
         self.variables = tuple(map(
             Coerce.variable, chain((variable,), variables)))
         self.lines = list()
@@ -677,52 +682,68 @@ class ValuesGraphPattern(GraphPattern):
 
 # == Clause ================================================================
 
+class Clause(Encodable):
+    """Abstract base class for clauses."""
+
+    root: GraphPattern
+    current: GraphPattern
+
+    def __init__(self):
+        self.root = GroupGraphPattern(self)
+        self.current = self.root
+
+    def _begin(self, pattern: GraphPattern) -> GraphPattern:
+        self.current.add_child(pattern)
+        self.current = pattern
+        return pattern
+
+    def _end(self) -> GraphPattern:
+        saved_current = self.current
+        if self.current != self.root:
+            assert self.current.parent is not None
+            self.current = self.current.parent
+        return saved_current
+
+
+class AskClause(Clause):
+    """ASK clause."""
+
+    @override
+    def iterencode(self):
+        yield Symbol.ASK
+
+
+class SelectClause(Clause):
+    """SELECT clause."""
+
+    @override
+    def iterencode(self):
+        yield Symbol.SELECT
+
+
+class WhereClause(Clause):
+    """WHERE clause."""
+
+    root: GroupGraphPattern
+
+    @override
+    def iterencode(self) -> TGenStr:
+        yield Symbol.WHERE
+        yield '\n'
+        yield self.root.encode()
+
 
 # == Query =================================================================
 
 class Query(Encodable):
-    """SPARQL query builder.
+    """Abstract base class for queries."""
 
-    See <https://www.w3.org/TR/sparql11-query/#grammar>.
-    """
+    where: WhereClause          # WHERE clause
+    clause: Clause              # currently targeted clause
 
-    _root: GroupGraphPattern
-    _current: GraphPattern
+
+# -- Term constructors -----------------------------------------------------
 
-    __slots__ = (
-        '_root',
-        '_current',
-    )
-
-    def __init__(self):
-        self._root = GroupGraphPattern(self)
-        self._current = self.root
-
-    @property
-    def root(self) -> GroupGraphPattern:
-        """The root graph pattern."""
-        return self.get_root()
-
-    def get_root(self) -> GroupGraphPattern:
-        """Gets the root graph pattern.
-
-        Returns:
-           The root graph pattern.
-        """
-        return self._root
-
-    @property
-    def current(self) -> GraphPattern:
-        """The currently targeted graph pattern."""
-        return self.get_current()
-
-    def get_current(self) -> GraphPattern:
-        """Gets the currently targeted graph pattern.
-
-        Returns:
-           The currently targeted graph pattern.
-        """
-        return self._current
 
     def uri(self, content: T_URI) -> URIRef:
         """Constructs :class:`URIRef`.
@@ -750,6 +771,8 @@ class Query(Encodable):
            :class:`Variable`.
         """
         return Coerce.variable(name)
+
+# -- Non-graph patterns ----------------------------------------------------
 
     def triple(
             self,
@@ -767,7 +790,8 @@ class Query(Encodable):
         Returns:
            :class:`Query`.
         """
-        self.current.add_triple(Triple(subject, predicate, object, self))
+        self.clause.current.add_triple(
+            Triple(subject, predicate, object, self.clause))
         return self
 
     def triples(self, *triples: TTriple) -> 'Query':
@@ -793,7 +817,7 @@ class Query(Encodable):
         Returns:
            :class:`Query`.
         """
-        self.current.add_bind(Bind(expression, variable, self))
+        self.clause.current.add_bind(Bind(expression, variable, self.clause))
         return self
 
     def filter(self, expression: TExpression) -> 'Query':
@@ -805,43 +829,45 @@ class Query(Encodable):
         Returns:
            :class:`Query`.
         """
-        self.current.add_filter(Filter(expression, self))
+        self.clause.current.add_filter(Filter(expression, self.clause))
         return self
+
+# -- Graph patterns --------------------------------------------------------
 
     def group(self) -> GroupGraphPattern:
         """Constructs group graph pattern.
 
         Returns:
-           :class:`GroupGraphPattern` owned by query.
+           :class:`GroupGraphPattern` owned by clause.
         """
-        return GroupGraphPattern(self)
+        return GroupGraphPattern(self.clause)
 
     def optional(self) -> OptionalGraphPattern:
-        """Constructs optional graph pattern.
+        """Constructs OPTIONAL graph pattern.
 
         Returns:
-           :class:`OptionalGraphPattern` owned by query.
+           :class:`OptionalGraphPattern` owned by clause.
         """
-        return OptionalGraphPattern(self)
+        return OptionalGraphPattern(self.clause)
 
     def union(self) -> UnionGraphPattern:
-        """Constructs union graph pattern.
+        """Constructs UNION graph pattern.
 
         Returns:
-           :class:`UnionGraphPattern` owned by query.
+           :class:`UnionGraphPattern` owned by clause.
         """
-        return UnionGraphPattern(self)
+        return UnionGraphPattern(self.clause)
 
     def values(self, *variables: TVariable) -> ValuesGraphPattern:
-        """Constructs "values" graph pattern.
+        """Constructs VALUES graph pattern.
 
         Parameters:
            variables: Variables.
 
         Returns:
-           :class:`ValuesGraphPattern` owned by query.
+           :class:`ValuesGraphPattern` owned by clause.
         """
-        return ValuesGraphPattern(*variables, query=self)
+        return ValuesGraphPattern(*variables, clause=self.clause)
 
     def begin_group(self) -> GroupGraphPattern:
         """Pushes group graph pattern.
@@ -849,7 +875,7 @@ class Query(Encodable):
         Returns:
            :class:`GroupGraphPattern`.
         """
-        return cast(GroupGraphPattern, self._begin(self.group()))
+        return cast(GroupGraphPattern, self.clause._begin(self.group()))
 
     def end_group(self) -> GroupGraphPattern:
         """Pops group graph pattern.
@@ -857,45 +883,45 @@ class Query(Encodable):
         Returns:
            :class:`GroupGraphPattern`.
         """
-        assert isinstance(self.current, GroupGraphPattern)
-        return cast(GroupGraphPattern, self._end())
+        assert isinstance(self.clause.current, GroupGraphPattern)
+        return cast(GroupGraphPattern, self.clause._end())
 
     def begin_optional(self) -> OptionalGraphPattern:
-        """Pushes optional graph pattern.
+        """Pushes OPTIONAL graph pattern.
 
         Returns:
            :class:`OptionalGraphPattern`.
         """
-        return cast(OptionalGraphPattern, self._begin(self.optional()))
+        return cast(OptionalGraphPattern, self.clause._begin(self.optional()))
 
     def end_optional(self) -> OptionalGraphPattern:
-        """Pops optional graph pattern.
+        """Pops OPTIONAL graph pattern.
 
         Returns:
            :class:`OptionalGraphPattern`.
         """
-        assert isinstance(self.current, OptionalGraphPattern)
-        return cast(OptionalGraphPattern, self._end())
+        assert isinstance(self.clause.current, OptionalGraphPattern)
+        return cast(OptionalGraphPattern, self.clause._end())
 
     def begin_union(self) -> UnionGraphPattern:
-        """Pushes union graph pattern.
+        """Pushes UNION graph pattern.
 
         Returns:
            :class:`UnionGraphPattern`.
         """
-        return cast(UnionGraphPattern, self._begin(self.union()))
+        return cast(UnionGraphPattern, self.clause._begin(self.union()))
 
     def end_union(self) -> UnionGraphPattern:
-        """Pops union graph pattern.
+        """Pops UNION graph pattern.
 
         Returns:
            :class:`UnionGraphPattern`.
         """
-        assert isinstance(self.current, UnionGraphPattern)
-        return cast(UnionGraphPattern, self._end())
+        assert isinstance(self.clause.current, UnionGraphPattern)
+        return cast(UnionGraphPattern, self.clause._end())
 
     def begin_values(self, *variables: TVariable) -> ValuesGraphPattern:
-        """Pushes "values" graph pattern.
+        """Pushes VALUES graph pattern.
 
         Parameters:
            variables: Variables.
@@ -903,10 +929,11 @@ class Query(Encodable):
         Returns:
            :class:`ValuesGraphPattern`.
         """
-        return cast(ValuesGraphPattern, self._begin(self.values(*variables)))
+        return cast(
+            ValuesGraphPattern, self.clause._begin(self.values(*variables)))
 
     def line(self, *values: TDataBlockValue) -> 'Query':
-        """Pushes "values" line.
+        """Pushes VALUES line.
 
         Parameters:
            values: Line values.
@@ -914,13 +941,13 @@ class Query(Encodable):
         Returns:
            :class:`Query`.
         """
-        assert isinstance(self.current, ValuesGraphPattern)
-        current = cast(ValuesGraphPattern, self.current)
-        current.add_line(DataBlockLine(*values, query=self))
+        assert isinstance(self.clause.current, ValuesGraphPattern)
+        pattern = cast(ValuesGraphPattern, self.clause.current)
+        pattern.add_line(DataBlockLine(*values, clause=self.clause))
         return self
 
     def lines(self, *lines: TDataBlockLine) -> 'Query':
-        """Pushes "values" lines.
+        """Pushes VALUES lines.
 
         Parameters:
            lines: Lines.
@@ -933,26 +960,77 @@ class Query(Encodable):
         return self
 
     def end_values(self) -> ValuesGraphPattern:
-        """Pops "values" graph pattern.
+        """Pops VALUES graph pattern.
 
         Returns:
            :class:`ValuesGraphPattern`.
         """
-        assert isinstance(self.current, ValuesGraphPattern)
-        return cast(ValuesGraphPattern, self._end())
+        assert isinstance(self.clause.current, ValuesGraphPattern)
+        return cast(ValuesGraphPattern, self.clause._end())
+
+# -- Query conversion ------------------------------------------------------
 
-    def _begin(self, pattern: GraphPattern) -> GraphPattern:
-        self.current.add_child(pattern)
-        self._current = pattern
-        return pattern
+    def ask(self, deepcopy=True) -> 'AskQuery':
+        """Converts query to an ASK query.
 
-    def _end(self) -> GraphPattern:
-        saved_current = self.current
-        if self.current != self.root:
-            assert self.current.parent is not None
-            self._current = self.current.parent
-        return saved_current
+        Parameters:
+           deepcopy: Whether to deep-copy the common clauses.
+
+        Returns:
+           :class:`AskQuery`.
+        """
+        return AskQuery(where=self._deepcopy(deepcopy, self.where))
+
+    def select(self, deepcopy=True) -> 'SelectQuery':
+        """Converts query to a SELECT query.
+
+        Parameters:
+           deepcopy: Whether to deep-copy the common clauses.
+
+        Returns:
+           :class:`SelectQuery`.
+        """
+        return SelectQuery(where=self._deepcopy(deepcopy, self.where))
+
+    def _deepcopy(self, do_it: bool, v: T) -> T:
+        return deepcopy(v) if do_it else v
+
+
+# == Concrete query classes ================================================
+
+class AskQuery(Query):
+    """ASK query."""
+
+    _ask: AskClause
+
+    def __init__(self, where: Optional[WhereClause] = None):
+        self._ask = AskClause()
+        self.where = where if where is not None else WhereClause()
+        self.clause = self.where
 
     @override
     def iterencode(self) -> TGenStr:
-        yield self.root.encode()
+        yield self._ask.encode()
+        yield ' '
+        yield self.where.encode()
+
+
+class SelectQuery(Query):
+    """SELECT query."""
+
+    _select: SelectClause
+
+    def __init__(
+            self,
+            select: Optional[SelectClause] = None,
+            where: Optional[WhereClause] = None
+    ):
+        self._select = select if select is not None else SelectClause()
+        self.where = where if where is not None else WhereClause()
+        self.clause = self.where
+
+    @override
+    def iterencode(self) -> TGenStr:
+        yield self._select.encode()
+        yield ' '
+        yield self.where.encode()
