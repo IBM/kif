@@ -55,7 +55,7 @@ VPropertyContent: TypeAlias =\
     Union['IRI_Template', 'IRI_Variable', 'TProperty']
 
 VProperty: TypeAlias =\
-    Union['PropertyTemplate', 'PropertyVariable', TProperty]
+    Union['PropertyTemplate', 'PropertyVariable', 'Property']
 
 # -- Lexeme --
 
