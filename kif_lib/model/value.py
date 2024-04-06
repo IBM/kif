@@ -45,7 +45,7 @@ TItem: TypeAlias = Union['Item', 'T_IRI']
 
 VItemContent: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'TItem']
 
-VItem: TypeAlias = Union['ItemTemplate', 'ItemVariable', TItem]
+VItem: TypeAlias = Union['ItemTemplate', 'ItemVariable', 'Item']
 
 # -- Property --
 
@@ -63,7 +63,7 @@ TLexeme: TypeAlias = Union['Lexeme', 'T_IRI']
 
 VLexemeContent: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'TLexeme']
 
-VLexeme: TypeAlias = Union['LexemeTemplate', 'LexemeVariable', TLexeme]
+VLexeme: TypeAlias = Union['LexemeTemplate', 'LexemeVariable', 'Lexeme']
 
 # -- IRI --
 
@@ -71,7 +71,7 @@ T_IRI: TypeAlias = Union['IRI', 'String', NS.T_URI]
 
 V_IRI_Content: TypeAlias = Union['StringVariable', T_IRI]
 
-V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', T_IRI]
+V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'IRI']
 
 # -- Text --
 
@@ -431,6 +431,13 @@ class EntityTemplate(ValueTemplate):
         else:
             raise self._should_not_get_here()
 
+    @property
+    def iri(self) -> V_IRI:
+        return self.get_iri()
+
+    def get_iri(self) -> V_IRI:
+        return self.args[0]
+
 
 class EntityVariable(ValueVariable):
     """Entity variable.
@@ -697,6 +704,13 @@ class DataValue(Value):
 
 class ShallowDataValueTemplate(DataValueTemplate):
     """Abstract base class for shallow data value templates."""
+
+    @property
+    def content(self) -> str:
+        return self.get_content()
+
+    def get_content(self) -> str:
+        return self.args[0]
 
 
 class ShallowDataValueVariable(DataValueVariable):

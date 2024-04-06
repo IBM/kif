@@ -9,6 +9,7 @@ from collections.abc import (
     Iterable,
     Iterator,
     Mapping,
+    MutableMapping,
     Sequence,
     Set,
 )
@@ -40,6 +41,7 @@ __all__ = (
     'Iterable',
     'Iterator',
     'Mapping',
+    'MutableMapping',
     'NoReturn',
     'Optional',
     'override',
