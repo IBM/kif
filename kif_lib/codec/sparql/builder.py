@@ -80,6 +80,7 @@ class Symbol:
     GREATER_THAN: Final[str] = '>'
     GREATER_THAN_OR_EQUAL: Final[str] = '>='
     INDENT: Final[str] = '  '
+    IS_URI: Final[str] = 'isURI'
     LESS_THAN: Final[str] = '<'
     LESS_THAN_OR_EQUAL: Final[str] = '<='
     LIMIT: Final[str] = 'LIMIT'
@@ -91,6 +92,7 @@ class Symbol:
     SELECT: Final[str] = 'SELECT'
     STAR: Final[str] = '*'
     STR: Final[str] = 'STR'
+    STRSTARTS: Final[str] = 'STRSTARTS'
     UNDEF: Final[str] = 'UNDEF'
     UNION: Final[str] = 'UNION'
     VALUES: Final[str] = 'VALUES'
@@ -200,6 +202,12 @@ class Expression(Encodable):
 class BooleanExpression(Expression):
     """Abstract base class for boolean expressions."""
 
+    def __or__(self, other):
+        return Or(self, other)
+
+    def __and__(self, other):
+        return And(self, other)
+
 
 # -- Logic expression ------------------------------------------------------
 
@@ -286,6 +294,26 @@ class NumericExpression(BooleanExpression):
     """Abstract base class for numeric expressions."""
 
 
+class NumericLiteral(NumericExpression):
+    """Numeric literal."""
+
+    _value: Union[URIRef, Literal, Variable]
+
+    def __init__(self, value: TNumericLiteralContent):
+        self._value = Coerce.numeric_literal_content(value)
+
+    @property
+    def value(self):
+        return self.get_value()
+
+    def get_value(self):
+        return self._value
+
+    @override
+    def iterencode(self) -> TGenStr:
+        yield self._n3(self.value)
+
+
 class BuiltInCall(NumericExpression):
     """Abstract base class for built-in calls."""
 
@@ -317,31 +345,15 @@ class BinaryBuiltInCall(BuiltInCall):
 
 
 class STR(UnaryBuiltInCall):
-    operator: str = 'str'
+    operator: str = Symbol.STR
 
 
 class STRSTARTS(BinaryBuiltInCall):
-    operator: str = 'strstarts'
+    operator: str = Symbol.STRSTARTS
 
 
-class NumericLiteral(NumericExpression):
-    """Numeric literal."""
-
-    _value: Union[URIRef, Literal, Variable]
-
-    def __init__(self, value: TNumericLiteralContent):
-        self._value = Coerce.numeric_literal_content(value)
-
-    @property
-    def value(self):
-        return self.get_value()
-
-    def get_value(self):
-        return self._value
-
-    @override
-    def iterencode(self) -> TGenStr:
-        yield self._n3(self.value)
+class IsURI(UnaryBuiltInCall):
+    operator: str = Symbol.IS_URI
 
 
 # == Pattern ===============================================================
@@ -870,6 +882,24 @@ class Query(Encodable):
            :class:`Variable`.
         """
         return Coerce.variable(name)
+
+    def vars(self, name: TVariable, *names: TVariable) -> Iterator[Variable]:
+        return map(self.var, chain((name,), names))
+
+# -- Built-ins -------------------------------------------------------------
+
+    def str(self, arg: TNumericExpression) -> BuiltInCall:
+        return STR(arg)
+
+    def strstarts(
+            self,
+            arg1: TNumericExpression,
+            arg2: TNumericExpression
+    ) -> BuiltInCall:
+        return STRSTARTS(arg1, arg2)
+
+    def is_uri(self, arg: TNumericExpression) -> BuiltInCall:
+        return IsURI(arg)
 
 # -- Non-graph patterns ----------------------------------------------------
 

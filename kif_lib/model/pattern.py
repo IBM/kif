@@ -24,6 +24,19 @@ class Variable(KIF_Object):
         else:
             raise self._should_not_get_here()
 
+    @property
+    def name(self) -> str:
+        """The name of variable."""
+        return self.get_name()
+
+    def get_name(self) -> str:
+        """Gets the name of variable.
+
+        Returns:
+           String.
+        """
+        return self.args[0]
+
 
 class Pattern(KIF_Object):
     """Abstract base class for patterns."""

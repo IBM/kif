@@ -1,11 +1,14 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..typing import override
+from ..typing import override, TypeAlias, Union
 from .kif_object import KIF_Object
 from .pattern import Template, Variable
 from .snak import Snak, VSnak
 from .value import Entity, VEntity
+
+VStatement: TypeAlias =\
+    Union['StatementTemplate', 'StatementVariable', 'Statement']
 
 
 class StatementTemplate(Template):

@@ -13,6 +13,7 @@ from ..rdflib import (
     SKOS,
     XSD,
 )
+from .ontolex import ONTOLEX
 from .prov import PROV
 from .wikibase import WIKIBASE
 from .wikidata import T_NS as T_NS_
@@ -22,6 +23,7 @@ from .wikidata import Wikidata
 __all__ = [
     'DCT',
     'FOAF',
+    'ONTOLEX',
     'OWL',
     'P',
     'PQ',

@@ -9,28 +9,32 @@ class WIKIBASE(DefinedNamespace):
     BestRank: URIRef
     DeprecatedRank: URIRef
     ExternalId: URIRef
-    isSomeValue: URIRef
-    lemma: URIRef
-    lexicalCategory: URIRef
     Monolingualtext: URIRef
     NormalRank: URIRef
     PreferredRank: URIRef
-    propertyType: URIRef
+    Property: URIRef
     Quantity: URIRef
-    quantityAmount: URIRef
-    quantityLowerBound: URIRef
-    quantityUnit: URIRef
-    quantityUpperBound: URIRef
     QuantityValue: URIRef
-    rank: URIRef
     String: URIRef
     Time: URIRef
-    timeCalendarModel: URIRef
-    timePrecision: URIRef
-    timeTimezone: URIRef
     TimeValue: URIRef
-    timeValue: URIRef
     Url: URIRef
     WikibaseItem: URIRef
     WikibaseLexeme: URIRef
     WikibaseProperty: URIRef
+    claim: URIRef
+    directClaim: URIRef
+    isSomeValue: URIRef
+    lemma: URIRef
+    lexicalCategory: URIRef
+    propertyType: URIRef
+    quantityAmount: URIRef
+    quantityLowerBound: URIRef
+    quantityUnit: URIRef
+    quantityUpperBound: URIRef
+    rank: URIRef
+    statementProperty: URIRef
+    timeCalendarModel: URIRef
+    timePrecision: URIRef
+    timeTimezone: URIRef
+    timeValue: URIRef

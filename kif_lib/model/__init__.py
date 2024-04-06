@@ -44,14 +44,25 @@ from .rank import (
 )
 from .reference_record import ReferenceRecord, TReferenceRecord
 from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
-from .snak import NoValueSnak, Snak, SomeValueSnak, ValueSnak
+from .snak import (
+    NoValueSnak,
+    NoValueSnakVariable,
+    Snak,
+    SnakVariable,
+    SomeValueSnak,
+    SomeValueSnakTemplate,
+    SomeValueSnakVariable,
+    ValueSnak,
+    ValueSnakVariable,
+)
 from .snak_set import SnakSet, TSnakSet
-from .statement import Statement
+from .statement import Statement, StatementTemplate, StatementVariable
 from .value import (
     Datatype,
     DataValue,
     DeepDataValue,
     Entity,
+    EntityVariable,
     ExternalId,
     ExternalIdDatatype,
     IRI,
@@ -59,12 +70,15 @@ from .value import (
     Item,
     ItemDatatype,
     Items,
+    ItemVariable,
     Lexeme,
     LexemeDatatype,
     Lexemes,
+    LexemeVariable,
     Properties,
     Property,
     PropertyDatatype,
+    PropertyVariable,
     Quantity,
     QuantityDatatype,
     ShallowDataValue,
