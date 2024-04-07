@@ -1,10 +1,9 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import re
-
 from ... import namespace as NS
 from ...error import ShouldNotGetHere
+from ...itertools import chain
 from ...model import (
     DataValue,
     DataValueTemplate,
@@ -21,36 +20,55 @@ from ...model import (
     Lexeme,
     LexemeTemplate,
     LexemeVariable,
+    NoValueSnak,
+    NoValueSnakTemplate,
+    NoValueSnakVariable,
     Property,
     PropertyTemplate,
     PropertyVariable,
     ShallowDataValue,
     ShallowDataValueTemplate,
+    Snak,
+    SnakTemplate,
+    SnakVariable,
+    SomeValueSnak,
+    SomeValueSnakTemplate,
+    SomeValueSnakVariable,
     StringVariable,
     Template,
     V_IRI,
     Value,
+    ValueSnak,
+    ValueSnakTemplate,
+    ValueSnakVariable,
     ValueTemplate,
     ValueVariable,
     Variable,
     VItem,
     VLexeme,
     VProperty,
+    VValue,
 )
 from ...typing import (
     Any,
     cast,
+    Iterator,
     MutableMapping,
-    Set,
     TypeAlias,
     TypeVar,
     Union,
 )
+from .builder import Literal as QueryLiteral
 from .builder import SelectQuery
 from .builder import URIRef as QueryURI
 from .builder import Variable as QueryVariable
 
 T = TypeVar('T')
+
+TQueryVariable: TypeAlias = Union[QueryVariable, str]
+
+VQueryLiteral: TypeAlias = Union[QueryLiteral, QueryVariable]
+VQueryTerm: TypeAlias = Union[QueryURI, QueryLiteral, QueryVariable]
 VQueryURI: TypeAlias = Union[QueryURI, QueryVariable]
 
 
@@ -120,42 +138,57 @@ class Compiler:
         self._push(self._input)
         return self
 
-    def _variant(self, name: str, avoid: Set[str] = set()) -> str:
-        var = self.__variant(name)
-        while var in avoid:
-            var = self.__variant(var)
-        return var
+    def _qvar(self, var: TQueryVariable) -> QueryVariable:
+        return self._q.var(var)
 
-    def __variant(self, name: str, _re=re.compile(r'(.*?)(\d*)$')) -> str:
-        prefix, suffix = _re.match(name).groups()
-        if suffix:
-            return prefix + str(int(suffix) + 1)
-        else:
-            return prefix + '0'
+    def _qvars(
+            self,
+            var: TQueryVariable,
+            *vars: TQueryVariable
+    ) -> Iterator[QueryVariable]:
+        return map(self._qvar, chain((var,), vars))
+
+    def _fresh_qvar(self) -> QueryVariable:
+        return self._q.fresh_var()
+
+    def _fresh_qvars(self, n: int) -> Iterator[QueryVariable]:
+        return self._q.fresh_vars(n)
 
     def _as_qvar(self, var: Variable) -> QueryVariable:
-        return self._q.var(var.name)
+        return self._qvar(var.name)
 
-    def _as_qvar_variant(self, var: Variable) -> QueryVariable:
-        return self._q.var(self._variant(var.name))
+    def _as_qvars(
+            self,
+            var: Variable,
+            *vars: Variable
+    ) -> Iterator[QueryVariable]:
+        return map(self._as_qvar, chain((var,), vars))
+
+# -- _push -----------------------------------------------------------------
 
     def _push(self, obj: KIF_Object) -> Any:
         if isinstance(obj, Template):
             if isinstance(obj, ValueTemplate):
-                return self._push_value_template(obj)
+                return self._do_push_value_template(obj)
+            elif isinstance(obj, SnakTemplate):
+                return self._do_push_snak_template(obj)
             else:
                 raise ShouldNotGetHere
         elif isinstance(obj, Variable):
             if isinstance(obj, ValueVariable):
-                return self._push_value_variable(obj)
+                return self._do_push_value_variable(obj)
+            elif isinstance(obj, SnakVariable):
+                return self._do_push_snak_variable(obj)
             else:
                 raise ShouldNotGetHere
         elif isinstance(obj, Value):
-            return self._push_value(obj)
+            return self._do_push_value(obj)
+        elif isinstance(obj, Snak):
+            return self._do_push_snak(obj)
         else:
             raise ShouldNotGetHere
 
-    def _push_value_template(self, obj: ValueTemplate) -> Any:
+    def _do_push_value_template(self, obj: ValueTemplate) -> Any:
         if isinstance(obj, EntityTemplate):
             if isinstance(obj, ItemTemplate):
                 return self._push_item_template(obj)
@@ -174,7 +207,7 @@ class Compiler:
         else:
             raise ShouldNotGetHere
 
-    def _push_value_variable(self, obj: ValueVariable) -> Any:
+    def _do_push_value_variable(self, obj: ValueVariable) -> Any:
         if isinstance(obj, EntityVariable):
             if isinstance(obj, ItemVariable):
                 return self._push_item_variable(obj)
@@ -187,9 +220,9 @@ class Compiler:
         elif isinstance(obj, IRI_Variable):
             return self._push_iri_variable(obj)
         else:
-            raise ShouldNotGetHere
+            return self._push_value_variable(obj)
 
-    def _push_value(self, obj: Value) -> Any:
+    def _do_push_value(self, obj: Value) -> Any:
         if isinstance(obj, Entity):
             if isinstance(obj, Item):
                 return self._push_item(obj)
@@ -209,34 +242,98 @@ class Compiler:
                 raise ShouldNotGetHere
         else:
             raise ShouldNotGetHere
+
+    def _do_push_snak_template(self, obj: SnakTemplate) -> Any:
+        if isinstance(obj, ValueSnakTemplate):
+            return self._push_value_snak_template(obj)
+        elif isinstance(obj, SomeValueSnakTemplate):
+            return self._push_some_value_snak_template(obj)
+        elif isinstance(obj, NoValueSnakTemplate):
+            return self._push_no_value_snak_template(obj)
+        else:
+            raise ShouldNotGetHere
+
+    def _do_push_snak_variable(self, obj: SnakVariable) -> Any:
+        if isinstance(obj, ValueSnakVariable):
+            raise NotImplementedError
+        elif isinstance(obj, SomeValueSnakVariable):
+            return self._push_some_value_snak_variable(obj)
+        elif isinstance(obj, NoValueSnakVariable):
+            return self._push_no_value_snak_variable(obj)
+        else:
+            raise ShouldNotGetHere
+
+    def _do_push_snak(self, obj: Snak) -> Any:
+        if isinstance(obj, ValueSnak):
+            raise NotImplementedError
+        elif isinstance(obj, SomeValueSnak):
+            return self._push_some_value_snak(obj)
+        elif isinstance(obj, NoValueSnak):
+            return self._push_no_value_snak(obj)
+        else:
+            raise ShouldNotGetHere
+
+# -- Value -----------------------------------------------------------------
+
+    def _push_v_value(self, obj: VValue) -> VQueryTerm:
+        if isinstance(obj, (ItemTemplate, ItemVariable, Item)):
+            return self._push_v_item(obj)
+        elif isinstance(obj, (IRI_Template, IRI_Variable, IRI)):
+            return self._push_v_iri(obj)
+        elif isinstance(obj, (PropertyTemplate, PropertyVariable, Property)):
+            return self._push_v_property(obj)
+        elif isinstance(obj, (LexemeTemplate, LexemeVariable, Lexeme)):
+            return self._push_v_lexeme(obj)
+        elif isinstance(obj, EntityVariable):
+            return self._push_entity_variable(obj)
+        else:
+            raise ShouldNotGetHere
+
+    def _push_value_variable(self, obj: ValueVariable) -> QueryVariable:
+        with self._q.union():
+            with self._q.group():
+                v1 = self._push_entity_variable(EntityVariable(obj.name))
+            # with self._q.group():
+            #     v2 = self._push_iri_variable(IRI_Variable(obj.name))
+        return v1
 
 # -- Entity ----------------------------------------------------------------
 
-    def _push_entity_variable(self, obj: EntityVariable) -> VQueryURI:
+    def _push_entity_variable(self, obj: EntityVariable) -> QueryVariable:
         with self._q.union():
             with self._q.group():
-                var1 = self._push_item_variable(ItemVariable(obj.name))
+                v1 = self._push_item_variable(ItemVariable(obj.name))
             with self._q.group():
-                var2 = self._push_property_variable(PropertyVariable(obj.name))
+                v2 = self._push_property_variable(PropertyVariable(obj.name))
             with self._q.group():
-                var3 = self._push_lexeme_variable(LexemeVariable(obj.name))
-        assert var1 == var2 and var2 == var3
-        return var1
+                v3 = self._push_lexeme_variable(LexemeVariable(obj.name))
+        assert v1 == v2 and v2 == v3
+        return v1
 
 # -- Item ------------------------------------------------------------------
 
+    def _push_v_item(self, obj: VItem) -> VQueryURI:
+        if isinstance(obj, ItemTemplate):
+            return self._push_item_template(obj)
+        elif isinstance(obj, ItemVariable):
+            return self._push_item_variable(obj)
+        elif isinstance(obj, Item):
+            return self._push_item(obj)
+        else:
+            raise ShouldNotGetHere
+
     def _push_item_template(self, obj: ItemTemplate) -> VQueryURI:
-        uri = self._push_v_iri(obj.iri)
+        item = self._push_v_iri(obj.iri)
         with self._q.group():
-            self._q.triple(uri, NS.SCHEMA.version, self._q.bnode())
-        return uri
+            self._q.triple(item, NS.SCHEMA.version, self._q.bnode())
+        return item
 
     def _push_item_variable(self, obj: ItemVariable) -> QueryVariable:
         iri = IRI_Variable(obj.name)
-        uri = self._push_item_template(
+        var = self._push_item_template(
             self._theta.add(obj, ItemTemplate(iri)))
-        assert isinstance(uri, QueryVariable)
-        return uri
+        assert isinstance(var, QueryVariable)
+        return var
 
     def _push_item(self, obj: Item) -> QueryURI:
         uri = self._push_item_template(ItemTemplate(*obj.args))
@@ -245,18 +342,28 @@ class Compiler:
 
 # -- Property --------------------------------------------------------------
 
+    def _push_v_property(self, obj: VProperty) -> VQueryURI:
+        if isinstance(obj, PropertyTemplate):
+            return self._push_property_template(obj)
+        elif isinstance(obj, PropertyVariable):
+            return self._push_property_variable(obj)
+        elif isinstance(obj, Property):
+            return self._push_property(obj)
+        else:
+            raise ShouldNotGetHere
+
     def _push_property_template(self, obj: PropertyTemplate) -> VQueryURI:
-        uri = self._push_v_iri(obj.iri)
+        prop = self._push_v_iri(obj.iri)
         with self._q.group():
-            self._q.triple(uri, NS.RDF.type, NS.WIKIBASE.Property)
-        return uri
+            self._q.triple(prop, NS.RDF.type, NS.WIKIBASE.Property)
+        return prop
 
     def _push_property_variable(self, obj: PropertyVariable) -> QueryVariable:
         iri = IRI_Variable(obj.name)
-        uri = self._push_property_template(
+        var = self._push_property_template(
             self._theta.add(obj, PropertyTemplate(iri)))
-        assert isinstance(uri, QueryVariable)
-        return uri
+        assert isinstance(var, QueryVariable)
+        return var
 
     def _push_property(self, obj: Property) -> QueryURI:
         uri = self._push_property_template(PropertyTemplate(*obj.args))
@@ -265,18 +372,28 @@ class Compiler:
 
 # -- Lexeme ----------------------------------------------------------------
 
+    def _push_v_lexeme(self, obj: VLexeme) -> VQueryURI:
+        if isinstance(obj, LexemeTemplate):
+            return self._push_lexeme_template(obj)
+        elif isinstance(obj, LexemeVariable):
+            return self._push_lexeme_variable(obj)
+        elif isinstance(obj, Lexeme):
+            return self._push_lexeme(obj)
+        else:
+            raise ShouldNotGetHere
+
     def _push_lexeme_template(self, obj: LexemeTemplate) -> VQueryURI:
-        uri = self._push_v_iri(obj.iri)
+        lexeme = self._push_v_iri(obj.iri)
         with self._q.group():
-            self._q.triple(uri, NS.RDF.type, NS.ONTOLEX.LexicalEntry)
-        return uri
+            self._q.triple(lexeme, NS.RDF.type, NS.ONTOLEX.LexicalEntry)
+        return lexeme
 
     def _push_lexeme_variable(self, obj: LexemeVariable) -> QueryVariable:
         iri = IRI_Variable(obj.name)
-        uri = self._push_lexeme_template(
+        var = self._push_lexeme_template(
             self._theta.add(obj, LexemeTemplate(iri)))
-        assert isinstance(uri, QueryVariable)
-        return uri
+        assert isinstance(var, QueryVariable)
+        return var
 
     def _push_lexeme(self, obj: Lexeme) -> QueryURI:
         uri = self._push_lexeme_template(LexemeTemplate(*obj.args))
@@ -299,7 +416,7 @@ class Compiler:
         content = obj.content
         if isinstance(content, StringVariable):
             uri_var = self._as_qvar(content)
-            str_var = self._theta.add(content, self._as_qvar_variant(content))
+            str_var = self._theta.add(content, self._fresh_qvar())
             self._q.bind(self._q.str(uri_var), str_var)
             return uri_var
         elif isinstance(content, str):
@@ -314,3 +431,78 @@ class Compiler:
 
     def _push_iri(self, obj: IRI) -> QueryURI:
         return self._q.uri(obj.content)
+
+# -- ValueSnak -------------------------------------------------------------
+
+    def _push_value_snak_template(
+            self,
+            obj: ValueSnakTemplate
+    ) -> VQueryURI:
+        with self._q.group():
+            prop = self._push_v_property(obj.property)
+            ps, wds = self._fresh_qvars(2)
+            with self._q.group():
+                self._q.triple(prop, NS.WIKIBASE.statementProperty, ps)
+                self._q.triple(wds, ps, self._push_v_value(obj.value))
+        return prop
+
+# -- SomeValueSnak ---------------------------------------------------------
+
+    def _push_some_value_snak_template(
+            self,
+            obj: SomeValueSnakTemplate
+    ) -> VQueryURI:
+        prop = self._push_v_property(obj.property)
+        ps, wds, value = self._fresh_qvars(3)
+        with self._q.group():
+            self._q.triples(
+                (prop, NS.WIKIBASE.statementProperty, ps),
+                (wds, ps, value))
+            self._q.filter(self._q.call(NS.WIKIBASE.isSomeValue, value))
+        return prop
+
+    def _push_some_value_snak_variable(
+            self,
+            obj: SomeValueSnakVariable
+    ) -> VQueryURI:
+        prop = PropertyVariable(obj.name)
+        var = self._push_some_value_snak_template(
+            self._theta.add(obj, SomeValueSnakTemplate(prop)))
+        assert isinstance(var, QueryVariable)
+        return var
+
+    def _push_some_value_snak(self, obj: SomeValueSnak) -> QueryURI:
+        uri = self._push_some_value_snak_template(
+            SomeValueSnakTemplate(*obj.args))
+        assert isinstance(uri, QueryURI)
+        return uri
+
+# -- NoValueSnak -----------------------------------------------------------
+
+    def _push_no_value_snak_template(
+            self,
+            obj: NoValueSnakTemplate
+    ) -> VQueryURI:
+        prop = self._push_v_property(obj.property)
+        wdno, wds = self._fresh_qvars(2)
+        with self._q.group():
+            self._q.triples(
+                (prop, NS.WIKIBASE.novalue, wdno),
+                (wds, NS.RDF.type, wdno))
+        return prop
+
+    def _push_no_value_snak_variable(
+            self,
+            obj: NoValueSnakVariable
+    ) -> VQueryURI:
+        prop = PropertyVariable(obj.name)
+        var = self._push_no_value_snak_template(
+            self._theta.add(obj, NoValueSnakTemplate(prop)))
+        assert isinstance(var, QueryVariable)
+        return var
+
+    def _push_no_value_snak(self, obj: NoValueSnak) -> QueryURI:
+        uri = self._push_no_value_snak_template(
+            NoValueSnakTemplate(*obj.args))
+        assert isinstance(uri, QueryURI)
+        return uri

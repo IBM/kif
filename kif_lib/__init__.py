@@ -14,7 +14,6 @@ from .model import (
     Descriptor,
     Entity,
     EntityFingerprint,
-    EntityVariable,
     ExternalId,
     ExternalIdDatatype,
     FilterPattern,

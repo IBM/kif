@@ -46,13 +46,16 @@ from .reference_record import ReferenceRecord, TReferenceRecord
 from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
 from .snak import (
     NoValueSnak,
+    NoValueSnakTemplate,
     NoValueSnakVariable,
     Snak,
+    SnakTemplate,
     SnakVariable,
     SomeValueSnak,
     SomeValueSnakTemplate,
     SomeValueSnakVariable,
     ValueSnak,
+    ValueSnakTemplate,
     ValueSnakVariable,
 )
 from .snak_set import SnakSet, TSnakSet
@@ -111,5 +114,6 @@ from .value import (
     VItem,
     VLexeme,
     VProperty,
+    VValue,
 )
 from .value_set import TextSet, TTextSet, TValueSet, ValueSet

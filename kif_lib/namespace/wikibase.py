@@ -27,6 +27,7 @@ class WIKIBASE(DefinedNamespace):
     isSomeValue: URIRef
     lemma: URIRef
     lexicalCategory: URIRef
+    novalue: URIRef
     propertyType: URIRef
     quantityAmount: URIRef
     quantityLowerBound: URIRef

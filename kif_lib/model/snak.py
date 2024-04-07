@@ -36,6 +36,13 @@ class SnakTemplate(Template):
         else:
             raise self._should_not_get_here()
 
+    @property
+    def property(self) -> VProperty:
+        return self.get_property()
+
+    def get_property(self) -> VProperty:
+        return self.args[0]
+
 
 class SnakVariable(Variable):
     """Snak variable.
@@ -193,6 +200,13 @@ class ValueSnakTemplate(SnakTemplate):
                 return ValueSnak._static_preprocess_arg(self, arg, i)
         else:
             raise self._should_not_get_here()
+
+    @property
+    def value(self) -> VValue:
+        return self.get_value()
+
+    def get_value(self) -> VValue:
+        return self.args[1]
 
 
 class ValueSnakVariable(SnakVariable):

@@ -314,18 +314,42 @@ class NumericLiteral(NumericExpression):
         yield self._n3(self.value)
 
 
-class BuiltInCall(NumericExpression):
-    """Abstract base class for built-in calls."""
+class Call(NumericExpression):
+    """Abstract base class for function calls."""
 
-    operator: str
     args: Sequence[NumericExpression]
 
     @override
     def iterencode(self) -> TGenStr:
-        yield self.operator
         yield '('
         yield ', '.join(map(Encodable.encode, self.args))
         yield ')'
+
+
+class URI_Call(Call):
+    """URI function call."""
+
+    operator: URIRef
+
+    def __init__(self, uri: T_URI, *args: TNumericExpression):
+        self.operator = Coerce.uri(uri)
+        self.args = tuple(map(Coerce.numeric_expression, args))
+
+    @override
+    def iterencode(self) -> TGenStr:
+        yield self.operator.n3()
+        yield from super().iterencode()
+
+
+class BuiltInCall(Call):
+    """Abstract base class for built-in calls."""
+
+    operator: str
+
+    @override
+    def iterencode(self) -> TGenStr:
+        yield self.operator
+        yield from super().iterencode()
 
 
 class UnaryBuiltInCall(BuiltInCall):
@@ -834,17 +858,23 @@ class Query(Encodable):
     _limit: LimitClause
     _offset: OffsetClause
 
+    _fresh_var_prefix: str
+    _fresh_var_count: int
+
     @abstractmethod
     def __init__(
             self,
             limit: Optional[int] = None,
             offset: Optional[int] = None,
-            where: Optional[WhereClause] = None
+            where: Optional[WhereClause] = None,
+            fresh_var_prefix: Optional[str] = None
     ):
         self.where = where if where is not None else WhereClause()
         self.clause = self.where
         self._limit = LimitClause(limit)
         self._offset = OffsetClause(offset)
+        self._fresh_var_prefix = fresh_var_prefix or '_v'
+        self._fresh_var_count = 0
 
     @override
     def iterencode(self) -> TGenStr:
@@ -878,15 +908,51 @@ class Query(Encodable):
     def var(self, name: TVariable) -> Variable:
         """Constructs :class:`Variable`.
 
+        Parameters:
+           name: Variable name.
+
         Returns:
            :class:`Variable`.
         """
         return Coerce.variable(name)
 
     def vars(self, name: TVariable, *names: TVariable) -> Iterator[Variable]:
+        """Constructs one or more variables.
+
+        Parameter:
+           name: Variable name.
+           names: Variable names.
+
+        Returns:
+           Iterator of :class:`Variable`.
+        """
         return map(self.var, chain((name,), names))
+
+    def fresh_var(self) -> Variable:
+        """Construct fresh variable.
+
+        Returns:
+           :class:`Variable`.
+        """
+        name = f'{self._fresh_var_prefix}{self._fresh_var_count}'
+        self._fresh_var_count += 1
+        return self.var(name)
+
+    def fresh_vars(self, n: int) -> Iterator[Variable]:
+        """Constructs one or more fresh variables.
+
+        Parameters:
+           n: The number of fresh variables to construct.
+
+        Returns:
+           Iterator of :class:`Variable`.
+        """
+        return map(lambda x: self.fresh_var(), range(n))
 
-# -- Built-ins -------------------------------------------------------------
+# -- Functions -------------------------------------------------------------
+
+    def call(self, op: T_URI, *args: TNumericExpression) -> URI_Call:
+        return URI_Call(op, *args)
 
     def str(self, arg: TNumericExpression) -> BuiltInCall:
         return STR(arg)
@@ -1182,13 +1248,8 @@ class AskQuery(Query):
 
     _ask: AskClause
 
-    def __init__(
-            self,
-            limit: Optional[int] = None,
-            offset: Optional[int] = None,
-            where: Optional[WhereClause] = None
-    ):
-        super().__init__(limit=limit, offset=offset, where=where)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._ask = AskClause()
 
     @override
@@ -1208,11 +1269,9 @@ class SelectQuery(Query):
             *variables: Union[TVariable, tuple[TExpression, TVariable]],
             distinct: Optional[bool] = None,
             reduced: Optional[bool] = None,
-            limit: Optional[int] = None,
-            offset: Optional[int] = None,
-            where: Optional[WhereClause] = None
+            **kwargs
     ):
-        super().__init__(limit=limit, offset=offset, where=where)
+        super().__init__(**kwargs)
         self._select = SelectClause(
             *variables, distinct=distinct, reduced=reduced)
 

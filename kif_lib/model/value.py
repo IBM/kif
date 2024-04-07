@@ -33,7 +33,7 @@ from .pattern import Template, Variable
 
 TValue: TypeAlias = Union['Value', NS.T_URI, TDatetime, TDecimal, str]
 
-VValue: TypeAlias = Union['ValueTemplate', 'ValueVariable', TValue]
+VValue: TypeAlias = Union['ValueTemplate', 'ValueVariable', 'Value']
 
 # -- Entity --
 
