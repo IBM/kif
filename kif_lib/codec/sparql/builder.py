@@ -18,6 +18,7 @@ from typing import Any, cast, Final, Optional, TypeVar, Union
 from rdflib import BNode, Literal, URIRef, Variable
 from typing_extensions import override, TypeAlias
 
+_str = str
 T = TypeVar('T')
 TGenStr: TypeAlias = Generator[str, None, None]
 
@@ -33,13 +34,15 @@ TNumericLiteral: TypeAlias = Union[
 TNumericExpression: TypeAlias = Union['NumericExpression', TNumericLiteral]
 TExpression: TypeAlias = Union['Expression', TNumericExpression]
 
+TComment: TypeAlias = Union['Comment', str]
+
 TSubject: TypeAlias = Union[URIRef, BNode, Variable]
 TPredicate: TypeAlias = TSubject
 TObject: TypeAlias = Union[TSubject, Literal]
-TTriple: TypeAlias = tuple[TSubject, TPredicate, TObject]
+TTriple: TypeAlias = Union['Triple', tuple[TSubject, TPredicate, TObject]]
 
 TValuesValue: TypeAlias = Optional[Union[URIRef, Literal]]
-TValuesLine: TypeAlias = Sequence[TValuesValue]
+TValuesLine: TypeAlias = Union['ValuesLine', Sequence[TValuesValue]]
 
 TInlineBind: TypeAlias = tuple[TExpression, TVariable]
 
@@ -74,12 +77,14 @@ class Symbol:
     AS: Final[str] = 'AS'
     ASK: Final[str] = 'ASK'
     BIND: Final[str] = 'BIND'
+    COMMENT: Final[str] = '#'
     DISTINCT: Final[str] = 'DISTINCT'
+    DOT: Final[str] = '.'
     EQUAL: Final[str] = '='
     FILTER: Final[str] = 'FILTER'
     GREATER_THAN: Final[str] = '>'
     GREATER_THAN_OR_EQUAL: Final[str] = '>='
-    INDENT: Final[str] = '  '
+    INDENT: Final[str] = '  |'
     IS_URI: Final[str] = 'isURI'
     LESS_THAN: Final[str] = '<'
     LESS_THAN_OR_EQUAL: Final[str] = '<='
@@ -181,16 +186,47 @@ class Coerce:
         return cls._check(v, (URIRef, BNode, Literal, Variable))
 
     @classmethod
-    def triple(cls, v: TTriple) -> TTriple:
-        return cls._check(v, Sequence)
+    def comment(
+            cls,
+            v: TComment,
+            clause: 'Clause',
+            parent: Optional['GraphPattern'] = None
+    ) -> 'Comment':
+        if isinstance(v, Comment):
+            text = v.text
+        else:
+            text = v
+        return Comment(text, clause=clause, parent=parent)
+
+    @classmethod
+    def triple(
+            cls,
+            v: TTriple,
+            clause: 'Clause',
+            parent: Optional['GraphPattern'] = None
+    ) -> 'Triple':
+        if isinstance(v, Triple):
+            args = v.args
+        else:
+            args = v
+        return Triple(*args, clause=clause, parent=parent)
 
     @classmethod
     def values_value(cls, v: TValuesValue) -> TValuesValue:
         return cls._check(v, (URIRef, Literal, type(None)))
 
     @classmethod
-    def values_line(cls, v: TValuesLine) -> TValuesLine:
-        return cls._check(v, Sequence)
+    def values_line(
+            cls,
+            v: TValuesLine,
+            clause: 'Clause',
+            parent: Optional['GraphPattern'] = None
+    ) -> 'ValuesLine':
+        if isinstance(v, ValuesLine):
+            args = v.args
+        else:
+            args = v
+        return ValuesLine(*args, clause=clause, parent=parent)
 
 
 # == Expression ============================================================
@@ -356,7 +392,7 @@ class URI_Call(Call):
 
     @override
     def iterencode(self) -> TGenStr:
-        yield self.operator.n3()
+        yield self._n3(self.operator)
         yield from super().iterencode()
 
 
@@ -452,29 +488,26 @@ class Bind(Pattern):
         yield ')'
 
 
-# -- Values line -----------------------------------------------------------
+# -- Comment ---------------------------------------------------------------
 
-class ValuesLine(Pattern):
-    """Values line pattern."""
+class Comment(Pattern):
+    """Comment pattern."""
 
-    args: Sequence[TValuesValue]
+    text: str
 
     def __init__(
             self,
-            *args: TValuesValue,
+            text: str,
             clause: 'Clause',
             parent: Optional['GraphPattern'] = None
     ):
         super().__init__(clause, parent)
-        self.args = tuple(map(Coerce.values_value, args))
+        self.text = text
 
     @override
     def iterencode(self) -> TGenStr:
-        yield '('
-        yield ' '.join(map(
-            lambda arg: self._n3(arg) if arg is not None else Symbol.UNDEF,
-            self.args))
-        yield ')'
+        for line in self.text.splitlines():
+            yield f'{Symbol.COMMENT} {line}\n'
 
 
 # -- Filter ----------------------------------------------------------------
@@ -501,162 +534,12 @@ class Filter(Pattern):
         yield ')'
 
 
-# == Graph pattern =========================================================
+# -- Triple ----------------------------------------------------------------
 
-class GraphPattern(Pattern):
-    """Abstract base class for graph patterns."""
+class Triple(Pattern):
+    """Triple pattern."""
 
-    binds: MutableSequence[Bind]
-    filters: MutableSequence[Filter]
-    children: MutableSequence['GraphPattern']
-
-    def __init__(
-            self,
-            clause: 'Clause',
-            parent: Optional['GraphPattern'] = None
-    ):
-        super().__init__(clause, parent)
-        self.binds = list()
-        self.filters = list()
-        self.children = list()
-
-    def __enter__(self):
-        return self.clause._begin(self)
-
-    def __exit__(self, err_type, err_val, err_bt):
-        if err_val is None:
-            self.clause._end()
-        else:
-            raise err_val
-
-    def add_bind(self, bind: Bind) -> Bind:
-        return cast(Bind, self._add(bind, self.binds))
-
-    def add_filter(self, filter: Filter) -> Filter:
-        return cast(Filter, self._add(filter, self.filters))
-
-    def add_child(self, child: 'GraphPattern') -> 'GraphPattern':
-        return cast(GraphPattern, self._add(child, self.children))
-
-    def _add(self, child: Pattern, dest: MutableSequence[Any]) -> Pattern:
-        assert child.clause == self.clause
-        assert child.parent is None
-        child.parent = self
-        dest.append(child)
-        return child
-
-    def _add_error(self, obj: Pattern) -> SyntaxError:
-        return SyntaxError(f'cannot add {obj.__class__.__qualname__}')
-
-    def _subs(self) -> Iterator[Pattern]:
-        return chain(self.children, self.binds, self.filters)
-
-    @override
-    def iterencode(self) -> TGenStr:
-        yield from self._iterencode(0)
-
-    def _iterencode(self, n: int) -> TGenStr:
-        yield self._indent(n)
-        yield from self._iterencode_start(n)
-        for i, sub in enumerate(self._subs(), 1):
-            if i > 1:
-                yield from self._iterencode_sub_sep(sub, i, n)
-            yield from self._iterencode_sub_start(sub, i, n)
-            if isinstance(sub, GraphPattern):
-                yield from sub._iterencode(n + 1)
-            elif isinstance(sub, Pattern):
-                yield self._indent(n + 1)
-                yield from sub.iterencode()
-            else:
-                raise RuntimeError('should not get here')
-            yield from self._iterencode_sub_end(sub, i, n)
-        yield self._indent(n)
-        yield from self._iterencode_end(n)
-
-    @cache
-    def _indent(self, n: int) -> str:
-        return Symbol.INDENT * n
-
-    def _iterencode_start(self, n: int) -> TGenStr:
-        yield '{\n'
-
-    def _iterencode_end(self, n: int) -> TGenStr:
-        yield '}'
-
-    def _iterencode_sub_start(
-            self,
-            child: Pattern,
-            i: int,
-            n: int,
-    ) -> TGenStr:
-        yield ''
-
-    def _iterencode_sub_sep(
-            self,
-            child: Pattern,
-            i: int,
-            n: int,
-    ) -> TGenStr:
-        yield ''
-
-    def _iterencode_sub_end(
-            self,
-            pattern: Pattern,
-            i: int,
-            n: int,
-    ) -> TGenStr:
-        yield '\n'
-
-
-# -- Group graph pattern ---------------------------------------------------
-
-class GroupGraphPattern(GraphPattern):
-    """Group graph pattern."""
-
-
-# -- Optional graph pattern ------------------------------------------------
-
-class OptionalGraphPattern(GraphPattern):
-    """OPTIONAL graph pattern."""
-
-    @override
-    def _iterencode_start(self, n: int) -> TGenStr:
-        yield Symbol.OPTIONAL
-        yield ' {\n'
-
-
-# -- Union graph pattern ---------------------------------------------------
-
-class UnionGraphPattern(GraphPattern):
-    """UNION graph pattern."""
-
-    @override
-    def add_child(self, child: GraphPattern) -> GraphPattern:
-        if not isinstance(child, GroupGraphPattern):
-            raise self._add_error(child)
-        return super().add_child(child)
-
-    @override
-    def _iterencode_sub_sep(
-            self,
-            pattern: Pattern,
-            i: int,
-            n: int
-    ) -> TGenStr:
-        if isinstance(pattern, GroupGraphPattern):
-            yield from self._indent(n)
-            yield Symbol.UNION
-            yield '\n'
-
-
-# -- Triple graph pattern --------------------------------------------------
-
-class TripleGraphPattern(GraphPattern):
-    """Triple graph pattern."""
-
-    subject: TSubject
-    predicate: TPredicate
-    object: TObject
+    args: tuple[TSubject, TPredicate, TObject]
 
     def __init__(
             self,
@@ -667,37 +550,173 @@ class TripleGraphPattern(GraphPattern):
             parent: Optional['GraphPattern'] = None
     ):
         super().__init__(clause, parent)
-        self.subject = Coerce.subject(subject)
-        self.predicate = Coerce.predicate(predicate)
-        self.object = Coerce.object(object)
+        self.args = (
+            Coerce.subject(subject),
+            Coerce.predicate(predicate),
+            Coerce.object(object))
 
     @override
-    def add_bind(self, bind: Bind) -> Bind:
-        raise self._add_error(bind)
+    def iterencode(self) -> TGenStr:
+        yield ' '.join(map(self._n3, self.args))
+        yield ' '
+        yield Symbol.DOT
+
+
+# -- Values line -----------------------------------------------------------
+
+class ValuesLine(Pattern):
+    """Values line pattern."""
+
+    args: Sequence[TValuesValue]
+
+    def __init__(
+            self,
+            *args: TValuesValue,
+            clause: 'Clause',
+            parent: Optional['GraphPattern'] = None
+    ):
+        super().__init__(clause, parent)
+        self.args = tuple(map(Coerce.values_value, args))
 
     @override
-    def add_filter(self, filter: Filter) -> Filter:
-        raise self._add_error(filter)
+    def iterencode(self) -> TGenStr:
+        yield '('
+        yield ' '.join(map(
+            lambda arg: self._n3(arg) if arg is not None else Symbol.UNDEF,
+            self.args))
+        yield ')'
+
+
+# == Graph pattern =========================================================
+
+class GraphPattern(Pattern):
+    """Abstract base class for graph patterns."""
+
+    def __enter__(self):
+        return self.clause._begin(self)
+
+    def __exit__(self, err_type, err_val, err_bt):
+        if err_val is None:
+            self.clause._end()
+        else:
+            raise err_val
+
+    def _add(self, child: Pattern, dest: MutableSequence[Any]) -> Pattern:
+        assert child.clause == self.clause
+        assert child.parent is None
+        child.parent = self
+        dest.append(child)
+        return child
+
+    def _add_error(
+            self,
+            obj: Pattern, _f=lambda x: x.__class__.__qualname__
+    ) -> SyntaxError:
+        return SyntaxError(f'cannot add {_f(obj)} to {_f(self)}')
 
     @override
-    def add_child(self, child: GraphPattern) -> GraphPattern:
-        raise self._add_error(child)
+    def iterencode(self) -> TGenStr:
+        yield from self._iterencode(0)
 
-    @override
+    @abstractmethod
     def _iterencode(self, n: int) -> TGenStr:
-        yield self._indent(n)
-        yield self._n3(self.subject)
-        yield ' '
-        yield self._n3(self.predicate)
-        yield ' '
-        yield self._n3(self.object)
-        yield ' .'
+        raise NotImplementedError
+
+    @cache
+    def _indent(self, n: int) -> str:
+        return Symbol.INDENT * n
+
+
+# -- Atomic graph pattern --------------------------------------------------
+
+class AtomicGraphPattern(GraphPattern):
+    """Abstract base class for atomic graph patterns."""
+
+    @abstractmethod
+    def _push(self, pattern: Pattern) -> 'AtomicGraphPattern':
+        raise NotImplementedError
+
+
+# -- Comments block --------------------------------------------------------
+
+class CommentsBlock(AtomicGraphPattern):
+    """Comments block."""
+
+    comments: MutableSequence[Comment]
+
+    def __init__(
+            self,
+            clause: 'Clause',
+            parent: Optional['GraphPattern'] = None
+    ):
+        super().__init__(clause, parent)
+        self.comments = list()
+
+    def __call__(self, *comments: TComment) -> 'CommentsBlock':
+        with self:
+            return self.push(*comments)
+
+    def add_comment(self, comment: Comment) -> Comment:
+        return cast(Comment, self._add(comment, self.comments))
+
+    def _push(self, comment: Pattern) -> 'CommentsBlock':
+        self.add_comment(cast(Comment, comment))
+        return self
+
+    def push(self, *comments: TComment) -> 'CommentsBlock':
+        for comment in comments:
+            self._push(Coerce.comment(comment, clause=self.clause))
+        return self
+
+    def _iterencode(self, n: int) -> TGenStr:
+        for comment in self.comments:
+            for line in comment.iterencode():
+                yield self._indent(n)
+                yield line
+
+
+# -- Triples block ---------------------------------------------------------
+
+class TriplesBlock(AtomicGraphPattern):
+    """Triple block."""
+
+    triples: MutableSequence[Triple]
+
+    def __init__(
+            self,
+            clause: 'Clause',
+            parent: Optional['GraphPattern'] = None
+    ):
+        super().__init__(clause, parent)
+        self.triples = list()
+
+    def __call__(self, *triples: TTriple) -> 'TriplesBlock':
+        with self:
+            return self.push(*triples)
+
+    def add_triple(self, triple: Triple) -> Triple:
+        return cast(Triple, self._add(triple, self.triples))
+
+    def _push(self, triple: Pattern) -> 'TriplesBlock':
+        self.add_triple(cast(Triple, triple))
+        return self
+
+    def push(self, *triples: TTriple) -> 'TriplesBlock':
+        for triple in triples:
+            self._push(Coerce.triple(triple, clause=self.clause))
+        return self
+
+    def _iterencode(self, n: int) -> TGenStr:
+        for triple in self.triples:
+            yield self._indent(n)
+            yield from triple.iterencode()
+            yield '\n'
 
 
 # -- Values pattern --------------------------------------------------------
 
-class ValuesGraphPattern(GraphPattern):
-    """VALUES graph pattern."""
+class ValuesBlock(GraphPattern):
+    """VALUES block."""
 
     variables: Sequence[Variable]
     lines: MutableSequence[ValuesLine]
@@ -714,17 +733,9 @@ class ValuesGraphPattern(GraphPattern):
             Coerce.variable, chain((variable,), variables)))
         self.lines = list()
 
-    @override
-    def add_bind(self, bind: Bind) -> Bind:
-        raise self._add_error(bind)
-
-    @override
-    def add_filter(self, filter: Filter) -> Filter:
-        raise self._add_error(filter)
-
-    @override
-    def add_child(self, child: GraphPattern) -> GraphPattern:
-        raise self._add_error(child)
+    def __call__(self, *lines: TValuesLine) -> 'ValuesBlock':
+        with self:
+            return self.push(*lines)
 
     def add_line(self, line: ValuesLine) -> ValuesLine:
         if len(line.args) < len(self.variables):
@@ -733,15 +744,122 @@ class ValuesGraphPattern(GraphPattern):
             raise ValueError('bad values line (not enough values)')
         return cast(ValuesLine, self._add(line, self.lines))
 
-    def _subs(self) -> Iterator[Pattern]:
-        return iter(self.lines)
+    def _push(self, line: Pattern) -> 'ValuesBlock':
+        self.add_line(cast(ValuesLine, line))
+        return self
 
-    @override
-    def _iterencode_start(self, n: int) -> TGenStr:
+    def push(self, *lines: TValuesLine) -> 'ValuesBlock':
+        for line in lines:
+            self._push(Coerce.values_line(line, clause=self.clause))
+        return self
+
+    def _iterencode(self, n: int) -> TGenStr:
+        yield self._indent(n)
         yield Symbol.VALUES
         yield ' ('
         yield ' '.join(map(self._n3, self.variables))
-        yield ') {\n'
+        yield ')'
+        yield ' {\n'
+        for line in self.lines:
+            yield self._indent(n + 1)
+            yield from line.iterencode()
+            yield '\n'
+        yield self._indent(n)
+        yield '}\n'
+
+
+# -- Compound graph pattern ------------------------------------------------
+
+class CompoundGraphPattern(GraphPattern):
+    """Abstract base class for compound graph patterns"""
+
+    binds: MutableSequence[Bind]
+    filters: MutableSequence[Filter]
+    children: MutableSequence['GraphPattern']
+
+    def __init__(
+            self,
+            clause: 'Clause',
+            parent: Optional['GraphPattern'] = None
+    ):
+        super().__init__(clause, parent)
+        self.binds = list()
+        self.filters = list()
+        self.children = list()
+
+    def add_bind(self, bind: Bind) -> Bind:
+        return cast(Bind, self._add(bind, self.binds))
+
+    def add_filter(self, filter: Filter) -> Filter:
+        return cast(Filter, self._add(filter, self.filters))
+
+    def add_child(self, child: 'GraphPattern') -> 'GraphPattern':
+        return cast(GraphPattern, self._add(child, self.children))
+
+    def _iterencode(self, n: int) -> TGenStr:
+        yield from self._iterencode_begin(n)
+        for pat in chain(self.children, self.binds, self.filters):
+            if isinstance(pat, GraphPattern):
+                yield from self._iterencode_graph_pattern(pat, n + 1)
+            elif isinstance(pat, Pattern):
+                yield from self._iterencode_pattern(pat, n + 1)
+            else:
+                raise RuntimeError('should not get here')
+        yield from self._iterencode_end(n)
+
+    def _iterencode_begin(self, n: int) -> TGenStr:
+        yield self._indent(n)
+        yield '{\n'
+
+    def _iterencode_graph_pattern(self, pat: GraphPattern, n: int) -> TGenStr:
+        yield from pat._iterencode(n)
+
+    def _iterencode_pattern(self, pat: Pattern, n: int) -> TGenStr:
+        yield self._indent(n)
+        yield from pat.iterencode()
+        yield '\n'
+
+    def _iterencode_end(self, n: int) -> TGenStr:
+        yield self._indent(n)
+        yield '}\n'
+
+
+# -- Group graph pattern ---------------------------------------------------
+
+class GroupGraphPattern(CompoundGraphPattern):
+    """Group graph pattern."""
+
+    @override
+    def _iterencode_begin(self, n: int) -> TGenStr:
+        yield self._indent(n)
+        if (isinstance(self.parent, UnionGraphPattern)
+                and self != self.parent.children[0]):
+            yield Symbol.UNION
+            yield ' '
+        yield '{\n'
+
+
+# -- Optional graph pattern ------------------------------------------------
+
+class OptionalGraphPattern(CompoundGraphPattern):
+    """OPTIONAL graph pattern."""
+
+    def _iterencode_begin(self, n: int) -> TGenStr:
+        yield self._indent(n)
+        yield Symbol.OPTIONAL
+        yield ' {\n'
+
+
+# -- Union graph pattern ---------------------------------------------------
+
+class UnionGraphPattern(CompoundGraphPattern):
+    """UNION graph pattern."""
+
+    @override
+    def add_child(self, child: GraphPattern) -> GraphPattern:
+        if not isinstance(child, GroupGraphPattern):
+            raise self._add_error(child)
+        return super().add_child(child)
 
 
 # == Clause ================================================================
@@ -757,6 +875,8 @@ class Clause(Encodable):
         self.current = self.root
 
     def _begin(self, pattern: GraphPattern) -> GraphPattern:
+        if not isinstance(self.current, CompoundGraphPattern):
+            raise self.current._add_error(pattern)
         self.current.add_child(pattern)
         self.current = pattern
         return pattern
@@ -829,7 +949,7 @@ class WhereClause(Clause):
     @override
     def iterencode(self) -> TGenStr:
         yield Symbol.WHERE
-        yield '\n'
+        yield ' '
         yield self.root.encode()
 
 
@@ -898,7 +1018,8 @@ class Query(Encodable):
             limit: Optional[int] = None,
             offset: Optional[int] = None,
             where: Optional[WhereClause] = None,
-            fresh_var_prefix: Optional[str] = None
+            fresh_var_prefix: Optional[str] = None,
+            fresh_var_counter: Optional[int] = None,
     ):
         self.where = where if where is not None else WhereClause()
         self.clause = self.where
@@ -907,15 +1028,16 @@ class Query(Encodable):
         self._fresh_var_prefix = (
             fresh_var_prefix if fresh_var_prefix is not None
             else self._fresh_var_default_prefix)
-        self._fresh_var_counter = 0
+        self._fresh_var_counter = (
+            fresh_var_counter if fresh_var_counter is not None else 0)
 
     @override
     def iterencode(self) -> TGenStr:
         yield self.where.encode()
         for s in filter(bool, map(
                 Encodable.encode, (self._limit, self._offset))):
-            yield '\n'
             yield s
+            yield '\n'
 
 # -- Term constructors -----------------------------------------------------
 
@@ -1002,39 +1124,6 @@ class Query(Encodable):
 
 # -- Non-graph patterns ----------------------------------------------------
 
-    def triple(
-            self,
-            subject: TSubject,
-            predicate: TPredicate,
-            object: TObject
-    ) -> 'Query':
-        """Pushes triple pattern.
-
-        Parameters:
-           subject: Subject.
-           predicate: Predicate.
-           object: Object.
-
-        Returns:
-           :class:`Query`.
-        """
-        self.clause.current.add_child(
-            TripleGraphPattern(subject, predicate, object, self.clause))
-        return self
-
-    def triples(self, *triples: TTriple) -> 'Query':
-        """Pushes triple patterns.
-
-        Parameters:
-           triples: Triples.
-
-        Returns:
-           :class:`Query`.
-        """
-        for triple in triples:
-            self.triple(*Coerce.triple(triple))
-        return self
-
     def bind(self, expression: TExpression, variable: TVariable) -> 'Query':
         """Pushes BIND.
 
@@ -1045,7 +1134,11 @@ class Query(Encodable):
         Returns:
            :class:`Query`.
         """
-        self.clause.current.add_bind(Bind(expression, variable, self.clause))
+        bind = Bind(expression, variable, self.clause)
+        if not isinstance(self.clause.current, CompoundGraphPattern):
+            raise self.clause.current._add_error(bind)
+        assert isinstance(self.clause.current, CompoundGraphPattern)
+        self.clause.current.add_bind(bind)
         return self
 
     def filter(self, expression: TExpression) -> 'Query':
@@ -1057,10 +1150,43 @@ class Query(Encodable):
         Returns:
            :class:`Query`.
         """
-        self.clause.current.add_filter(Filter(expression, self.clause))
+        filter = Filter(expression, self.clause)
+        if not isinstance(self.clause.current, CompoundGraphPattern):
+            raise self.clause.current._add_error(filter)
+        assert isinstance(self.clause.current, CompoundGraphPattern)
+        self.clause.current.add_filter(filter)
         return self
 
-# -- Graph patterns --------------------------------------------------------
+# -- Atomic graph patterns -------------------------------------------------
+
+    def comments(self) -> CommentsBlock:
+        """Constructs comments block.
+
+        Returns:
+           :class:`CommentsBlock` owned by clause.
+        """
+        return CommentsBlock(self.clause)
+
+    def triples(self) -> TriplesBlock:
+        """Constructs triples block.
+
+        Returns:
+           :class:`TriplesBlock` owned by clause.
+        """
+        return TriplesBlock(self.clause)
+
+    def values(self, *variables: TVariable) -> ValuesBlock:
+        """Constructs VALUES block
+
+        Parameters:
+           variables: Variables.
+
+        Returns:
+           :class:`ValuesBlock` owned by clause.
+        """
+        return ValuesBlock(*variables, clause=self.clause)
+
+# -- Compound graph patterns -----------------------------------------------
 
     def group(self) -> GroupGraphPattern:
         """Constructs group graph pattern.
@@ -1069,33 +1195,6 @@ class Query(Encodable):
            :class:`GroupGraphPattern` owned by clause.
         """
         return GroupGraphPattern(self.clause)
-
-    def optional(self) -> OptionalGraphPattern:
-        """Constructs OPTIONAL graph pattern.
-
-        Returns:
-           :class:`OptionalGraphPattern` owned by clause.
-        """
-        return OptionalGraphPattern(self.clause)
-
-    def union(self) -> UnionGraphPattern:
-        """Constructs UNION graph pattern.
-
-        Returns:
-           :class:`UnionGraphPattern` owned by clause.
-        """
-        return UnionGraphPattern(self.clause)
-
-    def values(self, *variables: TVariable) -> ValuesGraphPattern:
-        """Constructs VALUES graph pattern.
-
-        Parameters:
-           variables: Variables.
-
-        Returns:
-           :class:`ValuesGraphPattern` owned by clause.
-        """
-        return ValuesGraphPattern(*variables, clause=self.clause)
 
     def begin_group(self) -> GroupGraphPattern:
         """Pushes group graph pattern.
@@ -1114,6 +1213,14 @@ class Query(Encodable):
         assert isinstance(self.clause.current, GroupGraphPattern)
         return cast(GroupGraphPattern, self.clause._end())
 
+    def optional(self) -> OptionalGraphPattern:
+        """Constructs OPTIONAL graph pattern.
+
+        Returns:
+           :class:`OptionalGraphPattern` owned by clause.
+        """
+        return OptionalGraphPattern(self.clause)
+
     def begin_optional(self) -> OptionalGraphPattern:
         """Pushes OPTIONAL graph pattern.
 
@@ -1131,6 +1238,14 @@ class Query(Encodable):
         assert isinstance(self.clause.current, OptionalGraphPattern)
         return cast(OptionalGraphPattern, self.clause._end())
 
+    def union(self) -> UnionGraphPattern:
+        """Constructs UNION graph pattern.
+
+        Returns:
+           :class:`UnionGraphPattern` owned by clause.
+        """
+        return UnionGraphPattern(self.clause)
+
     def begin_union(self) -> UnionGraphPattern:
         """Pushes UNION graph pattern.
 
@@ -1147,54 +1262,6 @@ class Query(Encodable):
         """
         assert isinstance(self.clause.current, UnionGraphPattern)
         return cast(UnionGraphPattern, self.clause._end())
-
-    def begin_values(self, *variables: TVariable) -> ValuesGraphPattern:
-        """Pushes VALUES graph pattern.
-
-        Parameters:
-           variables: Variables.
-
-        Returns:
-           :class:`ValuesGraphPattern`.
-        """
-        return cast(
-            ValuesGraphPattern, self.clause._begin(self.values(*variables)))
-
-    def line(self, *values: TValuesValue) -> 'Query':
-        """Pushes VALUES line.
-
-        Parameters:
-           values: Line values.
-
-        Returns:
-           :class:`Query`.
-        """
-        assert isinstance(self.clause.current, ValuesGraphPattern)
-        pattern = cast(ValuesGraphPattern, self.clause.current)
-        pattern.add_line(ValuesLine(*values, clause=self.clause))
-        return self
-
-    def lines(self, *lines: TValuesLine) -> 'Query':
-        """Pushes VALUES lines.
-
-        Parameters:
-           lines: Lines.
-
-        Returns:
-           :class:`Query`.
-        """
-        for line in lines:
-            self.line(*Coerce.values_line(line))
-        return self
-
-    def end_values(self) -> ValuesGraphPattern:
-        """Pops VALUES graph pattern.
-
-        Returns:
-           :class:`ValuesGraphPattern`.
-        """
-        assert isinstance(self.clause.current, ValuesGraphPattern)
-        return cast(ValuesGraphPattern, self.clause._end())
 
 # -- Solution modifiers ----------------------------------------------------
 
@@ -1222,6 +1289,8 @@ class Query(Encodable):
             self,
             limit: Optional[int] = None,
             offset: Optional[int] = None,
+            fresh_var_prefix: Optional[_str] = None,
+            fresh_var_counter: Optional[int] = None,
             deepcopy: bool = True
     ) -> 'AskQuery':
         """Converts query to an ASK query.
@@ -1229,6 +1298,7 @@ class Query(Encodable):
         Parameters:
            limit: Limit.
            offset: Offset.
+           fresh_var_prefix: Prefix of fresh variables.
            deepcopy: Whether to deep-copy the common clauses.
 
         Returns:
@@ -1237,7 +1307,13 @@ class Query(Encodable):
         return AskQuery(
             limit=limit if limit is not None else self._limit.limit,
             offset=offset if offset is not None else self._offset.offset,
-            where=self._deepcopy(deepcopy, self.where))
+            where=self._deepcopy(deepcopy, self.where),
+            fresh_var_prefix=(
+                fresh_var_prefix if fresh_var_prefix is not None
+                else self._fresh_var_prefix),
+            fresh_var_counter=(
+                fresh_var_counter if fresh_var_counter is not None
+                else self._fresh_var_counter))
 
     def select(
             self,
@@ -1246,6 +1322,8 @@ class Query(Encodable):
             reduced: Optional[bool] = None,
             limit: Optional[int] = None,
             offset: Optional[int] = None,
+            fresh_var_prefix: Optional[_str] = None,
+            fresh_var_counter: Optional[int] = None,
             deepcopy: bool = True,
     ) -> 'SelectQuery':
         """Converts query to a SELECT query.
@@ -1256,6 +1334,7 @@ class Query(Encodable):
            reduced: Whether to enable reduced modifier.
            limit: Limit.
            offset: Offset.
+           fresh_var_prefix: Prefix of fresh variables.
            deepcopy: Whether to deep-copy the common clauses.
 
         Returns:
@@ -1267,6 +1346,12 @@ class Query(Encodable):
             reduced=reduced,
             limit=limit if limit is not None else self._limit.limit,
             offset=offset if offset is not None else self._offset.offset,
+            fresh_var_prefix=(
+                fresh_var_prefix if fresh_var_prefix is not None
+                else self._fresh_var_prefix),
+            fresh_var_counter=(
+                fresh_var_counter if fresh_var_counter is not None
+                else self._fresh_var_counter),
             where=self._deepcopy(deepcopy, self.where))
 
     def _deepcopy(self, do_it: bool, v: T) -> T:

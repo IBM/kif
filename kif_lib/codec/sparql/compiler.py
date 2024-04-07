@@ -324,8 +324,7 @@ class Compiler:
 
     def _push_item_template(self, obj: ItemTemplate) -> VQueryURI:
         item = self._push_v_iri(obj.iri)
-        with self._q.group():
-            self._q.triple(item, NS.SCHEMA.version, self._q.bnode())
+        self._q.triple(item, NS.SCHEMA.version, self._q.bnode())
         return item
 
     def _push_item_variable(self, obj: ItemVariable) -> QueryVariable:
