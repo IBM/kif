@@ -38,8 +38,8 @@ TPredicate: TypeAlias = TSubject
 TObject: TypeAlias = Union[TSubject, Literal]
 TTriple: TypeAlias = tuple[TSubject, TPredicate, TObject]
 
-TDataBlockValue: TypeAlias = Optional[Union[URIRef, Literal]]
-TDataBlockLine: TypeAlias = Sequence[TDataBlockValue]
+TValuesValue: TypeAlias = Optional[Union[URIRef, Literal]]
+TValuesLine: TypeAlias = Sequence[TValuesValue]
 
 TInlineBind: TypeAlias = tuple[TExpression, TVariable]
 
@@ -185,11 +185,11 @@ class Coerce:
         return cls._check(v, Sequence)
 
     @classmethod
-    def data_block_value(cls, v: TDataBlockValue) -> TDataBlockValue:
+    def values_value(cls, v: TValuesValue) -> TValuesValue:
         return cls._check(v, (URIRef, Literal, type(None)))
 
     @classmethod
-    def data_block_line(cls, v: TDataBlockLine) -> TDataBlockLine:
+    def values_line(cls, v: TValuesLine) -> TValuesLine:
         return cls._check(v, Sequence)
 
 
@@ -197,6 +197,13 @@ class Coerce:
 
 class Expression(Encodable):
     """Abstract base class for expressions."""
+
+    @abstractmethod
+    def __eq__(self, other):
+        raise NotImplementedError
+
+    def __repr__(self):
+        return str(self)
 
 
 class BooleanExpression(Expression):
@@ -219,6 +226,11 @@ class LogicExpression(BooleanExpression):
 
     def __init__(self, arg: BooleanExpression, *args: BooleanExpression):
         self.args = (arg, *args)
+
+    def __eq__(self, other):
+        return (type(self) is type(other) and
+                self.operator == other.operator
+                and self.args == other.args)
 
     @override
     def iterencode(self) -> TGenStr:
@@ -252,6 +264,11 @@ class RelationalExpression(BooleanExpression):
         self.args = (
             Coerce.numeric_expression(arg1),
             Coerce.numeric_expression(arg2))
+
+    def __eq__(self, other):
+        return (type(self) is type(other) and
+                self.operator == other.operator
+                and self.args == other.args)
 
     @override
     def iterencode(self) -> TGenStr:
@@ -297,17 +314,13 @@ class NumericExpression(BooleanExpression):
 class NumericLiteral(NumericExpression):
     """Numeric literal."""
 
-    _value: Union[URIRef, Literal, Variable]
+    value: Union[URIRef, Literal, Variable]
 
     def __init__(self, value: TNumericLiteralContent):
-        self._value = Coerce.numeric_literal_content(value)
+        self.value = Coerce.numeric_literal_content(value)
 
-    @property
-    def value(self):
-        return self.get_value()
-
-    def get_value(self):
-        return self._value
+    def __eq__(self, other):
+        return (type(self) is type(other) and self.value == other.value)
 
     @override
     def iterencode(self) -> TGenStr:
@@ -317,7 +330,13 @@ class NumericLiteral(NumericExpression):
 class Call(NumericExpression):
     """Abstract base class for function calls."""
 
+    operator: str
     args: Sequence[NumericExpression]
+
+    def __eq__(self, other):
+        return (type(self) is type(other) and
+                self.operator == other.operator
+                and self.args == other.args)
 
     @override
     def iterencode(self) -> TGenStr:
@@ -342,7 +361,7 @@ class URI_Call(Call):
 
 
 class BuiltInCall(Call):
-    """Abstract base class for built-in calls."""
+    """Abstract base class for built-in function calls."""
 
     operator: str
 
@@ -433,21 +452,21 @@ class Bind(Pattern):
         yield ')'
 
 
-# -- DataBlockLine ---------------------------------------------------------
+# -- Values line -----------------------------------------------------------
 
-class DataBlockLine(Pattern):
-    """Data block line pattern."""
+class ValuesLine(Pattern):
+    """Values line pattern."""
 
-    args: Sequence[TDataBlockValue]
+    args: Sequence[TValuesValue]
 
     def __init__(
             self,
-            *args: TDataBlockValue,
+            *args: TValuesValue,
             clause: 'Clause',
             parent: Optional['GraphPattern'] = None
     ):
         super().__init__(clause, parent)
-        self.args = tuple(map(Coerce.data_block_value, args))
+        self.args = tuple(map(Coerce.values_value, args))
 
     @override
     def iterencode(self) -> TGenStr:
@@ -482,38 +501,6 @@ class Filter(Pattern):
         yield ')'
 
 
-# -- Triple ----------------------------------------------------------------
-
-class Triple(Pattern):
-    """Triple pattern."""
-
-    subject: TSubject
-    predicate: TPredicate
-    object: TObject
-
-    def __init__(
-            self,
-            subject: TSubject,
-            predicate: TPredicate,
-            object: TObject,
-            clause: 'Clause',
-            parent: Optional['GraphPattern'] = None
-    ):
-        super().__init__(clause, parent)
-        self.subject = Coerce.subject(subject)
-        self.predicate = Coerce.predicate(predicate)
-        self.object = Coerce.object(object)
-
-    @override
-    def iterencode(self) -> TGenStr:
-        yield self._n3(self.subject)
-        yield ' '
-        yield self._n3(self.predicate)
-        yield ' '
-        yield self._n3(self.object)
-        yield ' .'
-
-
 # == Graph pattern =========================================================
 
 class GraphPattern(Pattern):
@@ -521,7 +508,6 @@ class GraphPattern(Pattern):
 
     binds: MutableSequence[Bind]
     filters: MutableSequence[Filter]
-    triples: MutableSequence[Triple]
     children: MutableSequence['GraphPattern']
 
     def __init__(
@@ -532,7 +518,6 @@ class GraphPattern(Pattern):
         super().__init__(clause, parent)
         self.binds = list()
         self.filters = list()
-        self.triples = list()
         self.children = list()
 
     def __enter__(self):
@@ -550,9 +535,6 @@ class GraphPattern(Pattern):
     def add_filter(self, filter: Filter) -> Filter:
         return cast(Filter, self._add(filter, self.filters))
 
-    def add_triple(self, triple: Triple) -> Triple:
-        return cast(Triple, self._add(triple, self.triples))
-
     def add_child(self, child: 'GraphPattern') -> 'GraphPattern':
         return cast(GraphPattern, self._add(child, self.children))
 
@@ -563,12 +545,11 @@ class GraphPattern(Pattern):
         dest.append(child)
         return child
 
+    def _add_error(self, obj: Pattern) -> SyntaxError:
+        return SyntaxError(f'cannot add {obj.__class__.__qualname__}')
+
     def _subs(self) -> Iterator[Pattern]:
-        return chain(
-            self.triples,
-            self.children,
-            self.binds,
-            self.filters)
+        return chain(self.children, self.binds, self.filters)
 
     @override
     def iterencode(self) -> TGenStr:
@@ -650,12 +631,9 @@ class UnionGraphPattern(GraphPattern):
     """UNION graph pattern."""
 
     @override
-    def add_triple(self, triple: Triple) -> Triple:
-        raise SyntaxError('cannot add triples here')
-
-    @override
     def add_child(self, child: GraphPattern) -> GraphPattern:
-        assert isinstance(child, GroupGraphPattern)
+        if not isinstance(child, GroupGraphPattern):
+            raise self._add_error(child)
         return super().add_child(child)
 
     @override
@@ -671,13 +649,58 @@ class UnionGraphPattern(GraphPattern):
             yield '\n'
 
 
+# -- Triple graph pattern --------------------------------------------------
+
+class TripleGraphPattern(GraphPattern):
+    """Triple graph pattern."""
+
+    subject: TSubject
+    predicate: TPredicate
+    object: TObject
+
+    def __init__(
+            self,
+            subject: TSubject,
+            predicate: TPredicate,
+            object: TObject,
+            clause: 'Clause',
+            parent: Optional['GraphPattern'] = None
+    ):
+        super().__init__(clause, parent)
+        self.subject = Coerce.subject(subject)
+        self.predicate = Coerce.predicate(predicate)
+        self.object = Coerce.object(object)
+
+    @override
+    def add_bind(self, bind: Bind) -> Bind:
+        raise self._add_error(bind)
+
+    @override
+    def add_filter(self, filter: Filter) -> Filter:
+        raise self._add_error(filter)
+
+    @override
+    def add_child(self, child: GraphPattern) -> GraphPattern:
+        raise self._add_error(child)
+
+    @override
+    def _iterencode(self, n: int) -> TGenStr:
+        yield self._indent(n)
+        yield self._n3(self.subject)
+        yield ' '
+        yield self._n3(self.predicate)
+        yield ' '
+        yield self._n3(self.object)
+        yield ' .'
+
+
 # -- Values pattern --------------------------------------------------------
 
 class ValuesGraphPattern(GraphPattern):
     """VALUES graph pattern."""
 
     variables: Sequence[Variable]
-    lines: MutableSequence[DataBlockLine]
+    lines: MutableSequence[ValuesLine]
 
     def __init__(
             self,
@@ -693,26 +716,22 @@ class ValuesGraphPattern(GraphPattern):
 
     @override
     def add_bind(self, bind: Bind) -> Bind:
-        raise SyntaxError('cannot add child binds here')
+        raise self._add_error(bind)
 
     @override
     def add_filter(self, filter: Filter) -> Filter:
-        raise SyntaxError('cannot add filters here')
-
-    @override
-    def add_triple(self, triple: Triple) -> Triple:
-        raise SyntaxError('cannot add triples here')
+        raise self._add_error(filter)
 
     @override
     def add_child(self, child: GraphPattern) -> GraphPattern:
-        raise SyntaxError('cannot add child patterns here')
+        raise self._add_error(child)
 
-    def add_line(self, line: DataBlockLine) -> DataBlockLine:
+    def add_line(self, line: ValuesLine) -> ValuesLine:
         if len(line.args) < len(self.variables):
             raise ValueError('bad values line (too many values)')
         elif len(line.args) > len(self.variables):
             raise ValueError('bad values line (not enough values)')
-        return cast(DataBlockLine, self._add(line, self.lines))
+        return cast(ValuesLine, self._add(line, self.lines))
 
     def _subs(self) -> Iterator[Pattern]:
         return iter(self.lines)
@@ -853,15 +872,27 @@ class OffsetClause(Clause):
 class Query(Encodable):
     """Abstract base class for queries."""
 
+    #: Currently targeted clause.
     clause: Clause
+
+    #: Where clause..
     where: WhereClause
+
+    #: Limit clause.
     _limit: LimitClause
+
+    #: Offset clause.
     _offset: OffsetClause
 
-    _fresh_var_prefix: str
-    _fresh_var_count: int
+    #: Default fresh variable prefix.
+    _fresh_var_default_prefix: str = '_v'
 
-    @abstractmethod
+    #: Fresh variable prefix.
+    _fresh_var_prefix: str
+
+    #: Fresh variable counter.
+    _fresh_var_counter: int
+
     def __init__(
             self,
             limit: Optional[int] = None,
@@ -873,8 +904,10 @@ class Query(Encodable):
         self.clause = self.where
         self._limit = LimitClause(limit)
         self._offset = OffsetClause(offset)
-        self._fresh_var_prefix = fresh_var_prefix or '_v'
-        self._fresh_var_count = 0
+        self._fresh_var_prefix = (
+            fresh_var_prefix if fresh_var_prefix is not None
+            else self._fresh_var_default_prefix)
+        self._fresh_var_counter = 0
 
     @override
     def iterencode(self) -> TGenStr:
@@ -934,8 +967,8 @@ class Query(Encodable):
         Returns:
            :class:`Variable`.
         """
-        name = f'{self._fresh_var_prefix}{self._fresh_var_count}'
-        self._fresh_var_count += 1
+        name = f'{self._fresh_var_prefix}{self._fresh_var_counter}'
+        self._fresh_var_counter += 1
         return self.var(name)
 
     def fresh_vars(self, n: int) -> Iterator[Variable]:
@@ -985,8 +1018,8 @@ class Query(Encodable):
         Returns:
            :class:`Query`.
         """
-        self.clause.current.add_triple(
-            Triple(subject, predicate, object, self.clause))
+        self.clause.current.add_child(
+            TripleGraphPattern(subject, predicate, object, self.clause))
         return self
 
     def triples(self, *triples: TTriple) -> 'Query':
@@ -1127,7 +1160,7 @@ class Query(Encodable):
         return cast(
             ValuesGraphPattern, self.clause._begin(self.values(*variables)))
 
-    def line(self, *values: TDataBlockValue) -> 'Query':
+    def line(self, *values: TValuesValue) -> 'Query':
         """Pushes VALUES line.
 
         Parameters:
@@ -1138,10 +1171,10 @@ class Query(Encodable):
         """
         assert isinstance(self.clause.current, ValuesGraphPattern)
         pattern = cast(ValuesGraphPattern, self.clause.current)
-        pattern.add_line(DataBlockLine(*values, clause=self.clause))
+        pattern.add_line(ValuesLine(*values, clause=self.clause))
         return self
 
-    def lines(self, *lines: TDataBlockLine) -> 'Query':
+    def lines(self, *lines: TValuesLine) -> 'Query':
         """Pushes VALUES lines.
 
         Parameters:
@@ -1151,7 +1184,7 @@ class Query(Encodable):
            :class:`Query`.
         """
         for line in lines:
-            self.line(*Coerce.data_block_line(line))
+            self.line(*Coerce.values_line(line))
         return self
 
     def end_values(self) -> ValuesGraphPattern:

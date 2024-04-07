@@ -1,2 +1,3 @@
-Makefile ident
+kif_lib/codec/sparql/builder.py ident
 kif_lib/model/object.py ident
+Makefile ident
