@@ -228,8 +228,8 @@ class LogicExpression(BooleanExpression):
         self.args = (arg, *args)
 
     def __eq__(self, other):
-        return (type(self) is type(other) and
-                self.operator == other.operator
+        return (type(self) is type(other)
+                and self.operator == other.operator
                 and self.args == other.args)
 
     @override
@@ -266,8 +266,8 @@ class RelationalExpression(BooleanExpression):
             Coerce.numeric_expression(arg2))
 
     def __eq__(self, other):
-        return (type(self) is type(other) and
-                self.operator == other.operator
+        return (type(self) is type(other)
+                and self.operator == other.operator
                 and self.args == other.args)
 
     @override
@@ -334,8 +334,8 @@ class Call(NumericExpression):
     args: Sequence[NumericExpression]
 
     def __eq__(self, other):
-        return (type(self) is type(other) and
-                self.operator == other.operator
+        return (type(self) is type(other)
+                and self.operator == other.operator
                 and self.args == other.args)
 
     @override

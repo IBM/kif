@@ -1,7 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Sequence, Union
+from typing import Union
 from unittest import main, TestCase
 
 from kif_lib.codec.sparql.builder import (
@@ -43,6 +43,7 @@ class TestCodecSPARQL_Builder(TestCase):
         b = BNode()
         self.assert_str(q.str(b), NL(b))
         self.assert_str(q.str(Literal(0)), NL(Literal(0)))
+        self.assert_str(q.str(Variable('x')), NL(Variable('x')))
         self.assert_str(q.str(0), NL(Literal(0)))
         self.assert_str(q.str(''), NL(Literal('')))
 
