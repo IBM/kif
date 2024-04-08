@@ -20,7 +20,7 @@ from kif_lib.codec.sparql.builder import (
 NL = NumericLiteral
 
 
-class TestCodecSPARQL_Builder(TestCase):
+class Test(TestCase):
 
     def assert_call(
             self,

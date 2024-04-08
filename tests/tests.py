@@ -86,8 +86,9 @@ class kif_TestCase(unittest.TestCase):
             return              # nothing to do
         name = self.__class__.__name__
         # self.assertEqual(path.stem, KIF_Object._camel2snake(name))
-        text = open(path).read()
-        self.assertTrue(text.endswith(f'''\
+        with open(path) as fp:
+            text = fp.read()
+            self.assertTrue(text.endswith(f'''\
 if __name__ == '__main__':
     {name}.main()
 '''))

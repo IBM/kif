@@ -787,6 +787,8 @@ class CompoundGraphPattern(GraphPattern):
     binds: MutableSequence[Bind]
     filters: MutableSequence[Filter]
     children: MutableSequence['GraphPattern']
+    stashed_children: MutableSequence['GraphPattern']
+    _stashing: bool
 
     def __init__(
             self,
@@ -797,6 +799,7 @@ class CompoundGraphPattern(GraphPattern):
         self.binds = list()
         self.filters = list()
         self.children = list()
+        self.stash_drop()
 
     def add_bind(self, bind: Bind) -> Bind:
         return cast(Bind, self._add(bind, self.binds))
@@ -805,7 +808,24 @@ class CompoundGraphPattern(GraphPattern):
         return cast(Filter, self._add(filter, self.filters))
 
     def add_child(self, child: 'GraphPattern') -> 'GraphPattern':
-        return cast(GraphPattern, self._add(child, self.children))
+        if self._stashing:
+            return cast(GraphPattern, self._add(child, self.stashed_children))
+        else:
+            return cast(GraphPattern, self._add(child, self.children))
+
+    def stash_begin(self):
+        self._stashing = True
+
+    def stash_end(self):
+        self._stashing = False
+
+    def stash_pop(self):
+        self.children += self.stashed_children
+        self.stash_drop()
+
+    def stash_drop(self):
+        self.stashed_children = list()
+        self._stashing = False
 
     def _iterencode(self, n: int) -> TGenStr:
         yield from self._iterencode_begin(n)
@@ -903,6 +923,22 @@ class Clause(Encodable):
             assert self.current.parent is not None
             self.current = self.current.parent
         return saved_current
+
+    def stash_begin(self):
+        assert isinstance(self.current, CompoundGraphPattern)
+        self.current.stash_begin()
+
+    def stash_end(self):
+        assert isinstance(self.current, CompoundGraphPattern)
+        self.current.stash_end()
+
+    def stash_pop(self):
+        assert isinstance(self.current, CompoundGraphPattern)
+        self.current.stash_pop()
+
+    def stash_drop(self):
+        assert isinstance(self.current, CompoundGraphPattern)
+        self.current.stash_drop()
 
 
 class AskClause(Clause):
@@ -1011,7 +1047,7 @@ class Query(Encodable):
     #: Currently targeted clause.
     clause: Clause
 
-    #: Where clause..
+    #: Where clause.
     where: WhereClause
 
     #: Limit clause.
@@ -1054,6 +1090,24 @@ class Query(Encodable):
                 Encodable.encode, (self._limit, self._offset))):
             yield s
             yield '\n'
+
+# -- Stashing --------------------------------------------------------------
+
+    def stash_begin(self) -> 'Query':
+        self.clause.stash_begin()
+        return self
+
+    def stash_end(self) -> 'Query':
+        self.clause.stash_end()
+        return self
+
+    def stash_pop(self) -> 'Query':
+        self.clause.stash_pop()
+        return self
+
+    def stash_drop(self) -> 'Query':
+        self.clause.stash_drop()
+        return self
 
 # -- Term constructors -----------------------------------------------------
 
@@ -1259,6 +1313,21 @@ class Query(Encodable):
            :class:`OptionalGraphPattern` owned by clause.
         """
         return OptionalGraphPattern(self.clause)
+
+    def optional_if(
+            self,
+            condition: bool
+    ) -> Union[OptionalGraphPattern, GroupGraphPattern]:
+        """Constructs OPTIONAL or graph pattern depending on `condition`.
+
+        Parameters:
+           condition: Boolean condition.
+
+        Returns:
+           :class:`OptionalGraphPattern` if `condition` is ``True``;
+           :class:`GroupGraphPattern` otherwise.
+        """
+        return self.optional() if condition else self.group()
 
     def begin_optional(self) -> OptionalGraphPattern:
         """Pushes OPTIONAL graph pattern.
