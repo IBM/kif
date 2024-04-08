@@ -117,15 +117,21 @@ TTime: TypeAlias = Union['Time', TDatetime]
 
 VTTimeContent: TypeAlias = Union['TimeVariable', TTime]
 
-VTime: TypeAlias = Union['TimeTemplate', 'TimeVariable', TTime]
+VTimeContent: TypeAlias = Union['TimeVariable', 'Time']
+
+VTime: TypeAlias = Union['TimeTemplate', 'TimeVariable', 'Time']
 
 TTimePrecision: TypeAlias = Union['Time.Precision', TQuantity]
 
 VTTimePrecisionContent: TypeAlias = Union['QuantityVariable', TTimePrecision]
 
+VTimePrecisionContent: TypeAlias = Union['QuantityVariable', 'Time.Precision']
+
 TTimeTimezone: TypeAlias = TQuantity
 
 VTTimeTimezoneContent: TypeAlias = VTQuantityContent
+
+VTimeTimezoneContent: TypeAlias = Union['QuantityVariable', int]
 
 # -- Datatype --
 
@@ -1399,6 +1405,46 @@ class TimeTemplate(DeepDataValueTemplate):
         else:
             raise self._should_not_get_here()
 
+    @property
+    def time(self) -> VTimeContent:
+        return self.get_time()
+
+    def get_time(self) -> VTimeContent:
+        return self.args[0]
+
+    @property
+    def precision(self) -> Optional[VTimePrecisionContent]:
+        return self.get_precision()
+
+    def get_precision(
+            self,
+            default: Optional[VTimePrecisionContent] = None
+    ) -> Optional[VTimePrecisionContent]:
+        prec = self.args[1]
+        return prec if prec is not None else default
+
+    @property
+    def timezone(self) -> Optional[VTimeTimezoneContent]:
+        return self.get_timezone()
+
+    def get_timezone(
+            self,
+            default: Optional[VTimeTimezoneContent] = None
+    ) -> Optional[VTimeTimezoneContent]:
+        tz = self.args[2]
+        return tz if tz is not None else default
+
+    @property
+    def calendar(self) -> Optional[VItem]:
+        return self.get_calendar()
+
+    def get_calendar(
+            self,
+            default: Optional[VItem] = None
+    ) -> Optional[VItem]:
+        cal = self.args[3]
+        return cal if cal is not None else default
+
 
 class TimeVariable(DeepDataValueVariable):
     """Time variable.
@@ -1503,7 +1549,7 @@ class Time(DeepDataValue):
     #: Decade.
     DECADE = Precision.DECADE
 
-    #: Year
+    #: Year.
     YEAR = Precision.YEAR
 
     #: Month.

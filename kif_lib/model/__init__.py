@@ -113,6 +113,7 @@ from .value import (
     TextVariable,
     Time,
     TimeDatatype,
+    TimeTemplate,
     TimeVariable,
     TString,
     TText,
@@ -128,6 +129,7 @@ from .value import (
     VQuantity,
     VString,
     VText,
+    VTime,
     VValue,
 )
 from .value_set import TextSet, TTextSet, TValueSet, ValueSet
