@@ -43,7 +43,7 @@ VEntity: TypeAlias = Union['EntityTemplate', 'EntityVariable', 'Entity']
 
 TItem: TypeAlias = Union['Item', 'T_IRI']
 
-VItemContent: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'TItem']
+VTItemContent: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'TItem']
 
 VItem: TypeAlias = Union['ItemTemplate', 'ItemVariable', 'Item']
 
@@ -51,7 +51,7 @@ VItem: TypeAlias = Union['ItemTemplate', 'ItemVariable', 'Item']
 
 TProperty: TypeAlias = Union['Property', 'T_IRI']
 
-VPropertyContent: TypeAlias =\
+VTPropertyContent: TypeAlias =\
     Union['IRI_Template', 'IRI_Variable', 'TProperty']
 
 VProperty: TypeAlias =\
@@ -61,7 +61,7 @@ VProperty: TypeAlias =\
 
 TLexeme: TypeAlias = Union['Lexeme', 'T_IRI']
 
-VLexemeContent: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'TLexeme']
+VTLexemeContent: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'TLexeme']
 
 VLexeme: TypeAlias = Union['LexemeTemplate', 'LexemeVariable', 'Lexeme']
 
@@ -69,7 +69,7 @@ VLexeme: TypeAlias = Union['LexemeTemplate', 'LexemeVariable', 'Lexeme']
 
 T_IRI: TypeAlias = Union['IRI', 'String', NS.T_URI]
 
-V_IRI_Content: TypeAlias = Union['StringVariable', T_IRI]
+VT_IRI_Content: TypeAlias = Union['StringVariable', T_IRI]
 
 V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'IRI']
 
@@ -77,32 +77,36 @@ V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'IRI']
 
 TText: TypeAlias = Union['Text', 'TString']
 
-VTextContent: TypeAlias = Union['StringVariable', TText]
+VTTextContent: TypeAlias = Union['StringVariable', TText]
 
-VText: TypeAlias = Union['TextTemplate', 'TextVariable', TText]
+VText: TypeAlias = Union['TextTemplate', 'TextVariable', 'Text']
 
 # -- String --
 
 TString: TypeAlias = Union['String', str]
 
-VStringContent: TypeAlias = Union['StringVariable', TString]
+VTStringContent: TypeAlias = Union['StringVariable', TString]
 
-VString: TypeAlias = Union['StringTemplate', 'StringVariable', TString]
+VStringContent: TypeAlias = Union['StringVariable', str]
+
+VString: TypeAlias = Union['StringTemplate', 'StringVariable', 'String']
 
 # -- External id --
 
 TExternalId: TypeAlias = Union['ExternalId', TString]
 
-VExternalIdContent: TypeAlias = Union['StringVariable', TExternalId]
+VTExternalIdContent: TypeAlias = Union['StringVariable', TExternalId]
 
 VExternalId: TypeAlias =\
-    Union['ExternalIdTemplate', 'ExternalIdVariable', TExternalId]
+    Union['ExternalIdTemplate', 'ExternalIdVariable', 'ExternalId']
 
 # -- Quantity --
 
 TQuantity: TypeAlias = Union['Quantity', TDecimal]
 
-VQuantityContent: TypeAlias = Union['QuantityVariable', TQuantity]
+VTQuantityContent: TypeAlias = Union['QuantityVariable', TQuantity]
+
+VQuantityContent: TypeAlias = Union['QuantityVariable', Decimal]
 
 VQuantity: TypeAlias =\
     Union['QuantityTemplate', 'QuantityVariable', TQuantity]
@@ -111,17 +115,17 @@ VQuantity: TypeAlias =\
 
 TTime: TypeAlias = Union['Time', TDatetime]
 
-VTimeContent: TypeAlias = Union['TimeVariable', TTime]
+VTTimeContent: TypeAlias = Union['TimeVariable', TTime]
 
 VTime: TypeAlias = Union['TimeTemplate', 'TimeVariable', TTime]
 
 TTimePrecision: TypeAlias = Union['Time.Precision', TQuantity]
 
-VTimePrecisionContent: TypeAlias = Union['QuantityVariable', TTimePrecision]
+VTTimePrecisionContent: TypeAlias = Union['QuantityVariable', TTimePrecision]
 
 TTimeTimezone: TypeAlias = TQuantity
 
-VTimeTimezoneContent: TypeAlias = VQuantityContent
+VTTimeTimezoneContent: TypeAlias = VTQuantityContent
 
 # -- Datatype --
 
@@ -492,7 +496,7 @@ class ItemTemplate(EntityTemplate):
         iri: IRI.
     """
 
-    def __init__(self, iri: VItemContent):
+    def __init__(self, iri: VTItemContent):
         super().__init__(iri)
 
 
@@ -528,11 +532,11 @@ class Item(Entity):
         return cls(cls._check_arg_isinstance(
             arg, (cls, IRI, URIRef, String, str), function, name, position))
 
-    def __init__(self, iri: VItemContent):
+    def __init__(self, iri: VTItemContent):
         super().__init__(iri)
 
 
-def Items(iri: VItemContent, *iris: VItemContent) -> Iterable[Item]:
+def Items(iri: VTItemContent, *iris: VTItemContent) -> Iterable[Item]:
     """Constructs one or more items.
 
     Parameters:
@@ -554,7 +558,7 @@ class PropertyTemplate(EntityTemplate):
        iri: IRI.
     """
 
-    def __init__(self, iri: VPropertyContent):
+    def __init__(self, iri: VTPropertyContent):
         super().__init__(iri)
 
 
@@ -590,7 +594,7 @@ class Property(Entity):
         return cls(cls._check_arg_isinstance(
             arg, (cls, IRI, URIRef, String, str), function, name, position))
 
-    def __init__(self, iri: VPropertyContent):
+    def __init__(self, iri: VTPropertyContent):
         super().__init__(iri)
 
     def __call__(self, value1, value2=None):
@@ -601,8 +605,8 @@ class Property(Entity):
 
 
 def Properties(
-        iri: VPropertyContent,
-        *iris: VPropertyContent
+        iri: VTPropertyContent,
+        *iris: VTPropertyContent
 ) -> Iterable[Property]:
     """Constructs one or more properties.
 
@@ -625,7 +629,7 @@ class LexemeTemplate(EntityTemplate):
        iri: IRI.
     """
 
-    def __init__(self, iri: VLexemeContent):
+    def __init__(self, iri: VTLexemeContent):
         super().__init__(iri)
 
 
@@ -661,11 +665,11 @@ class Lexeme(Entity):
         return cls(cls._check_arg_isinstance(
             arg, (cls, IRI, URIRef, String, str), function, name, position))
 
-    def __init__(self, iri: VLexemeContent):
+    def __init__(self, iri: VTLexemeContent):
         super().__init__(iri)
 
 
-def Lexemes(iri: VLexemeContent, *iris: VLexemeContent) -> Iterable[Lexeme]:
+def Lexemes(iri: VTLexemeContent, *iris: VTLexemeContent) -> Iterable[Lexeme]:
     """Constructs one or more lexemes.
 
     Parameters:
@@ -706,10 +710,10 @@ class ShallowDataValueTemplate(DataValueTemplate):
     """Abstract base class for shallow data value templates."""
 
     @property
-    def content(self) -> str:
+    def content(self) -> VStringContent:
         return self.get_content()
 
-    def get_content(self) -> str:
+    def get_content(self) -> VStringContent:
         return self.args[0]
 
 
@@ -754,7 +758,7 @@ class IRI_Template(ShallowDataValueTemplate):
        content: IRI content.
     """
 
-    def __init__(self, content: V_IRI_Content):
+    def __init__(self, content: VT_IRI_Content):
         super().__init__(content)
 
     @override
@@ -800,7 +804,7 @@ class IRI(ShallowDataValue):
         return cls(cls._check_arg_isinstance(
             arg, (cls, URIRef, String, str), function, name, position))
 
-    def __init__(self, content: V_IRI_Content):
+    def __init__(self, content: VT_IRI_Content):
         super().__init__(content)
 
     @override
@@ -831,8 +835,8 @@ class TextTemplate(ShallowDataValueTemplate):
 
     def __init__(
             self,
-            content: VTextContent,
-            language: Optional[VStringContent] = None
+            content: VTTextContent,
+            language: Optional[VTStringContent] = None
     ):
         super().__init__(content, language)
 
@@ -850,6 +854,13 @@ class TextTemplate(ShallowDataValueTemplate):
                 return Text._static_preprocess_arg(self, arg, i)
         else:
             raise self._should_not_get_here()
+
+    @property
+    def language(self) -> VStringContent:
+        return self.get_language()
+
+    def get_language(self) -> VStringContent:
+        return self.args[1]
 
 
 class TextVariable(ShallowDataValueVariable):
@@ -890,8 +901,8 @@ class Text(ShallowDataValue):
 
     def __init__(
             self,
-            content: VTextContent,
-            language: Optional[VStringContent] = None
+            content: VTTextContent,
+            language: Optional[VTStringContent] = None
     ):
         if isinstance(content, Text) and language is None:
             language = content.language
@@ -936,7 +947,7 @@ class StringTemplate(ShallowDataValueTemplate):
        content: String content.
     """
 
-    def __init__(self, content: VStringContent):
+    def __init__(self, content: VTStringContent):
         super().__init__(content)
 
     @override
@@ -982,7 +993,7 @@ class String(ShallowDataValue):
         return cls(cls._check_arg_isinstance(
             arg, (cls, str), function, name, position))
 
-    def __init__(self, content: VStringContent):
+    def __init__(self, content: VTStringContent):
         super().__init__(content)
 
     @override
@@ -1007,7 +1018,7 @@ class ExternalIdTemplate(StringTemplate):
        content: External id content.
     """
 
-    def __init__(self, content: VExternalIdContent):
+    def __init__(self, content: VTExternalIdContent):
         super().__init__(content)
 
     @override
@@ -1072,7 +1083,7 @@ class ExternalId(String):
         else:
             return cast(Value, cls.check(res))
 
-    def __init__(self, content: VExternalIdContent):
+    def __init__(self, content: VTExternalIdContent):
         super().__init__(content)
 
     @override
@@ -1121,10 +1132,10 @@ class QuantityTemplate(DeepDataValueTemplate):
 
     def __init__(
             self,
-            amount: VQuantityContent,
+            amount: VTQuantityContent,
             unit: Optional[VItem] = None,
-            lower_bound: Optional[VQuantityContent] = None,
-            upper_bound: Optional[VQuantityContent] = None):
+            lower_bound: Optional[VTQuantityContent] = None,
+            upper_bound: Optional[VTQuantityContent] = None):
         super().__init__(amount, unit, lower_bound, upper_bound)
 
     @override
@@ -1153,6 +1164,46 @@ class QuantityTemplate(DeepDataValueTemplate):
                 return Quantity._static_preprocess_arg(self, arg, i)
         else:
             raise self._should_not_get_here()
+
+    @property
+    def amount(self) -> VQuantityContent:
+        return self.get_amount()
+
+    def get_amount(self) -> VQuantityContent:
+        return self.args[0]
+
+    @property
+    def unit(self) -> Optional[VItem]:
+        return self.get_unit()
+
+    def get_unit(
+            self,
+            default: Optional[VItem] = None
+    ) -> Optional[VItem]:
+        unit = self.args[1]
+        return unit if unit is not None else default
+
+    @property
+    def lower_bound(self) -> Optional[VQuantityContent]:
+        return self.get_lower_bound()
+
+    def get_lower_bound(
+            self,
+            default: Optional[VQuantityContent] = None
+    ) -> Optional[VQuantityContent]:
+        lb = self.args[2]
+        return lb if lb is not None else default
+
+    @property
+    def upper_bound(self) -> Optional[VQuantityContent]:
+        return self.get_upper_bound()
+
+    def get_upper_bound(
+            self,
+            default: Optional[VQuantityContent] = None
+    ) -> Optional[VQuantityContent]:
+        ub = self.args[3]
+        return ub if ub is not None else default
 
 
 class QuantityVariable(DeepDataValueVariable):
@@ -1192,10 +1243,10 @@ class Quantity(DeepDataValue):
 
     def __init__(
             self,
-            amount: VQuantityContent,
+            amount: VTQuantityContent,
             unit: Optional[VItem] = None,
-            lower_bound: Optional[VQuantityContent] = None,
-            upper_bound: Optional[VQuantityContent] = None):
+            lower_bound: Optional[VTQuantityContent] = None,
+            upper_bound: Optional[VTQuantityContent] = None):
         super().__init__(amount, unit, lower_bound, upper_bound)
 
     @override
@@ -1315,9 +1366,9 @@ class TimeTemplate(DeepDataValueTemplate):
 
     def __init__(
             self,
-            time: VTimeContent,
-            precision: Optional[VTimePrecisionContent] = None,
-            timezone: Optional[VTimeTimezoneContent] = None,
+            time: VTTimeContent,
+            precision: Optional[VTTimePrecisionContent] = None,
+            timezone: Optional[VTTimeTimezoneContent] = None,
             calendar: Optional[VItem] = None):
         super().__init__(time, precision, timezone, calendar)
 
@@ -1593,9 +1644,9 @@ class Time(DeepDataValue):
 
     def __init__(
             self,
-            time: VTimeContent,
-            precision: Optional[VTimePrecisionContent] = None,
-            timezone: Optional[VTimeTimezoneContent] = None,
+            time: VTTimeContent,
+            precision: Optional[VTTimePrecisionContent] = None,
+            timezone: Optional[VTTimeTimezoneContent] = None,
             calendar: Optional[VItem] = None):
         super().__init__(time, precision, timezone, calendar)
 

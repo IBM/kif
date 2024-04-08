@@ -32,6 +32,7 @@ TNumericLiteralContent: TypeAlias = Union[URIRef, TLiteral, Variable]
 TNumericLiteral: TypeAlias = Union[
     'NumericLiteral', URIRef, TLiteral, Variable]
 TNumericExpression: TypeAlias = Union['NumericExpression', TNumericLiteral]
+TNumExpr: TypeAlias = TNumericExpression
 TExpression: TypeAlias = Union['Expression', TNumericExpression]
 
 TComment: TypeAlias = Union['Comment', str]
@@ -86,6 +87,7 @@ class Symbol:
     GREATER_THAN_OR_EQUAL: Final[str] = '>='
     INDENT: Final[str] = '  '
     IS_URI: Final[str] = 'isURI'
+    LANG: Final[str] = 'LANG'
     LESS_THAN: Final[str] = '<'
     LESS_THAN_OR_EQUAL: Final[str] = '<='
     LIMIT: Final[str] = 'LIMIT'
@@ -97,6 +99,7 @@ class Symbol:
     SELECT: Final[str] = 'SELECT'
     STAR: Final[str] = '*'
     STR: Final[str] = 'STR'
+    STRLANG: Final[str] = 'STRLANG'
     STRSTARTS: Final[str] = 'STRSTARTS'
     UNDEF: Final[str] = 'UNDEF'
     UNION: Final[str] = 'UNION'
@@ -133,10 +136,10 @@ class Coerce:
         return cls._check(v, BNode)
 
     @classmethod
-    def literal(cls, v: TLiteral) -> Literal:
+    def literal(cls, v: TLiteral, lang: Optional[str] = None) -> Literal:
         return Literal(cls._check(v, (
             Literal, bool, datetime.datetime, decimal.Decimal,
-            float, int, str)))
+            float, int, str)), lang=lang)
 
     @classmethod
     def variable(cls, v: TVariable) -> Variable:
@@ -150,7 +153,7 @@ class Coerce:
             return cls.numeric_expression(v)
 
     @classmethod
-    def numeric_expression(cls, v: TNumericExpression) -> 'NumericExpression':
+    def numeric_expression(cls, v: TNumExpr) -> 'NumericExpression':
         if isinstance(v, NumericExpression):
             return v
         else:
@@ -296,7 +299,7 @@ class RelationalExpression(BooleanExpression):
     operator: str
     args: tuple['NumericExpression', 'NumericExpression']
 
-    def __init__(self, arg1: TNumericExpression, arg2: TNumericExpression):
+    def __init__(self, arg1: TNumExpr, arg2: TNumExpr):
         self.args = (
             Coerce.numeric_expression(arg1),
             Coerce.numeric_expression(arg2))
@@ -386,7 +389,7 @@ class URI_Call(Call):
 
     operator: URIRef
 
-    def __init__(self, uri: T_URI, *args: TNumericExpression):
+    def __init__(self, uri: T_URI, *args: TNumExpr):
         self.operator = Coerce.uri(uri)
         self.args = tuple(map(Coerce.numeric_expression, args))
 
@@ -410,17 +413,21 @@ class BuiltInCall(Call):
 class UnaryBuiltInCall(BuiltInCall):
     """Abstract base class for 1-ary built-in calls."""
 
-    def __init__(self, arg: TNumericExpression):
+    def __init__(self, arg: TNumExpr):
         self.args = (Coerce.numeric_expression(arg),)
 
 
 class BinaryBuiltInCall(BuiltInCall):
     """Abstract base class for 2-ary built-in calls."""
 
-    def __init__(self, arg1: TNumericExpression, arg2: TNumericExpression):
+    def __init__(self, arg1: TNumExpr, arg2: TNumExpr):
         self.args = (
             Coerce.numeric_expression(arg1),
             Coerce.numeric_expression(arg2))
+
+
+class LANG(UnaryBuiltInCall):
+    operator: str = Symbol.LANG
 
 
 class STR(UnaryBuiltInCall):
@@ -429,6 +436,10 @@ class STR(UnaryBuiltInCall):
 
 class STRSTARTS(BinaryBuiltInCall):
     operator: str = Symbol.STRSTARTS
+
+
+class STRLANG(BinaryBuiltInCall):
+    operator: str = Symbol.STRLANG
 
 
 class IsURI(UnaryBuiltInCall):
@@ -1065,6 +1076,22 @@ class Query(Encodable):
         """
         return BNode()
 
+    def literal(
+            self,
+            content: TLiteral,
+            language: Optional[str] = None
+    ) -> Literal:
+        """Constructs :class:`Literal`.
+
+        Parameters:
+           content: Literal content.
+           language: Literal language.
+
+        Returns:
+           :class:`Literal`.a
+        """
+        return Coerce.literal(content, language)
+
     def var(self, name: TVariable) -> Variable:
         """Constructs :class:`Variable`.
 
@@ -1109,22 +1136,29 @@ class Query(Encodable):
         """
         return map(lambda x: self.fresh_var(), range(n))
 
+# -- Relational operators --------------------------------------------------
+
+    def eq(self, arg1: TNumExpr, arg2: TNumExpr) -> Equal:
+        return Equal(arg1, arg2)
+
 # -- Functions -------------------------------------------------------------
 
-    def call(self, op: T_URI, *args: TNumericExpression) -> URI_Call:
+    def call(self, op: T_URI, *args: TNumExpr) -> URI_Call:
         return URI_Call(op, *args)
 
-    def str(self, arg: TNumericExpression) -> BuiltInCall:
+    def lang(self, arg: TNumExpr) -> BuiltInCall:
+        return LANG(arg)
+
+    def str(self, arg: TNumExpr) -> BuiltInCall:
         return STR(arg)
 
-    def strstarts(
-            self,
-            arg1: TNumericExpression,
-            arg2: TNumericExpression
-    ) -> BuiltInCall:
+    def strlang(self, arg1: TNumExpr, arg2: TNumExpr) -> BuiltInCall:
+        return STRLANG(arg1, arg2)
+
+    def strstarts(self, arg1: TNumExpr, arg2: TNumExpr) -> BuiltInCall:
         return STRSTARTS(arg1, arg2)
 
-    def is_uri(self, arg: TNumericExpression) -> BuiltInCall:
+    def is_uri(self, arg: TNumExpr) -> BuiltInCall:
         return IsURI(arg)
 
 # -- Non-graph patterns ----------------------------------------------------

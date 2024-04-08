@@ -6,11 +6,13 @@ from ...error import ShouldNotGetHere
 from ...itertools import chain
 from ...model import (
     Datatype,
-    DataValue,
-    DataValueTemplate,
+    Decimal,
     Entity,
     EntityTemplate,
     EntityVariable,
+    ExternalId,
+    ExternalIdTemplate,
+    ExternalIdVariable,
     IRI,
     IRI_Template,
     IRI_Variable,
@@ -27,16 +29,22 @@ from ...model import (
     Property,
     PropertyTemplate,
     PropertyVariable,
-    ShallowDataValue,
-    ShallowDataValueTemplate,
+    Quantity,
+    QuantityTemplate,
+    QuantityVariable,
     Snak,
     SnakTemplate,
     SnakVariable,
     SomeValueSnak,
     SomeValueSnakTemplate,
     SomeValueSnakVariable,
+    String,
+    StringTemplate,
     StringVariable,
     Template,
+    Text,
+    TextTemplate,
+    TextVariable,
     V_IRI,
     Value,
     ValueSnak,
@@ -45,9 +53,13 @@ from ...model import (
     ValueTemplate,
     ValueVariable,
     Variable,
+    VExternalId,
     VItem,
     VLexeme,
     VProperty,
+    VQuantity,
+    VString,
+    VText,
     VValue,
 )
 from ...typing import (
@@ -136,7 +148,7 @@ class Compiler:
         self._theta = Substitution()
 
     def compile(self) -> 'Compiler':
-        self._push(self._input)
+        self._compile(self._input)
         return self
 
     def _qvar(self, var: TQueryVariable) -> QueryVariable:
@@ -164,32 +176,55 @@ class Compiler:
             *vars: Variable
     ) -> Iterator[QueryVariable]:
         return map(self._as_qvar, chain((var,), vars))
+
+    def _fresh_variable(self, variable_class: type[Variable]) -> Variable:
+        return variable_class(str(self._fresh_qvar()))
+
+    def _fresh_variables(
+            self,
+            variable_class: type[Variable],
+            n: int
+    ) -> Iterator[Variable]:
+        return map(
+            lambda qvar: variable_class(str(qvar)), self._fresh_qvars(n))
+
+    def _fresh_value_variable(self) -> ValueVariable:
+        return cast(ValueVariable, self._fresh_variable(ValueVariable))
+
+    def _fresh_item_variable(self) -> ItemVariable:
+        return cast(ItemVariable, self._fresh_variable(ItemVariable))
+
+    def _fresh_property_variable(self) -> PropertyVariable:
+        return cast(PropertyVariable, self._fresh_variable(PropertyVariable))
+
+    def _fresh_string_variable(self) -> StringVariable:
+        return cast(StringVariable, self._fresh_variable(StringVariable))
 
 # -- _push -----------------------------------------------------------------
 
-    def _push(self, obj: KIF_Object) -> Any:
+    def _compile(self, obj: KIF_Object) -> Any:
         if isinstance(obj, Template):
             if isinstance(obj, ValueTemplate):
-                return self._do_push_value_template(obj)
+                return self._compile_value_template(obj)
             elif isinstance(obj, SnakTemplate):
-                return self._do_push_snak_template(obj)
+                return self._compile_snak_template(obj)
             else:
                 raise ShouldNotGetHere
         elif isinstance(obj, Variable):
             if isinstance(obj, ValueVariable):
-                return self._do_push_value_variable(obj)
+                return self._compile_value_variable(obj)
             elif isinstance(obj, SnakVariable):
-                return self._do_push_snak_variable(obj)
+                return self._compile_snak_variable(obj)
             else:
                 raise ShouldNotGetHere
         elif isinstance(obj, Value):
-            return self._do_push_value(obj)
+            return self._compile_value(obj)
         elif isinstance(obj, Snak):
-            return self._do_push_snak(obj)
+            return self._compile_snak(obj)
         else:
             raise ShouldNotGetHere
 
-    def _do_push_value_template(self, obj: ValueTemplate) -> Any:
+    def _compile_value_template(self, obj: ValueTemplate) -> Any:
         if isinstance(obj, EntityTemplate):
             if isinstance(obj, ItemTemplate):
                 return self._push_item_template(obj)
@@ -199,16 +234,11 @@ class Compiler:
                 return self._push_lexeme_template(obj)
             else:
                 raise ShouldNotGetHere
-        elif isinstance(obj, DataValueTemplate):
-            if isinstance(obj, ShallowDataValueTemplate):
-                if isinstance(obj, IRI_Template):
-                    return self._push_iri_template(obj)
-                else:
-                    raise ShouldNotGetHere
         else:
-            raise ShouldNotGetHere
+            return self._push_value_snak_template(
+                ValueSnakTemplate(self._fresh_property_variable(), obj))
 
-    def _do_push_value_variable(self, obj: ValueVariable) -> Any:
+    def _compile_value_variable(self, obj: ValueVariable) -> Any:
         if isinstance(obj, EntityVariable):
             if isinstance(obj, ItemVariable):
                 return self._push_item_variable(obj)
@@ -218,12 +248,11 @@ class Compiler:
                 return self._push_lexeme_variable(obj)
             else:
                 return self._push_entity_variable(obj)
-        elif isinstance(obj, IRI_Variable):
-            return self._push_iri_variable(obj)
         else:
-            raise NotImplementedError
+            return self._push_value_snak_template(
+                ValueSnakTemplate(self._fresh_property_variable(), obj))
 
-    def _do_push_value(self, obj: Value) -> Any:
+    def _compile_value(self, obj: Value) -> Any:
         if isinstance(obj, Entity):
             if isinstance(obj, Item):
                 return self._push_item(obj)
@@ -233,18 +262,11 @@ class Compiler:
                 return self._push_lexeme(obj)
             else:
                 raise ShouldNotGetHere
-        elif isinstance(obj, DataValue):
-            if isinstance(obj, ShallowDataValue):
-                if isinstance(obj, IRI):
-                    return self._push_iri(obj)
-                else:
-                    raise ShouldNotGetHere
-            else:
-                raise ShouldNotGetHere
         else:
-            raise ShouldNotGetHere
+            return self._push_value_snak_template(
+                ValueSnakTemplate(self._fresh_property_variable(), obj))
 
-    def _do_push_snak_template(self, obj: SnakTemplate) -> Any:
+    def _compile_snak_template(self, obj: SnakTemplate) -> Any:
         if isinstance(obj, ValueSnakTemplate):
             return self._push_value_snak_template(obj)
         elif isinstance(obj, SomeValueSnakTemplate):
@@ -254,7 +276,7 @@ class Compiler:
         else:
             raise ShouldNotGetHere
 
-    def _do_push_snak_variable(self, obj: SnakVariable) -> Any:
+    def _compile_snak_variable(self, obj: SnakVariable) -> Any:
         if isinstance(obj, ValueSnakVariable):
             return self._push_value_snak_variable(obj)
         elif isinstance(obj, SomeValueSnakVariable):
@@ -264,9 +286,9 @@ class Compiler:
         else:
             raise ShouldNotGetHere
 
-    def _do_push_snak(self, obj: Snak) -> Any:
+    def _compile_snak(self, obj: Snak) -> Any:
         if isinstance(obj, ValueSnak):
-            raise NotImplementedError
+            return self._push_value_snak(obj)
         elif isinstance(obj, SomeValueSnak):
             return self._push_some_value_snak(obj)
         elif isinstance(obj, NoValueSnak):
@@ -299,7 +321,12 @@ class Compiler:
         else:
             raise ShouldNotGetHere
 
-    def _push_v_value(self, obj: VValue) -> VQueryTerm:
+    def _push_v_value(
+            self,
+            obj: VValue,
+            prop: VQueryURI,
+            wds: VQueryURI
+    ) -> VQueryTerm:
         if isinstance(obj, (ItemTemplate, ItemVariable, Item)):
             return self._push_v_item(obj)
         elif isinstance(obj, (PropertyTemplate, PropertyVariable, Property)):
@@ -308,6 +335,15 @@ class Compiler:
             return self._push_v_lexeme(obj)
         elif isinstance(obj, (IRI_Template, IRI_Variable, IRI)):
             return self._push_v_iri(obj)
+        elif isinstance(obj, (TextTemplate, TextVariable, Text)):
+            return self._push_v_text(obj)
+        elif isinstance(obj, (
+                ExternalIdTemplate, ExternalIdVariable, ExternalId)):
+            return self._push_v_external_id(obj)
+        elif isinstance(obj, (StringTemplate, StringVariable, String)):
+            return self._push_v_string(obj)
+        elif isinstance(obj, (QuantityTemplate, QuantityVariable, Quantity)):
+            return self._push_v_quantity(obj, prop, wds)
         else:
             assert isinstance(obj, ValueVariable)
             return self._as_qvar(obj)
@@ -428,12 +464,12 @@ class Compiler:
     def _push_iri_template(self, obj: IRI_Template) -> VQueryURI:
         content = obj.content
         if isinstance(content, StringVariable):
-            uri_var = self._as_qvar(content)
+            content_var = self._as_qvar(content)
             str_var = self._theta.add(content, self._fresh_qvar())
-            self._q.bind(self._q.str(uri_var), str_var)
-            return uri_var
+            self._q.bind(self._q.str(content_var), str_var)
+            return content_var
         elif isinstance(content, str):
-            uri = self._push(IRI(content))
+            uri = self._push_iri(IRI(content))
             assert isinstance(uri, QueryURI)
             return uri
         else:
@@ -445,7 +481,202 @@ class Compiler:
     def _push_iri(self, obj: IRI) -> QueryURI:
         return self._q.uri(obj.content)
 
-# -- ValueSnak -------------------------------------------------------------
+# -- Text ------------------------------------------------------------------
+
+    def _push_v_text(self, obj: VText) -> VQueryLiteral:
+        if isinstance(obj, TextTemplate):
+            return self._push_text_template(obj)
+        elif isinstance(obj, TextVariable):
+            return self._push_text_variable(obj)
+        elif isinstance(obj, Text):
+            return self._push_text(obj)
+        else:
+            raise ShouldNotGetHere
+
+    def _push_text_template(self, obj: TextTemplate) -> VQueryLiteral:
+        content = obj.content
+        lang = obj.language
+        if isinstance(content, StringVariable):
+            content_var = self._as_qvar(content)
+            self._push_text_template_language(obj, content_var)
+            return self._theta.add(content, content_var)
+        elif isinstance(content, str):
+            if isinstance(lang, StringVariable):
+                content_var = self._fresh_qvar()
+                content_lit = self._q.literal(content)
+                self._q.filter(
+                    self._q.eq(self._q.str(content_var), content_lit))
+                self._push_text_template_language(obj, content_var)
+                return content_var
+            else:
+                return self._push_text(Text(content, lang))
+        else:
+            raise ShouldNotGetHere
+
+    def _push_text_template_language(
+            self,
+            obj: TextTemplate,
+            content: VQueryLiteral
+    ) -> VQueryLiteral:
+        lang = obj.language
+        if isinstance(lang, StringVariable):
+            lang_var = self._theta.add(lang, self._fresh_qvar())
+            self._q.bind(self._q.lang(content), lang_var)
+            return lang_var
+        elif isinstance(lang, str):
+            lang_lit = self._q.literal(lang)
+            self._q.filter(self._q.eq(self._q.lang(content), lang_lit))
+            return lang_lit
+        else:
+            raise ShouldNotGetHere
+
+    def _push_text_variable(self, obj: TextVariable) -> QueryVariable:
+        content = self._fresh_string_variable()
+        lang = self._fresh_string_variable()
+        var = self._push_text_template(
+            self._theta.add(obj, TextTemplate(content, lang)))
+        assert isinstance(var, QueryVariable)
+        return var
+
+    def _push_text(self, obj: Text) -> QueryLiteral:
+        return self._q.literal(obj.content, language=obj.language)
+
+# -- String ----------------------------------------------------------------
+
+    def _push_v_string(self, obj: VString) -> VQueryTerm:
+        if isinstance(obj, StringTemplate):
+            return self._push_string_template(obj)
+        elif isinstance(obj, StringVariable):
+            return self._push_string_variable(obj)
+        elif isinstance(obj, String):
+            return self._push_string(obj)
+        else:
+            raise ShouldNotGetHere
+
+    def _push_string_template(self, obj: StringTemplate) -> VQueryTerm:
+        content = obj.content
+        if isinstance(content, StringVariable):
+            content_var = self._as_qvar(content)
+            str_var = self._theta.add(content, self._fresh_qvar())
+            self._q.bind(content_var, str_var)
+            return content_var
+        elif isinstance(content, str):
+            lit = self._push_string(String(content))
+            assert isinstance(lit, QueryLiteral)
+            return lit
+        else:
+            raise ShouldNotGetHere
+
+    def _push_string_variable(self, obj: StringVariable) -> QueryVariable:
+        return cast(QueryVariable, self._theta.add(obj, self._as_qvar(obj)))
+
+    def _push_string(self, obj: String) -> QueryLiteral:
+        return self._q.literal(obj.content)
+
+# -- External id -----------------------------------------------------------
+
+    def _push_v_external_id(self, obj: VExternalId) -> VQueryTerm:
+        if isinstance(obj, ExternalIdTemplate):
+            return self._push_external_id_template(obj)
+        elif isinstance(obj, ExternalIdVariable):
+            return self._push_external_id_variable(obj)
+        elif isinstance(obj, ExternalId):
+            return self._push_external_id(obj)
+        else:
+            raise ShouldNotGetHere
+
+    def _push_external_id_template(
+            self,
+            obj: ExternalIdTemplate
+    ) -> VQueryTerm:
+        content = obj.content
+        if isinstance(content, StringVariable):
+            return self._theta.add(content, self._as_qvar(content))
+        elif isinstance(content, str):
+            lit = self._push_external_id(ExternalId(content))
+            assert isinstance(lit, QueryLiteral)
+            return lit
+        else:
+            raise ShouldNotGetHere
+
+    def _push_external_id_variable(
+            self,
+            obj: ExternalIdVariable
+    ) -> QueryVariable:
+        return cast(QueryVariable, self._theta.add(obj, self._as_qvar(obj)))
+
+    def _push_external_id(self, obj: ExternalId) -> QueryLiteral:
+        return self._q.literal(obj.content)
+
+# -- Quantity --------------------------------------------------------------
+
+    def _push_v_quantity(
+            self,
+            obj: VQuantity,
+            prop: VQueryURI,
+            wds: VQueryURI
+    ) -> VQueryLiteral:
+        if isinstance(obj, QuantityTemplate):
+            return self._push_quantity_template(obj, prop, wds)
+        elif isinstance(obj, QuantityVariable):
+            return self._push_quantity_variable(obj, prop, wds)
+        elif isinstance(obj, Quantity):
+            return self._push_quantity(obj, prop, wds)
+        else:
+            raise ShouldNotGetHere
+
+    def _push_quantity_template(
+            self,
+            obj: QuantityTemplate,
+            prop: VQueryURI,
+            wds: VQueryURI
+    ) -> VQueryLiteral:
+        obj_amount, obj_unit, obj_lb, obj_up = obj.args
+        amount: VQueryLiteral
+        unit: VQueryURI
+        # lb: VQueryLiteral
+        # ub: VQueryLiteral
+        if isinstance(obj_amount, QuantityVariable):
+            amount = self._as_qvar(obj_amount)
+            self._theta.add(obj_amount, amount)
+        elif isinstance(obj_amount, Decimal):
+            amount = self._q.literal(obj_amount)
+        else:
+            raise ShouldNotGetHere
+        if obj_unit is None:
+            obj_unit = self._fresh_item_variable()
+        if isinstance(obj_unit, ItemVariable):
+            unit = self._push_item_variable(obj_unit)
+        elif isinstance(obj_unit, Item):
+            unit = self._push_item(obj_unit)
+        else:
+            raise ShouldNotGetHere
+        wdv, psv = self._fresh_qvars(2)
+        self._q.triples()(
+            (prop, NS.WIKIBASE.statementValue, psv),
+            (wds, psv, wdv),
+            (wdv, NS.WIKIBASE.quantityAmount, amount),
+            (wdv, NS.WIKIBASE.quantityUnit, unit)
+        )
+        return amount
+
+    def _push_quantity_variable(
+            self,
+            obj: QuantityVariable,
+            prop: VQueryURI,
+            wds: VQueryURI
+    ) -> QueryVariable:
+        raise NotImplementedError
+
+    def _push_quantity(
+            self,
+            obj: Quantity,
+            prop: VQueryURI,
+            wds: VQueryURI
+    ) -> QueryLiteral:
+        raise NotImplementedError
+
+# -- Value snak ------------------------------------------------------------
 
     def _push_value_snak_template(
             self,
@@ -464,21 +695,27 @@ class Compiler:
             ps, wds = self._fresh_qvars(2)
             self._q.triples()(
                 (prop, NS.WIKIBASE.statementProperty, ps),
-                (wds, ps, self._push_v_value(obj.value)))
+                (wds, ps, self._push_v_value(obj.value, prop, wds)))
         return wds
 
     def _push_value_snak_variable(
             self,
             obj: ValueSnakVariable
     ) -> VQueryURI:
-        prop = PropertyVariable(str(self._fresh_qvar()))
-        value = IRI_Variable(str(self._fresh_qvar()))
+        prop = self._fresh_property_variable()
+        value = self._fresh_value_variable()
         var = self._push_value_snak_template(
             self._theta.add(obj, ValueSnakTemplate(prop, value)))
         assert isinstance(var, QueryVariable)
         return var
+
+    def _push_value_snak(self, obj: ValueSnak) -> QueryURI:
+        uri = self._push_value_snak_template(
+            ValueSnakTemplate(*obj.args))
+        assert isinstance(uri, QueryURI)
+        return uri
 
-# -- SomeValueSnak ---------------------------------------------------------
+# -- Some-value snak -------------------------------------------------------
 
     def _push_some_value_snak_template(
             self,
@@ -510,7 +747,7 @@ class Compiler:
         assert isinstance(uri, QueryURI)
         return uri
 
-# -- NoValueSnak -----------------------------------------------------------
+# --No-value snak ----------------------------------------------------------
 
     def _push_no_value_snak_template(
             self,
