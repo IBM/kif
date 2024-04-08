@@ -1790,6 +1790,107 @@ class Datatype(KIF_Object):
 
     @classmethod
     @cache
+    def from_value_template_class(
+            cls,
+            value_template_class: type[ValueTemplate]
+    ) -> 'Datatype':
+        """Gets the datatype of `value_template_class`.
+
+        Parameters:
+           value_template_class: Value template class.
+
+        Returns:
+           Datatype.
+        """
+        if value_template_class is ItemTemplate:
+            return cls.item
+        elif value_template_class is PropertyTemplate:
+            return cls.property
+        elif value_template_class is LexemeTemplate:
+            return cls.lexeme
+        elif value_template_class is IRI_Template:
+            return cls.iri
+        elif value_template_class is TextTemplate:
+            return cls.text
+        elif value_template_class is StringTemplate:
+            return cls.string
+        elif value_template_class is ExternalIdTemplate:
+            return cls.external_id
+        elif value_template_class is QuantityTemplate:
+            return cls.quantity
+        elif value_template_class is TimeTemplate:
+            return cls.time
+        else:
+            cls._check_arg_issubclass(
+                value_template_class, ValueTemplate,
+                cls.from_value_template_class, 'value_template_class', 2)
+            raise cls._arg_error(
+                f'no datatype for {value_template_class.__qualname__}',
+                cls.from_value_class, 'value_template_class', 2)
+
+    @classmethod
+    @abstractmethod
+    def to_value_template_class(cls) -> type[ValueTemplate]:
+        """Gets the value template class of datatype.
+
+        Returns:
+           Value template class.
+        """
+        raise cls._must_be_implemented_in_subclass()
+
+    @classmethod
+    @cache
+    def from_value_variable_class(
+            cls,
+            value_variable_class:
+            type[ValueVariable]
+    ) -> 'Datatype':
+        """Gets the datatype of `value_variable_class`.
+
+        Parameters:
+           value_variable_class: Value variable class.
+
+        Returns:
+           Datatype.
+        """
+        if value_variable_class is ItemVariable:
+            return cls.item
+        elif value_variable_class is PropertyVariable:
+            return cls.property
+        elif value_variable_class is LexemeVariable:
+            return cls.lexeme
+        elif value_variable_class is IRI_Variable:
+            return cls.iri
+        elif value_variable_class is TextVariable:
+            return cls.text
+        elif value_variable_class is StringVariable:
+            return cls.string
+        elif value_variable_class is ExternalIdVariable:
+            return cls.external_id
+        elif value_variable_class is QuantityVariable:
+            return cls.quantity
+        elif value_variable_class is TimeVariable:
+            return cls.time
+        else:
+            cls._check_arg_issubclass(
+                value_variable_class, ValueVariable,
+                cls.from_value_variable_class, 'value_class', 2)
+            raise cls._arg_error(
+                f'no datatype for {value_variable_class.__qualname__}',
+                cls.from_value_class, 'value_variable_class', 2)
+
+    @classmethod
+    @abstractmethod
+    def to_value_variable_class(cls) -> type[ValueVariable]:
+        """Gets the value variable class of datatype.
+
+        Returns:
+           Value variable class.
+        """
+        raise cls._must_be_implemented_in_subclass()
+
+    @classmethod
+    @cache
     def from_value_class(cls, value_class: type[Value]) -> 'Datatype':
         """Gets the datatype of `value_class`.
 
@@ -1845,6 +1946,16 @@ class ItemDatatype(Datatype):
 
     @classmethod
     @override
+    def to_value_template_class(cls) -> type[ValueTemplate]:
+        return ItemTemplate
+
+    @classmethod
+    @override
+    def to_value_variable_class(cls) -> type[ValueVariable]:
+        return ItemVariable
+
+    @classmethod
+    @override
     def to_value_class(cls) -> type[Value]:
         return Item
 
@@ -1853,6 +1964,16 @@ class PropertyDatatype(Datatype):
     """Datatype of :class:`Property`."""
 
     _uri: URIRef = NS.WIKIBASE.WikibaseProperty
+
+    @classmethod
+    @override
+    def to_value_template_class(cls) -> type[ValueTemplate]:
+        return PropertyTemplate
+
+    @classmethod
+    @override
+    def to_value_variable_class(cls) -> type[ValueVariable]:
+        return PropertyVariable
 
     @classmethod
     @override
@@ -1867,6 +1988,16 @@ class LexemeDatatype(Datatype):
 
     @classmethod
     @override
+    def to_value_template_class(cls) -> type[ValueTemplate]:
+        return LexemeTemplate
+
+    @classmethod
+    @override
+    def to_value_variable_class(cls) -> type[ValueVariable]:
+        return LexemeVariable
+
+    @classmethod
+    @override
     def to_value_class(cls) -> type[Value]:
         return Lexeme
 
@@ -1875,6 +2006,16 @@ class IRI_Datatype(Datatype):
     """Datatype of :class:`IRI`."""
 
     _uri: URIRef = NS.WIKIBASE.Url
+
+    @classmethod
+    @override
+    def to_value_template_class(cls) -> type[ValueTemplate]:
+        return IRI_Template
+
+    @classmethod
+    @override
+    def to_value_variable_class(cls) -> type[ValueVariable]:
+        return IRI_Variable
 
     @classmethod
     @override
@@ -1889,6 +2030,16 @@ class TextDatatype(Datatype):
 
     @classmethod
     @override
+    def to_value_template_class(cls) -> type[ValueTemplate]:
+        return TextTemplate
+
+    @classmethod
+    @override
+    def to_value_variable_class(cls) -> type[ValueVariable]:
+        return TextVariable
+
+    @classmethod
+    @override
     def to_value_class(cls) -> type[Value]:
         return Text
 
@@ -1897,6 +2048,16 @@ class StringDatatype(Datatype):
     """Datatype of :class:`String`."""
 
     _uri: URIRef = NS.WIKIBASE.String
+
+    @classmethod
+    @override
+    def to_value_template_class(cls) -> type[ValueTemplate]:
+        return StringTemplate
+
+    @classmethod
+    @override
+    def to_value_variable_class(cls) -> type[ValueVariable]:
+        return StringVariable
 
     @classmethod
     @override
@@ -1911,6 +2072,16 @@ class ExternalIdDatatype(StringDatatype):
 
     @classmethod
     @override
+    def to_value_template_class(cls) -> type[ValueTemplate]:
+        return ExternalIdTemplate
+
+    @classmethod
+    @override
+    def to_value_variable_class(cls) -> type[ValueVariable]:
+        return ExternalIdVariable
+
+    @classmethod
+    @override
     def to_value_class(cls) -> type[Value]:
         return ExternalId
 
@@ -1922,6 +2093,16 @@ class QuantityDatatype(Datatype):
 
     @classmethod
     @override
+    def to_value_template_class(cls) -> type[ValueTemplate]:
+        return QuantityTemplate
+
+    @classmethod
+    @override
+    def to_value_variable_class(cls) -> type[ValueVariable]:
+        return QuantityVariable
+
+    @classmethod
+    @override
     def to_value_class(cls) -> type[Value]:
         return Quantity
 
@@ -1930,6 +2111,16 @@ class TimeDatatype(Datatype):
     """Datatype of :class:`Time`."""
 
     _uri: URIRef = NS.WIKIBASE.Time
+
+    @classmethod
+    @override
+    def to_value_template_class(cls) -> type[ValueTemplate]:
+        return TimeTemplate
+
+    @classmethod
+    @override
+    def to_value_variable_class(cls) -> type[ValueVariable]:
+        return TimeVariable
 
     @classmethod
     @override

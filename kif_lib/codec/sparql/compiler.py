@@ -5,6 +5,7 @@ from ... import namespace as NS
 from ...error import ShouldNotGetHere
 from ...itertools import chain
 from ...model import (
+    Datatype,
     DataValue,
     DataValueTemplate,
     Entity,
@@ -220,7 +221,7 @@ class Compiler:
         elif isinstance(obj, IRI_Variable):
             return self._push_iri_variable(obj)
         else:
-            return self._push_value_variable(obj)
+            raise NotImplementedError
 
     def _do_push_value(self, obj: Value) -> Any:
         if isinstance(obj, Entity):
@@ -255,7 +256,7 @@ class Compiler:
 
     def _do_push_snak_variable(self, obj: SnakVariable) -> Any:
         if isinstance(obj, ValueSnakVariable):
-            raise NotImplementedError
+            return self._push_value_snak_variable(obj)
         elif isinstance(obj, SomeValueSnakVariable):
             return self._push_some_value_snak_variable(obj)
         elif isinstance(obj, NoValueSnakVariable):
@@ -275,32 +276,47 @@ class Compiler:
 
 # -- Value -----------------------------------------------------------------
 
+    def _iter_possible_datatypes_for_v_value(
+            self,
+            obj: VValue
+    ) -> Iterator[Datatype]:
+        if isinstance(obj, ValueTemplate):
+            yield Datatype.from_value_template_class(obj.__class__)
+        elif isinstance(obj, Value):
+            yield Datatype.from_value_class(obj.__class__)
+        elif isinstance(obj, ValueVariable):
+            def it(cls):
+                try:
+                    yield Datatype.from_value_variable_class(cls)
+                except ValueError:
+                    pass
+                for subclass in cls.__subclasses__():
+                    try:
+                        yield from it(subclass)
+                    except ValueError:
+                        pass
+            yield from it(obj.__class__)
+        else:
+            raise ShouldNotGetHere
+
     def _push_v_value(self, obj: VValue) -> VQueryTerm:
         if isinstance(obj, (ItemTemplate, ItemVariable, Item)):
             return self._push_v_item(obj)
-        elif isinstance(obj, (IRI_Template, IRI_Variable, IRI)):
-            return self._push_v_iri(obj)
         elif isinstance(obj, (PropertyTemplate, PropertyVariable, Property)):
             return self._push_v_property(obj)
         elif isinstance(obj, (LexemeTemplate, LexemeVariable, Lexeme)):
             return self._push_v_lexeme(obj)
-        elif isinstance(obj, EntityVariable):
-            return self._push_entity_variable(obj)
+        elif isinstance(obj, (IRI_Template, IRI_Variable, IRI)):
+            return self._push_v_iri(obj)
         else:
-            raise ShouldNotGetHere
-
-    def _push_value_variable(self, obj: ValueVariable) -> QueryVariable:
-        with self._q.union():
-            with self._q.group():
-                v1 = self._push_entity_variable(EntityVariable(obj.name))
-            # with self._q.group():
-            #     v2 = self._push_iri_variable(IRI_Variable(obj.name))
-        return v1
+            assert isinstance(obj, ValueVariable)
+            return self._as_qvar(obj)
 
 # -- Entity ----------------------------------------------------------------
 
     def _push_entity_variable(self, obj: EntityVariable) -> QueryVariable:
         with self._q.union():
+            self._q.comments()(str(obj))
             with self._q.group():
                 v1 = self._push_item_variable(ItemVariable(obj.name))
             with self._q.group():
@@ -324,7 +340,7 @@ class Compiler:
 
     def _push_item_template(self, obj: ItemTemplate) -> VQueryURI:
         item = self._push_v_iri(obj.iri)
-        self._q.triple(item, NS.SCHEMA.version, self._q.bnode())
+        self._q.triples()((item, NS.SCHEMA.version, self._q.bnode()))
         return item
 
     def _push_item_variable(self, obj: ItemVariable) -> QueryVariable:
@@ -353,8 +369,7 @@ class Compiler:
 
     def _push_property_template(self, obj: PropertyTemplate) -> VQueryURI:
         prop = self._push_v_iri(obj.iri)
-        with self._q.group():
-            self._q.triple(prop, NS.RDF.type, NS.WIKIBASE.Property)
+        self._q.triples()((prop, NS.RDF.type, NS.WIKIBASE.Property))
         return prop
 
     def _push_property_variable(self, obj: PropertyVariable) -> QueryVariable:
@@ -383,8 +398,7 @@ class Compiler:
 
     def _push_lexeme_template(self, obj: LexemeTemplate) -> VQueryURI:
         lexeme = self._push_v_iri(obj.iri)
-        with self._q.group():
-            self._q.triple(lexeme, NS.RDF.type, NS.ONTOLEX.LexicalEntry)
+        self._q.triples()((lexeme, NS.RDF.type, NS.ONTOLEX.LexicalEntry))
         return lexeme
 
     def _push_lexeme_variable(self, obj: LexemeVariable) -> QueryVariable:
@@ -438,12 +452,31 @@ class Compiler:
             obj: ValueSnakTemplate
     ) -> VQueryURI:
         with self._q.group():
+            self._q.comments()(str(obj))
             prop = self._push_v_property(obj.property)
+            with self._q.union():
+                self._q.comments()(f'datatype restriction for {obj.property}')
+                it = self._iter_possible_datatypes_for_v_value(obj.value)
+                for dt in it:
+                    with self._q.group():
+                        self._q.triples()(
+                            (prop, NS.WIKIBASE.propertyType, dt._to_rdflib()))
             ps, wds = self._fresh_qvars(2)
-            with self._q.group():
-                self._q.triple(prop, NS.WIKIBASE.statementProperty, ps)
-                self._q.triple(wds, ps, self._push_v_value(obj.value))
-        return prop
+            self._q.triples()(
+                (prop, NS.WIKIBASE.statementProperty, ps),
+                (wds, ps, self._push_v_value(obj.value)))
+        return wds
+
+    def _push_value_snak_variable(
+            self,
+            obj: ValueSnakVariable
+    ) -> VQueryURI:
+        prop = PropertyVariable(str(self._fresh_qvar()))
+        value = IRI_Variable(str(self._fresh_qvar()))
+        var = self._push_value_snak_template(
+            self._theta.add(obj, ValueSnakTemplate(prop, value)))
+        assert isinstance(var, QueryVariable)
+        return var
 
 # -- SomeValueSnak ---------------------------------------------------------
 
@@ -451,20 +484,21 @@ class Compiler:
             self,
             obj: SomeValueSnakTemplate
     ) -> VQueryURI:
-        prop = self._push_v_property(obj.property)
-        ps, wds, value = self._fresh_qvars(3)
         with self._q.group():
-            self._q.triples(
+            self._q.comments()(str(obj))
+            prop = self._push_v_property(obj.property)
+            ps, wds, value = self._fresh_qvars(3)
+            self._q.triples()(
                 (prop, NS.WIKIBASE.statementProperty, ps),
                 (wds, ps, value))
             self._q.filter(self._q.call(NS.WIKIBASE.isSomeValue, value))
-        return prop
+        return wds
 
     def _push_some_value_snak_variable(
             self,
             obj: SomeValueSnakVariable
     ) -> VQueryURI:
-        prop = PropertyVariable(obj.name)
+        prop = PropertyVariable(str(self._fresh_qvar()))
         var = self._push_some_value_snak_template(
             self._theta.add(obj, SomeValueSnakTemplate(prop)))
         assert isinstance(var, QueryVariable)
@@ -482,19 +516,20 @@ class Compiler:
             self,
             obj: NoValueSnakTemplate
     ) -> VQueryURI:
-        prop = self._push_v_property(obj.property)
-        wdno, wds = self._fresh_qvars(2)
         with self._q.group():
-            self._q.triples(
+            self._q.comments()(str(obj))
+            prop = self._push_v_property(obj.property)
+            wdno, wds = self._fresh_qvars(2)
+            self._q.triples()(
                 (prop, NS.WIKIBASE.novalue, wdno),
                 (wds, NS.RDF.type, wdno))
-        return prop
+        return wds
 
     def _push_no_value_snak_variable(
             self,
             obj: NoValueSnakVariable
     ) -> VQueryURI:
-        prop = PropertyVariable(obj.name)
+        prop = PropertyVariable(str(self._fresh_qvar()))
         var = self._push_no_value_snak_template(
             self._theta.add(obj, NoValueSnakTemplate(prop)))
         assert isinstance(var, QueryVariable)

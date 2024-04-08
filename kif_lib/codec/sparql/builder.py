@@ -84,7 +84,7 @@ class Symbol:
     FILTER: Final[str] = 'FILTER'
     GREATER_THAN: Final[str] = '>'
     GREATER_THAN_OR_EQUAL: Final[str] = '>='
-    INDENT: Final[str] = '  |'
+    INDENT: Final[str] = '  '
     IS_URI: Final[str] = 'isURI'
     LESS_THAN: Final[str] = '<'
     LESS_THAN_OR_EQUAL: Final[str] = '<='
@@ -832,10 +832,15 @@ class GroupGraphPattern(CompoundGraphPattern):
     @override
     def _iterencode_begin(self, n: int) -> TGenStr:
         yield self._indent(n)
-        if (isinstance(self.parent, UnionGraphPattern)
-                and self != self.parent.children[0]):
-            yield Symbol.UNION
-            yield ' '
+        if isinstance(self.parent, UnionGraphPattern):
+            for child in self.parent.children:
+                if isinstance(child, CommentsBlock):
+                    continue
+                assert isinstance(child, GroupGraphPattern)
+                if self != child:
+                    yield Symbol.UNION
+                    yield ' '
+                break
         yield '{\n'
 
 
@@ -857,7 +862,7 @@ class UnionGraphPattern(CompoundGraphPattern):
 
     @override
     def add_child(self, child: GraphPattern) -> GraphPattern:
-        if not isinstance(child, GroupGraphPattern):
+        if not isinstance(child, (CommentsBlock, GroupGraphPattern)):
             raise self._add_error(child)
         return super().add_child(child)
 

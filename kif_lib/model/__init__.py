@@ -104,6 +104,7 @@ from .value import (
     TExternalId,
     Time,
     TimeDatatype,
+    TimeVariable,
     TString,
     TText,
     TTimePrecision,
