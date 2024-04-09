@@ -4,8 +4,8 @@
 from ..typing import override, TypeAlias, Union
 from .kif_object import KIF_Object
 from .pattern import Template, Variable
-from .snak import Snak, VSnak
-from .value import Entity, VEntity
+from .snak import Snak, VSnak, VVSnak
+from .value import Entity, VEntity, VVEntity
 
 VStatement: TypeAlias =\
     Union['StatementTemplate', 'StatementVariable', 'Statement']
@@ -19,7 +19,7 @@ class StatementTemplate(Template):
        snak: Snak.
     """
 
-    def __init__(self, subject: VEntity, snak: VSnak):
+    def __init__(self, subject: VVEntity, snak: VVSnak):
         return super().__init__(subject, snak)
 
     @override
@@ -28,14 +28,16 @@ class StatementTemplate(Template):
             if Template.test(arg):
                 return self._preprocess_arg_entity_template(arg, i)
             elif Variable.test(arg):
-                return self._preprocess_arg_entity_variable(arg, i)
+                return self._preprocess_arg_entity_variable(
+                    arg, i, self.__class__)
             else:
                 return Statement._static_preprocess_arg(self, arg, i)
         elif i == 2:            # snak
             if Template.test(arg):
                 return self._preprocess_arg_snak_template(arg, i)
             elif Variable.test(arg):
-                return self._preprocess_arg_snak_variable(arg, i)
+                return self._preprocess_arg_snak_variable(
+                    arg, i, self.__class__)
             else:
                 return Statement._static_preprocess_arg(self, arg, i)
         else:
@@ -76,7 +78,7 @@ class Statement(KIF_Object):
 
     variable_class: type[Variable] = StatementVariable
 
-    def __init__(self, subject: VEntity, snak: VSnak):
+    def __init__(self, subject: VVEntity, snak: VVSnak):
         return super().__init__(subject, snak)
 
     @override

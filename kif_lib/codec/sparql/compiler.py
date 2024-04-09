@@ -267,6 +267,9 @@ class Compiler:
         self._compile(self._input)
         return self
 
+    def _cannot_compile_error(self, obj) -> ValueError:
+        return ValueError(f'cannot compile {obj}')
+
     def _compile(self, obj: KIF_Object) -> Any:
         if isinstance(obj, Template):
             if isinstance(obj, ValueTemplate):
@@ -276,7 +279,7 @@ class Compiler:
             elif isinstance(obj, StatementTemplate):
                 return self._compile_statement_template(obj)
             else:
-                raise ShouldNotGetHere
+                raise self._cannot_compile_error(obj)
         elif isinstance(obj, Variable):
             if isinstance(obj, ValueVariable):
                 return self._compile_value_variable(obj)
@@ -285,7 +288,7 @@ class Compiler:
             elif isinstance(obj, StatementVariable):
                 return self._compile_statement_variable(obj)
             else:
-                raise ShouldNotGetHere
+                raise self._cannot_compile_error(obj)
         elif isinstance(obj, Value):
             return self._compile_value(obj)
         elif isinstance(obj, Snak):
@@ -293,7 +296,7 @@ class Compiler:
         elif isinstance(obj, Statement):
             return self._compile_statement(obj)
         else:
-            raise ShouldNotGetHere
+            raise self._cannot_compile_error(obj)
 
     def _compile_value_template(self, obj: ValueTemplate) -> Any:
         if isinstance(obj, EntityTemplate):

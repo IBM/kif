@@ -3,13 +3,23 @@
 
 from enum import auto, Flag
 
-from ..typing import Final, NoReturn, Optional, override, TypeAlias, Union
+from ..typing import (
+    cast,
+    Final,
+    NoReturn,
+    Optional,
+    override,
+    TypeAlias,
+    Union,
+)
 from .kif_object import KIF_Object, TCallable
 from .pattern import Template, Variable
-from .value import Property, Value, VProperty, VValue
+from .value import Property, Value, VProperty, VValue, VVProperty, VVValue
 
 VSnak: TypeAlias =\
     Union['SnakTemplate', 'SnakVariable', 'Snak']
+
+VVSnak: TypeAlias = Union[Variable, VSnak]
 
 VValueSnak: TypeAlias =\
     Union['ValueSnakTemplate', 'ValueSnakVariable', 'ValueSnak']
@@ -30,7 +40,8 @@ class SnakTemplate(Template):
             if Template.test(arg):
                 return self._preprocess_arg_property_template(arg, i)
             elif Variable.test(arg):
-                return self._preprocess_arg_property_variable(arg, i)
+                return self._preprocess_arg_property_variable(
+                    arg, i, self.__class__)
             else:
                 return Snak._static_preprocess_arg(self, arg, i)
         else:
@@ -50,6 +61,16 @@ class SnakVariable(Variable):
     Parameters:
        name: String
     """
+
+    @classmethod
+    def _preprocess_arg_snak_variable(
+            cls,
+            arg: Variable,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union['SnakVariable', NoReturn]:
+        return cast(SnakVariable, cls._preprocess_arg_variable(
+            arg, i, function or cls))
 
 
 class Snak(KIF_Object):
@@ -184,7 +205,7 @@ class ValueSnakTemplate(SnakTemplate):
        value: Value.
     """
 
-    def __init__(self, property: VProperty, value: VValue):
+    def __init__(self, property: VVProperty, value: VVValue):
         return super().__init__(property, value)
 
     @override
@@ -195,7 +216,8 @@ class ValueSnakTemplate(SnakTemplate):
             if Template.test(arg):
                 return self._preprocess_arg_value_template(arg, i)
             elif Variable.test(arg):
-                return self._preprocess_arg_value_variable(arg, i)
+                return self._preprocess_arg_value_variable(
+                    arg, i, self.__class__)
             else:
                 return ValueSnak._static_preprocess_arg(self, arg, i)
         else:
@@ -231,7 +253,7 @@ class ValueSnak(Snak):
 
     mask: Snak.Mask = Snak.VALUE_SNAK
 
-    def __init__(self, property: VProperty, value: VValue):
+    def __init__(self, property: VVProperty, value: VVValue):
         return super().__init__(property, value)
 
     @staticmethod
@@ -266,7 +288,7 @@ class SomeValueSnakTemplate(SnakTemplate):
        property: Property.
     """
 
-    def __init__(self, property: VProperty):
+    def __init__(self, property: VVProperty):
         return super().__init__(property)
 
 
@@ -291,7 +313,7 @@ class SomeValueSnak(Snak):
 
     mask: Snak.Mask = Snak.SOME_VALUE_SNAK
 
-    def __init__(self, property: VProperty):
+    def __init__(self, property: VVProperty):
         return super().__init__(property)
 
 
@@ -304,7 +326,7 @@ class NoValueSnakTemplate(SnakTemplate):
        parameters: Property.
     """
 
-    def __init__(self, property: VProperty):
+    def __init__(self, property: VVProperty):
         return super().__init__(property)
 
 
@@ -329,5 +351,5 @@ class NoValueSnak(Snak):
 
     mask: Snak.Mask = Snak.NO_VALUE_SNAK
 
-    def __init__(self, property: VProperty):
+    def __init__(self, property: VVProperty):
         return super().__init__(property)

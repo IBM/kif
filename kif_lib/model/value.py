@@ -35,15 +35,19 @@ TValue: TypeAlias = Union['Value', NS.T_URI, TDatetime, TDecimal, str]
 
 VValue: TypeAlias = Union['ValueTemplate', 'ValueVariable', 'Value']
 
+VVValue: TypeAlias = Union['Variable', VValue]
+
 # -- Entity --
 
 VEntity: TypeAlias = Union['EntityTemplate', 'EntityVariable', 'Entity']
+
+VVEntity: TypeAlias = Union[Variable, VEntity]
 
 # -- Item --
 
 TItem: TypeAlias = Union['Item', 'T_IRI']
 
-VTItemContent: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'TItem']
+VTItemContent: TypeAlias = Union['IRI_Template', 'Variable', 'TItem']
 
 VItem: TypeAlias = Union['ItemTemplate', 'ItemVariable', 'Item']
 
@@ -57,6 +61,8 @@ VTPropertyContent: TypeAlias =\
 VProperty: TypeAlias =\
     Union['PropertyTemplate', 'PropertyVariable', 'Property']
 
+VVProperty: TypeAlias = Union['Variable', VProperty]
+
 # -- Lexeme --
 
 TLexeme: TypeAlias = Union['Lexeme', 'T_IRI']
@@ -69,7 +75,7 @@ VLexeme: TypeAlias = Union['LexemeTemplate', 'LexemeVariable', 'Lexeme']
 
 T_IRI: TypeAlias = Union['IRI', 'String', NS.T_URI]
 
-VT_IRI_Content: TypeAlias = Union['StringVariable', T_IRI]
+VT_IRI_Content: TypeAlias = Union['Variable', T_IRI]
 
 V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'IRI']
 
@@ -77,7 +83,7 @@ V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'IRI']
 
 TText: TypeAlias = Union['Text', 'TString']
 
-VTTextContent: TypeAlias = Union['StringVariable', TText]
+VTTextContent: TypeAlias = Union['Variable', TText]
 
 VText: TypeAlias = Union['TextTemplate', 'TextVariable', 'Text']
 
@@ -85,7 +91,7 @@ VText: TypeAlias = Union['TextTemplate', 'TextVariable', 'Text']
 
 TString: TypeAlias = Union['String', str]
 
-VTStringContent: TypeAlias = Union['StringVariable', TString]
+VTStringContent: TypeAlias = Union['Variable', TString]
 
 VStringContent: TypeAlias = Union['StringVariable', str]
 
@@ -95,7 +101,7 @@ VString: TypeAlias = Union['StringTemplate', 'StringVariable', 'String']
 
 TExternalId: TypeAlias = Union['ExternalId', TString]
 
-VTExternalIdContent: TypeAlias = Union['StringVariable', TExternalId]
+VTExternalIdContent: TypeAlias = Union['Variable', TExternalId]
 
 VExternalId: TypeAlias =\
     Union['ExternalIdTemplate', 'ExternalIdVariable', 'ExternalId']
@@ -104,7 +110,7 @@ VExternalId: TypeAlias =\
 
 TQuantity: TypeAlias = Union['Quantity', TDecimal]
 
-VTQuantityContent: TypeAlias = Union['QuantityVariable', TQuantity]
+VTQuantityContent: TypeAlias = Union['Variable', TQuantity]
 
 VQuantityContent: TypeAlias = Union['QuantityVariable', Decimal]
 
@@ -115,7 +121,7 @@ VQuantity: TypeAlias =\
 
 TTime: TypeAlias = Union['Time', TDatetime]
 
-VTTimeContent: TypeAlias = Union['TimeVariable', TTime]
+VTTimeContent: TypeAlias = Union['Variable', TTime]
 
 VTimeContent: TypeAlias = Union['TimeVariable', 'Time']
 
@@ -123,7 +129,7 @@ VTime: TypeAlias = Union['TimeTemplate', 'TimeVariable', 'Time']
 
 TTimePrecision: TypeAlias = Union['Time.Precision', TQuantity]
 
-VTTimePrecisionContent: TypeAlias = Union['QuantityVariable', TTimePrecision]
+VTTimePrecisionContent: TypeAlias = Union['Variable', TTimePrecision]
 
 VTimePrecisionContent: TypeAlias = Union['QuantityVariable', 'Time.Precision']
 
@@ -150,6 +156,16 @@ class ValueVariable(Variable):
     Parameters:
        name: String.
     """
+
+    @classmethod
+    def _preprocess_arg_value_variable(
+            cls,
+            arg: Variable,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union['ValueVariable', NoReturn]:
+        return cast(ValueVariable, cls._preprocess_arg_variable(
+            arg, i, function or cls))
 
 
 class Value(KIF_Object):
@@ -435,7 +451,8 @@ class EntityTemplate(ValueTemplate):
             if Template.test(arg):
                 return self._preprocess_arg_iri_template(arg, i)
             elif Variable.test(arg):
-                return self._preprocess_arg_iri_variable(arg, i)
+                return self._preprocess_arg_iri_variable(
+                    arg, i, self.__class__)
             else:
                 return Entity._static_preprocess_arg(self, arg, i)
         else:
@@ -455,6 +472,16 @@ class EntityVariable(ValueVariable):
     Parameters:
        name: String.
     """
+
+    @classmethod
+    def _preprocess_arg_entity_variable(
+            cls,
+            arg: Variable,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union['EntityVariable', NoReturn]:
+        return cast(EntityVariable, cls._preprocess_arg_variable(
+            arg, i, function or cls))
 
 
 class Entity(Value):
@@ -512,6 +539,16 @@ class ItemVariable(EntityVariable):
     Parameters:
         name: String.
     """
+
+    @classmethod
+    def _preprocess_arg_item_variable(
+            cls,
+            arg: Variable,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union['ItemVariable', NoReturn]:
+        return cast(ItemVariable, cls._preprocess_arg_variable(
+            arg, i, function or cls))
 
 
 class Item(Entity):
@@ -580,6 +617,16 @@ class PropertyVariable(EntityVariable):
     Parameters:
         name: String.
     """
+
+    @classmethod
+    def _preprocess_arg_property_variable(
+            cls,
+            arg: Variable,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union['PropertyVariable', NoReturn]:
+        return cast(PropertyVariable, cls._preprocess_arg_variable(
+            arg, i, function or cls))
 
     def __call__(self, value1, value2=None):
         if value2 is not None:
@@ -657,6 +704,16 @@ class LexemeVariable(EntityVariable):
     Parameters:
         name: String.
     """
+
+    @classmethod
+    def _preprocess_arg_lexeme_variable(
+            cls,
+            arg: Variable,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union['LexemeVariable', NoReturn]:
+        return cast(LexemeVariable, cls._preprocess_arg_variable(
+            arg, i, function or cls))
 
 
 class Lexeme(Entity):
@@ -783,7 +840,8 @@ class IRI_Template(ShallowDataValueTemplate):
     def _preprocess_arg(self, arg, i):
         if i == 1:              # content
             if Variable.test(arg):
-                return self._preprocess_arg_string_variable(arg, i)
+                return self._preprocess_arg_string_variable(
+                    arg, i, self.__class__)
             else:
                 return IRI._static_preprocess_arg(self, arg, i)
         else:
@@ -796,6 +854,16 @@ class IRI_Variable(ShallowDataValueVariable):
     Parameters:
         name: String.
     """
+
+    @classmethod
+    def _preprocess_arg_iri_variable(
+            cls,
+            arg: Variable,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union['IRI_Variable', NoReturn]:
+        return cast(IRI_Variable, cls._preprocess_arg_variable(
+            arg, i, function or cls))
 
 
 class IRI(ShallowDataValue):
@@ -862,12 +930,14 @@ class TextTemplate(ShallowDataValueTemplate):
     def _preprocess_arg(self, arg, i):
         if i == 1:              # content
             if Variable.test(arg):
-                return self._preprocess_arg_string_variable(arg, i)
+                return self._preprocess_arg_string_variable(
+                    arg, i, self.__class__)
             else:
                 return Text._static_preprocess_arg(self, arg, i)
         elif i == 2:            # language
             if Variable.test(arg):
-                return self._preprocess_arg_string_variable(arg, i)
+                return self._preprocess_arg_string_variable(
+                    arg, i, self.__class__)
             else:
                 return Text._static_preprocess_arg(self, arg, i)
         else:
@@ -972,7 +1042,8 @@ class StringTemplate(ShallowDataValueTemplate):
     def _preprocess_arg(self, arg, i):
         if i == 1:              # content
             if Variable.test(arg):
-                return self._preprocess_arg_string_variable(arg, i)
+                return self._preprocess_arg_string_variable(
+                    arg, i, self.__class__)
             else:
                 return String._static_preprocess_arg(self, arg, i)
         else:
@@ -985,6 +1056,16 @@ class StringVariable(ShallowDataValueVariable):
     Parameters:
         name: String.
     """
+
+    @classmethod
+    def _preprocess_arg_string_variable(
+            cls,
+            arg: Variable,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union['StringVariable', NoReturn]:
+        return cast(StringVariable, cls._preprocess_arg_variable(
+            arg, i, function or cls))
 
 
 class String(ShallowDataValue):
@@ -1043,7 +1124,8 @@ class ExternalIdTemplate(StringTemplate):
     def _preprocess_arg(self, arg, i):
         if i == 1:              # content
             if Variable.test(arg):
-                return self._preprocess_arg_string_variable(arg, i)
+                return self._preprocess_arg_string_variable(
+                    arg, i, self.__class__)
             else:
                 return ExternalId._static_preprocess_arg(self, arg, i)
         else:
@@ -1151,7 +1233,7 @@ class QuantityTemplate(DeepDataValueTemplate):
     def __init__(
             self,
             amount: VTQuantityContent,
-            unit: Optional[VItem] = None,
+            unit: Optional[VTItemContent] = None,
             lower_bound: Optional[VTQuantityContent] = None,
             upper_bound: Optional[VTQuantityContent] = None):
         super().__init__(amount, unit, lower_bound, upper_bound)
@@ -1160,24 +1242,28 @@ class QuantityTemplate(DeepDataValueTemplate):
     def _preprocess_arg(self, arg, i):
         if i == 1:              # amount
             if Variable.test(arg):
-                return self._preprocess_arg_quantity_variable(arg, i)
+                return self._preprocess_arg_quantity_variable(
+                    arg, i, self.__class__)
             else:
                 return Quantity._static_preprocess_arg(self, arg, i)
         elif i == 2:            # unit
             if Template.test(arg):
                 return self._preprocess_arg_item_template(arg, i)
             elif Variable.test(arg):
-                return self._preprocess_arg_item_variable(arg, i)
+                return self._preprocess_arg_item_variable(
+                    arg, i, self.__class__)
             else:
                 return Quantity._static_preprocess_arg(self, arg, i)
         elif i == 3:            # lower-bound
             if Variable.test(arg):
-                return self._preprocess_arg_quantity_variable(arg, i)
+                return self._preprocess_arg_quantity_variable(
+                    arg, i, self.__class__)
             else:
                 return Quantity._static_preprocess_arg(self, arg, i)
         elif i == 4:            # upper-bound
             if Variable.test(arg):
-                return self._preprocess_arg_quantity_variable(arg, i)
+                return self._preprocess_arg_quantity_variable(
+                    arg, i, self.__class__)
             else:
                 return Quantity._static_preprocess_arg(self, arg, i)
         else:
@@ -1231,6 +1317,16 @@ class QuantityVariable(DeepDataValueVariable):
        name: String.
     """
 
+    @classmethod
+    def _preprocess_arg_quantity_variable(
+            cls,
+            arg: Variable,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union['QuantityVariable', NoReturn]:
+        return cast(QuantityVariable, cls._preprocess_arg_variable(
+            arg, i, function or cls))
+
 
 class Quantity(DeepDataValue):
     """Quantity.
@@ -1262,7 +1358,7 @@ class Quantity(DeepDataValue):
     def __init__(
             self,
             amount: VTQuantityContent,
-            unit: Optional[VItem] = None,
+            unit: Optional[VTItemContent] = None,
             lower_bound: Optional[VTQuantityContent] = None,
             upper_bound: Optional[VTQuantityContent] = None):
         super().__init__(amount, unit, lower_bound, upper_bound)
@@ -1387,31 +1483,35 @@ class TimeTemplate(DeepDataValueTemplate):
             time: VTTimeContent,
             precision: Optional[VTTimePrecisionContent] = None,
             timezone: Optional[VTTimeTimezoneContent] = None,
-            calendar: Optional[VItem] = None):
+            calendar: Optional[VTItemContent] = None):
         super().__init__(time, precision, timezone, calendar)
 
     @override
     def _preprocess_arg(self, arg, i):
         if i == 1:              # time
             if Variable.test(arg):
-                return self._preprocess_arg_time_variable(arg, i)
+                return self._preprocess_arg_time_variable(
+                    arg, i, self.__class__)
             else:
                 return Time._static_preprocess_arg(self, arg, i)
         elif i == 2:            # precision
             if Variable.test(arg):
-                return self._preprocess_arg_quantity_variable(arg, i)
+                return self._preprocess_arg_quantity_variable(
+                    arg, i, self.__class__)
             else:
                 return Time._static_preprocess_arg(self, arg, i)
         elif i == 3:            # timezone
             if Variable.test(arg):
-                return self._preprocess_arg_quantity_variable(arg, i)
+                return self._preprocess_arg_quantity_variable(
+                    arg, i, self.__class__)
             else:
                 return Time._static_preprocess_arg(self, arg, i)
         elif i == 4:            # calendar
             if Template.test(arg):
                 return self._preprocess_arg_item_template(arg, i)
             elif Variable.test(arg):
-                return self._preprocess_arg_item_variable(arg, i)
+                return self._preprocess_arg_item_variable(
+                    arg, i, self.__class__)
             else:
                 return Time._static_preprocess_arg(self, arg, i)
         else:
@@ -1464,6 +1564,16 @@ class TimeVariable(DeepDataValueVariable):
     Parameters:
        name: String.
     """
+
+    @classmethod
+    def _preprocess_arg_time_variable(
+            cls,
+            arg: Variable,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union['TimeVariable', NoReturn]:
+        return cast(TimeVariable, cls._preprocess_arg_variable(
+            arg, i, function or cls))
 
 
 class Time(DeepDataValue):
@@ -1705,7 +1815,7 @@ class Time(DeepDataValue):
             time: VTTimeContent,
             precision: Optional[VTTimePrecisionContent] = None,
             timezone: Optional[VTTimeTimezoneContent] = None,
-            calendar: Optional[VItem] = None):
+            calendar: Optional[VTItemContent] = None):
         super().__init__(time, precision, timezone, calendar)
 
     @override
