@@ -151,11 +151,11 @@ SELECT * WHERE {{
     {{
       {{
         ?_v0 <{WIKIBASE.propertyType}> <{WIKIBASE.Url}> .
+        ?_v0 <{WIKIBASE.statementProperty}> ?_v1 .
+        ?_v2 ?_v1 ?x .
+        BIND (STR(?x) AS ?_v3)
       }}
     }}
-    ?_v0 <{WIKIBASE.statementProperty}> ?_v1 .
-    ?_v2 ?_v1 ?x .
-    BIND (STR(?x) AS ?_v3)
   }}
 }}
 ''')
@@ -168,10 +168,10 @@ SELECT * WHERE {{
     {{
       {{
         ?_v0 <{WIKIBASE.propertyType}> <{WIKIBASE.Url}> .
+        ?_v0 <{WIKIBASE.statementProperty}> ?_v1 .
+        ?_v2 ?_v1 ?_v3 .
       }}
     }}
-    ?_v0 <{WIKIBASE.statementProperty}> ?_v1 .
-    ?_v2 ?_v1 ?x .
   }}
 }}
 ''')
@@ -184,10 +184,10 @@ SELECT * WHERE {{
     {{
       {{
         ?_v0 <{WIKIBASE.propertyType}> <{WIKIBASE.Url}> .
+        ?_v0 <{WIKIBASE.statementProperty}> ?_v1 .
+        ?_v2 ?_v1 <x> .
       }}
     }}
-    ?_v0 <{WIKIBASE.statementProperty}> ?_v1 .
-    ?_v2 ?_v1 <x> .
   }}
 }}
 ''')
@@ -203,11 +203,11 @@ SELECT * WHERE {{
     {{
       {{
         ?_v0 <{WIKIBASE.propertyType}> <{WIKIBASE.Monolingualtext}> .
+        ?_v0 <{WIKIBASE.statementProperty}> ?_v1 .
+        ?_v2 ?_v1 ?x .
+        BIND (LANG(?x) AS ?_v3)
       }}
     }}
-    ?_v0 <{WIKIBASE.statementProperty}> ?_v1 .
-    ?_v2 ?_v1 ?x .
-    BIND (LANG(?x) AS ?_v3)
   }}
 }}
 ''')
@@ -219,12 +219,12 @@ SELECT * WHERE {{
     {{
       {{
         ?_v0 <{WIKIBASE.propertyType}> <{WIKIBASE.Monolingualtext}> .
+        ?_v0 <{WIKIBASE.statementProperty}> ?_v1 .
+        ?_v2 ?_v1 ?_v3 .
+        BIND (LANG(?_v3) AS ?_v4)
+        FILTER ((STR(?_v3) = "x"))
       }}
     }}
-    ?_v0 <{WIKIBASE.statementProperty}> ?_v1 .
-    ?_v2 ?_v1 ?_v3 .
-    BIND (LANG(?_v3) AS ?_v4)
-    FILTER ((STR(?_v3) = "x"))
   }}
 }}
 ''')
@@ -236,11 +236,11 @@ SELECT * WHERE {{
     {{
       {{
         ?_v0 <{WIKIBASE.propertyType}> <{WIKIBASE.Monolingualtext}> .
+        ?_v0 <{WIKIBASE.statementProperty}> ?_v1 .
+        ?_v2 ?_v1 ?x .
+        FILTER ((LANG(?x) = "y"))
       }}
     }}
-    ?_v0 <{WIKIBASE.statementProperty}> ?_v1 .
-    ?_v2 ?_v1 ?x .
-    FILTER ((LANG(?x) = "y"))
   }}
 }}
 ''')

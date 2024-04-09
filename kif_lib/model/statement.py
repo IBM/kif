@@ -41,6 +41,20 @@ class StatementTemplate(Template):
         else:
             raise self._should_not_get_here()
 
+    @property
+    def subject(self) -> VEntity:
+        return self.get_subject()
+
+    def get_subject(self) -> VEntity:
+        return self.args[0]
+
+    @property
+    def snak(self) -> VSnak:
+        return self.get_snak()
+
+    def get_snak(self) -> VSnak:
+        return self.args[1]
+
 
 class StatementVariable(Variable):
     """Statement variable.

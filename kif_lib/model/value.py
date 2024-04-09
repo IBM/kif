@@ -567,6 +567,12 @@ class PropertyTemplate(EntityTemplate):
     def __init__(self, iri: VTPropertyContent):
         super().__init__(iri)
 
+    def __call__(self, value1, value2=None):
+        if value2 is not None:
+            return self._Statement(value1, self._ValueSnak(self, value2))
+        else:
+            return self._ValueSnak(self, value1)
+
 
 class PropertyVariable(EntityVariable):
     """Property variable.
@@ -574,6 +580,12 @@ class PropertyVariable(EntityVariable):
     Parameters:
         name: String.
     """
+
+    def __call__(self, value1, value2=None):
+        if value2 is not None:
+            return self._Statement(value1, self._ValueSnak(self, value2))
+        else:
+            return self._ValueSnak(self, value1)
 
 
 class Property(Entity):

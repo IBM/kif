@@ -57,6 +57,10 @@ from .snak import (
     ValueSnak,
     ValueSnakTemplate,
     ValueSnakVariable,
+    VNoValueSnak,
+    VSnak,
+    VSomeValueSnak,
+    VValueSnak,
 )
 from .snak_set import SnakSet, TSnakSet
 from .statement import Statement, StatementTemplate, StatementVariable
@@ -122,6 +126,7 @@ from .value import (
     Value,
     ValueTemplate,
     ValueVariable,
+    VEntity,
     VExternalId,
     VItem,
     VLexeme,

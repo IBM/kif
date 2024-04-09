@@ -39,6 +39,9 @@ from ...model import (
     SomeValueSnak,
     SomeValueSnakTemplate,
     SomeValueSnakVariable,
+    Statement,
+    StatementTemplate,
+    StatementVariable,
     String,
     StringTemplate,
     StringVariable,
@@ -57,21 +60,27 @@ from ...model import (
     ValueTemplate,
     ValueVariable,
     Variable,
+    VEntity,
     VExternalId,
     VItem,
     VLexeme,
+    VNoValueSnak,
     VProperty,
     VQuantity,
+    VSnak,
+    VSomeValueSnak,
     VString,
     VText,
     VTime,
     VValue,
+    VValueSnak,
 )
 from ...typing import (
     Any,
     cast,
     Iterator,
     MutableMapping,
+    Optional,
     TypeAlias,
     TypeVar,
     Union,
@@ -231,6 +240,9 @@ class Compiler:
     def _fresh_value_variable(self) -> ValueVariable:
         return cast(ValueVariable, self._fresh_variable(ValueVariable))
 
+    def _fresh_entity_variable(self) -> EntityVariable:
+        return cast(EntityVariable, self._fresh_variable(EntityVariable))
+
     def _fresh_item_variable(self) -> ItemVariable:
         return cast(ItemVariable, self._fresh_variable(ItemVariable))
 
@@ -245,6 +257,9 @@ class Compiler:
 
     def _fresh_time_variable(self) -> TimeVariable:
         return cast(TimeVariable, self._fresh_variable(TimeVariable))
+
+    def _fresh_snak_variable(self) -> SnakVariable:
+        return cast(SnakVariable, self._fresh_variable(SnakVariable))
 
 # -- Compilation -----------------------------------------------------------
 
@@ -258,6 +273,8 @@ class Compiler:
                 return self._compile_value_template(obj)
             elif isinstance(obj, SnakTemplate):
                 return self._compile_snak_template(obj)
+            elif isinstance(obj, StatementTemplate):
+                return self._compile_statement_template(obj)
             else:
                 raise ShouldNotGetHere
         elif isinstance(obj, Variable):
@@ -265,12 +282,16 @@ class Compiler:
                 return self._compile_value_variable(obj)
             elif isinstance(obj, SnakVariable):
                 return self._compile_snak_variable(obj)
+            elif isinstance(obj, StatementVariable):
+                return self._compile_statement_variable(obj)
             else:
                 raise ShouldNotGetHere
         elif isinstance(obj, Value):
             return self._compile_value(obj)
         elif isinstance(obj, Snak):
             return self._compile_snak(obj)
+        elif isinstance(obj, Statement):
+            return self._compile_statement(obj)
         else:
             raise ShouldNotGetHere
 
@@ -333,6 +354,8 @@ class Compiler:
             return self._push_some_value_snak_variable(obj)
         elif isinstance(obj, NoValueSnakVariable):
             return self._push_no_value_snak_variable(obj)
+        elif isinstance(obj, SnakVariable):
+            return self._push_snak_variable(obj)
         else:
             raise ShouldNotGetHere
 
@@ -345,6 +368,15 @@ class Compiler:
             return self._push_no_value_snak(obj)
         else:
             raise ShouldNotGetHere
+
+    def _compile_statement_template(self, obj: StatementTemplate) -> Any:
+        return self._push_statement_template(obj)
+
+    def _compile_statement_variable(self, obj: StatementVariable) -> Any:
+        return self._push_statement_variable(obj)
+
+    def _compile_statement(self, obj: Statement) -> Any:
+        return self._push_statement(obj)
 
 # -- Entity ----------------------------------------------------------------
 
@@ -480,7 +512,10 @@ class Compiler:
 
 # -- Text ------------------------------------------------------------------
 
-    def _push_v_text(self, obj: VText) -> VQueryLiteral:
+    def _push_v_text(
+            self,
+            obj: VText
+    ) -> tuple[VQueryLiteral, VQueryLiteral]:
         if isinstance(obj, TextTemplate):
             return self._push_text_template(obj)
         elif isinstance(obj, TextVariable):
@@ -490,25 +525,29 @@ class Compiler:
         else:
             raise ShouldNotGetHere
 
-    def _push_text_template(self, obj: TextTemplate) -> VQueryLiteral:
+    def _push_text_template(
+            self,
+            obj: TextTemplate
+    ) -> tuple[VQueryLiteral, VQueryLiteral]:
         obj_content = obj.content
         obj_lang = obj.language
         content: VQueryLiteral
+        lang: VQueryLiteral
         if isinstance(obj_content, StringVariable):
             content = self._as_qvar(obj_content)
-            self._push_text_template_language(obj, content)
-            return self._theta_add(obj_content, content)
+            lang = self._push_text_template_language(obj, content)
+            self._theta_add(obj_content, content)
         elif isinstance(obj_content, str):
             if isinstance(obj_lang, StringVariable):
                 content = self._fresh_qvar()
                 self._q.filter(self._q.eq(
                     self._q.str(content), self._q.literal(obj_content)))
-                self._push_text_template_language(obj, content)
+                lang = self._push_text_template_language(obj, content)
             else:
-                content = self._push_text(Text(obj_content, obj_lang))
+                content, lang = self._push_text(Text(obj_content, obj_lang))
         else:
             raise ShouldNotGetHere
-        return content
+        return content, lang
 
     def _push_text_template_language(
             self,
@@ -527,16 +566,22 @@ class Compiler:
             raise ShouldNotGetHere
         return lang
 
-    def _push_text_variable(self, obj: TextVariable) -> QueryVariable:
+    def _push_text_variable(
+            self,
+            obj: TextVariable
+    ) -> tuple[QueryVariable, QueryVariable]:
         obj_content = self._fresh_string_variable()
         obj_lang = self._fresh_string_variable()
         tpl = self._theta_add(obj, TextTemplate(obj_content, obj_lang))
-        content = self._push_text_template(tpl)
+        content, lang = self._push_text_template(tpl)
         assert isinstance(content, QueryVariable)
-        return content
+        assert isinstance(lang, QueryVariable)
+        return content, lang
 
-    def _push_text(self, obj: Text) -> QueryLiteral:
-        return self._q.literal(obj.content, language=obj.language)
+    def _push_text(self, obj: Text) -> tuple[QueryLiteral, QueryLiteral]:
+        return (
+            self._q.literal(obj.content, language=obj.language),
+            self._q.literal(obj.language))
 
 # -- String ----------------------------------------------------------------
 
@@ -586,7 +631,8 @@ class Compiler:
         obj_content = obj.content
         content: VQueryLiteral
         if isinstance(obj_content, StringVariable):
-            content = self._theta_add(obj_content, self._as_qvar(obj_content))
+            content = self._theta_add(
+                obj_content, self._as_qvar(obj_content))
         elif isinstance(obj_content, str):
             content = self._push_external_id(ExternalId(obj_content))
         else:
@@ -609,7 +655,7 @@ class Compiler:
             obj: VQuantity,
             prop: VQueryURI,
             wds: VQueryURI
-    ) -> VQueryLiteral:
+    ) -> tuple[VQueryLiteral, VQueryURI, VQueryLiteral, VQueryLiteral]:
         if isinstance(obj, QuantityTemplate):
             return self._push_quantity_template(obj, prop, wds)
         elif isinstance(obj, QuantityVariable):
@@ -624,7 +670,7 @@ class Compiler:
             obj: QuantityTemplate,
             prop: VQueryURI,
             wds: VQueryURI
-    ) -> VQueryLiteral:
+    ) -> tuple[VQueryLiteral, VQueryURI, VQueryLiteral, VQueryLiteral]:
         obj_amount, obj_unit, obj_lb, obj_ub = obj.args
         amount: VQueryLiteral
         unit: VQueryURI
@@ -670,34 +716,37 @@ class Compiler:
                 self._q.triples()((wdv, NS.WIKIBASE.quantityLowerBound, lb))
             with self._q.optional_if(isinstance(ub, QueryVariable)):
                 self._q.triples()((wdv, NS.WIKIBASE.quantityUpperBound, ub))
-            return amount
+            return amount, unit, lb, ub
 
     def _push_quantity_variable(
             self,
             obj: QuantityVariable,
             prop: VQueryURI,
             wds: VQueryURI
-    ) -> QueryVariable:
+    ) -> tuple[QueryVariable, QueryVariable, QueryVariable, QueryVariable]:
         obj_amount = self._fresh_quantity_variable()
         obj_unit = self._fresh_item_variable()
         obj_lb = self._fresh_quantity_variable()
         obj_ub = self._fresh_quantity_variable()
         tpl = self._theta_add(
             obj, QuantityTemplate(obj_amount, obj_unit, obj_lb, obj_ub))
-        amount = self._push_quantity_template(tpl, prop, wds)
+        amount, unit, lb, ub = self._push_quantity_template(tpl, prop, wds)
         assert isinstance(amount, QueryVariable)
-        return amount
+        assert isinstance(unit, QueryVariable)
+        assert isinstance(lb, QueryVariable)
+        assert isinstance(ub, QueryVariable)
+        return amount, unit, lb, ub
 
     def _push_quantity(
             self,
             obj: Quantity,
             prop: VQueryURI,
             wds: VQueryURI
-    ) -> QueryLiteral:
+    ) -> tuple[QueryLiteral, VQueryURI, VQueryLiteral, VQueryLiteral]:
         tpl = QuantityTemplate(*obj.args)
-        amount = self._push_quantity_template(tpl, prop, wds)
+        amount, unit, lb, ub = self._push_quantity_template(tpl, prop, wds)
         assert isinstance(amount, QueryLiteral)
-        return amount
+        return amount, unit, lb, ub
 
 # -- Time ------------------------------------------------------------------
 
@@ -706,7 +755,7 @@ class Compiler:
             obj: VTime,
             prop: VQueryURI,
             wds: VQueryURI
-    ) -> VQueryLiteral:
+    ) -> tuple[VQueryLiteral, VQueryLiteral, VQueryLiteral, VQueryURI]:
         if isinstance(obj, TimeTemplate):
             return self._push_time_template(obj, prop, wds)
         elif isinstance(obj, TimeVariable):
@@ -721,7 +770,7 @@ class Compiler:
             obj: TimeTemplate,
             prop: VQueryURI,
             wds: VQueryURI
-    ) -> VQueryLiteral:
+    ) -> tuple[VQueryLiteral, VQueryLiteral, VQueryLiteral, VQueryURI]:
         obj_time, obj_prec, obj_tz, obj_cal = obj.args
         time: VQueryLiteral
         prec: VQueryLiteral
@@ -766,48 +815,100 @@ class Compiler:
                 self._q.triples()((wdv, NS.WIKIBASE.timeTimezone, tz))
             with self._q.optional_if(isinstance(cal, QueryVariable)):
                 self._q.triples()((wdv, NS.WIKIBASE.timeCalendarModel, cal))
-            return time
+            return time, prec, tz, cal
 
     def _push_time_variable(
             self,
             obj: TimeVariable,
             prop: VQueryURI,
             wds: VQueryURI
-    ) -> QueryVariable:
+    ) -> tuple[QueryVariable, QueryVariable, QueryVariable, QueryVariable]:
         obj_time = self._fresh_time_variable()
         obj_prec = self._fresh_quantity_variable()
         obj_tz = self._fresh_quantity_variable()
         obj_cal = self._fresh_item_variable()
         tpl = self._theta_add(
             obj, TimeTemplate(obj_time, obj_prec, obj_tz, obj_cal))
-        time = self._push_time_template(tpl, prop, wds)
+        time, prec, tz, cal = self._push_time_template(tpl, prop, wds)
         assert isinstance(time, QueryVariable)
-        return time
+        assert isinstance(prec, QueryVariable)
+        assert isinstance(tz, QueryVariable)
+        assert isinstance(cal, QueryVariable)
+        return time, prec, tz, cal
 
     def _push_time(
             self,
             obj: Time,
             prop: VQueryURI,
             wds: VQueryURI
-    ) -> QueryLiteral:
+    ) -> tuple[QueryLiteral, VQueryLiteral, VQueryLiteral, VQueryURI]:
         tpl = TimeTemplate(*obj.args)
-        time = self._push_time_template(tpl, prop, wds)
+        time, prec, tz, cal = self._push_time_template(tpl, prop, wds)
         assert isinstance(time, QueryLiteral)
-        return time
+        return time, prec, tz, cal
+
+# -- Snak ------------------------------------------------------------------
+
+    def _push_snak_variable(
+            self,
+            obj: SnakVariable,
+            wds: Optional[QueryVariable] = None,
+            subject: Optional[VQueryURI] = None
+    ) -> QueryVariable:
+        def _push_subject(wds, prop):
+            if subject is not None:
+                p = self._fresh_qvar()
+                self._q.triples()(
+                    (prop, NS.WIKIBASE.claim, p),
+                    (subject, p, wds))
+            return wds, prop
+        if wds is None:
+            wds = self._fresh_qvar()
+        assert wds is not None
+        with self._q.union():
+            with self._q.group():
+                v1, _ = _push_subject(*self._push_value_snak_variable(
+                    ValueSnakVariable(obj.name), wds))
+            with self._q.group():
+                v2, _ = _push_subject(*self._push_some_value_snak_variable(
+                    SomeValueSnakVariable(obj.name), wds))
+            with self._q.group():
+                v3, _ = _push_subject(*self._push_no_value_snak_variable(
+                    NoValueSnakVariable(obj.name), wds))
+            assert v1 == v2 and v2 == v3
+            return v1
 
 # -- Value snak ------------------------------------------------------------
 
+    def _push_v_value_snak(
+            self,
+            obj: VValueSnak,
+            wds: Optional[QueryVariable] = None
+    ) -> tuple[QueryVariable, VQueryURI]:
+        if isinstance(obj, ValueSnakTemplate):
+            return self._push_value_snak_template(obj, wds)
+        elif isinstance(obj, ValueSnakVariable):
+            return self._push_value_snak_variable(obj, wds)
+        elif isinstance(obj, ValueSnak):
+            return self._push_value_snak(obj, wds)
+        else:
+            raise ShouldNotGetHere
+
     def _push_value_snak_template(
             self,
-            obj: ValueSnakTemplate
-    ) -> VQueryURI:
+            obj: ValueSnakTemplate,
+            wds: Optional[QueryVariable] = None
+    ) -> tuple[QueryVariable, VQueryURI]:
         with self._q.group():
             obj_property = obj.property
             prop = self._push_v_property(obj_property)
+            ps = self._fresh_qvar()
+            if wds is None:
+                wds = self._fresh_qvar()
+            assert wds is not None
             self._q.begin_union()
             it = self._iter_possible_datatypes_for_v_value(obj.value)
             for dt in it:
-                ps, wds = self._fresh_qvars(2)
                 obj_value: VValue
                 if isinstance(obj.value, ValueVariable):
                     obj_value_var_class = dt.to_value_variable_class()
@@ -825,7 +926,7 @@ class Compiler:
                     (wds, ps, self._push_v_value(obj_value, prop, wds)))
                 self._q.end_group()
             self._q.end_union()
-            return prop
+            return wds, prop
 
     def _iter_possible_datatypes_for_v_value(
             self,
@@ -856,102 +957,226 @@ class Compiler:
             prop: VQueryURI,
             wds: VQueryURI
     ) -> VQueryTerm:
-        if isinstance(obj, (ItemTemplate, ItemVariable, Item)):
-            return self._push_v_item(obj)
-        elif isinstance(obj, (PropertyTemplate, PropertyVariable, Property)):
-            return self._push_v_property(obj)
-        elif isinstance(obj, (LexemeTemplate, LexemeVariable, Lexeme)):
-            return self._push_v_lexeme(obj)
+        if isinstance(obj, (EntityTemplate, EntityVariable, Entity)):
+            return self._push_v_entity(obj)
         elif isinstance(obj, (IRI_Template, IRI_Variable, IRI)):
             return self._push_v_iri(obj)
         elif isinstance(obj, (TextTemplate, TextVariable, Text)):
-            return self._push_v_text(obj)
+            return self._push_v_text(obj)[0]
         elif isinstance(obj, (
                 ExternalIdTemplate, ExternalIdVariable, ExternalId)):
             return self._push_v_external_id(obj)
         elif isinstance(obj, (StringTemplate, StringVariable, String)):
             return self._push_v_string(obj)
         elif isinstance(obj, (QuantityTemplate, QuantityVariable, Quantity)):
-            return self._push_v_quantity(obj, prop, wds)
+            return self._push_v_quantity(obj, prop, wds)[0]
         elif isinstance(obj, (TimeTemplate, TimeVariable, Time)):
-            return self._push_v_time(obj, prop, wds)
+            return self._push_v_time(obj, prop, wds)[0]
+        else:
+            raise ShouldNotGetHere
+
+    def _push_v_entity(
+            self,
+            obj: VEntity,
+    ) -> VQueryURI:
+        if isinstance(obj, (ItemTemplate, ItemVariable, Item)):
+            return self._push_v_item(obj)
+        elif isinstance(obj, (PropertyTemplate, PropertyVariable, Property)):
+            return self._push_v_property(obj)
+        elif isinstance(obj, (LexemeTemplate, LexemeVariable, Lexeme)):
+            return self._push_v_lexeme(obj)
         else:
             raise ShouldNotGetHere
 
     def _push_value_snak_variable(
             self,
-            obj: ValueSnakVariable
-    ) -> VQueryURI:
+            obj: ValueSnakVariable,
+            wds: Optional[QueryVariable] = None
+    ) -> tuple[QueryVariable, VQueryURI]:
         obj_prop = self._fresh_property_variable()
         obj_value = self._fresh_value_variable()
         tpl = self._theta_add(obj, ValueSnakTemplate(obj_prop, obj_value))
-        var = self._push_value_snak_template(tpl)
-        assert isinstance(var, QueryVariable)
-        return var
+        wds, prop = self._push_value_snak_template(tpl, wds)
+        assert isinstance(wds, QueryVariable)
+        return wds, prop
 
-    def _push_value_snak(self, obj: ValueSnak) -> QueryURI:
+    def _push_value_snak(
+            self,
+            obj: ValueSnak,
+            wds: Optional[QueryVariable] = None
+    ) -> tuple[QueryVariable, VQueryURI]:
         tpl = ValueSnakTemplate(*obj.args)
-        uri = self._push_value_snak_template(tpl)
-        assert isinstance(uri, QueryURI)
-        return uri
+        wds, prop = self._push_value_snak_template(tpl, wds)
+        assert isinstance(wds, QueryVariable)
+        return wds, prop
 
 # -- Some-value snak -------------------------------------------------------
 
+    def _push_v_some_value_snak(
+            self,
+            obj: VSomeValueSnak,
+            wds: Optional[QueryVariable] = None
+    ) -> tuple[QueryVariable, VQueryURI]:
+        if isinstance(obj, SomeValueSnakTemplate):
+            return self._push_some_value_snak_template(obj, wds)
+        elif isinstance(obj, SomeValueSnakVariable):
+            return self._push_some_value_snak_variable(obj, wds)
+        elif isinstance(obj, SomeValueSnak):
+            return self._push_some_value_snak(obj, wds)
+        else:
+            raise ShouldNotGetHere
+
     def _push_some_value_snak_template(
             self,
-            obj: SomeValueSnakTemplate
-    ) -> VQueryURI:
+            obj: SomeValueSnakTemplate,
+            wds: Optional[QueryVariable] = None
+    ) -> tuple[QueryVariable, VQueryURI]:
         with self._q.group():
             prop = self._push_v_property(obj.property)
-            ps, wds, value = self._fresh_qvars(3)
+            ps, value = self._fresh_qvars(2)
+            if wds is None:
+                wds = self._fresh_qvar()
+            assert wds is not None
             self._q.triples()(
                 (prop, NS.WIKIBASE.statementProperty, ps),
                 (wds, ps, value))
             self._q.filter(self._q.call(NS.WIKIBASE.isSomeValue, value))
-        return prop
+            return wds, prop
 
     def _push_some_value_snak_variable(
             self,
-            obj: SomeValueSnakVariable
-    ) -> QueryVariable:
+            obj: SomeValueSnakVariable,
+            wds: Optional[QueryVariable] = None
+    ) -> tuple[QueryVariable, VQueryURI]:
         obj_prop = self._fresh_property_variable()
         tpl = self._theta_add(obj, SomeValueSnakTemplate(obj_prop))
-        prop = self._push_some_value_snak_template(tpl)
-        assert isinstance(prop, QueryVariable)
-        return prop
+        wds, prop = self._push_some_value_snak_template(tpl, wds)
+        assert isinstance(wds, QueryVariable)
+        return wds, prop
 
-    def _push_some_value_snak(self, obj: SomeValueSnak) -> QueryURI:
+    def _push_some_value_snak(
+            self,
+            obj: SomeValueSnak,
+            wds: Optional[QueryVariable] = None
+    ) -> tuple[QueryVariable, VQueryURI]:
         tpl = SomeValueSnakTemplate(*obj.args)
-        prop = self._push_some_value_snak_template(tpl)
-        assert isinstance(prop, QueryURI)
-        return prop
+        wds, prop = self._push_some_value_snak_template(tpl, wds)
+        assert isinstance(wds, QueryVariable)
+        return wds, prop
 
 # -- No-value snak ---------------------------------------------------------
 
+    def _push_v_no_value_snak(
+            self,
+            obj: VNoValueSnak,
+            wds: Optional[QueryVariable] = None
+    ) -> tuple[QueryVariable, VQueryURI]:
+        if isinstance(obj, NoValueSnakTemplate):
+            return self._push_no_value_snak_template(obj, wds)
+        elif isinstance(obj, NoValueSnakVariable):
+            return self._push_no_value_snak_variable(obj, wds)
+        elif isinstance(obj, NoValueSnak):
+            return self._push_no_value_snak(obj, wds)
+        else:
+            raise ShouldNotGetHere
+
     def _push_no_value_snak_template(
             self,
-            obj: NoValueSnakTemplate
-    ) -> VQueryURI:
+            obj: NoValueSnakTemplate,
+            wds: Optional[QueryVariable] = None
+    ) -> tuple[QueryVariable, VQueryURI]:
         with self._q.group():
             prop = self._push_v_property(obj.property)
-            wdno, wds = self._fresh_qvars(2)
+            wdno = self._fresh_qvar()
+            if wds is None:
+                wds = self._fresh_qvar()
+            assert wds is not None
             self._q.triples()(
                 (prop, NS.WIKIBASE.novalue, wdno),
                 (wds, NS.RDF.type, wdno))
-        return prop
+            return wds, prop
 
     def _push_no_value_snak_variable(
             self,
-            obj: NoValueSnakVariable
-    ) -> QueryVariable:
+            obj: NoValueSnakVariable,
+            wds: Optional[QueryVariable] = None
+    ) -> tuple[QueryVariable, VQueryURI]:
         obj_prop = self._fresh_property_variable()
         tpl = self._theta_add(obj, NoValueSnakTemplate(obj_prop))
-        prop = self._push_no_value_snak_template(tpl)
-        assert isinstance(prop, QueryVariable)
-        return prop
+        wds, prop = self._push_no_value_snak_template(tpl, wds)
+        assert isinstance(wds, QueryVariable)
+        return wds, prop
 
-    def _push_no_value_snak(self, obj: NoValueSnak) -> QueryURI:
+    def _push_no_value_snak(
+            self,
+            obj: NoValueSnak,
+            wds: Optional[QueryVariable] = None
+    ) -> tuple[QueryVariable, VQueryURI]:
         tpl = NoValueSnakTemplate(*obj.args)
-        prop = self._push_no_value_snak_template(tpl)
-        assert isinstance(prop, QueryURI)
-        return prop
+        wds, prop = self._push_no_value_snak_template(tpl, wds)
+        assert isinstance(wds, QueryVariable)
+        return wds, prop
+
+# -- Statement -------------------------------------------------------------
+
+    def _push_statement_template(
+            self,
+            obj: StatementTemplate
+    ) -> QueryVariable:
+        with self._q.group():
+            obj_subj, obj_snak = obj.args
+            subj: VQueryURI
+            wds: QueryVariable
+            if type(obj_subj) is EntityVariable:
+                subj = self._push_entity_variable(obj_subj)
+            else:
+                subj = self._push_v_entity(obj_subj)
+            if type(obj_snak) is SnakVariable:
+                wds = self._push_snak_variable(obj_snak, subject=subj)
+            else:
+                wds, prop = self._push_v_snak(obj_snak)
+                p = self._fresh_qvar()
+                self._q.triples()(
+                    (prop, NS.WIKIBASE.claim, p),
+                    (subj, p, wds))
+            return wds
+
+    def _push_v_snak(
+            self,
+            obj: VSnak,
+            wds: Optional[QueryVariable] = None
+    ) -> tuple[QueryVariable, VQueryURI]:
+        if isinstance(obj, (
+                ValueSnakTemplate,
+                ValueSnakVariable,
+                ValueSnak)):
+            return self._push_v_value_snak(obj, wds)
+        elif isinstance(obj, (
+                SomeValueSnakTemplate,
+                SomeValueSnakVariable,
+                SomeValueSnak)):
+            return self._push_v_some_value_snak(obj, wds)
+        elif isinstance(obj, (
+                NoValueSnakTemplate,
+                NoValueSnakVariable,
+                NoValueSnak)):
+            return self._push_v_no_value_snak(obj, wds)
+        else:
+            raise ShouldNotGetHere
+
+    def _push_statement_variable(
+            self,
+            obj: StatementVariable
+    ) -> QueryVariable:
+        obj_subj = self._fresh_entity_variable()
+        obj_snak = self._fresh_snak_variable()
+        tpl = self._theta_add(obj, StatementTemplate(obj_subj, obj_snak))
+        wds = self._push_statement_template(tpl)
+        assert isinstance(wds, QueryVariable)
+        return wds
+
+    def _push_statement(self, obj: Statement) -> QueryVariable:
+        tpl = StatementTemplate(*obj.args)
+        wds = self._push_statement_template(tpl)
+        assert isinstance(wds, QueryVariable)
+        return wds
