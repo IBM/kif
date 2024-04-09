@@ -55,7 +55,6 @@ from .model import (
     Statement,
     String,
     StringDatatype,
-    Template,
     Text,
     TextDatatype,
     TextSet,
@@ -65,6 +64,7 @@ from .model import (
     ValueSet,
     ValueSnak,
     Variable,
+    Variables,
 )
 from .store import Store
 
@@ -127,7 +127,6 @@ __all__ = [
     'Store',
     'String',
     'StringDatatype',
-    'Template',
     'Text',
     'TextDatatype',
     'TextSet',
@@ -137,4 +136,5 @@ __all__ = [
     'ValueSet',
     'ValueSnak',
     'Variable',
+    'Variables',
 ]

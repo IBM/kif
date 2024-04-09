@@ -31,7 +31,7 @@ from .kif_object import (
     UTC,
 )
 from .kif_object_set import KIF_ObjectSet, T_KIF_ObjectSet
-from .pattern import Pattern, Template, Variable
+from .pattern import Pattern, Template, Variable, Variables
 from .pattern_deprecated import FilterPattern
 from .rank import (
     Deprecated,

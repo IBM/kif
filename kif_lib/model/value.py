@@ -2045,7 +2045,7 @@ class Datatype(KIF_Object):
                 cls.from_value_template_class, 'value_template_class', 2)
             raise cls._arg_error(
                 f'no datatype for {value_template_class.__qualname__}',
-                cls.from_value_class, 'value_template_class', 2)
+                cls.from_value_template_class, 'value_template_class', 2)
 
     @classmethod
     @abstractmethod
@@ -2096,7 +2096,7 @@ class Datatype(KIF_Object):
                 cls.from_value_variable_class, 'value_class', 2)
             raise cls._arg_error(
                 f'no datatype for {value_variable_class.__qualname__}',
-                cls.from_value_class, 'value_variable_class', 2)
+                cls.from_value_variable_class, 'value_variable_class', 2)
 
     @classmethod
     @abstractmethod

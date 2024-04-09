@@ -1,7 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..typing import cast, NoReturn, Optional, Union
+from ..itertools import chain
+from ..typing import cast, Iterable, NoReturn, Optional, Union
 from .kif_object import KIF_Object, TCallable
 
 
@@ -14,7 +15,19 @@ class Variable(KIF_Object):
 
     Parameters:
         name: String.
+        object_class: Object class.
     """
+
+    def __new__(
+            cls,
+            name: str,
+            object_class: Optional[type[KIF_Object]] = None
+    ):
+        if (object_class is not None
+                and hasattr(object_class, 'variable_class')):
+            return object_class.variable_class(name)
+        else:
+            return super().__new__(cls)
 
     @classmethod
     def _preprocess_arg_variable(
@@ -27,7 +40,11 @@ class Variable(KIF_Object):
             arg, function or cls, None, i))
         return arg._coerce(cls, function or cls, None, i)
 
-    def __init__(self, name: str):
+    def __init__(
+            self,
+            name: str,
+            object_class: Optional[type[KIF_Object]] = None
+    ):
         super().__init__(name)
 
     def __call__(self, value1, value2=None):
@@ -82,6 +99,34 @@ class Variable(KIF_Object):
             raise self._arg_error(
                 f'cannot coerce {src} into {dest}',
                 function, name, position, TypeError)
+
+
+def Variables(
+        name: str,
+        *names: Union[str, type[KIF_Object]],
+) -> Iterable[Variable]:
+    """Constructs one or more variables.
+
+    Parameters:
+       name: String.
+       names: Remaining strings or object class.
+
+    Returns:
+       The resulting variables
+    """
+    def it(args):
+        vars = []
+        for x in args:
+            if isinstance(x, str):
+                vars.append(x)
+            elif vars:
+                yield (vars, x)
+                vars = []
+        if vars:
+            yield (vars, None)
+    for xs, object_class in it(chain((name,), names)):
+        for x in xs:
+            yield Variable(x, object_class)
 
 
 class Pattern(KIF_Object):
