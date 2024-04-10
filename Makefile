@@ -185,34 +185,40 @@ perl_check_syntax_python:=\
       $$errcnt++;\
     }\
   }\
-  if (/^((\s\s\s\s+)Parameters(.*?))\"\"\"/s\
-      or /^((\s\s\s\s+)Parameters(.*))$$/s) {\
-    $$pars = $$1;\
-    sub bad_pars {\
+  if (/^((\s\s\s\s+)(Parameters|Returns)(.*?))\"\"\"/s\
+      or /^((\s\s\s\s+)(Parameters|Returns)(.*))$$/s) {\
+    $$section = $$1;\
+    $$header = $$3;\
+    sub bad_section {\
       $$explain = shift;\
-      put_error("bad Parameters ($$explain):\n$$pars\n");\
+      put_error("bad $$header ($$explain):\n$$section\n");\
     }\
-    $$pars_indent = length($$2);\
-    $$pars_text = $$3;\
-    if ($$pars_text !~ /^:\n/) {\
-      bad_pars("missing colon-newline");\
+    $$section_indent = length($$2);\
+    $$section_text = $$4;\
+    if ($$section_text !~ /^:\n/) {\
+      bad_section("missing colon-newline");\
     } else {\
-      $$pars_text =~ /^:\n(.*?)\s*(\"\"\")?$$/s;\
+      $$section_text =~ /^:\n(.*?)\s*(\"\"\")?$$/s;\
       if (!defined $$1) {\
-        bad_pars("syntax error");\
+        bad_section("syntax error");\
       }\
       foreach (split "\n", $$1) {\
         $$_ =~ /^(\s*)(.*)$$/;\
-        if (length($$1) != $$pars_indent + 3) {\
-          bad_pars("misalignment");\
+        if (length($$1) != $$section_indent + 3) {\
+          bad_section("misalignment");\
         }\
-        $$line = $$2;\
-        if ($$line !~ /^\w+:/) {\
-          bad_pars("missing colon in \"$$line");\
+        if ($$header eq "Parameters") {\
+          $$line = $$2;\
+          if ($$line !~ /^\w+:/) {\
+            bad_section("missing colon in \"$$line");\
+          }\
+          if ($$line !~ /\.$$/) {\
+            bad_section("missing final dot in \"$$line\"");\
+          }\
         }\
-        if ($$line !~ /\.$$/) {\
-          bad_pars("missing final dot in \"$$line\"");\
-        }\
+      }\
+      if ($$header eq "Returns" and $$section_text !~ /\.\s*$$/) {\
+        bad_section("missing final dot");\
       }\
     }\
   }\

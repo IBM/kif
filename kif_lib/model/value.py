@@ -584,7 +584,7 @@ def Items(iri: VTItemContent, *iris: VTItemContent) -> Iterable[Item]:
 
     Parameters:
        iri: IRI.
-       iris: Remaining IRIs.
+       iris: IRIs.
 
     Returns:
        The resulting items.
@@ -677,7 +677,7 @@ def Properties(
 
     Parameters:
        iri: IRI.
-       iris: Remaining IRIs.
+       iris: IRIs.
 
     Returns:
        The resulting properties.
@@ -749,7 +749,7 @@ def Lexemes(iri: VTLexemeContent, *iris: VTLexemeContent) -> Iterable[Lexeme]:
 
     Parameters:
        iri: IRI.
-       iris: Remaining IRIs.
+       iris: IRIs.
 
     Returns:
        The resulting lexemes.

@@ -46,7 +46,7 @@ class ValueSet(KIF_ObjectSet):
         """Gets the set of values as a frozen set.
 
         Returns:
-           Frozen set
+           Frozen set.
         """
         return cast(frozenset[Value], self._get_frozenset())
 
@@ -98,7 +98,7 @@ class TextSet(ValueSet):
         """Gets the set of texts as a frozen set.
 
         Returns:
-           Frozen set
+           Frozen set.
         """
         return cast(frozenset[Text], self._get_frozenset())
 

@@ -109,10 +109,10 @@ def Variables(
 
     Parameters:
        name: Name.
-       names: Remaining strings or object class.
+       names: Names or object classes.
 
     Returns:
-       The resulting variables
+       The resulting variables.
     """
     def it(args):
         vars = []

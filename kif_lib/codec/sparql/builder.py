@@ -1142,7 +1142,7 @@ class Query(Encodable):
            language: Literal language.
 
         Returns:
-           :class:`Literal`.a
+           :class:`Literal`.
         """
         return Coerce.literal(content, language)
 
