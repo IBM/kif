@@ -454,7 +454,8 @@ class SPARQL_Mapping(ABC):
            datatype: Datatype of property.
            kwargs: Keyword-arguments to be passed to :class:`Spec`.
 
-        Returns: A function that takes a definition and associates it with
+        Returns:
+           A function that takes a definition and associates it with
            new spec in mapping.
         """
         property = Property._check_arg_property(

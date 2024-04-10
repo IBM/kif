@@ -59,7 +59,7 @@ class SnakVariable(Variable):
     """Snak variable.
 
     Parameters:
-       name: String
+       name: Name.
     """
 
     @classmethod
@@ -235,7 +235,7 @@ class ValueSnakVariable(SnakVariable):
     """Value snak variable.
 
     Parameters:
-       name: String.
+       name: Name.
     """
 
 
@@ -296,7 +296,7 @@ class SomeValueSnakVariable(SnakVariable):
     """Some-value snak variable.
 
     Parameters:
-       name: String
+       name: Name.
     """
 
 
@@ -334,7 +334,7 @@ class NoValueSnakVariable(SnakVariable):
     """No-value snak variable.
 
     Parameters:
-       name: String.
+       name: Name.
     """
 
 

@@ -62,7 +62,7 @@ class StatementVariable(Variable):
     """Statement variable.
 
     Parameters:
-       name: String.
+       name: Name.
     """
 
 

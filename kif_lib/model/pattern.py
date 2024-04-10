@@ -14,8 +14,8 @@ class Variable(KIF_Object):
     """Base class for variables.
 
     Parameters:
-        name: String.
-        object_class: Object class.
+       name: Name.
+       object_class: Object class.
     """
 
     def __new__(
@@ -108,7 +108,7 @@ def Variables(
     """Constructs one or more variables.
 
     Parameters:
-       name: String.
+       name: Name.
        names: Remaining strings or object class.
 
     Returns:

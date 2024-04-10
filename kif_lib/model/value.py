@@ -154,7 +154,7 @@ class ValueVariable(Variable):
     """Value variable.
 
     Parameters:
-       name: String.
+       name: Name.
     """
 
     @classmethod
@@ -470,7 +470,7 @@ class EntityVariable(ValueVariable):
     """Entity variable.
 
     Parameters:
-       name: String.
+       name: Name.
     """
 
     @classmethod
@@ -526,7 +526,7 @@ class ItemTemplate(EntityTemplate):
     """Item template.
 
     Parameters:
-        iri: IRI.
+       iri: IRI.
     """
 
     def __init__(self, iri: VTItemContent):
@@ -537,7 +537,7 @@ class ItemVariable(EntityVariable):
     """Item variable.
 
     Parameters:
-        name: String.
+       name: Name.
     """
 
     @classmethod
@@ -615,7 +615,7 @@ class PropertyVariable(EntityVariable):
     """Property variable.
 
     Parameters:
-        name: String.
+       name: Name.
     """
 
     @classmethod
@@ -702,7 +702,7 @@ class LexemeVariable(EntityVariable):
     """Lexeme variable.
 
     Parameters:
-        name: String.
+       name: Name.
     """
 
     @classmethod
@@ -767,7 +767,7 @@ class DataValueVariable(ValueVariable):
     """Data value variable.
 
     Parameters:
-       name: String.
+       name: Name.
     """
 
 
@@ -796,7 +796,7 @@ class ShallowDataValueVariable(DataValueVariable):
     """Shallow data value variable.
 
     Parameters:
-       name: String.
+       name: Name.
     """
 
 
@@ -852,7 +852,7 @@ class IRI_Variable(ShallowDataValueVariable):
     """IRI variable.
 
     Parameters:
-        name: String.
+       name: Name.
     """
 
     @classmethod
@@ -955,7 +955,7 @@ class TextVariable(ShallowDataValueVariable):
     """Text variable.
 
     Parameters:
-        name: String.
+       name: Name.
     """
 
 
@@ -1054,7 +1054,7 @@ class StringVariable(ShallowDataValueVariable):
     """String variable.
 
     Parameters:
-        name: String.
+       name: Name.
     """
 
     @classmethod
@@ -1136,7 +1136,7 @@ class ExternalIdVariable(StringVariable):
     """External id variable.
 
     Parameters:
-        name: String.
+       name: Name.
     """
 
 
@@ -1206,7 +1206,7 @@ class DeepDataValueVariable(DataValueVariable):
     """Deep data value variable.
 
     Parameters:
-       name: String.
+       name: Name.
     """
 
 
@@ -1314,7 +1314,7 @@ class QuantityVariable(DeepDataValueVariable):
     """Quantity variable.
 
     Parameters:
-       name: String.
+       name: Name.
     """
 
     @classmethod
@@ -1562,7 +1562,7 @@ class TimeVariable(DeepDataValueVariable):
     """Time variable.
 
     Parameters:
-       name: String.
+       name: Name.
     """
 
     @classmethod

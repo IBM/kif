@@ -36,6 +36,8 @@ CHECK_FLAKE8=? yes
 CHECK_ISORT?= yes
 CHECK_MYPY?= yes
 CHECK_PYTEST?= yes
+CHECK_SYNTAX?= yes
+CHECK_SYNTAX_IGNORE?=
 COVERAGERC?= .coveragerc
 COVERAGERC_EXCLUDE_LINES?=
 COVERAGERC_OMIT?=
@@ -70,8 +72,10 @@ TOX_SETENV?=
 include Makefile.conf
 
 CHECK_DEPS+= $(if $(filter yes,${CHECK_COPYRIGHT}),check-copyright)
+CHECK_DEPS+= $(if $(filter yes,${CHECK_SYNTAX}),check-syntax)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_FLAKE8}),check-flake8)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_ISORT}),check-isort)
+
 CHECK_DEPS+= $(if $(filter yes,${CHECK_MYPY}),check-mypy)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_PYTEST}),check-pytest)
 PYTEST_OPTIONS+= $(if $(filter yes,${CHECK_MYPY}),--mypy)
@@ -114,10 +118,10 @@ check-copyright: check-copyright-python
 
 .PHONY: check-copyright-python
 check-copyright-python:
-	@${CHECK_COPYRIGHT} $(filter-out\
+	@${DO_CHECK_COPYRIGHT} $(filter-out\
 	  ${CHECK_COPYRIGHT_IGNORE}, $(shell git ls-files '*.py'))
 
-CHECK_COPYRIGHT= ${PERL} -s -0777 -wnle '${perl_check_copyright}'
+DO_CHECK_COPYRIGHT= ${PERL} -s -0777 -wnle '${perl_check_copyright}'
 perl_check_copyright:=\
   BEGIN {\
     $$p = "\# " if !defined $$p;\
@@ -158,6 +162,30 @@ perl_check_copyright:=\
     }\
   } else {\
     put_error("copyright: bad or missing license tag");\
+  }\
+  END { exit($$errcnt); }\
+  ${NULL}
+
+# check syntax
+.PHONY: check-syntax
+check-syntax: check-syntax-python
+
+.PHONY: check-syntax-python
+check-syntax-python:
+	@${DO_CHECK_SYNTAX_PYTHON} $(filter-out\
+	  ${CHECK_SYNTAX_IGNORE}, $(shell git ls-files '*.py'))
+
+DO_CHECK_SYNTAX_PYTHON= ${PERL} -s -00 -wne '${perl_check_syntax_python}'
+
+perl_check_syntax_python:=\
+  BEGIN {\
+    $$errcnt = 0;\
+  }\
+  if (/((\s+)(Parameters|Returns):(\s+)(\S+))/s) {\
+    if (length($$4)-length($$2) != 4) {\
+      print("error:$$ARGV: misaligned \"$$3\"\n$$1\n");\
+      $$errcnt++;\
+    }\
   }\
   END { exit($$errcnt); }\
   ${NULL}

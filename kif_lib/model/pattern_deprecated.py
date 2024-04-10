@@ -216,10 +216,10 @@ class FilterPattern(Pattern):
         """Tests whether filter pattern shallow-matches statement.
 
         Parameters:
-            stmt: Statement.
+           stmt: Statement.
 
         Returns:
-            ``True`` if successful; ``False`` otherwise.
+           ``True`` if successful; ``False`` otherwise.
         """
         self._check_arg_statement(stmt, self.match, 'stmt', 1)
         # Snak mask mismatch.
