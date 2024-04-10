@@ -175,16 +175,45 @@ check-syntax-python:
 	@${DO_CHECK_SYNTAX_PYTHON} $(filter-out\
 	  ${CHECK_SYNTAX_IGNORE}, $(shell git ls-files '*.py'))
 
-DO_CHECK_SYNTAX_PYTHON= ${PERL} -s -00 -wne '${perl_check_syntax_python}'
+DO_CHECK_SYNTAX_PYTHON= ${PERL} -s -00 -wnle '${perl_check_syntax_python}'
 
 perl_check_syntax_python:=\
   BEGIN {\
     $$errcnt = 0;\
-  }\
-  if (/((\s+)(Parameters|Returns):(\s+)(\S+))/s) {\
-    if (length($$4)-length($$2) != 4) {\
-      print("error:$$ARGV: misaligned \"$$3\"\n$$1\n");\
+    sub put_error {\
+      warn("error:$$ARGV: $$_[0]\n");\
       $$errcnt++;\
+    }\
+  }\
+  if (/^((\s\s\s\s+)Parameters(.*?))\"\"\"/s\
+      or /^((\s\s\s\s+)Parameters(.*))$$/s) {\
+    $$pars = $$1;\
+    sub bad_pars {\
+      $$explain = shift;\
+      put_error("bad Parameters ($$explain):\n$$pars\n");\
+    }\
+    $$pars_indent = length($$2);\
+    $$pars_text = $$3;\
+    if ($$pars_text !~ /^:\n/) {\
+      bad_pars("missing colon-newline");\
+    } else {\
+      $$pars_text =~ /^:\n(.*?)\s*(\"\"\")?$$/s;\
+      if (!defined $$1) {\
+        bad_pars("syntax error");\
+      }\
+      foreach (split "\n", $$1) {\
+        $$_ =~ /^(\s*)(.*)$$/;\
+        if (length($$1) != $$pars_indent + 3) {\
+          bad_pars("misalignment");\
+        }\
+        $$line = $$2;\
+        if ($$line !~ /^\w+:/) {\
+          bad_pars("missing colon in \"$$line");\
+        }\
+        if ($$line !~ /\.$$/) {\
+          bad_pars("missing final dot in \"$$line\"");\
+        }\
+      }\
     }\
   }\
   END { exit($$errcnt); }\

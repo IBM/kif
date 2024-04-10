@@ -65,7 +65,7 @@ class Variable(KIF_Object):
         """Gets the name of variable.
 
         Returns:
-           String.
+           Name.
         """
         return self.args[0]
 
