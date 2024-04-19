@@ -35,10 +35,10 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
     package_data={
         PACKAGE: ['py.typed'],
-        f'{PACKAGE}.vocabulary': ['wikidata-properties.json'],
+        f'{PACKAGE}.vocabulary': ['wikidata_properties.json'],
     },
-    package_dir={'kif_lib': 'kif_lib'},
     include_package_data=True,
+    package_dir={'kif_lib': 'kif_lib'},
     install_requires=[
         'lark',
         'more_itertools',
