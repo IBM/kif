@@ -33,7 +33,10 @@ setuptools.setup(
     license=LICENSE,
     python_requires='>=3.9',
     packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
-    package_data={PACKAGE: ['py.typed']},
+    package_data={
+        PACKAGE: ['py.typed'],
+        f'{PACKAGE}.vocabulary': ['wikidata-properties.json'],
+    },
     package_dir={'kif_lib': 'kif_lib'},
     include_package_data=True,
     install_requires=[
