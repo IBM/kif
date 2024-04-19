@@ -3,6 +3,7 @@
 
 import io
 import json
+import re
 
 from .. import namespace as NS
 from ..model import (
@@ -437,16 +438,32 @@ class SPARQL_Results(Mapping):
             except ValueError:
                 raise self._error_bad(var, 'a Wikibase rank', uri)
 
-        def check_datetime(self, var: str) -> Datetime:
+        def check_datetime(
+                self,
+                var: str,
+                _re=re.compile(r'^[+-]?(\d+)-(\d+)-(\d+)')
+        ) -> Datetime:
             from datetime import date, time
             val = self.check_literal(var)
             if val.datatype != NS.XSD.dateTime:
                 self._error_bad(var, 'a xsd:dateTime', val.n3())
-            dt = val.toPython()
+            try:
+                dt = val.toPython()
+            except ValueError:
+                dt = str(val)
             if isinstance(dt, Datetime):
                 return dt
             elif isinstance(dt, date):
                 return Datetime.combine(dt, time())
+            elif isinstance(dt, str):
+                m = _re.match(dt)
+                if m is None:
+                    return Datetime.fromisoformat(str(val))
+                else:
+                    y, m, d = map(int, m.groups())
+                    y = max(min(y, 9999), 1)
+                    m = max(min(m, 12), 1)
+                    return Datetime(y, m, 1)
             else:
                 raise Store._should_not_get_here()
 
