@@ -3,7 +3,7 @@
 
 import re
 
-from kif_lib.codec.sparql.compiler import Compiler
+from kif_lib.compiler.sparql.compiler import Compiler
 from kif_lib.model import (
     IRI,
     IRI_Template,

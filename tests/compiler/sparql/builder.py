@@ -4,7 +4,7 @@
 from typing import Union
 from unittest import main, TestCase
 
-from kif_lib.codec.sparql.builder import (
+from kif_lib.compiler.sparql.builder import (
     BNode,
     Call,
     Literal,
