@@ -260,6 +260,16 @@ class ObjectMeta(abc.ABCMeta):
                 mk_preprocess_optional_arg_(cls))
         setattr(top, s_preprocess_optional_arg, f_preprocess_optional_arg)
 
+    @classmethod
+    def check_object_class(
+            cls,
+            cls_name: str,
+            exception: type[Exception] = TypeError
+    ) -> Union[type['Object'], NoReturn]:
+        if cls_name not in cls._object_subclasses:
+            raise exception(f"no such object class '{cls_name}'")
+        return cls._object_subclasses[cls_name]
+
 
 # == Object ================================================================
 
@@ -529,6 +539,59 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         else:
             return y
 
+# -- Conversion ------------------------------------------------------------
+
+    def to_ast(self) -> dict[str, Any]:
+        """Converts object to abstract syntax tree.
+
+        Returns:
+           The resulting dictionary.
+        """
+        return {
+            'class': self.__class__.__qualname__,
+            'args': list(map(Object._to_ast_arg, self.args)),
+        }
+
+    @classmethod
+    def _to_ast_arg(cls, arg: Any) -> Any:
+        return arg.to_ast() if isinstance(arg, Object) else arg
+
+    @classmethod
+    def from_ast(
+            cls,
+            obj: Union[dict[str, Any], 'Object']
+    ) -> Union['Object', NoReturn]:
+        """Converts abstract syntax tree to object.
+
+        Parameters:
+           obj: Abstract syntax tree or object.
+
+        Returns:
+           The resulting object.
+        """
+        return cls.check(cls._from_ast(cls._check_arg_isinstance(
+            obj, (dict, Object), cls.from_ast, 'obj', 1)))
+
+    @classmethod
+    def _from_ast(
+            cls,
+            obj: Union[dict[str, Any], 'Object']
+    ) -> Union['Object', NoReturn]:
+        if isinstance(obj, Object):
+            return obj
+        elif isinstance(obj, dict):
+            obj_class = ObjectMeta.check_object_class(obj['class'])
+            return obj_class(*map(cls._from_ast_arg, obj['args']))
+        else:
+            raise cls._should_not_get_here()
+
+    @classmethod
+    def _from_ast_arg(cls, arg: Any) -> Any:
+        if isinstance(arg, dict) and 'class' in arg:
+            return cls._from_ast(arg)
+        else:
+            return arg
+
 # -- Encoding --------------------------------------------------------------
 
     @classmethod
@@ -653,7 +716,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
            `DecoderError`: Decoder error.
         """
         dec = Decoder.from_format(format, cls.loads, 'format', 2)
-        return cls.check(dec(**kwargs).decode(s), cls.load)
+        return cls.check(dec(**kwargs).decode(s))
 
 # -- Argument checking -----------------------------------------------------
 
@@ -1401,9 +1464,7 @@ class Decoder(Codec):
             cls_name: str,
             exception: type[Exception] = DecoderError
     ) -> Union[type[Object], NoReturn]:
-        if cls_name not in ObjectMeta._object_subclasses:
-            raise exception(f"no such object class '{cls_name}'")
-        return ObjectMeta._object_subclasses[cls_name]
+        return ObjectMeta.check_object_class(cls_name, exception)
 
     @abc.abstractmethod
     def decode(self, s: str) -> Union[Object, NoReturn]:

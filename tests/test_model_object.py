@@ -377,7 +377,7 @@ B(
     def test_from_repr(self):
         self.assertRaisesRegex(
             TypeError,
-            r"^bad argument to 'Object.load' \(expected B, got A\)$",
+            r"^bad argument to 'Object.check' \(expected B, got A\)$",
             B.from_repr, ('A(B())'))
         self.assertEqual(A(), A.from_repr('A()'))
         self.assertEqual(A(), A.from_repr('  A()  #'))
@@ -386,7 +386,7 @@ B(
     def test_from_sexp(self):
         self.assertRaisesRegex(
             TypeError,
-            r"^bad argument to 'Object.load' \(expected B, got A\)$",
+            r"^bad argument to 'Object.check' \(expected B, got A\)$",
             B.from_sexp, '(A\n  B\n)')
         self.assertEqual(A(), A.from_sexp('A'))
         self.assertEqual(A(), A.from_sexp('  A  #'))
@@ -420,7 +420,7 @@ B(
     def test_from_json(self):
         self.assertRaisesRegex(
             TypeError,
-            r"^bad argument to 'Object.load' \(expected B, got A\)$",
+            r"^bad argument to 'Object.check' \(expected B, got A\)$",
             B.from_json, '{"class": "A", "args": []}')
         self.assertEqual(A(), A.from_json('{"class": "A", "args": []}'))
         self.assertEqual(A(B()), A.from_json('''\
