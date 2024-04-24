@@ -8,12 +8,12 @@
 # ** KEEP THIS FILE SELF-CONTAINED! **
 
 import abc
-import collections.abc
 import copy
 import functools
 import itertools
 import json
 import re
+from collections.abc import Mapping, Sequence
 from typing import (
     Any,
     Callable,
@@ -274,7 +274,7 @@ class ObjectMeta(abc.ABCMeta):
 # == Object ================================================================
 
 @functools.total_ordering
-class Object(collections.abc.Sequence, metaclass=ObjectMeta):
+class Object(Sequence, metaclass=ObjectMeta):
     """Abstract base class for syntactical objects."""
 
     #: Class name in snake case.
@@ -549,7 +549,7 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
         """
         return {
             'class': self.__class__.__qualname__,
-            'args': list(map(Object._to_ast_arg, self.args)),
+            'args': tuple(map(Object._to_ast_arg, self.args)),
         }
 
     @classmethod
@@ -559,35 +559,30 @@ class Object(collections.abc.Sequence, metaclass=ObjectMeta):
     @classmethod
     def from_ast(
             cls,
-            obj: Union[dict[str, Any], 'Object']
+            ast: Union[Mapping[str, Any]]
     ) -> Union['Object', NoReturn]:
         """Converts abstract syntax tree to object.
 
         Parameters:
-           obj: Abstract syntax tree or object.
+           ast: Abstract syntax tree.
 
         Returns:
            The resulting object.
         """
         return cls.check(cls._from_ast(cls._check_arg_isinstance(
-            obj, (dict, Object), cls.from_ast, 'obj', 1)))
+            ast, Mapping, cls.from_ast, 'ast', 1)))
 
     @classmethod
     def _from_ast(
             cls,
-            obj: Union[dict[str, Any], 'Object']
+            ast: Mapping[str, Any]
     ) -> Union['Object', NoReturn]:
-        if isinstance(obj, Object):
-            return obj
-        elif isinstance(obj, dict):
-            obj_class = ObjectMeta.check_object_class(obj['class'])
-            return obj_class(*map(cls._from_ast_arg, obj['args']))
-        else:
-            raise cls._should_not_get_here()
+        obj_class = ObjectMeta.check_object_class(ast['class'])
+        return obj_class(*map(cls._from_ast_arg, ast['args']))
 
     @classmethod
     def _from_ast_arg(cls, arg: Any) -> Any:
-        if isinstance(arg, dict) and 'class' in arg:
+        if isinstance(arg, Mapping) and 'class' in arg:
             return cls._from_ast(arg)
         else:
             return arg

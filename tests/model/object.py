@@ -55,7 +55,7 @@ def tearDownModule():
     reload(kif_lib)
 
 
-class TestObject(TestCase):
+class Test(TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -190,6 +190,27 @@ class TestObject(TestCase):
         self.assertEqual(c.replace(2), C(2, *c[1:]))
         self.assertEqual(c.replace(None), c)
         self.assertEqual(c.replace(None, c.Nil), C(1, None, C(4)))
+
+# -- Conversion ------------------------------------------------------------
+
+    def test_to_ast(self):
+        self.assertEqual(A().to_ast(), {'class': 'A', 'args': ()})
+        self.assertEqual(
+            A(1, A(2, 3), C(4)).to_ast(),
+            {'class': 'A', 'args': (
+                1,
+                {'class': 'A', 'args': (2, 3)},
+                {'class': 'C', 'args': (4,)})})
+
+    def test_from_ast(self):
+        self.assertRaises(TypeError, C.from_ast, {'class': 'A', 'args': ()})
+        self.assertEqual(A.from_ast({'class': 'A', 'args': ()}), A())
+        self.assertEqual(C.from_ast({'class': 'C', 'args': (4,)}), C(4))
+        self.assertEqual(Object.from_ast(
+            {'class': 'A', 'args': (
+                1,
+                {'class': 'A', 'args': (2, 3)},
+                {'class': 'C', 'args': (4,)})}), A(1, A(2, 3), C(4)))
 
 # -- Encoding --------------------------------------------------------------
 
@@ -647,66 +668,66 @@ B(
         self.assertEqual(A._preprocess_arg_a(A(), 1), A())
         self.assertRaises(TypeError, A()._preprocess_arg_a, 'abc', 1)
 
-        class C(Object):
+        class D(Object):
             def __init__(self):
                 return super().__init__()
 
             @classmethod
-            def _preprocess_arg_c(cls, arg, i, function=None):
+            def _preprocess_arg_d(cls, arg, i, function=None):
                 return 0
-        self.assertTrue(hasattr(A, '_preprocess_arg_c'))
-        self.assertEqual(A._preprocess_arg_c(1, 1), 0)
+        self.assertTrue(hasattr(A, '_preprocess_arg_d'))
+        self.assertEqual(A._preprocess_arg_d(1, 1), 0)
 
         # bool
-        class C1(Object):
+        class D1(Object):
             def __init__(self, *args):
                 return super().__init__(*args)
 
             def _preprocess_arg(self, arg, i):
                 return self._preprocess_arg_bool(arg, i)
-        self.assert_object(C1(True), (True,))
-        self.assertRaises(TypeError, C1, 1)
+        self.assert_object(D1(True), (True,))
+        self.assertRaises(TypeError, D1, 1)
 
         # int
-        class C2(Object):
+        class D2(Object):
             def __init__(self, *args):
                 return super().__init__(*args)
 
             def _preprocess_arg(self, arg, i):
                 return self._preprocess_arg_int(arg, i)
-        self.assert_object(C2(0), (0,))
-        self.assertRaises(TypeError, C2, 'abc')
+        self.assert_object(D2(0), (0,))
+        self.assertRaises(TypeError, D2, 'abc')
 
         # float
-        class C3(Object):
+        class D3(Object):
             def __init__(self, *args):
                 return super().__init__(*args)
 
             def _preprocess_arg(self, arg, i):
                 return self._preprocess_arg_float(arg, i)
-        self.assert_object(C3(0.), (0.,))
-        self.assertRaises(TypeError, C3, 'abc')
+        self.assert_object(D3(0.), (0.,))
+        self.assertRaises(TypeError, D3, 'abc')
 
         # number
-        class C4(Object):
+        class D4(Object):
             def __init__(self, *args):
                 return super().__init__(*args)
 
             def _preprocess_arg(self, arg, i):
                 return self._preprocess_arg_number(arg, i)
-        self.assert_object(C4(0.), (0.,))
-        self.assert_object(C4(0), (0,))
-        self.assertRaises(TypeError, C4, 'abc')
+        self.assert_object(D4(0.), (0.,))
+        self.assert_object(D4(0), (0,))
+        self.assertRaises(TypeError, D4, 'abc')
 
         # str
-        class C5(Object):
+        class D5(Object):
             def __init__(self, *args):
                 return super().__init__(*args)
 
             def _preprocess_arg(self, arg, i):
                 return self._preprocess_arg_str(arg, i)
-        self.assert_object(C5(''), ('',))
-        self.assertRaises(TypeError, C5, 0)
+        self.assert_object(D5(''), ('',))
+        self.assertRaises(TypeError, D5, 0)
 
     def test__preprocess_optional_arg(self):
         self.assertEqual(A._preprocess_optional_arg_a(None, 1, A()), A())
@@ -714,15 +735,15 @@ B(
             TypeError, A()._preprocess_optional_arg_a, 'abc', 1)
         self.assertEqual(A._preprocess_optional_arg_a(None, 1, A(1)), A(1))
 
-        class C(Object):
+        class D(Object):
             def __init__(self):
                 return super().__init__()
 
             @classmethod
-            def _preprocess_arg_c(cls, arg, i, function=None):
+            def _preprocess_arg_d(cls, arg, i, function=None):
                 return 0
-        self.assertEqual(A._preprocess_arg_c(1, 1), 0)
-        self.assertEqual(A._preprocess_optional_arg_c(None, 1, 8), 8)
+        self.assertEqual(A._preprocess_arg_d(1, 1), 0)
+        self.assertEqual(A._preprocess_optional_arg_d(None, 1, 8), 8)
 
     # -- bool --
 
