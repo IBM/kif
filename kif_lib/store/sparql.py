@@ -9,6 +9,7 @@ from rdflib.plugins.sparql import prepareQuery
 from rdflib.plugins.sparql.sparql import Query
 
 from .. import namespace as NS
+from ..compiler.sparql import SPARQL_Compiler
 from ..itertools import chain, starmap
 from ..model import (
     AnnotationRecord,
@@ -25,6 +26,7 @@ from ..model import (
     Lexeme,
     LexemeDescriptor,
     NoValueSnak,
+    Pattern,
     Property,
     PropertyDescriptor,
     Quantity,
@@ -262,6 +264,37 @@ At line {line}, column {column}:
             return res
         except requests.exceptions.RequestException as err:
             raise err
+
+# -- Match -----------------------------------------------------------------
+
+    class Match:
+
+        _store: 'SPARQL_Store'
+        _compiler_results: SPARQL_Compiler.Results
+
+        __slots__ = (
+            '_store',
+            '_compiler_results',
+        )
+
+        def __init__(
+                self,
+                store: 'SPARQL_Store',
+                compiler_results: SPARQL_Compiler.Results,
+        ):
+            self._store = store
+            self._compiler_results = compiler_results
+
+        def _read_next_page(self):
+            query_string = str(self._compiler_results.query.select(limit=1))
+            res = self._store._eval_select_query_string(query_string)
+            print(dict(res))
+
+    def _match(self, pat: Pattern) -> Match:
+        from ..compiler import Compiler
+        compiler = Compiler.from_format('sparql')(pat)
+        return self.Match(self, cast(
+            SPARQL_Compiler.Results, compiler.compile()))
 
 # -- Statements ------------------------------------------------------------
 

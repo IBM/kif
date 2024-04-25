@@ -27,6 +27,7 @@ from ...model import (
     NoValueSnak,
     NoValueSnakTemplate,
     NoValueSnakVariable,
+    Pattern,
     Property,
     PropertyTemplate,
     PropertyVariable,
@@ -80,11 +81,14 @@ from ...typing import (
     cast,
     Iterator,
     MutableMapping,
+    NoReturn,
     Optional,
+    override,
     TypeAlias,
     TypeVar,
     Union,
 )
+from .. import Compiler
 from .builder import Literal as QueryLiteral
 from .builder import SelectQuery
 from .builder import URIRef as QueryURI
@@ -144,58 +148,106 @@ class Substitution(MutableMapping):
 
 # == Compiler ==============================================================
 
-class Compiler:
+class SPARQL_Compiler(
+        Compiler, format='sparql', description='SPARQL compiler'):
 
-    _input: KIF_Object
+    class Error(Compiler.Error):
+        """Base class for SPARQL compiler errors."""
+
+    class Results(Compiler.Results):
+        """SPARQL compiler results."""
+
+        _compiler: 'SPARQL_Compiler'
+        _query: CompiledQuery
+        _theta: Substitution
+
+        __slots__ = (
+            '_compiler',
+            '_query',
+            '_theta',
+        )
+
+        def __init__(
+                self,
+                compiler: 'SPARQL_Compiler',
+                query: CompiledQuery,
+                theta: Substitution):
+            self._compiler = compiler
+            self._query = query
+            self._theta = theta
+
+        @property
+        def compiler(self) -> 'SPARQL_Compiler':
+            """The compiler that produced the results."""
+            return self.get_compiler()
+
+        def get_compiler(self) -> 'SPARQL_Compiler':
+            """Gets the compiler that produced the results.
+
+            Returns:
+               Compiler.
+            """
+            return self._compiler
+
+        @property
+        def pattern(self) -> Pattern:
+            """The input pattern."""
+            return self.get_pattern()
+
+        def get_pattern(self) -> Pattern:
+            """Gets the input pattern.
+
+            Returns:
+               Pattern.
+            """
+            return self._compiler._pattern
+
+        @property
+        def query(self) -> CompiledQuery:
+            """The resulting query."""
+            return self.get_query()
+
+        def get_query(self) -> CompiledQuery:
+            """Gets the resulting SPARQL query.
+
+            Returns:
+               SPARQL query.
+            """
+            return self._query
+
+        @property
+        def theta(self) -> Substitution:
+            """The resulting substitution."""
+            return self.get_theta()
+
+        def get_theta(self) -> Substitution:
+            """Gets the resulting substitution.
+
+            Returns:
+               Substitution.
+            """
+            return self._theta
+
     _q: CompiledQuery
     _theta: Substitution
     _debug: bool
 
     __slots__ = (
-        '_input',
         '_q',
         '_theta',
         '_debug',
     )
 
-    def __init__(self, obj: KIF_Object, debug: bool = False):
-        self._input = obj
+    def __init__(self, pattern: Pattern, debug: bool = False):
+        super().__init__(pattern)
         self._q = CompiledQuery()
         self._theta = Substitution()
         self._debug = debug
-
-    @property
-    def input(self) -> KIF_Object:
-        return self.get_input()
-
-    def get_input(self) -> KIF_Object:
-        return self._input
-
-    @property
-    def query(self) -> CompiledQuery:
-        return self.get_query()
-
-    def get_query(self) -> CompiledQuery:
-        return self._q
-
-    @property
-    def theta(self) -> Substitution:
-        return self.get_theta()
-
-    def get_theta(self) -> Substitution:
-        return self._theta
-
-    @property
-    def debug(self) -> bool:
-        return self.get_debug()
-
-    def get_debug(self) -> bool:
-        return self._debug
 
-# -- Internal aliases ------------------------------------------------------
+# -- Helper methods --------------------------------------------------------
 
     def _theta_add(self, var: Variable, v: T) -> T:
-        if self.debug:
+        if self._debug:
             self._q.comments()(
                 f'{var} := {v.n3() if isinstance(v, QueryVariable) else v}')
         return self._theta.add(var, v)
@@ -263,12 +315,13 @@ class Compiler:
 
 # -- Compilation -----------------------------------------------------------
 
-    def compile(self) -> 'Compiler':
-        self._compile(self._input)
-        return self
+    @override
+    def compile(self) -> Union['SPARQL_Compiler.Results', NoReturn]:
+        self._compile(self.pattern)
+        return self.Results(self, self._q, self._theta)
 
-    def _cannot_compile_error(self, obj) -> ValueError:
-        return ValueError(f'cannot compile {obj}')
+    def _cannot_compile_error(self, obj) -> Compiler.Error:
+        return self.Error(f'cannot compile {obj}')
 
     def _compile(self, obj: KIF_Object) -> Any:
         if isinstance(obj, Template):
