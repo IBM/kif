@@ -66,17 +66,17 @@ class StatementVariable(Variable):
     """
 
 
-class Statement(KIF_Object):
+class Statement(
+        KIF_Object,
+        template_class=StatementTemplate,
+        variable_class=StatementVariable
+):
     """Statement.
 
     Parameters:
        subject: Entity.
        snak: Snak.
     """
-
-    template_class: type[Template] = StatementTemplate
-
-    variable_class: type[Variable] = StatementVariable
 
     def __init__(self, subject: VVEntity, snak: VVSnak):
         return super().__init__(subject, snak)

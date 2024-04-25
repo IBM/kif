@@ -2,12 +2,23 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from ..itertools import chain
-from ..typing import cast, Iterable, NoReturn, Optional, Union
+from ..typing import cast, Iterable, Mapping, NoReturn, Optional, Union
 from .kif_object import KIF_Object, TCallable
 
 
 class Template(KIF_Object):
     """Abstract base class for templates."""
+
+    #: Object class associated with this template class.
+    object_class: type[KIF_Object]
+
+    def _substitute(
+            self,
+            theta: Mapping['Variable', KIF_Object]
+    ) -> KIF_Object:
+        return self.__class__(*map(
+            lambda arg: arg._substitute(theta)
+            if isinstance(arg, (Template, Variable)) else arg, self.args))
 
 
 class Variable(KIF_Object):
@@ -17,6 +28,9 @@ class Variable(KIF_Object):
        name: Name.
        object_class: Object class.
     """
+
+    #: Object class associated with this variable class.
+    object_class: type[KIF_Object]
 
     def __new__(
             cls,
@@ -99,6 +113,28 @@ class Variable(KIF_Object):
             raise self._arg_error(
                 f'cannot coerce {src} into {dest}',
                 function, name, position, TypeError)
+
+    def substitute(
+            self,
+            theta: Mapping['Variable', KIF_Object]
+    ) -> KIF_Object:
+        """Applies variable substitution `theta` to variable.
+
+        Parameters:
+           theta: A mapping of variables to objects.
+
+        Returns:
+           The resulting object.
+        """
+        self._check_arg_isinstance(
+            theta, Mapping, self.substitute, 'theta', 1)
+        return self._substitute(theta) if theta else self
+
+    def _substitute(
+            self,
+            theta: Mapping['Variable', KIF_Object]
+    ) -> KIF_Object:
+        return theta.get(self, self)
 
 
 def Variables(

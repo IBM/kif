@@ -73,14 +73,12 @@ class SnakVariable(Variable):
             arg, i, function or cls))
 
 
-class Snak(KIF_Object):
+class Snak(
+        KIF_Object,
+        template_class=SnakTemplate,
+        variable_class=SnakVariable
+):
     """Abstract base class for snaks."""
-
-    #: Concrete template class associated with this snak class (if any).
-    template_class: type[Template]
-
-    #: Variable class associated with this snak class.
-    variable_class: type[Variable] = SnakVariable
 
     class Mask(Flag):
         """Mask for concrete snak classes."""
@@ -239,17 +237,17 @@ class ValueSnakVariable(SnakVariable):
     """
 
 
-class ValueSnak(Snak):
+class ValueSnak(
+        Snak,
+        template_class=ValueSnakTemplate,
+        variable_class=ValueSnakVariable
+):
     """Value snak.
 
     Parameters:
        property: Property.
        value: Value.
     """
-
-    template_class: type[Template] = ValueSnakTemplate
-
-    variable_class: type[Variable] = ValueSnakVariable
 
     mask: Snak.Mask = Snak.VALUE_SNAK
 
@@ -300,16 +298,16 @@ class SomeValueSnakVariable(SnakVariable):
     """
 
 
-class SomeValueSnak(Snak):
+class SomeValueSnak(
+        Snak,
+        template_class=SomeValueSnakTemplate,
+        variable_class=SomeValueSnakVariable
+):
     """Some-value snak.
 
     Parameters:
        property: Property.
     """
-
-    template_class: type[Template] = SomeValueSnakTemplate
-
-    variable_class: type[Variable] = SomeValueSnakVariable
 
     mask: Snak.Mask = Snak.SOME_VALUE_SNAK
 
@@ -338,16 +336,16 @@ class NoValueSnakVariable(SnakVariable):
     """
 
 
-class NoValueSnak(Snak):
+class NoValueSnak(
+        Snak,
+        template_class=NoValueSnakTemplate,
+        variable_class=NoValueSnakVariable
+):
     """No-value snak.
 
     Parameters:
        property: Property.
     """
-
-    template_class: type[Template] = NoValueSnakTemplate
-
-    variable_class: type[Variable] = NoValueSnakVariable
 
     mask: Snak.Mask = Snak.NO_VALUE_SNAK
 

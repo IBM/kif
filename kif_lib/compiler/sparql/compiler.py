@@ -132,10 +132,10 @@ class Substitution(MutableMapping):
     def __delitem__(self, k):
         del self._data[k]
 
-    def __iter__(self, k):
+    def __iter__(self):
         return iter(self._data)
 
-    def __len__(self, k):
+    def __len__(self):
         return len(self._data)
 
     def add(self, var: Variable, value: T) -> T:
@@ -144,6 +144,11 @@ class Substitution(MutableMapping):
         assert isinstance(value, (KIF_Object, QueryVariable))
         self._data[var] = value
         return cast(T, value)
+
+    # def ground(self, binding: Mapping[str, Any]) -> 'Substitution':
+    #     G = set(self.values())
+    #     print(G)
+    #     return self.__class__()
 
 
 # == Compiler ==============================================================
@@ -301,6 +306,9 @@ class SPARQL_Compiler(
     def _fresh_property_variable(self) -> PropertyVariable:
         return cast(PropertyVariable, self._fresh_variable(PropertyVariable))
 
+    def _fresh_lexeme_variable(self) -> LexemeVariable:
+        return cast(LexemeVariable, self._fresh_variable(LexemeVariable))
+
     def _fresh_string_variable(self) -> StringVariable:
         return cast(StringVariable, self._fresh_variable(StringVariable))
 
@@ -438,14 +446,23 @@ class SPARQL_Compiler(
 
     def _push_entity_variable(self, obj: EntityVariable) -> QueryVariable:
         with self._q.union():
+            v = self._as_qvar(obj)
             with self._q.group():
-                v1 = self._push_item_variable(ItemVariable(obj.name))
+                v1 = self._push_item_variable(self._theta_add(
+                    ItemVariable(obj.name),
+                    self._fresh_item_variable()))
+                self._q.bind(v1, v)
             with self._q.group():
-                v2 = self._push_property_variable(PropertyVariable(obj.name))
+                v2 = self._push_property_variable(self._theta_add(
+                    PropertyVariable(obj.name),
+                    self._fresh_property_variable()))
+                self._q.bind(v2, v)
             with self._q.group():
-                v3 = self._push_lexeme_variable(LexemeVariable(obj.name))
-        assert v1 == v2 and v2 == v3
-        return v1
+                v3 = self._push_lexeme_variable(self._theta_add(
+                    LexemeVariable(obj.name),
+                    self._fresh_lexeme_variable()))
+                self._q.bind(v3, v)
+        return v
 
 # -- Item ------------------------------------------------------------------
 
@@ -466,10 +483,10 @@ class SPARQL_Compiler(
 
     def _push_item_variable(self, obj: ItemVariable) -> QueryVariable:
         obj_iri = IRI_Variable(obj.name)
-        iri = self._push_item_template(
+        var = self._push_item_template(
             self._theta_add(obj, ItemTemplate(obj_iri)))
-        assert isinstance(iri, QueryVariable)
-        return iri
+        assert isinstance(var, QueryVariable)
+        return var
 
     def _push_item(self, obj: Item) -> QueryURI:
         iri = self._push_item_template(ItemTemplate(*obj.args))

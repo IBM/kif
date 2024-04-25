@@ -36,15 +36,45 @@ TNil = object.TNil
 class KIF_Object(object.Object):
     """Abstract base class for KIF objects."""
 
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        if 'template_class' in kwargs:
+            from .pattern import Template, Variable
+            assert not issubclass(cls, (Template, Variable))
+            cls.template_class = kwargs['template_class']
+            assert issubclass(cls.template_class, Template)
+            cls.template_class.object_class = cls
+        if 'variable_class' in kwargs:
+            from .pattern import Template, Variable
+            assert not issubclass(cls, (Template, Variable))
+            cls.variable_class = kwargs['variable_class']
+            assert issubclass(cls.variable_class, Variable)
+            cls.variable_class.object_class = cls
+
     def __new__(cls, *args):
-        if (hasattr(cls, 'template_class') and any(map(
-                cls._is_template_or_variable, args))):
+        has_tpl_or_var_arg = any(map(
+            cls._isinstance_template_or_variable, args))
+        if (not cls._issubclass_template_or_variable(cls)
+                and hasattr(cls, 'template_class') and has_tpl_or_var_arg):
             return cls.template_class(*args)
+        elif (cls._issubclass_template(cls)
+              and hasattr(cls, 'object_class') and not has_tpl_or_var_arg):
+            return cls.object_class(*args)
         else:
             return super().__new__(cls)
 
     @classmethod
-    def _is_template_or_variable(cls, arg):
+    def _issubclass_template(cls, arg) -> bool:
+        from .pattern import Template
+        return issubclass(arg, Template)
+
+    @classmethod
+    def _issubclass_template_or_variable(cls, arg) -> bool:
+        from .pattern import Template, Variable
+        return issubclass(arg, (Template, Variable))
+
+    @classmethod
+    def _isinstance_template_or_variable(cls, arg) -> bool:
         from .pattern import Template, Variable
         return isinstance(arg, (Template, Variable))
 

@@ -168,14 +168,12 @@ class ValueVariable(Variable):
             arg, i, function or cls))
 
 
-class Value(KIF_Object):
+class Value(
+        KIF_Object,
+        template_class=ValueTemplate,
+        variable_class=ValueVariable
+):
     """Abstract base class for values."""
-
-    #: Concrete template class associated with this value class (if any).
-    template_class: type[Template]
-
-    #: Variable class associated with this value class.
-    variable_class: type[Variable] = ValueVariable
 
     class Mask(Flag):
         """Mask for concrete value classes."""
@@ -484,10 +482,12 @@ class EntityVariable(ValueVariable):
             arg, i, function or cls))
 
 
-class Entity(Value):
+class Entity(
+        Value,
+        template_class=EntityTemplate,
+        variable_class=EntityVariable
+):
     """Abstract base class for entities."""
-
-    variable_class: type[Variable] = EntityVariable
 
     mask: Value.Mask = Value.ENTITY
 
@@ -551,16 +551,16 @@ class ItemVariable(EntityVariable):
             arg, i, function or cls))
 
 
-class Item(Entity):
+class Item(
+        Entity,
+        template_class=ItemTemplate,
+        variable_class=ItemVariable
+):
     """Person or thing.
 
     Parameters:
        iri: IRI.
     """
-
-    template_class: type[Template] = ItemTemplate
-
-    variable_class: type[Variable] = ItemVariable
 
     mask: Value.Mask = Value.ITEM
 
@@ -635,16 +635,16 @@ class PropertyVariable(EntityVariable):
             return self._ValueSnak(self, value1)
 
 
-class Property(Entity):
+class Property(
+        Entity,
+        template_class=PropertyTemplate,
+        variable_class=PropertyVariable
+):
     """Binary relationship.
 
     Parameters:
        iri: IRI.
     """
-
-    template_class: type[Template] = PropertyTemplate
-
-    variable_class: type[Variable] = PropertyVariable
 
     mask: Value.Mask = Value.PROPERTY
 
@@ -716,16 +716,16 @@ class LexemeVariable(EntityVariable):
             arg, i, function or cls))
 
 
-class Lexeme(Entity):
+class Lexeme(
+        Entity,
+        template_class=LexemeTemplate,
+        variable_class=LexemeVariable
+):
     """Word or phrase.
 
     Parameters:
        iri: IRI.
     """
-
-    template_class: type[Template] = LexemeTemplate
-
-    variable_class: type[Variable] = LexemeVariable
 
     mask: Value.Mask = Value.LEXEME
 
@@ -771,10 +771,12 @@ class DataValueVariable(ValueVariable):
     """
 
 
-class DataValue(Value):
+class DataValue(
+        Value,
+        template_class=DataValueTemplate,
+        variable_class=DataValueVariable
+):
     """Abstract base class for data values."""
-
-    variable_class: type[Variable] = DataValueVariable
 
     mask: Value.Mask = Value.DATA_VALUE
 
@@ -800,10 +802,12 @@ class ShallowDataValueVariable(DataValueVariable):
     """
 
 
-class ShallowDataValue(DataValue):
+class ShallowDataValue(
+        DataValue,
+        template_class=ShallowDataValueTemplate,
+        variable_class=ShallowDataValueVariable
+):
     """Abstract base class for shallow data values."""
-
-    variable_class: type[Variable] = ShallowDataValueVariable
 
     mask: Value.Mask = Value.SHALLOW_DATA_VALUE
 
@@ -866,16 +870,16 @@ class IRI_Variable(ShallowDataValueVariable):
             arg, i, function or cls))
 
 
-class IRI(ShallowDataValue):
+class IRI(
+        ShallowDataValue,
+        template_class=IRI_Template,
+        variable_class=IRI_Variable
+):
     """IRI.
 
     Parameters:
        content: IRI content.
     """
-
-    template_class: type[Template] = IRI_Template
-
-    variable_class: type[Variable] = IRI_Variable
 
     mask: Value.Mask = Value.IRI
 
@@ -959,17 +963,17 @@ class TextVariable(ShallowDataValueVariable):
     """
 
 
-class Text(ShallowDataValue):
+class Text(
+        ShallowDataValue,
+        template_class=TextTemplate,
+        variable_class=TextVariable
+):
     """Monolingual text.
 
     Parameters:
        content: Text content.
        language: Language tag.
     """
-
-    template_class: type[Template] = TextTemplate
-
-    variable_class: type[Variable] = TextVariable
 
     mask: Value.Mask = Value.TEXT
 
@@ -1068,16 +1072,16 @@ class StringVariable(ShallowDataValueVariable):
             arg, i, function or cls))
 
 
-class String(ShallowDataValue):
+class String(
+        ShallowDataValue,
+        template_class=StringTemplate,
+        variable_class=StringVariable
+):
     """String.
 
     Parameters:
        content: String content.
     """
-
-    template_class: type[Template] = StringTemplate
-
-    variable_class: type[Variable] = StringVariable
 
     mask: Value.Mask = Value.STRING
 
@@ -1140,16 +1144,16 @@ class ExternalIdVariable(StringVariable):
     """
 
 
-class ExternalId(String):
+class ExternalId(
+        String,
+        template_class=ExternalIdTemplate,
+        variable_class=ExternalIdVariable
+):
     """External id.
 
     Parameters:
        content: External id content.
     """
-
-    template_class: type[Template] = ExternalIdTemplate
-
-    variable_class: type[Variable] = ExternalIdVariable
 
     mask: Value.Mask = Value.EXTERNAL_ID
 
@@ -1210,10 +1214,12 @@ class DeepDataValueVariable(DataValueVariable):
     """
 
 
-class DeepDataValue(DataValue):
+class DeepDataValue(
+        DataValue,
+        template_class=DeepDataValueTemplate,
+        variable_class=DeepDataValueVariable
+):
     """Abstract base class for deep data values."""
-
-    variable_class: type[Variable] = DeepDataValueVariable
 
     mask: Value.Mask = Value.DEEP_DATA_VALUE
 
@@ -1328,7 +1334,11 @@ class QuantityVariable(DeepDataValueVariable):
             arg, i, function or cls))
 
 
-class Quantity(DeepDataValue):
+class Quantity(
+        DeepDataValue,
+        template_class=QuantityTemplate,
+        variable_class=QuantityVariable
+):
     """Quantity.
 
     Parameters:
@@ -1337,10 +1347,6 @@ class Quantity(DeepDataValue):
        lower_bound: Lower bound.
        upper_bound: Upper bound.
     """
-
-    template_class: type[Template] = QuantityTemplate
-
-    variable_class: type[Variable] = QuantityVariable
 
     mask: Value.Mask = Value.QUANTITY
 
@@ -1576,7 +1582,11 @@ class TimeVariable(DeepDataValueVariable):
             arg, i, function or cls))
 
 
-class Time(DeepDataValue):
+class Time(
+        DeepDataValue,
+        template_class=TimeTemplate,
+        variable_class=TimeVariable
+):
     """Time.
 
     Parameters:
@@ -1585,10 +1595,6 @@ class Time(DeepDataValue):
        timezone: Time zone.
        calendar: Calendar model.
     """
-
-    template_class: type[Template] = TimeTemplate
-
-    variable_class: type[Variable] = TimeVariable
 
     mask: Value.Mask = Value.TIME
 

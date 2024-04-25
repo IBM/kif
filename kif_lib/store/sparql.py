@@ -288,6 +288,12 @@ At line {line}, column {column}:
         def _read_next_page(self):
             query_string = str(self._compiler_results.query.select(limit=1))
             res = self._store._eval_select_query_string(query_string)
+            print(self._compiler_results.pattern)
+            print()
+            print(self._compiler_results.theta)
+            print()
+            print(self._compiler_results.query)
+            print()
             print(dict(res))
 
     def _match(self, pat: Pattern) -> Match:
