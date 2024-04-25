@@ -637,7 +637,7 @@ class GraphPattern(Pattern):
     def _indent(self, n: int) -> str:
         return Symbol.INDENT * n
 
-
+
 # -- Atomic graph pattern --------------------------------------------------
 
 class AtomicGraphPattern(GraphPattern):

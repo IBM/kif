@@ -403,6 +403,7 @@ B(
         self.assertEqual(A(), A.from_repr('A()'))
         self.assertEqual(A(), A.from_repr('  A()  #'))
         self.assertEqual(A(B()), A.from_repr('A(\n  B(\n)\n)'))
+        self.assertEqual(A(B(), C(1, A(2))), A.from_repr('A(B(),C(1,A(2)))'))
 
     def test_from_sexp(self):
         self.assertRaisesRegex(
@@ -412,6 +413,7 @@ B(
         self.assertEqual(A(), A.from_sexp('A'))
         self.assertEqual(A(), A.from_sexp('  A  #'))
         self.assertEqual(A(B()), A.from_sexp('(A\n  B\n)'))
+        self.assertEqual(A(B(), C(1, A(2))), A.from_sexp('(A(B)(C 1 (A 2)))'))
 
     def test_load_json(self):
         def js(A, *args):
