@@ -1,6 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import re
+
 from ..cache import Cache
 from ..model import Entity, IRI, Item, Lexeme, Property
 from ..namespace import WD
@@ -25,6 +27,7 @@ class WikidataEntityRegistry(Cache):
         from importlib import util as importlib_util
         from json import load
         from pathlib import Path
+
         spec = importlib_util.find_spec(__name__)
         assert spec is not None
         assert spec.origin is not None
@@ -37,8 +40,10 @@ class WikidataEntityRegistry(Cache):
 
     def __init__(self):
         super().__init__()
-        it = [(Item, self._load_wikidata_items_json()),
-              (Property, self._load_wikidata_properties_json().items())]
+        it = [
+            (Item, self._load_wikidata_items_json()),
+            (Property, self._load_wikidata_properties_json().items()),
+        ]
         for cons, table in it:
             for name, entry in table:
                 entity = cons(IRI(name))
@@ -46,33 +51,40 @@ class WikidataEntityRegistry(Cache):
                     self.set(entity, key, value)
 
     def Q(
-            self,
-            name: Union[int, str],
-            label: Optional[str] = None,
-            description: Optional[str] = None
+        self,
+        name: Union[int, str],
+        label: Optional[str] = None,
+        description: Optional[str] = None,
     ) -> Item:
-        return cast(Item, self._get_entity(
-            Item(WD[f'Q{name}']), label=label, description=description))
+        name = name if re.search(r'Q\d+', name) else f'Q{name}'
+        return cast(
+            Item,
+            self._get_entity(
+                Item(WD[name]), label=label, description=description
+            ),
+        )
 
     def P(
-            self,
-            name: Union[int, str],
-            label: Optional[str] = None,
-            description: Optional[str] = None
+        self,
+        name: Union[int, str],
+        label: Optional[str] = None,
+        description: Optional[str] = None,
     ) -> Property:
-        return cast(Property, self._get_entity(
-            Property(WD[f'P{name}']), label=label, description=description))
+        name = name if re.search(r'P\d+', name) else f'P{name}'
+        return cast(
+            Property,
+            self._get_entity(
+                Property(WD[name]), label=label, description=description
+            ),
+        )
 
-    def L(
-            self,
-            name: Union[int, str]
-    ) -> Lexeme:
+    def L(self, name: Union[int, str]) -> Lexeme:
         return cast(Lexeme, self._get_entity(Lexeme(WD[f'L{name}'])))
 
     def _get_entity(
-            self,
-            entity: Entity,
-            **kwargs: Any,
+        self,
+        entity: Entity,
+        **kwargs: Any,
     ) -> Entity:
         for k, v in kwargs.items():
             if v is not None:
