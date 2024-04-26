@@ -3,8 +3,8 @@
 
 import datetime
 import decimal
-from typing import Any, NoReturn, Optional, Union
 
+from ..typing import Any, Callable, Iterator, NoReturn, Optional, Union
 from . import object
 from .annotation_record import AnnotationRecord
 from .annotation_record_set import AnnotationRecordSet, TAnnotationRecordSet
@@ -90,6 +90,16 @@ TNil = object.TNil
 class KIF_Object(object.Object, metaclass=object.ObjectMeta):
 
     @classmethod
+    def _issubclass_template(cls, arg: Any) -> bool:
+        ...
+
+    @classmethod
+    def _isinstance_template_or_variable(cls, arg: Any) -> bool:
+        ...
+
+# -- datetime --------------------------------------------------------------
+
+    @classmethod
     def _check_arg_datetime(
             cls,
             arg: TDatetime,
@@ -128,6 +138,8 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             function: Optional[Union[TCallable, str]] = ...
     ) -> Union[Optional[Datetime], NoReturn]:
         ...
+
+# -- decimal ---------------------------------------------------------------
 
     @classmethod
     def _check_arg_decimal(
@@ -2289,4 +2301,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         name: Optional[str] = None,
         position: Optional[int] = None
     ) -> Union[TArgs, NoReturn]:
+        ...
+
+# -- misc ------------------------------------------------------------------
+
+    def _repr_markdown_(self) -> str:
+        ...
+
+    def traverse(
+        self,
+        visit: Optional[Callable[[Any], bool]] = None,
+        yield_root: bool = ...,
+        yield_kif_objects: bool = ...,
+        yield_non_kif_objects: bool = ...
+    ) -> Iterator[Any]:
+        ...
+
+    def _traverse(
+        self,
+        visit: Optional[Callable[[Any], bool]] = None,
+        yield_kif_objects: bool = ...,
+        yield_non_kif_objects: bool = ...
+    ) -> Iterator[Any]:
         ...

@@ -1,8 +1,10 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from functools import cache
+
 from ..itertools import chain
-from ..typing import cast, Iterable, Mapping, NoReturn, Optional, Union
+from ..typing import cast, Iterable, Mapping, NoReturn, Optional, Set, Union
 from .kif_object import KIF_Object, TCallable
 
 
@@ -12,12 +14,45 @@ class Template(KIF_Object):
     #: Object class associated with this template class.
     object_class: type[KIF_Object]
 
-    def _substitute(
+    @property
+    def variables(self) -> Set['Variable']:
+        """The set of variables occurring in template."""
+        return self.get_variables()
+
+    @cache
+    def get_variables(self) -> Set['Variable']:
+        """Gets the set of variables occurring in template.
+
+        Returns:
+           Set of variables.
+        """
+        return frozenset(filter(Variable.test, self._traverse(
+            KIF_Object._isinstance_template_or_variable,
+            yield_kif_objects=True,
+            yield_non_kif_objects=False)))
+
+    def instantiate(
+            self,
+            theta: Mapping['Variable', KIF_Object]
+    ) -> KIF_Object:
+        """Applies variable instantiation `theta` to template.
+
+        Parameters:
+           theta: A mapping of variables to objects.
+
+        Returns:
+           The resulting object.
+        """
+        self._check_arg_isinstance(
+            theta, Mapping, self.instantiate, 'theta', 1)
+        return self._instantiate(theta) if theta else self
+
+    def _instantiate(
             self,
             theta: Mapping['Variable', KIF_Object]
     ) -> KIF_Object:
         return self.__class__(*map(
-            lambda arg: arg._substitute(theta)
+            lambda arg: arg._instantiate(theta)
             if isinstance(arg, (Template, Variable)) else arg, self.args))
 
 
@@ -114,11 +149,11 @@ class Variable(KIF_Object):
                 f'cannot coerce {src} into {dest}',
                 function, name, position, TypeError)
 
-    def substitute(
+    def instantiate(
             self,
             theta: Mapping['Variable', KIF_Object]
     ) -> KIF_Object:
-        """Applies variable substitution `theta` to variable.
+        """Applies variable instantiation `theta` to variable.
 
         Parameters:
            theta: A mapping of variables to objects.
@@ -127,10 +162,10 @@ class Variable(KIF_Object):
            The resulting object.
         """
         self._check_arg_isinstance(
-            theta, Mapping, self.substitute, 'theta', 1)
-        return self._substitute(theta) if theta else self
+            theta, Mapping, self.instantiate, 'theta', 1)
+        return self._instantiate(theta) if theta else self
 
-    def _substitute(
+    def _instantiate(
             self,
             theta: Mapping['Variable', KIF_Object]
     ) -> KIF_Object:

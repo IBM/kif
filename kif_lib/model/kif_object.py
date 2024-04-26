@@ -54,8 +54,7 @@ class KIF_Object(object.Object):
     def __new__(cls, *args):
         has_tpl_or_var_arg = any(map(
             cls._isinstance_template_or_variable, args))
-        if (not cls._issubclass_template_or_variable(cls)
-                and hasattr(cls, 'template_class') and has_tpl_or_var_arg):
+        if hasattr(cls, 'template_class') and has_tpl_or_var_arg:
             return cls.template_class(*args)
         elif (cls._issubclass_template(cls)
               and hasattr(cls, 'object_class') and not has_tpl_or_var_arg):
@@ -64,24 +63,16 @@ class KIF_Object(object.Object):
             return super().__new__(cls)
 
     @classmethod
-    def _issubclass_template(cls, arg) -> bool:
+    def _issubclass_template(cls, arg):
         from .pattern import Template
         return issubclass(arg, Template)
 
     @classmethod
-    def _issubclass_template_or_variable(cls, arg) -> bool:
-        from .pattern import Template, Variable
-        return issubclass(arg, (Template, Variable))
-
-    @classmethod
-    def _isinstance_template_or_variable(cls, arg) -> bool:
+    def _isinstance_template_or_variable(cls, arg):
         from .pattern import Template, Variable
         return isinstance(arg, (Template, Variable))
-
-    def _repr_markdown_(self):
-        return self.to_markdown()
-
-    # -- datetime --
+
+# -- datetime --------------------------------------------------------------
 
     @classmethod
     def _check_arg_datetime(
@@ -133,8 +124,8 @@ class KIF_Object(object.Object):
             return default
         else:
             return cls._preprocess_arg_datetime(arg, i, function)
-
-    # -- decimal --
+
+# -- decimal ---------------------------------------------------------------
 
     @classmethod
     def _check_arg_decimal(
@@ -168,6 +159,51 @@ class KIF_Object(object.Object):
             return default
         else:
             return cls._preprocess_arg_decimal(arg, i, function)
+
+# -- misc ------------------------------------------------------------------
+
+    def _repr_markdown_(self):
+        return self.to_markdown()
+
+    _traverse_default_visit = (lambda _: True)
+
+    def traverse(
+            self,
+            visit=None,
+            yield_root=True,
+            yield_kif_objects=True,
+            yield_non_kif_objects=True,
+    ):
+        """Traverses KIF object-tree recursively.
+
+        Parameters:
+           visit: Predicate indicating which KIF objects to visit.
+           yield_root: Whether to yield the root KIF object.
+           yield_kif_objects: Whether to yield KIF objects.
+           yield_non_kif_objects: Whether to yield non-KIF objects.
+
+        Returns:
+           An iterator of KIF objects and values.
+        """
+        visit = self._check_optional_arg_callable(
+            visit, self.__class__._traverse_default_visit,
+            self.traverse, 'visit', 1)
+        assert visit is not None
+        it = self._traverse(visit, yield_kif_objects, yield_non_kif_objects)
+        if yield_kif_objects and not yield_root:
+            next(it, None)
+        return it
+
+    def _traverse(self, visit, yield_kif_objects, yield_non_kif_objects):
+        if visit(self):
+            if yield_kif_objects:
+                yield self
+            for arg in self.args:
+                if isinstance(arg, KIF_Object):
+                    yield from arg._traverse(
+                        visit, yield_kif_objects, yield_non_kif_objects)
+                elif yield_non_kif_objects:
+                    yield arg
 
 
 # == Codecs ================================================================
