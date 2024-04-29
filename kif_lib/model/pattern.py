@@ -33,12 +33,12 @@ class Template(KIF_Object):
 
     def instantiate(
             self,
-            theta: Mapping['Variable', KIF_Object]
+            theta: Mapping['Variable', Optional[KIF_Object]]
     ) -> KIF_Object:
         """Applies variable instantiation `theta` to template.
 
         Parameters:
-           theta: A mapping of variables to objects.
+           theta: A mapping of variables to objects or ``None``.
 
         Returns:
            The resulting object.
@@ -49,7 +49,7 @@ class Template(KIF_Object):
 
     def _instantiate(
             self,
-            theta: Mapping['Variable', KIF_Object]
+            theta: Mapping['Variable', Optional[KIF_Object]]
     ) -> KIF_Object:
         return self.__class__(*map(
             lambda arg: arg._instantiate(theta)
@@ -151,12 +151,12 @@ class Variable(KIF_Object):
 
     def instantiate(
             self,
-            theta: Mapping['Variable', KIF_Object]
-    ) -> KIF_Object:
+            theta: Mapping['Variable', Optional[KIF_Object]]
+    ) -> Optional[KIF_Object]:
         """Applies variable instantiation `theta` to variable.
 
         Parameters:
-           theta: A mapping of variables to objects.
+           theta: A mapping of variables to objects or ``None``.
 
         Returns:
            The resulting object.
@@ -167,8 +167,8 @@ class Variable(KIF_Object):
 
     def _instantiate(
             self,
-            theta: Mapping['Variable', KIF_Object]
-    ) -> KIF_Object:
+            theta: Mapping['Variable', Optional[KIF_Object]]
+    ) -> Optional[KIF_Object]:
         return theta.get(self, self)
 
 

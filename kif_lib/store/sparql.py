@@ -287,18 +287,19 @@ At line {line}, column {column}:
 
         def _read_next_page(self):
             query_string = str(self._compiler_results.query.select(limit=1))
-            res = self._store._eval_select_query_string(query_string)
             print(self._compiler_results.pattern)
             print()
             print(self._compiler_results.theta)
             print()
             print(self._compiler_results.query)
             print()
+            res = self._store._eval_select_query_string(query_string)
             print(dict(res))
+            return res
 
     def _match(self, pat: Pattern) -> Match:
         from ..compiler import Compiler
-        compiler = Compiler.from_format('sparql')(pat)
+        compiler = Compiler.from_format()(pat, debug=True)
         return self.Match(self, cast(
             SPARQL_Compiler.Results, compiler.compile()))
 

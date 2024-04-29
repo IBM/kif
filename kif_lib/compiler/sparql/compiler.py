@@ -80,6 +80,7 @@ from ...typing import (
     Any,
     cast,
     Iterator,
+    Mapping,
     MutableMapping,
     NoReturn,
     Optional,
@@ -108,47 +109,148 @@ class CompiledQuery(SelectQuery):
 
 
 class Substitution(MutableMapping):
-    _data: dict[Variable, Union[KIF_Object, QueryVariable]]
+
+    _map: MutableMapping[Variable, Union[KIF_Object, QueryVariable]]
+    _dependency_graph: MutableMapping[
+        Variable, set[Union[Variable, QueryVariable]]]
+    _reverse_dependency_graph: MutableMapping[
+        Union[Variable, QueryVariable], set[Variable]]
+    _defaults: MutableMapping[Variable, Optional[KIF_Object]]
 
     __slots__ = (
-        '_data',
+        '_map',
+        '_dependency_graph',
+        '_reverse_dependency_graph',
+        '_defaults',
     )
 
     def __init__(self):
-        self._data = dict()
+        self._map = dict()
+        self._dependency_graph = dict()
+        self._reverse_dependency_graph = dict()
+        self._defaults = dict()
 
     def __str__(self):
-        def f():
-            for k, v in self._data.items():
-                yield f'{k} := {v if isinstance(v, KIF_Object) else v.n3()}'
-        return '\n'.join(f())
+        return ''.join(self._dump())
+
+    def _dump(self, _attrs=[
+            '_map',
+            '_dependency_graph',
+            '_reverse_dependency_graph',
+            '_defaults'
+    ]):
+        for attr in _attrs:
+            yield f'{attr}:\n'
+            for k, v in getattr(self, attr).items():
+                yield f'{self._dump_value(k)} -> '
+                if isinstance(v, set):
+                    yield ', '.join(map(self._dump_value, v))
+                else:
+                    yield self._dump_value(v)
+                yield '\n'
+            yield '\n'
+
+    @classmethod
+    def _dump_value(cls, v: Any) -> str:
+        return v.n3() if isinstance(v, QueryVariable) else str(v)
 
     def __getitem__(self, k):
-        return self._data[k]
+        return self._map[k]
 
     def __setitem__(self, k, v):
-        self._data[k] = v
+        self.add(k, v)
 
     def __delitem__(self, k):
-        del self._data[k]
+        del self._map[k]
 
     def __iter__(self):
-        return iter(self._data)
+        return iter(self._map)
 
     def __len__(self):
-        return len(self._data)
+        return len(self._map)
 
-    def add(self, var: Variable, value: T) -> T:
+    def add(
+            self,
+            var: Variable,
+            value: T,
+    ) -> T:
         assert isinstance(var, Variable)
-        assert (var not in self._data or self._data.get(var) == value)
         assert isinstance(value, (KIF_Object, QueryVariable))
-        self._data[var] = value
+        self._add_to_map(var, value)
+        self._add_to_dependency_graph(var, value)
         return cast(T, value)
 
-    # def ground(self, binding: Mapping[str, Any]) -> 'Substitution':
-    #     G = set(self.values())
-    #     print(G)
-    #     return self.__class__()
+    def add_default(
+            self,
+            var: Variable,
+            value: Optional[KIF_Object]
+    ) -> Variable:
+        self._defaults[var] = value
+        return var
+
+    def _add_to_map(
+            self,
+            var: Variable,
+            value: Union[KIF_Object, QueryVariable],
+    ):
+        assert var not in self or self[var] == value
+        self._map[var] = value
+
+    def _add_to_dependency_graph(
+            self,
+            source: Variable,
+            target: Union[KIF_Object, QueryVariable]
+    ):
+        if source not in self._dependency_graph:
+            self._dependency_graph[source] = set()
+        if isinstance(target, (Variable, QueryVariable)):
+            self._dependency_graph[source].add(target)
+            self._add_to_reverse_dependency_graph(target, source)
+        elif isinstance(target, Template):
+            self._dependency_graph[source].update(target.variables)
+            for var in target.variables:
+                self._add_to_reverse_dependency_graph(var, source)
+
+    def _add_to_reverse_dependency_graph(
+            self,
+            source: Union[Variable, QueryVariable],
+            target: Variable
+    ):
+        if source not in self._reverse_dependency_graph:
+            self._reverse_dependency_graph[source] = set()
+        self._reverse_dependency_graph[source].add(target)
+
+    def instantiate(
+            self,
+            binding: Mapping[str, dict[str, str]]
+    ) -> Mapping[Variable, Optional[KIF_Object]]:
+        theta: MutableMapping[Variable, Optional[KIF_Object]] = dict()
+        it = map(lambda t: (t[0], t[1]['value']), binding.items())
+        for qvar_name, qvar_value in it:
+            qvar = QueryVariable(qvar_name)
+            if qvar not in self._reverse_dependency_graph:
+                continue
+            for rdep in self._reverse_dependency_graph[qvar]:
+                assert isinstance(rdep, Variable)
+                value = rdep.object_class(qvar_value)
+                self._instantiate(rdep, value, theta)
+        it_kv_with_free_vars = filter(
+            lambda t: isinstance(t[1], Template) and bool(t[1].variables),
+            theta.items())
+        for k, v in it_kv_with_free_vars:
+            assert isinstance(v, Template)
+            theta[k] = v.instantiate(self._defaults)
+        return theta
+
+    def _instantiate(
+            self,
+            var: Union[Variable],
+            value: Optional[KIF_Object],
+            theta: MutableMapping[Variable, Optional[KIF_Object]]
+    ):
+        theta[var] = value
+        for rdep in self._reverse_dependency_graph.get(var, ()):
+            self._instantiate(rdep, self[rdep].instantiate(theta), theta)
 
 
 # == Compiler ==============================================================
@@ -176,7 +278,8 @@ class SPARQL_Compiler(
                 self,
                 compiler: 'SPARQL_Compiler',
                 query: CompiledQuery,
-                theta: Substitution):
+                theta: Substitution
+        ):
             self._compiler = compiler
             self._query = query
             self._theta = theta
@@ -253,9 +356,15 @@ class SPARQL_Compiler(
 
     def _theta_add(self, var: Variable, v: T) -> T:
         if self._debug:
-            self._q.comments()(
-                f'{var} := {v.n3() if isinstance(v, QueryVariable) else v}')
+            self._q.comments()(f'{var} := {Substitution._dump_value(v)}')
         return self._theta.add(var, v)
+
+    def _theta_add_default(
+            self,
+            var: Variable,
+            value: Optional[KIF_Object]
+    ) -> Variable:
+        return self._theta.add_default(var, value)
 
     def _qvar(self, var: TQueryVariable) -> QueryVariable:
         return self._q.var(var)
@@ -761,6 +870,7 @@ class SPARQL_Compiler(
                 obj_unit = self._fresh_item_variable()
             if isinstance(obj_unit, ItemVariable):
                 unit = self._push_item_variable(obj_unit)
+                self._theta_add_default(obj_unit, None)
             elif isinstance(obj_unit, Item):
                 unit = self._push_item(obj_unit)
             else:
@@ -769,12 +879,14 @@ class SPARQL_Compiler(
                 obj_lb = self._fresh_quantity_variable()
             if isinstance(obj_lb, QuantityVariable):
                 lb = self._theta_add(obj_lb, self._as_qvar(obj_lb))
+                self._theta_add_default(obj_lb, None)
             else:
                 lb = self._q.literal(obj_lb)
             if obj_ub is None:
                 obj_ub = self._fresh_quantity_variable()
             if isinstance(obj_ub, QuantityVariable):
                 ub = self._theta_add(obj_ub, self._as_qvar(obj_ub))
+                self._theta_add_default(obj_ub, None)
             else:
                 ub = self._q.literal(obj_ub)
             wdv, psv = self._fresh_qvars(2)
@@ -860,18 +972,21 @@ class SPARQL_Compiler(
                 obj_prec = self._fresh_quantity_variable()
             if isinstance(obj_prec, QuantityVariable):
                 prec = self._theta_add(obj_prec, self._as_qvar(obj_prec))
+                self._theta_add_default(obj_prec, None)
             else:
                 prec = self._q.literal(obj_prec.value)
             if obj_tz is None:
                 obj_tz = self._fresh_quantity_variable()
             if isinstance(obj_tz, QuantityVariable):
                 tz = self._theta_add(obj_tz, self._as_qvar(obj_tz))
+                self._theta_add_default(obj_tz, None)
             else:
                 tz = self._q.literal(obj_tz)
             if obj_cal is None:
                 obj_cal = self._fresh_item_variable()
             if isinstance(obj_cal, ItemVariable):
                 cal = self._push_item_variable(obj_cal)
+                self._theta_add_default(obj_cal, None)
             elif isinstance(obj_cal, Item):
                 cal = self._push_item(obj_cal)
             else:
