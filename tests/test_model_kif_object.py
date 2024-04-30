@@ -8,6 +8,7 @@ from kif_lib import (
     AnnotationRecordSet,
     Deprecated,
     EncoderError,
+    Entity,
     EntityFingerprint,
     ExternalId,
     ExternalIdDatatype,
@@ -122,6 +123,19 @@ class TestModelKIF_Object(kif_TestCase):
         declared = get_decl('kif_lib/model/object.py')
         declared_pyi = get_decl('kif_lib/model/kif_object.pyi')
         self.assertEqual(defined - declared, declared_pyi)
+
+# == __new__ ===============================================================
+
+    def test__new__(self):
+        self.assertIsInstance(Item('x'), Item)
+        self.assertIsInstance(ItemTemplate('x'), Item)
+        self.assertIsInstance(Item(iri='x'), Item)
+        self.assertIsInstance(ItemTemplate(iri='x'), Item)
+        self.assertIsInstance(Item(IRI_Variable('x')), ItemTemplate)
+        self.assertIsInstance(ItemTemplate(IRI_Variable('x')), ItemTemplate)
+        self.assertIsInstance(Item(iri=IRI_Variable('x')), ItemTemplate)
+        self.assertIsInstance(
+            ItemTemplate(iri=IRI_Variable('x')), ItemTemplate)
 
 # == Argument checking =====================================================
 
@@ -1522,6 +1536,12 @@ class TestModelKIF_Object(kif_TestCase):
             TypeError, ItemTemplate(
                 Variable('x')).unpack_data_value_template)
 
+    def test_unpack_data_value_variable(self):
+        self.assertEqual(
+            IRI_Variable('x').unpack_data_value_variable(), ('x',))
+        self.assertRaises(
+            TypeError, ItemVariable('x').unpack_data_value_template)
+
     def test_unpack_datatype(self):
         self.assertEqual(IRI_Datatype().unpack_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_datatype)
@@ -1539,6 +1559,12 @@ class TestModelKIF_Object(kif_TestCase):
             TypeError, ItemTemplate(
                 Variable('x')).unpack_deep_data_value_template)
 
+    def test_unpack_deep_data_value_variable(self):
+        self.assertEqual(
+            QuantityVariable('x').unpack_deep_data_value_variable(), ('x',))
+        self.assertRaises(
+            TypeError, ItemVariable('x').unpack_deep_data_value_variable)
+
     def test_unpack_deprecated_rank(self):
         self.assertEqual(Deprecated.unpack_deprecated_rank(), ())
         self.assertRaises(TypeError, Preferred.unpack_deprecated_rank)
@@ -1553,6 +1579,11 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(Item('x').unpack_entity(), (IRI('x'),))
         self.assertRaises(TypeError, String('x').unpack_entity)
 
+    def test_unpack_entity_fingerprint(self):
+        fp = EntityFingerprint(Item('x'))
+        self.assertEqual(fp.unpack_entity_fingerprint(), (Item('x'),))
+        self.assertRaises(TypeError, String('x').unpack_entity_fingerprint)
+
     def test_unpack_entity_template(self):
         self.assertEqual(
             ItemTemplate(Variable('x')).unpack_entity_template(),
@@ -1560,10 +1591,10 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(
             TypeError, StringTemplate(Variable('x')).unpack_entity_template)
 
-    def test_unpack_entity_fingerprint(self):
-        fp = EntityFingerprint(Item('x'))
-        self.assertEqual(fp.unpack_entity_fingerprint(), (Item('x'),))
-        self.assertRaises(TypeError, String('x').unpack_entity_fingerprint)
+    def test_unpack_entity_variable(self):
+        self.assertEqual(ItemVariable('x').unpack_entity_variable(), ('x',))
+        self.assertRaises(
+            TypeError, StringVariable('x').unpack_entity_variable)
 
     def test_unpack_external_id(self):
         self.assertEqual(ExternalId('x').unpack_external_id(), ('x',))
@@ -1581,6 +1612,12 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(
             TypeError,
             StringTemplate(Variable('x')).unpack_external_id_template)
+
+    def test_unpack_external_id_variable(self):
+        self.assertEqual(
+            ExternalIdVariable('x').unpack_external_id_variable(), ('x',))
+        self.assertRaises(
+            TypeError, StringVariable('x').unpack_external_id_variable)
 
     def test_unpack_filter_pattern(self):
         pat = FilterPattern(
@@ -1618,6 +1655,11 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(
             TypeError, StringTemplate(Variable('x')).unpack_item_template)
 
+    def test_unpack_item_variable(self):
+        self.assertEqual(ItemVariable('x').unpack_item_variable(), ('x',))
+        self.assertRaises(
+            TypeError, StringVariable('x').unpack_item_variable)
+
     def test_unpack_iri(self):
         self.assertEqual(IRI('x').unpack_iri(), ('x',))
         self.assertRaises(TypeError, Item('x').unpack_iri)
@@ -1632,6 +1674,10 @@ class TestModelKIF_Object(kif_TestCase):
             (StringVariable('x'),))
         self.assertRaises(
             TypeError, ItemTemplate(Variable('x')).unpack_iri_template)
+
+    def test_unpack_iri_variable(self):
+        self.assertEqual(IRI_Variable('x').unpack_iri_variable(), ('x',))
+        self.assertRaises(TypeError, ItemVariable('x').unpack_iri_variable)
 
     def test_unpack_kif_object(self):
         self.assertEqual(Item('x').unpack_kif_object(), (IRI('x'),))
@@ -1664,6 +1710,12 @@ class TestModelKIF_Object(kif_TestCase):
             TypeError,
             ItemTemplate(Variable('x')).unpack_lexeme_template)
 
+    def test_unpack_lexeme_variable(self):
+        self.assertEqual(
+            LexemeVariable('x').unpack_lexeme_variable(), ('x',))
+        self.assertRaises(
+            TypeError, ItemVariable('x').unpack_lexeme_variable)
+
     def test_unpack_no_value_snak(self):
         snak = NoValueSnak(Property('x'))
         self.assertEqual(snak.unpack_no_value_snak(), (Property('x'),))
@@ -1677,6 +1729,12 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(
             TypeError, ItemTemplate(
                 Variable('x')).unpack_no_value_snak_template)
+
+    def test_unpack_no_value_snak_variable(self):
+        self.assertEqual(
+            NoValueSnakVariable('x').unpack_no_value_snak_variable(), ('x',))
+        self.assertRaises(
+            TypeError, ItemVariable('x').unpack_no_value_snak_variable)
 
     def test_unpack_normal_rank(self):
         self.assertEqual(Normal.unpack_normal_rank(), ())
@@ -1728,6 +1786,12 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(
             TypeError, ItemTemplate(Variable('x')).unpack_property_template)
 
+    def test_unpack_property_variable(self):
+        self.assertEqual(
+            PropertyVariable('x').unpack_property_variable(), ('x',))
+        self.assertRaises(
+            TypeError, ItemVariable('x').unpack_property_variable)
+
     def test_unpack_quantity(self):
         self.assertEqual(Quantity(0).unpack_quantity(),
                          (Decimal('0'), None, None, None))
@@ -1743,6 +1807,12 @@ class TestModelKIF_Object(kif_TestCase):
             (QuantityVariable('x'), None, None, None))
         self.assertRaises(
             TypeError, ItemTemplate(Variable('x')).unpack_quantity_template)
+
+    def test_unpack_quantity_variable(self):
+        self.assertEqual(
+            QuantityVariable('x').unpack_quantity_variable(), ('x',))
+        self.assertRaises(
+            TypeError, ItemVariable('x').unpack_quantity_variable)
 
     def test_unpack_rank(self):
         self.assertEqual(Preferred.unpack_rank(), ())
@@ -1782,6 +1852,12 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(
             TypeError, ItemTemplate(Variable('x')).unpack_snak_template)
 
+    def test_unpack_snak_variable(self):
+        self.assertEqual(
+            ValueSnakVariable('x').unpack_snak_variable(), ('x',))
+        self.assertRaises(
+            TypeError, ItemVariable('x').unpack_snak_variable)
+
     def test_unpack_shallow_data_value(self):
         self.assertEqual(String('abc').unpack_shallow_data_value(), ('abc',))
         self.assertEqual(
@@ -1796,10 +1872,32 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(TypeError, QuantityTemplate(
             QuantityVariable('x')).unpack_shallow_data_value_template)
 
+    def test_unpack_shallow_data_value_variable(self):
+        self.assertEqual(
+            StringVariable('x').unpack_shallow_data_value_variable(), ('x',))
+        self.assertRaises(
+            TypeError,
+            QuantityVariable('x').unpack_shallow_data_value_variable)
+
     def test_unpack_some_value_snak(self):
         snak = SomeValueSnak(Property('x'))
         self.assertEqual(snak.unpack_some_value_snak(), (Property('x'),))
         self.assertRaises(TypeError, String('x').unpack_some_value_snak)
+
+    def test_unpack_some_value_snak_template(self):
+        self.assertEqual(
+            SomeValueSnakTemplate(
+                Variable('x')).unpack_some_value_snak_template(),
+            (PropertyVariable('x'),))
+        self.assertRaises(
+            TypeError, String('x').unpack_some_value_snak_template)
+
+    def test_unpack_some_value_snak_variable(self):
+        self.assertEqual(
+            SomeValueSnakVariable('x').unpack_some_value_snak_variable(),
+            ('x',))
+        self.assertRaises(
+            TypeError, StringVariable('x').unpack_some_value_snak_variable)
 
     def test_unpack_statement(self):
         stmt = Statement(Item('x'), NoValueSnak(Property('y')))
@@ -1808,13 +1906,50 @@ class TestModelKIF_Object(kif_TestCase):
             (Item('x'), NoValueSnak(Property('y'))))
         self.assertRaises(TypeError, String('x').unpack_statement)
 
+    def test_unpack_statement_template(self):
+        self.assertEqual(
+            StatementTemplate(
+                Variable('x'), Variable('y')).unpack_statement_template(),
+            (EntityVariable('x'), SnakVariable('y')))
+        self.assertRaises(TypeError, String('x').unpack_statement_template)
+
+    def test_unpack_statement_variable(self):
+        self.assertEqual(
+            StatementVariable('x').unpack_statement_variable(), ('x',))
+        self.assertRaises(
+            TypeError, StringVariable('x').unpack_statement_variable)
+
     def test_unpack_string(self):
         self.assertEqual(String('x').unpack_string(), ('x',))
         self.assertRaises(TypeError, Item('x').unpack_string)
 
+    def test_unpack_string_template(self):
+        self.assertEqual(
+            StringTemplate(Variable('x')).unpack_string_template(),
+            (StringVariable('x'),))
+        self.assertEqual(
+            ExternalIdTemplate(Variable('x')).unpack_string_template(),
+            (StringVariable('x'),))
+        self.assertRaises(
+            TypeError, ItemTemplate(Variable('x')).unpack_string_template)
+
+    def test_unpack_string_variable(self):
+        self.assertEqual(
+            StringVariable('x').unpack_string_variable(), ('x',))
+        self.assertEqual(
+            ExternalIdVariable('x').unpack_string_variable(), ('x',))
+        self.assertRaises(
+            TypeError, ItemVariable('x').unpack_string_variable)
+
     def test_unpack_string_datatype(self):
         self.assertEqual(StringDatatype().unpack_string_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_string_datatype)
+
+    def test_unpack_template(self):
+        self.assertEqual(
+            TextTemplate(Variable('x')).unpack_template(),
+            (StringVariable('x'), 'en'))
+        self.assertRaises(TypeError, Time('2023-09-18').unpack_template)
 
     def test_unpack_text(self):
         self.assertEqual(Text('abc', 'pt').unpack_text(), ('abc', 'pt'))
@@ -1831,6 +1966,18 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(texts.unpack_text_set(), (text1, text2))
         self.assertRaises(TypeError, Time('2023-09-18').unpack_text_set)
 
+    def test_unpack_text_template(self):
+        self.assertEqual(
+            TextTemplate(Variable('x')).unpack_text_template(),
+            (StringVariable('x'), 'en'))
+        self.assertRaises(
+            TypeError, StringTemplate(Variable('x')).unpack_text_template)
+
+    def test_unpack_text_variable(self):
+        self.assertEqual(TextVariable('x').unpack_text_variable(), ('x',))
+        self.assertRaises(
+            TypeError, StringVariable('x').unpack_text_variable)
+
     def test_unpack_time(self):
         self.assertEqual(
             Time('2023-09-18').unpack_time(),
@@ -1840,6 +1987,18 @@ class TestModelKIF_Object(kif_TestCase):
     def test_unpack_time_datatype(self):
         self.assertEqual(TimeDatatype().unpack_time_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_time_datatype)
+
+    def test_unpack_time_template(self):
+        self.assertEqual(
+            TimeTemplate(Variable('x')).unpack_time_template(),
+            (TimeVariable('x'), None, None, None))
+        self.assertRaises(
+            TypeError, StringTemplate(Variable('x')).unpack_time_template)
+
+    def test_unpack_time_variable(self):
+        self.assertEqual(TimeVariable('x').unpack_time_variable(), ('x',))
+        self.assertRaises(
+            TypeError, StringVariable('x').unpack_time_variable)
 
     def test_unpack_value(self):
         self.assertEqual(Item('x').unpack_value(), (IRI('x'),))
@@ -1857,6 +2016,36 @@ class TestModelKIF_Object(kif_TestCase):
         snak = ValueSnak(Property('x'), Item('y'))
         self.assertEqual(snak.unpack_value_snak(), (Property('x'), Item('y')))
         self.assertRaises(TypeError, String('x').unpack_value_snak)
+
+    def test_unpack_value_snak_template(self):
+        self.assertEqual(
+            ValueSnak(
+                Variable('x'), Variable('y')).unpack_value_snak_template(),
+            (PropertyVariable('x'), ValueVariable('y')))
+        self.assertRaises(TypeError, String('x').unpack_value_snak_template)
+
+    def test_unpack_value_snak_variable(self):
+        self.assertEqual(
+            ValueSnakVariable('x').unpack_value_snak_variable(), ('x',))
+        self.assertRaises(
+            TypeError, StringVariable('x').unpack_value_snak_variable)
+
+    def test_unpack_value_template(self):
+        self.assertEqual(
+            ItemTemplate(Variable('x')).unpack_value_template(),
+            (IRI_Variable('x'),))
+        self.assertRaises(
+            TypeError, NoValueSnakTemplate(
+                Variable('x')).unpack_value_template)
+
+    def test_unpack_value_variable(self):
+        self.assertEqual(ItemVariable('x').unpack_value_variable(), ('x',))
+        self.assertRaises(
+            TypeError, NoValueSnakVariable('x').unpack_value_variable)
+
+    def test_unpack_variable(self):
+        self.assertEqual(ItemVariable('x').unpack_variable(), ('x',))
+        self.assertRaises(TypeError, Item('x').unpack_variable)
 
 # == misc ==================================================================
 
@@ -1864,6 +2053,40 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(
             Item('x')._repr_markdown_(),
             '(**Item** [x](http://x))')
+
+    def test_traverse(self):
+        obj = Variable('p')(Item('x'), Quantity(5, Item('u')))
+        self.assertEqual(
+            list(obj.traverse()), [
+                obj,
+                Item('x'),
+                IRI('x'),
+                'x',
+                obj.snak,
+                PropertyVariable('p'),
+                'p',
+                Quantity(5, Item('u')),
+                Decimal(5),
+                Item('u'),
+                IRI('u'),
+                'u',
+                None,
+                None])
+        self.assertEqual(
+            list(obj.traverse(IRI.test)), [IRI('x'), IRI('u')])
+        self.assertEqual(
+            list(obj.traverse(lambda x: isinstance(x, str))),
+            ['x', 'p', 'u'])
+        self.assertEqual(
+            list(obj.traverse(None, lambda x: not isinstance(x, Entity))),
+            [obj,
+             obj.snak,
+             PropertyVariable('p'),
+             'p',
+             obj.snak.value,
+             Decimal(5),
+             None,
+             None])
 
 # == Codecs ================================================================
 
