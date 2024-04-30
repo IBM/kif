@@ -758,7 +758,7 @@ class Store(Set):
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
-        pattern, limit, distint, data = self._filter_pre_hook(
+        pattern, limit, distinct, data = self._filter_pre_hook(
             pattern, limit, distinct)
         if limit > 0 and pattern.is_nonempty():
             it = self._filter(pattern, limit, distinct)

@@ -51,8 +51,10 @@ class WikidataEntityRegistry(Cache):
             label: Optional[str] = None,
             description: Optional[str] = None
     ) -> Item:
+        if not isinstance(name, str) or name[0] != 'Q':
+            name = f'Q{name}'
         return cast(Item, self._get_entity(
-            Item(WD[f'Q{name}']), label=label, description=description))
+            Item(WD[name]), label=label, description=description))
 
     def P(
             self,
@@ -60,14 +62,15 @@ class WikidataEntityRegistry(Cache):
             label: Optional[str] = None,
             description: Optional[str] = None
     ) -> Property:
+        if not isinstance(name, str) or name[0] != 'P':
+            name = f'P{name}'
         return cast(Property, self._get_entity(
-            Property(WD[f'P{name}']), label=label, description=description))
+            Property(WD[name]), label=label, description=description))
 
-    def L(
-            self,
-            name: Union[int, str]
-    ) -> Lexeme:
-        return cast(Lexeme, self._get_entity(Lexeme(WD[f'L{name}'])))
+    def L(self, name: Union[int, str]) -> Lexeme:
+        if not isinstance(name, str) or name[0] != 'L':
+            name = f'L{name}'
+        return cast(Lexeme, self._get_entity(Lexeme(WD[name])))
 
     def _get_entity(
             self,
