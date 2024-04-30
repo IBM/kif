@@ -7,6 +7,7 @@ import json
 from enum import Enum
 from functools import cache
 
+from ..itertools import chain
 from ..typing import Any, cast, Generator, override, Union
 from . import object
 
@@ -51,14 +52,15 @@ class KIF_Object(object.Object):
             assert issubclass(cls.variable_class, Variable)
             cls.variable_class.object_class = cls
 
-    def __new__(cls, *args):
+    def __new__(cls, *args, **kwargs):
         has_tpl_or_var_arg = any(map(
-            cls._isinstance_template_or_variable, args))
+            cls._isinstance_template_or_variable,
+            chain(args, kwargs.values())))
         if hasattr(cls, 'template_class') and has_tpl_or_var_arg:
-            return cls.template_class(*args)
+            return cls.template_class(*args, **kwargs)
         elif (cls._issubclass_template(cls)
               and hasattr(cls, 'object_class') and not has_tpl_or_var_arg):
-            return cls.object_class(*args)
+            return cls.object_class(*args, **kwargs)
         else:
             return super().__new__(cls)
 
@@ -71,6 +73,34 @@ class KIF_Object(object.Object):
     def _isinstance_template_or_variable(cls, arg):
         from .pattern import Template, Variable
         return isinstance(arg, (Template, Variable))
+
+    @classmethod
+    def _check_arg_kif_object_class(
+            cls, arg, function=None, name=None, position=None):
+        return cls._check_arg_issubclass(
+            arg, KIF_Object, function, name, position)
+
+    @classmethod
+    def _check_optional_arg_kif_object_class(
+            cls, arg, default=None, function=None, name=None, position=None):
+        if arg is None:
+            return default
+        else:
+            return cls._check_arg_kif_object_class(
+                arg, function, name, position)
+
+    @classmethod
+    def _preprocess_arg_kif_object_class(cls, arg, i, function=None):
+        return cls._check_arg_kif_object_class(
+            arg, function or cls, None, i)
+
+    @classmethod
+    def _preprocess_optional_arg_kif_object_class(
+            cls, arg, i, default=None, function=None):
+        if arg is None:
+            return default
+        else:
+            return cls._preprocess_arg_kif_object_class(arg, i, function)
 
 # -- datetime --------------------------------------------------------------
 
@@ -165,44 +195,40 @@ class KIF_Object(object.Object):
     def _repr_markdown_(self):
         return self.to_markdown()
 
+    _traverse_default_filter = (lambda _: True)
     _traverse_default_visit = (lambda _: True)
 
     def traverse(
             self,
+            filter=None,
             visit=None,
-            yield_root=True,
-            yield_kif_objects=True,
-            yield_non_kif_objects=True,
     ):
         """Traverses KIF object-tree recursively.
 
         Parameters:
-           visit: Predicate indicating which KIF objects to visit.
-           yield_root: Whether to yield the root KIF object.
-           yield_kif_objects: Whether to yield KIF objects.
-           yield_non_kif_objects: Whether to yield non-KIF objects.
+           filter: Predicate indicating KIF objects or values to yield.
+           visit: Predicate indicating KIF objects to visit.
 
         Returns:
            An iterator of KIF objects and values.
         """
+        filter = self._check_optional_arg_callable(
+            filter, self.__class__._traverse_default_filter,
+            self.traverse, 'filter', 1)
         visit = self._check_optional_arg_callable(
             visit, self.__class__._traverse_default_visit,
-            self.traverse, 'visit', 1)
+            self.traverse, 'visit', 2)
         assert visit is not None
-        it = self._traverse(visit, yield_kif_objects, yield_non_kif_objects)
-        if yield_kif_objects and not yield_root:
-            next(it, None)
-        return it
+        return self._traverse(filter, visit)
 
-    def _traverse(self, visit, yield_kif_objects, yield_non_kif_objects):
+    def _traverse(self, filter, visit):
         if visit(self):
-            if yield_kif_objects:
+            if filter(self):
                 yield self
             for arg in self.args:
                 if isinstance(arg, KIF_Object):
-                    yield from arg._traverse(
-                        visit, yield_kif_objects, yield_non_kif_objects)
-                elif yield_non_kif_objects:
+                    yield from arg._traverse(filter, visit)
+                elif filter(arg):
                     yield arg
 
 

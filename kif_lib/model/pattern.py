@@ -26,10 +26,9 @@ class Template(KIF_Object):
         Returns:
            Set of variables.
         """
-        return frozenset(filter(Variable.test, self._traverse(
-            KIF_Object._isinstance_template_or_variable,
-            yield_kif_objects=True,
-            yield_non_kif_objects=False)))
+        return frozenset(self._traverse(
+            Variable.test,
+            KIF_Object._isinstance_template_or_variable))
 
     def instantiate(
             self,
@@ -117,6 +116,21 @@ class Variable(KIF_Object):
            Name.
         """
         return self.args[0]
+
+    def is_coercible(
+            self,
+            variable_or_object_class: Union[type['Variable'], type[KIF_Object]]
+    ) -> bool:
+        # variable_or_object_class = self._check_arg_issubclass(
+        #     variable_or_object_class, (Variable, KIF_Object),
+        #     self.is_coercible, 'variable_class', 1)
+        # if issubclass(variable_or_object_class, Variable):
+        #     variable_class = variable_or_object_class
+        # else:
+        #     assert issubclass(variable_or_object_class, KIF_Object)
+        #     object_class = variable_or_object_class
+        #     pass
+        return False
 
     def coerce(self, variable_class: type['Variable']) -> 'Variable':
         """Coerces variable to `variable_class`.

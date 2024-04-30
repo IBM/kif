@@ -47,8 +47,46 @@ from kif_lib import (
     TimeDatatype,
     ValueSet,
     ValueSnak,
+    Variable,
+    Variables,
 )
-from kif_lib.model import Datetime, Decimal, UTC
+from kif_lib.model import (
+    DataValueVariable,
+    Datetime,
+    Decimal,
+    DeepDataValueVariable,
+    EntityVariable,
+    ExternalIdTemplate,
+    ExternalIdVariable,
+    IRI_Template,
+    IRI_Variable,
+    ItemTemplate,
+    ItemVariable,
+    LexemeTemplate,
+    LexemeVariable,
+    NoValueSnakTemplate,
+    NoValueSnakVariable,
+    PropertyTemplate,
+    PropertyVariable,
+    QuantityTemplate,
+    QuantityVariable,
+    ShallowDataValueVariable,
+    SnakVariable,
+    SomeValueSnakTemplate,
+    SomeValueSnakVariable,
+    StatementTemplate,
+    StatementVariable,
+    StringTemplate,
+    StringVariable,
+    TextTemplate,
+    TextVariable,
+    TimeTemplate,
+    TimeVariable,
+    UTC,
+    ValueSnakTemplate,
+    ValueSnakVariable,
+    ValueVariable,
+)
 
 from .tests import kif_TestCase
 
@@ -85,14 +123,54 @@ class TestModelKIF_Object(kif_TestCase):
         declared_pyi = get_decl('kif_lib/model/kif_object.pyi')
         self.assertEqual(defined - declared, declared_pyi)
 
-# == IPython ===============================================================
-
-    def test__repr_markdown_(self):
-        self.assertEqual(
-            Item('x')._repr_markdown_(),
-            '(**Item** [x](http://x))')
-
 # == Argument checking =====================================================
+
+    def test__check_arg_kif_object_class(self):
+        self.assertRaises(
+            TypeError, KIF_Object._check_arg_kif_object_class, 0)
+        self.assertRaises(
+            TypeError, KIF_Object._check_arg_kif_object_class, int)
+        self.assertIs(
+            KIF_Object._check_arg_kif_object_class(KIF_Object), KIF_Object)
+        self.assertIs(
+            KIF_Object._check_arg_kif_object_class(Statement), Statement)
+
+    def test__check_optional_arg_kif_object_class(self):
+        self.assertRaises(
+            TypeError, KIF_Object._check_optional_arg_kif_object_class, 0)
+        self.assertIsNone(
+            KIF_Object._check_optional_arg_kif_object_class(None))
+        self.assertIs(
+            KIF_Object._check_optional_arg_kif_object_class(None, Statement),
+            Statement)
+        self.assertIs(
+            KIF_Object._check_optional_arg_kif_object_class(Item, Statement),
+            Item)
+
+    def test__preprocess_arg_kif_object_class(self):
+        self.assertRaises(
+            TypeError, KIF_Object._preprocess_arg_kif_object_class, 0, 1)
+        self.assertRaises(
+            TypeError, KIF_Object._preprocess_arg_kif_object_class, int, 1)
+        self.assertIs(
+            KIF_Object._preprocess_arg_kif_object_class(Statement, 1),
+            Statement)
+
+    def test__preprocess_optional_arg_kif_object_class(self):
+        self.assertRaises(
+            TypeError,
+            KIF_Object._preprocess_optional_arg_kif_object_class, 0, 1)
+        self.assertRaises(
+            TypeError,
+            KIF_Object._preprocess_optional_arg_kif_object_class, int, 1)
+        self.assertIsNone(
+            KIF_Object._preprocess_optional_arg_kif_object_class(None, 1))
+        self.assertEqual(
+            KIF_Object._preprocess_optional_arg_kif_object_class(
+                None, 1, Statement), Statement)
+        self.assertEqual(
+            KIF_Object._preprocess_optional_arg_kif_object_class(
+                Item, 1, Statement), Item)
 
     def test__check_arg_datetime(self):
         self.assertRaises(TypeError, KIF_Object._check_arg_datetime, 0)
@@ -235,11 +313,53 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(Item('x').is_data_value())
         self.assertFalse(Item('x').test_data_value())
 
+    def test_is_data_value_template(self):
+        self.assertTrue(
+            IRI_Template(Variable('x')).is_data_value_template())
+        self.assertTrue(
+            IRI_Template(Variable('x')).test_data_value_template())
+        self.assertFalse(
+            ItemTemplate(Variable('x')).is_data_value_template())
+        self.assertFalse(
+            ItemTemplate(Variable('x')).test_data_value_template())
+
+    def test_is_data_value_variable(self):
+        self.assertTrue(DataValueVariable('x').is_data_value_variable())
+        self.assertTrue(DataValueVariable('x').test_data_value_variable())
+        self.assertTrue(IRI_Variable('x').is_data_value_variable())
+        self.assertTrue(IRI_Variable('x').test_data_value_variable())
+        self.assertFalse(ItemVariable('x').is_data_value_variable())
+        self.assertFalse(ItemVariable('x').test_data_value_variable())
+
     def test_is_deep_data_value(self):
         self.assertTrue(Quantity(0).is_deep_data_value())
         self.assertTrue(Quantity(0).test_deep_data_value())
         self.assertFalse(String('x').is_deep_data_value())
         self.assertFalse(String('x').test_deep_data_value())
+
+    def test_is_deep_data_value_template(self):
+        self.assertTrue(
+            QuantityTemplate(Variable('x')).is_deep_data_value_template())
+        self.assertTrue(
+            QuantityTemplate(Variable('x')).test_deep_data_value_template())
+        self.assertFalse(
+            StringTemplate(Variable('x')).is_deep_data_value_template())
+        self.assertFalse(
+            StringTemplate(Variable('x')).test_deep_data_value_template())
+
+    def test_is_deep_data_value_variable(self):
+        self.assertTrue(
+            DeepDataValueVariable('x').is_deep_data_value_variable())
+        self.assertTrue(
+            DeepDataValueVariable('x').test_deep_data_value_variable())
+        self.assertTrue(
+            QuantityVariable('x').is_deep_data_value_variable())
+        self.assertTrue(
+            QuantityVariable('x').test_deep_data_value_variable())
+        self.assertFalse(ItemVariable('x').is_deep_data_value_variable())
+        self.assertFalse(ItemVariable('x').test_deep_data_value_variable())
+        self.assertFalse(StringVariable('x').is_deep_data_value_variable())
+        self.assertFalse(StringVariable('x').test_deep_data_value_variable())
 
     def test_is_deprecated_rank(self):
         self.assertTrue(Deprecated.is_deprecated_rank())
@@ -271,6 +391,20 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(Item('x').is_entity_fingerprint())
         self.assertFalse(String('x').test_entity_fingerprint())
 
+    def test_is_entity_template(self):
+        self.assertTrue(ItemTemplate(Variable('x')).is_entity_template())
+        self.assertTrue(ItemTemplate(Variable('x')).test_entity_template())
+        self.assertFalse(StringTemplate(Variable('x')).is_entity_template())
+        self.assertFalse(StringTemplate(Variable('x')).test_entity_template())
+
+    def test_is_entity_variable(self):
+        self.assertTrue(EntityVariable('x').is_entity_variable())
+        self.assertTrue(EntityVariable('x').test_entity_variable())
+        self.assertTrue(ItemVariable('x').is_entity_variable())
+        self.assertTrue(ItemVariable('x').test_entity_variable())
+        self.assertFalse(StringVariable('x').is_entity_variable())
+        self.assertFalse(StringVariable('x').test_entity_variable())
+
     def test_is_external_id(self):
         self.assertTrue(ExternalId('x').is_external_id())
         self.assertTrue(ExternalId('x').test_external_id())
@@ -282,6 +416,22 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertTrue(ExternalIdDatatype().test_external_id_datatype())
         self.assertFalse(ItemDatatype().is_external_id_datatype())
         self.assertFalse(Item('x').test_external_id_datatype())
+
+    def test_is_external_id_template(self):
+        self.assertTrue(
+            ExternalIdTemplate(Variable('x')).is_external_id_template())
+        self.assertTrue(
+            ExternalIdTemplate(Variable('x')).test_external_id_template())
+        self.assertFalse(
+            StringTemplate(Variable('x')).is_external_id_template())
+        self.assertFalse(
+            StringTemplate(Variable('x')).test_external_id_template())
+
+    def test_is_external_id_variable(self):
+        self.assertTrue(ExternalIdVariable('x').is_external_id_variable())
+        self.assertTrue(ExternalIdVariable('x').test_external_id_variable())
+        self.assertFalse(StringVariable('x').is_external_id_variable())
+        self.assertFalse(StringVariable('x').test_external_id_variable())
 
     def test_is_filter_pattern(self):
         self.assertTrue(FilterPattern().is_filter_pattern())
@@ -307,11 +457,29 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(PropertyDatatype().is_iri_datatype())
         self.assertFalse(Item('x').test_iri_datatype())
 
+    def test_is_iri_template(self):
+        self.assertTrue(IRI_Template(Variable('x')).is_iri_template())
+        self.assertTrue(IRI_Template(Variable('x')).test_iri_template())
+        self.assertFalse(StringTemplate(Variable('x')).is_iri_template())
+        self.assertFalse(StringTemplate(Variable('x')).test_iri_template())
+
+    def test_is_iri_variable(self):
+        self.assertTrue(IRI_Variable('x').is_iri_variable())
+        self.assertTrue(IRI_Variable('x').test_iri_variable())
+        self.assertFalse(StringVariable('x').is_iri_variable())
+        self.assertFalse(StringVariable('x').test_iri_variable())
+
     def test_is_item(self):
         self.assertTrue(Item('x').is_item())
         self.assertTrue(Item('x').test_item())
         self.assertFalse(String('x').is_item())
         self.assertFalse(String('x').test_item())
+
+    def test_is_item_datatype(self):
+        self.assertTrue(ItemDatatype().is_item_datatype())
+        self.assertTrue(ItemDatatype().test_item_datatype())
+        self.assertFalse(PropertyDatatype().is_item_datatype())
+        self.assertFalse(Item('x').test_item_datatype())
 
     def test_is_item_descriptor(self):
         self.assertTrue(ItemDescriptor().is_item_descriptor())
@@ -319,11 +487,17 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(Item('x').is_item_descriptor())
         self.assertFalse(PropertyDescriptor().test_item_descriptor())
 
-    def test_is_item_datatype(self):
-        self.assertTrue(ItemDatatype().is_item_datatype())
-        self.assertTrue(ItemDatatype().test_item_datatype())
-        self.assertFalse(PropertyDatatype().is_item_datatype())
-        self.assertFalse(Item('x').test_item_datatype())
+    def test_is_item_template(self):
+        self.assertTrue(ItemTemplate(Variable('x')).is_item_template())
+        self.assertTrue(ItemTemplate(Variable('x')).test_item_template())
+        self.assertFalse(StringTemplate(Variable('x')).is_item_template())
+        self.assertFalse(StringTemplate(Variable('x')).test_item_template())
+
+    def test_is_item_variable(self):
+        self.assertTrue(ItemVariable('x').is_item_variable())
+        self.assertTrue(ItemVariable('x').test_item_variable())
+        self.assertFalse(StringVariable('x').is_item_variable())
+        self.assertFalse(StringVariable('x').test_item_variable())
 
     def test_is_lexeme(self):
         self.assertTrue(Lexeme('x').is_lexeme())
@@ -345,12 +519,52 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(String('x').is_lexeme_descriptor())
         self.assertFalse(String('x').test_lexeme_descriptor())
 
+    def test_is_lexeme_template(self):
+        self.assertTrue(LexemeTemplate(Variable('x')).is_lexeme_template())
+        self.assertTrue(LexemeTemplate(Variable('x')).test_lexeme_template())
+        self.assertFalse(StringTemplate(Variable('x')).is_lexeme_template())
+        self.assertFalse(StringTemplate(Variable('x')).test_lexeme_template())
+
+    def test_is_lexeme_variable(self):
+        self.assertTrue(LexemeVariable('x').is_lexeme_variable())
+        self.assertTrue(LexemeVariable('x').test_lexeme_variable())
+        self.assertFalse(StringVariable('x').is_lexeme_variable())
+        self.assertFalse(StringVariable('x').test_lexeme_variable())
+
     def test_is_no_value_snak(self):
         snak = NoValueSnak(Property('x'))
         self.assertTrue(snak.is_no_value_snak())
         self.assertTrue(snak.test_no_value_snak())
         self.assertFalse(String('x').is_no_value_snak())
         self.assertFalse(String('x').test_no_value_snak())
+
+    def test_is_no_value_snak_template(self):
+        self.assertTrue(
+            NoValueSnakTemplate(
+                Variable('x')).is_no_value_snak_template())
+        self.assertTrue(
+            NoValueSnakTemplate(
+                Variable('x')).test_no_value_snak_template())
+        self.assertFalse(
+            ValueSnakTemplate(
+                *Variables('x', 'y')).is_no_value_snak_template())
+        self.assertFalse(
+            ValueSnakTemplate(
+                *Variables('x', 'y')).test_no_value_snak_template())
+
+    def test_is_no_value_snak_variable(self):
+        self.assertTrue(
+            NoValueSnakVariable('x').is_no_value_snak_variable())
+        self.assertTrue(
+            NoValueSnakVariable('x').test_no_value_snak_variable())
+        self.assertFalse(
+            SnakVariable('x').is_no_value_snak_variable())
+        self.assertFalse(
+            SnakVariable('x').test_no_value_snak_variable())
+        self.assertFalse(
+            SomeValueSnakVariable('x').is_no_value_snak_variable())
+        self.assertFalse(
+            SomeValueSnakVariable('x').test_no_value_snak_variable())
 
     def test_is_normal_rank(self):
         self.assertTrue(Normal.is_normal_rank())
@@ -403,6 +617,22 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(Item('x').is_property_fingerprint())
         self.assertFalse(String('x').test_property_fingerprint())
 
+    def test_is_property_template(self):
+        self.assertTrue(
+            PropertyTemplate(Variable('x')).is_property_template())
+        self.assertTrue(
+            PropertyTemplate(Variable('x')).test_property_template())
+        self.assertFalse(
+            StringTemplate(Variable('x')).is_property_template())
+        self.assertFalse(
+            StringTemplate(Variable('x')).test_property_template())
+
+    def test_is_property_variable(self):
+        self.assertTrue(PropertyVariable('x').is_property_variable())
+        self.assertTrue(PropertyVariable('x').test_property_variable())
+        self.assertFalse(StringVariable('x').is_property_variable())
+        self.assertFalse(StringVariable('x').test_property_variable())
+
     def test_is_quantity(self):
         self.assertTrue(Quantity(0).is_quantity())
         self.assertTrue(Quantity(0).test_quantity())
@@ -414,6 +644,22 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertTrue(QuantityDatatype().test_quantity_datatype())
         self.assertFalse(ItemDatatype().is_quantity_datatype())
         self.assertFalse(Item('x').test_quantity_datatype())
+
+    def test_is_quantity_template(self):
+        self.assertTrue(
+            QuantityTemplate(Variable('x')).is_quantity_template())
+        self.assertTrue(
+            QuantityTemplate(Variable('x')).test_quantity_template())
+        self.assertFalse(
+            ItemTemplate(Variable('x')).is_quantity_template())
+        self.assertFalse(
+            ItemTemplate(Variable('x')).test_quantity_template())
+
+    def test_is_quantity_variable(self):
+        self.assertTrue(QuantityVariable('x').is_quantity_variable())
+        self.assertTrue(QuantityVariable('x').test_quantity_variable())
+        self.assertFalse(ItemVariable('x').is_quantity_variable())
+        self.assertFalse(ItemVariable('x').test_quantity_variable())
 
     def test_is_rank(self):
         self.assertTrue(Preferred.is_rank())
@@ -442,6 +688,22 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(String('x').is_snak())
         self.assertFalse(String('x').test_snak())
 
+    def test_is_snak_template(self):
+        self.assertTrue(
+            SomeValueSnakTemplate(Variable('x')).is_snak_template())
+        self.assertTrue(
+            SomeValueSnakTemplate(Variable('x')).test_snak_template())
+        self.assertFalse(IRI_Template(Variable('x')).is_snak_template())
+        self.assertFalse(IRI_Template(Variable('x')).test_snak_template())
+
+    def test_is_snak_variable(self):
+        self.assertTrue(SnakVariable('x').is_snak_variable())
+        self.assertTrue(SnakVariable('x').test_snak_variable())
+        self.assertTrue(SomeValueSnakVariable('x').is_snak_variable())
+        self.assertTrue(SomeValueSnakVariable('x').test_snak_variable())
+        self.assertFalse(ItemVariable('x').is_snak_variable())
+        self.assertFalse(ItemVariable('x').test_snak_variable())
+
     def test_is_snak_set(self):
         snak = ValueSnak(Property('x'), Item('y'))
         self.assertTrue(SnakSet().is_snak_set())
@@ -455,6 +717,26 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(Quantity(0).is_shallow_data_value())
         self.assertFalse(Quantity(0).test_shallow_data_value())
 
+    def test_is_shallow_data_value_template(self):
+        self.assertTrue(
+            IRI_Template(Variable('x')).is_shallow_data_value_template())
+        self.assertTrue(
+            IRI_Template(Variable('x')).test_shallow_data_value_template())
+        self.assertFalse(
+            ItemTemplate(Variable('x')).is_shallow_data_value_template())
+        self.assertFalse(
+            ItemTemplate(Variable('x')).test_shallow_data_value_template())
+
+    def test_is_shallow_data_value_variable(self):
+        self.assertTrue(
+            ShallowDataValueVariable('x').is_shallow_data_value_variable())
+        self.assertTrue(
+            ShallowDataValueVariable('x').test_shallow_data_value_variable())
+        self.assertTrue(IRI_Variable('x').is_shallow_data_value_variable())
+        self.assertTrue(IRI_Variable('x').test_shallow_data_value_variable())
+        self.assertFalse(ItemVariable('x').is_shallow_data_value_variable())
+        self.assertFalse(ItemVariable('x').test_shallow_data_value_variable())
+
     def test_is_some_value_snak(self):
         snak = SomeValueSnak(Property('x'))
         self.assertTrue(snak.is_some_value_snak())
@@ -462,12 +744,50 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(String('x').is_some_value_snak())
         self.assertFalse(String('x').test_some_value_snak())
 
+    def test_is_some_value_snak_template(self):
+        self.assertTrue(
+            SomeValueSnakTemplate(
+                Variable('x')).is_some_value_snak_template())
+        self.assertTrue(
+            SomeValueSnakTemplate(
+                Variable('x')).test_some_value_snak_template())
+        self.assertFalse(
+            NoValueSnakTemplate(
+                Variable('x')).is_some_value_snak_template())
+        self.assertFalse(
+            NoValueSnakTemplate(
+                Variable('x')).test_some_value_snak_template())
+
+    def test_is_some_value_snak_variable(self):
+        self.assertTrue(
+            SomeValueSnakVariable('x').is_some_value_snak_variable())
+        self.assertTrue(
+            SomeValueSnakVariable('x').test_some_value_snak_variable())
+        self.assertFalse(
+            SnakVariable('x').is_some_value_snak_variable())
+        self.assertFalse(
+            SnakVariable('x').test_some_value_snak_variable())
+        self.assertFalse(
+            NoValueSnakVariable('x').is_some_value_snak_variable())
+        self.assertFalse(
+            NoValueSnakVariable('x').test_some_value_snak_variable())
+
     def test_is_statement(self):
         stmt = Statement(Item('x'), NoValueSnak(Property('y')))
         self.assertTrue(stmt.is_statement())
         self.assertTrue(stmt.test_statement())
         self.assertFalse(String('x').is_statement())
         self.assertFalse(String('x').test_statement())
+
+    def test_is_statement_template(self):
+        self.assertTrue(
+            StatementTemplate(*Variables('x', 'y')).is_statement_template())
+        self.assertFalse(
+            NoValueSnakTemplate(Variable('x')).is_statement_template())
+
+    def test_is_statement_variable(self):
+        self.assertTrue(StatementVariable('x').is_statement_variable())
+        self.assertFalse(NoValueSnakVariable('x').test_statement_variable())
 
     def test_is_string(self):
         self.assertTrue(String('x').is_string())
@@ -481,6 +801,22 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertTrue(ExternalIdDatatype().test_string_datatype())
         self.assertFalse(PropertyDatatype().is_string_datatype())
         self.assertFalse(Item('x').test_string_datatype())
+
+    def test_is_string_template(self):
+        self.assertTrue(StringTemplate(Variable('x')).is_string_template())
+        self.assertTrue(StringTemplate(Variable('x')).test_string_template())
+        self.assertFalse(ItemTemplate(Variable('x')).is_string_template())
+        self.assertFalse(ItemTemplate(Variable('x')).test_string_template())
+
+    def test_is_string_variable(self):
+        self.assertTrue(StringVariable('x').is_string_variable())
+        self.assertTrue(StringVariable('x').test_string_variable())
+        self.assertFalse(ItemVariable('x').is_string_variable())
+        self.assertFalse(ItemVariable('x').test_string_variable())
+
+    def test_is_template(self):
+        self.assertTrue(TextTemplate(Variable('x')).is_template())
+        self.assertFalse(String('x').is_template())
 
     def test_is_text(self):
         self.assertTrue(Text('').is_text())
@@ -501,6 +837,18 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(String('x').is_text_set())
         self.assertFalse(SnakSet().test_text_set())
 
+    def test_is_text_template(self):
+        self.assertTrue(TextTemplate(Variable('x')).is_text_template())
+        self.assertTrue(TextTemplate(Variable('x')).test_text_template())
+        self.assertFalse(ItemTemplate(Variable('x')).is_text_template())
+        self.assertFalse(ItemTemplate(Variable('x')).test_text_template())
+
+    def test_is_text_variable(self):
+        self.assertTrue(TextVariable('x').is_text_variable())
+        self.assertTrue(TextVariable('x').test_text_variable())
+        self.assertFalse(ItemVariable('x').is_text_variable())
+        self.assertFalse(ItemVariable('x').test_text_variable())
+
     def test_is_time(self):
         self.assertTrue(Time('2023-09-18').is_time())
         self.assertTrue(Time('2023-09-18').test_time())
@@ -513,9 +861,39 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertFalse(PropertyDatatype().is_time_datatype())
         self.assertFalse(Item('x').test_time_datatype())
 
+    def test_is_time_template(self):
+        self.assertTrue(TimeTemplate(Variable('x')).is_time_template())
+        self.assertTrue(TimeTemplate(Variable('x')).test_time_template())
+        self.assertFalse(ItemTemplate(Variable('x')).is_time_template())
+        self.assertFalse(ItemTemplate(Variable('x')).test_time_template())
+
+    def test_is_time_variable(self):
+        self.assertTrue(TimeVariable('x').is_time_variable())
+        self.assertTrue(TimeVariable('x').test_time_variable())
+        self.assertFalse(ItemVariable('x').is_time_variable())
+        self.assertFalse(ItemVariable('x').test_time_variable())
+
     def test_is_value(self):
         self.assertTrue(Item('x').is_value())
         self.assertTrue(Item('x').test_value())
+        self.assertFalse(NoValueSnak(Property('x')).is_value())
+        self.assertFalse(NoValueSnak(Property('x')).test_value())
+
+    def test_is_value_template(self):
+        self.assertTrue(TimeTemplate(Variable('x')).is_value_template())
+        self.assertTrue(TimeTemplate(Variable('x')).test_value_template())
+        self.assertFalse(
+            NoValueSnakTemplate(Variable('x')).is_value_template())
+        self.assertFalse(
+            NoValueSnakTemplate(Variable('x')).test_value_template())
+
+    def test_is_value_variable(self):
+        self.assertTrue(ValueVariable('x').is_value_variable())
+        self.assertTrue(ValueVariable('x').test_value_variable())
+        self.assertTrue(ItemVariable('x').is_value_variable())
+        self.assertTrue(ItemVariable('x').test_value_variable())
+        self.assertFalse(NoValueSnakVariable('x').is_value_variable())
+        self.assertFalse(NoValueSnakVariable('x').test_value_variable())
 
     def test_is_value_set(self):
         value = Item('x')
@@ -530,6 +908,29 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertTrue(snak.test_value_snak())
         self.assertFalse(String('x').is_value_snak())
         self.assertFalse(String('x').test_value_snak())
+
+    def test_is_value_snak_template(self):
+        self.assertTrue(
+            ValueSnakTemplate(*Variables('x', 'y')).is_value_snak_template())
+        self.assertTrue(
+            ValueSnakTemplate(*Variables('x', 'y')).test_value_snak_template())
+        self.assertFalse(
+            NoValueSnakTemplate(Variable('x')).is_value_snak_template())
+        self.assertFalse(
+            NoValueSnakTemplate(Variable('x')).test_value_snak_template())
+
+    def test_is_value_snak_variable(self):
+        self.assertTrue(ValueSnakVariable('x').is_value_snak_variable())
+        self.assertTrue(ValueSnakVariable('x').test_value_snak_variable())
+        self.assertFalse(SnakVariable('x').is_value_snak_variable())
+        self.assertFalse(SnakVariable('x').test_value_snak_variable())
+        self.assertFalse(NoValueSnakVariable('x').is_value_snak_variable())
+        self.assertFalse(NoValueSnakVariable('x').test_value_snak_variable())
+
+    def test_is_variable(self):
+        self.assertTrue(Variable('x').is_variable())
+        self.assertTrue(ItemVariable('x').test_variable())
+        self.assertFalse(Item('x').is_variable())
 
 # -- test_check_ -----------------------------------------------------------
 
@@ -551,6 +952,21 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(IRI('x').check_data_value(), IRI('x'))
         self.assertRaises(TypeError, Item('x').check_data_value)
 
+    def test_check_data_value_template(self):
+        self.assertEqual(
+            IRI_Template(Variable('x')).check_data_value_template(),
+            IRI_Template(Variable('x')))
+        self.assertRaises(TypeError, IRI('x').check_data_value_template)
+
+    def test_check_data_value_variable(self):
+        self.assertEqual(
+            DataValueVariable('x').check_data_value_variable(),
+            DataValueVariable('x'))
+        self.assertEqual(
+            IRI_Variable('x').check_data_value_variable(), IRI_Variable('x'))
+        self.assertRaises(
+            TypeError, ItemVariable('x').check_data_value_variable)
+
     def test_check_datatype(self):
         self.assertEqual(IRI_Datatype().check_datatype(), IRI_Datatype())
         self.assertRaises(TypeError, Item('x').check_datatype)
@@ -558,6 +974,22 @@ class TestModelKIF_Object(kif_TestCase):
     def test_check_deep_data_value(self):
         self.assertEqual(Quantity(0).check_deep_data_value(), Quantity(0))
         self.assertRaises(TypeError, String('x').check_deep_data_value)
+
+    def test_check_deep_data_value_template(self):
+        self.assertEqual(
+            QuantityTemplate(Variable('x')).check_deep_data_value_template(),
+            QuantityTemplate(Variable('x')))
+        self.assertRaises(TypeError, IRI('x').check_deep_data_value_template)
+
+    def test_check_deep_data_value_variable(self):
+        self.assertEqual(
+            DeepDataValueVariable('x').check_deep_data_value_variable(),
+            DeepDataValueVariable('x'))
+        self.assertEqual(
+            QuantityVariable('x').check_deep_data_value_variable(),
+            QuantityVariable('x'))
+        self.assertRaises(
+            TypeError, ItemVariable('x').check_deep_data_value_variable)
 
     def test_check_deprecated_rank(self):
         self.assertEqual(Deprecated.check_deprecated_rank(), Deprecated)
@@ -577,6 +1009,20 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(fp.check_entity_fingerprint(), fp)
         self.assertRaises(TypeError, String('x').check_entity_fingerprint)
 
+    def test_check_entity_template(self):
+        self.assertEqual(
+            ItemTemplate(Variable('x')).check_entity_template(),
+            ItemTemplate(Variable('x')))
+        self.assertRaises(
+            TypeError, IRI_Template(Variable('x')).check_entity_template)
+
+    def test_check_entity_variable(self):
+        self.assertEqual(
+            EntityVariable('x').check_entity_variable(), EntityVariable('x'))
+        self.assertEqual(
+            ItemVariable('x').check_entity_variable(), ItemVariable('x'))
+        self.assertRaises(TypeError, IRI_Variable('x').check_entity_variable)
+
     def test_check_external_id(self):
         self.assertEqual(
             ExternalId('x').check_external_id(), ExternalId('x'))
@@ -588,6 +1034,21 @@ class TestModelKIF_Object(kif_TestCase):
             ExternalIdDatatype())
         self.assertRaises(
             TypeError, ItemDatatype().check_external_id_datatype)
+
+    def test_check_external_id_template(self):
+        self.assertEqual(
+            ExternalIdTemplate(Variable('x')).check_external_id_template(),
+            ExternalIdTemplate(Variable('x')))
+        self.assertRaises(
+            TypeError,
+            ItemTemplate(Variable('x')).check_external_id_template)
+
+    def test_check_external_id_variable(self):
+        self.assertEqual(
+            ExternalIdVariable('x').check_external_id_variable(),
+            ExternalIdVariable('x'))
+        self.assertRaises(
+            TypeError, ItemVariable('x').check_external_id_variable)
 
     def test_check_filter_pattern(self):
         self.assertEqual(
@@ -608,6 +1069,18 @@ class TestModelKIF_Object(kif_TestCase):
             IRI_Datatype().check_iri_datatype(), IRI_Datatype())
         self.assertRaises(TypeError, Item('x').check_iri_datatype)
 
+    def test_check_iri_template(self):
+        self.assertEqual(
+            IRI_Template(Variable('x')).check_iri_template(),
+            IRI_Template(Variable('x')))
+        self.assertRaises(
+            TypeError, ItemTemplate(Variable('x')).check_iri_template)
+
+    def test_check_iri_variable(self):
+        self.assertEqual(
+            IRI_Variable('x').check_iri_variable(), IRI_Variable('x'))
+        self.assertRaises(TypeError, ItemVariable('x').check_iri_variable)
+
     def test_check_item(self):
         self.assertEqual(Item('x').check_item(), Item('x'))
         self.assertRaises(TypeError, String('x').check_item)
@@ -621,6 +1094,18 @@ class TestModelKIF_Object(kif_TestCase):
             ItemDescriptor().check_item_descriptor(), ItemDescriptor())
         self.assertRaises(
             TypeError, PropertyDescriptor().check_item_descriptor)
+
+    def test_check_item_template(self):
+        self.assertEqual(
+            ItemTemplate(Variable('x')).check_item_template(),
+            ItemTemplate(Variable('x')))
+        self.assertRaises(
+            TypeError, IRI_Template(Variable('x')).check_item_template)
+
+    def test_check_item_variable(self):
+        self.assertEqual(
+            ItemVariable('x').check_item_variable(), ItemVariable('x'))
+        self.assertRaises(TypeError, IRI_Variable('x').check_item_variable)
 
     def test_check_kif_object(self):
         self.assertEqual(Item('x').check_kif_object(), Item('x'))
@@ -645,10 +1130,39 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(desc.check_lexeme_descriptor(), desc)
         self.assertRaises(TypeError, Item('x').check_lexeme_descriptor)
 
+    def test_check_lexeme_template(self):
+        self.assertEqual(
+            LexemeTemplate(Variable('x')).check_lexeme_template(),
+            LexemeTemplate(Variable('x')))
+        self.assertRaises(
+            TypeError, ItemTemplate(Variable('x')).check_lexeme_template)
+
+    def test_check_lexeme_variable(self):
+        self.assertEqual(
+            LexemeVariable('x').check_lexeme_variable(), LexemeVariable('x'))
+        self.assertRaises(
+            TypeError, ItemVariable('x').check_lexeme_variable)
+
     def test_check_no_value_snak(self):
         snak = NoValueSnak(Property('x'))
         self.assertEqual(snak.check_no_value_snak(), snak)
         self.assertRaises(TypeError, String('x').check_no_value_snak)
+
+    def test_check_no_value_snak_template(self):
+        self.assertEqual(
+            NoValueSnakTemplate(Variable('x')).check_no_value_snak_template(),
+            NoValueSnakTemplate(Variable('x')))
+        self.assertRaises(
+            TypeError,
+            SomeValueSnakTemplate(
+                Variable('x')).check_no_value_snak_template)
+
+    def test_check_no_value_snak_variable(self):
+        self.assertEqual(
+            NoValueSnakVariable('x').check_no_value_snak_variable(),
+            NoValueSnakVariable('x'))
+        self.assertRaises(
+            TypeError, SnakVariable('x').check_no_value_snak_variable)
 
     def test_check_normal_rank(self):
         self.assertEqual(Normal.check_normal_rank(), Normal)
@@ -692,6 +1206,19 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertRaises(
             TypeError, EntityFingerprint(Item('x')).check_property_fingerprint)
 
+    def test_check_property_template(self):
+        self.assertEqual(
+            PropertyTemplate(Variable('x')).check_property_template(),
+            PropertyTemplate(Variable('x')))
+        self.assertRaises(
+            TypeError, ItemTemplate(Variable('x')).check_property_template)
+
+    def test_check_property_variable(self):
+        self.assertEqual(
+            PropertyVariable('x').check_property_variable(),
+            PropertyVariable('x'))
+        self.assertRaises(TypeError, ItemVariable('x').check_property_variable)
+
     def test_check_quantity(self):
         self.assertEqual(Quantity(0).check_quantity(), Quantity(0))
         self.assertRaises(TypeError, String('x').check_quantity)
@@ -700,6 +1227,20 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(
             QuantityDatatype().check_quantity_datatype(), QuantityDatatype())
         self.assertRaises(TypeError, String('x').check_quantity_datatype)
+
+    def test_check_quantity_template(self):
+        self.assertEqual(
+            QuantityTemplate(Variable('x')).check_quantity_template(),
+            QuantityTemplate(Variable('x')))
+        self.assertRaises(
+            TypeError, TimeTemplate(Variable('x')).check_quantity_template)
+
+    def test_check_quantity_variable(self):
+        self.assertEqual(
+            QuantityVariable('x').check_quantity_variable(),
+            QuantityVariable('x'))
+        self.assertRaises(
+            TypeError, TimeVariable('x').check_quantity_variable)
 
     def test_check_rank(self):
         self.assertEqual(Preferred.check_rank(), Preferred)
@@ -720,6 +1261,24 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(snak.check_snak(), snak)
         self.assertRaises(TypeError, String('x').check_snak)
 
+    def test_check_snak_template(self):
+        self.assertEqual(
+            NoValueSnakTemplate(Variable('x')).check_snak_template(),
+            NoValueSnakTemplate(Variable('x')))
+        self.assertRaises(
+            TypeError,
+            IRI_Template(Variable('x')).check_snak_template)
+
+    def test_check_snak_variable(self):
+        self.assertEqual(
+            SnakVariable('x').check_snak_variable(),
+            SnakVariable('x'))
+        self.assertEqual(
+            NoValueSnakVariable('x').check_snak_variable(),
+            NoValueSnakVariable('x'))
+        self.assertRaises(
+            TypeError, ItemVariable('x').check_snak_variable)
+
     def test_check_snak_set(self):
         snak_set = SnakSet(ValueSnak(Property('x'), Item('y')))
         self.assertEqual(snak_set.check_snak_set(), snak_set)
@@ -730,25 +1289,101 @@ class TestModelKIF_Object(kif_TestCase):
             ExternalId('').check_shallow_data_value(), ExternalId(''))
         self.assertRaises(TypeError, Item('x').check_shallow_data_value)
 
+    def test_check_shallow_data_value_template(self):
+        self.assertEqual(
+            StringTemplate(
+                Variable('x')).check_shallow_data_value_template(),
+            StringTemplate(Variable('x')))
+        self.assertRaises(
+            TypeError, ItemTemplate(
+                Variable('x')).check_shallow_data_value_template)
+
+    def test_check_shallow_data_value_variable(self):
+        self.assertEqual(
+            ShallowDataValueVariable(
+                'x').check_shallow_data_value_variable(),
+            ShallowDataValueVariable('x'))
+        self.assertRaises(
+            TypeError, ItemVariable('x').check_shallow_data_value_variable)
+
     def test_check_some_value_snak(self):
         snak = SomeValueSnak(Property('x'))
         self.assertEqual(snak.check_some_value_snak(), snak)
         self.assertRaises(TypeError, String('x').check_some_value_snak)
+
+    def test_check_some_value_snak_template(self):
+        self.assertEqual(
+            SomeValueSnakTemplate(
+                Variable('x')).check_some_value_snak_template(),
+            SomeValueSnakTemplate(Variable('x')))
+        self.assertRaises(
+            TypeError,
+            NoValueSnakTemplate(
+                Variable('x')).check_some_value_snak_template)
+
+    def test_check_some_value_snak_variable(self):
+        self.assertEqual(
+            SomeValueSnakVariable('x').check_some_value_snak_variable(),
+            SomeValueSnakVariable('x'))
+        self.assertRaises(
+            TypeError, SnakVariable('x').check_some_value_snak_variable)
 
     def test_check_statement(self):
         stmt = Statement(Item('x'), NoValueSnak(Property('y')))
         self.assertEqual(stmt.check_statement(), stmt)
         self.assertRaises(TypeError, String('x').check_statement)
 
+    def test_check_statement_template(self):
+        self.assertEqual(
+            StatementTemplate(
+                *Variables('x', 'y')).check_statement_template(),
+            StatementTemplate(*Variables('x', 'y')))
+        self.assertRaises(
+            TypeError, ValueSnakTemplate(
+                *Variables('x', 'y')).check_statement_template)
+
+    def test_check_statement_variable(self):
+        self.assertEqual(
+            StatementVariable('x').check_statement_variable(),
+            StatementVariable('x'))
+        self.assertRaises(
+            TypeError, ItemVariable('x').check_statement_variable)
+
     def test_check_string(self):
         self.assertEqual(String('x').check_string(), String('x'))
         self.assertEqual(ExternalId('x').check_string(), ExternalId('x'))
         self.assertRaises(TypeError, Item('x').check_string)
 
+    def test_check_string_template(self):
+        self.assertEqual(
+            StringTemplate(Variable('x')).check_string_template(),
+            StringTemplate(Variable('x')))
+        self.assertEqual(
+            ExternalIdTemplate(Variable('x')).check_string_template(),
+            ExternalIdTemplate(Variable('x')))
+        self.assertRaises(
+            TypeError, ItemTemplate(Variable('x')).check_string_template)
+
+    def test_check_string_variable(self):
+        self.assertEqual(
+            StringVariable('x').check_string_variable(),
+            StringVariable('x'))
+        self.assertEqual(
+            ExternalIdVariable('x').check_string_variable(),
+            ExternalIdVariable('x'))
+        self.assertRaises(TypeError, ItemVariable('x').check_string_variable)
+
     def test_check_string_datatype(self):
         self.assertEqual(
             StringDatatype().check_string_datatype(), StringDatatype())
         self.assertRaises(TypeError, ItemDatatype().check_string_datatype)
+
+    def test_check_template(self):
+        self.assertEqual(
+            StringTemplate(Variable('x')).check_template(),
+            StringTemplate(Variable('x')))
+        self.assertRaises(TypeError, String('abc').check_template)
+        self.assertRaises(TypeError, String('abc').check_string_template)
 
     def test_check_text(self):
         self.assertEqual(Text('abc').check_text(), Text('abc'))
@@ -763,6 +1398,18 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(texts.check_text_set(), texts)
         self.assertRaises(TypeError, Text('abc').check_text_set)
 
+    def test_check_text_template(self):
+        self.assertEqual(
+            TextTemplate(Variable('x')).check_text_template(),
+            TextTemplate(Variable('x')))
+        self.assertRaises(
+            TypeError, ItemTemplate(Variable('x')).check_text_template)
+
+    def test_check_text_variable(self):
+        self.assertEqual(
+            TextVariable('x').check_text_variable(), TextVariable('x'))
+        self.assertRaises(TypeError, ItemVariable('x').check_text_variable)
+
     def test_check_time(self):
         self.assertEqual(Time('2023-09-18').check_time(), Time('2023-09-18'))
         self.assertRaises(TypeError, String('2023-09-18').check_time)
@@ -772,10 +1419,39 @@ class TestModelKIF_Object(kif_TestCase):
             TimeDatatype().check_time_datatype(), TimeDatatype())
         self.assertRaises(TypeError, ItemDatatype().check_time_datatype)
 
+    def test_check_time_template(self):
+        self.assertEqual(
+            TimeTemplate(Variable('x')).check_time_template(),
+            TimeTemplate(Variable('x')))
+        self.assertRaises(
+            TypeError, ItemTemplate(Variable('x')).check_time_template)
+
+    def test_check_time_variable(self):
+        self.assertEqual(
+            TimeVariable('x').check_time_variable(), TimeVariable('x'))
+        self.assertRaises(TypeError, ItemVariable('x').check_time_variable)
+
     def test_check_value(self):
         self.assertEqual(Item('x').check_value(), Item('x'))
         stmt = Statement(Item('x'), NoValueSnak(Property('y')))
         self.assertRaises(TypeError, stmt.check_value)
+
+    def test_check_value_template(self):
+        self.assertEqual(
+            ItemTemplate(Variable('x')).check_value_template(),
+            ItemTemplate(Variable('x')))
+        self.assertRaises(
+            TypeError,
+            NoValueSnakTemplate(Variable('x')).check_value_template)
+
+    def test_check_value_variable(self):
+        self.assertEqual(
+            ValueVariable('x').check_value_variable(), ValueVariable('x'))
+        self.assertEqual(
+            ItemVariable('x').check_value_variable(), ItemVariable('x'))
+        self.assertEqual(
+            StringVariable('x').check_value_variable(), StringVariable('x'))
+        self.assertRaises(TypeError, SnakVariable('x').check_value_variable)
 
     def test_check_value_set(self):
         values = ValueSet(Item('abc'), Text('def'))
@@ -786,6 +1462,29 @@ class TestModelKIF_Object(kif_TestCase):
         snak = ValueSnak(Property('x'), Item('y'))
         self.assertEqual(snak.check_value_snak(), snak)
         self.assertRaises(TypeError, String('x').check_value_snak)
+
+    def test_check_value_snak_template(self):
+        self.assertEqual(
+            ValueSnakTemplate(
+                *Variables('x', 'y')).check_value_snak_template(),
+            ValueSnakTemplate(*Variables('x', 'y')))
+        self.assertRaises(
+            TypeError,
+            SomeValueSnakTemplate(
+                Variable('x')).check_value_snak_template)
+
+    def test_check_value_snak_variable(self):
+        self.assertEqual(
+            ValueSnakVariable('x').check_value_snak_variable(),
+            ValueSnakVariable('x'))
+        self.assertRaises(
+            TypeError, SnakVariable('x').check_value_snak_variable)
+
+    def test_check_variable(self):
+        self.assertEqual(Variable('x').check_variable(), Variable('x'))
+        self.assertEqual(
+            ItemVariable('x').check_variable(), ItemVariable('x'))
+        self.assertRaises(TypeError, Item('x'), Variable('x'))
 
 # -- test_unpack_ ----------------------------------------------------------
 
@@ -815,6 +1514,14 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(IRI('x').unpack_data_value(), ('x',))
         self.assertRaises(TypeError, Item('x').unpack_data_value)
 
+    def test_unpack_data_value_template(self):
+        self.assertEqual(
+            IRI_Template(Variable('x')).unpack_data_value_template(),
+            (StringVariable('x'),))
+        self.assertRaises(
+            TypeError, ItemTemplate(
+                Variable('x')).unpack_data_value_template)
+
     def test_unpack_datatype(self):
         self.assertEqual(IRI_Datatype().unpack_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_datatype)
@@ -823,6 +1530,14 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(
             Quantity(0).unpack_deep_data_value(), (0, None, None, None))
         self.assertRaises(TypeError, String('x').unpack_deep_data_value)
+
+    def test_unpack_deep_data_value_template(self):
+        self.assertEqual(
+            QuantityTemplate(Variable('x')).unpack_deep_data_value_template(),
+            (QuantityVariable('x'), None, None, None))
+        self.assertRaises(
+            TypeError, ItemTemplate(
+                Variable('x')).unpack_deep_data_value_template)
 
     def test_unpack_deprecated_rank(self):
         self.assertEqual(Deprecated.unpack_deprecated_rank(), ())
@@ -838,6 +1553,13 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(Item('x').unpack_entity(), (IRI('x'),))
         self.assertRaises(TypeError, String('x').unpack_entity)
 
+    def test_unpack_entity_template(self):
+        self.assertEqual(
+            ItemTemplate(Variable('x')).unpack_entity_template(),
+            (IRI_Variable('x'),))
+        self.assertRaises(
+            TypeError, StringTemplate(Variable('x')).unpack_entity_template)
+
     def test_unpack_entity_fingerprint(self):
         fp = EntityFingerprint(Item('x'))
         self.assertEqual(fp.unpack_entity_fingerprint(), (Item('x'),))
@@ -851,6 +1573,14 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(
             ExternalIdDatatype().unpack_external_id_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_external_id_datatype)
+
+    def test_unpack_external_id_template(self):
+        self.assertEqual(
+            ExternalIdTemplate(Variable('x')).unpack_external_id_template(),
+            (StringVariable('x'),))
+        self.assertRaises(
+            TypeError,
+            StringTemplate(Variable('x')).unpack_external_id_template)
 
     def test_unpack_filter_pattern(self):
         pat = FilterPattern(
@@ -881,6 +1611,13 @@ class TestModelKIF_Object(kif_TestCase):
             Text('x'), TextSet('z', 'y'), Text('w')))
         self.assertRaises(TypeError, String('x').unpack_item_descriptor)
 
+    def test_unpack_item_template(self):
+        self.assertEqual(
+            ItemTemplate(Variable('x')).unpack_item_template(),
+            (IRI_Variable('x'),))
+        self.assertRaises(
+            TypeError, StringTemplate(Variable('x')).unpack_item_template)
+
     def test_unpack_iri(self):
         self.assertEqual(IRI('x').unpack_iri(), ('x',))
         self.assertRaises(TypeError, Item('x').unpack_iri)
@@ -888,6 +1625,13 @@ class TestModelKIF_Object(kif_TestCase):
     def test_unpack_iri_datatype(self):
         self.assertEqual(IRI_Datatype().unpack_iri_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_iri_datatype)
+
+    def test_unpack_iri_template(self):
+        self.assertEqual(
+            IRI_Template(Variable('x')).unpack_iri_template(),
+            (StringVariable('x'),))
+        self.assertRaises(
+            TypeError, ItemTemplate(Variable('x')).unpack_iri_template)
 
     def test_unpack_kif_object(self):
         self.assertEqual(Item('x').unpack_kif_object(), (IRI('x'),))
@@ -912,10 +1656,27 @@ class TestModelKIF_Object(kif_TestCase):
             Text('x'), Item('y'), Item('z')))
         self.assertRaises(TypeError, String('x').unpack_lexeme_descriptor)
 
+    def test_unpack_lexeme_template(self):
+        self.assertEqual(
+            LexemeTemplate(Variable('x')).unpack_lexeme_template(),
+            (IRI_Variable('x'),))
+        self.assertRaises(
+            TypeError,
+            ItemTemplate(Variable('x')).unpack_lexeme_template)
+
     def test_unpack_no_value_snak(self):
         snak = NoValueSnak(Property('x'))
         self.assertEqual(snak.unpack_no_value_snak(), (Property('x'),))
         self.assertRaises(TypeError, String('x').unpack_no_value_snak)
+
+    def test_unpack_no_value_snak_template(self):
+        self.assertEqual(
+            NoValueSnakTemplate(
+                Variable('x')).unpack_no_value_snak_template(),
+            (PropertyVariable('x'),))
+        self.assertRaises(
+            TypeError, ItemTemplate(
+                Variable('x')).unpack_no_value_snak_template)
 
     def test_unpack_normal_rank(self):
         self.assertEqual(Normal.unpack_normal_rank(), ())
@@ -960,6 +1721,13 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(fp.unpack_property_fingerprint(), (Property('x'),))
         self.assertRaises(TypeError, String('x').unpack_property_fingerprint)
 
+    def test_unpack_property_template(self):
+        self.assertEqual(
+            PropertyTemplate(Variable('x')).unpack_property_template(),
+            (IRI_Variable('x'),))
+        self.assertRaises(
+            TypeError, ItemTemplate(Variable('x')).unpack_property_template)
+
     def test_unpack_quantity(self):
         self.assertEqual(Quantity(0).unpack_quantity(),
                          (Decimal('0'), None, None, None))
@@ -968,6 +1736,13 @@ class TestModelKIF_Object(kif_TestCase):
     def test_unpack_quantity_datatype(self):
         self.assertEqual(QuantityDatatype().unpack_quantity_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_quantity_datatype)
+
+    def test_unpack_quantity_template(self):
+        self.assertEqual(
+            QuantityTemplate(Variable('x')).unpack_quantity_template(),
+            (QuantityVariable('x'), None, None, None))
+        self.assertRaises(
+            TypeError, ItemTemplate(Variable('x')).unpack_quantity_template)
 
     def test_unpack_rank(self):
         self.assertEqual(Preferred.unpack_rank(), ())
@@ -999,11 +1774,27 @@ class TestModelKIF_Object(kif_TestCase):
         self.assertEqual(snaks.unpack_snak_set(), (snak2, snak1))
         self.assertRaises(TypeError, String('x').unpack_snak_set)
 
+    def test_unpack_snak_template(self):
+        snak = ValueSnakTemplate(Variable('x'), Variable('y'))
+        self.assertEqual(
+            snak.unpack_snak_template(),
+            (PropertyVariable('x'), ValueVariable('y')))
+        self.assertRaises(
+            TypeError, ItemTemplate(Variable('x')).unpack_snak_template)
+
     def test_unpack_shallow_data_value(self):
         self.assertEqual(String('abc').unpack_shallow_data_value(), ('abc',))
         self.assertEqual(
             Text('abc').unpack_shallow_data_value(), ('abc', 'en'))
         self.assertRaises(TypeError, Quantity(0).unpack_shallow_data_value)
+
+    def test_unpack_shallow_data_value_template(self):
+        self.assertEqual(
+            StringTemplate(
+                StringVariable('x')).unpack_shallow_data_value_template(),
+            (StringVariable('x'),))
+        self.assertRaises(TypeError, QuantityTemplate(
+            QuantityVariable('x')).unpack_shallow_data_value_template)
 
     def test_unpack_some_value_snak(self):
         snak = SomeValueSnak(Property('x'))
@@ -1066,6 +1857,13 @@ class TestModelKIF_Object(kif_TestCase):
         snak = ValueSnak(Property('x'), Item('y'))
         self.assertEqual(snak.unpack_value_snak(), (Property('x'), Item('y')))
         self.assertRaises(TypeError, String('x').unpack_value_snak)
+
+# == misc ==================================================================
+
+    def test__repr_markdown_(self):
+        self.assertEqual(
+            Item('x')._repr_markdown_(),
+            '(**Item** [x](http://x))')
 
 # == Codecs ================================================================
 

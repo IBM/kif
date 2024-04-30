@@ -75,7 +75,7 @@ class WikidataEntityRegistry(Cache):
     def _get_entity(
             self,
             entity: Entity,
-            **kwargs: Any,
+            **kwargs: Any
     ) -> Entity:
         for k, v in kwargs.items():
             if v is not None:

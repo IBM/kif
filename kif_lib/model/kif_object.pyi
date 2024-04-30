@@ -24,44 +24,85 @@ from .fingerprint import (
     TPropertyFingerprint,
 )
 from .kif_object_set import KIF_ObjectSet, T_KIF_ObjectSet
-from .pattern import Pattern
+from .pattern import Pattern, Template, Variable
 from .pattern_deprecated import FilterPattern
 from .rank import DeprecatedRank, NormalRank, PreferredRank, Rank
 from .reference_record import ReferenceRecord
 from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
-from .snak import NoValueSnak, Snak, SomeValueSnak, ValueSnak
+from .snak import (
+    NoValueSnak,
+    NoValueSnakTemplate,
+    NoValueSnakVariable,
+    Snak,
+    SnakTemplate,
+    SnakVariable,
+    SomeValueSnak,
+    SomeValueSnakTemplate,
+    SomeValueSnakVariable,
+    ValueSnak,
+    ValueSnakTemplate,
+    ValueSnakVariable,
+)
 from .snak_set import SnakSet, TSnakSet
-from .statement import Statement
+from .statement import Statement, StatementTemplate, StatementVariable
 from .value import (
     Datatype,
     DataValue,
+    DataValueTemplate,
+    DataValueVariable,
     DeepDataValue,
+    DeepDataValueTemplate,
+    DeepDataValueVariable,
     Entity,
+    EntityTemplate,
+    EntityVariable,
     ExternalId,
     ExternalIdDatatype,
+    ExternalIdTemplate,
+    ExternalIdVariable,
     IRI,
     IRI_Datatype,
+    IRI_Template,
+    IRI_Variable,
     Item,
     ItemDatatype,
+    ItemTemplate,
+    ItemVariable,
     Lexeme,
     LexemeDatatype,
+    LexemeTemplate,
+    LexemeVariable,
     Property,
     PropertyDatatype,
+    PropertyTemplate,
+    PropertyVariable,
     Quantity,
     QuantityDatatype,
+    QuantityTemplate,
+    QuantityVariable,
     ShallowDataValue,
+    ShallowDataValueTemplate,
+    ShallowDataValueVariable,
     String,
     StringDatatype,
+    StringTemplate,
+    StringVariable,
     T_IRI,
     TDatatype,
     Text,
     TextDatatype,
     TExternalId,
+    TextTemplate,
+    TextVariable,
     Time,
     TimeDatatype,
+    TimeTemplate,
+    TimeVariable,
     TString,
     TText,
     Value,
+    ValueTemplate,
+    ValueVariable,
 )
 from .value_set import TextSet, TTextSet, TValueSet, ValueSet
 
@@ -95,6 +136,48 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
 
     @classmethod
     def _isinstance_template_or_variable(cls, arg: Any) -> bool:
+        ...
+
+# -- kif_object_class ------------------------------------------------------
+
+    @classmethod
+    def _check_arg_kif_object_class(
+            cls,
+            arg: type['KIF_Object'],
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[type['KIF_Object'], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_kif_object_class(
+            cls,
+            arg: Optional[type['KIF_Object']],
+            default: Optional[type['KIF_Object']] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[type['KIF_Object']], NoReturn]:
+        ...
+
+    @classmethod
+    def _preprocess_arg_kif_object_class(
+            cls,
+            arg: type['KIF_Object'],
+            i: int,
+            function: Optional[Union[TCallable, str]] = ...
+    ) -> Union[type['KIF_Object'], NoReturn]:
+        ...
+
+    @classmethod
+    def _preprocess_optional_arg_kif_object_class(
+            cls,
+            arg: Optional[type['KIF_Object']],
+            i: int,
+            default: Optional[type['KIF_Object']] = ...,
+            function: Optional[Union[TCallable, str]] = ...
+    ) -> Union[Optional[type['KIF_Object']], NoReturn]:
         ...
 
 # -- datetime --------------------------------------------------------------
@@ -214,6 +297,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_arg_data_value_template(
+            cls,
+            arg: DataValueTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[DataValueTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_data_value_variable(
+            cls,
+            arg: DataValueVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[DataValueVariable, NoReturn]:
+        ...
+
+    @classmethod
     def _check_arg_datatype(
             cls,
             arg: TDatatype,
@@ -231,6 +334,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[DeepDataValue, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_deep_data_value_template(
+            cls,
+            arg: DeepDataValueTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[DeepDataValueTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_deep_data_value_variable(
+            cls,
+            arg: DeepDataValueVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[DeepDataValueVariable, NoReturn]:
         ...
 
     @classmethod
@@ -264,6 +387,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_arg_entity_template(
+            cls,
+            arg: EntityTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[EntityTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_entity_variable(
+            cls,
+            arg: EntityVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[EntityVariable, NoReturn]:
+        ...
+
+    @classmethod
     def _check_arg_entity_fingerprint(
             cls,
             arg: EntityFingerprint,
@@ -294,6 +437,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_arg_external_id_template(
+            cls,
+            arg: ExternalIdTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[ExternalIdTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_external_id_variable(
+            cls,
+            arg: ExternalIdVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[ExternalIdVariable, NoReturn]:
+        ...
+
+    @classmethod
     def _check_arg_filter_pattern(
             cls,
             arg: FilterPattern,
@@ -321,6 +484,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[IRI, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_iri_template(
+            cls,
+            arg: IRI_Template,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[IRI_Template, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_iri_variable(
+            cls,
+            arg: IRI_Variable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[IRI_Variable, NoReturn]:
         ...
 
     @classmethod
@@ -361,6 +544,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[ItemDescriptor, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_item_template(
+            cls,
+            arg: ItemTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[ItemTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_item_variable(
+            cls,
+            arg: ItemVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[ItemTemplate, NoReturn]:
         ...
 
     @classmethod
@@ -414,6 +617,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_arg_lexeme_template(
+            cls,
+            arg: LexemeTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[LexemeTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_lexeme_variable(
+            cls,
+            arg: LexemeVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[LexemeVariable, NoReturn]:
+        ...
+
+    @classmethod
     def _check_arg_no_value_snak(
             cls,
             arg: NoValueSnak,
@@ -421,6 +644,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[NoValueSnak, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_no_value_snak_template(
+            cls,
+            arg: NoValueSnakTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[NoValueSnakTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_no_value_snak_variable(
+            cls,
+            arg: NoValueSnakVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[NoValueSnakVariable, NoReturn]:
         ...
 
     @classmethod
@@ -484,6 +727,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_arg_property_template(
+            cls,
+            arg: PropertyTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[PropertyTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_property_variable(
+            cls,
+            arg: PropertyVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[PropertyVariable, NoReturn]:
+        ...
+
+    @classmethod
     def _check_arg_property_datatype(
             cls,
             arg: TDatatype,
@@ -534,6 +797,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_arg_quantity_template(
+            cls,
+            arg: QuantityTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[QuantityTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_quantity_variable(
+            cls,
+            arg: QuantityVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[QuantityVariable, NoReturn]:
+        ...
+
+    @classmethod
     def _check_arg_rank(
             cls,
             arg: Rank,
@@ -574,6 +857,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_arg_shallow_data_value_template(
+            cls,
+            arg: ShallowDataValueTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[ShallowDataValueTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_shallow_data_value_variable(
+            cls,
+            arg: ShallowDataValueVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[ShallowDataValueVariable, NoReturn]:
+        ...
+
+    @classmethod
     def _check_arg_snak(
             cls,
             arg: Snak,
@@ -581,6 +884,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[Snak, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_snak_template(
+            cls,
+            arg: SnakTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[SnakTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_snak_variable(
+            cls,
+            arg: SnakVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[SnakVariable, NoReturn]:
         ...
 
     @classmethod
@@ -604,6 +927,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_arg_some_value_snak_template(
+            cls,
+            arg: SomeValueSnakTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[SomeValueSnakTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_some_value_snak_variable(
+            cls,
+            arg: SomeValueSnakVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[SomeValueSnakVariable, NoReturn]:
+        ...
+
+    @classmethod
     def _check_arg_statement(
             cls,
             arg: Statement,
@@ -611,6 +954,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[Statement, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_statement_template(
+            cls,
+            arg: StatementTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[StatementTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_statement_variable(
+            cls,
+            arg: StatementVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[StatementVariable, NoReturn]:
         ...
 
     @classmethod
@@ -631,6 +994,36 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[StringDatatype, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_string_template(
+            cls,
+            arg: StringTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[StringTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_string_variable(
+            cls,
+            arg: StringVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[StringVariable, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_template(
+            cls,
+            arg: Template,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Template, NoReturn]:
         ...
 
     @classmethod
@@ -664,6 +1057,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_arg_text_template(
+            cls,
+            arg: TextTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[TextTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_text_variable(
+            cls,
+            arg: TextVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[TextVariable, NoReturn]:
+        ...
+
+    @classmethod
     def _check_arg_time(
             cls,
             arg: Time,
@@ -684,6 +1097,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_arg_time_template(
+            cls,
+            arg: TimeTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[TimeTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_time_variable(
+            cls,
+            arg: TimeVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[TimeVariable, NoReturn]:
+        ...
+
+    @classmethod
     def _check_arg_value(
             cls,
             arg: Value,
@@ -691,6 +1124,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[Value, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_value_template(
+            cls,
+            arg: ValueTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[ValueTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_value_variable(
+            cls,
+            arg: ValueVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[ValueVariable, NoReturn]:
         ...
 
     @classmethod
@@ -711,6 +1164,36 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[ValueSnak, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_value_snak_template(
+            cls,
+            arg: ValueSnakTemplate,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[ValueSnakTemplate, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_value_snak_variable(
+            cls,
+            arg: ValueSnakVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[ValueSnakVariable, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_variable(
+            cls,
+            arg: Variable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Variable, NoReturn]:
         ...
 
 # -- _check_optional_arg_ --------------------------------------------------
@@ -749,6 +1232,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_optional_arg_data_value_template(
+            cls,
+            arg: Optional[DataValueTemplate],
+            default: Optional[DataValueTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[DataValueTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_data_value_variable(
+            cls,
+            arg: Optional[DataValueVariable],
+            default: Optional[DataValueVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[DataValueVariable], NoReturn]:
+        ...
+
+    @classmethod
     def _check_optional_arg_datatype(
             cls,
             arg: Optional[TDatatype],
@@ -768,6 +1273,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[Optional[DeepDataValue], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_deep_data_value_template(
+            cls,
+            arg: Optional[DeepDataValueTemplate],
+            default: Optional[DeepDataValueTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[DeepDataValueTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_deep_data_value_variable(
+            cls,
+            arg: Optional[DeepDataValueVariable],
+            default: Optional[DeepDataValueVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[DeepDataValueVariable], NoReturn]:
         ...
 
     @classmethod
@@ -804,6 +1331,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_optional_arg_entity_template(
+            cls,
+            arg: Optional[EntityTemplate],
+            default: Optional[EntityTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[EntityTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_entity_variable(
+            cls,
+            arg: Optional[EntityVariable],
+            default: Optional[EntityVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[EntityVariable], NoReturn]:
+        ...
+
+    @classmethod
     def _check_optional_arg_entity_fingerprint(
             cls,
             arg: Optional[TEntityFingerprint],
@@ -823,6 +1372,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[Optional[ExternalId], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_external_id_template(
+            cls,
+            arg: Optional[ExternalIdTemplate],
+            default: Optional[ExternalIdTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[ExternalIdTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_external_id_variable(
+            cls,
+            arg: Optional[ExternalIdVariable],
+            default: Optional[ExternalIdVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[ExternalIdVariable], NoReturn]:
         ...
 
     @classmethod
@@ -881,6 +1452,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_optional_arg_iri_template(
+            cls,
+            arg: Optional[IRI_Template],
+            default: Optional[IRI_Template] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[IRI_Template], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_iri_variable(
+            cls,
+            arg: Optional[IRI_Variable],
+            default: Optional[IRI_Variable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[IRI_Variable], NoReturn]:
+        ...
+
+    @classmethod
     def _check_optional_arg_item(
             cls,
             arg: Optional[Item],
@@ -911,6 +1504,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[Optional[ItemDescriptor], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_item_template(
+            cls,
+            arg: Optional[ItemTemplate],
+            default: Optional[ItemTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[ItemTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_item_variable(
+            cls,
+            arg: Optional[ItemVariable],
+            default: Optional[ItemVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[ItemVariable], NoReturn]:
         ...
 
     @classmethod
@@ -969,6 +1584,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_optional_arg_lexeme_template(
+            cls,
+            arg: Optional[LexemeTemplate],
+            default: Optional[LexemeTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[LexemeTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_lexeme_variable(
+            cls,
+            arg: Optional[LexemeVariable],
+            default: Optional[LexemeVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[LexemeVariable], NoReturn]:
+        ...
+
+    @classmethod
     def _check_optional_arg_no_value_snak(
             cls,
             arg: Optional[NoValueSnak],
@@ -977,6 +1614,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[Optional[NoValueSnak], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_no_value_snak_template(
+            cls,
+            arg: Optional[NoValueSnakTemplate],
+            default: Optional[NoValueSnakTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[NoValueSnakTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_no_value_snak_variable(
+            cls,
+            arg: Optional[NoValueSnakVariable],
+            default: Optional[NoValueSnakVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[NoValueSnakVariable], NoReturn]:
         ...
 
     @classmethod
@@ -1079,6 +1738,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_optional_arg_property_template(
+            cls,
+            arg: Optional[PropertyTemplate],
+            default: Optional[PropertyTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[PropertyTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_property_variable(
+            cls,
+            arg: Optional[PropertyVariable],
+            default: Optional[PropertyVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[PropertyVariable], NoReturn]:
+        ...
+
+    @classmethod
     def _check_optional_arg_quantity(
             cls,
             arg: Optional[Quantity],
@@ -1098,6 +1779,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[Optional[QuantityDatatype], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_quantity_template(
+            cls,
+            arg: Optional[QuantityTemplate],
+            default: Optional[QuantityTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[QuantityTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_quantity_variable(
+            cls,
+            arg: Optional[QuantityVariable],
+            default: Optional[QuantityVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[QuantityVariable], NoReturn]:
         ...
 
     @classmethod
@@ -1145,6 +1848,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_optional_arg_shallow_data_value_template(
+            cls,
+            arg: Optional[ShallowDataValueTemplate],
+            default: Optional[ShallowDataValueTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[ShallowDataValueTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_shallow_data_value_variable(
+            cls,
+            arg: Optional[ShallowDataValueVariable],
+            default: Optional[ShallowDataValueVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[ShallowDataValueVariable], NoReturn]:
+        ...
+
+    @classmethod
     def _check_optional_arg_snak(
             cls,
             arg: Optional[Snak],
@@ -1153,6 +1878,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[Optional[Snak], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_snak_template(
+            cls,
+            arg: Optional[SnakTemplate],
+            default: Optional[SnakTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[SnakTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_snak_variable(
+            cls,
+            arg: Optional[SnakVariable],
+            default: Optional[SnakVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[SnakVariable], NoReturn]:
         ...
 
     @classmethod
@@ -1178,6 +1925,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_optional_arg_some_value_snak_template(
+            cls,
+            arg: Optional[SomeValueSnakTemplate],
+            default: Optional[SomeValueSnakTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[SomeValueSnakTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_some_value_snak_variable(
+            cls,
+            arg: Optional[SomeValueSnakVariable],
+            default: Optional[SomeValueSnakVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[SomeValueSnakVariable], NoReturn]:
+        ...
+
+    @classmethod
     def _check_optional_arg_statement(
             cls,
             arg: Optional[Statement],
@@ -1186,6 +1955,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[Optional[Statement], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_statement_template(
+            cls,
+            arg: Optional[StatementTemplate],
+            default: Optional[StatementTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[StatementTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_statement_variable(
+            cls,
+            arg: Optional[StatementVariable],
+            default: Optional[StatementVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[StatementVariable], NoReturn]:
         ...
 
     @classmethod
@@ -1208,6 +1999,39 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[Optional[StringDatatype], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_string_template(
+            cls,
+            arg: Optional[StringTemplate],
+            default: Optional[StringTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[StringTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_string_variable(
+            cls,
+            arg: Optional[StringVariable],
+            default: Optional[StringVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[StringVariable], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_template(
+            cls,
+            arg: Optional[Template],
+            default: Optional[Template] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[Template], NoReturn]:
         ...
 
     @classmethod
@@ -1244,6 +2068,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_optional_arg_text_template(
+            cls,
+            arg: Optional[TextTemplate],
+            default: Optional[TextTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[TextTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_text_variable(
+            cls,
+            arg: Optional[TextVariable],
+            default: Optional[TextVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[TextVariable], NoReturn]:
+        ...
+
+    @classmethod
     def _check_optional_arg_time(
             cls,
             arg: Optional[Time],
@@ -1263,6 +2109,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[Optional[TimeDatatype], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_time_template(
+            cls,
+            arg: Optional[TimeTemplate],
+            default: Optional[TimeTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[TimeTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_time_variable(
+            cls,
+            arg: Optional[TimeVariable],
+            default: Optional[TimeVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[TimeVariable], NoReturn]:
         ...
 
     @classmethod
@@ -1288,6 +2156,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     @classmethod
+    def _check_optional_arg_value_template(
+            cls,
+            arg: Optional[ValueTemplate],
+            default: Optional[ValueTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[ValueTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_value_variable(
+            cls,
+            arg: Optional[ValueVariable],
+            default: Optional[ValueVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[ValueVariable], NoReturn]:
+        ...
+
+    @classmethod
     def _check_optional_arg_value_snak(
             cls,
             arg: Optional[ValueSnak],
@@ -1296,6 +2186,39 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[Optional[ValueSnak], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_value_snak_template(
+            cls,
+            arg: Optional[ValueSnakTemplate],
+            default: Optional[ValueSnakTemplate] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[ValueSnakTemplate], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_value_snak_variable(
+            cls,
+            arg: Optional[ValueSnakVariable],
+            default: Optional[ValueSnakVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[ValueSnakVariable], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_variable(
+            cls,
+            arg: Optional[Variable],
+            default: Optional[Variable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[Variable], NoReturn]:
         ...
 
 # -- check_ ----------------------------------------------------------------
@@ -1324,12 +2247,44 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[DeepDataValue, NoReturn]:
         ...
 
+    def check_deep_data_value_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[DeepDataValueTemplate, NoReturn]:
+        ...
+
+    def check_deep_data_value_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[DeepDataValueVariable, NoReturn]:
+        ...
+
     def check_data_value(
             self,
             function: Optional[Union[TCallable, str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union[DataValue, NoReturn]:
+        ...
+
+    def check_data_value_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[DataValueTemplate, NoReturn]:
+        ...
+
+    def check_data_value_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[DataValueVariable, NoReturn]:
         ...
 
     def check_datatype(
@@ -1372,6 +2327,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[EntityFingerprint, NoReturn]:
         ...
 
+    def check_entity_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[EntityVariable, NoReturn]:
+        ...
+
+    def check_entity_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[EntityTemplate, NoReturn]:
+        ...
+
     def check_external_id(
             self,
             function: Optional[Union[TCallable, str]] = None,
@@ -1386,6 +2357,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union[ExternalIdDatatype, NoReturn]:
+        ...
+
+    def check_external_id_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[ExternalIdTemplate, NoReturn]:
+        ...
+
+    def check_external_id_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[ExternalIdVariable, NoReturn]:
         ...
 
     def check_filter_pattern(
@@ -1420,6 +2407,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[IRI_Datatype, NoReturn]:
         ...
 
+    def check_iri_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[IRI_Template, NoReturn]:
+        ...
+
+    def check_iri_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[IRI_Variable, NoReturn]:
+        ...
+
     def check_item(
             self,
             function: Optional[Union[TCallable, str]] = None,
@@ -1442,6 +2445,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union[ItemDescriptor, NoReturn]:
+        ...
+
+    def check_item_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[ItemTemplate, NoReturn]:
+        ...
+
+    def check_item_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[ItemVariable, NoReturn]:
         ...
 
     def check_kif_object(
@@ -1484,12 +2503,44 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[LexemeDescriptor, NoReturn]:
         ...
 
+    def check_lexeme_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[LexemeTemplate, NoReturn]:
+        ...
+
+    def check_lexeme_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[LexemeVariable, NoReturn]:
+        ...
+
     def check_no_value_snak(
             self,
             function: Optional[Union[TCallable, str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union[NoValueSnak, NoReturn]:
+        ...
+
+    def check_no_value_snak_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[NoValueSnakTemplate, NoReturn]:
+        ...
+
+    def check_no_value_snak_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[NoValueSnakVariable, NoReturn]:
         ...
 
     def check_normal_rank(
@@ -1564,6 +2615,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[PropertyFingerprint, NoReturn]:
         ...
 
+    def check_property_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[PropertyTemplate, NoReturn]:
+        ...
+
+    def check_property_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[PropertyVariable, NoReturn]:
+        ...
+
     def check_quantity(
             self,
             function: Optional[Union[TCallable, str]] = None,
@@ -1580,6 +2647,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[QuantityDatatype, NoReturn]:
         ...
 
+    def check_quantity_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[QuantityTemplate, NoReturn]:
+        ...
+
+    def check_quantity_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[QuantityVariable, NoReturn]:
+        ...
+
     def check_shallow_data_value(
             self,
             function: Optional[Union[TCallable, str]] = None,
@@ -1588,12 +2671,44 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[ShallowDataValue, NoReturn]:
         ...
 
+    def check_shallow_data_value_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[ShallowDataValueTemplate, NoReturn]:
+        ...
+
+    def check_shallow_data_value_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[ShallowDataValueVariable, NoReturn]:
+        ...
+
     def check_some_value_snak(
             self,
             function: Optional[Union[TCallable, str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union[SomeValueSnak, NoReturn]:
+        ...
+
+    def check_some_value_snak_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[SomeValueSnakTemplate, NoReturn]:
+        ...
+
+    def check_some_value_snak_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[SomeValueSnakVariable, NoReturn]:
         ...
 
     def check_snak(
@@ -1612,12 +2727,44 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[SnakSet, NoReturn]:
         ...
 
+    def check_snak_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[SnakTemplate, NoReturn]:
+        ...
+
+    def check_snak_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[SnakVariable, NoReturn]:
+        ...
+
     def check_statement(
             self,
             function: Optional[Union[TCallable, str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union[Statement, NoReturn]:
+        ...
+
+    def check_statement_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[StatementTemplate, NoReturn]:
+        ...
+
+    def check_statement_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[StatementVariable, NoReturn]:
         ...
 
     def check_string(
@@ -1634,6 +2781,30 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union[StringDatatype, NoReturn]:
+        ...
+
+    def check_string_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[StringTemplate, NoReturn]:
+        ...
+
+    def check_string_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[StringVariable, NoReturn]:
+        ...
+
+    def check_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[Template, NoReturn]:
         ...
 
     def check_text(
@@ -1660,6 +2831,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[TextSet, NoReturn]:
         ...
 
+    def check_text_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[TextTemplate, NoReturn]:
+        ...
+
+    def check_text_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[TextVariable, NoReturn]:
+        ...
+
     def check_time(
             self,
             function: Optional[Union[TCallable, str]] = None,
@@ -1674,6 +2861,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union[TimeDatatype, NoReturn]:
+        ...
+
+    def check_time_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[TimeTemplate, NoReturn]:
+        ...
+
+    def check_time_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[TimeVariable, NoReturn]:
         ...
 
     def check_rank(
@@ -1723,6 +2926,46 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             position: Optional[int] = None
     ) -> Union[ValueSnak, NoReturn]:
         ...
+
+    def check_value_snak_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[ValueSnakTemplate, NoReturn]:
+        ...
+
+    def check_value_snak_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[ValueSnakVariable, NoReturn]:
+        ...
+
+    def check_value_template(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[ValueTemplate, NoReturn]:
+        ...
+
+    def check_value_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[ValueVariable, NoReturn]:
+        ...
+
+    def check_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[Variable, NoReturn]:
+        ...
 
 # -- from_ -----------------------------------------------------------------
 
@@ -1763,27 +3006,43 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     def is_annotation_record(self) -> bool: ...
     def is_annotation_record_set(self) -> bool: ...
     def is_data_value(self) -> bool: ...
+    def is_data_value_template(self) -> bool: ...
+    def is_data_value_variable(self) -> bool: ...
     def is_datatype(self) -> bool: ...
     def is_deep_data_value(self) -> bool: ...
+    def is_deep_data_value_template(self) -> bool: ...
+    def is_deep_data_value_variable(self) -> bool: ...
     def is_deprecated_rank(self) -> bool: ...
     def is_descriptor(self) -> bool: ...
     def is_entity(self) -> bool: ...
     def is_entity_fingerprint(self) -> bool: ...
+    def is_entity_template(self) -> bool: ...
+    def is_entity_variable(self) -> bool: ...
     def is_external_id(self) -> bool: ...
     def is_external_id_datatype(self) -> bool: ...
+    def is_external_id_template(self) -> bool: ...
+    def is_external_id_variable(self) -> bool: ...
     def is_filter_pattern(self) -> bool: ...
     def is_fingerprint(self) -> bool: ...
     def is_iri(self) -> bool: ...
     def is_iri_datatype(self) -> bool: ...
+    def is_iri_template(self) -> bool: ...
+    def is_iri_variable(self) -> bool: ...
     def is_item(self) -> bool: ...
     def is_item_datatype(self) -> bool: ...
     def is_item_descriptor(self) -> bool: ...
+    def is_item_template(self) -> bool: ...
+    def is_item_variable(self) -> bool: ...
     def is_kif_object(self) -> bool: ...
     def is_kif_object_set(self) -> bool: ...
     def is_lexeme(self) -> bool: ...
     def is_lexeme_datatype(self) -> bool: ...
     def is_lexeme_descriptor(self) -> bool: ...
+    def is_lexeme_template(self) -> bool: ...
+    def is_lexeme_variable(self) -> bool: ...
     def is_no_value_snak(self) -> bool: ...
+    def is_no_value_snak_template(self) -> bool: ...
+    def is_no_value_snak_variable(self) -> bool: ...
     def is_normal_rank(self) -> bool: ...
     def is_object(self) -> bool: ...
     def is_pattern(self) -> bool: ...
@@ -1793,53 +3052,93 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     def is_property_datatype(self) -> bool: ...
     def is_property_descriptor(self) -> bool: ...
     def is_property_fingerprint(self) -> bool: ...
+    def is_property_template(self) -> bool: ...
+    def is_property_variable(self) -> bool: ...
     def is_quantity(self) -> bool: ...
     def is_quantity_datatype(self) -> bool: ...
+    def is_quantity_template(self) -> bool: ...
+    def is_quantity_variable(self) -> bool: ...
     def is_rank(self) -> bool: ...
     def is_reference_record(self) -> bool: ...
     def is_reference_record_set(self) -> bool: ...
     def is_shallow_data_value(self) -> bool: ...
+    def is_shallow_data_value_template(self) -> bool: ...
+    def is_shallow_data_value_variable(self) -> bool: ...
     def is_snak(self) -> bool: ...
     def is_snak_set(self) -> bool: ...
+    def is_snak_template(self) -> bool: ...
+    def is_snak_variable(self) -> bool: ...
     def is_some_value_snak(self) -> bool: ...
+    def is_some_value_snak_template(self) -> bool: ...
+    def is_some_value_snak_variable(self) -> bool: ...
     def is_statement(self) -> bool: ...
+    def is_statement_template(self) -> bool: ...
+    def is_statement_variable(self) -> bool: ...
     def is_string(self) -> bool: ...
     def is_string_datatype(self) -> bool: ...
+    def is_string_template(self) -> bool: ...
+    def is_string_variable(self) -> bool: ...
+    def is_template(self) -> bool: ...
     def is_text(self) -> bool: ...
     def is_text_datatype(self) -> bool: ...
     def is_text_set(self) -> bool: ...
+    def is_text_template(self) -> bool: ...
+    def is_text_variable(self) -> bool: ...
     def is_time(self) -> bool: ...
     def is_time_datatype(self) -> bool: ...
+    def is_time_template(self) -> bool: ...
+    def is_time_variable(self) -> bool: ...
     def is_value(self) -> bool: ...
     def is_value_set(self) -> bool: ...
     def is_value_snak(self) -> bool: ...
+    def is_value_snak_template(self) -> bool: ...
+    def is_value_snak_variable(self) -> bool: ...
+    def is_value_template(self) -> bool: ...
+    def is_value_variable(self) -> bool: ...
+    def is_variable(self) -> bool: ...
 
 # -- test_ -----------------------------------------------------------------
 
     def test_annotation_record(self) -> bool: ...
     def test_annotation_record_set(self) -> bool: ...
     def test_data_value(self) -> bool: ...
+    def test_data_value_template(self) -> bool: ...
+    def test_data_value_variable(self) -> bool: ...
     def test_datatype(self) -> bool: ...
     def test_deep_data_value(self) -> bool: ...
+    def test_deep_data_value_template(self) -> bool: ...
+    def test_deep_data_value_variable(self) -> bool: ...
     def test_deprecated_rank(self) -> bool: ...
     def test_descriptor(self) -> bool: ...
     def test_entity(self) -> bool: ...
     def test_entity_fingerprint(self) -> bool: ...
+    def test_entity_template(self) -> bool: ...
+    def test_entity_variable(self) -> bool: ...
     def test_external_id(self) -> bool: ...
     def test_external_id_datatype(self) -> bool: ...
+    def test_external_id_template(self) -> bool: ...
+    def test_external_id_variable(self) -> bool: ...
     def test_filter_pattern(self) -> bool: ...
     def test_fingerprint(self) -> bool: ...
     def test_iri(self) -> bool: ...
     def test_iri_datatype(self) -> bool: ...
+    def test_iri_template(self) -> bool: ...
+    def test_iri_variable(self) -> bool: ...
     def test_item(self) -> bool: ...
     def test_item_datatype(self) -> bool: ...
     def test_item_descriptor(self) -> bool: ...
+    def test_item_template(self) -> bool: ...
+    def test_item_variable(self) -> bool: ...
     def test_kif_object(self) -> bool: ...
     def test_kif_object_set(self) -> bool: ...
     def test_lexeme(self) -> bool: ...
     def test_lexeme_datatype(self) -> bool: ...
     def test_lexeme_descriptor(self) -> bool: ...
+    def test_lexeme_template(self) -> bool: ...
+    def test_lexeme_variable(self) -> bool: ...
     def test_no_value_snak(self) -> bool: ...
+    def test_no_value_snak_template(self) -> bool: ...
+    def test_no_value_snak_variable(self) -> bool: ...
     def test_normal_rank(self) -> bool: ...
     def test_object(self) -> bool: ...
     def test_pattern(self) -> bool: ...
@@ -1849,26 +3148,50 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     def test_property_datatype(self) -> bool: ...
     def test_property_descriptor(self) -> bool: ...
     def test_property_fingerprint(self) -> bool: ...
+    def test_property_template(self) -> bool: ...
+    def test_property_variable(self) -> bool: ...
     def test_quantity(self) -> bool: ...
     def test_quantity_datatype(self) -> bool: ...
+    def test_quantity_template(self) -> bool: ...
+    def test_quantity_variable(self) -> bool: ...
     def test_rank(self) -> bool: ...
     def test_reference_record(self) -> bool: ...
     def test_reference_record_set(self) -> bool: ...
     def test_shallow_data_value(self) -> bool: ...
+    def test_shallow_data_value_template(self) -> bool: ...
+    def test_shallow_data_value_variable(self) -> bool: ...
     def test_snak(self) -> bool: ...
     def test_snak_set(self) -> bool: ...
+    def test_snak_template(self) -> bool: ...
+    def test_snak_variable(self) -> bool: ...
     def test_some_value_snak(self) -> bool: ...
+    def test_some_value_snak_template(self) -> bool: ...
+    def test_some_value_snak_variable(self) -> bool: ...
     def test_statement(self) -> bool: ...
+    def test_statement_template(self) -> bool: ...
+    def test_statement_variable(self) -> bool: ...
     def test_string(self) -> bool: ...
     def test_string_datatype(self) -> bool: ...
+    def test_string_template(self) -> bool: ...
+    def test_string_variable(self) -> bool: ...
+    def test_template(self) -> bool: ...
     def test_text(self) -> bool: ...
     def test_text_datatype(self) -> bool: ...
     def test_text_set(self) -> bool: ...
+    def test_text_template(self) -> bool: ...
+    def test_text_variable(self) -> bool: ...
     def test_time(self) -> bool: ...
     def test_time_datatype(self) -> bool: ...
+    def test_time_template(self) -> bool: ...
+    def test_time_variable(self) -> bool: ...
     def test_value(self) -> bool: ...
     def test_value_set(self) -> bool: ...
     def test_value_snak(self) -> bool: ...
+    def test_value_snak_template(self) -> bool: ...
+    def test_value_snak_variable(self) -> bool: ...
+    def test_value_template(self) -> bool: ...
+    def test_value_variable(self) -> bool: ...
+    def test_variable(self) -> bool: ...
 
 # -- to_ -------------------------------------------------------------------
 
@@ -1903,6 +3226,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[TArgs, NoReturn]:
         ...
 
+    def unpack_data_value_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_data_value_variable(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
     def unpack_datatype(
         self,
         function: Optional[Union[TCallable, str]] = None,
@@ -1920,6 +3259,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     def unpack_deep_data_value(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_deep_data_value_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_deep_data_value_variable(
         self,
         function: Optional[Union[TCallable, str]] = None,
         name: Optional[str] = None,
@@ -1951,7 +3306,39 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[TArgs, NoReturn]:
         ...
 
+    def unpack_entity_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_entity_variable(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
     def unpack_external_id(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_external_id_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_external_id_variable(
         self,
         function: Optional[Union[TCallable, str]] = None,
         name: Optional[str] = None,
@@ -1999,6 +3386,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[TArgs, NoReturn]:
         ...
 
+    def unpack_iri_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_iri_variable(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
     def unpack_item(
         self,
         function: Optional[Union[TCallable, str]] = None,
@@ -2016,6 +3419,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     def unpack_item_descriptor(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_item_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_item_variable(
         self,
         function: Optional[Union[TCallable, str]] = None,
         name: Optional[str] = None,
@@ -2071,6 +3490,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[TArgs, NoReturn]:
         ...
 
+    def unpack_property_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_property_variable(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
     def unpack_quantity(
         self,
         function: Optional[Union[TCallable, str]] = None,
@@ -2080,6 +3515,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     def unpack_quantity_datatype(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_quantity_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_quantity_variable(
         self,
         function: Optional[Union[TCallable, str]] = None,
         name: Optional[str] = None,
@@ -2104,6 +3555,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     def unpack_lexeme_descriptor(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_lexeme_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_lexeme_variable(
         self,
         function: Optional[Union[TCallable, str]] = None,
         name: Optional[str] = None,
@@ -2136,6 +3603,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     def unpack_no_value_snak(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_no_value_snak_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_no_value_snak_variable(
         self,
         function: Optional[Union[TCallable, str]] = None,
         name: Optional[str] = None,
@@ -2191,6 +3674,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[TArgs, NoReturn]:
         ...
 
+    def unpack_shallow_data_value_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_shallow_data_value_variable(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
     def unpack_some_value_snak(
         self,
         function: Optional[Union[TCallable, str]] = None,
@@ -2199,7 +3698,39 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[TArgs, NoReturn]:
         ...
 
+    def unpack_some_value_snak_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_some_value_snak_variable(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
     def unpack_statement(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_statement_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_statement_variable(
         self,
         function: Optional[Union[TCallable, str]] = None,
         name: Optional[str] = None,
@@ -2223,6 +3754,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[TArgs, NoReturn]:
         ...
 
+    def unpack_string_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_string_variable(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
     def unpack_snak(
         self,
         function: Optional[Union[TCallable, str]] = None,
@@ -2232,6 +3779,30 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     def unpack_snak_set(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_snak_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_snak_variable(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_template(
         self,
         function: Optional[Union[TCallable, str]] = None,
         name: Optional[str] = None,
@@ -2263,6 +3834,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[TArgs, NoReturn]:
         ...
 
+    def unpack_text_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_text_variable(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
     def unpack_time(
         self,
         function: Optional[Union[TCallable, str]] = None,
@@ -2272,6 +3859,22 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     def unpack_time_datatype(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_time_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_time_variable(
         self,
         function: Optional[Union[TCallable, str]] = None,
         name: Optional[str] = None,
@@ -2302,6 +3905,46 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         position: Optional[int] = None
     ) -> Union[TArgs, NoReturn]:
         ...
+
+    def unpack_value_snak_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_value_snak_variable(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_value_template(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_value_variable(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_variable(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
 
 # -- misc ------------------------------------------------------------------
 
@@ -2310,17 +3953,14 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
 
     def traverse(
         self,
+        filter: Optional[Callable[[Any], bool]] = None,
         visit: Optional[Callable[[Any], bool]] = None,
-        yield_root: bool = ...,
-        yield_kif_objects: bool = ...,
-        yield_non_kif_objects: bool = ...
     ) -> Iterator[Any]:
         ...
 
     def _traverse(
         self,
+        filter: Optional[Callable[[Any], bool]] = None,
         visit: Optional[Callable[[Any], bool]] = None,
-        yield_kif_objects: bool = ...,
-        yield_non_kif_objects: bool = ...
     ) -> Iterator[Any]:
         ...
