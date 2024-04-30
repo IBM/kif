@@ -89,10 +89,10 @@ from kif_lib.model import (
     ValueVariable,
 )
 
-from .tests import kif_TestCase
+from ..tests import kif_TestCase
 
 
-class TestModelKIF_Object(kif_TestCase):
+class Test(kif_TestCase):
 
     ALL_KIF_OBJECT_CLASSES = set(filter(
         lambda c: isinstance(c, type) and issubclass(c, KIF_Object), map(
@@ -2136,4 +2136,4 @@ class TestModelKIF_Object(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestModelKIF_Object.main()
+    Test.main()
