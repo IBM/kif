@@ -2056,6 +2056,12 @@ class Test(kif_TestCase):
 
     def test_traverse(self):
         obj = Variable('p')(Item('x'), Quantity(5, Item('u')))
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'filter', 'expected callable, got int',
+            obj.traverse, 0)
+        self.assert_raises_bad_argument(
+            TypeError, 2, 'visit', 'expected callable, got int',
+            obj.traverse, None, 0)
         self.assertEqual(
             list(obj.traverse()), [
                 obj,

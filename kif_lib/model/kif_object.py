@@ -218,6 +218,7 @@ class KIF_Object(object.Object):
         visit = self._check_optional_arg_callable(
             visit, self.__class__._traverse_default_visit,
             self.traverse, 'visit', 2)
+        assert filter is not None
         assert visit is not None
         return self._traverse(filter, visit)
 

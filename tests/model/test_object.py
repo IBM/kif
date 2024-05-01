@@ -6,60 +6,67 @@ import pathlib
 import tempfile
 from unittest import main, TestCase
 
-import kif_lib
-from kif_lib.model.object import (
-    Decoder,
-    DecoderError,
-    Encoder,
-    EncoderError,
-    JSON_Decoder,
-    JSON_Encoder,
-    MustBeImplementedInSubclass,
-    Object,
-    SExpDecoder,
-    SExpEncoder,
-    ShouldNotGetHere,
-)
-
-
-def setUpModule():
-    global A, B, C
-
-    class A(Object):
-        def __init__(self, *args):
-            super().__init__(*args)
-
-    class B(Object):
-        def __init__(self, *args):
-            super().__init__(*args)
-
-        def _preprocess_arg(self, arg, i):
-            arg = super()._preprocess_arg(arg, i)
-            if i == 1:              # A
-                return self._preprocess_arg_a(arg, i)
-            elif i == 2:            # bool
-                return self._preprocess_arg_bool(arg, i)
-            else:
-                return arg
-
-    class C(Object):
-        def __init__(self, *args):
-            super().__init__(*args)
-
-        def _preprocess_arg(self, arg, i):
-            return arg
-
-
-def tearDownModule():
-    from importlib import reload
-    reload(kif_lib)
-
 
 class Test(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.reset_codecs()
+        import kif_lib.model.object as obj
+
+        global Decoder
+        global DecoderError
+        global Encoder
+        global EncoderError
+        global JSON_Decoder
+        global JSON_Encoder
+        global MustBeImplementedInSubclass
+        global Object
+        global SExpDecoder
+        global SExpEncoder
+        global ShouldNotGetHere
+        global A, B, C
+
+        Decoder = obj.Decoder
+        DecoderError = obj.DecoderError
+        Encoder = obj.Encoder
+        EncoderError = obj.EncoderError
+        JSON_Decoder = obj.JSON_Decoder
+        JSON_Encoder = obj.JSON_Encoder
+        MustBeImplementedInSubclass = obj.MustBeImplementedInSubclass
+        Object = obj.Object
+        SExpDecoder = obj.SExpDecoder
+        SExpEncoder = obj.SExpEncoder
+        ShouldNotGetHere = obj.ShouldNotGetHere
+
+        class A(Object):
+            def __init__(self, *args):
+                super().__init__(*args)
+
+        class B(Object):
+            def __init__(self, *args):
+                super().__init__(*args)
+
+            def _preprocess_arg(self, arg, i):
+                arg = super()._preprocess_arg(arg, i)
+                if i == 1:              # A
+                    return self._preprocess_arg_a(arg, i)
+                elif i == 2:            # bool
+                    return self._preprocess_arg_bool(arg, i)
+                else:
+                    return arg
+
+        class C(Object):
+            def __init__(self, *args):
+                super().__init__(*args)
+
+            def _preprocess_arg(self, arg, i):
+                return arg
+
+        # reset codecs
+        for enc in [JSON_Encoder, SExpEncoder]:
+            Encoder._register(enc, enc.format, enc.description)
+        for dec in [JSON_Decoder, SExpDecoder]:
+            Decoder._register(dec, dec.format, dec.description)
 
     def assert_object(self, obj, args, kwargs={}):
         self.assertIsInstance(obj, Object)
@@ -213,13 +220,6 @@ class Test(TestCase):
                 {'class': 'C', 'args': (4,)})}), A(1, A(2, 3), C(4)))
 
 # -- Encoding --------------------------------------------------------------
-
-    @classmethod
-    def reset_codecs(cls):
-        for enc in [JSON_Encoder, SExpEncoder]:
-            Encoder._register(enc, enc.format, enc.description)
-        for dec in [JSON_Decoder, SExpDecoder]:
-            Decoder._register(dec, dec.format, dec.description)
 
     def assert_dump(self, obj, s, format=None, **kwargs):
         self.assertEqual(obj.dumps(format, **kwargs), s)
