@@ -339,7 +339,7 @@ gen-pytest-ini:
 .PHONY: gen-setup-py
 gen-setup-py:
 	@echo 'generating ${SETUP_PY}'
-	@echo '# *** GENERATED FILE, DO NOT EDIT! ***' >${SETUP_PY}
+	@echo '# ** GENERATED FILE, DO NOT EDIT! **' >${SETUP_PY}
 	@echo 'import re' >>${SETUP_PY}
 	@echo 'import setuptools' >>${SETUP_PY}
 	@echo "with open('${PACKAGE}/__init__.py') as fp:" >>${SETUP_PY}

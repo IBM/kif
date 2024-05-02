@@ -1,4 +1,4 @@
-# *** GENERATED FILE, DO NOT EDIT! ***
+# ** GENERATED FILE, DO NOT EDIT! **
 import re
 import setuptools
 with open('kif_lib/__init__.py') as fp:
