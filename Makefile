@@ -30,7 +30,7 @@ usage:
 	@perl -wnle '${perl_usage}' ${MAKEFILE_LIST}
 
 CHECK_COPYRIGHT?= yes
-CHECK_COPYRIGHT_IGNORE?=
+CHECK_COPYRIGHT_IGNORE?= setup.py
 CHECK_DEPS?= htmlcov-clean
 CHECK_FLAKE8=? yes
 CHECK_ISORT?= yes
@@ -44,9 +44,9 @@ COVERAGERC_OMIT?=
 DOCS_SRC?= docs
 DOCS_TGT?= .docs
 DOCS_TGT_BRANCH?= gh-pages
+FLAKE8RC?= .flake8rc
 FLAKE8_IGNORE?= E741, W503
 FLAKE8_OPTIONS?= --config .flake8rc
-FLAKE8RC?= .flake8rc
 ISORT_CFG?= .isort.cfg
 ISORT_CFG_INCLUDE_TRAILING_COMMA?= True
 ISORT_CFG_MULTI_LINE_OUTPUT?= 3
@@ -61,6 +61,16 @@ PYTEST_ENV?=
 PYTEST_INI?= pytest.ini
 PYTEST_OPTIONS?= -ra
 PYTHON?= python
+SETUP_PY?= setup.py
+SETUP_PY_EXTRAS_REQUIRE_DOCS?= []
+SETUP_PY_EXTRAS_REQUIRE_TESTS?= ['flake8', 'isort', 'mypy', 'pytest', 'pytest-cov', 'pytest-mypy', 'tox']
+SETUP_PY_FIND_PACKAGES_EXCLUDE?= ['tests', 'tests.*']
+SETUP_PY_INCLUDE_PACKAGE_DATA?= True
+SETUP_PY_INSTALL_REQUIRES?= []
+SETUP_PY_PACKAGE_DATA?= dict()
+SETUP_PY_PACKAGE_DIR?= {'${PACKAGE}': '${PACKAGE}'}
+SETUP_PY_PYTHON_REQUIRES?= '>=3.9'
+SETUP_PY_ZIP_SAFE?= False
 TESTS?= tests
 TOX?= tox
 TOX_ENVLIST?= mypy, py{39,310,311,312}
@@ -80,8 +90,8 @@ CHECK_DEPS+= $(if $(filter yes,${CHECK_MYPY}),check-mypy)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_PYTEST}),check-pytest)
 PYTEST_OPTIONS+= $(if $(filter yes,${CHECK_MYPY}),--mypy)
 
-split = $(shell printf '$(1)'\
-   | sed -e 's/\s*<line>/    /g' -e 's,</line>,\\n,g')
+split= $(shell printf '$(1)'\
+  | sed -e 's/\s*<line>/    /g' -e 's,</line>,\\n,g')
 
 # check sources and run testsuite
 .PHONY: check
@@ -280,7 +290,8 @@ docs-publish: docs-clean docs
 
 # run all gen-* targets
 .PHONY: gen-all
-gen-all: gen-coveragerc gen-isort-cfg gen-flake8rc gen-pytest-ini gen-tox-ini
+gen-all: gen-coveragerc gen-isort-cfg gen-flake8rc gen-pytest-ini\
+  gen-setup-py gen-tox-ini
 
 # generate .coveragerc
 .PHONY: gen-coveragerc
@@ -323,6 +334,41 @@ gen-pytest-ini:
 	@echo '[pytest]' >${PYTEST_INI}
 	@echo 'addopts = ${PYTEST_OPTIONS} ${PYTEST_COV_OPTIONS}' >>${PYTEST_INI}
 	@echo 'testpaths = ${TESTS}' >>${PYTEST_INI}
+
+# generate setup.py
+.PHONY: gen-setup-py
+gen-setup-py:
+	@echo 'generating ${SETUP_PY}'
+	@echo '# *** GENERATED FILE, DO NOT EDIT! ***' >${SETUP_PY}
+	@echo 'import re' >>${SETUP_PY}
+	@echo 'import setuptools' >>${SETUP_PY}
+	@echo "with open('${PACKAGE}/__init__.py') as fp:" >>${SETUP_PY}
+	@echo '    text = fp.read()' >>${SETUP_PY}
+	@echo "    VERSION, = re.findall(r\"__version__\s*=\s*'(.*)'\", text)" >>${SETUP_PY}
+	@echo "with open('README.md', 'r') as fp:" >>${SETUP_PY}
+	@echo '    README = fp.read()' >>${SETUP_PY}
+	@echo 'setuptools.setup(' >>${SETUP_PY}
+	@echo "    name='${NAME}'," >>${SETUP_PY}
+	@echo '    version=VERSION,' >>${SETUP_PY}
+	@echo "    description='${DESCRIPTION}'," >>${SETUP_PY}
+	@echo '    long_description=README,' >>${SETUP_PY}
+	@echo "    long_description_content_type='text/markdown'," >>${SETUP_PY}
+	@echo "    author='${AUTHOR}'," >>${SETUP_PY}
+	@echo "    author_email='${EMAIL}'," >>${SETUP_PY}
+	@echo "    url='${URL}'," >>${SETUP_PY}
+	@echo "    license='${LICENSE}'," >>${SETUP_PY}
+	@echo "    python_requires=${SETUP_PY_PYTHON_REQUIRES}," >>${SETUP_PY}
+	@echo "    packages=setuptools.find_packages(exclude=${SETUP_PY_FIND_PACKAGES_EXCLUDE})," >>${SETUP_PY}
+	@echo "    package_data=${SETUP_PY_PACKAGE_DATA}," >>${SETUP_PY}
+	@echo '    include_package_data=True,' >>${SETUP_PY}
+	@echo "    package_dir=${SETUP_PY_PACKAGE_DIR}," >>${SETUP_PY}
+	@echo "    install_requires=${SETUP_PY_INSTALL_REQUIRES}," >>${SETUP_PY}
+	@echo '    extras_require={' >>${SETUP_PY}
+	@echo "        'docs': ${SETUP_PY_EXTRAS_REQUIRE_DOCS}," >>${SETUP_PY}
+	@echo "        'tests': ${SETUP_PY_EXTRAS_REQUIRE_TESTS}," >>${SETUP_PY}
+	@echo '    },' >>${SETUP_PY}
+	@echo "    zip_safe=${SETUP_PY_ZIP_SAFE}," >>${SETUP_PY}
+	@echo ')' >>${SETUP_PY}
 
 # generate tox.ini
 .PHONY: gen-tox-ini
