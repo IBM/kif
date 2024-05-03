@@ -4,7 +4,7 @@
 from ..itertools import chain
 from ..typing import (
     cast,
-    Iterable,
+    Iterator,
     Mapping,
     NoReturn,
     Optional,
@@ -220,7 +220,7 @@ class Variable(KIF_Object):
 def Variables(
         name: str,
         *names: Union[str, TVariableClass],
-) -> Iterable[Variable]:
+) -> Iterator[Variable]:
     """Constructs one or more variables.
 
     Parameters:
