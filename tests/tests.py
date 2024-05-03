@@ -764,7 +764,7 @@ class kif_StoreTestCase(kif_TestCase):
         self.assertEqual(
             kb.extra_references, ReferenceRecordSet(
                 ReferenceRecord(), ReferenceRecord(wd.stated_in(wd.PubChem))))
-        kb.extra_references = None
+        kb.extra_references = ReferenceRecordSet()
         self.assertEqual(kb.extra_references, default)
 
     def store_test_flags(self, kb):
