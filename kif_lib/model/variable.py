@@ -47,7 +47,7 @@ class Variable(KIF_Object):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union[VariableClass, NoReturn]:
-        if issubclass(arg, cls):
+        if isinstance(arg, type) and issubclass(arg, cls):
             return arg
         else:
             arg = cls._check_arg_kif_object_class(
@@ -114,7 +114,8 @@ class Variable(KIF_Object):
         super().__init__(name)
 
     def __call__(self, value1, value2=None):
-        return self.coerce(self._PropertyVariable)(value1, value2)
+        from .value import PropertyVariable
+        return self.coerce(PropertyVariable)(value1, value2)
 
     def _preprocess_arg(self, arg, i):
         if i == 1:
@@ -146,7 +147,7 @@ class Variable(KIF_Object):
         """
         var_cls = Variable._check_arg_variable_class(
             variable_class, self.coerce, 'variable_class', 1)
-        return self._coerce(var_cls, self.coerce, 'variable_class')
+        return self._coerce(var_cls, self.coerce, 'variable_class', 1)
 
     def _coerce(
             self,
@@ -190,19 +191,30 @@ class Variable(KIF_Object):
             coerce: bool = True
     ) -> Optional[KIF_Object]:
         if self in theta:
-            return theta[self]
+            return self._instantiate_check_inst(theta[self])
         elif coerce:
             for other in filter(Variable.test, theta):
                 if other.name == self.name:
                     try:
                         var = self.coerce(other.__class__)
-                        if var in theta:
-                            return theta[var]
-                    except TypeError:  # not coercible, skip
-                        pass
+                    except TypeError:
+                        continue  # not coercible, skip
+                    if var in theta:
+                        return var._instantiate_check_inst(theta[var])
             return self
         else:
             return self
+
+    def _instantiate_check_inst(
+            self,
+            inst: Optional[KIF_Object]
+    ) -> Optional[KIF_Object]:
+        if self.__class__ is Variable:
+            obj_cls = KIF_Object
+        else:
+            obj_cls = self.object_class
+        return cast(
+            Optional[KIF_Object], obj_cls.check_optional(inst, None))
 
 
 def Variables(

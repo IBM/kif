@@ -729,12 +729,12 @@ class Object(Sequence, metaclass=ObjectMeta):
             prefix: Optional[str] = None
     ) -> Exception:
         msg = prefix or Object._arg_error_default_prefix
-        if position:
+        if position is not None:
             assert position > 0
             msg += f' #{position}'
         if name:
             msg += f' ({name})'
-        if function:
+        if function is not None:
             if hasattr(function, '__qualname__'):
                 function = function.__qualname__
             msg += f" to '{function}'"

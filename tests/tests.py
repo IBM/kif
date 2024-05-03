@@ -64,12 +64,36 @@ from kif_lib import (
     Value,
     ValueSet,
     ValueSnak,
+    Variable,
 )
 from kif_lib.error import ShouldNotGetHere
-from kif_lib.model import Datetime, Decimal, TCallable
+from kif_lib.model import (
+    DataValueVariable,
+    Datetime,
+    Decimal,
+    DeepDataValueVariable,
+    EntityVariable,
+    ExternalIdVariable,
+    IRI_Variable,
+    ItemVariable,
+    LexemeVariable,
+    NoValueSnakVariable,
+    PropertyVariable,
+    QuantityVariable,
+    ShallowDataValueVariable,
+    SnakVariable,
+    SomeValueSnakVariable,
+    StatementVariable,
+    StringVariable,
+    TCallable,
+    TextVariable,
+    TimeVariable,
+    ValueSnakVariable,
+    ValueVariable,
+)
 from kif_lib.model.object import Object
 from kif_lib.namespace import WIKIBASE, XSD
-from kif_lib.typing import Any, cast, Final, Optional, override
+from kif_lib.typing import Any, cast, Final, Optional, override, Union
 from kif_lib.vocabulary import wd
 
 ME: Final[pathlib.Path] = pathlib.Path(__file__)
@@ -101,14 +125,18 @@ if __name__ == '__main__':
             position: Optional[int],
             name: Optional[str],
             details: Optional[str],
-            function: TCallable,
+            function: Union[TCallable, tuple[TCallable, str]],
             *args: Any,
             **kwargs: Any
     ):
+        if isinstance(function, tuple):
+            func, func_name = function
+        else:
+            func, func_name = function, function.__qualname__
         regex = re.escape(str(KIF_Object._arg_error(
-            details, function, name, position, exception)))
+            details, func_name, name, position, exception)))
         self.assertRaisesRegex(
-            exception, regex, function, *args, **kwargs)
+            exception, regex, func, *args, **kwargs)
 
 # -- KIF_Object ------------------------------------------------------------
 
@@ -452,6 +480,107 @@ if __name__ == '__main__':
         self.assertIsInstance(obj, TimeDatatype)
         self.assertTrue(obj.is_time_datatype())
         self.assertEqual(obj._uri, WIKIBASE.Time)
+
+# -- Variable --------------------------------------------------------------
+
+    def assert_variable(self, obj: Variable, name: str):
+        self.assert_kif_object(obj)
+        self.assertIsInstance(obj, Variable)
+        self.assertEqual(obj.name, name)
+        self.assertEqual(obj.get_name(), name)
+        self.assertEqual(obj.args[0], name)
+
+    def assert_value_variable(self, obj: ValueVariable, name: str):
+        self.assert_variable(obj, name)
+        self.assertIsInstance(obj, ValueVariable)
+
+    def assert_entity_variable(self, obj: EntityVariable, name: str):
+        self.assert_value_variable(obj, name)
+        self.assertIsInstance(obj, EntityVariable)
+
+    def assert_item_variable(self, obj: ItemVariable, name: str):
+        self.assert_entity_variable(obj, name)
+        self.assertIsInstance(obj, ItemVariable)
+
+    def assert_property_variable(self, obj: PropertyVariable, name: str):
+        self.assert_entity_variable(obj, name)
+        self.assertIsInstance(obj, PropertyVariable)
+
+    def assert_lexeme_variable(self, obj: LexemeVariable, name: str):
+        self.assert_entity_variable(obj, name)
+        self.assertIsInstance(obj, LexemeVariable)
+
+    def assert_data_value_variable(self, obj: DataValueVariable, name: str):
+        self.assert_variable(obj, name)
+        self.assertIsInstance(obj, DataValueVariable)
+
+    def assert_shallow_data_value_variable(
+            self,
+            obj: ShallowDataValueVariable,
+            name: str
+    ):
+        self.assert_data_value_variable(obj, name)
+        self.assertIsInstance(obj, ShallowDataValueVariable)
+
+    def assert_iri_variable(self, obj: IRI_Variable, name: str):
+        self.assert_shallow_data_value_variable(obj, name)
+        self.assertIsInstance(obj, IRI_Variable)
+
+    def assert_text_variable(self, obj: TextVariable, name: str):
+        self.assert_shallow_data_value_variable(obj, name)
+        self.assertIsInstance(obj, TextVariable)
+
+    def assert_string_variable(self, obj: StringVariable, name: str):
+        self.assert_shallow_data_value_variable(obj, name)
+        self.assertIsInstance(obj, StringVariable)
+
+    def assert_external_id_variable(self, obj: ExternalIdVariable, name: str):
+        self.assert_string_variable(obj, name)
+        self.assertIsInstance(obj, ExternalIdVariable)
+
+    def assert_deep_data_value_variable(
+            self,
+            obj: DeepDataValueVariable,
+            name: str
+    ):
+        self.assert_data_value_variable(obj, name)
+        self.assertIsInstance(obj, DeepDataValueVariable)
+
+    def assert_quantity_variable(self, obj: QuantityVariable, name: str):
+        self.assert_deep_data_value_variable(obj, name)
+        self.assertIsInstance(obj, QuantityVariable)
+
+    def assert_time_variable(self, obj: TimeVariable, name: str):
+        self.assert_deep_data_value_variable(obj, name)
+        self.assertIsInstance(obj, TimeVariable)
+
+    def assert_snak_variable(self, obj: SnakVariable, name: str):
+        self.assert_variable(obj, name)
+        self.assertIsInstance(obj, SnakVariable)
+
+    def assert_value_snak_variable(self, obj: ValueSnakVariable, name: str):
+        self.assert_snak_variable(obj, name)
+        self.assertIsInstance(obj, ValueSnakVariable)
+
+    def assert_some_value_snak_variable(
+            self,
+            obj: SomeValueSnakVariable,
+            name: str
+    ):
+        self.assert_snak_variable(obj, name)
+        self.assertIsInstance(obj, SomeValueSnakVariable)
+
+    def assert_no_value_snak_variable(
+            self,
+            obj: NoValueSnakVariable,
+            name: str
+    ):
+        self.assert_snak_variable(obj, name)
+        self.assertIsInstance(obj, NoValueSnakVariable)
+
+    def assert_statement_variable(self, obj: StatementVariable, name: str):
+        self.assert_variable(obj, name)
+        self.assertIsInstance(obj, StatementVariable)
 
 # -- Snak ------------------------------------------------------------------
 
