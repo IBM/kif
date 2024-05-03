@@ -40,13 +40,15 @@ class KIF_Object(object.Object):
     @classmethod
     def __init_subclass__(cls, **kwargs):
         if 'template_class' in kwargs:
-            from .pattern import Template, Variable
+            from .template import Template
+            from .variable import Variable
             assert not issubclass(cls, (Template, Variable))
             cls.template_class = kwargs['template_class']
             assert issubclass(cls.template_class, Template)
             cls.template_class.object_class = cls
         if 'variable_class' in kwargs:
-            from .pattern import Template, Variable
+            from .template import Template
+            from .variable import Variable
             assert not issubclass(cls, (Template, Variable))
             cls.variable_class = kwargs['variable_class']
             assert issubclass(cls.variable_class, Variable)
@@ -66,13 +68,16 @@ class KIF_Object(object.Object):
 
     @classmethod
     def _issubclass_template(cls, arg):
-        from .pattern import Template
+        from .template import Template
         return issubclass(arg, Template)
 
     @classmethod
     def _isinstance_template_or_variable(cls, arg):
-        from .pattern import Template, Variable
+        from .template import Template
+        from .variable import Variable
         return isinstance(arg, (Template, Variable))
+
+# -- kif_object_class ------------------------------------------------------
 
     @classmethod
     def _check_arg_kif_object_class(
@@ -166,7 +171,8 @@ class KIF_Object(object.Object):
             return Decimal(arg)
         except decimal.InvalidOperation:
             raise cls._arg_error(
-                'expected decimal', function, name, position, ValueError)
+                f'expected {Decimal.__qualname__}',
+                function, name, position, ValueError)
 
     @classmethod
     def _check_optional_arg_decimal(

@@ -13,8 +13,9 @@ from ..typing import (
     Union,
 )
 from .kif_object import KIF_Object, TCallable
-from .pattern import Template, Variable
+from .template import Template
 from .value import Property, Value, VProperty, VValue, VVProperty, VVValue
+from .variable import Variable
 
 VSnak: TypeAlias =\
     Union['SnakTemplate', 'SnakVariable', 'Snak']

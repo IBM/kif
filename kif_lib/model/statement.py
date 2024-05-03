@@ -3,9 +3,10 @@
 
 from ..typing import override, TypeAlias, Union
 from .kif_object import KIF_Object
-from .pattern import Template, Variable
 from .snak import Snak, VSnak, VVSnak
+from .template import Template
 from .value import Entity, VEntity, VVEntity
+from .variable import Variable
 
 VStatement: TypeAlias =\
     Union['StatementTemplate', 'StatementVariable', 'Statement']

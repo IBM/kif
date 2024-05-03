@@ -24,7 +24,7 @@ from .fingerprint import (
     TPropertyFingerprint,
 )
 from .kif_object_set import KIF_ObjectSet, T_KIF_ObjectSet
-from .pattern import Pattern, Template, Variable
+from .pattern import Pattern
 from .pattern_deprecated import FilterPattern
 from .rank import DeprecatedRank, NormalRank, PreferredRank, Rank
 from .reference_record import ReferenceRecord
@@ -45,6 +45,7 @@ from .snak import (
 )
 from .snak_set import SnakSet, TSnakSet
 from .statement import Statement, StatementTemplate, StatementVariable
+from .template import Template
 from .value import (
     Datatype,
     DataValue,
@@ -105,6 +106,7 @@ from .value import (
     ValueVariable,
 )
 from .value_set import TextSet, TTextSet, TValueSet, ValueSet
+from .variable import Variable
 
 Datetime = datetime.datetime
 Decimal = decimal.Decimal

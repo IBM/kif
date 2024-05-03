@@ -27,7 +27,8 @@ from .kif_object import (
     TDatetime,
     TDecimal,
 )
-from .pattern import Template, Variable
+from .template import Template
+from .variable import Variable
 
 # -- Value --
 
@@ -123,7 +124,7 @@ TTime: TypeAlias = Union['Time', TDatetime]
 
 VTTimeContent: TypeAlias = Union['Variable', TTime]
 
-VTimeContent: TypeAlias = Union['TimeVariable', 'Time']
+VTimeContent: TypeAlias = Union['TimeVariable', Datetime]
 
 VTime: TypeAlias = Union['TimeTemplate', 'TimeVariable', 'Time']
 
