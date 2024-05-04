@@ -5,7 +5,7 @@ from functools import cache
 
 from ..typing import Mapping, NoReturn, Optional, Set, TypeAlias, Union
 from .kif_object import KIF_Object, TCallable
-from .variable import Variable
+from .variable import Theta, Variable
 
 TemplateClass: TypeAlias = type['Template']
 TTemplateClass: TypeAlias = Union[TemplateClass, type[KIF_Object]]
@@ -89,10 +89,7 @@ class Template(KIF_Object):
             Variable.test,
             KIF_Object._isinstance_template_or_variable))
 
-    def instantiate(
-            self,
-            theta: Mapping[Variable, Optional[KIF_Object]]
-    ) -> KIF_Object:
+    def instantiate(self, theta: Theta) -> KIF_Object:
         """Applies variable instantiation `theta` to template.
 
         Parameters:
@@ -105,10 +102,7 @@ class Template(KIF_Object):
             theta, Mapping, self.instantiate, 'theta', 1)
         return self._instantiate(theta) if theta else self
 
-    def _instantiate(
-            self,
-            theta: Mapping[Variable, Optional[KIF_Object]]
-    ) -> KIF_Object:
+    def _instantiate(self, theta: Theta) -> KIF_Object:
         return self.__class__(*map(
             lambda arg: arg._instantiate(theta)
             if isinstance(arg, (Template, Variable)) else arg, self.args))

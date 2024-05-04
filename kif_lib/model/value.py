@@ -844,7 +844,9 @@ class IRI_Template(ShallowDataValueTemplate):
     @override
     def _preprocess_arg(self, arg, i):
         if i == 1:              # content
-            if Variable.test(arg):
+            if Template.test(arg):
+                return self._preprocess_arg_string_template(arg, i)
+            elif Variable.test(arg):
                 return self._preprocess_arg_string_variable(
                     arg, i, self.__class__)
             else:

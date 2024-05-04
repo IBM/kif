@@ -72,12 +72,16 @@ from kif_lib.model import (
     Datetime,
     Decimal,
     DeepDataValueVariable,
+    EntityTemplate,
     EntityVariable,
     ExternalIdVariable,
     IRI_Variable,
+    ItemTemplate,
     ItemVariable,
+    LexemeTemplate,
     LexemeVariable,
     NoValueSnakVariable,
+    PropertyTemplate,
     PropertyVariable,
     QuantityVariable,
     ShallowDataValueVariable,
@@ -86,9 +90,12 @@ from kif_lib.model import (
     StatementVariable,
     StringVariable,
     TCallable,
+    Template,
     TextVariable,
     TimeVariable,
+    V_IRI,
     ValueSnakVariable,
+    ValueTemplate,
     ValueVariable,
 )
 from kif_lib.model.object import Object
@@ -480,6 +487,33 @@ if __name__ == '__main__':
         self.assertIsInstance(obj, TimeDatatype)
         self.assertTrue(obj.is_time_datatype())
         self.assertEqual(obj._uri, WIKIBASE.Time)
+
+# -- Template --------------------------------------------------------------
+
+    def assert_template(self, obj: Template):
+        self.assert_kif_object(obj)
+        self.assertIsInstance(obj, Template)
+
+    def assert_value_template(self, obj: ValueTemplate):
+        self.assert_template(obj)
+        self.assertIsInstance(obj, ValueTemplate)
+
+    def assert_entity_template(self, obj: EntityTemplate, iri: V_IRI):
+        self.assert_value_template(obj)
+        self.assertIsInstance(obj, EntityTemplate)
+        self.assertEqual(obj.iri, iri)
+
+    def assert_item_template(self, obj: ItemTemplate, iri: V_IRI):
+        self.assert_entity_template(obj, iri)
+        self.assertIsInstance(obj, ItemTemplate)
+
+    def assert_property_template(self, obj: PropertyTemplate, iri: V_IRI):
+        self.assert_entity_template(obj, iri)
+        self.assertIsInstance(obj, PropertyTemplate)
+
+    def assert_lexeme_template(self, obj: LexemeTemplate, iri: V_IRI):
+        self.assert_entity_template(obj, iri)
+        self.assertIsInstance(obj, LexemeTemplate)
 
 # -- Variable --------------------------------------------------------------
 
