@@ -91,7 +91,7 @@ class Template(KIF_Object):
         # A template is *normal* iff for every two variables ``x``, ``y`` in
         # the template, ``x.name == y.name`` implies ``type(x) == type(y)``.
         #
-        # We normalize a template by normalizing its arguments, i.e.,
+        # We normalize a template by normalizing its arguments, i.e., by
         # replacing homonymous occurrences of a same variable by the
         # occurrence with the most specific type.  For example, if
         # ItemVariable('v') and EntityVariable('v') occur in the arguments
