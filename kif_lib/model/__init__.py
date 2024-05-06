@@ -71,6 +71,7 @@ from .value import (
     DataValueTemplate,
     DataValueVariable,
     DeepDataValue,
+    DeepDataValueTemplate,
     DeepDataValueVariable,
     Entity,
     EntityTemplate,
@@ -133,9 +134,14 @@ from .value import (
     VLexeme,
     VProperty,
     VQuantity,
+    VQuantityContent,
     VString,
+    VStringContent,
     VText,
     VTime,
+    VTimeContent,
+    VTimePrecisionContent,
+    VTimeTimezoneContent,
     VValue,
 )
 from .value_set import TextSet, TTextSet, TValueSet, ValueSet

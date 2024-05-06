@@ -68,35 +68,59 @@ from kif_lib import (
 )
 from kif_lib.error import ShouldNotGetHere
 from kif_lib.model import (
+    DataValueTemplate,
     DataValueVariable,
     Datetime,
     Decimal,
+    DeepDataValueTemplate,
     DeepDataValueVariable,
     EntityTemplate,
     EntityVariable,
+    ExternalIdTemplate,
     ExternalIdVariable,
+    IRI_Template,
     IRI_Variable,
     ItemTemplate,
     ItemVariable,
     LexemeTemplate,
     LexemeVariable,
+    NoValueSnakTemplate,
     NoValueSnakVariable,
     PropertyTemplate,
     PropertyVariable,
+    QuantityTemplate,
     QuantityVariable,
+    ShallowDataValueTemplate,
     ShallowDataValueVariable,
+    SnakTemplate,
     SnakVariable,
+    SomeValueSnakTemplate,
     SomeValueSnakVariable,
+    StatementTemplate,
     StatementVariable,
+    StringTemplate,
     StringVariable,
     TCallable,
     Template,
+    TextTemplate,
     TextVariable,
+    TimeTemplate,
     TimeVariable,
     V_IRI,
+    ValueSnakTemplate,
     ValueSnakVariable,
     ValueTemplate,
     ValueVariable,
+    VEntity,
+    VItem,
+    VProperty,
+    VQuantityContent,
+    VSnak,
+    VStringContent,
+    VTimeContent,
+    VTimePrecisionContent,
+    VTimeTimezoneContent,
+    VValue,
 )
 from kif_lib.model.object import Object
 from kif_lib.namespace import WIKIBASE, XSD
@@ -502,6 +526,8 @@ if __name__ == '__main__':
         self.assert_value_template(obj)
         self.assertIsInstance(obj, EntityTemplate)
         self.assertEqual(obj.iri, iri)
+        self.assertEqual(obj.get_iri(), iri)
+        self.assertEqual(obj.args[0], iri)
 
     def assert_item_template(self, obj: ItemTemplate, iri: V_IRI):
         self.assert_entity_template(obj, iri)
@@ -514,6 +540,160 @@ if __name__ == '__main__':
     def assert_lexeme_template(self, obj: LexemeTemplate, iri: V_IRI):
         self.assert_entity_template(obj, iri)
         self.assertIsInstance(obj, LexemeTemplate)
+
+    def assert_data_value_template(self, obj: DataValueTemplate):
+        self.assert_value_template(obj)
+        self.assertIsInstance(obj, DataValueTemplate)
+
+    def assert_shallow_data_value_template(
+            self,
+            obj: ShallowDataValueTemplate,
+            content: VStringContent
+    ):
+        self.assert_data_value_template(obj)
+        self.assertIsInstance(obj, ShallowDataValueTemplate)
+        self.assertEqual(obj.content, content)
+        self.assertEqual(obj.get_content(), content)
+        self.assertEqual(obj.args[0], content)
+
+    def assert_iri_template(
+            self,
+            obj: IRI_Template,
+            content: VStringContent
+    ):
+        self.assert_shallow_data_value_template(obj, content)
+        self.assertIsInstance(obj, IRI_Template)
+
+    def assert_text_template(
+            self,
+            obj: TextTemplate,
+            content: VStringContent,
+            language: VStringContent
+    ):
+        self.assert_shallow_data_value_template(obj, content)
+        self.assertIsInstance(obj, TextTemplate)
+        self.assertEqual(obj.language, language)
+        self.assertEqual(obj.get_language(), language)
+        self.assertEqual(obj.args[1], language)
+
+    def assert_string_template(
+            self,
+            obj: StringTemplate,
+            content: VStringContent
+    ):
+        self.assert_shallow_data_value_template(obj, content)
+        self.assertIsInstance(obj, StringTemplate)
+
+    def assert_external_id_template(
+            self, obj: ExternalIdTemplate,
+            content: VStringContent
+    ):
+        self.assert_string_template(obj, content)
+        self.assertIsInstance(obj, ExternalIdTemplate)
+
+    def assert_deep_data_value_template(self, obj: DeepDataValueTemplate):
+        self.assert_data_value_template(obj)
+        self.assertIsInstance(obj, DeepDataValueTemplate)
+
+    def assert_quantity_template(
+            self,
+            obj: QuantityTemplate,
+            amount: VQuantityContent,
+            unit: Optional[VItem],
+            lower_bound: Optional[VQuantityContent],
+            upper_bound: Optional[VQuantityContent]
+    ):
+        self.assert_deep_data_value_template(obj)
+        self.assertIsInstance(obj, QuantityTemplate)
+        self.assertEqual(obj.amount, amount)
+        self.assertEqual(obj.get_amount(), amount)
+        self.assertEqual(obj.args[0], amount)
+        self.assertEqual(obj.unit, unit)
+        self.assertEqual(obj.get_unit(), unit)
+        self.assertEqual(obj.args[1], unit)
+        self.assertEqual(obj.lower_bound, lower_bound)
+        self.assertEqual(obj.get_lower_bound(), lower_bound)
+        self.assertEqual(obj.args[2], lower_bound)
+        self.assertEqual(obj.upper_bound, upper_bound)
+        self.assertEqual(obj.get_upper_bound(), upper_bound)
+        self.assertEqual(obj.args[3], upper_bound)
+
+    def assert_time_template(
+            self,
+            obj: TimeTemplate,
+            time: VTimeContent,
+            precision: Optional[VTimePrecisionContent],
+            timezone: Optional[VTimeTimezoneContent],
+            calendar: Optional[VItem]
+    ):
+        self.assert_deep_data_value_template(obj)
+        self.assertIsInstance(obj, TimeTemplate)
+        self.assertEqual(obj.time, time)
+        self.assertEqual(obj.get_time(), time)
+        self.assertEqual(obj.args[0], time)
+        self.assertEqual(obj.precision, precision)
+        self.assertEqual(obj.get_precision(), precision)
+        self.assertEqual(obj.args[1], precision)
+        self.assertEqual(obj.timezone, timezone)
+        self.assertEqual(obj.get_timezone(), timezone)
+        self.assertEqual(obj.args[2], timezone)
+        self.assertEqual(obj.calendar, calendar)
+        self.assertEqual(obj.get_calendar(), calendar)
+        self.assertEqual(obj.args[3], calendar)
+
+    def assert_snak_template(
+            self,
+            obj: SnakTemplate,
+            property: VProperty
+    ):
+        self.assert_template(obj)
+        self.assertIsInstance(obj, SnakTemplate)
+        self.assertEqual(obj.property, property)
+        self.assertEqual(obj.get_property(), property)
+        self.assertEqual(obj.args[0], property)
+
+    def assert_value_snak_template(
+            self,
+            obj: ValueSnakTemplate,
+            property: VProperty,
+            value: VValue
+    ):
+        self.assert_snak_template(obj, property)
+        self.assertIsInstance(obj, ValueSnakTemplate)
+        self.assertEqual(obj.value, value)
+        self.assertEqual(obj.get_value(), value)
+        self.assertEqual(obj.args[1], value)
+
+    def assert_some_value_snak_template(
+            self,
+            obj: SomeValueSnakTemplate,
+            property: VProperty,
+    ):
+        self.assert_snak_template(obj, property)
+        self.assertIsInstance(obj, SomeValueSnakTemplate)
+
+    def assert_no_value_snak_template(
+            self,
+            obj: NoValueSnakTemplate,
+            property: VProperty,
+    ):
+        self.assert_snak_template(obj, property)
+        self.assertIsInstance(obj, NoValueSnakTemplate)
+
+    def assert_statement_template(
+            self,
+            obj: StatementTemplate,
+            subject: VEntity,
+            snak: VSnak
+    ):
+        self.assert_template(obj)
+        self.assertIsInstance(obj, StatementTemplate)
+        self.assertEqual(obj.subject, subject)
+        self.assertEqual(obj.get_subject(), subject)
+        self.assertEqual(obj.args[0], subject)
+        self.assertEqual(obj.snak, snak)
+        self.assertEqual(obj.get_snak(), snak)
+        self.assertEqual(obj.args[1], snak)
 
 # -- Variable --------------------------------------------------------------
 

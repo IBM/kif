@@ -76,7 +76,7 @@ VLexeme: TypeAlias = Union['LexemeTemplate', 'LexemeVariable', 'Lexeme']
 
 T_IRI: TypeAlias = Union['IRI', 'String', NS.T_URI]
 
-VT_IRI_Content: TypeAlias = Union['Variable', T_IRI]
+VT_IRI_Content: TypeAlias = Union['StringVariable', T_IRI]
 
 V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'IRI']
 
@@ -84,7 +84,7 @@ V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'IRI']
 
 TText: TypeAlias = Union['Text', 'TString']
 
-VTTextContent: TypeAlias = Union['Variable', TText]
+VTTextContent: TypeAlias = Union['StringVariable', TText]
 
 VText: TypeAlias = Union['TextTemplate', 'TextVariable', 'Text']
 
@@ -92,7 +92,7 @@ VText: TypeAlias = Union['TextTemplate', 'TextVariable', 'Text']
 
 TString: TypeAlias = Union['String', str]
 
-VTStringContent: TypeAlias = Union['Variable', TString]
+VTStringContent: TypeAlias = Union['StringVariable', TString]
 
 VStringContent: TypeAlias = Union['StringVariable', str]
 
@@ -102,7 +102,7 @@ VString: TypeAlias = Union['StringTemplate', 'StringVariable', 'String']
 
 TExternalId: TypeAlias = Union['ExternalId', TString]
 
-VTExternalIdContent: TypeAlias = Union['Variable', TExternalId]
+VTExternalIdContent: TypeAlias = Union['StringVariable', TExternalId]
 
 VExternalId: TypeAlias =\
     Union['ExternalIdTemplate', 'ExternalIdVariable', 'ExternalId']
@@ -449,19 +449,23 @@ class EntityTemplate(ValueTemplate):
         if i == 1:              # iri
             if Template.test(arg):
                 return self._preprocess_arg_iri_template(arg, i)
-            elif Variable.test(arg):
+            else:
                 return self._preprocess_arg_iri_variable(
                     arg, i, self.__class__)
-            else:
-                return Entity._static_preprocess_arg(self, arg, i)
         else:
             raise self._should_not_get_here()
 
     @property
     def iri(self) -> V_IRI:
+        """The iri of entity template."""
         return self.get_iri()
 
     def get_iri(self) -> V_IRI:
+        """Gets the iri of entity template.
+
+        Returns:
+           IRI template or IRI variable.
+        """
         return self.args[0]
 
 
@@ -527,7 +531,7 @@ class ItemTemplate(EntityTemplate):
     """Item template.
 
     Parameters:
-       iri: IRI.
+       iri: IRI, IRI template, or IRI variable.
     """
 
     def __init__(self, iri: VTItemContent):
@@ -599,7 +603,7 @@ class PropertyTemplate(EntityTemplate):
     """Property template.
 
     Parameters:
-       iri: IRI.
+       iri: IRI, IRI template, or IRI variable.
     """
 
     def __init__(self, iri: VTPropertyContent):
@@ -692,7 +696,7 @@ class LexemeTemplate(EntityTemplate):
     """Lexeme template.
 
     Parameters:
-       iri: IRI.
+       iri: IRI, IRI template, or IRI variable.
     """
 
     def __init__(self, iri: VTLexemeContent):
@@ -787,11 +791,25 @@ class DataValue(
 class ShallowDataValueTemplate(DataValueTemplate):
     """Abstract base class for shallow data value templates."""
 
+    @override
+    def _preprocess_arg(self, arg, i):
+        if i == 1:              # content
+            return self._preprocess_arg_string_variable(
+                arg, i, self.__class__)
+        else:
+            raise self._should_not_get_here()
+
     @property
     def content(self) -> VStringContent:
+        """The content of shallow data value template."""
         return self.get_content()
 
     def get_content(self) -> VStringContent:
+        """Gets the content of shallow data value.
+
+        Returns:
+           String variable.
+        """
         return self.args[0]
 
 
@@ -824,7 +842,7 @@ class ShallowDataValue(
         """Gets the content of shallow data value.
 
         Returns:
-           Content.
+           String content.
         """
         return self.args[0]
 
@@ -835,24 +853,11 @@ class IRI_Template(ShallowDataValueTemplate):
     """IRI template.
 
     Parameters:
-       content: IRI content.
+       content: IRI content or string variable.
     """
 
     def __init__(self, content: VT_IRI_Content):
         super().__init__(content)
-
-    @override
-    def _preprocess_arg(self, arg, i):
-        if i == 1:              # content
-            if Template.test(arg):
-                return self._preprocess_arg_string_template(arg, i)
-            elif Variable.test(arg):
-                return self._preprocess_arg_string_variable(
-                    arg, i, self.__class__)
-            else:
-                return IRI._static_preprocess_arg(self, arg, i)
-        else:
-            raise self._should_not_get_here()
 
 
 class IRI_Variable(ShallowDataValueVariable):
@@ -922,8 +927,8 @@ class TextTemplate(ShallowDataValueTemplate):
     """Text template.
 
     Parameters:
-       content: Text content.
-       language: Language tag.
+       content: Text content or string variable.
+       language: Language tag or string variable.
     """
 
     def __init__(
@@ -952,9 +957,15 @@ class TextTemplate(ShallowDataValueTemplate):
 
     @property
     def language(self) -> VStringContent:
+        """The language tag of text template."""
         return self.get_language()
 
     def get_language(self) -> VStringContent:
+        """Gets the language tag of text template.
+
+        Returns:
+           Language tag or string variable.
+        """
         return self.args[1]
 
 
@@ -1039,22 +1050,11 @@ class StringTemplate(ShallowDataValueTemplate):
     """Base class for string templates.
 
     Parameters:
-       content: String content.
+       content: String content or string variable.
     """
 
     def __init__(self, content: VTStringContent):
         super().__init__(content)
-
-    @override
-    def _preprocess_arg(self, arg, i):
-        if i == 1:              # content
-            if Variable.test(arg):
-                return self._preprocess_arg_string_variable(
-                    arg, i, self.__class__)
-            else:
-                return String._static_preprocess_arg(self, arg, i)
-        else:
-            raise self._should_not_get_here()
 
 
 class StringVariable(ShallowDataValueVariable):
@@ -1121,22 +1121,11 @@ class ExternalIdTemplate(StringTemplate):
     """External id template.
 
     Parameters:
-       content: External id content.
+       content: External id content or string variable.
     """
 
     def __init__(self, content: VTExternalIdContent):
         super().__init__(content)
-
-    @override
-    def _preprocess_arg(self, arg, i):
-        if i == 1:              # content
-            if Variable.test(arg):
-                return self._preprocess_arg_string_variable(
-                    arg, i, self.__class__)
-            else:
-                return ExternalId._static_preprocess_arg(self, arg, i)
-        else:
-            raise self._should_not_get_here()
 
 
 class ExternalIdVariable(StringVariable):
@@ -1233,10 +1222,10 @@ class QuantityTemplate(DeepDataValueTemplate):
     """Quantity template.
 
     Parameters:
-       amount: Amount.
-       unit: Unit.
-       lower_bound: Lower bound.
-       upper_bound: Upper bound.
+       amount: Amount or quantity variable.
+       unit: Unit, item template, or item variable.
+       lower_bound: Lower bound or quantity variable.
+       upper_bound: Upper bound or quantity variable.
     """
 
     def __init__(
@@ -1280,41 +1269,80 @@ class QuantityTemplate(DeepDataValueTemplate):
 
     @property
     def amount(self) -> VQuantityContent:
+        """The amount of quantity template."""
         return self.get_amount()
 
     def get_amount(self) -> VQuantityContent:
+        """Gets the amount of quantity template
+
+        Returns:
+           Amount or quantity variable.
+        """
         return self.args[0]
 
     @property
     def unit(self) -> Optional[VItem]:
+        """The unit of quantity template."""
         return self.get_unit()
 
     def get_unit(
             self,
             default: Optional[VItem] = None
     ) -> Optional[VItem]:
+        """Gets the unit of quantity template
+
+        If the unit is ``None``, returns `default`.
+
+        Parameters:
+           default: Default unit.
+
+        Returns:
+           Unit, item template, or item variable.
+        """
         unit = self.args[1]
         return unit if unit is not None else default
 
     @property
     def lower_bound(self) -> Optional[VQuantityContent]:
+        """The lower bound of quantity template."""
         return self.get_lower_bound()
 
     def get_lower_bound(
             self,
             default: Optional[VQuantityContent] = None
     ) -> Optional[VQuantityContent]:
+        """Gets the lower bound of quantity template
+
+        If the lower bound is ``None``, returns `default`.
+
+        Parameters:
+           default: Default lower bound.
+
+        Returns:
+           Lower bound or quantity variable.
+        """
         lb = self.args[2]
         return lb if lb is not None else default
 
     @property
     def upper_bound(self) -> Optional[VQuantityContent]:
+        """The upper bound of quantity template."""
         return self.get_upper_bound()
 
     def get_upper_bound(
             self,
             default: Optional[VQuantityContent] = None
     ) -> Optional[VQuantityContent]:
+        """Gets the upper bound of quantity template.
+
+        If the upper bound is ``None``, returns `default`.
+
+        Parameters:
+           default: Default upper bound.
+
+        Returns:
+           Upper bound or quantity variable.
+        """
         ub = self.args[3]
         return ub if ub is not None else default
 
@@ -1481,10 +1509,10 @@ class TimeTemplate(DeepDataValueTemplate):
     """Time template.
 
     Parameters:
-       time: Time.
-       precision: Precision.
-       timezone: Time zone.
-       calendar: Calendar model.
+       time: Time or time variable.
+       precision: Precision or quantity variable.
+       timezone: Time zone or quantity variable.
+       calendar: Calendar model, item template, or item variable.
     """
 
     def __init__(
@@ -1528,41 +1556,80 @@ class TimeTemplate(DeepDataValueTemplate):
 
     @property
     def time(self) -> VTimeContent:
+        """The date-time of time template."""
         return self.get_time()
 
     def get_time(self) -> VTimeContent:
+        """Gets the date-time of time.
+
+        Returns:
+           Date-Time or time variable.
+        """
         return self.args[0]
 
     @property
     def precision(self) -> Optional[VTimePrecisionContent]:
+        """The precision of time template."""
         return self.get_precision()
 
     def get_precision(
             self,
             default: Optional[VTimePrecisionContent] = None
     ) -> Optional[VTimePrecisionContent]:
+        """Gets the precision of time.
+
+        If the precision is ``None``, returns `default`.
+
+        Parameters:
+           default: Default precision.
+
+        Returns:
+           Precision or quantity variable.
+        """
         prec = self.args[1]
         return prec if prec is not None else default
 
     @property
     def timezone(self) -> Optional[VTimeTimezoneContent]:
+        """The timezone of time template."""
         return self.get_timezone()
 
     def get_timezone(
             self,
             default: Optional[VTimeTimezoneContent] = None
     ) -> Optional[VTimeTimezoneContent]:
+        """Gets the timezone of time template
+
+        If the timezone is ``None``, returns `default`.
+
+        Parameters:
+           default: Default timezone.
+
+        Returns:
+           Timezone or quantity variable.
+        """
         tz = self.args[2]
         return tz if tz is not None else default
 
     @property
     def calendar(self) -> Optional[VItem]:
+        """The calendar model of time template."""
         return self.get_calendar()
 
     def get_calendar(
             self,
             default: Optional[VItem] = None
     ) -> Optional[VItem]:
+        """Gets calendar model of time template.
+
+        If the calendar model is ``None``, returns `default`.
+
+        Parameters:
+           default: Default calendar model.
+
+        Returns:
+           Calendar model, item template, or item variable.
+        """
         cal = self.args[3]
         return cal if cal is not None else default
 
@@ -1837,9 +1904,11 @@ class Time(
             return self._preprocess_arg_datetime(
                 arg.args[0] if isinstance(arg, Time) else arg, i)
         elif i == 2:            # precision
-            return Time._preprocess_optional_arg_precision(arg, i)
+            return Time._preprocess_optional_arg_precision(
+                arg, i, None, self.__class__)
         elif i == 3:            # timezone
-            return Time._preprocess_optional_arg_timezone(arg, i)
+            return Time._preprocess_optional_arg_timezone(
+                arg, i, None, self.__class__)
         elif i == 4:            # calendar
             return self._preprocess_optional_arg_item(arg, i)
         else:

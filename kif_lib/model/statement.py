@@ -46,16 +46,28 @@ class StatementTemplate(Template):
 
     @property
     def subject(self) -> VEntity:
+        """The subject of statement template."""
         return self.get_subject()
 
     def get_subject(self) -> VEntity:
+        """Gets the subject of statement template.
+
+        Returns:
+           Subject, entity template or entity variable.
+        """
         return self.args[0]
 
     @property
     def snak(self) -> VSnak:
+        """The snak of statement template."""
         return self.get_snak()
 
     def get_snak(self) -> VSnak:
+        """Gets the snak of statement template.
+
+        Returns:
+           Snak, snak template, or snak variable.
+        """
         return self.args[1]
 
 

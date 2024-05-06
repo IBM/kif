@@ -50,9 +50,15 @@ class SnakTemplate(Template):
 
     @property
     def property(self) -> VProperty:
+        """The property of snak template."""
         return self.get_property()
 
     def get_property(self) -> VProperty:
+        """Gets the property of snak template.
+
+        Returns:
+           Property, property template, or property variable.
+        """
         return self.args[0]
 
 
@@ -200,8 +206,8 @@ class ValueSnakTemplate(SnakTemplate):
     """Value snak template.
 
     Parameters:
-       property: Property.
-       value: Value.
+       property: Property, property template, or property variable.
+       value: Value, value template, or value variable.
     """
 
     def __init__(self, property: VVProperty, value: VVValue):
@@ -224,9 +230,15 @@ class ValueSnakTemplate(SnakTemplate):
 
     @property
     def value(self) -> VValue:
+        """The value of value snak template."""
         return self.get_value()
 
     def get_value(self) -> VValue:
+        """Gets the value of value snak template.
+
+        Returns:
+           Value or value template or value variable.
+        """
         return self.args[1]
 
 
@@ -284,7 +296,7 @@ class SomeValueSnakTemplate(SnakTemplate):
     """Some-value snak template.
 
     Parameters:
-       property: Property.
+       property: Property, property template, or property variable.
     """
 
     def __init__(self, property: VVProperty):
@@ -322,7 +334,7 @@ class NoValueSnakTemplate(SnakTemplate):
     """No-value snak template.
 
     Parameters:
-       parameters: Property.
+       parameters: Property, property template, or property variable.
     """
 
     def __init__(self, property: VVProperty):
