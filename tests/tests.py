@@ -284,8 +284,6 @@ if __name__ == '__main__':
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Item)
         self.assertTrue(obj.is_item())
-        self.assertEqual(obj.mask, Value.ITEM)
-        self.assertEqual(obj.get_mask(), Value.ITEM)
         self.assert_item_datatype(cast(
             ItemDatatype, Datatype.from_value_class(type(obj))))
 
@@ -293,8 +291,6 @@ if __name__ == '__main__':
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Property)
         self.assertTrue(obj.is_property())
-        self.assertEqual(obj.mask, Value.PROPERTY)
-        self.assertEqual(obj.get_mask(), Value.PROPERTY)
         self.assert_property_datatype(cast(
             PropertyDatatype, Datatype.from_value_class(type(obj))))
 
@@ -302,8 +298,6 @@ if __name__ == '__main__':
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Lexeme)
         self.assertTrue(obj.is_lexeme())
-        self.assertEqual(obj.mask, Value.LEXEME)
-        self.assertEqual(obj.get_mask(), Value.LEXEME)
         self.assert_lexeme_datatype(cast(
             LexemeDatatype, Datatype.from_value_class(type(obj))))
 
@@ -323,8 +317,6 @@ if __name__ == '__main__':
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, IRI)
         self.assertTrue(obj.is_iri())
-        self.assertEqual(obj.mask, Value.IRI)
-        self.assertEqual(obj.get_mask(), Value.IRI)
         self.assert_iri_datatype(cast(
             IRI_Datatype, Datatype.from_value_class(type(obj))))
         self.assertEqual(obj.args[0], content)
@@ -341,8 +333,6 @@ if __name__ == '__main__':
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, Text)
         self.assertTrue(obj.is_text())
-        self.assertEqual(obj.mask, Value.TEXT)
-        self.assertEqual(obj.get_mask(), Value.TEXT)
         self.assert_text_datatype(cast(
             TextDatatype, Datatype.from_value_class(type(obj))))
         self.assertEqual(obj.args[0], content)
@@ -357,8 +347,6 @@ if __name__ == '__main__':
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, String)
         self.assertTrue(obj.is_string())
-        self.assertEqual(obj.mask, Value.STRING)
-        self.assertEqual(obj.get_mask(), Value.STRING)
         self.assert_string_datatype(cast(
             StringDatatype, Datatype.from_value_class(type(obj))))
         self.assertEqual(obj.args[0], content)
@@ -370,8 +358,6 @@ if __name__ == '__main__':
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, String)
         self.assertIsInstance(obj, ExternalId)
-        self.assertEqual(obj.mask, Value.EXTERNAL_ID)
-        self.assertEqual(obj.get_mask(), Value.EXTERNAL_ID)
         self.assertTrue(obj.is_external_id())
         self.assert_external_id_datatype(cast(
             ExternalIdDatatype, Datatype.from_value_class(type(obj))))
@@ -396,8 +382,6 @@ if __name__ == '__main__':
         self.assert_deep_data_value(obj)
         self.assertIsInstance(obj, Quantity)
         self.assertTrue(obj.is_quantity())
-        self.assertEqual(obj.mask, Value.QUANTITY)
-        self.assertEqual(obj.get_mask(), Value.QUANTITY)
         self.assert_quantity_datatype(cast(
             QuantityDatatype, Datatype.from_value_class(type(obj))))
         self.assertEqual(obj.args[0], Decimal(amount))
@@ -429,8 +413,6 @@ if __name__ == '__main__':
         self.assert_deep_data_value(obj)
         self.assertIsInstance(obj, Time)
         self.assertTrue(obj.is_time())
-        self.assertEqual(obj.mask, Value.TIME)
-        self.assertEqual(obj.get_mask(), Value.TIME)
         self.assert_time_datatype(cast(
             TimeDatatype, Datatype.from_value_class(type(obj))))
         self.assertEqual(obj.args[0], time)

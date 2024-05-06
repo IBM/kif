@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import abstractmethod
-from enum import auto, Enum, Flag
+from enum import Enum
 from functools import cache
 
 from .. import namespace as NS
@@ -176,154 +176,6 @@ class Value(
 ):
     """Abstract base class for values."""
 
-    class Mask(Flag):
-        """Mask for concrete value classes."""
-
-        #: Mask for :class:`Item`.
-        ITEM = auto()
-
-        #: Mask for :class:`Property`.
-        PROPERTY = auto()
-
-        #: Mask for :class:`Lexeme`.
-        LEXEME = auto()
-
-        #: Mask for :class:`IRI`.
-        IRI = auto()
-
-        #: Mask for :class:`Text`.
-        TEXT = auto()
-
-        #: Mask for :class:`String`.
-        STRING = auto()
-
-        #: Mask for :class:`ExternalId`.
-        EXTERNAL_ID = auto()
-
-        #: Mask for :class:`Quantity`.
-        QUANTITY = auto()
-
-        #: Mask for :class:`Time`.
-        TIME = auto()
-
-        #: Mask for :class:`Entity`.
-        ENTITY = ITEM | PROPERTY | LEXEME
-
-        #: Mask for :class:`ShallowDataValue`.
-        SHALLOW_DATA_VALUE = IRI | TEXT | STRING | EXTERNAL_ID
-
-        #: Mask for :class:`DeepDataValue`.
-        DEEP_DATA_VALUE = TIME | QUANTITY
-
-        #: Mask for :class:`DataValue`.
-        DATA_VALUE = SHALLOW_DATA_VALUE | DEEP_DATA_VALUE
-
-        #: Mask for all value classes.
-        ALL = ENTITY | SHALLOW_DATA_VALUE | DEEP_DATA_VALUE
-
-    #: Mask for :class:`Item`.
-    ITEM: Final[Mask] = Mask.ITEM
-
-    #: Mask for :class:`Property`.
-    PROPERTY: Final[Mask] = Mask.PROPERTY
-
-    #: Mask for :class:`Lexeme`.
-    LEXEME: Final[Mask] = Mask.LEXEME
-
-    #: Mask for :class:`IRI`.
-    IRI: Final[Mask] = Mask.IRI
-
-    #: Mask for :class:`Text`.
-    TEXT: Final[Mask] = Mask.TEXT
-
-    #: Mask for :class:`String`.
-    STRING: Final[Mask] = Mask.STRING
-
-    #: Mask for :class:`ExternalId`.
-    EXTERNAL_ID: Final[Mask] = Mask.EXTERNAL_ID
-
-    #: Mask for :class:`Quantity`.
-    QUANTITY: Final[Mask] = Mask.QUANTITY
-
-    #: Mask for :class:`Time`.
-    TIME: Final[Mask] = Mask.TIME
-
-    #: Mask for :class:`Entity`.
-    ENTITY: Final[Mask] = Mask.ENTITY
-
-    #: Mask for :class:`ShallowDataValue`.
-    SHALLOW_DATA_VALUE: Final[Mask] = Mask.SHALLOW_DATA_VALUE
-
-    #: Mask for :class:`DeepDataValue`.
-    DEEP_DATA_VALUE: Final[Mask] = Mask.DEEP_DATA_VALUE
-
-    #: Mask for :class:`DataValue`.
-    DATA_VALUE: Final[Mask] = Mask.DATA_VALUE
-
-    #: Mask for all value classes.
-    ALL: Final[Mask] = Mask.ALL
-
-    TMask = Union[Mask, int]
-
-    @classmethod
-    def _check_arg_value_mask(
-            cls,
-            arg: TMask,
-            function: Optional[Union[TCallable, str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Union[Mask, NoReturn]:
-        return cls.Mask(cls._check_arg_isinstance(
-            arg, (cls.Mask, int), function, name, position))
-
-    @classmethod
-    def _check_optional_arg_value_mask(
-            cls,
-            arg: Optional[TMask],
-            default: Optional[Mask] = None,
-            function: Optional[Union[TCallable, str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Union[Optional[Mask], NoReturn]:
-        if arg is None:
-            return default
-        else:
-            return cls._check_arg_value_mask(arg, function, name, position)
-
-    @classmethod
-    def _preprocess_arg_value_mask(
-            cls,
-            arg: TMask,
-            i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Mask, NoReturn]:
-        return cls._check_arg_value_mask(arg, function or cls, None, i)
-
-    @classmethod
-    def _preprocess_optional_arg_value_mask(
-            cls,
-            arg,
-            i: int,
-            default: Optional[Mask] = None,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Optional[Mask], NoReturn]:
-        if arg is None:
-            return default
-        else:
-            return cls._preprocess_arg_value_mask(arg, i, function)
-
-    #: Mask of this value class.
-    mask: Mask = Mask.ALL
-
-    @classmethod
-    def get_mask(cls) -> Mask:
-        """Gets the mask of this value class.
-
-        Returns:
-           Mask.
-        """
-        return cls.mask
-
     @classmethod
     def _check_arg_value(
             cls,
@@ -494,8 +346,6 @@ class Entity(
 ):
     """Abstract base class for entities."""
 
-    mask: Value.Mask = Value.ENTITY
-
     @override
     def _preprocess_arg(self, arg, i):
         return self._static_preprocess_arg(self, arg, i)
@@ -566,8 +416,6 @@ class Item(
     Parameters:
        iri: IRI.
     """
-
-    mask: Value.Mask = Value.ITEM
 
     @classmethod
     def _check_arg_item(
@@ -651,8 +499,6 @@ class Property(
        iri: IRI.
     """
 
-    mask: Value.Mask = Value.PROPERTY
-
     @classmethod
     def _check_arg_property(
             cls,
@@ -732,8 +578,6 @@ class Lexeme(
        iri: IRI.
     """
 
-    mask: Value.Mask = Value.LEXEME
-
     @classmethod
     def _check_arg_lexeme(
             cls,
@@ -783,8 +627,6 @@ class DataValue(
 ):
     """Abstract base class for data values."""
 
-    mask: Value.Mask = Value.DATA_VALUE
-
 
 # == Shallow data value ====================================================
 
@@ -827,8 +669,6 @@ class ShallowDataValue(
         variable_class=ShallowDataValueVariable
 ):
     """Abstract base class for shallow data values."""
-
-    mask: Value.Mask = Value.SHALLOW_DATA_VALUE
 
     def get_value(self) -> str:
         return self.args[0]
@@ -888,8 +728,6 @@ class IRI(
     Parameters:
        content: IRI content.
     """
-
-    mask: Value.Mask = Value.IRI
 
     @classmethod
     def _check_arg_iri(
@@ -989,8 +827,6 @@ class Text(
        language: Language tag.
     """
 
-    mask: Value.Mask = Value.TEXT
-
     #: Default language tag.
     default_language: Final[str] = 'en'
 
@@ -1086,8 +922,6 @@ class String(
        content: String content.
     """
 
-    mask: Value.Mask = Value.STRING
-
     @classmethod
     def _check_arg_string(
             cls,
@@ -1146,8 +980,6 @@ class ExternalId(
     Parameters:
        content: External id content.
     """
-
-    mask: Value.Mask = Value.EXTERNAL_ID
 
     @classmethod
     def _check_arg_external_id(
@@ -1212,8 +1044,6 @@ class DeepDataValue(
         variable_class=DeepDataValueVariable
 ):
     """Abstract base class for deep data values."""
-
-    mask: Value.Mask = Value.DEEP_DATA_VALUE
 
 
 # -- Quantity --------------------------------------------------------------
@@ -1378,8 +1208,6 @@ class Quantity(
        lower_bound: Lower bound.
        upper_bound: Upper bound.
     """
-
-    mask: Value.Mask = Value.QUANTITY
 
     @classmethod
     def _check_arg_quantity(
@@ -1665,8 +1493,6 @@ class Time(
        timezone: Time zone.
        calendar: Calendar model.
     """
-
-    mask: Value.Mask = Value.TIME
 
     # See:
     # <https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format#Time>.
