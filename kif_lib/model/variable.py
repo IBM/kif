@@ -29,6 +29,12 @@ class Variable(KIF_Object):
     #: Object class associated with this variable class.
     object_class: type[KIF_Object]
 
+    class CoercionError(ValueError):
+        """Bad coercion attempt."""
+
+    class InstantiationError(ValueError):
+        """Bad instantiation attempt."""
+
     def __new__(
             cls,
             name: str,
@@ -136,6 +142,23 @@ class Variable(KIF_Object):
         """
         return self.args[0]
 
+    def is_coercible(self, variable_class: TVariableClass) -> bool:
+        """Tests whether variable is coercible to `variable_class`.
+
+        Parameters:
+           variable_class: Variable class.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        var_cls = Variable._check_arg_variable_class(
+            variable_class, self.is_coercible, 'variable_class', 1)
+        return self._is_coercible(var_cls)
+
+    def _is_coercible(self, variable_class: VariableClass) -> bool:
+        return (issubclass(self.__class__, variable_class)
+                or issubclass(variable_class, self.__class__))
+
     def coerce(self, variable_class: TVariableClass) -> 'Variable':
         """Coerces variable to `variable_class`.
 
@@ -164,8 +187,8 @@ class Variable(KIF_Object):
             src = self.__class__.__qualname__
             dest = variable_class.__qualname__
             raise self._arg_error(
-                f'cannot coerce {src} into {dest}',
-                function, name, position, TypeError)
+                f"cannot coerce {src} '{self.name}' into {dest}",
+                function, name, position, self.CoercionError)
 
     def instantiate(
             self,
@@ -183,38 +206,62 @@ class Variable(KIF_Object):
         """
         self._check_arg_isinstance(
             theta, Mapping, self.instantiate, 'theta', 1)
-        return self._instantiate(theta, coerce) if theta else self
+        return self._instantiate(
+            theta, coerce, self.instantiate) if theta else self
 
     def _instantiate(
             self,
             theta: Theta,
-            coerce: bool = True
+            coerce: bool,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
     ) -> Optional[KIF_Object]:
         if self in theta:
-            return self._instantiate_check_inst(theta[self])
+            return self._instantiate_tail(theta, function, name, position)
         elif coerce:
             for other in filter(Variable.test, theta):
                 if other.name == self.name:
                     try:
-                        var = self.coerce(other.__class__)
-                    except TypeError:
+                        var = self._coerce(other.__class__)
+                    except self.CoercionError:
                         continue  # not coercible, skip
                     if var in theta:
-                        return var._instantiate_check_inst(theta[var])
+                        return var._instantiate_tail(
+                            theta, function, name, position)
             return self
         else:
             return self
 
-    def _instantiate_check_inst(
+    def _instantiate_tail(
             self,
-            inst: Optional[KIF_Object]
+            theta: Theta,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
     ) -> Optional[KIF_Object]:
-        if self.__class__ is Variable:
-            obj_cls = KIF_Object
+        obj = theta[self]
+        if obj is None:
+            return obj
         else:
-            obj_cls = self.object_class
-        return cast(
-            Optional[KIF_Object], obj_cls.check_optional(inst, None))
+            from .template import Template
+            if self.__class__ is Variable:
+                obj_cls = KIF_Object
+            elif isinstance(obj, Template):
+                assert hasattr(self.object_class, 'template_class')
+                obj_cls = self.object_class.template_class
+            elif isinstance(obj, Variable):
+                obj_cls = self.__class__
+            else:
+                obj_cls = self.object_class
+            if isinstance(obj, obj_cls):
+                return obj
+            else:
+                src = self.__class__.__qualname__
+                dest = obj.__class__.__qualname__
+                raise self._arg_error(
+                    f"cannot instantiate {src} '{self.name}' with {dest}",
+                    function, name, position, self.InstantiationError)
 
 
 def Variables(

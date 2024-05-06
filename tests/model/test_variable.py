@@ -95,8 +95,8 @@ class Test(kif_TestCase):
 
     def test__preprocess_arg_variable(self):
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce PropertyVariable into ItemVariable',
+            Variable.CoercionError, 1, None,
+            "cannot coerce PropertyVariable 'x' into ItemVariable",
             (ItemVariable._preprocess_arg_variable, 'ItemVariable'),
             PropertyVariable('x'), 1)
         self.assertEqual(
@@ -149,7 +149,7 @@ class Test(kif_TestCase):
         self.assert_variable(Variable('x'), 'x')
 
     def test__call__(self):
-        self.assertRaises(TypeError, ItemVariable('p'), String('s'))
+        self.assertRaises(ValueError, ItemVariable('p'), String('s'))
         self.assertEqual(
             PropertyVariable('p')(String('s')),
             ValueSnak(PropertyVariable('p'), String('s')))
@@ -165,6 +165,23 @@ class Test(kif_TestCase):
             Statement(Item('x'), ValueSnak(
                 PropertyVariable('p'), String('s'))))
 
+    def test_is_coercible(self):
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'variable_class', 'expected type, got int',
+            Variable('x').is_coercible, 0)
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'variable_class',
+            'expected subclass of KIF_Object, got int',
+            Variable('x').is_coercible, int)
+        self.assert_raises_bad_argument(
+            ValueError, 1, 'variable_class',
+            'no variable class for KIF_Object',
+            Variable('x').is_coercible, KIF_Object)
+        self.assertFalse(ItemVariable('x').is_coercible(PropertyVariable))
+        self.assertFalse(ItemVariable('x').is_coercible(Property))
+        self.assertTrue(ItemVariable('x').is_coercible(EntityVariable))
+        self.assertTrue(EntityVariable('x').is_coercible(ItemVariable))
+
     def test_coerce(self):
         self.assert_raises_bad_argument(
             TypeError, 1, 'variable_class', 'expected type, got int',
@@ -178,8 +195,8 @@ class Test(kif_TestCase):
             'no variable class for KIF_Object',
             Variable('x').coerce, KIF_Object)
         self.assert_raises_bad_argument(
-            TypeError, 1, 'variable_class',
-            'cannot coerce ItemVariable into PropertyVariable',
+            Variable.CoercionError, 1, 'variable_class',
+            "cannot coerce ItemVariable 'x' into PropertyVariable",
             (ItemVariable('x').coerce, 'Variable.coerce'),
             Property)
         self.assertEqual(Variable('x').coerce(Item), ItemVariable('x'))
@@ -190,21 +207,40 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             TypeError, 1, 'theta', 'expected Mapping, got int',
             Variable('x').instantiate, 0)
-        self.assertRaises(
-            TypeError, EntityVariable('x').instantiate,
+        self.assert_raises_bad_argument(
+            Variable.InstantiationError, None, None,
+            "cannot instantiate ItemVariable 'x' with String",
+            EntityVariable('x').instantiate,
             {ItemVariable('x'): String('x')})
+        self.assertIsNone(Variable('x').instantiate({Variable('x'): None}))
+        self.assertEqual(
+            Variable('x').instantiate({Variable('x'): ItemVariable('x')}),
+            ItemVariable('x'))
         self.assertEqual(
             Variable('x').instantiate({Variable('x'): Item('x')}),
             Item('x'))
         self.assertEqual(
+            Variable('x').instantiate({Variable('x'): Item(Variable('x'))}),
+            Item(Variable('x')))
+        self.assertEqual(
             Variable('x').instantiate({Variable('y'): Item('x')}),
             Variable('x'))
+        self.assertIsNone(
+            ItemVariable('x').instantiate({ItemVariable('x'): None}))
+        self.assertEqual(
+            EntityVariable('x').instantiate(
+                {EntityVariable('x'): ItemVariable('x')}),
+            ItemVariable('x'))
         self.assertEqual(
             ItemVariable('x').instantiate({Variable('x'): Item('x')}),
             ItemVariable('x'))
         self.assertEqual(
             EntityVariable('x').instantiate({ItemVariable('x'): Item('x')}),
             Item('x'))
+        self.assertEqual(
+            EntityVariable('x').instantiate(
+                {ItemVariable('x'): Item(Variable('x'))}),
+            Item(Variable('x')))
         self.assertEqual(
             Variable('x').instantiate({EntityVariable('x'): Item('x')}),
             Item('x'))

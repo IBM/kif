@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
+    DataValue,
+    DeepDataValue,
     Entity,
     ExternalId,
     IRI,
@@ -11,6 +13,7 @@ from kif_lib import (
     NoValueSnak,
     Property,
     Quantity,
+    ShallowDataValue,
     Snak,
     SomeValueSnak,
     Statement,
@@ -394,8 +397,8 @@ class Test(kif_TestCase):
 
     def test__init__item_template(self):
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce ItemVariable into IRI_Variable',
+            Variable.CoercionError, 1, None,
+            "cannot coerce ItemVariable 'x' into IRI_Variable",
             ItemTemplate, Variable('x', Item))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
@@ -404,8 +407,8 @@ class Test(kif_TestCase):
 
     def test__init__property_template(self):
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce PropertyVariable into IRI_Variable',
+            Variable.CoercionError, 1, None,
+            "cannot coerce PropertyVariable 'x' into IRI_Variable",
             PropertyTemplate, Variable('x', Property))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
@@ -414,8 +417,8 @@ class Test(kif_TestCase):
 
     def test__init__lexeme_template(self):
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce LexemeVariable into IRI_Variable',
+            Variable.CoercionError, 1, None,
+            "cannot coerce LexemeVariable 'x' into IRI_Variable",
             LexemeTemplate, Variable('x', Lexeme))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
@@ -424,8 +427,8 @@ class Test(kif_TestCase):
 
     def test__init__iri_template(self):
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce IRI_Variable into StringVariable',
+            Variable.CoercionError, 1, None,
+            "cannot coerce IRI_Variable 'x' into StringVariable",
             IRI_Template, Variable('x', IRI))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
@@ -434,36 +437,49 @@ class Test(kif_TestCase):
 
     def test__init__text_template(self):
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce TextVariable into StringVariable',
+            Variable.CoercionError, 1, None,
+            "cannot coerce TextVariable 'x' into StringVariable",
             TextTemplate, Variable('x', Text))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
             'expected str, got StringTemplate',
             TextTemplate, StringTemplate(Variable('x')))
         self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'cannot coerce TextVariable into StringVariable',
+            Variable.CoercionError, 2, None,
+            "cannot coerce TextVariable 'y' into StringVariable",
             TextTemplate, 'x', Variable('y', Text))
         self.assert_raises_bad_argument(
             TypeError, 2, None,
             'expected str, got StringTemplate',
             TextTemplate, 'x', StringTemplate(Variable('y')))
 
+    def test__init__text_template_normalization(self):
+        x = Variable('x')
+        self.assert_text_template(
+            TextTemplate(x, x), Variable('x', String), Variable('x', String))
+        self.assert_text_template(
+            TextTemplate(
+                Variable('x', ShallowDataValue),
+                Variable('x', DataValue)),
+            Variable('x', String), Variable('x', String))
+        self.assert_text_template(
+            TextTemplate(Variable('x', String), Variable('x', String)),
+            Variable('x', String), Variable('x', String))
+
     def test__init__string_template(self):
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce IRI_Variable into StringVariable',
+            Variable.CoercionError, 1, None,
+            "cannot coerce IRI_Variable 'x' into StringVariable",
             StringTemplate, Variable('x', IRI))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
-            'expected Variable, got StringTemplate',
+            "expected Variable, got StringTemplate",
             StringTemplate, StringTemplate(Variable('x')))
 
     def test__init__external_id_template(self):
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce IRI_Variable into StringVariable',
+            Variable.CoercionError, 1, None,
+            "cannot coerce IRI_Variable 'x' into StringVariable",
             ExternalIdTemplate, Variable('x', IRI))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
@@ -472,46 +488,66 @@ class Test(kif_TestCase):
 
     def test__init__quantity_template(self):
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce IRI_Variable into QuantityVariable',
+            Variable.CoercionError, 1, None,
+            "cannot coerce IRI_Variable 'x' into QuantityVariable",
             QuantityTemplate, Variable('x', IRI))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
             'expected Decimal or float or int or str, got QuantityTemplate',
             QuantityTemplate, QuantityTemplate(Variable('x')))
         self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'cannot coerce IRI_Variable into ItemVariable',
+            Variable.CoercionError, 2, None,
+            "cannot coerce IRI_Variable 'x' into ItemVariable",
             QuantityTemplate, 0, Variable('x', IRI))
         self.assert_raises_bad_argument(
-            TypeError, 3, None,
-            'cannot coerce IRI_Variable into QuantityVariable',
+            Variable.CoercionError, 3, None,
+            "cannot coerce IRI_Variable 'x' into QuantityVariable",
             QuantityTemplate, 0, None, Variable('x', IRI))
         self.assert_raises_bad_argument(
             TypeError, 3, None,
             'expected Decimal or float or int or str, got QuantityTemplate',
             QuantityTemplate, 0, None, QuantityTemplate(Variable('x')))
         self.assert_raises_bad_argument(
-            TypeError, 4, None,
-            'cannot coerce IRI_Variable into QuantityVariable',
+            Variable.CoercionError, 4, None,
+            "cannot coerce IRI_Variable 'x' into QuantityVariable",
             QuantityTemplate, 0, None, None, Variable('x', IRI))
         self.assert_raises_bad_argument(
             TypeError, 4, None,
             'expected Decimal or float or int or str, got QuantityTemplate',
             QuantityTemplate, 0, None, None, QuantityTemplate(Variable('x')))
 
+    def test__init__quantity_template_normalization(self):
+        x = Variable('x')
+        self.assertRaises(Variable.CoercionError, QuantityTemplate, x, x)
+        self.assertRaises(Variable.CoercionError, Quantity, 0, x, x)
+        self.assertRaises(
+            Variable.CoercionError, QuantityTemplate, 0, x, None, x)
+        self.assert_quantity_template(
+            QuantityTemplate(x, None, x),
+            Variable('x', Quantity), None, Variable('x', Quantity), None)
+        self.assert_quantity_template(
+            QuantityTemplate(x, None, x, Variable('x', DeepDataValue)),
+            Variable('x', Quantity), None,
+            Variable('x', Quantity), Variable('x', Quantity))
+        self.assert_quantity_template(
+            QuantityTemplate(
+                x, None, Variable('x', DataValue),
+                Variable('x', DeepDataValue)),
+            Variable('x', Quantity), None,
+            Variable('x', Quantity), Variable('x', Quantity))
+
     def test__init__time_template(self):
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce IRI_Variable into TimeVariable',
+            Variable.CoercionError, 1, None,
+            "cannot coerce IRI_Variable 'x' into TimeVariable",
             TimeTemplate, Variable('x', IRI))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
             'expected datetime or str, got TimeTemplate',
             TimeTemplate, TimeTemplate(Variable('x')))
         self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'cannot coerce IRI_Variable into QuantityVariable',
+            Variable.CoercionError, 2, None,
+            "cannot coerce IRI_Variable 'x' into QuantityVariable",
             TimeTemplate, '2024-05-06', Variable('x', IRI))
         self.assert_raises_bad_argument(
             TypeError, 2, None,
@@ -520,8 +556,8 @@ class Test(kif_TestCase):
             TimeTemplate, Variable('t', Time),
             QuantityTemplate(Variable('x')))
         self.assert_raises_bad_argument(
-            TypeError, 3, None,
-            'cannot coerce IRI_Variable into QuantityVariable',
+            Variable.CoercionError, 3, None,
+            "cannot coerce IRI_Variable 'x' into QuantityVariable",
             TimeTemplate, '2024-05-06', None, Variable('x', IRI))
         self.assert_raises_bad_argument(
             TypeError, 3, None,
@@ -530,31 +566,102 @@ class Test(kif_TestCase):
             TimeTemplate, Variable('t', Time), None,
             QuantityTemplate(Variable('x')))
         self.assert_raises_bad_argument(
-            TypeError, 4, None,
-            'cannot coerce IRI_Variable into ItemVariable',
+            Variable.CoercionError, 4, None,
+            "cannot coerce IRI_Variable 'x' into ItemVariable",
             TimeTemplate, '2024-05-06', None, None, Variable('x', IRI))
+
+    def test__init__time_template_normalization(self):
+        x = Variable('x')
+        self.assertRaises(Variable.CoercionError, TimeTemplate, x, x)
+        self.assertRaises(
+            Variable.CoercionError, Time, '2024-05-06', x, x, x)
+        self.assert_time_template(
+            TimeTemplate('2024-05-06', x, x),
+            Time('2024-05-06').time,
+            Variable('x', Quantity), Variable('x', Quantity), None)
+        self.assert_time_template(
+            TimeTemplate('2024-05-06', x, Variable('x', DataValue)),
+            Time('2024-05-06').time,
+            Variable('x', Quantity), Variable('x', Quantity), None)
 
     def test__init__value_snak_template(self):
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce IRI_Variable into PropertyVariable',
+            Variable.CoercionError, 1, None,
+            "cannot coerce IRI_Variable 'x' into PropertyVariable",
             ValueSnakTemplate, Variable('x', IRI), 0)
         self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'cannot coerce SnakVariable into ValueVariable',
+            Variable.CoercionError, 2, None,
+            "cannot coerce SnakVariable 'x' into ValueVariable",
             ValueSnakTemplate, Property('p'), Variable('x', Snak))
+
+    def test__init__value_snak_template_normalization(self):
+        x = Variable('x')
+        self.assertEqual(
+            ValueSnak(x, x),
+            ValueSnak(Variable('x', Property), Variable('x', Property)))
 
     def test__init__some_value_snak_template(self):
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce IRI_Variable into PropertyVariable',
+            Variable.CoercionError, 1, None,
+            "cannot coerce IRI_Variable 'x' into PropertyVariable",
             SomeValueSnakTemplate, Variable('x', IRI))
 
     def test__init__no_value_snak_template(self):
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce IRI_Variable into PropertyVariable',
+            Variable.CoercionError, 1, None,
+            "cannot coerce IRI_Variable 'x' into PropertyVariable",
             NoValueSnakTemplate, Variable('x', IRI))
+
+    def test__init__statement_template(self):
+        x = Variable('x')
+        self.assert_raises_bad_argument(
+            Variable.CoercionError, 1, None,
+            "cannot coerce IRI_Variable 'x' into EntityVariable",
+            StatementTemplate, Variable('x', IRI), x)
+        self.assert_raises_bad_argument(
+            Variable.CoercionError, 2, None,
+            "cannot coerce IRI_Variable 'x' into SnakVariable",
+            StatementTemplate, x, Variable('x', IRI))
+
+    def test__init__statement_template_normalization(self):
+        x = Variable('x')
+        self.assertRaises(Variable.CoercionError, Statement, x, x)
+        self.assertEqual(
+            StatementTemplate(x, x(x)),
+            StatementTemplate(Variable('x', Property), ValueSnak(
+                Variable('x', Property), Variable('x', Property))))
+        self.assertEqual(
+            StatementTemplate(x, SomeValueSnak(x)),
+            StatementTemplate(
+                Variable('x', Property),
+                SomeValueSnak(Variable('x', Property))))
+        self.assertEqual(
+            StatementTemplate(x, NoValueSnak(x)),
+            StatementTemplate(
+                Variable('x', Property),
+                NoValueSnak(Variable('x', Property))))
+
+# -- variables -------------------------------------------------------------
+
+    def test_variables(self):
+        x, y, z = Variables('x', 'y', 'z')
+        self.assertEqual(
+            Statement(x, ValueSnak(y, Quantity(123, x, z))).variables, {
+                Variable('x', Item),
+                Variable('y', Property),
+                Variable('z', Quantity)})
+
+# -- instantiate -----------------------------------------------------------
+
+    def test_instantiate(self):
+        x = Variable('x')
+        self.assert_raises_bad_argument(
+            Variable.InstantiationError, None, None,
+            "cannot instantiate IRI_Variable 'x' with Item",
+            ItemTemplate(x).instantiate, {Variable('x', IRI): Item('x')})
+        self.assertEqual(
+            ItemTemplate(x).instantiate({Variable('x', IRI): IRI('x')}),
+            Item(IRI('x')))
 
 
 if __name__ == '__main__':
