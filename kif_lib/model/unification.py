@@ -6,6 +6,9 @@ from .kif_object import KIF_Object
 from .template import Template
 from .variable import Theta, Variable
 
+# See: <https://en.wikipedia.org/wiki/
+#       Unification_(computer_science)#Unification_algorithms>
+
 
 def unify(G: Set[tuple[KIF_Object, KIF_Object]]) -> Optional[Theta]:
     return _unify(set(G))
