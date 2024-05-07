@@ -17,16 +17,33 @@ def _unify(G: set[tuple[Any, Any]]) -> Optional[Theta]:
         for p in G:
             s, t = p
             ###
+            # DELETE:
+            # G ∪ {s=t} and s == t ⇒ G
+            ###
+            if s == t:
+                G.remove(p)
+                done = False
+                break
+            ###
             # DECOMPOSE:
             # G ∪ {f(s1..sn)=g(t1..tn)} ⇒ G ∪ {s1=t1..sn=tn}
             ###
-            if (not isinstance(s, (Template, Variable))
-                and not isinstance(t, (Template, Variable))
-                    and s != t):
-                return None  # conflict: f != g
-            if isinstance(s, Template) and isinstance(t, Template):
-                if s.__class__ != t.__class__:
-                    return None  # conflict: f != g
+            if not isinstance(s, Variable) and not isinstance(t, Variable):
+                if isinstance(s, Template) and isinstance(t, Template):
+                    if s.__class__ != t.__class__:
+                        return None  # fail: f != g
+                elif (not isinstance(s, Template)
+                      and not isinstance(t, Template)):
+                    if s != t:
+                        return None  # fail: f != g
+                elif isinstance(s, Template) and not isinstance(t, Template):
+                    if s.object_class != t.__class__:
+                        return None  # fail: f != g
+                elif not isinstance(s, Template) and isinstance(t, Template):
+                    if t.object_class != s.__class__:
+                        return None  # fail: f != g
+                else:
+                    raise KIF_Object._should_not_get_here()
                 G.remove(p)
                 assert len(s.args) == len(t.args)
                 for i in range(len(s.args)):
@@ -43,14 +60,6 @@ def _unify(G: set[tuple[Any, Any]]) -> Optional[Theta]:
                 except Variable.InstantiationError:
                     return None  # fail
             ###
-            # DELETE:
-            # G ∪ {s=t} and s == t ⇒ G
-            ###
-            if s == t:
-                G.remove(p)
-                done = False
-                break
-            ###
             # SWAP:
             # G ∪ {f(s1..sn)=x} ⇒ G ∪ {x=f(s1..sn)}
             ###
@@ -65,7 +74,7 @@ def _unify(G: set[tuple[Any, Any]]) -> Optional[Theta]:
             ###
             if isinstance(s, Variable) and isinstance(t, Template):
                 if _coercion_occurs_in(s, t.variables):
-                    return None  # conflict: x ∈ t
+                    return None  # fail: x ∈ t
                 G.remove(p)
                 H, theta, changed = set(), {s: t}, False
                 for sx, tx in G:
@@ -81,15 +90,6 @@ def _unify(G: set[tuple[Any, Any]]) -> Optional[Theta]:
                 break
         if done:
             return dict(G)
-
-
-def _get_vars(G: set[tuple[Any, Any]]) -> Iterator[Variable]:
-    for s, t in G:
-        if isinstance(s, Template):
-            for var in s.variables:
-                yield var
-        elif isinstance(s, Variable):
-            yield s
 
 
 def _coercion_occurs_in(x: Variable, vars: Iterable[Variable]) -> bool:
