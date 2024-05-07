@@ -1,7 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..typing import Any, Iterable, Iterator, Optional, Set
+from ..typing import Any, Iterable, Optional, Set
 from .kif_object import KIF_Object
 from .template import Template
 from .variable import Theta, Variable
