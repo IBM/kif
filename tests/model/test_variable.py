@@ -165,23 +165,6 @@ class Test(kif_TestCase):
             Statement(Item('x'), ValueSnak(
                 PropertyVariable('p'), String('s'))))
 
-    def test_is_coercible(self):
-        self.assert_raises_bad_argument(
-            TypeError, 1, 'variable_class', 'expected type, got int',
-            Variable('x').is_coercible, 0)
-        self.assert_raises_bad_argument(
-            TypeError, 1, 'variable_class',
-            'expected subclass of KIF_Object, got int',
-            Variable('x').is_coercible, int)
-        self.assert_raises_bad_argument(
-            ValueError, 1, 'variable_class',
-            'no variable class for KIF_Object',
-            Variable('x').is_coercible, KIF_Object)
-        self.assertFalse(ItemVariable('x').is_coercible(PropertyVariable))
-        self.assertFalse(ItemVariable('x').is_coercible(Property))
-        self.assertTrue(ItemVariable('x').is_coercible(EntityVariable))
-        self.assertTrue(EntityVariable('x').is_coercible(ItemVariable))
-
     def test_coerce(self):
         self.assert_raises_bad_argument(
             TypeError, 1, 'variable_class', 'expected type, got int',

@@ -142,23 +142,6 @@ class Variable(KIF_Object):
         """
         return self.args[0]
 
-    def is_coercible(self, variable_class: TVariableClass) -> bool:
-        """Tests whether variable is coercible to `variable_class`.
-
-        Parameters:
-           variable_class: Variable class.
-
-        Returns:
-           ``True`` if successful; ``False`` otherwise.
-        """
-        var_cls = Variable._check_arg_variable_class(
-            variable_class, self.is_coercible, 'variable_class', 1)
-        return self._is_coercible(var_cls)
-
-    def _is_coercible(self, variable_class: VariableClass) -> bool:
-        return (issubclass(self.__class__, variable_class)
-                or issubclass(variable_class, self.__class__))
-
     def coerce(self, variable_class: TVariableClass) -> 'Variable':
         """Coerces variable to `variable_class`.
 
