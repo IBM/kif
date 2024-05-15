@@ -174,8 +174,8 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         # bad argument: snak
         self.assertRaises(TypeError, kb.count_snak, None, 0)
         # good arguments
-        snak = ValueSnak(wd.mass, Quantity('78.11', wd.dalton))
-        self.assertEqual(kb.count_snak(None, snak), 1)
+        snak = ValueSnak(wd.mass, Quantity('78.046950192', wd.dalton))
+        self.assertEqual(kb.count_snak(None, snak), 8)
 
     def test_filter(self):
         kb = self.new_Store()
@@ -285,10 +285,10 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         # bad argument: snak
         self.assertRaises(TypeError, kb.filter_snak, None, 0)
         # good arguments
-        snak = ValueSnak(wd.mass, Quantity('78.11', wd.dalton))
+        snak = ValueSnak(wd.mass, Quantity('78.046950192', wd.dalton))
         stmt = next(kb.filter_snak(None, snak))
         self.assert_statement(
-            stmt, wd.benzene, wd.mass(Quantity('78.11', wd.dalton)))
+            stmt, stmt.subject, wd.mass(Quantity('78.046950192', wd.dalton)))
         # subject is a property
         stmt = next(kb.filter_snak(
             None, wd.type_of_unit_for_this_property(wd.unit_of_mass)))
@@ -344,7 +344,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
             ValueError, get_qualifiers,
             wd.inception(wd.Brazil, Time('2023-09-05')))
         # no qualifiers
-        stmt = wd.mass(wd.benzene, Quantity('78.11', wd.dalton))
+        stmt = wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))
         quals = list(get_qualifiers(stmt))
         self.assertEqual(len(quals), 0)
         # statement with deep value

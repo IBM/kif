@@ -127,9 +127,9 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
 
     def test_filter_value_is_quantity(self):
         kb = self.new_Store()
-        stmt = next(kb.filter(wd.benzene, value=Quantity('78.11')))
+        stmt = next(kb.filter(wd.benzene, value=Quantity('78.046950192')))
         self.assert_statement(
-            stmt, wd.benzene, wd.mass(Quantity('78.11', wd.dalton)))
+            stmt, wd.benzene, wd.mass(Quantity('78.046950192', wd.dalton)))
         qt = Quantity('.88', wd.gram_per_cubic_centimetre, '.87', '.89')
         stmt = next(kb.filter(wd.benzene, wd.density, qt))
         self.assert_statement(stmt, wd.benzene, wd.density(qt))

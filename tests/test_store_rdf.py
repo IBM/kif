@@ -156,14 +156,15 @@ class TestStoreRDF(kif_StoreTestCase):
         # text
         self.store_test_count(kb, 0, None, None, Text('Brazil', 'en'))
         # quantity
-        self.store_test_count(kb, 1, wd.benzene, wd.mass, Quantity('78.11'))
-        self.store_test_count(kb, 1, None, wd.mass, Quantity('78.11'))
-        self.store_test_count(kb, 1, None, None, Quantity('78.11'))
+        self.store_test_count(kb, 1, wd.benzene, wd.mass,
+                              Quantity('78.046950192'))
+        self.store_test_count(kb, 1, None, wd.mass, Quantity('78.046950192'))
+        self.store_test_count(kb, 1, None, None, Quantity('78.046950192'))
         self.store_test_count(kb, 0, None, None, Quantity('78.12'))
         self.store_test_count(
-            kb, 1, None, wd.mass, Quantity('78.11', wd.dalton))
+            kb, 1, None, wd.mass, Quantity('78.046950192', wd.dalton))
         self.store_test_count(
-            kb, 0, None, wd.mass, Quantity('78.11', wd.kilogram))
+            kb, 0, None, wd.mass, Quantity('78.046950192', wd.kilogram))
         self.store_test_count(
             kb, 1, None, wd.density, Quantity(
                 '0.88', wd.gram_per_cubic_centimetre))
@@ -244,7 +245,7 @@ class TestStoreRDF(kif_StoreTestCase):
             kb,
             [wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),
              wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N'),
-             wd.mass(wd.benzene, Quantity('78.11', wd.dalton)),
+             wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),
              wd.density(wd.benzene, Quantity(
                  '0.88', wd.gram_per_cubic_centimetre, '0.87', '.89'))],
             subject=wd.benzene)
@@ -252,7 +253,7 @@ class TestStoreRDF(kif_StoreTestCase):
             kb,
             [wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),
              wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N'),
-             wd.mass(wd.benzene, Quantity('78.11', wd.dalton)),
+             wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),
              wd.density(wd.benzene, Quantity(
                  '0.88', wd.gram_per_cubic_centimetre, '0.87', '.89'))],
             subject=wd.InChIKey('UHOVQNZJYSORNB-UHFFFAOYSA-N'))
@@ -263,7 +264,7 @@ class TestStoreRDF(kif_StoreTestCase):
             wd.benzene, wd.InChIKey)
         self.store_test_filter(
             kb,
-            [wd.mass(wd.benzene, Quantity('78.11', wd.dalton))],
+            [wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
             wd.benzene, wd.mass)
         self.store_test_filter(
             kb,
@@ -276,8 +277,8 @@ class TestStoreRDF(kif_StoreTestCase):
         # subject, property, value
         self.store_test_filter(
             kb,
-            [wd.mass(wd.benzene, Quantity('78.11', wd.dalton))],
-            wd.benzene, wd.mass, Quantity('78.11', wd.dalton))
+            [wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
+            wd.benzene, wd.mass, Quantity('78.046950192', wd.dalton))
         self.store_test_filter(
             kb,
             [],
@@ -285,7 +286,7 @@ class TestStoreRDF(kif_StoreTestCase):
         # property
         self.store_test_filter(
             kb,
-            [wd.mass(wd.benzene, Quantity('78.11', wd.dalton))],
+            [wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
             None, wd.mass)
         self.store_test_filter(
             kb,
@@ -316,12 +317,12 @@ class TestStoreRDF(kif_StoreTestCase):
             None, None, Text('Brazil', 'en'))
         self.store_test_filter(
             kb,
-            [wd.mass(wd.benzene, Quantity('78.11', wd.dalton))],
-            None, None, Quantity('78.11'))
+            [wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
+            None, None, Quantity('78.046950192'))
         self.store_test_filter(
             kb,
             [],
-            None, None, Quantity('78.11', wd.kilogram))
+            None, None, Quantity('78.046950192', wd.kilogram))
         self.store_test_filter(
             kb,
             [wd.inception(wd.Brazil, Time(
@@ -378,7 +379,7 @@ class TestStoreRDF(kif_StoreTestCase):
     def _test_get_annotations(self, kb):
         self.store_test_get_annotations(
             kb,
-            [(wd.mass(wd.benzene, Quantity('78.11', wd.dalton)),  # 0
+            [(wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),  # 0
               AnnotationRecordSet(
                   AnnotationRecord(
                       [],
@@ -392,7 +393,7 @@ class TestStoreRDF(kif_StoreTestCase):
                               wd.proleptic_Gregorian_calendar)))],
                       Normal))),
              # 1
-             (wd.mass(wd.benzene, Quantity('78.11')), None),
+             (wd.mass(wd.benzene, Quantity('78.046950192')), None),
              # 2
              (wd.density(wd.benzene, Quantity(
                  '.88', wd.gram_per_cubic_centimetre, '.87', '.89')),
@@ -423,8 +424,8 @@ class TestStoreRDF(kif_StoreTestCase):
                       [wd.applies_to_part(wd.feminine)],
                       [], Normal))),
              ],
-            wd.mass(wd.benzene, Quantity('78.11', wd.dalton)),
-            wd.mass(wd.benzene, Quantity('78.11')),
+            wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),
+            wd.mass(wd.benzene, Quantity('78.046950192')),
             wd.density(wd.benzene, Quantity(
                 '.88', wd.gram_per_cubic_centimetre, '.87', '.89')),
             Statement(wd.Adam, NoValueSnak(wd.date_of_birth)),
@@ -446,7 +447,7 @@ class TestStoreRDF(kif_StoreTestCase):
                 wd.stated_in(wd.PubChem))]
         self.store_test_get_annotations(
             kb,
-            [(wd.mass(wd.benzene, Quantity('78.11', wd.dalton)),  # 0
+            [(wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),  # 0
               AnnotationRecordSet(
                   AnnotationRecord(
                       [],
@@ -482,7 +483,7 @@ class TestStoreRDF(kif_StoreTestCase):
                            wd.stated_in(wd.PubChem))],
                       Normal))),
              ],
-            wd.mass(wd.benzene, Quantity('78.11', wd.dalton)),
+            wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),
             wd.density(wd.benzene, Quantity(
                 '.88', wd.gram_per_cubic_centimetre, '.87', '.89')))
         kb.extra_references = saved_references
