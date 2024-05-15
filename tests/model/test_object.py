@@ -457,7 +457,7 @@ B(
   ]
 }'''))
 
-# -- _check_arg ------------------------------------------------------------
+# -- Argument checking -----------------------------------------------------
 
     def test__check_arg(self):
         self.assertRaisesRegex(
@@ -508,6 +508,12 @@ B(
         self.assertEqual(A._check_arg_a(A()), A())
         self.assertRaises(TypeError, A()._check_arg_a, B())
 
+    def test__check_arg__class(self):
+        self.assertRaisesRegex(
+            ValueError, r'^bad argument \(expected subclass of A, got B\)$',
+            Object._check_arg_a_class, B)
+        self.assertEqual(Object._check_arg_a_class(A), A)
+
     def test__check_optional_arg(self):
         self.assertRaisesRegex(
             ValueError, r'^bad argument \(details\)$',
@@ -556,6 +562,14 @@ B(
         self.assertIsNone(A._check_optional_arg_a(None), None)
         self.assertEqual(A._check_optional_arg_a(None, A()), A())
         self.assertRaises(TypeError, A()._check_optional_arg_a, B())
+
+    def test__check_optional_arg__class(self):
+        self.assertRaisesRegex(
+            ValueError, r'^bad argument \(expected subclass of A, got B\)$',
+            Object._check_optional_arg_a_class, B)
+        self.assertEqual(Object._check_optional_arg_a_class(A), A)
+        self.assertEqual(Object._check_optional_arg_a_class(None, A), A)
+        self.assertIsNone(Object._check_optional_arg_a_class(None))
 
     def test__check_arg_not_none(self):
         self.assertRaisesRegex(
@@ -630,10 +644,10 @@ B(
             TypeError, r'^bad argument \(expected type, got int\)$',
             Object._check_arg_issubclass, 0, int)
         self.assertRaisesRegex(
-            TypeError, r'^bad argument \(expected subclass of str, got int\)$',
+            ValueError, r'^bad argument \(expected subclass of str, got int\)$',
             Object._check_arg_issubclass, int, str)
         self.assertRaisesRegex(
-            TypeError, r'^bad argument '
+            ValueError, r'^bad argument '
             r'\(expected subclass of int or str, got float\)$',
             Object._check_arg_issubclass, float, (str, int))
         # good argument
@@ -646,10 +660,10 @@ B(
             TypeError, r'^bad argument \(expected type, got int\)$',
             Object._check_optional_arg_issubclass, 0, int)
         self.assertRaisesRegex(
-            TypeError, r'^bad argument \(expected subclass of str, got int\)$',
+            ValueError, r'^bad argument \(expected subclass of str, got int\)$',
             Object._check_optional_arg_issubclass, int, str)
         self.assertRaisesRegex(
-            TypeError, r'^bad argument '
+            ValueError, r'^bad argument '
             r'\(expected subclass of int or str, got float\)$',
             Object._check_optional_arg_issubclass, float, (str, int))
         # no argument
@@ -662,7 +676,7 @@ B(
             Object._check_optional_arg_issubclass(int, (object, str), 'abc'),
             int)
 
-    # -- _preprocess_arg ---------------------------------------------------
+    # -- _preprocess_arg --
 
     def test__preprocess_arg(self):
         self.assertEqual(A._preprocess_arg, Object._preprocess_arg)
