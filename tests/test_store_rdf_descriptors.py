@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
-    Datatype,
     Descriptor,
     Item,
+    ItemDatatype,
     ItemDescriptor,
     Lexeme,
     LexemeDescriptor,
@@ -327,14 +327,14 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
         test_case(
             ['rdfs:label'],
             PropertyDescriptor(
-                None, [Text('xxx'), Text('yyy')], Text('aaa'), Datatype.item))
+                None, [Text('xxx'), Text('yyy')], Text('aaa'), ItemDatatype()))
         test_case(
             ['skos:altLabel'],
-            PropertyDescriptor('lll', [], Text('aaa'), Datatype.item))
+            PropertyDescriptor('lll', [], Text('aaa'), ItemDatatype()))
         test_case(
             ['schema:description'],
             PropertyDescriptor(
-                'lll', [Text('xxx'), Text('yyy')], None, Datatype.item))
+                'lll', [Text('xxx'), Text('yyy')], None, ItemDatatype()))
 
 # -- get_lexeme_descriptor -------------------------------------------------
 

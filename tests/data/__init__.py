@@ -4,7 +4,8 @@
 from pathlib import Path
 
 from kif_lib import (
-    Datatype,
+    ExternalIdDatatype,
+    ItemDatatype,
     ItemDescriptor,
     LexemeDescriptor,
     PropertyDescriptor,
@@ -112,14 +113,14 @@ class BENZENE_TTL(_TTL, ttl='benzene.ttl'):
              'designed to create an identifier that encodes structural '
              'information and can also be practically '
              'used in web searching.', 'en'),
-        Datatype.external_id)
+        ExternalIdDatatype())
 
     InChIKey_es = PropertyDescriptor(
         Text('InChIKey', 'es'),
         TextSet(),
         Text('código condensado para la identificación '
              'de un compuesto químico', 'es'),
-        Datatype.external_id)
+        ExternalIdDatatype())
 
 
 class INSTANCE_OF_TTL(_TTL, ttl='instance_of.ttl'):
@@ -132,13 +133,13 @@ class INSTANCE_OF_TTL(_TTL, ttl='instance_of.ttl'):
              'and member; different from P279 (subclass of); for example: '
              'K2 is an instance of mountain; volcano is a subclass of '
              'mountain (and an instance of volcanic landform)'),
-        Datatype.item)
+        ItemDatatype())
 
     instance_of_es = PropertyDescriptor(
         None,
         TextSet(),
         None,
-        Datatype.item)
+        ItemDatatype())
 
 
 class PAINT_TTL(_TTL, ttl='paint.ttl'):

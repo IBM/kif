@@ -20,6 +20,7 @@ from ..model import (
     String,
     T_IRI,
     Text,
+    TextDatatype,
     Time,
     Value,
 )
@@ -469,19 +470,20 @@ class SPARQL_Mapping(ABC):
     def register_label(cls, **kwargs: Any) -> Callable[..., Any]:
         return lambda definition: cls._register(
             cls.descriptor_specs, cls.Spec(
-                Property('label'), Datatype.text, definition, **kwargs))
+                Property('label'), TextDatatype(), definition, **kwargs))
 
     @classmethod
     def register_alias(cls, **kwargs: Any) -> Callable[..., Any]:
         return lambda definition: cls._register(
             cls.descriptor_specs, cls.Spec(
-                Property('alias'), Datatype.text, definition, **kwargs))
+                Property('alias'), TextDatatype(), definition, **kwargs))
 
     @classmethod
     def register_description(cls, **kwargs: Any) -> Callable[..., Any]:
         return lambda definition: cls._register(
             cls.descriptor_specs, cls.Spec(
-                Property('description'), Datatype.text, definition, **kwargs))
+                Property('description'), TextDatatype(),
+                definition, **kwargs))
 
     @classmethod
     def _register(

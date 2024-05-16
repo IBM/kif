@@ -3,28 +3,36 @@
 
 from kif_lib import (
     AnnotationRecord,
-    Datatype,
     Deprecated,
     EntityFingerprint,
+    ExternalIdDatatype,
     FilterPattern,
     Fingerprint,
     IRI,
+    IRI_Datatype,
     Item,
+    ItemDatatype,
     ItemDescriptor,
     KIF_Object,
+    LexemeDatatype,
     Normal,
     NoValueSnak,
     Preferred,
     Property,
+    PropertyDatatype,
     PropertyFingerprint,
     Quantity,
+    QuantityDatatype,
     ReferenceRecord,
     Snak,
     SnakSet,
     SomeValueSnak,
     String,
+    StringDatatype,
     Text,
+    TextDatatype,
     Time,
+    TimeDatatype,
 )
 from kif_lib.vocabulary import wd
 
@@ -51,23 +59,23 @@ class TestCodecMarkdown(kif_TestCase):
 
     def test_datatype_to_markdown(self):
         self.assert_to_markdown(
-            Datatype.item, self.md_sexp('ItemDatatype'))
+            ItemDatatype(), self.md_sexp('ItemDatatype'))
         self.assert_to_markdown(
-            Datatype.property, self.md_sexp('PropertyDatatype'))
+            PropertyDatatype(), self.md_sexp('PropertyDatatype'))
         self.assert_to_markdown(
-            Datatype.lexeme, self.md_sexp('LexemeDatatype'))
+            LexemeDatatype(), self.md_sexp('LexemeDatatype'))
         self.assert_to_markdown(
-            Datatype.iri, self.md_sexp('IRI_Datatype'))
+            IRI_Datatype(), self.md_sexp('IRI_Datatype'))
         self.assert_to_markdown(
-            Datatype.text, self.md_sexp('TextDatatype'))
+            TextDatatype(), self.md_sexp('TextDatatype'))
         self.assert_to_markdown(
-            Datatype.string, self.md_sexp('StringDatatype'))
+            StringDatatype(), self.md_sexp('StringDatatype'))
         self.assert_to_markdown(
-            Datatype.external_id, self.md_sexp('ExternalIdDatatype'))
+            ExternalIdDatatype(), self.md_sexp('ExternalIdDatatype'))
         self.assert_to_markdown(
-            Datatype.quantity, self.md_sexp('QuantityDatatype'))
+            QuantityDatatype(), self.md_sexp('QuantityDatatype'))
         self.assert_to_markdown(
-            Datatype.time, self.md_sexp('TimeDatatype'))
+            TimeDatatype(), self.md_sexp('TimeDatatype'))
 
     def test_item_to_markdown(self):
         # known prefix: know label

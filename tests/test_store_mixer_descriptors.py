@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
-    Datatype,
     Descriptor,
     Item,
+    ItemDatatype,
     ItemDescriptor,
     Lexeme,
     LexemeDescriptor,
@@ -92,10 +92,10 @@ wd:P31
         Text('Brasil', 'pt-br'), [Text('BRA', 'pt-br')])
 
     extra_instance_of_en = PropertyDescriptor(
-        None, [Text('∈'), Text('rdf:type')], None, Datatype.item)
+        None, [Text('∈'), Text('rdf:type')], None, ItemDatatype())
 
     extra_instance_of_es = PropertyDescriptor(
-        Text('instancia de', 'es'), [Text('∈', 'es')], None, Datatype.item)
+        Text('instancia de', 'es'), [Text('∈', 'es')], None, ItemDatatype())
 
 # -- get_descriptor --------------------------------------------------------
 

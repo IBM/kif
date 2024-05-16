@@ -1832,34 +1832,11 @@ class Time(
 # == Datatype ==============================================================
 
 class Datatype(KIF_Object):
-    """Abstract base class for datatypes."""
+    """Abstract base class for datatypes.
 
-    #: The datatype of :class:`Item`.
-    item: 'ItemDatatype'
-
-    #: The datatype of :class:`Property`.
-    property: 'PropertyDatatype'
-
-    #: The datatype of :class:`Lexeme`.
-    lexeme: 'LexemeDatatype'
-
-    #: The datatype of :class:`IRI`.
-    iri: 'IRI_Datatype'
-
-    #: The datatype of :class:`Text`.
-    text: 'TextDatatype'
-
-    #: The datatype of :class:`String`.
-    string: 'StringDatatype'
-
-    #: The datatype of :class:`ExternalId`.
-    external_id: 'ExternalIdDatatype'
-
-    #: The datatype of :class:`Quantity`.
-    quantity: 'QuantityDatatype'
-
-    #: The datatype of :class:`Time`.
-    time: 'TimeDatatype'
+    Parameters:
+       datatype_class: Datatype class.
+    """
 
     def __new__(
             cls,
@@ -1919,24 +1896,24 @@ class Datatype(KIF_Object):
     @classmethod
     @cache
     def _from_rdflib(cls, uri: URIRef) -> 'Datatype':
-        if uri == cls.item._uri:
-            return cls.item
-        elif uri == cls.property._uri:
-            return cls.property
-        elif uri == cls.lexeme._uri:
-            return cls.lexeme
-        elif uri == cls.iri._uri:
-            return cls.iri
-        elif uri == cls.text._uri:
-            return cls.text
-        elif uri == cls.string._uri:
-            return cls.string
-        elif uri == cls.external_id._uri:
-            return cls.external_id
-        elif uri == cls.quantity._uri:
-            return cls.quantity
-        elif uri == cls.time._uri:
-            return cls.time
+        if uri == ItemDatatype._uri:
+            return ItemDatatype()
+        elif uri == PropertyDatatype._uri:
+            return PropertyDatatype()
+        elif uri == LexemeDatatype._uri:
+            return LexemeDatatype()
+        elif uri == IRI_Datatype._uri:
+            return IRI_Datatype()
+        elif uri == TextDatatype._uri:
+            return TextDatatype()
+        elif uri == StringDatatype._uri:
+            return StringDatatype()
+        elif uri == ExternalIdDatatype._uri:
+            return ExternalIdDatatype()
+        elif uri == QuantityDatatype._uri:
+            return QuantityDatatype()
+        elif uri == TimeDatatype._uri:
+            return TimeDatatype()
         else:
             raise ValueError(f'bad Wikibase datatype: {uri}')
 
@@ -1959,23 +1936,23 @@ class Datatype(KIF_Object):
            Datatype.
         """
         if value_template_class is ItemTemplate:
-            return cls.item
+            return ItemDatatype()
         elif value_template_class is PropertyTemplate:
-            return cls.property
+            return PropertyDatatype()
         elif value_template_class is LexemeTemplate:
-            return cls.lexeme
+            return LexemeDatatype()
         elif value_template_class is IRI_Template:
-            return cls.iri
+            return IRI_Datatype()
         elif value_template_class is TextTemplate:
-            return cls.text
+            return TextDatatype()
         elif value_template_class is StringTemplate:
-            return cls.string
+            return StringDatatype()
         elif value_template_class is ExternalIdTemplate:
-            return cls.external_id
+            return ExternalIdDatatype()
         elif value_template_class is QuantityTemplate:
-            return cls.quantity
+            return QuantityDatatype()
         elif value_template_class is TimeTemplate:
-            return cls.time
+            return TimeDatatype()
         else:
             cls._check_arg_issubclass(
                 value_template_class, ValueTemplate,
@@ -2010,23 +1987,23 @@ class Datatype(KIF_Object):
            Datatype.
         """
         if value_variable_class is ItemVariable:
-            return cls.item
+            return ItemDatatype()
         elif value_variable_class is PropertyVariable:
-            return cls.property
+            return PropertyDatatype()
         elif value_variable_class is LexemeVariable:
-            return cls.lexeme
+            return LexemeDatatype()
         elif value_variable_class is IRI_Variable:
-            return cls.iri
+            return IRI_Datatype()
         elif value_variable_class is TextVariable:
-            return cls.text
+            return TextDatatype()
         elif value_variable_class is StringVariable:
-            return cls.string
+            return StringDatatype()
         elif value_variable_class is ExternalIdVariable:
-            return cls.external_id
+            return ExternalIdDatatype()
         elif value_variable_class is QuantityVariable:
-            return cls.quantity
+            return QuantityDatatype()
         elif value_variable_class is TimeVariable:
-            return cls.time
+            return TimeDatatype()
         else:
             cls._check_arg_issubclass(
                 value_variable_class, ValueVariable,
@@ -2057,23 +2034,23 @@ class Datatype(KIF_Object):
            Datatype.
         """
         if value_class is Item:
-            return cls.item
+            return ItemDatatype()
         elif value_class is Property:
-            return cls.property
+            return PropertyDatatype()
         elif value_class is Lexeme:
-            return cls.lexeme
+            return LexemeDatatype()
         elif value_class is IRI:
-            return cls.iri
+            return IRI_Datatype()
         elif value_class is Text:
-            return cls.text
+            return TextDatatype()
         elif value_class is String:
-            return cls.string
+            return StringDatatype()
         elif value_class is ExternalId:
-            return cls.external_id
+            return ExternalIdDatatype()
         elif value_class is Quantity:
-            return cls.quantity
+            return QuantityDatatype()
         elif value_class is Time:
-            return cls.time
+            return TimeDatatype()
         else:
             cls._check_arg_issubclass(
                 value_class, Value, cls.from_value_class, 'value_class', 2)
@@ -2285,14 +2262,3 @@ class TimeDatatype(Datatype):
     @override
     def to_value_class(cls) -> type[Value]:
         return Time
-
-
-Datatype.item = ItemDatatype()
-Datatype.property = PropertyDatatype()
-Datatype.lexeme = LexemeDatatype()
-Datatype.iri = IRI_Datatype()
-Datatype.text = TextDatatype()
-Datatype.string = StringDatatype()
-Datatype.external_id = ExternalIdDatatype()
-Datatype.quantity = QuantityDatatype()
-Datatype.time = TimeDatatype()

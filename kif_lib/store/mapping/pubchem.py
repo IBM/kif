@@ -7,19 +7,24 @@ from ...itertools import batched
 from ...model import (
     AnnotationRecord,
     AnnotationRecordSet,
-    Datatype,
     FilterPattern,
     IRI,
+    IRI_Datatype,
     Item,
+    ItemDatatype,
     KIF_Object,
     Property,
     Quantity,
+    QuantityDatatype,
     ReferenceRecord,
     Statement,
     String,
+    StringDatatype,
     T_IRI,
     Text,
+    TextDatatype,
     Time,
+    TimeDatatype,
     Value,
 )
 from ...namespace import DCT, FOAF, RDF, WD, WDS, XSD
@@ -534,7 +539,7 @@ def wd_COMPOUND_description(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.canonical_SMILES,
-    datatype=Datatype.string,
+    datatype=StringDatatype(),
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_canonical_SMILES(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
@@ -550,7 +555,7 @@ def wd_canonical_SMILES(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.chemical_formula,
-    datatype=Datatype.string,
+    datatype=StringDatatype(),
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_chemical_formula(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
@@ -567,7 +572,7 @@ def wd_chemical_formula(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.CAS_Registry_Number,
-    datatype=Datatype.string,   # FIXME: ExternalId
+    datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_CAS_Registry_Number(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     attr = q.bnode()
@@ -579,7 +584,7 @@ def wd_CAS_Registry_Number(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.ChEBI_ID,
-    datatype=Datatype.string,   # FIXME: ExternalId
+    datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_ChEBI_ID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     attr = q.bnode()
@@ -591,7 +596,7 @@ def wd_ChEBI_ID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.ChEMBL_ID,
-    datatype=Datatype.string,   # FIXME: ExternalId
+    datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_ChEMBL_ID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     attr = q.bnode()
@@ -603,7 +608,7 @@ def wd_ChEMBL_ID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.described_by_source,
-    datatype=Datatype.item,
+    datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value_prefix=PubChemMapping.PATENT)
 def wd_described_by_source(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -616,7 +621,7 @@ def wd_described_by_source(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.has_part,
-    datatype=Datatype.item,
+    datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value_prefix=PubChemMapping.COMPOUND)
 def wd_has_part(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -625,7 +630,7 @@ def wd_has_part(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.InChI,
-    datatype=Datatype.string,   # FIXME: ExternalId
+    datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_InChI(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
@@ -641,7 +646,7 @@ def wd_InChI(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.InChIKey,
-    datatype=Datatype.string,   # FIXME: ExternalId
+    datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_InChIKey(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
@@ -659,7 +664,7 @@ def wd_InChIKey(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.instance_of,
-    datatype=Datatype.item,
+    datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value=wd.type_of_a_chemical_entity)
 def wd_COMPOUND_instance_of(
@@ -672,7 +677,7 @@ def wd_COMPOUND_instance_of(
 
 @PubChemMapping.register(
     property=wd.isomeric_SMILES,
-    datatype=Datatype.string,
+    datatype=StringDatatype(),
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_isomeric_SMILES(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
@@ -688,7 +693,7 @@ def wd_isomeric_SMILES(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.legal_status,
-    datatype=Datatype.item,
+    datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value=wd.FDA_approved)
 def wd_legal_status(
@@ -698,7 +703,7 @@ def wd_legal_status(
 
 @PubChemMapping.register(
     property=wd.mass,
-    datatype=Datatype.quantity,
+    datatype=QuantityDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value_datatype=XSD.decimal,
     value_datatype_encoded=XSD.float,
@@ -719,7 +724,7 @@ def wd_mass(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.manufacturer,
-    datatype=Datatype.item,
+    datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value_prefix=PubChemMapping.SOURCE)
 def wd_manufacturer(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -732,7 +737,7 @@ def wd_manufacturer(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.partition_coefficient_water_octanol,
-    datatype=Datatype.quantity,
+    datatype=QuantityDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value_datatype=XSD.decimal,
     value_datatype_encoded=XSD.float,
@@ -754,7 +759,7 @@ def wd_partition_coefficient_water_octanol(
 
 @PubChemMapping.register(
     property=wd.PubChem_CID,
-    datatype=Datatype.string,   # FIXME: ExternalId
+    datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_PubChem_CID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
@@ -770,7 +775,7 @@ def wd_PubChem_CID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.stereoisomer_of,
-    datatype=Datatype.item,
+    datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value_prefix=PubChemMapping.COMPOUND)
 def wd_stereoisomer_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -779,7 +784,7 @@ def wd_stereoisomer_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.trading_name,
-    datatype=Datatype.text,
+    datatype=TextDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value_language='en')
 def wd_trading_name(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -813,7 +818,7 @@ def wd_PATENT_description(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.author_name_string,
-    datatype=Datatype.string,
+    datatype=StringDatatype(),
     subject_prefix=PubChemMapping.PATENT)
 def wd_author_name_string(
         spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -823,7 +828,7 @@ def wd_author_name_string(
 
 @PubChemMapping.register(
     property=wd.instance_of,
-    datatype=Datatype.item,
+    datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.PATENT,
     value=wd.patent)
 def wd_PATENT_instance_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -832,7 +837,7 @@ def wd_PATENT_instance_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.main_subject,
-    datatype=Datatype.item,
+    datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.PATENT,
     value_prefix=PubChemMapping.COMPOUND)
 def wd_main_subject(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -845,7 +850,7 @@ def wd_main_subject(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.patent_number,
-    datatype=Datatype.string,   # FIXME: ExternalId
+    datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.PATENT)
 def wd_patent_number(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     q.triple(s, PATENT.publicationNumber, v)
@@ -853,7 +858,7 @@ def wd_patent_number(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.publication_date,
-    datatype=Datatype.time,
+    datatype=TimeDatatype(),
     subject_prefix=PubChemMapping.PATENT,
     value_precision=Time.DAY,
     value_timezone=0,
@@ -864,7 +869,7 @@ def wd_publication_date(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.sponsor,
-    datatype=Datatype.string,
+    datatype=StringDatatype(),
     subject_prefix=PubChemMapping.PATENT)
 def wd_sponsor(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     with q.sp(s, PATENT.applicantVC) as sp:
@@ -873,7 +878,7 @@ def wd_sponsor(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.title,
-    datatype=Datatype.text,
+    datatype=TextDatatype(),
     subject_prefix=PubChemMapping.PATENT,
     value_language='en')
 def wd_title(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -903,7 +908,7 @@ def wd_SOURCE_alias(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.instance_of,
-    datatype=Datatype.item,
+    datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.SOURCE,
     value=wd.business)
 def wd_SOURCE_instance_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -912,7 +917,7 @@ def wd_SOURCE_instance_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 @PubChemMapping.register(
     property=wd.official_website,
-    datatype=Datatype.iri,
+    datatype=IRI_Datatype(),
     subject_prefix=PubChemMapping.SOURCE)
 def wd_SOURCE_official_website(
         spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -923,7 +928,7 @@ def wd_SOURCE_official_website(
 
 @PubChemMapping.register(
     property=wd.short_name,
-    datatype=Datatype.string,
+    datatype=StringDatatype(),
     subject_prefix=PubChemMapping.SOURCE)
 def wd_SOURCE_short_name(
         spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):

@@ -1,7 +1,18 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import Datatype, Item, Snak, String, Time
+from kif_lib import (
+    IRI_Datatype,
+    Item,
+    ItemDatatype,
+    QuantityDatatype,
+    Snak,
+    String,
+    StringDatatype,
+    TextDatatype,
+    Time,
+    TimeDatatype,
+)
 from kif_lib.vocabulary import wd
 
 from .tests import kif_PubChemSPARQL_StoreTestCase
@@ -64,92 +75,92 @@ class TestStoreMapperMappingPubChemStatements(
 
     def test_filter_property_canonical_SMILES(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.canonical_SMILES, Datatype.string)
+            self.new_Store(), wd.canonical_SMILES, StringDatatype())
 
     def test_filter_property_chemical_formula(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.chemical_formula, Datatype.string)
+            self.new_Store(), wd.chemical_formula, StringDatatype())
 
     def test_filter_property_CAS_Registry_Number(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.CAS_Registry_Number, Datatype.string)
+            self.new_Store(), wd.CAS_Registry_Number, StringDatatype())
 
     def test_filter_property_ChEBI_ID(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.ChEBI_ID, Datatype.string)
+            self.new_Store(), wd.ChEBI_ID, StringDatatype())
 
     def test_filter_property_ChEMBL(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.ChEMBL_ID, Datatype.string)
+            self.new_Store(), wd.ChEMBL_ID, StringDatatype())
 
     def test_filter_property_described_by_source(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.described_by_source, Datatype.item,
+            self.new_Store(), wd.described_by_source, ItemDatatype(),
             value_check=(
                 lambda kb, v: kb.mapping.is_pubchem_patent_iri(v.iri)))
 
     def test_filter_property_has_part(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.has_part, Datatype.item,
+            self.new_Store(), wd.has_part, ItemDatatype(),
             value_check=(
                 lambda kb, v: kb.mapping.is_pubchem_compound_iri(v.iri)))
 
     def test_filter_property_InChI(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.InChI, Datatype.string)
+            self.new_Store(), wd.InChI, StringDatatype())
 
     def test_filter_property_InChIKey(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.InChIKey, Datatype.string)
+            self.new_Store(), wd.InChIKey, StringDatatype())
 
     def test_filter_property_compound_instance_of(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.instance_of, Datatype.item,
+            self.new_Store(), wd.instance_of, ItemDatatype(),
             subject=wd.instance_of(wd.type_of_a_chemical_entity),
             value_check=(
                 lambda kb, v: v == wd.type_of_a_chemical_entity))
 
     def test_filter_property_isomeric_SMILES(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.isomeric_SMILES, Datatype.string)
+            self.new_Store(), wd.isomeric_SMILES, StringDatatype())
 
     def test_filter_property_legal_status(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.legal_status, Datatype.item)
+            self.new_Store(), wd.legal_status, ItemDatatype())
 
     def test_filter_property_mass(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.mass, Datatype.quantity,
+            self.new_Store(), wd.mass, QuantityDatatype(),
             value_check=(
                 lambda kb, v: v.unit == wd.gram_per_mole
                 and v.lower_bound is None and v.upper_bound is None))
 
     def test_filter_property_manufacturer(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.manufacturer, Datatype.item,
+            self.new_Store(), wd.manufacturer, ItemDatatype(),
             value_check=(
                 lambda kb, v: kb.mapping.is_pubchem_source_iri(v.iri)))
 
     def test_filter_property_partition_coefficient_water_octanol(self):
         self.check_filter_compound_property(
             self.new_Store(), wd.partition_coefficient_water_octanol,
-            Datatype.quantity, value_check=(
+            QuantityDatatype(), value_check=(
                 lambda kb, v: v.unit is None
                 and v.lower_bound is None and v.upper_bound is None))
 
     # def test_filter_property_PubChem_CID(self):
     #     self.check_filter_compound_property(
-    #         self.new_Store(), wd.PubChem_CID, Datatype.string)
+    #         self.new_Store(), wd.PubChem_CID, StringDatatype())
 
     def test_filter_property_stereoisomer_of(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.stereoisomer_of, Datatype.item,
+            self.new_Store(), wd.stereoisomer_of, ItemDatatype(),
             value_check=(
                 lambda kb, v: kb.mapping.is_pubchem_compound_iri(v.iri)))
 
     def test_filter_property_trading_name(self):
         self.check_filter_compound_property(
-            self.new_Store(), wd.trading_name, Datatype.text,
+            self.new_Store(), wd.trading_name, TextDatatype(),
             value_check=lambda kb, v: v.language == 'en')
 
 # -- Patent ----------------------------------------------------------------
@@ -166,38 +177,38 @@ class TestStoreMapperMappingPubChemStatements(
 
     def test_filter_property_author_name_string(self):
         self.check_filter_patent_property(
-            self.new_Store(), wd.author_name_string, Datatype.string)
+            self.new_Store(), wd.author_name_string, StringDatatype())
 
     def test_filter_property_patent_instance_of(self):
         self.check_filter_patent_property(
-            self.new_Store(), wd.instance_of, Datatype.item,
+            self.new_Store(), wd.instance_of, ItemDatatype(),
             subject=wd.instance_of(wd.patent),
             value_check=(lambda kb, v: v == wd.patent))
 
     def test_filter_property_main_subject(self):
         self.check_filter_patent_property(
-            self.new_Store(), wd.main_subject, Datatype.item,
+            self.new_Store(), wd.main_subject, ItemDatatype(),
             value_check=(
                 lambda kb, v: kb.mapping.is_pubchem_compound_iri(v.iri)))
 
     def test_filter_property_patent_number(self):
         self.check_filter_patent_property(
-            self.new_Store(), wd.patent_number, Datatype.string)
+            self.new_Store(), wd.patent_number, StringDatatype())
 
     def test_filter_property_publication_date(self):
         self.check_filter_patent_property(
-            self.new_Store(), wd.publication_date, Datatype.time,
+            self.new_Store(), wd.publication_date, TimeDatatype(),
             value_check=(
                 lambda kb, v: v.precision == Time.DAY and v.timezone == 0
                 and v.calendar == wd.proleptic_Gregorian_calendar))
 
     def test_filter_property_sponsor(self):
         self.check_filter_patent_property(
-            self.new_Store(), wd.sponsor, Datatype.string)
+            self.new_Store(), wd.sponsor, StringDatatype())
 
     def test_filter_property_title(self):
         self.check_filter_patent_property(
-            self.new_Store(), wd.title, Datatype.text,
+            self.new_Store(), wd.title, TextDatatype(),
             value_check=(lambda kb, v: v.language == 'en'))
 
 # -- Source ----------------------------------------------------------------
@@ -214,17 +225,17 @@ class TestStoreMapperMappingPubChemStatements(
 
     def test_filter_property_source_instance_of(self):
         self.check_filter_source_property(
-            self.new_Store(), wd.instance_of, Datatype.item,
+            self.new_Store(), wd.instance_of, ItemDatatype(),
             subject=wd.instance_of(wd.business),
             value_check=(lambda kb, v: v == wd.business))
 
     def test_filter_property_official_website(self):
         self.check_filter_source_property(
-            self.new_Store(), wd.official_website, Datatype.iri)
+            self.new_Store(), wd.official_website, IRI_Datatype())
 
     def test_filter_property_short_name(self):
         self.check_filter_source_property(
-            self.new_Store(), wd.short_name, Datatype.string)
+            self.new_Store(), wd.short_name, StringDatatype())
 
 
 if __name__ == '__main__':
