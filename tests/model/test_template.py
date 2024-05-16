@@ -51,7 +51,7 @@ class Test(kif_TestCase):
         self.assertRaises(
             TypeError, Template._check_arg_template_class, 0)
         self.assertRaises(
-            TypeError, Template._check_arg_template_class, int)
+            ValueError, Template._check_arg_template_class, int)
         self.assertRaises(
             ValueError, Template._check_arg_template_class, KIF_Object)
         self.assertIs(
@@ -72,34 +72,6 @@ class Test(kif_TestCase):
         self.assertIs(
             Template._check_optional_arg_template_class(
                 Item, PropertyTemplate), ItemTemplate)
-
-    def test__preprocess_arg_template_class(self):
-        self.assertRaises(
-            TypeError, Template._preprocess_arg_template_class, 0, 1)
-        self.assertRaises(
-            TypeError, Template._preprocess_arg_template_class, int, 1)
-        self.assertIs(
-            Template._preprocess_arg_template_class(ItemTemplate, 1),
-            ItemTemplate)
-        self.assertIs(
-            Template._preprocess_arg_template_class(Item, 1),
-            ItemTemplate)
-
-    def test__preprocess_optional_arg_template_class(self):
-        self.assertRaises(
-            TypeError,
-            Template._preprocess_optional_arg_template_class, 0, 1)
-        self.assertRaises(
-            TypeError,
-            Template._preprocess_optional_arg_template_class, int, 1)
-        self.assertIsNone(
-            Template._preprocess_optional_arg_template_class(None, 1))
-        self.assertEqual(
-            Template._preprocess_optional_arg_template_class(
-                None, 1, ItemTemplate), ItemTemplate)
-        self.assertEqual(
-            Template._preprocess_optional_arg_template_class(
-                Item, 1, PropertyTemplate), ItemTemplate)
 
 # -- __new__ ---------------------------------------------------------------
 

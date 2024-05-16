@@ -98,6 +98,7 @@ class ObjectMeta(abc.ABCMeta):
         top = mcls._object_class or cls
         setattr(top, '_' + name, cls)
         sn = top._camel2snake(name)
+        mcls._object_subclasses[sn] = cls
         cls._snake_case_name = sn
         cls._is_ = 'is_' + sn
         cls._test_ = 'test_' + sn

@@ -64,44 +64,6 @@ class Variable(KIF_Object):
                 function, name, position), 'variable_class')
 
     @classmethod
-    def _check_optional_arg_variable_class(
-            cls,
-            arg: Optional[TVariableClass],
-            default: Optional[VariableClass] = None,
-            function: Optional[Union[TCallable, str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Union[Optional[VariableClass], NoReturn]:
-        if arg is None:
-            return default
-        else:
-            return cls._check_arg_variable_class(
-                arg, function, name, position)
-
-    @classmethod
-    def _preprocess_arg_variable_class(
-            cls,
-            arg: TVariableClass,
-            i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[VariableClass, NoReturn]:
-        return cls._check_arg_variable_class(
-            arg, function or cls, None, i)
-
-    @classmethod
-    def _preprocess_optional_arg_variable_class(
-            cls,
-            arg: Optional[TVariableClass],
-            i: int,
-            default: Optional[VariableClass] = None,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Optional[VariableClass], NoReturn]:
-        if arg is None:
-            return default
-        else:
-            return cls._preprocess_arg_variable_class(arg, i, function)
-
-    @classmethod
     def _preprocess_arg_variable(
             cls,
             arg: 'Variable',

@@ -571,13 +571,15 @@ B(
         self.assertEqual(Object._check_optional_arg_a_class(None, A), A)
         self.assertIsNone(Object._check_optional_arg_a_class(None))
 
+    # -- _check_arg_not_none --
+
     def test__check_arg_not_none(self):
         self.assertRaisesRegex(
             TypeError, r'^bad argument \(expected value, got None\)$',
             Object._check_arg_not_none, None)
         self.assertEqual(Object._check_arg_not_none(0), 0)
 
-    # -- callable --
+    # -- _check_arg_callable --
 
     def test__check_arg_callable(self):
         # bad argument
@@ -604,7 +606,7 @@ B(
             Object._check_optional_arg_callable(Object.get_args),
             Object.get_args)
 
-    # -- isinstance --
+    # -- _check_arg_isinstance --
 
     def test__check_arg_isinstance(self):
         # bad argument
@@ -636,7 +638,7 @@ B(
             Object._check_optional_arg_isinstance('abc', (int, str)),
             'abc')
 
-    # -- issubclass --
+    # -- _check_arg_issubclass --
 
     def test__check_arg_issubclass(self):
         # bad argument
@@ -644,7 +646,8 @@ B(
             TypeError, r'^bad argument \(expected type, got int\)$',
             Object._check_arg_issubclass, 0, int)
         self.assertRaisesRegex(
-            ValueError, r'^bad argument \(expected subclass of str, got int\)$',
+            ValueError,
+            r'^bad argument \(expected subclass of str, got int\)$',
             Object._check_arg_issubclass, int, str)
         self.assertRaisesRegex(
             ValueError, r'^bad argument '
@@ -660,7 +663,8 @@ B(
             TypeError, r'^bad argument \(expected type, got int\)$',
             Object._check_optional_arg_issubclass, 0, int)
         self.assertRaisesRegex(
-            ValueError, r'^bad argument \(expected subclass of str, got int\)$',
+            ValueError,
+            r'^bad argument \(expected subclass of str, got int\)$',
             Object._check_optional_arg_issubclass, int, str)
         self.assertRaisesRegex(
             ValueError, r'^bad argument '
@@ -761,7 +765,7 @@ B(
         self.assertEqual(A._preprocess_arg_d(1, 1), 0)
         self.assertEqual(A._preprocess_optional_arg_d(None, 1, 8), 8)
 
-    # -- bool --
+    # -- _preprocess_arg_bool --
 
     def test__preprocess_arg_bool(self):
         # bad argument
@@ -787,7 +791,7 @@ B(
         self.assertEqual(
             Object._preprocess_optional_arg_bool(True, 8, False), True)
 
-    # -- int --
+    # -- _preprocess_arg_int --
 
     def test__preprocess_arg_int(self):
         # bad argument
@@ -811,7 +815,7 @@ B(
         self.assertEqual(Object._preprocess_optional_arg_int(-1, 8), -1)
         self.assertEqual(Object._preprocess_optional_arg_int(-1, 8, 1), -1)
 
-    # -- float --
+    # -- _preprocess_arg_float --
 
     def test__preprocess_arg_float(self):
         # bad argument
@@ -837,7 +841,7 @@ B(
         self.assertEqual(
             Object._preprocess_optional_arg_float(-1., 8, 1.), -1.)
 
-    # -- number --
+    # -- _preprocess_arg_number --
 
     def test__preprocess_arg_number(self):
         # bad argument
@@ -868,7 +872,7 @@ B(
         self.assertEqual(
             Object._preprocess_optional_arg_number(-1, 8, 1.), -1)
 
-    # -- str --
+    # -- _preprocess_arg_str --
 
     def test__preprocess_arg_str(self):
         # bad argument

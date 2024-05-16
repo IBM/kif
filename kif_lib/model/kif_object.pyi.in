@@ -1,0 +1,288 @@
+# Copyright (C) 2023-2024 IBM Corp.
+# SPDX-License-Identifier: Apache-2.0
+import datetime
+import decimal
+
+from ..typing import Any, Callable, Iterator, NoReturn, Optional, Union
+from . import object
+from .annotation_record import AnnotationRecord
+from .annotation_record_set import AnnotationRecordSet, TAnnotationRecordSet
+from .descriptor import (
+    Descriptor,
+    ItemDescriptor,
+    LexemeDescriptor,
+    PlainDescriptor,
+    PropertyDescriptor,
+)
+from .fingerprint import (
+    EntityFingerprint,
+    Fingerprint,
+    PropertyFingerprint,
+    TEntityFingerprint,
+    TFingerprint,
+    TPropertyFingerprint,
+)
+from .kif_object_set import KIF_ObjectSet, T_KIF_ObjectSet
+from .pattern import Pattern
+from .pattern_deprecated import FilterPattern
+from .rank import DeprecatedRank, NormalRank, PreferredRank, Rank
+from .reference_record import ReferenceRecord
+from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
+from .snak import (
+    NoValueSnak,
+    NoValueSnakTemplate,
+    NoValueSnakVariable,
+    Snak,
+    SnakTemplate,
+    SnakVariable,
+    SomeValueSnak,
+    SomeValueSnakTemplate,
+    SomeValueSnakVariable,
+    ValueSnak,
+    ValueSnakTemplate,
+    ValueSnakVariable,
+)
+from .snak_set import SnakSet, TSnakSet
+from .statement import Statement, StatementTemplate, StatementVariable
+from .template import Template, TTemplateClass
+from .value import (
+    Datatype,
+    DataValue,
+    DataValueTemplate,
+    DataValueVariable,
+    DeepDataValue,
+    DeepDataValueTemplate,
+    DeepDataValueVariable,
+    Entity,
+    EntityTemplate,
+    EntityVariable,
+    ExternalId,
+    ExternalIdDatatype,
+    ExternalIdTemplate,
+    ExternalIdVariable,
+    IRI,
+    IRI_Datatype,
+    IRI_Template,
+    IRI_Variable,
+    Item,
+    ItemDatatype,
+    ItemTemplate,
+    ItemVariable,
+    Lexeme,
+    LexemeDatatype,
+    LexemeTemplate,
+    LexemeVariable,
+    Property,
+    PropertyDatatype,
+    PropertyTemplate,
+    PropertyVariable,
+    Quantity,
+    QuantityDatatype,
+    QuantityTemplate,
+    QuantityVariable,
+    ShallowDataValue,
+    ShallowDataValueTemplate,
+    ShallowDataValueVariable,
+    String,
+    StringDatatype,
+    StringTemplate,
+    StringVariable,
+    T_IRI,
+    TDatatype,
+    Text,
+    TextDatatype,
+    TExternalId,
+    TextTemplate,
+    TextVariable,
+    Time,
+    TimeDatatype,
+    TimeTemplate,
+    TimeVariable,
+    TItem,
+    TLexeme,
+    TProperty,
+    TString,
+    TText,
+    TValue,
+    Value,
+    ValueTemplate,
+    ValueVariable,
+)
+from .value_set import TextSet, TTextSet, TValueSet, ValueSet
+from .variable import TVariableClass, Variable
+
+Datetime = datetime.datetime
+Decimal = decimal.Decimal
+UTC = datetime.timezone.utc
+
+Codec = object.Codec
+CodecError = object.CodecError
+Decoder = object.Decoder
+DecoderError = object.DecoderError
+Encoder = object.Encoder
+EncoderError = object.EncoderError
+Error = object.Error
+MustBeImplementedInSubclass = object.MustBeImplementedInSubclass
+Nil = object.Nil
+Object = object.Object
+ShouldNotGetHere = object.ShouldNotGetHere
+TArgs = object.TArgs
+TCallable = object.TFun
+TDatetime = Union[Datetime, str]
+TDecimal = Union[Decimal, float, int, str]
+TNil = object.TNil
+
+
+class KIF_Object(object.Object, metaclass=object.ObjectMeta):
+
+    @classmethod
+    def _issubclass_template(cls, arg: Any) -> bool:
+        ...
+
+    @classmethod
+    def _isinstance_template_or_variable(cls, arg: Any) -> bool:
+        ...
+
+# -- datetime --------------------------------------------------------------
+
+    @classmethod
+    def _check_arg_datetime(
+            cls,
+            arg: TDatetime,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Datetime, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_datetime(
+            cls,
+            arg: Optional[TDatetime],
+            default: Optional[Datetime] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[Datetime], NoReturn]:
+        ...
+
+    @classmethod
+    def _preprocess_arg_datetime(
+            cls,
+            arg: TDatetime,
+            i: int,
+            function: Optional[Union[TCallable, str]] = ...
+    ) -> Union[Datetime, NoReturn]:
+        ...
+
+    @classmethod
+    def _preprocess_optional_arg_datetime(
+            cls,
+            arg: Optional[TDatetime],
+            i: int,
+            default: Optional[Datetime] = ...,
+            function: Optional[Union[TCallable, str]] = ...
+    ) -> Union[Optional[Datetime], NoReturn]:
+        ...
+
+# -- decimal ---------------------------------------------------------------
+
+    @classmethod
+    def _check_arg_decimal(
+            cls,
+            arg: TDecimal,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Decimal, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_decimal(
+            cls,
+            arg: Optional[TDecimal],
+            default: Optional[Decimal] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[Decimal], NoReturn]:
+        ...
+
+    @classmethod
+    def _preprocess_arg_decimal(
+            cls,
+            arg: TDecimal,
+            i: int,
+            function: Optional[Union[TCallable, str]] = ...
+    ) -> Union[Decimal, NoReturn]:
+        ...
+
+    @classmethod
+    def _preprocess_optional_arg_decimal(
+            cls,
+            arg: Optional[TDecimal],
+            i: int,
+            default: Optional[Decimal] = ...,
+            function: Optional[Union[TCallable, str]] = ...
+    ) -> Union[Optional[Decimal], NoReturn]:
+        ...
+
+# -- Codecs ----------------------------------------------------------------
+
+    @classmethod
+    def from_json(
+        cls,
+        s: str,
+        **kwargs: Any
+    ) -> Union['KIF_Object', NoReturn]:
+        ...
+
+    @classmethod
+    def from_repr(
+        cls,
+        s: str,
+        **kwargs: Any
+    ) -> Union['KIF_Object', NoReturn]:
+        ...
+
+    @classmethod
+    def from_sexp(
+        cls,
+        s: str,
+        **kwargs: Any
+    ) -> Union['KIF_Object', NoReturn]:
+        ...
+
+    @classmethod
+    def from_sparql(
+        cls,
+        s: str,
+        **kwargs: Any
+    ) -> Union['KIF_Object', NoReturn]:
+        ...
+
+    def to_json(self, **kwargs: Any) -> str: ...
+    def to_markdown(self, **kwargs: Any) -> str: ...
+    def to_repr(self, **kwargs: Any) -> str: ...
+    def to_sexp(self, **kwargs: Any) -> str: ...
+
+# -- misc ------------------------------------------------------------------
+
+    def _repr_markdown_(self) -> str:
+        ...
+
+    def traverse(
+        self,
+        filter: Optional[Callable[[Any], bool]] = None,
+        visit: Optional[Callable[[Any], bool]] = None,
+    ) -> Iterator[Any]:
+        ...
+
+    def _traverse(
+        self,
+        filter: Optional[Callable[[Any], bool]] = None,
+        visit: Optional[Callable[[Any], bool]] = None,
+    ) -> Iterator[Any]:
+        ...
+
+# -- auto-generated stuff --------------------------------------------------

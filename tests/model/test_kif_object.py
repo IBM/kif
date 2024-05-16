@@ -107,9 +107,14 @@ class Test(kif_TestCase):
             re.compile(r'^([a-z]|_check_arg_|_check_optional_arg_)').match,
             dir(KIF_Object)))
         defined -= {
+            '_check_arg_',
+            '_check_arg__class',
             '_check_arg_callable_details',
             '_check_arg_isinstance_details',
+            '_check_arg_isinstance_exception',
             '_check_arg_issubclass_details',
+            '_check_optional_arg_',
+            '_check_optional_arg__class',
             'count',
             'index',
         }
@@ -143,7 +148,7 @@ class Test(kif_TestCase):
         self.assertRaises(
             TypeError, KIF_Object._check_arg_kif_object_class, 0)
         self.assertRaises(
-            TypeError, KIF_Object._check_arg_kif_object_class, int)
+            ValueError, KIF_Object._check_arg_kif_object_class, int)
         self.assertIs(
             KIF_Object._check_arg_kif_object_class(KIF_Object), KIF_Object)
         self.assertIs(
@@ -160,31 +165,6 @@ class Test(kif_TestCase):
         self.assertIs(
             KIF_Object._check_optional_arg_kif_object_class(Item, Statement),
             Item)
-
-    def test__preprocess_arg_kif_object_class(self):
-        self.assertRaises(
-            TypeError, KIF_Object._preprocess_arg_kif_object_class, 0, 1)
-        self.assertRaises(
-            TypeError, KIF_Object._preprocess_arg_kif_object_class, int, 1)
-        self.assertIs(
-            KIF_Object._preprocess_arg_kif_object_class(Statement, 1),
-            Statement)
-
-    def test__preprocess_optional_arg_kif_object_class(self):
-        self.assertRaises(
-            TypeError,
-            KIF_Object._preprocess_optional_arg_kif_object_class, 0, 1)
-        self.assertRaises(
-            TypeError,
-            KIF_Object._preprocess_optional_arg_kif_object_class, int, 1)
-        self.assertIsNone(
-            KIF_Object._preprocess_optional_arg_kif_object_class(None, 1))
-        self.assertEqual(
-            KIF_Object._preprocess_optional_arg_kif_object_class(
-                None, 1, Statement), Statement)
-        self.assertEqual(
-            KIF_Object._preprocess_optional_arg_kif_object_class(
-                Item, 1, Statement), Item)
 
     def test__check_arg_datetime(self):
         self.assertRaises(TypeError, KIF_Object._check_arg_datetime, 0)

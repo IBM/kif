@@ -44,9 +44,10 @@ COVERAGERC_OMIT?=
 DOCS_SRC?= docs
 DOCS_TGT?= .docs
 DOCS_TGT_BRANCH?= gh-pages
-FLAKE8RC?= .flake8rc
 FLAKE8_IGNORE?= E741, W503
 FLAKE8_OPTIONS?= --config .flake8rc
+FLAKE8RC?= .flake8rc
+GEN_ALL_TARGETS?=
 ISORT_CFG?= .isort.cfg
 ISORT_CFG_INCLUDE_TRAILING_COMMA?= True
 ISORT_CFG_MULTI_LINE_OUTPUT?= 3
@@ -290,8 +291,9 @@ docs-publish: docs-clean docs
 
 # run all gen-* targets
 .PHONY: gen-all
-gen-all: gen-coveragerc gen-isort-cfg gen-flake8rc gen-pytest-ini\
-  gen-setup-py gen-tox-ini
+gen-all: ${GEN_ALL_TARGETS}
+
+GEN_ALL_TARGETS+= gen-coveragerc
 
 # generate .coveragerc
 .PHONY: gen-coveragerc
@@ -311,12 +313,16 @@ gen-coveragerc:
 	@echo '    raise NotImplementedError' >>${COVERAGERC}
 	@echo "$(call split,${COVERAGERC_EXCLUDE_LINES})" >>${COVERAGERC}
 
+GEN_ALL_TARGETS+= gen-flake8rc
+
 # generate .flake8rc
 .PHONY: gen-flake8rc
 gen-flake8rc:
 	@echo 'generating ${FLAKE8RC}'
 	@echo '[flake8]' >${FLAKE8RC}
 	@echo 'ignore = ${FLAKE8_IGNORE}' >>${FLAKE8RC}
+
+GEN_ALL_TARGETS+= gen-isort-cfg
 
 # generage .isort.cfg
 .PHONY: gen-isort-cfg
@@ -327,6 +333,8 @@ gen-isort-cfg:
 	@echo 'multi_line_output = ${ISORT_CFG_MULTI_LINE_OUTPUT}' >>${ISORT_CFG}
 	@echo 'order_by_type = ${ISORT_CFG_ORDER_BY_TYPE}' >>${ISORT_CFG}
 
+GEN_ALL_TARGETS+= gen-pytest-ini
+
 # generate pytest.ini
 .PHONY: gen-pytest-ini
 gen-pytest-ini:
@@ -334,6 +342,8 @@ gen-pytest-ini:
 	@echo '[pytest]' >${PYTEST_INI}
 	@echo 'addopts = ${PYTEST_OPTIONS} ${PYTEST_COV_OPTIONS}' >>${PYTEST_INI}
 	@echo 'testpaths = ${TESTS}' >>${PYTEST_INI}
+
+GEN_ALL_TARGETS+= gen-setup-py
 
 # generate setup.py
 .PHONY: gen-setup-py
@@ -369,6 +379,8 @@ gen-setup-py:
 	@echo '    },' >>${SETUP_PY}
 	@echo "    zip_safe=${SETUP_PY_ZIP_SAFE}," >>${SETUP_PY}
 	@echo ')' >>${SETUP_PY}
+
+GEN_ALL_TARGETS+= gen-tox-ini
 
 # generate tox.ini
 .PHONY: gen-tox-ini

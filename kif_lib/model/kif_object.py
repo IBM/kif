@@ -77,36 +77,6 @@ class KIF_Object(object.Object):
         from .variable import Variable
         return isinstance(arg, (Template, Variable))
 
-# -- kif_object_class ------------------------------------------------------
-
-    @classmethod
-    def _check_arg_kif_object_class(
-            cls, arg, function=None, name=None, position=None):
-        return cls._check_arg_issubclass(
-            arg, KIF_Object, function, name, position)
-
-    @classmethod
-    def _check_optional_arg_kif_object_class(
-            cls, arg, default=None, function=None, name=None, position=None):
-        if arg is None:
-            return default
-        else:
-            return cls._check_arg_kif_object_class(
-                arg, function, name, position)
-
-    @classmethod
-    def _preprocess_arg_kif_object_class(cls, arg, i, function=None):
-        return cls._check_arg_kif_object_class(
-            arg, function or cls, None, i)
-
-    @classmethod
-    def _preprocess_optional_arg_kif_object_class(
-            cls, arg, i, default=None, function=None):
-        if arg is None:
-            return default
-        else:
-            return cls._preprocess_arg_kif_object_class(arg, i, function)
-
 # -- datetime --------------------------------------------------------------
 
     @classmethod

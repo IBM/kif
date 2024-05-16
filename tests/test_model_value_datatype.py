@@ -41,7 +41,7 @@ class TestModelValueDatatype(kif_TestCase):
             TypeError, r'\(expected type, got int\)',
             Datatype.from_value_class, 0)
         self.assertRaisesRegex(
-            TypeError, r'\(expected subclass of Value, got int\)',
+            ValueError, r'\(expected subclass of Value, got int\)',
             Datatype.from_value_class, int)
         self.assertRaisesRegex(
             ValueError, r'\(no datatype for Entity\)',

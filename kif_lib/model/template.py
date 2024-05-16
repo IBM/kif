@@ -45,44 +45,6 @@ class Template(KIF_Object):
                 f'no template class for {arg.__qualname__}',
                 function, name, position), 'template_class')
 
-    @classmethod
-    def _check_optional_arg_template_class(
-            cls,
-            arg: Optional[TTemplateClass],
-            default: Optional[TemplateClass] = None,
-            function: Optional[Union[TCallable, str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Union[Optional[TemplateClass], NoReturn]:
-        if arg is None:
-            return default
-        else:
-            return cls._check_arg_template_class(
-                arg, function, name, position)
-
-    @classmethod
-    def _preprocess_arg_template_class(
-            cls,
-            arg: TTemplateClass,
-            i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[TemplateClass, NoReturn]:
-        return cls._check_arg_template_class(
-            arg, function or cls, None, i)
-
-    @classmethod
-    def _preprocess_optional_arg_template_class(
-            cls,
-            arg: Optional[TTemplateClass],
-            i: int,
-            default: Optional[TemplateClass] = None,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Optional[TemplateClass], NoReturn]:
-        if arg is None:
-            return default
-        else:
-            return cls._preprocess_arg_template_class(arg, i, function)
-
     def _preprocess_args(self, args: tuple[Any, ...]) -> tuple[Any, ...]:
         return self._normalize_args(super()._preprocess_args(args))
 

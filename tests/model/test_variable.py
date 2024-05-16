@@ -43,7 +43,7 @@ class Test(kif_TestCase):
         self.assertRaises(
             TypeError, Variable._check_arg_variable_class, 0)
         self.assertRaises(
-            TypeError, Variable._check_arg_variable_class, int)
+            ValueError, Variable._check_arg_variable_class, int)
         self.assertRaises(
             ValueError, Variable._check_arg_variable_class, KIF_Object)
         self.assertIs(
@@ -64,34 +64,6 @@ class Test(kif_TestCase):
         self.assertIs(
             Variable._check_optional_arg_variable_class(
                 Item, PropertyVariable), ItemVariable)
-
-    def test__preprocess_arg_variable_class(self):
-        self.assertRaises(
-            TypeError, Variable._preprocess_arg_variable_class, 0, 1)
-        self.assertRaises(
-            TypeError, Variable._preprocess_arg_variable_class, int, 1)
-        self.assertIs(
-            Variable._preprocess_arg_variable_class(ItemVariable, 1),
-            ItemVariable)
-        self.assertIs(
-            Variable._preprocess_arg_variable_class(Item, 1),
-            ItemVariable)
-
-    def test__preprocess_optional_arg_variable_class(self):
-        self.assertRaises(
-            TypeError,
-            Variable._preprocess_optional_arg_variable_class, 0, 1)
-        self.assertRaises(
-            TypeError,
-            Variable._preprocess_optional_arg_variable_class, int, 1)
-        self.assertIsNone(
-            Variable._preprocess_optional_arg_variable_class(None, 1))
-        self.assertEqual(
-            Variable._preprocess_optional_arg_variable_class(
-                None, 1, ItemVariable), ItemVariable)
-        self.assertEqual(
-            Variable._preprocess_optional_arg_variable_class(
-                Item, 1, PropertyVariable), ItemVariable)
 
     def test__preprocess_arg_variable(self):
         self.assert_raises_bad_argument(
@@ -114,7 +86,7 @@ class Test(kif_TestCase):
             TypeError, 2, 'variable_class',
             'expected type, got int', Variable, 'x', 0)
         self.assert_raises_bad_argument(
-            TypeError, 2, 'variable_class',
+            ValueError, 2, 'variable_class',
             'expected subclass of KIF_Object, got int', Variable, 'x', int)
         self.assert_raises_bad_argument(
             ValueError, 2, 'variable_class',
@@ -170,7 +142,7 @@ class Test(kif_TestCase):
             TypeError, 1, 'variable_class', 'expected type, got int',
             Variable('x').coerce, 0)
         self.assert_raises_bad_argument(
-            TypeError, 1, 'variable_class',
+            ValueError, 1, 'variable_class',
             'expected subclass of KIF_Object, got int',
             Variable('x').coerce, int)
         self.assert_raises_bad_argument(
