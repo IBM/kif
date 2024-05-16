@@ -16,13 +16,17 @@ perl_usage=\
     print "Usage: ${MAKE} -f ${me} TARGET";\
     print "Maintainer\047s makefile; the following targets are supported:";\
     print "";\
+    my @tgts;\
   }\
   /\#\s([^\n]+)\n(\.PHONY:|SC_RULES\+=)\s([\w-]+)\n/ and do {\
     my $$tgt = $$3;\
     my $$doc = $$1;\
-    printf ("  %-20s  %s\n", $$tgt, $$doc);\
+    push(@tgts, sprintf("  %-20s  %s", $$tgt, $$doc));\
   };\
-  END { print ""; }\
+  END {\
+    print(join("\n", sort(@tgts)));\
+    print "";\
+  }\
   ${NULL}
 
 .PHONY: usage
