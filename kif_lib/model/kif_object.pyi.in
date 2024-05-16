@@ -89,6 +89,7 @@ from .value import (
     StringVariable,
     T_IRI,
     TDatatype,
+    TDatatypeClass,
     Text,
     TextDatatype,
     TExternalId,

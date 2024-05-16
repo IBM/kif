@@ -93,6 +93,7 @@ from .value import (
     StringVariable,
     T_IRI,
     TDatatype,
+    TDatatypeClass,
     Text,
     TextDatatype,
     TExternalId,
@@ -591,7 +592,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_arg_datatype_class(
             cls,
-            arg: type[Datatype],
+            arg: TDatatypeClass,
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
@@ -2462,7 +2463,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_optional_arg_datatype_class(
             cls,
-            arg: Optional[type[Datatype]],
+            arg: Optional[TDatatypeClass],
             default: Optional[type[Datatype]] = ...,
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,

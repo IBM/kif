@@ -143,6 +143,8 @@ VTimeTimezoneContent: TypeAlias = Union['QuantityVariable', int]
 # -- Datatype --
 
 TDatatype = Union['Datatype', T_IRI]
+DatatypeClass = type['Datatype']
+TDatatypeClass: TypeAlias = Union[DatatypeClass, type[KIF_Object]]
 
 
 # == Value =================================================================
@@ -175,6 +177,10 @@ class Value(
         variable_class=ValueVariable
 ):
     """Abstract base class for values."""
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
 
     @classmethod
     def _check_arg_value(
@@ -1855,6 +1861,33 @@ class Datatype(KIF_Object):
     #: The datatype of :class:`Time`.
     time: 'TimeDatatype'
 
+    def __new__(
+            cls,
+            datatype_class: Optional[TDatatypeClass] = None
+    ):
+        datatype_cls = cls._check_optional_arg_datatype_class(
+            datatype_class, cls, cls, 'datatype_class', 2)
+        assert datatype_cls is not None
+        return super().__new__(datatype_cls)
+
+    @classmethod
+    def _check_arg_datatype_class(
+            cls,
+            arg: TDatatypeClass,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[DatatypeClass, NoReturn]:
+        if isinstance(arg, type) and issubclass(arg, cls):
+            return arg
+        else:
+            arg = cls._check_arg_kif_object_class(
+                arg, function, name, position)
+            return getattr(cls._check_arg(
+                arg, hasattr(arg, 'datatype_class'),
+                f'no datatype class for {arg.__qualname__}',
+                function, name, position), 'datatype_class')
+
     @classmethod
     def _preprocess_arg_datatype(
             cls,
@@ -2058,8 +2091,11 @@ class Datatype(KIF_Object):
         """
         raise cls._must_be_implemented_in_subclass()
 
-    def __init__(self):
-        return super().__init__()
+    def __init__(
+            self,
+            datatype_class: Optional[TDatatypeClass] = None
+    ):
+        super().__init__()
 
 
 class ItemDatatype(Datatype):
