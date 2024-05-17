@@ -7,7 +7,15 @@
 import datetime
 import decimal
 
-from ..typing import Any, Callable, Iterator, NoReturn, Optional, Union
+from ..typing import (
+    Any,
+    Callable,
+    Iterator,
+    NoReturn,
+    Optional,
+    TypeAlias,
+    Union,
+)
 from . import object
 from .annotation_record import AnnotationRecord
 from .annotation_record_set import AnnotationRecordSet, TAnnotationRecordSet
@@ -130,11 +138,14 @@ MustBeImplementedInSubclass = object.MustBeImplementedInSubclass
 Nil = object.Nil
 Object = object.Object
 ShouldNotGetHere = object.ShouldNotGetHere
-TArgs = object.TArgs
-TCallable = object.TFun
-TDatetime = Union[Datetime, str]
-TDecimal = Union[Decimal, float, int, str]
-TNil = object.TNil
+
+TArgs: TypeAlias = object.TArgs
+TCallable: TypeAlias = object.TFun
+TDatetime: TypeAlias = Union[Datetime, str]
+TDecimal: TypeAlias = Union[Decimal, float, int, str]
+TNil: TypeAlias = object.TNil
+
+KIF_ObjectClass: TypeAlias = type['KIF_Object']
 
 
 class KIF_Object(object.Object, metaclass=object.ObjectMeta):
@@ -290,8 +301,8 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
 
     def _traverse(
         self,
-        filter: Optional[Callable[[Any], bool]] = None,
-        visit: Optional[Callable[[Any], bool]] = None,
+        filter: Callable[[Any], bool],
+        visit: Callable[[Any], bool]
     ) -> Iterator[Any]:
         ...
 

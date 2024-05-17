@@ -17,6 +17,7 @@ from ..typing import (
     NoReturn,
     Optional,
     override,
+    TypeAlias,
     Union,
 )
 from . import object
@@ -36,10 +37,13 @@ MustBeImplementedInSubclass = object.MustBeImplementedInSubclass
 Nil = object.Nil
 Object = object.Object
 ShouldNotGetHere = object.ShouldNotGetHere
-TCallable = object.TFun
-TDatetime = Union[Datetime, str]
-TDecimal = Union[Decimal, float, int, str]
-TNil = object.TNil
+
+TCallable: TypeAlias = object.TFun
+TDatetime: TypeAlias = Union[Datetime, str]
+TDecimal: TypeAlias = Union[Decimal, float, int, str]
+TNil: TypeAlias = object.TNil
+
+KIF_ObjectClass: TypeAlias = type['KIF_Object']
 
 
 # == KIF Object ============================================================
@@ -227,7 +231,7 @@ class KIF_Object(object.Object):
     def traverse(
         self,
         filter: Optional[Callable[[Any], bool]] = None,
-        visit: Optional[Callable[[Any], bool]] = None,
+        visit: Optional[Callable[[Any], bool]] = None
     ) -> Iterator[Any]:
         """Traverses KIF object-tree recursively.
 
@@ -249,9 +253,9 @@ class KIF_Object(object.Object):
         return self._traverse(filter, visit)
 
     def _traverse(
-        self,
-        filter: Optional[Callable[[Any], bool]] = None,
-        visit: Optional[Callable[[Any], bool]] = None,
+            self,
+            filter: Callable[[Any], bool],
+            visit: Callable[[Any], bool]
     ) -> Iterator[Any]:
         if visit(self):
             if filter(self):
