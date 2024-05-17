@@ -18,9 +18,6 @@ class TestModelValueTimeDatatype(kif_TestCase):
     def test_from_value_class(self):
         self.assert_time_datatype(Datatype.from_value_class(Time))
 
-    def test_to_value_class(self):
-        self.assertIs(TimeDatatype().to_value_class(), Time)
-
 
 if __name__ == '__main__':
     TestModelValueTimeDatatype.main()

@@ -20,9 +20,6 @@ class TestModelValuePropertyDatatype(kif_TestCase):
     def test_from_value_class(self):
         self.assert_property_datatype(Datatype.from_value_class(Property))
 
-    def test_to_value_class(self):
-        self.assertIs(PropertyDatatype().to_value_class(), Property)
-
 
 if __name__ == '__main__':
     TestModelValuePropertyDatatype.main()

@@ -20,9 +20,6 @@ class TestModelValueExternalIdDatatype(kif_TestCase):
     def test_from_value_class(self):
         self.assert_external_id_datatype(Datatype.from_value_class(ExternalId))
 
-    def test_to_value_class(self):
-        self.assertIs(ExternalIdDatatype().to_value_class(), ExternalId)
-
 
 if __name__ == '__main__':
     TestModelValueExternalIdDatatype.main()

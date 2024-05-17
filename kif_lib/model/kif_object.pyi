@@ -92,7 +92,6 @@ from .value import (
     StringTemplate,
     StringVariable,
     T_IRI,
-    TDatatype,
     TDatatypeClass,
     Text,
     TextDatatype,
@@ -139,6 +138,12 @@ TNil = object.TNil
 
 
 class KIF_Object(object.Object, metaclass=object.ObjectMeta):
+
+    #: Template class associated with this object class.
+    template_class: type[Template]
+
+    #: Variable class associated with this object class.
+    variable_class: type[Variable]
 
     @classmethod
     def _issubclass_template(cls, arg: Any) -> bool:
@@ -582,7 +587,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_arg_datatype(
             cls,
-            arg: TDatatype,
+            arg: Datatype,
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
@@ -2452,7 +2457,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_optional_arg_datatype(
             cls,
-            arg: Optional[TDatatype],
+            arg: Optional[Datatype],
             default: Optional[Datatype] = ...,
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,

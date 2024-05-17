@@ -19,9 +19,6 @@ class TestModelValueItemDatatype(kif_TestCase):
     def test_from_value_class(self):
         self.assert_item_datatype(Datatype.from_value_class(Item))
 
-    def test_to_value_class(self):
-        self.assertIs(ItemDatatype().to_value_class(), Item)
-
 
 if __name__ == '__main__':
     TestModelValueItemDatatype.main()

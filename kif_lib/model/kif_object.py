@@ -8,7 +8,17 @@ from enum import Enum
 from functools import cache
 
 from ..itertools import chain
-from ..typing import Any, cast, Generator, override, Union
+from ..typing import (
+    Any,
+    Callable,
+    cast,
+    Generator,
+    Iterator,
+    NoReturn,
+    Optional,
+    override,
+    Union,
+)
 from . import object
 
 Datetime = datetime.datetime
@@ -67,12 +77,12 @@ class KIF_Object(object.Object):
             return super().__new__(cls)
 
     @classmethod
-    def _issubclass_template(cls, arg):
+    def _issubclass_template(cls, arg: Any) -> bool:
         from .template import Template
         return issubclass(arg, Template)
 
     @classmethod
-    def _isinstance_template_or_variable(cls, arg):
+    def _isinstance_template_or_variable(cls, arg: Any) -> bool:
         from .template import Template
         from .variable import Variable
         return isinstance(arg, (Template, Variable))
@@ -81,7 +91,12 @@ class KIF_Object(object.Object):
 
     @classmethod
     def _check_arg_datetime(
-            cls, arg, function=None, name=None, position=None):
+            cls,
+            arg: TDatetime,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[Datetime, NoReturn]:
         arg = cls._check_arg_isinstance(
             arg, (Datetime, str), function, name, position)
         if isinstance(arg, str):
@@ -111,20 +126,36 @@ class KIF_Object(object.Object):
 
     @classmethod
     def _check_optional_arg_datetime(
-            cls, arg, default=None, function=None, name=None, position=None):
+            cls,
+            arg: Optional[TDatetime],
+            default: Optional[Datetime] = None,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[Optional[Datetime], NoReturn]:
         if arg is None:
             return default
         else:
             return cls._check_arg_datetime(arg, function, name, position)
 
     @classmethod
-    def _preprocess_arg_datetime(cls, arg, i, function=None):
+    def _preprocess_arg_datetime(
+            cls,
+            arg: TDatetime,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union[Datetime, NoReturn]:
         return cls._check_arg_datetime(
             arg, function or cls, None, i)
 
     @classmethod
     def _preprocess_optional_arg_datetime(
-            cls, arg, i, default=None, function=None):
+            cls,
+            arg: Optional[TDatetime],
+            i: int,
+            default: Optional[Datetime] = None,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union[Optional[Datetime], NoReturn]:
         if arg is None:
             return default
         else:
@@ -134,7 +165,12 @@ class KIF_Object(object.Object):
 
     @classmethod
     def _check_arg_decimal(
-            cls, arg, function=None, name=None, position=None):
+            cls,
+            arg: TDecimal,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[Decimal, NoReturn]:
         arg = cls._check_arg_isinstance(
             arg, (Decimal, float, int, str), function, name, position)
         try:
@@ -146,7 +182,13 @@ class KIF_Object(object.Object):
 
     @classmethod
     def _check_optional_arg_decimal(
-            cls, arg, default=None, function=None, name=None, position=None):
+            cls,
+            arg: Optional[TDecimal],
+            default: Optional[Decimal] = None,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[Optional[Decimal], NoReturn]:
         if arg is None:
             return default
         else:
@@ -154,13 +196,21 @@ class KIF_Object(object.Object):
 
     @classmethod
     def _preprocess_arg_decimal(
-            cls, arg, i, function=None):
-        return cls._check_arg_decimal(
-            arg, function or cls, None, i)
+            cls,
+            arg: TDecimal,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union[Decimal, NoReturn]:
+        return cls._check_arg_decimal(arg, function or cls, None, i)
 
     @classmethod
     def _preprocess_optional_arg_decimal(
-            cls, arg, i, default=None, function=None):
+            cls,
+            arg: Optional[TDecimal],
+            i: int,
+            default: Optional[Decimal] = None,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union[Optional[Decimal], NoReturn]:
         if arg is None:
             return default
         else:
@@ -168,17 +218,17 @@ class KIF_Object(object.Object):
 
 # -- misc ------------------------------------------------------------------
 
-    def _repr_markdown_(self):
-        return self.to_markdown()
+    def _repr_markdown_(self) -> str:
+        return self.to_markdown()  # type: ignore
 
     _traverse_default_filter = (lambda _: True)
     _traverse_default_visit = (lambda _: True)
 
     def traverse(
-            self,
-            filter=None,
-            visit=None,
-    ):
+        self,
+        filter: Optional[Callable[[Any], bool]] = None,
+        visit: Optional[Callable[[Any], bool]] = None,
+    ) -> Iterator[Any]:
         """Traverses KIF object-tree recursively.
 
         Parameters:
@@ -198,7 +248,11 @@ class KIF_Object(object.Object):
         assert visit is not None
         return self._traverse(filter, visit)
 
-    def _traverse(self, filter, visit):
+    def _traverse(
+        self,
+        filter: Optional[Callable[[Any], bool]] = None,
+        visit: Optional[Callable[[Any], bool]] = None,
+    ) -> Iterator[Any]:
         if visit(self):
             if filter(self):
                 yield self

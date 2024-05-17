@@ -19,9 +19,6 @@ class TestModelValueQuantityDatatype(kif_TestCase):
     def test_from_value_class(self):
         self.assert_quantity_datatype(Datatype.from_value_class(Quantity))
 
-    def test_to_value_class(self):
-        self.assertIs(QuantityDatatype().to_value_class(), Quantity)
-
 
 if __name__ == '__main__':
     TestModelValueQuantityDatatype.main()

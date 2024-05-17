@@ -4,51 +4,72 @@
 from kif_lib import (
     Datatype,
     Entity,
+    ExternalId,
     ExternalIdDatatype,
     IRI,
     IRI_Datatype,
+    Item,
     ItemDatatype,
+    KIF_Object,
+    Lexeme,
     LexemeDatatype,
+    Property,
     PropertyDatatype,
+    Quantity,
     QuantityDatatype,
+    String,
     StringDatatype,
+    Text,
     TextDatatype,
+    Time,
     TimeDatatype,
 )
-from kif_lib.error import MustBeImplementedInSubclass
 
 from .tests import kif_TestCase
 
 
 class TestModelValueDatatype(kif_TestCase):
 
-    def test__preprocess_arg_datatype(self):
-        self.assertRaises(TypeError, Datatype._preprocess_arg_datatype, 0, 1)
-        self.assertRaises(
-            ValueError, Datatype._preprocess_arg_datatype, 'x', 1)
-        self.assertEqual(
-            Datatype._preprocess_arg_datatype(ItemDatatype(), 1),
-            ItemDatatype())
-        self.assertEqual(
-            Datatype._preprocess_arg_datatype(ItemDatatype()._uri, 1),
-            ItemDatatype())
-        self.assertEqual(
-            Datatype._preprocess_arg_datatype(str(ItemDatatype()._uri), 1),
-            ItemDatatype())
-        self.assertEqual(
-            Datatype._preprocess_arg_datatype(IRI(ItemDatatype()._uri), 1),
-            ItemDatatype())
-
-    def test_aliases(self):
+    def test__new__(self):
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'datatype_class',
+            'expected value, got None', Datatype)
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'datatype_class',
+            'expected type, got int', Datatype, 0)
+        self.assert_raises_bad_argument(
+            ValueError, 1, 'datatype_class',
+            'expected proper subclass of Datatype', Datatype, Datatype)
+        self.assert_raises_bad_argument(
+            ValueError, 1, 'datatype_class',
+            'no datatype class for KIF_Object', Datatype, KIF_Object)
         self.assert_item_datatype(ItemDatatype())
+        self.assert_item_datatype(Datatype(Item))
+        self.assert_item_datatype(Item.datatype)
         self.assert_property_datatype(PropertyDatatype())
+        self.assert_property_datatype(Datatype(Property))
+        self.assert_property_datatype(Property.datatype)
         self.assert_lexeme_datatype(LexemeDatatype())
+        self.assert_lexeme_datatype(Datatype(Lexeme))
+        self.assert_lexeme_datatype(Lexeme.datatype)
         self.assert_iri_datatype(IRI_Datatype())
+        self.assert_iri_datatype(Datatype(IRI))
+        self.assert_iri_datatype(IRI.datatype)
         self.assert_text_datatype(TextDatatype())
+        self.assert_text_datatype(Datatype(Text))
+        self.assert_text_datatype(Text.datatype)
         self.assert_string_datatype(StringDatatype())
+        self.assert_string_datatype(Datatype(String))
+        self.assert_string_datatype(String.datatype)
         self.assert_external_id_datatype(ExternalIdDatatype())
+        self.assert_external_id_datatype(Datatype(ExternalId))
+        self.assert_external_id_datatype(ExternalId.datatype)
         self.assert_quantity_datatype(QuantityDatatype())
+        self.assert_quantity_datatype(Datatype(Quantity))
+        self.assert_quantity_datatype(Quantity.datatype)
         self.assert_time_datatype(TimeDatatype())
+        self.assert_time_datatype(Datatype(Time))
+        self.assert_time_datatype(Time.datatype)
 
     def test_from_value_class(self):
         self.assertRaisesRegex(
@@ -60,10 +81,6 @@ class TestModelValueDatatype(kif_TestCase):
         self.assertRaisesRegex(
             ValueError, r'\(no datatype for Entity\)',
             Datatype.from_value_class, Entity)
-
-    def test_to_value_class(self):
-        self.assertRaises(
-            MustBeImplementedInSubclass, Datatype.to_value_class)
 
 
 if __name__ == '__main__':

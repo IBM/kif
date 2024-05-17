@@ -18,9 +18,6 @@ class TestModelValueIRI_Datatype(kif_TestCase):
     def test_from_value_class(self):
         self.assert_iri_datatype(Datatype.from_value_class(IRI))
 
-    def test_to_value_class(self):
-        self.assertIs(IRI_Datatype().to_value_class(), IRI)
-
 
 if __name__ == '__main__':
     TestModelValueIRI_Datatype.main()

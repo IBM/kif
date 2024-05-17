@@ -56,7 +56,7 @@ class TestStoreMapperMappingPubChemStatements(
             self.assertIsInstance(s, Item)
             self.assertTrue(subject_check(kb, s))
             self.assertEqual(p, property)
-            self.assertIsInstance(v, datatype.to_value_class())
+            self.assertIsInstance(v, datatype.value_class)
             self.assertTrue(value_check(kb, v))
 
         self.check_filter(kb, check, subject, property, value)

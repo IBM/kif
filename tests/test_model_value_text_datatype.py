@@ -19,9 +19,6 @@ class TestModelValueTextDatatype(kif_TestCase):
     def test_from_value_class(self):
         self.assert_text_datatype(Datatype.from_value_class(Text))
 
-    def test_to_value_class(self):
-        self.assertIs(TextDatatype().to_value_class(), Text)
-
 
 if __name__ == '__main__':
     TestModelValueTextDatatype.main()

@@ -111,7 +111,6 @@ from .value import (
     StringTemplate,
     StringVariable,
     T_IRI,
-    TDatatype,
     Text,
     TextDatatype,
     TExternalId,

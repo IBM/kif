@@ -26,12 +26,12 @@ class TestModelDescriptorPropertyDescriptor(kif_TestCase):
             TypeError, PropertyDescriptor, 0, [], TextDatatype())
         self.assertRaises(TypeError, PropertyDescriptor, 0, [], None, 0)
         self.assertRaises(
-            ValueError, PropertyDescriptor, None, None, None, 'x')
+            TypeError, PropertyDescriptor, None, None, None, 'x')
         # good arguments
         self.assert_property_descriptor(
             PropertyDescriptor(), None, TextSet(), None, None)
         self.assert_property_descriptor(
-            PropertyDescriptor('x', ['a', 'b', 'c'], 'z', TextDatatype()._uri),
+            PropertyDescriptor('x', ['a', 'b', 'c'], 'z', Text.datatype),
             Text('x'), list(map(Text, ['a', 'b', 'c'])),
             Text('z'), TextDatatype())
 
@@ -55,15 +55,11 @@ class TestModelDescriptorPropertyDescriptor(kif_TestCase):
     def test_get_datatype(self):
         self.assertEqual(
             PropertyDescriptor(
-                None, None, None, IRI_Datatype()._uri).get_datatype(),
-            IRI_Datatype())
-        self.assertEqual(
-            PropertyDescriptor(
                 None, None, None, IRI_Datatype()).get_datatype(),
             IRI_Datatype())
         self.assertEqual(
             PropertyDescriptor(
-                None, None, None, IRI(IRI_Datatype()._uri)).get_datatype(),
+                None, None, None, IRI.datatype).get_datatype(),
             IRI_Datatype())
         self.assertEqual(
             PropertyDescriptor().get_datatype(IRI_Datatype()),

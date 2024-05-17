@@ -19,9 +19,6 @@ class TestModelValueLexemeDatatype(kif_TestCase):
     def test_from_value_class(self):
         self.assert_lexeme_datatype(Datatype.from_value_class(Lexeme))
 
-    def test_to_value_class(self):
-        self.assertIs(LexemeDatatype().to_value_class(), Lexeme)
-
 
 if __name__ == '__main__':
     TestModelValueLexemeDatatype.main()

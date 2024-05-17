@@ -291,11 +291,11 @@ class SPARQL_Mapping(ABC):
                 assert fixed_value is not None
                 if isinstance(q.matched_value, Variable):
                     q.bind(fixed_value, q.matched_value)
-            if issubclass(self.datatype.to_value_class(), Entity):
+            if issubclass(self.datatype.value_class, Entity):
                 q.bind_uri(
                     q.matched_value, q.value,
                     self.kwargs.get('value_prefix_replacement', None))
-            elif issubclass(self.datatype.to_value_class(), DataValue):
+            elif issubclass(self.datatype.value_class, DataValue):
                 value: Optional[TTrm] = None
                 dt = self.kwargs.get('value_datatype')
                 if dt is not None and isinstance(q.matched_value, Variable):
@@ -354,7 +354,7 @@ class SPARQL_Mapping(ABC):
                 return False
             # Value mismatch.
             if pat.value is not None:
-                value_class = self.datatype.to_value_class()
+                value_class = self.datatype.value_class
                 if pat.value.value is not None:
                     value = pat.value.value
                     assert value is not None

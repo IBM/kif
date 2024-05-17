@@ -142,15 +142,187 @@ VTimeTimezoneContent: TypeAlias = Union['QuantityVariable', int]
 
 # -- Datatype --
 
-TDatatype = Union['Datatype', T_IRI]
-DatatypeClass = type['Datatype']
+DatatypeClass: TypeAlias = type['Datatype']
 TDatatypeClass: TypeAlias = Union[DatatypeClass, type[KIF_Object]]
+
+
+# == Datatype ==============================================================
+
+class Datatype(KIF_Object):
+    """Abstract base class for datatypes.
+
+    Parameters:
+       datatype_class: Datatype class.
+    """
+
+    #: Value class associated with this datatype class.
+    value_class: type['Value']
+
+    def __new__(
+            cls,
+            datatype_class: Optional[TDatatypeClass] = None
+    ):
+        datatype_cls = cls._check_optional_arg_datatype_class(
+            datatype_class, cls, cls, 'datatype_class', 1)
+        assert datatype_cls is not None
+        return super().__new__(datatype_cls)
+
+    @classmethod
+    def _check_arg_datatype_class(
+            cls,
+            arg: TDatatypeClass,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[DatatypeClass, NoReturn]:
+        if isinstance(arg, type) and issubclass(arg, cls):
+            return arg
+        else:
+            arg = cls._check_arg_kif_object_class(
+                arg, function, name, position)
+            return getattr(cls._check_arg(
+                arg, hasattr(arg, 'datatype_class'),
+                f'no datatype class for {arg.__qualname__}',
+                function, name, position), 'datatype_class')
+
+    _uri: URIRef
+
+    @classmethod
+    @cache
+    def _from_rdflib(cls, uri: URIRef) -> 'Datatype':
+        if uri == cls._ItemDatatype._uri:
+            return cls._ItemDatatype()
+        elif uri == cls._PropertyDatatype._uri:
+            return cls._PropertyDatatype()
+        elif uri == cls._LexemeDatatype._uri:
+            return cls._LexemeDatatype()
+        elif uri == cls._IRI_Datatype._uri:
+            return cls._IRI_Datatype()
+        elif uri == cls._TextDatatype._uri:
+            return cls._TextDatatype()
+        elif uri == cls._StringDatatype._uri:
+            return cls._StringDatatype()
+        elif uri == cls._ExternalIdDatatype._uri:
+            return cls._ExternalIdDatatype()
+        elif uri == cls._QuantityDatatype._uri:
+            return cls._QuantityDatatype()
+        elif uri == cls._TimeDatatype._uri:
+            return cls._TimeDatatype()
+        else:
+            raise ValueError(f'bad Wikibase datatype: {uri}')
+
+    @classmethod
+    def _to_rdflib(cls) -> URIRef:
+        return cls._uri
+
+    @classmethod
+    def from_value_template_class(
+            cls,
+            value_template_class: type['ValueTemplate']
+    ) -> 'Datatype':
+        """Gets the datatype of `value_template_class`.
+
+        Parameters:
+           value_template_class: Value template class.
+
+        Returns:
+           Datatype.
+        """
+        cls._check_arg_issubclass(
+            value_template_class, ValueTemplate,
+            cls.from_value_template_class, 'value_template_class', 1)
+        obj_class = value_template_class.object_class
+        assert issubclass(obj_class, Value)
+        if hasattr(obj_class, 'datatype'):
+            return obj_class.datatype
+        else:
+            raise cls._arg_error(
+                f'no datatype for {value_template_class.__qualname__}',
+                cls.from_value_template_class, 'value_template_class', 1)
+
+    @classmethod
+    def to_value_template_class(cls) -> type['ValueTemplate']:
+        """Gets the value template class of datatype.
+
+        Returns:
+           Value template class.
+        """
+        return cls.value_class.template_class
+
+    @classmethod
+    def from_value_variable_class(
+            cls,
+            value_variable_class: type['ValueVariable']
+    ) -> 'Datatype':
+        """Gets the datatype of `value_variable_class`.
+
+        Parameters:
+           value_variable_class: Value variable class.
+
+        Returns:
+           Datatype.
+        """
+        cls._check_arg_issubclass(
+            value_variable_class, ValueVariable,
+            cls.from_value_variable_class, 'value_variable_class', 1)
+        obj_class = value_variable_class.object_class
+        assert issubclass(obj_class, Value)
+        if hasattr(obj_class, 'datatype_class'):
+            return obj_class.datatype
+        else:
+            raise cls._arg_error(
+                f'no datatype for {value_variable_class.__qualname__}',
+                cls.from_value_variable_class, 'value_variable_class', 1)
+
+    @classmethod
+    def to_value_variable_class(cls) -> type['ValueVariable']:
+        """Gets the value variable class of datatype.
+
+        Returns:
+           Value variable class.
+        """
+        return cls.value_class.variable_class
+
+    @classmethod
+    def from_value_class(cls, value_class: type['Value']) -> 'Datatype':
+        """Gets the datatype of `value_class`.
+
+        Parameters:
+           value_class: Value class.
+
+        Returns:
+           Datatype.
+        """
+        cls._check_arg_issubclass(
+            value_class, Value, cls.from_value_class, 'value_class', 2)
+        if hasattr(value_class, 'datatype'):
+            return value_class.datatype
+        else:
+            raise cls._arg_error(
+                f'no datatype for {value_class.__qualname__}',
+                cls.from_value_class, 'value_class', 1)
+
+    def __init__(
+            self,
+            datatype_class: Optional[TDatatypeClass] = None
+    ):
+        if self.__class__ == Datatype:
+            self._check_arg_not_none(
+                datatype_class, self.__class__, 'datatype_class', 1)
+            assert datatype_class is not None
+            self._check_arg(
+                datatype_class, datatype_class is not Datatype,
+                f'expected proper subclass of {self.__class__.__qualname__}',
+                self.__class__, 'datatype_class', 1)
+        super().__init__()
 
 
 # == Value =================================================================
 
 class ValueTemplate(Template):
     """Abstract base class for value templates."""
+
+    object_class: type['Value']
 
 
 class ValueVariable(Variable):
@@ -159,6 +331,8 @@ class ValueVariable(Variable):
     Parameters:
        name: Name.
     """
+
+    object_class: type['Value']
 
     @classmethod
     def _preprocess_arg_value_variable(
@@ -178,9 +352,23 @@ class Value(
 ):
     """Abstract base class for values."""
 
+    template_class: type[ValueTemplate]
+    variable_class: type[ValueVariable]
+
+    #: Datatype class associated with this value class.
+    datatype_class: type[Datatype]
+
+    #: Datatype associated with this value class.
+    datatype: Datatype
+
     @classmethod
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
+        if 'datatype_class' in kwargs:
+            cls.datatype_class = kwargs['datatype_class']
+            assert issubclass(cls.datatype_class, Datatype)
+            cls.datatype = cls.datatype_class()
+            cls.datatype_class.value_class = cls
 
     @classmethod
     def _check_arg_value(
@@ -412,8 +600,15 @@ class ItemVariable(EntityVariable):
             arg, i, function or cls))
 
 
+class ItemDatatype(Datatype):
+    """Item datatype."""
+
+    _uri: URIRef = NS.WIKIBASE.WikibaseItem
+
+
 class Item(
         Entity,
+        datatype_class=ItemDatatype,
         template_class=ItemTemplate,
         variable_class=ItemVariable
 ):
@@ -494,8 +689,15 @@ class PropertyVariable(EntityVariable):
             return self._ValueSnak(self, value1)
 
 
+class PropertyDatatype(Datatype):
+    """Property datatype."""
+
+    _uri: URIRef = NS.WIKIBASE.WikibaseProperty
+
+
 class Property(
         Entity,
+        datatype_class=PropertyDatatype,
         template_class=PropertyTemplate,
         variable_class=PropertyVariable
 ):
@@ -573,8 +775,15 @@ class LexemeVariable(EntityVariable):
             arg, i, function or cls))
 
 
+class LexemeDatatype(Datatype):
+    """Lexeme datatype."""
+
+    _uri: URIRef = NS.WIKIBASE.WikibaseLexeme
+
+
 class Lexeme(
         Entity,
+        datatype_class=LexemeDatatype,
         template_class=LexemeTemplate,
         variable_class=LexemeVariable
 ):
@@ -724,8 +933,15 @@ class IRI_Variable(ShallowDataValueVariable):
             arg, i, function or cls))
 
 
+class IRI_Datatype(Datatype):
+    """IRI datatype."""
+
+    _uri: URIRef = NS.WIKIBASE.Url
+
+
 class IRI(
         ShallowDataValue,
+        datatype_class=IRI_Datatype,
         template_class=IRI_Template,
         variable_class=IRI_Variable
 ):
@@ -821,8 +1037,15 @@ class TextVariable(ShallowDataValueVariable):
     """
 
 
+class TextDatatype(Datatype):
+    """Text datatype."""
+
+    _uri: URIRef = NS.WIKIBASE.Monolingualtext
+
+
 class Text(
         ShallowDataValue,
+        datatype_class=TextDatatype,
         template_class=TextTemplate,
         variable_class=TextVariable
 ):
@@ -917,8 +1140,15 @@ class StringVariable(ShallowDataValueVariable):
             arg, i, function or cls))
 
 
+class StringDatatype(Datatype):
+    """String datatype."""
+
+    _uri: URIRef = NS.WIKIBASE.String
+
+
 class String(
         ShallowDataValue,
+        datatype_class=StringDatatype,
         template_class=StringTemplate,
         variable_class=StringVariable
 ):
@@ -976,8 +1206,15 @@ class ExternalIdVariable(StringVariable):
     """
 
 
+class ExternalIdDatatype(StringDatatype):
+    """External id datatype."""
+
+    _uri: URIRef = NS.WIKIBASE.ExternalId
+
+
 class ExternalId(
         String,
+        datatype_class=ExternalIdDatatype,
         template_class=ExternalIdTemplate,
         variable_class=ExternalIdVariable
 ):
@@ -1201,8 +1438,15 @@ class QuantityVariable(DeepDataValueVariable):
             arg, i, function or cls))
 
 
+class QuantityDatatype(Datatype):
+    """Quantity datatype."""
+
+    _uri: URIRef = NS.WIKIBASE.Quantity
+
+
 class Quantity(
         DeepDataValue,
+        datatype_class=QuantityDatatype,
         template_class=QuantityTemplate,
         variable_class=QuantityVariable
 ):
@@ -1349,6 +1593,8 @@ class TimeTemplate(DeepDataValueTemplate):
        calendar: Calendar model, item template, or item variable.
     """
 
+    object_class: type['Time']
+
     def __init__(
             self,
             time: VTTimeContent,
@@ -1475,6 +1721,8 @@ class TimeVariable(DeepDataValueVariable):
        name: Name.
     """
 
+    object_class: type['Time']
+
     @classmethod
     def _preprocess_arg_time_variable(
             cls,
@@ -1486,8 +1734,17 @@ class TimeVariable(DeepDataValueVariable):
             arg, i, function or cls))
 
 
+class TimeDatatype(Datatype):
+    """Time datatype."""
+
+    value_class: type['Time']
+
+    _uri: URIRef = NS.WIKIBASE.Time
+
+
 class Time(
         DeepDataValue,
+        datatype_class=TimeDatatype,
         template_class=TimeTemplate,
         variable_class=TimeVariable
 ):
@@ -1827,438 +2084,3 @@ class Time(
         """
         cal = self.args[3]
         return cal if cal is not None else default
-
-
-# == Datatype ==============================================================
-
-class Datatype(KIF_Object):
-    """Abstract base class for datatypes.
-
-    Parameters:
-       datatype_class: Datatype class.
-    """
-
-    def __new__(
-            cls,
-            datatype_class: Optional[TDatatypeClass] = None
-    ):
-        datatype_cls = cls._check_optional_arg_datatype_class(
-            datatype_class, cls, cls, 'datatype_class', 2)
-        assert datatype_cls is not None
-        return super().__new__(datatype_cls)
-
-    @classmethod
-    def _check_arg_datatype_class(
-            cls,
-            arg: TDatatypeClass,
-            function: Optional[Union[TCallable, str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Union[DatatypeClass, NoReturn]:
-        if isinstance(arg, type) and issubclass(arg, cls):
-            return arg
-        else:
-            arg = cls._check_arg_kif_object_class(
-                arg, function, name, position)
-            return getattr(cls._check_arg(
-                arg, hasattr(arg, 'datatype_class'),
-                f'no datatype class for {arg.__qualname__}',
-                function, name, position), 'datatype_class')
-
-    @classmethod
-    def _preprocess_arg_datatype(
-            cls,
-            arg: TDatatype,
-            i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union['Datatype', NoReturn]:
-        if isinstance(arg, (IRI, URIRef, str)):
-            if isinstance(arg, IRI):
-                uri: URIRef = URIRef(arg.value)
-            elif isinstance(arg, URIRef):
-                uri = arg
-            elif isinstance(arg, str):
-                uri = URIRef(arg)
-            else:
-                raise cls._should_not_get_here()
-            try:
-                return cls._from_rdflib(uri)
-            except ValueError as err:
-                return cast(Datatype, cls._check_arg(
-                    arg, False, str(err), function or cls,
-                    None, i, ValueError))
-        else:
-            return cast(Datatype, Datatype.check(
-                arg, function or cls, None, i))
-
-    _uri: URIRef
-
-    @classmethod
-    @cache
-    def _from_rdflib(cls, uri: URIRef) -> 'Datatype':
-        if uri == ItemDatatype._uri:
-            return ItemDatatype()
-        elif uri == PropertyDatatype._uri:
-            return PropertyDatatype()
-        elif uri == LexemeDatatype._uri:
-            return LexemeDatatype()
-        elif uri == IRI_Datatype._uri:
-            return IRI_Datatype()
-        elif uri == TextDatatype._uri:
-            return TextDatatype()
-        elif uri == StringDatatype._uri:
-            return StringDatatype()
-        elif uri == ExternalIdDatatype._uri:
-            return ExternalIdDatatype()
-        elif uri == QuantityDatatype._uri:
-            return QuantityDatatype()
-        elif uri == TimeDatatype._uri:
-            return TimeDatatype()
-        else:
-            raise ValueError(f'bad Wikibase datatype: {uri}')
-
-    @classmethod
-    def _to_rdflib(cls) -> URIRef:
-        return cls._uri
-
-    @classmethod
-    @cache
-    def from_value_template_class(
-            cls,
-            value_template_class: type[ValueTemplate]
-    ) -> 'Datatype':
-        """Gets the datatype of `value_template_class`.
-
-        Parameters:
-           value_template_class: Value template class.
-
-        Returns:
-           Datatype.
-        """
-        if value_template_class is ItemTemplate:
-            return ItemDatatype()
-        elif value_template_class is PropertyTemplate:
-            return PropertyDatatype()
-        elif value_template_class is LexemeTemplate:
-            return LexemeDatatype()
-        elif value_template_class is IRI_Template:
-            return IRI_Datatype()
-        elif value_template_class is TextTemplate:
-            return TextDatatype()
-        elif value_template_class is StringTemplate:
-            return StringDatatype()
-        elif value_template_class is ExternalIdTemplate:
-            return ExternalIdDatatype()
-        elif value_template_class is QuantityTemplate:
-            return QuantityDatatype()
-        elif value_template_class is TimeTemplate:
-            return TimeDatatype()
-        else:
-            cls._check_arg_issubclass(
-                value_template_class, ValueTemplate,
-                cls.from_value_template_class, 'value_template_class', 2)
-            raise cls._arg_error(
-                f'no datatype for {value_template_class.__qualname__}',
-                cls.from_value_template_class, 'value_template_class', 2)
-
-    @classmethod
-    @abstractmethod
-    def to_value_template_class(cls) -> type[ValueTemplate]:
-        """Gets the value template class of datatype.
-
-        Returns:
-           Value template class.
-        """
-        raise cls._must_be_implemented_in_subclass()
-
-    @classmethod
-    @cache
-    def from_value_variable_class(
-            cls,
-            value_variable_class:
-            type[ValueVariable]
-    ) -> 'Datatype':
-        """Gets the datatype of `value_variable_class`.
-
-        Parameters:
-           value_variable_class: Value variable class.
-
-        Returns:
-           Datatype.
-        """
-        if value_variable_class is ItemVariable:
-            return ItemDatatype()
-        elif value_variable_class is PropertyVariable:
-            return PropertyDatatype()
-        elif value_variable_class is LexemeVariable:
-            return LexemeDatatype()
-        elif value_variable_class is IRI_Variable:
-            return IRI_Datatype()
-        elif value_variable_class is TextVariable:
-            return TextDatatype()
-        elif value_variable_class is StringVariable:
-            return StringDatatype()
-        elif value_variable_class is ExternalIdVariable:
-            return ExternalIdDatatype()
-        elif value_variable_class is QuantityVariable:
-            return QuantityDatatype()
-        elif value_variable_class is TimeVariable:
-            return TimeDatatype()
-        else:
-            cls._check_arg_issubclass(
-                value_variable_class, ValueVariable,
-                cls.from_value_variable_class, 'value_class', 2)
-            raise cls._arg_error(
-                f'no datatype for {value_variable_class.__qualname__}',
-                cls.from_value_variable_class, 'value_variable_class', 2)
-
-    @classmethod
-    @abstractmethod
-    def to_value_variable_class(cls) -> type[ValueVariable]:
-        """Gets the value variable class of datatype.
-
-        Returns:
-           Value variable class.
-        """
-        raise cls._must_be_implemented_in_subclass()
-
-    @classmethod
-    @cache
-    def from_value_class(cls, value_class: type[Value]) -> 'Datatype':
-        """Gets the datatype of `value_class`.
-
-        Parameters:
-           value_class: Value class.
-
-        Returns:
-           Datatype.
-        """
-        if value_class is Item:
-            return ItemDatatype()
-        elif value_class is Property:
-            return PropertyDatatype()
-        elif value_class is Lexeme:
-            return LexemeDatatype()
-        elif value_class is IRI:
-            return IRI_Datatype()
-        elif value_class is Text:
-            return TextDatatype()
-        elif value_class is String:
-            return StringDatatype()
-        elif value_class is ExternalId:
-            return ExternalIdDatatype()
-        elif value_class is Quantity:
-            return QuantityDatatype()
-        elif value_class is Time:
-            return TimeDatatype()
-        else:
-            cls._check_arg_issubclass(
-                value_class, Value, cls.from_value_class, 'value_class', 2)
-            raise cls._arg_error(
-                f'no datatype for {value_class.__qualname__}',
-                cls.from_value_class, 'value_class', 2)
-
-    @classmethod
-    @abstractmethod
-    def to_value_class(cls) -> type[Value]:
-        """Gets the value class of datatype.
-
-        Returns:
-           Value class.
-        """
-        raise cls._must_be_implemented_in_subclass()
-
-    def __init__(
-            self,
-            datatype_class: Optional[TDatatypeClass] = None
-    ):
-        super().__init__()
-
-
-class ItemDatatype(Datatype):
-    """Datatype of :class:`Item`."""
-
-    _uri: URIRef = NS.WIKIBASE.WikibaseItem
-
-    @classmethod
-    @override
-    def to_value_template_class(cls) -> type[ValueTemplate]:
-        return ItemTemplate
-
-    @classmethod
-    @override
-    def to_value_variable_class(cls) -> type[ValueVariable]:
-        return ItemVariable
-
-    @classmethod
-    @override
-    def to_value_class(cls) -> type[Value]:
-        return Item
-
-
-class PropertyDatatype(Datatype):
-    """Datatype of :class:`Property`."""
-
-    _uri: URIRef = NS.WIKIBASE.WikibaseProperty
-
-    @classmethod
-    @override
-    def to_value_template_class(cls) -> type[ValueTemplate]:
-        return PropertyTemplate
-
-    @classmethod
-    @override
-    def to_value_variable_class(cls) -> type[ValueVariable]:
-        return PropertyVariable
-
-    @classmethod
-    @override
-    def to_value_class(cls) -> type[Value]:
-        return Property
-
-
-class LexemeDatatype(Datatype):
-    """Datatype of :class:`Lexeme`."""
-
-    _uri: URIRef = NS.WIKIBASE.WikibaseLexeme
-
-    @classmethod
-    @override
-    def to_value_template_class(cls) -> type[ValueTemplate]:
-        return LexemeTemplate
-
-    @classmethod
-    @override
-    def to_value_variable_class(cls) -> type[ValueVariable]:
-        return LexemeVariable
-
-    @classmethod
-    @override
-    def to_value_class(cls) -> type[Value]:
-        return Lexeme
-
-
-class IRI_Datatype(Datatype):
-    """Datatype of :class:`IRI`."""
-
-    _uri: URIRef = NS.WIKIBASE.Url
-
-    @classmethod
-    @override
-    def to_value_template_class(cls) -> type[ValueTemplate]:
-        return IRI_Template
-
-    @classmethod
-    @override
-    def to_value_variable_class(cls) -> type[ValueVariable]:
-        return IRI_Variable
-
-    @classmethod
-    @override
-    def to_value_class(cls) -> type[Value]:
-        return IRI
-
-
-class TextDatatype(Datatype):
-    """Datatype of :class:`Text`."""
-
-    _uri: URIRef = NS.WIKIBASE.Monolingualtext
-
-    @classmethod
-    @override
-    def to_value_template_class(cls) -> type[ValueTemplate]:
-        return TextTemplate
-
-    @classmethod
-    @override
-    def to_value_variable_class(cls) -> type[ValueVariable]:
-        return TextVariable
-
-    @classmethod
-    @override
-    def to_value_class(cls) -> type[Value]:
-        return Text
-
-
-class StringDatatype(Datatype):
-    """Datatype of :class:`String`."""
-
-    _uri: URIRef = NS.WIKIBASE.String
-
-    @classmethod
-    @override
-    def to_value_template_class(cls) -> type[ValueTemplate]:
-        return StringTemplate
-
-    @classmethod
-    @override
-    def to_value_variable_class(cls) -> type[ValueVariable]:
-        return StringVariable
-
-    @classmethod
-    @override
-    def to_value_class(cls) -> type[Value]:
-        return String
-
-
-class ExternalIdDatatype(StringDatatype):
-    """Datatype of :class:`ExternalId`."""
-
-    _uri: URIRef = NS.WIKIBASE.ExternalId
-
-    @classmethod
-    @override
-    def to_value_template_class(cls) -> type[ValueTemplate]:
-        return ExternalIdTemplate
-
-    @classmethod
-    @override
-    def to_value_variable_class(cls) -> type[ValueVariable]:
-        return ExternalIdVariable
-
-    @classmethod
-    @override
-    def to_value_class(cls) -> type[Value]:
-        return ExternalId
-
-
-class QuantityDatatype(Datatype):
-    """Datatype of :class:`Quantity`."""
-
-    _uri: URIRef = NS.WIKIBASE.Quantity
-
-    @classmethod
-    @override
-    def to_value_template_class(cls) -> type[ValueTemplate]:
-        return QuantityTemplate
-
-    @classmethod
-    @override
-    def to_value_variable_class(cls) -> type[ValueVariable]:
-        return QuantityVariable
-
-    @classmethod
-    @override
-    def to_value_class(cls) -> type[Value]:
-        return Quantity
-
-
-class TimeDatatype(Datatype):
-    """Datatype of :class:`Time`."""
-
-    _uri: URIRef = NS.WIKIBASE.Time
-
-    @classmethod
-    @override
-    def to_value_template_class(cls) -> type[ValueTemplate]:
-        return TimeTemplate
-
-    @classmethod
-    @override
-    def to_value_variable_class(cls) -> type[ValueVariable]:
-        return TimeVariable
-
-    @classmethod
-    @override
-    def to_value_class(cls) -> type[Value]:
-        return Time
