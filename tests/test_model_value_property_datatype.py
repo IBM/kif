@@ -1,7 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import Datatype, Property, PropertyDatatype
+from kif_lib import PropertyDatatype
 from kif_lib.namespace import WIKIBASE
 
 from .tests import kif_TestCase
@@ -16,9 +16,6 @@ class TestModelValuePropertyDatatype(kif_TestCase):
     def test__to_rdflib(self):
         self.assertEqual(
             PropertyDatatype._to_rdflib(), WIKIBASE.WikibaseProperty)
-
-    def test_from_value_class(self):
-        self.assert_property_datatype(Datatype.from_value_class(Property))
 
 
 if __name__ == '__main__':

@@ -2,24 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import abstractmethod
-from functools import cache
 
 from ... import namespace as NS
 from ...rdflib import Literal, URIRef
 from ...typing import cast, Collection, NoReturn, Optional, TypeAlias, Union
-from ..kif_object import (
-    Datetime,
-    KIF_Object,
-    KIF_ObjectClass,
-    TCallable,
-    TDatetime,
-    TDecimal,
-)
+from ..kif_object import Datetime, KIF_Object, TCallable, TDatetime, TDecimal
 from ..template import Template
 from ..variable import Variable
-
-DatatypeClass: TypeAlias = type['Datatype']
-TDatatypeClass: TypeAlias = Union[DatatypeClass, KIF_ObjectClass]
+from .datatype import Datatype, DatatypeClass
 
 ValueClass: TypeAlias = type['Value']
 ValueTemplateClass: TypeAlias = type['ValueTemplate']
@@ -28,175 +18,6 @@ ValueVariableClass: TypeAlias = type['ValueVariable']
 TValue: TypeAlias = Union['Value', NS.T_URI, TDatetime, TDecimal, str]
 VValue: TypeAlias = Union['ValueTemplate', 'ValueVariable', 'Value']
 VVValue: TypeAlias = Union['Variable', VValue]
-
-
-class Datatype(KIF_Object):
-    """Abstract base class for datatypes.
-
-    Parameters:
-       datatype_class: Datatype class.
-    """
-
-    #: Value class associated with this datatype class.
-    value_class: ValueClass
-
-    def __new__(
-            cls,
-            datatype_class: Optional[TDatatypeClass] = None
-    ):
-        datatype_cls = cls._check_optional_arg_datatype_class(
-            datatype_class, cls, cls, 'datatype_class', 1)
-        assert datatype_cls is not None
-        return super().__new__(datatype_cls)
-
-    @classmethod
-    def _check_arg_datatype_class(
-            cls,
-            arg: TDatatypeClass,
-            function: Optional[Union[TCallable, str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Union[DatatypeClass, NoReturn]:
-        if isinstance(arg, type) and issubclass(arg, cls):
-            return arg
-        else:
-            arg = cls._check_arg_kif_object_class(
-                arg, function, name, position)
-            return getattr(cls._check_arg(
-                arg, hasattr(arg, 'datatype_class'),
-                f'no datatype class for {arg.__qualname__}',
-                function, name, position), 'datatype_class')
-
-    _uri: URIRef
-
-    @classmethod
-    @cache
-    def _from_rdflib(cls, uri: URIRef) -> 'Datatype':
-        if uri == cls._ItemDatatype._uri:
-            return cls._ItemDatatype()
-        elif uri == cls._PropertyDatatype._uri:
-            return cls._PropertyDatatype()
-        elif uri == cls._LexemeDatatype._uri:
-            return cls._LexemeDatatype()
-        elif uri == cls._IRI_Datatype._uri:
-            return cls._IRI_Datatype()
-        elif uri == cls._TextDatatype._uri:
-            return cls._TextDatatype()
-        elif uri == cls._StringDatatype._uri:
-            return cls._StringDatatype()
-        elif uri == cls._ExternalIdDatatype._uri:
-            return cls._ExternalIdDatatype()
-        elif uri == cls._QuantityDatatype._uri:
-            return cls._QuantityDatatype()
-        elif uri == cls._TimeDatatype._uri:
-            return cls._TimeDatatype()
-        else:
-            raise ValueError(f'bad Wikibase datatype: {uri}')
-
-    @classmethod
-    def _to_rdflib(cls) -> URIRef:
-        return cls._uri
-
-    @classmethod
-    def from_value_template_class(
-            cls,
-            value_template_class: ValueTemplateClass
-    ) -> 'Datatype':
-        """Gets the datatype of `value_template_class`.
-
-        Parameters:
-           value_template_class: Value template class.
-
-        Returns:
-           Datatype.
-        """
-        cls._check_arg_issubclass(
-            value_template_class, ValueTemplate,
-            cls.from_value_template_class, 'value_template_class', 1)
-        obj_class = value_template_class.object_class
-        assert issubclass(obj_class, Value)
-        if hasattr(obj_class, 'datatype'):
-            return obj_class.datatype
-        else:
-            raise cls._arg_error(
-                f'no datatype for {value_template_class.__qualname__}',
-                cls.from_value_template_class, 'value_template_class', 1)
-
-    @classmethod
-    def to_value_template_class(cls) -> ValueTemplateClass:
-        """Gets the value template class of datatype.
-
-        Returns:
-           Value template class.
-        """
-        return cls.value_class.template_class
-
-    @classmethod
-    def from_value_variable_class(
-            cls,
-            value_variable_class: ValueVariableClass
-    ) -> 'Datatype':
-        """Gets the datatype of `value_variable_class`.
-
-        Parameters:
-           value_variable_class: Value variable class.
-
-        Returns:
-           Datatype.
-        """
-        cls._check_arg_issubclass(
-            value_variable_class, ValueVariable,
-            cls.from_value_variable_class, 'value_variable_class', 1)
-        obj_class = value_variable_class.object_class
-        assert issubclass(obj_class, Value)
-        if hasattr(obj_class, 'datatype_class'):
-            return obj_class.datatype
-        else:
-            raise cls._arg_error(
-                f'no datatype for {value_variable_class.__qualname__}',
-                cls.from_value_variable_class, 'value_variable_class', 1)
-
-    @classmethod
-    def to_value_variable_class(cls) -> ValueVariableClass:
-        """Gets the value variable class of datatype.
-
-        Returns:
-           Value variable class.
-        """
-        return cls.value_class.variable_class
-
-    @classmethod
-    def from_value_class(cls, value_class: ValueClass) -> 'Datatype':
-        """Gets the datatype of `value_class`.
-
-        Parameters:
-           value_class: Value class.
-
-        Returns:
-           Datatype.
-        """
-        cls._check_arg_issubclass(
-            value_class, Value, cls.from_value_class, 'value_class', 2)
-        if hasattr(value_class, 'datatype'):
-            return value_class.datatype
-        else:
-            raise cls._arg_error(
-                f'no datatype for {value_class.__qualname__}',
-                cls.from_value_class, 'value_class', 1)
-
-    def __init__(
-            self,
-            datatype_class: Optional[TDatatypeClass] = None
-    ):
-        if self.__class__ == Datatype:
-            self._check_arg_not_none(
-                datatype_class, self.__class__, 'datatype_class', 1)
-            assert datatype_class is not None
-            self._check_arg(
-                datatype_class, datatype_class is not Datatype,
-                f'expected proper subclass of {self.__class__.__qualname__}',
-                self.__class__, 'datatype_class', 1)
-        super().__init__()
 
 
 class ValueTemplate(Template):

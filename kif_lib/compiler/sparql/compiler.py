@@ -1099,7 +1099,7 @@ class SPARQL_Compiler(
             for dt in it:
                 obj_value: VValue
                 if isinstance(obj.value, ValueVariable):
-                    obj_value_var_class = dt.to_value_variable_class()
+                    obj_value_var_class = dt.value_class.variable_class
                     obj_value_var = obj_value_var_class(obj.value.name)
                     obj_value = self._theta_add(
                         obj_value_var,
@@ -1121,14 +1121,14 @@ class SPARQL_Compiler(
             obj: VValue
     ) -> Iterator[Datatype]:
         if isinstance(obj, ValueTemplate):
-            yield Datatype.from_value_template_class(obj.__class__)
+            yield obj.object_class.datatype
         elif isinstance(obj, Value):
-            yield Datatype.from_value_class(obj.__class__)
+            yield obj.datatype
         elif isinstance(obj, ValueVariable):
             def it(cls):
                 try:
-                    yield Datatype.from_value_variable_class(cls)
-                except ValueError:
+                    yield cls.object_class.datatype
+                except AttributeError:
                     pass
                 for subclass in cls.__subclasses__():
                     try:

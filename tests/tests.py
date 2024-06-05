@@ -124,7 +124,7 @@ from kif_lib.model import (
 )
 from kif_lib.model.object import Object
 from kif_lib.namespace import WIKIBASE, XSD
-from kif_lib.typing import Any, cast, Final, Optional, override, Union
+from kif_lib.typing import Any, Final, Optional, override, Union
 from kif_lib.vocabulary import wd
 
 ME: Final[pathlib.Path] = pathlib.Path(__file__)
@@ -284,22 +284,19 @@ if __name__ == '__main__':
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Item)
         self.assertTrue(obj.is_item())
-        self.assert_item_datatype(cast(
-            ItemDatatype, Datatype.from_value_class(type(obj))))
+        self.assert_item_datatype(obj.datatype)
 
     def assert_property(self, obj: Property, iri: IRI):
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Property)
         self.assertTrue(obj.is_property())
-        self.assert_property_datatype(cast(
-            PropertyDatatype, Datatype.from_value_class(type(obj))))
+        self.assert_property_datatype(obj.datatype)
 
     def assert_lexeme(self, obj: Lexeme, iri: IRI):
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Lexeme)
         self.assertTrue(obj.is_lexeme())
-        self.assert_lexeme_datatype(cast(
-            LexemeDatatype, Datatype.from_value_class(type(obj))))
+        self.assert_lexeme_datatype(obj.datatype)
 
     def assert_data_value(self, obj: DataValue):
         self.assert_value(obj)
@@ -317,8 +314,7 @@ if __name__ == '__main__':
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, IRI)
         self.assertTrue(obj.is_iri())
-        self.assert_iri_datatype(cast(
-            IRI_Datatype, Datatype.from_value_class(type(obj))))
+        self.assert_iri_datatype(obj.datatype)
         self.assertEqual(obj.args[0], content)
         self.assertEqual(obj.value, obj.args[0])
         self.assertEqual(obj.get_value(), obj.args[0])
@@ -333,8 +329,7 @@ if __name__ == '__main__':
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, Text)
         self.assertTrue(obj.is_text())
-        self.assert_text_datatype(cast(
-            TextDatatype, Datatype.from_value_class(type(obj))))
+        self.assert_text_datatype(obj.datatype)
         self.assertEqual(obj.args[0], content)
         if lang is None:
             lang = Text.default_language
@@ -347,8 +342,7 @@ if __name__ == '__main__':
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, String)
         self.assertTrue(obj.is_string())
-        self.assert_string_datatype(cast(
-            StringDatatype, Datatype.from_value_class(type(obj))))
+        self.assert_string_datatype(obj.datatype)
         self.assertEqual(obj.args[0], content)
         self.assertEqual(obj.value, obj.args[0])
         self.assertEqual(obj.get_value(), obj.args[0])
@@ -359,8 +353,7 @@ if __name__ == '__main__':
         self.assertIsInstance(obj, String)
         self.assertIsInstance(obj, ExternalId)
         self.assertTrue(obj.is_external_id())
-        self.assert_external_id_datatype(cast(
-            ExternalIdDatatype, Datatype.from_value_class(type(obj))))
+        self.assert_external_id_datatype(obj.datatype)
         self.assertEqual(obj.args[0], content)
         self.assertEqual(obj.value, obj.args[0])
         self.assertEqual(obj.get_value(), obj.args[0])
@@ -382,8 +375,7 @@ if __name__ == '__main__':
         self.assert_deep_data_value(obj)
         self.assertIsInstance(obj, Quantity)
         self.assertTrue(obj.is_quantity())
-        self.assert_quantity_datatype(cast(
-            QuantityDatatype, Datatype.from_value_class(type(obj))))
+        self.assert_quantity_datatype(obj.datatype)
         self.assertEqual(obj.args[0], Decimal(amount))
         self.assertEqual(obj.value, str(obj.args[0]))
         self.assertEqual(obj.get_value(), str(obj.args[0]))
@@ -413,8 +405,7 @@ if __name__ == '__main__':
         self.assert_deep_data_value(obj)
         self.assertIsInstance(obj, Time)
         self.assertTrue(obj.is_time())
-        self.assert_time_datatype(cast(
-            TimeDatatype, Datatype.from_value_class(type(obj))))
+        self.assert_time_datatype(obj.datatype)
         self.assertEqual(obj.args[0], time)
         self.assertEqual(obj.value, obj.args[0].isoformat())
         self.assertEqual(obj.get_value(), obj.args[0].isoformat())

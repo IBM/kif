@@ -14,18 +14,18 @@ from ..typing import (
     TypeAlias,
     Union,
 )
-from .kif_object import KIF_Object, TCallable
+from .kif_object import KIF_Object, KIF_ObjectClass, TCallable
 from .variable import Theta, Variable
 
 TemplateClass: TypeAlias = type['Template']
-TTemplateClass: TypeAlias = Union[TemplateClass, type[KIF_Object]]
+TTemplateClass: TypeAlias = Union[TemplateClass, KIF_ObjectClass]
 
 
 class Template(KIF_Object):
     """Abstract base class for templates."""
 
     #: Object class associated with this template class.
-    object_class: type[KIF_Object]
+    object_class: KIF_ObjectClass
 
     @classmethod
     def _check_arg_template_class(

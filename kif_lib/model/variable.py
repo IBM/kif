@@ -11,11 +11,11 @@ from ..typing import (
     TypeAlias,
     Union,
 )
-from .kif_object import KIF_Object, TCallable
+from .kif_object import KIF_Object, KIF_ObjectClass, TCallable
 
 Theta: TypeAlias = Mapping['Variable', Optional[KIF_Object]]
 VariableClass: TypeAlias = type['Variable']
-TVariableClass: TypeAlias = Union[VariableClass, type[KIF_Object]]
+TVariableClass: TypeAlias = Union[VariableClass, KIF_ObjectClass]
 
 
 class Variable(KIF_Object):
@@ -27,7 +27,7 @@ class Variable(KIF_Object):
     """
 
     #: Object class associated with this variable class.
-    object_class: type[KIF_Object]
+    object_class: KIF_ObjectClass
 
     class CoercionError(ValueError):
         """Bad coercion attempt."""
@@ -77,7 +77,7 @@ class Variable(KIF_Object):
     def __init__(
             self,
             name: str,
-            object_class: Optional[type[KIF_Object]] = None
+            object_class: Optional[KIF_ObjectClass] = None
     ):
         super().__init__(name)
 

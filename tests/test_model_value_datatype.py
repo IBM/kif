@@ -3,7 +3,6 @@
 
 from kif_lib import (
     Datatype,
-    Entity,
     ExternalId,
     ExternalIdDatatype,
     IRI,
@@ -70,17 +69,6 @@ class TestModelValueDatatype(kif_TestCase):
         self.assert_time_datatype(TimeDatatype())
         self.assert_time_datatype(Datatype(Time))
         self.assert_time_datatype(Time.datatype)
-
-    def test_from_value_class(self):
-        self.assertRaisesRegex(
-            TypeError, r'\(expected type, got int\)',
-            Datatype.from_value_class, 0)
-        self.assertRaisesRegex(
-            ValueError, r'\(expected subclass of Value, got int\)',
-            Datatype.from_value_class, int)
-        self.assertRaisesRegex(
-            ValueError, r'\(no datatype for Entity\)',
-            Datatype.from_value_class, Entity)
 
 
 if __name__ == '__main__':
