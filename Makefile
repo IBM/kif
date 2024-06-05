@@ -293,10 +293,6 @@ docs-publish: docs-clean docs
 	cd ${DOCS_TGT} && git commit -m 'Update docs'
 	cd ${DOCS_TGT} && git push origin ${DOCS_TGT_BRANCH}
 
-# run all gen-* targets
-.PHONY: gen-all
-gen-all: ${GEN_ALL_TARGETS}
-
 GEN_ALL_TARGETS+= gen-coveragerc
 
 # generate .coveragerc
@@ -401,6 +397,10 @@ gen-tox-ini:
 	@echo "$(call split,${TOX_PASSENV})" >> ${TOX_INI}
 	@echo '[testenv:mypy]' >>${TOX_INI}
 	@echo 'commands = mypy -p ${PACKAGE}' >>${TOX_INI}
+
+# run all gen-* targets
+.PHONY: gen-all
+gen-all: ${GEN_ALL_TARGETS}
 
 # refresh indents
 .PHONY: ident

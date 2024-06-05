@@ -46,13 +46,6 @@ class TestStoreRDF(kif_StoreTestCase):
 
     # -- Queries -----------------------------------------------------------
 
-    def test__eval_construct_query_string(self):
-        kb = Store('rdf', BENZENE_TTL)
-        self.assertRaises(
-            NotImplementedError,
-            kb._eval_construct_query_string,
-            'construct {?s ?p ?o} where {?s ?p ?o} limit 1')
-
     def test__eval_select_query_string(self):
         kb = Store('rdf', BENZENE_TTL)
         res = kb._eval_select_query_string(

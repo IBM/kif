@@ -21,7 +21,7 @@ setuptools.setup(
     package_data={ 'kif_lib': ['py.typed'], 'kif_lib.vocabulary': ['wikidata_properties.json'], },
     include_package_data=True,
     package_dir={'kif_lib': 'kif_lib'},
-    install_requires=[ 'lark', 'more_itertools', 'rdflib', 'requests', 'types-requests', 'typing-extensions', ],
+    install_requires=[ 'httpx', 'lark', 'more_itertools', 'rdflib', 'typing-extensions', ],
     extras_require={
         'docs': [ 'myst_parser', 'pydata_sphinx_theme', ],
         'tests': ['flake8', 'isort', 'mypy', 'pytest', 'pytest-cov', 'pytest-mypy', 'tox'],

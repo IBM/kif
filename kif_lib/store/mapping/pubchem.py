@@ -261,11 +261,11 @@ class PubChemMapping(SPARQL_Mapping):
     ) -> Iterator[tuple[Statement, AnnotationRecordSet]]:
         import json
 
-        import requests
+        import httpx
         ors = list(map(lambda cid: dict(cid=cid), cids))
         if not ors:
             return iter(())
-        res = requests.get(
+        res = httpx.get(
             'https://pubchem.ncbi.nlm.nih.gov/sdq/sdqagent.cgi',
             params=dict(
                 infmt='json',

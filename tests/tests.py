@@ -1633,7 +1633,7 @@ class kif_EmptyStoreTestCase(kif_StoreTestCase):
 
     @override
     @classmethod
-    def new_Store(cls, *args, **kwargs):
+    def new_Store(cls, *args, **kwargs) -> Store:
         return super().new_Store('empty', *args, **kwargs)
 
 
@@ -1643,7 +1643,7 @@ class kif_SPARQL_StoreTestCase(kif_StoreTestCase):
 
     @override
     @classmethod
-    def new_Store(cls, *args, **kwargs):
+    def new_Store(cls, *args, **kwargs) -> Store:
         return super().new_Store('sparql', *args, **kwargs)
 
 
@@ -1653,7 +1653,7 @@ class kif_RDF_StoreTestCase(kif_StoreTestCase):
 
     @override
     @classmethod
-    def new_Store(cls, *args, **kwargs):
+    def new_Store(cls, *args, **kwargs) -> Store:
         return super().new_Store('rdf', *args, **kwargs)
 
 

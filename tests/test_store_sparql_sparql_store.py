@@ -12,7 +12,6 @@ from kif_lib import (
     Snak,
     SomeValueSnak,
     Statement,
-    Store,
     String,
     Text,
     Time,
@@ -53,21 +52,6 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assertTrue(len(kb) > 1_000_000_000)
 
     # -- Queries -----------------------------------------------------------
-
-    def test__eval_construct_query_string(self):
-        from rdflib import Graph
-        kb = self.new_Store()
-        res = kb._eval_construct_query_string(
-            'construct {?s ?p ?o} where {?s ?p ?o} limit 1')
-        self.assertIsInstance(res, Graph)
-        # syntax error
-        self.assertRaises(
-            SyntaxError, kb._eval_construct_query_string, 'xxx')
-        # connection error
-        kb = Store('sparql', 'https://example')
-        self.assertRaises(
-            IOError, kb._eval_construct_query_string,
-            'construct {?s ?p ?o} where {?s ?p ?o} limit 1')
 
     def test__eval_select_query_string(self):
         kb = self.new_Store()

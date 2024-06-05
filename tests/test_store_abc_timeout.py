@@ -26,19 +26,19 @@ class TestStoreABC_Timeout(kif_EmptyStoreTestCase):
     def test_get_timeout(self):
         kb = self.new_Store()
         self.assertEqual(kb.get_timeout(), kb.default_timeout)
-        self.assertEqual(kb.get_timeout(44), 44)
+        self.assertEqual(kb.get_timeout(44.), 44.)
         kb = self.new_Store(timeout=0)
         self.assertEqual(kb.get_timeout(44), 0)
         kb = self.new_Store(timeout=-8)
         self.assertEqual(kb.get_timeout(5), 5)
         self.assertEqual(kb.get_timeout(), kb.default_timeout)
-        kb = self.new_Store(timeout=33)
-        self.assertEqual(kb.get_timeout(5), 33)
+        kb = self.new_Store(timeout=33.)
+        self.assertEqual(kb.get_timeout(5), 33.)
 
     def test_set_timeout(self):
         kb = self.new_Store()
         self.assert_raises_bad_argument(
-            TypeError, 1, 'timeout', 'expected int, got str',
+            TypeError, 1, 'timeout', 'expected float or int, got str',
             kb.set_timeout, 'abc')
         self.assertEqual(kb.get_timeout(), kb.default_timeout)
         kb.timeout = 3

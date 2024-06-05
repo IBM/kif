@@ -89,15 +89,6 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
             self._graph = graph
 
     @override
-    def _eval_construct_query_string(
-            self,
-            text: str,
-            headers: Optional[dict[str, Any]] = None,
-            **kwargs
-    ) -> Graph:
-        raise NotImplementedError
-
-    @override
     def _eval_select_query_string(
             self,
             text: str,

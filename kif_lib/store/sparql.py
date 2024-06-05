@@ -3,8 +3,7 @@
 
 import logging
 
-import requests
-import requests.exceptions
+import httpx
 from rdflib.plugins.sparql import prepareQuery
 from rdflib.plugins.sparql.sparql import Query
 
@@ -42,7 +41,7 @@ from ..model import (
     Value,
     ValueSnak,
 )
-from ..rdflib import BNode, Graph, URIRef
+from ..rdflib import BNode, URIRef
 from ..typing import (
     Any,
     Callable,
@@ -84,29 +83,33 @@ class SPARQL_Store(
         'User-Agent': 'CoolBot/0.0 (https://example.org/coolbot/; '
         'coolbot@example.org) generic-library/0.0',
         'Content-Type': 'application/sparql-query;charset=utf-8',
-    }
-
-    _construct_headers = {
-        **_headers,
-        'Accept': 'application/rdf+xml;charset=utf-8',
-
-    }
-
-    _select_headers = {
-        **_headers,
         'Accept': 'application/sparql-results+json;charset=utf-8',
     }
 
     __slots__ = (
+        '_client',
         '_iri',
     )
 
+    _client: httpx.Client
     _iri: IRI
 
     def __init__(self, store_name: str, iri: T_IRI, **kwargs: Any):
         assert store_name == self.store_name
+        self._client = httpx.Client(headers=self._headers)
         super().__init__(**kwargs)
         self._iri = KIF_Object._check_arg_iri(iri, self.__class__, 'iri', 2)
+
+    def __del__(self):
+        self._client.close()
+
+    @override
+    def set_timeout(
+            self,
+            timeout: Optional[float] = None
+    ):
+        super().set_timeout(timeout)
+        self._client.timeout = httpx.Timeout(timeout)
 
     @property
     def iri(self) -> IRI:
@@ -135,22 +138,6 @@ class SPARQL_Store(
         return wdss
 
 # -- Query evaluation (internal) -------------------------------------------
-
-    def _eval_construct_query(
-            self,
-            query: SPARQL_Builder,
-            parse_results_fn: Callable[[Graph], Iterator[Optional[T]]],
-            limit: int = Store.maximum_page_size,
-            trim: bool = False
-    ) -> Iterator[T]:
-        def eval_fn(
-                eval_limit: Optional[int] = None,
-                eval_offset: Optional[int] = None
-        ) -> Iterator[Optional[T]]:
-            return parse_results_fn(
-                self._eval_construct_query_string(
-                    query.construct(limit=eval_limit, offset=eval_offset)))
-        return self._eval_query(query, eval_fn, limit, trim)
 
     def _eval_select_query(
             self,
@@ -204,26 +191,13 @@ class SPARQL_Store(
                 query, eval_fn, limit=limit, trim=trim,
                 page_size=page_size, offset=offset + i)
 
-    def _eval_construct_query_string(
-            self,
-            text: str,
-            headers: Optional[dict[str, Any]] = None,
-            **kwargs
-    ) -> Graph:
-        text = self._prepare_query_string_wrapper(text)
-        res = self._eval_query_string(
-            text, headers=headers or self._construct_headers, **kwargs)
-        return Graph().parse(data=res.text, format='xml')
-
     def _eval_select_query_string(
             self,
             text: str,
-            headers: Optional[dict[str, Any]] = None,
-            **kwargs
+            **kwargs: Any
     ) -> SPARQL_Results:
         text = self._prepare_query_string_wrapper(text)
-        return SPARQL_Results(self._eval_query_string(
-            text, headers=headers or self._select_headers, **kwargs).json())
+        return SPARQL_Results(self._eval_query_string(text, **kwargs).json())
 
     def _prepare_query_string_wrapper(self, text: str) -> str:
         return self._prepare_query_string(text)._original_args[0]
@@ -253,22 +227,20 @@ At line {line}, column {column}:
     def _eval_query_string(
             self,
             text: str,
-            headers: dict[str, str] = dict(),
-            timeout: Optional[int] = None) -> requests.Response:
+            **kwargs: Any
+    ) -> httpx.Response:
         LOG.debug('%s():\n%s', self._eval_query_string.__qualname__, text)
         try:
-            res = requests.post(
-                cast(str, self.iri.value), data=text.encode('utf-8'),
-                headers=headers, timeout=self.timeout)
+            res = self._client.post(
+                self.iri.value, content=text.encode('utf-8'), **kwargs)
             res.raise_for_status()
             return res
-        except requests.exceptions.RequestException as err:
+        except httpx.RequestError as err:
             raise err
 
 # -- Match -----------------------------------------------------------------
 
     class Match:
-
         _store: 'SPARQL_Store'
         _compiler_results: SPARQL_Compiler.Results
 

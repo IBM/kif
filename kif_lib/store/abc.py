@@ -486,26 +486,23 @@ class Store(Set):
 # -- Timeout ---------------------------------------------------------------
 
     #: The default timeout (in seconds).
-    default_timeout: Final[Optional[int]] = None
+    default_timeout: Final[Optional[float]] = None
 
-    #: The maximum timeout (absolute upper limit, in seconds).
-    maximum_timeout: Final[int] = sys.maxsize
-
-    _timeout: Optional[int]
+    _timeout: Optional[float]
 
     @property
-    def timeout(self) -> Optional[int]:
+    def timeout(self) -> Optional[float]:
         """The timeout of responses (in seconds)."""
         return self.get_timeout()
 
     @timeout.setter
-    def timeout(self, timeout: Optional[int] = None):
+    def timeout(self, timeout: Optional[float] = None):
         self.set_timeout(timeout)
 
     def get_timeout(
             self,
-            default: Optional[int] = None
-    ) -> Optional[int]:
+            default: Optional[float] = None
+    ) -> Optional[float]:
         """Gets the timeout of responses (in seconds).
 
         If the timeout is ``None``, returns `default`.
@@ -521,13 +518,13 @@ class Store(Set):
         if self._timeout is not None:
             return self._timeout
         elif default is not None:
-            return min(default, self.maximum_timeout)
+            return default
         else:
             return self.default_timeout
 
     def set_timeout(
             self,
-            timeout: Optional[int] = None
+            timeout: Optional[float] = None
     ):
         """Sets the timeout of responses (in seconds).
 
@@ -536,12 +533,12 @@ class Store(Set):
         Parameters:
            timeout: Timeout (in seconds).
         """
-        timeout = self._timeout = KIF_Object._check_optional_arg_int(
+        timeout = self._timeout = KIF_Object._check_optional_arg_number(
             timeout, None, self.set_timeout, 'timeout', 1)
         if timeout is None or timeout < 0:
             self._timeout = None
         else:
-            self._timeout = timeout
+            self._timeout = float(timeout)
 
 # -- Set interface ---------------------------------------------------------
 
