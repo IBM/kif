@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import abstractmethod
+from functools import cache
 
 from ... import namespace as NS
 from ...rdflib import Literal, URIRef
@@ -9,7 +10,6 @@ from ...typing import cast, Collection, NoReturn, Optional, TypeAlias, Union
 from ..kif_object import Datetime, KIF_Object, TCallable, TDatetime, TDecimal
 from ..template import Template
 from ..variable import Variable
-from .datatype import Datatype, DatatypeClass
 
 ValueClass: TypeAlias = type['Value']
 ValueTemplateClass: TypeAlias = type['ValueTemplate']
@@ -18,6 +18,129 @@ ValueVariableClass: TypeAlias = type['ValueVariable']
 TValue: TypeAlias = Union['Value', NS.T_URI, TDatetime, TDecimal, str]
 VValue: TypeAlias = Union['ValueTemplate', 'ValueVariable', 'Value']
 VVValue: TypeAlias = Union['Variable', VValue]
+
+DatatypeClass: TypeAlias = type['Datatype']
+TDatatypeClass: TypeAlias = Union[DatatypeClass, ValueClass]
+
+TDatatype: TypeAlias = Union['Datatype', TDatatypeClass]
+VTDatatypeContent: TypeAlias = Union[Variable, TDatatype]
+VDatatype: TypeAlias = Union['DatatypeVariable', 'Datatype']
+
+
+class DatatypeVariable(Variable):
+    """Datatype variable.
+
+    Parameters:
+       name: Name.
+    """
+
+    object_class: DatatypeClass
+
+    @classmethod
+    def _preprocess_arg_datatype_variable(
+            cls,
+            arg: Variable,
+            i: int,
+            function: Optional[Union[TCallable, str]] = None
+    ) -> Union['DatatypeVariable', NoReturn]:
+        return cast(DatatypeVariable, cls._preprocess_arg_variable(
+            arg, i, function or cls))
+
+
+class Datatype(KIF_Object):
+    """Abstract base class for datatypes.
+
+    Parameters:
+       datatype_class: Datatype class.
+    """
+
+    #: Value class associated with this datatype class.
+    value_class: ValueClass
+
+    def __new__(
+            cls,
+            datatype_class: Optional[TDatatypeClass] = None
+    ):
+        datatype_cls = cls._check_optional_arg_datatype_class(
+            datatype_class, cls, cls, 'datatype_class', 1)
+        assert datatype_cls is not None
+        return super().__new__(datatype_cls)
+
+    @classmethod
+    def _check_arg_datatype_class(
+            cls,
+            arg: TDatatypeClass,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[DatatypeClass, NoReturn]:
+        if isinstance(arg, type) and issubclass(arg, cls):
+            return arg
+        else:
+            arg = cls._check_arg_value_class(
+                cast(ValueClass, arg), function, name, position)
+            return getattr(cls._check_arg(
+                arg, hasattr(arg, 'datatype_class'),
+                f'no datatype class for {arg.__qualname__}',
+                function, name, position), 'datatype_class')
+
+    @classmethod
+    def _check_arg_datatype(
+            cls,
+            arg: TDatatype,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union['Datatype', NoReturn]:
+        if isinstance(arg, cls):
+            return arg
+        else:
+            return cls._check_arg_datatype_class(
+                cast(DatatypeClass, arg), function, name, position)()
+
+    _uri: URIRef
+
+    @classmethod
+    @cache
+    def _from_rdflib(cls, uri: URIRef) -> 'Datatype':
+        if uri == cls._ItemDatatype._uri:
+            return cls._ItemDatatype()
+        elif uri == cls._PropertyDatatype._uri:
+            return cls._PropertyDatatype()
+        elif uri == cls._LexemeDatatype._uri:
+            return cls._LexemeDatatype()
+        elif uri == cls._IRI_Datatype._uri:
+            return cls._IRI_Datatype()
+        elif uri == cls._TextDatatype._uri:
+            return cls._TextDatatype()
+        elif uri == cls._StringDatatype._uri:
+            return cls._StringDatatype()
+        elif uri == cls._ExternalIdDatatype._uri:
+            return cls._ExternalIdDatatype()
+        elif uri == cls._QuantityDatatype._uri:
+            return cls._QuantityDatatype()
+        elif uri == cls._TimeDatatype._uri:
+            return cls._TimeDatatype()
+        else:
+            raise ValueError(f'bad Wikibase datatype: {uri}')
+
+    @classmethod
+    def _to_rdflib(cls) -> URIRef:
+        return cls._uri
+
+    def __init__(
+            self,
+            datatype_class: Optional[TDatatypeClass] = None
+    ):
+        if self.__class__ == Datatype:
+            self._check_arg_not_none(
+                datatype_class, self.__class__, 'datatype_class', 1)
+            assert datatype_class is not None
+            self._check_arg(
+                datatype_class, datatype_class is not Datatype,
+                f'expected proper subclass of {self.__class__.__qualname__}',
+                self.__class__, 'datatype_class', 1)
+        super().__init__()
 
 
 class ValueTemplate(Template):

@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from .data_value import DataValue, DataValueTemplate, DataValueVariable
-from .datatype import Datatype, DatatypeClass, TDatatypeClass
 from .deep_data_value import (
     DeepDataValue,
     DeepDataValueTemplate,
@@ -80,7 +79,17 @@ from .time import (
     VTimePrecisionContent,
     VTimeTimezoneContent,
 )
-from .value import TValue, Value, ValueTemplate, ValueVariable, VValue, VVValue
+from .value import (
+    Datatype,
+    DatatypeClass,
+    TDatatypeClass,
+    TValue,
+    Value,
+    ValueTemplate,
+    ValueVariable,
+    VValue,
+    VVValue,
+)
 
 __all__ = (
     'Datatype',

@@ -4,13 +4,22 @@
 from ... import namespace as NS
 from ...itertools import chain
 from ...rdflib import URIRef
-from ...typing import cast, Iterable, NoReturn, Optional, TypeAlias, Union
+from ...typing import (
+    cast,
+    Iterable,
+    NoReturn,
+    Optional,
+    override,
+    TypeAlias,
+    Union,
+)
 from ..kif_object import TCallable
+from ..template import Template
 from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI, IRI_Template, IRI_Variable, T_IRI
 from .string import String
-from .value import Datatype
+from .value import Datatype, VTDatatypeContent
 
 PropertyClass: TypeAlias = type['Property']
 PropertyDatatypeClass: TypeAlias = type['PropertyDatatype']
@@ -29,12 +38,33 @@ class PropertyTemplate(EntityTemplate):
 
     Parameters:
        iri: IRI, IRI template, or IRI variable.
+       range: Datatype or datatype variable.
     """
 
     object_class: PropertyClass
 
-    def __init__(self, iri: VTPropertyContent):
-        super().__init__(iri)
+    def __init__(
+            self,
+            iri: VTPropertyContent,
+            range: Optional[VTDatatypeContent] = None
+    ):
+        super().__init__(iri, range)
+
+    @override
+    def _preprocess_arg(self, arg, i):
+        if i == 1:              # iri
+            if isinstance(arg, (Template, Variable)):
+                return super()._preprocess_arg(arg, i)
+            else:
+                return Property._static_preprocess_arg(self, arg, i)
+        elif i == 2:            # range
+            if Variable.test(arg):
+                return self._preprocess_arg_datatype_variable(
+                    arg, i, self.__class__)
+            else:
+                return Property._static_preprocess_arg(self, arg, i)
+        else:
+            raise self._should_not_get_here()
 
     def __call__(self, value1, value2=None):
         if value2 is not None:
@@ -87,6 +117,7 @@ class Property(
 
     Parameters:
        iri: IRI.
+       range: Datatype.
     """
 
     datatype_class: PropertyDatatypeClass
@@ -105,8 +136,22 @@ class Property(
         return cls(cls._check_arg_isinstance(
             arg, (cls, IRI, URIRef, String, str), function, name, position))
 
-    def __init__(self, iri: VTPropertyContent):
-        super().__init__(iri)
+    def __init__(
+            self,
+            iri: VTPropertyContent,
+            range: Optional[VTDatatypeContent] = None
+    ):
+        super().__init__(iri, range)
+
+    @override
+    @staticmethod
+    def _static_preprocess_arg(self, arg, i):
+        if i == 1:              # iri
+            return Entity._static_preprocess_arg(self, arg, i)
+        elif i == 2:            # range
+            return self._preprocess_optional_arg_datatype(arg, i)
+        else:
+            raise self._should_not_get_here()
 
     def __call__(self, value1, value2=None):
         if value2 is not None:

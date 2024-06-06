@@ -11,7 +11,7 @@ from .shallow_data_value import (
     ShallowDataValueTemplate,
     ShallowDataValueVariable,
 )
-from .string import String, StringVariable
+from .string import String
 from .value import Datatype
 
 IRI_Class: TypeAlias = type['IRI']
@@ -20,7 +20,7 @@ IRI_TemplateClass: TypeAlias = type['IRI_Template']
 IRI_VariableClass: TypeAlias = type['IRI_Variable']
 
 T_IRI: TypeAlias = Union['IRI', String, NS.T_URI]
-VT_IRI_Content: TypeAlias = Union[StringVariable, T_IRI]
+VT_IRI_Content: TypeAlias = Union[Variable, T_IRI]
 V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'IRI']
 
 

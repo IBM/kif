@@ -3,6 +3,7 @@
 
 from kif_lib import (
     Datatype,
+    Entity,
     ExternalId,
     ExternalIdDatatype,
     IRI,
@@ -41,7 +42,12 @@ class TestModelValueDatatype(kif_TestCase):
             'expected proper subclass of Datatype', Datatype, Datatype)
         self.assert_raises_bad_argument(
             ValueError, 1, 'datatype_class',
-            'no datatype class for KIF_Object', Datatype, KIF_Object)
+            'expected subclass of Value, got KIF_Object',
+            Datatype, KIF_Object)
+        self.assert_raises_bad_argument(
+            ValueError, 1, 'datatype_class',
+            'no datatype class for Entity',
+            Datatype, Entity)
         self.assert_item_datatype(ItemDatatype())
         self.assert_item_datatype(Datatype(Item))
         self.assert_item_datatype(Item.datatype)
