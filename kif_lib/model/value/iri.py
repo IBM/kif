@@ -3,7 +3,15 @@
 
 from ... import namespace as NS
 from ...rdflib import URIRef
-from ...typing import cast, NoReturn, Optional, override, TypeAlias, Union
+from ...typing import (
+    cast,
+    ClassVar,
+    NoReturn,
+    Optional,
+    override,
+    TypeAlias,
+    Union,
+)
 from ..kif_object import TCallable
 from ..variable import Variable
 from .shallow_data_value import (
@@ -31,7 +39,7 @@ class IRI_Template(ShallowDataValueTemplate):
        content: IRI content or string variable.
     """
 
-    object_class: IRI_Class
+    object_class: ClassVar[IRI_Class]
 
     def __init__(self, content: VT_IRI_Content):
         super().__init__(content)
@@ -44,7 +52,7 @@ class IRI_Variable(ShallowDataValueVariable):
        name: Name.
     """
 
-    object_class: IRI_Class
+    object_class: ClassVar[IRI_Class]
 
     @classmethod
     def _preprocess_arg_iri_variable(
@@ -60,9 +68,9 @@ class IRI_Variable(ShallowDataValueVariable):
 class IRI_Datatype(Datatype):
     """IRI datatype."""
 
-    value_class: IRI_Class
+    value_class: ClassVar[IRI_Class]
 
-    _uri: URIRef = NS.WIKIBASE.Url
+    _uri: ClassVar[URIRef] = NS.WIKIBASE.Url
 
 
 class IRI(
@@ -77,10 +85,10 @@ class IRI(
        content: IRI content.
     """
 
-    datatype_class: IRI_DatatypeClass
-    datatype: IRI_Datatype
-    template_class: IRI_TemplateClass
-    variable_class: IRI_VariableClass
+    datatype_class: ClassVar[IRI_DatatypeClass]
+    datatype: ClassVar[IRI_Datatype]
+    template_class: ClassVar[IRI_TemplateClass]
+    variable_class: ClassVar[IRI_VariableClass]
 
     @classmethod
     def _check_arg_iri(

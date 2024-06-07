@@ -4,7 +4,15 @@
 from ... import namespace as NS
 from ...itertools import chain
 from ...rdflib import URIRef
-from ...typing import cast, Iterable, NoReturn, Optional, TypeAlias, Union
+from ...typing import (
+    cast,
+    ClassVar,
+    Iterable,
+    NoReturn,
+    Optional,
+    TypeAlias,
+    Union,
+)
 from ..kif_object import TCallable
 from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
@@ -29,7 +37,7 @@ class ItemTemplate(EntityTemplate):
        iri: IRI, IRI template, or IRI variable.
     """
 
-    object_class: ItemClass
+    object_class: ClassVar[ItemClass]
 
     def __init__(self, iri: VTItemContent):
         super().__init__(iri)
@@ -42,7 +50,7 @@ class ItemVariable(EntityVariable):
        name: Name.
     """
 
-    object_class: ItemClass
+    object_class: ClassVar[ItemClass]
 
     @classmethod
     def _preprocess_arg_item_variable(
@@ -58,9 +66,9 @@ class ItemVariable(EntityVariable):
 class ItemDatatype(Datatype):
     """Item datatype."""
 
-    value_class: ItemClass
+    value_class: ClassVar[ItemClass]
 
-    _uri: URIRef = NS.WIKIBASE.WikibaseItem
+    _uri: ClassVar[URIRef] = NS.WIKIBASE.WikibaseItem
 
 
 class Item(
@@ -75,10 +83,10 @@ class Item(
        iri: IRI.
     """
 
-    datatype_class: ItemDatatypeClass
-    datatype: ItemDatatype
-    template_class: ItemTemplateClass
-    variable_class: ItemVariableClass
+    datatype_class: ClassVar[ItemDatatypeClass]
+    datatype: ClassVar[ItemDatatype]
+    template_class: ClassVar[ItemTemplateClass]
+    variable_class: ClassVar[ItemVariableClass]
 
     @classmethod
     def _check_arg_item(

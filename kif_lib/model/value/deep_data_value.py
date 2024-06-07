@@ -1,7 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ...typing import TypeAlias
+from ...typing import ClassVar, TypeAlias
 from .data_value import DataValue, DataValueTemplate, DataValueVariable
 
 DeepDataValueClass: TypeAlias = type['DeepDataValue']
@@ -12,7 +12,7 @@ DeepDataValueVariableClass: TypeAlias = type['DeepDataValueVariable']
 class DeepDataValueTemplate(DataValueTemplate):
     """Abstract base class for deep data value templates."""
 
-    object_class: DeepDataValueClass
+    object_class: ClassVar[DeepDataValueClass]
 
 
 class DeepDataValueVariable(DataValueVariable):
@@ -22,7 +22,7 @@ class DeepDataValueVariable(DataValueVariable):
        name: Name.
     """
 
-    object_class: DeepDataValueClass
+    object_class: ClassVar[DeepDataValueClass]
 
 
 class DeepDataValue(
@@ -32,5 +32,5 @@ class DeepDataValue(
 ):
     """Abstract base class for deep data values."""
 
-    template_class: DeepDataValueTemplateClass
-    variable_class: DeepDataValueVariableClass
+    template_class: ClassVar[DeepDataValueTemplateClass]
+    variable_class: ClassVar[DeepDataValueVariableClass]

@@ -1,7 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ...typing import TypeAlias
+from ...typing import ClassVar, TypeAlias
 from .value import Value, ValueTemplate, ValueVariable
 
 DataValueClass: TypeAlias = type['DataValue']
@@ -12,7 +12,7 @@ DataValueVariableClass: TypeAlias = type['DataValueVariable']
 class DataValueTemplate(ValueTemplate):
     """Abstract base class for data value templates."""
 
-    object_class: DataValueClass
+    object_class: ClassVar[DataValueClass]
 
 
 class DataValueVariable(ValueVariable):
@@ -22,7 +22,7 @@ class DataValueVariable(ValueVariable):
        name: Name.
     """
 
-    object_class: DataValueClass
+    object_class: ClassVar[DataValueClass]
 
 
 class DataValue(
@@ -32,5 +32,5 @@ class DataValue(
 ):
     """Abstract base class for data values."""
 
-    template_class: DataValueTemplateClass
-    variable_class: DataValueVariableClass
+    template_class: ClassVar[DataValueTemplateClass]
+    variable_class: ClassVar[DataValueVariableClass]

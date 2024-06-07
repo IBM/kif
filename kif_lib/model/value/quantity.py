@@ -3,7 +3,15 @@
 
 from ... import namespace as NS
 from ...rdflib import URIRef
-from ...typing import cast, NoReturn, Optional, override, TypeAlias, Union
+from ...typing import (
+    cast,
+    ClassVar,
+    NoReturn,
+    Optional,
+    override,
+    TypeAlias,
+    Union,
+)
 from ..kif_object import Decimal, TCallable, TDecimal
 from ..template import Template
 from ..variable import Variable
@@ -37,7 +45,7 @@ class QuantityTemplate(DeepDataValueTemplate):
        upper_bound: Upper bound or quantity variable.
     """
 
-    object_class: QuantityClass
+    object_class: ClassVar[QuantityClass]
 
     def __init__(
             self,
@@ -165,7 +173,7 @@ class QuantityVariable(DeepDataValueVariable):
        name: Name.
     """
 
-    object_class: QuantityClass
+    object_class: ClassVar[QuantityClass]
 
     @classmethod
     def _preprocess_arg_quantity_variable(
@@ -181,9 +189,9 @@ class QuantityVariable(DeepDataValueVariable):
 class QuantityDatatype(Datatype):
     """Quantity datatype."""
 
-    value_class: QuantityClass
+    value_class: ClassVar[QuantityClass]
 
-    _uri: URIRef = NS.WIKIBASE.Quantity
+    _uri: ClassVar[URIRef] = NS.WIKIBASE.Quantity
 
 
 class Quantity(
@@ -201,10 +209,10 @@ class Quantity(
        upper_bound: Upper bound.
     """
 
-    datatype_class: QuantityDatatypeClass
-    datatype: QuantityDatatype
-    template_class: QuantityTemplateClass
-    variable_class: QuantityVariableClass
+    datatype_class: ClassVar[QuantityDatatypeClass]
+    datatype: ClassVar[QuantityDatatype]
+    template_class: ClassVar[QuantityTemplateClass]
+    variable_class: ClassVar[QuantityVariableClass]
 
     @classmethod
     def _check_arg_quantity(

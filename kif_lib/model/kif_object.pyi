@@ -10,6 +10,7 @@ import decimal
 from ..typing import (
     Any,
     Callable,
+    ClassVar,
     Iterator,
     NoReturn,
     Optional,
@@ -56,9 +57,10 @@ from .snak import (
 )
 from .snak_set import SnakSet, TSnakSet
 from .statement import Statement, StatementTemplate, StatementVariable
-from .template import Template, TTemplateClass
+from .template import Template, TemplateClass, TTemplateClass
 from .value import (
     Datatype,
+    DatatypeVariable,
     DataValue,
     DataValueTemplate,
     DataValueVariable,
@@ -121,7 +123,7 @@ from .value import (
     ValueVariable,
 )
 from .value_set import TextSet, TTextSet, TValueSet, ValueSet
-from .variable import TVariableClass, Variable
+from .variable import TVariableClass, Variable, VariableClass
 
 Datetime = datetime.datetime
 Decimal = decimal.Decimal
@@ -151,10 +153,10 @@ KIF_ObjectClass: TypeAlias = type['KIF_Object']
 class KIF_Object(object.Object, metaclass=object.ObjectMeta):
 
     #: Template class associated with this object class.
-    template_class: type[Template]
+    template_class: ClassVar[TemplateClass]
 
     #: Variable class associated with this object class.
-    variable_class: type[Variable]
+    variable_class: ClassVar[VariableClass]
 
     @classmethod
     def _issubclass_template(cls, arg: Any) -> bool:
@@ -322,6 +324,8 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     _DataValueVariable: type[DataValueVariable]
 
     _Datatype: type[Datatype]
+
+    _DatatypeVariable: type[DatatypeVariable]
 
     _DeepDataValue: type[DeepDataValue]
 
@@ -613,6 +617,26 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[type[Datatype], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_datatype_variable(
+            cls,
+            arg: DatatypeVariable,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[DatatypeVariable, NoReturn]:
+        ...
+
+    @classmethod
+    def _check_arg_datatype_variable_class(
+            cls,
+            arg: type[DatatypeVariable],
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[type[DatatypeVariable], NoReturn]:
         ...
 
     @classmethod
@@ -2485,6 +2509,28 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             name: Optional[str] = ...,
             position: Optional[int] = ...
     ) -> Union[Optional[type[Datatype]], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_datatype_variable(
+            cls,
+            arg: Optional[DatatypeVariable],
+            default: Optional[DatatypeVariable] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[DatatypeVariable], NoReturn]:
+        ...
+
+    @classmethod
+    def _check_optional_arg_datatype_variable_class(
+            cls,
+            arg: Optional[type[DatatypeVariable]],
+            default: Optional[type[DatatypeVariable]] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+            name: Optional[str] = ...,
+            position: Optional[int] = ...
+    ) -> Union[Optional[type[DatatypeVariable]], NoReturn]:
         ...
 
     @classmethod
@@ -4449,6 +4495,14 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     ) -> Union[Datatype, NoReturn]:
         ...
 
+    def check_datatype_variable(
+            self,
+            function: Optional[Union[TCallable, str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Union[DatatypeVariable, NoReturn]:
+        ...
+
     def check_deep_data_value(
             self,
             function: Optional[Union[TCallable, str]] = None,
@@ -5157,6 +5211,8 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
 
     def is_datatype(self) -> bool: ...
 
+    def is_datatype_variable(self) -> bool: ...
+
     def is_deep_data_value(self) -> bool: ...
 
     def is_deep_data_value_template(self) -> bool: ...
@@ -5342,6 +5398,8 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     def test_data_value_variable(self) -> bool: ...
 
     def test_datatype(self) -> bool: ...
+
+    def test_datatype_variable(self) -> bool: ...
 
     def test_deep_data_value(self) -> bool: ...
 
@@ -5558,6 +5616,14 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         ...
 
     def unpack_datatype(
+        self,
+        function: Optional[Union[TCallable, str]] = None,
+        name: Optional[str] = None,
+        position: Optional[int] = None
+    ) -> Union[TArgs, NoReturn]:
+        ...
+
+    def unpack_datatype_variable(
         self,
         function: Optional[Union[TCallable, str]] = None,
         name: Optional[str] = None,

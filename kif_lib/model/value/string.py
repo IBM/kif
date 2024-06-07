@@ -3,7 +3,15 @@
 
 from ... import namespace as NS
 from ...rdflib import URIRef
-from ...typing import cast, NoReturn, Optional, override, TypeAlias, Union
+from ...typing import (
+    cast,
+    ClassVar,
+    NoReturn,
+    Optional,
+    override,
+    TypeAlias,
+    Union,
+)
 from ..kif_object import TCallable
 from ..variable import Variable
 from .data_value import DataValue, DataValueTemplate, DataValueVariable
@@ -27,7 +35,7 @@ VString: TypeAlias = Union['StringTemplate', 'StringVariable', 'String']
 class ShallowDataValueTemplate(DataValueTemplate):
     """Abstract base class for shallow data value templates."""
 
-    object_class: ShallowDataValueClass
+    object_class: ClassVar[ShallowDataValueClass]
 
     @override
     def _preprocess_arg(self, arg, i):
@@ -58,7 +66,7 @@ class ShallowDataValueVariable(DataValueVariable):
        name: Name.
     """
 
-    object_class: ShallowDataValueClass
+    object_class: ClassVar[ShallowDataValueClass]
 
 
 class ShallowDataValue(
@@ -68,8 +76,8 @@ class ShallowDataValue(
 ):
     """Abstract base class for shallow data values."""
 
-    template_class: ShallowDataValueTemplateClass
-    variable_class: ShallowDataValueVariableClass
+    template_class: ClassVar[ShallowDataValueTemplateClass]
+    variable_class: ClassVar[ShallowDataValueVariableClass]
 
     def get_value(self) -> str:
         return self.args[0]
@@ -95,7 +103,7 @@ class StringTemplate(ShallowDataValueTemplate):
        content: String content or string variable.
     """
 
-    object_class: StringClass
+    object_class: ClassVar[StringClass]
 
     def __init__(self, content: VTStringContent):
         super().__init__(content)
@@ -108,7 +116,7 @@ class StringVariable(ShallowDataValueVariable):
        name: Name.
     """
 
-    object_class: StringClass
+    object_class: ClassVar[StringClass]
 
     @classmethod
     def _preprocess_arg_string_variable(
@@ -124,9 +132,9 @@ class StringVariable(ShallowDataValueVariable):
 class StringDatatype(Datatype):
     """String datatype."""
 
-    value_class: StringClass
+    value_class: ClassVar[StringClass]
 
-    _uri: URIRef = NS.WIKIBASE.String
+    _uri: ClassVar[URIRef] = NS.WIKIBASE.String
 
 
 class String(
@@ -141,10 +149,10 @@ class String(
        content: String content.
     """
 
-    datatype_class: StringDatatypeClass
-    datatype: StringDatatype
-    template_class: StringTemplateClass
-    variable_class: StringVariableClass
+    datatype_class: ClassVar[StringDatatypeClass]
+    datatype: ClassVar[StringDatatype]
+    template_class: ClassVar[StringTemplateClass]
+    variable_class: ClassVar[StringVariableClass]
 
     @classmethod
     def _check_arg_string(

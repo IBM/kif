@@ -5,6 +5,7 @@ from ... import namespace as NS
 from ...rdflib import Literal, URIRef
 from ...typing import (
     cast,
+    ClassVar,
     Collection,
     NoReturn,
     Optional,
@@ -40,7 +41,7 @@ class ExternalIdTemplate(StringTemplate):
        content: External id content or string variable.
     """
 
-    object_class: ExternalIdClass
+    object_class: ClassVar[ExternalIdClass]
 
     def __init__(self, content: VTExternalIdContent):
         super().__init__(content)
@@ -53,15 +54,15 @@ class ExternalIdVariable(StringVariable):
        name: Name.
     """
 
-    object_class: ExternalIdClass
+    object_class: ClassVar[ExternalIdClass]
 
 
 class ExternalIdDatatype(StringDatatype):
     """External id datatype."""
 
-    value_class: ExternalIdClass
+    value_class: ClassVar[ExternalIdClass]
 
-    _uri: URIRef = NS.WIKIBASE.ExternalId
+    _uri: ClassVar[URIRef] = NS.WIKIBASE.ExternalId
 
 
 class ExternalId(
@@ -76,10 +77,10 @@ class ExternalId(
        content: External id content.
     """
 
-    datatype_class: ExternalIdDatatypeClass
-    datatype: ExternalIdDatatype
-    template_class: ExternalIdTemplateClass
-    variable_class: ExternalIdVariableClass
+    datatype_class: ClassVar[ExternalIdDatatypeClass]
+    datatype: ClassVar[ExternalIdDatatype]
+    template_class: ClassVar[ExternalIdTemplateClass]
+    variable_class: ClassVar[ExternalIdVariableClass]
 
     @classmethod
     def _check_arg_external_id(

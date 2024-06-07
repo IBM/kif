@@ -4,7 +4,15 @@
 from ... import namespace as NS
 from ...itertools import chain
 from ...rdflib import URIRef
-from ...typing import cast, Iterable, NoReturn, Optional, TypeAlias, Union
+from ...typing import (
+    cast,
+    ClassVar,
+    Iterable,
+    NoReturn,
+    Optional,
+    TypeAlias,
+    Union,
+)
 from ..kif_object import TCallable
 from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
@@ -29,7 +37,7 @@ class LexemeTemplate(EntityTemplate):
        iri: IRI, IRI template, or IRI variable.
     """
 
-    object_class: LexemeClass
+    object_class: ClassVar[LexemeClass]
 
     def __init__(self, iri: VTLexemeContent):
         super().__init__(iri)
@@ -42,7 +50,7 @@ class LexemeVariable(EntityVariable):
        name: Name.
     """
 
-    object_class: LexemeClass
+    object_class: ClassVar[LexemeClass]
 
     @classmethod
     def _preprocess_arg_lexeme_variable(
@@ -58,9 +66,9 @@ class LexemeVariable(EntityVariable):
 class LexemeDatatype(Datatype):
     """Lexeme datatype."""
 
-    value_class: LexemeClass
+    value_class: ClassVar[LexemeClass]
 
-    _uri: URIRef = NS.WIKIBASE.WikibaseLexeme
+    _uri: ClassVar[URIRef] = NS.WIKIBASE.WikibaseLexeme
 
 
 class Lexeme(
@@ -75,10 +83,10 @@ class Lexeme(
        iri: IRI.
     """
 
-    datatype_class: LexemeDatatypeClass
-    datatype: LexemeDatatype
-    template_class: LexemeTemplateClass
-    variable_class: LexemeVariableClass
+    datatype_class: ClassVar[LexemeDatatypeClass]
+    datatype: ClassVar[LexemeDatatype]
+    template_class: ClassVar[LexemeTemplateClass]
+    variable_class: ClassVar[LexemeVariableClass]
 
     @classmethod
     def _check_arg_lexeme(

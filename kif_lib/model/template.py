@@ -6,6 +6,7 @@ from functools import cache
 from ..itertools import chain
 from ..typing import (
     Any,
+    ClassVar,
     Iterator,
     Mapping,
     NoReturn,
@@ -25,7 +26,7 @@ class Template(KIF_Object):
     """Abstract base class for templates."""
 
     #: Object class associated with this template class.
-    object_class: KIF_ObjectClass
+    object_class: ClassVar[KIF_ObjectClass]
 
     @classmethod
     def _check_arg_template_class(

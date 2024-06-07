@@ -1,18 +1,41 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from .data_value import DataValue, DataValueTemplate, DataValueVariable
+from .data_value import (
+    DataValue,
+    DataValueClass,
+    DataValueTemplate,
+    DataValueTemplateClass,
+    DataValueVariable,
+    DataValueVariableClass,
+)
 from .deep_data_value import (
     DeepDataValue,
+    DeepDataValueClass,
     DeepDataValueTemplate,
+    DeepDataValueTemplateClass,
     DeepDataValueVariable,
+    DeepDataValueVariableClass,
 )
-from .entity import Entity, EntityTemplate, EntityVariable, VEntity, VVEntity
+from .entity import (
+    Entity,
+    EntityClass,
+    EntityTemplate,
+    EntityTemplateClass,
+    EntityVariable,
+    EntityVariableClass,
+    VEntity,
+    VVEntity,
+)
 from .external_id import (
     ExternalId,
+    ExternalIdClass,
     ExternalIdDatatype,
+    ExternalIdDatatypeClass,
     ExternalIdTemplate,
+    ExternalIdTemplateClass,
     ExternalIdVariable,
+    ExternalIdVariableClass,
     TExternalId,
     VExternalId,
 )
@@ -82,6 +105,7 @@ from .time import (
 from .value import (
     Datatype,
     DatatypeClass,
+    DatatypeVariable,
     TDatatypeClass,
     TValue,
     Value,
@@ -94,19 +118,33 @@ from .value import (
 __all__ = (
     'Datatype',
     'DatatypeClass',
+    'DatatypeVariable',
     'DataValue',
+    'DataValueClass',
     'DataValueTemplate',
+    'DataValueTemplateClass',
     'DataValueVariable',
+    'DataValueVariableClass',
     'DeepDataValue',
+    'DeepDataValueClass',
     'DeepDataValueTemplate',
+    'DeepDataValueTemplateClass',
     'DeepDataValueVariable',
+    'DeepDataValueVariableClass',
     'Entity',
+    'EntityClass',
     'EntityTemplate',
+    'EntityTemplateClass',
     'EntityVariable',
+    'EntityVariableClass',
     'ExternalId',
+    'ExternalIdClass',
     'ExternalIdDatatype',
+    'ExternalIdDatatypeClass',
     'ExternalIdTemplate',
+    'ExternalIdTemplateClass',
     'ExternalIdVariable',
+    'ExternalIdVariableClass',
     'IRI',
     'IRI_Datatype',
     'IRI_Template',

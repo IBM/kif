@@ -5,7 +5,15 @@ from enum import Enum
 
 from ... import namespace as NS
 from ...rdflib import URIRef
-from ...typing import cast, NoReturn, Optional, override, TypeAlias, Union
+from ...typing import (
+    cast,
+    ClassVar,
+    NoReturn,
+    Optional,
+    override,
+    TypeAlias,
+    Union,
+)
 from ..kif_object import Datetime, Decimal, TCallable, TDatetime
 from ..template import Template
 from ..variable import Variable
@@ -47,7 +55,7 @@ class TimeTemplate(DeepDataValueTemplate):
        calendar: Calendar model, item template, or item variable.
     """
 
-    object_class: TimeClass
+    object_class: ClassVar[TimeClass]
 
     def __init__(
             self,
@@ -175,7 +183,7 @@ class TimeVariable(DeepDataValueVariable):
        name: Name.
     """
 
-    object_class: TimeClass
+    object_class: ClassVar[TimeClass]
 
     @classmethod
     def _preprocess_arg_time_variable(
@@ -191,9 +199,9 @@ class TimeVariable(DeepDataValueVariable):
 class TimeDatatype(Datatype):
     """Time datatype."""
 
-    value_class: TimeClass
+    value_class: ClassVar[TimeClass]
 
-    _uri: URIRef = NS.WIKIBASE.Time
+    _uri: ClassVar[URIRef] = NS.WIKIBASE.Time
 
 
 class Time(
@@ -211,10 +219,10 @@ class Time(
        calendar: Calendar model.
     """
 
-    datatype_class: TimeDatatypeClass
-    datatype: TimeDatatype
-    template_class: TimeTemplateClass
-    variable_class: TimeVariableClass
+    datatype_class: ClassVar[TimeDatatypeClass]
+    datatype: ClassVar[TimeDatatype]
+    template_class: ClassVar[TimeTemplateClass]
+    variable_class: ClassVar[TimeVariableClass]
 
     # See:
     # <https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format#Time>.

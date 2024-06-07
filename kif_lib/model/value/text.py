@@ -3,7 +3,15 @@
 
 from ... import namespace as NS
 from ...rdflib import URIRef
-from ...typing import Final, NoReturn, Optional, override, TypeAlias, Union
+from ...typing import (
+    ClassVar,
+    Final,
+    NoReturn,
+    Optional,
+    override,
+    TypeAlias,
+    Union,
+)
 from ..kif_object import TCallable
 from ..variable import Variable
 from .shallow_data_value import (
@@ -38,7 +46,7 @@ class TextTemplate(ShallowDataValueTemplate):
        language: Language tag or string variable.
     """
 
-    object_class: TextClass
+    object_class: ClassVar[TextClass]
 
     def __init__(
             self,
@@ -85,15 +93,15 @@ class TextVariable(ShallowDataValueVariable):
        name: Name.
     """
 
-    object_class: TextClass
+    object_class: ClassVar[TextClass]
 
 
 class TextDatatype(Datatype):
     """Text datatype."""
 
-    value_class: TextClass
+    value_class: ClassVar[TextClass]
 
-    _uri: URIRef = NS.WIKIBASE.Monolingualtext
+    _uri: ClassVar[URIRef] = NS.WIKIBASE.Monolingualtext
 
 
 class Text(
@@ -109,10 +117,10 @@ class Text(
        language: Language tag.
     """
 
-    datatype_class: TextDatatypeClass
-    datatype: TextDatatype
-    template_class: TextTemplateClass
-    variable_class: TextVariableClass
+    datatype_class: ClassVar[TextDatatypeClass]
+    datatype: ClassVar[TextDatatype]
+    template_class: ClassVar[TextTemplateClass]
+    variable_class: ClassVar[TextVariableClass]
 
     #: Default language tag.
     default_language: Final[str] = 'en'

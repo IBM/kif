@@ -6,7 +6,15 @@ from functools import cache
 
 from ... import namespace as NS
 from ...rdflib import Literal, URIRef
-from ...typing import cast, Collection, NoReturn, Optional, TypeAlias, Union
+from ...typing import (
+    cast,
+    ClassVar,
+    Collection,
+    NoReturn,
+    Optional,
+    TypeAlias,
+    Union,
+)
 from ..kif_object import Datetime, KIF_Object, TCallable, TDatetime, TDecimal
 from ..template import Template
 from ..variable import Variable
@@ -34,7 +42,7 @@ class DatatypeVariable(Variable):
        name: Name.
     """
 
-    object_class: DatatypeClass
+    object_class: ClassVar[DatatypeClass]
 
     @classmethod
     def _preprocess_arg_datatype_variable(
@@ -55,7 +63,7 @@ class Datatype(KIF_Object):
     """
 
     #: Value class associated with this datatype class.
-    value_class: ValueClass
+    value_class: ClassVar[ValueClass]
 
     def __new__(
             cls,
@@ -98,7 +106,7 @@ class Datatype(KIF_Object):
             return cls._check_arg_datatype_class(
                 cast(DatatypeClass, arg), function, name, position)()
 
-    _uri: URIRef
+    _uri: ClassVar[URIRef]
 
     @classmethod
     @cache
@@ -146,7 +154,7 @@ class Datatype(KIF_Object):
 class ValueTemplate(Template):
     """Abstract base class for value templates."""
 
-    object_class: ValueClass
+    object_class: ClassVar[ValueClass]
 
 
 class ValueVariable(Variable):
@@ -156,7 +164,7 @@ class ValueVariable(Variable):
        name: Name.
     """
 
-    object_class: ValueClass
+    object_class: ClassVar[ValueClass]
 
     @classmethod
     def _preprocess_arg_value_variable(
@@ -176,14 +184,14 @@ class Value(
 ):
     """Abstract base class for values."""
 
-    template_class: ValueTemplateClass
-    variable_class: ValueVariableClass
+    template_class: ClassVar[ValueTemplateClass]
+    variable_class: ClassVar[ValueVariableClass]
 
     #: Datatype class associated with this value class.
-    datatype_class: DatatypeClass
+    datatype_class: ClassVar[DatatypeClass]
 
     #: Datatype associated with this value class.
-    datatype: Datatype
+    datatype: ClassVar[Datatype]
 
     @classmethod
     def __init_subclass__(cls, **kwargs):

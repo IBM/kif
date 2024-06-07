@@ -1,7 +1,15 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ...typing import cast, NoReturn, Optional, override, TypeAlias, Union
+from ...typing import (
+    cast,
+    ClassVar,
+    NoReturn,
+    Optional,
+    override,
+    TypeAlias,
+    Union,
+)
 from ..kif_object import TCallable
 from ..template import Template
 from ..variable import Variable
@@ -19,7 +27,7 @@ VVEntity: TypeAlias = Union[Variable, VEntity]
 class EntityTemplate(ValueTemplate):
     """Abstract base class for entity templates."""
 
-    object_class: EntityClass
+    object_class: ClassVar[EntityClass]
 
     @override
     def _preprocess_arg(self, arg, i):
@@ -53,7 +61,7 @@ class EntityVariable(ValueVariable):
        name: Name.
     """
 
-    object_class: EntityClass
+    object_class: ClassVar[EntityClass]
 
     @classmethod
     def _preprocess_arg_entity_variable(
@@ -73,8 +81,8 @@ class Entity(
 ):
     """Abstract base class for entities."""
 
-    template_class: EntityTemplateClass
-    variable_class: EntityVariableClass
+    template_class: ClassVar[EntityTemplateClass]
+    variable_class: ClassVar[EntityVariableClass]
 
     @override
     def _preprocess_arg(self, arg, i):

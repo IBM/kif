@@ -6,6 +6,7 @@ import re
 from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
+    Datatype,
     Deprecated,
     EncoderError,
     Entity,
@@ -52,6 +53,7 @@ from kif_lib import (
     Variables,
 )
 from kif_lib.model import (
+    DatatypeVariable,
     DataValueVariable,
     Datetime,
     Decimal,
@@ -296,10 +298,17 @@ class Test(kif_TestCase):
         self.assertFalse(SnakSet().test_descriptor())
 
     def test_is_datatype(self):
+        self.assertTrue(Datatype(Item).is_datatype())
         self.assertTrue(ItemDatatype().is_datatype())
         self.assertTrue(IRI_Datatype().test_datatype())
         self.assertFalse(Item('x').is_datatype())
         self.assertFalse(Item('x').test_datatype())
+
+    def test_is_datatype_variable(self):
+        self.assertTrue(DatatypeVariable('x').is_datatype_variable())
+        self.assertTrue(DatatypeVariable('x').test_datatype_variable())
+        self.assertFalse(ItemVariable('x').is_datatype_variable())
+        self.assertFalse(ItemVariable('x').test_datatype_variable())
 
     def test_is_data_value(self):
         self.assertTrue(IRI('x').is_data_value())
@@ -965,6 +974,13 @@ class Test(kif_TestCase):
         self.assertEqual(IRI_Datatype().check_datatype(), IRI_Datatype())
         self.assertRaises(TypeError, Item('x').check_datatype)
 
+    def test_check_datatype_variable(self):
+        self.assertEqual(
+            DatatypeVariable('x').check_datatype_variable(),
+            DatatypeVariable('x'))
+        self.assertRaises(
+            TypeError, ItemVariable('x').check_datatype_variable)
+
     def test_check_deep_data_value(self):
         self.assertEqual(Quantity(0).check_deep_data_value(), Quantity(0))
         self.assertRaises(TypeError, String('x').check_deep_data_value)
@@ -1526,6 +1542,12 @@ class Test(kif_TestCase):
         self.assertEqual(IRI_Datatype().unpack_datatype(), ())
         self.assertRaises(TypeError, Item('x').unpack_datatype)
 
+    def test_unpack_datatype_variable(self):
+        self.assertEqual(
+            DatatypeVariable('x').unpack_datatype_variable(), ('x',))
+        self.assertRaises(
+            TypeError, ItemVariable('x').unpack_datatype_variable)
+
     def test_unpack_deep_data_value(self):
         self.assertEqual(
             Quantity(0).unpack_deep_data_value(), (0, None, None, None))
@@ -1741,7 +1763,10 @@ class Test(kif_TestCase):
         self.assertRaises(TypeError, Normal.unpack_preferred_rank)
 
     def test_unpack_property(self):
-        self.assertEqual(Property('x').unpack_property(), (IRI('x'),))
+        self.assertEqual(Property('x').unpack_property(), (IRI('x'), None))
+        self.assertEqual(
+            Property('x', Item).unpack_property(),
+            (IRI('x'), ItemDatatype()))
         self.assertRaises(TypeError, Item('x').unpack_property)
 
     def test_unpack_property_datatype(self):
@@ -1762,7 +1787,17 @@ class Test(kif_TestCase):
     def test_unpack_property_template(self):
         self.assertEqual(
             PropertyTemplate(Variable('x')).unpack_property_template(),
-            (IRI_Variable('x'),))
+            (IRI_Variable('x'), None))
+        self.assertEqual(
+            PropertyTemplate(Variable('x'), String).unpack_property_template(),
+            (IRI_Variable('x'), StringDatatype()))
+        self.assertEqual(
+            PropertyTemplate('x', Variable('y')).unpack_property_template(),
+            (IRI('x'), DatatypeVariable('y')))
+        self.assertEqual(
+            PropertyTemplate(
+                Variable('x'), Variable('y')).unpack_property_template(),
+            (IRI_Variable('x'), DatatypeVariable('y')))
         self.assertRaises(
             TypeError, ItemTemplate(Variable('x')).unpack_property_template)
 

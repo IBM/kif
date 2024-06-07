@@ -4,6 +4,7 @@
 from ..itertools import chain
 from ..typing import (
     cast,
+    ClassVar,
     Iterator,
     Mapping,
     NoReturn,
@@ -27,7 +28,7 @@ class Variable(KIF_Object):
     """
 
     #: Object class associated with this variable class.
-    object_class: KIF_ObjectClass
+    object_class: ClassVar[KIF_ObjectClass]
 
     class CoercionError(ValueError):
         """Bad coercion attempt."""

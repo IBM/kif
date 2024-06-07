@@ -6,6 +6,7 @@ import decimal
 from ..typing import (
     Any,
     Callable,
+    ClassVar,
     Iterator,
     NoReturn,
     Optional,
@@ -52,9 +53,10 @@ from .snak import (
 )
 from .snak_set import SnakSet, TSnakSet
 from .statement import Statement, StatementTemplate, StatementVariable
-from .template import Template, TTemplateClass
+from .template import Template, TemplateClass, TTemplateClass
 from .value import (
     Datatype,
+    DatatypeVariable,
     DataValue,
     DataValueTemplate,
     DataValueVariable,
@@ -117,7 +119,7 @@ from .value import (
     ValueVariable,
 )
 from .value_set import TextSet, TTextSet, TValueSet, ValueSet
-from .variable import TVariableClass, Variable
+from .variable import TVariableClass, Variable, VariableClass
 
 Datetime = datetime.datetime
 Decimal = decimal.Decimal
@@ -147,10 +149,10 @@ KIF_ObjectClass: TypeAlias = type['KIF_Object']
 class KIF_Object(object.Object, metaclass=object.ObjectMeta):
 
     #: Template class associated with this object class.
-    template_class: type[Template]
+    template_class: ClassVar[TemplateClass]
 
     #: Variable class associated with this object class.
-    variable_class: type[Variable]
+    variable_class: ClassVar[VariableClass]
 
     @classmethod
     def _issubclass_template(cls, arg: Any) -> bool:

@@ -6,6 +6,7 @@ from ...itertools import chain
 from ...rdflib import URIRef
 from ...typing import (
     cast,
+    ClassVar,
     Iterable,
     NoReturn,
     Optional,
@@ -41,7 +42,7 @@ class PropertyTemplate(EntityTemplate):
        range: Datatype or datatype variable.
     """
 
-    object_class: PropertyClass
+    object_class: ClassVar[PropertyClass]
 
     def __init__(
             self,
@@ -80,7 +81,7 @@ class PropertyVariable(EntityVariable):
        name: Name.
     """
 
-    object_class: PropertyClass
+    object_class: ClassVar[PropertyClass]
 
     @classmethod
     def _preprocess_arg_property_variable(
@@ -102,9 +103,9 @@ class PropertyVariable(EntityVariable):
 class PropertyDatatype(Datatype):
     """Property datatype."""
 
-    value_class: PropertyClass
+    value_class: ClassVar[PropertyClass]
 
-    _uri: URIRef = NS.WIKIBASE.WikibaseProperty
+    _uri: ClassVar[URIRef] = NS.WIKIBASE.WikibaseProperty
 
 
 class Property(
@@ -120,10 +121,10 @@ class Property(
        range: Datatype.
     """
 
-    datatype_class: PropertyDatatypeClass
-    datatype: PropertyDatatype
-    template_class: PropertyTemplateClass
-    variable_class: PropertyVariableClass
+    datatype_class: ClassVar[PropertyDatatypeClass]
+    datatype: ClassVar[PropertyDatatype]
+    template_class: ClassVar[PropertyTemplateClass]
+    variable_class: ClassVar[PropertyVariableClass]
 
     @classmethod
     def _check_arg_property(
