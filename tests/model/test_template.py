@@ -2,12 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
+    Datatype,
     DataValue,
     DeepDataValue,
     Entity,
     ExternalId,
     IRI,
     Item,
+    ItemDatatype,
     KIF_Object,
     Lexeme,
     NoValueSnak,
@@ -26,6 +28,9 @@ from kif_lib import (
     Variables,
 )
 from kif_lib.model import (
+    DataValueTemplate,
+    DeepDataValueTemplate,
+    EntityTemplate,
     ExternalIdTemplate,
     IRI_Template,
     ItemTemplate,
@@ -33,6 +38,8 @@ from kif_lib.model import (
     NoValueSnakTemplate,
     PropertyTemplate,
     QuantityTemplate,
+    ShallowDataValueTemplate,
+    SnakTemplate,
     SomeValueSnakTemplate,
     StatementTemplate,
     StringTemplate,
@@ -40,6 +47,7 @@ from kif_lib.model import (
     TextTemplate,
     TimeTemplate,
     ValueSnakTemplate,
+    ValueTemplate,
 )
 
 from ..tests import kif_TestCase
@@ -75,7 +83,19 @@ class Test(kif_TestCase):
 
 # -- __new__ ---------------------------------------------------------------
 
-    def test___new__item_template(self):
+    def test__new__(self):
+        self.assert_test_is_defined_for_template_classes('__new__')
+
+    def test__new__template(self):
+        self.assert_abstract_class(Template)
+
+    def test__new__value_template(self):
+        self.assert_abstract_class(ValueTemplate)
+
+    def test__new__entity_template(self):
+        self.assert_abstract_class(EntityTemplate)
+
+    def test__new__item_template(self):
         x = Variable('x')
         self.assert_raises_bad_argument(
             TypeError, 1, None,
@@ -88,16 +108,36 @@ class Test(kif_TestCase):
         self.assert_item(ItemTemplate(IRI('x')), IRI('x'))
 
     def test__new__property_template(self):
-        x = Variable('x')
+        x, y = Variables('x', 'y')
         self.assert_raises_bad_argument(
             TypeError, 1, None,
             'expected IRI or String or URIRef or str, got int',
             (PropertyTemplate, 'Property'), 0)
-        self.assert_property_template(PropertyTemplate(x), Variable('x', IRI))
-        self.assert_property_template(Property(x), Variable('x', IRI))
-        self.assert_property_template(PropertyTemplate(IRI(x)), IRI(x))
-        self.assert_property_template(Property(IRI(x)), IRI(x))
-        self.assert_property(PropertyTemplate(IRI('x')), IRI('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 2, None,
+            'expected Datatype, got int',
+            (PropertyTemplate, 'Property'), IRI('x'), 0)
+        self.assert_property_template(
+            PropertyTemplate(x), Variable('x', IRI), None)
+        self.assert_property_template(
+            PropertyTemplate(x, Item.datatype),
+            Variable('x', IRI), ItemDatatype())
+        self.assert_property_template(
+            Property(x), Variable('x', IRI), None)
+        self.assert_property_template(
+            Property(x, y), Variable('x', IRI), Variable('y', Datatype))
+        self.assert_property_template(
+            PropertyTemplate(IRI(x)), IRI(x), None)
+        self.assert_property_template(
+            PropertyTemplate(IRI(x), Item), IRI(x), ItemDatatype())
+        self.assert_property_template(
+            Property(IRI(x)), IRI(x), None)
+        self.assert_property_template(
+            Property(IRI('x'), y), IRI('x'), Variable('y', Datatype))
+        self.assert_property(
+            PropertyTemplate(IRI('x')), IRI('x'), None)
+        self.assert_property(
+            Property(IRI('x'), Item), IRI('x'), ItemDatatype())
 
     def test__new__lexeme_template(self):
         x = Variable('x')
@@ -110,6 +150,12 @@ class Test(kif_TestCase):
         self.assert_lexeme_template(LexemeTemplate(IRI(x)), IRI(x))
         self.assert_lexeme_template(Lexeme(IRI(x)), IRI(x))
         self.assert_lexeme(LexemeTemplate(IRI('x')), IRI('x'))
+
+    def test__new__data_value_template(self):
+        self.assert_abstract_class(DataValueTemplate)
+
+    def test__new__shallow_data_value_template(self):
+        self.assert_abstract_class(ShallowDataValueTemplate)
 
     def test__new__iri_template(self):
         x = Variable('x')
@@ -159,6 +205,9 @@ class Test(kif_TestCase):
         self.assert_external_id_template(
             ExternalId(x), Variable('x', String))
         self.assert_external_id(ExternalId('x'), 'x')
+
+    def test__new__deep_data_value_template(self):
+        self.assert_abstract_class(DeepDataValueTemplate)
 
     def test__new__quantity_template(self):
         x = Variable('x')
@@ -262,6 +311,9 @@ class Test(kif_TestCase):
             Time('2024-05-06').time, None, None,
             ItemTemplate(IRI_Template(Variable('x', String))))
 
+    def test__new__snak_template(self):
+        self.assert_abstract_class(SnakTemplate)
+
     def test__new__value_snak_template(self):
         x = Variable('x')
         self.assert_raises_bad_argument(
@@ -332,7 +384,7 @@ class Test(kif_TestCase):
             NoValueSnak(Property(x)),
             Property(Variable('x', IRI)))
 
-    def test__new_statement_template(self):
+    def test__new__statement_template(self):
         x = Variable('x')
         self.assert_raises_bad_argument(
             TypeError, 1, None,
@@ -367,6 +419,18 @@ class Test(kif_TestCase):
 
 # -- __init__ --------------------------------------------------------------
 
+    def test__init__(self):
+        self.assert_test_is_defined_for_template_classes('__init__')
+
+    def test__init__template(self):
+        self.assert_abstract_class(Template)
+
+    def test__init__value_template(self):
+        self.assert_abstract_class(ValueTemplate)
+
+    def test__init__entity_template(self):
+        self.assert_abstract_class(EntityTemplate)
+
     def test__init__item_template(self):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 1, None,
@@ -386,6 +450,22 @@ class Test(kif_TestCase):
             TypeError, 1, None,
             'expected IRI_Template, got PropertyTemplate',
             PropertyTemplate, PropertyTemplate(Variable('x')))
+        self.assert_raises_bad_argument(
+            Variable.CoercionError, 2, None,
+            "cannot coerce IRI_Variable 'x' into DatatypeVariable",
+            PropertyTemplate, IRI('x'), Variable('x', IRI))
+        self.assert_raises_bad_argument(
+            TypeError, 2, None,
+            'expected Datatype, got PropertyTemplate',
+            PropertyTemplate, 'x', PropertyTemplate(Variable('x')))
+
+    def test__init__property_template_normalization(self):
+        x = Variable('x')
+        self.assertRaises(Variable.CoercionError, PropertyTemplate, x, x)
+        self.assert_property_template(
+            PropertyTemplate(
+                IRI(Variable('x', String)), Variable('y')),
+            IRI_Template(Variable('x', String)), Variable('y', Datatype))
 
     def test__init__lexeme_template(self):
         self.assert_raises_bad_argument(
@@ -396,6 +476,12 @@ class Test(kif_TestCase):
             TypeError, 1, None,
             'expected IRI_Template, got LexemeTemplate',
             LexemeTemplate, LexemeTemplate(Variable('x')))
+
+    def test__init__data_value_template(self):
+        self.assert_abstract_class(DataValueTemplate)
+
+    def test__init__shallow_data_value_template(self):
+        self.assert_abstract_class(ShallowDataValueTemplate)
 
     def test__init__iri_template(self):
         self.assert_raises_bad_argument(
@@ -457,6 +543,9 @@ class Test(kif_TestCase):
             TypeError, 1, None,
             'expected Variable, got IRI_Template',
             ExternalIdTemplate, IRI_Template(Variable('x')))
+
+    def test__init__deep_data_value_template(self):
+        self.assert_abstract_class(DeepDataValueTemplate)
 
     def test__init__quantity_template(self):
         self.assert_raises_bad_argument(
@@ -555,6 +644,9 @@ class Test(kif_TestCase):
             TimeTemplate('2024-05-06', x, Variable('x', DataValue)),
             Time('2024-05-06').time,
             Variable('x', Quantity), Variable('x', Quantity), None)
+
+    def test__init__snak_template(self):
+        self.assert_abstract_class(Snak)
 
     def test__init__value_snak_template(self):
         self.assert_raises_bad_argument(

@@ -49,7 +49,7 @@ class EntityTemplate(ValueTemplate):
         """Gets the iri of entity template.
 
         Returns:
-           IRI template or IRI variable.
+           IRI, IRI template, or IRI variable.
         """
         return self.args[0]
 

@@ -82,6 +82,7 @@ from kif_lib.model import (
     IRI_Variable,
     ItemTemplate,
     ItemVariable,
+    KIF_ObjectClass,
     LexemeTemplate,
     LexemeVariable,
     NoValueSnakTemplate,
@@ -102,6 +103,7 @@ from kif_lib.model import (
     StringVariable,
     TCallable,
     Template,
+    TemplateClass,
     TextTemplate,
     TextVariable,
     TimeTemplate,
@@ -111,6 +113,8 @@ from kif_lib.model import (
     ValueSnakVariable,
     ValueTemplate,
     ValueVariable,
+    VariableClass,
+    VDatatype,
     VEntity,
     VItem,
     VProperty,
@@ -124,13 +128,36 @@ from kif_lib.model import (
 )
 from kif_lib.model.object import Object
 from kif_lib.namespace import WIKIBASE, XSD
-from kif_lib.typing import Any, Final, Optional, override, Union
+from kif_lib.typing import (
+    Any,
+    cast,
+    ClassVar,
+    Final,
+    Iterator,
+    Optional,
+    override,
+    Set,
+    Union,
+)
 from kif_lib.vocabulary import wd
 
 ME: Final[pathlib.Path] = pathlib.Path(__file__)
 
 
 class kif_TestCase(unittest.TestCase):
+
+    ALL_KIF_OBJECT_CLASSES: ClassVar[Set[KIF_ObjectClass]] = frozenset(filter(
+        lambda c: isinstance(c, type) and issubclass(c, KIF_Object), map(
+            lambda s: getattr(KIF_Object, s),
+            filter(lambda s: re.match('^_[A-Z]', s), dir(KIF_Object)))))
+
+    ALL_TEMPLATE_CLASSES: ClassVar[Set[TemplateClass]] = frozenset(
+        cast(Iterator[TemplateClass], filter(
+            lambda c: issubclass(c, Template), ALL_KIF_OBJECT_CLASSES)))
+
+    ALL_VARIABLE_CLASSES: ClassVar[Set[VariableClass]] = frozenset(
+        cast(Iterator[VariableClass], filter(
+            lambda c: issubclass(c, Variable), ALL_KIF_OBJECT_CLASSES)))
 
     @classmethod
     def main(cls):
@@ -150,6 +177,9 @@ if __name__ == '__main__':
     {name}.main()
 '''))
 
+    def assert_abstract_class(self, cls):
+        self.assertRaisesRegex(TypeError, 'abstract class', cls)
+
     def assert_raises_bad_argument(
             self,
             exception: type[Exception],
@@ -168,6 +198,30 @@ if __name__ == '__main__':
             details, func_name, name, position, exception)))
         self.assertRaisesRegex(
             exception, regex, func, *args, **kwargs)
+
+    def assert_test_is_defined_for_kif_object_classes(
+            self,
+            name: str,
+            classes: Optional[Set[KIF_ObjectClass]] = None
+    ):
+        if name.startswith('_'):
+            prefix = 'test' + name
+        else:
+            prefix = 'test_' + name
+        tests = set(filter(
+            lambda s: s.startswith(prefix), dir(self)))
+        meths = set(map(
+            lambda c: prefix + c._snake_case_name,
+            classes if classes is not None else self.ALL_KIF_OBJECT_CLASSES))
+        self.assertEqual(meths, tests - (tests - meths))
+
+    def assert_test_is_defined_for_template_classes(self, name: str):
+        self.assert_test_is_defined_for_kif_object_classes(
+            name, self.ALL_TEMPLATE_CLASSES)
+
+    def assert_test_is_defined_for_variable_classes(self, name: str):
+        self.assert_test_is_defined_for_kif_object_classes(
+            name, self.ALL_VARIABLE_CLASSES)
 
 # -- KIF_Object ------------------------------------------------------------
 
@@ -286,11 +340,19 @@ if __name__ == '__main__':
         self.assertTrue(obj.is_item())
         self.assert_item_datatype(obj.datatype)
 
-    def assert_property(self, obj: Property, iri: IRI):
+    def assert_property(
+            self,
+            obj: Property,
+            iri: IRI,
+            range: Optional[Datatype] = None
+    ):
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Property)
         self.assertTrue(obj.is_property())
         self.assert_property_datatype(obj.datatype)
+        self.assertEqual(obj.range, range)
+        self.assertEqual(obj.get_range(), range)
+        self.assertEqual(obj.args[1], range)
 
     def assert_lexeme(self, obj: Lexeme, iri: IRI):
         self.assert_entity(obj, iri)
@@ -506,9 +568,17 @@ if __name__ == '__main__':
         self.assert_entity_template(obj, iri)
         self.assertIsInstance(obj, ItemTemplate)
 
-    def assert_property_template(self, obj: PropertyTemplate, iri: V_IRI):
+    def assert_property_template(
+            self,
+            obj: PropertyTemplate,
+            iri: V_IRI,
+            range: Optional[VDatatype]
+    ):
         self.assert_entity_template(obj, iri)
         self.assertIsInstance(obj, PropertyTemplate)
+        self.assertEqual(obj.range, range)
+        self.assertEqual(obj.get_range(), range)
+        self.assertEqual(obj.args[1], range)
 
     def assert_lexeme_template(self, obj: LexemeTemplate, iri: V_IRI):
         self.assert_entity_template(obj, iri)

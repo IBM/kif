@@ -96,11 +96,6 @@ from ..tests import kif_TestCase
 
 class Test(kif_TestCase):
 
-    ALL_KIF_OBJECT_CLASSES = set(filter(
-        lambda c: isinstance(c, type) and issubclass(c, KIF_Object), map(
-            lambda s: getattr(KIF_Object, s),
-            filter(lambda s: re.match('^_[A-Z]', s), dir(KIF_Object)))))
-
     def test__init__(self):
         self.assertRaises(TypeError, KIF_Object)
 
@@ -263,19 +258,10 @@ class Test(kif_TestCase):
             Decimal(5.81))
 
 # == Auto-defined stuff ====================================================
-
-    def assert_test_is_defined_for_all_object_classes(self, prefix):
-        tests = set(filter(
-            lambda s: s.startswith('test_' + prefix), dir(self)))
-        meths = set(map(
-            lambda c: 'test_' + prefix + c._snake_case_name,
-            self.ALL_KIF_OBJECT_CLASSES))
-        self.assertEqual(meths, tests)
-
 # -- test_is_ --------------------------------------------------------------
 
     def test_is(self):
-        self.assert_test_is_defined_for_all_object_classes('is_')
+        self.assert_test_is_defined_for_kif_object_classes('is_')
 
     def test_is_annotation_record(self):
         self.assertTrue(AnnotationRecord().is_annotation_record())
@@ -938,7 +924,7 @@ class Test(kif_TestCase):
 # -- test_check_ -----------------------------------------------------------
 
     def test_check(self):
-        self.assert_test_is_defined_for_all_object_classes('check_')
+        self.assert_test_is_defined_for_kif_object_classes('check_')
 
     def test_check_annotation_record(self):
         self.assertEqual(
@@ -1499,7 +1485,7 @@ class Test(kif_TestCase):
 # -- test_unpack_ ----------------------------------------------------------
 
     def test_unpack(self):
-        self.assert_test_is_defined_for_all_object_classes('unpack_')
+        self.assert_test_is_defined_for_kif_object_classes('unpack_')
 
     def test_unpack_annotation_record(self):
         quals = [ValueSnak(Property('p'), Item('y')),

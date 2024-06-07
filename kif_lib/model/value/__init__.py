@@ -111,6 +111,7 @@ from .value import (
     Value,
     ValueTemplate,
     ValueVariable,
+    VDatatype,
     VValue,
     VVValue,
 )
@@ -197,6 +198,7 @@ __all__ = (
     'Value',
     'ValueTemplate',
     'ValueVariable',
+    'VDatatype',
     'VEntity',
     'VExternalId',
     'VItem',

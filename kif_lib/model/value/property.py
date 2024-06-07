@@ -20,7 +20,7 @@ from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI, IRI_Template, IRI_Variable, T_IRI
 from .string import String
-from .value import Datatype, VTDatatypeContent
+from .value import Datatype, VDatatype, VTDatatypeContent
 
 PropertyClass: TypeAlias = type['Property']
 PropertyDatatypeClass: TypeAlias = type['PropertyDatatype']
@@ -72,6 +72,28 @@ class PropertyTemplate(EntityTemplate):
             return self._Statement(value1, self._ValueSnak(self, value2))
         else:
             return self._ValueSnak(self, value1)
+
+    @property
+    def range(self) -> Optional[VDatatype]:
+        """The range of property template."""
+        return self.get_range()
+
+    def get_range(
+            self,
+            default: Optional[VDatatype] = None
+    ) -> Optional[VDatatype]:
+        """Gets the range of property template.
+
+        If range is ``None``, returns `default`.
+
+        Parameters:
+           default: Default range.
+
+        Returns:
+           Datatype or datatype variable.
+        """
+        range = self.args[1]
+        return range if range is not None else default
 
 
 class PropertyVariable(EntityVariable):
@@ -159,6 +181,28 @@ class Property(
             return self._Statement(value1, self._ValueSnak(self, value2))
         else:
             return self._ValueSnak(self, value1)
+
+    @property
+    def range(self) -> Optional[Datatype]:
+        """The range of property."""
+        return self.get_range()
+
+    def get_range(
+            self,
+            default: Optional[Datatype] = None
+    ) -> Optional[Datatype]:
+        """Gets the range of property.
+
+        If range is ``None``, returns `default`.
+
+        Parameters:
+           default: Default range.
+
+        Returns:
+           Datatype.
+        """
+        range = self.args[1]
+        return range if range is not None else default
 
 
 def Properties(

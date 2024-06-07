@@ -29,6 +29,7 @@ VVValue: TypeAlias = Union['Variable', VValue]
 
 DatatypeClass: TypeAlias = type['Datatype']
 TDatatypeClass: TypeAlias = Union[DatatypeClass, ValueClass]
+DatatypeVariableClass: TypeAlias = type['DatatypeVariable']
 
 TDatatype: TypeAlias = Union['Datatype', TDatatypeClass]
 VTDatatypeContent: TypeAlias = Union[Variable, TDatatype]
@@ -55,12 +56,14 @@ class DatatypeVariable(Variable):
             arg, i, function or cls))
 
 
-class Datatype(KIF_Object):
+class Datatype(KIF_Object, variable_class=DatatypeVariable):
     """Abstract base class for datatypes.
 
     Parameters:
        datatype_class: Datatype class.
     """
+
+    variable_class: ClassVar[DatatypeVariableClass]
 
     #: Value class associated with this datatype class.
     value_class: ClassVar[ValueClass]
@@ -100,11 +103,12 @@ class Datatype(KIF_Object):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Union['Datatype', NoReturn]:
-        if isinstance(arg, cls):
-            return arg
-        else:
+        if isinstance(arg, type):
             return cls._check_arg_datatype_class(
                 cast(DatatypeClass, arg), function, name, position)()
+        else:
+            return cls._check_arg_isinstance(
+                arg, cls, function, name, position)
 
     _uri: ClassVar[URIRef]
 

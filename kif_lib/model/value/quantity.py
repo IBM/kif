@@ -104,10 +104,7 @@ class QuantityTemplate(DeepDataValueTemplate):
         """The unit of quantity template."""
         return self.get_unit()
 
-    def get_unit(
-            self,
-            default: Optional[VItem] = None
-    ) -> Optional[VItem]:
+    def get_unit(self, default: Optional[VItem] = None) -> Optional[VItem]:
         """Gets the unit of quantity template
 
         If the unit is ``None``, returns `default`.

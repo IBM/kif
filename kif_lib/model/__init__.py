@@ -22,6 +22,7 @@ from .kif_object import (
     Datetime,
     Decimal,
     KIF_Object,
+    KIF_ObjectClass,
     Nil,
     TCallable,
     TDatetime,
@@ -63,7 +64,7 @@ from .snak import (
 )
 from .snak_set import SnakSet, TSnakSet
 from .statement import Statement, StatementTemplate, StatementVariable
-from .template import Template
+from .template import Template, TemplateClass
 from .value import (
     Datatype,
     DatatypeVariable,
@@ -127,6 +128,7 @@ from .value import (
     Value,
     ValueTemplate,
     ValueVariable,
+    VDatatype,
     VEntity,
     VExternalId,
     VItem,
@@ -144,7 +146,7 @@ from .value import (
     VValue,
 )
 from .value_set import TextSet, TTextSet, TValueSet, ValueSet
-from .variable import Variable, Variables
+from .variable import Variable, VariableClass, Variables
 
 __all__ = (
     'AnnotationRecord',
@@ -183,6 +185,7 @@ __all__ = (
     'ItemTemplate',
     'ItemVariable',
     'KIF_Object',
+    'KIF_ObjectClass',
     'KIF_ObjectSet',
     'Lexeme',
     'LexemeDatatype',
@@ -238,6 +241,7 @@ __all__ = (
     'TDatetime',
     'TDecimal',
     'Template',
+    'TemplateClass',
     'TEntityFingerprint',
     'Text',
     'TextDatatype',
@@ -271,7 +275,9 @@ __all__ = (
     'ValueTemplate',
     'ValueVariable',
     'Variable',
+    'VariableClass',
     'Variables',
+    'VDatatype',
     'VEntity',
     'VExternalId',
     'VItem',
