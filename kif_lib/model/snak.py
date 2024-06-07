@@ -276,6 +276,9 @@ class ValueSnak(
         else:
             raise self._should_not_get_here()
 
+    # def _set_args(self, args):
+    #     pass
+
     @property
     def value(self) -> Value:
         """The value of value snak."""

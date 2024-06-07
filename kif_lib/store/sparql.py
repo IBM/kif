@@ -51,6 +51,7 @@ from ..typing import (
     Iterable,
     Iterator,
     Mapping,
+    MutableSet,
     Optional,
     override,
     Set,
@@ -670,6 +671,7 @@ At line {line}, column {column}:
             results: SPARQL_Results,
             pattern: FilterPattern
     ) -> Iterator[Optional[Statement]]:
+        seen: MutableSet[Statement] = set()
         for entry in results.bindings:
             stmt = entry.check_statement(
                 'subject', 'property', 'value',
@@ -680,7 +682,11 @@ At line {line}, column {column}:
                 continue
             wds = self._parse_filter_results_check_wds(entry, stmt)
             self._cache_add_wds(stmt, wds)
+            if stmt in seen:
+                yield None
+                continue
             yield stmt
+            seen.add(stmt)
 
     def _parse_filter_results_check_wds(
             self,

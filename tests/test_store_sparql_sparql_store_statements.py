@@ -52,6 +52,15 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         pat = FilterPattern(None, None, None, Snak.Mask(0))
         self.assertEqual(len(list(kb.filter(pattern=pat, limit=1))), 0)
 
+    def test_filter_duplicated_statements(self):
+        kb = self.new_Store()
+        res = list(kb.filter(wd.Q(213611), wd.P(1411), value=wd.Q(22752868)))
+        self.assertEqual(len(res), 1)
+        res = list(kb.filter_annotated(
+            wd.Q(213611), wd.P(1411), value=wd.Q(22752868)))
+        self.assertEqual(len(res), 1)
+        self.assertEqual(len(res[0][1]), 6)
+
     def test_filter_subject_is_item(self):
         kb = self.new_Store()
         stmt = next(kb.filter(wd.Brazil))
