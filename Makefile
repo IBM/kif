@@ -95,8 +95,11 @@ CHECK_DEPS+= $(if $(filter yes,${CHECK_MYPY}),check-mypy)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_PYTEST}),check-pytest)
 PYTEST_OPTIONS+= $(if $(filter yes,${CHECK_MYPY}),--mypy)
 
-split= $(shell printf '$(1)'\
-  | sed -e 's/\s*<line>/    /g' -e 's,</line>,\\n,g')
+ECHO:= printf '%s\n'
+ECHO_SPLIT= ${ECHO} '$(2)' | sed -e 's/\s*<line>/$(1)/g' -e 's,</line>,\n,g'
+
+P:= @${ECHO}
+P_SPLIT:= @$(call ECHO_SPLIT,$(1),$(2))
 
 # check sources and run testsuite
 .PHONY: check
@@ -261,7 +264,7 @@ docs:
 	 PACKAGE='${PACKAGE}'\
 	 COPYRIGHT='${COPYRIGHT}'\
 	 COPYRIGHT_START_YEAR='${COPYRIGHT_START_YEAR}'
-	@echo 'Index: file://${PWD}/${DOCS_SRC}/_build/html/index.html'
+	$P 'Index: file://${PWD}/${DOCS_SRC}/_build/html/index.html'
 
 .PHONY: docs-clean
 docs-clean:
@@ -284,8 +287,8 @@ docs-init:
 .PHONY: docs-publish
 docs-publish: docs-clean docs
 	@if ! test -d ./${DOCS_TGT}; then\
-	 echo 1>&2 "*** ERROR: ${DOCS_TGT} does not exist";\
-	 exit 1;\
+	  ${ECHO} 1>&2 "*** ERROR: ${DOCS_TGT} does not exist";\
+	  exit 1;\
 	fi
 	touch ./${DOCS_TGT}/.nojekyll
 	cp -a ./${DOCS_SRC}/_build/html/* ./${DOCS_TGT}
@@ -298,105 +301,105 @@ GEN_ALL_TARGETS+= gen-coveragerc
 # generate .coveragerc
 .PHONY: gen-coveragerc
 gen-coveragerc:
-	@echo 'generating ${COVERAGERC}'
-	@echo '[report]' >${COVERAGERC}
-	@echo 'omit = ${COVERAGERC_OMIT}' >>${COVERAGERC}
-	@echo 'exclude_lines =' >>${COVERAGERC}
-	@echo '    @(abc\.)?abstractmethod' >>${COVERAGERC}
-	@echo '    class .*\\bProtocol\):' >>${COVERAGERC}
-	@echo '    def __repr__' >>${COVERAGERC}
-	@echo '    def __str__' >>${COVERAGERC}
-	@echo '    if 0:' >>${COVERAGERC}
-	@echo '    if __name__ == .__main__.:' >>${COVERAGERC}
-	@echo '    pragma: no cover' >>${COVERAGERC}
-	@echo '    raise AssertionError' >>${COVERAGERC}
-	@echo '    raise NotImplementedError' >>${COVERAGERC}
-	@echo "$(call split,${COVERAGERC_EXCLUDE_LINES})" >>${COVERAGERC}
+	$P 'generating ${COVERAGERC}'
+	$P '[report]' >${COVERAGERC}
+	$P 'omit = ${COVERAGERC_OMIT}' >>${COVERAGERC}
+	$P 'exclude_lines =' >>${COVERAGERC}
+	$P '    @(abc\.)?abstractmethod' >>${COVERAGERC}
+	$P '    class .*\bProtocol\):' >>${COVERAGERC}
+	$P '    def __repr__' >>${COVERAGERC}
+	$P '    def __str__' >>${COVERAGERC}
+	$P '    if 0:' >>${COVERAGERC}
+	$P '    if __name__ == .__main__.:' >>${COVERAGERC}
+	$P '    pragma: no cover' >>${COVERAGERC}
+	$P '    raise AssertionError' >>${COVERAGERC}
+	$P '    raise NotImplementedError' >>${COVERAGERC}
+	@$(call ECHO_SPLIT,    ,${COVERAGERC_EXCLUDE_LINES}) >>${COVERAGERC}
 
 GEN_ALL_TARGETS+= gen-flake8rc
 
 # generate .flake8rc
 .PHONY: gen-flake8rc
 gen-flake8rc:
-	@echo 'generating ${FLAKE8RC}'
-	@echo '[flake8]' >${FLAKE8RC}
-	@echo 'ignore = ${FLAKE8_IGNORE}' >>${FLAKE8RC}
+	$P 'generating ${FLAKE8RC}'
+	$P '[flake8]' >${FLAKE8RC}
+	$P 'ignore = ${FLAKE8_IGNORE}' >>${FLAKE8RC}
 
 GEN_ALL_TARGETS+= gen-isort-cfg
 
 # generage .isort.cfg
 .PHONY: gen-isort-cfg
 gen-isort-cfg:
-	@echo 'generating ${ISORT_CFG}'
-	@echo '[settings]' >${ISORT_CFG}
-	@echo 'include_trailing_comma = ${ISORT_CFG_INCLUDE_TRAILING_COMMA}' >>${ISORT_CFG}
-	@echo 'multi_line_output = ${ISORT_CFG_MULTI_LINE_OUTPUT}' >>${ISORT_CFG}
-	@echo 'order_by_type = ${ISORT_CFG_ORDER_BY_TYPE}' >>${ISORT_CFG}
+	$P 'generating ${ISORT_CFG}'
+	$P '[settings]' >${ISORT_CFG}
+	$P 'include_trailing_comma = ${ISORT_CFG_INCLUDE_TRAILING_COMMA}' >>${ISORT_CFG}
+	$P 'multi_line_output = ${ISORT_CFG_MULTI_LINE_OUTPUT}' >>${ISORT_CFG}
+	$P 'order_by_type = ${ISORT_CFG_ORDER_BY_TYPE}' >>${ISORT_CFG}
 
 GEN_ALL_TARGETS+= gen-pytest-ini
 
 # generate pytest.ini
 .PHONY: gen-pytest-ini
 gen-pytest-ini:
-	@echo 'generating ${PYTEST_INI}'
-	@echo '[pytest]' >${PYTEST_INI}
-	@echo 'addopts = ${PYTEST_OPTIONS} ${PYTEST_COV_OPTIONS}' >>${PYTEST_INI}
-	@echo 'testpaths = ${TESTS}' >>${PYTEST_INI}
+	$P 'generating ${PYTEST_INI}'
+	$P '[pytest]' >${PYTEST_INI}
+	$P 'addopts = ${PYTEST_OPTIONS} ${PYTEST_COV_OPTIONS}' >>${PYTEST_INI}
+	$P 'testpaths = ${TESTS}' >>${PYTEST_INI}
 
 GEN_ALL_TARGETS+= gen-setup-py
 
 # generate setup.py
 .PHONY: gen-setup-py
 gen-setup-py:
-	@echo 'generating ${SETUP_PY}'
-	@echo '# ** GENERATED FILE, DO NOT EDIT! **' >${SETUP_PY}
-	@echo 'import re' >>${SETUP_PY}
-	@echo 'import setuptools' >>${SETUP_PY}
-	@echo "with open('${PACKAGE}/__init__.py') as fp:" >>${SETUP_PY}
-	@echo '    text = fp.read()' >>${SETUP_PY}
-	@echo "    VERSION, = re.findall(r\"__version__\s*=\s*'(.*)'\", text)" >>${SETUP_PY}
-	@echo "with open('README.md', 'r') as fp:" >>${SETUP_PY}
-	@echo '    README = fp.read()' >>${SETUP_PY}
-	@echo 'setuptools.setup(' >>${SETUP_PY}
-	@echo "    name='${NAME}'," >>${SETUP_PY}
-	@echo '    version=VERSION,' >>${SETUP_PY}
-	@echo "    description='${DESCRIPTION}'," >>${SETUP_PY}
-	@echo '    long_description=README,' >>${SETUP_PY}
-	@echo "    long_description_content_type='text/markdown'," >>${SETUP_PY}
-	@echo "    author='${AUTHOR}'," >>${SETUP_PY}
-	@echo "    author_email='${EMAIL}'," >>${SETUP_PY}
-	@echo "    url='${URL}'," >>${SETUP_PY}
-	@echo "    license='${LICENSE}'," >>${SETUP_PY}
-	@echo "    python_requires=${SETUP_PY_PYTHON_REQUIRES}," >>${SETUP_PY}
-	@echo "    packages=setuptools.find_packages(exclude=${SETUP_PY_FIND_PACKAGES_EXCLUDE})," >>${SETUP_PY}
-	@echo "    package_data=${SETUP_PY_PACKAGE_DATA}," >>${SETUP_PY}
-	@echo '    include_package_data=True,' >>${SETUP_PY}
-	@echo "    package_dir=${SETUP_PY_PACKAGE_DIR}," >>${SETUP_PY}
-	@echo "    install_requires=${SETUP_PY_INSTALL_REQUIRES}," >>${SETUP_PY}
-	@echo '    extras_require={' >>${SETUP_PY}
-	@echo "        'docs': ${SETUP_PY_EXTRAS_REQUIRE_DOCS}," >>${SETUP_PY}
-	@echo "        'tests': ${SETUP_PY_EXTRAS_REQUIRE_TESTS}," >>${SETUP_PY}
-	@echo '    },' >>${SETUP_PY}
-	@echo "    zip_safe=${SETUP_PY_ZIP_SAFE}," >>${SETUP_PY}
-	@echo ')' >>${SETUP_PY}
+	$P 'generating ${SETUP_PY}'
+	$P '# ** GENERATED FILE, DO NOT EDIT! **' >${SETUP_PY}
+	$P 'import re' >>${SETUP_PY}
+	$P 'import setuptools' >>${SETUP_PY}
+	$P "with open('${PACKAGE}/__init__.py') as fp:" >>${SETUP_PY}
+	$P '    text = fp.read()' >>${SETUP_PY}
+	$P "    VERSION, = re.findall(r\"__version__\s*=\s*'(.*)'\", text)" >>${SETUP_PY}
+	$P "with open('README.md', 'r') as fp:" >>${SETUP_PY}
+	$P '    README = fp.read()' >>${SETUP_PY}
+	$P 'setuptools.setup(' >>${SETUP_PY}
+	$P "    name='${NAME}'," >>${SETUP_PY}
+	$P '    version=VERSION,' >>${SETUP_PY}
+	$P "    description='${DESCRIPTION}'," >>${SETUP_PY}
+	$P '    long_description=README,' >>${SETUP_PY}
+	$P "    long_description_content_type='text/markdown'," >>${SETUP_PY}
+	$P "    author='${AUTHOR}'," >>${SETUP_PY}
+	$P "    author_email='${EMAIL}'," >>${SETUP_PY}
+	$P "    url='${URL}'," >>${SETUP_PY}
+	$P "    license='${LICENSE}'," >>${SETUP_PY}
+	$P "    python_requires=${SETUP_PY_PYTHON_REQUIRES}," >>${SETUP_PY}
+	$P "    packages=setuptools.find_packages(exclude=${SETUP_PY_FIND_PACKAGES_EXCLUDE})," >>${SETUP_PY}
+	$P "    package_data=${SETUP_PY_PACKAGE_DATA}," >>${SETUP_PY}
+	$P '    include_package_data=True,' >>${SETUP_PY}
+	$P "    package_dir=${SETUP_PY_PACKAGE_DIR}," >>${SETUP_PY}
+	$P "    install_requires=${SETUP_PY_INSTALL_REQUIRES}," >>${SETUP_PY}
+	$P '    extras_require={' >>${SETUP_PY}
+	$P "        'docs': ${SETUP_PY_EXTRAS_REQUIRE_DOCS}," >>${SETUP_PY}
+	$P "        'tests': ${SETUP_PY_EXTRAS_REQUIRE_TESTS}," >>${SETUP_PY}
+	$P '    },' >>${SETUP_PY}
+	$P "    zip_safe=${SETUP_PY_ZIP_SAFE}," >>${SETUP_PY}
+	$P ')' >>${SETUP_PY}
 
 GEN_ALL_TARGETS+= gen-tox-ini
 
 # generate tox.ini
 .PHONY: gen-tox-ini
 gen-tox-ini:
-	@echo 'generating ${TOX_INI}'
-	@echo '[tox]' >${TOX_INI}
-	@echo 'envlist = ${TOX_ENVLIST}' >>${TOX_INI}
-	@echo 'skip_missing_interpreters = true' >>${TOX_INI}
-	@echo '' >>${TOX_INI}
-	@echo '[testenv]' >>${TOX_INI}
-	@echo 'commands = {posargs:py.test}' >>${TOX_INI}
-	@echo 'extras = tests' >>${TOX_INI}
-	@echo 'passenv =' >>${TOX_INI}
-	@echo "$(call split,${TOX_PASSENV})" >> ${TOX_INI}
-	@echo '[testenv:mypy]' >>${TOX_INI}
-	@echo 'commands = mypy -p ${PACKAGE}' >>${TOX_INI}
+	$P 'generating ${TOX_INI}'
+	$P '[tox]' >${TOX_INI}
+	$P 'envlist = ${TOX_ENVLIST}' >>${TOX_INI}
+	$P 'skip_missing_interpreters = true' >>${TOX_INI}
+	$P '' >>${TOX_INI}
+	$P '[testenv]' >>${TOX_INI}
+	$P 'commands = {posargs:py.test}' >>${TOX_INI}
+	$P 'extras = tests' >>${TOX_INI}
+	$P 'passenv =' >>${TOX_INI}
+	@$(call ECHO_SPLIT,    ,${TOX_PASSENV}) >> ${TOX_INI}
+	$P '[testenv:mypy]' >>${TOX_INI}
+	$P 'commands = mypy -p ${PACKAGE}' >>${TOX_INI}
 
 # run all gen-* targets
 .PHONY: gen-all
@@ -406,7 +409,7 @@ gen-all: ${GEN_ALL_TARGETS}
 .PHONY: ident
 ident:
 	for f in `grep ident .gitattributes | sed 's/\s*ident$$//'`; do\
-	  touch $$f; git checkout $$f; echo "`head -n1 $$f` $$f";\
+	  touch $$f; git checkout $$f; ${ECHO} "`head -n1 $$f` $$f";\
 	done
 
 # install package
