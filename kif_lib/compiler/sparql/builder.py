@@ -369,7 +369,7 @@ class NumericLiteral(NumericExpression):
 class Call(NumericExpression):
     """Abstract base class for function calls."""
 
-    operator: str
+    operator: Any
     args: Sequence[NumericExpression]
 
     def __eq__(self, other):
@@ -661,7 +661,7 @@ class CommentsBlock(AtomicGraphPattern):
             parent: Optional['GraphPattern'] = None
     ):
         super().__init__(clause, parent)
-        self.comments = list()
+        self.comments = []
 
     def __call__(self, *comments: TComment) -> 'CommentsBlock':
         with self:
@@ -670,8 +670,8 @@ class CommentsBlock(AtomicGraphPattern):
     def add_comment(self, comment: Comment) -> Comment:
         return cast(Comment, self._add(comment, self.comments))
 
-    def _push(self, comment: Pattern) -> 'CommentsBlock':
-        self.add_comment(cast(Comment, comment))
+    def _push(self, pattern: Pattern) -> 'CommentsBlock':
+        self.add_comment(cast(Comment, pattern))
         return self
 
     def push(self, *comments: TComment) -> 'CommentsBlock':
@@ -708,8 +708,8 @@ class TriplesBlock(AtomicGraphPattern):
     def add_triple(self, triple: Triple) -> Triple:
         return cast(Triple, self._add(triple, self.triples))
 
-    def _push(self, triple: Pattern) -> 'TriplesBlock':
-        self.add_triple(cast(Triple, triple))
+    def _push(self, pattern: Pattern) -> 'TriplesBlock':
+        self.add_triple(cast(Triple, pattern))
         return self
 
     def push(self, *triples: TTriple) -> 'TriplesBlock':
@@ -995,8 +995,6 @@ class SelectClause(Clause):
 
 class WhereClause(Clause):
     """WHERE clause."""
-
-    root: GroupGraphPattern
 
     @override
     def iterencode(self) -> TGenStr:

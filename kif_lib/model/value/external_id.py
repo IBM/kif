@@ -4,16 +4,16 @@
 from ... import namespace as NS
 from ...rdflib import Literal, URIRef
 from ...typing import (
+    Any,
     cast,
     ClassVar,
     Collection,
-    NoReturn,
     Optional,
     override,
     TypeAlias,
     Union,
 )
-from ..kif_object import TCallable
+from ..kif_object import TLocation
 from .string import (
     String,
     StringDatatype,
@@ -41,7 +41,7 @@ class ExternalIdTemplate(StringTemplate):
        content: External id content or string variable.
     """
 
-    object_class: ClassVar[ExternalIdClass]
+    object_class: ClassVar[ExternalIdClass]  # pyright: ignore
 
     def __init__(self, content: VTExternalIdContent):
         super().__init__(content)
@@ -54,13 +54,13 @@ class ExternalIdVariable(StringVariable):
        name: Name.
     """
 
-    object_class: ClassVar[ExternalIdClass]
+    object_class: ClassVar[ExternalIdClass]  # pyright: ignore
 
 
 class ExternalIdDatatype(StringDatatype):
     """External id datatype."""
 
-    value_class: ClassVar[ExternalIdClass]
+    value_class: ClassVar[ExternalIdClass]  # pyright: ignore
 
     _uri: ClassVar[URIRef] = NS.WIKIBASE.ExternalId
 
@@ -77,19 +77,19 @@ class ExternalId(
        content: External id content.
     """
 
-    datatype_class: ClassVar[ExternalIdDatatypeClass]
-    datatype: ClassVar[ExternalIdDatatype]
-    template_class: ClassVar[ExternalIdTemplateClass]
-    variable_class: ClassVar[ExternalIdVariableClass]
+    datatype_class: ClassVar[ExternalIdDatatypeClass]  # pyright: ignore
+    datatype: ClassVar[ExternalIdDatatype]             # pyright: ignore
+    template_class: ClassVar[ExternalIdTemplateClass]  # pyright: ignore
+    variable_class: ClassVar[ExternalIdVariableClass]  # pyright: ignore
 
     @classmethod
     def _check_arg_external_id(
             cls,
             arg: TExternalId,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['ExternalId', NoReturn]:
+    ) -> 'ExternalId':
         return cls(cls._check_arg_isinstance(
             arg, (cls, String, str), function, name, position))
 
@@ -116,7 +116,7 @@ class ExternalId(
         super().__init__(content)
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # content
             return self._preprocess_arg_str(
                 arg.args[0] if isinstance(arg, (ExternalId, String))

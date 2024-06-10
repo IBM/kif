@@ -1,7 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..typing import Optional
+from ..typing import Any, Optional, override
 from .kif_object import KIF_Object
 from .rank import Normal, Rank
 from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
@@ -25,7 +25,8 @@ class AnnotationRecord(KIF_Object):
     ):
         super().__init__(qualifiers, references, rank)
 
-    def _preprocess_arg(self, arg, i):
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
             return self._preprocess_optional_arg_snak_set(arg, i, SnakSet())
         elif i == 2:

@@ -82,7 +82,6 @@ from ...typing import (
     Iterator,
     Mapping,
     MutableMapping,
-    NoReturn,
     Optional,
     override,
     TypeAlias,
@@ -244,13 +243,15 @@ class Substitution(MutableMapping):
 
     def _instantiate(
             self,
-            var: Union[Variable],
+            var: Variable,
             value: Optional[KIF_Object],
             theta: MutableMapping[Variable, Optional[KIF_Object]]
     ):
         theta[var] = value
         for rdep in self._reverse_dependency_graph.get(var, ()):
-            self._instantiate(rdep, self[rdep].instantiate(theta), theta)
+            dep = self[rdep]
+            assert isinstance(dep, (Template, Variable))
+            self._instantiate(rdep, dep.instantiate(theta), theta)
 
 
 # == Compiler ==============================================================
@@ -372,9 +373,9 @@ class SPARQL_Compiler(
     def _qvars(
             self,
             var: TQueryVariable,
-            *vars: TQueryVariable
+            *vars_: TQueryVariable
     ) -> Iterator[QueryVariable]:
-        return map(self._qvar, chain((var,), vars))
+        return map(self._qvar, chain((var,), vars_))
 
     def _fresh_qvar(self) -> QueryVariable:
         return self._q.fresh_var()
@@ -433,7 +434,7 @@ class SPARQL_Compiler(
 # -- Compilation -----------------------------------------------------------
 
     @override
-    def compile(self) -> Union['SPARQL_Compiler.Results', NoReturn]:
+    def compile(self) -> 'SPARQL_Compiler.Results':
         self._compile(self.pattern)
         return self.Results(self, self._q, self._theta)
 

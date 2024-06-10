@@ -3,16 +3,8 @@
 
 from ... import namespace as NS
 from ...rdflib import URIRef
-from ...typing import (
-    cast,
-    ClassVar,
-    NoReturn,
-    Optional,
-    override,
-    TypeAlias,
-    Union,
-)
-from ..kif_object import TCallable
+from ...typing import Any, cast, ClassVar, Optional, override, TypeAlias, Union
+from ..kif_object import TLocation
 from ..variable import Variable
 from .shallow_data_value import (
     ShallowDataValue,
@@ -39,7 +31,7 @@ class IRI_Template(ShallowDataValueTemplate):
        content: IRI content or string variable.
     """
 
-    object_class: ClassVar[IRI_Class]
+    object_class: ClassVar[IRI_Class]  # pyright: ignore
 
     def __init__(self, content: VT_IRI_Content):
         super().__init__(content)
@@ -52,15 +44,15 @@ class IRI_Variable(ShallowDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[IRI_Class]
+    object_class: ClassVar[IRI_Class]  # pyright: ignore
 
     @classmethod
     def _preprocess_arg_iri_variable(
             cls,
             arg: Variable,
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union['IRI_Variable', NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> 'IRI_Variable':
         return cast(IRI_Variable, cls._preprocess_arg_variable(
             arg, i, function or cls))
 
@@ -68,7 +60,7 @@ class IRI_Variable(ShallowDataValueVariable):
 class IRI_Datatype(Datatype):
     """IRI datatype."""
 
-    value_class: ClassVar[IRI_Class]
+    value_class: ClassVar[IRI_Class]  # pyright: ignore
 
     _uri: ClassVar[URIRef] = NS.WIKIBASE.Url
 
@@ -85,19 +77,19 @@ class IRI(
        content: IRI content.
     """
 
-    datatype_class: ClassVar[IRI_DatatypeClass]
-    datatype: ClassVar[IRI_Datatype]
-    template_class: ClassVar[IRI_TemplateClass]
-    variable_class: ClassVar[IRI_VariableClass]
+    datatype_class: ClassVar[IRI_DatatypeClass]  # pyright: ignore
+    datatype: ClassVar[IRI_Datatype]             # pyright: ignore
+    template_class: ClassVar[IRI_TemplateClass]  # pyright: ignore
+    variable_class: ClassVar[IRI_VariableClass]  # pyright: ignore
 
     @classmethod
     def _check_arg_iri(
             cls,
             arg: T_IRI,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['IRI', NoReturn]:
+    ) -> 'IRI':
         return cls(cls._check_arg_isinstance(
             arg, (cls, URIRef, String, str), function, name, position))
 
@@ -105,16 +97,16 @@ class IRI(
         super().__init__(content)
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._static_preprocess_arg(self, arg, i)
 
     @staticmethod
-    def _static_preprocess_arg(self, arg, i):
+    def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:              # content
             if isinstance(arg, (IRI, String)):
                 arg = arg.args[0]
             elif isinstance(arg, URIRef):
                 arg = str(arg)
-            return self._preprocess_arg_str(arg, i)
+            return self_._preprocess_arg_str(arg, i)
         else:
-            raise self._should_not_get_here()
+            raise self_._should_not_get_here()

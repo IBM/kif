@@ -27,6 +27,7 @@ from .kif_object import (
     TCallable,
     TDatetime,
     TDecimal,
+    TLocation,
     TNil,
     UTC,
 )
@@ -254,6 +255,7 @@ __all__ = (
     'TimeDatatype',
     'TimeTemplate',
     'TimeVariable',
+    'TLocation',
     'TNil',
     'TPropertyFingerprint',
     'TReferenceRecord',

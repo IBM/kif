@@ -1,12 +1,12 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..typing import cast, Iterable, NoReturn, Optional, Union
-from .kif_object import KIF_Object, TCallable
+from ..typing import cast, Iterable, Optional, TypeAlias, Union
+from .kif_object import KIF_Object, TLocation
 from .snak import Snak
 from .snak_set import SnakSet
 
-TReferenceRecord = Union['ReferenceRecord', SnakSet, Iterable[Snak]]
+TReferenceRecord: TypeAlias = Union['ReferenceRecord', SnakSet, Iterable[Snak]]
 
 
 class ReferenceRecord(SnakSet):
@@ -20,10 +20,10 @@ class ReferenceRecord(SnakSet):
     def _check_arg_reference_record(
             cls,
             arg: TReferenceRecord,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['ReferenceRecord', NoReturn]:
+    ) -> 'ReferenceRecord':
         if (not ReferenceRecord.test(arg)
             and (SnakSet.test(arg)
                  or (not KIF_Object.test(arg)

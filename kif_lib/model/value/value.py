@@ -6,16 +6,8 @@ from functools import cache
 
 from ... import namespace as NS
 from ...rdflib import Literal, URIRef
-from ...typing import (
-    cast,
-    ClassVar,
-    Collection,
-    NoReturn,
-    Optional,
-    TypeAlias,
-    Union,
-)
-from ..kif_object import Datetime, KIF_Object, TCallable, TDatetime, TDecimal
+from ...typing import cast, ClassVar, Collection, Optional, TypeAlias, Union
+from ..kif_object import Datetime, KIF_Object, TDatetime, TDecimal, TLocation
 from ..template import Template
 from ..variable import Variable
 
@@ -43,15 +35,15 @@ class DatatypeVariable(Variable):
        name: Name.
     """
 
-    object_class: ClassVar[DatatypeClass]
+    object_class: ClassVar[DatatypeClass]  # pyright: ignore
 
     @classmethod
     def _preprocess_arg_datatype_variable(
             cls,
             arg: Variable,
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union['DatatypeVariable', NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> 'DatatypeVariable':
         return cast(DatatypeVariable, cls._preprocess_arg_variable(
             arg, i, function or cls))
 
@@ -63,7 +55,7 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
        datatype_class: Datatype class.
     """
 
-    variable_class: ClassVar[DatatypeVariableClass]
+    variable_class: ClassVar[DatatypeVariableClass]  # pyright: ignore
 
     #: Value class associated with this datatype class.
     value_class: ClassVar[ValueClass]
@@ -75,16 +67,16 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
         datatype_cls = cls._check_optional_arg_datatype_class(
             datatype_class, cls, cls, 'datatype_class', 1)
         assert datatype_cls is not None
-        return super().__new__(datatype_cls)
+        return super().__new__(datatype_cls)  # pyright: ignore
 
     @classmethod
     def _check_arg_datatype_class(
             cls,
             arg: TDatatypeClass,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[DatatypeClass, NoReturn]:
+    ) -> DatatypeClass:
         if isinstance(arg, type) and issubclass(arg, cls):
             return arg
         else:
@@ -99,10 +91,10 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
     def _check_arg_datatype(
             cls,
             arg: TDatatype,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['Datatype', NoReturn]:
+    ) -> 'Datatype':
         if isinstance(arg, type):
             return cls._check_arg_datatype_class(
                 cast(DatatypeClass, arg), function, name, position)()
@@ -158,7 +150,7 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
 class ValueTemplate(Template):
     """Abstract base class for value templates."""
 
-    object_class: ClassVar[ValueClass]
+    object_class: ClassVar[ValueClass]  # pyright: ignore
 
 
 class ValueVariable(Variable):
@@ -168,15 +160,15 @@ class ValueVariable(Variable):
        name: Name.
     """
 
-    object_class: ClassVar[ValueClass]
+    object_class: ClassVar[ValueClass]  # pyright: ignore
 
     @classmethod
     def _preprocess_arg_value_variable(
             cls,
             arg: Variable,
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union['ValueVariable', NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> 'ValueVariable':
         return cast(ValueVariable, cls._preprocess_arg_variable(
             arg, i, function or cls))
 
@@ -188,8 +180,8 @@ class Value(
 ):
     """Abstract base class for values."""
 
-    template_class: ClassVar[ValueTemplateClass]
-    variable_class: ClassVar[ValueVariableClass]
+    template_class: ClassVar[ValueTemplateClass]  # pyright: ignore
+    variable_class: ClassVar[ValueVariableClass]  # pyright: ignore
 
     #: Datatype class associated with this value class.
     datatype_class: ClassVar[DatatypeClass]
@@ -210,10 +202,10 @@ class Value(
     def _check_arg_value(
             cls,
             arg: TValue,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['Value', NoReturn]:
+    ) -> 'Value':
         arg = cls._check_arg_isinstance(
             arg, (cls, URIRef, Datetime, float, int, str),
             function, name, position)

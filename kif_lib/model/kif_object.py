@@ -14,7 +14,6 @@ from ..typing import (
     cast,
     Generator,
     Iterator,
-    NoReturn,
     Optional,
     override,
     TypeAlias,
@@ -38,9 +37,12 @@ Nil = object.Nil
 Object = object.Object
 ShouldNotGetHere = object.ShouldNotGetHere
 
+TArgs: TypeAlias = object.TArgs
 TCallable: TypeAlias = object.TFun
 TDatetime: TypeAlias = Union[Datetime, str]
 TDecimal: TypeAlias = Union[Decimal, float, int, str]
+TDetails: TypeAlias = object.TDet
+TLocation: TypeAlias = object.TLoc
 TNil: TypeAlias = object.TNil
 
 KIF_ObjectClass: TypeAlias = type['KIF_Object']
@@ -59,14 +61,14 @@ class KIF_Object(object.Object):
             assert not issubclass(cls, (Template, Variable))
             cls.template_class = kwargs['template_class']
             assert issubclass(cls.template_class, Template)
-            cls.template_class.object_class = cls
+            cls.template_class.object_class = cls  # pyright: ignore
         if 'variable_class' in kwargs:
             from .template import Template
             from .variable import Variable
             assert not issubclass(cls, (Template, Variable))
             cls.variable_class = kwargs['variable_class']
             assert issubclass(cls.variable_class, Variable)
-            cls.variable_class.object_class = cls
+            cls.variable_class.object_class = cls  # pyright: ignore
 
     def __new__(cls, *args, **kwargs):
         has_tpl_or_var_arg = any(map(
@@ -76,7 +78,7 @@ class KIF_Object(object.Object):
             return cls.template_class(*args, **kwargs)
         elif (cls._issubclass_template(cls)
               and hasattr(cls, 'object_class') and not has_tpl_or_var_arg):
-            return cls.object_class(*args, **kwargs)
+            return cls.object_class(*args, **kwargs)  # pyright: ignore
         else:
             return super().__new__(cls)
 
@@ -97,10 +99,10 @@ class KIF_Object(object.Object):
     def _check_arg_datetime(
             cls,
             arg: TDatetime,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Datetime, NoReturn]:
+    ) -> Datetime:
         arg = cls._check_arg_isinstance(
             arg, (Datetime, str), function, name, position)
         if isinstance(arg, str):
@@ -133,10 +135,10 @@ class KIF_Object(object.Object):
             cls,
             arg: Optional[TDatetime],
             default: Optional[Datetime] = None,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional[Datetime], NoReturn]:
+    ) -> Optional[Datetime]:
         if arg is None:
             return default
         else:
@@ -147,10 +149,9 @@ class KIF_Object(object.Object):
             cls,
             arg: TDatetime,
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Datetime, NoReturn]:
-        return cls._check_arg_datetime(
-            arg, function or cls, None, i)
+            function: Optional[TLocation] = None
+    ) -> Datetime:
+        return cls._check_arg_datetime(arg, function or cls, None, i)
 
     @classmethod
     def _preprocess_optional_arg_datetime(
@@ -158,8 +159,8 @@ class KIF_Object(object.Object):
             arg: Optional[TDatetime],
             i: int,
             default: Optional[Datetime] = None,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Optional[Datetime], NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> Optional[Datetime]:
         if arg is None:
             return default
         else:
@@ -171,10 +172,10 @@ class KIF_Object(object.Object):
     def _check_arg_decimal(
             cls,
             arg: TDecimal,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Decimal, NoReturn]:
+    ) -> Decimal:
         arg = cls._check_arg_isinstance(
             arg, (Decimal, float, int, str), function, name, position)
         try:
@@ -189,10 +190,10 @@ class KIF_Object(object.Object):
             cls,
             arg: Optional[TDecimal],
             default: Optional[Decimal] = None,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional[Decimal], NoReturn]:
+    ) -> Optional[Decimal]:
         if arg is None:
             return default
         else:
@@ -203,8 +204,8 @@ class KIF_Object(object.Object):
             cls,
             arg: TDecimal,
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Decimal, NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> Decimal:
         return cls._check_arg_decimal(arg, function or cls, None, i)
 
     @classmethod
@@ -213,8 +214,8 @@ class KIF_Object(object.Object):
             arg: Optional[TDecimal],
             i: int,
             default: Optional[Decimal] = None,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Optional[Decimal], NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> Optional[Decimal]:
         if arg is None:
             return default
         else:
@@ -223,7 +224,7 @@ class KIF_Object(object.Object):
 # -- misc ------------------------------------------------------------------
 
     def _repr_markdown_(self) -> str:
-        return self.to_markdown()  # type: ignore
+        return self.to_markdown()  # pyright: ignore
 
     _traverse_default_filter = (lambda _: True)
     _traverse_default_visit = (lambda _: True)
@@ -272,23 +273,23 @@ class KIF_Object(object.Object):
 class KIF_JSON_Encoder(
         object.JSON_Encoder, format='json', description='JSON encoder'):
 
-    class Encoder(json.JSONEncoder):
+    class Encoder(object.JSON_Encoder.Encoder):
 
         @override
-        def default(self, v: Any) -> Any:
-            if isinstance(v, Object):
-                obj = cast(Object, v)
+        def default(self, o: Any) -> Any:
+            if isinstance(o, Object):
+                obj = cast(Object, o)
                 return {
                     'class': obj.__class__.__qualname__,
                     'args': obj.args,
                 }
-            elif isinstance(v, (Datetime, Decimal)):
-                return str(v)
-            elif isinstance(v, Enum):
-                return str(v.value)
+            elif isinstance(o, (Datetime, Decimal)):
+                return str(o)
+            elif isinstance(o, Enum):
+                return str(o.value)
             else:
                 try:
-                    return json.JSONEncoder.default(self, v)
+                    return json.JSONEncoder.default(self, o)
                 except TypeError as err:
                     raise EncoderError(str(err)) from None
 
@@ -298,7 +299,7 @@ class KIF_ReprDecoder(
 
     @override
     @cache
-    def _globals(self):
+    def _globals(self) -> dict[str, Any]:
         return {'Decimal': Decimal, 'datetime': datetime, **super()._globals()}
 
 

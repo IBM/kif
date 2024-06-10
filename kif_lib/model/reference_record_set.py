@@ -1,8 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..typing import cast, Iterable, NoReturn, Optional, override, Union
-from .kif_object import TCallable
+from ..typing import Any, cast, Iterable, Optional, override, Union
+from .kif_object import TLocation
 from .kif_object_set import KIF_ObjectSet
 from .reference_record import ReferenceRecord
 
@@ -21,17 +21,17 @@ class ReferenceRecordSet(KIF_ObjectSet):
     def _check_arg_reference_record_set(
             cls,
             arg: TReferenceRecordSet,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['ReferenceRecordSet', NoReturn]:
+    ) -> 'ReferenceRecordSet':
         return cast(ReferenceRecordSet, cls._check_arg_kif_object_set(
             arg, function, name, position))
 
     def __init__(self, *refs: ReferenceRecord):
         super().__init__(*refs)
 
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._preprocess_arg_reference_record(arg, i)
 
     @property

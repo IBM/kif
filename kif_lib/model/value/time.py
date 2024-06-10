@@ -5,16 +5,8 @@ from enum import Enum
 
 from ... import namespace as NS
 from ...rdflib import URIRef
-from ...typing import (
-    cast,
-    ClassVar,
-    NoReturn,
-    Optional,
-    override,
-    TypeAlias,
-    Union,
-)
-from ..kif_object import Datetime, Decimal, TCallable, TDatetime
+from ...typing import Any, cast, ClassVar, Optional, override, TypeAlias, Union
+from ..kif_object import Datetime, Decimal, TDatetime, TLocation
 from ..template import Template
 from ..variable import Variable
 from .deep_data_value import (
@@ -55,7 +47,7 @@ class TimeTemplate(DeepDataValueTemplate):
        calendar: Calendar model, item template, or item variable.
     """
 
-    object_class: ClassVar[TimeClass]
+    object_class: ClassVar[TimeClass]  # pyright: ignore
 
     def __init__(
             self,
@@ -66,7 +58,7 @@ class TimeTemplate(DeepDataValueTemplate):
         super().__init__(time, precision, timezone, calendar)
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # time
             if Variable.test(arg):
                 return self._preprocess_arg_time_variable(
@@ -183,15 +175,15 @@ class TimeVariable(DeepDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[TimeClass]
+    object_class: ClassVar[TimeClass]  # pyright: ignore
 
     @classmethod
     def _preprocess_arg_time_variable(
             cls,
             arg: Variable,
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union['TimeVariable', NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> 'TimeVariable':
         return cast(TimeVariable, cls._preprocess_arg_variable(
             arg, i, function or cls))
 
@@ -199,7 +191,7 @@ class TimeVariable(DeepDataValueVariable):
 class TimeDatatype(Datatype):
     """Time datatype."""
 
-    value_class: ClassVar[TimeClass]
+    value_class: ClassVar[TimeClass]  # pyright: ignore
 
     _uri: ClassVar[URIRef] = NS.WIKIBASE.Time
 
@@ -219,10 +211,10 @@ class Time(
        calendar: Calendar model.
     """
 
-    datatype_class: ClassVar[TimeDatatypeClass]
-    datatype: ClassVar[TimeDatatype]
-    template_class: ClassVar[TimeTemplateClass]
-    variable_class: ClassVar[TimeVariableClass]
+    datatype_class: ClassVar[TimeDatatypeClass]  # pyright: ignore
+    datatype: ClassVar[TimeDatatype]             # pyright: ignore
+    template_class: ClassVar[TimeTemplateClass]  # pyright: ignore
+    variable_class: ClassVar[TimeVariableClass]  # pyright: ignore
 
     # See:
     # <https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format#Time>.
@@ -325,10 +317,10 @@ class Time(
     def _check_arg_precision(
             cls,
             arg: TTimePrecision,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['Time.Precision', NoReturn]:
+    ) -> 'Time.Precision':
         arg = cls._check_arg_isinstance(
             arg, (cls.Precision, Quantity, Decimal, float, int, str),
             function, name, position)
@@ -348,10 +340,10 @@ class Time(
             cls,
             arg: Optional[TTimePrecision],
             default: Optional['Time.Precision'] = None,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional['Time.Precision'], NoReturn]:
+    ) -> Optional['Time.Precision']:
         if arg is None:
             return default
         else:
@@ -362,8 +354,8 @@ class Time(
             cls,
             arg: TTimePrecision,
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union['Time.Precision', NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> 'Time.Precision':
         return cls._check_arg_precision(arg, function or cls, None, i)
 
     @classmethod
@@ -372,8 +364,8 @@ class Time(
             arg: Optional[TTimePrecision],
             i: int,
             default: Optional['Time.Precision'] = None,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Optional['Time.Precision'], NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> Optional['Time.Precision']:
         return cls._check_optional_arg_precision(
             arg, default, function or cls, None, i)
 
@@ -381,10 +373,10 @@ class Time(
     def _check_arg_timezone(
             cls,
             arg: TTimeTimezone,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[int, NoReturn]:
+    ) -> int:
         arg = cls._check_arg_isinstance(
             arg, (Quantity, Decimal, float, int, str),
             function, name, position)
@@ -402,10 +394,10 @@ class Time(
             cls,
             arg: Optional[TTimeTimezone],
             default: Optional[int] = None,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional[int], NoReturn]:
+    ) -> Optional[int]:
         if arg is None:
             return default
         else:
@@ -416,8 +408,8 @@ class Time(
             cls,
             arg: TTimeTimezone,
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[int, NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> int:
         return cls._check_arg_timezone(arg, function or cls, None, i)
 
     @classmethod
@@ -426,8 +418,8 @@ class Time(
             arg: Optional[TTimeTimezone],
             i: int,
             default: Optional[int] = None,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Optional[int], NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> Optional[int]:
         return cls._check_optional_arg_timezone(
             arg, default, function or cls, None, i)
 
@@ -435,10 +427,10 @@ class Time(
     def _check_arg_time(
             cls,
             arg: TTime,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['Time', NoReturn]:
+    ) -> 'Time':
         return cls(cls._check_arg_isinstance(
             arg, (cls, Datetime, str), function, name, position))
 
@@ -451,24 +443,24 @@ class Time(
         super().__init__(time, precision, timezone, calendar)
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._static_preprocess_arg(self, arg, i)
 
     @staticmethod
-    def _static_preprocess_arg(self, arg, i):
+    def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:              # time
-            return self._preprocess_arg_datetime(
+            return self_._preprocess_arg_datetime(
                 arg.args[0] if isinstance(arg, Time) else arg, i)
         elif i == 2:            # precision
             return Time._preprocess_optional_arg_precision(
-                arg, i, None, self.__class__)
+                arg, i, None, self_.__class__)
         elif i == 3:            # timezone
             return Time._preprocess_optional_arg_timezone(
-                arg, i, None, self.__class__)
+                arg, i, None, self_.__class__)
         elif i == 4:            # calendar
-            return self._preprocess_optional_arg_item(arg, i)
+            return self_._preprocess_optional_arg_item(arg, i)
         else:
-            raise self._should_not_get_here()
+            raise self_._should_not_get_here()
 
     def get_value(self) -> str:
         return str(self.args[0].isoformat())

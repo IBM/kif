@@ -1,8 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..typing import cast, Iterable, NoReturn, Optional, override, Union
-from .kif_object import TCallable
+from ..typing import Any, cast, Iterable, Optional, override, Union
+from .kif_object import TLocation
 from .kif_object_set import KIF_ObjectSet
 from .value import Text, Value
 
@@ -22,17 +22,18 @@ class ValueSet(KIF_ObjectSet):
     def _check_arg_value_set(
             cls,
             arg: TValueSet,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['ValueSet', NoReturn]:
+    ) -> 'ValueSet':
         return cast(ValueSet, cls._check_arg_kif_object_set(
             arg, function, name, position))
 
     def __init__(self, *values: Value):
         super().__init__(*values)
 
-    def _preprocess_arg(self, arg, i):
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._preprocess_arg_value(arg, i)
 
     @property
@@ -74,17 +75,18 @@ class TextSet(ValueSet):
     def _check_arg_text_set(
             cls,
             arg: TTextSet,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['TextSet', NoReturn]:
+    ) -> 'TextSet':
         return cast(TextSet, cls._check_arg_kif_object_set(
             arg, function, name, position))
 
     def __init__(self, *texts: Text):
         super().__init__(*texts)
 
-    def _preprocess_arg(self, arg, i):
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._preprocess_arg_text(arg, i)
 
     @property

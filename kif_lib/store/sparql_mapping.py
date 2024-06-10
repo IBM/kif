@@ -34,7 +34,6 @@ from ..typing import (
     NoReturn,
     Optional,
     TypeVar,
-    Union,
 )
 from .sparql_builder import SPARQL_Builder
 
@@ -151,7 +150,7 @@ class SPARQL_Mapping(ABC):
             raise cls.Skip
 
         @classmethod
-        def _check(cls, v: T, test: Callable[[T], bool]) -> Union[T, NoReturn]:
+        def _check(cls, v: T, test: Callable[[T], bool]) -> T:
             return v if test(v) else cls.skip()
 
         @classmethod

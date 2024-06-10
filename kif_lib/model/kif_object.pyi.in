@@ -141,6 +141,8 @@ TArgs: TypeAlias = object.TArgs
 TCallable: TypeAlias = object.TFun
 TDatetime: TypeAlias = Union[Datetime, str]
 TDecimal: TypeAlias = Union[Decimal, float, int, str]
+TDetails: TypeAlias = object.TDet
+TLocation: TypeAlias = object.TLoc
 TNil: TypeAlias = object.TNil
 
 KIF_ObjectClass: TypeAlias = type['KIF_Object']

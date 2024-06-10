@@ -8,9 +8,10 @@ from ..model.kif_object import Error as KIF_ObjectError
 from ..model.kif_object import (
     KIF_Object,
     MustBeImplementedInSubclass,
-    TCallable,
+    TDetails,
+    TLocation,
 )
-from ..typing import Any, Callable, Final, NoReturn, Optional, Union
+from ..typing import Any, Final, Optional
 
 
 class Compiler(abc.ABC):
@@ -49,11 +50,11 @@ class Compiler(abc.ABC):
     def from_format(
             cls,
             format: Optional[str] = None,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
-            details: Optional[Callable[[Any], str]] = None
-    ) -> Union[type['Compiler'], NoReturn]:
+            details: Optional[TDetails] = None
+    ) -> type['Compiler']:
         fmt: str = format or cls.default
         KIF_Object._check_arg(
             fmt, fmt in cls.registry, details, function, name, position)
@@ -73,7 +74,7 @@ class Compiler(abc.ABC):
     def pattern(self):
         return self._pattern
 
-    def compile(self) -> Union['Compiler.Results', NoReturn]:
+    def compile(self) -> 'Compiler.Results':
         """Compiles pattern.
 
         Parameter:

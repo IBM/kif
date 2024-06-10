@@ -4,15 +4,15 @@
 from ... import namespace as NS
 from ...rdflib import URIRef
 from ...typing import (
+    Any,
     ClassVar,
     Final,
-    NoReturn,
     Optional,
     override,
     TypeAlias,
     Union,
 )
-from ..kif_object import TCallable
+from ..kif_object import TLocation
 from ..variable import Variable
 from .shallow_data_value import (
     ShallowDataValue,
@@ -46,7 +46,7 @@ class TextTemplate(ShallowDataValueTemplate):
        language: Language tag or string variable.
     """
 
-    object_class: ClassVar[TextClass]
+    object_class: ClassVar[TextClass]  # pyright: ignore
 
     def __init__(
             self,
@@ -56,7 +56,7 @@ class TextTemplate(ShallowDataValueTemplate):
         super().__init__(content, language)
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # content
             if Variable.test(arg):
                 return self._preprocess_arg_string_variable(
@@ -93,13 +93,13 @@ class TextVariable(ShallowDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[TextClass]
+    object_class: ClassVar[TextClass]  # pyright: ignore
 
 
 class TextDatatype(Datatype):
     """Text datatype."""
 
-    value_class: ClassVar[TextClass]
+    value_class: ClassVar[TextClass]  # pyright: ignore
 
     _uri: ClassVar[URIRef] = NS.WIKIBASE.Monolingualtext
 
@@ -117,10 +117,10 @@ class Text(
        language: Language tag.
     """
 
-    datatype_class: ClassVar[TextDatatypeClass]
-    datatype: ClassVar[TextDatatype]
-    template_class: ClassVar[TextTemplateClass]
-    variable_class: ClassVar[TextVariableClass]
+    datatype_class: ClassVar[TextDatatypeClass]  # pyright: ignore
+    datatype: ClassVar[TextDatatype]             # pyright: ignore
+    template_class: ClassVar[TextTemplateClass]  # pyright: ignore
+    variable_class: ClassVar[TextVariableClass]  # pyright: ignore
 
     #: Default language tag.
     default_language: Final[str] = 'en'
@@ -129,10 +129,10 @@ class Text(
     def _check_arg_text(
             cls,
             arg: TText,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['Text', NoReturn]:
+    ) -> 'Text':
         return cls(cls._check_arg_isinstance(
             arg, (cls, str), function, name, position))
 
@@ -146,20 +146,20 @@ class Text(
         super().__init__(content, language)
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._static_preprocess_arg(self, arg, i)
 
     @staticmethod
-    def _static_preprocess_arg(self, arg, i):
+    def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:              # content
-            return self._preprocess_arg_str(
+            return self_._preprocess_arg_str(
                 arg.args[0] if isinstance(arg, (String, Text)) else arg, i)
         elif i == 2:            # language
-            return self._preprocess_optional_arg_str(
+            return self_._preprocess_optional_arg_str(
                 arg.args[0] if isinstance(arg, String) else arg, i,
                 Text.default_language)
         else:
-            raise self._should_not_get_here()
+            raise self_._should_not_get_here()
 
     @property
     def language(self) -> str:

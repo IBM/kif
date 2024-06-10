@@ -253,7 +253,9 @@ class MarkdownEncoder(
         if obj.__class__ is Variable:
             yield f'?{obj.name}'
         else:
-            ty = _re.match(obj.__class__.__qualname__).group(1)
+            m = _re.match(obj.__class__.__qualname__)
+            assert m is not None
+            ty = m.group(1)
             yield f'*?{obj.name}: {ty}*'
 
     def _escape_md(self, text: str, escape_chars=r'_*`[') -> str:

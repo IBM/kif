@@ -1,9 +1,9 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..typing import cast, Iterable, NoReturn, Optional, override, Union
+from ..typing import Any, cast, Iterable, Optional, override, Union
 from .annotation_record import AnnotationRecord
-from .kif_object import TCallable
+from .kif_object import TLocation
 from .kif_object_set import KIF_ObjectSet
 
 TAnnotationRecordSet = Union['AnnotationRecordSet', Iterable[AnnotationRecord]]
@@ -21,17 +21,18 @@ class AnnotationRecordSet(KIF_ObjectSet):
     def _check_arg_annotation_record_set(
             cls,
             arg: TAnnotationRecordSet,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['AnnotationRecordSet', NoReturn]:
+    ) -> 'AnnotationRecordSet':
         return cast(AnnotationRecordSet, cls._check_arg_kif_object_set(
             arg, function, name, position))
 
     def __init__(self, *annots: AnnotationRecord):
         super().__init__(*annots)
 
-    def _preprocess_arg(self, arg, i):
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._preprocess_arg_annotation_record(arg, i)
 
     @property

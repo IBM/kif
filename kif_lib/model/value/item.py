@@ -4,16 +4,8 @@
 from ... import namespace as NS
 from ...itertools import chain
 from ...rdflib import URIRef
-from ...typing import (
-    cast,
-    ClassVar,
-    Iterable,
-    NoReturn,
-    Optional,
-    TypeAlias,
-    Union,
-)
-from ..kif_object import TCallable
+from ...typing import cast, ClassVar, Iterable, Optional, TypeAlias, Union
+from ..kif_object import TLocation
 from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI, IRI_Template, T_IRI
@@ -37,7 +29,7 @@ class ItemTemplate(EntityTemplate):
        iri: IRI, IRI template, or IRI variable.
     """
 
-    object_class: ClassVar[ItemClass]
+    object_class: ClassVar[ItemClass]  # pyright: ignore
 
     def __init__(self, iri: VTItemContent):
         super().__init__(iri)
@@ -50,15 +42,15 @@ class ItemVariable(EntityVariable):
        name: Name.
     """
 
-    object_class: ClassVar[ItemClass]
+    object_class: ClassVar[ItemClass]  # pyright: ignore
 
     @classmethod
     def _preprocess_arg_item_variable(
             cls,
             arg: Variable,
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union['ItemVariable', NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> 'ItemVariable':
         return cast(ItemVariable, cls._preprocess_arg_variable(
             arg, i, function or cls))
 
@@ -66,7 +58,7 @@ class ItemVariable(EntityVariable):
 class ItemDatatype(Datatype):
     """Item datatype."""
 
-    value_class: ClassVar[ItemClass]
+    value_class: ClassVar[ItemClass]  # pyright: ignore
 
     _uri: ClassVar[URIRef] = NS.WIKIBASE.WikibaseItem
 
@@ -83,19 +75,19 @@ class Item(
        iri: IRI.
     """
 
-    datatype_class: ClassVar[ItemDatatypeClass]
-    datatype: ClassVar[ItemDatatype]
-    template_class: ClassVar[ItemTemplateClass]
-    variable_class: ClassVar[ItemVariableClass]
+    datatype_class: ClassVar[ItemDatatypeClass]  # pyright: ignore
+    datatype: ClassVar[ItemDatatype]             # pyright: ignore
+    template_class: ClassVar[ItemTemplateClass]  # pyright: ignore
+    variable_class: ClassVar[ItemVariableClass]  # pyright: ignore
 
     @classmethod
     def _check_arg_item(
             cls,
             arg: TItem,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['Item', NoReturn]:
+    ) -> 'Item':
         return cls(cls._check_arg_isinstance(
             arg, (cls, IRI, URIRef, String, str), function, name, position))
 

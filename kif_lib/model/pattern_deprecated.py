@@ -3,7 +3,7 @@
 
 from functools import reduce
 
-from ..typing import cast, Optional
+from ..typing import Any, cast, Optional, override
 from .fingerprint import (
     EntityFingerprint,
     Fingerprint,
@@ -79,7 +79,8 @@ class FilterPattern(Pattern):
     ):
         super().__init__(subject, property, value, snak_mask)
 
-    def _preprocess_arg(self, arg, i):
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
             return self._preprocess_optional_arg_entity_fingerprint(arg, i)
         elif i == 2:
@@ -87,8 +88,9 @@ class FilterPattern(Pattern):
         elif i == 3:
             return self._preprocess_optional_arg_fingerprint(arg, i)
         elif i == 4:
-            return Snak._preprocess_optional_arg_snak_mask(
-                arg, i, Snak.ALL).value
+            mask = Snak._preprocess_optional_arg_snak_mask(arg, i, Snak.ALL)
+            assert mask is not None
+            return mask.value
         else:
             raise self._should_not_get_here()
 

@@ -3,16 +3,8 @@
 
 from ... import namespace as NS
 from ...rdflib import URIRef
-from ...typing import (
-    cast,
-    ClassVar,
-    NoReturn,
-    Optional,
-    override,
-    TypeAlias,
-    Union,
-)
-from ..kif_object import TCallable
+from ...typing import Any, cast, ClassVar, Optional, override, TypeAlias, Union
+from ..kif_object import TLocation
 from ..variable import Variable
 from .data_value import DataValue, DataValueTemplate, DataValueVariable
 from .value import Datatype
@@ -35,10 +27,10 @@ VString: TypeAlias = Union['StringTemplate', 'StringVariable', 'String']
 class ShallowDataValueTemplate(DataValueTemplate):
     """Abstract base class for shallow data value templates."""
 
-    object_class: ClassVar[ShallowDataValueClass]
+    object_class: ClassVar[ShallowDataValueClass]  # pyright: ignore
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # content
             return self._preprocess_arg_string_variable(
                 arg, i, self.__class__)
@@ -66,7 +58,7 @@ class ShallowDataValueVariable(DataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[ShallowDataValueClass]
+    object_class: ClassVar[ShallowDataValueClass]  # pyright: ignore
 
 
 class ShallowDataValue(
@@ -76,8 +68,8 @@ class ShallowDataValue(
 ):
     """Abstract base class for shallow data values."""
 
-    template_class: ClassVar[ShallowDataValueTemplateClass]
-    variable_class: ClassVar[ShallowDataValueVariableClass]
+    template_class: ClassVar[ShallowDataValueTemplateClass]  # pyright: ignore
+    variable_class: ClassVar[ShallowDataValueVariableClass]  # pyright: ignore
 
     def get_value(self) -> str:
         return self.args[0]
@@ -103,7 +95,7 @@ class StringTemplate(ShallowDataValueTemplate):
        content: String content or string variable.
     """
 
-    object_class: ClassVar[StringClass]
+    object_class: ClassVar[StringClass]  # pyright: ignore
 
     def __init__(self, content: VTStringContent):
         super().__init__(content)
@@ -116,15 +108,15 @@ class StringVariable(ShallowDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[StringClass]
+    object_class: ClassVar[StringClass]  # pyright: ignore
 
     @classmethod
     def _preprocess_arg_string_variable(
             cls,
             arg: Variable,
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union['StringVariable', NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> 'StringVariable':
         return cast(StringVariable, cls._preprocess_arg_variable(
             arg, i, function or cls))
 
@@ -132,7 +124,7 @@ class StringVariable(ShallowDataValueVariable):
 class StringDatatype(Datatype):
     """String datatype."""
 
-    value_class: ClassVar[StringClass]
+    value_class: ClassVar[StringClass]  # pyright: ignore
 
     _uri: ClassVar[URIRef] = NS.WIKIBASE.String
 
@@ -149,19 +141,19 @@ class String(
        content: String content.
     """
 
-    datatype_class: ClassVar[StringDatatypeClass]
-    datatype: ClassVar[StringDatatype]
-    template_class: ClassVar[StringTemplateClass]
-    variable_class: ClassVar[StringVariableClass]
+    datatype_class: ClassVar[StringDatatypeClass]  # pyright: ignore
+    datatype: ClassVar[StringDatatype]             # pyright: ignore
+    template_class: ClassVar[StringTemplateClass]  # pyright: ignore
+    variable_class: ClassVar[StringVariableClass]  # pyright: ignore
 
     @classmethod
     def _check_arg_string(
             cls,
             arg: TString,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['String', NoReturn]:
+    ) -> 'String':
         return cls(cls._check_arg_isinstance(
             arg, (cls, str), function, name, position))
 
@@ -169,13 +161,13 @@ class String(
         super().__init__(content)
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._static_preprocess_arg(self, arg, i)
 
     @staticmethod
-    def _static_preprocess_arg(self, arg, i):
+    def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:              # content
-            return self._preprocess_arg_str(
+            return self_._preprocess_arg_str(
                 arg.args[0] if isinstance(arg, String) else arg, i)
         else:
-            raise self._should_not_get_here()
+            raise self_._should_not_get_here()

@@ -9,13 +9,12 @@ from ..typing import (
     ClassVar,
     Iterator,
     Mapping,
-    NoReturn,
     Optional,
     Set,
     TypeAlias,
     Union,
 )
-from .kif_object import KIF_Object, KIF_ObjectClass, TCallable
+from .kif_object import KIF_Object, KIF_ObjectClass, TLocation
 from .variable import Theta, Variable
 
 TemplateClass: TypeAlias = type['Template']
@@ -32,10 +31,10 @@ class Template(KIF_Object):
     def _check_arg_template_class(
             cls,
             arg: TTemplateClass,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[TemplateClass, NoReturn]:
+    ) -> TemplateClass:
         if issubclass(arg, cls):
             return arg
         else:
@@ -125,7 +124,7 @@ class Template(KIF_Object):
             self,
             theta: Theta,
             coerce: bool,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> KIF_Object:

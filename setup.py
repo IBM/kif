@@ -24,7 +24,7 @@ setuptools.setup(
     install_requires=[ 'httpx', 'lark', 'more_itertools', 'rdflib', 'typing-extensions', ],
     extras_require={
         'docs': [ 'myst_parser', 'pydata_sphinx_theme', ],
-        'tests': ['flake8', 'isort', 'mypy', 'pytest', 'pytest-cov', 'pytest-mypy', 'tox'],
+        'tests': ['flake8', 'isort', 'mypy', 'pyright', 'pytest', 'pytest-cov', 'pytest-mypy', 'tox'],
     },
     zip_safe=False,
 )

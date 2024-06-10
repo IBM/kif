@@ -1,8 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..typing import cast, Collection, Iterable, NoReturn, Optional, Union
-from .kif_object import KIF_Object, TCallable
+from ..typing import Any, cast, Collection, Iterable, Optional, override, Union
+from .kif_object import KIF_Object, TArgs, TLocation
 
 T_KIF_ObjectSet = Union['KIF_ObjectSet', Iterable[KIF_Object]]
 TFrozenset = frozenset
@@ -19,10 +19,10 @@ class KIF_ObjectSet(KIF_Object):
     def _check_arg_kif_object_set(
             cls,
             arg: T_KIF_ObjectSet,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['KIF_ObjectSet', NoReturn]:
+    ) -> 'KIF_ObjectSet':
         if not KIF_Object.test(arg) and isinstance(arg, Iterable):
             arg = cls(*arg)
         return cast(KIF_ObjectSet, cls._check_arg_isinstance(
@@ -37,11 +37,13 @@ class KIF_ObjectSet(KIF_Object):
     def __init__(self, *objects: KIF_Object):
         super().__init__(*objects)
 
-    def _set_args(self, args):
+    @override
+    def _set_args(self, args: TArgs):
         self._frozenset = frozenset(args)
         self._args = tuple(sorted(self._frozenset))
 
-    def _preprocess_arg(self, arg, i):
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._preprocess_arg_kif_object(arg, i)
 
     def __contains__(self, v):

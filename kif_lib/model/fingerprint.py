@@ -3,8 +3,8 @@
 
 from collections.abc import Iterable
 
-from ..typing import cast, NoReturn, Optional, Union
-from .kif_object import KIF_Object, TCallable
+from ..typing import Any, cast, Optional, override, Union
+from .kif_object import KIF_Object, TLocation
 from .snak import Snak
 from .snak_set import SnakSet, TSnakSet
 from .value import Entity, Property, Value
@@ -25,10 +25,10 @@ class Fingerprint(KIF_Object):
     def _check_arg_fingerprint(
             cls,
             arg: TFingerprint,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['Fingerprint', NoReturn]:
+    ) -> 'Fingerprint':
         return cls(cls._check_arg_isinstance(
             arg, (cls, Value, Snak, SnakSet, Iterable),
             function, name, position))
@@ -36,7 +36,8 @@ class Fingerprint(KIF_Object):
     def __init__(self, value_spec: TFingerprint):
         return super().__init__(value_spec)
 
-    def _preprocess_arg(self, arg, i):
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
             if isinstance(arg, Fingerprint):
                 return arg.args[0]
@@ -102,22 +103,23 @@ class EntityFingerprint(Fingerprint):
     def _check_arg_entity_fingerprint(
             cls,
             arg: TEntityFingerprint,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['EntityFingerprint', NoReturn]:
+    ) -> 'EntityFingerprint':
         return cls(cls._check_arg_isinstance(
             arg, (cls, Entity, SnakSet, Iterable), function, name, position))
 
     def __init__(self, entity_spec: TEntityFingerprint):
         return super().__init__(entity_spec)
 
-    def _preprocess_arg(self, arg, i):
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
             if isinstance(arg, EntityFingerprint):
                 return arg.args[0]
             elif isinstance(arg, Value):
-                return self._preprocess_arg_entity(arg, i)
+                return self._preprocess_arg_entity(cast(Entity, arg), i)
             elif isinstance(arg, Snak):
                 return SnakSet(arg)
             else:
@@ -158,10 +160,10 @@ class PropertyFingerprint(Fingerprint):
     def _check_arg_property_fingerprint(
             cls,
             arg: TPropertyFingerprint,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['PropertyFingerprint', NoReturn]:
+    ) -> 'PropertyFingerprint':
         return cls(cls._check_arg_isinstance(
             arg, (cls, Property, SnakSet, Iterable),
             function, name, position))
@@ -169,12 +171,13 @@ class PropertyFingerprint(Fingerprint):
     def __init__(self, property_spec: TPropertyFingerprint):
         return super().__init__(property_spec)
 
-    def _preprocess_arg(self, arg, i):
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
             if isinstance(arg, PropertyFingerprint):
                 return arg.args[0]
             elif isinstance(arg, Value):
-                return self._preprocess_arg_property(arg, i)
+                return self._preprocess_arg_property(cast(Property, arg), i)
             elif isinstance(arg, Snak):
                 return SnakSet(arg)
             else:

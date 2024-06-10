@@ -13,19 +13,8 @@ import functools
 import itertools
 import json
 import re
-from collections.abc import Mapping, Sequence
-from typing import (
-    Any,
-    Callable,
-    cast,
-    Final,
-    Generator,
-    IO,
-    NoReturn,
-    Optional,
-    TypeVar,
-    Union,
-)
+from collections.abc import Generator, Iterator, Mapping, Sequence
+from typing import Any, Callable, cast, Final, IO, Optional, TypeVar, Union
 
 import lark  # for S-expression parsing
 
@@ -73,7 +62,9 @@ Nil: Final[NilType] = NilType()
 
 T = TypeVar('T')
 TArgs = tuple[Any, ...]
+TDet = Union[Callable[[Any], str], str]
 TFun = Callable[..., Any]
+TLoc = Union[TFun, str]
 TNil = NilType
 TNum = Union[float, int]
 TObj = type['Object']
@@ -87,67 +78,67 @@ class ObjectMeta(abc.ABCMeta):
     _object_class: Optional[TObj] = None
     _object_subclasses: dict[str, TObj] = dict()
 
-    def __new__(mcls, name, bases, namespace, **kwargs):
-        cls = super().__new__(mcls, name, bases, namespace, **kwargs)
-        mcls._init(cls, name, bases, namespace, **kwargs)
-        return cls
+    def __new__(cls, name, bases, namespace, **kwargs):
+        cls_ = super().__new__(cls, name, bases, namespace, **kwargs)
+        cls._init(cls_, name, bases, namespace, **kwargs)
+        return cls_
 
     @classmethod
-    def _init(mcls, cls, name, bases, namespace, **kwargs):
-        mcls._object_subclasses[name] = cls
-        top = mcls._object_class or cls
-        setattr(top, '_' + name, cls)
+    def _init(cls, cls_, name, bases, namespace, **kwargs):
+        cls._object_subclasses[name] = cls_
+        top = cls._object_class or cls_
+        setattr(top, '_' + name, cls_)
         sn = top._camel2snake(name)
-        mcls._object_subclasses[sn] = cls
-        cls._snake_case_name = sn
-        cls._is_ = 'is_' + sn
-        cls._test_ = 'test_' + sn
-        cls._check_ = 'check_' + sn
-        cls._unpack_ = 'unpack_' + sn
-        cls._check_arg_ = '_check_arg_' + sn
-        cls._check_arg__class = cls._check_arg_ + '_class'
-        cls._check_optional_arg_ = '_check_optional_arg_' + sn
-        cls._check_optional_arg__class = cls._check_optional_arg_ + '_class'
-        cls._preprocess_arg_ = '_preprocess_arg_' + sn
-        cls._preprocess_optional_arg_ = '_preprocess_optional_arg_' + sn
-        mcls._init_test_(top, cls)
-        mcls._init_check_(top, cls)
-        mcls._init_unpack_(top, cls)
-        mcls._init__check_arg_(top, cls)
-        mcls._init__check_arg__class(top, cls)
-        mcls._init__check_optional_arg_(top, cls)
-        mcls._init__check_optional_arg__class(top, cls)
-        mcls._init__preprocess_arg_(top, cls)
-        mcls._init__preprocess_optional_arg_(top, cls)
-        return cls
+        cls._object_subclasses[sn] = cls_
+        cls_._snake_case_name = sn
+        cls_._is_ = 'is_' + sn
+        cls_._test_ = 'test_' + sn
+        cls_._check_ = 'check_' + sn
+        cls_._unpack_ = 'unpack_' + sn
+        cls_._check_arg_ = '_check_arg_' + sn
+        cls_._check_arg__class = cls_._check_arg_ + '_class'
+        cls_._check_optional_arg_ = '_check_optional_arg_' + sn
+        cls_._check_optional_arg__class = cls_._check_optional_arg_ + '_class'
+        cls_._preprocess_arg_ = '_preprocess_arg_' + sn
+        cls_._preprocess_optional_arg_ = '_preprocess_optional_arg_' + sn
+        cls._init_test_(top, cls_)
+        cls._init_check_(top, cls_)
+        cls._init_unpack_(top, cls_)
+        cls._init__check_arg_(top, cls_)
+        cls._init__check_arg__class(top, cls_)
+        cls._init__check_optional_arg_(top, cls_)
+        cls._init__check_optional_arg__class(top, cls_)
+        cls._init__preprocess_arg_(top, cls_)
+        cls._init__preprocess_optional_arg_(top, cls_)
+        return cls_
 
     @classmethod
-    def _init_test_(mcls, top: TObj, cls: TObj):
+    def _init_test_(cls, top: TObj, cls_: TObj):
         def f_test(arg: Any) -> bool:
-            return cls.test(arg)
+            return cls_.test(arg)
         f_test.__doc__ = f"""\
-        Tests whether object is of class :class:`{cls.__qualname__}`.
+        Tests whether object is of class :class:`{cls_.__qualname__}`.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
-        setattr(top, cls._is_, f_test)
-        setattr(top, cls._test_, f_test)
+        setattr(top, cls_._is_, f_test)
+        setattr(top, cls_._test_, f_test)
 
     @classmethod
-    def _init_check_(mcls, top: TObj, cls: TObj):
+    def _init_check_(cls, top: TObj, cls_: TObj):
         def mk_check_(s: str):
             def check_(
                     arg: 'Object',
-                    function: Optional[Union[TFun, str]] = None,
+                    function: Optional[TLoc] = None,
                     name: Optional[str] = None,
                     position: Optional[int] = None
-            ) -> Union['Object', NoReturn]:
-                return cls.check(arg, function, name, position)
+            ) -> 'Object':
+                return cls_.check(arg, function, name, position)
             return check_
-        f_check = mk_check_(cls._check_)
+        f_check = mk_check_(cls_._check_)
         f_check.__doc__ = f"""\
-        Checks whether object is of class :class:`{cls.__qualname__}`.
+        Checks whether object is of class :class:`{cls_.__qualname__}`.
 
         Parameters:
            function: Function or function name.
@@ -158,170 +149,170 @@ class ObjectMeta(abc.ABCMeta):
            Object.
 
         Raises:
-           TypeError: Object is not of class :class:`{cls.__qualname__}`.
+           TypeError: Object is not of class :class:`{cls_.__qualname__}`.
         """
-        setattr(top, cls._check_, f_check)
+        setattr(top, cls_._check_, f_check)
 
     @classmethod
-    def _init_unpack_(mcls, top: TObj, cls: TObj):
+    def _init_unpack_(cls, top: TObj, cls_: TObj):
         def f_unpack(
                 arg: 'Object',
-                function: Optional[Union[TFun, str]] = None,
+                function: Optional[TLoc] = None,
                 name: Optional[str] = None,
                 position: Optional[int] = None
-        ) -> Union[TArgs, NoReturn]:
-            return cls.unpack(
+        ) -> TArgs:
+            return cls_.unpack(
                 arg, function=function, name=name, position=position)
         f_unpack.__doc__ = f"""\
-        Unpacks arguments of object of class :class:`{cls.__qualname__}`.
+        Unpacks arguments of object of class :class:`{cls_.__qualname__}`.
 
         Returns:
            The arguments of object unpacked.
 
         Raises:
-           TypeError: Object is not of class :class:`{cls.__qualname__}`.
+           TypeError: Object is not of class :class:`{cls_.__qualname__}`.
         """
-        setattr(top, cls._unpack_, f_unpack)
-        setattr(top, '_' + cls._unpack_, lambda x: cls._unpack(x))
+        setattr(top, cls_._unpack_, f_unpack)
+        setattr(top, '_' + cls_._unpack_, lambda x: cls_._unpack(x))
 
     @classmethod
-    def _init__check_arg_(mcls, top: TObj, cls: TObj):
-        if hasattr(cls, cls._check_arg_):
-            f_check_arg = getattr(cls, cls._check_arg_)
+    def _init__check_arg_(cls, top: TObj, cls_: TObj):
+        if hasattr(cls_, cls_._check_arg_):
+            f_check_arg = getattr(cls_, cls_._check_arg_)
         else:
             def mk_check_arg_(c):
                 def check_arg_(
-                        cls_,
+                        cls__,
                         arg: Any,
-                        function: Optional[Union[TFun, str]] = None,
+                        function: Optional[TLoc] = None,
                         name: Optional[str] = None,
                         position: Optional[int] = None
-                ) -> Union[c, NoReturn]:
+                ) -> c:
                     return c.check(arg, function, name, position)
                 return check_arg_
-            f_check_arg = classmethod(mk_check_arg_(cls))
-        setattr(top, cls._check_arg_, f_check_arg)
+            f_check_arg = classmethod(mk_check_arg_(cls_))
+        setattr(top, cls_._check_arg_, f_check_arg)
 
     @classmethod
-    def _init__check_arg__class(mcls, top: TObj, cls: TObj):
-        if hasattr(cls, cls._check_arg__class):
-            f_check_arg__class = getattr(cls, cls._check_arg__class)
+    def _init__check_arg__class(cls, top: TObj, cls_: TObj):
+        if hasattr(cls_, cls_._check_arg__class):
+            f_check_arg__class = getattr(cls_, cls_._check_arg__class)
         else:
             def mk_check_arg__class(c):
                 def check_arg__class(
-                        cls_,
+                        cls__,
                         arg: Any,
-                        function: Optional[Union[TFun, str]] = None,
+                        function: Optional[TLoc] = None,
                         name: Optional[str] = None,
                         position: Optional[int] = None
-                ) -> Union[type[c], NoReturn]:
+                ) -> type[c]:
                     return c._check_arg_issubclass(
                         arg, c, function, name, position)
                 return check_arg__class
-            f_check_arg__class = classmethod(mk_check_arg__class(cls))
-        setattr(top, cls._check_arg__class, f_check_arg__class)
+            f_check_arg__class = classmethod(mk_check_arg__class(cls_))
+        setattr(top, cls_._check_arg__class, f_check_arg__class)
 
     @classmethod
-    def _init__check_optional_arg_(mcls, top: TObj, cls: TObj):
-        _check_arg_ = cls._check_arg_
-        if hasattr(cls, cls._check_optional_arg_):
-            f_check_optional_arg = getattr(cls, cls._check_optional_arg_)
+    def _init__check_optional_arg_(cls, top: TObj, cls_: TObj):
+        _check_arg_ = cls_._check_arg_
+        if hasattr(cls_, cls_._check_optional_arg_):
+            f_check_optional_arg = getattr(cls_, cls_._check_optional_arg_)
         else:
             def mk_check_optional_arg_(c):
                 def check_optional_arg_(
-                        cls_,
+                        cls__,
                         arg: Any,
                         default: Optional[c] = None,
-                        function: Optional[Union[TFun, str]] = None,
+                        function: Optional[TLoc] = None,
                         name: Optional[str] = None,
                         position: Optional[int] = None
-                ) -> Union[Optional[c], NoReturn]:
+                ) -> Optional[c]:
                     if arg is None:
                         return default
                     else:
-                        return getattr(cls_, _check_arg_)(
+                        return getattr(cls__, _check_arg_)(
                             arg, function, name, position)
                 return check_optional_arg_
-            f_check_optional_arg = classmethod(mk_check_optional_arg_(cls))
-        setattr(top, cls._check_optional_arg_, f_check_optional_arg)
+            f_check_optional_arg = classmethod(mk_check_optional_arg_(cls_))
+        setattr(top, cls_._check_optional_arg_, f_check_optional_arg)
 
     @classmethod
-    def _init__check_optional_arg__class(mcls, top: TObj, cls: TObj):
-        _check_arg__class = cls._check_arg__class
-        if hasattr(cls, cls._check_optional_arg__class):
+    def _init__check_optional_arg__class(cls, top: TObj, cls_: TObj):
+        _check_arg__class = cls_._check_arg__class
+        if hasattr(cls_, cls_._check_optional_arg__class):
             f_check_optional_arg__class = getattr(
-                cls, cls._check_optional_arg__class)
+                cls_, cls_._check_optional_arg__class)
         else:
             def mk_check_optional_arg__class(c):
                 def check_optional_arg__class(
-                        cls_,
+                        cls__,
                         arg: Any,
                         default: Optional[type[c]] = None,
-                        function: Optional[Union[TFun, str]] = None,
+                        function: Optional[TLoc] = None,
                         name: Optional[str] = None,
                         position: Optional[int] = None
-                ) -> Union[Optional[type[c]], NoReturn]:
+                ) -> Optional[type[c]]:
                     if arg is None:
                         return default
                     else:
-                        return getattr(cls_, _check_arg__class)(
+                        return getattr(cls__, _check_arg__class)(
                             arg, function, name, position)
                 return check_optional_arg__class
             f_check_optional_arg__class = classmethod(
-                mk_check_optional_arg__class(cls))
+                mk_check_optional_arg__class(cls_))
         setattr(
-            top, cls._check_optional_arg__class, f_check_optional_arg__class)
+            top, cls_._check_optional_arg__class, f_check_optional_arg__class)
 
     @classmethod
-    def _init__preprocess_arg_(mcls, top: TObj, cls: TObj):
-        _check_arg_ = cls._check_arg_
-        if hasattr(cls, cls._preprocess_arg_):
-            f_preprocess_arg = getattr(cls, cls._preprocess_arg_)
+    def _init__preprocess_arg_(cls, top: TObj, cls_: TObj):
+        _check_arg_ = cls_._check_arg_
+        if hasattr(cls_, cls_._preprocess_arg_):
+            f_preprocess_arg = getattr(cls_, cls_._preprocess_arg_)
         else:
             def mk_preprocess_arg_(c):
                 def preprocess_arg_(
-                        cls_,
+                        cls__,
                         arg: Any,
                         i: int,
-                        function: Optional[Union[TFun, str]] = None
-                ) -> Union[c, NoReturn]:
-                    return getattr(cls_, _check_arg_)(
-                        arg, function or cls_, None, i)
+                        function: Optional[TLoc] = None
+                ) -> c:
+                    return getattr(cls__, _check_arg_)(
+                        arg, function or cls__, None, i)
                 return preprocess_arg_
-            f_preprocess_arg = classmethod(mk_preprocess_arg_(cls))
-        setattr(top, cls._preprocess_arg_, f_preprocess_arg)
+            f_preprocess_arg = classmethod(mk_preprocess_arg_(cls_))
+        setattr(top, cls_._preprocess_arg_, f_preprocess_arg)
 
     @classmethod
-    def _init__preprocess_optional_arg_(mcls, top: TObj, cls: TObj):
-        _preprocess_arg_ = cls._preprocess_arg_
-        if hasattr(cls, cls._preprocess_optional_arg_):
+    def _init__preprocess_optional_arg_(cls, top: TObj, cls_: TObj):
+        _preprocess_arg_ = cls_._preprocess_arg_
+        if hasattr(cls_, cls_._preprocess_optional_arg_):
             f_preprocess_optional_arg = getattr(
-                cls, cls._preprocess_optional_arg_)
+                cls_, cls_._preprocess_optional_arg_)
         else:
             def mk_preprocess_optional_arg_(c):
                 def preprocess_optional_arg_(
-                        cls_,
+                        cls__,
                         arg: Any,
                         i: int,
                         default: Optional[c] = None,
-                        function: Optional[Union[TFun, str]] = None
-                ) -> Union[Optional[c], NoReturn]:
+                        function: Optional[TLoc] = None
+                ) -> Optional[c]:
                     if arg is None:
                         return default
                     else:
                         return getattr(
-                            cls_, _preprocess_arg_)(arg, i, function)
+                            cls__, _preprocess_arg_)(arg, i, function)
                 return preprocess_optional_arg_
             f_preprocess_optional_arg = classmethod(
-                mk_preprocess_optional_arg_(cls))
-        setattr(top, cls._preprocess_optional_arg_, f_preprocess_optional_arg)
+                mk_preprocess_optional_arg_(cls_))
+        setattr(top, cls_._preprocess_optional_arg_, f_preprocess_optional_arg)
 
     @classmethod
     def check_object_class(
             cls,
             cls_name: str,
             exception: type[Exception] = TypeError
-    ) -> Union[type['Object'], NoReturn]:
+    ) -> type['Object']:
         if cls_name not in cls._object_subclasses:
             raise exception(f"no such object class '{cls_name}'")
         return cls._object_subclasses[cls_name]
@@ -367,10 +358,10 @@ class Object(Sequence, metaclass=ObjectMeta):
     def check(
             cls,
             obj: 'Object',
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['Object', NoReturn]:
+    ) -> 'Object':
         """Checks whether `obj` is an instance of this class.
 
         Parameters:
@@ -392,10 +383,10 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             obj: Optional['Object'],
             default: Optional['Object'] = None,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional['Object'], NoReturn]:
+    ) -> Optional['Object']:
         """Checks whether optional `obj` is an instance of this class.
 
         If `obj` is ``None``, returns `default`.
@@ -422,10 +413,10 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check(
             cls,
             obj: 'Object',
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['Object', NoReturn]:
+    ) -> 'Object':
         return cls._check_arg_isinstance(
             obj, cls, function, name, position, cls._check_test)
 
@@ -434,10 +425,10 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             obj: Optional['Object'],
             default: Optional['Object'] = None,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional['Object'], NoReturn]:
+    ) -> Optional['Object']:
         return cls._check_optional_arg_isinstance(
             obj, cls, default, function, name, position, cls._check_test)
 
@@ -445,10 +436,10 @@ class Object(Sequence, metaclass=ObjectMeta):
     def unpack(
             cls,
             obj: 'Object',
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[TArgs, NoReturn]:
+    ) -> TArgs:
         """Unpacks arguments of `obj` of this class.
 
         Parameters:
@@ -496,7 +487,7 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _preprocess_arg_callback(self, t: tuple[Any, int]) -> Any:
         return self._preprocess_arg(*t)
 
-    def _preprocess_arg(self, arg: T, i: int) -> Union[T, NoReturn]:
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._check_arg_not_none(arg, self.__class__, None, i)
 
     def __eq__(self, other):
@@ -626,8 +617,8 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def from_ast(
             cls,
-            ast: Union[Mapping[str, Any]]
-    ) -> Union['Object', NoReturn]:
+            ast: Mapping[str, Any]
+    ) -> 'Object':
         """Converts abstract syntax tree to object.
 
         Parameters:
@@ -643,7 +634,7 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _from_ast(
             cls,
             ast: Mapping[str, Any]
-    ) -> Union['Object', NoReturn]:
+    ) -> 'Object':
         obj_class = ObjectMeta.check_object_class(ast['class'])
         return obj_class(*map(cls._from_ast_arg, ast['args']))
 
@@ -717,7 +708,7 @@ class Object(Sequence, metaclass=ObjectMeta):
                     obj_cls: type[Object],
                     s: str,
                     **kwargs
-            ) -> Union[Object, NoReturn]:
+            ) -> Object:
                 return obj_cls.loads(s, fmt, **kwargs)
             return from_
         f_from = mk_from_(decoder.format)
@@ -741,7 +732,7 @@ class Object(Sequence, metaclass=ObjectMeta):
             stream: IO[Any],
             format: Optional[str] = None,
             **kwargs
-    ) -> Union['Object', NoReturn]:
+    ) -> 'Object':
         """Decodes `stream` and returns the resulting object.
 
         Parameters:
@@ -763,7 +754,7 @@ class Object(Sequence, metaclass=ObjectMeta):
             s: str,
             format: Optional[str] = None,
             **kwargs
-    ) -> Union['Object', NoReturn]:
+    ) -> 'Object':
         """Decodes string and returns the resulting object.
 
         Parameters:
@@ -789,7 +780,7 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _arg_error(
             cls,
             details: Optional[str] = None,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
             exception: Optional[type[Exception]] = None,
@@ -812,15 +803,15 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def _check_arg(
             cls,
-            arg: T,
-            test: Union[Callable[[T], bool], bool] = lambda x: True,
-            details: Optional[Union[Callable[[T], str], str]] = None,
-            function: Optional[Union[TFun, str]] = None,
+            arg: Any,
+            test: Union[Callable[[Any], bool], bool] = lambda x: True,
+            details: Optional[TDet] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
             exception: Optional[type[Exception]] = None,
             prefix: Optional[str] = None
-    ) -> Union[T, NoReturn]:
+    ) -> Any:
         if (test(arg) if callable(test) else test):
             return arg
         else:
@@ -831,16 +822,16 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def _check_optional_arg(
             cls,
-            arg: Optional[T],
-            default: Optional[T] = None,
-            test: Union[Callable[[T], bool], bool] = lambda x: True,
-            details: Optional[Union[Callable[[T], str], str]] = None,
-            function: Optional[Union[TFun, str]] = None,
+            arg: Optional[Any],
+            default: Optional[Any] = None,
+            test: Union[Callable[[Any], bool], bool] = lambda x: True,
+            details: Optional[TDet] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
             exception: Optional[type[Exception]] = None,
             prefix: Optional[str] = None
-    ) -> Union[Optional[T], NoReturn]:
+    ) -> Optional[Any]:
         if arg is None:
             return default
         else:
@@ -852,10 +843,10 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_not_none(
             cls,
             arg: T,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[T, NoReturn]:
+    ) -> T:
         return Object._check_arg(
             arg, arg is not None, 'expected value, got None',
             function, name, position, TypeError)
@@ -869,10 +860,10 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_callable(
             cls,
             arg: T,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
-    ) -> Union[T, NoReturn]:
+    ) -> T:
         return Object._check_arg(
             arg, callable, cls._check_arg_callable_details,
             function, name, position, TypeError)
@@ -882,10 +873,10 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             arg: Optional[T],
             default: Optional[T] = None,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional[T], NoReturn]:
+    ) -> Optional[T]:
         return Object._check_optional_arg(
             arg, default, callable, cls._check_arg_callable_details,
             function, name, position, TypeError)
@@ -902,13 +893,13 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             arg: T,
             ty: Union[type, tuple[type, ...]],
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
             test=isinstance,
             details: Callable[[T, str], str] = _check_arg_isinstance_details,
             exception: Optional[type[Exception]] = None
-    ) -> Union[T, NoReturn]:
+    ) -> T:
         if test(arg, ty):
             return arg
         else:
@@ -927,13 +918,13 @@ class Object(Sequence, metaclass=ObjectMeta):
             arg: Optional[T],
             ty: Union[type, tuple[type, ...]],
             default: Optional[T] = None,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
             test=isinstance,
             details: Callable[[T, str], str] = _check_arg_isinstance_details,
             exception: Optional[type[Exception]] = None
-    ) -> Union[Optional[T], NoReturn]:
+    ) -> Optional[T]:
         if arg is None:
             return default
         else:
@@ -952,10 +943,10 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             arg: T,
             ty: Union[type, tuple[type, ...]],
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[T, NoReturn]:
+    ) -> T:
         cls._check_arg_isinstance(arg, type, function, name, position)
         return cls._check_arg_isinstance(
             arg, ty, function, name, position, issubclass,
@@ -967,10 +958,10 @@ class Object(Sequence, metaclass=ObjectMeta):
             arg: Optional[T],
             ty: Union[type, tuple[type, ...]],
             default: Optional[T] = None,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional[T], NoReturn]:
+    ) -> Optional[T]:
         if arg is None:
             return default
         else:
@@ -983,10 +974,10 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_bool(
             cls,
             arg: bool,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[bool, NoReturn]:
+    ) -> bool:
         return cls._check_arg_isinstance(
             arg, bool, function, name, position)
 
@@ -995,10 +986,10 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             arg: Optional[bool],
             default: Optional[bool] = None,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional[bool], NoReturn]:
+    ) -> Optional[bool]:
         return cls._check_optional_arg_isinstance(
             arg, bool, default, function, name, position)
 
@@ -1007,8 +998,8 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             arg: bool,
             i: int,
-            function: Optional[Union[TFun, str]] = None
-    ) -> Union[bool, NoReturn]:
+            function: Optional[TLoc] = None
+    ) -> bool:
         return cls._check_arg_bool(arg, function or cls, None, i)
 
     @classmethod
@@ -1017,8 +1008,8 @@ class Object(Sequence, metaclass=ObjectMeta):
             arg: Optional[bool],
             i: int,
             default: Optional[bool] = None,
-            function: Optional[Union[TFun, str]] = None
-    ) -> Union[Optional[bool], NoReturn]:
+            function: Optional[TLoc] = None
+    ) -> Optional[bool]:
         return cls._check_optional_arg_bool(
             arg, default, function or cls, None, i)
 
@@ -1028,10 +1019,10 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_int(
             cls,
             arg: int,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[int, NoReturn]:
+    ) -> int:
         return cls._check_arg_isinstance(
             arg, int, function, name, position)
 
@@ -1040,10 +1031,10 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             arg: Optional[int],
             default: Optional[int] = None,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional[int], NoReturn]:
+    ) -> Optional[int]:
         return cls._check_optional_arg_isinstance(
             arg, int, default, function, name, position)
 
@@ -1052,8 +1043,8 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             arg: int,
             i: int,
-            function: Optional[Union[TFun, str]] = None
-    ) -> Union[int, NoReturn]:
+            function: Optional[TLoc] = None
+    ) -> int:
         return cls._check_arg_int(arg, function or cls, None, i)
 
     @classmethod
@@ -1062,8 +1053,8 @@ class Object(Sequence, metaclass=ObjectMeta):
             arg: Optional[int],
             i: int,
             default: Optional[int] = None,
-            function: Optional[Union[TFun, str]] = None
-    ) -> Union[Optional[int], NoReturn]:
+            function: Optional[TLoc] = None
+    ) -> Optional[int]:
         return cls._check_optional_arg_int(
             arg, default, function or cls, None, i)
 
@@ -1073,10 +1064,10 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_float(
             cls,
             arg: float,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[float, NoReturn]:
+    ) -> float:
         return cls._check_arg_isinstance(
             arg, float, function, name, position)
 
@@ -1085,10 +1076,10 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             arg: Optional[float],
             default: Optional[float] = None,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional[float], NoReturn]:
+    ) -> Optional[float]:
         return cls._check_optional_arg_isinstance(
             arg, float, default, function, name, position)
 
@@ -1097,8 +1088,8 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             arg: float,
             i: int,
-            function: Optional[Union[TFun, str]] = None
-    ) -> Union[float, NoReturn]:
+            function: Optional[TLoc] = None
+    ) -> float:
         return cls._check_arg_float(arg, function or cls, None, i)
 
     @classmethod
@@ -1107,8 +1098,8 @@ class Object(Sequence, metaclass=ObjectMeta):
             arg: Optional[float],
             i: int,
             default: Optional[float] = None,
-            function: Optional[Union[TFun, str]] = None
-    ) -> Union[Optional[float], NoReturn]:
+            function: Optional[TLoc] = None
+    ) -> Optional[float]:
         return cls._check_optional_arg_float(
             arg, default, function or cls, None, i)
 
@@ -1118,10 +1109,10 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_number(
             cls,
             arg: TNum,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[TNum, NoReturn]:
+    ) -> TNum:
         return cls._check_arg_isinstance(
             arg, (float, int), function, name, position)
 
@@ -1130,10 +1121,10 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             arg: Optional[TNum],
             default: Optional[TNum] = None,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional[TNum], NoReturn]:
+    ) -> Optional[TNum]:
         return cls._check_optional_arg_isinstance(
             arg, (float, int), default, function, name, position)
 
@@ -1142,8 +1133,8 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             arg: TNum,
             i: int,
-            function: Optional[Union[TFun, str]] = None
-    ) -> Union[TNum, NoReturn]:
+            function: Optional[TLoc] = None
+    ) -> TNum:
         return cls._check_arg_number(arg, function or cls, None, i)
 
     @classmethod
@@ -1152,8 +1143,8 @@ class Object(Sequence, metaclass=ObjectMeta):
             arg: Optional[TNum],
             i: int,
             default: Optional[TNum] = None,
-            function: Optional[Union[TFun, str]] = None
-    ) -> Union[Optional[TNum], NoReturn]:
+            function: Optional[TLoc] = None
+    ) -> Optional[TNum]:
         return cls._check_optional_arg_number(
             arg, default, function or cls, None, i)
 
@@ -1163,10 +1154,10 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_str(
             cls,
             arg: str,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[str, NoReturn]:
+    ) -> str:
         return cls._check_arg_isinstance(
             arg, str, function, name, position)
 
@@ -1175,10 +1166,10 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             arg: Optional[str],
             default: Optional[str] = None,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional[str], NoReturn]:
+    ) -> Optional[str]:
         return cls._check_optional_arg_isinstance(
             arg, str, default, function, name, position)
 
@@ -1187,8 +1178,8 @@ class Object(Sequence, metaclass=ObjectMeta):
             cls,
             arg: str,
             i: int,
-            function: Optional[Union[TFun, str]] = None
-    ) -> Union[str, NoReturn]:
+            function: Optional[TLoc] = None
+    ) -> str:
         return cls._check_arg_str(arg, function or cls, None, i)
 
     @classmethod
@@ -1197,8 +1188,8 @@ class Object(Sequence, metaclass=ObjectMeta):
             arg: Optional[str],
             i: int,
             default: Optional[str] = None,
-            function: Optional[Union[TFun, str]] = None
-    ) -> Union[Optional[str], NoReturn]:
+            function: Optional[TLoc] = None
+    ) -> Optional[str]:
         return cls._check_optional_arg_str(
             arg, default, function or cls, None, i)
 
@@ -1286,11 +1277,11 @@ class Codec(abc.ABC):
     def from_format(
             cls,
             format: Optional[str] = None,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
-            details: Optional[Callable[[Any], str]] = None
-    ) -> Union[type['Codec'], NoReturn]:
+            details: Optional[TDet] = None
+    ) -> type['Codec']:
         fmt: str = format or cls.default
         Object._check_arg(
             fmt, fmt in cls.registry, details, function, name, position)
@@ -1316,19 +1307,23 @@ class Encoder(Codec):
         Encoder._register(cls, format, description)
         Object._install_encoder(cls)
 
+    _from_format_default_details = (lambda x: f"no such encoder '{x}'")
+
     @classmethod
     def from_format(
             cls,
             format: Optional[str] = None,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
-            _details=lambda x: f"no such encoder '{x}'"
+            details: Optional[TDet] = None
     ) -> type['Encoder']:
         return cast(type[Encoder], super().from_format(
-            format, function, name, position, _details))
+            format, function, name, position,
+            details if details is not None else
+            cls._from_format_default_details))
 
-    def encode(self, obj: Object) -> Union[str, NoReturn]:
+    def encode(self, obj: Object) -> str:
         """Encodes object.
 
         Parameters:
@@ -1343,10 +1338,7 @@ class Encoder(Codec):
         return ''.join(self.iterencode(obj))
 
     @abc.abstractmethod
-    def iterencode(
-            self,
-            obj: Object
-    ) -> Union[Generator[str, None, None], NoReturn]:
+    def iterencode(self, obj: Object) -> Iterator[str]:
         """Encodes object iteratively.
 
         Yields each string as available.
@@ -1404,14 +1396,22 @@ class ReprEncoder(
     def _is_object_or_collection(self, v):
         return isinstance(v, (Object, list, tuple))
 
-    def _start_object(self, obj, indent):
+    def _start_object(
+            self,
+            obj: Object,
+            indent: int
+    ) -> Generator[str, None, None]:
         yield obj.__class__.__qualname__
         yield '('
 
-    def _end_object(self, obj):
+    def _end_object(self, obj: Object) -> Generator[str, None, None]:
         yield ')'
 
-    def _start_collection(self, v, indent):
+    def _start_collection(
+            self,
+            v: Any,
+            indent: int
+    ) -> Generator[str, None, None]:
         if isinstance(v, list):
             yield '['
         elif isinstance(v, tuple):
@@ -1419,7 +1419,7 @@ class ReprEncoder(
         else:
             raise Object._should_not_get_here()
 
-    def _end_collection(self, v):
+    def _end_collection(self, v: Any) -> Generator[str, None, None]:
         if isinstance(v, list):
             yield ']'
         elif isinstance(v, tuple):
@@ -1430,16 +1430,16 @@ class ReprEncoder(
         else:
             raise Object._should_not_get_here()
 
-    def _repr(self, v):
+    def _repr(self, v: Any) -> Generator[str, None, None]:
         yield repr(v)
 
-    def _indent(self, n, indent):
+    def _indent(self, n, indent: int) -> Generator[str, None, None]:
         yield ' ' * indent * n
 
-    def _delim(self, indent):
+    def _delim(self, indent: int) -> Generator[str, None, None]:
         yield '\n' if indent > 0 else ''
 
-    def _sep(self, indent):
+    def _sep(self, indent: int) -> Generator[str, None, None]:
         yield ',\n' if indent > 0 else ', '
 
 
@@ -1447,30 +1447,38 @@ class SExpEncoder(
         ReprEncoder, format='sexp', description='S-expression encoder'):
     """S-expression encoder."""
 
-    def _start_object(self, obj, indent):
+    def _start_object(
+            self,
+            obj: Object,
+            indent: int
+    ) -> Generator[str, None, None]:
         if obj:
             yield '('
         yield obj.__class__.__qualname__
         if obj and indent == 0:
             yield ' '
 
-    def _end_object(self, obj):
+    def _end_object(self, obj: Object) -> Generator[str, None, None]:
         if obj:
             yield ')'
 
-    def _start_collection(self, v, indent):
+    def _start_collection(
+            self,
+            v: Any,
+            indent: int
+    ) -> Generator[str, None, None]:
         yield '['
 
-    def _end_collection(self, v):
+    def _end_collection(self, v: Any) -> Generator[str, None, None]:
         yield ']'
 
-    def _repr(self, v):
+    def _repr(self, v: Any) -> Generator[str, None, None]:
         try:
             yield json.dumps(v, ensure_ascii=False)
         except TypeError as err:
             raise EncoderError(str(err)) from None
 
-    def _sep(self, indent):
+    def _sep(self, indent: int) -> Generator[str, None, None]:
         yield '\n' if indent > 0 else ' '
 
 
@@ -1478,23 +1486,23 @@ class JSON_Encoder(Encoder, format='json', description='JSON encoder'):
     """JSON Encoder."""
 
     class Encoder(json.JSONEncoder):
-        def default(self, v: Any) -> Any:
-            if isinstance(v, Object):
-                obj = cast(Object, v)
+        def default(self, o: Any) -> Any:
+            if isinstance(o, Object):
+                obj = cast(Object, o)
                 return {
                     'class': obj.__class__.__qualname__,
                     'args': obj.args,
                 }
             else:
                 try:
-                    return json.JSONEncoder.default(self, v)
+                    return json.JSONEncoder.default(self, o)
                 except TypeError as err:
                     raise EncoderError(str(err)) from None
 
     def __init__(self, **kwargs):
         self.enc = self.Encoder(**kwargs)
 
-    def iterencode(self, obj: Object) -> Generator[str, None, None]:
+    def iterencode(self, obj: Object) -> Iterator[str]:
         return self.enc.iterencode(obj)
 
 
@@ -1513,28 +1521,32 @@ class Decoder(Codec):
         Decoder._register(cls, format, description)
         Object._install_decoder(cls)
 
+    _from_format_default_details = (lambda x: f"no such decoder '{x}'")
+
     @classmethod
     def from_format(
             cls,
             format: Optional[str] = None,
-            function: Optional[Union[TFun, str]] = None,
+            function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
-            _details=lambda x: f"no such decoder '{x}'"
+            details: Optional[TDet] = None
     ) -> type['Decoder']:
         return cast(type[Decoder], super().from_format(
-            format, function, name, position, _details))
+            format, function, name, position,
+            details if details is not None
+            else cls._from_format_default_details))
 
     @classmethod
     def check_object_class(
             cls,
             cls_name: str,
             exception: type[Exception] = DecoderError
-    ) -> Union[type[Object], NoReturn]:
+    ) -> type[Object]:
         return ObjectMeta.check_object_class(cls_name, exception)
 
     @abc.abstractmethod
-    def decode(self, s: str) -> Union[Object, NoReturn]:
+    def decode(self, s: str) -> Object:
         """Decodes string.
 
         Parameters:
@@ -1553,10 +1565,11 @@ class ReprDecoder(
         Decoder, format='repr', description='Repr. decoder'):
     """Repr. decoder."""
 
-    def decode(self, s: str) -> Union[Object, NoReturn]:
+    def decode(self, s: str) -> Object:
         return eval(s, self._globals(), self._locals())
 
-    def _globals(self):
+    @functools.cache
+    def _globals(self) -> dict[str, Any]:
         return ObjectMeta._object_subclasses
 
     def _locals(self, _empty_locals=dict()):
@@ -1639,9 +1652,9 @@ list: "[" value* "]" -> list_
             self.grammar, start='sexp', parser='lalr',
             transformer=self.Visitor(), cache=True)
 
-    def decode(self, s: str) -> Union[Object, NoReturn]:
+    def decode(self, s: str) -> Object:
         try:
-            return self.parser.parse(s)
+            return cast(Object, self.parser.parse(s))
         except lark.exceptions.UnexpectedInput as err:
             line, col, ctx = err.line, err.column, err.get_context(s)
             raise DecoderError(
@@ -1656,17 +1669,17 @@ class JSON_Decoder(Decoder, format='json', description='JSON decoder'):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, object_hook=self.object_hook, **kwargs)
 
-        def object_hook(self, o):
-            assert isinstance(o, dict)
-            if 'class' not in o:
+        def object_hook(self, t: dict[str, Any]) -> Object:  # pyright: ignore
+            assert isinstance(t, dict)
+            if 'class' not in t:
                 raise DecoderError("missing attribute 'class'")
-            cls = Decoder.check_object_class(o['class'])
-            return cls(*o.get('args', ()))
+            cls = Decoder.check_object_class(t['class'])
+            return cls(*t.get('args', ()))
 
     def __init__(self, **kwargs):
         self.dec = self.Decoder(**kwargs)
 
-    def decode(self, s: str) -> Union[Object, NoReturn]:
+    def decode(self, s: str) -> Object:
         return self.dec.decode(s)
 
 

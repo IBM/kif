@@ -3,8 +3,8 @@
 
 from enum import auto, Flag
 
-from ..typing import Final, NoReturn, Optional, Union
-from .kif_object import KIF_Object, TCallable
+from ..typing import Any, Final, Optional, override, Union
+from .kif_object import KIF_Object, TLocation
 from .value import Datatype, Item, Text, TText
 from .value_set import TextSet, TTextSet
 
@@ -93,10 +93,10 @@ class Descriptor(KIF_Object):
     def _check_arg_descriptor_attribute_mask(
             cls,
             arg: TAttributeMask,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[AttributeMask, NoReturn]:
+    ) -> AttributeMask:
         return cls.AttributeMask(cls._check_arg_isinstance(
             arg, (cls.AttributeMask, int), function, name, position))
 
@@ -105,10 +105,10 @@ class Descriptor(KIF_Object):
             cls,
             arg: Optional[TAttributeMask],
             default: Optional[AttributeMask] = None,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional[AttributeMask], NoReturn]:
+    ) -> Optional[AttributeMask]:
         if arg is None:
             return default
         else:
@@ -120,8 +120,8 @@ class Descriptor(KIF_Object):
             cls,
             arg: TAttributeMask,
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[AttributeMask, NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> AttributeMask:
         return cls._check_arg_descriptor_attribute_mask(
             arg, function or cls, None, i)
 
@@ -131,8 +131,8 @@ class Descriptor(KIF_Object):
             arg,
             i: int,
             default: Optional[AttributeMask] = None,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Optional[AttributeMask], NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> Optional[AttributeMask]:
         if arg is None:
             return default
         else:
@@ -143,7 +143,8 @@ class Descriptor(KIF_Object):
 class PlainDescriptor(Descriptor):
     """Abstract base class for plain descriptors."""
 
-    def _preprocess_arg(self, arg, i):
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
             return self._preprocess_optional_arg_text(arg, i)
         elif i == 2:
@@ -248,7 +249,8 @@ class PropertyDescriptor(PlainDescriptor):
     ):
         super().__init__(label, aliases, description, datatype)
 
-    def _preprocess_arg(self, arg, i):
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 4:
             return self._preprocess_optional_arg_datatype(arg, i)
         else:
@@ -294,7 +296,8 @@ class LexemeDescriptor(Descriptor):
     ):
         super().__init__(lemma, category, language)
 
-    def _preprocess_arg(self, arg, i):
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
             return self._preprocess_optional_arg_text(arg, i)
         elif i == 2:

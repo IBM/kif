@@ -3,16 +3,8 @@
 
 from ... import namespace as NS
 from ...rdflib import URIRef
-from ...typing import (
-    cast,
-    ClassVar,
-    NoReturn,
-    Optional,
-    override,
-    TypeAlias,
-    Union,
-)
-from ..kif_object import Decimal, TCallable, TDecimal
+from ...typing import Any, cast, ClassVar, Optional, override, TypeAlias, Union
+from ..kif_object import Decimal, TDecimal, TLocation
 from ..template import Template
 from ..variable import Variable
 from .deep_data_value import (
@@ -45,7 +37,7 @@ class QuantityTemplate(DeepDataValueTemplate):
        upper_bound: Upper bound or quantity variable.
     """
 
-    object_class: ClassVar[QuantityClass]
+    object_class: ClassVar[QuantityClass]  # pyright: ignore
 
     def __init__(
             self,
@@ -56,7 +48,7 @@ class QuantityTemplate(DeepDataValueTemplate):
         super().__init__(amount, unit, lower_bound, upper_bound)
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # amount
             if Variable.test(arg):
                 return self._preprocess_arg_quantity_variable(
@@ -170,15 +162,15 @@ class QuantityVariable(DeepDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[QuantityClass]
+    object_class: ClassVar[QuantityClass]  # pyright: ignore
 
     @classmethod
     def _preprocess_arg_quantity_variable(
             cls,
             arg: Variable,
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union['QuantityVariable', NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> 'QuantityVariable':
         return cast(QuantityVariable, cls._preprocess_arg_variable(
             arg, i, function or cls))
 
@@ -186,7 +178,7 @@ class QuantityVariable(DeepDataValueVariable):
 class QuantityDatatype(Datatype):
     """Quantity datatype."""
 
-    value_class: ClassVar[QuantityClass]
+    value_class: ClassVar[QuantityClass]  # pyright: ignore
 
     _uri: ClassVar[URIRef] = NS.WIKIBASE.Quantity
 
@@ -206,19 +198,19 @@ class Quantity(
        upper_bound: Upper bound.
     """
 
-    datatype_class: ClassVar[QuantityDatatypeClass]
-    datatype: ClassVar[QuantityDatatype]
-    template_class: ClassVar[QuantityTemplateClass]
-    variable_class: ClassVar[QuantityVariableClass]
+    datatype_class: ClassVar[QuantityDatatypeClass]  # pyright: ignore
+    datatype: ClassVar[QuantityDatatype]             # pyright: ignore
+    template_class: ClassVar[QuantityTemplateClass]  # pyright: ignore
+    variable_class: ClassVar[QuantityVariableClass]  # pyright: ignore
 
     @classmethod
     def _check_arg_quantity(
             cls,
             arg: TQuantity,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['Quantity', NoReturn]:
+    ) -> 'Quantity':
         return cls(cls._check_arg_isinstance(
             arg, (cls, Decimal, float, int, str), function, name, position))
 
@@ -231,24 +223,24 @@ class Quantity(
         super().__init__(amount, unit, lower_bound, upper_bound)
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._static_preprocess_arg(self, arg, i)
 
     @staticmethod
-    def _static_preprocess_arg(self, arg, i):
+    def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:              # amount
-            return self._preprocess_arg_decimal(
+            return self_._preprocess_arg_decimal(
                 arg.args[0] if isinstance(arg, Quantity) else arg, i)
         elif i == 2:            # unit
-            return self._preprocess_optional_arg_item(arg, i)
+            return self_._preprocess_optional_arg_item(arg, i)
         elif i == 3:            # lower-bound
-            return self._preprocess_optional_arg_decimal(
+            return self_._preprocess_optional_arg_decimal(
                 arg.args[0] if isinstance(arg, Quantity) else arg, i)
         elif i == 4:            # upper-bound
-            return self._preprocess_optional_arg_decimal(
+            return self_._preprocess_optional_arg_decimal(
                 arg.args[0] if isinstance(arg, Quantity) else arg, i)
         else:
-            raise self._should_not_get_here()
+            raise self_._should_not_get_here()
 
     def get_value(self) -> str:
         return str(self.args[0])

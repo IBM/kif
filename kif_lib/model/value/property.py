@@ -5,16 +5,16 @@ from ... import namespace as NS
 from ...itertools import chain
 from ...rdflib import URIRef
 from ...typing import (
+    Any,
     cast,
     ClassVar,
     Iterable,
-    NoReturn,
     Optional,
     override,
     TypeAlias,
     Union,
 )
-from ..kif_object import TCallable
+from ..kif_object import TLocation
 from ..template import Template
 from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
@@ -42,7 +42,7 @@ class PropertyTemplate(EntityTemplate):
        range: Datatype or datatype variable.
     """
 
-    object_class: ClassVar[PropertyClass]
+    object_class: ClassVar[PropertyClass]  # pyright: ignore
 
     def __init__(
             self,
@@ -52,7 +52,7 @@ class PropertyTemplate(EntityTemplate):
         super().__init__(iri, range)
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # iri
             if isinstance(arg, (Template, Variable)):
                 return super()._preprocess_arg(arg, i)
@@ -103,15 +103,15 @@ class PropertyVariable(EntityVariable):
        name: Name.
     """
 
-    object_class: ClassVar[PropertyClass]
+    object_class: ClassVar[PropertyClass]  # pyright: ignore
 
     @classmethod
     def _preprocess_arg_property_variable(
             cls,
             arg: Variable,
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union['PropertyVariable', NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> 'PropertyVariable':
         return cast(PropertyVariable, cls._preprocess_arg_variable(
             arg, i, function or cls))
 
@@ -125,7 +125,7 @@ class PropertyVariable(EntityVariable):
 class PropertyDatatype(Datatype):
     """Property datatype."""
 
-    value_class: ClassVar[PropertyClass]
+    value_class: ClassVar[PropertyClass]  # pyright: ignore
 
     _uri: ClassVar[URIRef] = NS.WIKIBASE.WikibaseProperty
 
@@ -143,19 +143,19 @@ class Property(
        range: Datatype.
     """
 
-    datatype_class: ClassVar[PropertyDatatypeClass]
-    datatype: ClassVar[PropertyDatatype]
-    template_class: ClassVar[PropertyTemplateClass]
-    variable_class: ClassVar[PropertyVariableClass]
+    datatype_class: ClassVar[PropertyDatatypeClass]  # pyright: ignore
+    datatype: ClassVar[PropertyDatatype]             # pyright: ignore
+    template_class: ClassVar[PropertyTemplateClass]  # pyright: ignore
+    variable_class: ClassVar[PropertyVariableClass]  # pyright: ignore
 
     @classmethod
     def _check_arg_property(
             cls,
             arg: TProperty,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union['Property', NoReturn]:
+    ) -> 'Property':
         return cls(cls._check_arg_isinstance(
             arg, (cls, IRI, URIRef, String, str), function, name, position))
 
@@ -168,13 +168,13 @@ class Property(
 
     @override
     @staticmethod
-    def _static_preprocess_arg(self, arg, i):
+    def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:              # iri
-            return Entity._static_preprocess_arg(self, arg, i)
+            return Entity._static_preprocess_arg(self_, arg, i)
         elif i == 2:            # range
-            return self._preprocess_optional_arg_datatype(arg, i)
+            return self_._preprocess_optional_arg_datatype(arg, i)
         else:
-            raise self._should_not_get_here()
+            raise self_._should_not_get_here()
 
     def __call__(self, value1, value2=None):
         if value2 is not None:

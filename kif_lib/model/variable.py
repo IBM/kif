@@ -3,16 +3,17 @@
 
 from ..itertools import chain
 from ..typing import (
+    Any,
     cast,
     ClassVar,
     Iterator,
     Mapping,
-    NoReturn,
     Optional,
+    override,
     TypeAlias,
     Union,
 )
-from .kif_object import KIF_Object, KIF_ObjectClass, TCallable
+from .kif_object import KIF_Object, KIF_ObjectClass, TLocation
 
 Theta: TypeAlias = Mapping['Variable', Optional[KIF_Object]]
 VariableClass: TypeAlias = type['Variable']
@@ -44,16 +45,16 @@ class Variable(KIF_Object):
         var_cls = cls._check_optional_arg_variable_class(
             variable_class, cls, cls, 'variable_class', 2)
         assert var_cls is not None
-        return super().__new__(var_cls)
+        return super().__new__(var_cls)  # pyright: ignore
 
     @classmethod
     def _check_arg_variable_class(
             cls,
             arg: TVariableClass,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[VariableClass, NoReturn]:
+    ) -> VariableClass:
         if isinstance(arg, type) and issubclass(arg, cls):
             return arg
         else:
@@ -69,8 +70,8 @@ class Variable(KIF_Object):
             cls,
             arg: 'Variable',
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union['Variable', NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> 'Variable':
         arg = cast(Variable, Variable.check(
             arg, function or cls, None, i))
         return arg._coerce(cls, function or cls, None, i)
@@ -82,15 +83,16 @@ class Variable(KIF_Object):
     ):
         super().__init__(name)
 
-    def __call__(self, value1, value2=None):
-        from .value import PropertyVariable
-        return self.coerce(PropertyVariable)(value1, value2)
-
-    def _preprocess_arg(self, arg, i):
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
             return self._preprocess_arg_str(arg, i)
         else:
             raise self._should_not_get_here()
+
+    def __call__(self, value1, value2=None):
+        from .value import PropertyVariable
+        return self.coerce(PropertyVariable)(value1, value2)
 
     @property
     def name(self) -> str:
@@ -121,7 +123,7 @@ class Variable(KIF_Object):
     def _coerce(
             self,
             variable_class: VariableClass,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> 'Variable':
@@ -159,7 +161,7 @@ class Variable(KIF_Object):
             self,
             theta: Theta,
             coerce: bool,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Optional[KIF_Object]:
@@ -182,7 +184,7 @@ class Variable(KIF_Object):
     def _instantiate_tail(
             self,
             theta: Theta,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Optional[KIF_Object]:

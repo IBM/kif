@@ -36,9 +36,10 @@ usage:
 CHECK_COPYRIGHT?= yes
 CHECK_COPYRIGHT_IGNORE?= setup.py
 CHECK_DEPS?= htmlcov-clean
-CHECK_FLAKE8=? yes
+CHECK_FLAKE8?= yes
 CHECK_ISORT?= yes
 CHECK_MYPY?= yes
+CHECK_PYRIGHT?= yes
 CHECK_PYTEST?= yes
 CHECK_SYNTAX?= yes
 CHECK_SYNTAX_IGNORE?=
@@ -60,6 +61,7 @@ ISORT_OPTIONS?= --check --diff
 MYPY_OPTIONS?= --show-error-context --show-error-codes
 PERL?= perl
 PIP?= ${PYTHON} -m pip
+PYRIGHT_OPTIONS?= --warnings
 PYTEST?= ${PYTHON} -m pytest
 PYTEST_COV_OPTIONS?= --cov=${PACKAGE} --cov-report=html
 PYTEST_ENV?=
@@ -68,7 +70,7 @@ PYTEST_OPTIONS?= -ra
 PYTHON?= python
 SETUP_PY?= setup.py
 SETUP_PY_EXTRAS_REQUIRE_DOCS?= []
-SETUP_PY_EXTRAS_REQUIRE_TESTS?= ['flake8', 'isort', 'mypy', 'pytest', 'pytest-cov', 'pytest-mypy', 'tox']
+SETUP_PY_EXTRAS_REQUIRE_TESTS?= ['flake8', 'isort', 'mypy', 'pyright', 'pytest', 'pytest-cov', 'pytest-mypy', 'tox']
 SETUP_PY_FIND_PACKAGES_EXCLUDE?= ['tests', 'tests.*']
 SETUP_PY_INCLUDE_PACKAGE_DATA?= True
 SETUP_PY_INSTALL_REQUIRES?= []
@@ -87,12 +89,12 @@ TOX_SETENV?=
 include Makefile.conf
 
 CHECK_DEPS+= $(if $(filter yes,${CHECK_COPYRIGHT}),check-copyright)
-CHECK_DEPS+= $(if $(filter yes,${CHECK_SYNTAX}),check-syntax)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_FLAKE8}),check-flake8)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_ISORT}),check-isort)
-
 CHECK_DEPS+= $(if $(filter yes,${CHECK_MYPY}),check-mypy)
+CHECK_DEPS+= $(if $(filter yes,${CHECK_PYRIGHT}),check-pyright)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_PYTEST}),check-pytest)
+CHECK_DEPS+= $(if $(filter yes,${CHECK_SYNTAX}),check-syntax)
 PYTEST_OPTIONS+= $(if $(filter yes,${CHECK_MYPY}),--mypy)
 
 ECHO:= printf '%s\n'
@@ -129,6 +131,11 @@ check-isort:
 .PHONY: check-mypy
 check-mypy:
 	${PYTHON} -m mypy ${MYPY_OPTIONS} ${PACKAGE} ${TESTS}
+
+# check sources using pyright
+.PHONY: check-pyright
+check-pyright:
+	${PYTHON} -m pyright ${PYRIGHT_OPTIONS} ${PACKAGE}
 
 # check copyright
 .PHONY: check-copyright

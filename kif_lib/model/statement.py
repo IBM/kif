@@ -1,7 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..typing import override, TypeAlias, Union
+from ..typing import Any, override, TypeAlias, Union
 from .kif_object import KIF_Object
 from .snak import Snak, VSnak, VVSnak
 from .template import Template
@@ -24,7 +24,7 @@ class StatementTemplate(Template):
         super().__init__(subject, snak)
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # entity
             if Template.test(arg):
                 return self._preprocess_arg_entity_template(arg, i)
@@ -95,17 +95,17 @@ class Statement(
         super().__init__(subject, snak)
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._static_preprocess_arg(self, arg, i)
 
     @staticmethod
-    def _static_preprocess_arg(self, arg, i):
+    def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:
-            return self._preprocess_arg_entity(arg, i)
+            return self_._preprocess_arg_entity(arg, i)
         elif i == 2:
-            return self._preprocess_arg_snak(arg, i)
+            return self_._preprocess_arg_snak(arg, i)
         else:
-            raise self._should_not_get_here()
+            raise self_._should_not_get_here()
 
     @property
     def subject(self) -> Entity:

@@ -4,7 +4,7 @@
 import re
 from pathlib import Path
 
-import kif_lib.model.kif_object as kif_object
+from kif_lib.model import kif_object
 
 kif_object_py_path = Path(kif_object.__file__)
 expected_kif_object_py_path = Path('./kif_lib/model/kif_object.py').absolute()
@@ -92,6 +92,11 @@ re__check_arg__class = re.compile(r'^_check_arg_([a-z_]+)_class$')
 re__check_optional_arg = re.compile(r'^_check_optional_arg_([a-z_]+)$')
 re__check_optional_arg__class = re.compile(
     r'^_check_optional_arg_([a-z_]+)_class$')
+
+re__preprocess_arg = re.compile(r'^_preprocess_arg_([a-z_]+)$')
+re__preprocess_optional_arg = re.compile(
+    r'^_preprocess_optional_arg_([a-z_]+)$')
+
 re_check = re.compile(r'^check_([a-z_]+)$')
 re_is = re.compile(r'^is_([a-z_]+)$')
 re_test = re.compile(r'^test_([a-z_]+)$')
@@ -116,7 +121,7 @@ for attr in sorted(dir(KIF_Object)):
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
-    ) -> Union[type[{cls_name}], NoReturn]:
+    ) -> type[{cls_name}]:
         ...''')
         continue
 
@@ -131,7 +136,7 @@ for attr in sorted(dir(KIF_Object)):
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
-    ) -> Union[{cls_name}, NoReturn]:
+    ) -> {cls_name}:
         ...''')
         continue
 
@@ -147,7 +152,7 @@ for attr in sorted(dir(KIF_Object)):
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
-    ) -> Union[Optional[type[{cls_name}]], NoReturn]:
+    ) -> Optional[type[{cls_name}]]:
         ...''')
         continue
 
@@ -163,7 +168,36 @@ for attr in sorted(dir(KIF_Object)):
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
-    ) -> Union[Optional[{cls_name}], NoReturn]:
+    ) -> Optional[{cls_name}]:
+        ...''')
+        continue
+
+    t = match(re__preprocess_arg, attr)
+    if t:
+        cls, cls_name, cls_snake_case_name = t
+        pp(f'''\
+    @classmethod
+    def _preprocess_arg_{cls_snake_case_name}(
+            cls,
+            arg: {T(cls_name)},
+            i: int,
+            function: Optional[Union[TCallable, str]] = ...
+    ) -> {cls_name}:
+        ...''')
+        continue
+
+    t = match(re__preprocess_optional_arg, attr)
+    if t:
+        cls, cls_name, cls_snake_case_name = t
+        pp(f'''\
+    @classmethod
+    def _preprocess_optional_arg_{cls_snake_case_name}(
+            cls,
+            arg: Optional[{T(cls_name)}],
+            i: int,
+            default: Optional[{cls_name}] = ...,
+            function: Optional[Union[TCallable, str]] = ...,
+    ) -> Optional[{cls_name}]:
         ...''')
         continue
 
@@ -176,7 +210,7 @@ for attr in sorted(dir(KIF_Object)):
             function: Optional[Union[TCallable, str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[{cls_name}, NoReturn]:
+    ) -> {cls_name}:
         ...''')
         continue
 
@@ -203,7 +237,7 @@ for attr in sorted(dir(KIF_Object)):
         function: Optional[Union[TCallable, str]] = None,
         name: Optional[str] = None,
         position: Optional[int] = None
-    ) -> Union[TArgs, NoReturn]:
+    ) -> TArgs:
         ...''')
         continue
 

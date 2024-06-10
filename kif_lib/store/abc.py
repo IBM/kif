@@ -27,10 +27,10 @@ from ..model import (
     ReferenceRecordSet,
     Snak,
     Statement,
-    TCallable,
     TEntityFingerprint,
     Text,
     TFingerprint,
+    TLocation,
     TPropertyFingerprint,
     TReferenceRecordSet,
 )
@@ -41,7 +41,6 @@ from ..typing import (
     Final,
     Iterable,
     Iterator,
-    NoReturn,
     Optional,
     Sequence,
     Set,
@@ -637,8 +636,8 @@ class Store(Set):
             value: Optional[TFingerprint] = None,
             snak_mask: Optional[Snak.TMask] = None,
             pattern: Optional[FilterPattern] = None,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[FilterPattern, NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> FilterPattern:
         subj = EntityFingerprint._check_optional_arg_entity_fingerprint(
             subject, None, function, 'subject', 1)
         prop = PropertyFingerprint._check_optional_arg_property_fingerprint(
@@ -658,8 +657,8 @@ class Store(Set):
             self,
             subject: Optional[TEntityFingerprint] = None,
             snak: Optional[Snak] = None,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[FilterPattern, NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> FilterPattern:
         return self._normalize_filter_pattern(FilterPattern.from_snak(
             EntityFingerprint._check_optional_arg_entity_fingerprint(
                 subject, None, function, 'subject', 1),

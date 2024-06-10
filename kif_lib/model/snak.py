@@ -3,16 +3,8 @@
 
 from enum import auto, Flag
 
-from ..typing import (
-    cast,
-    Final,
-    NoReturn,
-    Optional,
-    override,
-    TypeAlias,
-    Union,
-)
-from .kif_object import KIF_Object, TCallable
+from ..typing import Any, cast, Final, Optional, override, TypeAlias, Union
+from .kif_object import KIF_Object, TLocation
 from .template import Template
 from .value import Property, Value, VProperty, VValue, VVProperty, VVValue
 from .variable import Variable
@@ -36,7 +28,7 @@ class SnakTemplate(Template):
     """Abstract base class for snak templates."""
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # property
             if Template.test(arg):
                 return self._preprocess_arg_property_template(arg, i)
@@ -74,8 +66,8 @@ class SnakVariable(Variable):
             cls,
             arg: Variable,
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union['SnakVariable', NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> 'SnakVariable':
         return cast(SnakVariable, cls._preprocess_arg_variable(
             arg, i, function or cls))
 
@@ -120,10 +112,10 @@ class Snak(
     def _check_arg_snak_mask(
             cls,
             arg: TMask,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Mask, NoReturn]:
+    ) -> Mask:
         return cls.Mask(cls._check_arg_isinstance(
             arg, (cls.Mask, int), function, name, position))
 
@@ -132,10 +124,10 @@ class Snak(
             cls,
             arg: Optional[TMask],
             default: Optional[Mask] = None,
-            function: Optional[Union[TCallable, str]] = None,
+            function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Union[Optional[Mask], NoReturn]:
+    ) -> Optional[Mask]:
         if arg is None:
             return default
         else:
@@ -146,8 +138,8 @@ class Snak(
             cls,
             arg: TMask,
             i: int,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Mask, NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> Mask:
         return cls._check_arg_snak_mask(arg, function or cls, None, i)
 
     @classmethod
@@ -156,23 +148,23 @@ class Snak(
             arg,
             i: int,
             default: Optional[Mask] = None,
-            function: Optional[Union[TCallable, str]] = None
-    ) -> Union[Optional[Mask], NoReturn]:
+            function: Optional[TLocation] = None
+    ) -> Optional[Mask]:
         if arg is None:
             return default
         else:
             return cls._preprocess_arg_snak_mask(arg, i, function)
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._static_preprocess_arg(self, arg, i)
 
     @staticmethod
-    def _static_preprocess_arg(self, arg, i):
+    def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:
-            return self._preprocess_arg_property(arg, i)
+            return self_._preprocess_arg_property(arg, i)
         else:
-            raise self._should_not_get_here()
+            raise self_._should_not_get_here()
 
     #: Mask of this snak class.
     mask: Mask = Mask.ALL
@@ -214,7 +206,7 @@ class ValueSnakTemplate(SnakTemplate):
         return super().__init__(property, value)
 
     @override
-    def _preprocess_arg(self, arg, i):
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # property
             return super()._preprocess_arg(arg, i)
         elif i == 2:            # value
@@ -268,16 +260,13 @@ class ValueSnak(
         return super().__init__(property, value)
 
     @staticmethod
-    def _static_preprocess_arg(self, arg, i):
+    def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:
-            return self._preprocess_arg_property(arg, i)
+            return self_._preprocess_arg_property(arg, i)
         elif i == 2:
-            return self._preprocess_arg_value(arg, i)
+            return self_._preprocess_arg_value(arg, i)
         else:
-            raise self._should_not_get_here()
-
-    # def _set_args(self, args):
-    #     pass
+            raise self_._should_not_get_here()
 
     @property
     def value(self) -> Value:

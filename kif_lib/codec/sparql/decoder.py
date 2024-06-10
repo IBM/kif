@@ -22,7 +22,7 @@ from ...model import (
     ValueSnak,
 )
 from ...model.kif_object import Decoder, DecoderError, Object
-from ...typing import Any, cast, NoReturn, Optional, Union
+from ...typing import Any, cast, Optional
 
 
 class SPARQL_Decoder(
@@ -33,7 +33,7 @@ class SPARQL_Decoder(
 
     @classmethod
     def _error_bad_query(
-            self,
+            cls,
             query: str,
             line: int,
             column: int,
@@ -47,14 +47,14 @@ At line {line}, column {column}:
 
     @classmethod
     def _error_unsupported_bgp(
-            self,
+            cls,
             details: str
     ) -> DecoderError:
         return DecoderError(f'unsupported BGP: {details}')
 
     @classmethod
     def _error_unsupported_expression(
-            self,
+            cls,
             details: str,
     ) -> DecoderError:
         return DecoderError(f'unsupported expression: {details}')
@@ -62,7 +62,7 @@ At line {line}, column {column}:
     def __init__(self):
         self._namespace = dict(NS._DEFAULT_NSM.namespaces())
 
-    def decode(self, s: str) -> Union[Object, NoReturn]:
+    def decode(self, s: str) -> Object:
         from pyparsing.exceptions import ParseException
         try:
             query = prepareQuery(s, initNs=self._namespace)

@@ -12,7 +12,7 @@ DeepDataValueVariableClass: TypeAlias = type['DeepDataValueVariable']
 class DeepDataValueTemplate(DataValueTemplate):
     """Abstract base class for deep data value templates."""
 
-    object_class: ClassVar[DeepDataValueClass]
+    object_class: ClassVar[DeepDataValueClass]  # pyright: ignore
 
 
 class DeepDataValueVariable(DataValueVariable):
@@ -22,7 +22,7 @@ class DeepDataValueVariable(DataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[DeepDataValueClass]
+    object_class: ClassVar[DeepDataValueClass]  # pyright: ignore
 
 
 class DeepDataValue(
@@ -32,5 +32,5 @@ class DeepDataValue(
 ):
     """Abstract base class for deep data values."""
 
-    template_class: ClassVar[DeepDataValueTemplateClass]
-    variable_class: ClassVar[DeepDataValueVariableClass]
+    template_class: ClassVar[DeepDataValueTemplateClass]  # pyright: ignore
+    variable_class: ClassVar[DeepDataValueVariableClass]  # pyright: ignore
