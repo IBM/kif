@@ -18,7 +18,7 @@ perl_usage=\
     print "";\
     my @tgts;\
   }\
-  /\#\s([^\n]+)\n(\.PHONY:|SC_RULES\+=)\s([\w-]+)\n/ and do {\
+  /\#\s([^\n]+)\n(\.PHONY:)\s([\w-]+)\n/ and do {\
     my $$tgt = $$3;\
     my $$doc = $$1;\
     push(@tgts, sprintf("  %-20s  %s", $$tgt, $$doc));\
