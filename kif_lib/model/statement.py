@@ -21,7 +21,7 @@ class StatementTemplate(Template):
     """
 
     def __init__(self, subject: VVEntity, snak: VVSnak):
-        return super().__init__(subject, snak)
+        super().__init__(subject, snak)
 
     @override
     def _preprocess_arg(self, arg, i):
@@ -92,7 +92,7 @@ class Statement(
     """
 
     def __init__(self, subject: VVEntity, snak: VVSnak):
-        return super().__init__(subject, snak)
+        super().__init__(subject, snak)
 
     @override
     def _preprocess_arg(self, arg, i):
