@@ -159,6 +159,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
         exausted: set[Iterator[Statement]] = set()
         seen: set[Statement] = set()
         while limit > 0 and len(exausted) < len(its):
+            src: Optional[Iterator[Statement]] = None
             try:
                 src = next(cyc)
                 if src in exausted:
@@ -172,6 +173,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
                 yield stmt
                 limit -= 1
             except StopIteration:
+                assert src is not None
                 exausted.add(src)
 
 # -- Annotations -----------------------------------------------------------

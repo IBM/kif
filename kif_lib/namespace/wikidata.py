@@ -97,7 +97,9 @@ class Wikidata:
             _re=re.compile(r'^(.*/)([^/]*)$')
     ) -> tuple[T_NS, str]:
         if cls.is_wikidata_uri(uri):
-            pfx, name = _re.match(uri).groups()
+            m = _re.match(uri)
+            assert m is not None
+            pfx, name = m.groups()
             return cls.namespaces[pfx], name
         else:
             raise ValueError(f'bad Wikidata URI: {uri}')

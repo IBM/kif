@@ -511,8 +511,9 @@ class SPARQL_Results(Mapping):
 
     def __str__(self):
         res = Result.parse(io.StringIO(json.dumps(dict(self))), format='json')
-        return res.serialize(
-            format='txt', namespace_manager=NS._DEFAULT_NSM).decode('utf-8')
+        out = res.serialize(format='txt', namespace_manager=NS._DEFAULT_NSM)
+        assert out is not None
+        return out.decode('utf-8')
 
     def _error(self, msg):
         return Store._error(f'bad SPARQL results: {msg}')

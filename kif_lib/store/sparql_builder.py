@@ -308,9 +308,9 @@ class SPARQL_Builder(Sequence):
     def disable(self):
         self._status = False
 
-    def _push(self, line: str, indent: int = 0):
+    def _push(self, line: str, indent: int = 0) -> 'SPARQL_Builder':
         if not self._status:
-            return              # nothing to do
+            return self         # nothing to do
         self._lines.append(line)
         if indent < 0:
             self._curlv += indent
@@ -362,10 +362,10 @@ class SPARQL_Builder(Sequence):
             self._vars.add(v)
         elif isinstance(v, Value):
             self._vals.add(v)
-        if hasattr(v, 'n3'):
-            return v.n3()
-        elif isinstance(v, int):
+        if isinstance(v, int):
             return f'"{v}"^^<http://www.w3.org/2001/XMLSchema#integer>'
+        elif hasattr(v, 'n3'):
+            return v.n3()       # pyright: ignore
         else:
             return str(v)
 

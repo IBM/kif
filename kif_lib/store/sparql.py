@@ -279,8 +279,8 @@ At line {line}, column {column}:
 # -- Statements ------------------------------------------------------------
 
     @override
-    def _contains(self, pat: FilterPattern) -> bool:
-        it = self._filter_with_hooks(pat, 1, False)
+    def _contains(self, pattern: FilterPattern) -> bool:
+        it = self._filter_with_hooks(pattern, 1, False)
         try:
             next(it)
             return True
@@ -718,7 +718,7 @@ At line {line}, column {column}:
     ) -> Iterator[tuple[Statement, Optional[Set[T_WDS]]]]:
         for batch in self._batched(stmts):
             reduced_batch: list[Statement] = []
-            stmt2wdss: dict[Statement, set[T_WDS]] = dict()
+            stmt2wdss: dict[Statement, MutableSet[T_WDS]] = dict()
             for stmt in batch:
                 wdss = self._cache_get_wdss(stmt)
                 if not force_cache_update and wdss is not None:
@@ -752,12 +752,13 @@ At line {line}, column {column}:
                     LOG.debug(
                         '%s(): retrying (%d left)',
                         self._get_wdss.__qualname__, retries - 1)
-                    for stmt, wds in self._get_wdss(
+                    for stmt, wdss in self._get_wdss(
                             unseen_stmts, force_cache_update, retries - 1):
-                        if wds is not None:
+                        if wdss is not None:
                             if stmt not in stmt2wdss:
                                 stmt2wdss[stmt] = set()
-                            stmt2wdss[stmt].add(wds)
+                            for wds in wdss:
+                                stmt2wdss[stmt].add(wds)
             for stmt in batch:
                 yield stmt, stmt2wdss.get(stmt, None)
 
@@ -1005,7 +1006,7 @@ At line {line}, column {column}:
         q.triple(t['wds'], NS.WIKIBASE.rank, t['rank'])
         with q.values(t['wds']) as values:
             for wds in wdss:
-                values.push(wds)
+                values.push(cast(TTrm, wds))
         if self.has_flags(self.BEST_RANK):
             q.triple(t['wds'], NS.RDF.type, NS.WIKIBASE.BestRank)
         q.optional_start()
@@ -1294,7 +1295,7 @@ At line {line}, column {column}:
             self,
             results: SPARQL_Results,
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Lexeme, Text, IRI, IRI]]:
+    ) -> Iterator[tuple[Lexeme, Optional[Text], Optional[IRI], Optional[IRI]]]:
         if self.has_flags(self.LATE_FILTER):
             get_lemma = bool(mask & Descriptor.LEMMA)
             get_category = bool(mask & Descriptor.CATEGORY)

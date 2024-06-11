@@ -782,7 +782,7 @@ class ValuesBlock(GraphPattern):
 # -- Compound graph pattern ------------------------------------------------
 
 class CompoundGraphPattern(GraphPattern):
-    """Abstract base class for compound graph patterns"""
+    """Abstract base class for compound graph patterns."""
 
     binds: MutableSequence[Bind]
     filters: MutableSequence[Filter]

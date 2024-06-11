@@ -116,18 +116,18 @@ class SPARQL_MapperStore(
     @override
     def _make_filter_query(
             self,
-            pat: FilterPattern,
+            pattern: FilterPattern,
     ) -> SPARQL_Builder:
         q = self.mapping.Builder()
         with q.where():
             subject_prefix: Optional[IRI] = None
-            if pat.subject is not None:
-                if pat.subject.entity is not None:
+            if pattern.subject is not None:
+                if pattern.subject.entity is not None:
                     q.matched_subject = self.mapping.encode_entity(
-                        pat.subject.entity)
-                elif pat.subject.snak_set is not None:
+                        pattern.subject.entity)
+                elif pattern.subject.snak_set is not None:
                     status, subject_prefix = self._try_push_snak_set(
-                        q, q.matched_subject, pat.subject.snak_set)
+                        q, q.matched_subject, pattern.subject.snak_set)
                     if not status:
                         return q  # empty query
                     assert subject_prefix is not None
@@ -135,13 +135,13 @@ class SPARQL_MapperStore(
                     raise self._should_not_get_here()
             value: Optional[Value] = None
             value_prefix: Optional[IRI] = None
-            if pat.value is not None:
-                if pat.value.value is not None:
-                    value = pat.value.value
+            if pattern.value is not None:
+                if pattern.value.value is not None:
+                    value = pattern.value.value
                     q.matched_value = self.mapping.encode_value(value)
-                elif pat.value.snak_set is not None:
+                elif pattern.value.snak_set is not None:
                     status, value_prefix = self._try_push_snak_set(
-                        q, q.matched_value, pat.value.snak_set)
+                        q, q.matched_value, pattern.value.snak_set)
                     if not status:
                         return q  # empty query
                     assert value_prefix is not None
@@ -165,7 +165,7 @@ class SPARQL_MapperStore(
                                 if not value.value.startswith(
                                         value_prefix.value):
                                     continue  # mismatch value
-                        if not spec._match(pat):
+                        if not spec._match(pattern):
                             continue  # spec does not match pattern
                         cup.branch()
                         spec._define(q, with_binds=True)

@@ -580,7 +580,7 @@ class SPARQL_Mapping(ABC):
 
     @classmethod
     def get_annotations_post_hook(
-            self,
+            cls,
             store: Store,
             stmts: Iterable[Statement],
             data: Any,

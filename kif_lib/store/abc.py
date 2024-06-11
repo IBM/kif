@@ -94,7 +94,8 @@ class Store(Set):
             store_name, store_name in cls.registry,
             f"no such store plugin '{store_name}'",
             Store, 'store_name', 1, ValueError)
-        return super(Store, cls).__new__(cls.registry[store_name])
+        return super(Store, cls).__new__(
+            cls.registry[store_name])  # pyright: ignore
 
     class Error(KIF_Error):
         """Base class for store errors."""

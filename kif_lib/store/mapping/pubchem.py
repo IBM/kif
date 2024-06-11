@@ -26,6 +26,7 @@ from ...model import (
     Time,
     TimeDatatype,
     Value,
+    ValueSnak,
 )
 from ...namespace import DCT, FOAF, RDF, WD, WDS, XSD
 from ...rdflib import Literal, Namespace
@@ -182,7 +183,8 @@ class PubChemMapping(SPARQL_Mapping):
             Raises:
                Spec.Skip: `v` is not a PubChem CID.
             """
-            return cls._check(cls.check_string(v).value, _re.match)
+            return cls._check(
+                cls.check_string(v).value, lambda x: bool(_re.match(x)))
 
 # == Hooks =================================================================
 
@@ -244,8 +246,10 @@ class PubChemMapping(SPARQL_Mapping):
                 for batch in batched(cids_it, store.default_page_size):
                     for stmt, annots in cls._get_toxicity(set(batch)):
                         if original_pattern.match(stmt):
-                            store._cache_add_wds(stmt, WDS[stmt.digest])
-                            store._cache.set(stmt, 'annotations', annots)
+                            from ..sparql import SPARQL_Store
+                            st = cast(SPARQL_Store, store)
+                            st._cache_add_wds(stmt, WDS[stmt.digest])
+                            st._cache.set(stmt, 'annotations', annots)
                             yield stmt
                             count += 1
                         if count >= original_limit:
@@ -291,7 +295,7 @@ class PubChemMapping(SPARQL_Mapping):
                 subject = cls._parse_toxicity_cid(entry['cid'])
                 property = cls._parse_toxicity_testtype(entry['testtype'])
                 value = cls._parse_toxicity_dose(entry['dose'])
-                stmt = property(subject, value)
+                stmt = cast(Statement, property(subject, value))
                 annots = cls._parse_toxicity_annotations(entry)
                 yield stmt, annots
             except (KeyError, ValueError):
@@ -742,7 +746,8 @@ def wd_manufacturer(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     value_datatype=XSD.decimal,
     value_datatype_encoded=XSD.float,
     annotations=[
-        AnnotationRecord([wd.based_on_heuristic(wd.machine_learning)])])
+        AnnotationRecord([ValueSnak(
+            wd.based_on_heuristic, wd.machine_learning)])])
 def wd_partition_coefficient_water_octanol(
         spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     if Value.test(v):
