@@ -39,6 +39,7 @@ CHECK_DEPS?= htmlcov-clean
 CHECK_FLAKE8?= yes
 CHECK_ISORT?= yes
 CHECK_MYPY?= yes
+CHECK_PYLINT?= yes
 CHECK_PYRIGHT?= yes
 CHECK_PYTEST?= yes
 CHECK_SYNTAX?= yes
@@ -61,6 +62,7 @@ ISORT_OPTIONS?= --check --diff
 MYPY_OPTIONS?= --show-error-context --show-error-codes
 PERL?= perl
 PIP?= ${PYTHON} -m pip
+PYLINT_OPTIONS?=
 PYRIGHT_OPTIONS?= --warnings
 PYTEST?= ${PYTHON} -m pytest
 PYTEST_COV_OPTIONS?= --cov=${PACKAGE} --cov-report=html
@@ -92,6 +94,7 @@ CHECK_DEPS+= $(if $(filter yes,${CHECK_COPYRIGHT}),check-copyright)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_FLAKE8}),check-flake8)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_ISORT}),check-isort)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_MYPY}),check-mypy)
+CHECK_DEPS+= $(if $(filter yes,${CHECK_PYLINT}),check-pylint)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_PYRIGHT}),check-pyright)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_PYTEST}),check-pytest)
 CHECK_DEPS+= $(if $(filter yes,${CHECK_SYNTAX}),check-syntax)
@@ -132,10 +135,15 @@ check-isort:
 check-mypy:
 	${PYTHON} -m mypy ${MYPY_OPTIONS} ${PACKAGE} ${TESTS}
 
+# check sources using pylint
+.PHONY: check-pylint
+check-pylint:
+	pylint ${PYLINT_OPTIONS} ${PACKAGE} ${TESTS}
+
 # check sources using pyright
 .PHONY: check-pyright
 check-pyright:
-	${PYTHON} -m pyright ${PYRIGHT_OPTIONS} ${PACKAGE}
+	${PYTHON} -m pyright ${PYRIGHT_OPTIONS} ${PACKAGE} ${TESTS}
 
 # check copyright
 .PHONY: check-copyright
