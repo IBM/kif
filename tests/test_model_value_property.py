@@ -5,6 +5,7 @@ from rdflib import Literal, URIRef
 
 from kif_lib import Entity, IRI, Item, Properties, Property, ValueSnak
 from kif_lib.namespace import P, WD
+from kif_lib.typing import cast
 
 from .tests import kif_TestCase
 
@@ -40,12 +41,14 @@ class TestModelValueProperty(kif_TestCase):
         self.assertRaises(TypeError, Property._from_rdflib, WD.Q5)
         # good arguments
         self.assert_property(
-            Property._from_rdflib(WD.P31), IRI(WD.P31))
+            cast(Property, Property._from_rdflib(WD.P31)), IRI(WD.P31))
         self.assert_property(
-            Property._from_rdflib(P.P31, property_prefixes=[P]),
+            cast(Property, Property._from_rdflib(
+                P.P31, property_prefixes=[P])),
             IRI(WD.P31))
         self.assert_property(
-            Entity._from_rdflib(P.P31, property_prefixes=[P]),
+            cast(Property, Entity._from_rdflib(
+                P.P31, property_prefixes=[P])),
             IRI(WD.P31))
 
     def test__to_rdflib(self):

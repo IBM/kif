@@ -178,7 +178,9 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assertEqual(stmt.snak.property, wd.mass)
         # value: iri
         stmt = next(kb.filter(value=wd.benzene))
-        self.assertTrue(stmt.snak.value, wd.benzene)
+        self.assertIsInstance(stmt.snak, ValueSnak)
+        assert isinstance(stmt.snak, ValueSnak)
+        self.assertEqual(stmt.snak.value, wd.benzene)
         # value: text
         stmt = next(kb.filter(
             value=Text('Federative Republic of Brazil', 'en')))
@@ -191,10 +193,13 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
             'UHOVQNZJYSORNB-UHFFFAOYSA-N')))
         # subject & property
         stmt = next(kb.filter(subject=wd.benzene, property=wd.mass))
+        self.assertIsInstance(stmt.snak, ValueSnak)
+        assert isinstance(stmt.snak, ValueSnak)
         self.assert_statement(stmt, wd.benzene, wd.mass(stmt.snak.value))
         # subject & property: value is text
         stmts = sorted(kb.filter(wd.Brazil, wd.official_name),
-                       key=lambda s: cast(ValueSnak, s.snak).value.language)
+                       key=lambda s: cast(
+                           Text, cast(ValueSnak, s.snak).value).language)
         self.assert_statement(
             stmts[0], wd.Brazil, ValueSnak(
                 wd.official_name, Text(
@@ -210,6 +215,8 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assert_statement(stmt, wd.benzene, wd.ionization_energy(qt))
         # subject & value: time
         stmt = next(kb.filter(subject=wd.Brazil, value=Time('1822-09-07')))
+        self.assertIsInstance(stmt.snak, ValueSnak)
+        assert isinstance(stmt.snak, ValueSnak)
         self.assert_statement(stmt, wd.Brazil, wd.inception(stmt.snak.value))
         # property & value: quantity
         stmt = next(kb.filter(

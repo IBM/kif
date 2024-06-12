@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from typing import overload, TYPE_CHECKING
+
 from ... import namespace as NS
 from ...itertools import chain
 from ...rdflib import URIRef
@@ -17,10 +19,14 @@ from ...typing import (
 from ..kif_object import TLocation
 from ..template import Template
 from ..variable import Variable
-from .entity import Entity, EntityTemplate, EntityVariable
+from .entity import Entity, EntityTemplate, EntityVariable, VVEntity
 from .iri import IRI, IRI_Template, T_IRI
 from .string import String
-from .value import Datatype, VDatatype, VTDatatypeContent
+from .value import Datatype, VDatatype, VTDatatypeContent, VVTValue
+
+if TYPE_CHECKING:
+    from ..snak import ValueSnak, ValueSnakTemplate
+    from ..statement import Statement, StatementTemplate
 
 PropertyClass: TypeAlias = type['Property']
 PropertyDatatypeClass: TypeAlias = type['PropertyDatatype']
@@ -32,6 +38,7 @@ VTPropertyContent: TypeAlias = Union[IRI_Template, Variable, 'TProperty']
 VProperty: TypeAlias =\
     Union['PropertyTemplate', 'PropertyVariable', 'Property']
 VVProperty: TypeAlias = Union[Variable, VProperty]
+VVTPropertyContent: TypeAlias = Union[VVProperty, VTPropertyContent]
 
 
 class PropertyTemplate(EntityTemplate):
@@ -67,11 +74,19 @@ class PropertyTemplate(EntityTemplate):
         else:
             raise self._should_not_get_here()
 
-    def __call__(self, value1, value2=None):
-        if value2 is not None:
-            return self._Statement(value1, self._ValueSnak(self, value2))
+    @overload
+    def __call__(self, v1: VVEntity, v2: VVTValue) -> 'StatementTemplate':
+        ...
+
+    @overload
+    def __call__(self, v1: VVTValue) -> 'ValueSnakTemplate':
+        ...
+
+    def __call__(self, v1, v2=None):
+        if v2 is not None:
+            return self._Statement(v1, self._ValueSnak(self, v2))
         else:
-            return self._ValueSnak(self, value1)
+            return self._ValueSnak(self, v1)
 
     @property
     def range(self) -> Optional[VDatatype]:
@@ -115,11 +130,19 @@ class PropertyVariable(EntityVariable):
         return cast(PropertyVariable, cls._preprocess_arg_variable(
             arg, i, function or cls))
 
-    def __call__(self, value1, value2=None):
-        if value2 is not None:
-            return self._Statement(value1, self._ValueSnak(self, value2))
+    @overload
+    def __call__(self, v1: VVEntity, v2: VVTValue) -> 'StatementTemplate':
+        ...
+
+    @overload
+    def __call__(self, v1: VVTValue) -> 'ValueSnakTemplate':
+        ...
+
+    def __call__(self, v1, v2=None):
+        if v2 is not None:
+            return self._Statement(v1, self._ValueSnak(self, v2))
         else:
-            return self._ValueSnak(self, value1)
+            return self._ValueSnak(self, v1)
 
 
 class PropertyDatatype(Datatype):
@@ -176,11 +199,19 @@ class Property(
         else:
             raise self_._should_not_get_here()
 
-    def __call__(self, value1, value2=None):
-        if value2 is not None:
-            return self._Statement(value1, self._ValueSnak(self, value2))
+    @overload
+    def __call__(self, v1: VVEntity, v2: VVTValue) -> 'Statement':
+        ...
+
+    @overload
+    def __call__(self, v1: VVTValue) -> 'ValueSnak':
+        ...
+
+    def __call__(self, v1, v2=None):
+        if v2 is not None:
+            return self._Statement(v1, self._ValueSnak(self, v2))
         else:
-            return self._ValueSnak(self, value1)
+            return self._ValueSnak(self, v1)
 
     @property
     def range(self) -> Optional[Datatype]:

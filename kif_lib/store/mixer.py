@@ -72,11 +72,11 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
             for src in sources]
 
     @property
-    def sources(self) -> Iterable[Store]:
+    def sources(self) -> Collection[Store]:
         """The mixed sources."""
         return self.get_sources()
 
-    def get_sources(self) -> Iterable[Store]:
+    def get_sources(self) -> Collection[Store]:
         """Gets the mixed underlying sources.
 
         Returns:

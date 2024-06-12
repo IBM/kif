@@ -17,8 +17,8 @@ class TestModelDescriptorItemDescriptor(kif_TestCase):
         # good arguments
         self.assert_item_descriptor(ItemDescriptor(), None, TextSet(), None)
         self.assert_item_descriptor(
-            ItemDescriptor('x', ['a', 'b', 'c'], 'z'),
-            Text('x'), list(map(Text, ['a', 'b', 'c'])), Text('z'))
+            ItemDescriptor('x', TextSet('a', 'b', 'c'), 'z'),
+            Text('x'), TextSet(Text('a'), Text('b'), Text('c')), Text('z'))
 
     def test_get_label(self):
         self.assertEqual(ItemDescriptor('x').get_label(), Text('x'))
@@ -27,8 +27,9 @@ class TestModelDescriptorItemDescriptor(kif_TestCase):
 
     def test_get_aliases(self):
         self.assertEqual(ItemDescriptor('x').get_aliases(), TextSet())
-        self.assertEqual(ItemDescriptor(
-            None, ['x', 'y']).get_aliases(), TextSet(Text('x'), Text('y')))
+        self.assertEqual(
+            ItemDescriptor(None, TextSet('x', 'y')).get_aliases(),
+            TextSet(Text('x'), Text('y')))
 
     def test_get_description(self):
         self.assertEqual(

@@ -4,6 +4,7 @@
 from rdflib import Literal, URIRef
 
 from kif_lib import ExternalId, String
+from kif_lib.typing import cast
 
 from .tests import kif_TestCase
 
@@ -42,7 +43,7 @@ class TestModelValueExternalId(kif_TestCase):
         self.assertRaises(TypeError, ExternalId._from_rdflib, URIRef('x'))
         # good arguments
         self.assert_external_id(
-            ExternalId._from_rdflib(Literal('abc')), 'abc')
+            cast(ExternalId, ExternalId._from_rdflib(Literal('abc'))), 'abc')
 
     def test__to_rdflib(self):
         self.assertEqual(ExternalId('abc')._to_rdflib(), Literal('abc'))

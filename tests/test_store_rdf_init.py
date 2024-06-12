@@ -5,6 +5,7 @@ from rdflib import Graph
 
 from kif_lib import Store
 from kif_lib.store.rdf import RDF_Store
+from kif_lib.typing import cast
 
 from .data import BENZENE_TTL, BRAZIL_TTL
 from .tests import kif_StoreTestCase
@@ -42,7 +43,7 @@ class TestStoreRDF_Init(kif_StoreTestCase):
         self.assertIsInstance(kb, RDF_Store)
         # graph
         g = Graph()
-        kb = Store('rdf', graph=g, skolemize=False)
+        kb = cast(RDF_Store, Store('rdf', graph=g, skolemize=False))
         self.assertIsInstance(kb, RDF_Store)
         self.assertIs(kb._graph, g)
 

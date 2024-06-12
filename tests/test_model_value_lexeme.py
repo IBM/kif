@@ -5,6 +5,7 @@ from rdflib import Literal, URIRef
 
 from kif_lib import Entity, IRI, Lexeme, Lexemes
 from kif_lib.namespace import WD, WDT
+from kif_lib.typing import cast
 
 from .tests import kif_TestCase
 
@@ -32,12 +33,15 @@ class TestModelValueLexeme(kif_TestCase):
         # bad argument: result is a property
         self.assertRaises(TypeError, Lexeme._from_rdflib, WD.P31)
         # good arguments
-        self.assert_lexeme(Lexeme._from_rdflib(WD.L3873), IRI(WD.L3873))
         self.assert_lexeme(
-            Lexeme._from_rdflib(WDT.L3873, lexeme_prefixes=[WDT]),
+            cast(Lexeme, Lexeme._from_rdflib(WD.L3873)), IRI(WD.L3873))
+        self.assert_lexeme(
+            cast(Lexeme, Lexeme._from_rdflib(
+                WDT.L3873, lexeme_prefixes=[WDT])),
             IRI(WD.L3873))
         self.assert_lexeme(
-            Entity._from_rdflib(WDT.L3873, lexeme_prefixes=[WDT]),
+            cast(Lexeme, Entity._from_rdflib(
+                WDT.L3873, lexeme_prefixes=[WDT])),
             IRI(WD.L3873))
 
     def test__to_rdflib(self):

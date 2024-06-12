@@ -3,6 +3,7 @@
 
 from kif_lib import Store
 from kif_lib.store.mixer import MixerStore
+from kif_lib.typing import cast
 
 from .tests import kif_StoreTestCase
 
@@ -18,10 +19,10 @@ class TestStoreMixer_Init(kif_StoreTestCase):
             TypeError, 2, 'sources', 'expected Iterable[Store]',
             MixerStore, 'mixer', [0])
         # success
-        kb = Store('mixer')
+        kb = cast(MixerStore, Store('mixer'))
         self.assertEqual(kb.sources, [])
         sources = (Store('empty'), Store('empty'))
-        kb = Store('mixer', sources)
+        kb = cast(MixerStore, Store('mixer', sources))
         self.assertEqual(kb.sources, list(sources))
 
 

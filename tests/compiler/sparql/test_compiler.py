@@ -3,6 +3,7 @@
 
 import re
 
+from kif_lib.compiler import TCompilerPattern
 from kif_lib.compiler.sparql.compiler import SPARQL_Compiler
 from kif_lib.model import (
     IRI,
@@ -14,7 +15,6 @@ from kif_lib.model import (
     Lexeme,
     LexemeTemplate,
     LexemeVariable,
-    Pattern,
     Property,
     PropertyTemplate,
     PropertyVariable,
@@ -28,7 +28,7 @@ from ...tests import kif_TestCase
 
 class Test(kif_TestCase):
 
-    def assert_compile(self, pat: Pattern, template: str):
+    def assert_compile(self, pat: TCompilerPattern, template: str):
         res = SPARQL_Compiler(pat).compile()
         self.assertEqual(res.pattern, pat)
         try:

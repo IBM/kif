@@ -33,7 +33,9 @@ from kif_lib import (
     TextDatatype,
     Time,
     TimeDatatype,
+    ValueSnak,
 )
+from kif_lib.typing import cast
 from kif_lib.vocabulary import wd
 
 from .tests import kif_TestCase
@@ -243,7 +245,7 @@ class TestCodecMarkdown(kif_TestCase):
 - **NormalRank**)''')
         annots = AnnotationRecord(
             [NoValueSnak(Property('p')),
-             Property('q')(IRI('x'))],
+             cast(ValueSnak, Property('q')(IRI('x')))],
             [ReferenceRecord(NoValueSnak(Property('q'))),
              ReferenceRecord(SomeValueSnak(Property('q')))],
             Deprecated)
@@ -267,14 +269,14 @@ class TestCodecMarkdown(kif_TestCase):
     def test_reference_record_to_markdown(self):
         ref = ReferenceRecord()
         self.assert_to_markdown(ref, '(**ReferenceRecord**)')
-        ref = ReferenceRecord(wd.mass(wd.benzene))
+        ref = ReferenceRecord(ValueSnak(wd.mass, wd.benzene))
         self.assert_to_markdown(ref, '''\
 (**ReferenceRecord**
 - (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Item** [benzene](http://www.wikidata.org/entity/Q2270))))''')  # noqa: E501
         ref = ReferenceRecord(
-            wd.canonical_SMILES('ABC'),
-            wd.country(wd.Brazil),
-            wd.mass(Quantity(0)))
+            cast(ValueSnak, wd.canonical_SMILES(String('ABC'))),
+            cast(ValueSnak, wd.country(wd.Brazil)),
+            cast(ValueSnak, wd.mass(Quantity(0))))
         self.assert_to_markdown(ref, '''\
 (**ReferenceRecord**
 - (**ValueSnak** (**Property** [country](http://www.wikidata.org/entity/P17)) (**Item** [Brazil](http://www.wikidata.org/entity/Q155)))
@@ -307,7 +309,9 @@ class TestCodecMarkdown(kif_TestCase):
         fp = PropertyFingerprint([])
         self.assert_to_markdown(fp, '''\
 (**PropertyFingerprint** (**SnakSet**))''')
-        fp = EntityFingerprint([wd.mass(Quantity(0)), wd.country(wd.Brazil)])
+        fp = EntityFingerprint([
+            cast(ValueSnak, wd.mass(Quantity(0))),
+            cast(ValueSnak, wd.country(wd.Brazil))])
 
         self.assert_to_markdown(
             fp, '''\
@@ -332,7 +336,8 @@ class TestCodecMarkdown(kif_TestCase):
         pat = FilterPattern(
             None,
             None,
-            [wd.country(wd.Brazil), NoValueSnak(wd.date_of_birth)],
+            [cast(ValueSnak, wd.country(wd.Brazil)),
+             NoValueSnak(wd.date_of_birth)],
             Snak.NO_VALUE_SNAK)
         self.assert_to_markdown(
             pat, '''\
@@ -347,7 +352,7 @@ class TestCodecMarkdown(kif_TestCase):
     def test_snak_set_to_markdown(self):
         s = SnakSet()
         self.assert_to_markdown(s, '(**SnakSet**)')
-        s = SnakSet(wd.mass(wd.benzene))
+        s = SnakSet(cast(ValueSnak, wd.mass(wd.benzene)))
         self.assert_to_markdown(s, '''\
 (**SnakSet**
 - (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Item** [benzene](http://www.wikidata.org/entity/Q2270))))''')  # noqa: E501

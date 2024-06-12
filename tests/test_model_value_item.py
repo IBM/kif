@@ -5,6 +5,7 @@ from rdflib import Literal, URIRef
 
 from kif_lib import Entity, IRI, Item, Items
 from kif_lib.namespace import WD, WDT
+from kif_lib.typing import cast
 
 from .tests import kif_TestCase
 
@@ -30,9 +31,11 @@ class TestModelValueItem(kif_TestCase):
         # bad argument: result is a property
         self.assertRaises(TypeError, Item._from_rdflib, WD.P31)
         # good arguments
-        self.assert_item(Item._from_rdflib(WD.Q5), IRI(WD.Q5))
-        self.assert_item(Item._from_rdflib(WDT.Q5, [WDT]), IRI(WD.Q5))
-        self.assert_item(Entity._from_rdflib(WDT.Q5, [WDT]), IRI(WD.Q5))
+        self.assert_item(cast(Item, Item._from_rdflib(WD.Q5)), IRI(WD.Q5))
+        self.assert_item(
+            cast(Item, Item._from_rdflib(WDT.Q5, [WDT])), IRI(WD.Q5))
+        self.assert_item(
+            cast(Item, Entity._from_rdflib(WDT.Q5, [WDT])), IRI(WD.Q5))
 
     def test__to_rdflib(self):
         self.assertEqual(Item(WD.Q5)._to_rdflib(), WD.Q5)

@@ -31,8 +31,9 @@ class TestModelDescriptorPropertyDescriptor(kif_TestCase):
         self.assert_property_descriptor(
             PropertyDescriptor(), None, TextSet(), None, None)
         self.assert_property_descriptor(
-            PropertyDescriptor('x', ['a', 'b', 'c'], 'z', Text.datatype),
-            Text('x'), list(map(Text, ['a', 'b', 'c'])),
+            PropertyDescriptor(
+                'x', TextSet('a', 'b', 'c'), 'z', Text.datatype),
+            Text('x'), TextSet(Text('a'), Text('b'), Text('c')),
             Text('z'), TextDatatype())
 
     def test_get_label(self):
@@ -42,8 +43,9 @@ class TestModelDescriptorPropertyDescriptor(kif_TestCase):
 
     def test_get_aliases(self):
         self.assertEqual(PropertyDescriptor('x').get_aliases(), TextSet())
-        self.assertEqual(PropertyDescriptor(
-            None, ['x', 'y']).get_aliases(), TextSet(Text('x'), Text('y')))
+        self.assertEqual(
+            PropertyDescriptor(None, TextSet('x', 'y')).get_aliases(),
+            TextSet(Text('x'), Text('y')))
 
     def test_get_description(self):
         self.assertEqual(

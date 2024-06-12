@@ -39,7 +39,15 @@ from .external_id import (
     TExternalId,
     VExternalId,
 )
-from .iri import IRI, IRI_Datatype, IRI_Template, IRI_Variable, T_IRI, V_IRI
+from .iri import (
+    IRI,
+    IRI_Datatype,
+    IRI_Template,
+    IRI_Variable,
+    T_IRI,
+    V_IRI,
+    VV_IRI,
+)
 from .item import (
     Item,
     ItemDatatype,
@@ -48,6 +56,7 @@ from .item import (
     ItemVariable,
     TItem,
     VItem,
+    VTItemContent,
 )
 from .lexeme import (
     Lexeme,
@@ -66,7 +75,9 @@ from .property import (
     PropertyVariable,
     TProperty,
     VProperty,
+    VTPropertyContent,
     VVProperty,
+    VVTPropertyContent,
 )
 from .quantity import (
     Quantity,
@@ -75,6 +86,7 @@ from .quantity import (
     QuantityVariable,
     VQuantity,
     VQuantityContent,
+    VTQuantityContent,
 )
 from .shallow_data_value import (
     ShallowDataValue,
@@ -89,6 +101,7 @@ from .string import (
     TString,
     VString,
     VStringContent,
+    VTStringContent,
 )
 from .text import Text, TextDatatype, TextTemplate, TextVariable, TText, VText
 from .time import (
@@ -101,6 +114,9 @@ from .time import (
     VTimeContent,
     VTimePrecisionContent,
     VTimeTimezoneContent,
+    VTTimeContent,
+    VTTimePrecisionContent,
+    VTTimeTimezoneContent,
 )
 from .value import (
     Datatype,
@@ -113,6 +129,8 @@ from .value import (
     ValueVariable,
     VDatatype,
     VValue,
+    VVDatatype,
+    VVTValue,
     VVValue,
 )
 
@@ -213,8 +231,19 @@ __all__ = (
     'VTimeContent',
     'VTimePrecisionContent',
     'VTimeTimezoneContent',
+    'VTItemContent',
+    'VTPropertyContent',
+    'VTQuantityContent',
+    'VTStringContent',
+    'VTTimeContent',
+    'VTTimePrecisionContent',
+    'VTTimeTimezoneContent',
+    'VV_IRI',
     'VValue',
+    'VVDatatype',
     'VVEntity',
     'VVProperty',
+    'VVTPropertyContent',
+    'VVTValue',
     'VVValue',
 )

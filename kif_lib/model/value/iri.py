@@ -22,6 +22,7 @@ IRI_VariableClass: TypeAlias = type['IRI_Variable']
 T_IRI: TypeAlias = Union['IRI', String, NS.T_URI]
 VT_IRI_Content: TypeAlias = Union[Variable, T_IRI]
 V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'IRI']
+VV_IRI: TypeAlias = Union[Variable, V_IRI]
 
 
 class IRI_Template(ShallowDataValueTemplate):

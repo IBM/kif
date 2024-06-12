@@ -198,11 +198,15 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         # some value snak
         stmt = next(kb.filter(
             property=wd.father, value=SomeValueSnak(wd.date_of_death)))
+        self.assertIsInstance(stmt.snak, ValueSnak)
+        assert isinstance(stmt.snak, ValueSnak)
         stmt = next(kb.filter(stmt.snak.value, wd.date_of_death))
         self.assert_statement(
             stmt, stmt.subject, SomeValueSnak(wd.date_of_death))
         # no value snak
         stmt = next(kb.filter(value=[NoValueSnak(wd.date_of_birth)]))
+        self.assertIsInstance(stmt.snak, ValueSnak)
+        assert isinstance(stmt.snak, ValueSnak)
         stmt = next(kb.filter(stmt.snak.value, wd.date_of_birth))
         self.assert_statement(
             stmt, stmt.subject, NoValueSnak(wd.date_of_birth))

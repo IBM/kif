@@ -5,6 +5,7 @@ from rdflib import Literal, URIRef
 
 from kif_lib import IRI
 from kif_lib.namespace import WD, XSD
+from kif_lib.typing import cast
 
 from .tests import kif_TestCase
 
@@ -41,9 +42,9 @@ class TestModelValueIRI(kif_TestCase):
         self.assertRaises(TypeError, IRI._from_rdflib, URIRef(WD.P31))
         # good arguments
         self.assert_iri(
-            IRI._from_rdflib(URIRef('http://www.abc.org/')),
+            cast(IRI, IRI._from_rdflib(URIRef('http://www.abc.org/'))),
             'http://www.abc.org/')
-        self.assert_iri(IRI._from_rdflib(URIRef('abc')), 'abc')
+        self.assert_iri(cast(IRI, IRI._from_rdflib(URIRef('abc'))), 'abc')
 
     def test__to_rdflib(self):
         self.assertEqual(IRI('abc')._to_rdflib(), URIRef('abc'))

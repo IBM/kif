@@ -15,17 +15,11 @@ from kif_lib import (
 from kif_lib.vocabulary import wd
 
 __all__ = (
-    'ADAM',
     'ADAM_TTL',
-    'ANDAR',
     'ANDAR_TTL',
-    'BENZENE',
     'BENZENE_TTL',
-    'BRAZIL',
     'BRAZIL_TTL',
-    'INSTANCE',
-    'INSTANCE_TTL',
-    'PAINT',
+    'INSTANCE_OF_TTL',
     'PAINT_TTL',
 )
 
@@ -36,7 +30,7 @@ class _TTL:
     path: Path
 
     @classmethod
-    def __init_subclass__(cls, ttl=None):
+    def __init_subclass__(cls, ttl):
         cls.path = cls.test_data_dir / ttl
 
     @classmethod

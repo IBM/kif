@@ -90,6 +90,7 @@ from kif_lib.model import (
     ValueSnakVariable,
     ValueVariable,
 )
+from kif_lib.typing import cast
 
 from ..tests import kif_TestCase
 
@@ -2060,6 +2061,8 @@ class Test(kif_TestCase):
 
     def test_traverse(self):
         obj = Variable('p')(Item('x'), Quantity(5, Item('u')))
+        self.assert_statement_template(
+            obj, Item('x'), Variable('p')(Quantity(5, Item('u'))))
         self.assert_raises_bad_argument(
             TypeError, 1, 'filter', 'expected callable, got int',
             obj.traverse, 0)
@@ -2093,7 +2096,7 @@ class Test(kif_TestCase):
              obj.snak,
              PropertyVariable('p'),
              'p',
-             obj.snak.value,
+             cast(ValueSnak, obj.snak).value,
              Decimal(5),
              None,
              None])

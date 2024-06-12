@@ -3,6 +3,7 @@
 
 from kif_lib import Preferred, PreferredRank, Rank
 from kif_lib.namespace import WIKIBASE
+from kif_lib.typing import cast
 
 from .tests import kif_TestCase
 
@@ -16,7 +17,8 @@ class TestModelRankPreferredRank(kif_TestCase):
 
     def test__from_rdflib(self):
         self.assertRaises(ValueError, Rank._from_rdflib, WIKIBASE.Url)
-        self.assert_preferred_rank(Rank._from_rdflib(WIKIBASE.PreferredRank))
+        self.assert_preferred_rank(
+            cast(PreferredRank, Rank._from_rdflib(WIKIBASE.PreferredRank)))
 
     def test__to_rdflib(self):
         self.assertEqual(PreferredRank._to_rdflib(), WIKIBASE.PreferredRank)

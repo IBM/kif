@@ -179,9 +179,13 @@ class TestStoreMapperMappingPubChemDescriptors(
         # item: compound
         ((item, desc),) = kb.get_descriptor(self.CID421)
         self.assertEqual(item, self.CID421)
+        self.assertIsNotNone(desc)
+        assert desc is not None
         self.assert_item_descriptor(desc, *self.CID421_en)
         ((item, desc),) = kb.get_descriptor(self.CID421, 'pt')
         self.assertEqual(item, self.CID421)
+        self.assertIsNotNone(desc)
+        assert desc is not None
         self.assert_item_descriptor(desc, *ItemDescriptor())
         ((item, desc),) = kb.get_descriptor(PubChemMapping.compound('CIDX'))
         self.assertEqual(item, PubChemMapping.compound('CIDX'))
@@ -189,9 +193,13 @@ class TestStoreMapperMappingPubChemDescriptors(
         # item: patent
         ((item, desc),) = kb.get_descriptor(self.DE_112011101181_T5)
         self.assertEqual(item, self.DE_112011101181_T5)
+        self.assertIsNotNone(desc)
+        assert desc is not None
         self.assert_item_descriptor(desc, *self.DE_112011101181_T5_en)
         ((item, desc),) = kb.get_descriptor(self.DE_112011101181_T5, 'pt')
         self.assertEqual(item, self.DE_112011101181_T5)
+        self.assertIsNotNone(desc)
+        assert desc is not None
         self.assert_item_descriptor(desc, *ItemDescriptor())
         ((item, desc),) = kb.get_descriptor(PubChemMapping.patent('XXX'))
         self.assertEqual(item, PubChemMapping.patent('XXX'))
@@ -199,9 +207,13 @@ class TestStoreMapperMappingPubChemDescriptors(
         # item: source
         ((item, desc),) = kb.get_descriptor(self.ID15739)
         self.assertEqual(item, self.ID15739)
+        self.assertIsNotNone(desc)
+        assert desc is not None
         self.assert_item_descriptor(desc, *self.ID15739_en)
         ((item, desc),) = kb.get_descriptor(self.ID15739, 'pt')
         self.assertEqual(item, self.ID15739)
+        self.assertIsNotNone(desc)
+        assert desc is not None
         self.assert_item_descriptor(desc, *ItemDescriptor())
         ((item, desc),) = kb.get_descriptor(PubChemMapping.source('IDX'))
         self.assertEqual(item, PubChemMapping.source('IDX'))
@@ -232,26 +244,40 @@ class TestStoreMapperMappingPubChemDescriptors(
              Item('x')]))              # 11
         self.assertEqual(len(ds), 12)
         self.assertEqual(ds[0][0], self.CID421)
+        self.assertIsNotNone(ds[0][1])
+        assert ds[0][1] is not None
         self.assert_item_descriptor(ds[0][1], *self.CID421_en)
         self.assertEqual(ds[1][0], Item('x'))
         self.assertIsNone(ds[1][1])
         self.assertEqual(ds[2][0], Property('p'))
         self.assertIsNone(ds[2][1])
         self.assertEqual(ds[3][0], self.DE_112011101181_T5)
+        self.assertIsNotNone(ds[3][1])
+        assert ds[3][1] is not None
         self.assert_item_descriptor(ds[3][1], *self.DE_112011101181_T5_en)
         self.assertEqual(ds[4][0], Lexeme('l'))
         self.assertIsNone(ds[4][1])
         self.assertEqual(ds[5][0], self.AAA_Chemistry)
+        self.assertIsNotNone(ds[5][1])
+        assert ds[5][1] is not None
         self.assert_item_descriptor(ds[5][1], *self.AAA_Chemistry_en)
         self.assertEqual(ds[6][0], self.CID8822)
         self.assertIsNone(ds[6][1])
         self.assertEqual(ds[7][0], self.CID908)
+        self.assertIsNotNone(ds[7][1])
+        assert ds[7][1] is not None
         self.assert_item_descriptor(ds[7][1], *self.CID908_en)
         self.assertEqual(ds[8][0], self.AR_017300_A1)
+        self.assertIsNotNone(ds[8][1])
+        assert ds[8][1] is not None
         self.assert_item_descriptor(ds[8][1], *self.AR_017300_A1_en)
         self.assertEqual(ds[9][0], self.ID15739)
+        self.assertIsNotNone(ds[9][1])
+        assert ds[9][1] is not None
         self.assert_item_descriptor(ds[9][1], *self.ID15739_en)
         self.assertEqual(ds[10][0], self.CID421)
+        self.assertIsNotNone(ds[10][1])
+        assert ds[10][1] is not None
         self.assert_item_descriptor(ds[10][1], *self.CID421_en)
         self.assertEqual(ds[11][0], Item('x'))
         self.assertIsNone(ds[11][1])

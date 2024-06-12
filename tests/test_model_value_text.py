@@ -5,6 +5,7 @@ from rdflib import Literal, URIRef
 
 from kif_lib import String, Text
 from kif_lib.namespace import XSD
+from kif_lib.typing import cast
 
 from .tests import kif_TestCase
 
@@ -34,12 +35,13 @@ class TestModelValueText(kif_TestCase):
             TypeError, Text._from_rdflib, Literal('1.0', datatype=XSD.decimal))
         # good arguments
         self.assert_text(
-            Text._from_rdflib(Literal('abc', 'es')), 'abc', 'es')
+            cast(Text, Text._from_rdflib(Literal('abc', 'es'))), 'abc', 'es')
 
     def test__to_rdflib(self):
-        self.assertEqual(Text('abc')._to_rdflib(), Literal('abc', 'en'))
         self.assertEqual(
-            Text('abc', 'es')._to_rdflib(), Literal('abc', 'es'))
+            cast(Text, Text('abc')._to_rdflib()), Literal('abc', 'en'))
+        self.assertEqual(
+            cast(Text, Text('abc', 'es')._to_rdflib()), Literal('abc', 'es'))
 
 
 if __name__ == '__main__':

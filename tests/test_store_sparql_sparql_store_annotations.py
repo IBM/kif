@@ -21,6 +21,8 @@ class TestStoreSPARQL_SPARQL_StoreAnnotations(
         sin = wd.density(wd.benzene, qt)
         sout, annots = next(kb.get_annotations([sin]))
         self.assertEqual(sin, sout)
+        self.assertIsNotNone(annots)
+        assert annots is not None
         self.assert_annotation_record_set(
             annots,
             AnnotationRecord(
@@ -37,6 +39,8 @@ class TestStoreSPARQL_SPARQL_StoreAnnotations(
         sin = wd.minimal_lethal_dose(wd.benzene, qt)
         sout, annots = next(kb.get_annotations([sin]))
         self.assertEqual(sin, sout)
+        self.assertIsNotNone(annots)
+        assert annots is not None
         self.assert_annotation_record_set(
             annots,
             AnnotationRecord(

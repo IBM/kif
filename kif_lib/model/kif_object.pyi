@@ -39,7 +39,7 @@ from .kif_object_set import KIF_ObjectSet, T_KIF_ObjectSet
 from .pattern import Pattern
 from .pattern_deprecated import FilterPattern
 from .rank import DeprecatedRank, NormalRank, PreferredRank, Rank
-from .reference_record import ReferenceRecord
+from .reference_record import ReferenceRecord, TReferenceRecord
 from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
 from .snak import (
     NoValueSnak,
@@ -1668,7 +1668,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_arg_reference_record(
             cls,
-            arg: ReferenceRecord,
+            arg: TReferenceRecord,
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
@@ -3662,7 +3662,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_optional_arg_reference_record(
             cls,
-            arg: Optional[ReferenceRecord],
+            arg: Optional[TReferenceRecord],
             default: Optional[ReferenceRecord] = ...,
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
@@ -4989,7 +4989,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _preprocess_arg_reference_record(
             cls,
-            arg: ReferenceRecord,
+            arg: TReferenceRecord,
             i: int,
             function: Optional[Union[TCallable, str]] = ...
     ) -> ReferenceRecord:
@@ -5892,7 +5892,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _preprocess_optional_arg_reference_record(
             cls,
-            arg: Optional[ReferenceRecord],
+            arg: Optional[TReferenceRecord],
             i: int,
             default: Optional[ReferenceRecord] = ...,
             function: Optional[Union[TCallable, str]] = ...,

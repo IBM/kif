@@ -10,6 +10,7 @@ from .variable import Variable
 
 VStatement: TypeAlias =\
     Union['StatementTemplate', 'StatementVariable', 'Statement']
+VVStatement: TypeAlias = Union[Variable, 'Statement']
 
 
 class StatementTemplate(Template):

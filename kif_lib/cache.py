@@ -21,7 +21,7 @@ class Cache:
     _cache: dict[Hashable, dict[str, Any]]
     _enabled: bool
 
-    def __init__(self, enabled=True):
+    def __init__(self, enabled: bool = True):
         self._cache = dict()
         self._enabled = enabled
 

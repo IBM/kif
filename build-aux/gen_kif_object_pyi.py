@@ -76,6 +76,7 @@ def T(cls_name, _T={
         'Lexeme': 'TLexeme',
         'Property': 'TProperty',
         'PropertyFingerprint': 'TPropertyFingerprint',
+        'ReferenceRecord': 'TReferenceRecord',
         'ReferenceRecordSet': 'TReferenceRecordSet',
         'SnakSet': 'TSnakSet',
         'String': 'TString',

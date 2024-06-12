@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
+    Datatype,
     DataValue,
     DeepDataValue,
     Entity,
@@ -21,6 +22,7 @@ from kif_lib import (
     String,
     Text,
     Time,
+    Value,
     ValueSnak,
     Variable,
     Variables,
@@ -110,11 +112,10 @@ class Test(kif_TestCase):
             TypeError, 1, None,
             'expected IRI or String or URIRef or str, got int',
             (ItemTemplate, 'Item'), 0)
-        self.assert_item_template(ItemTemplate(x), IRI_Variable('x'))
-        self.assert_item_template(
-            cast(ItemTemplate, Item(x)), IRI_Variable('x'))
+        self.assert_item_template(ItemTemplate(x), Variable('x', IRI))
+        self.assert_item_template(Item(x), IRI_Variable('x'))
         self.assert_item_template(ItemTemplate(IRI(x)), IRI(x))
-        self.assert_item_template(cast(ItemTemplate, Item(IRI(x))), IRI(x))
+        self.assert_item_template(Item(IRI(x)), IRI(x))
         self.assert_item(cast(Item, ItemTemplate(IRI('x'))), IRI('x'))
 
     def test__new__property_template(self):
@@ -132,20 +133,16 @@ class Test(kif_TestCase):
         self.assert_property_template(
             PropertyTemplate(x, Item.datatype),
             IRI_Variable('x'), ItemDatatype())
+        self.assert_property_template(Property(x), Variable('x', IRI), None)
         self.assert_property_template(
-            cast(PropertyTemplate, Property(x)), IRI_Variable('x'), None)
-        self.assert_property_template(
-            cast(PropertyTemplate, Property(x, y)), IRI_Variable('x'),
-            DatatypeVariable('y'))
+            Property(x, y), IRI_Variable('x'), DatatypeVariable('y'))
         self.assert_property_template(
             PropertyTemplate(IRI(x)), IRI(x), None)
         self.assert_property_template(
             PropertyTemplate(IRI(x), Item), IRI(x), ItemDatatype())
+        self.assert_property_template(Property(IRI(x)), IRI(x), None)
         self.assert_property_template(
-            cast(PropertyTemplate, Property(IRI(x))), IRI(x), None)
-        self.assert_property_template(
-            cast(PropertyTemplate, Property(IRI('x'), y)), IRI('x'),
-            DatatypeVariable('y'))
+            Property(IRI('x'), y), IRI('x'), Variable('y', Datatype))
         self.assert_property(
             cast(Property, PropertyTemplate(IRI('x'))), IRI('x'), None)
         self.assert_property(
@@ -159,11 +156,9 @@ class Test(kif_TestCase):
             (LexemeTemplate, 'Lexeme'), 0)
         self.assert_lexeme_template(
             LexemeTemplate(x), IRI_Variable('x'))
-        self.assert_lexeme_template(
-            cast(LexemeTemplate, Lexeme(x)), IRI_Variable('x'))
+        self.assert_lexeme_template(Lexeme(x), Variable('x', IRI))
         self.assert_lexeme_template(LexemeTemplate(IRI(x)), IRI(x))
-        self.assert_lexeme_template(
-            cast(LexemeTemplate, Lexeme(IRI(x))), IRI(x))
+        self.assert_lexeme_template(Lexeme(IRI(x)), IRI(x))
         self.assert_lexeme(
             cast(Lexeme, LexemeTemplate(IRI('x'))), IRI('x'))
 
@@ -178,10 +173,8 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             TypeError, 1, None, 'expected str, got int',
             (IRI_Template, 'IRI'), 0)
-        self.assert_iri_template(
-            IRI_Template(x), StringVariable('x'))
-        self.assert_iri_template(
-            cast(IRI_Template, IRI(x)), StringVariable('x'))
+        self.assert_iri_template(IRI_Template(x), StringVariable('x'))
+        self.assert_iri_template(IRI(x), Variable('x', String))
         self.assert_iri(IRI(String('x')), 'x')
 
     def test__new__text_template(self):
@@ -204,8 +197,7 @@ class Test(kif_TestCase):
             TextTemplate(x), StringVariable('x'),
             Text.default_language)
         self.assert_text_template(
-            cast(TextTemplate, Text(x, y)),
-            StringVariable('x'), StringVariable('y'))
+            Text(x, y), Variable('x', String), StringVariable('y'))
         self.assert_text(Text(String('x'), String('y')), 'x', 'y')
 
     def test__new__string_template(self):
@@ -215,8 +207,7 @@ class Test(kif_TestCase):
             (StringTemplate, 'String'), 0)
         self.assert_string_template(
             StringTemplate(x), StringVariable('x'))
-        self.assert_string_template(
-            cast(StringTemplate, String(x)), StringVariable('x'))
+        self.assert_string_template(String(x), Variable('x', String))
         self.assert_string(String('x'), 'x')
 
     def test__new__external_id_template(self):
@@ -227,7 +218,7 @@ class Test(kif_TestCase):
         self.assert_external_id_template(
             ExternalIdTemplate(x), StringVariable('x'))
         self.assert_external_id_template(
-            cast(ExternalIdTemplate, ExternalId(x)), StringVariable('x'))
+            ExternalId(x), Variable('x', String))
         self.assert_external_id(ExternalId('x'), 'x')
 
     def test__new__deep_data_value_template(self):
@@ -271,27 +262,22 @@ class Test(kif_TestCase):
             QuantityVariable('z'),
             QuantityVariable('w'))
         self.assert_quantity_template(
-            cast(QuantityTemplate, Quantity(x)), QuantityVariable('x'),
-            None, None, None)
+            Quantity(x), Variable('x', Quantity), None, None, None)
         self.assert_quantity_template(
-            cast(QuantityTemplate, Quantity(0, Item(x))),
-            Decimal(0), ItemTemplate(IRI_Variable('x')),
-            None, None)
+            Quantity(0, Item(x)), Decimal(0),
+            Item(Variable('x', IRI)), None, None)
         self.assert_quantity_template(
-            cast(QuantityTemplate, Quantity(0, Item(IRI(x)))),
-            Decimal(0),
-            ItemTemplate(
-                IRI_Template(StringVariable('x'))),
-            None, None)
+            Quantity(0, Item(IRI(x))), Decimal(0),
+            ItemTemplate(IRI(Variable('x', String))), None, None)
         self.assert_quantity_template(
-            cast(QuantityTemplate, Quantity(0, None, x)),
-            Decimal(0), None,
-            QuantityVariable('x'),
-            None)
+            Quantity(0, None, x), Decimal(0),
+            None, Variable('x', Quantity), None)
         self.assert_quantity_template(
-            cast(QuantityTemplate, Quantity(0, None, 0, x)),
-            Decimal(0), None, Decimal(0),
-            QuantityVariable('x'))
+            Quantity(0, None, 0, x),
+            Decimal(0), None, Decimal(0), Variable('x', Quantity))
+        self.assert_quantity(
+            cast(Quantity, QuantityTemplate(0, None, 0, None)),
+            Decimal(0), None, Decimal(0), None)
 
     def test__new__time_template(self):
         x = Variable('x')
@@ -337,23 +323,26 @@ class Test(kif_TestCase):
             QuantityVariable('z'),
             ItemVariable('w'))
         self.assert_time_template(
-            cast(TimeTemplate, Time(x)), TimeVariable('x'), None, None, None)
+            Time(x), Variable('x', Time), None, None, None)
         self.assert_time_template(
-            cast(TimeTemplate, Time('2024-05-06', x)),
+            Time('2024-05-06', x),
             Time('2024-05-06').time,
-            QuantityVariable('x'), None, None)
+            Variable('x', Quantity), None, None)
         self.assert_time_template(
-            cast(TimeTemplate, Time('2024-05-06', None, x)),
+            Time('2024-05-06', None, x),
             Time('2024-05-06').time,
-            None, QuantityVariable('x'), None)
+            None, Variable('x', Quantity), None)
         self.assert_time_template(
-            cast(TimeTemplate, Time('2024-05-06', None, None, x)),
+            Time('2024-05-06', None, None, x),
             Time('2024-05-06').time,
-            None, None, ItemVariable('x'))
+            None, None, Variable('x', Item))
         self.assert_time_template(
-            cast(TimeTemplate, Time('2024-05-06', None, None, Item(IRI(x)))),
+            Time('2024-05-06', None, None, Item(IRI(x))),
             Time('2024-05-06').time, None, None,
-            ItemTemplate(IRI_Template(StringVariable('x'))))
+            Item(IRI(Variable('x'))))
+        self.assert_time(
+            cast(Time, TimeTemplate('2024-05-06', None, None, None)),
+            Time('2024-05-06').time, None, None, None)
 
     def test__new__snak_template(self):
         self.assert_abstract_class(SnakTemplate)
@@ -370,11 +359,11 @@ class Test(kif_TestCase):
             'got dict',
             (ValueSnakTemplate, 'ValueSnak'), Property('x'), dict())
         self.assert_value_snak_template(
-            cast(ValueSnakTemplate, ValueSnakTemplate(x, Quantity(0))),
-            PropertyVariable('x'), Quantity(0))
+            ValueSnakTemplate(x, Quantity(0)),
+            Variable('x', Property), Quantity(0))
         self.assert_value_snak_template(
             ValueSnakTemplate(Property(x), Quantity(0)),
-            PropertyTemplate(IRI_Variable('x')), Quantity(0))
+            Property(Variable('x', IRI)), Quantity(0))
         self.assert_value_snak_template(
             ValueSnakTemplate(Property('p'), x),
             Property('p'), ValueVariable('x'))
@@ -382,20 +371,23 @@ class Test(kif_TestCase):
             ValueSnakTemplate(Property('p'), IRI_Template(x)),
             Property('p'), IRI(StringVariable('x')))
         self.assert_value_snak_template(
-            cast(ValueSnakTemplate, ValueSnak(x, Quantity(0))),
-            PropertyVariable('x'), Quantity(0))
+            ValueSnak(x, Quantity(0)),
+            Variable('x', Property), Quantity(0))
         self.assert_value_snak_template(
-            cast(ValueSnakTemplate, ValueSnak(Property(x), Quantity(0))),
-            Property(IRI_Variable('x')), Quantity(0))
+            ValueSnak(Property(x), Quantity(0)),
+            Property(Variable('x', IRI)), Quantity(0))
         self.assert_value_snak_template(
-            cast(ValueSnakTemplate, ValueSnak(Property('p'), x)),
-            Property('p'), ValueVariable('x'))
+            ValueSnak(Property('p'), x),
+            Property('p'), Variable('x', Value))
         self.assert_value_snak_template(
             cast(ValueSnakTemplate, ValueSnak(Property('p'), Time(x))),
             Property('p'), Time(Variable('x', Time)))
         self.assert_value_snak_template(
-            cast(ValueSnakTemplate, PropertyTemplate(x)(String('s'))),
-            PropertyTemplate(x), String('s'))
+            PropertyTemplate(x)(String('s')),
+            Property(x), String('s'))
+        self.assert_value_snak(
+            cast(ValueSnak, ValueSnakTemplate(Property('p'), Item('x'))),
+            Property('p'), Item('x'))
 
     def test__new__some_value_snak_template(self):
         x = Variable('x')
@@ -414,7 +406,10 @@ class Test(kif_TestCase):
             PropertyVariable('x'))
         self.assert_some_value_snak_template(
             SomeValueSnak(Property(x)),
-            Property(IRI_Variable('x')))
+            Property(Variable('x', IRI)))
+        self.assert_some_value_snak(
+            cast(SomeValueSnak, SomeValueSnakTemplate(Property('x'))),
+            Property('x'))
 
     def test__new__no_value_snak_template(self):
         x = Variable('x')
@@ -431,7 +426,10 @@ class Test(kif_TestCase):
             NoValueSnak(x), PropertyVariable('x'))
         self.assert_no_value_snak_template(
             NoValueSnak(Property(x)),
-            Property(IRI_Variable('x')))
+            Property(Variable('x', IRI)))
+        self.assert_no_value_snak(
+            cast(NoValueSnak, NoValueSnakTemplate(Property('x'))),
+            Property('x'))
 
     def test__new__statement_template(self):
         x = Variable('x')
@@ -466,6 +464,9 @@ class Test(kif_TestCase):
         self.assert_statement_template(
             PropertyTemplate(x)(Item('i'), String('s')),
             Item('i'), PropertyTemplate(x)(String('s')))
+        self.assert_statement(
+            cast(Statement, PropertyTemplate('x')(Item('i'), String('s'))),
+            Item('i'), Property('x')(String('s')))
 
 # -- __init__ --------------------------------------------------------------
 
@@ -760,7 +761,8 @@ class Test(kif_TestCase):
     def test_variables(self):
         x, y, z = Variables('x', 'y', 'z')
         self.assertEqual(
-            Statement(x, ValueSnak(y, Quantity(123, x, z))).variables, {
+            cast(StatementTemplate, Statement(
+                x, ValueSnak(y, Quantity(123, x, z)))).variables, {
                 ItemVariable('x'),
                 PropertyVariable('y'),
                 QuantityVariable('z')})

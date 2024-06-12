@@ -4,6 +4,7 @@
 from rdflib import Literal, URIRef
 
 from kif_lib import String
+from kif_lib.typing import cast
 
 from .tests import kif_TestCase
 
@@ -39,7 +40,8 @@ class TestModelValueString(kif_TestCase):
         # bad argument: uri
         self.assertRaises(TypeError, String._from_rdflib, URIRef('x'))
         # good arguments
-        self.assert_string(String._from_rdflib(Literal('abc')), 'abc')
+        self.assert_string(
+            cast(String, String._from_rdflib(Literal('abc'))), 'abc')
 
     def test__to_rdflib(self):
         self.assertEqual(String('abc')._to_rdflib(), Literal('abc'))

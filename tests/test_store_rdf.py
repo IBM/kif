@@ -18,6 +18,8 @@ from kif_lib import (
     Text,
     Time,
 )
+from kif_lib.store.rdf import RDF_Store
+from kif_lib.typing import cast
 from kif_lib.vocabulary import wd
 
 from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL
@@ -32,7 +34,7 @@ class TestStoreRDF(kif_StoreTestCase):
     # -- Set interface -----------------------------------------------------
 
     def test__iter__(self):
-        kb = Store('rdf', BENZENE_TTL)
+        kb = cast(RDF_Store, Store('rdf', BENZENE_TTL))
         stmt = next(iter(kb))
         self.assertIsInstance(stmt, Statement)
         # force pagination
@@ -47,7 +49,7 @@ class TestStoreRDF(kif_StoreTestCase):
     # -- Queries -----------------------------------------------------------
 
     def test__eval_select_query_string(self):
-        kb = Store('rdf', BENZENE_TTL)
+        kb = cast(RDF_Store, Store('rdf', BENZENE_TTL))
         res = kb._eval_select_query_string(
             'select * where {?s ?p ?o} limit 1')
         self.assertIn('vars', res['head'])

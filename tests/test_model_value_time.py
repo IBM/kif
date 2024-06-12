@@ -6,6 +6,7 @@ from rdflib import Literal, URIRef
 from kif_lib import Time
 from kif_lib.model import Datetime, UTC
 from kif_lib.namespace import XSD
+from kif_lib.typing import cast
 from kif_lib.vocabulary import wd
 
 from .tests import kif_TestCase
@@ -139,13 +140,15 @@ class TestModelValueTime(kif_TestCase):
         # good arguments
         t = Literal('2023-10-03T00:00:00', datatype=XSD.dateTime)
         self.assert_time(
-            Time._from_rdflib(t), Datetime(2023, 10, 3, tzinfo=UTC))
+            cast(Time, Time._from_rdflib(t)),
+            Datetime(2023, 10, 3, tzinfo=UTC))
         t = Literal('2023-10-03', datatype=XSD.date)
         self.assert_time(
-            Time._from_rdflib(t), Datetime(2023, 10, 3, tzinfo=UTC))
+            cast(Time, Time._from_rdflib(t)),
+            Datetime(2023, 10, 3, tzinfo=UTC))
         t = Literal('2023-10-03T11:11:11', datatype=XSD.dateTime)
         self.assert_time(
-            Time._from_rdflib(t),
+            cast(Time, Time._from_rdflib(t)),
             Datetime(2023, 10, 3, 11, 11, 11, tzinfo=UTC))
 
     def test__to_rdflib(self):

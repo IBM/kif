@@ -455,7 +455,7 @@ class Store(Set):
             self,
             it: Iterable[T],
             page_size: Optional[int] = None
-    ) -> Iterable[Sequence[T]]:
+    ) -> Iterator[Sequence[T]]:
         """Batches `it` into tuples of at most page-size length.
 
         If `page_size` is ``None``, assumes :attr:`Store.page_size`.

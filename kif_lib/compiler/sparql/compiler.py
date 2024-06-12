@@ -27,7 +27,6 @@ from ...model import (
     NoValueSnak,
     NoValueSnakTemplate,
     NoValueSnakVariable,
-    Pattern,
     Property,
     PropertyTemplate,
     PropertyVariable,
@@ -88,7 +87,7 @@ from ...typing import (
     TypeVar,
     Union,
 )
-from .. import Compiler
+from .. import Compiler, TCompilerPattern
 from .builder import Literal as QueryLiteral
 from .builder import SelectQuery
 from .builder import URIRef as QueryURI
@@ -299,15 +298,15 @@ class SPARQL_Compiler(
             return self._compiler
 
         @property
-        def pattern(self) -> Pattern:
+        def pattern(self) -> TCompilerPattern:
             """The input pattern."""
             return self.get_pattern()
 
-        def get_pattern(self) -> Pattern:
+        def get_pattern(self) -> TCompilerPattern:
             """Gets the input pattern.
 
             Returns:
-               Pattern.
+               Template.
             """
             return self._compiler._pattern
 
@@ -347,7 +346,7 @@ class SPARQL_Compiler(
         '_debug',
     )
 
-    def __init__(self, pattern: Pattern, debug: bool = False):
+    def __init__(self, pattern: TCompilerPattern, debug: bool = False):
         super().__init__(pattern)
         self._q = CompiledQuery()
         self._theta = Substitution()

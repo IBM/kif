@@ -6,6 +6,7 @@ from rdflib import Literal, URIRef
 from kif_lib import IRI, Item, Quantity
 from kif_lib.model import Decimal
 from kif_lib.namespace import XSD
+from kif_lib.typing import cast
 from kif_lib.vocabulary import wd
 
 from .tests import kif_TestCase
@@ -17,26 +18,30 @@ class TestModelValueQuantity(kif_TestCase):
         self.assertRaises(ValueError, Quantity, 'abc', 0)
         self.assertRaises(ValueError, Quantity, 0, 'x', 'abc')
         self.assertRaises(ValueError, Quantity, 0, 'x', None, 'abc')
-        self.assert_quantity(Quantity(1), 1)
-        self.assert_quantity(Quantity(-1), '-1')
-        self.assert_quantity(Quantity(1.), '1.0')
-        self.assert_quantity(Quantity(Decimal('-0.1')), '-0.1')
-        self.assert_quantity(Quantity(-.1), -.1)
-        self.assert_quantity(Quantity('+1'), '1')
-        self.assert_quantity(Quantity(1., Item('x')), '1.0', Item('x'))
+        self.assert_quantity(Quantity(1), Decimal(1))
+        self.assert_quantity(Quantity(-1), Decimal('-1'))
+        self.assert_quantity(Quantity(1.), Decimal('1.0'))
+        self.assert_quantity(Quantity(Decimal('-0.1')), Decimal('-0.1'))
+        self.assert_quantity(Quantity(-.1), Decimal(-.1))
+        self.assert_quantity(Quantity('+1'), Decimal('1'))
         self.assert_quantity(
-            Quantity(1., Item('ms')), '1.0', Item(IRI('ms')))
-        self.assert_quantity(Quantity('1.', None, '8'), '1.0', None, '8')
+            Quantity(1., Item('x')), Decimal('1.0'), Item('x'))
         self.assert_quantity(
-            Quantity(1., Item('ms'), 8), '1.0', Item('ms'), '8')
+            Quantity(1., Item('ms')), Decimal('1.0'), Item(IRI('ms')))
         self.assert_quantity(
-            Quantity(1., None, None, 20), '1.0', None, None, '20')
+            Quantity('1.', None, '8'), Decimal('1.0'), None, Decimal('8'))
+        self.assert_quantity(
+            Quantity(1., Item('ms'), 8),
+            Decimal('1.0'), Item('ms'), Decimal('8'))
+        self.assert_quantity(
+            Quantity(1., None, None, 20), Decimal('1.0'),
+            None, None, Decimal('20'))
         self.assert_quantity(
             Quantity(1., Item('abc'), None, 20),
-            '1.0', Item('abc'), None, '20')
+            Decimal('1.0'), Item('abc'), None, Decimal('20'))
         self.assert_quantity(
             Quantity(1., Item('abc'), -1.5, 20),
-            '1.0', Item('abc'), '-1.5', '20')
+            Decimal('1.0'), Item('abc'), Decimal('-1.5'), Decimal('20'))
 
     def test_get_unit(self):
         self.assertEqual(Quantity(0, Item('x')).get_unit(), Item('x'))
@@ -54,7 +59,7 @@ class TestModelValueQuantity(kif_TestCase):
     def test_get_upper_bound(self):
         self.assertEqual(
             Quantity(0, None, 1, 2).get_upper_bound(), Decimal('2'))
-        self.assertEqual(Quantity(0).get_upper_bound(2), Decimal(2))
+        self.assertEqual(Quantity(0).get_upper_bound(Decimal(2)), Decimal(2))
         self.assertIsNone(Quantity(0, None).get_upper_bound())
 
     def test__from_rdflib(self):
@@ -68,10 +73,12 @@ class TestModelValueQuantity(kif_TestCase):
                 '2023-10-03', datatype=XSD.dateTime))
         # good arguments
         self.assert_quantity(
-            Quantity._from_rdflib(Literal('1.55', datatype=XSD.decimal)),
+            cast(Quantity, Quantity._from_rdflib(
+                Literal('1.55', datatype=XSD.decimal))),
             Decimal('1.55'))
         self.assert_quantity(
-            Quantity._from_rdflib(Literal('-8', datatype=XSD.decimal)),
+            cast(Quantity, Quantity._from_rdflib(
+                Literal('-8', datatype=XSD.decimal))),
             Decimal('-8'))
 
     def test__to_rdflib(self):

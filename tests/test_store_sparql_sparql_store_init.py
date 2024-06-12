@@ -3,6 +3,7 @@
 
 from kif_lib import IRI, Store
 from kif_lib.store.sparql import SPARQL_Store
+from kif_lib.typing import cast
 
 from .tests import kif_StoreTestCase
 
@@ -16,7 +17,8 @@ class TestStoreSPARQL_SPARQL_StoreInit(kif_StoreTestCase):
             'expected IRI or String or URIRef or str, got int',
             SPARQL_Store, 'sparql', 0)
         # success
-        kb = Store('sparql', 'https://query.wikidata.org/sparql')
+        kb = cast(SPARQL_Store, Store(
+            'sparql', 'https://query.wikidata.org/sparql'))
         self.assertEqual(kb.iri, IRI('https://query.wikidata.org/sparql'))
 
 

@@ -3,7 +3,6 @@
 
 import abc
 
-from ..model import Pattern
 from ..model.kif_object import Error as KIF_ObjectError
 from ..model.kif_object import (
     KIF_Object,
@@ -11,7 +10,9 @@ from ..model.kif_object import (
     TDetails,
     TLocation,
 )
-from ..typing import Any, Final, Optional
+from ..typing import Any, Final, Optional, TypeAlias
+
+TCompilerPattern: TypeAlias = KIF_Object
 
 
 class Compiler(abc.ABC):
@@ -61,13 +62,13 @@ class Compiler(abc.ABC):
         assert fmt is not None
         return cls.registry[fmt]
 
-    _pattern: Pattern
+    _pattern: TCompilerPattern
 
     __slots__ = (
         '_pattern',
     )
 
-    def __init__(self, pattern: Pattern, **kwargs: Any):
+    def __init__(self, pattern: TCompilerPattern, **kwargs: Any):
         self._pattern = pattern
 
     @property

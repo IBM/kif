@@ -109,6 +109,8 @@ wd:P31
         ds = list(kb.get_item_descriptor(wd.Brazil))
         self.assertEqual(len(ds), 1)
         self.assertEqual(ds[0][0], wd.Brazil)
+        self.assertIsNotNone(ds[0][1])
+        assert ds[0][1] is not None
         self.assert_item_descriptor(ds[0][1], *BRAZIL_TTL.Brazil_en)
 
     def test_get_descriptor_single_entity_with_merges(self):
@@ -118,6 +120,8 @@ wd:P31
         ds = list(kb.get_descriptor(wd.Brazil, 'pt-br'))
         self.assertEqual(len(ds), 1)
         self.assertEqual(ds[0][0], wd.Brazil)
+        self.assertIsNotNone(ds[0][1])
+        assert ds[0][1] is not None
         self.assert_item_descriptor(
             ds[0][1], BRAZIL_TTL.Brazil_pt_br[0],
             TextSet(*self.extra_Brazil_pt_br[1], *BRAZIL_TTL.Brazil_pt_br[1]),
@@ -131,14 +135,20 @@ wd:P31
             wd.L(96), Item('x'), wd.instance_of]))
         self.assertEqual(len(ds), 5)
         self.assertEqual(ds[0][0], wd.Brazil)
+        self.assertIsNotNone(ds[0][1])
+        assert ds[0][1] is not None
         self.assert_item_descriptor(ds[0][1], *BRAZIL_TTL.Brazil_en)
         self.assertEqual(ds[1][0], Property('x'))
         self.assertIsNone(ds[1][1])
         self.assertEqual(ds[2][0], wd.L(96))
+        self.assertIsNotNone(ds[2][1])
+        assert ds[2][1] is not None
         self.assert_lexeme_descriptor(ds[2][1], *PAINT_TTL.paint_verb_en)
         self.assertEqual(ds[3][0], Item('x'))
         self.assertIsNone(ds[3][1])
         self.assertEqual(ds[4][0], wd.instance_of)
+        self.assertIsNotNone(ds[4][1])
+        assert ds[4][1] is not None
         self.assert_property_descriptor(
             ds[4][1], *INSTANCE_OF_TTL.instance_of_en)
 
@@ -151,6 +161,8 @@ wd:P31
             wd.L(96), Item('x'), wd.instance_of]))
         self.assertEqual(len(ds), 5)
         self.assertEqual(ds[0][0], wd.Brazil)
+        self.assertIsNotNone(ds[0][1])
+        assert ds[0][1] is not None
         self.assert_item_descriptor(
             ds[0][1], BRAZIL_TTL.Brazil_en[0], TextSet(
                 *BRAZIL_TTL.Brazil_en[1], *self.extra_Brazil_en[1]),
@@ -158,10 +170,14 @@ wd:P31
         self.assertEqual(ds[1][0], Property('x'))
         self.assertIsNone(ds[1][1])
         self.assertEqual(ds[2][0], wd.L(96))
+        self.assertIsNotNone(ds[2][1])
+        assert ds[2][1] is not None
         self.assert_lexeme_descriptor(ds[2][1], *PAINT_TTL.paint_verb_en)
         self.assertEqual(ds[3][0], Item('x'))
         self.assertIsNone(ds[3][1])
         self.assertEqual(ds[4][0], wd.instance_of)
+        self.assertIsNotNone(ds[4][1])
+        assert ds[4][1] is not None
         self.assert_property_descriptor(
             ds[4][1], INSTANCE_OF_TTL.instance_of_en[0], TextSet(
                 *INSTANCE_OF_TTL.instance_of_en[1],
@@ -240,6 +256,8 @@ wd:P31
         ds = list(kb.get_item_descriptor(wd.benzene))
         self.assertEqual(len(ds), 1)
         self.assertEqual(ds[0][0], wd.benzene)
+        self.assertIsNotNone(ds[0][1])
+        assert ds[0][1] is not None
         self.assert_item_descriptor(ds[0][1], *BENZENE_TTL.benzene_en)
 
     def test_get_item_descriptor_single_item_with_merges(self):
@@ -247,10 +265,12 @@ wd:P31
         ds = list(kb.get_item_descriptor(wd.benzene))
         self.assertEqual(len(ds), 1)
         self.assertEqual(ds[0][0], wd.benzene)
+        self.assertIsNotNone(ds[0][1])
+        assert ds[0][1] is not None
         self.assert_item_descriptor(
             ds[0][1],
             BENZENE_TTL.benzene_en[0],
-            [Text('C6H6'), *BENZENE_TTL.benzene_en[1]],
+            TextSet(Text('C6H6'), *BENZENE_TTL.benzene_en[1]),
             self.extra_benzene_en.description)
 
     def test_get_item_descriptor_multiple_items(self):
@@ -259,10 +279,14 @@ wd:P31
             [wd.Adam, Item('x'), wd.Brazil], 'pt-br'))
         self.assertEqual(len(ds), 3)
         self.assertEqual(ds[0][0], wd.Adam)
+        self.assertIsNotNone(ds[0][1])
+        assert ds[0][1] is not None
         self.assert_item_descriptor(ds[0][1], *ADAM_TTL.Adam_pt_br)
         self.assertEqual(ds[1][0], Item('x'))
         self.assertIsNone(ds[1][1])
         self.assertEqual(ds[2][0], wd.Brazil)
+        self.assertIsNotNone(ds[2][1])
+        assert ds[2][1] is not None
         self.assert_item_descriptor(ds[2][1], *BRAZIL_TTL.Brazil_pt_br)
 
     def test_get_item_descriptor_multiple_items_with_merges(self):
@@ -272,15 +296,23 @@ wd:P31
             [wd.Adam, Item('x'), wd.Brazil, wd.benzene], 'pt-br'))
         self.assertEqual(len(ds), 4)
         self.assertEqual(ds[0][0], wd.Adam)
+        self.assertIsNotNone(ds[0][1])
+        assert ds[0][1] is not None
         self.assert_item_descriptor(ds[0][1], *ADAM_TTL.Adam_pt_br)
         self.assertEqual(ds[1][0], Item('x'))
         self.assertIsNone(ds[1][1])
         self.assertEqual(ds[2][0], wd.Brazil)
+        self.assertIsNotNone(ds[2][1])
+        assert ds[2][1] is not None
         self.assert_item_descriptor(
             ds[2][1], BRAZIL_TTL.Brazil_pt_br[0],
-            [*self.extra_Brazil_pt_br[1], *BRAZIL_TTL.Brazil_pt_br[1]],
+            TextSet(
+                *self.extra_Brazil_pt_br[1],
+                *BRAZIL_TTL.Brazil_pt_br[1]),
             BRAZIL_TTL.Brazil_pt_br[2])
         self.assertEqual(ds[3][0], wd.benzene)
+        self.assertIsNotNone(ds[3][1])
+        assert ds[3][1] is not None
         self.assert_item_descriptor(ds[3][1], *self.extra_benzene_pt_br)
 
     def test_get_item_descriptor_mask(self):
@@ -359,6 +391,8 @@ wd:P31
         ds = list(kb.get_property_descriptor(wd.instance_of))
         self.assertEqual(len(ds), 1)
         self.assertEqual(ds[0][0], wd.instance_of)
+        self.assertIsNotNone(ds[0][1])
+        assert ds[0][1] is not None
         self.assert_property_descriptor(
             ds[0][1], *INSTANCE_OF_TTL.instance_of_en)
 
@@ -367,6 +401,8 @@ wd:P31
         ds = list(kb.get_property_descriptor(wd.instance_of))
         self.assertEqual(len(ds), 1)
         self.assertEqual(ds[0][0], wd.instance_of)
+        self.assertIsNotNone(ds[0][1])
+        assert ds[0][1] is not None
         self.assert_property_descriptor(
             ds[0][1],
             INSTANCE_OF_TTL.instance_of_en[0],
@@ -381,11 +417,15 @@ wd:P31
             [wd.instance_of, Property('x'), wd.InChIKey]))
         self.assertEqual(len(ds), 3)
         self.assertEqual(ds[0][0], wd.instance_of)
+        self.assertIsNotNone(ds[0][1])
+        assert ds[0][1] is not None
         self.assert_property_descriptor(
             ds[0][1], *INSTANCE_OF_TTL.instance_of_en)
         self.assertEqual(ds[1][0], Property('x'))
         self.assertIsNone(ds[1][1])
         self.assertEqual(ds[2][0], wd.InChIKey)
+        self.assertIsNotNone(ds[2][1])
+        assert ds[2][1] is not None
         self.assert_property_descriptor(ds[2][1], *BENZENE_TTL.InChIKey_en)
 
     def test_get_property_descriptor_multiple_properties_with_merges(self):
@@ -395,6 +435,8 @@ wd:P31
             [wd.instance_of, Property('x'), wd.InChIKey]))
         self.assertEqual(len(ds), 3)
         self.assertEqual(ds[0][0], wd.instance_of)
+        self.assertIsNotNone(ds[0][1])
+        assert ds[0][1] is not None
         self.assert_property_descriptor(
             ds[0][1],
             INSTANCE_OF_TTL.instance_of_en[0],
@@ -404,6 +446,8 @@ wd:P31
         self.assertEqual(ds[1][0], Property('x'))
         self.assertIsNone(ds[1][1])
         self.assertEqual(ds[2][0], wd.InChIKey)
+        self.assertIsNotNone(ds[2][1])
+        assert ds[2][1] is not None
         self.assert_property_descriptor(ds[2][1], *BENZENE_TTL.InChIKey_en)
 
     def test_get_property_descriptor_mask(self):
@@ -479,6 +523,8 @@ wd:P31
         ds = list(kb.get_lexeme_descriptor(wd.L(96)))
         self.assertEqual(len(ds), 1)
         self.assertEqual(ds[0][0], wd.L(96))
+        self.assertIsNotNone(ds[0][1])
+        assert ds[0][1] is not None
         self.assert_lexeme_descriptor(ds[0][1], *PAINT_TTL.paint_verb_en)
 
     def test_get_lexeme_descriptor_multiple_lexemes(self):
@@ -487,10 +533,14 @@ wd:P31
             [wd.L(96), Lexeme('x'), wd.L(46803)]))
         self.assertEqual(len(ds), 3)
         self.assertEqual(ds[0][0], wd.L(96))
+        self.assertIsNotNone(ds[0][1])
+        assert ds[0][1] is not None
         self.assert_lexeme_descriptor(ds[0][1], *PAINT_TTL.paint_verb_en)
         self.assertEqual(ds[1][0], Lexeme('x'))
         self.assertIsNone(ds[1][1])
         self.assertEqual(ds[2][0], wd.L(46803))
+        self.assertIsNotNone(ds[2][1])
+        assert ds[2][1] is not None
         self.assert_lexeme_descriptor(ds[2][1], *ANDAR_TTL.andar_verb_pt)
 
     def test_get_lexeme_descriptor_mask(self):

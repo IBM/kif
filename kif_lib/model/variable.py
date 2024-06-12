@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from typing import overload, TYPE_CHECKING
+
 from ..itertools import chain
 from ..typing import (
     Any,
@@ -14,6 +16,11 @@ from ..typing import (
     Union,
 )
 from .kif_object import KIF_Object, KIF_ObjectClass, TLocation
+
+if TYPE_CHECKING:
+    from .snak import ValueSnakTemplate
+    from .statement import StatementTemplate
+    from .value import VVEntity, VVTValue
 
 Theta: TypeAlias = Mapping['Variable', Optional[KIF_Object]]
 VariableClass: TypeAlias = type['Variable']
@@ -90,9 +97,17 @@ class Variable(KIF_Object):
         else:
             raise self._should_not_get_here()
 
-    def __call__(self, value1, value2=None):
+    @overload
+    def __call__(self, v1: 'VVEntity', v2: 'VVTValue') -> 'StatementTemplate':
+        ...
+
+    @overload
+    def __call__(self, v1: 'VVTValue') -> 'ValueSnakTemplate':
+        ...
+
+    def __call__(self, v1, v2=None):
         from .value import PropertyVariable
-        return self.coerce(PropertyVariable)(value1, value2)
+        return self.coerce(PropertyVariable)(v1, v2)
 
     @property
     def name(self) -> str:

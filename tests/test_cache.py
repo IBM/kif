@@ -6,7 +6,7 @@ from kif_lib.cache import Cache
 from .tests import kif_TestCase
 
 
-class TestCache(kif_TestCase):
+class Test(kif_TestCase):
 
     def test__init__(self):
         c = Cache()
@@ -72,7 +72,7 @@ class TestCache(kif_TestCase):
         self.assertEqual(c.size, 0)
 
     def test_set(self):
-        c = Cache(self)
+        c = Cache()
         self.assertEqual(c.set(0, 'x', 1), 1)
         self.assertEqual(c.size, 1)
         self.assertEqual(c.set(0, 'x', None), None)
@@ -89,7 +89,7 @@ class TestCache(kif_TestCase):
         self.assertEqual(c.size, 1)
 
     def test_unset(self):
-        c = Cache(self)
+        c = Cache()
         c.set(0, 'x', 1)
         c.set(1, 'y', 1)
         self.assertEqual(c.get(0, 'x'), 1)
@@ -119,4 +119,4 @@ class TestCache(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestCache.main()
+    Test.main()

@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import Statement, Store
+from kif_lib.store.mixer import MixerStore
+from kif_lib.typing import cast
 
 from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL
 from .tests import kif_StoreTestCase
@@ -9,18 +11,18 @@ from .tests import kif_StoreTestCase
 
 class TestStoreMixer(kif_StoreTestCase):
 
-    def mk_empty_mixer(self):
-        return Store('mixer')
+    def mk_empty_mixer(self) -> MixerStore:
+        return cast(MixerStore, Store('mixer'))
 
-    def mk_benzene_mixer(self):
-        return Store('mixer', [Store('rdf', BENZENE_TTL)])
+    def mk_benzene_mixer(self) -> MixerStore:
+        return cast(MixerStore, Store('mixer', [Store('rdf', BENZENE_TTL)]))
 
-    def mk_adam_benzene_brazil_mixer(self):
-        return Store(
+    def mk_adam_benzene_brazil_mixer(self) -> MixerStore:
+        return cast(MixerStore, Store(
             'mixer',
             [Store('rdf', ADAM_TTL),
              Store('rdf', BENZENE_TTL),
-             Store('rdf', BRAZIL_TTL)])
+             Store('rdf', BRAZIL_TTL)]))
 
     def test_sanity(self):
         self.store_sanity_checks(self.mk_empty_mixer())

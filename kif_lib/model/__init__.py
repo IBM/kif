@@ -62,9 +62,16 @@ from .snak import (
     VSnak,
     VSomeValueSnak,
     VValueSnak,
+    VVSnak,
 )
 from .snak_set import SnakSet, TSnakSet
-from .statement import Statement, StatementTemplate, StatementVariable
+from .statement import (
+    Statement,
+    StatementTemplate,
+    StatementVariable,
+    VStatement,
+    VVStatement,
+)
 from .template import Template, TemplateClass
 from .value import (
     Datatype,
@@ -144,7 +151,20 @@ from .value import (
     VTimeContent,
     VTimePrecisionContent,
     VTimeTimezoneContent,
+    VTItemContent,
+    VTPropertyContent,
+    VTQuantityContent,
+    VTStringContent,
+    VTTimeContent,
+    VTTimePrecisionContent,
+    VTTimeTimezoneContent,
+    VV_IRI,
     VValue,
+    VVDatatype,
+    VVEntity,
+    VVProperty,
+    VVTPropertyContent,
+    VVValue,
 )
 from .value_set import TextSet, TTextSet, TValueSet, ValueSet
 from .variable import Variable, VariableClass, Variables
@@ -290,6 +310,7 @@ __all__ = (
     'VQuantityContent',
     'VSnak',
     'VSomeValueSnak',
+    'VStatement',
     'VString',
     'VStringContent',
     'VText',
@@ -297,6 +318,21 @@ __all__ = (
     'VTimeContent',
     'VTimePrecisionContent',
     'VTimeTimezoneContent',
+    'VTItemContent',
+    'VTPropertyContent',
+    'VTQuantityContent',
+    'VTStringContent',
+    'VTTimeContent',
+    'VTTimePrecisionContent',
+    'VTTimeTimezoneContent',
+    'VV_IRI',
     'VValue',
     'VValueSnak',
+    'VVDatatype',
+    'VVEntity',
+    'VVProperty',
+    'VVSnak',
+    'VVStatement',
+    'VVTPropertyContent',
+    'VVValue',
 )

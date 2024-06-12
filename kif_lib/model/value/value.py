@@ -17,7 +17,8 @@ ValueVariableClass: TypeAlias = type['ValueVariable']
 
 TValue: TypeAlias = Union['Value', NS.T_URI, TDatetime, TDecimal, str]
 VValue: TypeAlias = Union['ValueTemplate', 'ValueVariable', 'Value']
-VVValue: TypeAlias = Union['Variable', VValue]
+VVValue: TypeAlias = Union[Variable, VValue]
+VVTValue: TypeAlias = Union[VVValue, TValue]
 
 DatatypeClass: TypeAlias = type['Datatype']
 TDatatypeClass: TypeAlias = Union[DatatypeClass, ValueClass]
@@ -26,6 +27,7 @@ DatatypeVariableClass: TypeAlias = type['DatatypeVariable']
 TDatatype: TypeAlias = Union['Datatype', TDatatypeClass]
 VTDatatypeContent: TypeAlias = Union[Variable, TDatatype]
 VDatatype: TypeAlias = Union['DatatypeVariable', 'Datatype']
+VVDatatype: TypeAlias = Union[Variable, VDatatype]
 
 
 class DatatypeVariable(Variable):

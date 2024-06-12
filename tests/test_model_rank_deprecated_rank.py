@@ -3,6 +3,7 @@
 
 from kif_lib import Deprecated, DeprecatedRank, Rank
 from kif_lib.namespace import WIKIBASE
+from kif_lib.typing import cast
 
 from .tests import kif_TestCase
 
@@ -16,7 +17,8 @@ class TestModelRankDeprecatedRank(kif_TestCase):
 
     def test__from_rdflib(self):
         self.assertRaises(ValueError, Rank._from_rdflib, WIKIBASE.Url)
-        self.assert_deprecated_rank(Rank._from_rdflib(WIKIBASE.DeprecatedRank))
+        self.assert_deprecated_rank(
+            cast(DeprecatedRank, Rank._from_rdflib(WIKIBASE.DeprecatedRank)))
 
     def test__to_rdflib(self):
         self.assertEqual(DeprecatedRank._to_rdflib(), WIKIBASE.DeprecatedRank)

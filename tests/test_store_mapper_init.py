@@ -4,6 +4,7 @@
 from kif_lib import Store
 from kif_lib.store.mapper import SPARQL_MapperStore
 from kif_lib.store.sparql_mapping import SPARQL_Mapping
+from kif_lib.typing import cast
 
 from .tests import kif_StoreTestCase
 
@@ -23,7 +24,7 @@ class TestStoreMapper_Init(kif_StoreTestCase):
         # success
         mapping = SPARQL_Mapping()
         kb = Store('sparql-mapper', 'http://x.org/', mapping)
-        self.assertIs(kb.mapping, mapping)
+        self.assertIs(cast(SPARQL_MapperStore, kb).mapping, mapping)
 
 
 if __name__ == '__main__':

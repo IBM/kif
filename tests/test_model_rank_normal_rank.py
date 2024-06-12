@@ -3,6 +3,7 @@
 
 from kif_lib import Normal, NormalRank, Rank
 from kif_lib.namespace import WIKIBASE
+from kif_lib.typing import cast
 
 from .tests import kif_TestCase
 
@@ -16,7 +17,8 @@ class TestModelRankNormalRank(kif_TestCase):
 
     def test__from_rdflib(self):
         self.assertRaises(ValueError, Rank._from_rdflib, WIKIBASE.Url)
-        self.assert_normal_rank(Rank._from_rdflib(WIKIBASE.NormalRank))
+        self.assert_normal_rank(
+            cast(NormalRank, Rank._from_rdflib(WIKIBASE.NormalRank)))
 
     def test__to_rdflib(self):
         self.assertEqual(NormalRank._to_rdflib(), WIKIBASE.NormalRank)

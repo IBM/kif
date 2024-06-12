@@ -21,8 +21,9 @@ class TestModelReferenceRecord(kif_TestCase):
             NoValueSnak(Property('p')), Property('q')(IRI('x')))
         self.assertIs(refs, KIF_Object._preprocess_arg_reference_record(
             refs, 1))
-        self.assertEqual(refs, KIF_Object._preprocess_arg_reference_record(
-            SnakSet(*refs), 1))
+        self.assertEqual(
+            refs,
+            KIF_Object._preprocess_arg_reference_record(SnakSet(*refs), 1))
         self.assertEqual(refs, KIF_Object._preprocess_arg_reference_record(
             list(refs), 1))
 
