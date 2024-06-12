@@ -193,9 +193,9 @@ class Test(kif_TestCase):
         self.assertEqual(
             KIF_Object._preprocess_arg_datetime('2024-02-05', 1), dt)
         self.assertEqual(
-            KIF_Object._check_arg_datetime('+2024-02-05', 1), dt)
+            KIF_Object._check_arg_datetime('+2024-02-05'), dt)
         self.assertEqual(
-            KIF_Object._check_arg_datetime('-2024-02-05', 1), dt)
+            KIF_Object._check_arg_datetime('-2024-02-05'), dt)
 
     def test__preprocess_optional_arg_datetime(self):
         self.assertRaises(
@@ -229,7 +229,7 @@ class Test(kif_TestCase):
             KIF_Object._check_optional_arg_decimal('5.81'),
             Decimal('5.81'))
         self.assertEqual(
-            KIF_Object._check_optional_arg_decimal(None, 5.81),
+            KIF_Object._check_optional_arg_decimal(None, Decimal(5.81)),
             Decimal(5.81))
 
     def test__preprocess_arg_decimal(self):
@@ -254,7 +254,8 @@ class Test(kif_TestCase):
             KIF_Object._preprocess_optional_arg_decimal('5.81', 1),
             Decimal('5.81'))
         self.assertEqual(
-            KIF_Object._preprocess_optional_arg_decimal(None, 1, 5.81),
+            KIF_Object._preprocess_optional_arg_decimal(
+                None, 1, Decimal(5.81)),
             Decimal(5.81))
 
 # == Auto-defined stuff ====================================================
@@ -1480,7 +1481,7 @@ class Test(kif_TestCase):
         self.assertEqual(Variable('x').check_variable(), Variable('x'))
         self.assertEqual(
             ItemVariable('x').check_variable(), ItemVariable('x'))
-        self.assertRaises(TypeError, Item('x'), Variable('x'))
+        self.assertRaises(TypeError, Item('x').check_variable)
 
 # -- test_unpack_ ----------------------------------------------------------
 
@@ -1490,17 +1491,17 @@ class Test(kif_TestCase):
     def test_unpack_annotation_record(self):
         quals = [ValueSnak(Property('p'), Item('y')),
                  NoValueSnak(Property('q'))]
-        annot = AnnotationRecord(quals, [SnakSet(*quals)], Normal)
+        annot = AnnotationRecord(quals, [ReferenceRecord(*quals)], Normal)
         self.assertEqual(annot.unpack_annotation_record(), (
             SnakSet(*quals),
-            ReferenceRecordSet(SnakSet(*quals)),
+            ReferenceRecordSet(ReferenceRecord(*quals)),
             Normal))
         self.assertRaises(TypeError, Item('x').unpack_annotation_record)
 
     def test_unpack_annotation_record_set(self):
         quals = [ValueSnak(Property('p'), Item('y')),
                  NoValueSnak(Property('q'))]
-        annot = AnnotationRecord(quals, [SnakSet(*quals)], Normal)
+        annot = AnnotationRecord(quals, [ReferenceRecord(*quals)], Normal)
         annots = AnnotationRecordSet(annot)
         self.assertEqual(
             annots.unpack_annotation_record_set(), (annot,))
@@ -1558,9 +1559,9 @@ class Test(kif_TestCase):
         self.assertRaises(TypeError, Preferred.unpack_deprecated_rank)
 
     def test_unpack_descriptor(self):
-        desc = ItemDescriptor('abc', ['x', 'y'], 'z')
+        desc = ItemDescriptor('abc', [Text('x'), Text('y')], 'z')
         self.assertEqual(desc.unpack_descriptor(), (
-            Text('abc'), TextSet('x', 'y'), Text('z')))
+            Text('abc'), TextSet(Text('x'), Text('y')), Text('z')))
         self.assertRaises(TypeError, Item('x').unpack_descriptor)
 
     def test_unpack_entity(self):
@@ -1631,9 +1632,9 @@ class Test(kif_TestCase):
         self.assertRaises(TypeError, Item('x').unpack_item_datatype)
 
     def test_unpack_item_descriptor(self):
-        desc = ItemDescriptor('x', ['y', 'z'], 'w')
+        desc = ItemDescriptor('x', [Text('y'), Text('z')], 'w')
         self.assertEqual(desc.unpack_item_descriptor(), (
-            Text('x'), TextSet('z', 'y'), Text('w')))
+            Text('x'), TextSet(Text('z'), Text('y')), Text('w')))
         self.assertRaises(TypeError, String('x').unpack_item_descriptor)
 
     def test_unpack_item_template(self):
@@ -1739,9 +1740,9 @@ class Test(kif_TestCase):
         self.assertRaises(TypeError, Item('x').unpack_pattern)
 
     def test_unpack_plain_descriptor(self):
-        desc = ItemDescriptor('x', ['y', 'z'], 'w')
+        desc = ItemDescriptor('x', [Text('y'), Text('z')], 'w')
         self.assertEqual(desc.unpack_plain_descriptor(), (
-            Text('x'), TextSet('z', 'y'), Text('w')))
+            Text('x'), TextSet(Text('z'), Text('y')), Text('w')))
         self.assertRaises(TypeError, String('x').unpack_plain_descriptor)
 
     def test_unpack_preferred_rank(self):
@@ -1760,9 +1761,11 @@ class Test(kif_TestCase):
         self.assertRaises(TypeError, Item('x').unpack_property_datatype)
 
     def test_unpack_property_descriptor(self):
-        desc = PropertyDescriptor('x', ['x', 'y'], 'z', ExternalIdDatatype())
+        desc = PropertyDescriptor('x', [Text('x'), Text('y')], 'z',
+                                  ExternalIdDatatype())
         self.assertEqual(desc.unpack_property_descriptor(), (
-            Text('x'), TextSet('x', 'y'), Text('z'), ExternalIdDatatype()))
+            Text('x'), TextSet(Text('x'), Text('y')),
+            Text('z'), ExternalIdDatatype()))
         self.assertRaises(TypeError, Item('x').unpack_property_descriptor)
 
     def test_unpack_property_fingerprint(self):
@@ -2111,12 +2114,14 @@ class Test(kif_TestCase):
         enc = KIF_ReprEncoder()
         self.assertEqual(enc.encode(IRI('x')), "IRI('x')")
         self.assertEqual(
-            enc.encode(Datetime(2024, 2, 6)),
+            enc.encode(Datetime(2024, 2, 6)),  # pyright: ignore
             'datetime.datetime(2024, 2, 6, 0, 0)')
-        self.assertEqual(enc.encode(Decimal(0)), "Decimal('0')")
-        self.assertEqual(enc.encode(Decimal(3.5)), "Decimal('3.5')")
-        self.assertEqual(enc.encode(Snak.ALL), '7')
-        self.assertEqual(enc.encode(set()), 'set()')
+        self.assertEqual(
+            enc.encode(Decimal(0)), "Decimal('0')")  # pyright: ignore
+        self.assertEqual(
+            enc.encode(Decimal(3.5)), "Decimal('3.5')")  # pyright: ignore
+        self.assertEqual(enc.encode(Snak.ALL), '7')      # pyright: ignore
+        self.assertEqual(enc.encode(set()), 'set()')     # pyright: ignore
 
     def test_json_encoder_extensions(self):
         from kif_lib.model.kif_object import KIF_JSON_Encoder
@@ -2124,22 +2129,24 @@ class Test(kif_TestCase):
         self.assertEqual(
             enc.encode(IRI('x')), '{"class": "IRI", "args": ["x"]}')
         self.assertEqual(
-            enc.encode(Datetime(2024, 2, 6)), '"2024-02-06 00:00:00"')
-        self.assertEqual(enc.encode(Decimal(0)), '"0"')
-        self.assertEqual(enc.encode(Decimal(3.5)), '"3.5"')
-        self.assertEqual(enc.encode(Snak.ALL), '"7"')
-        self.assertRaises(EncoderError, enc.encode, set())
+            enc.encode(Datetime(2024, 2, 6)),  # pyright: ignore
+            '"2024-02-06 00:00:00"')
+        self.assertEqual(enc.encode(Decimal(0)), '"0"')  # pyright: ignore
+        self.assertEqual(enc.encode(Decimal(3.5)), '"3.5"')  # pyright: ignore
+        self.assertEqual(enc.encode(Snak.ALL), '"7"')      # pyright: ignore
+        self.assertRaises(EncoderError, enc.encode, set())  # pyright: ignore
 
     def test_sexp_encoder_extensions(self):
         from kif_lib.model.kif_object import KIF_SExpEncoder
         enc = KIF_SExpEncoder()
         self.assertEqual(enc.encode(Preferred), 'PreferredRank')
         self.assertEqual(
-            enc.encode(Datetime(2024, 2, 6)), '2024-02-06 00:00:00')
-        self.assertEqual(enc.encode(Decimal(0)), '0')
-        self.assertEqual(enc.encode(Decimal(3.5)), '3.5')
-        self.assertEqual(enc.encode(Snak.ALL), '7')
-        self.assertRaises(EncoderError, enc.encode, set())
+            enc.encode(Datetime(2024, 2, 6)),              # pyright: ignore
+            '2024-02-06 00:00:00')                         # pyright: ignore
+        self.assertEqual(enc.encode(Decimal(0)), '0')      # pyright: ignore
+        self.assertEqual(enc.encode(Decimal(3.5)), '3.5')  # pyright: ignore
+        self.assertEqual(enc.encode(Snak.ALL), '7')        # pyright: ignore
+        self.assertRaises(EncoderError, enc.encode, set())  # pyright: ignore
 
 
 if __name__ == '__main__':

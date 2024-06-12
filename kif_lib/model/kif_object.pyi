@@ -151,6 +151,30 @@ TNil: TypeAlias = object.TNil
 
 KIF_ObjectClass: TypeAlias = type['KIF_Object']
 
+
+# == Codecs ================================================================
+
+class KIF_JSON_Encoder(
+        object.JSON_Encoder, format='json', description='JSON encoder'):
+    ...
+
+
+class KIF_ReprDecoder(
+        object.ReprDecoder, format='repr', description='Repr. decoder'):
+    ...
+
+
+class KIF_ReprEncoder(
+        object.ReprEncoder, format='repr', description='Repr. encoder'):
+    ...
+
+
+class KIF_SExpEncoder(
+        object.SExpEncoder, format='sexp', description='S-expression encoder'):
+    ...
+
+
+# == KIF_Object ============================================================
 
 class KIF_Object(object.Object, metaclass=object.ObjectMeta):
 

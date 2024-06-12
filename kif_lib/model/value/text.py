@@ -19,13 +19,7 @@ from .shallow_data_value import (
     ShallowDataValueTemplate,
     ShallowDataValueVariable,
 )
-from .string import (
-    String,
-    StringVariable,
-    TString,
-    VStringContent,
-    VTStringContent,
-)
+from .string import String, TString, VStringContent, VTStringContent
 from .value import Datatype
 
 TextClass: TypeAlias = type['Text']
@@ -34,7 +28,7 @@ TextTemplateClass: TypeAlias = type['TextTemplate']
 TextVariableClass: TypeAlias = type['TextVariable']
 
 TText: TypeAlias = Union['Text', TString]
-VTTextContent: TypeAlias = Union[StringVariable, TText]
+VTTextContent: TypeAlias = Union[Variable, TText]
 VText: TypeAlias = Union['TextTemplate', 'TextVariable', 'Text']
 
 

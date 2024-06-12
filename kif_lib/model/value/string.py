@@ -19,7 +19,7 @@ StringTemplateClass: TypeAlias = type['StringTemplate']
 StringVariableClass: TypeAlias = type['StringVariable']
 
 TString: TypeAlias = Union['String', str]
-VTStringContent: TypeAlias = Union['StringVariable', TString]
+VTStringContent: TypeAlias = Union[Variable, TString]
 VStringContent: TypeAlias = Union['StringVariable', str]
 VString: TypeAlias = Union['StringTemplate', 'StringVariable', 'String']
 

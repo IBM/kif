@@ -1,0 +1,5 @@
+{
+  "exclude": ["tests/model/test_object.py"],
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": true
+}

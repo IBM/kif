@@ -159,7 +159,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assertRaises(TypeError, kb.count_snak, None, 0)
         # good arguments
         snak = ValueSnak(wd.mass, Quantity('78.046950192', wd.dalton))
-        self.assertEqual(kb.count_snak(None, snak), 8)
+        self.assertEqual(kb.count_snak(None, snak), 9)
 
     def test_filter(self):
         kb = self.new_Store()

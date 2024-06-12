@@ -63,7 +63,11 @@ MYPY_OPTIONS?= --show-error-context --show-error-codes
 PERL?= perl
 PIP?= ${PYTHON} -m pip
 PYLINT_OPTIONS?=
+PYRIGHT_EXCLUDE?= []
 PYRIGHT_OPTIONS?= --warnings
+PYRIGHT_REPORT_MISSING_IMPORTS?= true
+PYRIGHT_REPORT_MISSING_TYPE_STUBS?= true
+PYRIGHTCONFIG_JSON?= pyrightconfig.json
 PYTEST?= ${PYTHON} -m pytest
 PYTEST_COV_OPTIONS?= --cov=${PACKAGE} --cov-report=html
 PYTEST_ENV?=
@@ -350,6 +354,18 @@ gen-isort-cfg:
 	$P 'include_trailing_comma = ${ISORT_CFG_INCLUDE_TRAILING_COMMA}' >>${ISORT_CFG}
 	$P 'multi_line_output = ${ISORT_CFG_MULTI_LINE_OUTPUT}' >>${ISORT_CFG}
 	$P 'order_by_type = ${ISORT_CFG_ORDER_BY_TYPE}' >>${ISORT_CFG}
+
+GEN_ALL_TARGETS+= gen-pyrightconfig-json
+
+# generate pyrightconfig.json
+.PHONY: gen-pyrightconfig-json
+gen-pyrightconfig-json:
+	$P 'generating ${PYRIGHTCONFIG_JSON}'
+	$P '{' >${PYRIGHTCONFIG_JSON}
+	$P '  "exclude": ${PYRIGHT_EXCLUDE},' >>${PYRIGHTCONFIG_JSON}
+	$P '  "reportMissingImports": ${PYRIGHT_REPORT_MISSING_IMPORTS},' >>${PYRIGHTCONFIG_JSON}
+	$P '  "reportMissingTypeStubs": ${PYRIGHT_REPORT_MISSING_TYPE_STUBS}' >>${PYRIGHTCONFIG_JSON}
+	$P '}' >>${PYRIGHTCONFIG_JSON}
 
 GEN_ALL_TARGETS+= gen-pytest-ini
 

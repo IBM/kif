@@ -8,7 +8,7 @@ from ...typing import cast, ClassVar, Iterable, Optional, TypeAlias, Union
 from ..kif_object import TLocation
 from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
-from .iri import IRI, IRI_Template, IRI_Variable, T_IRI
+from .iri import IRI, IRI_Template, T_IRI
 from .string import String
 from .value import Datatype
 
@@ -18,7 +18,7 @@ LexemeTemplateClass: TypeAlias = type['LexemeTemplate']
 LexemeVariableClass: TypeAlias = type['LexemeVariable']
 
 TLexeme: TypeAlias = Union['Lexeme', T_IRI]
-VTLexemeContent: TypeAlias = Union[IRI_Template, IRI_Variable, 'TLexeme']
+VTLexemeContent: TypeAlias = Union[IRI_Template, Variable, 'TLexeme']
 VLexeme: TypeAlias = Union['LexemeTemplate', 'LexemeVariable', 'Lexeme']
 
 

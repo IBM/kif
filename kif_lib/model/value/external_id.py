@@ -14,6 +14,7 @@ from ...typing import (
     Union,
 )
 from ..kif_object import TLocation
+from ..variable import Variable
 from .string import (
     String,
     StringDatatype,
@@ -29,7 +30,7 @@ ExternalIdTemplateClass: TypeAlias = type['ExternalIdTemplate']
 ExternalIdVariableClass: TypeAlias = type['ExternalIdVariable']
 
 TExternalId: TypeAlias = Union['ExternalId', TString]
-VTExternalIdContent: TypeAlias = Union['StringVariable', TExternalId]
+VTExternalIdContent: TypeAlias = Union[Variable, TExternalId]
 VExternalId: TypeAlias =\
     Union['ExternalIdTemplate', 'ExternalIdVariable', 'ExternalId']
 

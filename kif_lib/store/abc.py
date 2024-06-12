@@ -268,6 +268,9 @@ class Store(Set):
         #: Whether to remove duplicates.
         DISTINCT = auto()
 
+        #: Whether to force some ordering.
+        ORDER = auto()
+
         #: Whether to fetch only the best ranked statements.
         BEST_RANK = auto()
 
@@ -290,6 +293,7 @@ class Store(Set):
         ALL = (
             CACHE
             | DISTINCT
+            | ORDER
             | BEST_RANK
             | VALUE_SNAK
             | SOME_VALUE_SNAK
@@ -302,6 +306,9 @@ class Store(Set):
 
     #: Whether to remove duplicates.
     DISTINCT = Flags.DISTINCT
+
+    #: Whether to force some ordering.
+    ORDER = Flags.ORDER
 
     #: Whether to fetch only the best ranked statements.
     BEST_RANK = Flags.BEST_RANK
@@ -325,7 +332,7 @@ class Store(Set):
     ALL = Flags.ALL
 
     #: The default flags.
-    default_flags: Final['Flags'] = Flags.ALL
+    default_flags: Final['Flags'] = Flags.ALL & ~Flags.ORDER
 
     _flags: 'Flags'
 

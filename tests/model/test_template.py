@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
-    Datatype,
     DataValue,
     DeepDataValue,
     Entity,
@@ -22,33 +21,43 @@ from kif_lib import (
     String,
     Text,
     Time,
-    Value,
     ValueSnak,
     Variable,
     Variables,
 )
 from kif_lib.model import (
+    DatatypeVariable,
     DataValueTemplate,
+    Decimal,
     DeepDataValueTemplate,
     EntityTemplate,
     ExternalIdTemplate,
     IRI_Template,
+    IRI_Variable,
     ItemTemplate,
+    ItemVariable,
     LexemeTemplate,
     NoValueSnakTemplate,
     PropertyTemplate,
+    PropertyVariable,
     QuantityTemplate,
+    QuantityVariable,
     ShallowDataValueTemplate,
     SnakTemplate,
     SomeValueSnakTemplate,
     StatementTemplate,
     StringTemplate,
+    StringVariable,
     Template,
     TextTemplate,
+    TextVariable,
     TimeTemplate,
+    TimeVariable,
     ValueSnakTemplate,
     ValueTemplate,
+    ValueVariable,
 )
+from kif_lib.typing import cast
 
 from ..tests import kif_TestCase
 
@@ -101,11 +110,12 @@ class Test(kif_TestCase):
             TypeError, 1, None,
             'expected IRI or String or URIRef or str, got int',
             (ItemTemplate, 'Item'), 0)
-        self.assert_item_template(ItemTemplate(x), Variable('x', IRI))
-        self.assert_item_template(Item(x), Variable('x', IRI))
+        self.assert_item_template(ItemTemplate(x), IRI_Variable('x'))
+        self.assert_item_template(
+            cast(ItemTemplate, Item(x)), IRI_Variable('x'))
         self.assert_item_template(ItemTemplate(IRI(x)), IRI(x))
-        self.assert_item_template(Item(IRI(x)), IRI(x))
-        self.assert_item(ItemTemplate(IRI('x')), IRI('x'))
+        self.assert_item_template(cast(ItemTemplate, Item(IRI(x))), IRI(x))
+        self.assert_item(cast(Item, ItemTemplate(IRI('x'))), IRI('x'))
 
     def test__new__property_template(self):
         x, y = Variables('x', 'y')
@@ -118,24 +128,26 @@ class Test(kif_TestCase):
             'expected Datatype, got int',
             (PropertyTemplate, 'Property'), IRI('x'), 0)
         self.assert_property_template(
-            PropertyTemplate(x), Variable('x', IRI), None)
+            PropertyTemplate(x), IRI_Variable('x'), None)
         self.assert_property_template(
             PropertyTemplate(x, Item.datatype),
-            Variable('x', IRI), ItemDatatype())
+            IRI_Variable('x'), ItemDatatype())
         self.assert_property_template(
-            Property(x), Variable('x', IRI), None)
+            cast(PropertyTemplate, Property(x)), IRI_Variable('x'), None)
         self.assert_property_template(
-            Property(x, y), Variable('x', IRI), Variable('y', Datatype))
+            cast(PropertyTemplate, Property(x, y)), IRI_Variable('x'),
+            DatatypeVariable('y'))
         self.assert_property_template(
             PropertyTemplate(IRI(x)), IRI(x), None)
         self.assert_property_template(
             PropertyTemplate(IRI(x), Item), IRI(x), ItemDatatype())
         self.assert_property_template(
-            Property(IRI(x)), IRI(x), None)
+            cast(PropertyTemplate, Property(IRI(x))), IRI(x), None)
         self.assert_property_template(
-            Property(IRI('x'), y), IRI('x'), Variable('y', Datatype))
+            cast(PropertyTemplate, Property(IRI('x'), y)), IRI('x'),
+            DatatypeVariable('y'))
         self.assert_property(
-            PropertyTemplate(IRI('x')), IRI('x'), None)
+            cast(Property, PropertyTemplate(IRI('x'))), IRI('x'), None)
         self.assert_property(
             Property(IRI('x'), Item), IRI('x'), ItemDatatype())
 
@@ -145,11 +157,15 @@ class Test(kif_TestCase):
             TypeError, 1, None,
             'expected IRI or String or URIRef or str, got int',
             (LexemeTemplate, 'Lexeme'), 0)
-        self.assert_lexeme_template(LexemeTemplate(x), Variable('x', IRI))
-        self.assert_lexeme_template(Lexeme(x), Variable('x', IRI))
+        self.assert_lexeme_template(
+            LexemeTemplate(x), IRI_Variable('x'))
+        self.assert_lexeme_template(
+            cast(LexemeTemplate, Lexeme(x)), IRI_Variable('x'))
         self.assert_lexeme_template(LexemeTemplate(IRI(x)), IRI(x))
-        self.assert_lexeme_template(Lexeme(IRI(x)), IRI(x))
-        self.assert_lexeme(LexemeTemplate(IRI('x')), IRI('x'))
+        self.assert_lexeme_template(
+            cast(LexemeTemplate, Lexeme(IRI(x))), IRI(x))
+        self.assert_lexeme(
+            cast(Lexeme, LexemeTemplate(IRI('x'))), IRI('x'))
 
     def test__new__data_value_template(self):
         self.assert_abstract_class(DataValueTemplate)
@@ -162,8 +178,10 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             TypeError, 1, None, 'expected str, got int',
             (IRI_Template, 'IRI'), 0)
-        self.assert_iri_template(IRI_Template(x), Variable('x', String))
-        self.assert_iri_template(IRI(x), Variable('x', String))
+        self.assert_iri_template(
+            IRI_Template(x), StringVariable('x'))
+        self.assert_iri_template(
+            cast(IRI_Template, IRI(x)), StringVariable('x'))
         self.assert_iri(IRI(String('x')), 'x')
 
     def test__new__text_template(self):
@@ -175,15 +193,19 @@ class Test(kif_TestCase):
             TypeError, 2, None, 'expected str, got int',
             (TextTemplate, 'Text'), 'x', 0)
         self.assert_text_template(
-            TextTemplate(x, y), Variable('x', String), Variable('y', String))
+            TextTemplate(x, y),
+            StringVariable('x'), StringVariable('y'))
         self.assert_text_template(
-            TextTemplate('x', y), 'x', Variable('y', String))
+            TextTemplate('x', y), 'x', StringVariable('y'))
         self.assert_text_template(
-            TextTemplate(x, 'y'), Variable('x', String), 'y')
+            TextTemplate(x, 'y'),
+            StringVariable('x'), 'y')
         self.assert_text_template(
-            TextTemplate(x), Variable('x', String), Text.default_language)
+            TextTemplate(x), StringVariable('x'),
+            Text.default_language)
         self.assert_text_template(
-            Text(x, y), Variable('x', String), Variable('y', String))
+            cast(TextTemplate, Text(x, y)),
+            StringVariable('x'), StringVariable('y'))
         self.assert_text(Text(String('x'), String('y')), 'x', 'y')
 
     def test__new__string_template(self):
@@ -191,8 +213,10 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             TypeError, 1, None, 'expected str, got int',
             (StringTemplate, 'String'), 0)
-        self.assert_string_template(StringTemplate(x), Variable('x', String))
-        self.assert_string_template(String(x), Variable('x', String))
+        self.assert_string_template(
+            StringTemplate(x), StringVariable('x'))
+        self.assert_string_template(
+            cast(StringTemplate, String(x)), StringVariable('x'))
         self.assert_string(String('x'), 'x')
 
     def test__new__external_id_template(self):
@@ -201,9 +225,9 @@ class Test(kif_TestCase):
             TypeError, 1, None, 'expected str, got int',
             (ExternalIdTemplate, 'ExternalId'), 0)
         self.assert_external_id_template(
-            ExternalIdTemplate(x), Variable('x', String))
+            ExternalIdTemplate(x), StringVariable('x'))
         self.assert_external_id_template(
-            ExternalId(x), Variable('x', String))
+            cast(ExternalIdTemplate, ExternalId(x)), StringVariable('x'))
         self.assert_external_id(ExternalId('x'), 'x')
 
     def test__new__deep_data_value_template(self):
@@ -225,37 +249,49 @@ class Test(kif_TestCase):
             ValueError, 4, None, 'expected Decimal',
             (QuantityTemplate, 'Quantity'), 0, None, None, 'x')
         self.assert_quantity_template(
-            QuantityTemplate(x), Variable('x', Quantity), None, None, None)
+            QuantityTemplate(x),
+            QuantityVariable('x'), None, None, None)
         self.assert_quantity_template(
-            QuantityTemplate(0, x), 0, Variable('x', Item), None, None)
+            QuantityTemplate(0, x), Decimal(0),
+            ItemVariable('x'), None, None)
         self.assert_quantity_template(
             QuantityTemplate(0, None, x),
-            0, None, Variable('x', Quantity), None)
+            Decimal(0), None, QuantityVariable('x'), None)
         self.assert_quantity_template(
             QuantityTemplate(0, None, None, x),
-            0, None, None, Variable('x', Quantity))
+            Decimal(0), None, None, QuantityVariable('x'))
         self.assert_quantity_template(
             QuantityTemplate(
                 Variable('x'),
                 Variable('y'),
                 Variable('z'),
                 Variable('w')),
-            Variable('x', Quantity),
-            Variable('y', Item),
-            Variable('z', Quantity),
-            Variable('w', Quantity))
+            QuantityVariable('x'),
+            ItemVariable('y'),
+            QuantityVariable('z'),
+            QuantityVariable('w'))
         self.assert_quantity_template(
-            Quantity(x), Variable('x', Quantity), None, None, None)
+            cast(QuantityTemplate, Quantity(x)), QuantityVariable('x'),
+            None, None, None)
         self.assert_quantity_template(
-            Quantity(0, Item(x)),
-            0, ItemTemplate(Variable('x', IRI)), None, None)
+            cast(QuantityTemplate, Quantity(0, Item(x))),
+            Decimal(0), ItemTemplate(IRI_Variable('x')),
+            None, None)
         self.assert_quantity_template(
-            Quantity(0, Item(IRI(x))),
-            0, ItemTemplate(IRI_Template(Variable('x', String))), None, None)
+            cast(QuantityTemplate, Quantity(0, Item(IRI(x)))),
+            Decimal(0),
+            ItemTemplate(
+                IRI_Template(StringVariable('x'))),
+            None, None)
         self.assert_quantity_template(
-            Quantity(0, None, x), 0, None, Variable('x', Quantity), None)
+            cast(QuantityTemplate, Quantity(0, None, x)),
+            Decimal(0), None,
+            QuantityVariable('x'),
+            None)
         self.assert_quantity_template(
-            Quantity(0, None, 0, x), 0, None, 0, Variable('x', Quantity))
+            cast(QuantityTemplate, Quantity(0, None, 0, x)),
+            Decimal(0), None, Decimal(0),
+            QuantityVariable('x'))
 
     def test__new__time_template(self):
         x = Variable('x')
@@ -275,41 +311,49 @@ class Test(kif_TestCase):
             'expected IRI or Item or String or URIRef or str, got int',
             (TimeTemplate, 'Time'), '2024-05-06', None, None, 0)
         self.assert_time_template(
-            TimeTemplate(x), Variable('x', Time), None, None, None)
+            TimeTemplate(x),
+            TimeVariable('x'),
+            None, None, None)
         self.assert_time_template(
             TimeTemplate('2024-05-06', Variable('x')),
-            Time('2024-05-06').time, Variable('x', Quantity), None, None)
+            Time('2024-05-06').time,
+            QuantityVariable('x'), None, None)
         self.assert_time_template(
             TimeTemplate('2024-05-06', None, Variable('x')),
-            Time('2024-05-06').time, None, Variable('x', Quantity), None)
+            Time('2024-05-06').time,
+            None, QuantityVariable('x'), None)
         self.assert_time_template(
             TimeTemplate('2024-05-06', None, None, x),
-            Time('2024-05-06').time, None, None, Variable('x', Item))
+            Time('2024-05-06').time,
+            None, None, ItemVariable('x'))
         self.assert_time_template(
             TimeTemplate(
                 Variable('x'),
                 Variable('y'),
                 Variable('z'),
                 Variable('w')),
-            Variable('x', Time),
-            Variable('y', Quantity),
-            Variable('z', Quantity),
-            Variable('w', Item))
+            TimeVariable('x'),
+            QuantityVariable('y'),
+            QuantityVariable('z'),
+            ItemVariable('w'))
         self.assert_time_template(
-            Time(x), Variable('x', Time), None, None, None)
+            cast(TimeTemplate, Time(x)), TimeVariable('x'), None, None, None)
         self.assert_time_template(
-            Time('2024-05-06', x),
-            Time('2024-05-06').time, Variable('x', Quantity), None, None)
+            cast(TimeTemplate, Time('2024-05-06', x)),
+            Time('2024-05-06').time,
+            QuantityVariable('x'), None, None)
         self.assert_time_template(
-            Time('2024-05-06', None, x),
-            Time('2024-05-06').time, None, Variable('x', Quantity), None)
+            cast(TimeTemplate, Time('2024-05-06', None, x)),
+            Time('2024-05-06').time,
+            None, QuantityVariable('x'), None)
         self.assert_time_template(
-            Time('2024-05-06', None, None, x),
-            Time('2024-05-06').time, None, None, Variable('x', Item))
+            cast(TimeTemplate, Time('2024-05-06', None, None, x)),
+            Time('2024-05-06').time,
+            None, None, ItemVariable('x'))
         self.assert_time_template(
-            Time('2024-05-06', None, None, Item(IRI(x))),
+            cast(TimeTemplate, Time('2024-05-06', None, None, Item(IRI(x)))),
             Time('2024-05-06').time, None, None,
-            ItemTemplate(IRI_Template(Variable('x', String))))
+            ItemTemplate(IRI_Template(StringVariable('x'))))
 
     def test__new__snak_template(self):
         self.assert_abstract_class(SnakTemplate)
@@ -326,28 +370,31 @@ class Test(kif_TestCase):
             'got dict',
             (ValueSnakTemplate, 'ValueSnak'), Property('x'), dict())
         self.assert_value_snak_template(
-            ValueSnakTemplate(x, 0), Variable('x', Property), Quantity(0))
+            cast(ValueSnakTemplate, ValueSnakTemplate(x, Quantity(0))),
+            PropertyVariable('x'), Quantity(0))
         self.assert_value_snak_template(
-            ValueSnakTemplate(Property(x), 0),
-            PropertyTemplate(Variable('x', IRI)), Quantity(0))
+            ValueSnakTemplate(Property(x), Quantity(0)),
+            PropertyTemplate(IRI_Variable('x')), Quantity(0))
         self.assert_value_snak_template(
             ValueSnakTemplate(Property('p'), x),
-            Property('p'), Variable('x', Value))
+            Property('p'), ValueVariable('x'))
         self.assert_value_snak_template(
             ValueSnakTemplate(Property('p'), IRI_Template(x)),
-            Property('p'), IRI(Variable('x', String)))
+            Property('p'), IRI(StringVariable('x')))
         self.assert_value_snak_template(
-            ValueSnak(x, 0), Variable('x', Property), Quantity(0))
+            cast(ValueSnakTemplate, ValueSnak(x, Quantity(0))),
+            PropertyVariable('x'), Quantity(0))
         self.assert_value_snak_template(
-            ValueSnak(Property(x), 0),
-            Property(Variable('x', IRI)), Quantity(0))
+            cast(ValueSnakTemplate, ValueSnak(Property(x), Quantity(0))),
+            Property(IRI_Variable('x')), Quantity(0))
         self.assert_value_snak_template(
-            ValueSnak(Property('p'), x), Property('p'), Variable('x', Value))
+            cast(ValueSnakTemplate, ValueSnak(Property('p'), x)),
+            Property('p'), ValueVariable('x'))
         self.assert_value_snak_template(
-            ValueSnak(Property('p'), Time(x)),
+            cast(ValueSnakTemplate, ValueSnak(Property('p'), Time(x))),
             Property('p'), Time(Variable('x', Time)))
         self.assert_value_snak_template(
-            PropertyTemplate(x)(String('s')),
+            cast(ValueSnakTemplate, PropertyTemplate(x)(String('s'))),
             PropertyTemplate(x), String('s'))
 
     def test__new__some_value_snak_template(self):
@@ -357,15 +404,17 @@ class Test(kif_TestCase):
             'expected IRI or Property or String or URIRef or str, got int',
             (SomeValueSnakTemplate, 'SomeValueSnak'), 0)
         self.assert_some_value_snak_template(
-            SomeValueSnakTemplate(x), Variable('x', Property))
+            SomeValueSnakTemplate(x),
+            PropertyVariable('x'))
         self.assert_some_value_snak_template(
             SomeValueSnakTemplate(Property(x)),
-            PropertyTemplate(Variable('x', IRI)))
+            PropertyTemplate(IRI_Variable('x')))
         self.assert_some_value_snak_template(
-            SomeValueSnak(x), Variable('x', Property))
+            cast(SomeValueSnakTemplate, SomeValueSnak(x)),
+            PropertyVariable('x'))
         self.assert_some_value_snak_template(
             SomeValueSnak(Property(x)),
-            Property(Variable('x', IRI)))
+            Property(IRI_Variable('x')))
 
     def test__new__no_value_snak_template(self):
         x = Variable('x')
@@ -374,15 +423,15 @@ class Test(kif_TestCase):
             'expected IRI or Property or String or URIRef or str, got int',
             (NoValueSnakTemplate, 'NoValueSnak'), 0)
         self.assert_no_value_snak_template(
-            NoValueSnakTemplate(x), Variable('x', Property))
+            NoValueSnakTemplate(x), PropertyVariable('x'))
         self.assert_no_value_snak_template(
             NoValueSnakTemplate(Property(x)),
-            PropertyTemplate(Variable('x', IRI)))
+            PropertyTemplate(IRI_Variable('x')))
         self.assert_no_value_snak_template(
-            NoValueSnak(x), Variable('x', Property))
+            NoValueSnak(x), PropertyVariable('x'))
         self.assert_no_value_snak_template(
             NoValueSnak(Property(x)),
-            Property(Variable('x', IRI)))
+            Property(IRI_Variable('x')))
 
     def test__new__statement_template(self):
         x = Variable('x')
@@ -399,20 +448,21 @@ class Test(kif_TestCase):
             Variable('x', Entity), Property('p')(Quantity(0)))
         self.assert_statement_template(
             StatementTemplate(Lexeme(x), Property('p')(0)),
-            LexemeTemplate(Variable('x', IRI)), Property('p')(Quantity(0)))
+            LexemeTemplate(IRI_Variable('x')),
+            Property('p')(Quantity(0)))
         self.assert_statement_template(
             StatementTemplate(Item('x'), x), Item('x'), Variable('x', Snak))
         self.assert_statement_template(
             StatementTemplate(Item('x'), NoValueSnakTemplate(x)),
-            Item('x'), NoValueSnakTemplate(Variable('x', Property)))
+            Item('x'), NoValueSnakTemplate(PropertyVariable('x')))
         self.assert_statement_template(
             Statement(Lexeme(x), Property('p')(0)),
-            Lexeme(Variable('x', IRI)), Property('p')(Quantity(0)))
+            Lexeme(IRI_Variable('x')), Property('p')(Quantity(0)))
         self.assert_statement_template(
             StatementTemplate(Item('x'), x), Item('x'), Variable('x', Snak))
         self.assert_statement_template(
             StatementTemplate(Item('x'), NoValueSnak(x)),
-            Item('x'), NoValueSnak(Variable('x', Property)))
+            Item('x'), NoValueSnak(PropertyVariable('x')))
         self.assert_statement_template(
             PropertyTemplate(x)(Item('i'), String('s')),
             Item('i'), PropertyTemplate(x)(String('s')))
@@ -435,7 +485,7 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 1, None,
             "cannot coerce ItemVariable 'x' into IRI_Variable",
-            ItemTemplate, Variable('x', Item))
+            ItemTemplate, ItemVariable('x'))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
             'expected IRI_Template, got ItemTemplate',
@@ -445,7 +495,7 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 1, None,
             "cannot coerce PropertyVariable 'x' into IRI_Variable",
-            PropertyTemplate, Variable('x', Property))
+            PropertyTemplate, PropertyVariable('x'))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
             'expected IRI_Template, got PropertyTemplate',
@@ -453,7 +503,7 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 2, None,
             "cannot coerce IRI_Variable 'x' into DatatypeVariable",
-            PropertyTemplate, IRI('x'), Variable('x', IRI))
+            PropertyTemplate, IRI('x'), IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 2, None,
             'expected Datatype, got PropertyTemplate',
@@ -464,8 +514,8 @@ class Test(kif_TestCase):
         self.assertRaises(Variable.CoercionError, PropertyTemplate, x, x)
         self.assert_property_template(
             PropertyTemplate(
-                IRI(Variable('x', String)), Variable('y')),
-            IRI_Template(Variable('x', String)), Variable('y', Datatype))
+                IRI(StringVariable('x')), Variable('y')),
+            IRI_Template(StringVariable('x')), DatatypeVariable('y'))
 
     def test__init__lexeme_template(self):
         self.assert_raises_bad_argument(
@@ -487,7 +537,7 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 1, None,
             "cannot coerce IRI_Variable 'x' into StringVariable",
-            IRI_Template, Variable('x', IRI))
+            IRI_Template, IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
             'expected Variable, got StringTemplate',
@@ -497,7 +547,7 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 1, None,
             "cannot coerce TextVariable 'x' into StringVariable",
-            TextTemplate, Variable('x', Text))
+            TextTemplate, TextVariable('x'))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
             'expected str, got StringTemplate',
@@ -505,7 +555,7 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 2, None,
             "cannot coerce TextVariable 'y' into StringVariable",
-            TextTemplate, 'x', Variable('y', Text))
+            TextTemplate, 'x', TextVariable('y'))
         self.assert_raises_bad_argument(
             TypeError, 2, None,
             'expected str, got StringTemplate',
@@ -514,21 +564,21 @@ class Test(kif_TestCase):
     def test__init__text_template_normalization(self):
         x = Variable('x')
         self.assert_text_template(
-            TextTemplate(x, x), Variable('x', String), Variable('x', String))
+            TextTemplate(x, x), StringVariable('x'), StringVariable('x'))
         self.assert_text_template(
             TextTemplate(
                 Variable('x', ShallowDataValue),
                 Variable('x', DataValue)),
-            Variable('x', String), Variable('x', String))
+            StringVariable('x'), StringVariable('x'))
         self.assert_text_template(
-            TextTemplate(Variable('x', String), Variable('x', String)),
-            Variable('x', String), Variable('x', String))
+            TextTemplate(StringVariable('x'), StringVariable('x')),
+            StringVariable('x'), StringVariable('x'))
 
     def test__init__string_template(self):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 1, None,
             "cannot coerce IRI_Variable 'x' into StringVariable",
-            StringTemplate, Variable('x', IRI))
+            StringTemplate, IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
             "expected Variable, got StringTemplate",
@@ -538,7 +588,7 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 1, None,
             "cannot coerce IRI_Variable 'x' into StringVariable",
-            ExternalIdTemplate, Variable('x', IRI))
+            ExternalIdTemplate, IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
             'expected Variable, got IRI_Template',
@@ -551,7 +601,7 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 1, None,
             "cannot coerce IRI_Variable 'x' into QuantityVariable",
-            QuantityTemplate, Variable('x', IRI))
+            QuantityTemplate, IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
             'expected Decimal or float or int or str, got QuantityTemplate',
@@ -559,11 +609,11 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 2, None,
             "cannot coerce IRI_Variable 'x' into ItemVariable",
-            QuantityTemplate, 0, Variable('x', IRI))
+            QuantityTemplate, 0, IRI_Variable('x'))
         self.assert_raises_bad_argument(
             Variable.CoercionError, 3, None,
             "cannot coerce IRI_Variable 'x' into QuantityVariable",
-            QuantityTemplate, 0, None, Variable('x', IRI))
+            QuantityTemplate, 0, None, IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 3, None,
             'expected Decimal or float or int or str, got QuantityTemplate',
@@ -571,7 +621,7 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 4, None,
             "cannot coerce IRI_Variable 'x' into QuantityVariable",
-            QuantityTemplate, 0, None, None, Variable('x', IRI))
+            QuantityTemplate, 0, None, None, IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 4, None,
             'expected Decimal or float or int or str, got QuantityTemplate',
@@ -585,23 +635,23 @@ class Test(kif_TestCase):
             Variable.CoercionError, QuantityTemplate, 0, x, None, x)
         self.assert_quantity_template(
             QuantityTemplate(x, None, x),
-            Variable('x', Quantity), None, Variable('x', Quantity), None)
+            QuantityVariable('x'), None, QuantityVariable('x'), None)
         self.assert_quantity_template(
             QuantityTemplate(x, None, x, Variable('x', DeepDataValue)),
-            Variable('x', Quantity), None,
-            Variable('x', Quantity), Variable('x', Quantity))
+            QuantityVariable('x'), None,
+            QuantityVariable('x'), QuantityVariable('x'))
         self.assert_quantity_template(
             QuantityTemplate(
                 x, None, Variable('x', DataValue),
                 Variable('x', DeepDataValue)),
-            Variable('x', Quantity), None,
-            Variable('x', Quantity), Variable('x', Quantity))
+            QuantityVariable('x'), None,
+            QuantityVariable('x'), QuantityVariable('x'))
 
     def test__init__time_template(self):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 1, None,
             "cannot coerce IRI_Variable 'x' into TimeVariable",
-            TimeTemplate, Variable('x', IRI))
+            TimeTemplate, IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
             'expected datetime or str, got TimeTemplate',
@@ -609,7 +659,7 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 2, None,
             "cannot coerce IRI_Variable 'x' into QuantityVariable",
-            TimeTemplate, '2024-05-06', Variable('x', IRI))
+            TimeTemplate, '2024-05-06', IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 2, None,
             'expected Decimal or Quantity or Time.Precision or '
@@ -619,7 +669,7 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 3, None,
             "cannot coerce IRI_Variable 'x' into QuantityVariable",
-            TimeTemplate, '2024-05-06', None, Variable('x', IRI))
+            TimeTemplate, '2024-05-06', None, IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 3, None,
             'expected Decimal or Quantity or '
@@ -629,7 +679,7 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 4, None,
             "cannot coerce IRI_Variable 'x' into ItemVariable",
-            TimeTemplate, '2024-05-06', None, None, Variable('x', IRI))
+            TimeTemplate, '2024-05-06', None, None, IRI_Variable('x'))
 
     def test__init__time_template_normalization(self):
         x = Variable('x')
@@ -639,11 +689,11 @@ class Test(kif_TestCase):
         self.assert_time_template(
             TimeTemplate('2024-05-06', x, x),
             Time('2024-05-06').time,
-            Variable('x', Quantity), Variable('x', Quantity), None)
+            QuantityVariable('x'), QuantityVariable('x'), None)
         self.assert_time_template(
             TimeTemplate('2024-05-06', x, Variable('x', DataValue)),
             Time('2024-05-06').time,
-            Variable('x', Quantity), Variable('x', Quantity), None)
+            QuantityVariable('x'), QuantityVariable('x'), None)
 
     def test__init__snak_template(self):
         self.assert_abstract_class(Snak)
@@ -652,7 +702,7 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 1, None,
             "cannot coerce IRI_Variable 'x' into PropertyVariable",
-            ValueSnakTemplate, Variable('x', IRI), 0)
+            ValueSnakTemplate, IRI_Variable('x'), 0)
         self.assert_raises_bad_argument(
             Variable.CoercionError, 2, None,
             "cannot coerce SnakVariable 'x' into ValueVariable",
@@ -662,48 +712,48 @@ class Test(kif_TestCase):
         x = Variable('x')
         self.assertEqual(
             ValueSnak(x, x),
-            ValueSnak(Variable('x', Property), Variable('x', Property)))
+            ValueSnak(PropertyVariable('x'), PropertyVariable('x')))
 
     def test__init__some_value_snak_template(self):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 1, None,
             "cannot coerce IRI_Variable 'x' into PropertyVariable",
-            SomeValueSnakTemplate, Variable('x', IRI))
+            SomeValueSnakTemplate, IRI_Variable('x'))
 
     def test__init__no_value_snak_template(self):
         self.assert_raises_bad_argument(
             Variable.CoercionError, 1, None,
             "cannot coerce IRI_Variable 'x' into PropertyVariable",
-            NoValueSnakTemplate, Variable('x', IRI))
+            NoValueSnakTemplate, IRI_Variable('x'))
 
     def test__init__statement_template(self):
         x = Variable('x')
         self.assert_raises_bad_argument(
             Variable.CoercionError, 1, None,
             "cannot coerce IRI_Variable 'x' into EntityVariable",
-            StatementTemplate, Variable('x', IRI), x)
+            StatementTemplate, IRI_Variable('x'), x)
         self.assert_raises_bad_argument(
             Variable.CoercionError, 2, None,
             "cannot coerce IRI_Variable 'x' into SnakVariable",
-            StatementTemplate, x, Variable('x', IRI))
+            StatementTemplate, x, IRI_Variable('x'))
 
     def test__init__statement_template_normalization(self):
         x = Variable('x')
         self.assertRaises(Variable.CoercionError, Statement, x, x)
         self.assertEqual(
             StatementTemplate(x, x(x)),
-            StatementTemplate(Variable('x', Property), ValueSnak(
-                Variable('x', Property), Variable('x', Property))))
+            StatementTemplate(PropertyVariable('x'), ValueSnak(
+                PropertyVariable('x'), PropertyVariable('x'))))
         self.assertEqual(
             StatementTemplate(x, SomeValueSnak(x)),
             StatementTemplate(
-                Variable('x', Property),
-                SomeValueSnak(Variable('x', Property))))
+                PropertyVariable('x'),
+                SomeValueSnak(PropertyVariable('x'))))
         self.assertEqual(
             StatementTemplate(x, NoValueSnak(x)),
             StatementTemplate(
-                Variable('x', Property),
-                NoValueSnak(Variable('x', Property))))
+                PropertyVariable('x'),
+                NoValueSnak(PropertyVariable('x'))))
 
 # -- variables -------------------------------------------------------------
 
@@ -711,9 +761,9 @@ class Test(kif_TestCase):
         x, y, z = Variables('x', 'y', 'z')
         self.assertEqual(
             Statement(x, ValueSnak(y, Quantity(123, x, z))).variables, {
-                Variable('x', Item),
-                Variable('y', Property),
-                Variable('z', Quantity)})
+                ItemVariable('x'),
+                PropertyVariable('y'),
+                QuantityVariable('z')})
 
 # -- instantiate -----------------------------------------------------------
 
@@ -722,9 +772,9 @@ class Test(kif_TestCase):
         self.assert_raises_bad_argument(
             Variable.InstantiationError, None, None,
             "cannot instantiate IRI_Variable 'x' with Item",
-            ItemTemplate(x).instantiate, {Variable('x', IRI): Item('x')})
+            ItemTemplate(x).instantiate, {IRI_Variable('x'): Item('x')})
         self.assertEqual(
-            ItemTemplate(x).instantiate({Variable('x', IRI): IRI('x')}),
+            ItemTemplate(x).instantiate({IRI_Variable('x'): IRI('x')}),
             Item(IRI('x')))
 
 

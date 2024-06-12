@@ -337,10 +337,11 @@ At line {line}, column {column}:
         if (q.has_variable(q.var('subject'))
             and q.has_variable(q.var('property'))
                 and q.has_variable(q.var('value'))):
+            order_by = '?wds' if self.has_flags(self.ORDER) else None
             return self._eval_select_query(
                 q, lambda res: self._parse_filter_results(res, pattern),
                 vars=self._filter_vars,
-                limit=limit, distinct=distinct, trim=True)
+                limit=limit, distinct=distinct, order_by=order_by, trim=True)
         else:
             LOG.debug(
                 '%s(): nothing to select:\n%s', self._filter.__qualname__,

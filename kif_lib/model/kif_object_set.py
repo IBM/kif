@@ -34,7 +34,7 @@ class KIF_ObjectSet(KIF_Object):
 
     _frozenset: frozenset[KIF_Object]
 
-    def __init__(self, *objects: KIF_Object):
+    def __init__(self, *objects: Any):
         super().__init__(*objects)
 
     @override

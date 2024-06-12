@@ -18,7 +18,7 @@ from ..kif_object import TLocation
 from ..template import Template
 from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
-from .iri import IRI, IRI_Template, IRI_Variable, T_IRI
+from .iri import IRI, IRI_Template, T_IRI
 from .string import String
 from .value import Datatype, VDatatype, VTDatatypeContent
 
@@ -28,7 +28,7 @@ PropertyTemplateClass: TypeAlias = type['PropertyTemplate']
 PropertyVariableClass: TypeAlias = type['PropertyVariable']
 
 TProperty: TypeAlias = Union['Property', T_IRI]
-VTPropertyContent: TypeAlias = Union[IRI_Template, IRI_Variable, 'TProperty']
+VTPropertyContent: TypeAlias = Union[IRI_Template, Variable, 'TProperty']
 VProperty: TypeAlias =\
     Union['PropertyTemplate', 'PropertyVariable', 'Property']
 VVProperty: TypeAlias = Union[Variable, VProperty]
