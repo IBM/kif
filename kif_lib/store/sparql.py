@@ -292,7 +292,7 @@ At line {line}, column {column}:
     @override
     def _count(self, pattern: FilterPattern) -> int:
         q = self._make_count_query(pattern)
-        text = q.select('(count (*) as ?count)')
+        text = q.select('(count (distinct *) as ?count)')
         res = self._eval_select_query_string(text)
         return self._parse_count_query_results(res)
 
@@ -674,7 +674,6 @@ At line {line}, column {column}:
             results: SPARQL_Results,
             pattern: FilterPattern
     ) -> Iterator[Optional[Statement]]:
-        seen: MutableSet[Statement] = set()
         for entry in results.bindings:
             stmt = entry.check_statement(
                 'subject', 'property', 'value',
@@ -685,11 +684,7 @@ At line {line}, column {column}:
                 continue
             wds = self._parse_filter_results_check_wds(entry, stmt)
             self._cache_add_wds(stmt, wds)
-            if stmt in seen:
-                yield None
-                continue
             yield stmt
-            seen.add(stmt)
 
     def _parse_filter_results_check_wds(
             self,

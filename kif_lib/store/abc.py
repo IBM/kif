@@ -7,7 +7,7 @@ from enum import auto, Flag
 from ..cache import Cache
 from ..error import Error as KIF_Error
 from ..error import MustBeImplementedInSubclass, ShouldNotGetHere
-from ..itertools import batched, chain
+from ..itertools import batched, chain, islice, unique_everseen
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -490,11 +490,6 @@ class Store(Set):
         """
         return chain.from_iterable(map(op, self._batched(it, page_size)))
 
-    # def _limit(
-    #         self,
-    #         it: Iterable[T],
-    #         limit: int
-    # ) -> Iterator[T]:
 
 # -- Timeout ---------------------------------------------------------------
 
@@ -770,11 +765,16 @@ class Store(Set):
     ) -> Iterator[Statement]:
         pattern, limit, distinct, data = self._filter_pre_hook(
             pattern, limit, distinct)
+        it_in: Iterator[Statement]
+        it_out: Iterator[Statement]
         if limit > 0 and pattern.is_nonempty():
-            it = self._filter(pattern, limit, distinct)
+            it_in = self._filter(pattern, limit, distinct)
         else:
-            it = iter(())
-        return self._filter_post_hook(pattern, limit, distinct, data, it)
+            it_in = iter(())
+        it_out = self._filter_post_hook(pattern, limit, distinct, data, it_in)
+        if distinct:
+            it_out = unique_everseen(it_out)
+        return islice(it_out, limit)
 
     def _filter_pre_hook(
             self,

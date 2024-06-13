@@ -88,7 +88,7 @@ class SPARQL_MapperStore(
     @override
     def _count(self, pattern: FilterPattern) -> int:
         q = self._make_filter_query(pattern)
-        text = q.select('(count (*) as ?count)')
+        text = q.select('(count (distinct *) as ?count)')
         res = self._eval_select_query_string(text)
         return self._parse_count_query_results(res)
 
