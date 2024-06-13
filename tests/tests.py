@@ -1152,11 +1152,9 @@ class kif_StoreTestCase(kif_TestCase):
         self.store_test_contains_bad_argument(kb)
         # count
         self.store_test_count_bad_argument(kb)
-        self.store_test_count_snak_bad_argument(kb)
         self.store_test_count_empty(kb)
         # filter
         self.store_test_filter_bad_argument(kb)
-        self.store_test_filter_snak_bad_argument(kb)
         self.store_test_filter_empty(kb)
         # get_annotations
         self.store_test_get_annotations_bad_argument(kb)
@@ -1331,12 +1329,6 @@ class kif_StoreTestCase(kif_TestCase):
         self.assert_raises_bad_argument(
             TypeError, 6, 'pattern', None, kb.count, pattern=Item('x'))
 
-    def store_test_count_snak_bad_argument(self, kb):
-        self.assert_raises_bad_argument(
-            TypeError, 1, 'subject', None, kb.count_snak, 0)
-        self.assert_raises_bad_argument(
-            TypeError, 2, 'snak', None, kb.count_snak, None, 0)
-
     def store_test_count_empty(self, kb):
         saved_flags = kb.flags
         kb.unset_flags(kb.VALUE_SNAK | kb.SOME_VALUE_SNAK | kb.NO_VALUE_SNAK)
@@ -1353,28 +1345,28 @@ class kif_StoreTestCase(kif_TestCase):
         if (pattern is None
             and property is not None and value is not None
                 and property.is_property() and value.is_value()):
-            self.assertEqual(kb.count_snak(subject, property(value)), n)
+            self.assertEqual(kb.count(subject, snak=property(value)), n)
             saved_flags = kb.flags
             kb.unset_flags(kb.VALUE_SNAK)
-            self.assertEqual(kb.count_snak(subject, property(value)), 0)
+            self.assertEqual(kb.count(subject, snak=property(value)), 0)
             kb.flags = saved_flags
         elif (pattern is None
               and property is not None and property.is_property()
               and snak_mask == Snak.SOME_VALUE_SNAK):
             some_value = SomeValueSnak(property)
-            self.assertEqual(kb.count_snak(subject, some_value), n)
+            self.assertEqual(kb.count(subject, snak=some_value), n)
             saved_flags = kb.flags
             kb.unset_flags(kb.SOME_VALUE_SNAK)
-            self.assertEqual(kb.count_snak(subject, some_value), 0)
+            self.assertEqual(kb.count(subject, snak=some_value), 0)
             kb.flags = saved_flags
         elif (pattern is None
               and property is not None and property.is_property()
               and snak_mask == Snak.NO_VALUE_SNAK):
             no_value = NoValueSnak(property)
-            self.assertEqual(kb.count_snak(subject, no_value), n)
+            self.assertEqual(kb.count(subject, snak=no_value), n)
             saved_flags = kb.flags
             kb.unset_flags(kb.NO_VALUE_SNAK)
-            self.assertEqual(kb.count_snak(subject, no_value), 0)
+            self.assertEqual(kb.count(subject, snak=no_value), 0)
             kb.flags = saved_flags
 
     def store_test_filter_bad_argument(self, kb):
@@ -1400,14 +1392,6 @@ class kif_StoreTestCase(kif_TestCase):
         self.assert_raises_bad_argument(
             TypeError, 8, 'distinct', None, kb.filter, distinct=Item('x'))
 
-    def store_test_filter_snak_bad_argument(self, kb):
-        self.assert_raises_bad_argument(
-            TypeError, 1, 'subject', None, kb.filter_snak, 0)
-        self.assert_raises_bad_argument(
-            TypeError, 2, 'snak', None, kb.filter_snak, None, 0)
-        self.assert_raises_bad_argument(
-            TypeError, 3, 'limit', None, kb.filter_snak, limit=Item('x'))
-
     def store_test_filter_empty(self, kb):
         saved_flags = kb.flags
         kb.unset_flags(kb.VALUE_SNAK | kb.SOME_VALUE_SNAK | kb.NO_VALUE_SNAK)
@@ -1430,8 +1414,8 @@ class kif_StoreTestCase(kif_TestCase):
             self.assertIn(stmt, set(stmts))
             self.assertIsInstance(annots, AnnotationRecordSet)
         for stmt in stmts:
-            res_annotated_snak = list(kb.filter_snak_annotated(
-                stmt.subject, stmt.snak))
+            res_annotated_snak = list(kb.filter_annotated(
+                stmt.subject, snak=stmt.snak))
             self.assertEqual(len(res_annotated_snak), 1)
             self.assertEqual(res_annotated_snak[0][0], stmt)
             self.assertIsInstance(
@@ -1440,30 +1424,30 @@ class kif_StoreTestCase(kif_TestCase):
         if (pattern is None
             and property is not None and value is not None
                 and property.is_property() and value.is_value()):
-            self.assertEqual(set(kb.filter_snak(
-                subject, property(value))), res)
+            self.assertEqual(set(kb.filter(
+                subject, snak=property(value))), res)
             saved_flags = kb.flags
             kb.unset_flags(kb.VALUE_SNAK)
-            self.assertFalse(bool(set(kb.filter_snak(
-                subject, property(value)))))
+            self.assertFalse(bool(set(kb.filter(
+                subject, snak=property(value)))))
             kb.flags = saved_flags
         elif (pattern is None
               and property is not None and property.is_property()
               and snak_mask == Snak.SOME_VALUE_SNAK):
             some_value = SomeValueSnak(property)
-            self.assertEqual(set(kb.filter_snak(subject, some_value)), res)
+            self.assertEqual(set(kb.filter(subject, snak=some_value)), res)
             saved_flags = kb.flags
             kb.unset_flags(kb.SOME_VALUE_SNAK)
-            self.assertFalse(bool(set(kb.filter_snak(subject, some_value))))
+            self.assertFalse(bool(set(kb.filter(subject, snak=some_value))))
             kb.flags = saved_flags
         elif (pattern is None
               and property is not None and property.is_property()
               and snak_mask == Snak.NO_VALUE_SNAK):
             no_value = NoValueSnak(property)
-            self.assertEqual(set(kb.filter_snak(subject, no_value)), res)
+            self.assertEqual(set(kb.filter(subject, snak=no_value)), res)
             saved_flags = kb.flags
             kb.unset_flags(kb.NO_VALUE_SNAK)
-            self.assertFalse(bool(set(kb.filter_snak(subject, no_value))))
+            self.assertFalse(bool(set(kb.filter(subject, snak=no_value))))
             kb.flags = saved_flags
 
     def store_test_get_annotations_bad_argument(self, kb):

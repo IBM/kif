@@ -130,6 +130,9 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         # no value
         n = kb.count(wd.Adam, wd.father)
         self.assertEqual(n, 1)
+        # snak
+        snak = ValueSnak(wd.mass, Quantity('78.046950192', wd.dalton))
+        self.assertEqual(kb.count(snak=snak), 10)
         # empty criteria: some value
         kb.unset_flags(kb.SOME_VALUE_SNAK)
         n = kb.count(snak_mask=Snak.SOME_VALUE_SNAK)
@@ -150,16 +153,6 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         kb.set_flags(kb.BEST_RANK)
         n = kb.count(wd.Adam, wd.date_of_birth)
         self.assertEqual(n, 1)
-
-    def test_count_snak(self):
-        kb = self.new_Store()
-        # bad argument: subject
-        self.assertRaises(TypeError, kb.count_snak, 0)
-        # bad argument: snak
-        self.assertRaises(TypeError, kb.count_snak, None, 0)
-        # good arguments
-        snak = ValueSnak(wd.mass, Quantity('78.046950192', wd.dalton))
-        self.assertEqual(kb.count_snak(None, snak), 10)
 
     def test_filter(self):
         kb = self.new_Store()
@@ -255,6 +248,22 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         it = kb.filter(wd.Adam, wd.date_of_death)
         self.assertTrue(next(it).snak.is_some_value_snak())
         self.assertRaises(StopIteration, next, it)
+        # snak
+        kb = self.new_Store()
+        snak = ValueSnak(wd.mass, Quantity('78.046950192', wd.dalton))
+        stmt = next(kb.filter(snak=snak))
+        self.assert_statement(
+            stmt, stmt.subject, wd.mass(Quantity('78.046950192', wd.dalton)))
+        # subject is a property
+        stmt = next(kb.filter(
+            snak=wd.type_of_unit_for_this_property(wd.unit_of_mass)))
+        self.assertTrue(stmt.subject.is_property())
+        # snak: some value
+        stmt = next(kb.filter(wd.Adam, snak=SomeValueSnak(wd.family_name)))
+        self.assert_statement(stmt, wd.Adam, SomeValueSnak(wd.family_name))
+        # snak: no value
+        stmt = next(kb.filter(wd.Adam, snak=NoValueSnak(wd.father)))
+        self.assert_statement(stmt, wd.Adam, NoValueSnak(wd.father))
         # empty criteria: some value
         kb.unset_flags(kb.SOME_VALUE_SNAK)
         self.assertFalse(list(kb.filter(
@@ -268,39 +277,6 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         kb = self.new_Store()
         stmts = list(kb.filter(wd.Adam, limit=120))
         self.assertEqual(len(stmts), 120)
-
-    def test_filter_snak(self):
-        kb = self.new_Store()
-        # bad argument: subject
-        self.assertRaises(TypeError, kb.filter_snak, 0)
-        # bad argument: snak
-        self.assertRaises(TypeError, kb.filter_snak, None, 0)
-        # good arguments
-        snak = ValueSnak(wd.mass, Quantity('78.046950192', wd.dalton))
-        stmt = next(kb.filter_snak(None, snak))
-        self.assert_statement(
-            stmt, stmt.subject, wd.mass(Quantity('78.046950192', wd.dalton)))
-        # subject is a property
-        stmt = next(kb.filter_snak(
-            None, wd.type_of_unit_for_this_property(wd.unit_of_mass)))
-        self.assertTrue(stmt.subject.is_property())
-        # subject is fingerprint
-        stmt = next(kb.filter_snak(
-            [wd.InChIKey(String('UHOVQNZJYSORNB-UHFFFAOYSA-N'))]))
-        self.assertEqual(stmt.subject, wd.benzene)
-        # snak: None
-        stmt = next(kb.filter_snak(wd.Adam, limit=1))
-        self.assert_statement(stmt, wd.Adam, stmt.snak)
-        # snak: some value
-        stmt = next(kb.filter_snak(wd.Adam, SomeValueSnak(wd.family_name)))
-        self.assert_statement(stmt, wd.Adam, SomeValueSnak(wd.family_name))
-        # snak: no value
-        stmt = next(kb.filter_snak(wd.Adam, NoValueSnak(wd.father)))
-        self.assert_statement(stmt, wd.Adam, NoValueSnak(wd.father))
-        # limit
-        kb = self.new_Store()
-        stmts = list(kb.filter_snak(wd.Adam, limit=0))
-        self.assertEqual(len(stmts), 0)
 
     # -- Annotations -------------------------------------------------------
 

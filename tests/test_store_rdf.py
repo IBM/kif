@@ -136,7 +136,7 @@ class TestStoreRDF(kif_StoreTestCase):
             wd.date_of_birth(wd.Adam, Time(
                 '4003-01-01', 9, 0, wd.proleptic_Julian_calendar)))
 
-    # -- count, count_snak --
+    # -- count --
 
     def test_count(self):
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
@@ -228,7 +228,7 @@ class TestStoreRDF(kif_StoreTestCase):
         kb.unset_flags(kb.BEST_RANK)
         self.store_test_count(kb, 16)
 
-    # -- filter, filter_snak --
+    # -- filter --
 
     def test_filter(self):
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)

@@ -614,23 +614,6 @@ class Store(Set):
         return self._count_tail(self._check_filter_pattern(
             subject, property, value, snak_mask, snak, pattern, self.count))
 
-    def count_snak(
-            self,
-            subject: Optional[TEntityFingerprint] = None,
-            snak: Optional[Snak] = None
-    ) -> int:
-        """Counts statements matching pattern.
-
-        Parameters:
-           subject: Entity.
-           snak: Snak.
-
-        Returns:
-           The number of statements matching pattern.
-        """
-        return self._count_tail(self._check_filter_snak_pattern(
-            subject, snak, self.count_snak))
-
     def _count_tail(self, pattern: FilterPattern) -> int:
         if pattern.is_nonempty():
             return self._count(pattern)
@@ -668,18 +651,6 @@ class Store(Set):
                 pat, cast(FilterPattern, FilterPattern.check(
                     pattern, function, 'pattern', 6)))
         return self._normalize_filter_pattern(pat)
-
-    def _check_filter_snak_pattern(
-            self,
-            subject: Optional[TEntityFingerprint] = None,
-            snak: Optional[Snak] = None,
-            function: Optional[TLocation] = None
-    ) -> FilterPattern:
-        return self._normalize_filter_pattern(FilterPattern.from_snak(
-            EntityFingerprint._check_optional_arg_entity_fingerprint(
-                subject, None, function, 'subject', 1),
-            cast(Optional[Snak], Snak.check_optional(
-                snak, None, function, 'snak', 2))))
 
     def _normalize_filter_pattern(
             self,
@@ -727,32 +698,6 @@ class Store(Set):
             limit, None, self.filter, 'limit', 7)
         KIF_Object._check_optional_arg_bool(
             distinct, None, self.filter, 'distinct', 8)
-        return self._filter_tail(pat, limit, distinct)
-
-    def filter_snak(
-            self,
-            subject: Optional[TEntityFingerprint] = None,
-            snak: Optional[Snak] = None,
-            limit: Optional[int] = None,
-            distinct: Optional[bool] = None
-    ) -> Iterator[Statement]:
-        """Filters statements matching pattern.
-
-        Parameters:
-           subject: Entity.
-           snak: Snak.
-           limit: Maximum number of statements to return.
-           distinct: Whether to remove duplicates.
-
-        Returns:
-           An iterator of statements matching pattern.
-        """
-        pat = self._check_filter_snak_pattern(
-            subject, snak, self.filter_snak)
-        KIF_Object._check_optional_arg_int(
-            limit, None, self.filter_snak, 'limit', 3)
-        KIF_Object._check_optional_arg_bool(
-            distinct, None, self.filter_snak, 'distinct', 4)
         return self._filter_tail(pat, limit, distinct)
 
     def _filter_tail(
@@ -850,28 +795,6 @@ class Store(Set):
         for stmt, annots in self.get_annotations(it):
             assert annots is not None
             yield stmt, annots
-
-    def filter_snak_annotated(
-            self,
-            subject: Optional[TEntityFingerprint] = None,
-            snak: Optional[Snak] = None,
-            limit: Optional[int] = None
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet]]:
-        """:meth:`Store.filter_snak` with annotations.
-
-        Same as :meth:`Store.filter_snak` followed by
-        :meth:`Store.get_annotations`.
-
-        Parameters:
-           subject: Entity.
-           snak: Snak.
-           limit: Maximum number of statements to return.
-
-        Returns:
-           An iterator of pairs "(statement, annotation record set)".
-        """
-        return self._filter_annotated_tail(self.filter_snak(
-            subject, snak, limit))
 
     def get_annotations(
             self,
