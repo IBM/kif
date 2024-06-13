@@ -595,6 +595,7 @@ class Store(Set):
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
             snak_mask: Optional[Snak.TMask] = None,
+            snak: Optional[Snak] = None,
             pattern: Optional[FilterPattern] = None
     ) -> int:
         """Counts statements matching pattern.
@@ -604,13 +605,14 @@ class Store(Set):
            property: Property.
            value: Value.
            snak_mask: Snak mask.
+           snak: Snak.
            pattern: Filter pattern.
 
         Returns:
            The number of statements matching pattern.
         """
         return self._count_tail(self._check_filter_pattern(
-            subject, property, value, snak_mask, pattern, self.count))
+            subject, property, value, snak_mask, snak, pattern, self.count))
 
     def count_snak(
             self,
@@ -644,6 +646,7 @@ class Store(Set):
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
             snak_mask: Optional[Snak.TMask] = None,
+            snak: Optional[Snak] = None,
             pattern: Optional[FilterPattern] = None,
             function: Optional[TLocation] = None
     ) -> FilterPattern:
@@ -656,10 +659,14 @@ class Store(Set):
         mask = Snak._check_optional_arg_snak_mask(
             snak_mask, Snak.ALL, function, 'snak_mask', 4)
         pat = FilterPattern(subj, prop, val, mask)
+        if snak is not None:
+            pat = FilterPattern._combine(
+                pat, FilterPattern.from_snak(None, Snak._check_arg_snak(
+                    snak, function, 'snak', 5)))
         if pattern is not None:
             pat = FilterPattern._combine(
                 pat, cast(FilterPattern, FilterPattern.check(
-                    pattern, function, 'pattern', 5)))
+                    pattern, function, 'pattern', 6)))
         return self._normalize_filter_pattern(pat)
 
     def _check_filter_snak_pattern(
@@ -694,6 +701,7 @@ class Store(Set):
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
             snak_mask: Optional[Snak.TMask] = None,
+            snak: Optional[Snak] = None,
             pattern: Optional[FilterPattern] = None,
             limit: Optional[int] = None,
             distinct: Optional[bool] = None
@@ -705,6 +713,7 @@ class Store(Set):
            property: Property.
            value: Value.
            snak_mask: Snak mask.
+           snak: Snak.
            pattern: Filter pattern.
            limit: Maximum number of statements to return.
            distinct: Whether to remove duplicates.
@@ -713,11 +722,11 @@ class Store(Set):
            An iterator of statements matching pattern.
         """
         pat = self._check_filter_pattern(
-            subject, property, value, snak_mask, pattern, self.filter)
+            subject, property, value, snak_mask, snak, pattern, self.filter)
         KIF_Object._check_optional_arg_int(
-            limit, None, self.filter, 'limit', 6)
+            limit, None, self.filter, 'limit', 7)
         KIF_Object._check_optional_arg_bool(
-            distinct, None, self.filter, 'distinct', 7)
+            distinct, None, self.filter, 'distinct', 8)
         return self._filter_tail(pat, limit, distinct)
 
     def filter_snak(
@@ -810,6 +819,7 @@ class Store(Set):
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
             snak_mask: Optional[Snak.TMask] = None,
+            snak: Optional[Snak] = None,
             pattern: Optional[FilterPattern] = None,
             limit: Optional[int] = None
     ) -> Iterator[tuple[Statement, AnnotationRecordSet]]:
@@ -823,6 +833,7 @@ class Store(Set):
            property: Property.
            value: Value.
            snak_mask: Snak mask.
+           snak: Snak.
            pattern: Filter pattern.
            limit: Maximum number of statements to return.
 
@@ -830,7 +841,7 @@ class Store(Set):
            An iterator of pairs "(statement, annotation record set)".
         """
         return self._filter_annotated_tail(self.filter(
-            subject, property, value, snak_mask, pattern, limit))
+            subject, property, value, snak_mask, snak, pattern, limit))
 
     def _filter_annotated_tail(
             self,

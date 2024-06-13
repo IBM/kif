@@ -1326,7 +1326,10 @@ class kif_StoreTestCase(kif_TestCase):
             TypeError, 4, 'snak_mask', None,
             kb.count, None, None, Item('x'), NoValueSnak)
         self.assert_raises_bad_argument(
-            TypeError, 5, 'pattern', None, kb.count, pattern=Item('x'))
+            TypeError, 5, 'snak', None,
+            kb.count, None, None, Item('x'), NoValueSnak.mask, Item('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 6, 'pattern', None, kb.count, pattern=Item('x'))
 
     def store_test_count_snak_bad_argument(self, kb):
         self.assert_raises_bad_argument(
@@ -1388,9 +1391,14 @@ class kif_StoreTestCase(kif_TestCase):
             TypeError, 4, 'snak_mask', None,
             kb.filter, None, None, Item('x'), NoValueSnak)
         self.assert_raises_bad_argument(
-            TypeError, 5, 'pattern', None, kb.filter, pattern=Item('x'))
+            TypeError, 5, 'snak', None,
+            kb.filter, None, None, Item('x'), NoValueSnak.mask, Item('x'))
         self.assert_raises_bad_argument(
-            TypeError, 6, 'limit', None, kb.filter, limit=Item('x'))
+            TypeError, 6, 'pattern', None, kb.filter, pattern=Item('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 7, 'limit', None, kb.filter, limit=Item('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 8, 'distinct', None, kb.filter, distinct=Item('x'))
 
     def store_test_filter_snak_bad_argument(self, kb):
         self.assert_raises_bad_argument(
