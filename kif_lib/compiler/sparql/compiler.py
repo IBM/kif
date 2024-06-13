@@ -103,10 +103,11 @@ VQueryURI: TypeAlias = Union[QueryURI, QueryVariable]
 
 
 class CompiledQuery(SelectQuery):
-    pass
+    """Compiled query."""
 
 
 class Substitution(MutableMapping):
+    """Substitution."""
 
     _map: MutableMapping[Variable, Union[KIF_Object, QueryVariable]]
     _dependency_graph: MutableMapping[
@@ -123,20 +124,20 @@ class Substitution(MutableMapping):
     )
 
     def __init__(self):
-        self._map = dict()
-        self._dependency_graph = dict()
-        self._reverse_dependency_graph = dict()
-        self._defaults = dict()
+        self._map = {}
+        self._dependency_graph = {}
+        self._reverse_dependency_graph = {}
+        self._defaults = {}
 
     def __str__(self):
         return ''.join(self._dump())
 
-    def _dump(self, _attrs=[
+    def _dump(self, _attrs=(
             '_map',
             '_dependency_graph',
             '_reverse_dependency_graph',
             '_defaults'
-    ]):
+    )):
         for attr in _attrs:
             yield f'{attr}:\n'
             for k, v in getattr(self, attr).items():
@@ -222,7 +223,7 @@ class Substitution(MutableMapping):
             self,
             binding: Mapping[str, dict[str, str]]
     ) -> Mapping[Variable, Optional[KIF_Object]]:
-        theta: MutableMapping[Variable, Optional[KIF_Object]] = dict()
+        theta: MutableMapping[Variable, Optional[KIF_Object]] = {}
         it = map(lambda t: (t[0], t[1]['value']), binding.items())
         for qvar_name, qvar_value in it:
             qvar = QueryVariable(qvar_name)
@@ -257,6 +258,7 @@ class Substitution(MutableMapping):
 
 class SPARQL_Compiler(
         Compiler, format='sparql', description='SPARQL compiler'):
+    """SPARQL compiler."""
 
     class Error(Compiler.Error):
         """Base class for SPARQL compiler errors."""

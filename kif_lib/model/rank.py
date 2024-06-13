@@ -5,6 +5,7 @@ from functools import cache
 
 from ..namespace import Wikidata
 from ..rdflib import URIRef
+from ..typing import ClassVar
 from .kif_object import KIF_Object
 
 
@@ -12,15 +13,15 @@ class Rank(KIF_Object):
     """Abstract base class for statement ranks."""
 
     #: Preferred rank.
-    preferred: 'PreferredRank'
+    preferred: ClassVar['PreferredRank']
 
     #: Normal rank.
-    normal: 'NormalRank'
+    normal: ClassVar['NormalRank']
 
     #: Deprecated rank.
-    deprecated: 'DeprecatedRank'
+    deprecated: ClassVar['DeprecatedRank']
 
-    _uri: URIRef
+    _uri: ClassVar[URIRef]
 
     @classmethod
     @cache
@@ -42,28 +43,28 @@ class Rank(KIF_Object):
 class PreferredRank(Rank):
     """Most important information."""
 
-    _uri: URIRef = Wikidata.PREFERRED
+    _uri: ClassVar[URIRef] = Wikidata.PREFERRED
 
     def __init__(self):
-        return super().__init__()
+        super().__init__()
 
 
 class NormalRank(Rank):
     """Complementary information."""
 
-    _uri: URIRef = Wikidata.NORMAL
+    _uri: ClassVar[URIRef] = Wikidata.NORMAL
 
     def __init__(self):
-        return super().__init__()
+        super().__init__()
 
 
 class DeprecatedRank(Rank):
     """Unreliable information."""
 
-    _uri: URIRef = Wikidata.DEPRECATED
+    _uri: ClassVar[URIRef] = Wikidata.DEPRECATED
 
     def __init__(self):
-        return super().__init__()
+        super().__init__()
 
 
 Rank.deprecated = DeprecatedRank()

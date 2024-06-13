@@ -34,7 +34,7 @@ class Fingerprint(KIF_Object):
             function, name, position))
 
     def __init__(self, value_spec: TFingerprint):
-        return super().__init__(value_spec)
+        super().__init__(value_spec)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -111,7 +111,7 @@ class EntityFingerprint(Fingerprint):
             arg, (cls, Entity, SnakSet, Iterable), function, name, position))
 
     def __init__(self, entity_spec: TEntityFingerprint):
-        return super().__init__(entity_spec)
+        super().__init__(entity_spec)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -169,7 +169,7 @@ class PropertyFingerprint(Fingerprint):
             function, name, position))
 
     def __init__(self, property_spec: TPropertyFingerprint):
-        return super().__init__(property_spec)
+        super().__init__(property_spec)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:

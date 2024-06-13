@@ -145,7 +145,7 @@ class SPARQL_Store(
             query: SPARQL_Builder,
             parse_results_fn: Callable[
                 [SPARQL_Results], Iterator[Optional[T]]],
-            vars: Collection[Union[TTrm, tuple[TTrm, TTrm]]] = [],
+            vars: Collection[Union[TTrm, tuple[TTrm, TTrm]]] = tuple(),
             order_by: Optional[TTrm] = None,
             limit: int = Store.maximum_page_size,
             distinct: bool = False,
@@ -242,6 +242,8 @@ At line {line}, column {column}:
 # -- Match -----------------------------------------------------------------
 
     class Match:
+        """The match handle."""
+
         _store: 'SPARQL_Store'
         _compiler_results: SPARQL_Compiler.Results
 
@@ -719,7 +721,7 @@ At line {line}, column {column}:
     ) -> Iterator[tuple[Statement, Optional[Set[T_WDS]]]]:
         for batch in self._batched(stmts):
             reduced_batch: list[Statement] = []
-            stmt2wdss: dict[Statement, MutableSet[T_WDS]] = dict()
+            stmt2wdss: dict[Statement, MutableSet[T_WDS]] = {}
             for stmt in batch:
                 wdss = self._cache_get_wdss(stmt)
                 if not force_cache_update and wdss is not None:
@@ -848,9 +850,9 @@ At line {line}, column {column}:
             stmts: Iterable[Statement]
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
         for batch in self._batched(stmts):
-            wds_batch = []
-            stmt2wdss: dict[Statement, Set[T_WDS]] = dict()
-            wds2stmt: dict[T_WDS, Statement] = dict()
+            wds_batch: list[T_WDS] = []
+            stmt2wdss: dict[Statement, Set[T_WDS]] = {}
+            wds2stmt: dict[T_WDS, Statement] = {}
             for stmt, wdss in self._get_wdss(batch):
                 if wdss is not None:
                     stmt2wdss[stmt] = wdss
@@ -864,9 +866,9 @@ At line {line}, column {column}:
             q = self._make_get_annotations_query(set(wds_batch))
             it = self._eval_select_query(
                 q, self._parse_get_annotations_results)
-            wds2rank: dict[T_WDS, Rank] = dict()
-            wds2quals: dict[T_WDS, set[Snak]] = dict()
-            wds2refs: dict[T_WDS, dict[T_WDS, set[Snak]]] = dict()
+            wds2rank: dict[T_WDS, Rank] = {}
+            wds2quals: dict[T_WDS, set[Snak]] = {}
+            wds2refs: dict[T_WDS, dict[T_WDS, set[Snak]]] = {}
             for wds, rank, wdref, snak in it:
                 wds2rank[wds] = rank
                 if snak is None:
@@ -888,7 +890,7 @@ At line {line}, column {column}:
                         wds2quals[wds].add(snak)
                 else:
                     if wds not in wds2refs:
-                        wds2refs[wds] = dict()
+                        wds2refs[wds] = {}
                     if wdref not in wds2refs[wds]:
                         wds2refs[wds][wdref] = set()
                     wds2refs[wds][wdref].add(snak)
@@ -1085,7 +1087,7 @@ At line {line}, column {column}:
             LOG.debug(
                 '%s(): nothing to select:\n%s',
                 self._filter.__qualname__, q.select())
-        desc: dict[Union[Item, Property], dict[str, Any]] = dict()
+        desc: dict[Union[Item, Property], dict[str, Any]] = {}
         for entity, label, alias, description, datatype in it:
             if entity not in desc:
                 desc[entity] = {
@@ -1241,7 +1243,7 @@ At line {line}, column {column}:
                 LOG.debug(
                     '%s(): nothing to select:\n%s',
                     self._filter.__qualname__, q.select())
-            desc: dict[Lexeme, dict[str, Any]] = dict()
+            desc: dict[Lexeme, dict[str, Any]] = {}
             for lexeme, lemma, category, language in it:
                 desc[lexeme] = {
                     'lemma': lemma,

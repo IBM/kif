@@ -49,8 +49,8 @@ def _unify(G: set[tuple[Any, Any]]) -> Optional[Theta]:
                     raise KIF_Object._should_not_get_here()
                 G.remove(p)
                 assert len(s.args) == len(t.args)
-                for i in range(len(s.args)):
-                    G.add((s.args[i], t.args[i]))
+                for i, arg in enumerate(s.args):
+                    G.add((arg, t.args[i]))
                 done = False
                 break
             ###

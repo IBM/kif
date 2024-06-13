@@ -9,14 +9,18 @@ from ..itertools import chain
 from ..model import IRI, Value
 from ..typing import Any, Hashable, Iterable, Iterator
 from ..typing import Optional as Opt
+from ..typing import override
 from ..typing import Union as Uni
 
 # See <http://www.w3.org/TR/sparql11-query/#grammar>.
 
 
 class SPARQL_Builder(Sequence):
+    """Legacy SPARQL builder."""
 
     class Term:
+        """SPARQL builder term."""
+
         def __init__(self, id: Hashable):
             self._id = id
 
@@ -41,16 +45,22 @@ class SPARQL_Builder(Sequence):
             raise MustBeImplementedInSubclass
 
     class BNode(Term):
+        """SPARQL builder blank node."""
+
         def n3(self) -> str:
             return f'_:b{self.id}'
 
     class Variable(Term):
+        """SPARQL builder variable."""
+
         def n3(self) -> str:
             return f'?{self.id}'
 
     TTrm = Uni[Term, Value, int, str]  # term
 
     class Block:
+        """Block within a query."""
+
         def __init__(
                 self,
                 builder: 'SPARQL_Builder',
@@ -128,6 +138,8 @@ class SPARQL_Builder(Sequence):
                 raise err_val   # pragma: no cover
 
     class OnlyIf(Block):
+        """Only-if block."""
+
         def __init__(self, builder: 'SPARQL_Builder', cond: bool = True):
             super().__init__(builder, cond=not cond)
 
@@ -140,6 +152,8 @@ class SPARQL_Builder(Sequence):
             super()._end()
 
     class SubjectPredicate(Block):
+        """Subject-predicate block."""
+
         def __init__(
                 self,
                 builder: 'SPARQL_Builder',
@@ -147,10 +161,12 @@ class SPARQL_Builder(Sequence):
                 p: 'SPARQL_Builder.TTrm'):
             super().__init__(builder, s, p, builder.bnode())
 
+        @override
         def _start(self):
             super()._start()
             self.builder.triple(*self.args)
 
+        @override
         def _end(self):
             super()._end()
 
@@ -171,6 +187,8 @@ class SPARQL_Builder(Sequence):
             return self
 
     class Where(Block):
+        """WHERE block."""
+
         def _start(self):
             super()._start()
             self.builder.where_start()
@@ -180,6 +198,8 @@ class SPARQL_Builder(Sequence):
             super()._end()
 
     class Group(Block):
+        """Group (curly-braces) block."""
+
         def _start(self):
             super()._start()
             self.builder.group_start()
@@ -189,6 +209,8 @@ class SPARQL_Builder(Sequence):
             super()._end()
 
     class Optional(Block):
+        """OPTIONAL block."""
+
         def _start(self):
             super()._start()
             self.builder.optional_start()
@@ -198,6 +220,8 @@ class SPARQL_Builder(Sequence):
             super()._end()
 
     class Union(Block):
+        """UNION block."""
+
         def __init__(self, builder: 'SPARQL_Builder', **kwargs: Any):
             super().__init__(builder, **kwargs)
 
@@ -215,6 +239,8 @@ class SPARQL_Builder(Sequence):
             super()._end()
 
     class Values(Block):
+        """VALUES block."""
+
         def __init__(
                 self,
                 builder: 'SPARQL_Builder',
@@ -331,7 +357,7 @@ class SPARQL_Builder(Sequence):
         return self.BNode(name)
 
     def bnodes(self, n: int) -> Iterable[BNode]:
-        for i in range(n):
+        for _ in range(n):
             yield self.bnode()
 
     def var(self, name: Opt[str] = None) -> Variable:

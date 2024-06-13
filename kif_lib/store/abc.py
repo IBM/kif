@@ -38,6 +38,7 @@ from ..typing import (
     Any,
     Callable,
     cast,
+    ClassVar,
     Final,
     Iterable,
     Iterator,
@@ -66,13 +67,13 @@ class Store(Set):
     """
 
     #: The global plugin registry.
-    registry: Final[dict[str, type['Store']]] = dict()
+    registry: Final[dict[str, type['Store']]] = {}
 
     #: The name of this store plugin.
-    store_name: str
+    store_name: ClassVar[str]
 
     #: The description of this store plugin.
-    store_description: str
+    store_description: ClassVar[str]
 
     @classmethod
     def _register(
@@ -99,7 +100,6 @@ class Store(Set):
 
     class Error(KIF_Error):
         """Base class for store errors."""
-        pass
 
     @classmethod
     def _error(cls, details: str) -> Error:
@@ -489,6 +489,12 @@ class Store(Set):
            The resulting iterator.
         """
         return chain.from_iterable(map(op, self._batched(it, page_size)))
+
+    # def _limit(
+    #         self,
+    #         it: Iterable[T],
+    #         limit: int
+    # ) -> Iterator[T]:
 
 # -- Timeout ---------------------------------------------------------------
 

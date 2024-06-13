@@ -5,5 +5,7 @@ from ..rdflib import DefinedNamespace, Namespace, URIRef
 
 
 class PROV(DefinedNamespace):
+    """W3's PROV namespace."""
+
     _NS = Namespace('http://www.w3.org/ns/prov#')
     wasDerivedFrom: URIRef

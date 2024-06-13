@@ -4,7 +4,7 @@
 from ..typing import Any, cast, Iterable, Optional, override, Union
 from .kif_object import TLocation
 from .kif_object_set import KIF_ObjectSet
-from .value import Text, TText, TValue, Value
+from .value import Text, Value
 
 TFrozenset = frozenset
 TTextSet = Union['TextSet', Iterable[Text]]
@@ -28,9 +28,6 @@ class ValueSet(KIF_ObjectSet):
     ) -> 'ValueSet':
         return cast(ValueSet, cls._check_arg_kif_object_set(
             arg, function, name, position))
-
-    def __init__(self, *values: TValue):
-        super().__init__(*values)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -81,9 +78,6 @@ class TextSet(ValueSet):
     ) -> 'TextSet':
         return cast(TextSet, cls._check_arg_kif_object_set(
             arg, function, name, position))
-
-    def __init__(self, *texts: TText):
-        super().__init__(*texts)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:

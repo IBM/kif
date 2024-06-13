@@ -330,10 +330,10 @@ class Time(
             if not isinstance(arg, (int, cls.Precision)):
                 arg = int(arg)
             return cls.Precision(arg)
-        except ValueError:
+        except ValueError as err:
             raise cls._arg_error(
                 f'expected {cls.Precision.__qualname__}',
-                function, name, position, ValueError)
+                function, name, position, ValueError) from err
 
     @classmethod
     def _check_optional_arg_precision(
@@ -385,9 +385,10 @@ class Time(
                 return int(arg.args[0])
             else:
                 return int(arg)
-        except ValueError:
+        except ValueError as err:
             raise cls._arg_error(
-                'expected timezone', function, name, position, ValueError)
+                'expected timezone',
+                function, name, position, ValueError) from err
 
     @classmethod
     def _check_optional_arg_timezone(

@@ -1,8 +1,6 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from functools import cache
-
 from ..itertools import chain
 from ..typing import (
     Any,
@@ -67,7 +65,7 @@ class Template(KIF_Object):
         vars = frozenset(chain(*map(
             lambda x: (x,) if Variable.test(x) else x.variables,
             filter(self._isinstance_template_or_variable, args))))
-        most_specific: dict[str, Variable] = dict()
+        most_specific: dict[str, Variable] = {}
         for var in vars:
             if var.name not in most_specific:
                 most_specific[var.name] = var
@@ -76,7 +74,7 @@ class Template(KIF_Object):
                 assert var != cur  # as there are no repetitions in vars
                 most_specific[var.name] = var._coerce(
                     cur.__class__, self.__class__)
-        theta: dict[Variable, Variable] = dict()
+        theta: dict[Variable, Variable] = {}
         for var in vars:
             if var.name in most_specific and most_specific[var.name] != var:
                 theta[var] = most_specific[var.name]
@@ -92,7 +90,6 @@ class Template(KIF_Object):
         """The set of variables occurring in template."""
         return self.get_variables()
 
-    @cache
     def get_variables(self) -> Set[Variable]:
         """Gets the set of variables occurring in template.
 

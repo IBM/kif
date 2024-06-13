@@ -27,7 +27,7 @@ from ..model import (
 )
 from ..model.kif_object import Decimal, Encoder, Object
 from ..namespace import _DEFAULT_NSM
-from ..typing import cast, Generator, Optional
+from ..typing import cast, Iterator, Optional, override
 
 SP = ' '                        # space
 NL = '\n'                       # newline
@@ -42,17 +42,14 @@ class MarkdownEncoder(
         from .. import vocabulary
         return vocabulary.wd
 
-    def iterencode(self, obj: Object) -> Generator[str, None, None]:
-        if KIF_Object.test(obj):
-            yield from self._iterencode(cast(KIF_Object, obj), 0)
+    @override
+    def iterencode(self, input: Object) -> Iterator[str]:
+        if KIF_Object.test(input):
+            yield from self._iterencode(cast(KIF_Object, input), 0)
         else:
-            yield str(obj)      # pragma: no cover
+            yield str(input)      # pragma: no cover
 
-    def _iterencode(
-            self,
-            obj: KIF_Object,
-            indent: int
-    ) -> Generator[str, None, None]:
+    def _iterencode(self, obj: KIF_Object, indent: int) -> Iterator[str]:
         if isinstance(obj, Datatype):
             yield self._encode_kif_object_name(obj)
         elif isinstance(obj, Entity):
@@ -197,20 +194,17 @@ class MarkdownEncoder(
             self,
             obj: KIF_Object,
             sep: str = SP
-    ) -> Generator[str, None, None]:
+    ) -> Iterator[str]:
         yield f'({self._encode_kif_object_name(obj)}{sep}'
 
-    def _iterencode_kif_object_end(
-            self,
-            obj: KIF_Object
-    ) -> Generator[str, None, None]:
+    def _iterencode_kif_object_end(self, obj: KIF_Object) -> Iterator[str]:
         yield ')'
 
     def _iterencode_iri_fallback(
             self,
             iri: IRI,
             default_scheme: str = 'http'
-    ) -> Generator[str, None, None]:
+    ) -> Iterator[str]:
         from urllib.parse import urlparse
         val = iri.value
         if not urlparse(val).scheme:
@@ -218,10 +212,7 @@ class MarkdownEncoder(
         else:
             yield f'[{val}]({val})'
 
-    def _iterencode_quantity(
-            self,
-            qtd: Quantity
-    ) -> Generator[str, None, None]:
+    def _iterencode_quantity(self, qtd: Quantity) -> Iterator[str]:
         if qtd.lower_bound is not None or qtd.upper_bound is not None:
             val: Optional[str] = None
             if qtd.lower_bound is not None and qtd.upper_bound is not None:
@@ -249,7 +240,7 @@ class MarkdownEncoder(
             self,
             obj: Variable,
             _re=re.compile(r'([_\w]+[^_])_?Variable$')
-    ) -> Generator[str, None, None]:
+    ) -> Iterator[str]:
         if obj.__class__ is Variable:
             yield f'?{obj.name}'
         else:

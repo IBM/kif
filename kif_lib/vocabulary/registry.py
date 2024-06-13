@@ -4,13 +4,14 @@
 from ..cache import Cache
 from ..model import Entity, IRI, Item, Lexeme, Property
 from ..namespace import WD
-from ..typing import Any, cast, Optional, Union
+from ..typing import Any, cast, Final, Optional, Union
 
 
 class WikidataEntityRegistry(Cache):
+    """Wikidata entity registry."""
 
-    _wikidata_items_json = 'wikidata_items.json'
-    _wikidata_properties_json = 'wikidata_properties.json'
+    _wikidata_items_json: Final[str] = 'wikidata_items.json'
+    _wikidata_properties_json: Final[str] = 'wikidata_properties.json'
 
     @classmethod
     def _load_wikidata_items_json(cls) -> dict[str, dict[str, str]]:
@@ -30,10 +31,10 @@ class WikidataEntityRegistry(Cache):
         assert spec.origin is not None
         dir = Path(cast(str, spec.origin)).parent
         try:
-            with open(dir / name) as fp:
+            with open(dir / name, encoding='utf-8') as fp:
                 return load(fp)
         except FileNotFoundError:
-            return dict()
+            return {}
 
     def __init__(self):
         super().__init__()

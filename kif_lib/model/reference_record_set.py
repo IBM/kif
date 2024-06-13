@@ -4,7 +4,7 @@
 from ..typing import Any, cast, Iterable, Optional, override, Union
 from .kif_object import TLocation
 from .kif_object_set import KIF_ObjectSet
-from .reference_record import ReferenceRecord, TReferenceRecord
+from .reference_record import ReferenceRecord
 
 TFrozenset = frozenset
 TReferenceRecordSet = Union['ReferenceRecordSet', Iterable[ReferenceRecord]]
@@ -27,9 +27,6 @@ class ReferenceRecordSet(KIF_ObjectSet):
     ) -> 'ReferenceRecordSet':
         return cast(ReferenceRecordSet, cls._check_arg_kif_object_set(
             arg, function, name, position))
-
-    def __init__(self, *refs: TReferenceRecord):
-        super().__init__(*refs)
 
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._preprocess_arg_reference_record(arg, i)

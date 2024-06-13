@@ -435,10 +435,10 @@ class SPARQL_Mapping(ABC):
 
     @classmethod
     def _init(cls):
-        cls.specs = dict()
-        cls.descriptor_specs = dict()
-        cls.iri_prefix_replacements = dict()
-        cls.iri_prefix_replacements_inv = dict()
+        cls.specs = {}
+        cls.descriptor_specs = {}
+        cls.iri_prefix_replacements = {}
+        cls.iri_prefix_replacements_inv = {}
 
     @classmethod
     def register(
@@ -497,7 +497,7 @@ class SPARQL_Mapping(ABC):
             src = cls.iri_prefix_replacements_inv[tgt]
             spec.kwargs[f'{key}_prefix_replacement'] = (src.value, tgt.value)
         if spec.property not in specs:
-            specs[spec.property] = list()
+            specs[spec.property] = []
         specs[spec.property].append(spec)
 
     @classmethod

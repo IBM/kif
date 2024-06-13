@@ -28,9 +28,6 @@ class AnnotationRecordSet(KIF_ObjectSet):
         return cast(AnnotationRecordSet, cls._check_arg_kif_object_set(
             arg, function, name, position))
 
-    def __init__(self, *annots: AnnotationRecord):
-        super().__init__(*annots)
-
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._preprocess_arg_annotation_record(arg, i)

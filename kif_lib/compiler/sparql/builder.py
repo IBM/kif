@@ -10,8 +10,7 @@
 import datetime
 import decimal
 from abc import ABC, abstractmethod
-from collections.abc import Generator, Iterator, MutableSequence, Sequence
-from functools import cache
+from collections.abc import Iterator, MutableSequence, Sequence
 from itertools import chain
 from typing import Any, cast, Final, Optional, TypeVar, Union
 
@@ -20,17 +19,16 @@ from typing_extensions import override, TypeAlias
 
 _str = str
 T = TypeVar('T')
-TGenStr: TypeAlias = Generator[str, None, None]
 
 T_URI: TypeAlias = Union[URIRef, str]
 TBNode: TypeAlias = BNode
-TLiteral: TypeAlias = Union[
-    Literal, bool, datetime.datetime, decimal.Decimal, float, int, str]
+TLiteral: TypeAlias =\
+    Union[Literal, bool, datetime.datetime, decimal.Decimal, float, int, str]
 TVariable: TypeAlias = Union[Variable, str]
 
 TNumericLiteralContent: TypeAlias = Union[URIRef, TLiteral, Variable]
-TNumericLiteral: TypeAlias = Union[
-    'NumericLiteral', URIRef, TLiteral, Variable]
+TNumericLiteral: TypeAlias =\
+    Union['NumericLiteral', URIRef, TLiteral, Variable]
 TNumericExpression: TypeAlias = Union['NumericExpression', TNumericLiteral]
 TNumExpr: TypeAlias = TNumericExpression
 TExpression: TypeAlias = Union['Expression', TNumericExpression]
@@ -67,7 +65,7 @@ class Encodable(ABC):
         return ''.join(self.iterencode())
 
     @abstractmethod
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         raise NotImplementedError
 
 
@@ -272,7 +270,7 @@ class LogicExpression(BooleanExpression):
                 and self.args == other.args)
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         if len(self.args) == 0:
             yield ''
         elif len(self.args) == 1:
@@ -284,10 +282,12 @@ class LogicExpression(BooleanExpression):
 
 
 class Or(LogicExpression):
+    """Disjunction."""
     operator: str = Symbol.OR
 
 
 class And(LogicExpression):
+    """Conjunction."""
     operator: str = Symbol.AND
 
 
@@ -310,7 +310,7 @@ class RelationalExpression(BooleanExpression):
                 and self.args == other.args)
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         yield '('
         yield self.args[0].encode()
         yield ' '
@@ -321,26 +321,32 @@ class RelationalExpression(BooleanExpression):
 
 
 class Equal(RelationalExpression):
+    """Equality test."""
     operator: str = Symbol.EQUAL
 
 
 class NotEqual(RelationalExpression):
+    """Not-equal test."""
     operator: str = Symbol.NOT_EQUAL
 
 
 class LessThan(RelationalExpression):
+    """Less-than test."""
     operator: str = Symbol.LESS_THAN
 
 
 class LessThanOrEqual(RelationalExpression):
+    """Less-than-or-equal test."""
     operator: str = Symbol.LESS_THAN_OR_EQUAL
 
 
 class GreaterThan(RelationalExpression):
+    """Greater-than test."""
     operator: str = Symbol.GREATER_THAN
 
 
 class GreaterThanOrEqual(RelationalExpression):
+    """Greater-than-or-equal test."""
     operator: str = Symbol.GREATER_THAN_OR_EQUAL
 
 
@@ -362,7 +368,7 @@ class NumericLiteral(NumericExpression):
         return (type(self) is type(other) and self.value == other.value)
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         yield self._n3(self.value)
 
 
@@ -378,7 +384,7 @@ class Call(NumericExpression):
                 and self.args == other.args)
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         yield '('
         yield ', '.join(map(Encodable.encode, self.args))
         yield ')'
@@ -394,7 +400,7 @@ class URI_Call(Call):
         self.args = tuple(map(Coerce.numeric_expression, args))
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         yield self._n3(self.operator)
         yield from super().iterencode()
 
@@ -405,7 +411,7 @@ class BuiltInCall(Call):
     operator: str
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         yield self.operator
         yield from super().iterencode()
 
@@ -427,22 +433,42 @@ class BinaryBuiltInCall(BuiltInCall):
 
 
 class LANG(UnaryBuiltInCall):
+    """The LANG built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-lang>.
+    """
     operator: str = Symbol.LANG
 
 
 class STR(UnaryBuiltInCall):
+    """The STR built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-str>.
+    """
     operator: str = Symbol.STR
 
 
 class STRSTARTS(BinaryBuiltInCall):
+    """The STRSTARTS built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-strstarts>.
+    """
     operator: str = Symbol.STRSTARTS
 
 
 class STRLANG(BinaryBuiltInCall):
+    """The STRLANG built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-strlang>.
+    """
     operator: str = Symbol.STRLANG
 
 
 class IsURI(UnaryBuiltInCall):
+    """The isURI built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-isIRI>.
+    """
     operator: str = Symbol.IS_URI
 
 
@@ -483,10 +509,10 @@ class Bind(Pattern):
         self.variable = Coerce.variable(variable)
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         yield from self._iterencode()
 
-    def _iterencode(self, omit_bind_symbol: bool = False) -> TGenStr:
+    def _iterencode(self, omit_bind_symbol: bool = False) -> Iterator[str]:
         if not omit_bind_symbol:
             yield Symbol.BIND
             yield ' '
@@ -516,7 +542,7 @@ class Comment(Pattern):
         self.text = text
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         for line in self.text.splitlines():
             yield f'{Symbol.COMMENT} {line}\n'
 
@@ -538,7 +564,7 @@ class Filter(Pattern):
         self.expression = Coerce.expression(expression)
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         yield Symbol.FILTER
         yield ' ('
         yield self.expression.encode()
@@ -567,7 +593,7 @@ class Triple(Pattern):
             Coerce.object(object))
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         yield ' '.join(map(self._n3, self.args))
         yield ' '
         yield Symbol.DOT
@@ -590,7 +616,7 @@ class ValuesLine(Pattern):
         self.args = tuple(map(Coerce.values_value, args))
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         yield '('
         yield ' '.join(map(
             lambda arg: self._n3(arg) if arg is not None else Symbol.UNDEF,
@@ -626,14 +652,13 @@ class GraphPattern(Pattern):
         return SyntaxError(f'cannot add {_f(obj)} to {_f(self)}')
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         yield from self._iterencode(0)
 
     @abstractmethod
-    def _iterencode(self, n: int) -> TGenStr:
+    def _iterencode(self, n: int) -> Iterator[str]:
         raise NotImplementedError
 
-    @cache
     def _indent(self, n: int) -> str:
         return Symbol.INDENT * n
 
@@ -679,7 +704,7 @@ class CommentsBlock(AtomicGraphPattern):
             self._push(Coerce.comment(comment, clause=self.clause))
         return self
 
-    def _iterencode(self, n: int) -> TGenStr:
+    def _iterencode(self, n: int) -> Iterator[str]:
         for comment in self.comments:
             for line in comment.iterencode():
                 yield self._indent(n)
@@ -699,7 +724,7 @@ class TriplesBlock(AtomicGraphPattern):
             parent: Optional['GraphPattern'] = None
     ):
         super().__init__(clause, parent)
-        self.triples = list()
+        self.triples = []
 
     def __call__(self, *triples: TTriple) -> 'TriplesBlock':
         with self:
@@ -717,7 +742,7 @@ class TriplesBlock(AtomicGraphPattern):
             self._push(Coerce.triple(triple, clause=self.clause))
         return self
 
-    def _iterencode(self, n: int) -> TGenStr:
+    def _iterencode(self, n: int) -> Iterator[str]:
         for triple in self.triples:
             yield self._indent(n)
             yield from triple.iterencode()
@@ -742,7 +767,7 @@ class ValuesBlock(GraphPattern):
         super().__init__(clause, parent)
         self.variables = tuple(map(
             Coerce.variable, chain((variable,), variables)))
-        self.lines = list()
+        self.lines = []
 
     def __call__(self, *lines: TValuesLine) -> 'ValuesBlock':
         with self:
@@ -751,7 +776,7 @@ class ValuesBlock(GraphPattern):
     def add_line(self, line: ValuesLine) -> ValuesLine:
         if len(line.args) < len(self.variables):
             raise ValueError('bad values line (too many values)')
-        elif len(line.args) > len(self.variables):
+        if len(line.args) > len(self.variables):
             raise ValueError('bad values line (not enough values)')
         return cast(ValuesLine, self._add(line, self.lines))
 
@@ -764,7 +789,7 @@ class ValuesBlock(GraphPattern):
             self._push(Coerce.values_line(line, clause=self.clause))
         return self
 
-    def _iterencode(self, n: int) -> TGenStr:
+    def _iterencode(self, n: int) -> Iterator[str]:
         yield self._indent(n)
         yield Symbol.VALUES
         yield ' ('
@@ -796,9 +821,9 @@ class CompoundGraphPattern(GraphPattern):
             parent: Optional['GraphPattern'] = None
     ):
         super().__init__(clause, parent)
-        self.binds = list()
-        self.filters = list()
-        self.children = list()
+        self.binds = []
+        self.filters = []
+        self.children = []
         self.stash_drop()
 
     def add_bind(self, bind: Bind) -> Bind:
@@ -824,10 +849,10 @@ class CompoundGraphPattern(GraphPattern):
         self.stash_drop()
 
     def stash_drop(self):
-        self.stashed_children = list()
+        self.stashed_children = []
         self._stashing = False
 
-    def _iterencode(self, n: int) -> TGenStr:
+    def _iterencode(self, n: int) -> Iterator[str]:
         yield from self._iterencode_begin(n)
         for pat in chain(self.children, self.binds, self.filters):
             if isinstance(pat, GraphPattern):
@@ -838,19 +863,23 @@ class CompoundGraphPattern(GraphPattern):
                 raise RuntimeError('should not get here')
         yield from self._iterencode_end(n)
 
-    def _iterencode_begin(self, n: int) -> TGenStr:
+    def _iterencode_begin(self, n: int) -> Iterator[str]:
         yield self._indent(n)
         yield '{\n'
 
-    def _iterencode_graph_pattern(self, pat: GraphPattern, n: int) -> TGenStr:
+    def _iterencode_graph_pattern(
+            self,
+            pat: GraphPattern,
+            n: int
+    ) -> Iterator[str]:
         yield from pat._iterencode(n)
 
-    def _iterencode_pattern(self, pat: Pattern, n: int) -> TGenStr:
+    def _iterencode_pattern(self, pat: Pattern, n: int) -> Iterator[str]:
         yield self._indent(n)
         yield from pat.iterencode()
         yield '\n'
 
-    def _iterencode_end(self, n: int) -> TGenStr:
+    def _iterencode_end(self, n: int) -> Iterator[str]:
         yield self._indent(n)
         yield '}\n'
 
@@ -861,7 +890,7 @@ class GroupGraphPattern(CompoundGraphPattern):
     """Group graph pattern."""
 
     @override
-    def _iterencode_begin(self, n: int) -> TGenStr:
+    def _iterencode_begin(self, n: int) -> Iterator[str]:
         yield self._indent(n)
         if isinstance(self.parent, UnionGraphPattern):
             for child in self.parent.children:
@@ -880,7 +909,7 @@ class GroupGraphPattern(CompoundGraphPattern):
 class OptionalGraphPattern(CompoundGraphPattern):
     """OPTIONAL graph pattern."""
 
-    def _iterencode_begin(self, n: int) -> TGenStr:
+    def _iterencode_begin(self, n: int) -> Iterator[str]:
         yield self._indent(n)
         yield Symbol.OPTIONAL
         yield ' {\n'
@@ -983,7 +1012,7 @@ class SelectClause(Clause):
             yield ' '
             yield Symbol.STAR
         else:
-            for i, var in enumerate(self.variables, 1):
+            for var in self.variables:
                 yield ' '
                 if isinstance(var, Variable):
                     yield self._n3(var)
@@ -997,7 +1026,7 @@ class WhereClause(Clause):
     """WHERE clause."""
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         yield Symbol.WHERE
         yield ' '
         yield self.root.encode()
@@ -1082,7 +1111,7 @@ class Query(Encodable):
             fresh_var_counter if fresh_var_counter is not None else 0)
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         yield self.where.encode()
         for s in filter(bool, map(
                 Encodable.encode, (self._limit, self._offset))):
@@ -1477,7 +1506,7 @@ class AskQuery(Query):
         self._ask = AskClause()
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         yield self._ask.encode()
         yield ' '
         yield from super().iterencode()
@@ -1518,7 +1547,7 @@ class SelectQuery(Query):
         self._select.reduced = reduced
 
     @override
-    def iterencode(self) -> TGenStr:
+    def iterencode(self) -> Iterator[str]:
         yield self._select.encode()
         yield ' '
         yield from super().iterencode()

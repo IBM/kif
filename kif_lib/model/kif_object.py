@@ -3,16 +3,15 @@
 
 import datetime
 import decimal
+import enum
+import functools
 import json
-from enum import Enum
-from functools import cache
 
 from ..itertools import chain
 from ..typing import (
     Any,
     Callable,
     cast,
-    Generator,
     Iterator,
     Optional,
     override,
@@ -121,10 +120,10 @@ class KIF_Object(object.Object):
                     return dt.replace(tzinfo=UTC)
                 else:
                     return dt
-            except Exception:
+            except Exception as err:
                 raise cls._arg_error(
                     f'expected {Datetime.__qualname__}',
-                    function, name, position, ValueError)
+                    function, name, position, ValueError) from err
         elif isinstance(arg, Datetime):
             return arg
         else:
@@ -180,10 +179,10 @@ class KIF_Object(object.Object):
             arg, (Decimal, float, int, str), function, name, position)
         try:
             return Decimal(arg)
-        except decimal.InvalidOperation:
+        except decimal.InvalidOperation as err:
             raise cls._arg_error(
                 f'expected {Decimal.__qualname__}',
-                function, name, position, ValueError)
+                function, name, position, ValueError) from err
 
     @classmethod
     def _check_optional_arg_decimal(
@@ -272,8 +271,10 @@ class KIF_Object(object.Object):
 
 class KIF_JSON_Encoder(
         object.JSON_Encoder, format='json', description='JSON encoder'):
+    """KIF JSON encoder."""
 
     class Encoder(object.JSON_Encoder.Encoder):
+        """The underlying JSON encoder."""
 
         @override
         def default(self, o: Any) -> Any:
@@ -285,7 +286,7 @@ class KIF_JSON_Encoder(
                 }
             elif isinstance(o, (Datetime, Decimal)):
                 return str(o)
-            elif isinstance(o, Enum):
+            elif isinstance(o, enum.Enum):
                 return str(o.value)
             else:
                 try:
@@ -296,15 +297,17 @@ class KIF_JSON_Encoder(
 
 class KIF_ReprDecoder(
         object.ReprDecoder, format='repr', description='Repr. decoder'):
+    """KIF repr. decoder."""
 
-    @override
-    @cache
-    def _globals(self) -> dict[str, Any]:
+    @classmethod
+    @functools.cache
+    def _globals(cls) -> dict[str, Any]:
         return {'Decimal': Decimal, 'datetime': datetime, **super()._globals()}
 
 
 class KIF_ReprEncoder(
         object.ReprEncoder, format='repr', description='Repr. encoder'):
+    """KIF repr. encoder."""
 
     @override
     def _iterencode(
@@ -312,11 +315,11 @@ class KIF_ReprEncoder(
             v: Any,
             n: int = 0,
             indent: int = 0
-    ) -> Generator[str, None, None]:
+    ) -> Iterator[str]:
         if isinstance(v, (Datetime, Decimal)):
             yield from self._indent(n, indent)
             yield repr(v)
-        elif isinstance(v, Enum):
+        elif isinstance(v, enum.Enum):
             yield from self._indent(n, indent)
             yield repr(v.value)
         else:
@@ -325,17 +328,19 @@ class KIF_ReprEncoder(
 
 class KIF_SExpEncoder(
         object.SExpEncoder, format='sexp', description='S-expression encoder'):
+    """KIF S-expression encoder."""
 
     @override
     def _iterencode(
             self,
-            v: Any, n: int = 0,
+            v: Any,
+            n: int = 0,
             indent: int = 0
-    ) -> Generator[str, None, None]:
+    ) -> Iterator[str]:
         if isinstance(v, (Datetime, Decimal)):
             yield from self._indent(n, indent)
             yield str(v)
-        elif isinstance(v, Enum):
+        elif isinstance(v, enum.Enum):
             yield from self._indent(n, indent)
             yield str(v.value)
         else:

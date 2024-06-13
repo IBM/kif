@@ -22,7 +22,7 @@ class Cache:
     _enabled: bool
 
     def __init__(self, enabled: bool = True):
-        self._cache = dict()
+        self._cache = {}
         self._enabled = enabled
 
     @property
@@ -74,7 +74,7 @@ class Cache:
 
     def clear(self):
         """Clears cache."""
-        self._cache = dict()
+        self._cache = {}
 
     def get(self, obj: Hashable, key: str) -> Any:
         """Gets the value attached to `key` of `obj` in cache.
@@ -105,7 +105,7 @@ class Cache:
         if not self._enabled:
             return value
         if obj not in self._cache:
-            self._cache[obj] = dict()
+            self._cache[obj] = {}
         self._cache[obj][key] = value
         return value
 

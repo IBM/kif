@@ -28,9 +28,6 @@ class SnakSet(KIF_ObjectSet):
         return cast(SnakSet, cls._check_arg_kif_object_set(
             arg, function, name, position))
 
-    def __init__(self, *snaks: Snak):
-        super().__init__(*snaks)
-
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._preprocess_arg_snak(arg, i)

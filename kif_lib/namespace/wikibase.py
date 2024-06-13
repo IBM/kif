@@ -5,6 +5,8 @@ from ..rdflib import DefinedNamespace, Namespace, URIRef
 
 
 class WIKIBASE(DefinedNamespace):
+    """The Wikibase namespace."""
+
     _NS = Namespace('http://wikiba.se/ontology#')
     BestRank: URIRef
     DeprecatedRank: URIRef

@@ -52,7 +52,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
     def __init__(
             self,
             store_name: str,
-            sources: Iterable[Store] = [],
+            sources: Iterable[Store] = tuple(),
             sync_flags: bool = True,
             **kwargs: Any
     ):
@@ -168,8 +168,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
                 if distinct:
                     if stmt in seen:
                         continue  # skip statement
-                    else:
-                        seen.add(stmt)
+                    seen.add(stmt)
                 yield stmt
                 limit -= 1
             except StopIteration:
@@ -282,7 +281,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
                           Iterator[tuple[T, Optional[S]]]],
             merge: Callable[[S, S], S]
     ) -> Iterator[tuple[T, Optional[S]]]:
-        desc: dict[T, S] = dict()
+        desc: dict[T, S] = {}
         for kb in self._sources:
             for entity, entity_desc in get(kb, entities):
                 if entity_desc is None:

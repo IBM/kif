@@ -10,7 +10,7 @@ from ..model.kif_object import (
     TDetails,
     TLocation,
 )
-from ..typing import Any, Final, Optional, TypeAlias
+from ..typing import Any, ClassVar, Final, Optional, TypeAlias
 
 TCompilerPattern: TypeAlias = KIF_Object
 
@@ -24,11 +24,11 @@ class Compiler(abc.ABC):
     class Results(abc.ABC):
         """Abstract base class for compiler results."""
 
-    registry: Final[dict[str, type['Compiler']]] = dict()
+    registry: Final[dict[str, type['Compiler']]] = {}
     default: Final[str] = 'sparql'
 
-    format: str
-    description: str
+    format: ClassVar[str]
+    description: ClassVar[str]
 
     @classmethod
     def __init_subclass__(

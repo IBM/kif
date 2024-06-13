@@ -3,7 +3,16 @@
 
 from enum import auto, Flag
 
-from ..typing import Any, cast, Final, Optional, override, TypeAlias, Union
+from ..typing import (
+    Any,
+    cast,
+    ClassVar,
+    Final,
+    Optional,
+    override,
+    TypeAlias,
+    Union,
+)
 from .kif_object import KIF_Object, TLocation
 from .template import Template
 from .value import (
@@ -178,7 +187,7 @@ class Snak(
             raise self_._should_not_get_here()
 
     #: Mask of this snak class.
-    mask: Mask = Mask.ALL
+    mask: ClassVar[Mask] = Mask.ALL
 
     @classmethod
     def get_mask(cls) -> Mask:
@@ -214,7 +223,7 @@ class ValueSnakTemplate(SnakTemplate):
     """
 
     def __init__(self, property: VVTPropertyContent, value: VVTValue):
-        return super().__init__(property, value)
+        super().__init__(property, value)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -265,10 +274,10 @@ class ValueSnak(
        value: Value.
     """
 
-    mask: Snak.Mask = Snak.VALUE_SNAK
+    mask: ClassVar[Snak.Mask] = Snak.VALUE_SNAK
 
     def __init__(self, property: VVTPropertyContent, value: VVTValue):
-        return super().__init__(property, value)
+        super().__init__(property, value)
 
     @staticmethod
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
@@ -303,7 +312,7 @@ class SomeValueSnakTemplate(SnakTemplate):
     """
 
     def __init__(self, property: VVTPropertyContent):
-        return super().__init__(property)
+        super().__init__(property)
 
 
 class SomeValueSnakVariable(SnakVariable):
@@ -325,10 +334,10 @@ class SomeValueSnak(
        property: Property.
     """
 
-    mask: Snak.Mask = Snak.SOME_VALUE_SNAK
+    mask: ClassVar[Snak.Mask] = Snak.SOME_VALUE_SNAK
 
     def __init__(self, property: VVTPropertyContent):
-        return super().__init__(property)
+        super().__init__(property)
 
 
 # -- No-value snak ---------------------------------------------------------
@@ -341,7 +350,7 @@ class NoValueSnakTemplate(SnakTemplate):
     """
 
     def __init__(self, property: VVTPropertyContent):
-        return super().__init__(property)
+        super().__init__(property)
 
 
 class NoValueSnakVariable(SnakVariable):
@@ -363,7 +372,7 @@ class NoValueSnak(
        property: Property.
     """
 
-    mask: Snak.Mask = Snak.NO_VALUE_SNAK
+    mask: ClassVar[Snak.Mask] = Snak.NO_VALUE_SNAK
 
     def __init__(self, property: VVTPropertyContent):
-        return super().__init__(property)
+        super().__init__(property)

@@ -148,7 +148,7 @@ class SPARQL_MapperStore(
                 else:
                     raise self._should_not_get_here()
             with q.union() as cup:
-                for property, specs in self.mapping.specs.items():
+                for _, specs in self.mapping.specs.items():
                     for spec in specs:
                         if subject_prefix is not None:
                             if not spec._match_kwargs(
@@ -289,7 +289,7 @@ class SPARQL_MapperStore(
                             spec.kwargs.get('subject_prefix_replacement'))
                     cup.branch()
                     pat = FilterPattern(matched_entities[0])
-                    matched_specs = dict()
+                    matched_specs = {}
                     if get_label:
                         matched_specs['label'] = [
                             s for s in label_specs if s._match(pat)]

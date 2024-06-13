@@ -22,7 +22,7 @@ from ...model import (
     ValueSnak,
 )
 from ...model.kif_object import Decoder, DecoderError, Object
-from ...typing import Any, cast, Optional
+from ...typing import Any, cast, Optional, override
 
 
 class SPARQL_Decoder(
@@ -62,15 +62,16 @@ At line {line}, column {column}:
     def __init__(self):
         self._namespace = dict(NS._DEFAULT_NSM.namespaces())
 
-    def decode(self, s: str) -> Object:
+    @override
+    def decode(self, input: str) -> Object:
         from pyparsing.exceptions import ParseException
         try:
-            query = prepareQuery(s, initNs=self._namespace)
+            query = prepareQuery(input, initNs=self._namespace)
         except ParseException as err:
             raise self._error_bad_query(
-                s, err.lineno, err.column, err.explain())
-        fpmap: dict[Variable, list[Snak]] = dict()
-        snmap: dict[ValueSnak, tuple[Id, Id]] = dict()
+                input, err.lineno, err.column, err.explain())
+        fpmap: dict[Variable, list[Snak]] = {}
+        snmap: dict[ValueSnak, tuple[Id, Id]] = {}
         subj: Optional[Id] = None
         pred: Optional[Id] = None
         obj: Optional[Id] = None
@@ -79,7 +80,7 @@ At line {line}, column {column}:
                 and isinstance(p, URIRef)
                     and isinstance(o, (URIRef, Literal))):
                 if s not in fpmap:
-                    fpmap[s] = list()
+                    fpmap[s] = []
                 assert isinstance(p, URIRef)
                 sp = self._uriref_to_property(p)
                 if isinstance(o, URIRef):
@@ -146,7 +147,7 @@ At line {line}, column {column}:
     def _uriref_to_value(
             self,
             uri: URIRef,
-            property_prefixes: Collection[NS.T_NS] = [NS.WD, NS.WDT]
+            property_prefixes: Collection[NS.T_NS] = (NS.WD, NS.WDT)
     ) -> Value:
         return Value._from_rdflib(uri, property_prefixes=property_prefixes)
 

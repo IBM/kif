@@ -4,7 +4,7 @@
 import re
 
 from ..rdflib import DefinedNamespace, Namespace, URIRef
-from ..typing import Collection, Union
+from ..typing import Collection, Final, Union
 from .wikibase import WIKIBASE
 
 T_NS = Union[type[DefinedNamespace], Namespace]
@@ -12,27 +12,29 @@ T_URI = Union[URIRef, str]
 
 
 class Wikidata:
-    WIKIDATA = Namespace('http://www.wikidata.org/')
-    P = Namespace(WIKIDATA['prop/'])
-    PQ = Namespace(P['qualifier/'])
-    PQN = Namespace(PQ['value-normalized/'])
-    PQV = Namespace(PQ['value/'])
-    PR = Namespace(P['reference/'])
-    PRN = Namespace(PR['value-normalized/'])
-    PRV = Namespace(PR['value/'])
-    PS = Namespace(P['statement/'])
-    PSN = Namespace(PS['value-normalized/'])
-    PSV = Namespace(PS['value/'])
-    WD = Namespace(WIKIDATA['entity/'])
-    WDATA = Namespace(WIKIDATA['wiki/Special:EntityData/'])
-    WDGENID = Namespace(WIKIDATA['.well-known/genid/'])
-    WDNO = Namespace(P['novalue/'])
-    WDREF = Namespace(WIKIDATA['reference/'])
-    WDS = Namespace(WD['statement/'])
-    WDT = Namespace(P['direct/'])
-    WDV = Namespace(WIKIDATA['value/'])
+    """The Wikidata namespace."""
 
-    namespaces: dict[str, Namespace] = {
+    WIKIDATA: Final[Namespace] = Namespace('http://www.wikidata.org/')
+    P: Final[Namespace] = Namespace(WIKIDATA['prop/'])
+    PQ: Final[Namespace] = Namespace(P['qualifier/'])
+    PQN: Final[Namespace] = Namespace(PQ['value-normalized/'])
+    PQV: Final[Namespace] = Namespace(PQ['value/'])
+    PR: Final[Namespace] = Namespace(P['reference/'])
+    PRN: Final[Namespace] = Namespace(PR['value-normalized/'])
+    PRV: Final[Namespace] = Namespace(PR['value/'])
+    PS: Final[Namespace] = Namespace(P['statement/'])
+    PSN: Final[Namespace] = Namespace(PS['value-normalized/'])
+    PSV: Final[Namespace] = Namespace(PS['value/'])
+    WD: Final[Namespace] = Namespace(WIKIDATA['entity/'])
+    WDATA: Final[Namespace] = Namespace(WIKIDATA['wiki/Special:EntityData/'])
+    WDGENID: Final[Namespace] = Namespace(WIKIDATA['.well-known/genid/'])
+    WDNO: Final[Namespace] = Namespace(P['novalue/'])
+    WDREF: Final[Namespace] = Namespace(WIKIDATA['reference/'])
+    WDS: Final[Namespace] = Namespace(WD['statement/'])
+    WDT: Final[Namespace] = Namespace(P['direct/'])
+    WDV: Final[Namespace] = Namespace(WIKIDATA['value/'])
+
+    namespaces: Final[dict[str, Namespace]] = {
         str(WIKIDATA): WIKIDATA,
         str(P): P,
         str(PQ): PQ,
@@ -54,7 +56,7 @@ class Wikidata:
         str(WDV): WDV,
     }
 
-    prefixes: dict[str, Namespace] = {
+    prefixes: Final[dict[str, Namespace]] = {
         'wikidata': WIKIDATA,
         'p': P,
         'pq': PQ,
@@ -76,15 +78,15 @@ class Wikidata:
         'wdv': WDV,
     }
 
-    default_entity_prefixes = [WD]
-    default_item_prefixes = [WD]
-    default_property_prefixes = [WD]
-    default_lexeme_prefixes = [WD]
-    default_some_value_prefixes = [WDGENID]
+    default_entity_prefixes: Final[Collection[T_NS]] = (WD,)
+    default_item_prefixes: Final[Collection[T_NS]] = (WD,)
+    default_property_prefixes: Final[Collection[T_NS]] = (WD,)
+    default_lexeme_prefixes: Final[Collection[T_NS]] = (WD,)
+    default_some_value_prefixes: Final[Collection[T_NS]] = (WDGENID,)
 
-    PREFERRED = WIKIBASE.PreferredRank
-    NORMAL = WIKIBASE.NormalRank
-    DEPRECATED = WIKIBASE.DeprecatedRank
+    PREFERRED: Final[URIRef] = WIKIBASE.PreferredRank
+    NORMAL: Final[URIRef] = WIKIBASE.NormalRank
+    DEPRECATED: Final[URIRef] = WIKIBASE.DeprecatedRank
 
     @classmethod
     def is_wikidata_uri(cls, uri: T_URI) -> bool:
@@ -208,7 +210,7 @@ class Wikidata:
     ) -> bool:
         try:
             pfx, name = cls.split_wikidata_uri(uri)
-        except Exception:
+        except ValueError:
             return False
         else:
             return cls._is_wd_some_value(pfx, name, prefixes)

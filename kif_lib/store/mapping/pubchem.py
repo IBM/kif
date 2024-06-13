@@ -58,18 +58,27 @@ VCARD = Namespace('http://www.w3.org/2006/vcard/ns#')
 
 
 class IAO:
-    # See <https://www.ebi.ac.uk/ols4/>.
+    """The OBO IAO namespace.
+
+    See <https://www.ebi.ac.uk/ols4/>.
+    """
     definition = OBO.IAO_0000115
 
 
 class RO:
-    # See <https://www.ebi.ac.uk/ols4/>.
+    """The OBO RO namespace.
+
+    See <https://www.ebi.ac.uk/ols4/>.
+    """
     has_role = OBO.RO_0000087
 
 
 class CHEMINF:
-    # See <https://www.ebi.ac.uk/ols4/>.
-    # See <http://doi.org/10.1186/s13321-015-0084-4>.
+    """The CHEMINF namespace.
+
+    See <https://www.ebi.ac.uk/ols4/>.
+    See <http://doi.org/10.1186/s13321-015-0084-4>.
+    """
     canonical_smiles_generated_by_OEChem = SEMSCI.CHEMINF_000376
     CAS_registry_number = SEMSCI.CHEMINF_000446
     ChEBI_identifier = SEMSCI.CHEMINF_000407
@@ -96,6 +105,7 @@ class CHEMINF:
 
 
 class SIO:
+    """The SEMSCI SIO namespace."""
     has_attribute = SEMSCI.SIO_000008
     has_value = SEMSCI.SIO_000300
     is_attribute_of = SEMSCI.SIO_000011

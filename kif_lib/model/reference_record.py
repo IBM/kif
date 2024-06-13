@@ -33,6 +33,3 @@ class ReferenceRecord(SnakSet):
             refs = cast(ReferenceRecord, arg)
         return cls._check_arg_isinstance(
             refs, ReferenceRecord, function, name, position)
-
-    def __init__(self, *snaks: Snak):
-        super().__init__(*snaks)

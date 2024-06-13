@@ -436,8 +436,8 @@ class SPARQL_Results(Mapping):
             uri = self.check_uriref(var)
             try:
                 return Rank._from_rdflib(uri)
-            except ValueError:
-                raise self._error_bad(var, 'a Wikibase rank', uri)
+            except ValueError as err:
+                raise self._error_bad(var, 'a Wikibase rank', uri) from err
 
         def check_datetime(
                 self,
@@ -461,7 +461,7 @@ class SPARQL_Results(Mapping):
                 if m is None:
                     return Datetime.fromisoformat(str(val))
                 else:
-                    y, m, d = map(int, m.groups())
+                    y, m, _ = map(int, m.groups())
                     y = max(min(y, 9999), 1)
                     m = max(min(m, 12), 1)
                     return Datetime(y, m, 1)
