@@ -107,7 +107,11 @@ class Variable(KIF_Object):
 
     def __call__(self, v1, v2=None):
         from .value import PropertyVariable
-        return self.coerce(PropertyVariable)(v1, v2)
+        prop = cast(PropertyVariable, self.coerce(PropertyVariable))
+        if v2 is not None:
+            return prop(v1, v2)
+        else:
+            return prop(v1)
 
     @property
     def name(self) -> str:

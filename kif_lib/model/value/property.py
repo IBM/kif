@@ -84,9 +84,9 @@ class PropertyTemplate(EntityTemplate):
 
     def __call__(self, v1, v2=None):
         if v2 is not None:
-            return self._Statement(v1, self._ValueSnak(self, v2))
+            return self._StatementTemplate(v1, self._ValueSnak(self, v2))
         else:
-            return self._ValueSnak(self, v1)
+            return self._ValueSnakTemplate(self, v1)
 
     @property
     def range(self) -> Optional[VDatatype]:
@@ -140,9 +140,9 @@ class PropertyVariable(EntityVariable):
 
     def __call__(self, v1, v2=None):
         if v2 is not None:
-            return self._Statement(v1, self._ValueSnak(self, v2))
+            return self._StatementTemplate(v1, self._ValueSnak(self, v2))
         else:
-            return self._ValueSnak(self, v1)
+            return self._ValueSnakTemplate(self, v1)
 
 
 class PropertyDatatype(Datatype):
