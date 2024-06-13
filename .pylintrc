@@ -1,0 +1,23 @@
+[MAIN]
+disable=
+    abstract-method,
+    import-outside-toplevel,
+    invalid-name,
+    missing-function-docstring,
+    missing-module-docstring,
+    no-else-return,
+    no-member,
+    no-name-in-module,
+    protected-access,
+    redefined-builtin,
+    too-few-public-methods,
+    too-many-arguments,
+    too-many-boolean-expressions,
+    too-many-branches,
+    too-many-lines,
+    too-many-public-methods,
+    too-many-return-statements,
+    too-many-statements,
+    unsupported-binary-operation,
+    unused-argument,
+

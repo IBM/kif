@@ -50,24 +50,37 @@ COVERAGERC_OMIT?=
 DOCS_SRC?= docs
 DOCS_TGT?= .docs
 DOCS_TGT_BRANCH?= gh-pages
-FLAKE8_IGNORE?= E741, W503
+FLAKE8?= ${PYTHON} -m flake8
+FLAKE8_OPERANDS?= ${PACKAGE} ${TESTS}
 FLAKE8_OPTIONS?= --config .flake8rc
 FLAKE8RC?= .flake8rc
+FLAKE8RC_IGNORE?= E741, W503
 GEN_ALL_TARGETS?=
+ISORT?= ${PYTHON} -m isort
 ISORT_CFG?= .isort.cfg
 ISORT_CFG_INCLUDE_TRAILING_COMMA?= True
 ISORT_CFG_MULTI_LINE_OUTPUT?= 3
 ISORT_CFG_ORDER_BY_TYPE?= False
+ISORT_OPERANDS?= ${PACKAGE} ${TESTS}
 ISORT_OPTIONS?= --check --diff
+MYPY?= ${PYTHON} -m mypy
+MYPY_OPERANDS?= ${PACKAGE} ${TESTS}
 MYPY_OPTIONS?= --show-error-context --show-error-codes
 PERL?= perl
 PIP?= ${PYTHON} -m pip
+PYLINT?= pylint
+PYLINT_OPERANDS?= ${PACKAGE} ${TESTS}
 PYLINT_OPTIONS?=
-PYRIGHT_EXCLUDE?= []
-PYRIGHT_OPTIONS?= --warnings
-PYRIGHT_REPORT_MISSING_IMPORTS?= true
-PYRIGHT_REPORT_MISSING_TYPE_STUBS?= true
+PYLINTRC?= .pylintrc
+PYLINTRC_DISABLE?=
+PYRIGHT?= ${PYTHON} -m pyright
+PYRIGHT_OPERANDS?= ${PACKAGE} ${TESTS}
+PYRIGHT_OPTIONS?=
+PYRIGHTCONFIG_EXCLUDE?= []
 PYRIGHTCONFIG_JSON?= pyrightconfig.json
+PYRIGHTCONFIG_OPTIONS?= --warnings
+PYRIGHTCONFIG_REPORT_MISSING_IMPORTS?= true
+PYRIGHTCONFIG_REPORT_MISSING_TYPE_STUBS?= true
 PYTEST?= ${PYTHON} -m pytest
 PYTEST_COV_OPTIONS?= --cov=${PACKAGE} --cov-report=html
 PYTEST_ENV?=
@@ -76,7 +89,7 @@ PYTEST_OPTIONS?= -ra
 PYTHON?= python
 SETUP_PY?= setup.py
 SETUP_PY_EXTRAS_REQUIRE_DOCS?= []
-SETUP_PY_EXTRAS_REQUIRE_TESTS?= ['flake8', 'isort', 'mypy', 'pyright', 'pytest', 'pytest-cov', 'pytest-mypy', 'tox']
+SETUP_PY_EXTRAS_REQUIRE_TESTS?= ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-cov', 'pytest-mypy', 'tox']
 SETUP_PY_FIND_PACKAGES_EXCLUDE?= ['tests', 'tests.*']
 SETUP_PY_INCLUDE_PACKAGE_DATA?= True
 SETUP_PY_INSTALL_REQUIRES?= []
@@ -86,10 +99,12 @@ SETUP_PY_PYTHON_REQUIRES?= '>=3.9'
 SETUP_PY_ZIP_SAFE?= False
 TESTS?= tests
 TOX?= tox
-TOX_ENVLIST?= mypy, py{39,310,311,312}
 TOX_INI?= tox.ini
+TOX_INI_ENVLIST?= mypy, py{39,310,311,312}
+TOX_INI_EXTRAS?= tests
+TOX_INI_PASSENV?=
+TOX_INI_SKIP_MISSING_INTERPRETERS?= true
 TOX_OPTIONS?=
-TOX_PASSENV?=
 TOX_SETENV?=
 
 include Makefile.conf
@@ -127,27 +142,27 @@ check-pytest:
 # check sources using flake8
 .PHONY: check-flake8
 check-flake8:
-	${PYTHON} -m flake8 ${FLAKE8_OPTIONS} ${PACKAGE} ${TESTS}
+	${FLAKE8} ${FLAKE8_OPTIONS} ${FLAKE8_OPERANDS}
 
 # check sources using isort
 .PHONY: check-isort
 check-isort:
-	${PYTHON} -m isort ${ISORT_OPTIONS} ${PACKAGE} ${TESTS}
+	${ISORT} ${ISORT_OPTIONS} ${ISORT_OPERANDS}
 
 # check sources using mypy
 .PHONY: check-mypy
 check-mypy:
-	${PYTHON} -m mypy ${MYPY_OPTIONS} ${PACKAGE} ${TESTS}
+	${MYPY} ${MYPY_OPTIONS} ${MYPY_OPERANDS}
 
 # check sources using pylint
 .PHONY: check-pylint
 check-pylint:
-	pylint ${PYLINT_OPTIONS} ${PACKAGE} ${TESTS}
+	${PYLINT} ${PYLINT_OPTIONS} ${PYLINT_OPERANDS}
 
 # check sources using pyright
 .PHONY: check-pyright
 check-pyright:
-	${PYTHON} -m pyright ${PYRIGHT_OPTIONS} ${PACKAGE} ${TESTS}
+	${PYRIGHT} ${PYRIGHT_OPTIONS} ${PYRIGHT_OPERANDS}
 
 # check copyright
 .PHONY: check-copyright
@@ -342,7 +357,7 @@ GEN_ALL_TARGETS+= gen-flake8rc
 gen-flake8rc:
 	$P 'generating ${FLAKE8RC}'
 	$P '[flake8]' >${FLAKE8RC}
-	$P 'ignore = ${FLAKE8_IGNORE}' >>${FLAKE8RC}
+	$P 'ignore = ${FLAKE8RC_IGNORE}' >>${FLAKE8RC}
 
 GEN_ALL_TARGETS+= gen-isort-cfg
 
@@ -355,6 +370,16 @@ gen-isort-cfg:
 	$P 'multi_line_output = ${ISORT_CFG_MULTI_LINE_OUTPUT}' >>${ISORT_CFG}
 	$P 'order_by_type = ${ISORT_CFG_ORDER_BY_TYPE}' >>${ISORT_CFG}
 
+# generate .pylintrc
+GEN_ALL_TARGETS+= gen-pylintrc
+
+.PHONY: gen-pylintrc
+gen-pylintrc:
+	$P 'generating ${PYLINTRC}'
+	$P '[MAIN]' > ${PYLINTRC}
+	$P 'disable=' >> ${PYLINTRC}
+	@$(call ECHO_SPLIT,    ,${PYLINTRC_DISABLE}) >>${PYLINTRC}
+
 GEN_ALL_TARGETS+= gen-pyrightconfig-json
 
 # generate pyrightconfig.json
@@ -362,9 +387,9 @@ GEN_ALL_TARGETS+= gen-pyrightconfig-json
 gen-pyrightconfig-json:
 	$P 'generating ${PYRIGHTCONFIG_JSON}'
 	$P '{' >${PYRIGHTCONFIG_JSON}
-	$P '  "exclude": ${PYRIGHT_EXCLUDE},' >>${PYRIGHTCONFIG_JSON}
-	$P '  "reportMissingImports": ${PYRIGHT_REPORT_MISSING_IMPORTS},' >>${PYRIGHTCONFIG_JSON}
-	$P '  "reportMissingTypeStubs": ${PYRIGHT_REPORT_MISSING_TYPE_STUBS}' >>${PYRIGHTCONFIG_JSON}
+	$P '  "exclude": ${PYRIGHTCONFIG_EXCLUDE},' >>${PYRIGHTCONFIG_JSON}
+	$P '  "reportMissingImports": ${PYRIGHTCONFIG_REPORT_MISSING_IMPORTS},' >>${PYRIGHTCONFIG_JSON}
+	$P '  "reportMissingTypeStubs": ${PYRIGHTCONFIG_REPORT_MISSING_TYPE_STUBS}' >>${PYRIGHTCONFIG_JSON}
 	$P '}' >>${PYRIGHTCONFIG_JSON}
 
 GEN_ALL_TARGETS+= gen-pytest-ini
@@ -421,14 +446,14 @@ GEN_ALL_TARGETS+= gen-tox-ini
 gen-tox-ini:
 	$P 'generating ${TOX_INI}'
 	$P '[tox]' >${TOX_INI}
-	$P 'envlist = ${TOX_ENVLIST}' >>${TOX_INI}
-	$P 'skip_missing_interpreters = true' >>${TOX_INI}
+	$P 'envlist = ${TOX_INI_ENVLIST}' >>${TOX_INI}
+	$P 'skip_missing_interpreters = ${TOX_INI_SKIP_MISSING_INTERPRETERS}' >>${TOX_INI}
 	$P '' >>${TOX_INI}
 	$P '[testenv]' >>${TOX_INI}
 	$P 'commands = {posargs:py.test}' >>${TOX_INI}
-	$P 'extras = tests' >>${TOX_INI}
+	$P 'extras = ${TOX_INI_EXTRAS}' >>${TOX_INI}
 	$P 'passenv =' >>${TOX_INI}
-	@$(call ECHO_SPLIT,    ,${TOX_PASSENV}) >> ${TOX_INI}
+	@$(call ECHO_SPLIT,    ,${TOX_INI_PASSENV}) >> ${TOX_INI}
 	$P '[testenv:mypy]' >>${TOX_INI}
 	$P 'commands = mypy -p ${PACKAGE}' >>${TOX_INI}
 
