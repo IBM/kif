@@ -109,8 +109,7 @@ class Test(kif_TestCase):
     def test__new__item_template(self):
         x = Variable('x')
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'expected IRI or String or URIRef or str, got int',
+            TypeError, 1, None, 'cannot coerce int into IRI',
             (ItemTemplate, 'Item'), 0)
         self.assert_item_template(ItemTemplate(x), Variable('x', IRI))
         self.assert_item_template(Item(x), IRI_Variable('x'))
@@ -122,7 +121,7 @@ class Test(kif_TestCase):
         x, y = Variables('x', 'y')
         self.assert_raises_bad_argument(
             TypeError, 1, None,
-            'expected IRI or String or URIRef or str, got int',
+            'cannot coerce int into IRI',
             (PropertyTemplate, 'Property'), 0)
         self.assert_raises_bad_argument(
             TypeError, 2, None,
@@ -151,8 +150,7 @@ class Test(kif_TestCase):
     def test__new__lexeme_template(self):
         x = Variable('x')
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'expected IRI or String or URIRef or str, got int',
+            TypeError, 1, None, 'cannot coerce int into IRI',
             (LexemeTemplate, 'Lexeme'), 0)
         self.assert_lexeme_template(
             LexemeTemplate(x), IRI_Variable('x'))
@@ -230,8 +228,7 @@ class Test(kif_TestCase):
             ValueError, 1, None, 'expected Decimal',
             (QuantityTemplate, 'Quantity'), 'x')
         self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'expected IRI or Item or String or URIRef or str, got int',
+            TypeError, 2, None, 'cannot coerce int into IRI',
             (QuantityTemplate, 'Quantity'), 0, 0)
         self.assert_raises_bad_argument(
             ValueError, 3, None, 'expected Decimal',
@@ -293,8 +290,7 @@ class Test(kif_TestCase):
             'expected timezone',
             (TimeTemplate, 'Time'), '2024-05-06', None, 'x')
         self.assert_raises_bad_argument(
-            TypeError, 4, None,
-            'expected IRI or Item or String or URIRef or str, got int',
+            TypeError, 4, None, 'cannot coerce int into IRI',
             (TimeTemplate, 'Time'), '2024-05-06', None, None, 0)
         self.assert_time_template(
             TimeTemplate(x),
@@ -350,13 +346,11 @@ class Test(kif_TestCase):
     def test__new__value_snak_template(self):
         x = Variable('x')
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'expected IRI or Property or String or URIRef or str, got int',
+            TypeError, 1, None, 'cannot coerce int into IRI',
             (ValueSnakTemplate, 'ValueSnak'), 0, Item('x'))
         self.assert_raises_bad_argument(
             TypeError, 2, None,
-            'expected URIRef or Value or datetime or float or int or str, '
-            'got dict',
+            'expected Value, got dict',
             (ValueSnakTemplate, 'ValueSnak'), Property('x'), dict())
         self.assert_value_snak_template(
             ValueSnakTemplate(x, Quantity(0)),
@@ -392,8 +386,7 @@ class Test(kif_TestCase):
     def test__new__some_value_snak_template(self):
         x = Variable('x')
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'expected IRI or Property or String or URIRef or str, got int',
+            TypeError, 1, None, 'cannot coerce int into IRI',
             (SomeValueSnakTemplate, 'SomeValueSnak'), 0)
         self.assert_some_value_snak_template(
             SomeValueSnakTemplate(x),
@@ -414,8 +407,7 @@ class Test(kif_TestCase):
     def test__new__no_value_snak_template(self):
         x = Variable('x')
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'expected IRI or Property or String or URIRef or str, got int',
+            TypeError, 1, None, 'cannot coerce int into IRI',
             (NoValueSnakTemplate, 'NoValueSnak'), 0)
         self.assert_no_value_snak_template(
             NoValueSnakTemplate(x), PropertyVariable('x'))
@@ -484,8 +476,8 @@ class Test(kif_TestCase):
 
     def test__init__item_template(self):
         self.assert_raises_bad_argument(
-            Variable.CoercionError, 1, None,
-            "cannot coerce ItemVariable 'x' into IRI_Variable",
+            TypeError, 1, None,
+            'cannot coerce ItemVariable into IRI_Variable',
             ItemTemplate, ItemVariable('x'))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
@@ -494,8 +486,8 @@ class Test(kif_TestCase):
 
     def test__init__property_template(self):
         self.assert_raises_bad_argument(
-            Variable.CoercionError, 1, None,
-            "cannot coerce PropertyVariable 'x' into IRI_Variable",
+            TypeError, 1, None,
+            'cannot coerce PropertyVariable into IRI_Variable',
             PropertyTemplate, PropertyVariable('x'))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
@@ -520,8 +512,8 @@ class Test(kif_TestCase):
 
     def test__init__lexeme_template(self):
         self.assert_raises_bad_argument(
-            Variable.CoercionError, 1, None,
-            "cannot coerce LexemeVariable 'x' into IRI_Variable",
+            TypeError, 1, None,
+            'cannot coerce LexemeVariable into IRI_Variable',
             LexemeTemplate, Variable('x', Lexeme))
         self.assert_raises_bad_argument(
             TypeError, 1, None,

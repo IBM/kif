@@ -11,17 +11,14 @@ class TestModelSnakValueSnak(kif_TestCase):
     def test__init__(self):
         # bad argument
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'expected IRI or Property or String or URIRef or str, got int',
+            TypeError, 1, None, 'cannot coerce int into IRI',
             ValueSnak, 0, 0)
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'expected IRI or Property or String or URIRef or str, got dict',
+            TypeError, 1, None, 'cannot coerce dict into IRI',
             ValueSnak, dict(), 0)
         self.assert_raises_bad_argument(
             TypeError, 2, None,
-            'expected URIRef or Value or datetime or float or int or str, '
-            'got dict', ValueSnak, 'x', dict())
+            'expected Value, got dict', ValueSnak, 'x', dict())
         # good argument
         self.assert_value_snak(
             ValueSnak(Property('abc'), IRI('abc')),

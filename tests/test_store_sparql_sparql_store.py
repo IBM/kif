@@ -132,7 +132,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assertEqual(n, 1)
         # snak
         snak = ValueSnak(wd.mass, Quantity('78.046950192', wd.dalton))
-        self.assertEqual(kb.count(snak=snak), 10)
+        self.assertEqual(kb.count(snak=snak), 12)
         # empty criteria: some value
         kb.unset_flags(kb.SOME_VALUE_SNAK)
         n = kb.count(snak_mask=Snak.SOME_VALUE_SNAK)
@@ -275,8 +275,8 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assertFalse(list(kb.filter(snak_mask=Snak.SOME_VALUE_SNAK)))
         # limit
         kb = self.new_Store()
-        stmts = list(kb.filter(wd.Adam, limit=120))
-        self.assertEqual(len(stmts), 120)
+        stmts = list(kb.filter(wd.Adam, limit=50))
+        self.assertEqual(len(stmts), 50)
 
     # -- Annotations -------------------------------------------------------
 

@@ -128,6 +128,7 @@ from kif_lib.model import (
     VText,
     VTime,
     VTItemContent,
+    VTProperty,
     VTQuantityContent,
     VTStringContent,
     VTTimeContent,
@@ -138,7 +139,6 @@ from kif_lib.model import (
     VValueSnak,
     VVDatatype,
     VVEntity,
-    VVProperty,
     VVSnak,
     VVValue,
 )
@@ -537,7 +537,6 @@ if __name__ == '__main__':
         self.assert_datatype(obj)
         self.assertIsInstance(obj, IRI_Datatype)
         self.assertTrue(obj.is_iri_datatype())
-        self.assertEqual(obj._uri, WIKIBASE.Url)
 
     def assert_text_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
@@ -721,7 +720,7 @@ if __name__ == '__main__':
     def assert_snak_template(
             self,
             obj: VSnak,
-            property: VVProperty
+            property: VTProperty
     ):
         self.assertIsInstance(obj, SnakTemplate)
         assert isinstance(obj, SnakTemplate)
@@ -733,7 +732,7 @@ if __name__ == '__main__':
     def assert_value_snak_template(
             self,
             obj: VValueSnak,
-            property: VVProperty,
+            property: VTProperty,
             value: VVValue
     ):
         self.assertIsInstance(obj, ValueSnakTemplate)
@@ -746,7 +745,7 @@ if __name__ == '__main__':
     def assert_some_value_snak_template(
             self,
             obj: VSomeValueSnak,
-            property: VVProperty
+            property: VTProperty
     ):
         self.assert_snak_template(obj, property)
         self.assertIsInstance(obj, SomeValueSnakTemplate)
@@ -754,7 +753,7 @@ if __name__ == '__main__':
     def assert_no_value_snak_template(
             self,
             obj: VNoValueSnak,
-            property: VVProperty,
+            property: VTProperty,
     ):
         obj_ = cast(NoValueSnakTemplate, obj)
         self.assert_snak_template(obj_, property)

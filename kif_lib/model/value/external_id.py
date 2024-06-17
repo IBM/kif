@@ -111,7 +111,7 @@ class ExternalId(
         if res.is_string():
             return cls(cast(String, res))
         else:
-            return cast(Value, cls.check(res))
+            return cast(Value, cast(Value, cls).check(res))
 
     def __init__(self, content: VTExternalIdContent):
         super().__init__(content)

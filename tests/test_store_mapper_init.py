@@ -14,8 +14,7 @@ class TestStoreMapper_Init(kif_StoreTestCase):
     def test__init__(self):
         # bad argument: iri
         self.assert_raises_bad_argument(
-            TypeError, 2, 'iri',
-            'expected IRI or String or URIRef or str, got int',
+            TypeError, 2, 'iri', 'cannot coerce int into IRI',
             SPARQL_MapperStore, 'sparql-mapper', 0, SPARQL_Mapping())
         # bad argument: mapping
         self.assert_raises_bad_argument(

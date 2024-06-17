@@ -71,16 +71,18 @@ class NilType:
 #: Absence of value distinct from ``None``.
 Nil: Final[NilType] = NilType()
 
-_TFun = Callable[..., Any]
-F = TypeVar('F', bound=_TFun)
-T = TypeVar('T')
 TArgs = tuple[Any, ...]
 TDet = Union[Callable[[Any], str], str]
-TFun = _TFun
+TFun = Callable[..., Any]
 TLoc = Union[TFun, str]
 TNil = NilType
 TNum = Union[float, int]
-TObj = type['Object']
+TObjCls = type['Object']
+
+F = TypeVar('F', bound=Callable[..., Any])
+O = TypeVar('O', bound='Object')
+T = TypeVar('T')
+
 
 if hasattr(typing, 'override'):
     override = typing.override
@@ -94,8 +96,8 @@ else:
 class ObjectMeta(abc.ABCMeta):
     """Meta-class for syntactical objects."""
 
-    _object_class: Optional[TObj] = None
-    _object_subclasses: Final[dict[str, TObj]] = {}
+    _object_class: Optional[TObjCls] = None
+    _object_subclasses: Final[dict[str, TObjCls]] = {}
 
     def __new__(cls, name, bases, namespace, **kwargs):
         cls_ = super().__new__(cls, name, bases, namespace, **kwargs)
@@ -132,7 +134,7 @@ class ObjectMeta(abc.ABCMeta):
         return cls_
 
     @classmethod
-    def _init_test_(cls, top: TObj, cls_: TObj):
+    def _init_test_(cls, top: TObjCls, cls_: TObjCls):
         def f_test(arg: Any) -> bool:
             return cls_.test(arg)
         f_test.__doc__ = f"""\
@@ -145,7 +147,7 @@ class ObjectMeta(abc.ABCMeta):
         setattr(top, cls_._test_, f_test)
 
     @classmethod
-    def _init_check_(cls, top: TObj, cls_: TObj):
+    def _init_check_(cls, top: TObjCls, cls_: TObjCls):
         def mk_check_(s: str):
             def check_(
                     arg: 'Object',
@@ -173,7 +175,7 @@ class ObjectMeta(abc.ABCMeta):
         setattr(top, cls_._check_, f_check)
 
     @classmethod
-    def _init_unpack_(cls, top: TObj, cls_: TObj):
+    def _init_unpack_(cls, top: TObjCls, cls_: TObjCls):
         def f_unpack(
                 arg: 'Object',
                 function: Optional[TLoc] = None,
@@ -192,10 +194,10 @@ class ObjectMeta(abc.ABCMeta):
            TypeError: Object is not of class :class:`{cls_.__qualname__}`.
         """
         setattr(top, cls_._unpack_, f_unpack)
-        setattr(top, '_' + cls_._unpack_, cls_._unpack)
+        setattr(top, '_' + cls_._unpack_, cls_.unpack)
 
     @classmethod
-    def _init__check_arg_(cls, top: TObj, cls_: TObj):
+    def _init__check_arg_(cls, top: TObjCls, cls_: TObjCls):
         if hasattr(cls_, cls_._check_arg_):
             f_check_arg = getattr(cls_, cls_._check_arg_)
         else:
@@ -213,7 +215,7 @@ class ObjectMeta(abc.ABCMeta):
         setattr(top, cls_._check_arg_, f_check_arg)
 
     @classmethod
-    def _init__check_arg__class(cls, top: TObj, cls_: TObj):
+    def _init__check_arg__class(cls, top: TObjCls, cls_: TObjCls):
         if hasattr(cls_, cls_._check_arg__class):
             f_check_arg__class = getattr(cls_, cls_._check_arg__class)
         else:
@@ -232,7 +234,7 @@ class ObjectMeta(abc.ABCMeta):
         setattr(top, cls_._check_arg__class, f_check_arg__class)
 
     @classmethod
-    def _init__check_optional_arg_(cls, top: TObj, cls_: TObj):
+    def _init__check_optional_arg_(cls, top: TObjCls, cls_: TObjCls):
         _check_arg_ = cls_._check_arg_
         if hasattr(cls_, cls_._check_optional_arg_):
             f_check_optional_arg = getattr(cls_, cls_._check_optional_arg_)
@@ -256,7 +258,7 @@ class ObjectMeta(abc.ABCMeta):
         setattr(top, cls_._check_optional_arg_, f_check_optional_arg)
 
     @classmethod
-    def _init__check_optional_arg__class(cls, top: TObj, cls_: TObj):
+    def _init__check_optional_arg__class(cls, top: TObjCls, cls_: TObjCls):
         _check_arg__class = cls_._check_arg__class
         if hasattr(cls_, cls_._check_optional_arg__class):
             f_check_optional_arg__class = getattr(
@@ -283,7 +285,7 @@ class ObjectMeta(abc.ABCMeta):
             top, cls_._check_optional_arg__class, f_check_optional_arg__class)
 
     @classmethod
-    def _init__preprocess_arg_(cls, top: TObj, cls_: TObj):
+    def _init__preprocess_arg_(cls, top: TObjCls, cls_: TObjCls):
         _check_arg_ = cls_._check_arg_
         if hasattr(cls_, cls_._preprocess_arg_):
             f_preprocess_arg = getattr(cls_, cls_._preprocess_arg_)
@@ -302,7 +304,7 @@ class ObjectMeta(abc.ABCMeta):
         setattr(top, cls_._preprocess_arg_, f_preprocess_arg)
 
     @classmethod
-    def _init__preprocess_optional_arg_(cls, top: TObj, cls_: TObj):
+    def _init__preprocess_optional_arg_(cls, top: TObjCls, cls_: TObjCls):
         _preprocess_arg_ = cls_._preprocess_arg_
         if hasattr(cls_, cls_._preprocess_optional_arg_):
             f_preprocess_optional_arg = getattr(
@@ -376,15 +378,15 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def check(
             cls,
-            obj: 'Object',
+            arg: Any,
             function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> 'Object':
-        """Checks whether `obj` is an instance of this class.
+        """Coerces `arg` to an instance of this class.
 
         Parameters:
-           obj: Value.
+           arg: Value.
            function: Function or function name.
            name: Argument name.
            position: Argument position.
@@ -393,25 +395,27 @@ class Object(Sequence, metaclass=ObjectMeta):
            `obj`.
 
         Raises:
-           TypeError: `obj` is not an instance of this class.
+           TypeError|ValueError: `arg` cannot be coerced to an instance of
+           this class.
         """
-        return cls._check(obj, function or cls.check, name, position)
+        return cls._check_arg_isinstance(
+            arg, cls, function or cls.check, name, position)
 
     @classmethod
     def check_optional(
             cls,
-            obj: Optional['Object'],
-            default: Optional['Object'] = None,
+            arg: Optional[Any],
+            default: Optional[Any] = None,
             function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Optional['Object']:
-        """Checks whether optional `obj` is an instance of this class.
+        """Coerces optional `arg` to an instance of this class.
 
         If `obj` is ``None``, returns `default`.
 
         Parameters:
-           obj: Value.
+           arg: Value.
            default: Default value.
            function: Function or function name.
            name: Argument name.
@@ -421,35 +425,16 @@ class Object(Sequence, metaclass=ObjectMeta):
            `obj` or `default`.
 
         Raises:
-           TypeError: `obj` is not an instance an instance of this class.
+           TypeError|ValueError: `arg` cannot be coerced to an instance of
+           this class.
         """
-        return cls._check_optional(
-            obj, default, function or cls.check_optional, name, position)
-
-    _check_test = (lambda x, y: y.test(x))
-
-    @classmethod
-    def _check(
-            cls,
-            obj: 'Object',
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> 'Object':
-        return cls._check_arg_isinstance(
-            obj, cls, function, name, position, cls._check_test)
-
-    @classmethod
-    def _check_optional(
-            cls,
-            obj: Optional['Object'],
-            default: Optional['Object'] = None,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional['Object']:
-        return cls._check_optional_arg_isinstance(
-            obj, cls, default, function, name, position, cls._check_test)
+        if arg is None:
+            arg = default
+        if arg is None:
+            return arg
+        else:
+            return cls.check(
+                arg, function or cls.check_optional, name, position)
 
     @classmethod
     def unpack(
@@ -473,12 +458,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         Raises:
            TypeError: `obj` is not an instance of this class.
         """
-        return cls._unpack(cls.check(
-            obj, function or cls.unpack, name, position))
-
-    @classmethod
-    def _unpack(cls, obj: 'Object') -> TArgs:
-        return obj.args
+        return cls.check(obj, function or cls.unpack, name, position).args
 
     __slots__ = (
         '_args',
@@ -491,7 +471,7 @@ class Object(Sequence, metaclass=ObjectMeta):
     _digest: Optional[str]
 
     @abc.abstractmethod
-    def __init__(self, *args):
+    def __init__(self, *args: Any):
         self._set_args(self._preprocess_args(args))
         self._hash = None
         self._digest = None
@@ -792,8 +772,8 @@ class Object(Sequence, metaclass=ObjectMeta):
 
 # -- Argument checking -----------------------------------------------------
 
-    _arg_error_default_prefix = 'bad argument'
-    _arg_error_default_exception = ValueError
+    _arg_error_prefix: ClassVar[str] = 'bad argument'
+    _arg_error_exception: ClassVar[type[Exception]] = ValueError
 
     @classmethod
     def _arg_error(
@@ -805,7 +785,7 @@ class Object(Sequence, metaclass=ObjectMeta):
             exception: Optional[type[Exception]] = None,
             prefix: Optional[str] = None
     ) -> Exception:
-        msg = prefix or Object._arg_error_default_prefix
+        msg = prefix or Object._arg_error_prefix
         if position is not None:
             assert position > 0
             msg += f' #{position}'
@@ -817,7 +797,23 @@ class Object(Sequence, metaclass=ObjectMeta):
             msg += f" to '{function}'"
         if details:
             msg += f' ({details})'
-        return (exception or Object._arg_error_default_exception)(msg)
+        return (exception or cls._arg_error_exception)(msg)
+
+    _arg_coercion_error_exception: ClassVar[type[Exception]] = TypeError
+
+    @classmethod
+    def _arg_coercion_error(
+            cls,
+            arg: Any,
+            function: Optional[TLoc] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None,
+            exception: Optional[type[Exception]] = None
+    ) -> Exception:
+        return cls._arg_error(
+            f'cannot coerce {type(arg).__qualname__} into {cls.__qualname__}',
+            function, name, position,
+            exception or cls._arg_coercion_error_exception)
 
     @classmethod
     def _check_arg(
@@ -834,7 +830,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         if (test(arg) if callable(test) else test):
             return arg
         else:
-            raise Object._arg_error(
+            raise cls._arg_error(
                 details(arg) if callable(details) else details,
                 function, name, position, exception, prefix)
 
@@ -915,9 +911,9 @@ class Object(Sequence, metaclass=ObjectMeta):
             function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
-            test=isinstance,
             details: Callable[[T, str], str] = _check_arg_isinstance_details,
-            exception: Optional[type[Exception]] = None
+            exception: Optional[type[Exception]] = None,
+            test=isinstance
     ) -> T:
         if test(arg, ty):
             return arg
@@ -940,16 +936,16 @@ class Object(Sequence, metaclass=ObjectMeta):
             function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
-            test=isinstance,
             details: Callable[[T, str], str] = _check_arg_isinstance_details,
-            exception: Optional[type[Exception]] = None
+            exception: Optional[type[Exception]] = None,
+            test=isinstance
     ) -> Optional[T]:
         if arg is None:
             return default
         else:
             return cls._check_arg_isinstance(
-                arg, ty, function, name, position, test, details,
-                exception or cls._check_arg_isinstance_exception)
+                arg, ty, function, name, position, details,
+                exception or cls._check_arg_isinstance_exception, test)
 
     # -- issubclass --
 
@@ -968,8 +964,8 @@ class Object(Sequence, metaclass=ObjectMeta):
     ) -> T:
         cls._check_arg_isinstance(arg, type, function, name, position)
         return cls._check_arg_isinstance(
-            arg, ty, function, name, position, issubclass,
-            cls._check_arg_issubclass_details, ValueError)
+            arg, ty, function, name, position,
+            cls._check_arg_issubclass_details, ValueError, issubclass)
 
     @classmethod
     def _check_optional_arg_issubclass(

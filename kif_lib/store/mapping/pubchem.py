@@ -469,7 +469,7 @@ class PubChemMapping(SPARQL_Mapping):
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
-        iri = IRI._check_arg_iri(iri, cls.is_pubchem_compound_iri, 'iri', 1)
+        iri = IRI.check(iri, cls.is_pubchem_compound_iri, 'iri', 1)
         return iri.value.startswith(cls.COMPOUND.value)
 
     @classmethod
@@ -482,7 +482,7 @@ class PubChemMapping(SPARQL_Mapping):
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
-        iri = IRI._check_arg_iri(iri, cls.is_pubchem_patent_iri, 'iri', 1)
+        iri = IRI.check(iri, cls.is_pubchem_patent_iri, 'iri', 1)
         return iri.value.startswith(cls.PATENT.value)
 
     @classmethod
@@ -495,7 +495,7 @@ class PubChemMapping(SPARQL_Mapping):
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
-        iri = IRI._check_arg_iri(iri, cls.is_pubchem_source_iri, 'iri', 1)
+        iri = IRI.check(iri, cls.is_pubchem_source_iri, 'iri', 1)
         return iri.value.startswith(cls.SOURCE.value)
 
 

@@ -13,12 +13,10 @@ class TestModelSnakNoValueSnak(kif_TestCase):
     def test__init__(self):
         # bad argument
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'expected IRI or Property or String or URIRef or str, got int',
+            TypeError, 1, None, 'cannot coerce int into IRI',
             NoValueSnak, 0)
         self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'expected IRI or Property or String or URIRef or str, got dict',
+            TypeError, 1, None, 'cannot coerce dict into IRI',
             NoValueSnak, dict())
         # good argument
         self.assert_no_value_snak(

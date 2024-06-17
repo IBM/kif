@@ -27,8 +27,7 @@ class EntityTemplate(ValueTemplate):
             if Template.test(arg):
                 return self._preprocess_arg_iri_template(arg, i)
             else:
-                return self._preprocess_arg_iri_variable(
-                    arg, i, self.__class__)
+                return IRI.variable_class.check(arg, type(self), None, i)
         else:
             raise self._should_not_get_here()
 
@@ -83,8 +82,7 @@ class Entity(
     @staticmethod
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:              # iri
-            return self_._preprocess_arg_iri(
-                arg.args[0] if isinstance(arg, Entity) else arg, i)
+            return self_._preprocess_arg_iri(arg, i)
         else:
             raise self_._should_not_get_here()
 

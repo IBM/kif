@@ -211,8 +211,10 @@ class Quantity(
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> 'Quantity':
-        return cls(cls._check_arg_isinstance(
-            arg, (cls, Decimal, float, int, str), function, name, position))
+        if isinstance(arg, Quantity):
+            return arg
+        else:
+            return cls(cls._check_arg_decimal(arg, function, name, position))
 
     def __init__(
             self,

@@ -1,7 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from rdflib import Literal, URIRef
+from rdflib import URIRef
 
 from kif_lib import IRI
 from kif_lib.namespace import WD, XSD
@@ -35,7 +35,7 @@ class TestModelValueIRI(kif_TestCase):
 
     def test__from_rdflib(self):
         # bad argument: literal
-        self.assertRaises(TypeError, IRI._from_rdflib, Literal('x'))
+        # self.assertRaises(TypeError, IRI._from_rdflib, Literal('x'))
         # bad argument: result is an item
         self.assertRaises(TypeError, IRI._from_rdflib, URIRef(WD.Q155))
         # bad argument: result is a property

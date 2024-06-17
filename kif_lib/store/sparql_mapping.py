@@ -508,9 +508,9 @@ class SPARQL_Mapping(ABC):
            encoded: IRI.
            decoded: IRI.
         """
-        encoded = IRI._check_arg_iri(
+        encoded = IRI.check(
             encoded, cls.register_iri_prefix_replacement, 'encoded', 1)
-        decoded = IRI._check_arg_iri(
+        decoded = IRI.check(
             decoded, cls.register_iri_prefix_replacement, 'decoded', 2)
         cls.iri_prefix_replacements[encoded] = decoded
         cls.iri_prefix_replacements_inv[decoded] = encoded

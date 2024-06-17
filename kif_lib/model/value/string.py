@@ -19,7 +19,9 @@ StringTemplateClass: TypeAlias = type['StringTemplate']
 StringVariableClass: TypeAlias = type['StringVariable']
 
 TString: TypeAlias = Union['String', str]
+VTString: TypeAlias = Union['StringTemplate', Variable, TString]
 VTStringContent: TypeAlias = Union[Variable, TString]
+
 VStringContent: TypeAlias = Union['StringVariable', str]
 VString: TypeAlias = Union['StringTemplate', 'StringVariable', 'String']
 
@@ -146,6 +148,22 @@ class String(
     template_class: ClassVar[StringTemplateClass]  # pyright: ignore
     variable_class: ClassVar[StringVariableClass]  # pyright: ignore
 
+    @override
+    @classmethod
+    def check(
+            cls,
+            arg: TString,
+            function: Optional[TLocation] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> 'String':
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, str):
+            return cls(arg)
+        else:
+            raise cls._arg_coercion_error(arg, function, name, position)
+
     @classmethod
     def _check_arg_string(
             cls,
@@ -167,7 +185,9 @@ class String(
     @staticmethod
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:              # content
-            return self_._preprocess_arg_str(
-                arg.args[0] if isinstance(arg, String) else arg, i)
+            if isinstance(arg, String):
+                return arg.content
+            else:
+                return self_._preprocess_arg_str(arg, i)
         else:
             raise self_._should_not_get_here()

@@ -432,8 +432,10 @@ class Time(
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> 'Time':
-        return cls(cls._check_arg_isinstance(
-            arg, (cls, Datetime, str), function, name, position))
+        if isinstance(arg, Time):
+            return arg
+        else:
+            return cls(cls._check_arg_datetime(arg, function, name, position))
 
     def __init__(
             self,

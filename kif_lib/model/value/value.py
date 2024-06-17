@@ -7,7 +7,14 @@ from functools import cache
 from ... import namespace as NS
 from ...rdflib import Literal, URIRef
 from ...typing import cast, ClassVar, Collection, Optional, TypeAlias, Union
-from ..kif_object import Datetime, KIF_Object, TDatetime, TDecimal, TLocation
+from ..kif_object import (
+    Datetime,
+    Decimal,
+    KIF_Object,
+    TDatetime,
+    TDecimal,
+    TLocation,
+)
 from ..template import Template
 from ..variable import Variable
 
@@ -25,6 +32,8 @@ TDatatypeClass: TypeAlias = Union[DatatypeClass, ValueClass]
 DatatypeVariableClass: TypeAlias = type['DatatypeVariable']
 
 TDatatype: TypeAlias = Union['Datatype', TDatatypeClass]
+VTDatatype: TypeAlias = Union[Variable, TDatatype]
+
 VTDatatypeContent: TypeAlias = Union[Variable, TDatatype]
 VDatatype: TypeAlias = Union['DatatypeVariable', 'Datatype']
 VVDatatype: TypeAlias = Union[Variable, VDatatype]
@@ -115,7 +124,7 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
             return cls._PropertyDatatype()
         elif uri == cls._LexemeDatatype._uri:
             return cls._LexemeDatatype()
-        elif uri == cls._IRI_Datatype._uri:
+        elif uri == NS.WIKIBASE.Url:
             return cls._IRI_Datatype()
         elif uri == cls._TextDatatype._uri:
             return cls._TextDatatype()
@@ -132,7 +141,10 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
 
     @classmethod
     def _to_rdflib(cls) -> URIRef:
-        return cls._uri
+        if cls is cls._IRI_Datatype:
+            return NS.WIKIBASE.Url
+        else:
+            return cls._uri
 
     def __init__(
             self,
@@ -208,20 +220,17 @@ class Value(
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> 'Value':
-        arg = cls._check_arg_isinstance(
-            arg, (cls, URIRef, Datetime, float, int, str),
-            function, name, position)
         if isinstance(arg, URIRef):
-            return cls._IRI(arg)
+            return cls._IRI.check(arg, function, name, position)
         elif isinstance(arg, Datetime):
-            return cls._Time(arg)
-        elif isinstance(arg, (float, int)):
-            return cls._Quantity(arg)
+            return cls._check_arg_time(arg)
+        elif isinstance(arg, (Decimal, float, int)):
+            return cls._check_arg_quantity(arg)
         elif isinstance(arg, str):
-            return cls._String(arg)
+            return cls._check_arg_string(arg)
         else:
-            assert isinstance(arg, Value)
-            return arg
+            return cls._check_arg_isinstance(
+                arg, Value, function, name, position)
 
     @property
     def value(self) -> str:

@@ -21,7 +21,6 @@ from ..model import (
     IRI,
     Item,
     ItemDescriptor,
-    KIF_Object,
     Lexeme,
     LexemeDescriptor,
     NoValueSnak,
@@ -99,7 +98,7 @@ class SPARQL_Store(
         assert store_name == self.store_name
         self._client = httpx.Client(headers=self._headers)
         super().__init__(**kwargs)
-        self._iri = KIF_Object._check_arg_iri(iri, self.__class__, 'iri', 2)
+        self._iri = IRI.check(iri, self.__class__, 'iri', 2)
 
     def __del__(self):
         self._client.close()

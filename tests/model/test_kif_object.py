@@ -1160,7 +1160,7 @@ class Test(kif_TestCase):
             NoValueSnakVariable('x').check_no_value_snak_variable(),
             NoValueSnakVariable('x'))
         self.assertRaises(
-            TypeError, SnakVariable('x').check_no_value_snak_variable)
+            TypeError, ItemVariable('x').check_no_value_snak_variable)
 
     def test_check_normal_rank(self):
         self.assertEqual(Normal.check_normal_rank(), Normal)
@@ -1324,7 +1324,7 @@ class Test(kif_TestCase):
             SomeValueSnakVariable('x').check_some_value_snak_variable(),
             SomeValueSnakVariable('x'))
         self.assertRaises(
-            TypeError, SnakVariable('x').check_some_value_snak_variable)
+            TypeError, ItemVariable('x').check_some_value_snak_variable)
 
     def test_check_statement(self):
         stmt = Statement(Item('x'), NoValueSnak(Property('y')))
@@ -1476,7 +1476,7 @@ class Test(kif_TestCase):
             ValueSnakVariable('x').check_value_snak_variable(),
             ValueSnakVariable('x'))
         self.assertRaises(
-            TypeError, SnakVariable('x').check_value_snak_variable)
+            TypeError, ItemVariable('x').check_value_snak_variable)
 
     def test_check_variable(self):
         self.assertEqual(Variable('x').check_variable(), Variable('x'))
@@ -1607,7 +1607,7 @@ class Test(kif_TestCase):
         self.assertEqual(
             ExternalIdVariable('x').unpack_external_id_variable(), ('x',))
         self.assertRaises(
-            TypeError, StringVariable('x').unpack_external_id_variable)
+            TypeError, ItemVariable('x').unpack_external_id_variable)
 
     def test_unpack_filter_pattern(self):
         pat = FilterPattern(

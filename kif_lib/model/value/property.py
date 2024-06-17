@@ -20,9 +20,8 @@ from ..kif_object import TLocation
 from ..template import Template
 from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable, VVEntity
-from .iri import IRI, IRI_Template, T_IRI
-from .string import String
-from .value import Datatype, VDatatype, VTDatatypeContent, VVTValue
+from .iri import IRI, T_IRI, VT_IRI
+from .value import Datatype, VDatatype, VTDatatype, VVTValue
 
 if TYPE_CHECKING:
     from ..snak import ValueSnak, ValueSnakTemplate
@@ -34,11 +33,9 @@ PropertyTemplateClass: TypeAlias = type['PropertyTemplate']
 PropertyVariableClass: TypeAlias = type['PropertyVariable']
 
 TProperty: TypeAlias = Union['Property', T_IRI]
-VTPropertyContent: TypeAlias = Union[IRI_Template, Variable, 'TProperty']
+VTProperty: TypeAlias = Union['PropertyTemplate', Variable, TProperty]
 VProperty: TypeAlias =\
     Union['PropertyTemplate', 'PropertyVariable', 'Property']
-VVProperty: TypeAlias = Union[Variable, VProperty]
-VVTPropertyContent: TypeAlias = Union[VVProperty, VTPropertyContent]
 
 
 class PropertyTemplate(EntityTemplate):
@@ -53,8 +50,8 @@ class PropertyTemplate(EntityTemplate):
 
     def __init__(
             self,
-            iri: VTPropertyContent,
-            range: Optional[VTDatatypeContent] = None
+            iri: VT_IRI,
+            range: Optional[VTDatatype] = None
     ):
         super().__init__(iri, range)
 
@@ -179,13 +176,15 @@ class Property(
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> 'Property':
-        return cls(cls._check_arg_isinstance(
-            arg, (cls, IRI, URIRef, String, str), function, name, position))
+        if isinstance(arg, Property):
+            return arg
+        else:
+            return cls(IRI.check(arg, function, name, position))
 
     def __init__(
             self,
-            iri: VTPropertyContent,
-            range: Optional[VTDatatypeContent] = None
+            iri: VTProperty,
+            range: Optional[VTDatatype] = None
     ):
         super().__init__(iri, range)
 
@@ -236,10 +235,7 @@ class Property(
         return range if range is not None else default
 
 
-def Properties(
-        iri: VTPropertyContent,
-        *iris: VTPropertyContent
-) -> Iterable[Property]:
+def Properties(iri: VTProperty, *iris: VTProperty) -> Iterable[Property]:
     """Constructs one or more properties.
 
     Parameters:

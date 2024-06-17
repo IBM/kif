@@ -115,8 +115,10 @@ from .value import (
     TItem,
     TLexeme,
     TProperty,
+    TQuantity,
     TString,
     TText,
+    TTime,
     TValue,
     Value,
     ValueTemplate,
@@ -1568,7 +1570,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_arg_quantity(
             cls,
-            arg: Quantity,
+            arg: TQuantity,
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
@@ -2168,7 +2170,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_arg_time(
             cls,
-            arg: Time,
+            arg: TTime,
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
@@ -3552,7 +3554,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_optional_arg_quantity(
             cls,
-            arg: Optional[Quantity],
+            arg: Optional[TQuantity],
             default: Optional[Quantity] = ...,
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
@@ -4212,7 +4214,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_optional_arg_time(
             cls,
-            arg: Optional[Time],
+            arg: Optional[TTime],
             default: Optional[Time] = ...,
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
@@ -4944,7 +4946,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _preprocess_arg_quantity(
             cls,
-            arg: Quantity,
+            arg: TQuantity,
             i: int,
             function: Optional[Union[TCallable, str]] = ...
     ) -> Quantity:
@@ -5214,7 +5216,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _preprocess_arg_time(
             cls,
-            arg: Time,
+            arg: TTime,
             i: int,
             function: Optional[Union[TCallable, str]] = ...
     ) -> Time:
@@ -5842,7 +5844,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _preprocess_optional_arg_quantity(
             cls,
-            arg: Optional[Quantity],
+            arg: Optional[TQuantity],
             i: int,
             default: Optional[Quantity] = ...,
             function: Optional[Union[TCallable, str]] = ...,
@@ -6142,7 +6144,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _preprocess_optional_arg_time(
             cls,
-            arg: Optional[Time],
+            arg: Optional[TTime],
             i: int,
             default: Optional[Time] = ...,
             function: Optional[Union[TCallable, str]] = ...,

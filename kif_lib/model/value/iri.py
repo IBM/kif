@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from ... import namespace as NS
-from ...rdflib import URIRef
 from ...typing import Any, cast, ClassVar, Optional, override, TypeAlias, Union
 from ..kif_object import TLocation
 from ..variable import Variable
@@ -20,7 +19,9 @@ IRI_TemplateClass: TypeAlias = type['IRI_Template']
 IRI_VariableClass: TypeAlias = type['IRI_Variable']
 
 T_IRI: TypeAlias = Union['IRI', String, NS.T_URI]
+VT_IRI: TypeAlias = Union['IRI_Template', Variable, T_IRI]
 VT_IRI_Content: TypeAlias = Union[Variable, T_IRI]
+
 V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'IRI']
 VV_IRI: TypeAlias = Union[Variable, V_IRI]
 
@@ -47,23 +48,23 @@ class IRI_Variable(ShallowDataValueVariable):
 
     object_class: ClassVar[IRI_Class]  # pyright: ignore
 
+    @override
     @classmethod
-    def _preprocess_arg_iri_variable(
+    def check(
             cls,
             arg: Variable,
-            i: int,
-            function: Optional[TLocation] = None
+            function: Optional[TLocation] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
     ) -> 'IRI_Variable':
-        return cast(IRI_Variable, cls._preprocess_arg_variable(
-            arg, i, function or cls))
+        return cast(
+            IRI_Variable, super().check(arg, function, name, position))
 
 
 class IRI_Datatype(Datatype):
     """IRI datatype."""
 
     value_class: ClassVar[IRI_Class]  # pyright: ignore
-
-    _uri: ClassVar[URIRef] = NS.WIKIBASE.Url
 
 
 class IRI(
@@ -83,16 +84,24 @@ class IRI(
     template_class: ClassVar[IRI_TemplateClass]  # pyright: ignore
     variable_class: ClassVar[IRI_VariableClass]  # pyright: ignore
 
+    @override
     @classmethod
-    def _check_arg_iri(
+    def check(
             cls,
             arg: T_IRI,
             function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> 'IRI':
-        return cls(cls._check_arg_isinstance(
-            arg, (cls, URIRef, String, str), function, name, position))
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, String):
+            return cls(arg.content)
+        elif isinstance(arg, str):
+            return cls(str(arg))
+        else:
+            raise cls._arg_coercion_error(
+                arg, function or cls.check, name, position)
 
     def __init__(self, content: VT_IRI_Content):
         super().__init__(content)
@@ -102,12 +111,14 @@ class IRI(
         return self._static_preprocess_arg(self, arg, i)
 
     @staticmethod
-    def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
+    def _static_preprocess_arg(self_: 'IRI', arg: Any, i: int) -> Any:
         if i == 1:              # content
             if isinstance(arg, (IRI, String)):
-                arg = arg.args[0]
-            elif isinstance(arg, URIRef):
-                arg = str(arg)
-            return self_._preprocess_arg_str(arg, i)
+                return arg.content
+            elif isinstance(arg, str):
+                return str(arg)
+            else:
+                raise self_._check_arg_isinstance(
+                    arg, str, type(self_), None, i)
         else:
             raise self_._should_not_get_here()

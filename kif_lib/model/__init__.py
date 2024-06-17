@@ -152,7 +152,7 @@ from .value import (
     VTimePrecisionContent,
     VTimeTimezoneContent,
     VTItemContent,
-    VTPropertyContent,
+    VTProperty,
     VTQuantityContent,
     VTStringContent,
     VTTimeContent,
@@ -162,8 +162,6 @@ from .value import (
     VValue,
     VVDatatype,
     VVEntity,
-    VVProperty,
-    VVTPropertyContent,
     VVValue,
 )
 from .value_set import TextSet, TTextSet, TValueSet, ValueSet
@@ -319,7 +317,7 @@ __all__ = (
     'VTimePrecisionContent',
     'VTimeTimezoneContent',
     'VTItemContent',
-    'VTPropertyContent',
+    'VTProperty',
     'VTQuantityContent',
     'VTStringContent',
     'VTTimeContent',
@@ -330,9 +328,7 @@ __all__ = (
     'VValueSnak',
     'VVDatatype',
     'VVEntity',
-    'VVProperty',
     'VVSnak',
     'VVStatement',
-    'VVTPropertyContent',
     'VVValue',
 )

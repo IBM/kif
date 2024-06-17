@@ -9,7 +9,6 @@ from ..kif_object import TLocation
 from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI, IRI_Template, T_IRI
-from .string import String
 from .value import Datatype
 
 LexemeClass: TypeAlias = type['Lexeme']
@@ -88,8 +87,10 @@ class Lexeme(
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> 'Lexeme':
-        return cls(cls._check_arg_isinstance(
-            arg, (cls, IRI, URIRef, String, str), function, name, position))
+        if isinstance(arg, Lexeme):
+            return arg
+        else:
+            return cls(IRI.check(arg, function, name, position))
 
     def __init__(self, iri: VTLexemeContent):
         super().__init__(iri)
