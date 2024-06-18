@@ -188,8 +188,8 @@ class Property(
     ):
         super().__init__(iri, range)
 
-    @override
     @staticmethod
+    @override
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:              # iri
             return Entity._static_preprocess_arg(self_, arg, i)

@@ -29,7 +29,7 @@ from typing import (
     Union,
 )
 
-from typing_extensions import override, TypeAlias
+from typing_extensions import override, Self, TypeAlias
 
 __all__ = (
     'Any',
@@ -51,6 +51,7 @@ __all__ = (
     'Optional',
     'overload',
     'override',
+    'Self',
     'Sequence',
     'Set',
     'TextIO',

@@ -228,8 +228,8 @@ class PubChemMapping(SPARQL_Mapping):
                 original_pattern=pattern,
                 original_limit=limit)
 
-    @override
     @classmethod
+    @override
     def filter_post_hook(
             cls,
             store: Store,

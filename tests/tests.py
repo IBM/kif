@@ -221,6 +221,20 @@ if __name__ == '__main__':
         self.assertRaisesRegex(
             exception, regex, func, *args, **kwargs)
 
+    def assert_raises_check_error(
+            self,
+            cls: KIF_ObjectClass,
+            arg: Any,
+            function: Optional[Union[TCallable, tuple[TCallable, str]]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None,
+            exception: Optional[type[Exception]] = None
+    ):
+        self.assert_raises_bad_argument(
+            exception or TypeError, position, name,
+            f'cannot coerce {type(arg).__qualname__} into {cls.__qualname__}',
+            function or cls.check, arg)
+
     def assert_test_is_defined_for_kif_object_classes(
             self,
             name: str,
@@ -397,8 +411,8 @@ if __name__ == '__main__':
     def assert_iri(self, obj: IRI, content: str):
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, IRI)
-        self.assertTrue(obj.is_iri())
         self.assert_iri_datatype(obj.datatype)
+        self.assertIsInstance(content, str)
         self.assertEqual(obj.args[0], content)
         self.assertEqual(obj.value, obj.args[0])
         self.assertEqual(obj.get_value(), obj.args[0])
@@ -425,8 +439,8 @@ if __name__ == '__main__':
     def assert_string(self, obj: String, content: str):
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, String)
-        self.assertTrue(obj.is_string())
         self.assert_string_datatype(obj.datatype)
+        self.assertIsInstance(content, str)
         self.assertEqual(obj.args[0], content)
         self.assertEqual(obj.value, obj.args[0])
         self.assertEqual(obj.get_value(), obj.args[0])
@@ -548,7 +562,6 @@ if __name__ == '__main__':
         self.assert_datatype(obj)
         self.assertIsInstance(obj, StringDatatype)
         self.assertTrue(obj.is_string_datatype())
-        self.assertEqual(obj._uri, WIKIBASE.String)
 
     def assert_external_id_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
@@ -1530,7 +1543,7 @@ class kif_StoreTestCase(kif_TestCase):
         it = kb.get_descriptor([Item('x'), Text('x')])
         self.assertRaisesRegex(
             TypeError, r"bad argument to 'Store\.get_descriptor' "
-            r'\(expected Entity, got Text\)', list, it)
+            r'\(cannot coerce Text into Entity\)', list, it)
 
     # -- get_descriptor --
 
@@ -1593,7 +1606,7 @@ class kif_StoreTestCase(kif_TestCase):
         it = kb.get_item_descriptor([Item('x'), Property('x')])
         self.assertRaisesRegex(
             TypeError, r"bad argument to 'Store\.get_item_descriptor' "
-            r'\(expected Item, got Property\)', list, it)
+            r'\(cannot coerce Property into Item\)', list, it)
 
     def sanity_check_get_item_descriptor_bad_args(self, kb):
         self.assert_raises_bad_argument(
@@ -1635,7 +1648,7 @@ class kif_StoreTestCase(kif_TestCase):
         it = kb.get_property_descriptor([Property('x'), Item('x')])
         self.assertRaisesRegex(
             TypeError, r"bad argument to 'Store\.get_property_descriptor' "
-            r'\(expected Property, got Item\)', list, it)
+            r'\(cannot coerce Item into Property\)', list, it)
 
     def sanity_check_get_property_descriptor_bad_args(self, kb):
         self.assert_raises_bad_argument(
@@ -1678,7 +1691,7 @@ class kif_StoreTestCase(kif_TestCase):
         it = kb.get_lexeme_descriptor([Lexeme('x'), Property('x')])
         self.assertRaisesRegex(
             TypeError, r"bad argument to 'Store\.get_lexeme_descriptor' "
-            r'\(expected Lexeme, got Property\)', list, it)
+            r'\(cannot coerce Property into Lexeme\)', list, it)
 
     def sanity_check_get_lexeme_descriptor_bad_args(self, kb):
         self.assert_raises_bad_argument(

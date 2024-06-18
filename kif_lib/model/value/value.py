@@ -128,7 +128,7 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
             return cls._IRI_Datatype()
         elif uri == cls._TextDatatype._uri:
             return cls._TextDatatype()
-        elif uri == cls._StringDatatype._uri:
+        elif uri == NS.WIKIBASE.String:
             return cls._StringDatatype()
         elif uri == cls._ExternalIdDatatype._uri:
             return cls._ExternalIdDatatype()
@@ -143,6 +143,8 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
     def _to_rdflib(cls) -> URIRef:
         if cls is cls._IRI_Datatype:
             return NS.WIKIBASE.Url
+        elif cls is cls._StringDatatype:
+            return NS.WIKIBASE.String
         else:
             return cls._uri
 
@@ -227,7 +229,7 @@ class Value(
         elif isinstance(arg, (Decimal, float, int)):
             return cls._check_arg_quantity(arg)
         elif isinstance(arg, str):
-            return cls._check_arg_string(arg)
+            return cls._String.check(arg, function, name, position)
         else:
             return cls._check_arg_isinstance(
                 arg, Value, function, name, position)

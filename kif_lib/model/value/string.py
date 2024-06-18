@@ -1,9 +1,16 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ... import namespace as NS
-from ...rdflib import URIRef
-from ...typing import Any, cast, ClassVar, Optional, override, TypeAlias, Union
+from ...typing import (
+    Any,
+    cast,
+    ClassVar,
+    Optional,
+    override,
+    Self,
+    TypeAlias,
+    Union,
+)
 from ..kif_object import TLocation
 from ..variable import Variable
 from .data_value import DataValue, DataValueTemplate, DataValueVariable
@@ -18,12 +25,16 @@ StringDatatypeClass: TypeAlias = type['StringDatatype']
 StringTemplateClass: TypeAlias = type['StringTemplate']
 StringVariableClass: TypeAlias = type['StringVariable']
 
+TStringDatatype: TypeAlias =\
+    Union['StringDatatype', StringDatatypeClass, StringClass]
+
 TString: TypeAlias = Union['String', str]
 VTString: TypeAlias = Union['StringTemplate', Variable, TString]
 VTStringContent: TypeAlias = Union[Variable, TString]
 
-VStringContent: TypeAlias = Union['StringVariable', str]
 VString: TypeAlias = Union['StringTemplate', 'StringVariable', 'String']
+VStringContent: TypeAlias = Union['StringVariable', str]
+VVString: TypeAlias = Union[Variable, VString]
 
 
 class ShallowDataValueTemplate(DataValueTemplate):
@@ -34,8 +45,7 @@ class ShallowDataValueTemplate(DataValueTemplate):
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # content
-            return self._preprocess_arg_string_variable(
-                arg, i, self.__class__)
+            return StringVariable.check(arg, type(self), None, i)
         else:
             raise self._should_not_get_here()
 
@@ -112,23 +122,29 @@ class StringVariable(ShallowDataValueVariable):
 
     object_class: ClassVar[StringClass]  # pyright: ignore
 
-    @classmethod
-    def _preprocess_arg_string_variable(
-            cls,
-            arg: Variable,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> 'StringVariable':
-        return cast(StringVariable, cls._preprocess_arg_variable(
-            arg, i, function or cls))
-
 
 class StringDatatype(Datatype):
     """String datatype."""
 
     value_class: ClassVar[StringClass]  # pyright: ignore
 
-    _uri: ClassVar[URIRef] = NS.WIKIBASE.String
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: TStringDatatype,
+            function: Optional[TLocation] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, type) and issubclass(arg, cls):
+            return cast(Self, arg.value_class.datatype)
+        elif isinstance(arg, type) and issubclass(arg, cls.value_class):
+            return cast(Self, arg.datatype)
+        else:
+            raise cls._check_error(arg, function, name, position)
 
 
 class String(
@@ -148,32 +164,21 @@ class String(
     template_class: ClassVar[StringTemplateClass]  # pyright: ignore
     variable_class: ClassVar[StringVariableClass]  # pyright: ignore
 
-    @override
     @classmethod
+    @override
     def check(
             cls,
             arg: TString,
             function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> 'String':
+    ) -> Self:
         if isinstance(arg, cls):
             return arg
         elif isinstance(arg, str):
             return cls(arg)
         else:
-            raise cls._arg_coercion_error(arg, function, name, position)
-
-    @classmethod
-    def _check_arg_string(
-            cls,
-            arg: TString,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> 'String':
-        return cls(cls._check_arg_isinstance(
-            arg, (cls, str), function, name, position))
+            raise cls._check_error(arg, function, name, position)
 
     def __init__(self, content: VTStringContent):
         super().__init__(content)
@@ -188,6 +193,6 @@ class String(
             if isinstance(arg, String):
                 return arg.content
             else:
-                return self_._preprocess_arg_str(arg, i)
+                return str(self_._check_arg_str(arg, type(self_), None, i))
         else:
             raise self_._should_not_get_here()

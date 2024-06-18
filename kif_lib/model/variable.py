@@ -12,6 +12,7 @@ from ..typing import (
     Mapping,
     Optional,
     override,
+    Self,
     TypeAlias,
     Union,
 )
@@ -54,22 +55,21 @@ class Variable(KIF_Object):
         assert var_cls is not None
         return super().__new__(var_cls)  # pyright: ignore
 
-    @override
     @classmethod
+    @override
     def check(
             cls,
             arg: 'Variable',
             function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> 'Variable':
+    ) -> Self:
         arg = cast(Variable, cls._check_arg_isinstance(
             arg, Variable, function or cls.check, name, position))
         try:
-            return cast(Variable, arg._coerce(cls))
+            return cast(Self, arg._coerce(cls))
         except Variable.CoercionError as err:
-            raise cls._arg_coercion_error(
-                arg, function or cls.check, name, position) from err
+            raise cls._check_error(arg, function, name, position) from err
 
     @classmethod
     def _check_arg_variable_class(

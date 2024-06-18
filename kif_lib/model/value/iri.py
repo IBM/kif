@@ -35,6 +35,18 @@ class IRI_Template(ShallowDataValueTemplate):
 
     object_class: ClassVar[IRI_Class]  # pyright: ignore
 
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: 'IRI_Template',
+            function: Optional[TLocation] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> 'IRI_Template':
+        return cast(IRI_Template, super().check(
+            arg, function, name, position))
+
     def __init__(self, content: VT_IRI_Content):
         super().__init__(content)
 
@@ -48,8 +60,8 @@ class IRI_Variable(ShallowDataValueVariable):
 
     object_class: ClassVar[IRI_Class]  # pyright: ignore
 
-    @override
     @classmethod
+    @override
     def check(
             cls,
             arg: Variable,
@@ -57,8 +69,8 @@ class IRI_Variable(ShallowDataValueVariable):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> 'IRI_Variable':
-        return cast(
-            IRI_Variable, super().check(arg, function, name, position))
+        return cast(IRI_Variable, super().check(
+            arg, function, name, position))
 
 
 class IRI_Datatype(Datatype):
@@ -84,8 +96,8 @@ class IRI(
     template_class: ClassVar[IRI_TemplateClass]  # pyright: ignore
     variable_class: ClassVar[IRI_VariableClass]  # pyright: ignore
 
-    @override
     @classmethod
+    @override
     def check(
             cls,
             arg: T_IRI,
@@ -100,8 +112,7 @@ class IRI(
         elif isinstance(arg, str):
             return cls(str(arg))
         else:
-            raise cls._arg_coercion_error(
-                arg, function or cls.check, name, position)
+            raise cls._check_error(arg, function, name, position)
 
     def __init__(self, content: VT_IRI_Content):
         super().__init__(content)
@@ -113,12 +124,9 @@ class IRI(
     @staticmethod
     def _static_preprocess_arg(self_: 'IRI', arg: Any, i: int) -> Any:
         if i == 1:              # content
-            if isinstance(arg, (IRI, String)):
+            if isinstance(arg, IRI):
                 return arg.content
-            elif isinstance(arg, str):
-                return str(arg)
             else:
-                raise self_._check_arg_isinstance(
-                    arg, str, type(self_), None, i)
+                return String.check(arg, type(self_), None, i).content
         else:
             raise self_._should_not_get_here()

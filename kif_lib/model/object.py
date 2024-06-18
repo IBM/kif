@@ -13,9 +13,10 @@ import functools
 import itertools
 import json
 import re
-import typing
 from collections.abc import Iterator, Mapping, Sequence
-from typing import (
+
+import lark  # for S-expression parsing
+from typing_extensions import (
     Any,
     Callable,
     cast,
@@ -23,11 +24,11 @@ from typing import (
     Final,
     IO,
     Optional,
+    override,
+    Self,
     TypeVar,
     Union,
 )
-
-import lark  # for S-expression parsing
 
 __version__ = '0.1'
 
@@ -80,15 +81,7 @@ TNum = Union[float, int]
 TObjCls = type['Object']
 
 F = TypeVar('F', bound=Callable[..., Any])
-O = TypeVar('O', bound='Object')
 T = TypeVar('T')
-
-
-if hasattr(typing, 'override'):
-    override = typing.override
-else:
-    def override(arg: F, /) -> F:
-        return arg
 
 
 # == ObjectMeta ============================================================
@@ -382,7 +375,7 @@ class Object(Sequence, metaclass=ObjectMeta):
             function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> 'Object':
+    ) -> Self:
         """Coerces `arg` to an instance of this class.
 
         Parameters:
@@ -398,8 +391,10 @@ class Object(Sequence, metaclass=ObjectMeta):
            TypeError|ValueError: `arg` cannot be coerced to an instance of
            this class.
         """
-        return cls._check_arg_isinstance(
-            arg, cls, function or cls.check, name, position)
+        if isinstance(arg, cls):
+            return arg
+        else:
+            raise cls._check_error(arg, function, name, position)
 
     @classmethod
     def check_optional(
@@ -409,7 +404,7 @@ class Object(Sequence, metaclass=ObjectMeta):
             function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Optional['Object']:
+    ) -> Optional[Self]:
         """Coerces optional `arg` to an instance of this class.
 
         If `obj` is ``None``, returns `default`.
@@ -433,13 +428,26 @@ class Object(Sequence, metaclass=ObjectMeta):
         if arg is None:
             return arg
         else:
-            return cls.check(
-                arg, function or cls.check_optional, name, position)
+            return cls.check(arg, function, name, position)
+
+    @classmethod
+    def _check_error(
+            cls,
+            arg: Any,
+            function: Optional[TLoc] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None,
+            exception: Optional[type[Exception]] = None
+    ) -> Exception:
+        return cls._arg_error(
+            f'cannot coerce {type(arg).__qualname__} into {cls.__qualname__}',
+            function or cls.check, name, position,
+            exception or TypeError)
 
     @classmethod
     def unpack(
             cls,
-            obj: 'Object',
+            arg: Any,
             function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
@@ -458,7 +466,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         Raises:
            TypeError: `obj` is not an instance of this class.
         """
-        return cls.check(obj, function or cls.unpack, name, position).args
+        return cls.check(arg, function or cls.unpack, name, position).args
 
     __slots__ = (
         '_args',
@@ -551,7 +559,7 @@ class Object(Sequence, metaclass=ObjectMeta):
 
 # -- Copying ---------------------------------------------------------------
 
-    def copy(self) -> 'Object':
+    def copy(self) -> Self:
         """Makes a shallow copy of object.
 
         Returns:
@@ -559,7 +567,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         """
         return copy.copy(self)
 
-    def deepcopy(self, memo: Optional[dict[Any, Any]] = None) -> 'Object':
+    def deepcopy(self, memo: Optional[dict[Any, Any]] = None) -> Self:
         """Makes a deep copy of object.
 
         Parameters:
@@ -570,7 +578,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         """
         return copy.deepcopy(self, memo=memo)
 
-    def replace(self, *args: Any) -> 'Object':
+    def replace(self, *args: Any) -> Self:
         """Shallow-copies object overwriting its arguments.
 
         If argument is ``None`` in `args`, keeps the value of the
@@ -617,7 +625,7 @@ class Object(Sequence, metaclass=ObjectMeta):
     def from_ast(
             cls,
             ast: Mapping[str, Any]
-    ) -> 'Object':
+    ) -> Self:
         """Converts abstract syntax tree to object.
 
         Parameters:
@@ -731,7 +739,7 @@ class Object(Sequence, metaclass=ObjectMeta):
             stream: IO[Any],
             format: Optional[str] = None,
             **kwargs
-    ) -> 'Object':
+    ) -> Self:
         """Decodes `stream` and returns the resulting object.
 
         Parameters:
@@ -753,7 +761,7 @@ class Object(Sequence, metaclass=ObjectMeta):
             input: str,
             format: Optional[str] = None,
             **kwargs
-    ) -> 'Object':
+    ) -> Self:
         """Decodes string and returns the resulting object.
 
         Parameters:
@@ -798,22 +806,6 @@ class Object(Sequence, metaclass=ObjectMeta):
         if details:
             msg += f' ({details})'
         return (exception or cls._arg_error_exception)(msg)
-
-    _arg_coercion_error_exception: ClassVar[type[Exception]] = TypeError
-
-    @classmethod
-    def _arg_coercion_error(
-            cls,
-            arg: Any,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None,
-            exception: Optional[type[Exception]] = None
-    ) -> Exception:
-        return cls._arg_error(
-            f'cannot coerce {type(arg).__qualname__} into {cls.__qualname__}',
-            function, name, position,
-            exception or cls._arg_coercion_error_exception)
 
     @classmethod
     def _check_arg(
@@ -1337,7 +1329,6 @@ class Encoder(Codec):
             details if details is not None else
             cls._from_format_default_details))
 
-    @override
     def encode(self, input: Object) -> str:
         """Encodes object.
 
