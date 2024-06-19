@@ -1,8 +1,6 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ... import namespace as NS
-from ...rdflib import URIRef
 from ...typing import (
     Any,
     ClassVar,
@@ -12,7 +10,6 @@ from ...typing import (
     TypeAlias,
     Union,
 )
-from ..kif_object import TLocation
 from ..variable import Variable
 from .shallow_data_value import (
     ShallowDataValue,
@@ -34,8 +31,8 @@ TextTemplateClass: TypeAlias = type['TextTemplate']
 TextVariableClass: TypeAlias = type['TextVariable']
 
 TText: TypeAlias = Union['Text', TString]
-VTTextContent: TypeAlias = Union[Variable, TText]
 VText: TypeAlias = Union['TextTemplate', 'TextVariable', 'Text']
+VTTextContent: TypeAlias = Union[Variable, TText]
 
 
 class TextTemplate(ShallowDataValueTemplate):
@@ -99,8 +96,6 @@ class TextDatatype(Datatype):
 
     value_class: ClassVar[TextClass]  # pyright: ignore
 
-    _uri: ClassVar[URIRef] = NS.WIKIBASE.Monolingualtext
-
 
 class Text(
         ShallowDataValue,
@@ -123,25 +118,15 @@ class Text(
     #: Default language tag.
     default_language: Final[str] = 'en'
 
-    @classmethod
-    def _check_arg_text(
-            cls,
-            arg: TText,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> 'Text':
-        return cls(cls._check_arg_isinstance(
-            arg, (cls, str), function, name, position))
-
     def __init__(
             self,
             content: VTTextContent,
             language: Optional[VTStringContent] = None
     ):
-        if isinstance(content, Text) and language is None:
-            language = content.language
-        super().__init__(content, language)
+        if language is None and isinstance(content, Text):
+            super().__init__(content.content, content.language)
+        else:
+            super().__init__(content, language)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -150,12 +135,15 @@ class Text(
     @staticmethod
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:              # content
-            return self_._preprocess_arg_str(
-                arg.args[0] if isinstance(arg, (String, Text)) else arg, i)
+            if isinstance(arg, Text):
+                return arg.content
+            else:
+                return String.check(arg, type(self_), None, i).content
         elif i == 2:            # language
-            return self_._preprocess_optional_arg_str(
-                arg.args[0] if isinstance(arg, String) else arg, i,
-                Text.default_language)
+            if arg is None:
+                return Text.default_language
+            else:
+                return String.check(arg, type(self_), None, i).content
         else:
             raise self_._should_not_get_here()
 

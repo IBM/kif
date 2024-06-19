@@ -19,7 +19,6 @@ StringVariableClass: TypeAlias = type['StringVariable']
 TString: TypeAlias = Union['String', str]
 VString: TypeAlias = Union['StringTemplate', 'StringVariable', 'String']
 VStringContent: TypeAlias = Union['StringVariable', str]
-VTString: TypeAlias = Union['StringTemplate', Variable, TString]
 VTStringContent: TypeAlias = Union[Variable, TString]
 
 
@@ -68,6 +67,24 @@ class ShallowDataValue(
 
     template_class: ClassVar[ShallowDataValueTemplateClass]  # pyright: ignore
     variable_class: ClassVar[ShallowDataValueVariableClass]  # pyright: ignore
+
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Optional[TLocation] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, String):
+            return cls(arg.content)
+        elif isinstance(arg, str):
+            return cls(str(arg))
+        else:
+            raise cls._check_error(arg, function, name, position)
 
     def get_value(self) -> str:
         return self.args[0]
@@ -131,22 +148,6 @@ class String(
     datatype: ClassVar[StringDatatype]             # pyright: ignore
     template_class: ClassVar[StringTemplateClass]  # pyright: ignore
     variable_class: ClassVar[StringVariableClass]  # pyright: ignore
-
-    @classmethod
-    @override
-    def check(
-            cls,
-            arg: TString,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Self:
-        if isinstance(arg, cls):
-            return arg
-        elif isinstance(arg, str):
-            return cls(arg)
-        else:
-            raise cls._check_error(arg, function, name, position)
 
     def __init__(self, content: VTStringContent):
         super().__init__(content)

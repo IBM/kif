@@ -81,7 +81,7 @@ class TextSet(ValueSet):
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
-        return self._preprocess_arg_text(arg, i)
+        return Text.check(arg, type(self), None, i)
 
     @property
     @override

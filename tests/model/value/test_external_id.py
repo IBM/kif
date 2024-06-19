@@ -14,11 +14,10 @@ class Test(kif_TestCase):
         self.assert_raises_check_error(ExternalId, 0, ExternalId.check)
         self.assert_raises_check_error(ExternalId, {}, ExternalId.check)
         self.assert_raises_check_error(ExternalId, IRI('x'), ExternalId.check)
-        self.assert_raises_check_error(
-            ExternalId, String('x'), ExternalId.check)
         # success
         assert_type(ExternalId.check(ExternalId('x')), ExternalId)
         self.assertEqual(ExternalId.check(ExternalId('x')), ExternalId('x'))
+        self.assertEqual(ExternalId.check(String('x')), ExternalId('x'))
         self.assertEqual(ExternalId.check(URIRef('x')), ExternalId('x'))
         self.assertEqual(ExternalId.check(Literal('x')), ExternalId('x'))
         self.assertEqual(ExternalId.check('x'), ExternalId('x'))

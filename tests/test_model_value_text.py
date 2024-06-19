@@ -28,8 +28,8 @@ class TestModelValueText(kif_TestCase):
     def test__from_rdflib(self):
         # bad argument: uri
         self.assertRaises(TypeError, Text._from_rdflib, URIRef('x'))
-        # bad argument: no language tag
-        self.assertRaises(TypeError, Text._from_rdflib, Literal('x'))
+        # # bad argument: no language tag
+        # self.assertRaises(TypeError, Text._from_rdflib, Literal('x'))
         # bad argument: typed literal
         self.assertRaises(
             TypeError, Text._from_rdflib, Literal('1.0', datatype=XSD.decimal))

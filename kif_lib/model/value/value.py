@@ -154,7 +154,7 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
             return cls._LexemeDatatype()
         elif uri == NS.WIKIBASE.Url:
             return cls._IRI_Datatype()
-        elif uri == cls._TextDatatype._uri:
+        elif uri == NS.WIKIBASE.Monolingualtext:
             return cls._TextDatatype()
         elif uri == NS.WIKIBASE.String:
             return cls._StringDatatype()
@@ -171,6 +171,8 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
     def _to_rdflib(cls) -> URIRef:
         if cls is cls._IRI_Datatype:
             return NS.WIKIBASE.Url
+        if cls is cls._TextDatatype:
+            return NS.WIKIBASE.Monolingualtext
         elif cls is cls._StringDatatype:
             return NS.WIKIBASE.String
         elif cls is cls._ExternalIdDatatype:
@@ -337,7 +339,7 @@ class Value(
                   or literal.datatype == NS.XSD.date):
                 res = cls._Time(str(literal))
             elif literal.datatype is None and literal.language:
-                res = cls._Text(str(literal), literal.language)
+                res = cls._Text(literal, literal.language)
             else:
                 if issubclass(cls, cls._ExternalId):
                     res = cls._ExternalId(literal)

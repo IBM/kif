@@ -178,10 +178,10 @@ class Test(kif_TestCase):
     def test__new__text_template(self):
         x, y = Variables('x', 'y')
         self.assert_raises_bad_argument(
-            TypeError, 1, None, 'expected str, got int',
+            TypeError, 1, None, 'cannot coerce int into String',
             (TextTemplate, 'Text'), 0)
         self.assert_raises_bad_argument(
-            TypeError, 2, None, 'expected str, got int',
+            TypeError, 2, None, 'cannot coerce int into String',
             (TextTemplate, 'Text'), 'x', 0)
         self.assert_text_template(
             TextTemplate(x, y),
@@ -543,7 +543,7 @@ class Test(kif_TestCase):
             TextTemplate, TextVariable('x'))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
-            'expected str, got StringTemplate',
+            'cannot coerce StringTemplate into String',
             TextTemplate, StringTemplate(Variable('x')))
         self.assert_raises_bad_argument(
             TypeError, 2, None,
@@ -551,7 +551,7 @@ class Test(kif_TestCase):
             TextTemplate, 'x', TextVariable('y'))
         self.assert_raises_bad_argument(
             TypeError, 2, None,
-            'expected str, got StringTemplate',
+            'cannot coerce StringTemplate into String',
             TextTemplate, 'x', StringTemplate(Variable('y')))
 
     def test__init__text_template_normalization(self):

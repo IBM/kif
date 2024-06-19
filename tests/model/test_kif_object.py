@@ -1024,7 +1024,8 @@ class Test(kif_TestCase):
     def test_check_external_id(self):
         self.assertEqual(
             ExternalId('x').check_external_id(), ExternalId('x'))
-        self.assertRaises(TypeError, String('x').check_external_id)
+        self.assertEqual(
+            String('x').check_external_id(), ExternalId('x'))
 
     def test_check_external_id_datatype(self):
         self.assertEqual(
@@ -1385,7 +1386,7 @@ class Test(kif_TestCase):
 
     def test_check_text(self):
         self.assertEqual(Text('abc').check_text(), Text('abc'))
-        self.assertRaises(TypeError, String('abc').check_text)
+        self.assertEqual(String('abc').check_text(), Text('abc'))
 
     def test_check_text_datatype(self):
         self.assertEqual(TextDatatype().check_text_datatype(), TextDatatype())

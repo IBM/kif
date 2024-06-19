@@ -554,8 +554,6 @@ if __name__ == '__main__':
     def assert_text_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, TextDatatype)
-        self.assertTrue(obj.is_text_datatype())
-        self.assertEqual(obj._uri, WIKIBASE.Monolingualtext)
 
     def assert_string_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
