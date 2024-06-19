@@ -1,16 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ...typing import (
-    Any,
-    cast,
-    ClassVar,
-    Optional,
-    override,
-    Self,
-    TypeAlias,
-    Union,
-)
+from ...typing import Any, ClassVar, Optional, override, Self, TypeAlias, Union
 from ..kif_object import TLocation
 from ..variable import Variable
 from .data_value import DataValue, DataValueTemplate, DataValueVariable
@@ -127,24 +118,6 @@ class StringDatatype(Datatype):
     """String datatype."""
 
     value_class: ClassVar[StringClass]  # pyright: ignore
-
-    @classmethod
-    @override
-    def check(
-            cls,
-            arg: TStringDatatype,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Self:
-        if isinstance(arg, cls):
-            return arg
-        elif isinstance(arg, type) and issubclass(arg, cls):
-            return cast(Self, arg.value_class.datatype)
-        elif isinstance(arg, type) and issubclass(arg, cls.value_class):
-            return cast(Self, arg.datatype)
-        else:
-            raise cls._check_error(arg, function, name, position)
 
 
 class String(

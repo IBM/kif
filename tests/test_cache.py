@@ -2,15 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib.cache import Cache
+from kif_lib.typing import assert_type
 
 from .tests import kif_TestCase
 
 
 class Test(kif_TestCase):
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         c = Cache()
         self.assertIsInstance(c, Cache)
+        assert_type(c, Cache)
         self.assertTrue(c.enabled)
         self.assertEqual(c.size, 0)
         c = Cache(False)
@@ -18,7 +20,7 @@ class Test(kif_TestCase):
         self.assertFalse(c.enabled)
         self.assertEqual(c.size, 0)
 
-    def test_enable(self):
+    def test_enable(self) -> None:
         c = Cache(False)
         self.assertFalse(c.enabled)
         self.assertFalse(c.is_enabled())
@@ -30,7 +32,7 @@ class Test(kif_TestCase):
         self.assertFalse(c.disabled)
         self.assertFalse(c.is_disabled())
 
-    def test_disable(self):
+    def test_disable(self) -> None:
         c = Cache(True)
         self.assertTrue(c.enabled)
         self.assertTrue(c.is_enabled())
@@ -42,14 +44,14 @@ class Test(kif_TestCase):
         self.assertTrue(c.disabled)
         self.assertTrue(c.is_disabled())
 
-    def test_clear(self):
+    def test_clear(self) -> None:
         c = Cache()
         c.set(0, 'x', 1)
         self.assertEqual(c.size, 1)
         c.clear()
         self.assertEqual(c.size, 0)
 
-    def test_get(self):
+    def test_get(self) -> None:
         c = Cache()
         self.assertIsNone(c.get(0, 'x'))
         c.set(0, 'x', 1)
@@ -71,7 +73,7 @@ class Test(kif_TestCase):
         c.clear()
         self.assertEqual(c.size, 0)
 
-    def test_set(self):
+    def test_set(self) -> None:
         c = Cache()
         self.assertEqual(c.set(0, 'x', 1), 1)
         self.assertEqual(c.size, 1)
@@ -88,7 +90,7 @@ class Test(kif_TestCase):
         self.assertEqual(c.set(0, 'x', 2), 2)
         self.assertEqual(c.size, 1)
 
-    def test_unset(self):
+    def test_unset(self) -> None:
         c = Cache()
         c.set(0, 'x', 1)
         c.set(1, 'y', 1)

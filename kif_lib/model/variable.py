@@ -1,7 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import overload, TYPE_CHECKING
+from typing_extensions import overload, TYPE_CHECKING
 
 from ..itertools import chain
 from ..typing import (
@@ -64,12 +64,13 @@ class Variable(KIF_Object):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Self:
-        arg = cast(Variable, cls._check_arg_isinstance(
-            arg, Variable, function or cls.check, name, position))
-        try:
-            return cast(Self, arg._coerce(cls))
-        except Variable.CoercionError as err:
-            raise cls._check_error(arg, function, name, position) from err
+        if isinstance(arg, Variable):
+            try:
+                return cast(Self, arg._coerce(cls))
+            except Variable.CoercionError as err:
+                raise cls._check_error(arg, function, name, position) from err
+        else:
+            raise cls._check_error(arg, function, name, position)
 
     @classmethod
     def _check_arg_variable_class(
@@ -168,11 +169,8 @@ class Variable(KIF_Object):
         elif issubclass(variable_class, self.__class__):
             return variable_class(self.name)
         else:
-            src = self.__class__.__qualname__
-            dest = variable_class.__qualname__
-            raise self._arg_error(
-                f"cannot coerce {src} '{self.name}' into {dest}",
-                function, name, position, self.CoercionError)
+            raise variable_class._check_error(
+                type(self), function, name, position, self.CoercionError)
 
     def instantiate(
             self,

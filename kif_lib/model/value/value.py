@@ -6,7 +6,17 @@ from functools import cache
 
 from ... import namespace as NS
 from ...rdflib import Literal, URIRef
-from ...typing import cast, ClassVar, Collection, Optional, TypeAlias, Union
+from ...typing import (
+    Any,
+    cast,
+    ClassVar,
+    Collection,
+    Optional,
+    override,
+    Self,
+    TypeAlias,
+    Union,
+)
 from ..kif_object import (
     Datetime,
     Decimal,
@@ -112,6 +122,24 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
         else:
             return cls._check_arg_isinstance(
                 arg, cls, function, name, position)
+
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Optional[TLocation] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, type) and issubclass(arg, cls):
+            return cast(Self, arg.value_class.datatype)
+        elif isinstance(arg, type) and issubclass(arg, cls.value_class):
+            return cast(Self, arg.datatype)
+        else:
+            raise cls._check_error(arg, function, name, position)
 
     _uri: ClassVar[URIRef]
 

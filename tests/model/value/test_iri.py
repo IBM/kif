@@ -3,15 +3,18 @@
 
 from kif_lib import ExternalId, IRI, String
 from kif_lib.rdflib import Literal, URIRef
+from kif_lib.typing import assert_type
 
 from ...tests import kif_TestCase
 
 
 class Test(kif_TestCase):
 
-    def test_check(self):
+    def test_check(self) -> None:
         self.assert_raises_check_error(IRI, 0)
         self.assert_raises_check_error(IRI, {})
+        # success
+        assert_type(IRI.check(IRI('x')), IRI)
         self.assertEqual(IRI.check(IRI('x')), IRI('x'))
         self.assertEqual(IRI.check(String('x')), IRI('x'))
         self.assertEqual(IRI.check(ExternalId('x')), IRI('x'))
@@ -19,9 +22,11 @@ class Test(kif_TestCase):
         self.assertEqual(IRI.check(Literal('x')), IRI('x'))
         self.assertEqual(IRI.check('x'), IRI('x'))
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         self.assert_raises_check_error(String, 0, IRI, None, 1)
         self.assert_raises_check_error(String, {}, IRI, None, 1)
+        # success
+        assert_type(IRI('x'), IRI)
         self.assert_iri(IRI(IRI('x')), 'x')
         self.assert_iri(IRI(String('x')), 'x')
         self.assert_iri(IRI(ExternalId('x')), 'x')

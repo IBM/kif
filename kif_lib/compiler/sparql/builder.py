@@ -12,10 +12,18 @@ import decimal
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, MutableSequence, Sequence
 from itertools import chain
-from typing import Any, cast, Final, Optional, TypeVar, Union
 
 from rdflib import BNode, Literal, URIRef, Variable
-from typing_extensions import override, TypeAlias
+from typing_extensions import (
+    Any,
+    cast,
+    Final,
+    Optional,
+    override,
+    TypeAlias,
+    TypeVar,
+    Union,
+)
 
 _str = str
 T = TypeVar('T')

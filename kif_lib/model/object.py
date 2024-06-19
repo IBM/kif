@@ -439,8 +439,9 @@ class Object(Sequence, metaclass=ObjectMeta):
             position: Optional[int] = None,
             exception: Optional[type[Exception]] = None
     ) -> Exception:
+        src_cls = arg if isinstance(arg, type) else type(arg)
         return cls._arg_error(
-            f'cannot coerce {type(arg).__qualname__} into {cls.__qualname__}',
+            f'cannot coerce {src_cls.__qualname__} into {cls.__qualname__}',
             function or cls.check, name, position,
             exception or TypeError)
 

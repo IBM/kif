@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from ... import namespace as NS
-from ...typing import Any, cast, ClassVar, Optional, override, TypeAlias, Union
+from ...typing import Any, ClassVar, Optional, override, TypeAlias, Union
 from ..kif_object import TLocation
 from ..variable import Variable
 from .shallow_data_value import (
@@ -35,18 +35,6 @@ class IRI_Template(ShallowDataValueTemplate):
 
     object_class: ClassVar[IRI_Class]  # pyright: ignore
 
-    @classmethod
-    @override
-    def check(
-            cls,
-            arg: 'IRI_Template',
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> 'IRI_Template':
-        return cast(IRI_Template, super().check(
-            arg, function, name, position))
-
     def __init__(self, content: VT_IRI_Content):
         super().__init__(content)
 
@@ -59,18 +47,6 @@ class IRI_Variable(ShallowDataValueVariable):
     """
 
     object_class: ClassVar[IRI_Class]  # pyright: ignore
-
-    @classmethod
-    @override
-    def check(
-            cls,
-            arg: Variable,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> 'IRI_Variable':
-        return cast(IRI_Variable, super().check(
-            arg, function, name, position))
 
 
 class IRI_Datatype(Datatype):

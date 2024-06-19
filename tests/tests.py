@@ -108,7 +108,6 @@ from kif_lib.model import (
     TextVariable,
     TimeTemplate,
     TimeVariable,
-    V_IRI,
     ValueSnakTemplate,
     ValueSnakVariable,
     ValueTemplate,
@@ -230,9 +229,10 @@ if __name__ == '__main__':
             position: Optional[int] = None,
             exception: Optional[type[Exception]] = None
     ):
+        src_cls = arg if isinstance(arg, type) else type(arg)
         self.assert_raises_bad_argument(
             exception or TypeError, position, name,
-            f'cannot coerce {type(arg).__qualname__} into {cls.__qualname__}',
+            f'cannot coerce {src_cls.__qualname__} into {cls.__qualname__}',
             function or cls.check, arg)
 
     def assert_test_is_defined_for_kif_object_classes(
@@ -550,7 +550,6 @@ if __name__ == '__main__':
     def assert_iri_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, IRI_Datatype)
-        self.assertTrue(obj.is_iri_datatype())
 
     def assert_text_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
@@ -561,7 +560,6 @@ if __name__ == '__main__':
     def assert_string_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, StringDatatype)
-        self.assertTrue(obj.is_string_datatype())
 
     def assert_external_id_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
@@ -640,11 +638,12 @@ if __name__ == '__main__':
 
     def assert_iri_template(
             self,
-            obj: V_IRI,
-            content: VTStringContent
+            obj: IRI_Template,
+            content: Variable
     ):
         self.assertIsInstance(obj, IRI_Template)
         assert isinstance(obj, IRI_Template)
+        assert isinstance(content, StringVariable)
         self.assert_shallow_data_value_template(obj, content)
 
     def assert_text_template(
@@ -663,19 +662,21 @@ if __name__ == '__main__':
     def assert_string_template(
             self,
             obj: VString,
-            content: VTStringContent
+            content: Variable
     ):
         self.assertIsInstance(obj, StringTemplate)
         assert isinstance(obj, StringTemplate)
+        assert isinstance(content, StringVariable)
         self.assert_shallow_data_value_template(obj, content)
 
     def assert_external_id_template(
             self,
             obj: VExternalId,
-            content: VTStringContent
+            content: Variable
     ):
         self.assertIsInstance(obj, ExternalIdTemplate)
         assert isinstance(obj, ExternalIdTemplate)
+        assert isinstance(content, StringVariable)
         self.assert_string_template(obj, content)
 
     def assert_deep_data_value_template(self, obj: DeepDataValueTemplate):

@@ -14,8 +14,10 @@ from collections.abc import (
     Sequence,
     Set,
 )
-from typing import (
+
+from typing_extensions import (
     Any,
+    assert_type,
     BinaryIO,
     cast,
     ClassVar,
@@ -24,15 +26,18 @@ from typing import (
     NoReturn,
     Optional,
     overload,
+    override,
+    Self,
     TextIO,
+    TYPE_CHECKING,
+    TypeAlias,
     TypeVar,
     Union,
 )
 
-from typing_extensions import override, Self, TypeAlias
-
 __all__ = (
     'Any',
+    'assert_type',
     'BinaryIO',
     'Callable',
     'cast',
@@ -55,6 +60,7 @@ __all__ = (
     'Sequence',
     'Set',
     'TextIO',
+    'TYPE_CHECKING',
     'TypeAlias',
     'TypeVar',
     'Union',

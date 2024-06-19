@@ -1,7 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import overload, TYPE_CHECKING
+from typing_extensions import overload, TYPE_CHECKING
 
 from ... import namespace as NS
 from ...itertools import chain
