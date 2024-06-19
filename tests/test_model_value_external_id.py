@@ -11,27 +11,6 @@ from .tests import kif_TestCase
 
 class TestModelValueExternalId(kif_TestCase):
 
-    def test__preprocess_arg_external_id(self):
-        self.assertEqual(
-            ExternalId('abc'),
-            ExternalId._preprocess_arg_external_id('abc', 1))
-        self.assertEqual(
-            ExternalId('abc'),
-            ExternalId._preprocess_arg_external_id(String('abc'), 1))
-        self.assertEqual(
-            ExternalId('abc'),
-            ExternalId._preprocess_arg_external_id(ExternalId('abc'), 1))
-
-    def test__preprocess_optional_arg_external_id(self):
-        self.assertEqual(
-            ExternalId('abc'),
-            ExternalId._preprocess_optional_arg_external_id(
-                None, 1, ExternalId('abc')))
-        self.assertEqual(
-            ExternalId('xyz'),
-            ExternalId._preprocess_optional_arg_external_id(
-                'xyz', 1, ExternalId('abc')))
-
     def test__init__(self):
         self.assertRaises(TypeError, ExternalId, 0)
         self.assert_external_id(ExternalId('abc'), 'abc')

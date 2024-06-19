@@ -46,7 +46,8 @@ from .iri import (
     IRI_Variable,
     T_IRI,
     V_IRI,
-    VV_IRI,
+    VT_IRI,
+    VT_IRI_Content,
 )
 from .item import (
     Item,
@@ -228,6 +229,8 @@ __all__ = (
     'VQuantityContent',
     'VString',
     'VStringContent',
+    'VT_IRI',
+    'VT_IRI_Content',
     'VText',
     'VTime',
     'VTimeContent',
@@ -240,7 +243,6 @@ __all__ = (
     'VTTimeContent',
     'VTTimePrecisionContent',
     'VTTimeTimezoneContent',
-    'VV_IRI',
     'VValue',
     'VVDatatype',
     'VVEntity',

@@ -19,10 +19,14 @@ from kif_lib import (
     EntityFingerprint,
     ExternalId,
     ExternalIdDatatype,
+    ExternalIdTemplate,
+    ExternalIdVariable,
     FilterPattern,
     Fingerprint,
     IRI,
     IRI_Datatype,
+    IRI_Template,
+    IRI_Variable,
     Item,
     ItemDatatype,
     ItemDescriptor,
@@ -56,6 +60,8 @@ from kif_lib import (
     Store,
     String,
     StringDatatype,
+    StringTemplate,
+    StringVariable,
     Text,
     TextDatatype,
     TextSet,
@@ -76,10 +82,6 @@ from kif_lib.model import (
     DeepDataValueVariable,
     EntityTemplate,
     EntityVariable,
-    ExternalIdTemplate,
-    ExternalIdVariable,
-    IRI_Template,
-    IRI_Variable,
     ItemTemplate,
     ItemVariable,
     KIF_ObjectClass,
@@ -99,8 +101,6 @@ from kif_lib.model import (
     SomeValueSnakVariable,
     StatementTemplate,
     StatementVariable,
-    StringTemplate,
-    StringVariable,
     TCallable,
     Template,
     TemplateClass,
@@ -124,6 +124,7 @@ from kif_lib.model import (
     VSomeValueSnak,
     VStatement,
     VString,
+    VT_IRI,
     VText,
     VTime,
     VTItemContent,
@@ -133,7 +134,6 @@ from kif_lib.model import (
     VTTimeContent,
     VTTimePrecisionContent,
     VTTimeTimezoneContent,
-    VV_IRI,
     VValue,
     VValueSnak,
     VVDatatype,
@@ -450,8 +450,8 @@ if __name__ == '__main__':
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, String)
         self.assertIsInstance(obj, ExternalId)
-        self.assertTrue(obj.is_external_id())
         self.assert_external_id_datatype(obj.datatype)
+        assert isinstance(content, str)
         self.assertEqual(obj.args[0], content)
         self.assertEqual(obj.value, obj.args[0])
         self.assertEqual(obj.get_value(), obj.args[0])
@@ -564,8 +564,6 @@ if __name__ == '__main__':
     def assert_external_id_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, ExternalIdDatatype)
-        self.assertTrue(obj.is_external_id_datatype())
-        self.assertEqual(obj._uri, WIKIBASE.ExternalId)
 
     def assert_quantity_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
@@ -590,7 +588,7 @@ if __name__ == '__main__':
         assert isinstance(obj, ValueTemplate)
         self.assert_template(obj)
 
-    def assert_entity_template(self, obj: VEntity, iri: VV_IRI):
+    def assert_entity_template(self, obj: VEntity, iri: VT_IRI):
         self.assertIsInstance(obj, EntityTemplate)
         assert isinstance(obj, EntityTemplate)
         self.assert_value_template(obj)
@@ -598,7 +596,7 @@ if __name__ == '__main__':
         self.assertEqual(obj.get_iri(), iri)
         self.assertEqual(obj.args[0], iri)
 
-    def assert_item_template(self, obj: VItem, iri: VV_IRI):
+    def assert_item_template(self, obj: VItem, iri: VT_IRI):
         self.assertIsInstance(obj, ItemTemplate)
         assert isinstance(obj, ItemTemplate)
         self.assert_entity_template(obj, iri)
@@ -606,7 +604,7 @@ if __name__ == '__main__':
     def assert_property_template(
             self,
             obj: VProperty,
-            iri: VV_IRI,
+            iri: VT_IRI,
             range: Optional[VVDatatype]
     ):
         self.assertIsInstance(obj, PropertyTemplate)
@@ -616,7 +614,7 @@ if __name__ == '__main__':
         self.assertEqual(obj.get_range(), range)
         self.assertEqual(obj.args[1], range)
 
-    def assert_lexeme_template(self, obj: VLexeme, iri: VV_IRI):
+    def assert_lexeme_template(self, obj: VLexeme, iri: VT_IRI):
         self.assertIsInstance(obj, LexemeTemplate)
         assert isinstance(obj, LexemeTemplate)
         self.assert_entity_template(obj, iri)

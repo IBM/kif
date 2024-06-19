@@ -11,26 +11,6 @@ from .tests import kif_TestCase
 
 class TestModelValueString(kif_TestCase):
 
-    def test__check_arg_string(self):
-        self.assertRaises(TypeError, String._check_arg_string, 55)
-        self.assertEqual(String._check_arg_string('abc'), String('abc'))
-        self.assertEqual(String._check_arg_string(
-            String('abc')), String('abc'))
-
-    def test__preprocess_arg_string(self):
-        self.assertEqual(
-            String('abc'), String._preprocess_arg_string('abc', 1))
-        self.assertEqual(
-            String('abc'), String._preprocess_arg_string(String('abc'), 1))
-
-    def test__preprocess_optional_arg_string(self):
-        self.assertEqual(
-            String('abc'),
-            String._preprocess_optional_arg_string(None, 1, String('abc')))
-        self.assertEqual(
-            String('xyz'),
-            String._preprocess_optional_arg_string('xyz', 1, String('abc')))
-
     def test__init__(self):
         self.assertRaises(TypeError, String, 0)
         self.assert_string(String('abc'), 'abc')

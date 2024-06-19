@@ -158,7 +158,7 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
             return cls._TextDatatype()
         elif uri == NS.WIKIBASE.String:
             return cls._StringDatatype()
-        elif uri == cls._ExternalIdDatatype._uri:
+        elif uri == NS.WIKIBASE.ExternalId:
             return cls._ExternalIdDatatype()
         elif uri == cls._QuantityDatatype._uri:
             return cls._QuantityDatatype()
@@ -173,6 +173,8 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
             return NS.WIKIBASE.Url
         elif cls is cls._StringDatatype:
             return NS.WIKIBASE.String
+        elif cls is cls._ExternalIdDatatype:
+            return NS.WIKIBASE.ExternalId
         else:
             return cls._uri
 
@@ -337,10 +339,13 @@ class Value(
             elif literal.datatype is None and literal.language:
                 res = cls._Text(str(literal), literal.language)
             else:
-                res = cls._String(str(literal))
+                if issubclass(cls, cls._ExternalId):
+                    res = cls._ExternalId(literal)
+                else:
+                    res = cls._String(literal)
         else:
             raise cls._should_not_get_here()
-        return cast(Value, cls.check(res))
+        return cast(Value, cls.check(res))  # pyright: ignore
 
     def _to_rdflib(self) -> Union[Literal, URIRef]:
         from .text import Text

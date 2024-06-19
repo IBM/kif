@@ -19,7 +19,13 @@ from .shallow_data_value import (
     ShallowDataValueTemplate,
     ShallowDataValueVariable,
 )
-from .string import String, TString, VStringContent, VTStringContent
+from .string import (
+    String,
+    StringVariable,
+    TString,
+    VStringContent,
+    VTStringContent,
+)
 from .value import Datatype
 
 TextClass: TypeAlias = type['Text']
@@ -53,14 +59,12 @@ class TextTemplate(ShallowDataValueTemplate):
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # content
             if Variable.test(arg):
-                return self._preprocess_arg_string_variable(
-                    arg, i, self.__class__)
+                return StringVariable.check(arg, type(self), None, i)
             else:
                 return Text._static_preprocess_arg(self, arg, i)
         elif i == 2:            # language
             if Variable.test(arg):
-                return self._preprocess_arg_string_variable(
-                    arg, i, self.__class__)
+                return StringVariable.check(arg, type(self), None, i)
             else:
                 return Text._static_preprocess_arg(self, arg, i)
         else:

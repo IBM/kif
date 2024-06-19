@@ -11,8 +11,8 @@ from ...tests import kif_TestCase
 class Test(kif_TestCase):
 
     def test_check(self) -> None:
-        self.assert_raises_check_error(IRI, 0)
-        self.assert_raises_check_error(IRI, {})
+        self.assert_raises_check_error(IRI, 0, IRI.check)
+        self.assert_raises_check_error(IRI, {}, IRI.check)
         # success
         assert_type(IRI.check(IRI('x')), IRI)
         self.assertEqual(IRI.check(IRI('x')), IRI('x'))

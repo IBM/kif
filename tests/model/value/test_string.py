@@ -11,9 +11,9 @@ from ...tests import kif_TestCase
 class Test(kif_TestCase):
 
     def test_check(self) -> None:
-        self.assert_raises_check_error(String, 0)
-        self.assert_raises_check_error(String, {})
-        self.assert_raises_check_error(String, IRI('x'))
+        self.assert_raises_check_error(String, 0, String.check)
+        self.assert_raises_check_error(String, {}, String.check)
+        self.assert_raises_check_error(String, IRI('x'), String.check)
         # success
         assert_type(String.check(String('x')), String)
         self.assertEqual(String.check(String('x')), String('x'))

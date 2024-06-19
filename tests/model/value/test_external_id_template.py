@@ -17,30 +17,27 @@ class Test(kif_TestCase):
 
     def test_check(self) -> None:
         self.assert_raises_check_error(
-            StringTemplate, 0, StringTemplate.check)
+            ExternalIdTemplate, 0, ExternalIdTemplate.check)
         self.assert_raises_check_error(
-            StringTemplate, {}, StringTemplate.check)
+            ExternalIdTemplate, {}, ExternalIdTemplate.check)
         self.assert_raises_check_error(
-            StringTemplate, IRI('x'), StringTemplate.check)
+            ExternalIdTemplate, IRI('x'), ExternalIdTemplate.check)
         self.assert_raises_check_error(
-            StringTemplate, StringTemplate('x'), StringTemplate.check)
+            ExternalIdTemplate, ExternalIdTemplate('x'))
+        self.assert_raises_check_error(
+            ExternalIdTemplate, StringTemplate(Variable('x')))
         # success
         assert_type(
-            StringTemplate.check(StringTemplate(Variable('x'))),
-            StringTemplate)
+            ExternalIdTemplate.check(ExternalIdTemplate(Variable('x'))),
+            ExternalIdTemplate)
         self.assertEqual(
-            StringTemplate.check(StringTemplate(Variable('x'))),
-            StringTemplate(Variable('x', String)))
-        self.assertEqual(
-            StringTemplate.check(ExternalIdTemplate(Variable('x'))),
+            ExternalIdTemplate.check(ExternalIdTemplate(Variable('x'))),
             ExternalIdTemplate(Variable('x', String)))
 
     def test__init__(self) -> None:
-        self.assert_raises_check_error(StringTemplate, Variable('x', IRI))
+        self.assert_raises_check_error(ExternalIdTemplate, Variable('x', IRI))
         # success
-        assert_type(StringTemplate(Variable('x')), StringTemplate)
-        self.assert_string_template(
-            StringTemplate(Variable('x')), Variable('x', String))
+        assert_type(ExternalIdTemplate(Variable('x')), ExternalIdTemplate)
         self.assert_string_template(
             ExternalIdTemplate(Variable('x')), Variable('x', String))
 

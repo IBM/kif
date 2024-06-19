@@ -16,16 +16,11 @@ StringDatatypeClass: TypeAlias = type['StringDatatype']
 StringTemplateClass: TypeAlias = type['StringTemplate']
 StringVariableClass: TypeAlias = type['StringVariable']
 
-TStringDatatype: TypeAlias =\
-    Union['StringDatatype', StringDatatypeClass, StringClass]
-
 TString: TypeAlias = Union['String', str]
-VTString: TypeAlias = Union['StringTemplate', Variable, TString]
-VTStringContent: TypeAlias = Union[Variable, TString]
-
 VString: TypeAlias = Union['StringTemplate', 'StringVariable', 'String']
 VStringContent: TypeAlias = Union['StringVariable', str]
-VVString: TypeAlias = Union[Variable, VString]
+VTString: TypeAlias = Union['StringTemplate', Variable, TString]
+VTStringContent: TypeAlias = Union[Variable, TString]
 
 
 class ShallowDataValueTemplate(DataValueTemplate):
@@ -92,7 +87,7 @@ class ShallowDataValue(
 
 
 class StringTemplate(ShallowDataValueTemplate):
-    """Base class for string templates.
+    """String template.
 
     Parameters:
        content: String content or string variable.
