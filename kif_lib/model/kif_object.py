@@ -233,7 +233,7 @@ class KIF_Object(object.Object):
 
     @abc.abstractmethod
     def __init__(self, *args: Any, context: Optional[Context] = None):
-        self._context = context if context is not None else Context._top()
+        self._context = context if context is not None else Context.top()
         super().__init__(*map(self._copy_in_context, args))
 
     def _copy_in_context(self, arg: T) -> T:
