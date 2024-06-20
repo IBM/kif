@@ -101,8 +101,8 @@ def _coercion_occurs_in(x: Variable, vars: Iterable[Variable]) -> bool:
     else:
         for var in vars:
             try:
-                if x._coerce(var.__class__) == var:
+                if var.check(x) == var:
                     return True
-            except Variable.CoercionError:
+            except TypeError:
                 pass
         return False

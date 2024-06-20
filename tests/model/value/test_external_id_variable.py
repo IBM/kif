@@ -7,7 +7,6 @@ from kif_lib import (
     ExternalIdTemplate,
     ExternalIdVariable,
     Item,
-    ItemVariable,
     KIF_Object,
     ShallowDataValue,
     String,
@@ -21,6 +20,9 @@ from ...tests import kif_TestCase
 
 
 class Test(kif_TestCase):
+
+    def test_object_class(self) -> None:
+        assert_type(ExternalIdVariable.object_class, type[ExternalId])
 
     def test_check(self) -> None:
         self.assert_raises_check_error(
@@ -66,30 +68,6 @@ class Test(kif_TestCase):
         self.assert_string_variable(StringVariable('x'), 'x')
         self.assert_string_variable(Variable('x', String), 'x')
         self.assert_string_variable(Variable('x', ExternalId), 'x')
-
-    def test_coerce(self) -> None:
-        self.assert_raises_bad_argument(
-            Variable.CoercionError, 1, 'variable_class',
-            "cannot coerce ExternalIdVariable into ItemVariable",
-            (Variable('x', ExternalId).coerce, 'Variable.coerce'),
-            ItemVariable)
-        self.assert_raises_bad_argument(
-            Variable.CoercionError, 1, 'variable_class',
-            "cannot coerce ExternalIdVariable into ItemVariable",
-            ExternalIdVariable('x').coerce, ItemVariable)
-        # success
-        x = StringVariable('x')
-        self.assertIs(x.coerce(Value), x)
-        self.assert_external_id_variable(
-            Variable('x').coerce(ExternalId), 'x')
-        self.assert_external_id_variable(
-            Variable('x', Value).coerce(ExternalId), 'x')
-        self.assert_external_id_variable(
-            Variable('x', DataValue).coerce(ExternalId), 'x')
-        self.assert_external_id_variable(
-            Variable('x', ShallowDataValue).coerce(ExternalId), 'x')
-        self.assert_external_id_variable(
-            Variable('x', ExternalId).coerce(ExternalId), 'x')
 
     def test_instantiate(self) -> None:
         self.assert_raises_bad_argument(

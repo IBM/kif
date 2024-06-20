@@ -65,22 +65,6 @@ class Test(kif_TestCase):
             Variable._check_optional_arg_variable_class(
                 Item, PropertyVariable), ItemVariable)
 
-    def test__preprocess_arg_variable(self):
-        self.assert_raises_bad_argument(
-            Variable.CoercionError, 1, None,
-            "cannot coerce PropertyVariable into ItemVariable",
-            (ItemVariable._preprocess_arg_variable, 'ItemVariable'),
-            PropertyVariable('x'), 1)
-        self.assertEqual(
-            Variable._preprocess_arg_variable(Variable('x'), 1),
-            Variable('x'))
-        self.assertEqual(
-            ItemVariable._preprocess_arg_variable(Variable('x'), 1),
-            ItemVariable('x'))
-        self.assertEqual(
-            Variable._preprocess_arg_variable(ItemVariable('x'), 1),
-            ItemVariable('x'))
-
     def test__new__(self):
         self.assert_raises_bad_argument(
             TypeError, 2, 'variable_class',
@@ -121,7 +105,7 @@ class Test(kif_TestCase):
         self.assert_variable(Variable('x'), 'x')
 
     def test__call__(self):
-        self.assertRaises(ValueError, ItemVariable('p'), String('s'))
+        self.assertRaises(TypeError, ItemVariable('p'), String('s'))
         self.assertEqual(
             PropertyVariable('p')(String('s')),
             ValueSnak(PropertyVariable('p'), String('s')))
@@ -136,27 +120,6 @@ class Test(kif_TestCase):
             ValueVariable('p')(Item('x'), String('s')),
             Statement(Item('x'), ValueSnak(
                 PropertyVariable('p'), String('s'))))
-
-    def test_coerce(self):
-        self.assert_raises_bad_argument(
-            TypeError, 1, 'variable_class', 'expected type, got int',
-            Variable('x').coerce, 0)
-        self.assert_raises_bad_argument(
-            ValueError, 1, 'variable_class',
-            'expected subclass of KIF_Object, got int',
-            Variable('x').coerce, int)
-        self.assert_raises_bad_argument(
-            ValueError, 1, 'variable_class',
-            'no variable class for KIF_Object',
-            Variable('x').coerce, KIF_Object)
-        self.assert_raises_bad_argument(
-            Variable.CoercionError, 1, 'variable_class',
-            "cannot coerce ItemVariable into PropertyVariable",
-            (ItemVariable('x').coerce, 'Variable.coerce'),
-            Property)
-        self.assertEqual(Variable('x').coerce(Item), ItemVariable('x'))
-        self.assertEqual(EntityVariable('x').coerce(Item), ItemVariable('x'))
-        self.assertEqual(ItemVariable('x').coerce(Entity), ItemVariable('x'))
 
     def test_instantiate(self):
         self.assert_raises_bad_argument(

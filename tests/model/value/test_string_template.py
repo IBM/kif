@@ -15,6 +15,9 @@ from ...tests import kif_TestCase
 
 class Test(kif_TestCase):
 
+    def test_object_class(self) -> None:
+        assert_type(StringTemplate.object_class, type[String])
+
     def test_check(self) -> None:
         self.assert_raises_check_error(
             StringTemplate, 0, StringTemplate.check)

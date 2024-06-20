@@ -650,6 +650,8 @@ if __name__ == '__main__':
     ):
         self.assertIsInstance(obj, TextTemplate)
         assert isinstance(obj, TextTemplate)
+        assert isinstance(content, (StringVariable, str))
+        assert isinstance(language, (StringVariable, str))
         self.assert_shallow_data_value_template(obj, content)
         self.assertEqual(obj.language, language)
         self.assertEqual(obj.get_language(), language)

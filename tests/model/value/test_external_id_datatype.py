@@ -18,6 +18,9 @@ from ...tests import kif_TestCase
 
 class Test(kif_TestCase):
 
+    def test_value_class(self) -> None:
+        assert_type(ExternalIdDatatype.value_class, type[ExternalId])
+
     def test_check(self) -> None:
         self.assert_raises_check_error(
             ExternalIdDatatype, 0, ExternalIdDatatype.check)

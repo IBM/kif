@@ -18,6 +18,9 @@ from ...tests import kif_TestCase
 
 class Test(kif_TestCase):
 
+    def test_value_class(self) -> None:
+        assert_type(StringDatatype.value_class, type[String])
+
     def test_check(self) -> None:
         self.assert_raises_check_error(
             StringDatatype, 0, StringDatatype.check)

@@ -17,6 +17,9 @@ from ...tests import kif_TestCase
 
 class Test(kif_TestCase):
 
+    def test_value_class(self) -> None:
+        assert_type(IRI_Datatype.value_class, type[IRI])
+
     def test_check(self) -> None:
         self.assert_raises_check_error(
             IRI_Datatype, 0, IRI_Datatype.check)

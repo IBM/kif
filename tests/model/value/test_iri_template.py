@@ -9,6 +9,9 @@ from ...tests import kif_TestCase
 
 class Test(kif_TestCase):
 
+    def test_object_class(self) -> None:
+        assert_type(IRI_Template.object_class, type[IRI])
+
     def test_check(self) -> None:
         self.assert_raises_check_error(
             IRI_Template, 0, IRI_Template.check)

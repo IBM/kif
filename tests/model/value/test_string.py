@@ -1,7 +1,14 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import ExternalId, IRI, String
+from kif_lib import (
+    ExternalId,
+    IRI,
+    String,
+    StringDatatype,
+    StringTemplate,
+    StringVariable,
+)
 from kif_lib.rdflib import Literal, URIRef
 from kif_lib.typing import assert_type
 
@@ -9,6 +16,19 @@ from ...tests import kif_TestCase
 
 
 class Test(kif_TestCase):
+
+    def test_datatype_class(self) -> None:
+        assert_type(String.datatype_class, type[StringDatatype])
+
+    def test_datatype(self) -> None:
+        assert_type(String.datatype, StringDatatype)
+        self.assertIsInstance(String.datatype, StringDatatype)
+
+    def test_template_class(self) -> None:
+        assert_type(String.template_class, type[StringTemplate])
+
+    def test_variable_class(self) -> None:
+        assert_type(String.variable_class, type[StringVariable])
 
     def test_check(self) -> None:
         self.assert_raises_check_error(String, 0, String.check)

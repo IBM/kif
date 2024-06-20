@@ -4,7 +4,7 @@
 from ... import namespace as NS
 from ...itertools import chain
 from ...rdflib import URIRef
-from ...typing import cast, ClassVar, Iterable, Optional, TypeAlias, Union
+from ...typing import ClassVar, Iterable, Optional, TypeAlias, Union
 from ..kif_object import TLocation
 from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
@@ -42,16 +42,6 @@ class ItemVariable(EntityVariable):
     """
 
     object_class: ClassVar[ItemClass]  # pyright: ignore
-
-    @classmethod
-    def _preprocess_arg_item_variable(
-            cls,
-            arg: Variable,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> 'ItemVariable':
-        return cast(ItemVariable, cls._preprocess_arg_variable(
-            arg, i, function or cls))
 
 
 class ItemDatatype(Datatype):

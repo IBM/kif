@@ -5,7 +5,7 @@ from enum import Enum
 
 from ... import namespace as NS
 from ...rdflib import URIRef
-from ...typing import Any, cast, ClassVar, Optional, override, TypeAlias, Union
+from ...typing import Any, ClassVar, Optional, override, TypeAlias, Union
 from ..kif_object import Datetime, Decimal, TDatetime, TLocation
 from ..template import Template
 from ..variable import Variable
@@ -176,16 +176,6 @@ class TimeVariable(DeepDataValueVariable):
     """
 
     object_class: ClassVar[TimeClass]  # pyright: ignore
-
-    @classmethod
-    def _preprocess_arg_time_variable(
-            cls,
-            arg: Variable,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> 'TimeVariable':
-        return cast(TimeVariable, cls._preprocess_arg_variable(
-            arg, i, function or cls))
 
 
 class TimeDatatype(Datatype):

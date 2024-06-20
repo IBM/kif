@@ -1,11 +1,10 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ...typing import Any, cast, ClassVar, Optional, override, TypeAlias, Union
-from ..kif_object import TLocation
+from ...typing import Any, ClassVar, override, TypeAlias, Union
 from ..template import Template
 from ..variable import Variable
-from .iri import IRI, V_IRI
+from .iri import IRI, IRI_Template, IRI_Variable, V_IRI
 from .value import Value, ValueTemplate, ValueVariable
 
 EntityClass: TypeAlias = type['Entity']
@@ -25,9 +24,9 @@ class EntityTemplate(ValueTemplate):
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # iri
             if Template.test(arg):
-                return self._preprocess_arg_iri_template(arg, i)
+                return IRI_Template.check(arg, type(self), None, i)
             else:
-                return IRI.variable_class.check(arg, type(self), None, i)
+                return IRI_Variable.check(arg, type(self), None, i)
         else:
             raise self._should_not_get_here()
 
@@ -54,16 +53,6 @@ class EntityVariable(ValueVariable):
 
     object_class: ClassVar[EntityClass]  # pyright: ignore
 
-    @classmethod
-    def _preprocess_arg_entity_variable(
-            cls,
-            arg: Variable,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> 'EntityVariable':
-        return cast(EntityVariable, cls._preprocess_arg_variable(
-            arg, i, function or cls))
-
 
 class Entity(
         Value,
@@ -82,7 +71,7 @@ class Entity(
     @staticmethod
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:              # iri
-            return self_._preprocess_arg_iri(arg, i)
+            return IRI.check(arg, type(self_), None, i)
         else:
             raise self_._should_not_get_here()
 

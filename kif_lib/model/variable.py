@@ -39,9 +39,6 @@ class Variable(KIF_Object):
     #: Object class associated with this variable class.
     object_class: ClassVar[KIF_ObjectClass]
 
-    class CoercionError(ValueError):
-        """Bad coercion attempt."""
-
     class InstantiationError(ValueError):
         """Bad instantiation attempt."""
 
@@ -65,12 +62,11 @@ class Variable(KIF_Object):
             position: Optional[int] = None
     ) -> Self:
         if isinstance(arg, Variable):
-            try:
-                return cast(Self, arg._coerce(cls))
-            except Variable.CoercionError as err:
-                raise cls._check_error(arg, function, name, position) from err
-        else:
-            raise cls._check_error(arg, function, name, position)
+            if issubclass(arg.__class__, cls):
+                return cast(Self, arg)
+            if issubclass(cls, arg.__class__):
+                return cast(Self, cls(arg.name))
+        raise cls._check_error(arg, function, name, position)
 
     @classmethod
     def _check_arg_variable_class(
@@ -89,17 +85,6 @@ class Variable(KIF_Object):
                 arg, hasattr(arg, 'variable_class'),
                 f'no variable class for {arg.__qualname__}',
                 function, name, position), 'variable_class')
-
-    @classmethod
-    def _preprocess_arg_variable(
-            cls,
-            arg: 'Variable',
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> 'Variable':
-        arg = cast(Variable, Variable.check(
-            arg, function or cls, None, i))
-        return arg._coerce(cls, function or cls, None, i)
 
     def __init__(
             self,
@@ -125,7 +110,7 @@ class Variable(KIF_Object):
 
     def __call__(self, v1, v2=None):
         from .value import PropertyVariable
-        prop = cast(PropertyVariable, self.coerce(PropertyVariable))
+        prop = PropertyVariable.check(self)
         if v2 is not None:
             return prop(v1, v2)
         else:
@@ -143,34 +128,6 @@ class Variable(KIF_Object):
            Name.
         """
         return self.args[0]
-
-    def coerce(self, variable_class: TVariableClass) -> 'Variable':
-        """Coerces variable to `variable_class`.
-
-        Parameters:
-           variable_class: Variable class.
-
-        Returns:
-           The resulting variable.
-        """
-        var_cls = Variable._check_arg_variable_class(
-            variable_class, self.coerce, 'variable_class', 1)
-        return self._coerce(var_cls, self.coerce, 'variable_class', 1)
-
-    def _coerce(
-            self,
-            variable_class: VariableClass,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> 'Variable':
-        if issubclass(self.__class__, variable_class):
-            return self         # nothing to do
-        elif issubclass(variable_class, self.__class__):
-            return variable_class(self.name)
-        else:
-            raise variable_class._check_error(
-                type(self), function, name, position, self.CoercionError)
 
     def instantiate(
             self,
@@ -203,10 +160,11 @@ class Variable(KIF_Object):
             return self._instantiate_tail(theta, function, name, position)
         elif coerce:
             for other in filter(Variable.test, theta):
+                assert isinstance(other, Variable)
                 if other.name == self.name:
                     try:
-                        var = self._coerce(other.__class__)
-                    except self.CoercionError:
+                        var = other.check(self)
+                    except TypeError:
                         continue  # not coercible, skip
                     if var in theta:
                         return var._instantiate_tail(

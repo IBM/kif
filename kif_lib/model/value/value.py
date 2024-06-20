@@ -58,16 +58,6 @@ class DatatypeVariable(Variable):
 
     object_class: ClassVar[DatatypeClass]  # pyright: ignore
 
-    @classmethod
-    def _preprocess_arg_datatype_variable(
-            cls,
-            arg: Variable,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> 'DatatypeVariable':
-        return cast(DatatypeVariable, cls._preprocess_arg_variable(
-            arg, i, function or cls))
-
 
 class Datatype(KIF_Object, variable_class=DatatypeVariable):
     """Abstract base class for datatypes.
@@ -209,16 +199,6 @@ class ValueVariable(Variable):
     """
 
     object_class: ClassVar[ValueClass]  # pyright: ignore
-
-    @classmethod
-    def _preprocess_arg_value_variable(
-            cls,
-            arg: Variable,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> 'ValueVariable':
-        return cast(ValueVariable, cls._preprocess_arg_variable(
-            arg, i, function or cls))
 
 
 class Value(

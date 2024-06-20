@@ -72,8 +72,7 @@ class Template(KIF_Object):
             else:
                 cur = most_specific[var.name]
                 assert var != cur  # as there are no repetitions in vars
-                most_specific[var.name] = var._coerce(
-                    cur.__class__, self.__class__)
+                most_specific[var.name] = cur.check(var, type(self))
         theta: dict[Variable, Variable] = {}
         for var in vars:
             if var.name in most_specific and most_specific[var.name] != var:

@@ -3,7 +3,7 @@
 
 from ... import namespace as NS
 from ...rdflib import URIRef
-from ...typing import Any, cast, ClassVar, Optional, override, TypeAlias, Union
+from ...typing import Any, ClassVar, Optional, override, TypeAlias, Union
 from ..kif_object import Decimal, TDecimal, TLocation
 from ..template import Template
 from ..variable import Variable
@@ -163,16 +163,6 @@ class QuantityVariable(DeepDataValueVariable):
     """
 
     object_class: ClassVar[QuantityClass]  # pyright: ignore
-
-    @classmethod
-    def _preprocess_arg_quantity_variable(
-            cls,
-            arg: Variable,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> 'QuantityVariable':
-        return cast(QuantityVariable, cls._preprocess_arg_variable(
-            arg, i, function or cls))
 
 
 class QuantityDatatype(Datatype):

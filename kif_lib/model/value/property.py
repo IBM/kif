@@ -8,7 +8,6 @@ from ...itertools import chain
 from ...rdflib import URIRef
 from ...typing import (
     Any,
-    cast,
     ClassVar,
     Iterable,
     Optional,
@@ -116,16 +115,6 @@ class PropertyVariable(EntityVariable):
     """
 
     object_class: ClassVar[PropertyClass]  # pyright: ignore
-
-    @classmethod
-    def _preprocess_arg_property_variable(
-            cls,
-            arg: Variable,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> 'PropertyVariable':
-        return cast(PropertyVariable, cls._preprocess_arg_variable(
-            arg, i, function or cls))
 
     @overload
     def __call__(self, v1: VVEntity, v2: VVTValue) -> 'StatementTemplate':

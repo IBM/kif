@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib.model import (
+    ExternalId,
     ExternalIdTemplate,
     IRI,
     String,
@@ -14,6 +15,9 @@ from ...tests import kif_TestCase
 
 
 class Test(kif_TestCase):
+
+    def test_object_class(self) -> None:
+        assert_type(ExternalIdTemplate.object_class, type[ExternalId])
 
     def test_check(self) -> None:
         self.assert_raises_check_error(

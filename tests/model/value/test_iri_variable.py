@@ -7,7 +7,6 @@ from kif_lib import (
     IRI_Template,
     IRI_Variable,
     Item,
-    ItemVariable,
     KIF_Object,
     ShallowDataValue,
     Value,
@@ -19,6 +18,9 @@ from ...tests import kif_TestCase
 
 
 class Test(kif_TestCase):
+
+    def test_object_class(self) -> None:
+        assert_type(IRI_Variable.object_class, type[IRI])
 
     def test_check(self) -> None:
         self.assert_raises_check_error(IRI_Variable, 0, IRI_Variable.check)
@@ -51,25 +53,6 @@ class Test(kif_TestCase):
         assert_type(IRI_Variable('x'), IRI_Variable)
         self.assert_iri_variable(IRI_Variable('x'), 'x')
         self.assert_iri_variable(Variable('x', IRI), 'x')
-
-    def test_coerce(self) -> None:
-        self.assert_raises_bad_argument(
-            Variable.CoercionError, 1, 'variable_class',
-            "cannot coerce IRI_Variable into ItemVariable",
-            (Variable('x', IRI).coerce, 'Variable.coerce'),
-            ItemVariable)
-        self.assert_raises_bad_argument(
-            Variable.CoercionError, 1, 'variable_class',
-            "cannot coerce IRI_Variable into ItemVariable",
-            IRI_Variable('x').coerce, ItemVariable)
-        # success
-        x = IRI_Variable('x')
-        self.assertIs(x.coerce(Value), x)
-        self.assert_iri_variable(Variable('x').coerce(IRI), 'x')
-        self.assert_iri_variable(Variable('x', Value).coerce(IRI), 'x')
-        self.assert_iri_variable(Variable('x', DataValue).coerce(IRI), 'x')
-        self.assert_iri_variable(
-            Variable('x', ShallowDataValue).coerce(IRI), 'x')
 
     def test_instantiate(self) -> None:
         self.assert_raises_bad_argument(

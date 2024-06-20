@@ -3,16 +3,7 @@
 
 from enum import auto, Flag
 
-from ..typing import (
-    Any,
-    cast,
-    ClassVar,
-    Final,
-    Optional,
-    override,
-    TypeAlias,
-    Union,
-)
+from ..typing import Any, ClassVar, Final, Optional, override, TypeAlias, Union
 from .kif_object import KIF_Object, TLocation
 from .template import Template
 from .value import Property, Value, VProperty, VTProperty, VValue, VVTValue
@@ -73,16 +64,6 @@ class SnakVariable(Variable):
     Parameters:
        name: Name.
     """
-
-    @classmethod
-    def _preprocess_arg_snak_variable(
-            cls,
-            arg: Variable,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> 'SnakVariable':
-        return cast(SnakVariable, cls._preprocess_arg_variable(
-            arg, i, function or cls))
 
 
 class Snak(
