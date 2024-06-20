@@ -12,7 +12,7 @@ from .fingerprint import (
     TFingerprint,
     TPropertyFingerprint,
 )
-from .pattern import Pattern
+from .kif_object import KIF_Object
 from .snak import Snak, ValueSnak
 from .statement import Statement
 from .value import Quantity, Time
@@ -20,7 +20,7 @@ from .value import Quantity, Time
 at_property = property
 
 
-class FilterPattern(Pattern):
+class FilterPattern(KIF_Object):
     """Filter pattern.
 
     Parameters:

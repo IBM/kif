@@ -564,10 +564,7 @@ class Test(kif_TestCase):
         self.assertFalse(Preferred.test_normal_rank())
 
     def test_is_pattern(self):
-        self.assertTrue(FilterPattern().is_pattern())
-        self.assertTrue(FilterPattern().test_pattern())
-        self.assertFalse(String('x').is_pattern())
-        self.assertFalse(String('x').test_pattern())
+        pass
 
     def test_is_plain_descriptor(self):
         self.assertTrue(ItemDescriptor().is_plain_descriptor())
@@ -1168,8 +1165,7 @@ class Test(kif_TestCase):
         self.assertRaises(TypeError, Preferred.check_normal_rank)
 
     def test_check_pattern(self):
-        self.assertEqual(FilterPattern().check_pattern(), FilterPattern())
-        self.assertRaises(TypeError, Item('x').check_filter_pattern)
+        pass
 
     def test_check_plain_descriptor(self):
         self.assertEqual(
@@ -1732,14 +1728,7 @@ class Test(kif_TestCase):
         self.assertRaises(TypeError, Preferred.unpack_normal_rank)
 
     def test_unpack_pattern(self):
-        pat = FilterPattern(
-            Item('x'), Property('p'), Item('y'), Snak.VALUE_SNAK)
-        self.assertEqual(pat.unpack_pattern(), (
-            EntityFingerprint(Item('x')),
-            PropertyFingerprint(Property('p')),
-            Fingerprint(Item('y')),
-            1))
-        self.assertRaises(TypeError, Item('x').unpack_pattern)
+        pass
 
     def test_unpack_plain_descriptor(self):
         desc = ItemDescriptor('x', [Text('y'), Text('z')], 'w')

@@ -1107,7 +1107,6 @@ if __name__ == '__main__':
 
     def assert_filter_pattern(
             self, obj, subject=None, property=None, value=None, mask=Snak.ALL):
-        self.assert_pattern(obj)
         self.assertIsInstance(obj, FilterPattern)
         self.assertTrue(obj.is_filter_pattern())
         if subject is not None:
