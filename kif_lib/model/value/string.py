@@ -1,7 +1,16 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ...typing import Any, ClassVar, Optional, override, Self, TypeAlias, Union
+from ...typing import (
+    Any,
+    cast,
+    ClassVar,
+    Optional,
+    override,
+    Self,
+    TypeAlias,
+    Union,
+)
 from ..kif_object import TLocation
 from ..variable import Variable
 from .data_value import DataValue, DataValueTemplate, DataValueVariable
@@ -79,12 +88,15 @@ class ShallowDataValue(
     ) -> Self:
         if isinstance(arg, cls):
             return arg
-        elif isinstance(arg, String):
-            return cls(arg.content)
-        elif isinstance(arg, str):
-            return cls(str(arg))
-        else:
-            raise cls._check_error(arg, function, name, position)
+        if cls is ShallowDataValue:
+            if isinstance(arg, str):
+                return cast(Self, String(arg))
+        else:                   # concrete subclass?
+            if isinstance(arg, String):
+                return cls(arg.content)
+            if isinstance(arg, str):
+                return cls(str(arg))
+        raise cls._check_error(arg, function, name, position)
 
     def get_value(self) -> str:
         return self.args[0]
