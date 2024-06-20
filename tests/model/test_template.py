@@ -6,7 +6,6 @@ from kif_lib import (
     DataValue,
     DeepDataValue,
     Entity,
-    ExternalId,
     IRI,
     Item,
     ItemDatatype,
@@ -15,12 +14,10 @@ from kif_lib import (
     NoValueSnak,
     Property,
     Quantity,
-    ShallowDataValue,
     Snak,
     SomeValueSnak,
     Statement,
     String,
-    Text,
     Time,
     Value,
     ValueSnak,
@@ -33,7 +30,6 @@ from kif_lib.model import (
     Decimal,
     DeepDataValueTemplate,
     EntityTemplate,
-    ExternalIdTemplate,
     IRI_Template,
     IRI_Variable,
     ItemTemplate,
@@ -44,15 +40,11 @@ from kif_lib.model import (
     PropertyVariable,
     QuantityTemplate,
     QuantityVariable,
-    ShallowDataValueTemplate,
     SnakTemplate,
     SomeValueSnakTemplate,
     StatementTemplate,
-    StringTemplate,
     StringVariable,
     Template,
-    TextTemplate,
-    TextVariable,
     TimeTemplate,
     TimeVariable,
     ValueSnakTemplate,
@@ -93,9 +85,6 @@ class Test(kif_TestCase):
                 Item, PropertyTemplate), ItemTemplate)
 
 # -- __new__ ---------------------------------------------------------------
-
-    # def test__new__(self):
-    #     self.assert_test_is_defined_for_template_classes('__new__')
 
     def test__new__template(self):
         self.assert_abstract_class(Template)
@@ -162,62 +151,6 @@ class Test(kif_TestCase):
 
     def test__new__data_value_template(self):
         self.assert_abstract_class(DataValueTemplate)
-
-    def test__new__shallow_data_value_template(self):
-        self.assert_abstract_class(ShallowDataValueTemplate)
-
-    # def test__new__iri_template(self):
-    #     x = Variable('x')
-    #     self.assert_raises_bad_argument(
-    #         TypeError, 1, None, 'expected str, got int',
-    #         (IRI_Template, 'IRI'), 0)
-    #     self.assert_iri_template(IRI_Template(x), StringVariable('x'))
-    #     self.assert_iri_template(IRI(x), Variable('x', String))
-    #     self.assert_iri(IRI(String('x')), 'x')
-
-    def test__new__text_template(self):
-        x, y = Variables('x', 'y')
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'cannot coerce int into String',
-            (TextTemplate, 'Text'), 0)
-        self.assert_raises_bad_argument(
-            TypeError, 2, None, 'cannot coerce int into String',
-            (TextTemplate, 'Text'), 'x', 0)
-        self.assert_text_template(
-            TextTemplate(x, y),
-            StringVariable('x'), StringVariable('y'))
-        self.assert_text_template(
-            TextTemplate('x', y), 'x', StringVariable('y'))
-        self.assert_text_template(
-            TextTemplate(x, 'y'),
-            StringVariable('x'), 'y')
-        self.assert_text_template(
-            TextTemplate(x), StringVariable('x'),
-            Text.default_language)
-        self.assert_text_template(
-            Text(x, y), Variable('x', String), StringVariable('y'))
-        self.assert_text(Text(String('x'), String('y')), 'x', 'y')
-
-    def test__new__string_template(self):
-        x = Variable('x')
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'expected str, got int',
-            (StringTemplate, 'String'), 0)
-        self.assert_string_template(
-            StringTemplate(x), StringVariable('x'))
-        self.assert_string_template(String(x), Variable('x', String))
-        self.assert_string(String('x'), 'x')
-
-    def test__new__external_id_template(self):
-        x = Variable('x')
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'expected str, got int',
-            (ExternalIdTemplate, 'ExternalId'), 0)
-        self.assert_external_id_template(
-            ExternalIdTemplate(x), StringVariable('x'))
-        self.assert_external_id_template(
-            ExternalId(x), Variable('x', String))
-        self.assert_external_id(ExternalId('x'), 'x')
 
     def test__new__deep_data_value_template(self):
         self.assert_abstract_class(DeepDataValueTemplate)
@@ -462,9 +395,6 @@ class Test(kif_TestCase):
 
 # -- __init__ --------------------------------------------------------------
 
-    def test__init__(self):
-        self.assert_test_is_defined_for_template_classes('__init__')
-
     def test__init__template(self):
         self.assert_abstract_class(Template)
 
@@ -522,70 +452,6 @@ class Test(kif_TestCase):
 
     def test__init__data_value_template(self):
         self.assert_abstract_class(DataValueTemplate)
-
-    def test__init__shallow_data_value_template(self):
-        self.assert_abstract_class(ShallowDataValueTemplate)
-
-    def test__init__iri_template(self):
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            "cannot coerce IRI_Variable into StringVariable",
-            IRI_Template, IRI_Variable('x'))
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce StringTemplate into StringVariable',
-            IRI_Template, StringTemplate(Variable('x')))
-
-    def test__init__text_template(self):
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            "cannot coerce TextVariable into StringVariable",
-            TextTemplate, TextVariable('x'))
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce StringTemplate into String',
-            TextTemplate, StringTemplate(Variable('x')))
-        self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            "cannot coerce TextVariable into StringVariable",
-            TextTemplate, 'x', TextVariable('y'))
-        self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'cannot coerce StringTemplate into String',
-            TextTemplate, 'x', StringTemplate(Variable('y')))
-
-    def test__init__text_template_normalization(self):
-        x = Variable('x')
-        self.assert_text_template(
-            TextTemplate(x, x), StringVariable('x'), StringVariable('x'))
-        self.assert_text_template(
-            TextTemplate(
-                Variable('x', ShallowDataValue),
-                Variable('x', DataValue)),
-            StringVariable('x'), StringVariable('x'))
-        self.assert_text_template(
-            TextTemplate(StringVariable('x'), StringVariable('x')),
-            StringVariable('x'), StringVariable('x'))
-
-    def test__init__string_template(self):
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            "cannot coerce IRI_Variable into StringVariable",
-            StringTemplate, IRI_Variable('x'))
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            "cannot coerce StringTemplate into StringVariable",
-            StringTemplate, StringTemplate(Variable('x')))
-
-    def test__init__external_id_template(self):
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            "cannot coerce IRI_Variable into StringVariable",
-            ExternalIdTemplate, IRI_Variable('x'))
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce IRI_Template into StringVariable',
-            ExternalIdTemplate, IRI_Template(Variable('x')))
 
     def test__init__deep_data_value_template(self):
         self.assert_abstract_class(DeepDataValueTemplate)
