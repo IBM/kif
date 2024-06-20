@@ -1,7 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ...typing import Any, ClassVar, override, TypeAlias, Union
+from ...typing import Any, ClassVar, Optional, override, Self, TypeAlias, Union
+from ..kif_object import TLocation
 from ..template import Template
 from ..variable import Variable
 from .iri import IRI, IRI_Template, IRI_Variable, V_IRI
@@ -64,6 +65,21 @@ class Entity(
     template_class: ClassVar[EntityTemplateClass]  # pyright: ignore
     variable_class: ClassVar[EntityVariableClass]  # pyright: ignore
 
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Optional[TLocation] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        if cls is not Entity:   # concrete subclass?
+            return cls(IRI.check(arg, function or cls.check, name, position))
+        raise cls._check_error(arg, function, name, position)
+
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return self._static_preprocess_arg(self, arg, i)
@@ -71,7 +87,11 @@ class Entity(
     @staticmethod
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:              # iri
-            return IRI.check(arg, type(self_), None, i)
+            if isinstance(arg, type(self_)):
+                assert isinstance(arg, Entity)
+                return arg.iri
+            else:
+                return IRI.check(arg, type(self_), None, i)
         else:
             raise self_._should_not_get_here()
 

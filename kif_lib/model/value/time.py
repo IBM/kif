@@ -14,7 +14,7 @@ from .deep_data_value import (
     DeepDataValueTemplate,
     DeepDataValueVariable,
 )
-from .item import Item, VItem, VTItemContent
+from .item import Item, ItemTemplate, ItemVariable, VItem, VTItemContent
 from .quantity import Quantity, QuantityVariable, TQuantity, VTQuantityContent
 from .value import Datatype
 
@@ -79,10 +79,9 @@ class TimeTemplate(DeepDataValueTemplate):
                 return Time._static_preprocess_arg(self, arg, i)
         elif i == 4:            # calendar
             if Template.test(arg):
-                return self._preprocess_arg_item_template(arg, i)
+                return ItemTemplate.check(arg, type(self), None, i)
             elif Variable.test(arg):
-                return self._preprocess_arg_item_variable(
-                    arg, i, self.__class__)
+                return ItemVariable.check(arg, type(self), None, i)
             else:
                 return Time._static_preprocess_arg(self, arg, i)
         else:

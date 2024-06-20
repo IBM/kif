@@ -373,7 +373,6 @@ if __name__ == '__main__':
     def assert_item(self, obj: Item, iri: IRI):
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Item)
-        self.assertTrue(obj.is_item())
         self.assert_item_datatype(obj.datatype)
 
     def assert_property(
@@ -532,8 +531,6 @@ if __name__ == '__main__':
     def assert_item_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, ItemDatatype)
-        self.assertTrue(obj.is_item_datatype())
-        self.assertEqual(obj._uri, WIKIBASE.WikibaseItem)
 
     def assert_property_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
@@ -1604,7 +1601,7 @@ class kif_StoreTestCase(kif_TestCase):
         it = kb.get_item_descriptor([Item('x'), Property('x')])
         self.assertRaisesRegex(
             TypeError, r"bad argument to 'Store\.get_item_descriptor' "
-            r'\(cannot coerce Property into Item\)', list, it)
+            r'\(cannot coerce Property into IRI\)', list, it)
 
     def sanity_check_get_item_descriptor_bad_args(self, kb):
         self.assert_raises_bad_argument(
@@ -1646,7 +1643,7 @@ class kif_StoreTestCase(kif_TestCase):
         it = kb.get_property_descriptor([Property('x'), Item('x')])
         self.assertRaisesRegex(
             TypeError, r"bad argument to 'Store\.get_property_descriptor' "
-            r'\(cannot coerce Item into Property\)', list, it)
+            r'\(cannot coerce Item into IRI\)', list, it)
 
     def sanity_check_get_property_descriptor_bad_args(self, kb):
         self.assert_raises_bad_argument(
@@ -1689,7 +1686,7 @@ class kif_StoreTestCase(kif_TestCase):
         it = kb.get_lexeme_descriptor([Lexeme('x'), Property('x')])
         self.assertRaisesRegex(
             TypeError, r"bad argument to 'Store\.get_lexeme_descriptor' "
-            r'\(cannot coerce Property into Lexeme\)', list, it)
+            r'\(cannot coerce Property into IRI\)', list, it)
 
     def sanity_check_get_lexeme_descriptor_bad_args(self, kb):
         self.assert_raises_bad_argument(

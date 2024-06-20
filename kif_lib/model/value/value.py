@@ -136,7 +136,7 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
     @classmethod
     @cache
     def _from_rdflib(cls, uri: URIRef) -> 'Datatype':
-        if uri == cls._ItemDatatype._uri:
+        if uri == NS.WIKIBASE.WikibaseItem:
             return cls._ItemDatatype()
         elif uri == cls._PropertyDatatype._uri:
             return cls._PropertyDatatype()
@@ -159,9 +159,11 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
 
     @classmethod
     def _to_rdflib(cls) -> URIRef:
-        if cls is cls._IRI_Datatype:
+        if cls is cls._ItemDatatype:
+            return NS.WIKIBASE.WikibaseItem
+        elif cls is cls._IRI_Datatype:
             return NS.WIKIBASE.Url
-        if cls is cls._TextDatatype:
+        elif cls is cls._TextDatatype:
             return NS.WIKIBASE.Monolingualtext
         elif cls is cls._StringDatatype:
             return NS.WIKIBASE.String
