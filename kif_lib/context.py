@@ -42,7 +42,12 @@ class Context:
     _stack: ClassVar[list['Context']] = []
 
     @classmethod
-    def _top(cls) -> 'Context':
+    def top(cls) -> 'Context':
+        """Gets the current top-level context.
+
+        Returns:
+           Context.
+        """
         if not cls._stack:
             cls._stack.append(cls())
         assert cls._stack

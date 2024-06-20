@@ -253,7 +253,7 @@ class KIF_Object(object.Object):
         """Gets the associated KIF context.
 
         Returns:
-           Context:
+           Context.
         """
         return self._context
 
