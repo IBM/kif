@@ -14,6 +14,7 @@ from collections.abc import (
     Sequence,
     Set,
 )
+from types import TracebackType
 
 from typing_extensions import (
     Any,
@@ -60,6 +61,7 @@ __all__ = (
     'Sequence',
     'Set',
     'TextIO',
+    'TracebackType',
     'TYPE_CHECKING',
     'TypeAlias',
     'TypeVar',

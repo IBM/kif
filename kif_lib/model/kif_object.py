@@ -1,12 +1,14 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import abc
 import datetime
 import decimal
 import enum
 import functools
 import json
 
+from ..context import Context
 from ..itertools import chain
 from ..typing import (
     Any,
@@ -36,6 +38,7 @@ Nil = object.Nil
 Object = object.Object
 ShouldNotGetHere = object.ShouldNotGetHere
 
+T: TypeAlias = object.T
 TArgs: TypeAlias = object.TArgs
 TCallable: TypeAlias = object.TFun
 TDatetime: TypeAlias = Union[Datetime, str]
@@ -220,13 +223,52 @@ class KIF_Object(object.Object):
         else:
             return cls._preprocess_arg_decimal(arg, i, function)
 
+# -- context ---------------------------------------------------------------
+
+    __slots__ = (
+        '_context',
+    )
+
+    _context: Context
+
+    @abc.abstractmethod
+    def __init__(self, *args: Any, context: Optional[Context] = None):
+        self._context = context if context is not None else Context._top()
+        super().__init__(*map(self._copy_in_context, args))
+
+    def _copy_in_context(self, arg: T) -> T:
+        if isinstance(arg, KIF_Object):
+            assert isinstance(arg, KIF_Object)
+            if arg.context != self.context:
+                with self.context:
+                    return arg.replace()
+        return arg
+
+    @property
+    def context(self) -> Context:
+        """The associated KIF context."""
+        return self.get_context()
+
+    def get_context(self) -> Context:
+        """Gets the associated KIF context.
+
+        Returns:
+           Context:
+        """
+        return self._context
+
 # -- misc ------------------------------------------------------------------
 
     def _repr_markdown_(self) -> str:
-        return self.to_markdown()  # pyright: ignore
+        return self.to_markdown()  # type: ignore
 
-    _traverse_default_filter = (lambda _: True)
-    _traverse_default_visit = (lambda _: True)
+    @staticmethod
+    def _traverse_default_filter(arg: Any) -> bool:
+        return True
+
+    @staticmethod
+    def _traverse_default_visit(arg: Any) -> bool:
+        return True
 
     def traverse(
         self,

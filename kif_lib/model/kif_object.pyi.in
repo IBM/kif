@@ -3,6 +3,7 @@
 import datetime
 import decimal
 
+from ..context import Context
 from ..typing import (
     Any,
     Callable,
@@ -312,6 +313,18 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     def to_markdown(self, **kwargs: Any) -> str: ...
     def to_repr(self, **kwargs: Any) -> str: ...
     def to_sexp(self, **kwargs: Any) -> str: ...
+
+# -- context ---------------------------------------------------------------
+
+    def __init__(self, *args: Any, context: Optional[Context] = None):
+        ...
+
+    @property
+    def context(self) -> Context:
+        ...
+
+    def get_context(self) -> Context:
+        ...
 
 # -- misc ------------------------------------------------------------------
 
