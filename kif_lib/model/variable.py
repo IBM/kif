@@ -56,7 +56,7 @@ class Variable(KIF_Object):
     @override
     def check(
             cls,
-            arg: 'Variable',
+            arg: Any,
             function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None

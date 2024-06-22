@@ -43,7 +43,7 @@ class Test(kif_TestCase):
     def test__init__(self) -> None:
         self.assert_raises_check_error(StringTemplate, Variable('x', IRI))
         self.assert_raises_bad_argument(
-            TypeError, 1, None, 'expected str, got int',
+            TypeError, 1, None, 'cannot coerce int into String',
             (StringTemplate, 'String'), 0)
         self.assert_raises_bad_argument(
             TypeError, 1, None,

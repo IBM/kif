@@ -3,12 +3,18 @@
 
 from .string import (
     ShallowDataValue,
+    ShallowDataValueClass,
     ShallowDataValueTemplate,
+    ShallowDataValueTemplateClass,
     ShallowDataValueVariable,
+    ShallowDataValueVariableClass,
 )
 
 __all__ = (
     'ShallowDataValue',
+    'ShallowDataValueClass',
     'ShallowDataValueTemplate',
+    'ShallowDataValueTemplateClass',
     'ShallowDataValueVariable',
+    'ShallowDataValueVariableClass',
 )

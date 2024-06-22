@@ -7,15 +7,16 @@ from kif_lib import (
     ExternalIdTemplate,
     ExternalIdVariable,
     IRI,
-    String,
+    Item,
+    TextTemplate,
+    Variable,
 )
-from kif_lib.rdflib import Literal, URIRef
 from kif_lib.typing import assert_type
 
-from ...tests import kif_TestCase
+from ...tests import kif_ShallowDataValueTestCase
 
 
-class Test(kif_TestCase):
+class Test(kif_ShallowDataValueTestCase):
 
     def test_datatype_class(self) -> None:
         assert_type(ExternalId.datatype_class, type[ExternalIdDatatype])
@@ -31,33 +32,27 @@ class Test(kif_TestCase):
         assert_type(ExternalId.variable_class, type[ExternalIdVariable])
 
     def test_check(self) -> None:
-        self.assert_raises_check_error(ExternalId, 0, ExternalId.check)
-        self.assert_raises_check_error(ExternalId, {}, ExternalId.check)
-        self.assert_raises_check_error(ExternalId, IRI('x'), ExternalId.check)
-        # success
         assert_type(ExternalId.check(ExternalId('x')), ExternalId)
-        self.assertEqual(ExternalId.check(ExternalId('x')), ExternalId('x'))
-        self.assertEqual(ExternalId.check(String('x')), ExternalId('x'))
-        self.assertEqual(ExternalId.check(URIRef('x')), ExternalId('x'))
-        self.assertEqual(ExternalId.check(Literal('x')), ExternalId('x'))
-        self.assertEqual(ExternalId.check('x'), ExternalId('x'))
+        self._test_check(
+            ExternalId,
+            failure=[
+                IRI('x'),
+                Item('x'),
+                TextTemplate(Variable('x')),
+                Variable('x', Item),
+            ])
 
     def test__init__(self) -> None:
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'expected str, got int', ExternalId, 0)
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'expected str, got dict', ExternalId, {})
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'expected str, got IRI', ExternalId, IRI('x'))
-        # success
         assert_type(ExternalId('x'), ExternalId)
-        self.assert_external_id(ExternalId(ExternalId('x')), 'x')
-        self.assert_external_id(ExternalId(String('x')), 'x')
-        self.assert_external_id(ExternalId('x'), 'x')
-        self.assert_external_id(ExternalId('x'), 'x')
-        self.assert_external_id(ExternalId(URIRef('x')), 'x')
-        self.assert_external_id(ExternalId(Literal('x')), 'x')
-        self.assert_external_id(ExternalId('x'), 'x')
+        self._test__init__(
+            ExternalId,
+            self.assert_external_id,
+            failure=[
+                IRI('x'),
+                Item('x'),
+                TextTemplate(Variable('x')),
+                Variable('x', Item),
+            ])
 
 
 if __name__ == '__main__':

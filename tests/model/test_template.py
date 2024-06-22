@@ -95,17 +95,6 @@ class Test(kif_TestCase):
     def test__new__entity_template(self):
         self.assert_abstract_class(EntityTemplate)
 
-    def test__new__item_template(self):
-        x = Variable('x')
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'cannot coerce int into IRI',
-            (ItemTemplate, 'Item'), 0)
-        self.assert_item_template(ItemTemplate(x), Variable('x', IRI))
-        self.assert_item_template(Item(x), IRI_Variable('x'))
-        self.assert_item_template(ItemTemplate(IRI(x)), IRI(x))
-        self.assert_item_template(Item(IRI(x)), IRI(x))
-        self.assert_item(cast(Item, ItemTemplate(IRI('x'))), IRI('x'))
-
     def test__new__property_template(self):
         x, y = Variables('x', 'y')
         self.assert_raises_bad_argument(
@@ -403,16 +392,6 @@ class Test(kif_TestCase):
 
     def test__init__entity_template(self):
         self.assert_abstract_class(EntityTemplate)
-
-    def test__init__item_template(self):
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce ItemVariable into IRI_Variable',
-            ItemTemplate, ItemVariable('x'))
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce ItemTemplate into IRI_Template',
-            ItemTemplate, ItemTemplate(Variable('x')))
 
     def test__init__property_template(self):
         self.assert_raises_bad_argument(

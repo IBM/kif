@@ -1,67 +1,30 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import (
-    Datatype,
-    ExternalId,
-    ExternalIdDatatype,
-    Item,
-    ItemDatatype,
-    String,
-    StringDatatype,
-    Value,
-)
+from kif_lib import ExternalId, ExternalIdDatatype, String
 from kif_lib.typing import assert_type
 
-from ...tests import kif_TestCase
+from ...tests import kif_DatatypeTestCase
 
 
-class Test(kif_TestCase):
+class Test(kif_DatatypeTestCase):
 
     def test_value_class(self) -> None:
         assert_type(ExternalIdDatatype.value_class, type[ExternalId])
 
     def test_check(self) -> None:
         self.assert_raises_check_error(
-            ExternalIdDatatype, 0, ExternalIdDatatype.check)
-        self.assert_raises_check_error(
-            ExternalIdDatatype, {}, ExternalIdDatatype.check)
-        self.assert_raises_check_error(
-            ExternalIdDatatype, ExternalId('x'), ExternalIdDatatype.check)
-        self.assert_raises_check_error(
-            ExternalIdDatatype, ItemDatatype(), ExternalIdDatatype.check)
-        self.assert_raises_check_error(
-            ExternalIdDatatype, Item, ExternalIdDatatype.check)
-        self.assert_raises_check_error(
-            ExternalIdDatatype, StringDatatype(), ExternalIdDatatype.check)
-        self.assert_raises_check_error(
             ExternalIdDatatype, String, ExternalIdDatatype.check)
-        self.assert_raises_check_error(
-            ExternalIdDatatype, Value, ExternalIdDatatype.check)
         # success
         assert_type(
             ExternalIdDatatype.check(ExternalIdDatatype()),
             ExternalIdDatatype)
-        self.assertEqual(
-            ExternalIdDatatype.check(ExternalIdDatatype()),
-            ExternalId.datatype)
-        self.assertEqual(
-            ExternalIdDatatype.check(Datatype(ExternalIdDatatype)),
-            ExternalId.datatype)
-        self.assertEqual(
-            ExternalIdDatatype.check(Datatype(ExternalId)),
-            ExternalId.datatype)
-        self.assertEqual(
-            ExternalIdDatatype.check(ExternalId),
-            ExternalId.datatype)
+        self._test_check(ExternalIdDatatype)
 
     def test__init__(self) -> None:
-        self.assert_raises_check_error(ExternalIdDatatype, 0)
-        # success
         assert_type(ExternalIdDatatype(), ExternalIdDatatype)
-        self.assert_string_datatype(ExternalIdDatatype())
-        self.assert_string_datatype(Datatype(ExternalIdDatatype))
-        self.assert_string_datatype(Datatype(ExternalId))
+        self._test__init__(
+            ExternalIdDatatype, self.assert_external_id_datatype)
 
 
 if __name__ == '__main__':

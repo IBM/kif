@@ -1,0 +1,52 @@
+# Copyright (C) 2024 IBM Corp.
+# SPDX-License-Identifier: Apache-2.0
+
+from kif_lib import (
+    IRI,
+    Item,
+    ItemTemplate,
+    ItemVariable,
+    KIF_Object,
+    Lexeme,
+    Quantity,
+    Variable,
+)
+from kif_lib.typing import assert_type, Optional
+
+from ...tests import kif_VariableTestCase
+
+
+class Test(kif_VariableTestCase):
+
+    def test_object_class(self) -> None:
+        assert_type(ItemVariable.object_class, type[Item])
+
+    def test_check(self) -> None:
+        assert_type(ItemVariable.check(ItemVariable('x')), ItemVariable)
+        assert_type(ItemVariable.check(Variable('x', Item)), ItemVariable)
+        self._test_check(ItemVariable)
+
+    def test__init__(self) -> None:
+        assert_type(ItemVariable('x'), ItemVariable)
+        self._test__init__(ItemVariable, self.assert_item_variable)
+
+    def test_instantiate(self) -> None:
+        assert_type(ItemVariable('x').instantiate({}), Optional[KIF_Object])
+        self._test_instantiate(
+            ItemVariable,
+            success=[
+                Item('x'),
+                ItemTemplate(Variable('x')),
+            ],
+            failure=[
+                IRI('x'),
+                IRI.template_class(Variable('x')),
+                Lexeme('x'),
+                Lexeme.template_class(Variable('x')),
+                Quantity(0),
+                Quantity.template_class(Variable('x')),
+            ])
+
+
+if __name__ == '__main__':
+    Test.main()

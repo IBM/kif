@@ -2,20 +2,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
-    ExternalId,
     IRI,
     IRI_Datatype,
     IRI_Template,
     IRI_Variable,
-    String,
+    Item,
+    Text,
+    Variable,
 )
-from kif_lib.rdflib import Literal, URIRef
 from kif_lib.typing import assert_type
 
-from ...tests import kif_TestCase
+from ...tests import kif_ShallowDataValueTestCase
 
 
-class Test(kif_TestCase):
+class Test(kif_ShallowDataValueTestCase):
 
     def test_datatype_class(self) -> None:
         assert_type(IRI.datatype_class, type[IRI_Datatype])
@@ -31,28 +31,27 @@ class Test(kif_TestCase):
         assert_type(IRI.variable_class, type[IRI_Variable])
 
     def test_check(self) -> None:
-        self.assert_raises_check_error(IRI, 0, IRI.check)
-        self.assert_raises_check_error(IRI, {}, IRI.check)
-        # success
         assert_type(IRI.check(IRI('x')), IRI)
-        self.assertEqual(IRI.check(IRI('x')), IRI('x'))
-        self.assertEqual(IRI.check(String('x')), IRI('x'))
-        self.assertEqual(IRI.check(ExternalId('x')), IRI('x'))
-        self.assertEqual(IRI.check(URIRef('x')), IRI('x'))
-        self.assertEqual(IRI.check(Literal('x')), IRI('x'))
-        self.assertEqual(IRI.check('x'), IRI('x'))
+        self._test_check(
+            IRI,
+            failure=[
+                IRI_Template(Variable('x')),
+                Item('x'),
+                Text('x'),
+                Variable('x', Item),
+            ])
 
     def test__init__(self) -> None:
-        self.assert_raises_check_error(String, 0, IRI, None, 1)
-        self.assert_raises_check_error(String, {}, IRI, None, 1)
-        # success
         assert_type(IRI('x'), IRI)
-        self.assert_iri(IRI(IRI('x')), 'x')
-        self.assert_iri(IRI(String('x')), 'x')
-        self.assert_iri(IRI(ExternalId('x')), 'x')
-        self.assert_iri(IRI(URIRef('x')), 'x')
-        self.assert_iri(IRI(Literal('x')), 'x')
-        self.assert_iri(IRI('x'), 'x')
+        self._test__init__(
+            IRI,
+            self.assert_iri,
+            failure=[
+                IRI_Template(Variable('x')),
+                Item('x'),
+                Text('x'),
+                Variable('x', Item),
+            ])
 
 
 if __name__ == '__main__':

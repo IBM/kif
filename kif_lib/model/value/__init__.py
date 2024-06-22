@@ -90,8 +90,11 @@ from .quantity import (
 )
 from .shallow_data_value import (
     ShallowDataValue,
+    ShallowDataValueClass,
     ShallowDataValueTemplate,
+    ShallowDataValueTemplateClass,
     ShallowDataValueVariable,
+    ShallowDataValueVariableClass,
 )
 from .string import (
     String,
@@ -189,8 +192,11 @@ __all__ = (
     'QuantityTemplate',
     'QuantityVariable',
     'ShallowDataValue',
+    'ShallowDataValueClass',
     'ShallowDataValueTemplate',
+    'ShallowDataValueTemplateClass',
     'ShallowDataValueVariable',
+    'ShallowDataValueVariableClass',
     'String',
     'StringDatatype',
     'StringTemplate',

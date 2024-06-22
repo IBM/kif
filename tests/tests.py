@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import itertools
+import logging
 import os
 import pathlib
 import re
@@ -74,12 +75,14 @@ from kif_lib import (
 )
 from kif_lib.error import ShouldNotGetHere
 from kif_lib.model import (
+    DatatypeClass,
     DataValueTemplate,
     DataValueVariable,
     Datetime,
     Decimal,
     DeepDataValueTemplate,
     DeepDataValueVariable,
+    EntityClass,
     EntityTemplate,
     EntityVariable,
     ItemTemplate,
@@ -93,6 +96,7 @@ from kif_lib.model import (
     PropertyVariable,
     QuantityTemplate,
     QuantityVariable,
+    ShallowDataValueClass,
     ShallowDataValueTemplate,
     ShallowDataValueVariable,
     SnakTemplate,
@@ -106,6 +110,7 @@ from kif_lib.model import (
     TemplateClass,
     TextTemplate,
     TextVariable,
+    Theta,
     TimeTemplate,
     TimeVariable,
     ValueSnakTemplate,
@@ -143,6 +148,7 @@ from kif_lib.model import (
 )
 from kif_lib.model.object import Object
 from kif_lib.namespace import WIKIBASE, XSD
+from kif_lib.rdflib import Literal, URIRef
 from kif_lib.store import (
     EmptyStore,
     RDF_Store,
@@ -151,18 +157,27 @@ from kif_lib.store import (
 )
 from kif_lib.typing import (
     Any,
+    Callable,
     cast,
     ClassVar,
     Final,
+    Iterable,
     Iterator,
     Optional,
     override,
     Set,
+    TypeVar,
     Union,
 )
 from kif_lib.vocabulary import wd
 
 ME: Final[pathlib.Path] = pathlib.Path(__file__)
+
+_D = TypeVar('_D', bound=Datatype)
+_E = TypeVar('_E', bound=Entity)
+_SDV = TypeVar('_SDV', bound=ShallowDataValue)
+_T = TypeVar('_T', bound=Template)
+_V = TypeVar('_V', bound=Variable)
 
 
 class kif_TestCase(unittest.TestCase):
@@ -180,9 +195,32 @@ class kif_TestCase(unittest.TestCase):
         cast(Iterator[VariableClass], filter(
             lambda c: issubclass(c, Variable), ALL_KIF_OBJECT_CLASSES)))
 
+    ALL_DATATYPE_CLASSES: ClassVar[Set[DatatypeClass]] = frozenset(
+        cast(Iterator[DatatypeClass], filter(
+            lambda c: issubclass(c, Datatype), ALL_KIF_OBJECT_CLASSES)))
+
+    def _variable_class_can_check_from(
+            self,
+            cls: VariableClass
+    ) -> Iterable[VariableClass]:
+        return set(itertools.chain(
+            filter(lambda x: issubclass(x, Variable), cls.__mro__),
+            filter(lambda x: issubclass(x, cls), self.ALL_VARIABLE_CLASSES)))
+
+    def _variable_class_cannot_check_from(
+            self,
+            cls: VariableClass
+    ) -> Iterable[VariableClass]:
+        return self.ALL_VARIABLE_CLASSES - set(
+            self._variable_class_can_check_from(cls))
+
     @classmethod
     def main(cls):
         return unittest.main()
+
+    @classmethod
+    def _debug(cls, *args: Any):
+        logging.getLogger(__name__).debug(' '.join(map(str, args)))
 
     def test_test_case_class_name(self):
         import inspect
@@ -197,6 +235,8 @@ class kif_TestCase(unittest.TestCase):
 if __name__ == '__main__':
     {name}.main()
 '''))
+
+# -- Assertions ------------------------------------------------------------
 
     def assert_abstract_class(self, cls):
         self.assertRaisesRegex(TypeError, 'abstract class', cls)
@@ -392,7 +432,6 @@ if __name__ == '__main__':
     def assert_lexeme(self, obj: Lexeme, iri: IRI):
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Lexeme)
-        self.assertTrue(obj.is_lexeme())
         self.assert_lexeme_datatype(obj.datatype)
 
     def assert_data_value(self, obj: DataValue):
@@ -541,8 +580,6 @@ if __name__ == '__main__':
     def assert_lexeme_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, LexemeDatatype)
-        self.assertTrue(obj.is_lexeme_datatype())
-        self.assertEqual(obj._uri, WIKIBASE.WikibaseLexeme)
 
     def assert_iri_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
@@ -1127,6 +1164,304 @@ if __name__ == '__main__':
         self.assertEqual(obj.snak_mask, mask)
 
 
+# == kif_ObjectTestCase ====================================================
+
+class kif_ObjectTestCase(kif_TestCase):
+    pass
+
+
+# == kif_TemplateTestCase ==================================================
+
+class kif_TemplateTestCase(kif_TestCase):
+
+    def _test_check(
+            self,
+            cls: TemplateClass,
+            success: Iterable[KIF_Object] = tuple(),
+            failure: Iterable[KIF_Object] = tuple()
+    ) -> None:
+        self.assert_raises_check_error(cls, 0, cls.check)
+        self.assert_raises_check_error(cls, {}, cls.check)
+        for obj in failure:
+            self.assert_raises_check_error(cls, obj, cls.check)
+        # success
+        for obj in success:
+            self.assertEqual(cls.check(obj), obj)
+
+    def _test__init__(
+            self,
+            cls: type[_T],
+            assert_T: Callable[[_T, tuple[Any, ...]], None],
+            success: Iterable[list[Any]] = tuple(),
+            normalize: Iterable[list[Any]] = tuple(),
+            failure: Iterable[list[Any]] = tuple()
+    ) -> None:
+        for t in failure:
+            self._debug('failure:', t)
+            self.assertRaisesRegex(TypeError, 'cannot coerce', cls, *t)
+        for t in normalize:
+            self._debug('normalize:', t)
+            self.assertEqual(cls(*t), cls.object_class(*t))
+        for t in success:
+            self._debug('success:', t)
+            assert_T(cls(*t), *t)  # type: ignore
+
+    def _test_instantiate(
+            self,
+            cls: type[_T],
+            success: Iterable[tuple[_T, KIF_Object, Theta]] = tuple(),
+            failure: Iterable[tuple[_T, Theta]] = tuple(),
+            failure_coerce: Iterable[tuple[_T, Theta]] = tuple()
+    ) -> None:
+        for obj, theta in failure:
+            self._debug('failure (instantiate):', obj, theta)
+            self.assertIsInstance(obj, cls)
+            self.assertRaises(
+                Variable.InstantiationError, obj.instantiate, theta)
+        for obj, theta in failure_coerce:
+            self._debug('failure coerce:', obj, theta)
+            self.assertIsInstance(obj, cls)
+            self.assertRaises(TypeError, obj.instantiate, theta)
+        for src, tgt, theta in success:
+            self._debug('success:', src, tgt, theta)
+            self.assert_raises_bad_argument(
+                TypeError, 1, 'theta', 'expected Mapping, got int',
+                src.instantiate, 0)
+            self.assertIsInstance(src, cls)
+            self.assertEqual(src.instantiate(theta), tgt)
+
+
+# == kif_VariableTestCase ==================================================
+
+
+class kif_VariableTestCase(kif_ObjectTestCase):
+
+    def _test_check(self, cls: VariableClass) -> None:
+        self.assert_raises_check_error(cls, 0)
+        self.assert_raises_check_error(cls, {})
+        for other_cls in self._variable_class_cannot_check_from(cls):
+            self.assert_raises_check_error(cls, other_cls('x'))
+        # success
+        for other_cls in self._variable_class_can_check_from(cls):
+            if issubclass(other_cls, cls):
+                continue        # skip
+            self.assertEqual(cls.check(other_cls('x')), cls('x'))
+            self.assertEqual(
+                cls.check(Variable('x', other_cls)), Variable('x', cls))
+
+    def _test__init__(
+            self,
+            cls: type[_V],
+            assert_V: Callable[[_V, str], None]
+    ) -> None:
+        self.assert_raises_check_error(cls, 0)
+        self.assert_raises_check_error(cls, {})
+        for other_cls in self._variable_class_cannot_check_from(cls):
+            self.assert_raises_check_error(
+                cls, Variable('x', other_cls))
+        # success
+        assert_V(cls('x'), 'x')
+        assert_V(cast(_V, Variable('x', cls.object_class)), 'x')
+
+    def _test_instantiate(
+            self,
+            cls: VariableClass,
+            success: Iterable[KIF_Object] = tuple(),
+            failure: Iterable[KIF_Object] = tuple()
+    ) -> None:
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'theta', 'expected Mapping, got int',
+            cls('x').instantiate, 0)
+        for obj in failure:
+            self.assert_raises_bad_argument(
+                Variable.InstantiationError, None, None,
+                f"cannot instantiate {cls.__qualname__} 'x' with "
+                f'{type(obj).__qualname__}',
+                cls('x').instantiate,
+                {Variable('x', cls.object_class): obj})
+        # success
+        x = cls('x')
+        self.assertIs(x.instantiate({}), x)
+        self.assertIsNone(x.instantiate({x: None}))
+        self.assertEqual(
+            x.instantiate({x: Variable('y', cls)}),
+            Variable('y', cls))
+        for obj in success:
+            self.assertEqual(x.instantiate({x: obj}), obj)
+
+
+# == kif_DatatypeTestCase ==================================================
+
+class kif_DatatypeTestCase(kif_ObjectTestCase):
+
+    def _test_check(self, cls: DatatypeClass) -> None:
+        self.assert_raises_check_error(cls, 0, cls.check)
+        self.assert_raises_check_error(cls, {}, cls.check)
+        self.assert_raises_check_error(cls, Item('x'), cls.check)
+        self.assert_raises_check_error(cls, Entity, cls.check)
+        self.assert_raises_check_error(cls, Value, cls.check)
+        for other_cls in self.ALL_DATATYPE_CLASSES - {cls}:
+            if issubclass(other_cls, cls):
+                continue
+            if other_cls is not Datatype:
+                self.assert_raises_check_error(cls, other_cls(), cls.check)
+            self.assert_raises_check_error(cls, other_cls, cls.check)
+        # success
+        self.assertEqual(cls.check(cls()), cls.value_class.datatype)
+        self.assertEqual(cls.check(Datatype(cls)), cls.value_class.datatype)
+        self.assertEqual(
+            cls.check(Datatype(cls.value_class)), cls.value_class.datatype)
+        self.assertEqual(
+            cls.check(cls.value_class), cls.value_class.datatype)
+
+    def _test__init__(
+            self,
+            cls: type[_D],
+            assert_D: Callable[[_D], None]
+    ) -> None:
+        self.assert_raises_check_error(cls, 0)
+        # success
+        assert_D(cls())
+        assert_D(cast(_D, Datatype(cls)))
+        assert_D(cast(_D, Datatype(cls.value_class)))
+
+
+# == kif_ValueTestCase =====================================================
+
+class kif_ValueTestCase(kif_ObjectTestCase):
+    pass
+
+
+# == kif_EntityTestCase ====================================================
+
+class kif_EntityTestCase(kif_ValueTestCase):
+
+    def _test_check(
+            self,
+            cls: EntityClass,
+            success: Iterable[KIF_Object] = tuple(),
+            failure: Iterable[KIF_Object] = tuple()
+    ) -> None:
+        self.assert_raises_check_error(IRI, 0, cls.check)
+        self.assert_raises_check_error(IRI, {}, cls.check)
+        self.assert_raises_check_error(
+            IRI, IRI_Template(Variable('x')), cls.check)
+        self.assert_raises_check_error(IRI, Variable('x'), cls.check)
+        for obj in failure:
+            self.assert_raises_check_error(IRI, obj, cls.check)
+        # success
+        self.assertEqual(cls.check('x'), cls('x'))
+        self.assertEqual(cls.check(cls('x')), cls('x'))
+        self.assertEqual(cls.check(ExternalId('x')), cls('x'))
+        self.assertEqual(cls.check(IRI('x')), cls('x'))
+        self.assertEqual(cls.check(Literal('x')), cls('x'))
+        self.assertEqual(cls.check(String('x')), cls('x'))
+        self.assertEqual(cls.check(URIRef('x')), cls('x'))
+        for obj in success:
+            self.assertEqual(cls.check(obj), cls('x'))
+
+    def _test__init__(
+            self,
+            cls: type[_E],
+            assert_E: Callable[[_E, IRI], None],
+            failure: Iterable[KIF_Object] = tuple()
+    ) -> None:
+        self.assert_raises_check_error(IRI, 0, cls, None, 1)
+        self.assert_raises_check_error(IRI, {}, cls, None, 1)
+        for obj in failure:
+            if isinstance(obj, Template):
+                self.assert_raises_check_error(
+                    IRI_Template, obj,
+                    (cls, cls.template_class.__qualname__), None, 1)
+            elif isinstance(obj, Variable):
+                self.assert_raises_check_error(
+                    IRI_Variable, obj,
+                    (cls, cls.template_class.__qualname__), None, 1)
+            else:
+                self.assert_raises_check_error(IRI, obj, cls, None, 1)
+        # success
+        assert_E(cls('x'), IRI('x'))
+        assert_E(cls(cls('x')), IRI('x'))
+        assert_E(cls(ExternalId('x')), IRI('x'))
+        assert_E(cls(Literal('x')), IRI('x'))
+        assert_E(cls(String('x')), IRI('x'))
+        assert_E(cls(URIRef('x')), IRI('x'))
+
+    def _test_Entities(
+            self,
+            map_E: Callable[..., Iterable[_E]],
+            assert_E: Callable[[_E, IRI], None],
+            failure: Iterable[KIF_Object] = tuple()
+    ) -> None:
+        for obj in failure:
+            self.assertRaises(TypeError, list, map_E, obj)
+        # success
+        a, b, c = map_E('a', IRI('b'), 'c')
+        assert_E(a, IRI('a'))
+        assert_E(b, IRI('b'))
+        assert_E(c, IRI('c'))
+
+
+# == kif_DataValueTestCase =================================================
+
+class kif_DataValueTestCase(kif_ValueTestCase):
+    pass
+
+
+# == kif_ShallowDataValueTestCase ==========================================
+
+class kif_ShallowDataValueTestCase(kif_DataValueTestCase):
+
+    def _test_check(
+            self,
+            cls: ShallowDataValueClass,
+            success: Iterable[KIF_Object] = tuple(),
+            failure: Iterable[KIF_Object] = tuple()
+    ) -> None:
+        self.assert_raises_check_error(cls, 0)
+        self.assert_raises_check_error(cls, {})
+        self.assert_raises_check_error(
+            cls, cls.template_class(Variable('x')))
+        self.assert_raises_check_error(cls, Variable('x'))
+        for obj in failure:
+            self.assert_raises_check_error(cls, obj)
+        self.assertEqual(cls.check(cls('x')), cls('x'))
+        self.assertEqual(cls.check(String('x')), cls('x'))
+        if cls is not String:
+            self.assertEqual(cls.check(ExternalId('x')), cls('x'))
+        else:
+            self.assertEqual(cls.check(ExternalId('x')), ExternalId('x'))
+        self.assertEqual(cls.check(URIRef('x')), cls('x'))
+        self.assertEqual(cls.check(Literal('x')), cls('x'))
+        self.assertEqual(cls.check('x'), cls('x'))
+
+    def _test__init__(
+            self,
+            cls: type[_SDV],
+            assert_SDV: Callable[[_SDV, str], None],
+            failure: Iterable[KIF_Object] = tuple()
+    ) -> None:
+        self.assert_raises_check_error(String, 0, cls, None, 1)
+        self.assert_raises_check_error(String, {}, cls, None, 1)
+        for obj in failure:
+            if isinstance(obj, Template):
+                self.assert_raises_check_error(
+                    StringVariable, obj,
+                    (cls, cls.template_class.__qualname__), None, 1)
+            elif isinstance(obj, Variable):
+                self.assert_raises_check_error(
+                    StringVariable, obj,
+                    (cls, cls.template_class.__qualname__), None, 1)
+            else:
+                self.assert_raises_check_error(String, obj, cls, None, 1)
+        assert_SDV(cls('x'), 'x')
+        assert_SDV(cls(cls('x')), 'x')
+        assert_SDV(cls(ExternalId('x')), 'x')
+        assert_SDV(cls(Literal('x')), 'x')
+        assert_SDV(cls(String('x')), 'x')
+        assert_SDV(cls(URIRef('x')), 'x')
+
+
 # == kif_StoreTestCase =====================================================
 
 class kif_StoreTestCase(kif_TestCase):

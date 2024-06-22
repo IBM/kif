@@ -1,14 +1,11 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ... import namespace as NS
 from ...itertools import chain
-from ...rdflib import URIRef
-from ...typing import ClassVar, Iterable, Optional, TypeAlias, Union
-from ..kif_object import TLocation
+from ...typing import ClassVar, Iterable, TypeAlias, Union
 from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
-from .iri import IRI, IRI_Template, T_IRI
+from .iri import IRI_Template, T_IRI
 from .value import Datatype
 
 LexemeClass: TypeAlias = type['Lexeme']
@@ -17,8 +14,8 @@ LexemeTemplateClass: TypeAlias = type['LexemeTemplate']
 LexemeVariableClass: TypeAlias = type['LexemeVariable']
 
 TLexeme: TypeAlias = Union['Lexeme', T_IRI]
-VTLexemeContent: TypeAlias = Union[IRI_Template, Variable, 'TLexeme']
 VLexeme: TypeAlias = Union['LexemeTemplate', 'LexemeVariable', 'Lexeme']
+VTLexemeContent: TypeAlias = Union[IRI_Template, Variable, 'TLexeme']
 
 
 class LexemeTemplate(EntityTemplate):
@@ -49,8 +46,6 @@ class LexemeDatatype(Datatype):
 
     value_class: ClassVar[LexemeClass]  # pyright: ignore
 
-    _uri: ClassVar[URIRef] = NS.WIKIBASE.WikibaseLexeme
-
 
 class Lexeme(
         Entity,
@@ -68,19 +63,6 @@ class Lexeme(
     datatype: ClassVar[LexemeDatatype]             # pyright: ignore
     template_class: ClassVar[LexemeTemplateClass]  # pyright: ignore
     variable_class: ClassVar[LexemeVariableClass]  # pyright: ignore
-
-    @classmethod
-    def _check_arg_lexeme(
-            cls,
-            arg: TLexeme,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> 'Lexeme':
-        if isinstance(arg, Lexeme):
-            return arg
-        else:
-            return cls(IRI.check(arg, function, name, position))
 
     def __init__(self, iri: VTLexemeContent):
         super().__init__(iri)

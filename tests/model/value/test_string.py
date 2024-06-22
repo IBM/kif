@@ -2,20 +2,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
-    ExternalId,
     IRI,
+    Item,
     String,
     StringDatatype,
     StringTemplate,
     StringVariable,
+    TextTemplate,
+    Variable,
 )
-from kif_lib.rdflib import Literal, URIRef
 from kif_lib.typing import assert_type
 
-from ...tests import kif_TestCase
+from ...tests import kif_ShallowDataValueTestCase
 
 
-class Test(kif_TestCase):
+class Test(kif_ShallowDataValueTestCase):
 
     def test_datatype_class(self) -> None:
         assert_type(String.datatype_class, type[StringDatatype])
@@ -31,34 +32,27 @@ class Test(kif_TestCase):
         assert_type(String.variable_class, type[StringVariable])
 
     def test_check(self) -> None:
-        self.assert_raises_check_error(String, 0, String.check)
-        self.assert_raises_check_error(String, {}, String.check)
-        self.assert_raises_check_error(String, IRI('x'), String.check)
-        # success
         assert_type(String.check(String('x')), String)
-        self.assertEqual(String.check(String('x')), String('x'))
-        self.assertEqual(String.check(String('x')), String('x'))
-        self.assertEqual(String.check(ExternalId('x')), ExternalId('x'))
-        self.assertEqual(String.check(URIRef('x')), String('x'))
-        self.assertEqual(String.check(Literal('x')), String('x'))
-        self.assertEqual(String.check('x'), String('x'))
+        self._test_check(
+            String,
+            failure=[
+                IRI('x'),
+                Item('x'),
+                TextTemplate(Variable('x')),
+                Variable('x', Item),
+            ])
 
     def test__init__(self) -> None:
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'expected str, got int', String, 0)
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'expected str, got dict', String, {})
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'expected str, got IRI', String, IRI('x'))
-        # success
         assert_type(String('x'), String)
-        self.assert_string(String(String('x')), 'x')
-        self.assert_string(String(String('x')), 'x')
-        self.assert_string(String('x'), 'x')
-        self.assert_string(ExternalId('x'), 'x')
-        self.assert_string(String(URIRef('x')), 'x')
-        self.assert_string(String(Literal('x')), 'x')
-        self.assert_string(String('x'), 'x')
+        self._test__init__(
+            String,
+            self.assert_string,
+            failure=[
+                IRI('x'),
+                Item('x'),
+                TextTemplate(Variable('x')),
+                Variable('x', Item),
+            ])
 
 
 if __name__ == '__main__':

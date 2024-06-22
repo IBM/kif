@@ -61,7 +61,7 @@ class Test(kif_TestCase):
             TextTemplate, TextVariable('x'))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
-            'cannot coerce StringTemplate into String',
+            'cannot coerce StringTemplate into StringVariable',
             TextTemplate, StringTemplate(Variable('x')))
         self.assert_raises_bad_argument(
             TypeError, 2, None,
@@ -69,7 +69,7 @@ class Test(kif_TestCase):
             TextTemplate, 'x', TextVariable('y'))
         self.assert_raises_bad_argument(
             TypeError, 2, None,
-            'cannot coerce StringTemplate into String',
+            'cannot coerce StringTemplate into StringVariable',
             TextTemplate, 'x', StringTemplate(Variable('y')))
         # success
         assert_type(TextTemplate(Variable('x')), TextTemplate)

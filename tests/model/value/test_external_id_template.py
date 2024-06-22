@@ -5,8 +5,11 @@ from kif_lib import (
     ExternalId,
     ExternalIdTemplate,
     IRI,
-    IRI_Template,
     IRI_Variable,
+    Item,
+    ItemTemplate,
+    ItemVariable,
+    KIF_Object,
     String,
     StringTemplate,
     StringVariable,
@@ -14,56 +17,81 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_TestCase
+from ...tests import kif_TemplateTestCase
 
 
-class Test(kif_TestCase):
+class Test(kif_TemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(ExternalIdTemplate.object_class, type[ExternalId])
 
     def test_check(self) -> None:
-        self.assert_raises_check_error(
-            ExternalIdTemplate, 0, ExternalIdTemplate.check)
-        self.assert_raises_check_error(
-            ExternalIdTemplate, {}, ExternalIdTemplate.check)
-        self.assert_raises_check_error(
-            ExternalIdTemplate, IRI('x'), ExternalIdTemplate.check)
-        self.assert_raises_check_error(
-            ExternalIdTemplate, ExternalIdTemplate('x'))
-        self.assert_raises_check_error(
-            ExternalIdTemplate, StringTemplate(Variable('x')))
-        # success
         assert_type(
             ExternalIdTemplate.check(ExternalIdTemplate(Variable('x'))),
             ExternalIdTemplate)
-        self.assertEqual(
-            ExternalIdTemplate.check(ExternalIdTemplate(Variable('x'))),
-            ExternalIdTemplate(Variable('x', String)))
+        self._test_check(
+            ExternalIdTemplate,
+            success=[
+                ExternalIdTemplate(Variable('x')),
+            ],
+            failure=[
+                ExternalId('x'),
+                ExternalIdTemplate('x'),
+                Item('x'),
+                ItemTemplate('x'),
+                String('x'),
+                StringTemplate('x'),
+                Variable('x'),
+            ])
 
     def test__init__(self) -> None:
-        self.assert_raises_check_error(ExternalIdTemplate, Variable('x', IRI))
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'expected str, got int',
-            (ExternalIdTemplate, 'ExternalId'), 0)
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            "cannot coerce IRI_Variable into StringVariable",
-            ExternalIdTemplate, IRI_Variable('x'))
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce IRI_Template into StringVariable',
-            ExternalIdTemplate, IRI_Template(Variable('x')))
-        # success
         assert_type(ExternalIdTemplate(Variable('x')), ExternalIdTemplate)
-        self.assert_string_template(
-            ExternalIdTemplate(Variable('x')), Variable('x', String))
-        x = Variable('x')
-        self.assert_external_id_template(
-            ExternalIdTemplate(x), StringVariable('x'))
-        self.assert_external_id_template(
-            ExternalId(x), Variable('x', String))
-        self.assert_external_id(ExternalId('x'), 'x')
+        self._test__init__(
+            ExternalIdTemplate,
+            lambda x, *y: self.assert_external_id_template(x, *y),
+            success=[
+                [StringVariable('x')],
+                [Variable('x', String)],
+            ],
+            normalize=[
+                ['x'],
+                [String('x')],
+            ],
+            failure=[
+                [IRI(Variable('x'))],
+                [IRI_Variable('x')],
+                [Item(IRI(Variable('x')))],
+                [ItemTemplate(Variable('x'))],
+                [ItemVariable('x')],
+            ])
+
+    def test_instantiate(self) -> None:
+        assert_type(
+            ExternalIdTemplate(Variable('x')).instantiate({}),
+            KIF_Object)
+        self._test_instantiate(
+            ExternalIdTemplate,
+            success=[
+                (ExternalIdTemplate(Variable('x')),
+                 ExternalId('x'),
+                 {StringVariable('x'): String('x')}),
+                (ExternalIdTemplate(Variable('x')),
+                 ExternalId('y'),
+                 {StringVariable('x'): ExternalId('y')}),
+                (ExternalIdTemplate(Variable('x')),
+                 ExternalIdTemplate(Variable('y')),
+                 {StringVariable('x'): StringVariable('y')}),
+            ],
+            failure=[
+                (ExternalIdTemplate(Variable('x')),
+                 {StringVariable('x'): Item('x')}),
+                (ExternalIdTemplate(Variable('x')),
+                 {StringVariable('x'): IRI_Variable('x')}),
+            ],
+            failure_coerce=[
+                (ExternalIdTemplate(Variable('x')),
+                 {StringVariable('x'): StringTemplate(Variable('x'))}),
+            ])
 
 
 if __name__ == '__main__':

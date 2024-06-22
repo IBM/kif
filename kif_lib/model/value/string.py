@@ -173,7 +173,9 @@ class String(
         if i == 1:              # content
             if isinstance(arg, String):
                 return arg.content
+            elif isinstance(arg, str):
+                return str(arg)
             else:
-                return str(self_._check_arg_str(arg, type(self_), None, i))
+                raise String._check_error(arg, type(self_), None, i)
         else:
             raise self_._should_not_get_here()

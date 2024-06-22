@@ -1,8 +1,6 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from rdflib import Literal, URIRef
-
 from kif_lib import Entity, IRI, Item, Properties, Property, ValueSnak
 from kif_lib.namespace import P, WD
 from kif_lib.typing import cast

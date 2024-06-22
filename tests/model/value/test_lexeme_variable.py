@@ -2,15 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
-    ExternalId,
-    ExternalIdTemplate,
     IRI,
     Item,
     KIF_Object,
+    Lexeme,
+    LexemeTemplate,
+    LexemeVariable,
     Quantity,
-    String,
-    StringTemplate,
-    StringVariable,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional
@@ -21,29 +19,26 @@ from ...tests import kif_VariableTestCase
 class Test(kif_VariableTestCase):
 
     def test_object_class(self) -> None:
-        assert_type(StringVariable.object_class, type[String])
+        assert_type(LexemeVariable.object_class, type[Lexeme])
 
     def test_check(self) -> None:
         assert_type(
-            StringVariable.check(StringVariable('x')), StringVariable)
+            LexemeVariable.check(LexemeVariable('x')), LexemeVariable)
         assert_type(
-            StringVariable.check(Variable('x', String)), StringVariable)
-        self._test_check(StringVariable)
+            LexemeVariable.check(Variable('x', Lexeme)), LexemeVariable)
+        self._test_check(LexemeVariable)
 
     def test__init__(self) -> None:
-        assert_type(StringVariable('x'), StringVariable)
-        self._test__init__(StringVariable, self.assert_string_variable)
-        self.assert_string_variable(Variable('x', ExternalId), 'x')
+        assert_type(LexemeVariable('x'), LexemeVariable)
+        self._test__init__(LexemeVariable, self.assert_lexeme_variable)
 
     def test_instantiate(self) -> None:
-        assert_type(StringVariable('x').instantiate({}), Optional[KIF_Object])
+        assert_type(LexemeVariable('x').instantiate({}), Optional[KIF_Object])
         self._test_instantiate(
-            StringVariable,
+            LexemeVariable,
             success=[
-                ExternalId('x'),
-                ExternalIdTemplate(Variable('y')),
-                String('x'),
-                StringTemplate(Variable('y')),
+                Lexeme('x'),
+                LexemeTemplate(Variable('x')),
             ],
             failure=[
                 IRI('x'),

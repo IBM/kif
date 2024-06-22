@@ -10,6 +10,7 @@ from ...typing import (
     TypeAlias,
     Union,
 )
+from ..template import Template
 from ..variable import Variable
 from .shallow_data_value import (
     ShallowDataValue,
@@ -55,12 +56,12 @@ class TextTemplate(ShallowDataValueTemplate):
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # content
-            if Variable.test(arg):
+            if isinstance(arg, (Template, Variable)):
                 return StringVariable.check(arg, type(self), None, i)
             else:
                 return Text._static_preprocess_arg(self, arg, i)
         elif i == 2:            # language
-            if Variable.test(arg):
+            if isinstance(arg, (Template, Variable)):
                 return StringVariable.check(arg, type(self), None, i)
             else:
                 return Text._static_preprocess_arg(self, arg, i)
