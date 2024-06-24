@@ -66,7 +66,7 @@ class TestModelValueQuantity(kif_TestCase):
         # bad argument: uri
         self.assertRaises(TypeError, Quantity._from_rdflib, URIRef('x'))
         # bad argument: untyped literal
-        self.assertRaises(TypeError, Quantity._from_rdflib, Literal('x'))
+        self.assertRaises(ValueError, Quantity._from_rdflib, Literal('x'))
         # bad argument: ill-typed literal
         self.assertRaises(
             TypeError, Quantity._from_rdflib, Literal(
