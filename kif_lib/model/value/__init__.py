@@ -24,8 +24,9 @@ from .entity import (
     EntityTemplateClass,
     EntityVariable,
     EntityVariableClass,
+    TEntity,
     VEntity,
-    VVEntity,
+    VTEntity,
 )
 from .external_id import (
     ExternalId,
@@ -76,7 +77,7 @@ from .property import (
     PropertyVariable,
     TProperty,
     VProperty,
-    VTProperty,
+    VTPropertyContent,
 )
 from .quantity import (
     Quantity,
@@ -132,10 +133,9 @@ from .value import (
     ValueTemplate,
     ValueVariable,
     VDatatype,
+    VTValue,
     VValue,
     VVDatatype,
-    VVTValue,
-    VVValue,
 )
 
 __all__ = (
@@ -203,6 +203,7 @@ __all__ = (
     'StringVariable',
     'T_IRI',
     'TDatatypeClass',
+    'TEntity',
     'Text',
     'TextDatatype',
     'TExternalId',
@@ -237,21 +238,20 @@ __all__ = (
     'VStringContent',
     'VT_IRI',
     'VT_IRI_Content',
+    'VTEntity',
     'VText',
     'VTime',
     'VTimeContent',
     'VTimePrecisionContent',
     'VTimeTimezoneContent',
     'VTItemContent',
-    'VTProperty',
+    'VTPropertyContent',
     'VTQuantityContent',
     'VTStringContent',
     'VTTimeContent',
     'VTTimePrecisionContent',
     'VTTimeTimezoneContent',
+    'VTValue',
     'VValue',
     'VVDatatype',
-    'VVEntity',
-    'VVTValue',
-    'VVValue',
 )

@@ -34,8 +34,7 @@ ValueVariableClass: TypeAlias = type['ValueVariable']
 
 TValue: TypeAlias = Union['Value', NS.T_URI, TDatetime, TDecimal, str]
 VValue: TypeAlias = Union['ValueTemplate', 'ValueVariable', 'Value']
-VVValue: TypeAlias = Union[Variable, VValue]
-VVTValue: TypeAlias = Union[VVValue, TValue]
+VTValue: TypeAlias = Union[Variable, VValue, TValue]
 
 DatatypeClass: TypeAlias = type['Datatype']
 TDatatypeClass: TypeAlias = Union[DatatypeClass, ValueClass]
@@ -126,8 +125,8 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
             return arg
         elif isinstance(arg, type) and issubclass(arg, cls):
             return cast(Self, arg.value_class.datatype)
-        elif isinstance(arg, type) and issubclass(arg, cls.value_class):
-            return cast(Self, arg.datatype)
+        elif isinstance(arg, type) and hasattr(arg, 'datatype'):
+            return cls.check(arg.datatype, function, name, position)
         else:
             raise cls._check_error(arg, function, name, position)
 
@@ -138,7 +137,7 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
     def _from_rdflib(cls, uri: URIRef) -> 'Datatype':
         if uri == NS.WIKIBASE.WikibaseItem:
             return cls._ItemDatatype()
-        elif uri == cls._PropertyDatatype._uri:
+        elif uri == NS.WIKIBASE.WikibaseProperty:
             return cls._PropertyDatatype()
         elif uri == NS.WIKIBASE.WikibaseLexeme:
             return cls._LexemeDatatype()
@@ -161,6 +160,8 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
     def _to_rdflib(cls) -> URIRef:
         if cls is cls._ItemDatatype:
             return NS.WIKIBASE.WikibaseItem
+        elif cls is cls._PropertyDatatype:
+            return NS.WIKIBASE.WikibaseProperty
         elif cls is cls._LexemeDatatype:
             return NS.WIKIBASE.WikibaseLexeme
         elif cls is cls._IRI_Datatype:
@@ -231,24 +232,24 @@ class Value(
             cls.datatype_class.value_class = cls
 
     @classmethod
-    def _check_arg_value(
+    @override
+    def check(
             cls,
-            arg: TValue,
+            arg: Any,
             function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> 'Value':
-        if isinstance(arg, URIRef):
-            return cls._IRI.check(arg, function, name, position)
-        elif isinstance(arg, Datetime):
-            return cls._check_arg_time(arg)
-        elif isinstance(arg, (Decimal, float, int)):
-            return cls._check_arg_quantity(arg)
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
         elif isinstance(arg, str):
-            return cls._String.check(arg, function, name, position)
+            return cast(Self, cls._String.check(arg, function, name, position))
+        elif isinstance(arg, Datetime):
+            return cast(Self, cls._check_arg_time(arg))
+        elif isinstance(arg, (Decimal, float, int)):
+            return cast(Self, cls._check_arg_quantity(arg))
         else:
-            return cls._check_arg_isinstance(
-                arg, Value, function, name, position)
+            raise cls._check_error(arg, function, name, position)
 
     @property
     def value(self) -> str:

@@ -15,7 +15,7 @@ LexemeVariableClass: TypeAlias = type['LexemeVariable']
 
 TLexeme: TypeAlias = Union['Lexeme', T_IRI]
 VLexeme: TypeAlias = Union['LexemeTemplate', 'LexemeVariable', 'Lexeme']
-VTLexemeContent: TypeAlias = Union[IRI_Template, Variable, 'TLexeme']
+VTLexemeContent: TypeAlias = Union[IRI_Template, Variable, TLexeme]
 
 
 class LexemeTemplate(EntityTemplate):

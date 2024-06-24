@@ -39,42 +39,17 @@ from ..tests import kif_TestCase
 
 class Test(kif_TestCase):
 
-    def test__check_arg_variable_class(self):
-        self.assertRaises(
-            TypeError, Variable._check_arg_variable_class, 0)
-        self.assertRaises(
-            ValueError, Variable._check_arg_variable_class, int)
-        self.assertRaises(
-            ValueError, Variable._check_arg_variable_class, KIF_Object)
-        self.assertIs(
-            Variable._check_arg_variable_class(Variable), Variable)
-        self.assertIs(
-            Variable._check_arg_variable_class(ItemVariable), ItemVariable)
-        self.assertIs(
-            Variable._check_arg_variable_class(Item), ItemVariable)
-
-    def test__check_optional_arg_variable_class(self):
-        self.assertRaises(
-            TypeError, Variable._check_optional_arg_variable_class, 0)
-        self.assertIsNone(
-            Variable._check_optional_arg_variable_class(None))
-        self.assertIs(
-            Variable._check_optional_arg_variable_class(None, Variable),
-            Variable)
-        self.assertIs(
-            Variable._check_optional_arg_variable_class(
-                Item, PropertyVariable), ItemVariable)
-
     def test__new__(self):
         self.assert_raises_bad_argument(
             TypeError, 2, 'variable_class',
-            'expected type, got int', Variable, 'x', 0)
+            'cannot coerce int into Variable', Variable, 'x', 0)
         self.assert_raises_bad_argument(
-            ValueError, 2, 'variable_class',
-            'expected subclass of KIF_Object, got int', Variable, 'x', int)
+            TypeError, 2, 'variable_class',
+            'cannot coerce int into Variable', Variable, 'x', int)
         self.assert_raises_bad_argument(
-            ValueError, 2, 'variable_class',
-            'no variable class for KIF_Object', Variable, 'x', KIF_Object)
+            TypeError, 2, 'variable_class',
+            'cannot coerce KIF_Object into Variable',
+            Variable, 'x', KIF_Object)
         self.assert_variable(Variable('x', Variable), 'x')
         self.assert_value_variable(Variable('x', Value), 'x')
         self.assert_entity_variable(Variable('x', Entity), 'x')
@@ -100,8 +75,8 @@ class Test(kif_TestCase):
         self.assert_statement_variable(Variable('x', Statement), 'x')
 
     def test__init__(self):
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'expected str, got int', Variable, 0)
+        self.assert_raises_check_error(Variable, 0)
+        self.assert_raises_check_error(Variable, {})
         self.assert_variable(Variable('x'), 'x')
 
     def test__call__(self):

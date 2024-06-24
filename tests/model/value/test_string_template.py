@@ -2,9 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
-    ExternalIdTemplate,
-    IRI,
-    IRI_Variable,
+    ExternalId,
+    KIF_Object,
     String,
     StringTemplate,
     StringVariable,
@@ -12,58 +11,35 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_TestCase
+from ...tests import kif_ShallowDataValueTemplateTestCase
 
 
-class Test(kif_TestCase):
+class Test(kif_ShallowDataValueTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(StringTemplate.object_class, type[String])
 
     def test_check(self) -> None:
-        self.assert_raises_check_error(
-            StringTemplate, 0, StringTemplate.check)
-        self.assert_raises_check_error(
-            StringTemplate, {}, StringTemplate.check)
-        self.assert_raises_check_error(
-            StringTemplate, IRI('x'), StringTemplate.check)
-        self.assert_raises_check_error(
-            StringTemplate, StringTemplate('x'), StringTemplate.check)
-        # success
         assert_type(
             StringTemplate.check(StringTemplate(Variable('x'))),
             StringTemplate)
-        self.assertEqual(
-            StringTemplate.check(StringTemplate(Variable('x'))),
-            StringTemplate(Variable('x', String)))
-        self.assertEqual(
-            StringTemplate.check(ExternalIdTemplate(Variable('x'))),
-            ExternalIdTemplate(Variable('x', String)))
+        self._test_check(StringTemplate)
 
     def test__init__(self) -> None:
-        self.assert_raises_check_error(StringTemplate, Variable('x', IRI))
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'cannot coerce int into String',
-            (StringTemplate, 'String'), 0)
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            "cannot coerce IRI_Variable into StringVariable",
-            StringTemplate, IRI_Variable('x'))
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            "cannot coerce StringTemplate into StringVariable",
-            StringTemplate, StringTemplate(Variable('x')))
-        # success
         assert_type(StringTemplate(Variable('x')), StringTemplate)
-        self.assert_string_template(
-            StringTemplate(Variable('x')), Variable('x', String))
-        self.assert_string_template(
-            ExternalIdTemplate(Variable('x')), Variable('x', String))
-        x = Variable('x')
-        self.assert_string_template(
-            StringTemplate(x), StringVariable('x'))
-        self.assert_string_template(String(x), Variable('x', String))
-        self.assert_string(String('x'), 'x')
+        self._test__init__(
+            StringTemplate, lambda x, *y: self.assert_string_template(x, *y))
+
+    def test_instantiate(self) -> None:
+        assert_type(
+            StringTemplate(Variable('x')).instantiate({}), KIF_Object)
+        self._test_instantiate(
+            StringTemplate,
+            success=[
+                (StringTemplate(Variable('x')),
+                 String('y'),
+                 {StringVariable('x'): ExternalId('y')}),
+            ])
 
 
 if __name__ == '__main__':

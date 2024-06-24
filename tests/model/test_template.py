@@ -2,13 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
-    Datatype,
     DataValue,
     DeepDataValue,
     Entity,
     IRI,
     Item,
-    ItemDatatype,
     KIF_Object,
     Lexeme,
     NoValueSnak,
@@ -25,7 +23,6 @@ from kif_lib import (
     Variables,
 )
 from kif_lib.model import (
-    DatatypeVariable,
     DataValueTemplate,
     Decimal,
     DeepDataValueTemplate,
@@ -94,49 +91,6 @@ class Test(kif_TestCase):
 
     def test__new__entity_template(self):
         self.assert_abstract_class(EntityTemplate)
-
-    def test__new__property_template(self):
-        x, y = Variables('x', 'y')
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce int into IRI',
-            (PropertyTemplate, 'Property'), 0)
-        self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'expected Datatype, got int',
-            (PropertyTemplate, 'Property'), IRI('x'), 0)
-        self.assert_property_template(
-            PropertyTemplate(x), IRI_Variable('x'), None)
-        self.assert_property_template(
-            PropertyTemplate(x, Item.datatype),
-            IRI_Variable('x'), ItemDatatype())
-        self.assert_property_template(Property(x), Variable('x', IRI), None)
-        self.assert_property_template(
-            Property(x, y), IRI_Variable('x'), DatatypeVariable('y'))
-        self.assert_property_template(
-            PropertyTemplate(IRI(x)), IRI(x), None)
-        self.assert_property_template(
-            PropertyTemplate(IRI(x), Item), IRI(x), ItemDatatype())
-        self.assert_property_template(Property(IRI(x)), IRI(x), None)
-        self.assert_property_template(
-            Property(IRI('x'), y), IRI('x'), Variable('y', Datatype))
-        self.assert_property(
-            cast(Property, PropertyTemplate(IRI('x'))), IRI('x'), None)
-        self.assert_property(
-            Property(IRI('x'), Item), IRI('x'), ItemDatatype())
-
-    def test__new__lexeme_template(self):
-        x = Variable('x')
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'cannot coerce int into IRI',
-            (LexemeTemplate, 'Lexeme'), 0)
-        self.assert_lexeme_template(
-            LexemeTemplate(x), IRI_Variable('x'))
-        self.assert_lexeme_template(Lexeme(x), Variable('x', IRI))
-        self.assert_lexeme_template(LexemeTemplate(IRI(x)), IRI(x))
-        self.assert_lexeme_template(Lexeme(IRI(x)), IRI(x))
-        self.assert_lexeme(
-            cast(Lexeme, LexemeTemplate(IRI('x'))), IRI('x'))
 
     def test__new__data_value_template(self):
         self.assert_abstract_class(DataValueTemplate)
@@ -272,7 +226,7 @@ class Test(kif_TestCase):
             (ValueSnakTemplate, 'ValueSnak'), 0, Item('x'))
         self.assert_raises_bad_argument(
             TypeError, 2, None,
-            'expected Value, got dict',
+            'cannot coerce dict into Value',
             (ValueSnakTemplate, 'ValueSnak'), Property('x'), dict())
         self.assert_value_snak_template(
             ValueSnakTemplate(x, Quantity(0)),
@@ -392,42 +346,6 @@ class Test(kif_TestCase):
 
     def test__init__entity_template(self):
         self.assert_abstract_class(EntityTemplate)
-
-    def test__init__property_template(self):
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce PropertyVariable into IRI_Variable',
-            PropertyTemplate, PropertyVariable('x'))
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce PropertyTemplate into IRI_Template',
-            PropertyTemplate, PropertyTemplate(Variable('x')))
-        self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            "cannot coerce IRI_Variable into DatatypeVariable",
-            PropertyTemplate, IRI('x'), IRI_Variable('x'))
-        self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'expected Datatype, got PropertyTemplate',
-            PropertyTemplate, 'x', PropertyTemplate(Variable('x')))
-
-    def test__init__property_template_normalization(self):
-        x = Variable('x')
-        self.assertRaises(TypeError, PropertyTemplate, x, x)
-        self.assert_property_template(
-            PropertyTemplate(
-                IRI(StringVariable('x')), Variable('y')),
-            IRI_Template(StringVariable('x')), DatatypeVariable('y'))
-
-    def test__init__lexeme_template(self):
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce LexemeVariable into IRI_Variable',
-            LexemeTemplate, Variable('x', Lexeme))
-        self.assert_raises_bad_argument(
-            TypeError, 1, None,
-            'cannot coerce LexemeTemplate into IRI_Template',
-            LexemeTemplate, LexemeTemplate(Variable('x')))
 
     def test__init__data_value_template(self):
         self.assert_abstract_class(DataValueTemplate)

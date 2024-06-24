@@ -6,7 +6,18 @@ from enum import auto, Flag
 from ..typing import Any, ClassVar, Final, Optional, override, TypeAlias, Union
 from .kif_object import KIF_Object, TLocation
 from .template import Template
-from .value import Property, Value, VProperty, VTProperty, VValue, VVTValue
+from .value import (
+    Property,
+    PropertyTemplate,
+    PropertyVariable,
+    Value,
+    ValueTemplate,
+    ValueVariable,
+    VProperty,
+    VTPropertyContent,
+    VTValue,
+    VValue,
+)
 from .variable import Variable
 
 VSnak: TypeAlias = Union['SnakTemplate', 'SnakVariable', 'Snak']
@@ -35,10 +46,9 @@ class SnakTemplate(Template):
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # property
             if Template.test(arg):
-                return self._preprocess_arg_property_template(arg, i)
+                return PropertyTemplate.check(arg, type(self), None, i)
             elif Variable.test(arg):
-                return self._preprocess_arg_property_variable(
-                    arg, i, self.__class__)
+                return PropertyVariable.check(arg, type(self), None, i)
             else:
                 return Snak._static_preprocess_arg(self, arg, i)
         else:
@@ -156,7 +166,7 @@ class Snak(
     @staticmethod
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:
-            return self_._preprocess_arg_property(arg, i)
+            return Property.check(arg, type(self_), None, i)
         else:
             raise self_._should_not_get_here()
 
@@ -196,7 +206,7 @@ class ValueSnakTemplate(SnakTemplate):
        value: Value, value template, or value variable.
     """
 
-    def __init__(self, property: VTProperty, value: VVTValue):
+    def __init__(self, property: VTPropertyContent, value: VTValue):
         super().__init__(property, value)
 
     @override
@@ -205,10 +215,9 @@ class ValueSnakTemplate(SnakTemplate):
             return super()._preprocess_arg(arg, i)
         elif i == 2:            # value
             if Template.test(arg):
-                return self._preprocess_arg_value_template(arg, i)
+                return ValueTemplate.check(arg, type(self), None, i)
             elif Variable.test(arg):
-                return self._preprocess_arg_value_variable(
-                    arg, i, self.__class__)
+                return ValueVariable.check(arg, type(self), None, i)
             else:
                 return ValueSnak._static_preprocess_arg(self, arg, i)
         else:
@@ -253,7 +262,7 @@ class ValueSnak(
     class DatatypeError(ValueError):
         """Bad property application attempt."""
 
-    def __init__(self, property: VTProperty, value: VVTValue):
+    def __init__(self, property: VTPropertyContent, value: VTValue):
         super().__init__(property, value)
 
     # @override
@@ -277,9 +286,9 @@ class ValueSnak(
     @staticmethod
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:
-            return self_._preprocess_arg_property(arg, i)
+            return Property.check(arg, type(self_), None, i)
         elif i == 2:
-            return self_._preprocess_arg_value(arg, i)
+            return Value.check(arg, type(self_), None, i)
         else:
             raise self_._should_not_get_here()
 
@@ -306,7 +315,7 @@ class SomeValueSnakTemplate(SnakTemplate):
        property: Property, property template, or property variable.
     """
 
-    def __init__(self, property: VTProperty):
+    def __init__(self, property: VTPropertyContent):
         super().__init__(property)
 
 
@@ -331,7 +340,7 @@ class SomeValueSnak(
 
     mask: ClassVar[Snak.Mask] = Snak.SOME_VALUE_SNAK
 
-    def __init__(self, property: VTProperty):
+    def __init__(self, property: VTPropertyContent):
         super().__init__(property)
 
 
@@ -344,7 +353,7 @@ class NoValueSnakTemplate(SnakTemplate):
        parameters: Property, property template, or property variable.
     """
 
-    def __init__(self, property: VTProperty):
+    def __init__(self, property: VTPropertyContent):
         super().__init__(property)
 
 
@@ -369,5 +378,5 @@ class NoValueSnak(
 
     mask: ClassVar[Snak.Mask] = Snak.NO_VALUE_SNAK
 
-    def __init__(self, property: VTProperty):
+    def __init__(self, property: VTPropertyContent):
         super().__init__(property)

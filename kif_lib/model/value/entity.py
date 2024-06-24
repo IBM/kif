@@ -5,15 +5,16 @@ from ...typing import Any, ClassVar, Optional, override, Self, TypeAlias, Union
 from ..kif_object import TLocation
 from ..template import Template
 from ..variable import Variable
-from .iri import IRI, IRI_Template, IRI_Variable, V_IRI
+from .iri import IRI, IRI_Template, IRI_Variable, T_IRI, V_IRI
 from .value import Value, ValueTemplate, ValueVariable
 
 EntityClass: TypeAlias = type['Entity']
 EntityTemplateClass: TypeAlias = type['EntityTemplate']
 EntityVariableClass: TypeAlias = type['EntityVariable']
 
+TEntity: TypeAlias = Union['Entity', T_IRI]
 VEntity: TypeAlias = Union['EntityTemplate', 'EntityVariable', 'Entity']
-VVEntity: TypeAlias = Union[Variable, VEntity]
+VTEntity: TypeAlias = Union[Variable, VEntity, TEntity]
 
 
 class EntityTemplate(ValueTemplate):

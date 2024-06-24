@@ -1,7 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from itertools import chain, cycle, islice, starmap
+from itertools import chain, cycle, islice, product, starmap
 
 from more_itertools import batched, unique_everseen
 
@@ -10,6 +10,7 @@ __all__ = (
     'chain',
     'cycle',
     'islice',
+    'product',
     'starmap',
     'unique_everseen',
 )

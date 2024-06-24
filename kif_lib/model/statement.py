@@ -5,7 +5,7 @@ from ..typing import Any, override, TypeAlias, Union
 from .kif_object import KIF_Object
 from .snak import Snak, VSnak, VVSnak
 from .template import Template
-from .value import Entity, VEntity, VVEntity
+from .value import Entity, VEntity, VTEntity
 from .variable import Variable
 
 VStatement: TypeAlias =\
@@ -21,7 +21,7 @@ class StatementTemplate(Template):
        snak: Snak.
     """
 
-    def __init__(self, subject: VVEntity, snak: VVSnak):
+    def __init__(self, subject: VTEntity, snak: VVSnak):
         super().__init__(subject, snak)
 
     @override
@@ -92,7 +92,7 @@ class Statement(
        snak: Snak.
     """
 
-    def __init__(self, subject: VVEntity, snak: VVSnak):
+    def __init__(self, subject: VTEntity, snak: VVSnak):
         super().__init__(subject, snak)
 
     @override
@@ -102,9 +102,9 @@ class Statement(
     @staticmethod
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:
-            return self_._preprocess_arg_entity(arg, i)
+            return Entity.check(arg, type(self_), None, i)
         elif i == 2:
-            return self_._preprocess_arg_snak(arg, i)
+            return Snak.check(arg, type(self_), None, i)
         else:
             raise self_._should_not_get_here()
 

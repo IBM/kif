@@ -18,7 +18,7 @@ IRI_VariableClass: TypeAlias = type['IRI_Variable']
 
 T_IRI: TypeAlias = Union['IRI', TString]
 V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'IRI']
-VT_IRI: TypeAlias = Union['IRI_Template', Variable, T_IRI]
+VT_IRI: TypeAlias = Union[Variable, V_IRI, T_IRI]
 VT_IRI_Content: TypeAlias = Union[Variable, T_IRI]
 
 

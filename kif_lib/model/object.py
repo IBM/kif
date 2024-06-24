@@ -437,11 +437,12 @@ class Object(Sequence, metaclass=ObjectMeta):
             function: Optional[TLoc] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
-            exception: Optional[type[Exception]] = None
+            exception: Optional[type[Exception]] = None,
     ) -> Exception:
-        src_cls = arg if isinstance(arg, type) else type(arg)
+        from_ = (arg if isinstance(arg, type) else type(arg)).__qualname__
+        to_ = cls.__qualname__
         return cls._arg_error(
-            f'cannot coerce {src_cls.__qualname__} into {cls.__qualname__}',
+            f'cannot coerce {from_} into {to_}',
             function or cls.check, name, position,
             exception or TypeError)
 

@@ -15,14 +15,13 @@ from ...typing import (
     TypeAlias,
     Union,
 )
-from ..kif_object import TLocation
 from ..template import Template
 from ..variable import Variable
-from .entity import Entity, EntityTemplate, EntityVariable, VVEntity
-from .iri import IRI, T_IRI, VT_IRI
-from .value import Datatype, VDatatype, VTDatatype, VVTValue
+from .entity import Entity, EntityTemplate, EntityVariable, VTEntity
+from .iri import T_IRI, VT_IRI
+from .value import Datatype, VDatatype, VTDatatype, VTValue
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:               # pragma: no cover
     from ..snak import ValueSnak, ValueSnakTemplate
     from ..statement import Statement, StatementTemplate
 
@@ -32,9 +31,9 @@ PropertyTemplateClass: TypeAlias = type['PropertyTemplate']
 PropertyVariableClass: TypeAlias = type['PropertyVariable']
 
 TProperty: TypeAlias = Union['Property', T_IRI]
-VTProperty: TypeAlias = Union['PropertyTemplate', Variable, TProperty]
 VProperty: TypeAlias =\
     Union['PropertyTemplate', 'PropertyVariable', 'Property']
+VTPropertyContent: TypeAlias = Union['PropertyTemplate', Variable, TProperty]
 
 
 class PropertyTemplate(EntityTemplate):
@@ -71,12 +70,12 @@ class PropertyTemplate(EntityTemplate):
             raise self._should_not_get_here()
 
     @overload
-    def __call__(self, v1: VVEntity, v2: VVTValue) -> 'StatementTemplate':
-        ...
+    def __call__(self, v1: VTEntity, v2: VTValue) -> 'StatementTemplate':
+        ...                     # pragma: no cover
 
     @overload
-    def __call__(self, v1: VVTValue) -> 'ValueSnakTemplate':
-        ...
+    def __call__(self, v1: VTValue) -> 'ValueSnakTemplate':
+        ...                     # pragma: no cover
 
     def __call__(self, v1, v2=None):
         if v2 is not None:
@@ -117,12 +116,12 @@ class PropertyVariable(EntityVariable):
     object_class: ClassVar[PropertyClass]  # pyright: ignore
 
     @overload
-    def __call__(self, v1: VVEntity, v2: VVTValue) -> 'StatementTemplate':
-        ...
+    def __call__(self, v1: VTEntity, v2: VTValue) -> 'StatementTemplate':
+        ...                     # pragma: no cover
 
     @overload
-    def __call__(self, v1: VVTValue) -> 'ValueSnakTemplate':
-        ...
+    def __call__(self, v1: VTValue) -> 'ValueSnakTemplate':
+        ...                     # pragma: no cover
 
     def __call__(self, v1, v2=None):
         if v2 is not None:
@@ -157,22 +156,9 @@ class Property(
     template_class: ClassVar[PropertyTemplateClass]  # pyright: ignore
     variable_class: ClassVar[PropertyVariableClass]  # pyright: ignore
 
-    @classmethod
-    def _check_arg_property(
-            cls,
-            arg: TProperty,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> 'Property':
-        if isinstance(arg, Property):
-            return arg
-        else:
-            return cls(IRI.check(arg, function, name, position))
-
     def __init__(
             self,
-            iri: VTProperty,
+            iri: VTPropertyContent,
             range: Optional[VTDatatype] = None
     ):
         super().__init__(iri, range)
@@ -183,17 +169,17 @@ class Property(
         if i == 1:              # iri
             return Entity._static_preprocess_arg(self_, arg, i)
         elif i == 2:            # range
-            return self_._preprocess_optional_arg_datatype(arg, i)
+            return Datatype.check_optional(arg, None, type(self_), None, i)
         else:
             raise self_._should_not_get_here()
 
     @overload
-    def __call__(self, v1: VVEntity, v2: VVTValue) -> 'Statement':
-        ...
+    def __call__(self, v1: VTEntity, v2: VTValue) -> 'Statement':
+        ...                     # pragma: no cover
 
     @overload
-    def __call__(self, v1: VVTValue) -> 'ValueSnak':
-        ...
+    def __call__(self, v1: VTValue) -> 'ValueSnak':
+        ...                     # pragma: no cover
 
     def __call__(self, v1, v2=None):
         if v2 is not None:
@@ -224,7 +210,10 @@ class Property(
         return range if range is not None else default
 
 
-def Properties(iri: VTProperty, *iris: VTProperty) -> Iterable[Property]:
+def Properties(
+        iri: VTPropertyContent,
+        *iris: VTPropertyContent
+) -> Iterable[Property]:
     """Constructs one or more properties.
 
     Parameters:

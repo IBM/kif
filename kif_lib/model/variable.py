@@ -21,7 +21,7 @@ from .kif_object import KIF_Object, KIF_ObjectClass, TLocation
 if TYPE_CHECKING:
     from .snak import ValueSnakTemplate
     from .statement import StatementTemplate
-    from .value import VVEntity, VVTValue
+    from .value import VTEntity, VTValue
 
 Theta: TypeAlias = Mapping['Variable', Optional[KIF_Object]]
 VariableClass: TypeAlias = type['Variable']
@@ -47,10 +47,17 @@ class Variable(KIF_Object):
             name: str,
             variable_class: Optional[TVariableClass] = None
     ):
-        var_cls = cls._check_optional_arg_variable_class(
-            variable_class, cls, cls, 'variable_class', 2)
-        assert var_cls is not None
-        return super().__new__(var_cls)  # pyright: ignore
+        if variable_class is None:
+            variable_class = cls
+        if (isinstance(variable_class, type)
+                and issubclass(variable_class, KIF_Object)):
+            if (not issubclass(variable_class, cls)
+                    and hasattr(variable_class, 'variable_class')):
+                variable_class = getattr(variable_class, 'variable_class')
+        if (not isinstance(variable_class, type)
+                or not issubclass(variable_class, cls)):
+            raise cls._check_error(variable_class, cls, 'variable_class', 2)
+        return super().__new__(variable_class)  # pyright: ignore
 
     @classmethod
     @override
@@ -68,24 +75,6 @@ class Variable(KIF_Object):
                 return cast(Self, cls(arg.name))
         raise cls._check_error(arg, function, name, position)
 
-    @classmethod
-    def _check_arg_variable_class(
-            cls,
-            arg: TVariableClass,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> VariableClass:
-        if isinstance(arg, type) and issubclass(arg, cls):
-            return arg
-        else:
-            arg = cls._check_arg_kif_object_class(
-                arg, function, name, position)
-            return getattr(cls._check_arg(
-                arg, hasattr(arg, 'variable_class'),
-                f'no variable class for {arg.__qualname__}',
-                function, name, position), 'variable_class')
-
     def __init__(
             self,
             name: str,
@@ -96,16 +85,16 @@ class Variable(KIF_Object):
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
-            return self._preprocess_arg_str(arg, i)
+            return self._String.check(arg, type(self), None, i).content
         else:
             raise self._should_not_get_here()
 
     @overload
-    def __call__(self, v1: 'VVEntity', v2: 'VVTValue') -> 'StatementTemplate':
+    def __call__(self, v1: 'VTEntity', v2: 'VTValue') -> 'StatementTemplate':
         ...
 
     @overload
-    def __call__(self, v1: 'VVTValue') -> 'ValueSnakTemplate':
+    def __call__(self, v1: 'VTValue') -> 'ValueSnakTemplate':
         ...
 
     def __call__(self, v1, v2=None):
@@ -198,7 +187,10 @@ class Variable(KIF_Object):
                 return obj
             else:
                 src = self.__class__.__qualname__
-                dest = obj.__class__.__qualname__
+                if isinstance(obj, type):
+                    dest = obj.__qualname__
+                else:
+                    dest = obj.__class__.__qualname__
                 raise self._arg_error(
                     f"cannot instantiate {src} '{self.name}' with {dest}",
                     function, name, position, self.InstantiationError)

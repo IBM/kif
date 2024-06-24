@@ -458,10 +458,8 @@ class SPARQL_Mapping(ABC):
            A function that takes a definition and associates it with
            new spec in mapping.
         """
-        property = Property._check_arg_property(
-            property, cls.register, 'property', 1)
-        datatype = Datatype._check_arg_datatype(
-            datatype, cls.register, 'datatype', 2)
+        property = Property.check(property, cls.register, 'property', 1)
+        datatype = Datatype.check(datatype, cls.register, 'datatype', 2)
         return lambda definition: cls._register(cls.specs, cls.Spec(
             property, datatype, definition, **kwargs))
 

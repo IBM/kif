@@ -130,21 +130,21 @@ from kif_lib.model import (
     VStatement,
     VString,
     VT_IRI,
+    VTEntity,
     VText,
     VTime,
     VTItemContent,
-    VTProperty,
+    VTPropertyContent,
     VTQuantityContent,
     VTStringContent,
     VTTimeContent,
     VTTimePrecisionContent,
     VTTimeTimezoneContent,
+    VTValue,
     VValue,
     VValueSnak,
     VVDatatype,
-    VVEntity,
     VVSnak,
-    VVValue,
 )
 from kif_lib.model.object import Object
 from kif_lib.namespace import WIKIBASE, XSD
@@ -253,8 +253,10 @@ if __name__ == '__main__':
     ):
         if isinstance(function, tuple):
             func, func_name = function
-        else:
+        elif hasattr(function, '__qualname__'):
             func, func_name = function, function.__qualname__
+        else:
+            func, func_name = function, str(function)
         regex = re.escape(str(KIF_Object._arg_error(
             details, func_name, name, position, exception)))
         self.assertRaisesRegex(
@@ -423,8 +425,7 @@ if __name__ == '__main__':
     ):
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Property)
-        self.assertTrue(obj.is_property())
-        self.assert_property_datatype(obj.datatype)
+        self.assert_datatype(obj.datatype)
         self.assertEqual(obj.range, range)
         self.assertEqual(obj.get_range(), range)
         self.assertEqual(obj.args[1], range)
@@ -460,19 +461,20 @@ if __name__ == '__main__':
             self,
             obj: Text,
             content: str,
-            lang: Optional[str] = None
+            language: Optional[str] = None
     ):
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, Text)
         self.assertTrue(obj.is_text())
         self.assert_text_datatype(obj.datatype)
         self.assertEqual(obj.args[0], content)
-        if lang is None:
-            lang = Text.default_language
-        self.assertEqual(obj.args[1], lang)
+        if language is None:
+            language = Text.default_language
+        assert isinstance(language, str)
+        self.assertEqual(obj.args[1], language)
         self.assertEqual(obj.value, obj.args[0])
         self.assertEqual(obj.get_value(), obj.args[0])
-        self.assertEqual(obj.n3(), f'"{obj.value}"@{lang}')
+        self.assertEqual(obj.n3(), f'"{obj.value}"@{language}')
 
     def assert_string(self, obj: String, content: str):
         self.assert_shallow_data_value(obj)
@@ -574,8 +576,6 @@ if __name__ == '__main__':
     def assert_property_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, PropertyDatatype)
-        self.assertTrue(obj.is_property_datatype())
-        self.assertEqual(obj._uri, WIKIBASE.WikibaseProperty)
 
     def assert_lexeme_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
@@ -637,7 +637,7 @@ if __name__ == '__main__':
             self,
             obj: VProperty,
             iri: VT_IRI,
-            range: Optional[VVDatatype]
+            range: Optional[VVDatatype] = None
     ):
         self.assertIsInstance(obj, PropertyTemplate)
         assert isinstance(obj, PropertyTemplate)
@@ -680,11 +680,13 @@ if __name__ == '__main__':
             self,
             obj: VText,
             content: VTStringContent,
-            language: VTStringContent
+            language: Optional[VTStringContent] = None
     ):
         self.assertIsInstance(obj, TextTemplate)
         assert isinstance(obj, TextTemplate)
         assert isinstance(content, (StringVariable, str))
+        if language is None:
+            language = Text.default_language
         assert isinstance(language, (StringVariable, str))
         self.assert_shallow_data_value_template(obj, content)
         self.assertEqual(obj.language, language)
@@ -766,7 +768,7 @@ if __name__ == '__main__':
     def assert_snak_template(
             self,
             obj: VSnak,
-            property: VTProperty
+            property: VTPropertyContent
     ):
         self.assertIsInstance(obj, SnakTemplate)
         assert isinstance(obj, SnakTemplate)
@@ -778,8 +780,8 @@ if __name__ == '__main__':
     def assert_value_snak_template(
             self,
             obj: VValueSnak,
-            property: VTProperty,
-            value: VVValue
+            property: VTPropertyContent,
+            value: VTValue
     ):
         self.assertIsInstance(obj, ValueSnakTemplate)
         assert isinstance(obj, ValueSnakTemplate)
@@ -791,7 +793,7 @@ if __name__ == '__main__':
     def assert_some_value_snak_template(
             self,
             obj: VSomeValueSnak,
-            property: VTProperty
+            property: VTPropertyContent
     ):
         self.assert_snak_template(obj, property)
         self.assertIsInstance(obj, SomeValueSnakTemplate)
@@ -799,7 +801,7 @@ if __name__ == '__main__':
     def assert_no_value_snak_template(
             self,
             obj: VNoValueSnak,
-            property: VTProperty,
+            property: VTPropertyContent,
     ):
         obj_ = cast(NoValueSnakTemplate, obj)
         self.assert_snak_template(obj_, property)
@@ -808,7 +810,7 @@ if __name__ == '__main__':
     def assert_statement_template(
             self,
             obj: VStatement,
-            subject: VVEntity,
+            subject: VTEntity,
             snak: VVSnak
     ):
         self.assertIsInstance(obj, StatementTemplate)
@@ -1231,8 +1233,189 @@ class kif_TemplateTestCase(kif_TestCase):
             self.assertEqual(src.instantiate(theta), tgt)
 
 
-# == kif_VariableTestCase ==================================================
+# == kif_EntityTemplateTestCase ============================================
 
+class kif_EntityTemplateTestCase(kif_TemplateTestCase):
+
+    @override
+    def _test_check(
+            self,
+            cls: TemplateClass,
+            success: Iterable[KIF_Object] = tuple(),
+            failure: Iterable[KIF_Object] = tuple()
+    ) -> None:
+        super()._test_check(
+            cls,
+            success=[
+                cls(Variable('x')),
+                *success
+            ],
+            failure=[
+                cls('x'),
+                cls.object_class('x'),
+                TextTemplate(Variable('x')),
+                Variable('x'),
+                *failure
+            ])
+
+    @override
+    def _test__init__(
+            self,
+            cls: type[_T],
+            assert_T: Callable[[_T, tuple[Any, ...]], None],
+            success: Iterable[list[Any]] = tuple(),
+            normalize: Iterable[list[Any]] = tuple(),
+            failure: Iterable[list[Any]] = tuple()
+    ) -> None:
+        super()._test__init__(
+            cls,
+            assert_T,
+            success=[
+                [IRI_Template(Variable('x'))],
+                [IRI_Variable('x')],
+                [Variable('x', IRI)],
+                *success
+            ],
+            normalize=[
+                [cls.object_class(IRI('x'))],
+                [IRI('x')],
+                [String('x')],
+                *normalize
+            ],
+            failure=[
+                [cls(Variable('x'))],
+                [cls.object_class(IRI(Variable('x')))],
+                [cls.object_class.variable_class('x')],
+                [TextTemplate(Variable('x'))],
+                *failure
+            ])
+
+    @override
+    def _test_instantiate(
+            self,
+            cls: type[_T],
+            success: Iterable[tuple[_T, KIF_Object, Theta]] = tuple(),
+            failure: Iterable[tuple[_T, Theta]] = tuple(),
+            failure_coerce: Iterable[tuple[_T, Theta]] = tuple()
+    ) -> None:
+        super()._test_instantiate(
+            cls,
+            success=[
+                (cls(Variable('x')),
+                 cls.object_class('x'),
+                 {IRI_Variable('x'): IRI('x')}),
+                (cls(Variable('x')),
+                 cls(Variable('y')),
+                 {IRI_Variable('x'): IRI_Variable('y')}),
+                *success
+            ],
+            failure=[
+                (cls(Variable('x')),
+                 {IRI_Variable('x'): cls.object_class('x')}),
+                (cls(Variable('x')),
+                 {IRI_Variable('x'): String('x')}),
+                (cls(Variable('x')),
+                 {IRI_Variable('x'): StringVariable('x')}),
+                (cls(Variable('x')),
+                 {IRI_Variable('x'): StringTemplate('x')}),
+                *failure
+            ],
+            failure_coerce=failure_coerce)
+
+
+# == kif_ShallowDataValueTemplateTestCase ==================================
+
+class kif_ShallowDataValueTemplateTestCase(kif_TemplateTestCase):
+
+    @override
+    def _test_check(
+            self,
+            cls: TemplateClass,
+            success: Iterable[KIF_Object] = tuple(),
+            failure: Iterable[KIF_Object] = tuple()
+    ) -> None:
+        super()._test_check(
+            cls,
+            success=[
+                cls(Variable('x')),
+                *success
+            ],
+            failure=[
+                cls('x'),
+                cls.object_class('x'),
+                Item('x'),
+                ItemTemplate('x'),
+                String('x'),
+                StringTemplate('x'),
+                Variable('x'),
+                *failure
+            ])
+
+    @override
+    def _test__init__(
+            self,
+            cls: type[_T],
+            assert_T: Callable[[_T, tuple[Any, ...]], None],
+            success: Iterable[list[Any]] = tuple(),
+            normalize: Iterable[list[Any]] = tuple(),
+            failure: Iterable[list[Any]] = tuple()
+    ) -> None:
+        super()._test__init__(
+            cls,
+            assert_T,
+            success=[
+                [StringVariable('x')],
+                [Variable('x', String)],
+                *success
+            ],
+            normalize=[
+                ['x'],
+                [String('x')],
+                *normalize
+            ],
+            failure=[
+                [IRI(Variable('x'))],
+                [IRI_Variable('x')],
+                [Item(IRI(Variable('x')))],
+                [ItemTemplate(Variable('x'))],
+                [ItemVariable('x')],
+                *failure
+            ])
+
+    @override
+    def _test_instantiate(
+            self,
+            cls: type[_T],
+            success: Iterable[tuple[_T, KIF_Object, Theta]] = tuple(),
+            failure: Iterable[tuple[_T, Theta]] = tuple(),
+            failure_coerce: Iterable[tuple[_T, Theta]] = tuple()
+    ) -> None:
+        super()._test_instantiate(
+            cls,
+            success=[
+                (cls(Variable('x')),
+                 cls.object_class('x'),
+                 {StringVariable('x'): String('x')}),
+                (cls(Variable('x')),
+                 cls(Variable('y')),
+                 {StringVariable('x'): StringVariable('y')}),
+                *success
+            ],
+            failure=[
+                (cls(Variable('x')),
+                 {StringVariable('x'): Item('x')}),
+                (cls(Variable('x')),
+                 {StringVariable('x'): IRI_Variable('x')}),
+                *failure
+            ],
+            failure_coerce=[
+                (cls(Variable('x')),
+                 {StringVariable('x'): StringTemplate(Variable('x'))}),
+                *failure_coerce
+            ])
+
+
+# == kif_VariableTestCase ==================================================
 
 class kif_VariableTestCase(kif_ObjectTestCase):
 

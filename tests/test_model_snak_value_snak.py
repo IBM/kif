@@ -18,7 +18,7 @@ class TestModelSnakValueSnak(kif_TestCase):
             ValueSnak, dict(), 0)
         self.assert_raises_bad_argument(
             TypeError, 2, None,
-            'expected Value, got dict', ValueSnak, 'x', dict())
+            'cannot coerce dict into Value', ValueSnak, 'x', dict())
         # good argument
         self.assert_value_snak(
             ValueSnak(Property('abc'), IRI('abc')),
