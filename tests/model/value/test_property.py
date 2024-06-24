@@ -49,6 +49,9 @@ class Test(kif_EntityTestCase):
         assert_type(Property.check(Property('x')), Property)
         self._test_check(
             Property,
+            success=[
+                ('abc', Property('abc')),
+            ],
             failure=[
                 Item('x'),
                 Lexeme('x'),
@@ -67,11 +70,14 @@ class Test(kif_EntityTestCase):
             Property,
             self.assert_property,
             failure=[
-                Item('x'),
-                Lexeme('x'),
-                PropertyTemplate(Variable('x')),
-                Text('x'),
-                Variable('x', Text),
+                ['x', Item('y')],
+                ['x', String('y')],
+                ['x', Text('y')],
+                [Item('x')],
+                [Lexeme('x')],
+                [PropertyTemplate(Variable('x'))],
+                [Text('x')],
+                [Variable('x', Text)],
             ])
         self.assert_property(Property('x'), IRI('x'), None)
         self.assert_property(

@@ -1,9 +1,11 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import decimal
+
 from ... import namespace as NS
 from ...rdflib import URIRef
-from ...typing import Any, ClassVar, Optional, override, TypeAlias, Union
+from ...typing import Any, ClassVar, Optional, override, Self, TypeAlias, Union
 from ..kif_object import Decimal, TDecimal, TLocation
 from ..template import Template
 from ..variable import Variable
@@ -13,6 +15,7 @@ from .deep_data_value import (
     DeepDataValueVariable,
 )
 from .item import Item, ItemTemplate, ItemVariable, VItem, VTItemContent
+from .string import String
 from .value import Datatype
 
 QuantityClass: TypeAlias = type['Quantity']
@@ -21,10 +24,10 @@ QuantityTemplateClass: TypeAlias = type['QuantityTemplate']
 QuantityVariableClass: TypeAlias = type['QuantityVariable']
 
 TQuantity: TypeAlias = Union['Quantity', TDecimal]
-VTQuantityContent: TypeAlias = Union[Variable, TQuantity]
-VQuantityContent: TypeAlias = Union['QuantityVariable', Decimal]
 VQuantity: TypeAlias =\
-    Union['QuantityTemplate', 'QuantityVariable', TQuantity]
+    Union['QuantityTemplate', 'QuantityVariable', 'Quantity']
+VQuantityContent: TypeAlias = Union['QuantityVariable', Decimal]
+VTQuantityContent: TypeAlias = Union[Variable, TQuantity]
 
 
 class QuantityTemplate(DeepDataValueTemplate):
@@ -205,6 +208,23 @@ class Quantity(
         else:
             return cls(cls._check_arg_decimal(arg, function, name, position))
 
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Optional[TLocation] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, (Decimal, float, int, str)):
+            return cls(arg)
+        elif isinstance(arg, String):
+            return cls(arg.content)
+        raise cls._check_error(arg, function, name, position)
+
     def __init__(
             self,
             amount: VTQuantityContent,
@@ -219,17 +239,21 @@ class Quantity(
 
     @staticmethod
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
-        if i == 1:              # amount
-            return self_._preprocess_arg_decimal(
-                arg.args[0] if isinstance(arg, Quantity) else arg, i)
+        if i == 1 or i == 3 or i == 4:  # amount, lower/upper_bound
+            if arg is None and (i == 3 or i == 4):
+                return None
+            if isinstance(arg, Quantity):
+                return arg.amount
+            elif isinstance(arg, (Decimal, float, int, str)):
+                try:
+                    return Decimal(arg)
+                except decimal.InvalidOperation as err:
+                    raise Quantity._check_error(
+                        arg, type(self_), None, i, ValueError) from err
+            else:
+                raise Quantity._check_error(arg, type(self_), None, i)
         elif i == 2:            # unit
-            return self_._preprocess_optional_arg_item(arg, i)
-        elif i == 3:            # lower-bound
-            return self_._preprocess_optional_arg_decimal(
-                arg.args[0] if isinstance(arg, Quantity) else arg, i)
-        elif i == 4:            # upper-bound
-            return self_._preprocess_optional_arg_decimal(
-                arg.args[0] if isinstance(arg, Quantity) else arg, i)
+            return Item.check_optional(arg, None, type(self_), None, i)
         else:
             raise self_._should_not_get_here()
 

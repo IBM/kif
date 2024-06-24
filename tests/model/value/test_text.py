@@ -45,39 +45,30 @@ class Test(kif_ShallowDataValueTestCase):
             ])
 
     def test__init__(self) -> None:
-        self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'cannot coerce int into String',
-            Text, 'x', 0)
-        self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'cannot coerce dict into String',
-            Text, 'x', {})
-        self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'cannot coerce Text into String',
-            Text, 'x', Text('y'))
-        self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'cannot coerce ItemVariable into StringVariable',
-            (Text, 'TextTemplate'), 'x', Variable('y', Item))
-        # success
         assert_type(Text('x'), Text)
         self._test__init__(
             Text,
-            lambda x, y: self.assert_text(x, y),
+            self.assert_text,
+            success=[
+                (['x', 'y'], Text('x', 'y')),
+                (['x'], Text('x')),
+                ([Literal('x'), 'y'], Text('x', 'y')),
+                ([Literal('x'), 'y'], Text('x', 'y')),
+                ([String('x'), ExternalId('y')], Text('x', 'y')),
+                ([Text(ExternalId('x')), URIRef('y')], Text('x', 'y')),
+                ([Text(Text('x')), String('y')], Text('x', 'y')),
+                ([URIRef('x'), Literal('y')], Text('x', 'y'))
+            ],
             failure=[
-                IRI('x'),
-                Item('x'),
-                TextTemplate(Variable('x')),
-                Variable('x', Item),
+                ['x', 0],
+                ['x', Text('y')],
+                ['x', Variable('y', Item)],
+                ['x', {}],
+                [IRI('x')],
+                [Item('x')],
+                [TextTemplate(Variable('x'))],
+                [Variable('x', Item)],
             ])
-        self.assert_text(Text('x', 'y'), 'x', 'y')
-        self.assert_text(Text(ExternalId('x'), URIRef('y')), 'x', 'y')
-        self.assert_text(Text(Literal('x'), 'y'), 'x', 'y')
-        self.assert_text(Text(String('x'), ExternalId('y')), 'x', 'y')
-        self.assert_text(Text(Text('x'), String('y')), 'x', 'y')
-        self.assert_text(Text(URIRef('x'), Literal('y')), 'x', 'y')
 
 
 if __name__ == '__main__':

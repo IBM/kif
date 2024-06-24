@@ -47,11 +47,14 @@ class Test(kif_ShallowDataValueTestCase):
         self._test__init__(
             String,
             self.assert_string,
+            success=[
+                (['x'], String('x')),
+            ],
             failure=[
-                IRI('x'),
-                Item('x'),
-                TextTemplate(Variable('x')),
-                Variable('x', Item),
+                [IRI('x')],
+                [Item('x')],
+                [TextTemplate(Variable('x'))],
+                [Variable('x', Item)],
             ])
 
 

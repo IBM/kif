@@ -1215,7 +1215,7 @@ class Test(kif_TestCase):
 
     def test_check_quantity(self):
         self.assertEqual(Quantity(0).check_quantity(), Quantity(0))
-        self.assertRaises(TypeError, String('x').check_quantity)
+        self.assertRaises(ValueError, String('x').check_quantity)
 
     def test_check_quantity_datatype(self):
         self.assertEqual(
@@ -1787,7 +1787,7 @@ class Test(kif_TestCase):
     def test_unpack_quantity(self):
         self.assertEqual(Quantity(0).unpack_quantity(),
                          (Decimal('0'), None, None, None))
-        self.assertRaises(TypeError, String('x').unpack_quantity)
+        self.assertRaises(ValueError, String('x').unpack_quantity)
 
     def test_unpack_quantity_datatype(self):
         self.assertEqual(QuantityDatatype().unpack_quantity_datatype(), ())

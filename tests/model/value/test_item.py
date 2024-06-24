@@ -36,6 +36,9 @@ class Test(kif_EntityTestCase):
         assert_type(Item.check(Item('x')), Item)
         self._test_check(
             Item,
+            success=[
+                ('abc', Item('abc')),
+            ],
             failure=[
                 ItemTemplate(Variable('x')),
                 Lexeme('x'),
@@ -50,11 +53,11 @@ class Test(kif_EntityTestCase):
             Item,
             self.assert_item,
             failure=[
-                ItemTemplate(Variable('x')),
-                Lexeme('x'),
-                Property('x'),
-                Text('x'),
-                Variable('x', Text),
+                [ItemTemplate(Variable('x'))],
+                [Lexeme('x')],
+                [Property('x')],
+                [Text('x')],
+                [Variable('x', Text)],
             ])
 
     def test_Items(self) -> None:

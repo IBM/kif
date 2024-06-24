@@ -82,7 +82,6 @@ from kif_lib.model import (
     Decimal,
     DeepDataValueTemplate,
     DeepDataValueVariable,
-    EntityClass,
     EntityTemplate,
     EntityVariable,
     ItemTemplate,
@@ -96,7 +95,6 @@ from kif_lib.model import (
     PropertyVariable,
     QuantityTemplate,
     QuantityVariable,
-    ShallowDataValueClass,
     ShallowDataValueTemplate,
     ShallowDataValueVariable,
     SnakTemplate,
@@ -165,6 +163,7 @@ from kif_lib.typing import (
     Iterator,
     Optional,
     override,
+    Sequence,
     Set,
     TypeVar,
     Union,
@@ -173,11 +172,11 @@ from kif_lib.vocabulary import wd
 
 ME: Final[pathlib.Path] = pathlib.Path(__file__)
 
-_D = TypeVar('_D', bound=Datatype)
-_E = TypeVar('_E', bound=Entity)
-_SDV = TypeVar('_SDV', bound=ShallowDataValue)
-_T = TypeVar('_T', bound=Template)
-_V = TypeVar('_V', bound=Variable)
+_Dty = TypeVar('_Dty', bound=Datatype)
+_Ent = TypeVar('_Ent', bound=Entity)
+_Tpl = TypeVar('_Tpl', bound=Template)
+_Val = TypeVar('_Val', bound=Value)
+_Var = TypeVar('_Var', bound=Variable)
 
 
 class kif_TestCase(unittest.TestCase):
@@ -1164,6 +1163,190 @@ if __name__ == '__main__':
         self.assertEqual(obj.get_value(), value)
         self.assertEqual(Snak.Mask(obj.args[3]), mask)
         self.assertEqual(obj.snak_mask, mask)
+
+# -- Descriptors -----------------------------------------------------------
+
+    def sanity_check_get_descriptor(self, kb):
+        self.sanity_check_get_descriptor_bad_args(kb)
+        self.sanity_check_get_descriptor_vacuous_calls(kb)
+        it = kb.get_descriptor([Item('x'), Text('x')])
+        self.assertRaisesRegex(
+            TypeError, r"bad argument to 'Store\.get_descriptor' "
+            r'\(cannot coerce Text into Entity\)', list, it)
+
+    # -- get_descriptor --
+
+    def sanity_check_get_descriptor_bad_args(self, kb):
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'entities', 'expected Entity or Iterable, got int',
+            kb.get_descriptor, 0)
+        self.assert_raises_bad_argument(
+            TypeError, 2, 'language', 'expected str, got int',
+            kb.get_descriptor, Item('Q1'), 0)
+        self.assert_raises_bad_argument(
+            TypeError, 3, 'mask',
+            'expected Descriptor.AttributeMask or int, got str',
+            kb.get_descriptor, Item('Q1'), 'pt', 'abc')
+
+    def sanity_check_get_descriptor_vacuous_calls(self, kb):
+        items = list(Items('_Q0', '_Q1', '_Q2', '_Q0'))
+        props = list(Properties('_P0', '_P1', '_P2', '_P0'))
+        lexemes = list(Lexemes('_L0', '_L1', '_L2', '_L0'))
+        entities = items + props + lexemes
+        desc = list(kb.get_descriptor([]))
+        self.assertEqual(desc, list())
+        desc = list(kb.get_descriptor(items[0]))
+        self.assertEqual(desc, [(items[0], None)])
+        desc = list(kb.get_descriptor(entities, 'pt'))
+        self.assertEqual(desc, [
+            (items[0], None),
+            (items[1], None),
+            (items[2], None),
+            (items[0], None),
+            (props[0], None),
+            (props[1], None),
+            (props[2], None),
+            (props[0], None),
+            (lexemes[0], None),
+            (lexemes[1], None),
+            (lexemes[2], None),
+            (lexemes[0], None)
+        ])
+        desc = list(kb.get_descriptor(entities[1:], None, 0))
+        self.assertEqual(desc, [
+            (items[1], None),
+            (items[2], None),
+            (items[0], None),
+            (props[0], None),
+            (props[1], None),
+            (props[2], None),
+            (props[0], None),
+            (lexemes[0], None),
+            (lexemes[1], None),
+            (lexemes[2], None),
+            (lexemes[0], None)
+        ])
+
+    # -- get_item_descriptor --
+
+    def sanity_check_get_item_descriptor(self, kb):
+        self.sanity_check_get_item_descriptor_bad_args(kb)
+        self.sanity_check_get_item_descriptor_vacuous_calls(kb)
+        it = kb.get_item_descriptor([Item('x'), Property('x')])
+        self.assertRaisesRegex(
+            TypeError, r"bad argument to 'Store\.get_item_descriptor' "
+            r'\(cannot coerce Property into IRI\)', list, it)
+
+    def sanity_check_get_item_descriptor_bad_args(self, kb):
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'items', 'expected Item or Iterable, got int',
+            kb.get_item_descriptor, 0)
+        self.assert_raises_bad_argument(
+            TypeError, 2, 'language', 'expected str, got int',
+            kb.get_item_descriptor, Item('Q1'), 0)
+        self.assert_raises_bad_argument(
+            TypeError, 3, 'mask',
+            'expected Descriptor.AttributeMask or int, got str',
+            kb.get_item_descriptor, Item('Q1'), 'pt', 'abc')
+
+    def sanity_check_get_item_descriptor_vacuous_calls(self, kb):
+        items = list(Items('_Q0', '_Q1', '_Q2', '_Q0'))
+        desc = list(kb.get_item_descriptor([]))
+        self.assertEqual(desc, list())
+        desc = list(kb.get_item_descriptor(items[0]))
+        self.assertEqual(desc, [(items[0], None)])
+        desc = list(kb.get_item_descriptor(items, 'pt'))
+        self.assertEqual(desc, [
+            (items[0], None),
+            (items[1], None),
+            (items[2], None),
+            (items[0], None),
+        ])
+        desc = list(kb.get_item_descriptor(items[1:], None, 0))
+        self.assertEqual(desc, [
+            (items[1], None),
+            (items[2], None),
+            (items[0], None),
+        ])
+
+    # -- get_property_descriptor --
+
+    def sanity_check_get_property_descriptor(self, kb):
+        self.sanity_check_get_property_descriptor_bad_args(kb)
+        self.sanity_check_get_property_descriptor_vacuous_calls(kb)
+        it = kb.get_property_descriptor([Property('x'), Item('x')])
+        self.assertRaisesRegex(
+            TypeError, r"bad argument to 'Store\.get_property_descriptor' "
+            r'\(cannot coerce Item into IRI\)', list, it)
+
+    def sanity_check_get_property_descriptor_bad_args(self, kb):
+        self.assert_raises_bad_argument(
+            TypeError, 1,
+            'properties', 'expected Iterable or Property, got int',
+            kb.get_property_descriptor, 0)
+        self.assert_raises_bad_argument(
+            TypeError, 2, 'language', 'expected str, got int',
+            kb.get_property_descriptor, Property('P1'), 0)
+        self.assert_raises_bad_argument(
+            TypeError, 3, 'mask',
+            'expected Descriptor.AttributeMask or int, got str',
+            kb.get_property_descriptor, Property('P1'), 'pt', 'abc')
+
+    def sanity_check_get_property_descriptor_vacuous_calls(self, kb):
+        props = list(Properties('_P0', '_P1', '_P2', '_P0'))
+        desc = list(kb.get_property_descriptor([]))
+        self.assertEqual(desc, list())
+        desc = list(kb.get_property_descriptor(props[0]))
+        self.assertEqual(desc, [(props[0], None)])
+        desc = list(kb.get_property_descriptor(props, 'pt'))
+        self.assertEqual(desc, [
+            (props[0], None),
+            (props[1], None),
+            (props[2], None),
+            (props[0], None),
+        ])
+        desc = list(kb.get_property_descriptor(props[1:], None, 0))
+        self.assertEqual(desc, [
+            (props[1], None),
+            (props[2], None),
+            (props[0], None),
+        ])
+
+    # -- get_lexeme_descriptor --
+
+    def sanity_check_get_lexeme_descriptor(self, kb):
+        self.sanity_check_get_lexeme_descriptor_bad_args(kb)
+        self.sanity_check_get_lexeme_descriptor_vacuous_calls(kb)
+        it = kb.get_lexeme_descriptor([Lexeme('x'), Property('x')])
+        self.assertRaisesRegex(
+            TypeError, r"bad argument to 'Store\.get_lexeme_descriptor' "
+            r'\(cannot coerce Property into IRI\)', list, it)
+
+    def sanity_check_get_lexeme_descriptor_bad_args(self, kb):
+        self.assert_raises_bad_argument(
+            TypeError, 1,
+            'lexemes', 'expected Iterable or Lexeme, got int',
+            kb.get_lexeme_descriptor, 0)
+
+    def sanity_check_get_lexeme_descriptor_vacuous_calls(self, kb):
+        lexs = list(Lexemes('_L0', '_L1', '_L2', '_L0'))
+        desc = list(kb.get_lexeme_descriptor([]))
+        self.assertEqual(desc, list())
+        desc = list(kb.get_lexeme_descriptor(lexs[0]))
+        self.assertEqual(desc, [(lexs[0], None)])
+        desc = list(kb.get_lexeme_descriptor(lexs))
+        self.assertEqual(desc, [
+            (lexs[0], None),
+            (lexs[1], None),
+            (lexs[2], None),
+            (lexs[0], None),
+        ])
+        desc = list(kb.get_lexeme_descriptor(lexs[1:]))
+        self.assertEqual(desc, [
+            (lexs[1], None),
+            (lexs[2], None),
+            (lexs[0], None)
+        ])
 
 
 # == kif_ObjectTestCase ====================================================
@@ -1178,25 +1361,25 @@ class kif_TemplateTestCase(kif_TestCase):
 
     def _test_check(
             self,
-            cls: TemplateClass,
-            success: Iterable[KIF_Object] = tuple(),
-            failure: Iterable[KIF_Object] = tuple()
+            cls: type[_Tpl],
+            success: Iterable[tuple[Any, _Tpl]] = tuple(),
+            failure: Iterable[Any] = tuple()
     ) -> None:
         self.assert_raises_check_error(cls, 0, cls.check)
         self.assert_raises_check_error(cls, {}, cls.check)
-        for obj in failure:
-            self.assert_raises_check_error(cls, obj, cls.check)
+        for v in failure:
+            self.assert_raises_check_error(cls, v, cls.check)
         # success
-        for obj in success:
-            self.assertEqual(cls.check(obj), obj)
+        for v, obj in success:
+            self.assertEqual(cls.check(v), obj)
 
     def _test__init__(
             self,
-            cls: type[_T],
-            assert_T: Callable[[_T, tuple[Any, ...]], None],
-            success: Iterable[list[Any]] = tuple(),
-            normalize: Iterable[list[Any]] = tuple(),
-            failure: Iterable[list[Any]] = tuple()
+            cls: type[_Tpl],
+            assert_fn: Callable[[_Tpl, tuple[Any, ...]], None],
+            success: Iterable[Sequence[Any]] = tuple(),
+            normalize: Iterable[Sequence[Any]] = tuple(),
+            failure: Iterable[Sequence[Any]] = tuple()
     ) -> None:
         for t in failure:
             self._debug('failure:', t)
@@ -1206,14 +1389,14 @@ class kif_TemplateTestCase(kif_TestCase):
             self.assertEqual(cls(*t), cls.object_class(*t))
         for t in success:
             self._debug('success:', t)
-            assert_T(cls(*t), *t)  # type: ignore
+            assert_fn(cls(*t), *t)  # type: ignore
 
     def _test_instantiate(
             self,
-            cls: type[_T],
-            success: Iterable[tuple[_T, KIF_Object, Theta]] = tuple(),
-            failure: Iterable[tuple[_T, Theta]] = tuple(),
-            failure_coerce: Iterable[tuple[_T, Theta]] = tuple()
+            cls: type[_Tpl],
+            success: Iterable[tuple[_Tpl, KIF_Object, Theta]] = tuple(),
+            failure: Iterable[tuple[_Tpl, Theta]] = tuple(),
+            failure_coerce: Iterable[tuple[_Tpl, Theta]] = tuple()
     ) -> None:
         for obj, theta in failure:
             self._debug('failure (instantiate):', obj, theta)
@@ -1240,14 +1423,14 @@ class kif_EntityTemplateTestCase(kif_TemplateTestCase):
     @override
     def _test_check(
             self,
-            cls: TemplateClass,
-            success: Iterable[KIF_Object] = tuple(),
-            failure: Iterable[KIF_Object] = tuple()
+            cls: type[_Tpl],
+            success: Iterable[tuple[Any, _Tpl]] = tuple(),
+            failure: Iterable[Any] = tuple()
     ) -> None:
         super()._test_check(
             cls,
             success=[
-                cls(Variable('x')),
+                (cls(Variable('x')), cls(Variable('x'))),
                 *success
             ],
             failure=[
@@ -1261,15 +1444,15 @@ class kif_EntityTemplateTestCase(kif_TemplateTestCase):
     @override
     def _test__init__(
             self,
-            cls: type[_T],
-            assert_T: Callable[[_T, tuple[Any, ...]], None],
-            success: Iterable[list[Any]] = tuple(),
-            normalize: Iterable[list[Any]] = tuple(),
-            failure: Iterable[list[Any]] = tuple()
+            cls: type[_Tpl],
+            assert_fn: Callable[[_Tpl, tuple[Any, ...]], None],
+            success: Iterable[Sequence[Any]] = tuple(),
+            normalize: Iterable[Sequence[Any]] = tuple(),
+            failure: Iterable[Sequence[Any]] = tuple()
     ) -> None:
         super()._test__init__(
             cls,
-            assert_T,
+            assert_fn,
             success=[
                 [IRI_Template(Variable('x'))],
                 [IRI_Variable('x')],
@@ -1293,10 +1476,10 @@ class kif_EntityTemplateTestCase(kif_TemplateTestCase):
     @override
     def _test_instantiate(
             self,
-            cls: type[_T],
-            success: Iterable[tuple[_T, KIF_Object, Theta]] = tuple(),
-            failure: Iterable[tuple[_T, Theta]] = tuple(),
-            failure_coerce: Iterable[tuple[_T, Theta]] = tuple()
+            cls: type[_Tpl],
+            success: Iterable[tuple[_Tpl, KIF_Object, Theta]] = tuple(),
+            failure: Iterable[tuple[_Tpl, Theta]] = tuple(),
+            failure_coerce: Iterable[tuple[_Tpl, Theta]] = tuple()
     ) -> None:
         super()._test_instantiate(
             cls,
@@ -1330,14 +1513,14 @@ class kif_ShallowDataValueTemplateTestCase(kif_TemplateTestCase):
     @override
     def _test_check(
             self,
-            cls: TemplateClass,
-            success: Iterable[KIF_Object] = tuple(),
-            failure: Iterable[KIF_Object] = tuple()
+            cls: type[_Tpl],
+            success: Iterable[tuple[Any, _Tpl]] = tuple(),
+            failure: Iterable[Any] = tuple()
     ) -> None:
         super()._test_check(
             cls,
             success=[
-                cls(Variable('x')),
+                (cls(Variable('x')), cls(Variable('x'))),
                 *success
             ],
             failure=[
@@ -1354,15 +1537,15 @@ class kif_ShallowDataValueTemplateTestCase(kif_TemplateTestCase):
     @override
     def _test__init__(
             self,
-            cls: type[_T],
-            assert_T: Callable[[_T, tuple[Any, ...]], None],
-            success: Iterable[list[Any]] = tuple(),
-            normalize: Iterable[list[Any]] = tuple(),
-            failure: Iterable[list[Any]] = tuple()
+            cls: type[_Tpl],
+            assert_fn: Callable[[_Tpl, tuple[Any, ...]], None],
+            success: Iterable[Sequence[Any]] = tuple(),
+            normalize: Iterable[Sequence[Any]] = tuple(),
+            failure: Iterable[Sequence[Any]] = tuple()
     ) -> None:
         super()._test__init__(
             cls,
-            assert_T,
+            assert_fn,
             success=[
                 [StringVariable('x')],
                 [Variable('x', String)],
@@ -1385,10 +1568,10 @@ class kif_ShallowDataValueTemplateTestCase(kif_TemplateTestCase):
     @override
     def _test_instantiate(
             self,
-            cls: type[_T],
-            success: Iterable[tuple[_T, KIF_Object, Theta]] = tuple(),
-            failure: Iterable[tuple[_T, Theta]] = tuple(),
-            failure_coerce: Iterable[tuple[_T, Theta]] = tuple()
+            cls: type[_Tpl],
+            success: Iterable[tuple[_Tpl, KIF_Object, Theta]] = tuple(),
+            failure: Iterable[tuple[_Tpl, Theta]] = tuple(),
+            failure_coerce: Iterable[tuple[_Tpl, Theta]] = tuple()
     ) -> None:
         super()._test_instantiate(
             cls,
@@ -1434,8 +1617,8 @@ class kif_VariableTestCase(kif_ObjectTestCase):
 
     def _test__init__(
             self,
-            cls: type[_V],
-            assert_V: Callable[[_V, str], None]
+            cls: type[_Var],
+            assert_fn: Callable[[_Var, str], None]
     ) -> None:
         self.assert_raises_check_error(cls, 0)
         self.assert_raises_check_error(cls, {})
@@ -1443,8 +1626,8 @@ class kif_VariableTestCase(kif_ObjectTestCase):
             self.assert_raises_check_error(
                 cls, Variable('x', other_cls))
         # success
-        assert_V(cls('x'), 'x')
-        assert_V(cast(_V, Variable('x', cls.object_class)), 'x')
+        assert_fn(cls('x'), 'x')
+        assert_fn(cast(_Var, Variable('x', cls.object_class)), 'x')
 
     def _test_instantiate(
             self,
@@ -1499,90 +1682,118 @@ class kif_DatatypeTestCase(kif_ObjectTestCase):
 
     def _test__init__(
             self,
-            cls: type[_D],
-            assert_D: Callable[[_D], None]
+            cls: type[_Dty],
+            assert_fn: Callable[[_Dty], None]
     ) -> None:
         self.assert_raises_check_error(cls, 0)
         # success
-        assert_D(cls())
-        assert_D(cast(_D, Datatype(cls)))
-        assert_D(cast(_D, Datatype(cls.value_class)))
+        assert_fn(cls())
+        assert_fn(cast(_Dty, Datatype(cls)))
+        assert_fn(cast(_Dty, Datatype(cls.value_class)))
 
 
 # == kif_ValueTestCase =====================================================
 
 class kif_ValueTestCase(kif_ObjectTestCase):
-    pass
+
+    def _test_check(
+            self,
+            cls: type[_Val],
+            success: Iterable[tuple[Any, _Val]] = tuple(),
+            failure: Iterable[Any] = tuple()
+    ) -> None:
+        for v in failure:
+            self._debug('failure:', v)
+            self.assertRaisesRegex(TypeError, 'cannot coerce', cls.check, v)
+        for v, obj in success:
+            self.assertEqual(cls.check(v), obj)
+
+    def _test__init__(
+            self,
+            cls: type[_Val],
+            assert_fn: Callable[..., None],
+            success: Iterable[tuple[Sequence[Any], _Val]] = tuple(),
+            failure: Iterable[Sequence[Any]] = tuple()
+    ) -> None:
+        for t in failure:
+            self._debug('failure:', t)
+            self.assertRaisesRegex(TypeError, 'cannot coerce', cls, *t)
+        for t, obj in success:
+            self._debug('success:', t, obj)
+            assert_fn(cls(*t), *obj)
 
 
 # == kif_EntityTestCase ====================================================
 
 class kif_EntityTestCase(kif_ValueTestCase):
 
+    @override
     def _test_check(
             self,
-            cls: EntityClass,
-            success: Iterable[KIF_Object] = tuple(),
-            failure: Iterable[KIF_Object] = tuple()
+            cls: type[_Val],
+            success: Iterable[tuple[Any, _Val]] = tuple(),
+            failure: Iterable[Any] = tuple()
     ) -> None:
         self.assert_raises_check_error(IRI, 0, cls.check)
         self.assert_raises_check_error(IRI, {}, cls.check)
         self.assert_raises_check_error(
             IRI, IRI_Template(Variable('x')), cls.check)
         self.assert_raises_check_error(IRI, Variable('x'), cls.check)
-        for obj in failure:
-            self.assert_raises_check_error(IRI, obj, cls.check)
-        # success
-        self.assertEqual(cls.check('x'), cls('x'))
-        self.assertEqual(cls.check(cls('x')), cls('x'))
-        self.assertEqual(cls.check(ExternalId('x')), cls('x'))
-        self.assertEqual(cls.check(IRI('x')), cls('x'))
-        self.assertEqual(cls.check(Literal('x')), cls('x'))
-        self.assertEqual(cls.check(String('x')), cls('x'))
-        self.assertEqual(cls.check(URIRef('x')), cls('x'))
-        for obj in success:
-            self.assertEqual(cls.check(obj), cls('x'))
+        super()._test_check(
+            cls,
+            success=[
+                ('x', cls('x')),
+                (cls('x'), cls('x')),
+                (ExternalId('x'), cls('x')),
+                (IRI('x'), cls('x')),
+                (Literal('x'), cls('x')),
+                (String('x'), cls('x')),
+                (URIRef('x'), cls('x')),
+                *success
+            ],
+            failure=[
+                0, {}, Variable('x', Item), *failure
+            ])
 
+    @override
     def _test__init__(
             self,
-            cls: type[_E],
-            assert_E: Callable[[_E, IRI], None],
-            failure: Iterable[KIF_Object] = tuple()
+            cls: type[_Val],
+            assert_fn: Callable[..., None],
+            success: Iterable[tuple[Sequence[Any], _Val]] = tuple(),
+            failure: Iterable[Sequence[Any]] = tuple()
     ) -> None:
         self.assert_raises_check_error(IRI, 0, cls, None, 1)
         self.assert_raises_check_error(IRI, {}, cls, None, 1)
-        for obj in failure:
-            if isinstance(obj, Template):
-                self.assert_raises_check_error(
-                    IRI_Template, obj,
-                    (cls, cls.template_class.__qualname__), None, 1)
-            elif isinstance(obj, Variable):
-                self.assert_raises_check_error(
-                    IRI_Variable, obj,
-                    (cls, cls.template_class.__qualname__), None, 1)
-            else:
-                self.assert_raises_check_error(IRI, obj, cls, None, 1)
-        # success
-        assert_E(cls('x'), IRI('x'))
-        assert_E(cls(cls('x')), IRI('x'))
-        assert_E(cls(ExternalId('x')), IRI('x'))
-        assert_E(cls(Literal('x')), IRI('x'))
-        assert_E(cls(String('x')), IRI('x'))
-        assert_E(cls(URIRef('x')), IRI('x'))
+        super()._test__init__(
+            cls,
+            assert_fn,
+            success=[
+                ([cls('x')], cls('x')),
+                ([ExternalId('x')], cls('x')),
+                ([IRI('x')], cls('x')),
+                ([Literal('x')], cls('x')),
+                ([String('x')], cls('x')),
+                ([URIRef('x')], cls('x')),
+                *success
+            ],
+            failure=[
+                [0], [{}], *failure
+            ])
 
     def _test_Entities(
             self,
-            map_E: Callable[..., Iterable[_E]],
-            assert_E: Callable[[_E, IRI], None],
-            failure: Iterable[KIF_Object] = tuple()
+            map_fn: Callable[..., Iterable[_Ent]],
+            assert_fn: Callable[[_Ent, IRI], None],
+            failure: Iterable[Any] = tuple()
     ) -> None:
-        for obj in failure:
-            self.assertRaises(TypeError, list, map_E, obj)
+        for v in failure:
+            self.assertRaises(TypeError, list, map_fn, v)
         # success
-        a, b, c = map_E('a', IRI('b'), 'c')
-        assert_E(a, IRI('a'))
-        assert_E(b, IRI('b'))
-        assert_E(c, IRI('c'))
+        a, b, c = map_fn('a', IRI('b'), 'c')
+        assert_fn(a, IRI('a'))
+        assert_fn(b, IRI('b'))
+        assert_fn(c, IRI('c'))
 
 
 # == kif_DataValueTestCase =================================================
@@ -1595,56 +1806,77 @@ class kif_DataValueTestCase(kif_ValueTestCase):
 
 class kif_ShallowDataValueTestCase(kif_DataValueTestCase):
 
+    @override
     def _test_check(
             self,
-            cls: ShallowDataValueClass,
-            success: Iterable[KIF_Object] = tuple(),
-            failure: Iterable[KIF_Object] = tuple()
+            cls: type[_Val],
+            success: Iterable[tuple[Any, _Val]] = tuple(),
+            failure: Iterable[Any] = tuple()
     ) -> None:
         self.assert_raises_check_error(cls, 0)
         self.assert_raises_check_error(cls, {})
         self.assert_raises_check_error(
             cls, cls.template_class(Variable('x')))
         self.assert_raises_check_error(cls, Variable('x'))
-        for obj in failure:
-            self.assert_raises_check_error(cls, obj)
-        self.assertEqual(cls.check(cls('x')), cls('x'))
-        self.assertEqual(cls.check(String('x')), cls('x'))
+        super()._test_check(
+            cls,
+            success=[
+                ('x', cls('x')),
+                (cls('x'), cls('x')),
+                (Literal('x'), cls('x')),
+                (String('x'), cls('x')),
+                (URIRef('x'), cls('x')),
+                *success
+            ],
+            failure=failure)
         if cls is not String:
             self.assertEqual(cls.check(ExternalId('x')), cls('x'))
         else:
             self.assertEqual(cls.check(ExternalId('x')), ExternalId('x'))
-        self.assertEqual(cls.check(URIRef('x')), cls('x'))
-        self.assertEqual(cls.check(Literal('x')), cls('x'))
-        self.assertEqual(cls.check('x'), cls('x'))
 
+    @override
     def _test__init__(
             self,
-            cls: type[_SDV],
-            assert_SDV: Callable[[_SDV, str], None],
-            failure: Iterable[KIF_Object] = tuple()
+            cls: type[_Val],
+            assert_fn: Callable[..., None],
+            success: Iterable[tuple[Sequence[Any], _Val]] = tuple(),
+            failure: Iterable[Sequence[Any]] = tuple()
     ) -> None:
         self.assert_raises_check_error(String, 0, cls, None, 1)
         self.assert_raises_check_error(String, {}, cls, None, 1)
-        for obj in failure:
-            if isinstance(obj, Template):
-                self.assert_raises_check_error(
-                    StringVariable, obj,
-                    (cls, cls.template_class.__qualname__), None, 1)
-            elif isinstance(obj, Variable):
-                self.assert_raises_check_error(
-                    StringVariable, obj,
-                    (cls, cls.template_class.__qualname__), None, 1)
-            else:
-                self.assert_raises_check_error(String, obj, cls, None, 1)
-        assert_SDV(cls('x'), 'x')
-        assert_SDV(cls(cls('x')), 'x')
-        assert_SDV(cls(ExternalId('x')), 'x')
-        assert_SDV(cls(Literal('x')), 'x')
-        assert_SDV(cls(String('x')), 'x')
-        assert_SDV(cls(URIRef('x')), 'x')
+        super()._test__init__(
+            cls,
+            assert_fn,
+            success=[
+                (['x'], cls('x')),
+                ([cls('x')], cls('x')),
+                ([ExternalId('x')], cls('x')),
+                ([Literal('x')], cls('x')),
+                ([String('x')], cls('x')),
+                ([URIRef('x')], cls('x')),
+                *success
+            ],
+            failure=failure)
 
+
+# == kif_DeepDataValueTestCase =============================================
 
+class kif_DeepDataValueTestCase(kif_DataValueTestCase):
+
+    @override
+    def _test_check(
+            self,
+            cls: type[_Val],
+            success: Iterable[tuple[Any, _Val]] = tuple(),
+            failure: Iterable[Any] = tuple()
+    ) -> None:
+        self.assert_raises_check_error(cls, {})
+        self.assert_raises_check_error(
+            cls, cls.template_class(Variable('x')))
+        self.assert_raises_check_error(cls, Variable('x'))
+        super()._test_check(cls, success, failure)
+
+
 # == kif_StoreTestCase =====================================================
 
 class kif_StoreTestCase(kif_TestCase):
@@ -2047,190 +2279,6 @@ class kif_StoreTestCase(kif_TestCase):
             self.assertEqual(stmt, pairs[i][0])
             self.assertIsNone(annots)
         kb.flags = saved_flags
-
-# -- Descriptors -----------------------------------------------------------
-
-    def sanity_check_get_descriptor(self, kb):
-        self.sanity_check_get_descriptor_bad_args(kb)
-        self.sanity_check_get_descriptor_vacuous_calls(kb)
-        it = kb.get_descriptor([Item('x'), Text('x')])
-        self.assertRaisesRegex(
-            TypeError, r"bad argument to 'Store\.get_descriptor' "
-            r'\(cannot coerce Text into Entity\)', list, it)
-
-    # -- get_descriptor --
-
-    def sanity_check_get_descriptor_bad_args(self, kb):
-        self.assert_raises_bad_argument(
-            TypeError, 1, 'entities', 'expected Entity or Iterable, got int',
-            kb.get_descriptor, 0)
-        self.assert_raises_bad_argument(
-            TypeError, 2, 'language', 'expected str, got int',
-            kb.get_descriptor, Item('Q1'), 0)
-        self.assert_raises_bad_argument(
-            TypeError, 3, 'mask',
-            'expected Descriptor.AttributeMask or int, got str',
-            kb.get_descriptor, Item('Q1'), 'pt', 'abc')
-
-    def sanity_check_get_descriptor_vacuous_calls(self, kb):
-        items = list(Items('_Q0', '_Q1', '_Q2', '_Q0'))
-        props = list(Properties('_P0', '_P1', '_P2', '_P0'))
-        lexemes = list(Lexemes('_L0', '_L1', '_L2', '_L0'))
-        entities = items + props + lexemes
-        desc = list(kb.get_descriptor([]))
-        self.assertEqual(desc, list())
-        desc = list(kb.get_descriptor(items[0]))
-        self.assertEqual(desc, [(items[0], None)])
-        desc = list(kb.get_descriptor(entities, 'pt'))
-        self.assertEqual(desc, [
-            (items[0], None),
-            (items[1], None),
-            (items[2], None),
-            (items[0], None),
-            (props[0], None),
-            (props[1], None),
-            (props[2], None),
-            (props[0], None),
-            (lexemes[0], None),
-            (lexemes[1], None),
-            (lexemes[2], None),
-            (lexemes[0], None)
-        ])
-        desc = list(kb.get_descriptor(entities[1:], None, 0))
-        self.assertEqual(desc, [
-            (items[1], None),
-            (items[2], None),
-            (items[0], None),
-            (props[0], None),
-            (props[1], None),
-            (props[2], None),
-            (props[0], None),
-            (lexemes[0], None),
-            (lexemes[1], None),
-            (lexemes[2], None),
-            (lexemes[0], None)
-        ])
-
-    # -- get_item_descriptor --
-
-    def sanity_check_get_item_descriptor(self, kb):
-        self.sanity_check_get_item_descriptor_bad_args(kb)
-        self.sanity_check_get_item_descriptor_vacuous_calls(kb)
-        it = kb.get_item_descriptor([Item('x'), Property('x')])
-        self.assertRaisesRegex(
-            TypeError, r"bad argument to 'Store\.get_item_descriptor' "
-            r'\(cannot coerce Property into IRI\)', list, it)
-
-    def sanity_check_get_item_descriptor_bad_args(self, kb):
-        self.assert_raises_bad_argument(
-            TypeError, 1, 'items', 'expected Item or Iterable, got int',
-            kb.get_item_descriptor, 0)
-        self.assert_raises_bad_argument(
-            TypeError, 2, 'language', 'expected str, got int',
-            kb.get_item_descriptor, Item('Q1'), 0)
-        self.assert_raises_bad_argument(
-            TypeError, 3, 'mask',
-            'expected Descriptor.AttributeMask or int, got str',
-            kb.get_item_descriptor, Item('Q1'), 'pt', 'abc')
-
-    def sanity_check_get_item_descriptor_vacuous_calls(self, kb):
-        items = list(Items('_Q0', '_Q1', '_Q2', '_Q0'))
-        desc = list(kb.get_item_descriptor([]))
-        self.assertEqual(desc, list())
-        desc = list(kb.get_item_descriptor(items[0]))
-        self.assertEqual(desc, [(items[0], None)])
-        desc = list(kb.get_item_descriptor(items, 'pt'))
-        self.assertEqual(desc, [
-            (items[0], None),
-            (items[1], None),
-            (items[2], None),
-            (items[0], None),
-        ])
-        desc = list(kb.get_item_descriptor(items[1:], None, 0))
-        self.assertEqual(desc, [
-            (items[1], None),
-            (items[2], None),
-            (items[0], None),
-        ])
-
-    # -- get_property_descriptor --
-
-    def sanity_check_get_property_descriptor(self, kb):
-        self.sanity_check_get_property_descriptor_bad_args(kb)
-        self.sanity_check_get_property_descriptor_vacuous_calls(kb)
-        it = kb.get_property_descriptor([Property('x'), Item('x')])
-        self.assertRaisesRegex(
-            TypeError, r"bad argument to 'Store\.get_property_descriptor' "
-            r'\(cannot coerce Item into IRI\)', list, it)
-
-    def sanity_check_get_property_descriptor_bad_args(self, kb):
-        self.assert_raises_bad_argument(
-            TypeError, 1,
-            'properties', 'expected Iterable or Property, got int',
-            kb.get_property_descriptor, 0)
-        self.assert_raises_bad_argument(
-            TypeError, 2, 'language', 'expected str, got int',
-            kb.get_property_descriptor, Property('P1'), 0)
-        self.assert_raises_bad_argument(
-            TypeError, 3, 'mask',
-            'expected Descriptor.AttributeMask or int, got str',
-            kb.get_property_descriptor, Property('P1'), 'pt', 'abc')
-
-    def sanity_check_get_property_descriptor_vacuous_calls(self, kb):
-        props = list(Properties('_P0', '_P1', '_P2', '_P0'))
-        desc = list(kb.get_property_descriptor([]))
-        self.assertEqual(desc, list())
-        desc = list(kb.get_property_descriptor(props[0]))
-        self.assertEqual(desc, [(props[0], None)])
-        desc = list(kb.get_property_descriptor(props, 'pt'))
-        self.assertEqual(desc, [
-            (props[0], None),
-            (props[1], None),
-            (props[2], None),
-            (props[0], None),
-        ])
-        desc = list(kb.get_property_descriptor(props[1:], None, 0))
-        self.assertEqual(desc, [
-            (props[1], None),
-            (props[2], None),
-            (props[0], None),
-        ])
-
-    # -- get_lexeme_descriptor --
-
-    def sanity_check_get_lexeme_descriptor(self, kb):
-        self.sanity_check_get_lexeme_descriptor_bad_args(kb)
-        self.sanity_check_get_lexeme_descriptor_vacuous_calls(kb)
-        it = kb.get_lexeme_descriptor([Lexeme('x'), Property('x')])
-        self.assertRaisesRegex(
-            TypeError, r"bad argument to 'Store\.get_lexeme_descriptor' "
-            r'\(cannot coerce Property into IRI\)', list, it)
-
-    def sanity_check_get_lexeme_descriptor_bad_args(self, kb):
-        self.assert_raises_bad_argument(
-            TypeError, 1,
-            'lexemes', 'expected Iterable or Lexeme, got int',
-            kb.get_lexeme_descriptor, 0)
-
-    def sanity_check_get_lexeme_descriptor_vacuous_calls(self, kb):
-        lexs = list(Lexemes('_L0', '_L1', '_L2', '_L0'))
-        desc = list(kb.get_lexeme_descriptor([]))
-        self.assertEqual(desc, list())
-        desc = list(kb.get_lexeme_descriptor(lexs[0]))
-        self.assertEqual(desc, [(lexs[0], None)])
-        desc = list(kb.get_lexeme_descriptor(lexs))
-        self.assertEqual(desc, [
-            (lexs[0], None),
-            (lexs[1], None),
-            (lexs[2], None),
-            (lexs[0], None),
-        ])
-        desc = list(kb.get_lexeme_descriptor(lexs[1:]))
-        self.assertEqual(desc, [
-            (lexs[1], None),
-            (lexs[2], None),
-            (lexs[0], None)
-        ])
 
 
 # == kif_EmptyStoreTestCase ================================================

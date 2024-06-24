@@ -36,6 +36,9 @@ class Test(kif_EntityTestCase):
         assert_type(Lexeme.check(Lexeme('x')), Lexeme)
         self._test_check(
             Lexeme,
+            success=[
+                ('abc', Lexeme('abc')),
+            ],
             failure=[
                 Item('x'),
                 LexemeTemplate(Variable('x')),
@@ -50,11 +53,11 @@ class Test(kif_EntityTestCase):
             Lexeme,
             self.assert_lexeme,
             failure=[
-                Item('x'),
-                LexemeTemplate(Variable('x')),
-                Property('x'),
-                Text('x'),
-                Variable('x', Text),
+                [Item('x')],
+                [LexemeTemplate(Variable('x'))],
+                [Property('x')],
+                [Text('x')],
+                [Variable('x', Text)],
             ])
 
     def test_Lexemes(self) -> None:

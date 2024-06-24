@@ -101,16 +101,16 @@ class Test(kif_TestCase):
     def test__new__quantity_template(self):
         x = Variable('x')
         self.assert_raises_bad_argument(
-            ValueError, 1, None, 'expected Decimal',
+            ValueError, 1, None, 'cannot coerce str into Quantity',
             (QuantityTemplate, 'Quantity'), 'x')
         self.assert_raises_bad_argument(
             TypeError, 2, None, 'cannot coerce int into IRI',
             (QuantityTemplate, 'Quantity'), 0, 0)
         self.assert_raises_bad_argument(
-            ValueError, 3, None, 'expected Decimal',
+            ValueError, 3, None, 'cannot coerce str into Quantity',
             (QuantityTemplate, 'Quantity'), 0, None, 'x')
         self.assert_raises_bad_argument(
-            ValueError, 4, None, 'expected Decimal',
+            ValueError, 4, None, 'cannot coerce str into Quantity',
             (QuantityTemplate, 'Quantity'), 0, None, None, 'x')
         self.assert_quantity_template(
             QuantityTemplate(x),
@@ -360,7 +360,7 @@ class Test(kif_TestCase):
             QuantityTemplate, IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
-            'expected Decimal or float or int or str, got QuantityTemplate',
+            'cannot coerce QuantityTemplate into Quantity',
             QuantityTemplate, QuantityTemplate(Variable('x')))
         self.assert_raises_bad_argument(
             TypeError, 2, None,
@@ -372,7 +372,7 @@ class Test(kif_TestCase):
             QuantityTemplate, 0, None, IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 3, None,
-            'expected Decimal or float or int or str, got QuantityTemplate',
+            'cannot coerce QuantityTemplate into Quantity',
             QuantityTemplate, 0, None, QuantityTemplate(Variable('x')))
         self.assert_raises_bad_argument(
             TypeError, 4, None,
@@ -380,7 +380,7 @@ class Test(kif_TestCase):
             QuantityTemplate, 0, None, None, IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 4, None,
-            'expected Decimal or float or int or str, got QuantityTemplate',
+            'cannot coerce QuantityTemplate into Quantity',
             QuantityTemplate, 0, None, None, QuantityTemplate(Variable('x')))
 
     def test__init__quantity_template_normalization(self):

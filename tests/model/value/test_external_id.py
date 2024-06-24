@@ -47,11 +47,14 @@ class Test(kif_ShallowDataValueTestCase):
         self._test__init__(
             ExternalId,
             self.assert_external_id,
+            success=[
+                (['x'], ExternalId('x')),
+            ],
             failure=[
-                IRI('x'),
-                Item('x'),
-                TextTemplate(Variable('x')),
-                Variable('x', Item),
+                [IRI('x')],
+                [Item('x')],
+                [TextTemplate(Variable('x'))],
+                [Variable('x', Item)],
             ])
 
 

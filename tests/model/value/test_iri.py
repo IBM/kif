@@ -46,11 +46,14 @@ class Test(kif_ShallowDataValueTestCase):
         self._test__init__(
             IRI,
             self.assert_iri,
+            success=[
+                (['x'], IRI('x')),
+            ],
             failure=[
-                IRI_Template(Variable('x')),
-                Item('x'),
-                Text('x'),
-                Variable('x', Item),
+                [IRI_Template(Variable('x'))],
+                [Item('x')],
+                [Text('x')],
+                [Variable('x', Item)],
             ])
 
 
