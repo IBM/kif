@@ -10,10 +10,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_TestCase
+from ...tests import kif_ShallowDataValueTestCase
 
 
-class Test(kif_TestCase):
+class Test(kif_ShallowDataValueTestCase):
 
     def test_template_class(self) -> None:
         assert_type(

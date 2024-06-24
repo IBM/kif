@@ -4,10 +4,10 @@
 from kif_lib import ShallowDataValue, ShallowDataValueTemplate
 from kif_lib.typing import assert_type
 
-from ...tests import kif_TestCase
+from ...tests import kif_ShallowDataValueTemplateTestCase
 
 
-class Test(kif_TestCase):
+class Test(kif_ShallowDataValueTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(

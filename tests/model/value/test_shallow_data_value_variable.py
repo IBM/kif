@@ -47,10 +47,11 @@ class Test(kif_VariableTestCase):
         self._test_instantiate(
             ShallowDataValueVariable,
             success=[
+                ExternalId('x'),
+                ExternalId.template_class(Variable('y')),
                 String('x'),
                 String.template_class(Variable('y')),
-                ExternalId('x'),
-                ExternalId.template_class(Variable('y'))],
+            ],
             failure=[
                 DataValue.variable_class('x'),
                 Item('x'),
