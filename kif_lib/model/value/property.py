@@ -3,9 +3,7 @@
 
 from typing_extensions import overload, TYPE_CHECKING
 
-from ... import namespace as NS
 from ...itertools import chain
-from ...rdflib import URIRef
 from ...typing import (
     Any,
     ClassVar,
@@ -19,7 +17,7 @@ from ..template import Template
 from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable, VTEntity
 from .iri import T_IRI, VT_IRI
-from .value import Datatype, VDatatype, VTDatatype, VTValue
+from .value import Datatype, DatatypeVariable, VDatatype, VTDatatype, VTValue
 
 if TYPE_CHECKING:               # pragma: no cover
     from ..snak import ValueSnak, ValueSnakTemplate
@@ -62,8 +60,7 @@ class PropertyTemplate(EntityTemplate):
                 return Property._static_preprocess_arg(self, arg, i)
         elif i == 2:            # range
             if Variable.test(arg):
-                return self._preprocess_arg_datatype_variable(
-                    arg, i, self.__class__)
+                return DatatypeVariable.check(arg, type(self), None, i)
             else:
                 return Property._static_preprocess_arg(self, arg, i)
         else:
@@ -134,8 +131,6 @@ class PropertyDatatype(Datatype):
     """Property datatype."""
 
     value_class: ClassVar[PropertyClass]  # pyright: ignore
-
-    _uri: ClassVar[URIRef] = NS.WIKIBASE.WikibaseProperty
 
 
 class Property(
