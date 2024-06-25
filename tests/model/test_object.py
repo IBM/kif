@@ -21,6 +21,7 @@ class Test(TestCase):
         global JSON_Encoder
         global MustBeImplementedInSubclass
         global Object
+        global ObjectMeta
         global SExpDecoder
         global SExpEncoder
         global ShouldNotGetHere
@@ -34,6 +35,7 @@ class Test(TestCase):
         JSON_Encoder = obj.JSON_Encoder
         MustBeImplementedInSubclass = obj.MustBeImplementedInSubclass
         Object = obj.Object
+        ObjectMeta = obj.ObjectMeta
         SExpDecoder = obj.SExpDecoder
         SExpEncoder = obj.SExpEncoder
         ShouldNotGetHere = obj.ShouldNotGetHere
@@ -109,15 +111,15 @@ class Test(TestCase):
         self.assertEqual(B().check_b(), B())
         self.assertRaisesRegex(
             TypeError,
-            r"^bad argument to 'Object.check' \(expected A, got B\)$",
+            r"^bad argument to 'Object.check' \(cannot coerce B into A\)$",
             A.check, B())
         self.assertRaisesRegex(
             TypeError,
-            r"^bad argument to 'Object.check' \(expected A, got B\)$",
+            r"^bad argument to 'Object.check' \(cannot coerce B into A\)$",
             B().check_a)
         self.assertRaisesRegex(
             TypeError,
-            r"^bad argument to 'f' \(expected A, got B\)$",
+            r"^bad argument to 'f' \(cannot coerce B into A\)$",
             B().check_a, 'f')
 
     def test_check_optional(self):
@@ -129,7 +131,8 @@ class Test(TestCase):
         self.assertRaises(TypeError, A.check_optional, B())
         self.assertRaisesRegex(
             TypeError,
-            r"^bad argument to 'Object.check_optional' \(expected A, got B\)$",
+            r"^bad argument to 'Object.check' "
+            r'\(cannot coerce B into A\)$',
             A.check_optional, B())
 
     def test_unpack(self):
@@ -142,15 +145,15 @@ class Test(TestCase):
         self.assertEqual(A(2).unpack_object(), (2,))
         self.assertRaisesRegex(
             TypeError,
-            r"^bad argument to 'Object.unpack' \(expected A, got B\)$",
+            r"^bad argument to 'Object.unpack' \(cannot coerce B into A\)$",
             A.unpack, B())
         self.assertRaisesRegex(
             TypeError,
-            r"^bad argument to 'Object.unpack' \(expected A, got B\)$",
+            r"^bad argument to 'Object.unpack' \(cannot coerce B into A\)$",
             B().unpack_a)
         self.assertRaisesRegex(
             TypeError,
-            r"^bad argument to 'f' \(expected A, got B\)$",
+            r"^bad argument to 'f' \(cannot coerce B into A\)$",
             B().unpack_a, 'f')
 
     def test__init__(self):
@@ -398,7 +401,7 @@ B(
     def test_from_repr(self):
         self.assertRaisesRegex(
             TypeError,
-            r"^bad argument to 'Object.check' \(expected B, got A\)$",
+            r"^bad argument to 'Object.check' \(cannot coerce A into B\)$",
             B.from_repr, ('A(B())'))
         self.assertEqual(A(), A.from_repr('A()'))
         self.assertEqual(A(), A.from_repr('  A()  #'))
@@ -408,7 +411,7 @@ B(
     def test_from_sexp(self):
         self.assertRaisesRegex(
             TypeError,
-            r"^bad argument to 'Object.check' \(expected B, got A\)$",
+            r"^bad argument to 'Object.check' \(cannot coerce A into B\)$",
             B.from_sexp, '(A\n  B\n)')
         self.assertEqual(A(), A.from_sexp('A'))
         self.assertEqual(A(), A.from_sexp('  A  #'))
@@ -443,7 +446,7 @@ B(
     def test_from_json(self):
         self.assertRaisesRegex(
             TypeError,
-            r"^bad argument to 'Object.check' \(expected B, got A\)$",
+            r"^bad argument to 'Object.check' \(cannot coerce A into B\)$",
             B.from_json, '{"class": "A", "args": []}')
         self.assertEqual(A(), A.from_json('{"class": "A", "args": []}'))
         self.assertEqual(A(B()), A.from_json('''\
