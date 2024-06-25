@@ -29,7 +29,7 @@ class Test(kif_EntityTemplateTestCase):
         assert_type(LexemeTemplate(Variable('x')), LexemeTemplate)
         self._test__init__(
             LexemeTemplate,
-            lambda x, *y: self.assert_lexeme_template(x, *y),
+            self.assert_lexeme_template,
             failure=[[Item('x')], [Property('x')]])
 
     def test_instantiate(self) -> None:

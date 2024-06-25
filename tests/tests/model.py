@@ -1,9 +1,12 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import itertools
+
 from kif_lib import (
     Datatype,
     Entity,
+    EntityTemplate,
     ExternalId,
     IRI,
     IRI_Template,
@@ -12,81 +15,117 @@ from kif_lib import (
     ItemTemplate,
     ItemVariable,
     KIF_Object,
+    ShallowDataValueTemplate,
     String,
     StringTemplate,
     StringVariable,
+    Template,
     TextTemplate,
     Value,
     Variable,
 )
 from kif_lib.model import DatatypeClass, Theta, VariableClass
 from kif_lib.rdflib import Literal, URIRef
-from kif_lib.typing import Any, Callable, cast, Iterable, override, Sequence
+from kif_lib.typing import (
+    Any,
+    Callable,
+    cast,
+    Iterable,
+    override,
+    Sequence,
+    TypeAlias,
+)
 
-from .common import _Dty, _Ent, _Tpl, _Val, _Var, kif_TestCase
+from .common import kif_TestCase
+
+_Obj: TypeAlias = KIF_Object  # TypeVar('_Obj', bound=KIF_Object)
 
 
 class kif_ObjectTestCase(kif_TestCase):
-    pass
-
-
-class kif_TemplateTestCase(kif_TestCase):
 
     def _test_check(
             self,
-            cls: type[_Tpl],
-            success: Iterable[tuple[Any, _Tpl]] = tuple(),
+            cls: type[_Obj],
+            success: Iterable[tuple[Any, _Obj]] = tuple(),
+            failure: Iterable[Any] = tuple()
+    ) -> None:
+        for v, obj in success:
+            self._debug('success:', v, obj)
+            self.assertEqual(cls.check(v), obj)
+        for v in failure:
+            self._debug('failure:', v)
+            self.assertRaisesRegex(TypeError, 'cannot coerce', cls.check, v)
+
+    def _test__init__(
+            self,
+            cls: type[_Obj],
+            assert_fn: Callable[..., None],
+            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
+            failure: Iterable[Sequence[Any]] = tuple()
+    ) -> None:
+        for t, obj in success:
+            self._debug('success:', t, obj)
+            assert_fn(cls(*t), *obj)
+        for t in failure:
+            self._debug('failure:', t)
+            self.assertRaisesRegex(TypeError, 'cannot coerce', cls, *t)
+
+
+class kif_TemplateTestCase(kif_ObjectTestCase):
+
+    @override
+    def _test_check(
+            self,
+            cls: type[_Obj],
+            success: Iterable[tuple[Any, _Obj]] = tuple(),
             failure: Iterable[Any] = tuple()
     ) -> None:
         self.assert_raises_check_error(cls, 0, cls.check)
         self.assert_raises_check_error(cls, {}, cls.check)
-        for v in failure:
-            self.assert_raises_check_error(cls, v, cls.check)
-        # success
-        for v, obj in success:
-            self.assertEqual(cls.check(v), obj)
+        super()._test_check(cls, success, failure)
 
+    @override
     def _test__init__(
             self,
-            cls: type[_Tpl],
-            assert_fn: Callable[[_Tpl, tuple[Any, ...]], None],
-            success: Iterable[Sequence[Any]] = tuple(),
-            normalize: Iterable[Sequence[Any]] = tuple(),
-            failure: Iterable[Sequence[Any]] = tuple()
+            cls: type[_Obj],
+            assert_fn: Callable[..., None],
+            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
+            failure: Iterable[Sequence[Any]] = tuple(),
+            normalize: Iterable[Sequence[Any]] = tuple()
     ) -> None:
-        for t in failure:
-            self._debug('failure:', t)
-            self.assertRaisesRegex(TypeError, 'cannot coerce', cls, *t)
+        assert issubclass(cls, Template)
+        super()._test__init__(cls, assert_fn, success, failure)
         for t in normalize:
             self._debug('normalize:', t)
             self.assertEqual(cls(*t), cls.object_class(*t))
-        for t in success:
-            self._debug('success:', t)
-            assert_fn(cls(*t), *t)  # type: ignore
 
     def _test_instantiate(
             self,
-            cls: type[_Tpl],
-            success: Iterable[tuple[_Tpl, KIF_Object, Theta]] = tuple(),
-            failure: Iterable[tuple[_Tpl, Theta]] = tuple(),
-            failure_coerce: Iterable[tuple[_Tpl, Theta]] = tuple()
+            cls: type[_Obj],
+            success: Iterable[tuple[_Obj, _Obj, Theta]] = tuple(),
+            failure: Iterable[tuple[_Obj, Theta]] = tuple(),
+            failure_coerce: Iterable[tuple[_Obj, Theta]] = tuple()
     ) -> None:
-        for obj, theta in failure:
-            self._debug('failure (instantiate):', obj, theta)
-            self.assertIsInstance(obj, cls)
-            self.assertRaises(
-                Variable.InstantiationError, obj.instantiate, theta)
-        for obj, theta in failure_coerce:
-            self._debug('failure coerce:', obj, theta)
-            self.assertIsInstance(obj, cls)
-            self.assertRaises(TypeError, obj.instantiate, theta)
+        assert issubclass(cls, Template)
         for src, tgt, theta in success:
             self._debug('success:', src, tgt, theta)
+            self.assertIsInstance(src, cls)
+            assert isinstance(src, cls)
             self.assert_raises_bad_argument(
                 TypeError, 1, 'theta', 'expected Mapping, got int',
                 src.instantiate, 0)
-            self.assertIsInstance(src, cls)
             self.assertEqual(src.instantiate(theta), tgt)
+        for obj, theta in failure:
+            self._debug('failure (instantiation):', obj, theta)
+            self.assertIsInstance(obj, cls)
+            assert isinstance(obj, cls)
+            self.assertRaises(
+                Variable.InstantiationError, obj.instantiate, theta)
+        for obj, theta in failure_coerce:
+            self._debug('failure (coerce):', obj, theta)
+            self.assertIsInstance(obj, cls)
+            assert isinstance(obj, cls)
+            self.assertRaises(TypeError, obj.instantiate, theta)
 
 
 class kif_EntityTemplateTestCase(kif_TemplateTestCase):
@@ -94,19 +133,24 @@ class kif_EntityTemplateTestCase(kif_TemplateTestCase):
     @override
     def _test_check(
             self,
-            cls: type[_Tpl],
-            success: Iterable[tuple[Any, _Tpl]] = tuple(),
+            cls: type[_Obj],
+            success: Iterable[tuple[Any, _Obj]] = tuple(),
             failure: Iterable[Any] = tuple()
     ) -> None:
+        assert issubclass(cls, EntityTemplate)
         super()._test_check(
             cls,
             success=[
                 (cls(Variable('x')), cls(Variable('x'))),
+                (cls(IRI(Variable('x'))), cls(IRI(Variable('x')))),
                 *success
             ],
             failure=[
                 cls('x'),
                 cls.object_class('x'),
+                ExternalId(Variable('x')),
+                IRI(Variable('x')),
+                String(Variable('x')),
                 TextTemplate(Variable('x')),
                 Variable('x'),
                 *failure
@@ -115,43 +159,45 @@ class kif_EntityTemplateTestCase(kif_TemplateTestCase):
     @override
     def _test__init__(
             self,
-            cls: type[_Tpl],
-            assert_fn: Callable[[_Tpl, tuple[Any, ...]], None],
-            success: Iterable[Sequence[Any]] = tuple(),
-            normalize: Iterable[Sequence[Any]] = tuple(),
-            failure: Iterable[Sequence[Any]] = tuple()
+            cls: type[_Obj],
+            assert_fn: Callable[..., None],
+            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
+            failure: Iterable[Sequence[Any]] = tuple(),
+            normalize: Iterable[Sequence[Any]] = tuple()
     ) -> None:
+        assert issubclass(cls, EntityTemplate)
         super()._test__init__(
             cls,
             assert_fn,
             success=[
-                [IRI_Template(Variable('x'))],
-                [IRI_Variable('x')],
-                [Variable('x', IRI)],
+                ([IRI_Template(Variable('x'))], cls(IRI(Variable('x')))),
+                ([IRI_Variable('x')], cls(Variable('x', IRI))),
                 *success
+            ],
+            failure=[
+                [cls(Variable('x'))],
+                [cls.object_class(IRI(Variable('x')))],
+                [cls.object_class.variable_class('x')],
+                [String(Variable('x'))],
+                [TextTemplate(Variable('x'))],
+                *failure
             ],
             normalize=[
                 [cls.object_class(IRI('x'))],
                 [IRI('x')],
                 [String('x')],
                 *normalize
-            ],
-            failure=[
-                [cls(Variable('x'))],
-                [cls.object_class(IRI(Variable('x')))],
-                [cls.object_class.variable_class('x')],
-                [TextTemplate(Variable('x'))],
-                *failure
             ])
 
     @override
     def _test_instantiate(
             self,
-            cls: type[_Tpl],
-            success: Iterable[tuple[_Tpl, KIF_Object, Theta]] = tuple(),
-            failure: Iterable[tuple[_Tpl, Theta]] = tuple(),
-            failure_coerce: Iterable[tuple[_Tpl, Theta]] = tuple()
+            cls: type[_Obj],
+            success: Iterable[tuple[_Obj, _Obj, Theta]] = tuple(),
+            failure: Iterable[tuple[_Obj, Theta]] = tuple(),
+            failure_coerce: Iterable[tuple[_Obj, Theta]] = tuple()
     ) -> None:
+        assert issubclass(cls, EntityTemplate)
         super()._test_instantiate(
             cls,
             success=[
@@ -182,10 +228,11 @@ class kif_ShallowDataValueTemplateTestCase(kif_TemplateTestCase):
     @override
     def _test_check(
             self,
-            cls: type[_Tpl],
-            success: Iterable[tuple[Any, _Tpl]] = tuple(),
+            cls: type[_Obj],
+            success: Iterable[tuple[Any, _Obj]] = tuple(),
             failure: Iterable[Any] = tuple()
     ) -> None:
+        assert issubclass(cls, ShallowDataValueTemplate)
         super()._test_check(
             cls,
             success=[
@@ -206,24 +253,19 @@ class kif_ShallowDataValueTemplateTestCase(kif_TemplateTestCase):
     @override
     def _test__init__(
             self,
-            cls: type[_Tpl],
-            assert_fn: Callable[[_Tpl, tuple[Any, ...]], None],
-            success: Iterable[Sequence[Any]] = tuple(),
-            normalize: Iterable[Sequence[Any]] = tuple(),
-            failure: Iterable[Sequence[Any]] = tuple()
+            cls: type[_Obj],
+            assert_fn: Callable[..., None],
+            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
+            failure: Iterable[Sequence[Any]] = tuple(),
+            normalize: Iterable[Sequence[Any]] = tuple()
     ) -> None:
+        assert issubclass(cls, ShallowDataValueTemplate)
         super()._test__init__(
             cls,
             assert_fn,
             success=[
-                [StringVariable('x')],
-                [Variable('x', String)],
+                ([StringVariable('x')], cls(Variable('x', String))),
                 *success
-            ],
-            normalize=[
-                ['x'],
-                [String('x')],
-                *normalize
             ],
             failure=[
                 [IRI(Variable('x'))],
@@ -232,16 +274,22 @@ class kif_ShallowDataValueTemplateTestCase(kif_TemplateTestCase):
                 [ItemTemplate(Variable('x'))],
                 [ItemVariable('x')],
                 *failure
+            ],
+            normalize=[
+                ['x'],
+                [String('x')],
+                *normalize
             ])
 
     @override
     def _test_instantiate(
             self,
-            cls: type[_Tpl],
-            success: Iterable[tuple[_Tpl, KIF_Object, Theta]] = tuple(),
-            failure: Iterable[tuple[_Tpl, Theta]] = tuple(),
-            failure_coerce: Iterable[tuple[_Tpl, Theta]] = tuple()
+            cls: type[_Obj],
+            success: Iterable[tuple[_Obj, _Obj, Theta]] = tuple(),
+            failure: Iterable[tuple[_Obj, Theta]] = tuple(),
+            failure_coerce: Iterable[tuple[_Obj, Theta]] = tuple()
     ) -> None:
+        assert issubclass(cls, ShallowDataValueTemplate)
         super()._test_instantiate(
             cls,
             success=[
@@ -269,38 +317,58 @@ class kif_ShallowDataValueTemplateTestCase(kif_TemplateTestCase):
 
 class kif_VariableTestCase(kif_ObjectTestCase):
 
-    def _test_check(self, cls: VariableClass) -> None:
-        self.assert_raises_check_error(cls, 0)
-        self.assert_raises_check_error(cls, {})
-        for other_cls in self._variable_class_cannot_check_from(cls):
-            self.assert_raises_check_error(cls, other_cls('x'))
-        # success
-        for other_cls in self._variable_class_can_check_from(cls):
-            if issubclass(other_cls, cls):
-                continue        # skip
-            self.assertEqual(cls.check(other_cls('x')), cls('x'))
-            self.assertEqual(
-                cls.check(Variable('x', other_cls)), Variable('x', cls))
+    @override
+    def _test_check(
+            self,
+            cls: type[_Obj],
+            success: Iterable[tuple[Any, _Obj]] = tuple(),
+            failure: Iterable[Any] = tuple()
+    ) -> None:
+        assert issubclass(cls, Variable)
+        can_check = list(self._variable_class_can_check_from(cls))
+        cannot_check = list(self._variable_class_cannot_check_from(cls))
+        super()._test_check(
+            cls,
+            success=itertools.chain(
+                map(lambda other: (Variable('x', other), Variable('x', cls)),
+                    filter(lambda x: not issubclass(x, cls), can_check)),
+                map(lambda other: (Variable('x', other), Variable('x', other)),
+                    filter(lambda x: issubclass(x, cls), can_check)),
+                success),
+            failure=itertools.chain(
+                map(lambda other: Variable('x', other), cannot_check),
+                failure))
 
+    @override
     def _test__init__(
             self,
-            cls: type[_Var],
-            assert_fn: Callable[[_Var, str], None]
+            cls: type[_Obj],
+            assert_fn: Callable[..., None],
+            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
+            failure: Iterable[Sequence[Any]] = tuple()
     ) -> None:
-        self.assert_raises_check_error(cls, 0)
-        self.assert_raises_check_error(cls, {})
-        for other_cls in self._variable_class_cannot_check_from(cls):
-            self.assert_raises_check_error(
-                cls, Variable('x', other_cls))
-        # success
-        assert_fn(cls('x'), 'x')
-        assert_fn(cast(_Var, Variable('x', cls.object_class)), 'x')
+        assert issubclass(cls, Variable)
+        super()._test__init__(
+            cls,
+            assert_fn,
+            success=itertools.chain([
+                (['x'], cls('x')),
+                (['x'], Variable('x', cls.object_class)),
+                ([String('x')], cls('x')),
+                ([ExternalId('x')], cls('x')),
+            ], success),
+            failure=itertools.chain([
+                [0],
+                [IRI('x')],
+                [Item('x')],
+                [Variable('x')]
+            ], failure))
 
     def _test_instantiate(
             self,
             cls: VariableClass,
-            success: Iterable[KIF_Object] = tuple(),
-            failure: Iterable[KIF_Object] = tuple()
+            success: Iterable[_Obj] = tuple(),
+            failure: Iterable[_Obj] = tuple()
     ) -> None:
         self.assert_raises_bad_argument(
             TypeError, 1, 'theta', 'expected Mapping, got int',
@@ -323,9 +391,10 @@ class kif_VariableTestCase(kif_ObjectTestCase):
             self.assertEqual(x.instantiate({x: obj}), obj)
 
 
-class kif_DatatypeTestCase(kif_ObjectTestCase):
+class kif_DatatypeTestCase(kif_TestCase):
 
     def _test_check(self, cls: DatatypeClass) -> None:
+        assert issubclass(cls, Datatype)
         self.assert_raises_check_error(cls, 0, cls.check)
         self.assert_raises_check_error(cls, {}, cls.check)
         self.assert_raises_check_error(cls, Item('x'), cls.check)
@@ -347,35 +416,37 @@ class kif_DatatypeTestCase(kif_ObjectTestCase):
 
     def _test__init__(
             self,
-            cls: type[_Dty],
-            assert_fn: Callable[[_Dty], None]
+            cls: type[_Obj],
+            assert_fn: Callable[..., None]
     ) -> None:
+        assert issubclass(cls, Datatype)
         self.assert_raises_check_error(cls, 0)
         # success
         assert_fn(cls())
-        assert_fn(cast(_Dty, Datatype(cls)))
-        assert_fn(cast(_Dty, Datatype(cls.value_class)))
+        assert_fn(cast(_Obj, Datatype(cls)))
+        assert_fn(cast(_Obj, Datatype(cls.value_class)))
 
 
 class kif_ValueTestCase(kif_ObjectTestCase):
 
     def _test_check(
             self,
-            cls: type[_Val],
-            success: Iterable[tuple[Any, _Val]] = tuple(),
+            cls: type[_Obj],
+            success: Iterable[tuple[Any, _Obj]] = tuple(),
             failure: Iterable[Any] = tuple()
     ) -> None:
         for v in failure:
             self._debug('failure:', v)
             self.assertRaisesRegex(TypeError, 'cannot coerce', cls.check, v)
         for v, obj in success:
+            self._debug('success:', v, obj)
             self.assertEqual(cls.check(v), obj)
 
     def _test__init__(
             self,
-            cls: type[_Val],
+            cls: type[_Obj],
             assert_fn: Callable[..., None],
-            success: Iterable[tuple[Sequence[Any], _Val]] = tuple(),
+            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
             failure: Iterable[Sequence[Any]] = tuple()
     ) -> None:
         for t in failure:
@@ -391,8 +462,8 @@ class kif_EntityTestCase(kif_ValueTestCase):
     @override
     def _test_check(
             self,
-            cls: type[_Val],
-            success: Iterable[tuple[Any, _Val]] = tuple(),
+            cls: type[_Obj],
+            success: Iterable[tuple[Any, _Obj]] = tuple(),
             failure: Iterable[Any] = tuple()
     ) -> None:
         self.assert_raises_check_error(IRI, 0, cls.check)
@@ -419,9 +490,9 @@ class kif_EntityTestCase(kif_ValueTestCase):
     @override
     def _test__init__(
             self,
-            cls: type[_Val],
+            cls: type[_Obj],
             assert_fn: Callable[..., None],
-            success: Iterable[tuple[Sequence[Any], _Val]] = tuple(),
+            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
             failure: Iterable[Sequence[Any]] = tuple()
     ) -> None:
         self.assert_raises_check_error(IRI, 0, cls, None, 1)
@@ -444,8 +515,8 @@ class kif_EntityTestCase(kif_ValueTestCase):
 
     def _test_Entities(
             self,
-            map_fn: Callable[..., Iterable[_Ent]],
-            assert_fn: Callable[[_Ent, IRI], None],
+            map_fn: Callable[..., Iterable[_Obj]],
+            assert_fn: Callable[..., None],
             failure: Iterable[Any] = tuple()
     ) -> None:
         for v in failure:
@@ -466,8 +537,8 @@ class kif_ShallowDataValueTestCase(kif_DataValueTestCase):
     @override
     def _test_check(
             self,
-            cls: type[_Val],
-            success: Iterable[tuple[Any, _Val]] = tuple(),
+            cls: type[_Obj],
+            success: Iterable[tuple[Any, _Obj]] = tuple(),
             failure: Iterable[Any] = tuple()
     ) -> None:
         self.assert_raises_check_error(cls, 0)
@@ -494,9 +565,9 @@ class kif_ShallowDataValueTestCase(kif_DataValueTestCase):
     @override
     def _test__init__(
             self,
-            cls: type[_Val],
+            cls: type[_Obj],
             assert_fn: Callable[..., None],
-            success: Iterable[tuple[Sequence[Any], _Val]] = tuple(),
+            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
             failure: Iterable[Sequence[Any]] = tuple()
     ) -> None:
         self.assert_raises_check_error(String, 0, cls, None, 1)
@@ -521,8 +592,8 @@ class kif_DeepDataValueTestCase(kif_DataValueTestCase):
     @override
     def _test_check(
             self,
-            cls: type[_Val],
-            success: Iterable[tuple[Any, _Val]] = tuple(),
+            cls: type[_Obj],
+            success: Iterable[tuple[Any, _Obj]] = tuple(),
             failure: Iterable[Any] = tuple()
     ) -> None:
         self.assert_raises_check_error(cls, {})

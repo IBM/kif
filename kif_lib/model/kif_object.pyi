@@ -13,8 +13,8 @@ from ..typing import (
     Callable,
     ClassVar,
     Iterator,
-    NoReturn,
     Optional,
+    Self,
     TypeAlias,
     Union,
 )
@@ -204,7 +204,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
-    ) -> Union[Datetime, NoReturn]:
+    ) -> Datetime:
         ...
 
     @classmethod
@@ -215,7 +215,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
-    ) -> Union[Optional[Datetime], NoReturn]:
+    ) -> Optional[Datetime]:
         ...
 
     @classmethod
@@ -224,7 +224,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             arg: TDatetime,
             i: int,
             function: Optional[Union[TCallable, str]] = ...
-    ) -> Union[Datetime, NoReturn]:
+    ) -> Datetime:
         ...
 
     @classmethod
@@ -234,7 +234,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             i: int,
             default: Optional[Datetime] = ...,
             function: Optional[Union[TCallable, str]] = ...
-    ) -> Union[Optional[Datetime], NoReturn]:
+    ) -> Optional[Datetime]:
         ...
 
 # -- decimal ---------------------------------------------------------------
@@ -246,7 +246,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
-    ) -> Union[Decimal, NoReturn]:
+    ) -> Decimal:
         ...
 
     @classmethod
@@ -257,7 +257,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
-    ) -> Union[Optional[Decimal], NoReturn]:
+    ) -> Optional[Decimal]:
         ...
 
     @classmethod
@@ -266,7 +266,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             arg: TDecimal,
             i: int,
             function: Optional[Union[TCallable, str]] = ...
-    ) -> Union[Decimal, NoReturn]:
+    ) -> Decimal:
         ...
 
     @classmethod
@@ -276,7 +276,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
             i: int,
             default: Optional[Decimal] = ...,
             function: Optional[Union[TCallable, str]] = ...
-    ) -> Union[Optional[Decimal], NoReturn]:
+    ) -> Optional[Decimal]:
         ...
 
 # -- Codecs ----------------------------------------------------------------
@@ -286,7 +286,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         cls,
         s: str,
         **kwargs: Any
-    ) -> Union['KIF_Object', NoReturn]:
+    ) -> Self:
         ...
 
     @classmethod
@@ -294,7 +294,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         cls,
         s: str,
         **kwargs: Any
-    ) -> Union['KIF_Object', NoReturn]:
+    ) -> Self:
         ...
 
     @classmethod
@@ -302,7 +302,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         cls,
         s: str,
         **kwargs: Any
-    ) -> Union['KIF_Object', NoReturn]:
+    ) -> Self:
         ...
 
     @classmethod
@@ -310,7 +310,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         cls,
         s: str,
         **kwargs: Any
-    ) -> Union['KIF_Object', NoReturn]:
+    ) -> Self:
         ...
 
     def to_json(self, **kwargs: Any) -> str: ...

@@ -40,10 +40,14 @@ class Test(kif_ShallowDataValueTemplateTestCase):
             TextTemplate,
             lambda x, *y: self.assert_text_template(x, *y),
             success=[
-                ['x', Variable('y', String)],
-                [StringVariable('x'), 'y'],
-                [StringVariable('x'), StringVariable('y')],
-                [Variable('x', String), Text.default_language],
+                (['x', Variable('y', String)],
+                 Text('x', Variable('y', String))),
+                ([StringVariable('x'), 'y'],
+                 Text(Variable('x', String), 'y')),
+                ([StringVariable('x'), StringVariable('y')],
+                 Text(Variable('x', String), Variable('y', String))),
+                ([Variable('x', String), Text.default_language],
+                 Text(Variable('x', String)))
             ],
             normalize=[
                 [Variable('x'), Variable('x')],

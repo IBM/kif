@@ -148,17 +148,10 @@ from kif_lib.typing import (
     Iterator,
     Optional,
     Set,
-    TypeVar,
     Union,
 )
 
 LIB_TESTS_DIR: Final[pathlib.Path] = pathlib.Path(__file__).parent
-
-_Dty = TypeVar('_Dty', bound=Datatype)
-_Ent = TypeVar('_Ent', bound=Entity)
-_Tpl = TypeVar('_Tpl', bound=Template)
-_Val = TypeVar('_Val', bound=Value)
-_Var = TypeVar('_Var', bound=Variable)
 
 
 class kif_TestCase(unittest.TestCase):
@@ -1094,7 +1087,11 @@ if __name__ == '__main__':
 
 # -- Fingerprint -----------------------------------------------------------
 
-    def assert_fingerprint(self, obj, val):
+    def assert_fingerprint(
+            self,
+            obj: Fingerprint,
+            val: Union[Value, SnakSet]
+    ):
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Fingerprint)
         self.assertTrue(obj.is_fingerprint())
@@ -1109,37 +1106,45 @@ if __name__ == '__main__':
             self.assertEqual(obj.snak_set, val)
             self.assertIsNone(obj.value)
 
-    def assert_entity_fingerprint(self, obj, val):
+    def assert_entity_fingerprint(
+            self,
+            obj: EntityFingerprint,
+            val: Union[Value, SnakSet]
+    ):
         self.assert_fingerprint(obj, val)
         self.assertIsInstance(obj, EntityFingerprint)
         self.assertTrue(obj.is_entity_fingerprint())
 
-    def assert_property_fingerprint(self, obj, val):
+    def assert_property_fingerprint(
+            self,
+            obj: PropertyFingerprint,
+            val: Union[Value, SnakSet]
+    ):
         self.assert_fingerprint(obj, val)
         self.assertIsInstance(obj, PropertyFingerprint)
         self.assertTrue(obj.is_property_fingerprint())
 
-    def assert_pattern(self, obj):
+    def assert_pattern(self, obj: Pattern):
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Pattern)
         self.assertTrue(obj.is_pattern())
 
     def assert_filter_pattern(
-            self, obj, subject=None, property=None, value=None, mask=Snak.ALL):
+            self,
+            obj: FilterPattern,
+            subject: Optional[EntityFingerprint] = None,
+            property: Optional[PropertyFingerprint] = None,
+            value: Optional[Fingerprint] = None,
+            mask: Snak.Mask = Snak.ALL
+    ):
         self.assertIsInstance(obj, FilterPattern)
         self.assertTrue(obj.is_filter_pattern())
-        if subject is not None:
-            subject = EntityFingerprint(subject)
         self.assertEqual(obj.args[0], subject)
         self.assertEqual(obj.subject, subject)
         self.assertEqual(obj.get_subject(), subject)
-        if property is not None:
-            property = PropertyFingerprint(property)
         self.assertEqual(obj.args[1], property)
         self.assertEqual(obj.property, property)
         self.assertEqual(obj.get_property(), property)
-        if value is not None:
-            value = Fingerprint(value)
         self.assertEqual(obj.args[2], value)
         self.assertEqual(obj.value, value)
         self.assertEqual(obj.get_value(), value)

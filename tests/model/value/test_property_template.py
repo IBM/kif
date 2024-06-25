@@ -48,9 +48,12 @@ class Test(kif_EntityTemplateTestCase):
             PropertyTemplate,
             lambda x, *y: self.assert_property_template(x, *y),
             success=[
-                [IRI('x'), Variable('y', Datatype)],
-                [Variable('x', IRI), None],
-                [Variable('x', IRI), Variable('y', Datatype)],
+                ([IRI('x'), Variable('y', Datatype)],
+                 Property(IRI('x'), Variable('y', Datatype))),
+                ([Variable('x', IRI), None],
+                 Property(Variable('x', IRI), None)),
+                ([Variable('x', IRI), Variable('y', Datatype)],
+                 Property(Variable('x', IRI), Variable('y', Datatype))),
             ],
             failure=[
                 [Item('x')],
