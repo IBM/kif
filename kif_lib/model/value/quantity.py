@@ -53,8 +53,7 @@ class QuantityTemplate(DeepDataValueTemplate):
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # amount
             if Variable.test(arg):
-                return self._preprocess_arg_quantity_variable(
-                    arg, i, self.__class__)
+                return QuantityVariable.check(arg, type(self), None, i)
             else:
                 return Quantity._static_preprocess_arg(self, arg, i)
         elif i == 2:            # unit
@@ -66,14 +65,12 @@ class QuantityTemplate(DeepDataValueTemplate):
                 return Quantity._static_preprocess_arg(self, arg, i)
         elif i == 3:            # lower-bound
             if Variable.test(arg):
-                return self._preprocess_arg_quantity_variable(
-                    arg, i, self.__class__)
+                return QuantityVariable.check(arg, type(self), None, i)
             else:
                 return Quantity._static_preprocess_arg(self, arg, i)
         elif i == 4:            # upper-bound
             if Variable.test(arg):
-                return self._preprocess_arg_quantity_variable(
-                    arg, i, self.__class__)
+                return QuantityVariable.check(arg, type(self), None, i)
             else:
                 return Quantity._static_preprocess_arg(self, arg, i)
         else:

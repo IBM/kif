@@ -138,8 +138,7 @@ class Value(
                 NS.T_NS] = NS.Wikidata.default_lexeme_prefixes
     ) -> 'Value':
         from ...rdflib import _NUMERIC_LITERAL_TYPES
-        cls._check_arg_isinstance(
-            node, (Literal, URIRef), cls._from_rdflib, 'node', 1)
+        assert isinstance(node, (Literal, URIRef))
         res: Value
         if isinstance(node, URIRef):
             uri = cast(URIRef, node)
@@ -182,16 +181,21 @@ class Value(
         return cast(Value, cls.check(res))  # pyright: ignore
 
     def _to_rdflib(self) -> Union[Literal, URIRef]:
+        from .entity import Entity
+        from .iri import IRI
+        from .quantity import Quantity
+        from .string import String
         from .text import Text
-        if self.is_entity() or self.is_iri():
+        from .time import Time
+        if isinstance(self, (Entity, IRI)):
             return URIRef(self.value)
-        elif self.is_quantity():
+        elif isinstance(self, Quantity):
             return Literal(self.value, datatype=NS.XSD.decimal)
-        elif self.is_time():
+        elif isinstance(self, Time):
             return Literal(self.value, datatype=NS.XSD.dateTime)
-        elif self.is_text():
+        elif isinstance(self, Text):
             return Literal(self.value, cast(Text, self).language)
-        elif self.is_string():
+        elif isinstance(self, String):
             return Literal(self.value)
         else:
             raise self._should_not_get_here()

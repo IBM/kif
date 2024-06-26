@@ -62,20 +62,17 @@ class TimeTemplate(DeepDataValueTemplate):
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # time
             if Variable.test(arg):
-                return self._preprocess_arg_time_variable(
-                    arg, i, self.__class__)
+                return TimeVariable.check(arg, type(self), None, i)
             else:
                 return Time._static_preprocess_arg(self, arg, i)
         elif i == 2:            # precision
             if Variable.test(arg):
-                return self._preprocess_arg_quantity_variable(
-                    arg, i, self.__class__)
+                return QuantityVariable.check(arg, type(self), None, i)
             else:
                 return Time._static_preprocess_arg(self, arg, i)
         elif i == 3:            # timezone
             if Variable.test(arg):
-                return self._preprocess_arg_quantity_variable(
-                    arg, i, self.__class__)
+                return QuantityVariable.check(arg, type(self), None, i)
             else:
                 return Time._static_preprocess_arg(self, arg, i)
         elif i == 4:            # calendar
