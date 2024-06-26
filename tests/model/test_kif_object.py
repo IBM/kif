@@ -1406,7 +1406,7 @@ class Test(kif_TestCase):
 
     def test_check_time(self):
         self.assertEqual(Time('2023-09-18').check_time(), Time('2023-09-18'))
-        self.assertRaises(TypeError, String('2023-09-18').check_time)
+        self.assertEqual(String('2023-09-18').check_time(), Time('2023-09-18'))
 
     def test_check_time_datatype(self):
         self.assertEqual(
@@ -1974,7 +1974,6 @@ class Test(kif_TestCase):
         self.assertEqual(
             Time('2023-09-18').unpack_time(),
             (Datetime(2023, 9, 18, tzinfo=UTC), None, None, None))
-        self.assertRaises(TypeError, String('2023-09-18').unpack_time)
 
     def test_unpack_time_datatype(self):
         self.assertEqual(TimeDatatype().unpack_time_datatype(), ())

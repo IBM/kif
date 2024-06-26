@@ -14,83 +14,11 @@ from .tests import kif_TestCase
 
 class TestModelValueTime(kif_TestCase):
 
-    def test__check_arg_precision(self):
-        self.assertRaises(ValueError, Time._check_arg_precision, 'abc')
-        self.assertRaises(ValueError, Time._check_arg_precision, 99)
-        self.assertEqual(
-            Time.Precision.DAY,
-            Time._check_arg_precision(Time.Precision.DAY))
-
-    def test__preprocess_arg_precision(self):
-        self.assertEqual(
-            Time.Precision.DAY,
-            Time._preprocess_arg_precision(Time.Precision.DAY, 1))
-        self.assertEqual(
-            Time.Precision.DAY,
-            Time._preprocess_arg_precision(11, 1))
-
-    def test__preprocess_optional_arg_precision(self):
-        self.assertEqual(
-            Time.Precision.DAY,
-            Time._preprocess_optional_arg_precision(
-                None, 1, Time.Precision.DAY))
-        self.assertEqual(
-            Time.Precision.YEAR,
-            Time._preprocess_optional_arg_precision(
-                Time.Precision.YEAR, 1, Time.Precision.DAY))
-
-    def test_precision_aliases(self):
-        self.assertIs(
-            Time.Precision.BILLION_YEARS,
-            Time.BILLION_YEARS)
-        self.assertIs(
-            Time.Precision.HUNDRED_MILLION_YEARS,
-            Time.HUNDRED_MILLION_YEARS)
-        self.assertIs(
-            Time.Precision.TEN_MILLION_YEARS,
-            Time.TEN_MILLION_YEARS)
-        self.assertIs(
-            Time.Precision.MILLION_YEARS,
-            Time.MILLION_YEARS)
-        self.assertIs(
-            Time.Precision.HUNDRED_THOUSAND_YEARS,
-            Time.HUNDRED_THOUSAND_YEARS)
-        self.assertIs(
-            Time.Precision.TEN_THOUSAND_YEARS,
-            Time.TEN_THOUSAND_YEARS)
-        self.assertIs(
-            Time.Precision.MILLENNIA,
-            Time.MILLENNIA)
-        self.assertIs(
-            Time.Precision.CENTURY,
-            Time.CENTURY)
-        self.assertIs(
-            Time.Precision.DECADE,
-            Time.DECADE)
-        self.assertIs(
-            Time.Precision.YEAR,
-            Time.YEAR)
-        self.assertIs(
-            Time.Precision.MONTH,
-            Time.MONTH)
-        self.assertIs(
-            Time.Precision.DAY,
-            Time.DAY)
-        self.assertIs(
-            Time.Precision.HOUR,
-            Time.HOUR)
-        self.assertIs(
-            Time.Precision.MINUTE,
-            Time.MINUTE)
-        self.assertIs(
-            Time.Precision.SECOND,
-            Time.SECOND)
-
     def test__init__(self):
         self.assertRaises(TypeError, Time, [])
         self.assertRaises(ValueError, Time, 'abc')
-        self.assertRaises(ValueError, Time, '2023-09-04', 'abc')
-        self.assertRaises(ValueError, Time, '2023-09-04', -1)
+        self.assertRaises(TypeError, Time, '2023-09-04', 'abc')
+        self.assertRaises(TypeError, Time, '2023-09-04', -1)
         self.assertRaises(ValueError, Time, '2023-09-04', 1, 'abc')
         self.assertRaises(TypeError, Time, '2023-09-04', 1, 1, 0)
         self.assert_time(
@@ -132,7 +60,7 @@ class TestModelValueTime(kif_TestCase):
         # bad argument: uri
         self.assertRaises(TypeError, Time._from_rdflib, URIRef('x'))
         # bad argument: untyped literal
-        self.assertRaises(TypeError, Time._from_rdflib, Literal('x'))
+        self.assertRaises(ValueError, Time._from_rdflib, Literal('x'))
         # bad argument: ill-typed literal
         self.assertRaises(
             TypeError, Time._from_rdflib, Literal(

@@ -155,15 +155,15 @@ class Test(kif_TestCase):
     def test__new__time_template(self):
         x = Variable('x')
         self.assert_raises_bad_argument(
-            ValueError, 1, None, 'expected datetime',
+            ValueError, 1, None, 'cannot coerce str into Time',
             (TimeTemplate, 'Time'), 'x')
         self.assert_raises_bad_argument(
-            ValueError, 2, None,
-            'expected Time.Precision',
+            TypeError, 2, None,
+            'cannot coerce str into Time.Precision',
             (TimeTemplate, 'Time'), '2024-05-06', 'x')
         self.assert_raises_bad_argument(
             ValueError, 3, None,
-            'expected timezone',
+            'cannot coerce str into Quantity',
             (TimeTemplate, 'Time'), '2024-05-06', None, 'x')
         self.assert_raises_bad_argument(
             TypeError, 4, None, 'cannot coerce int into IRI',
@@ -410,7 +410,7 @@ class Test(kif_TestCase):
             TimeTemplate, IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 1, None,
-            'expected datetime or str, got TimeTemplate',
+            'cannot coerce TimeTemplate into Time',
             TimeTemplate, TimeTemplate(Variable('x')))
         self.assert_raises_bad_argument(
             TypeError, 2, None,
@@ -418,8 +418,7 @@ class Test(kif_TestCase):
             TimeTemplate, '2024-05-06', IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 2, None,
-            'expected Decimal or Quantity or Time.Precision or '
-            'float or int or str, got QuantityTemplate',
+            'cannot coerce QuantityTemplate into Quantity',
             TimeTemplate, Variable('t', Time),
             QuantityTemplate(Variable('x')))
         self.assert_raises_bad_argument(
@@ -428,8 +427,7 @@ class Test(kif_TestCase):
             TimeTemplate, '2024-05-06', None, IRI_Variable('x'))
         self.assert_raises_bad_argument(
             TypeError, 3, None,
-            'expected Decimal or Quantity or '
-            'float or int or str, got QuantityTemplate',
+            'cannot coerce QuantityTemplate into Quantity',
             TimeTemplate, Variable('t', Time), None,
             QuantityTemplate(Variable('x')))
         self.assert_raises_bad_argument(

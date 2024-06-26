@@ -4,12 +4,15 @@
 from .common import kif_TestCase
 from .model import (
     kif_DatatypeTestCase,
+    kif_DataValueTemplateTestCase,
+    kif_DataValueTestCase,
     kif_DeepDataValueTemplateTestCase,
     kif_DeepDataValueTestCase,
     kif_EntityTemplateTestCase,
     kif_EntityTestCase,
     kif_ShallowDataValueTemplateTestCase,
     kif_ShallowDataValueTestCase,
+    kif_ValueTemplateTestCase,
     kif_ValueTestCase,
     kif_VariableTestCase,
 )
@@ -24,6 +27,8 @@ from .store import (
 
 __all__ = (
     'kif_DatatypeTestCase',
+    'kif_DataValueTemplateTestCase',
+    'kif_DataValueTestCase',
     'kif_DeepDataValueTemplateTestCase',
     'kif_DeepDataValueTestCase',
     'kif_EmptyStoreTestCase',
@@ -36,6 +41,7 @@ __all__ = (
     'kif_SPARQL_MapperStoreTestCase',
     'kif_StoreTestCase',
     'kif_TestCase',
+    'kif_ValueTemplateTestCase',
     'kif_ValueTestCase',
     'kif_VariableTestCase',
     'kif_WikidataSPARQL_StoreTestCase',

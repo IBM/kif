@@ -3,10 +3,8 @@
 
 import decimal
 
-from ... import namespace as NS
-from ...rdflib import URIRef
 from ...typing import Any, ClassVar, Optional, override, Self, TypeAlias, Union
-from ..kif_object import Decimal, TDecimal, TLocation
+from ..kif_object import TLocation
 from ..template import Template
 from ..variable import Variable
 from .deep_data_value import (
@@ -15,7 +13,7 @@ from .deep_data_value import (
     DeepDataValueVariable,
 )
 from .item import Item, ItemTemplate, ItemVariable, VItem, VTItem
-from .string import String
+from .string import String, TString
 from .value import Datatype
 
 QuantityClass: TypeAlias = type['Quantity']
@@ -23,10 +21,11 @@ QuantityDatatypeClass: TypeAlias = type['QuantityDatatype']
 QuantityTemplateClass: TypeAlias = type['QuantityTemplate']
 QuantityVariableClass: TypeAlias = type['QuantityVariable']
 
+TDecimal: TypeAlias = Union[decimal.Decimal, float, int, TString]
 TQuantity: TypeAlias = Union['Quantity', TDecimal]
 VQuantity: TypeAlias =\
     Union['QuantityTemplate', 'QuantityVariable', 'Quantity']
-VQuantityContent: TypeAlias = Union['QuantityVariable', Decimal]
+VQuantityContent: TypeAlias = Union['QuantityVariable', decimal.Decimal]
 VTQuantityContent: TypeAlias = Union[Variable, TQuantity]
 
 
@@ -172,8 +171,6 @@ class QuantityDatatype(Datatype):
 
     value_class: ClassVar[QuantityClass]  # pyright: ignore
 
-    _uri: ClassVar[URIRef] = NS.WIKIBASE.Quantity
-
 
 class Quantity(
         DeepDataValue,
@@ -196,19 +193,6 @@ class Quantity(
     variable_class: ClassVar[QuantityVariableClass]  # pyright: ignore
 
     @classmethod
-    def _check_arg_quantity(
-            cls,
-            arg: TQuantity,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> 'Quantity':
-        if isinstance(arg, Quantity):
-            return arg
-        else:
-            return cls(cls._check_arg_decimal(arg, function, name, position))
-
-    @classmethod
     @override
     def check(
             cls,
@@ -219,11 +203,18 @@ class Quantity(
     ) -> Self:
         if isinstance(arg, cls):
             return arg
-        elif isinstance(arg, (Decimal, float, int, str)):
+        elif isinstance(arg, (decimal.Decimal, float, int)):
             return cls(arg)
+        elif isinstance(arg, str):
+            try:
+                return cls(arg)
+            except ValueError as err:
+                raise cls._check_error(
+                    arg, function, name, position, ValueError) from err
         elif isinstance(arg, String):
-            return cls(arg.content)
-        raise cls._check_error(arg, function, name, position)
+            return cls.check(arg.content, function, name, position)
+        else:
+            raise cls._check_error(arg, function, name, position)
 
     def __init__(
             self,
@@ -244,9 +235,9 @@ class Quantity(
                 return None
             if isinstance(arg, Quantity):
                 return arg.amount
-            elif isinstance(arg, (Decimal, float, int, str)):
+            elif isinstance(arg, (decimal.Decimal, float, int, str)):
                 try:
-                    return Decimal(arg)
+                    return decimal.Decimal(arg)
                 except decimal.InvalidOperation as err:
                     raise Quantity._check_error(
                         arg, type(self_), None, i, ValueError) from err
@@ -261,11 +252,11 @@ class Quantity(
         return str(self.args[0])
 
     @property
-    def amount(self) -> Decimal:
+    def amount(self) -> decimal.Decimal:
         """The amount of quantity."""
         return self.get_amount()
 
-    def get_amount(self) -> Decimal:
+    def get_amount(self) -> decimal.Decimal:
         """Gets the amount of quantity.
 
         Returns:
@@ -296,14 +287,14 @@ class Quantity(
         return unit if unit is not None else default
 
     @property
-    def lower_bound(self) -> Optional[Decimal]:
+    def lower_bound(self) -> Optional[decimal.Decimal]:
         """The lower bound of quantity."""
         return self.get_lower_bound()
 
     def get_lower_bound(
             self,
-            default: Optional[Decimal] = None
-    ) -> Optional[Decimal]:
+            default: Optional[decimal.Decimal] = None
+    ) -> Optional[decimal.Decimal]:
         """Gets the lower bound of quantity.
 
         If the lower bound is ``None``, returns `default`.
@@ -318,14 +309,14 @@ class Quantity(
         return lb if lb is not None else default
 
     @property
-    def upper_bound(self) -> Optional[Decimal]:
+    def upper_bound(self) -> Optional[decimal.Decimal]:
         """The upper bound of quantity."""
         return self.get_upper_bound()
 
     def get_upper_bound(
             self,
-            default: Optional[Decimal] = None
-    ) -> Optional[Decimal]:
+            default: Optional[decimal.Decimal] = None
+    ) -> Optional[decimal.Decimal]:
         """Gets the upper bound of quantity.
 
         If the upper bound is ``None``, returns `default`.

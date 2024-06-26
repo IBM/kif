@@ -438,9 +438,16 @@ class Object(Sequence, metaclass=ObjectMeta):
             name: Optional[str] = None,
             position: Optional[int] = None,
             exception: Optional[type[Exception]] = None,
+            from_: Optional[str] = None,
+            to_: Optional[str] = None
     ) -> Exception:
-        from_ = (arg if isinstance(arg, type) else type(arg)).__qualname__
-        to_ = cls.__qualname__
+        if from_ is None:
+            if isinstance(arg, type):
+                from_ = arg.__qualname__
+            else:
+                from_ = type(arg).__qualname__
+        if to_ is None:
+            to_ = cls.__qualname__
         return cls._arg_error(
             f'cannot coerce {from_} into {to_}',
             function or cls.check, name, position,

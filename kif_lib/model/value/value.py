@@ -128,9 +128,9 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
             return cls._StringDatatype()
         elif uri == NS.WIKIBASE.ExternalId:
             return cls._ExternalIdDatatype()
-        elif uri == cls._QuantityDatatype._uri:
+        elif uri == NS.WIKIBASE.Quantity:
             return cls._QuantityDatatype()
-        elif uri == cls._TimeDatatype._uri:
+        elif uri == NS.WIKIBASE.Time:
             return cls._TimeDatatype()
         else:
             raise ValueError(f'bad Wikibase datatype: {uri}')
@@ -151,8 +151,12 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
             return NS.WIKIBASE.String
         elif cls is cls._ExternalIdDatatype:
             return NS.WIKIBASE.ExternalId
+        elif cls is cls._QuantityDatatype:
+            return NS.WIKIBASE.Quantity
+        elif cls is cls._TimeDatatype:
+            return NS.WIKIBASE.Time
         else:
-            return cls._uri
+            raise cls._should_not_get_here()
 
     def __init__(
             self,
@@ -217,7 +221,7 @@ class Value(
         if isinstance(arg, str):
             arg = cls._String.check(arg, function, name, position)
         elif isinstance(arg, Datetime):
-            arg = cls._check_arg_time(arg)
+            arg = cls._Time.check(arg, function, name, position)
         elif isinstance(arg, (Decimal, float, int)):
             arg = cls._Quantity.check(arg, function, name, position)
         return super().check(arg, function, name, position)

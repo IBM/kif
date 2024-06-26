@@ -1,12 +1,11 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from enum import Enum
+import datetime
+import enum
 
-from ... import namespace as NS
-from ...rdflib import URIRef
-from ...typing import Any, ClassVar, Optional, override, TypeAlias, Union
-from ..kif_object import Datetime, Decimal, TDatetime, TLocation
+from ...typing import Any, ClassVar, Optional, override, Self, TypeAlias, Union
+from ..kif_object import TLocation
 from ..template import Template
 from ..variable import Variable
 from .deep_data_value import (
@@ -16,6 +15,7 @@ from .deep_data_value import (
 )
 from .item import Item, ItemTemplate, ItemVariable, VItem, VTItem
 from .quantity import Quantity, QuantityVariable, TQuantity, VTQuantityContent
+from .string import String
 from .value import Datatype
 
 TimeClass: TypeAlias = type['Time']
@@ -23,18 +23,19 @@ TimeDatatypeClass: TypeAlias = type['TimeDatatype']
 TimeTemplateClass: TypeAlias = type['TimeTemplate']
 TimeVariableClass: TypeAlias = type['TimeVariable']
 
+TDatetime: TypeAlias = Union[datetime.datetime, datetime.date, str]
 TTime: TypeAlias = Union['Time', TDatetime]
-VTTimeContent: TypeAlias = Union[Variable, TTime]
-VTimeContent: TypeAlias = Union['TimeVariable', Datetime]
 VTime: TypeAlias = Union['TimeTemplate', 'TimeVariable', 'Time']
+VTimeContent: TypeAlias = Union['TimeVariable', datetime.datetime]
+VTTimeContent: TypeAlias = Union[Variable, TTime]
 
 TTimePrecision: TypeAlias = Union['Time.Precision', TQuantity]
-VTTimePrecisionContent: TypeAlias = Union[Variable, TTimePrecision]
 VTimePrecisionContent: TypeAlias = Union[QuantityVariable, 'Time.Precision']
+VTTimePrecisionContent: TypeAlias = Union[Variable, TTimePrecision]
 
 TTimeTimezone: TypeAlias = TQuantity
-VTTimeTimezoneContent: TypeAlias = VTQuantityContent
 VTimeTimezoneContent: TypeAlias = Union[QuantityVariable, int]
+VTTimeTimezoneContent: TypeAlias = VTQuantityContent
 
 
 class TimeTemplate(DeepDataValueTemplate):
@@ -182,8 +183,6 @@ class TimeDatatype(Datatype):
 
     value_class: ClassVar[TimeClass]  # pyright: ignore
 
-    _uri: ClassVar[URIRef] = NS.WIKIBASE.Time
-
 
 class Time(
         DeepDataValue,
@@ -209,7 +208,7 @@ class Time(
     # <https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format#Time>.
     # <https://www.mediawiki.org/wiki/Wikibase/DataModel#Dates_and_times>.
 
-    class Precision(Enum):
+    class Precision(enum.Enum):
         """Time precision."""
 
         #: Billion years.
@@ -303,128 +302,22 @@ class Time(
     SECOND = Precision.SECOND
 
     @classmethod
-    def _check_arg_precision(
+    @override
+    def check(
             cls,
-            arg: TTimePrecision,
+            arg: Any,
             function: Optional[TLocation] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> 'Time.Precision':
-        arg = cls._check_arg_isinstance(
-            arg, (cls.Precision, Quantity, Decimal, float, int, str),
-            function, name, position)
-        try:
-            if isinstance(arg, Quantity):
-                arg = int(arg.args[0])
-            if not isinstance(arg, (int, cls.Precision)):
-                arg = int(arg)
-            return cls.Precision(arg)
-        except ValueError as err:
-            raise cls._arg_error(
-                f'expected {cls.Precision.__qualname__}',
-                function, name, position, ValueError) from err
-
-    @classmethod
-    def _check_optional_arg_precision(
-            cls,
-            arg: Optional[TTimePrecision],
-            default: Optional['Time.Precision'] = None,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional['Time.Precision']:
-        if arg is None:
-            return default
-        else:
-            return cls._check_arg_precision(arg, function, name, position)
-
-    @classmethod
-    def _preprocess_arg_precision(
-            cls,
-            arg: TTimePrecision,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> 'Time.Precision':
-        return cls._check_arg_precision(arg, function or cls, None, i)
-
-    @classmethod
-    def _preprocess_optional_arg_precision(
-            cls,
-            arg: Optional[TTimePrecision],
-            i: int,
-            default: Optional['Time.Precision'] = None,
-            function: Optional[TLocation] = None
-    ) -> Optional['Time.Precision']:
-        return cls._check_optional_arg_precision(
-            arg, default, function or cls, None, i)
-
-    @classmethod
-    def _check_arg_timezone(
-            cls,
-            arg: TTimeTimezone,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> int:
-        arg = cls._check_arg_isinstance(
-            arg, (Quantity, Decimal, float, int, str),
-            function, name, position)
-        try:
-            if isinstance(arg, Quantity):
-                return int(arg.args[0])
-            else:
-                return int(arg)
-        except ValueError as err:
-            raise cls._arg_error(
-                'expected timezone',
-                function, name, position, ValueError) from err
-
-    @classmethod
-    def _check_optional_arg_timezone(
-            cls,
-            arg: Optional[TTimeTimezone],
-            default: Optional[int] = None,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[int]:
-        if arg is None:
-            return default
-        else:
-            return cls._check_arg_timezone(arg, function, name, position)
-
-    @classmethod
-    def _preprocess_arg_timezone(
-            cls,
-            arg: TTimeTimezone,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> int:
-        return cls._check_arg_timezone(arg, function or cls, None, i)
-
-    @classmethod
-    def _preprocess_optional_arg_timezone(
-            cls,
-            arg: Optional[TTimeTimezone],
-            i: int,
-            default: Optional[int] = None,
-            function: Optional[TLocation] = None
-    ) -> Optional[int]:
-        return cls._check_optional_arg_timezone(
-            arg, default, function or cls, None, i)
-
-    @classmethod
-    def _check_arg_time(
-            cls,
-            arg: TTime,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> 'Time':
-        if isinstance(arg, Time):
+    ) -> Self:
+        if isinstance(arg, cls):
             return arg
+        elif isinstance(arg, String):
+            return cls(arg.content)
+        elif isinstance(arg, (datetime.datetime, datetime.date, str)):
+            return cls(arg)
         else:
-            return cls(cls._check_arg_datetime(arg, function, name, position))
+            raise cls._check_error(arg, function, name, position)
 
     def __init__(
             self,
@@ -440,17 +333,51 @@ class Time(
 
     @staticmethod
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
+        if arg is None and i >= 2 and i <= 4:
+            return None
         if i == 1:              # time
-            return self_._preprocess_arg_datetime(
-                arg.args[0] if isinstance(arg, Time) else arg, i)
+            if isinstance(arg, Time):
+                return arg.time
+            elif isinstance(arg, str):
+                ###
+                # FIXME: Python's fromisoformat() does not support the +/-
+                # sign used by Wikidata at the start of date-time literals.
+                ###
+                arg = arg[1:] if arg[0] == '+' or arg[0] == '-' else arg
+                try:
+                    dt = datetime.datetime.fromisoformat(arg)
+                except ValueError as err:
+                    raise Time._check_error(
+                        arg, type(self_), None, i, ValueError) from err
+                if dt.tzinfo is None:
+                    return dt.replace(tzinfo=datetime.timezone.utc)
+                else:
+                    return dt
+            elif isinstance(arg, datetime.datetime):
+                return arg
+            elif isinstance(arg, datetime.date):
+                return datetime.datetime.combine(
+                    arg, datetime.time(), tzinfo=datetime.timezone.utc)
+            else:
+                raise Time._check_error(arg, type(self_), None, i)
         elif i == 2:            # precision
-            return Time._preprocess_optional_arg_precision(
-                arg, i, None, self_.__class__)
+            if isinstance(arg, Time.Precision):
+                return arg
+            else:
+                try:
+                    return Time.Precision(
+                        Quantity.check(arg, type(self_), None, i).amount)
+                except ValueError as err:
+                    raise Time._check_error(
+                        arg, type(self_), None, i,
+                        to_=Time.Precision.__qualname__) from err
         elif i == 3:            # timezone
-            return Time._preprocess_optional_arg_timezone(
-                arg, i, None, self_.__class__)
+            if isinstance(arg, int):
+                return arg
+            else:
+                return int(Quantity.check(arg, type(self_), None, i).amount)
         elif i == 4:            # calendar
-            return self_._preprocess_optional_arg_item(arg, i)
+            return Item.check(arg, type(self_), None, i)
         else:
             raise self_._should_not_get_here()
 
@@ -458,11 +385,11 @@ class Time(
         return str(self.args[0].isoformat())
 
     @property
-    def time(self) -> Datetime:
+    def time(self) -> datetime.datetime:
         """The date-time of time."""
         return self.get_time()
 
-    def get_time(self) -> Datetime:
+    def get_time(self) -> datetime.datetime:
         """Gets the date-time of time.
 
         Returns:

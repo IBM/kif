@@ -226,7 +226,15 @@ class kif_EntityTemplateTestCase(kif_TemplateTestCase):
             failure_coerce=failure_coerce)
 
 
-class kif_ShallowDataValueTemplateTestCase(kif_TemplateTestCase):
+class kif_ValueTemplateTestCase(kif_TemplateTestCase):
+    pass
+
+
+class kif_DataValueTemplateTestCase(kif_ValueTemplateTestCase):
+    pass
+
+
+class kif_ShallowDataValueTemplateTestCase(kif_DataValueTemplateTestCase):
 
     @override
     def _test_check(
@@ -318,7 +326,7 @@ class kif_ShallowDataValueTemplateTestCase(kif_TemplateTestCase):
             ])
 
 
-class kif_DeepDataValueTemplateTestCase(kif_TemplateTestCase):
+class kif_DeepDataValueTemplateTestCase(kif_DataValueTemplateTestCase):
 
     @override
     def _test_check(

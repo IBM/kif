@@ -138,7 +138,7 @@ from kif_lib.model import (
     VVSnak,
 )
 from kif_lib.model.object import Object
-from kif_lib.namespace import WIKIBASE, XSD
+from kif_lib.namespace import XSD
 from kif_lib.typing import (
     Any,
     cast,
@@ -378,7 +378,6 @@ if __name__ == '__main__':
         self.assertIsInstance(obj, Entity)
         self.assertTrue(obj.is_entity())
         self.assertIsInstance(obj.args[0], IRI)
-        self.assertTrue(obj.args[0].is_iri())
         self.assertEqual(obj.args[0], iri)
         self.assertIs(obj.iri, obj.args[0])
         self.assertIs(obj.get_iri(), obj.args[0])
@@ -412,12 +411,10 @@ if __name__ == '__main__':
     def assert_data_value(self, obj: DataValue):
         self.assert_value(obj)
         self.assertIsInstance(obj, DataValue)
-        self.assertTrue(obj.is_data_value())
 
     def assert_shallow_data_value(self, obj: ShallowDataValue):
         self.assert_data_value(obj)
         self.assertIsInstance(obj, ShallowDataValue)
-        self.assertTrue(obj.is_shallow_data_value())
         self.assertIs(obj.content, obj.args[0])
         self.assertIs(obj.get_content(), obj.args[0])
 
@@ -439,7 +436,6 @@ if __name__ == '__main__':
     ):
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, Text)
-        self.assertTrue(obj.is_text())
         self.assert_text_datatype(obj.datatype)
         self.assertEqual(obj.args[0], content)
         if language is None:
@@ -474,7 +470,6 @@ if __name__ == '__main__':
     def assert_deep_data_value(self, obj: DeepDataValue):
         self.assert_data_value(obj)
         self.assertIsInstance(obj, DeepDataValue)
-        self.assertTrue(obj.is_deep_data_value())
 
     def assert_quantity(
             self,
@@ -486,7 +481,6 @@ if __name__ == '__main__':
     ):
         self.assert_deep_data_value(obj)
         self.assertIsInstance(obj, Quantity)
-        self.assertTrue(obj.is_quantity())
         self.assert_quantity_datatype(obj.datatype)
         self.assertEqual(obj.args[0], Decimal(amount))
         self.assertEqual(obj.value, str(obj.args[0]))
@@ -516,7 +510,6 @@ if __name__ == '__main__':
     ):
         self.assert_deep_data_value(obj)
         self.assertIsInstance(obj, Time)
-        self.assertTrue(obj.is_time())
         self.assert_time_datatype(obj.datatype)
         self.assertEqual(obj.args[0], time)
         self.assertEqual(obj.value, obj.args[0].isoformat())
@@ -541,7 +534,6 @@ if __name__ == '__main__':
     def assert_datatype(self, obj: Datatype):
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Datatype)
-        self.assertTrue(obj.is_datatype())
 
     def assert_item_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
@@ -574,14 +566,10 @@ if __name__ == '__main__':
     def assert_quantity_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, QuantityDatatype)
-        self.assertTrue(obj.is_quantity_datatype())
-        self.assertEqual(obj._uri, WIKIBASE.Quantity)
 
     def assert_time_datatype(self, obj: Datatype):
         self.assert_datatype(obj)
         self.assertIsInstance(obj, TimeDatatype)
-        self.assertTrue(obj.is_time_datatype())
-        self.assertEqual(obj._uri, WIKIBASE.Time)
 
 # -- Template --------------------------------------------------------------
 
