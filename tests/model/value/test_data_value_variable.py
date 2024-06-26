@@ -3,7 +3,6 @@
 
 from kif_lib import (
     DataValue,
-    DataValue,
     DataValueVariable,
     IRI,
     Item,
@@ -34,8 +33,7 @@ class Test(kif_VariableTestCase):
         self._test_check(DataValueVariable)
 
     def test__init__(self) -> None:
-        assert_type(
-            DataValueVariable('x'), DataValueVariable)
+        assert_type(DataValueVariable('x'), DataValueVariable)
         self._test__init__(DataValueVariable, self.assert_data_value_variable)
 
     def test_instantiate(self) -> None:
