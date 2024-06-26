@@ -15,9 +15,10 @@ from ...typing import (
 )
 from ..template import Template
 from ..variable import Variable
+from .datatype import Datatype, DatatypeVariable, VDatatype, VTDatatype
 from .entity import Entity, EntityTemplate, EntityVariable, VTEntity
 from .iri import T_IRI, VT_IRI
-from .value import Datatype, DatatypeVariable, VDatatype, VTDatatype, VTValue
+from .value import VTValue
 
 if TYPE_CHECKING:               # pragma: no cover
     from ..snak import ValueSnak, ValueSnakTemplate

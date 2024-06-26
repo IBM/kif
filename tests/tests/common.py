@@ -126,11 +126,6 @@ from kif_lib.model import (
     VTime,
     VTItem,
     VTProperty,
-    VTQuantityContent,
-    VTStringContent,
-    VTTimeContent,
-    VTTimePrecisionContent,
-    VTTimeTimezoneContent,
     VTValue,
     VValue,
     VValueSnak,
@@ -138,6 +133,9 @@ from kif_lib.model import (
     VVSnak,
 )
 from kif_lib.model.object import Object
+from kif_lib.model.value.quantity import VTQuantityContent
+from kif_lib.model.value.string import VTStringContent
+from kif_lib.model.value.time import VTTimeContent
 from kif_lib.namespace import XSD
 from kif_lib.typing import (
     Any,
@@ -707,8 +705,8 @@ if __name__ == '__main__':
             self,
             obj: VTime,
             time: VTTimeContent,
-            precision: Optional[VTTimePrecisionContent],
-            timezone: Optional[VTTimeTimezoneContent],
+            precision: Optional[VTQuantityContent],
+            timezone: Optional[VTQuantityContent],
             calendar: Optional[VTItem]
     ):
         self.assertIsInstance(obj, TimeTemplate)

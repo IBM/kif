@@ -9,6 +9,14 @@ from .data_value import (
     DataValueVariable,
     DataValueVariableClass,
 )
+from .datatype import (
+    Datatype,
+    DatatypeClass,
+    DatatypeVariable,
+    TDatatypeClass,
+    VDatatype,
+    VVDatatype,
+)
 from .deep_data_value import (
     DeepDataValue,
     DeepDataValueClass,
@@ -48,7 +56,6 @@ from .iri import (
     T_IRI,
     V_IRI,
     VT_IRI,
-    VT_IRI_Content,
 )
 from .item import (
     Item,
@@ -86,8 +93,6 @@ from .quantity import (
     QuantityVariable,
     TQuantity,
     VQuantity,
-    VQuantityContent,
-    VTQuantityContent,
 )
 from .shallow_data_value import (
     ShallowDataValue,
@@ -104,8 +109,6 @@ from .string import (
     StringVariable,
     TString,
     VString,
-    VStringContent,
-    VTStringContent,
 )
 from .text import Text, TextDatatype, TextTemplate, TextVariable, TText, VText
 from .time import (
@@ -116,27 +119,8 @@ from .time import (
     TTime,
     TTimePrecision,
     VTime,
-    VTimeContent,
-    VTimePrecisionContent,
-    VTimeTimezoneContent,
-    VTTimeContent,
-    VTTimePrecisionContent,
-    VTTimeTimezoneContent,
 )
-from .value import (
-    Datatype,
-    DatatypeClass,
-    DatatypeVariable,
-    TDatatypeClass,
-    TValue,
-    Value,
-    ValueTemplate,
-    ValueVariable,
-    VDatatype,
-    VTValue,
-    VValue,
-    VVDatatype,
-)
+from .value import TValue, Value, ValueTemplate, ValueVariable, VTValue, VValue
 
 __all__ = (
     'Datatype',
@@ -233,24 +217,13 @@ __all__ = (
     'VLexeme',
     'VProperty',
     'VQuantity',
-    'VQuantityContent',
     'VString',
-    'VStringContent',
     'VT_IRI',
-    'VT_IRI_Content',
     'VTEntity',
     'VText',
     'VTime',
-    'VTimeContent',
-    'VTimePrecisionContent',
-    'VTimeTimezoneContent',
     'VTItem',
     'VTProperty',
-    'VTQuantityContent',
-    'VTStringContent',
-    'VTTimeContent',
-    'VTTimePrecisionContent',
-    'VTTimeTimezoneContent',
     'VTValue',
     'VValue',
     'VVDatatype',
