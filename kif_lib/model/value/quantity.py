@@ -14,7 +14,7 @@ from .deep_data_value import (
     DeepDataValueTemplate,
     DeepDataValueVariable,
 )
-from .item import Item, ItemTemplate, ItemVariable, VItem, VTItemContent
+from .item import Item, ItemTemplate, ItemVariable, VItem, VTItem
 from .string import String
 from .value import Datatype
 
@@ -45,7 +45,7 @@ class QuantityTemplate(DeepDataValueTemplate):
     def __init__(
             self,
             amount: VTQuantityContent,
-            unit: Optional[VTItemContent] = None,
+            unit: Optional[VTItem] = None,
             lower_bound: Optional[VTQuantityContent] = None,
             upper_bound: Optional[VTQuantityContent] = None):
         super().__init__(amount, unit, lower_bound, upper_bound)
@@ -228,7 +228,7 @@ class Quantity(
     def __init__(
             self,
             amount: VTQuantityContent,
-            unit: Optional[VTItemContent] = None,
+            unit: Optional[VTItem] = None,
             lower_bound: Optional[VTQuantityContent] = None,
             upper_bound: Optional[VTQuantityContent] = None):
         super().__init__(amount, unit, lower_bound, upper_bound)

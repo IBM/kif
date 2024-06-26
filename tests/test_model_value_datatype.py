@@ -33,20 +33,20 @@ class TestModelValueDatatype(kif_TestCase):
     def test__new__(self):
         self.assert_raises_bad_argument(
             TypeError, 1, 'datatype_class',
-            'expected value, got None', Datatype)
+            'cannot coerce NoneType into Datatype', Datatype)
         self.assert_raises_bad_argument(
             TypeError, 1, 'datatype_class',
-            'expected type, got int', Datatype, 0)
+            'cannot coerce int into Datatype', Datatype, 0)
         self.assert_raises_bad_argument(
-            ValueError, 1, 'datatype_class',
-            'expected proper subclass of Datatype', Datatype, Datatype)
+            TypeError, 1, 'datatype_class',
+            'cannot coerce Datatype into Datatype', Datatype, Datatype)
         self.assert_raises_bad_argument(
-            ValueError, 1, 'datatype_class',
-            'expected subclass of Value, got KIF_Object',
+            TypeError, 1, 'datatype_class',
+            'cannot coerce KIF_Object into Datatype',
             Datatype, KIF_Object)
         self.assert_raises_bad_argument(
-            ValueError, 1, 'datatype_class',
-            'no datatype class for Entity',
+            TypeError, 1, 'datatype_class',
+            'cannot coerce Entity into Datatype',
             Datatype, Entity)
         self.assert_item_datatype(ItemDatatype())
         self.assert_item_datatype(Datatype(Item))

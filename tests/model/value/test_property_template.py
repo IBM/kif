@@ -46,7 +46,7 @@ class Test(kif_EntityTemplateTestCase):
         assert_type(PropertyTemplate(Variable('x')), PropertyTemplate)
         self._test__init__(
             PropertyTemplate,
-            lambda x, *y: self.assert_property_template(x, *y),
+            self.assert_property_template,
             success=[
                 ([IRI('x'), Variable('y', Datatype)],
                  Property(IRI('x'), Variable('y', Datatype))),

@@ -27,8 +27,7 @@ class Test(kif_ShallowDataValueTemplateTestCase):
 
     def test__init__(self) -> None:
         assert_type(StringTemplate(Variable('x')), StringTemplate)
-        self._test__init__(
-            StringTemplate, lambda x, *y: self.assert_string_template(x, *y))
+        self._test__init__(StringTemplate, self.assert_string_template)
 
     def test_instantiate(self) -> None:
         assert_type(

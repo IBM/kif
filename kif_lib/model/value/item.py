@@ -15,7 +15,8 @@ ItemVariableClass: TypeAlias = type['ItemVariable']
 
 TItem: TypeAlias = Union['Item', T_IRI]
 VItem: TypeAlias = Union['ItemTemplate', 'ItemVariable', 'Item']
-VTItemContent: TypeAlias = Union[IRI_Template, Variable, TItem]
+VTItem: TypeAlias = Union[Variable, VItem, TItem]
+VTItemContent: TypeAlias = Union[Variable, IRI_Template, TItem]
 
 
 class ItemTemplate(EntityTemplate):

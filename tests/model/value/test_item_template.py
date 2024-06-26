@@ -22,8 +22,11 @@ class Test(kif_EntityTemplateTestCase):
         assert_type(ItemTemplate(Variable('x')), ItemTemplate)
         self._test__init__(
             ItemTemplate,
-            lambda x, *y: self.assert_item_template(x, *y),
-            failure=[[Lexeme('x')], [Property('x')]])
+            self.assert_item_template,
+            failure=[
+                [Lexeme('x')],
+                [Property('x')],
+            ])
 
     def test_instantiate(self) -> None:
         assert_type(ItemTemplate(Variable('x')).instantiate({}), KIF_Object)

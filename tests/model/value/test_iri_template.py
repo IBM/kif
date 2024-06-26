@@ -27,9 +27,7 @@ class Test(kif_ShallowDataValueTemplateTestCase):
 
     def test__init__(self) -> None:
         assert_type(IRI_Template(Variable('x')), IRI_Template)
-        self._test__init__(
-            IRI_Template,
-            lambda x, *y: self.assert_iri_template(x, *y))
+        self._test__init__(IRI_Template, self.assert_iri_template)
 
     def test_instantiate(self) -> None:
         assert_type(

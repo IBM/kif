@@ -35,6 +35,9 @@ class Test(kif_ShallowDataValueTestCase):
         assert_type(ExternalId.check(ExternalId('x')), ExternalId)
         self._test_check(
             ExternalId,
+            success=[
+                (ExternalId('x'), ExternalId('x')),
+            ],
             failure=[
                 IRI('x'),
                 Item('x'),
@@ -49,6 +52,7 @@ class Test(kif_ShallowDataValueTestCase):
             self.assert_external_id,
             success=[
                 (['x'], ExternalId('x')),
+                ([ExternalId('x')], ExternalId('x')),
             ],
             failure=[
                 [IRI('x')],

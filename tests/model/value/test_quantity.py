@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
+    ExternalId,
     IRI,
     Item,
     Property,
@@ -12,8 +13,6 @@ from kif_lib import (
     String,
     StringDatatype,
     Text,
-    TextTemplate,
-    Variable,
 )
 from kif_lib.model import Decimal
 from kif_lib.typing import assert_type
@@ -38,8 +37,6 @@ class Test(kif_DeepDataValueTestCase):
 
     def test_check(self) -> None:
         assert_type(Quantity.check(0), Quantity)
-        self.assert_raises_check_error(
-            Quantity, 'abc', Quantity, None, 1, ValueError)
         self._test_check(
             Quantity,
             success=[
@@ -50,11 +47,12 @@ class Test(kif_DeepDataValueTestCase):
                 (String('0'), Quantity(0)),
             ],
             failure=[
+                'x',
+                ExternalId('x'),
                 IRI('x'),
                 Item('x'),
+                String('x'),
                 Text('x'),
-                TextTemplate(Variable('x')),
-                Variable('x', Item),
             ])
 
     def test__init__(self) -> None:
@@ -78,6 +76,25 @@ class Test(kif_DeepDataValueTestCase):
                 (0, None, Property('x')),
                 (0, None, None, Property('x')),
             ])
+
+    def test_get_unit(self):
+        self.assertEqual(Quantity(0, Item('x')).get_unit(), Item('x'))
+        self.assertEqual(Quantity(0).get_unit(Item('x')), Item('x'))
+        self.assertEqual(Quantity(0).get_unit(Item(IRI('x'))), Item('x'))
+        self.assertIsNone(Quantity(0).get_unit())
+
+    def test_get_lower_bound(self):
+        self.assertEqual(
+            Quantity(0, None, 1).get_lower_bound(), Decimal('1'))
+        self.assertEqual(
+            Quantity(0, None).get_lower_bound(Decimal('1.')), Decimal('1.'))
+        self.assertIsNone(Quantity(0, None).get_lower_bound())
+
+    def test_get_upper_bound(self):
+        self.assertEqual(
+            Quantity(0, None, 1, 2).get_upper_bound(), Decimal('2'))
+        self.assertEqual(Quantity(0).get_upper_bound(Decimal(2)), Decimal(2))
+        self.assertIsNone(Quantity(0, None).get_upper_bound())
 
 
 if __name__ == '__main__':

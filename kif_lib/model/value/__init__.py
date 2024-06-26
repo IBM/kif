@@ -58,7 +58,7 @@ from .item import (
     ItemVariable,
     TItem,
     VItem,
-    VTItemContent,
+    VTItem,
 )
 from .lexeme import (
     Lexeme,
@@ -77,7 +77,7 @@ from .property import (
     PropertyVariable,
     TProperty,
     VProperty,
-    VTPropertyContent,
+    VTProperty,
 )
 from .quantity import (
     Quantity,
@@ -244,8 +244,8 @@ __all__ = (
     'VTimeContent',
     'VTimePrecisionContent',
     'VTimeTimezoneContent',
-    'VTItemContent',
-    'VTPropertyContent',
+    'VTItem',
+    'VTProperty',
     'VTQuantityContent',
     'VTStringContent',
     'VTTimeContent',

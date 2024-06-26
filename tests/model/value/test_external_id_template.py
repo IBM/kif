@@ -27,8 +27,7 @@ class Test(kif_ShallowDataValueTemplateTestCase):
     def test__init__(self) -> None:
         assert_type(ExternalIdTemplate(Variable('x')), ExternalIdTemplate)
         self._test__init__(
-            ExternalIdTemplate,
-            lambda x, *y: self.assert_external_id_template(x, *y))
+            ExternalIdTemplate, self.assert_external_id_template)
 
     def test_instantiate(self) -> None:
         assert_type(

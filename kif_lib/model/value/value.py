@@ -74,43 +74,22 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
             cls,
             datatype_class: Optional[TDatatypeClass] = None
     ):
-        datatype_cls = cls._check_optional_arg_datatype_class(
-            datatype_class, cls, cls, 'datatype_class', 1)
-        assert datatype_cls is not None
-        return super().__new__(datatype_cls)  # pyright: ignore
-
-    @classmethod
-    def _check_arg_datatype_class(
-            cls,
-            arg: TDatatypeClass,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> DatatypeClass:
-        if isinstance(arg, type) and issubclass(arg, cls):
-            return arg
+        if datatype_class is None:
+            if cls is Datatype:
+                raise cls._check_error(
+                    datatype_class, cls, 'datatype_class', 1)
+            datatype_class = cls
+        if (isinstance(datatype_class, type)
+                and issubclass(datatype_class, KIF_Object)
+                and not issubclass(datatype_class, cls)
+                and hasattr(datatype_class, 'datatype_class')):
+            datatype_class = getattr(datatype_class, 'datatype_class')
+        if (isinstance(datatype_class, type)
+                and issubclass(datatype_class, cls)
+                and datatype_class is not Datatype):
+            return super().__new__(datatype_class)
         else:
-            arg = cls._check_arg_value_class(
-                cast(ValueClass, arg), function, name, position)
-            return getattr(cls._check_arg(
-                arg, hasattr(arg, 'datatype_class'),
-                f'no datatype class for {arg.__qualname__}',
-                function, name, position), 'datatype_class')
-
-    @classmethod
-    def _check_arg_datatype(
-            cls,
-            arg: TDatatype,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> 'Datatype':
-        if isinstance(arg, type):
-            return cls._check_arg_datatype_class(
-                cast(DatatypeClass, arg), function, name, position)()
-        else:
-            return cls._check_arg_isinstance(
-                arg, cls, function, name, position)
+            raise cls._check_error(datatype_class, cls, 'datatype_class', 1)
 
     @classmethod
     @override
@@ -179,14 +158,7 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
             self,
             datatype_class: Optional[TDatatypeClass] = None
     ):
-        if self.__class__ == Datatype:
-            self._check_arg_not_none(
-                datatype_class, self.__class__, 'datatype_class', 1)
-            assert datatype_class is not None
-            self._check_arg(
-                datatype_class, datatype_class is not Datatype,
-                f'expected proper subclass of {self.__class__.__qualname__}',
-                self.__class__, 'datatype_class', 1)
+        assert not (type(self) is Datatype and datatype_class is None)
         super().__init__()
 
 
@@ -242,14 +214,13 @@ class Value(
     ) -> Self:
         if isinstance(arg, cls):
             return arg
-        elif isinstance(arg, str):
-            return cast(Self, cls._String.check(arg, function, name, position))
+        if isinstance(arg, str):
+            arg = cls._String.check(arg, function, name, position)
         elif isinstance(arg, Datetime):
-            return cast(Self, cls._check_arg_time(arg))
+            arg = cls._check_arg_time(arg)
         elif isinstance(arg, (Decimal, float, int)):
-            return cast(Self, cls._check_arg_quantity(arg))
-        else:
-            raise cls._check_error(arg, function, name, position)
+            arg = cls._Quantity.check(arg, function, name, position)
+        return super().check(arg, function, name, position)
 
     @property
     def value(self) -> str:

@@ -4,6 +4,7 @@
 from .common import kif_TestCase
 from .model import (
     kif_DatatypeTestCase,
+    kif_DeepDataValueTemplateTestCase,
     kif_DeepDataValueTestCase,
     kif_EntityTemplateTestCase,
     kif_EntityTestCase,
@@ -23,6 +24,7 @@ from .store import (
 
 __all__ = (
     'kif_DatatypeTestCase',
+    'kif_DeepDataValueTemplateTestCase',
     'kif_DeepDataValueTestCase',
     'kif_EmptyStoreTestCase',
     'kif_EntityTemplateTestCase',

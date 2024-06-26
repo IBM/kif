@@ -37,6 +37,9 @@ class Test(kif_ShallowDataValueTestCase):
         assert_type(Text.check(Text('x')), Text)
         self._test_check(
             Text,
+            success=[
+                (ExternalId('x'), Text('x')),
+            ],
             failure=[
                 IRI('x'),
                 Item('x'),
@@ -52,12 +55,13 @@ class Test(kif_ShallowDataValueTestCase):
             success=[
                 (['x', 'y'], Text('x', 'y')),
                 (['x'], Text('x')),
+                ([ExternalId('x'), ExternalId('y')], Text('x', 'y')),
                 ([Literal('x'), 'y'], Text('x', 'y')),
                 ([Literal('x'), 'y'], Text('x', 'y')),
                 ([String('x'), ExternalId('y')], Text('x', 'y')),
                 ([Text(ExternalId('x')), URIRef('y')], Text('x', 'y')),
                 ([Text(Text('x')), String('y')], Text('x', 'y')),
-                ([URIRef('x'), Literal('y')], Text('x', 'y'))
+                ([URIRef('x'), Literal('y')], Text('x', 'y')),
             ],
             failure=[
                 ['x', 0],

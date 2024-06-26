@@ -15,6 +15,7 @@ LexemeVariableClass: TypeAlias = type['LexemeVariable']
 
 TLexeme: TypeAlias = Union['Lexeme', T_IRI]
 VLexeme: TypeAlias = Union['LexemeTemplate', 'LexemeVariable', 'Lexeme']
+VTLexeme: TypeAlias = Union[Variable, VLexeme, TLexeme]
 VTLexemeContent: TypeAlias = Union[IRI_Template, Variable, TLexeme]
 
 

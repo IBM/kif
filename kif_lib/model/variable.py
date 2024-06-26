@@ -50,14 +50,15 @@ class Variable(KIF_Object):
         if variable_class is None:
             variable_class = cls
         if (isinstance(variable_class, type)
-                and issubclass(variable_class, KIF_Object)):
-            if (not issubclass(variable_class, cls)
-                    and hasattr(variable_class, 'variable_class')):
-                variable_class = getattr(variable_class, 'variable_class')
-        if (not isinstance(variable_class, type)
-                or not issubclass(variable_class, cls)):
+                and issubclass(variable_class, KIF_Object)
+                and not issubclass(variable_class, cls)
+                and hasattr(variable_class, 'variable_class')):
+            variable_class = getattr(variable_class, 'variable_class')
+        if (isinstance(variable_class, type)
+                and issubclass(variable_class, cls)):
+            return super().__new__(variable_class)  # pyright: ignore
+        else:
             raise cls._check_error(variable_class, cls, 'variable_class', 2)
-        return super().__new__(variable_class)  # pyright: ignore
 
     @classmethod
     @override

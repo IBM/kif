@@ -124,8 +124,8 @@ from kif_lib.model import (
     VTEntity,
     VText,
     VTime,
-    VTItemContent,
-    VTPropertyContent,
+    VTItem,
+    VTProperty,
     VTQuantityContent,
     VTStringContent,
     VTTimeContent,
@@ -721,7 +721,7 @@ if __name__ == '__main__':
             time: VTTimeContent,
             precision: Optional[VTTimePrecisionContent],
             timezone: Optional[VTTimeTimezoneContent],
-            calendar: Optional[VTItemContent]
+            calendar: Optional[VTItem]
     ):
         self.assertIsInstance(obj, TimeTemplate)
         assert isinstance(obj, TimeTemplate)
@@ -742,7 +742,7 @@ if __name__ == '__main__':
     def assert_snak_template(
             self,
             obj: VSnak,
-            property: VTPropertyContent
+            property: VTProperty
     ):
         self.assertIsInstance(obj, SnakTemplate)
         assert isinstance(obj, SnakTemplate)
@@ -754,7 +754,7 @@ if __name__ == '__main__':
     def assert_value_snak_template(
             self,
             obj: VValueSnak,
-            property: VTPropertyContent,
+            property: VTProperty,
             value: VTValue
     ):
         self.assertIsInstance(obj, ValueSnakTemplate)
@@ -767,7 +767,7 @@ if __name__ == '__main__':
     def assert_some_value_snak_template(
             self,
             obj: VSomeValueSnak,
-            property: VTPropertyContent
+            property: VTProperty
     ):
         self.assert_snak_template(obj, property)
         self.assertIsInstance(obj, SomeValueSnakTemplate)
@@ -775,7 +775,7 @@ if __name__ == '__main__':
     def assert_no_value_snak_template(
             self,
             obj: VNoValueSnak,
-            property: VTPropertyContent,
+            property: VTProperty,
     ):
         obj_ = cast(NoValueSnakTemplate, obj)
         self.assert_snak_template(obj_, property)

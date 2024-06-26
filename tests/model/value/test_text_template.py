@@ -38,7 +38,7 @@ class Test(kif_ShallowDataValueTemplateTestCase):
         assert_type(TextTemplate(Variable('x')), TextTemplate)
         self._test__init__(
             TextTemplate,
-            lambda x, *y: self.assert_text_template(x, *y),
+            self.assert_text_template,
             success=[
                 (['x', Variable('y', String)],
                  Text('x', Variable('y', String))),

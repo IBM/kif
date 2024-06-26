@@ -14,7 +14,7 @@ from .deep_data_value import (
     DeepDataValueTemplate,
     DeepDataValueVariable,
 )
-from .item import Item, ItemTemplate, ItemVariable, VItem, VTItemContent
+from .item import Item, ItemTemplate, ItemVariable, VItem, VTItem
 from .quantity import Quantity, QuantityVariable, TQuantity, VTQuantityContent
 from .value import Datatype
 
@@ -54,7 +54,7 @@ class TimeTemplate(DeepDataValueTemplate):
             time: VTTimeContent,
             precision: Optional[VTTimePrecisionContent] = None,
             timezone: Optional[VTTimeTimezoneContent] = None,
-            calendar: Optional[VTItemContent] = None):
+            calendar: Optional[VTItem] = None):
         super().__init__(time, precision, timezone, calendar)
 
     @override
@@ -431,7 +431,7 @@ class Time(
             time: VTTimeContent,
             precision: Optional[VTTimePrecisionContent] = None,
             timezone: Optional[VTTimeTimezoneContent] = None,
-            calendar: Optional[VTItemContent] = None):
+            calendar: Optional[VTItem] = None):
         super().__init__(time, precision, timezone, calendar)
 
     @override

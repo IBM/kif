@@ -31,6 +31,7 @@ PropertyVariableClass: TypeAlias = type['PropertyVariable']
 TProperty: TypeAlias = Union['Property', T_IRI]
 VProperty: TypeAlias =\
     Union['PropertyTemplate', 'PropertyVariable', 'Property']
+VTProperty: TypeAlias = Union[Variable, VProperty, TProperty]
 VTPropertyContent: TypeAlias = Union['PropertyTemplate', Variable, TProperty]
 
 

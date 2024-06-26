@@ -14,7 +14,7 @@ from .value import (
     ValueTemplate,
     ValueVariable,
     VProperty,
-    VTPropertyContent,
+    VTProperty,
     VTValue,
     VValue,
 )
@@ -206,7 +206,7 @@ class ValueSnakTemplate(SnakTemplate):
        value: Value, value template, or value variable.
     """
 
-    def __init__(self, property: VTPropertyContent, value: VTValue):
+    def __init__(self, property: VTProperty, value: VTValue):
         super().__init__(property, value)
 
     @override
@@ -262,7 +262,7 @@ class ValueSnak(
     class DatatypeError(ValueError):
         """Bad property application attempt."""
 
-    def __init__(self, property: VTPropertyContent, value: VTValue):
+    def __init__(self, property: VTProperty, value: VTValue):
         super().__init__(property, value)
 
     # @override
@@ -315,7 +315,7 @@ class SomeValueSnakTemplate(SnakTemplate):
        property: Property, property template, or property variable.
     """
 
-    def __init__(self, property: VTPropertyContent):
+    def __init__(self, property: VTProperty):
         super().__init__(property)
 
 
@@ -340,7 +340,7 @@ class SomeValueSnak(
 
     mask: ClassVar[Snak.Mask] = Snak.SOME_VALUE_SNAK
 
-    def __init__(self, property: VTPropertyContent):
+    def __init__(self, property: VTProperty):
         super().__init__(property)
 
 
@@ -353,7 +353,7 @@ class NoValueSnakTemplate(SnakTemplate):
        parameters: Property, property template, or property variable.
     """
 
-    def __init__(self, property: VTPropertyContent):
+    def __init__(self, property: VTProperty):
         super().__init__(property)
 
 
@@ -378,5 +378,5 @@ class NoValueSnak(
 
     mask: ClassVar[Snak.Mask] = Snak.NO_VALUE_SNAK
 
-    def __init__(self, property: VTPropertyContent):
+    def __init__(self, property: VTProperty):
         super().__init__(property)

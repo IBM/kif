@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
+    ExternalId,
     IRI,
     Item,
     String,
@@ -35,6 +36,9 @@ class Test(kif_ShallowDataValueTestCase):
         assert_type(String.check(String('x')), String)
         self._test_check(
             String,
+            success=[
+                (ExternalId('x'), ExternalId('x')),
+            ],
             failure=[
                 IRI('x'),
                 Item('x'),
@@ -49,6 +53,7 @@ class Test(kif_ShallowDataValueTestCase):
             self.assert_string,
             success=[
                 (['x'], String('x')),
+                ([ExternalId('x')], ExternalId('x')),
             ],
             failure=[
                 [IRI('x')],
