@@ -1,22 +1,16 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ...itertools import chain
 from ...typing import ClassVar, Iterable, TypeAlias, Union
 from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI_Template, T_IRI
 from .value import Datatype
 
-LexemeClass: TypeAlias = type['Lexeme']
-LexemeDatatypeClass: TypeAlias = type['LexemeDatatype']
-LexemeTemplateClass: TypeAlias = type['LexemeTemplate']
-LexemeVariableClass: TypeAlias = type['LexemeVariable']
-
 TLexeme: TypeAlias = Union['Lexeme', T_IRI]
 VLexeme: TypeAlias = Union['LexemeTemplate', 'LexemeVariable', 'Lexeme']
 VTLexeme: TypeAlias = Union[Variable, VLexeme, TLexeme]
-VTLexemeContent: TypeAlias = Union[IRI_Template, Variable, TLexeme]
+VTLexemeContent: TypeAlias = Union[Variable, IRI_Template, TLexeme]
 
 
 class LexemeTemplate(EntityTemplate):
@@ -26,7 +20,7 @@ class LexemeTemplate(EntityTemplate):
        iri: IRI, IRI template, or IRI variable.
     """
 
-    object_class: ClassVar[LexemeClass]  # pyright: ignore
+    object_class: ClassVar[type['Lexeme']]  # pyright: ignore
 
     def __init__(self, iri: VTLexemeContent):
         super().__init__(iri)
@@ -39,13 +33,13 @@ class LexemeVariable(EntityVariable):
        name: Name.
     """
 
-    object_class: ClassVar[LexemeClass]  # pyright: ignore
+    object_class: ClassVar[type['Lexeme']]  # pyright: ignore
 
 
 class LexemeDatatype(Datatype):
     """Lexeme datatype."""
 
-    value_class: ClassVar[LexemeClass]  # pyright: ignore
+    value_class: ClassVar[type['Lexeme']]  # pyright: ignore
 
 
 class Lexeme(
@@ -60,10 +54,10 @@ class Lexeme(
        iri: IRI.
     """
 
-    datatype_class: ClassVar[LexemeDatatypeClass]  # pyright: ignore
-    datatype: ClassVar[LexemeDatatype]             # pyright: ignore
-    template_class: ClassVar[LexemeTemplateClass]  # pyright: ignore
-    variable_class: ClassVar[LexemeVariableClass]  # pyright: ignore
+    datatype_class: ClassVar[type[LexemeDatatype]]  # pyright: ignore
+    datatype: ClassVar[LexemeDatatype]              # pyright: ignore
+    template_class: ClassVar[type[LexemeTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[LexemeVariable]]  # pyright: ignore
 
     def __init__(self, iri: VTLexemeContent):
         super().__init__(iri)
@@ -79,4 +73,5 @@ def Lexemes(iri: VTLexemeContent, *iris: VTLexemeContent) -> Iterable[Lexeme]:
     Returns:
        The resulting lexemes.
     """
-    return map(Lexeme, chain([iri], iris))
+    from ... import itertools
+    return map(Lexeme, itertools.chain([iri], iris))

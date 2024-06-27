@@ -547,11 +547,13 @@ class Object(Sequence, metaclass=ObjectMeta):
         """
         return self._args
 
-    def get(self, i: int, default: Optional[Any] = None):
-        """Gets argument at position `i` of object.
+    def get(self, i: int, default: Optional[Any] = None) -> Optional[Any]:
+        """Gets the value of the `i`-th argument of object (origin 0).
+
+        If argument's value is ``None``, returns `default`.
 
         Returns:
-           Argument.
+           Argument's value.
         """
         arg = self.args[i]
         return arg if arg is not None else default
