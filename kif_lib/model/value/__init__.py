@@ -13,8 +13,10 @@ from .datatype import (
     Datatype,
     DatatypeClass,
     DatatypeVariable,
+    DatatypeVariableClass,
     TDatatypeClass,
     VDatatype,
+    VTDatatype,
     VVDatatype,
 )
 from .deep_data_value import (
@@ -120,12 +122,43 @@ from .time import (
     TTimePrecision,
     VTime,
 )
-from .value import TValue, Value, ValueTemplate, ValueVariable, VTValue, VValue
+from .value import (
+    TValue,
+    Value,
+    ValueClass,
+    ValueTemplate,
+    ValueTemplateClass,
+    ValueVariable,
+    ValueVariableClass,
+    VTValue,
+    VValue,
+)
 
 __all__ = (
+
+    # datatype
     'Datatype',
     'DatatypeClass',
     'DatatypeVariable',
+    'DatatypeVariableClass',
+    'TDatatypeClass',
+    'VDatatype',
+    'VTDatatype',
+    'VVDatatype',
+
+    # value
+    'TValue',
+    'Value',
+    'ValueClass',
+    'ValueTemplate',
+    'ValueTemplateClass',
+    'ValueVariable',
+    'ValueVariableClass',
+    'VTValue',
+    'VValue',
+
+    # ----------
+
     'DataValue',
     'DataValueClass',
     'DataValueTemplate',

@@ -1,8 +1,16 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ...typing import Any, ClassVar, Optional, override, Self, TypeAlias, Union
-from ..kif_object import TLocation
+from ...typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Optional,
+    override,
+    Self,
+    TypeAlias,
+    Union,
+)
 from ..template import Template
 from ..variable import Variable
 from .iri import IRI, IRI_Template, IRI_Variable, T_IRI, V_IRI
@@ -71,7 +79,7 @@ class Entity(
     def check(
             cls,
             arg: Any,
-            function: Optional[TLocation] = None,
+            function: Optional[Union[Callable[..., Any], str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Self:

@@ -5,6 +5,8 @@ import datetime
 import decimal
 
 from kif_lib import (
+    DataValue,
+    DeepDataValue,
     Entity,
     ExternalId,
     IRI,
@@ -12,6 +14,7 @@ from kif_lib import (
     Lexeme,
     Property,
     Quantity,
+    ShallowDataValue,
     String,
     Text,
     Time,
@@ -19,7 +22,7 @@ from kif_lib import (
     ValueTemplate,
     ValueVariable,
 )
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, cast
 
 from ...tests import kif_ValueTestCase
 
@@ -83,61 +86,94 @@ class Test(kif_ValueTestCase):
         # item
         self.assertRaisesRegex(
             TypeError, 'cannot coerce', Item._from_rdflib, WD.P31)
+        self.assertRaisesRegex(
+            TypeError, 'cannot coerce', DataValue._from_rdflib, WD.Q31)
         self.assert_item(Item._from_rdflib(Literal('x')), IRI('x'))
         self.assert_item(Item._from_rdflib(URIRef('x')), IRI('x'))
         self.assert_item(Item._from_rdflib(WD.Q5), IRI(WD.Q5))
-        self.assert_item(Value._from_rdflib(WD.Q5), IRI(WD.Q5))
+        self.assert_item(cast(Item, Value._from_rdflib(WD.Q5)), IRI(WD.Q5))
         self.assert_item(Item._from_rdflib(WDT.Q5, [WDT]), IRI(WD.Q5))
-        self.assert_item(Entity._from_rdflib(WDT.Q5, [WDT]), IRI(WD.Q5))
+        self.assert_item(
+            cast(Item, Entity._from_rdflib(WDT.Q5, [WDT])), IRI(WD.Q5))
 
         # property
         self.assertRaisesRegex(
             TypeError, 'cannot coerce', Property._from_rdflib, WD.Q5)
+        self.assertRaisesRegex(
+            TypeError, 'cannot coerce', ShallowDataValue._from_rdflib, WD.P5)
         self.assert_property(Property._from_rdflib(Literal('x')), IRI('x'))
         self.assert_property(Property._from_rdflib(URIRef('x')), IRI('x'))
         self.assert_property(Property._from_rdflib(WD.P31), IRI(WD.P31))
-        self.assert_property(Value._from_rdflib(WD.P31), IRI(WD.P31))
+        self.assert_property(
+            cast(Property, Value._from_rdflib(WD.P31)), IRI(WD.P31))
         self.assert_property(
             Property._from_rdflib(P.P31, property_prefixes=[P]), IRI(WD.P31))
         self.assert_property(
-            Entity._from_rdflib(P.P31, property_prefixes=[P]), IRI(WD.P31))
+            cast(Property, Entity._from_rdflib(P.P31, property_prefixes=[P])),
+            IRI(WD.P31))
 
         # lexeme
         self.assertRaisesRegex(
             TypeError, 'cannot coerce', Lexeme._from_rdflib, WD.Q5)
+        self.assertRaisesRegex(
+            TypeError, 'cannot coerce', DeepDataValue._from_rdflib, WD.L5)
         self.assert_lexeme(Lexeme._from_rdflib(Literal('x')), IRI('x'))
         self.assert_lexeme(Lexeme._from_rdflib(URIRef('x')), IRI('x'))
         self.assert_lexeme(Lexeme._from_rdflib(WD.L3873), IRI(WD.L3873))
-        self.assert_lexeme(Value._from_rdflib(WD.L5), IRI(WD.L5))
+        self.assert_lexeme(
+            cast(Lexeme, Value._from_rdflib(WD.L5)), IRI(WD.L5))
         self.assert_lexeme(
             Lexeme._from_rdflib(WDT.L3873, lexeme_prefixes=[WDT]),
             IRI(WD.L3873))
         self.assert_lexeme(
-            Entity._from_rdflib(WDT.L3873, lexeme_prefixes=[WDT]),
+            cast(Lexeme, Entity._from_rdflib(
+                WDT.L3873, lexeme_prefixes=[WDT])),
             IRI(WD.L3873))
 
         # iri
+        self.assertRaisesRegex(
+            TypeError, 'cannot coerce', Entity._from_rdflib, URIRef('x'))
         self.assert_iri(IRI._from_rdflib(Literal('x')), 'x')
         self.assert_iri(IRI._from_rdflib(URIRef('x')), 'x')
-        self.assert_iri(Value._from_rdflib(URIRef('x')), 'x')
+        self.assert_iri(cast(IRI, Value._from_rdflib(URIRef('x'))), 'x')
+        self.assert_iri(cast(IRI, DataValue._from_rdflib(URIRef('x'))), 'x')
+        self.assert_iri(
+            cast(IRI, ShallowDataValue._from_rdflib(URIRef('x'))), 'x')
 
         # text
         self.assertRaisesRegex(
             TypeError, 'cannot coerce', Text._from_rdflib, WD.Q5)
+        self.assertRaisesRegex(
+            TypeError, 'cannot coerce',
+            DeepDataValue._from_rdflib, Literal('x', 'y'))
         self.assert_text(Text._from_rdflib(Literal('x')), 'x')
-        self.assert_text(Value._from_rdflib(Literal('x', 'y')), 'x', 'y')
+        self.assert_text(
+            cast(Text, Value._from_rdflib(Literal('x', 'y'))), 'x', 'y')
+        self.assert_text(
+            cast(Text, DataValue._from_rdflib(Literal('x', 'y'))), 'x', 'y')
+        self.assert_text(
+            cast(Text, ShallowDataValue._from_rdflib(
+                Literal('x', 'y'))), 'x', 'y')
         self.assert_text(Text._from_rdflib(Literal('x', 'y')), 'x', 'y')
 
         # string
         self.assertRaisesRegex(
             TypeError, 'cannot coerce', String._from_rdflib, WD.Q5)
+        self.assertRaisesRegex(
+            TypeError, 'cannot coerce', Entity._from_rdflib, Literal('x'))
         self.assert_string(String._from_rdflib(Literal('x')), 'x')
-        self.assert_string(Value._from_rdflib(Literal('x')), 'x')
+        self.assert_string(
+            cast(String, Value._from_rdflib(Literal('x'))), 'x')
+        self.assert_string(
+            cast(String, DataValue._from_rdflib(Literal('x'))), 'x')
+        self.assert_string(
+            cast(String, ShallowDataValue._from_rdflib(Literal('x'))), 'x')
 
         # external id
         self.assertRaisesRegex(
             TypeError, 'cannot coerce', ExternalId._from_rdflib, WD.Q5)
-        self.assert_external_id(ExternalId._from_rdflib(Literal('x')), 'x')
+        self.assert_external_id(
+            cast(ExternalId, ExternalId._from_rdflib(Literal('x'))), 'x')
 
         # quantity
         self.assertRaisesRegex(
@@ -146,10 +182,23 @@ class Test(kif_ValueTestCase):
             TypeError, 'cannot coerce', Quantity._from_rdflib,
             Literal('2024-06-27T00:00:00', datatype=XSD.dateTime))
         self.assertRaisesRegex(
+            TypeError, 'cannot coerce', ShallowDataValue._from_rdflib,
+            Literal('0', datatype=XSD.decimal))
+        self.assertRaisesRegex(
             ValueError, 'cannot coerce', Quantity._from_rdflib, Literal('x'))
-        self.assert_quantity(Quantity._from_rdflib(Literal('0')), 0)
         self.assert_quantity(
-            Value._from_rdflib(Literal('1.55', datatype=XSD.decimal)),
+            Quantity._from_rdflib(Literal('0')), decimal.Decimal(0))
+        self.assert_quantity(
+            cast(Quantity, Value._from_rdflib(
+                Literal('1.55', datatype=XSD.decimal))),
+            decimal.Decimal('1.55'))
+        self.assert_quantity(
+            cast(Quantity, DataValue._from_rdflib(
+                Literal('1.55', datatype=XSD.decimal))),
+            decimal.Decimal('1.55'))
+        self.assert_quantity(
+            cast(Quantity, DeepDataValue._from_rdflib(
+                Literal('1.55', datatype=XSD.decimal))),
             decimal.Decimal('1.55'))
         self.assert_quantity(
             Quantity._from_rdflib(Literal('-8', datatype=XSD.decimal)),
@@ -162,13 +211,24 @@ class Test(kif_ValueTestCase):
             TypeError, 'cannot coerce', Time._from_rdflib,
             Literal('0', datatype=XSD.decimal))
         self.assertRaisesRegex(
+            TypeError, 'cannot coerce', Entity._from_rdflib,
+            Literal('0', datatype=XSD.decimal))
+        self.assertRaisesRegex(
             ValueError, 'cannot coerce', Time._from_rdflib, Literal('x'))
         self.assert_time(
             Time._from_rdflib(Literal('2023-10-03T00:00:00')),
             datetime.datetime(2023, 10, 3, tzinfo=datetime.timezone.utc))
         self.assert_time(
-            Value._from_rdflib(
-                Literal('2023-10-03T00:00:00', datatype=XSD.dateTime)),
+            cast(Time, Value._from_rdflib(
+                Literal('2023-10-03T00:00:00', datatype=XSD.dateTime))),
+            datetime.datetime(2023, 10, 3, tzinfo=datetime.timezone.utc))
+        self.assert_time(
+            cast(Time, DataValue._from_rdflib(
+                Literal('2023-10-03T00:00:00', datatype=XSD.dateTime))),
+            datetime.datetime(2023, 10, 3, tzinfo=datetime.timezone.utc))
+        self.assert_time(
+            cast(Time, DeepDataValue._from_rdflib(
+                Literal('2023-10-03T00:00:00', datatype=XSD.dateTime))),
             datetime.datetime(2023, 10, 3, tzinfo=datetime.timezone.utc))
         self.assert_time(
             Time._from_rdflib(Literal('2023-10-03', datatype=XSD.date)),
