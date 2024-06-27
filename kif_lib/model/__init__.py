@@ -19,17 +19,12 @@ from .fingerprint import (
     TPropertyFingerprint,
 )
 from .kif_object import (
-    Datetime,
-    Decimal,
     KIF_Object,
     KIF_ObjectClass,
     Nil,
     TCallable,
-    TDatetime,
-    TDecimal,
     TLocation,
     TNil,
-    UTC,
 )
 from .kif_object_set import KIF_ObjectSet, T_KIF_ObjectSet
 from .pattern import Pattern
@@ -173,8 +168,6 @@ __all__ = (
     'DataValue',
     'DataValueTemplate',
     'DataValueVariable',
-    'Datetime',
-    'Decimal',
     'DeepDataValue',
     'DeepDataValueClass',
     'DeepDataValueTemplate',
@@ -260,8 +253,6 @@ __all__ = (
     'T_KIF_ObjectSet',
     'TAnnotationRecordSet',
     'TCallable',
-    'TDatetime',
-    'TDecimal',
     'Template',
     'TemplateClass',
     'TEntityFingerprint',
@@ -289,7 +280,6 @@ __all__ = (
     'TTimePrecision',
     'TValue',
     'TValueSet',
-    'UTC',
     'V_IRI',
     'Value',
     'ValueSet',

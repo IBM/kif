@@ -1,6 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
+import decimal
 import re
 
 from kif_lib import (
@@ -55,8 +57,6 @@ from kif_lib import (
 from kif_lib.model import (
     DatatypeVariable,
     DataValueVariable,
-    Datetime,
-    Decimal,
     DeepDataValueVariable,
     EntityVariable,
     ExternalIdTemplate,
@@ -85,7 +85,6 @@ from kif_lib.model import (
     TextVariable,
     TimeTemplate,
     TimeVariable,
-    UTC,
     ValueSnakTemplate,
     ValueSnakVariable,
     ValueVariable,
@@ -163,101 +162,6 @@ class Test(kif_TestCase):
         self.assertIs(
             KIF_Object._check_optional_arg_kif_object_class(Item, Statement),
             Item)
-
-    def test__check_arg_datetime(self):
-        self.assertRaises(TypeError, KIF_Object._check_arg_datetime, 0)
-        self.assertRaises(ValueError, KIF_Object._check_arg_datetime, 'xyz')
-        dt = Datetime(2024, 2, 5, 0, 0, tzinfo=UTC)
-        self.assertEqual(KIF_Object._check_arg_datetime('2024-02-05'), dt)
-        self.assertEqual(KIF_Object._check_arg_datetime('+2024-02-05'), dt)
-        self.assertEqual(KIF_Object._check_arg_datetime('-2024-02-05'), dt)
-        self.assertEqual(
-            KIF_Object._check_arg_datetime(
-                Datetime(2024, 2, 5, tzinfo=UTC)), dt)
-
-    def test__check_optional_arg_datetime(self):
-        self.assertRaises(
-            TypeError, KIF_Object._check_optional_arg_datetime, 0)
-        self.assertIsNone(KIF_Object._check_optional_arg_datetime(None))
-        dt = Datetime(2024, 2, 5, 0, 0, tzinfo=UTC)
-        self.assertEqual(
-            KIF_Object._check_optional_arg_datetime(None, dt), dt)
-        self.assertEqual(
-            KIF_Object._check_optional_arg_datetime('2024-02-05', None), dt)
-
-    def test__preprocess_arg_datetime(self):
-        self.assertRaises(
-            TypeError, KIF_Object._preprocess_arg_datetime, 0, 1)
-        self.assertRaises(
-            ValueError, KIF_Object._preprocess_arg_datetime, 'xyz', 1)
-        dt = Datetime(2024, 2, 5, 0, 0, tzinfo=UTC)
-        self.assertEqual(
-            KIF_Object._preprocess_arg_datetime('2024-02-05', 1), dt)
-        self.assertEqual(
-            KIF_Object._check_arg_datetime('+2024-02-05'), dt)
-        self.assertEqual(
-            KIF_Object._check_arg_datetime('-2024-02-05'), dt)
-
-    def test__preprocess_optional_arg_datetime(self):
-        self.assertRaises(
-            TypeError, KIF_Object._preprocess_optional_arg_datetime, 0, 1)
-        self.assertIsNone(
-            KIF_Object._preprocess_optional_arg_datetime(None, 1))
-        dt = Datetime(2024, 2, 5, 0, 0, tzinfo=UTC)
-        self.assertEqual(
-            KIF_Object._preprocess_optional_arg_datetime(None, 1, dt), dt)
-        self.assertEqual(
-            KIF_Object._preprocess_optional_arg_datetime(
-                '2024-02-05', 1, None), dt)
-
-    def test__check_arg_decimal(self):
-        self.assertRaises(TypeError, KIF_Object._check_arg_decimal, dict())
-        self.assertRaises(ValueError, KIF_Object._check_arg_decimal, '1.a')
-        self.assertEqual(
-            KIF_Object._check_arg_decimal('5.81'), Decimal('5.81'))
-        self.assertEqual(
-            KIF_Object._check_arg_decimal(5.81), Decimal(5.81))
-        self.assertEqual(
-            KIF_Object._check_arg_decimal(5), Decimal(5))
-
-    def test__check_optional_arg_decimal(self):
-        self.assertRaises(
-            TypeError, KIF_Object._check_optional_arg_decimal, dict())
-        self.assertRaises(
-            ValueError, KIF_Object._check_optional_arg_decimal, '1.a')
-        self.assertIsNone(KIF_Object._check_optional_arg_decimal(None))
-        self.assertEqual(
-            KIF_Object._check_optional_arg_decimal('5.81'),
-            Decimal('5.81'))
-        self.assertEqual(
-            KIF_Object._check_optional_arg_decimal(None, Decimal(5.81)),
-            Decimal(5.81))
-
-    def test__preprocess_arg_decimal(self):
-        self.assertRaises(
-            TypeError, KIF_Object._preprocess_arg_decimal, dict(), 1)
-        self.assertRaises(
-            ValueError, KIF_Object._preprocess_arg_decimal, '1.a', 1)
-        self.assertEqual(
-            KIF_Object._preprocess_arg_decimal('5.81', 1), Decimal('5.81'))
-        self.assertEqual(
-            KIF_Object._preprocess_arg_decimal(5.81, 1), Decimal(5.81))
-        self.assertEqual(
-            KIF_Object._preprocess_arg_decimal(5, 1), Decimal(5))
-
-    def test__preprocess_optional_arg_decimal(self):
-        self.assertRaises(
-            TypeError, KIF_Object._preprocess_optional_arg_decimal, dict(), 1)
-        self.assertRaises(
-            ValueError, KIF_Object._preprocess_optional_arg_decimal, '1.a', 1)
-        self.assertIsNone(KIF_Object._preprocess_optional_arg_decimal(None, 1))
-        self.assertEqual(
-            KIF_Object._preprocess_optional_arg_decimal('5.81', 1),
-            Decimal('5.81'))
-        self.assertEqual(
-            KIF_Object._preprocess_optional_arg_decimal(
-                None, 1, Decimal(5.81)),
-            Decimal(5.81))
 
 # == Auto-defined stuff ====================================================
 # -- test_is_ --------------------------------------------------------------
@@ -1786,7 +1690,7 @@ class Test(kif_TestCase):
 
     def test_unpack_quantity(self):
         self.assertEqual(Quantity(0).unpack_quantity(),
-                         (Decimal('0'), None, None, None))
+                         (decimal.Decimal('0'), None, None, None))
         self.assertRaises(ValueError, String('x').unpack_quantity)
 
     def test_unpack_quantity_datatype(self):
@@ -1973,7 +1877,8 @@ class Test(kif_TestCase):
     def test_unpack_time(self):
         self.assertEqual(
             Time('2023-09-18').unpack_time(),
-            (Datetime(2023, 9, 18, tzinfo=UTC), None, None, None))
+            (datetime.datetime(
+                2023, 9, 18, tzinfo=datetime.timezone.utc), None, None, None))
 
     def test_unpack_time_datatype(self):
         self.assertEqual(TimeDatatype().unpack_time_datatype(), ())
@@ -2065,7 +1970,7 @@ class Test(kif_TestCase):
                 PropertyVariable('p'),
                 'p',
                 Quantity(5, Item('u')),
-                Decimal(5),
+                decimal.Decimal(5),
                 Item('u'),
                 IRI('u'),
                 'u',
@@ -2083,7 +1988,7 @@ class Test(kif_TestCase):
              PropertyVariable('p'),
              'p',
              cast(ValueSnak, obj.snak).value,
-             Decimal(5),
+             decimal.Decimal(5),
              None,
              None])
 
@@ -2094,8 +1999,9 @@ class Test(kif_TestCase):
         dec = KIF_ReprDecoder()
         self.assertEqual(dec.decode('5'), 5)
         self.assertEqual(
-            dec.decode('datetime.datetime(2024, 2, 6)'), Datetime(2024, 2, 6))
-        self.assertEqual(dec.decode("Decimal('.5')"), Decimal('.5'))
+            dec.decode('datetime.datetime(2024, 2, 6)'),
+            datetime.datetime(2024, 2, 6))
+        self.assertEqual(dec.decode("Decimal('.5')"), decimal.Decimal('.5'))
         self.assertEqual(dec.decode("set()"), set())
 
     def test_repr_encoder_extensions(self):
@@ -2103,12 +2009,13 @@ class Test(kif_TestCase):
         enc = KIF_ReprEncoder()
         self.assertEqual(enc.encode(IRI('x')), "IRI('x')")
         self.assertEqual(
-            enc.encode(Datetime(2024, 2, 6)),  # pyright: ignore
+            enc.encode(datetime.datetime(2024, 2, 6)),  # pyright: ignore
             'datetime.datetime(2024, 2, 6, 0, 0)')
         self.assertEqual(
-            enc.encode(Decimal(0)), "Decimal('0')")  # pyright: ignore
+            enc.encode(decimal.Decimal(0)), "Decimal('0')")  # pyright: ignore
         self.assertEqual(
-            enc.encode(Decimal(3.5)), "Decimal('3.5')")  # pyright: ignore
+            enc.encode(decimal.Decimal(3.5)),  # pyright: ignore
+            "Decimal('3.5')")
         self.assertEqual(enc.encode(Snak.ALL), '7')      # pyright: ignore
         self.assertEqual(enc.encode(set()), 'set()')     # pyright: ignore
 
@@ -2118,10 +2025,12 @@ class Test(kif_TestCase):
         self.assertEqual(
             enc.encode(IRI('x')), '{"class": "IRI", "args": ["x"]}')
         self.assertEqual(
-            enc.encode(Datetime(2024, 2, 6)),  # pyright: ignore
+            enc.encode(datetime.datetime(2024, 2, 6)),  # pyright: ignore
             '"2024-02-06 00:00:00"')
-        self.assertEqual(enc.encode(Decimal(0)), '"0"')  # pyright: ignore
-        self.assertEqual(enc.encode(Decimal(3.5)), '"3.5"')  # pyright: ignore
+        self.assertEqual(enc.encode(
+            decimal.Decimal(0)), '"0"')  # pyright: ignore
+        self.assertEqual(enc.encode(
+            decimal.Decimal(3.5)), '"3.5"')  # pyright: ignore
         self.assertEqual(enc.encode(Snak.ALL), '"7"')      # pyright: ignore
         self.assertRaises(EncoderError, enc.encode, set())  # pyright: ignore
 
@@ -2130,10 +2039,12 @@ class Test(kif_TestCase):
         enc = KIF_SExpEncoder()
         self.assertEqual(enc.encode(Preferred), 'PreferredRank')
         self.assertEqual(
-            enc.encode(Datetime(2024, 2, 6)),              # pyright: ignore
+            enc.encode(datetime.datetime(2024, 2, 6)),     # pyright: ignore
             '2024-02-06 00:00:00')                         # pyright: ignore
-        self.assertEqual(enc.encode(Decimal(0)), '0')      # pyright: ignore
-        self.assertEqual(enc.encode(Decimal(3.5)), '3.5')  # pyright: ignore
+        self.assertEqual(
+            enc.encode(decimal.Decimal(0)), '0')  # pyright: ignore
+        self.assertEqual(
+            enc.encode(decimal.Decimal(3.5)), '3.5')       # pyright: ignore
         self.assertEqual(enc.encode(Snak.ALL), '7')        # pyright: ignore
         self.assertRaises(EncoderError, enc.encode, set())  # pyright: ignore
 

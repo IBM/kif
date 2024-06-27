@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
+import decimal
 import itertools
 import logging
 import pathlib
@@ -72,8 +74,6 @@ from kif_lib.model import (
     DatatypeClass,
     DataValueTemplate,
     DataValueVariable,
-    Datetime,
-    Decimal,
     DeepDataValueTemplate,
     DeepDataValueVariable,
     EntityTemplate,
@@ -472,15 +472,15 @@ if __name__ == '__main__':
     def assert_quantity(
             self,
             obj: Quantity,
-            amount: Decimal,
+            amount: decimal.Decimal,
             unit: Optional[Item] = None,
-            lb: Optional[Decimal] = None,
-            ub: Optional[Decimal] = None
+            lb: Optional[decimal.Decimal] = None,
+            ub: Optional[decimal.Decimal] = None
     ):
         self.assert_deep_data_value(obj)
         self.assertIsInstance(obj, Quantity)
         self.assert_quantity_datatype(obj.datatype)
-        self.assertEqual(obj.args[0], Decimal(amount))
+        self.assertEqual(obj.args[0], decimal.Decimal(amount))
         self.assertEqual(obj.value, str(obj.args[0]))
         self.assertEqual(obj.get_value(), str(obj.args[0]))
         self.assertEqual(obj.n3(), f'"{obj.value}"^^<{XSD.decimal}>')
@@ -490,18 +490,18 @@ if __name__ == '__main__':
         self.assertEqual(obj.unit, obj.args[1])
         self.assertEqual(obj.get_unit(), obj.args[1])
         self.assertEqual(
-            obj.args[2], Decimal(lb) if lb is not None else None)
+            obj.args[2], decimal.Decimal(lb) if lb is not None else None)
         self.assertEqual(obj.lower_bound, obj.args[2])
         self.assertEqual(obj.get_lower_bound(), obj.args[2])
         self.assertEqual(
-            obj.args[3], Decimal(ub) if ub is not None else None)
+            obj.args[3], decimal.Decimal(ub) if ub is not None else None)
         self.assertEqual(obj.upper_bound, obj.args[3])
         self.assertEqual(obj.get_upper_bound(), obj.args[3])
 
     def assert_time(
             self,
             obj: Time,
-            time: Datetime,
+            time: datetime.datetime,
             prec: Optional[Time.Precision] = None,
             tz: Optional[int] = None,
             cal: Optional[Item] = None

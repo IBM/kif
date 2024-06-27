@@ -1,6 +1,9 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
+import decimal
+
 from kif_lib import (
     DeepDataValue,
     DeepDataValueTemplate,
@@ -10,7 +13,6 @@ from kif_lib import (
     String,
     Time,
 )
-from kif_lib.model import Datetime, Decimal, UTC
 from kif_lib.typing import assert_type
 
 from ...tests import kif_DeepDataValueTestCase
@@ -37,9 +39,11 @@ class Test(kif_DeepDataValueTestCase):
             DeepDataValue, Item('x'), DeepDataValue.check)
         # success
         assert_type(DeepDataValue.check(0), DeepDataValue)
-        self.assertEqual(DeepDataValue.check(Decimal(0)), Quantity(0))
-        self.assertEqual(DeepDataValue.check(
-            Datetime(2024, 6, 26, tzinfo=UTC)), Time('2024-06-26'))
+        self.assertEqual(DeepDataValue.check(decimal.Decimal(0)), Quantity(0))
+        self.assertEqual(
+            DeepDataValue.check(
+                datetime.datetime(2024, 6, 26, tzinfo=datetime.timezone.utc)),
+            Time('2024-06-26'))
 
     def test__init__(self):
         self.assert_abstract_class(DeepDataValue)

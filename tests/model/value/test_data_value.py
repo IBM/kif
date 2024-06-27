@@ -1,6 +1,9 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
+import decimal
+
 from kif_lib import (
     DataValue,
     DataValueTemplate,
@@ -10,7 +13,6 @@ from kif_lib import (
     String,
     Time,
 )
-from kif_lib.model import Datetime, Decimal, UTC
 from kif_lib.typing import assert_type
 
 from ...tests import kif_DataValueTestCase
@@ -32,9 +34,11 @@ class Test(kif_DataValueTestCase):
         # success
         assert_type(DataValue.check(0), DataValue)
         self.assertEqual(DataValue.check('abc'), String('abc'))
-        self.assertEqual(DataValue.check(Decimal(0)), Quantity(0))
-        self.assertEqual(DataValue.check(
-            Datetime(2024, 6, 26, tzinfo=UTC)), Time('2024-06-26'))
+        self.assertEqual(DataValue.check(decimal.Decimal(0)), Quantity(0))
+        self.assertEqual(
+            DataValue.check(datetime.datetime(
+                2024, 6, 26, tzinfo=datetime.timezone.utc)),
+            Time('2024-06-26'))
 
     def test__init__(self):
         self.assert_abstract_class(DataValue)

@@ -91,11 +91,14 @@ class Value(
         if isinstance(arg, cls):
             return arg
         if isinstance(arg, str):
-            arg = cls._String.check(arg, function, name, position)
+            from .string import String
+            arg = String.check(arg, function, name, position)
         elif isinstance(arg, datetime.datetime):
-            arg = cls._Time.check(arg, function, name, position)
+            from .time import Time
+            arg = Time.check(arg, function, name, position)
         elif isinstance(arg, (decimal.Decimal, float, int)):
-            arg = cls._Quantity.check(arg, function, name, position)
+            from .quantity import Quantity
+            arg = Quantity.check(arg, function, name, position)
         return super().check(arg, function, name, position)
 
     @property
@@ -118,67 +121,70 @@ class Value(
         Returns:
            Simple value in N3 format.
         """
-        node = self._to_rdflib()
-        if isinstance(node, Literal):
-            return cast(Literal, node).n3()
-        elif isinstance(node, URIRef):
-            return cast(URIRef, node).n3()
-        else:
-            raise self._should_not_get_here()
+        return self._to_rdflib().n3()
 
     @classmethod
     def _from_rdflib(
             cls,
             node: Union[Literal, URIRef],
-            item_prefixes: Collection[
-                NS.T_NS] = NS.Wikidata.default_item_prefixes,
-            property_prefixes: Collection[
-                NS.T_NS] = NS.Wikidata.default_property_prefixes,
-            lexeme_prefixes: Collection[
-                NS.T_NS] = NS.Wikidata.default_lexeme_prefixes
-    ) -> 'Value':
+            item_prefixes: Optional[Collection[NS.T_NS]] = None,
+            property_prefixes: Optional[Collection[NS.T_NS]] = None,
+            lexeme_prefixes: Optional[Collection[NS.T_NS]] = None
+    ) -> Self:
         from ...rdflib import _NUMERIC_LITERAL_TYPES
+        from .external_id import ExternalId
+        from .iri import IRI
+        from .item import Item
+        from .lexeme import Lexeme
+        from .property import Property
+        from .quantity import Quantity
+        from .string import String
+        from .text import Text
+        from .time import Time
         assert isinstance(node, (Literal, URIRef))
         res: Value
         if isinstance(node, URIRef):
+            if not item_prefixes:
+                item_prefixes = NS.Wikidata.default_item_prefixes
+            if not property_prefixes:
+                property_prefixes = NS.Wikidata.default_property_prefixes
+            if not lexeme_prefixes:
+                lexeme_prefixes = NS.Wikidata.default_lexeme_prefixes
             uri = cast(URIRef, node)
             if NS.Wikidata.is_wd_item(uri, item_prefixes):
                 if item_prefixes == NS.Wikidata.default_item_prefixes:
-                    res = cls._Item(uri)
+                    res = Item(uri)
                 else:
-                    res = cls._Item(
-                        NS.WD[NS.Wikidata.get_wikidata_name(uri)])
+                    res = Item(NS.WD[NS.Wikidata.get_wikidata_name(uri)])
             elif NS.Wikidata.is_wd_property(uri, property_prefixes):
                 if property_prefixes == NS.Wikidata.default_property_prefixes:
-                    res = cls._Property(uri)
+                    res = Property(uri)
                 else:
-                    res = cls._Property(
-                        NS.WD[NS.Wikidata.get_wikidata_name(uri)])
+                    res = Property(NS.WD[NS.Wikidata.get_wikidata_name(uri)])
             elif NS.Wikidata.is_wd_lexeme(uri, lexeme_prefixes):
                 if lexeme_prefixes == NS.Wikidata.default_lexeme_prefixes:
-                    res = cls._Lexeme(uri)
+                    res = Lexeme(uri)
                 else:
-                    res = cls._Lexeme(
-                        NS.WD[NS.Wikidata.get_wikidata_name(uri)])
+                    res = Lexeme(NS.WD[NS.Wikidata.get_wikidata_name(uri)])
             else:
-                res = cls._IRI(uri)
+                res = IRI(uri)
         elif isinstance(node, Literal):
             literal = cast(Literal, node)
             if literal.datatype in _NUMERIC_LITERAL_TYPES:
-                res = cls._Quantity(str(literal))
+                res = Quantity(str(literal))
             elif (literal.datatype == NS.XSD.dateTime
                   or literal.datatype == NS.XSD.date):
-                res = cls._Time(str(literal))
+                res = Time(str(literal))
             elif literal.datatype is None and literal.language:
-                res = cls._Text(literal, literal.language)
+                res = Text(literal, literal.language)
             else:
-                if issubclass(cls, cls._ExternalId):
-                    res = cls._ExternalId(literal)
+                if issubclass(cls, ExternalId):
+                    res = ExternalId(literal)
                 else:
-                    res = cls._String(literal)
+                    res = String(literal)
         else:
             raise cls._should_not_get_here()
-        return cast(Value, cls.check(res))  # pyright: ignore
+        return cls.check(res, cls._from_rdflib, 'node', 1)
 
     def _to_rdflib(self) -> Union[Literal, URIRef]:
         from .entity import Entity

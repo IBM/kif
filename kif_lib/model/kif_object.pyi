@@ -4,8 +4,6 @@
 
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
-import datetime
-import decimal
 
 from ..context import Context
 from ..typing import (
@@ -128,10 +126,6 @@ from .value import (
 from .value_set import TextSet, TTextSet, TValueSet, ValueSet
 from .variable import TVariableClass, Variable, VariableClass
 
-Datetime = datetime.datetime
-Decimal = decimal.Decimal
-UTC = datetime.timezone.utc
-
 Codec = object.Codec
 CodecError = object.CodecError
 Decoder = object.Decoder
@@ -146,8 +140,6 @@ ShouldNotGetHere = object.ShouldNotGetHere
 
 TArgs: TypeAlias = object.TArgs
 TCallable: TypeAlias = object.TFun
-TDatetime: TypeAlias = Union[Datetime, str]
-TDecimal: TypeAlias = Union[Decimal, float, int, str]
 TDetails: TypeAlias = object.TDet
 TLocation: TypeAlias = object.TLoc
 TNil: TypeAlias = object.TNil
@@ -193,90 +185,6 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
 
     @classmethod
     def _isinstance_template_or_variable(cls, arg: Any) -> bool:
-        ...
-
-# -- datetime --------------------------------------------------------------
-
-    @classmethod
-    def _check_arg_datetime(
-            cls,
-            arg: TDatetime,
-            function: Optional[Union[TCallable, str]] = ...,
-            name: Optional[str] = ...,
-            position: Optional[int] = ...
-    ) -> Datetime:
-        ...
-
-    @classmethod
-    def _check_optional_arg_datetime(
-            cls,
-            arg: Optional[TDatetime],
-            default: Optional[Datetime] = ...,
-            function: Optional[Union[TCallable, str]] = ...,
-            name: Optional[str] = ...,
-            position: Optional[int] = ...
-    ) -> Optional[Datetime]:
-        ...
-
-    @classmethod
-    def _preprocess_arg_datetime(
-            cls,
-            arg: TDatetime,
-            i: int,
-            function: Optional[Union[TCallable, str]] = ...
-    ) -> Datetime:
-        ...
-
-    @classmethod
-    def _preprocess_optional_arg_datetime(
-            cls,
-            arg: Optional[TDatetime],
-            i: int,
-            default: Optional[Datetime] = ...,
-            function: Optional[Union[TCallable, str]] = ...
-    ) -> Optional[Datetime]:
-        ...
-
-# -- decimal ---------------------------------------------------------------
-
-    @classmethod
-    def _check_arg_decimal(
-            cls,
-            arg: TDecimal,
-            function: Optional[Union[TCallable, str]] = ...,
-            name: Optional[str] = ...,
-            position: Optional[int] = ...
-    ) -> Decimal:
-        ...
-
-    @classmethod
-    def _check_optional_arg_decimal(
-            cls,
-            arg: Optional[TDecimal],
-            default: Optional[Decimal] = ...,
-            function: Optional[Union[TCallable, str]] = ...,
-            name: Optional[str] = ...,
-            position: Optional[int] = ...
-    ) -> Optional[Decimal]:
-        ...
-
-    @classmethod
-    def _preprocess_arg_decimal(
-            cls,
-            arg: TDecimal,
-            i: int,
-            function: Optional[Union[TCallable, str]] = ...
-    ) -> Decimal:
-        ...
-
-    @classmethod
-    def _preprocess_optional_arg_decimal(
-            cls,
-            arg: Optional[TDecimal],
-            i: int,
-            default: Optional[Decimal] = ...,
-            function: Optional[Union[TCallable, str]] = ...
-    ) -> Optional[Decimal]:
         ...
 
 # -- Codecs ----------------------------------------------------------------

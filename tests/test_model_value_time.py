@@ -1,12 +1,11 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from rdflib import Literal, URIRef
+import datetime
 
-from kif_lib import Time
-from kif_lib.model import Datetime, UTC
+from kif_lib import Item, Time
 from kif_lib.namespace import XSD
-from kif_lib.typing import cast
+from kif_lib.rdflib import Literal, URIRef
 from kif_lib.vocabulary import wd
 
 from .tests import kif_TestCase
@@ -15,26 +14,24 @@ from .tests import kif_TestCase
 class TestModelValueTime(kif_TestCase):
 
     def test__init__(self):
+        dt = datetime.datetime(2023, 9, 4, tzinfo=datetime.timezone.utc)
         self.assertRaises(TypeError, Time, [])
         self.assertRaises(ValueError, Time, 'abc')
         self.assertRaises(TypeError, Time, '2023-09-04', 'abc')
         self.assertRaises(TypeError, Time, '2023-09-04', -1)
         self.assertRaises(ValueError, Time, '2023-09-04', 1, 'abc')
         self.assertRaises(TypeError, Time, '2023-09-04', 1, 1, 0)
+        self.assert_time(Time('2023-09-04'), dt)
         self.assert_time(
-            Time('2023-09-04'), Datetime(2023, 9, 4, tzinfo=UTC))
+            Time(datetime.datetime(2023, 9, 4)),
+            datetime.datetime(2023, 9, 4))
         self.assert_time(
-            Time(Datetime(2023, 9, 4)), Datetime(2023, 9, 4))
+            Time('2023-09-04', 11), dt, Time.Precision(11))
         self.assert_time(
-            Time('2023-09-04', 11),
-            Datetime(2023, 9, 4, tzinfo=UTC), Time.Precision(11))
+            Time('2023-09-04', None, 44), dt, None, 44)
         self.assert_time(
-            Time('2023-09-04', None, 44),
-            Datetime(2023, 9, 4, tzinfo=UTC), None, 44)
-        self.assert_time(
-            Time('2023-09-04', None, None, wd.proleptic_Gregorian_calendar),
-            Datetime(2023, 9, 4, tzinfo=UTC),
-            None, None, wd.proleptic_Gregorian_calendar)
+            Time('2023-09-04', None, None, Item('x')),
+            dt, None, None, Item('x'))
 
     def test_get_precision(self):
         self.assertEqual(
@@ -67,17 +64,16 @@ class TestModelValueTime(kif_TestCase):
                 '1.0', datatype=XSD.decimal))
         # good arguments
         t = Literal('2023-10-03T00:00:00', datatype=XSD.dateTime)
-        self.assert_time(
-            cast(Time, Time._from_rdflib(t)),
-            Datetime(2023, 10, 3, tzinfo=UTC))
+        dt = datetime.datetime(2023, 10, 3, tzinfo=datetime.timezone.utc)
+        self.assert_time(Time._from_rdflib(t), dt)
         t = Literal('2023-10-03', datatype=XSD.date)
-        self.assert_time(
-            cast(Time, Time._from_rdflib(t)),
-            Datetime(2023, 10, 3, tzinfo=UTC))
+        self.assert_time(Time._from_rdflib(t), dt)
         t = Literal('2023-10-03T11:11:11', datatype=XSD.dateTime)
         self.assert_time(
-            cast(Time, Time._from_rdflib(t)),
-            Datetime(2023, 10, 3, 11, 11, 11, tzinfo=UTC))
+            Time._from_rdflib(t),
+            datetime.datetime(
+                2023, 10, 3, 11, 11, 11,
+                tzinfo=datetime.timezone.utc))
 
     def test__to_rdflib(self):
         self.assertEqual(

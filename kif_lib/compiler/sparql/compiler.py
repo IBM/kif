@@ -1,13 +1,14 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
+import decimal
+
 from ... import namespace as NS
 from ...error import ShouldNotGetHere
 from ...itertools import chain
 from ...model import (
     Datatype,
-    Datetime,
-    Decimal,
     Entity,
     EntityTemplate,
     EntityVariable,
@@ -864,7 +865,7 @@ class SPARQL_Compiler(
             if isinstance(obj_amount, QuantityVariable):
                 amount = self._as_qvar(obj_amount)
                 self._theta_add(obj_amount, amount)
-            elif isinstance(obj_amount, Decimal):
+            elif isinstance(obj_amount, decimal.Decimal):
                 amount = self._q.literal(obj_amount)
             else:
                 raise ShouldNotGetHere
@@ -966,7 +967,7 @@ class SPARQL_Compiler(
         with self._q.group():
             if isinstance(obj_time, TimeVariable):
                 time = self._theta_add(obj_time, self._as_qvar(obj_time))
-            elif isinstance(obj_time, Datetime):
+            elif isinstance(obj_time, datetime.datetime):
                 time = self._q.literal(obj_time)
             else:
                 raise ShouldNotGetHere

@@ -5,7 +5,6 @@ import functools
 
 import typing_extensions
 
-from ... import namespace as NS
 from ...rdflib import URIRef
 from ...typing import (
     Any,
@@ -98,50 +97,54 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
 
     @classmethod
     @functools.cache
-    def _from_rdflib(cls, uri: URIRef) -> 'Datatype':
-        if uri == NS.WIKIBASE.WikibaseItem:
-            return cls._ItemDatatype()
-        elif uri == NS.WIKIBASE.WikibaseProperty:
-            return cls._PropertyDatatype()
-        elif uri == NS.WIKIBASE.WikibaseLexeme:
-            return cls._LexemeDatatype()
-        elif uri == NS.WIKIBASE.Url:
-            return cls._IRI_Datatype()
-        elif uri == NS.WIKIBASE.Monolingualtext:
-            return cls._TextDatatype()
-        elif uri == NS.WIKIBASE.String:
-            return cls._StringDatatype()
-        elif uri == NS.WIKIBASE.ExternalId:
-            return cls._ExternalIdDatatype()
-        elif uri == NS.WIKIBASE.Quantity:
-            return cls._QuantityDatatype()
-        elif uri == NS.WIKIBASE.Time:
-            return cls._TimeDatatype()
+    def _from_rdflib(cls, uri: URIRef) -> Self:
+        from ...namespace import WIKIBASE
+        datatype_class: DatatypeClass
+        if uri == WIKIBASE.WikibaseItem:
+            datatype_class = cls._ItemDatatype
+        elif uri == WIKIBASE.WikibaseProperty:
+            datatype_class = cls._PropertyDatatype
+        elif uri == WIKIBASE.WikibaseLexeme:
+            datatype_class = cls._LexemeDatatype
+        elif uri == WIKIBASE.Url:
+            datatype_class = cls._IRI_Datatype
+        elif uri == WIKIBASE.Monolingualtext:
+            datatype_class = cls._TextDatatype
+        elif uri == WIKIBASE.String:
+            datatype_class = cls._StringDatatype
+        elif uri == WIKIBASE.ExternalId:
+            datatype_class = cls._ExternalIdDatatype
+        elif uri == WIKIBASE.Quantity:
+            datatype_class = cls._QuantityDatatype
+        elif uri == WIKIBASE.Time:
+            datatype_class = cls._TimeDatatype
         else:
-            raise ValueError(f'bad Wikibase datatype: {uri}')
+            raise cls._check_error(uri, cls._from_rdflib, 'uri', 1)
+        return cls.check(datatype_class, cls._from_rdflib, 'uri', 1)
 
     @classmethod
     def _to_rdflib(cls) -> URIRef:
+        from ...namespace import WIKIBASE
         if cls is cls._ItemDatatype:
-            return NS.WIKIBASE.WikibaseItem
+            return WIKIBASE.WikibaseItem
         elif cls is cls._PropertyDatatype:
-            return NS.WIKIBASE.WikibaseProperty
+            return WIKIBASE.WikibaseProperty
         elif cls is cls._LexemeDatatype:
-            return NS.WIKIBASE.WikibaseLexeme
+            return WIKIBASE.WikibaseLexeme
         elif cls is cls._IRI_Datatype:
-            return NS.WIKIBASE.Url
+            return WIKIBASE.Url
         elif cls is cls._TextDatatype:
-            return NS.WIKIBASE.Monolingualtext
+            return WIKIBASE.Monolingualtext
         elif cls is cls._StringDatatype:
-            return NS.WIKIBASE.String
+            return WIKIBASE.String
         elif cls is cls._ExternalIdDatatype:
-            return NS.WIKIBASE.ExternalId
+            return WIKIBASE.ExternalId
         elif cls is cls._QuantityDatatype:
-            return NS.WIKIBASE.Quantity
+            return WIKIBASE.Quantity
         elif cls is cls._TimeDatatype:
-            return NS.WIKIBASE.Time
+            return WIKIBASE.Time
         else:
-            raise cls._should_not_get_here()
+            raise cls._check_error(cls, cls._to_rdflib)
 
     def __init__(
             self,

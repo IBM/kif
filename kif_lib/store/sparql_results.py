@@ -1,6 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
+import decimal
 import io
 import json
 import re
@@ -8,8 +10,6 @@ import re
 from .. import namespace as NS
 from ..model import (
     Datatype,
-    Datetime,
-    Decimal,
     Entity,
     IRI,
     Item,
@@ -154,7 +154,8 @@ class SPARQL_Results(Mapping):
                     ###
                     for fmt in ['%Y-%m-%d', '%Y-%m-%d%z']:
                         try:
-                            value = Datetime.strptime(value, fmt).isoformat()
+                            value = datetime.datetime.strptime(
+                                value, fmt).isoformat()
                             break
                         except ValueError:
                             pass
@@ -281,10 +282,10 @@ class SPARQL_Results(Mapping):
                 value: Optional[Quantity] = None
         ) -> Quantity:
             assert value is None or value.is_quantity()
-            qt_amount: Decimal
+            qt_amount: decimal.Decimal
             qt_unit: Optional[Item]
-            qt_lb: Optional[Decimal]
-            qt_ub: Optional[Decimal]
+            qt_lb: Optional[decimal.Decimal]
+            qt_ub: Optional[decimal.Decimal]
             if value:
                 qt_amount = cast(Quantity, value).amount
             else:
@@ -318,7 +319,7 @@ class SPARQL_Results(Mapping):
                 value: Optional[Time] = None
         ) -> Time:
             assert value is None or value.is_time()
-            tm_value: Datetime
+            tm_value: datetime.datetime
             tm_prec: Optional[int]
             tm_tz: Optional[int]
             tm_cal: Optional[Item]
@@ -443,7 +444,7 @@ class SPARQL_Results(Mapping):
                 self,
                 var: str,
                 _re=re.compile(r'^[+-]?(\d+)-(\d+)-(\d+)')
-        ) -> Datetime:
+        ) -> datetime.datetime:
             from datetime import date, time
             val = self.check_literal(var)
             if val.datatype != NS.XSD.dateTime:
@@ -452,23 +453,23 @@ class SPARQL_Results(Mapping):
                 dt = val.toPython()
             except ValueError:
                 dt = str(val)
-            if isinstance(dt, Datetime):
+            if isinstance(dt, datetime.datetime):
                 return dt
             elif isinstance(dt, date):
-                return Datetime.combine(dt, time())
+                return datetime.datetime.combine(dt, time())
             elif isinstance(dt, str):
                 m = _re.match(dt)
                 if m is None:
-                    return Datetime.fromisoformat(str(val))
+                    return datetime.datetime.fromisoformat(str(val))
                 else:
                     y, m, _ = map(int, m.groups())
                     y = max(min(y, 9999), 1)
                     m = max(min(m, 12), 1)
-                    return Datetime(y, m, 1)
+                    return datetime.datetime(y, m, 1)
             else:
                 raise Store._should_not_get_here()
 
-        def check_decimal(self, var: str) -> Decimal:
+        def check_decimal(self, var: str) -> decimal.Decimal:
             val = self.check_literal(var)
             if val.datatype != NS.XSD.decimal:
                 self._error_bad(var, 'a xsd:decimal', val.n3())

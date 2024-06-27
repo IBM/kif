@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import decimal
+
 from kif_lib import (
     ExternalId,
     IRI,
@@ -14,7 +16,6 @@ from kif_lib import (
     StringDatatype,
     Text,
 )
-from kif_lib.model import Decimal
 from kif_lib.typing import assert_type
 
 from ...tests import kif_DeepDataValueTestCase
@@ -40,7 +41,7 @@ class Test(kif_DeepDataValueTestCase):
         self._test_check(
             Quantity,
             success=[
-                (Decimal(0), Quantity(Decimal(0))),
+                (decimal.Decimal(0), Quantity(decimal.Decimal(0))),
                 (0, Quantity(0)),
                 (0.1, Quantity(0.1)),
                 ('0.1', Quantity('0.1')),
@@ -67,8 +68,8 @@ class Test(kif_DeepDataValueTestCase):
                 ((0, None, 1), Quantity(0, None, 1)),
                 ((0, None, None, 2), Quantity(0, None, None, 2)),
                 (('0', 'x', None, 2), Quantity(0, Item('x'), None, 2)),
-                ((0.1, 'x', Decimal(8), 2),
-                 Quantity(0.1, Item('x'), Decimal(8), 2)),
+                ((0.1, 'x', decimal.Decimal(8), 2),
+                 Quantity(0.1, Item('x'), decimal.Decimal(8), 2)),
             ],
             failure=[
                 ({},),
@@ -85,15 +86,19 @@ class Test(kif_DeepDataValueTestCase):
 
     def test_get_lower_bound(self):
         self.assertEqual(
-            Quantity(0, None, 1).get_lower_bound(), Decimal('1'))
+            Quantity(0, None, 1).get_lower_bound(), decimal.Decimal('1'))
         self.assertEqual(
-            Quantity(0, None).get_lower_bound(Decimal('1.')), Decimal('1.'))
+            Quantity(0, None).get_lower_bound(
+                decimal.Decimal('1.')), decimal.Decimal('1.'))
         self.assertIsNone(Quantity(0, None).get_lower_bound())
 
     def test_get_upper_bound(self):
         self.assertEqual(
-            Quantity(0, None, 1, 2).get_upper_bound(), Decimal('2'))
-        self.assertEqual(Quantity(0).get_upper_bound(Decimal(2)), Decimal(2))
+            Quantity(0, None, 1, 2).get_upper_bound(),
+            decimal.Decimal('2'))
+        self.assertEqual(
+            Quantity(0).get_upper_bound(decimal.Decimal(2)),
+            decimal.Decimal(2))
         self.assertIsNone(Quantity(0, None).get_upper_bound())
 
 

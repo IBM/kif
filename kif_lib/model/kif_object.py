@@ -18,13 +18,8 @@ from ..typing import (
     Optional,
     override,
     TypeAlias,
-    Union,
 )
 from . import object
-
-Datetime = datetime.datetime
-Decimal = decimal.Decimal
-UTC = datetime.timezone.utc
 
 Codec = object.Codec
 CodecError = object.CodecError
@@ -41,8 +36,6 @@ ShouldNotGetHere = object.ShouldNotGetHere
 T: TypeAlias = object.T
 TArgs: TypeAlias = object.TArgs
 TCallable: TypeAlias = object.TFun
-TDatetime: TypeAlias = Union[Datetime, str]
-TDecimal: TypeAlias = Union[Decimal, float, int, str]
 TDetails: TypeAlias = object.TDet
 TLocation: TypeAlias = object.TLoc
 TNil: TypeAlias = object.TNil
@@ -94,134 +87,6 @@ class KIF_Object(object.Object):
         from .template import Template
         from .variable import Variable
         return isinstance(arg, (Template, Variable))
-
-# -- datetime --------------------------------------------------------------
-
-    @classmethod
-    def _check_arg_datetime(
-            cls,
-            arg: TDatetime,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Datetime:
-        arg = cls._check_arg_isinstance(
-            arg, (Datetime, str), function, name, position)
-        if isinstance(arg, str):
-            if arg[0] == '+' or arg[0] == '-':
-                ###
-                # FIXME: Python's fromisoformat() does not support the +/-
-                # sign used by Wikidata at the start of date-time literals.
-                ###
-                arg = arg[1:]
-            try:
-                dt = Datetime.fromisoformat(arg)
-                if dt.tzinfo is None:
-                    ###
-                    # IMPORTANT: If no timezone is given, we assume UTC.
-                    ###
-                    return dt.replace(tzinfo=UTC)
-                else:
-                    return dt
-            except Exception as err:
-                raise cls._arg_error(
-                    f'expected {Datetime.__qualname__}',
-                    function, name, position, ValueError) from err
-        elif isinstance(arg, Datetime):
-            return arg
-        else:
-            raise cls._should_not_get_here()
-
-    @classmethod
-    def _check_optional_arg_datetime(
-            cls,
-            arg: Optional[TDatetime],
-            default: Optional[Datetime] = None,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[Datetime]:
-        if arg is None:
-            return default
-        else:
-            return cls._check_arg_datetime(arg, function, name, position)
-
-    @classmethod
-    def _preprocess_arg_datetime(
-            cls,
-            arg: TDatetime,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> Datetime:
-        return cls._check_arg_datetime(arg, function or cls, None, i)
-
-    @classmethod
-    def _preprocess_optional_arg_datetime(
-            cls,
-            arg: Optional[TDatetime],
-            i: int,
-            default: Optional[Datetime] = None,
-            function: Optional[TLocation] = None
-    ) -> Optional[Datetime]:
-        if arg is None:
-            return default
-        else:
-            return cls._preprocess_arg_datetime(arg, i, function)
-
-# -- decimal ---------------------------------------------------------------
-
-    @classmethod
-    def _check_arg_decimal(
-            cls,
-            arg: TDecimal,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Decimal:
-        arg = cls._check_arg_isinstance(
-            arg, (Decimal, float, int, str), function, name, position)
-        try:
-            return Decimal(arg)
-        except decimal.InvalidOperation as err:
-            raise cls._arg_error(
-                f'expected {Decimal.__qualname__}',
-                function, name, position, ValueError) from err
-
-    @classmethod
-    def _check_optional_arg_decimal(
-            cls,
-            arg: Optional[TDecimal],
-            default: Optional[Decimal] = None,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[Decimal]:
-        if arg is None:
-            return default
-        else:
-            return cls._check_arg_decimal(arg, function, name, position)
-
-    @classmethod
-    def _preprocess_arg_decimal(
-            cls,
-            arg: TDecimal,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> Decimal:
-        return cls._check_arg_decimal(arg, function or cls, None, i)
-
-    @classmethod
-    def _preprocess_optional_arg_decimal(
-            cls,
-            arg: Optional[TDecimal],
-            i: int,
-            default: Optional[Decimal] = None,
-            function: Optional[TLocation] = None
-    ) -> Optional[Decimal]:
-        if arg is None:
-            return default
-        else:
-            return cls._preprocess_arg_decimal(arg, i, function)
 
 # -- context ---------------------------------------------------------------
 
@@ -326,7 +191,7 @@ class KIF_JSON_Encoder(
                     'class': obj.__class__.__qualname__,
                     'args': obj.args,
                 }
-            elif isinstance(o, (Datetime, Decimal)):
+            elif isinstance(o, (datetime.datetime, decimal.Decimal)):
                 return str(o)
             elif isinstance(o, enum.Enum):
                 return str(o.value)
@@ -344,7 +209,8 @@ class KIF_ReprDecoder(
     @classmethod
     @functools.cache
     def _globals(cls) -> dict[str, Any]:
-        return {'Decimal': Decimal, 'datetime': datetime, **super()._globals()}
+        return {'Decimal': decimal.Decimal, 'datetime': datetime,
+                **super()._globals()}
 
 
 class KIF_ReprEncoder(
@@ -358,7 +224,7 @@ class KIF_ReprEncoder(
             n: int = 0,
             indent: int = 0
     ) -> Iterator[str]:
-        if isinstance(v, (Datetime, Decimal)):
+        if isinstance(v, (datetime.datetime, decimal.Decimal)):
             yield from self._indent(n, indent)
             yield repr(v)
         elif isinstance(v, enum.Enum):
@@ -379,7 +245,7 @@ class KIF_SExpEncoder(
             n: int = 0,
             indent: int = 0
     ) -> Iterator[str]:
-        if isinstance(v, (Datetime, Decimal)):
+        if isinstance(v, (datetime.datetime, decimal.Decimal)):
             yield from self._indent(n, indent)
             yield str(v)
         elif isinstance(v, enum.Enum):

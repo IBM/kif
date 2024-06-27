@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import decimal
+
 from kif_lib import (
     IRI,
     Item,
@@ -13,7 +15,6 @@ from kif_lib import (
     String,
     Variable,
 )
-from kif_lib.model import Decimal
 from kif_lib.typing import assert_type
 
 from ...tests import kif_DeepDataValueTemplateTestCase
@@ -54,13 +55,16 @@ class Test(kif_DeepDataValueTemplateTestCase):
                      QuantityVariable('w'))),
                 ([Variable('x', Quantity), None, None, None],
                  Quantity(Variable('x'))),
-                ([Decimal('0.1'), Item(Variable('x', IRI)), None, None],
+                ([decimal.Decimal('0.1'),
+                  Item(Variable('x', IRI)), None, None],
                  Quantity('0.1', Item(Variable('x')))),
-                ([Decimal(0), ItemTemplate(IRI(Variable('x', String)))],
+                ([decimal.Decimal(0),
+                  ItemTemplate(IRI(Variable('x', String)))],
                  Quantity(0, Item(IRI(Variable('x', String))))),
-                ([Decimal('1.0'), None, Variable('x', Quantity), None],
+                ([decimal.Decimal('1.0'), None, Variable('x', Quantity), None],
                  Quantity(1.0, None, Variable('x'))),
-                ([Decimal(0), None, Decimal(0), Variable('x', Quantity)],
+                ([decimal.Decimal(0), None,
+                  decimal.Decimal(0), Variable('x', Quantity)],
                  Quantity(0, None, 0, Variable('x'))),
             ],
             failure=[

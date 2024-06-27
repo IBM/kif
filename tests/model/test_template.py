@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import decimal
+
 from kif_lib import (
     DataValue,
     DeepDataValue,
@@ -24,7 +26,6 @@ from kif_lib import (
 )
 from kif_lib.model import (
     DataValueTemplate,
-    Decimal,
     DeepDataValueTemplate,
     EntityTemplate,
     IRI_Template,
@@ -116,14 +117,14 @@ class Test(kif_TestCase):
             QuantityTemplate(x),
             QuantityVariable('x'), None, None, None)
         self.assert_quantity_template(
-            QuantityTemplate(0, x), Decimal(0),
+            QuantityTemplate(0, x), decimal.Decimal(0),
             ItemVariable('x'), None, None)
         self.assert_quantity_template(
             QuantityTemplate(0, None, x),
-            Decimal(0), None, QuantityVariable('x'), None)
+            decimal.Decimal(0), None, QuantityVariable('x'), None)
         self.assert_quantity_template(
             QuantityTemplate(0, None, None, x),
-            Decimal(0), None, None, QuantityVariable('x'))
+            decimal.Decimal(0), None, None, QuantityVariable('x'))
         self.assert_quantity_template(
             QuantityTemplate(
                 Variable('x'),
@@ -137,20 +138,21 @@ class Test(kif_TestCase):
         self.assert_quantity_template(
             Quantity(x), Variable('x', Quantity), None, None, None)
         self.assert_quantity_template(
-            Quantity(0, Item(x)), Decimal(0),
+            Quantity(0, Item(x)), decimal.Decimal(0),
             Item(Variable('x', IRI)), None, None)
         self.assert_quantity_template(
-            Quantity(0, Item(IRI(x))), Decimal(0),
+            Quantity(0, Item(IRI(x))), decimal.Decimal(0),
             ItemTemplate(IRI(Variable('x', String))), None, None)
         self.assert_quantity_template(
-            Quantity(0, None, x), Decimal(0),
+            Quantity(0, None, x), decimal.Decimal(0),
             None, Variable('x', Quantity), None)
         self.assert_quantity_template(
             Quantity(0, None, 0, x),
-            Decimal(0), None, Decimal(0), Variable('x', Quantity))
+            decimal.Decimal(0), None,
+            decimal.Decimal(0), Variable('x', Quantity))
         self.assert_quantity(
             cast(Quantity, QuantityTemplate(0, None, 0, None)),
-            Decimal(0), None, Decimal(0), None)
+            decimal.Decimal(0), None, decimal.Decimal(0), None)
 
     def test__new__time_template(self):
         x = Variable('x')

@@ -1,6 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import decimal
 import re
 
 from ..model import (
@@ -25,7 +26,7 @@ from ..model import (
     ValueSnak,
     Variable,
 )
-from ..model.kif_object import Decimal, Encoder, Object
+from ..model.kif_object import Encoder, Object
 from ..namespace import _DEFAULT_NSM
 from ..typing import cast, Iterator, Optional, override
 
@@ -216,9 +217,9 @@ class MarkdownEncoder(
         if qtd.lower_bound is not None or qtd.upper_bound is not None:
             val: Optional[str] = None
             if qtd.lower_bound is not None and qtd.upper_bound is not None:
-                qt = Decimal(qtd.amount)
-                lb = Decimal(qtd.lower_bound)
-                ub = Decimal(qtd.upper_bound)
+                qt = decimal.Decimal(qtd.amount)
+                lb = decimal.Decimal(qtd.lower_bound)
+                ub = decimal.Decimal(qtd.upper_bound)
                 if (ub + lb) / 2 == qt:
                     val = f'{qt} ±{ub - qt}'
             if not val:
