@@ -13,6 +13,7 @@ from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
     Datatype,
+    DatatypeVariable,
     DataValue,
     DeepDataValue,
     DeprecatedRank,
@@ -791,6 +792,10 @@ if __name__ == '__main__':
         self.assertEqual(obj.name, name)
         self.assertEqual(obj.get_name(), name)
         self.assertEqual(obj.args[0], name)
+
+    def assert_datatype_variable(self, obj: Variable, name: str):
+        self.assert_variable(obj, name)
+        self.assertIsInstance(obj, DatatypeVariable)
 
     def assert_value_variable(self, obj: Variable, name: str):
         self.assert_variable(obj, name)
