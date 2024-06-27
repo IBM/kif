@@ -9,6 +9,7 @@ from kif_lib import (
     Entity,
     EntityTemplate,
     ExternalId,
+    ExternalIdDatatype,
     IRI,
     IRI_Template,
     IRI_Variable,
@@ -19,6 +20,7 @@ from kif_lib import (
     ShallowDataValue,
     ShallowDataValueTemplate,
     String,
+    StringDatatype,
     StringTemplate,
     StringVariable,
     Template,
@@ -500,6 +502,8 @@ class kif_DatatypeTestCase(kif_ObjectTestCase):
     ) -> None:
         assert issubclass(cls, Datatype)
         other_cls = self.ALL_DATATYPE_CLASSES - {cls, Datatype}
+        if cls is StringDatatype:
+            other_cls -= {ExternalIdDatatype}
         super()._test__init__(
             cls,
             assert_fn,

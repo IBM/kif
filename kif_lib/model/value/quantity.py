@@ -52,24 +52,24 @@ class QuantityTemplate(DeepDataValueTemplate):
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # amount
-            if Variable.test(arg):
+            if isinstance(arg, Variable):
                 return QuantityVariable.check(arg, type(self), None, i)
             else:
                 return Quantity._static_preprocess_arg(self, arg, i)
         elif i == 2:            # unit
-            if Template.test(arg):
+            if isinstance(arg, Template):
                 return ItemTemplate.check(arg, type(self), None, i)
-            elif Variable.test(arg):
+            elif isinstance(arg, Variable):
                 return ItemVariable.check(arg, type(self), None, i)
             else:
                 return Quantity._static_preprocess_arg(self, arg, i)
         elif i == 3:            # lower-bound
-            if Variable.test(arg):
+            if isinstance(arg, Variable):
                 return QuantityVariable.check(arg, type(self), None, i)
             else:
                 return Quantity._static_preprocess_arg(self, arg, i)
         elif i == 4:            # upper-bound
-            if Variable.test(arg):
+            if isinstance(arg, Variable):
                 return QuantityVariable.check(arg, type(self), None, i)
             else:
                 return Quantity._static_preprocess_arg(self, arg, i)

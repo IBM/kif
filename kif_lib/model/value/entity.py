@@ -29,7 +29,7 @@ class EntityTemplate(ValueTemplate):
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # iri
-            if Template.test(arg):
+            if isinstance(arg, Template):
                 return IRI_Template.check(arg, type(self), None, i)
             else:
                 return IRI_Variable.check(arg, type(self), None, i)

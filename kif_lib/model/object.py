@@ -547,6 +547,15 @@ class Object(Sequence, metaclass=ObjectMeta):
         """
         return self._args
 
+    def get(self, i: int, default: Optional[Any] = None):
+        """Gets argument at position `i` of object.
+
+        Returns:
+           Argument.
+        """
+        arg = self.args[i]
+        return arg if arg is not None else default
+
     @property
     def digest(self) -> str:
         """The digest of object."""

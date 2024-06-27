@@ -1,17 +1,11 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ...itertools import chain
 from ...typing import ClassVar, Iterable, TypeAlias, Union
 from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI_Template, T_IRI
 from .value import Datatype
-
-ItemClass: TypeAlias = type['Item']
-ItemDatatypeClass: TypeAlias = type['ItemDatatype']
-ItemTemplateClass: TypeAlias = type['ItemTemplate']
-ItemVariableClass: TypeAlias = type['ItemVariable']
 
 TItem: TypeAlias = Union['Item', T_IRI]
 VItem: TypeAlias = Union['ItemTemplate', 'ItemVariable', 'Item']
@@ -26,7 +20,7 @@ class ItemTemplate(EntityTemplate):
        iri: IRI, IRI template, or IRI variable.
     """
 
-    object_class: ClassVar[ItemClass]  # pyright: ignore
+    object_class: ClassVar[type['Item']]  # pyright: ignore
 
     def __init__(self, iri: VTItemContent):
         super().__init__(iri)
@@ -39,13 +33,13 @@ class ItemVariable(EntityVariable):
        name: Name.
     """
 
-    object_class: ClassVar[ItemClass]  # pyright: ignore
+    object_class: ClassVar[type['Item']]  # pyright: ignore
 
 
 class ItemDatatype(Datatype):
     """Item datatype."""
 
-    value_class: ClassVar[ItemClass]  # pyright: ignore
+    value_class: ClassVar[type['Item']]  # pyright: ignore
 
 
 class Item(
@@ -60,10 +54,10 @@ class Item(
        iri: IRI.
     """
 
-    datatype_class: ClassVar[ItemDatatypeClass]  # pyright: ignore
-    datatype: ClassVar[ItemDatatype]             # pyright: ignore
-    template_class: ClassVar[ItemTemplateClass]  # pyright: ignore
-    variable_class: ClassVar[ItemVariableClass]  # pyright: ignore
+    datatype_class: ClassVar[type[ItemDatatype]]  # pyright: ignore
+    datatype: ClassVar[ItemDatatype]              # pyright: ignore
+    template_class: ClassVar[type[ItemTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[ItemVariable]]  # pyright: ignore
 
     def __init__(self, iri: VTItemContent):
         super().__init__(iri)
@@ -79,4 +73,5 @@ def Items(iri: VTItemContent, *iris: VTItemContent) -> Iterable[Item]:
     Returns:
        The resulting items.
     """
-    return map(Item, chain([iri], iris))
+    from ... import itertools
+    return map(Item, itertools.chain((iri,), iris))

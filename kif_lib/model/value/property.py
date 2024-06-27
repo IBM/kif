@@ -3,7 +3,6 @@
 
 from typing_extensions import overload, TYPE_CHECKING
 
-from ...itertools import chain
 from ...typing import (
     Any,
     ClassVar,
@@ -17,23 +16,18 @@ from ..template import Template
 from ..variable import Variable
 from .datatype import Datatype, DatatypeVariable, VDatatype, VTDatatype
 from .entity import Entity, EntityTemplate, EntityVariable, VTEntity
-from .iri import T_IRI, VT_IRI
+from .iri import IRI_Template, T_IRI, VT_IRI
 from .value import VTValue
 
 if TYPE_CHECKING:               # pragma: no cover
     from ..snak import ValueSnak, ValueSnakTemplate
     from ..statement import Statement, StatementTemplate
 
-PropertyClass: TypeAlias = type['Property']
-PropertyDatatypeClass: TypeAlias = type['PropertyDatatype']
-PropertyTemplateClass: TypeAlias = type['PropertyTemplate']
-PropertyVariableClass: TypeAlias = type['PropertyVariable']
-
 TProperty: TypeAlias = Union['Property', T_IRI]
 VProperty: TypeAlias =\
     Union['PropertyTemplate', 'PropertyVariable', 'Property']
 VTProperty: TypeAlias = Union[Variable, VProperty, TProperty]
-VTPropertyContent: TypeAlias = Union['PropertyTemplate', Variable, TProperty]
+VTPropertyContent: TypeAlias = Union[Variable, IRI_Template, TProperty]
 
 
 class PropertyTemplate(EntityTemplate):
@@ -44,7 +38,7 @@ class PropertyTemplate(EntityTemplate):
        range: Datatype or datatype variable.
     """
 
-    object_class: ClassVar[PropertyClass]  # pyright: ignore
+    object_class: ClassVar[type['Property']]  # pyright: ignore
 
     def __init__(
             self,
@@ -61,7 +55,7 @@ class PropertyTemplate(EntityTemplate):
             else:
                 return Property._static_preprocess_arg(self, arg, i)
         elif i == 2:            # range
-            if Variable.test(arg):
+            if isinstance(arg, Variable):
                 return DatatypeVariable.check(arg, type(self), None, i)
             else:
                 return Property._static_preprocess_arg(self, arg, i)
@@ -78,9 +72,12 @@ class PropertyTemplate(EntityTemplate):
 
     def __call__(self, v1, v2=None):
         if v2 is not None:
-            return self._StatementTemplate(v1, self._ValueSnak(self, v2))
+            from ..snak import ValueSnak
+            from ..statement import StatementTemplate
+            return StatementTemplate(v1, ValueSnak(self, v2))
         else:
-            return self._ValueSnakTemplate(self, v1)
+            from ..snak import ValueSnakTemplate
+            return ValueSnakTemplate(self, v1)
 
     @property
     def range(self) -> Optional[VDatatype]:
@@ -101,8 +98,7 @@ class PropertyTemplate(EntityTemplate):
         Returns:
            Datatype or datatype variable.
         """
-        range = self.args[1]
-        return range if range is not None else default
+        return self.get(1, default)
 
 
 class PropertyVariable(EntityVariable):
@@ -112,7 +108,7 @@ class PropertyVariable(EntityVariable):
        name: Name.
     """
 
-    object_class: ClassVar[PropertyClass]  # pyright: ignore
+    object_class: ClassVar[type['Property']]  # pyright: ignore
 
     @overload
     def __call__(self, v1: VTEntity, v2: VTValue) -> 'StatementTemplate':
@@ -124,15 +120,18 @@ class PropertyVariable(EntityVariable):
 
     def __call__(self, v1, v2=None):
         if v2 is not None:
-            return self._StatementTemplate(v1, self._ValueSnak(self, v2))
+            from ..snak import ValueSnak
+            from ..statement import StatementTemplate
+            return StatementTemplate(v1, ValueSnak(self, v2))
         else:
-            return self._ValueSnakTemplate(self, v1)
+            from ..snak import ValueSnakTemplate
+            return ValueSnakTemplate(self, v1)
 
 
 class PropertyDatatype(Datatype):
     """Property datatype."""
 
-    value_class: ClassVar[PropertyClass]  # pyright: ignore
+    value_class: ClassVar[type['Property']]  # pyright: ignore
 
 
 class Property(
@@ -148,10 +147,10 @@ class Property(
        range: Datatype.
     """
 
-    datatype_class: ClassVar[PropertyDatatypeClass]  # pyright: ignore
-    datatype: ClassVar[PropertyDatatype]             # pyright: ignore
-    template_class: ClassVar[PropertyTemplateClass]  # pyright: ignore
-    variable_class: ClassVar[PropertyVariableClass]  # pyright: ignore
+    datatype_class: ClassVar[type[PropertyDatatype]]  # pyright: ignore
+    datatype: ClassVar[PropertyDatatype]              # pyright: ignore
+    template_class: ClassVar[type[PropertyTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[PropertyVariable]]  # pyright: ignore
 
     def __init__(
             self,
@@ -180,8 +179,11 @@ class Property(
 
     def __call__(self, v1, v2=None):
         if v2 is not None:
-            return self._Statement(v1, self._ValueSnak(self, v2))
+            from ..snak import ValueSnak
+            from ..statement import Statement
+            return Statement(v1, ValueSnak(self, v2))
         else:
+            from ..snak import ValueSnak
             return self._ValueSnak(self, v1)
 
     @property
@@ -203,8 +205,7 @@ class Property(
         Returns:
            Datatype.
         """
-        range = self.args[1]
-        return range if range is not None else default
+        return self.get(1, default)
 
 
 def Properties(
@@ -220,4 +221,5 @@ def Properties(
     Returns:
        The resulting properties.
     """
-    return map(Property, chain([iri], iris))
+    from ... import itertools
+    return map(Property, itertools.chain((iri,), iris))

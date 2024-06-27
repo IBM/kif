@@ -61,24 +61,24 @@ class TimeTemplate(DeepDataValueTemplate):
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # time
-            if Variable.test(arg):
+            if isinstance(arg, Variable):
                 return TimeVariable.check(arg, type(self), None, i)
             else:
                 return Time._static_preprocess_arg(self, arg, i)
         elif i == 2:            # precision
-            if Variable.test(arg):
+            if isinstance(arg, Variable):
                 return QuantityVariable.check(arg, type(self), None, i)
             else:
                 return Time._static_preprocess_arg(self, arg, i)
         elif i == 3:            # timezone
-            if Variable.test(arg):
+            if isinstance(arg, Variable):
                 return QuantityVariable.check(arg, type(self), None, i)
             else:
                 return Time._static_preprocess_arg(self, arg, i)
         elif i == 4:            # calendar
-            if Template.test(arg):
+            if isinstance(arg, Template):
                 return ItemTemplate.check(arg, type(self), None, i)
-            elif Variable.test(arg):
+            elif isinstance(arg, Variable):
                 return ItemVariable.check(arg, type(self), None, i)
             else:
                 return Time._static_preprocess_arg(self, arg, i)
