@@ -1,14 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from .data_value import (
-    DataValue,
-    DataValueClass,
-    DataValueTemplate,
-    DataValueTemplateClass,
-    DataValueVariable,
-    DataValueVariableClass,
-)
+from .data_value import DataValue, DataValueTemplate, DataValueVariable
 from .datatype import (
     Datatype,
     DatatypeVariable,
@@ -174,11 +167,8 @@ __all__ = (
 
     # data value
     'DataValue',
-    'DataValueClass',
     'DataValueTemplate',
-    'DataValueTemplateClass',
     'DataValueVariable',
-    'DataValueVariableClass',
 
     # shallow data value
     'ShallowDataValue',

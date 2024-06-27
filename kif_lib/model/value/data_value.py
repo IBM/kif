@@ -1,18 +1,14 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ...typing import ClassVar, TypeAlias
+from ...typing import ClassVar
 from .value import Value, ValueTemplate, ValueVariable
-
-DataValueClass: TypeAlias = type['DataValue']
-DataValueTemplateClass: TypeAlias = type['DataValueTemplate']
-DataValueVariableClass: TypeAlias = type['DataValueVariable']
 
 
 class DataValueTemplate(ValueTemplate):
     """Abstract base class for data value templates."""
 
-    object_class: ClassVar[DataValueClass]  # pyright: ignore
+    object_class: ClassVar[type['DataValue']]  # pyright: ignore
 
 
 class DataValueVariable(ValueVariable):
@@ -22,7 +18,7 @@ class DataValueVariable(ValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[DataValueClass]  # pyright: ignore
+    object_class: ClassVar[type['DataValue']]  # pyright: ignore
 
 
 class DataValue(
@@ -32,5 +28,5 @@ class DataValue(
 ):
     """Abstract base class for data values."""
 
-    template_class: ClassVar[DataValueTemplateClass]  # pyright: ignore
-    variable_class: ClassVar[DataValueVariableClass]  # pyright: ignore
+    template_class: ClassVar[type[DataValueTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[DataValueVariable]]  # pyright: ignore

@@ -9,6 +9,7 @@ from kif_lib import (
     Item,
     Lexeme,
     Property,
+    Variable,
 )
 from kif_lib.typing import assert_type
 
@@ -32,7 +33,14 @@ class Test(kif_EntityTestCase):
                 (Property('x'), Property('x')),
                 (Lexeme('x'), Lexeme('x')),
             ],
-            failure=[0, {}, 'x', IRI('x')])
+            failure=[
+                'x',
+                0,
+                IRI('x'),
+                Item(Variable('x')),
+                Variable('x'),
+                {},
+            ])
 
     def test__init__(self):
         self.assert_abstract_class(Entity)

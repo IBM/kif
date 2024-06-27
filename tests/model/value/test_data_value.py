@@ -8,10 +8,14 @@ from kif_lib import (
     DataValue,
     DataValueTemplate,
     DataValueVariable,
+    ExternalId,
+    IRI,
     Item,
     Quantity,
     String,
+    Text,
     Time,
+    Variable,
 )
 from kif_lib.typing import assert_type
 
@@ -27,11 +31,6 @@ class Test(kif_DataValueTestCase):
         assert_type(DataValue.variable_class, type[DataValueVariable])
 
     def test_check(self) -> None:
-        self.assert_raises_check_error(
-            DataValue, {}, DataValue.check)
-        self.assert_raises_check_error(
-            DataValue, Item('x'), DataValue.check)
-        # success
         assert_type(DataValue.check(0), DataValue)
         self.assertEqual(DataValue.check('abc'), String('abc'))
         self.assertEqual(DataValue.check(decimal.Decimal(0)), Quantity(0))
@@ -39,6 +38,30 @@ class Test(kif_DataValueTestCase):
             DataValue.check(datetime.datetime(
                 2024, 6, 26, tzinfo=datetime.timezone.utc)),
             Time('2024-06-26'))
+        super()._test_check(
+            DataValue,
+            success=[
+                ('x', String('x')),
+                (0, Quantity(0)),
+                (1.0, Quantity(1.0)),
+                (datetime.datetime(2024, 6, 26,
+                                   tzinfo=datetime.timezone.utc),
+                 Time(datetime.datetime(2024, 6, 26,
+                                        tzinfo=datetime.timezone.utc))),
+                (decimal.Decimal('.5'), Quantity('.5')),
+                (ExternalId('x'), ExternalId('x')),
+                (IRI('x'), IRI('x')),
+                (Quantity(0, Item('x')), Quantity(0, Item('x'))),
+                (String('x'), String('x')),
+                (Text('x', 'y'), Text('x', 'y')),
+                (Time('2024-06-27'), Time('2024-06-27')),
+            ],
+            failure=[
+                Item('x'),
+                Item(Variable('x')),
+                Variable('x'),
+                {},
+            ])
 
     def test__init__(self):
         self.assert_abstract_class(DataValue)

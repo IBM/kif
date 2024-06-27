@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
+    ExternalId,
     Item,
     Lexeme,
     LexemeDatatype,
@@ -37,7 +38,8 @@ class Test(kif_EntityTestCase):
         self._test_check(
             Lexeme,
             success=[
-                ('abc', Lexeme('abc')),
+                ('x', Lexeme('x')),
+                (ExternalId('x'), Lexeme('x')),
             ],
             failure=[
                 Item('x'),

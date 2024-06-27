@@ -50,7 +50,8 @@ class Test(kif_EntityTestCase):
         self._test_check(
             Property,
             success=[
-                ('abc', Property('abc')),
+                ('x', Property('x')),
+                (ExternalId('x'), Property('x')),
             ],
             failure=[
                 Item('x'),

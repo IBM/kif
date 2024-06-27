@@ -5,6 +5,7 @@ import datetime
 import decimal
 
 from kif_lib import (
+    Datatype,
     DataValue,
     DeepDataValue,
     Entity,
@@ -21,6 +22,7 @@ from kif_lib import (
     Value,
     ValueTemplate,
     ValueVariable,
+    Variable,
 )
 from kif_lib.typing import assert_type, cast
 
@@ -36,16 +38,31 @@ class Test(kif_ValueTestCase):
         assert_type(Value.variable_class, type[ValueVariable])
 
     def test_check(self) -> None:
-        self.assert_raises_check_error(Value, {}, Value.check)
-        # success
         assert_type(Value.check(0), Value)
-        self.assertEqual(Value.check('x'), String('x'))
-        self.assertEqual(
-            Value.check(datetime.datetime(
-                2024, 6, 26, tzinfo=datetime.timezone.utc)),
-            Time('2024-06-26'))
-        self.assertEqual(Value.check(decimal.Decimal(0)), Quantity(0))
-        self.assertEqual(Value.check(Item('x')), Item('x'))
+        super()._test_check(
+            Value,
+            success=[
+                ('x', String('x')),
+                (0, Quantity(0)),
+                (1.0, Quantity(1.0)),
+                (datetime.datetime(
+                    2024, 6, 26, tzinfo=datetime.timezone.utc),
+                 Time(datetime.datetime(
+                     2024, 6, 26, tzinfo=datetime.timezone.utc))),
+                (decimal.Decimal(0), Quantity(0)),
+                (ExternalId('x'), ExternalId('x')),
+                (IRI('x'), IRI('x')),
+                (Item('x'), Item('x')),
+                (Lexeme('x'), Lexeme('x')),
+                (Property('x', Item), Property('x', Item)),
+                (Text('x', 'y'), Text('x', 'y')),
+            ],
+            failure=[
+                Datatype(Item),
+                IRI(Variable('x')),
+                Variable('x'),
+                {},
+            ])
 
     def test__init__(self):
         self.assert_abstract_class(Value)
