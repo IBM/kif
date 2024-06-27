@@ -11,6 +11,7 @@ from ... import namespace as NS
 from ...rdflib import Literal, URIRef
 from ...typing import (
     Any,
+    Callable,
     cast,
     ClassVar,
     Collection,
@@ -20,7 +21,7 @@ from ...typing import (
     TypeAlias,
     Union,
 )
-from ..kif_object import KIF_Object, TLocation
+from ..kif_object import KIF_Object
 from ..template import Template
 from ..variable import Variable
 from .datatype import Datatype, DatatypeClass
@@ -34,8 +35,8 @@ ValueTemplateClass: TypeAlias = type['ValueTemplate']
 ValueVariableClass: TypeAlias = type['ValueVariable']
 
 TValue: TypeAlias = Union['Value', 'TDatetime', 'TDecimal', str]
+VTValue: TypeAlias = Union[Variable, 'VValue', TValue]
 VValue: TypeAlias = Union['ValueTemplate', 'ValueVariable', 'Value']
-VTValue: TypeAlias = Union[Variable, VValue, TValue]
 
 
 class ValueTemplate(Template):
@@ -84,7 +85,7 @@ class Value(
     def check(
             cls,
             arg: Any,
-            function: Optional[TLocation] = None,
+            function: Optional[Union[Callable[..., Any], str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Self:
@@ -126,7 +127,7 @@ class Value(
     @classmethod
     def _from_rdflib(
             cls,
-            node: Union[Literal, URIRef],
+            node: Union[Literal, URIRef, str],
             item_prefixes: Optional[Collection[NS.T_NS]] = None,
             property_prefixes: Optional[Collection[NS.T_NS]] = None,
             lexeme_prefixes: Optional[Collection[NS.T_NS]] = None
