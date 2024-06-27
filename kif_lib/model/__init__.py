@@ -70,7 +70,6 @@ from .statement import (
 from .template import Template, TemplateClass
 from .value import (
     Datatype,
-    DatatypeClass,
     DatatypeVariable,
     DataValue,
     DataValueTemplate,
@@ -80,7 +79,6 @@ from .value import (
     DeepDataValueTemplate,
     DeepDataValueVariable,
     Entity,
-    EntityClass,
     EntityTemplate,
     EntityVariable,
     ExternalId,
@@ -147,6 +145,7 @@ from .value import (
     VQuantity,
     VString,
     VT_IRI,
+    VTDatatype,
     VTEntity,
     VText,
     VTime,
@@ -154,7 +153,6 @@ from .value import (
     VTProperty,
     VTValue,
     VValue,
-    VVDatatype,
 )
 from .value_set import TextSet, TTextSet, TValueSet, ValueSet
 from .variable import Theta, Variable, VariableClass, Variables
@@ -163,7 +161,6 @@ __all__ = (
     'AnnotationRecord',
     'AnnotationRecordSet',
     'Datatype',
-    'DatatypeClass',
     'DatatypeVariable',
     'DataValue',
     'DataValueTemplate',
@@ -176,7 +173,6 @@ __all__ = (
     'DeprecatedRank',
     'Descriptor',
     'Entity',
-    'EntityClass',
     'EntityFingerprint',
     'EntityTemplate',
     'EntityVariable',
@@ -305,6 +301,7 @@ __all__ = (
     'VStatement',
     'VString',
     'VT_IRI',
+    'VTDatatype',
     'VTEntity',
     'VText',
     'VTime',
@@ -313,7 +310,6 @@ __all__ = (
     'VTValue',
     'VValue',
     'VValueSnak',
-    'VVDatatype',
     'VVSnak',
     'VVStatement',
 )

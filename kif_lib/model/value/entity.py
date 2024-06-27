@@ -16,10 +16,6 @@ from ..variable import Variable
 from .iri import IRI, IRI_Template, IRI_Variable, T_IRI, V_IRI
 from .value import Value, ValueTemplate, ValueVariable
 
-EntityClass: TypeAlias = type['Entity']
-EntityTemplateClass: TypeAlias = type['EntityTemplate']
-EntityVariableClass: TypeAlias = type['EntityVariable']
-
 TEntity: TypeAlias = Union['Entity', T_IRI]
 VEntity: TypeAlias = Union['EntityTemplate', 'EntityVariable', 'Entity']
 VTEntity: TypeAlias = Union[Variable, VEntity, TEntity]
@@ -28,7 +24,7 @@ VTEntity: TypeAlias = Union[Variable, VEntity, TEntity]
 class EntityTemplate(ValueTemplate):
     """Abstract base class for entity templates."""
 
-    object_class: ClassVar[EntityClass]  # pyright: ignore
+    object_class: ClassVar[type['Entity']]  # pyright: ignore
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -61,7 +57,7 @@ class EntityVariable(ValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[EntityClass]  # pyright: ignore
+    object_class: ClassVar[type['Entity']]  # pyright: ignore
 
 
 class Entity(
@@ -71,8 +67,8 @@ class Entity(
 ):
     """Abstract base class for entities."""
 
-    template_class: ClassVar[EntityTemplateClass]  # pyright: ignore
-    variable_class: ClassVar[EntityVariableClass]  # pyright: ignore
+    template_class: ClassVar[type[EntityTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[EntityVariable]]  # pyright: ignore
 
     @classmethod
     @override
@@ -85,9 +81,10 @@ class Entity(
     ) -> Self:
         if isinstance(arg, cls):
             return arg
-        if cls is not Entity:   # concrete subclass?
+        elif cls is not Entity:  # concrete subclass?
             return cls(IRI.check(arg, function or cls.check, name, position))
-        raise cls._check_error(arg, function, name, position)
+        else:
+            raise cls._check_error(arg, function, name, position)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -104,6 +101,7 @@ class Entity(
         else:
             raise self_._should_not_get_here()
 
+    @override
     def get_value(self) -> str:
         return self.args[0].value
 

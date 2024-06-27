@@ -72,7 +72,6 @@ from kif_lib import (
     Variable,
 )
 from kif_lib.model import (
-    DatatypeClass,
     DataValueTemplate,
     DataValueVariable,
     DeepDataValueTemplate,
@@ -122,6 +121,7 @@ from kif_lib.model import (
     VStatement,
     VString,
     VT_IRI,
+    VTDatatype,
     VTEntity,
     VText,
     VTime,
@@ -130,7 +130,6 @@ from kif_lib.model import (
     VTValue,
     VValue,
     VValueSnak,
-    VVDatatype,
     VVSnak,
 )
 from kif_lib.model.object import Object
@@ -168,8 +167,8 @@ class kif_TestCase(unittest.TestCase):
         cast(Iterator[VariableClass], filter(
             lambda c: issubclass(c, Variable), ALL_KIF_OBJECT_CLASSES)))
 
-    ALL_DATATYPE_CLASSES: ClassVar[Set[DatatypeClass]] = frozenset(
-        cast(Iterator[DatatypeClass], filter(
+    ALL_DATATYPE_CLASSES: ClassVar[Set[type[Datatype]]] = frozenset(
+        cast(Iterator[type[Datatype]], filter(
             lambda c: issubclass(c, Datatype), ALL_KIF_OBJECT_CLASSES)))
 
     def _variable_class_can_check_from(
@@ -598,7 +597,7 @@ if __name__ == '__main__':
             self,
             obj: VProperty,
             iri: VT_IRI,
-            range: Optional[VVDatatype] = None
+            range: Optional[VTDatatype] = None
     ):
         self.assertIsInstance(obj, PropertyTemplate)
         assert isinstance(obj, PropertyTemplate)

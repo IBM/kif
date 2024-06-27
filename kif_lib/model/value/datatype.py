@@ -21,18 +21,11 @@ from ..kif_object import KIF_Object
 from ..variable import Variable
 
 if typing_extensions.TYPE_CHECKING:  # pragma: no cover
-    from .value import ValueClass
+    from .value import Value
 
-DatatypeClass: TypeAlias = type['Datatype']
-DatatypeVariableClass: TypeAlias = type['DatatypeVariable']
-TDatatypeClass: TypeAlias = Union[DatatypeClass, 'ValueClass']
-
-TDatatype: TypeAlias = Union['Datatype', TDatatypeClass]
-VTDatatype: TypeAlias = Union[Variable, TDatatype]
-
+TDatatype: TypeAlias = Union['Datatype', type['Datatype'], type['Value']]
 VDatatype: TypeAlias = Union['DatatypeVariable', 'Datatype']
-VTDatatypeContent: TypeAlias = Union[Variable, TDatatype]
-VVDatatype: TypeAlias = Union[Variable, VDatatype]
+VTDatatype: TypeAlias = Union[Variable, TDatatype]
 
 
 class DatatypeVariable(Variable):
@@ -42,7 +35,7 @@ class DatatypeVariable(Variable):
        name: Name.
     """
 
-    object_class: ClassVar[DatatypeClass]  # pyright: ignore
+    object_class: ClassVar[type['Datatype']]  # pyright: ignore
 
 
 class Datatype(KIF_Object, variable_class=DatatypeVariable):
@@ -52,20 +45,22 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
        datatype_class: Datatype class.
     """
 
-    variable_class: ClassVar[DatatypeVariableClass]  # pyright: ignore
+    variable_class: ClassVar[type[DatatypeVariable]]  # pyright: ignore
 
     #: Value class associated with this datatype class.
-    value_class: ClassVar['ValueClass']
+    value_class: ClassVar[type['Value']]
 
     def __new__(
             cls,
-            datatype_class: Optional[TDatatypeClass] = None
+            datatype_class: Optional[TDatatype] = None
     ):
         if datatype_class is None:
             if cls is Datatype:
                 raise cls._check_error(
                     datatype_class, cls, 'datatype_class', 1)
             datatype_class = cls
+        elif isinstance(datatype_class, Datatype):
+            datatype_class = type(datatype_class)
         if (isinstance(datatype_class, type)
                 and issubclass(datatype_class, KIF_Object)
                 and not issubclass(datatype_class, cls)
@@ -166,7 +161,7 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
 
     def __init__(
             self,
-            datatype_class: Optional[TDatatypeClass] = None
+            datatype_class: Optional[TDatatype] = None
     ):
         assert not (type(self) is Datatype and datatype_class is None)
         super().__init__()

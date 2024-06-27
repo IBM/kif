@@ -24,15 +24,11 @@ from ...typing import (
 from ..kif_object import KIF_Object
 from ..template import Template
 from ..variable import Variable
-from .datatype import Datatype, DatatypeClass
+from .datatype import Datatype
 
 if typing_extensions.TYPE_CHECKING:  # pragma: no cover
     from .quantity import TDecimal  # noqa: F401
     from .time import TDatetime  # noqa: F401
-
-ValueClass: TypeAlias = type['Value']
-ValueTemplateClass: TypeAlias = type['ValueTemplate']
-ValueVariableClass: TypeAlias = type['ValueVariable']
 
 TValue: TypeAlias = Union['Value', 'TDatetime', 'TDecimal', str]
 VTValue: TypeAlias = Union[Variable, 'VValue', TValue]
@@ -42,7 +38,7 @@ VValue: TypeAlias = Union['ValueTemplate', 'ValueVariable', 'Value']
 class ValueTemplate(Template):
     """Abstract base class for value templates."""
 
-    object_class: ClassVar[ValueClass]  # pyright: ignore
+    object_class: ClassVar[type['Value']]  # pyright: ignore
 
 
 class ValueVariable(Variable):
@@ -52,7 +48,7 @@ class ValueVariable(Variable):
        name: Name.
     """
 
-    object_class: ClassVar[ValueClass]  # pyright: ignore
+    object_class: ClassVar[type['Value']]  # pyright: ignore
 
 
 class Value(
@@ -62,11 +58,11 @@ class Value(
 ):
     """Abstract base class for values."""
 
-    template_class: ClassVar[ValueTemplateClass]  # pyright: ignore
-    variable_class: ClassVar[ValueVariableClass]  # pyright: ignore
+    template_class: ClassVar[type[ValueTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[ValueVariable]]  # pyright: ignore
 
     #: Datatype class associated with this value class.
-    datatype_class: ClassVar[DatatypeClass]
+    datatype_class: ClassVar[type[Datatype]]
 
     #: Datatype associated with this value class.
     datatype: ClassVar[Datatype]

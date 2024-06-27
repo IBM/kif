@@ -499,6 +499,7 @@ class kif_DatatypeTestCase(kif_ObjectTestCase):
             failure: Iterable[Sequence[Any]] = tuple()
     ) -> None:
         assert issubclass(cls, Datatype)
+        other_cls = self.ALL_DATATYPE_CLASSES - {cls, Datatype}
         super()._test__init__(
             cls,
             assert_fn,
@@ -508,7 +509,10 @@ class kif_DatatypeTestCase(kif_ObjectTestCase):
                 ([cls.value_class], Datatype(cls.value_class)),
                 *success
             ],
-            failure=[[0], [Datatype], *failure])
+            failure=itertools.chain(
+                map(lambda x: [x], other_cls),
+                map(lambda x: [x()], other_cls),
+                [[0], [Datatype]], failure))
 
 
 class kif_ValueTestCase(kif_ObjectTestCase):
@@ -525,9 +529,11 @@ class kif_EntityTestCase(kif_ValueTestCase):
             failure: Iterable[Any] = tuple()
     ) -> None:
         assert issubclass(cls, Entity)
-        super()._test_check(
-            cls,
-            success=[
+        failure_prelude = [0, IRI(Variable('x')), Variable('x', Item), {}]
+        if cls is Entity:
+            success_prelude = []
+        else:
+            success_prelude = [
                 ('x', cls('x')),
                 (cls('x'), cls('x')),
                 (ExternalId('x'), cls('x')),
@@ -535,16 +541,12 @@ class kif_EntityTestCase(kif_ValueTestCase):
                 (Literal('x'), cls('x')),
                 (String('x'), cls('x')),
                 (URIRef('x'), cls('x')),
-                *success
-            ],
-            failure=[
-                0,
-                cls.template_class(Variable('x')),
-                IRI(Variable('x')),
-                Variable('x', Item),
-                {},
-                *failure
-            ])
+            ]
+            failure_prelude.append(cls.template_class(Variable('x')))
+        super()._test_check(
+            cls,
+            success=itertools.chain(success_prelude, success),
+            failure=itertools.chain(failure_prelude, failure))
 
     @override
     def _test__init__(
