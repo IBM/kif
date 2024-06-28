@@ -11,11 +11,6 @@ from .shallow_data_value import (
 from .string import String, TString
 from .value import Datatype
 
-IRI_Class: TypeAlias = type['IRI']
-IRI_DatatypeClass: TypeAlias = type['IRI_Datatype']
-IRI_TemplateClass: TypeAlias = type['IRI_Template']
-IRI_VariableClass: TypeAlias = type['IRI_Variable']
-
 T_IRI: TypeAlias = Union['IRI', TString]
 V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'IRI']
 VT_IRI: TypeAlias = Union[Variable, V_IRI, T_IRI]
@@ -29,7 +24,7 @@ class IRI_Template(ShallowDataValueTemplate):
        content: IRI content or string variable.
     """
 
-    object_class: ClassVar[IRI_Class]  # pyright: ignore
+    object_class: ClassVar[type['IRI']]  # pyright: ignore
 
     def __init__(self, content: VT_IRI_Content):
         super().__init__(content)
@@ -42,13 +37,13 @@ class IRI_Variable(ShallowDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[IRI_Class]  # pyright: ignore
+    object_class: ClassVar[type['IRI']]  # pyright: ignore
 
 
 class IRI_Datatype(Datatype):
     """IRI datatype."""
 
-    value_class: ClassVar[IRI_Class]  # pyright: ignore
+    value_class: ClassVar[type['IRI']]  # pyright: ignore
 
 
 class IRI(
@@ -63,10 +58,10 @@ class IRI(
        content: IRI content.
     """
 
-    datatype_class: ClassVar[IRI_DatatypeClass]  # pyright: ignore
-    datatype: ClassVar[IRI_Datatype]             # pyright: ignore
-    template_class: ClassVar[IRI_TemplateClass]  # pyright: ignore
-    variable_class: ClassVar[IRI_VariableClass]  # pyright: ignore
+    datatype_class: ClassVar[type[IRI_Datatype]]  # pyright: ignore
+    datatype: ClassVar[IRI_Datatype]              # pyright: ignore
+    template_class: ClassVar[type[IRI_Template]]  # pyright: ignore
+    variable_class: ClassVar[type[IRI_Variable]]  # pyright: ignore
 
     def __init__(self, content: VT_IRI_Content):
         super().__init__(content)

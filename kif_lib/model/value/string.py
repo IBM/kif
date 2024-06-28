@@ -10,11 +10,6 @@ from .shallow_data_value import (
 )
 from .value import Datatype
 
-StringClass: TypeAlias = type['String']
-StringDatatypeClass: TypeAlias = type['StringDatatype']
-StringTemplateClass: TypeAlias = type['StringTemplate']
-StringVariableClass: TypeAlias = type['StringVariable']
-
 TString: TypeAlias = Union['String', str]
 VString: TypeAlias = Union['StringTemplate', 'StringVariable', 'String']
 VStringContent: TypeAlias = Union['StringVariable', str]
@@ -28,7 +23,7 @@ class StringTemplate(ShallowDataValueTemplate):
        content: String content or string variable.
     """
 
-    object_class: ClassVar[StringClass]  # pyright: ignore
+    object_class: ClassVar[type['String']]  # pyright: ignore
 
     def __init__(self, content: VTStringContent):
         super().__init__(content)
@@ -41,13 +36,13 @@ class StringVariable(ShallowDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[StringClass]  # pyright: ignore
+    object_class: ClassVar[type['String']]  # pyright: ignore
 
 
 class StringDatatype(Datatype):
     """String datatype."""
 
-    value_class: ClassVar[StringClass]  # pyright: ignore
+    value_class: ClassVar[type['String']]  # pyright: ignore
 
 
 class String(
@@ -62,10 +57,10 @@ class String(
        content: String content.
     """
 
-    datatype_class: ClassVar[StringDatatypeClass]  # pyright: ignore
-    datatype: ClassVar[StringDatatype]             # pyright: ignore
-    template_class: ClassVar[StringTemplateClass]  # pyright: ignore
-    variable_class: ClassVar[StringVariableClass]  # pyright: ignore
+    datatype_class: ClassVar[type[StringDatatype]]  # pyright: ignore
+    datatype: ClassVar[StringDatatype]              # pyright: ignore
+    template_class: ClassVar[type[StringTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[StringVariable]]  # pyright: ignore
 
     def __init__(self, content: VTStringContent):
         super().__init__(content)

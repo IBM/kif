@@ -8,13 +8,7 @@ from .string import (
     StringTemplate,
     StringVariable,
     TString,
-    VTStringContent,
 )
-
-ExternalIdClass: TypeAlias = type['ExternalId']
-ExternalIdDatatypeClass: TypeAlias = type['ExternalIdDatatype']
-ExternalIdTemplateClass: TypeAlias = type['ExternalIdTemplate']
-ExternalIdVariableClass: TypeAlias = type['ExternalIdVariable']
 
 TExternalId: TypeAlias = Union['ExternalId', TString]
 VExternalId: TypeAlias =\
@@ -28,10 +22,7 @@ class ExternalIdTemplate(StringTemplate):
        content: External id content or string variable.
     """
 
-    object_class: ClassVar[ExternalIdClass]  # pyright: ignore
-
-    def __init__(self, content: VTStringContent):
-        super().__init__(content)
+    object_class: ClassVar[type['ExternalId']]  # pyright: ignore
 
 
 class ExternalIdVariable(StringVariable):
@@ -41,13 +32,13 @@ class ExternalIdVariable(StringVariable):
        name: Name.
     """
 
-    object_class: ClassVar[ExternalIdClass]  # pyright: ignore
+    object_class: ClassVar[type['ExternalId']]  # pyright: ignore
 
 
 class ExternalIdDatatype(StringDatatype):
     """External id datatype."""
 
-    value_class: ClassVar[ExternalIdClass]  # pyright: ignore
+    value_class: ClassVar[type['ExternalId']]  # pyright: ignore
 
 
 class ExternalId(
@@ -62,10 +53,7 @@ class ExternalId(
        content: External id content.
     """
 
-    datatype_class: ClassVar[ExternalIdDatatypeClass]  # pyright: ignore
-    datatype: ClassVar[ExternalIdDatatype]             # pyright: ignore
-    template_class: ClassVar[ExternalIdTemplateClass]  # pyright: ignore
-    variable_class: ClassVar[ExternalIdVariableClass]  # pyright: ignore
-
-    def __init__(self, content: VTStringContent):
-        super().__init__(content)
+    datatype_class: ClassVar[type[ExternalIdDatatype]]  # pyright: ignore
+    datatype: ClassVar[ExternalIdDatatype]              # pyright: ignore
+    template_class: ClassVar[type[ExternalIdTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[ExternalIdVariable]]  # pyright: ignore

@@ -26,11 +26,6 @@ from .string import (
 )
 from .value import Datatype
 
-TextClass: TypeAlias = type['Text']
-TextDatatypeClass: TypeAlias = type['TextDatatype']
-TextTemplateClass: TypeAlias = type['TextTemplate']
-TextVariableClass: TypeAlias = type['TextVariable']
-
 TText: TypeAlias = Union['Text', TString]
 VText: TypeAlias = Union['TextTemplate', 'TextVariable', 'Text']
 VTTextContent: TypeAlias = Union[Variable, TText]
@@ -44,7 +39,7 @@ class TextTemplate(ShallowDataValueTemplate):
        language: Language tag or string variable.
     """
 
-    object_class: ClassVar[TextClass]  # pyright: ignore
+    object_class: ClassVar[type['Text']]  # pyright: ignore
 
     def __init__(
             self,
@@ -89,13 +84,13 @@ class TextVariable(ShallowDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[TextClass]  # pyright: ignore
+    object_class: ClassVar[type['Text']]  # pyright: ignore
 
 
 class TextDatatype(Datatype):
     """Text datatype."""
 
-    value_class: ClassVar[TextClass]  # pyright: ignore
+    value_class: ClassVar[type['Text']]  # pyright: ignore
 
 
 class Text(
@@ -111,10 +106,10 @@ class Text(
        language: Language tag.
     """
 
-    datatype_class: ClassVar[TextDatatypeClass]  # pyright: ignore
-    datatype: ClassVar[TextDatatype]             # pyright: ignore
-    template_class: ClassVar[TextTemplateClass]  # pyright: ignore
-    variable_class: ClassVar[TextVariableClass]  # pyright: ignore
+    datatype_class: ClassVar[type[TextDatatype]]  # pyright: ignore
+    datatype: ClassVar[TextDatatype]              # pyright: ignore
+    template_class: ClassVar[type[TextTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[TextVariable]]  # pyright: ignore
 
     #: Default language tag.
     default_language: Final[str] = 'en'

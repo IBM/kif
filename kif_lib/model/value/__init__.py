@@ -27,13 +27,9 @@ from .entity import (
 )
 from .external_id import (
     ExternalId,
-    ExternalIdClass,
     ExternalIdDatatype,
-    ExternalIdDatatypeClass,
     ExternalIdTemplate,
-    ExternalIdTemplateClass,
     ExternalIdVariable,
-    ExternalIdVariableClass,
     TExternalId,
     VExternalId,
 )
@@ -199,13 +195,9 @@ __all__ = (
 
     # external id
     'ExternalId',
-    'ExternalIdClass',
     'ExternalIdDatatype',
-    'ExternalIdDatatypeClass',
     'ExternalIdTemplate',
-    'ExternalIdTemplateClass',
     'ExternalIdVariable',
-    'ExternalIdVariableClass',
     'TExternalId',
     'VExternalId',
 
