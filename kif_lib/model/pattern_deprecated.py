@@ -88,9 +88,8 @@ class FilterPattern(KIF_Object):
         elif i == 3:
             return self._preprocess_optional_arg_fingerprint(arg, i)
         elif i == 4:
-            mask = Snak._preprocess_optional_arg_snak_mask(arg, i, Snak.ALL)
-            assert mask is not None
-            return mask.value
+            return Snak.Mask.check_optional(
+                arg, Snak.Mask.ALL, type(self), None, i)
         else:
             raise self._should_not_get_here()
 

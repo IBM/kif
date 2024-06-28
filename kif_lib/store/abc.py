@@ -639,7 +639,7 @@ class Store(Set):
             property, None, function, 'property', 2)
         val = Fingerprint._check_optional_arg_fingerprint(
             value, None, function, 'value', 3)
-        mask = Snak._check_optional_arg_snak_mask(
+        mask = Snak.Mask.check_optional(
             snak_mask, Snak.ALL, function, 'snak_mask', 4)
         pat = FilterPattern(subj, prop, val, mask)
         if snak is not None:

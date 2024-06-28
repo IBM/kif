@@ -1516,7 +1516,7 @@ class Test(kif_TestCase):
             EntityFingerprint(Item('x')),
             PropertyFingerprint(Property('p')),
             Fingerprint(String('y')),
-            1))
+            Snak.Mask(1)))
         self.assertRaises(TypeError, Item('x').unpack_filter_pattern)
 
     def test_unpack_fingerprint(self):
