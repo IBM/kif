@@ -8,42 +8,52 @@ Datatype
 --------
 
 .. autoclass:: Datatype
+   :no-index:
    :show-inheritance:
 
 .. autoclass:: ItemDatatype
    :members: value_class, variable_class
+   :no-index:
    :show-inheritance:
 
 .. autoclass:: PropertyDatatype
    :members: value_class, variable_class
+   :no-index:
    :show-inheritance:
 
 .. autoclass:: LexemeDatatype
    :members: value_class, variable_class
+   :no-index:
    :show-inheritance:
 
 .. autoclass:: IRI_Datatype
    :members: value_class, variable_class
+   :no-index:
    :show-inheritance:
 
 .. autoclass:: TextDatatype
    :members: value_class, variable_class
+   :no-index:
    :show-inheritance:
 
 .. autoclass:: StringDatatype
    :members: value_class, variable_class
+   :no-index:
    :show-inheritance:
 
 .. autoclass:: ExternalIdDatatype
    :members: value_class, variable_class
+   :no-index:
    :show-inheritance:
 
 .. autoclass:: QuantityDatatype
    :members: value_class, variable_class
+   :no-index:
    :show-inheritance:
 
 .. autoclass:: TimeDatatype
    :members: value_class, variable_class
+   :no-index:
    :show-inheritance:
 
 Value
@@ -51,23 +61,35 @@ Value
 
 .. autoclass:: Value
    :members: value, get_value, n3
+   :no-index:
    :show-inheritance:
 
 .. autoclass:: Entity
    :members: iri, get_iri
+   :no-index:
    :show-inheritance:
 
 .. autoclass:: Item
    :members: datatype_class, datatype
+   :no-index:
    :show-inheritance:
 
 .. autoclass:: Property
    :members: datatype_class, datatype, range, get_range
+   :no-index:
    :show-inheritance:
 
 .. autoclass:: Lexeme
    :members: datatype_class, datatype
+   :no-index:
    :show-inheritance:
 
+
 .. autoclass:: DataValue
+   :no-index:
+   :show-inheritance:
+
+.. autoclass:: ShallowDataValue
+   :members: content, get_content
+   :no-index:
    :show-inheritance:

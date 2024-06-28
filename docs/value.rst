@@ -52,3 +52,11 @@ DataValue
    :toctree: generated/
 
    DataValue
+
+ShallowDataValue
+----------------
+.. autosummary::
+   :toctree: generated/
+
+   ShallowDataValue
+   ShallowDataValue.content
