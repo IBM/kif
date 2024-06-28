@@ -18,11 +18,6 @@ from .quantity import Quantity, QuantityVariable, TQuantity, VTQuantityContent
 from .string import String
 from .value import Datatype
 
-TimeClass: TypeAlias = type['Time']
-TimeDatatypeClass: TypeAlias = type['TimeDatatype']
-TimeTemplateClass: TypeAlias = type['TimeTemplate']
-TimeVariableClass: TypeAlias = type['TimeVariable']
-
 TDatetime: TypeAlias = Union[datetime.datetime, datetime.date, str]
 TTime: TypeAlias = Union['Time', TDatetime]
 VTime: TypeAlias = Union['TimeTemplate', 'TimeVariable', 'Time']
@@ -48,7 +43,7 @@ class TimeTemplate(DeepDataValueTemplate):
        calendar: Calendar model, item template, or item variable.
     """
 
-    object_class: ClassVar[TimeClass]  # pyright: ignore
+    object_class: ClassVar[type['Time']]  # pyright: ignore
 
     def __init__(
             self,
@@ -117,8 +112,7 @@ class TimeTemplate(DeepDataValueTemplate):
         Returns:
            Precision or quantity variable.
         """
-        prec = self.args[1]
-        return prec if prec is not None else default
+        return self.get(1, default)
 
     @property
     def timezone(self) -> Optional[VTimeTimezoneContent]:
@@ -139,8 +133,7 @@ class TimeTemplate(DeepDataValueTemplate):
         Returns:
            Timezone or quantity variable.
         """
-        tz = self.args[2]
-        return tz if tz is not None else default
+        return self.get(2, default)
 
     @property
     def calendar(self) -> Optional[VItem]:
@@ -161,8 +154,7 @@ class TimeTemplate(DeepDataValueTemplate):
         Returns:
            Calendar model, item template, or item variable.
         """
-        cal = self.args[3]
-        return cal if cal is not None else default
+        return self.get(3, default)
 
 
 class TimeVariable(DeepDataValueVariable):
@@ -172,13 +164,13 @@ class TimeVariable(DeepDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[TimeClass]  # pyright: ignore
+    object_class: ClassVar[type['Time']]  # pyright: ignore
 
 
 class TimeDatatype(Datatype):
     """Time datatype."""
 
-    value_class: ClassVar[TimeClass]  # pyright: ignore
+    value_class: ClassVar[type['Time']]  # pyright: ignore
 
 
 class Time(
@@ -196,10 +188,10 @@ class Time(
        calendar: Calendar model.
     """
 
-    datatype_class: ClassVar[TimeDatatypeClass]  # pyright: ignore
-    datatype: ClassVar[TimeDatatype]             # pyright: ignore
-    template_class: ClassVar[TimeTemplateClass]  # pyright: ignore
-    variable_class: ClassVar[TimeVariableClass]  # pyright: ignore
+    datatype_class: ClassVar[type[TimeDatatype]]  # pyright: ignore
+    datatype: ClassVar[TimeDatatype]              # pyright: ignore
+    template_class: ClassVar[type[TimeTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[TimeVariable]]  # pyright: ignore
 
     # See:
     # <https://www.mediawiki.org/wiki/Wikibase/Indexing/RDF_Dump_Format#Time>.
@@ -378,8 +370,9 @@ class Time(
         else:
             raise self_._should_not_get_here()
 
+    @override
     def get_value(self) -> str:
-        return str(self.args[0].isoformat())
+        return str(self.time.isoformat())
 
     @property
     def time(self) -> datetime.datetime:
@@ -413,8 +406,7 @@ class Time(
         Returns:
            Precision.
         """
-        prec = self.args[1]
-        return prec if prec is not None else default
+        return self.get(1, default)
 
     @property
     def timezone(self) -> Optional[int]:
@@ -435,8 +427,7 @@ class Time(
         Returns:
            Timezone.
         """
-        tz = self.args[2]
-        return tz if tz is not None else default
+        return self.get(2, default)
 
     @property
     def calendar(self) -> Optional[Item]:
@@ -457,5 +448,4 @@ class Time(
         Returns:
            Calendar model.
         """
-        cal = self.args[3]
-        return cal if cal is not None else default
+        return self.get(3, default)

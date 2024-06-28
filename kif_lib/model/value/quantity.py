@@ -3,8 +3,16 @@
 
 import decimal
 
-from ...typing import Any, ClassVar, Optional, override, Self, TypeAlias, Union
-from ..kif_object import TLocation
+from ...typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Optional,
+    override,
+    Self,
+    TypeAlias,
+    Union,
+)
 from ..template import Template
 from ..variable import Variable
 from .deep_data_value import (
@@ -15,11 +23,6 @@ from .deep_data_value import (
 from .item import Item, ItemTemplate, ItemVariable, VItem, VTItem
 from .string import String, TString
 from .value import Datatype
-
-QuantityClass: TypeAlias = type['Quantity']
-QuantityDatatypeClass: TypeAlias = type['QuantityDatatype']
-QuantityTemplateClass: TypeAlias = type['QuantityTemplate']
-QuantityVariableClass: TypeAlias = type['QuantityVariable']
 
 TDecimal: TypeAlias = Union[decimal.Decimal, float, int, TString]
 TQuantity: TypeAlias = Union['Quantity', TDecimal]
@@ -39,7 +42,7 @@ class QuantityTemplate(DeepDataValueTemplate):
        upper_bound: Upper bound or quantity variable.
     """
 
-    object_class: ClassVar[QuantityClass]  # pyright: ignore
+    object_class: ClassVar[type['Quantity']]  # pyright: ignore
 
     def __init__(
             self,
@@ -105,8 +108,7 @@ class QuantityTemplate(DeepDataValueTemplate):
         Returns:
            Unit, item template, or item variable.
         """
-        unit = self.args[1]
-        return unit if unit is not None else default
+        return self.get(1, default)
 
     @property
     def lower_bound(self) -> Optional[VQuantityContent]:
@@ -127,8 +129,7 @@ class QuantityTemplate(DeepDataValueTemplate):
         Returns:
            Lower bound or quantity variable.
         """
-        lb = self.args[2]
-        return lb if lb is not None else default
+        return self.get(2, default)
 
     @property
     def upper_bound(self) -> Optional[VQuantityContent]:
@@ -149,8 +150,7 @@ class QuantityTemplate(DeepDataValueTemplate):
         Returns:
            Upper bound or quantity variable.
         """
-        ub = self.args[3]
-        return ub if ub is not None else default
+        return self.get(3, default)
 
 
 class QuantityVariable(DeepDataValueVariable):
@@ -160,13 +160,13 @@ class QuantityVariable(DeepDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[QuantityClass]  # pyright: ignore
+    object_class: ClassVar[type['Quantity']]  # pyright: ignore
 
 
 class QuantityDatatype(Datatype):
     """Quantity datatype."""
 
-    value_class: ClassVar[QuantityClass]  # pyright: ignore
+    value_class: ClassVar[type['Quantity']]  # pyright: ignore
 
 
 class Quantity(
@@ -184,17 +184,17 @@ class Quantity(
        upper_bound: Upper bound.
     """
 
-    datatype_class: ClassVar[QuantityDatatypeClass]  # pyright: ignore
-    datatype: ClassVar[QuantityDatatype]             # pyright: ignore
-    template_class: ClassVar[QuantityTemplateClass]  # pyright: ignore
-    variable_class: ClassVar[QuantityVariableClass]  # pyright: ignore
+    datatype_class: ClassVar[type[QuantityDatatype]]  # pyright: ignore
+    datatype: ClassVar[QuantityDatatype]              # pyright: ignore
+    template_class: ClassVar[type[QuantityTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[QuantityVariable]]  # pyright: ignore
 
     @classmethod
     @override
     def check(
             cls,
             arg: Any,
-            function: Optional[TLocation] = None,
+            function: Optional[Union[Callable[..., Any], str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Self:
@@ -245,8 +245,9 @@ class Quantity(
         else:
             raise self_._should_not_get_here()
 
+    @override
     def get_value(self) -> str:
-        return str(self.args[0])
+        return str(self.amount)
 
     @property
     def amount(self) -> decimal.Decimal:
@@ -280,8 +281,7 @@ class Quantity(
         Returns:
            Unit.
         """
-        unit = self.args[1]
-        return unit if unit is not None else default
+        return self.get(1, default)
 
     @property
     def lower_bound(self) -> Optional[decimal.Decimal]:
@@ -302,8 +302,7 @@ class Quantity(
         Returns:
            Lower bound.
         """
-        lb = self.args[2]
-        return lb if lb is not None else default
+        return self.get(2, default)
 
     @property
     def upper_bound(self) -> Optional[decimal.Decimal]:
@@ -324,5 +323,4 @@ class Quantity(
         Returns:
            Upper bound.
         """
-        ub = self.args[3]
-        return ub if ub is not None else default
+        return self.get(3, default)

@@ -103,7 +103,7 @@ class Entity(
 
     @override
     def get_value(self) -> str:
-        return self.args[0].value
+        return self.iri.value
 
     @property
     def iri(self) -> IRI:

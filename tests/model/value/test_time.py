@@ -48,6 +48,11 @@ class Test(kif_DeepDataValueTestCase):
                  tzinfo=datetime.timezone.utc), Time('2024-06-26')),
                 (String('2024-06-26'), Time('2024-06-26')),
                 (Time('2024-06-26'), Time('2024-06-26')),
+                ('2024-06-26T00:00:00+10:00',
+                 Time(datetime.datetime(
+                     2024, 6, 26, 0, 0, 0,
+                     tzinfo=datetime.timezone(
+                         datetime.timedelta(seconds=36000))))),
             ],
             failure=[
                 IRI('x'),

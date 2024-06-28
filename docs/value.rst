@@ -89,3 +89,32 @@ ExternalId
    :toctree: generated/
 
    ExternalId
+
+DeepDataValue
+-------------
+.. autosummary::
+   :toctree: generated/
+
+   DeepDataValue
+
+Quantity
+~~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   Quantity
+   Quantity.amount
+   Quantity.unit
+   Quantity.lower_bound
+   Quantity.upper_bound
+
+Time
+~~~~
+.. autosummary::
+   :toctree: generated/
+
+   Time
+   Time.time
+   Time.precision
+   Time.timezone
+   Time.calendar

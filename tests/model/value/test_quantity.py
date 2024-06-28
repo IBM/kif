@@ -46,6 +46,7 @@ class Test(kif_DeepDataValueTestCase):
                 (0.1, Quantity(0.1)),
                 ('0.1', Quantity('0.1')),
                 (String('0'), Quantity(0)),
+                (Quantity('0'), Quantity(0)),
             ],
             failure=[
                 IRI('x'),

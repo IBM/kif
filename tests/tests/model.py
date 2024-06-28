@@ -679,7 +679,8 @@ class kif_DeepDataValueTestCase(kif_DataValueTestCase):
             failure=itertools.chain(failure_prelude, failure))
         for t in failure_value_error:
             self._debug('failure (value error):', t)
-            self.assertRaisesRegex(ValueError, 'cannot coerce', cls, *t)
+            self.assertRaisesRegex(
+                ValueError, 'cannot coerce', cls.check, *t)
 
     @override
     def _test__init__(

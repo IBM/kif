@@ -90,7 +90,7 @@ class ShallowDataValue(
 
     @override
     def get_value(self) -> str:
-        return self.args[0]
+        return self.content
 
     @property
     def content(self) -> str:
