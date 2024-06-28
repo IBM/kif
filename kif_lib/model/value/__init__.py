@@ -11,11 +11,8 @@ from .datatype import (
 )
 from .deep_data_value import (
     DeepDataValue,
-    DeepDataValueClass,
     DeepDataValueTemplate,
-    DeepDataValueTemplateClass,
     DeepDataValueVariable,
-    DeepDataValueVariableClass,
 )
 from .entity import (
     Entity,
@@ -203,11 +200,8 @@ __all__ = (
 
     # deep data value
     'DeepDataValue',
-    'DeepDataValueClass',
     'DeepDataValueTemplate',
-    'DeepDataValueTemplateClass',
     'DeepDataValueVariable',
-    'DeepDataValueVariableClass',
 
     # quantity
     'Quantity',

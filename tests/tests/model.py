@@ -661,17 +661,25 @@ class kif_DeepDataValueTestCase(kif_DataValueTestCase):
             self,
             cls: type[_Obj],
             success: Iterable[tuple[Any, _Obj]] = tuple(),
-            failure: Iterable[Any] = tuple()
+            failure: Iterable[Any] = tuple(),
+            failure_value_error: Iterable[Any] = tuple()
     ) -> None:
         assert issubclass(cls, DeepDataValue)
+        failure_prelude = [
+            IRI(Variable('x')),
+            Item('x'),
+            Variable('x'),
+            {},
+        ]
+        if cls is not DeepDataValue:
+            failure_prelude.append(cls.template_class(Variable('x')))
         super()._test_check(
-            cls, success, failure=[
-                cls.template_class(Variable('x')),
-                IRI(Variable('x')),
-                Item('x'),
-                Variable('x'),
-                {},
-            ])
+            cls,
+            success=success,
+            failure=itertools.chain(failure_prelude, failure))
+        for t in failure_value_error:
+            self._debug('failure (value error):', t)
+            self.assertRaisesRegex(ValueError, 'cannot coerce', cls, *t)
 
     @override
     def _test__init__(

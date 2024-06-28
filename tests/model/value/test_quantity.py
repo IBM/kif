@@ -48,12 +48,14 @@ class Test(kif_DeepDataValueTestCase):
                 (String('0'), Quantity(0)),
             ],
             failure=[
-                'x',
-                ExternalId('x'),
                 IRI('x'),
                 Item('x'),
-                String('x'),
                 Text('x'),
+            ],
+            failure_value_error=[
+                'x',
+                ExternalId('x'),
+                String('x'),
             ])
 
     def test__init__(self) -> None:
