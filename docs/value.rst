@@ -60,3 +60,32 @@ ShallowDataValue
 
    ShallowDataValue
    ShallowDataValue.content
+
+IRI
+~~~
+.. autosummary::
+   :toctree: generated/
+
+   IRI
+
+Text
+~~~~
+.. autosummary::
+   :toctree: generated/
+
+   Text
+   Text.language
+
+String
+~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   String
+
+ExternalId
+~~~~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   ExternalId
