@@ -32,12 +32,6 @@ class Test(kif_DataValueTestCase):
 
     def test_check(self) -> None:
         assert_type(DataValue.check(0), DataValue)
-        self.assertEqual(DataValue.check('abc'), String('abc'))
-        self.assertEqual(DataValue.check(decimal.Decimal(0)), Quantity(0))
-        self.assertEqual(
-            DataValue.check(datetime.datetime(
-                2024, 6, 26, tzinfo=datetime.timezone.utc)),
-            Time('2024-06-26'))
         super()._test_check(
             DataValue,
             success=[

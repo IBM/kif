@@ -85,11 +85,8 @@ from .quantity import (
 )
 from .shallow_data_value import (
     ShallowDataValue,
-    ShallowDataValueClass,
     ShallowDataValueTemplate,
-    ShallowDataValueTemplateClass,
     ShallowDataValueVariable,
-    ShallowDataValueVariableClass,
 )
 from .string import (
     String,
@@ -172,11 +169,8 @@ __all__ = (
 
     # shallow data value
     'ShallowDataValue',
-    'ShallowDataValueClass',
     'ShallowDataValueTemplate',
-    'ShallowDataValueTemplateClass',
     'ShallowDataValueVariable',
-    'ShallowDataValueVariableClass',
 
     # iri
     'IRI',

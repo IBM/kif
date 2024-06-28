@@ -1,20 +1,106 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from .string import (
-    ShallowDataValue,
-    ShallowDataValueClass,
-    ShallowDataValueTemplate,
-    ShallowDataValueTemplateClass,
-    ShallowDataValueVariable,
-    ShallowDataValueVariableClass,
-)
+import typing_extensions
 
-__all__ = (
-    'ShallowDataValue',
-    'ShallowDataValueClass',
-    'ShallowDataValueTemplate',
-    'ShallowDataValueTemplateClass',
-    'ShallowDataValueVariable',
-    'ShallowDataValueVariableClass',
+from ...typing import (
+    Any,
+    Callable,
+    cast,
+    ClassVar,
+    Optional,
+    override,
+    Self,
+    Union,
 )
+from .data_value import DataValue, DataValueTemplate, DataValueVariable
+
+if typing_extensions.TYPE_CHECKING:  # pragma: no cover
+    from .string import VStringContent
+
+
+class ShallowDataValueTemplate(DataValueTemplate):
+    """Abstract base class for shallow data value templates."""
+
+    object_class: ClassVar[type['ShallowDataValue']]  # pyright: ignore
+
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
+        from .string import StringVariable
+        if i == 1:              # content
+            return StringVariable.check(arg, type(self), None, i)
+        else:
+            raise self._should_not_get_here()
+
+    @property
+    def content(self) -> 'VStringContent':
+        """The content of shallow data value template."""
+        return self.get_content()
+
+    def get_content(self) -> 'VStringContent':
+        """Gets the content of shallow data value.
+
+        Returns:
+           String content or string variable.
+        """
+        return self.args[0]
+
+
+class ShallowDataValueVariable(DataValueVariable):
+    """Shallow data value variable.
+
+    Parameters:
+       name: Name.
+    """
+
+    object_class: ClassVar[type['ShallowDataValue']]  # pyright: ignore
+
+
+class ShallowDataValue(
+        DataValue,
+        template_class=ShallowDataValueTemplate,
+        variable_class=ShallowDataValueVariable
+):
+    """Abstract base class for shallow data values."""
+
+    template_class: ClassVar[type[ShallowDataValueTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[ShallowDataValueVariable]]  # pyright: ignore
+
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        from .string import String
+        if isinstance(arg, cls):
+            return arg
+        if cls is ShallowDataValue:
+            if isinstance(arg, str):
+                return cast(Self, String(arg))
+        else:                   # concrete subclass?
+            if isinstance(arg, String):
+                return cls(arg.content)
+            if isinstance(arg, str):
+                return cls(str(arg))
+        raise cls._check_error(arg, function, name, position)
+
+    @override
+    def get_value(self) -> str:
+        return self.args[0]
+
+    @property
+    def content(self) -> str:
+        """The content of shallow data value."""
+        return self.get_content()
+
+    def get_content(self) -> str:
+        """Gets the content of shallow data value.
+
+        Returns:
+           String content.
+        """
+        return self.args[0]

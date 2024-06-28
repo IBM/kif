@@ -607,24 +607,24 @@ class kif_ShallowDataValueTestCase(kif_DataValueTestCase):
             failure: Iterable[Any] = tuple()
     ) -> None:
         assert issubclass(cls, ShallowDataValue)
-        super()._test_check(
-            cls,
-            success=[
+        failure_prelude = [0, IRI(Variable('x')), Variable('x', Item), {}]
+        if cls is ShallowDataValue:
+            success_prelude = []
+        else:
+            success_prelude = [
                 ('x', cls('x')),
                 (cls('x'), cls('x')),
+                (ExternalId('x'),
+                 ExternalId('x') if cls is String else cls('x')),
                 (Literal('x'), cls('x')),
                 (String('x'), cls('x')),
                 (URIRef('x'), cls('x')),
-                *success
-            ],
-            failure=[
-                0,
-                cls.template_class(Variable('x')),
-                IRI(Variable('x')),
-                Item('x'),
-                Variable('x'),
-                {},
-            ])
+            ]
+            failure_prelude.append(cls.template_class(Variable('x')))
+        super()._test_check(
+            cls,
+            success=itertools.chain(success_prelude, success),
+            failure=itertools.chain(failure_prelude, failure))
 
     @override
     def _test__init__(
