@@ -32,7 +32,7 @@ from kif_lib.store import (
 from kif_lib.typing import cast, Final, Optional, override
 from kif_lib.vocabulary import wd
 
-from .common import kif_TestCase
+from .tests import kif_TestCase
 
 
 class kif_StoreTestCase(kif_TestCase):

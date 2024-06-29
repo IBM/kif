@@ -149,7 +149,7 @@ from kif_lib.typing import (
     Union,
 )
 
-LIB_TESTS_DIR: Final[pathlib.Path] = pathlib.Path(__file__).parent
+TESTS_TESTS_DIR: Final[pathlib.Path] = pathlib.Path(__file__).parent
 
 
 class kif_TestCase(unittest.TestCase):
@@ -171,37 +171,40 @@ class kif_TestCase(unittest.TestCase):
         cast(Iterator[type[Datatype]], filter(
             lambda c: issubclass(c, Datatype), ALL_KIF_OBJECT_CLASSES)))
 
+    @classmethod
     def _variable_class_can_check_from(
-            self,
-            cls: VariableClass
+            cls,
+            variable_class: VariableClass
     ) -> Iterable[VariableClass]:
         return set(itertools.chain(
-            filter(lambda x: issubclass(x, Variable), cls.__mro__),
-            filter(lambda x: issubclass(x, cls), self.ALL_VARIABLE_CLASSES)))
+            filter(lambda x: issubclass(x, Variable),
+                   variable_class.__mro__),
+            filter(lambda x: issubclass(x, variable_class),
+                   cls.ALL_VARIABLE_CLASSES)))
 
+    @classmethod
     def _variable_class_cannot_check_from(
-            self,
-            cls: VariableClass
+            cls,
+            variable_class: VariableClass
     ) -> Iterable[VariableClass]:
-        return self.ALL_VARIABLE_CLASSES - set(
-            self._variable_class_can_check_from(cls))
+        return cls.ALL_VARIABLE_CLASSES - set(
+            cls._variable_class_can_check_from(variable_class))
 
     @classmethod
     def main(cls):
         return unittest.main()
 
-    @classmethod
-    def _debug(cls, *args: Any):
-        logging.getLogger(__name__).debug(' '.join(map(str, args)))
+    @property
+    def logger(self):
+        return logging.getLogger(__name__)
 
     def test_test_case_class_name(self):
         import inspect
         path = pathlib.Path(inspect.getfile(self.__class__))
-        if path.parent == LIB_TESTS_DIR:
+        if path.is_relative_to(TESTS_TESTS_DIR):
             return              # nothing to do
         name = self.__class__.__name__
-        # self.assertEqual(path.stem, KIF_Object._camel2snake(name))
-        with open(path) as fp:
+        with open(path, encoding='utf-8') as fp:
             text = fp.read()
             self.assertTrue(text.endswith(f'''\
 if __name__ == '__main__':

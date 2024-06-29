@@ -1,7 +1,6 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from .common import kif_TestCase
 from .model import (
     kif_DatatypeTestCase,
     kif_DataValueTemplateTestCase,
@@ -24,6 +23,7 @@ from .store import (
     kif_StoreTestCase,
     kif_WikidataSPARQL_StoreTestCase,
 )
+from .tests import kif_TestCase
 
 __all__ = (
     'kif_DatatypeTestCase',
