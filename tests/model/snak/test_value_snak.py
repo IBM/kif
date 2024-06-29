@@ -3,10 +3,10 @@
 
 from kif_lib import IRI, Item, Property, Quantity, String, ValueSnak
 
-from .tests import kif_TestCase
+from ...tests import kif_TestCase
 
 
-class TestModelSnakValueSnak(kif_TestCase):
+class Test(kif_TestCase):
 
     def test__init__(self):
         # bad argument
@@ -44,4 +44,4 @@ class TestModelSnakValueSnak(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestModelSnakValueSnak.main()
+    Test.main()

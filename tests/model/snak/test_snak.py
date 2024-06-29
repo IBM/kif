@@ -3,10 +3,10 @@
 
 from kif_lib import Snak
 
-from .tests import kif_TestCase
+from ...tests import kif_TestCase
 
 
-class TestModelSnakSnak(kif_TestCase):
+class Test(kif_TestCase):
 
     def test_mask_check(self):
         self.assertRaisesRegex(
@@ -16,4 +16,4 @@ class TestModelSnakSnak(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestModelSnakSnak.main()
+    Test.main()

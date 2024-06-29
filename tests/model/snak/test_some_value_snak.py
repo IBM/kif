@@ -5,10 +5,10 @@ from rdflib import URIRef
 
 from kif_lib import IRI, Property, SomeValueSnak, String
 
-from .tests import kif_TestCase
+from ...tests import kif_TestCase
 
 
-class TestModelSnakSomeValueSnak(kif_TestCase):
+class Test(kif_TestCase):
 
     def test__init__(self):
         # bad argument
@@ -32,4 +32,4 @@ class TestModelSnakSomeValueSnak(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestModelSnakSomeValueSnak.main()
+    Test.main()
