@@ -1,8 +1,17 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ...typing import ClassVar, TypeAlias, Union
-from ..value import VTProperty
+from ...typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Optional,
+    override,
+    Self,
+    TypeAlias,
+    Union,
+)
+from ..value import Property, VTProperty
 from ..variable import Variable
 from .snak import Snak, SnakTemplate, SnakVariable
 
@@ -50,6 +59,21 @@ class NoValueSnak(
     variable_class: ClassVar[type[NoValueSnakVariable]]  # pyright: ignore
 
     mask: ClassVar[Snak.Mask] = Snak.NO_VALUE_SNAK
+
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        else:
+            return cls(Property.check(
+                arg, function or cls.check, name, position))
 
     def __init__(self, property: VTProperty):
         super().__init__(property)

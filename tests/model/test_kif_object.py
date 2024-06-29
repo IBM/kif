@@ -1045,7 +1045,7 @@ class Test(kif_TestCase):
     def test_check_no_value_snak(self):
         snak = NoValueSnak(Property('x'))
         self.assertEqual(snak.check_no_value_snak(), snak)
-        self.assertRaises(TypeError, String('x').check_no_value_snak)
+        self.assertRaises(TypeError, Item('x').check_no_value_snak)
 
     def test_check_no_value_snak_template(self):
         self.assertEqual(
@@ -1607,7 +1607,7 @@ class Test(kif_TestCase):
     def test_unpack_no_value_snak(self):
         snak = NoValueSnak(Property('x'))
         self.assertEqual(snak.unpack_no_value_snak(), (Property('x'),))
-        self.assertRaises(TypeError, String('x').unpack_no_value_snak)
+        self.assertRaises(TypeError, Item('x').unpack_no_value_snak)
 
     def test_unpack_no_value_snak_template(self):
         self.assertEqual(

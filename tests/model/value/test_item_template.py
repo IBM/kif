@@ -11,6 +11,7 @@ class Test(kif_EntityTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(ItemTemplate.object_class, type[Item])
+        self.assertIs(ItemTemplate.object_class, Item)
 
     def test_check(self) -> None:
         assert_type(

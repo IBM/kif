@@ -1,6 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from .snak import kif_SnakTemplateTestCase, kif_SnakTestCase
 from .template import kif_TemplateTestCase
 from .value import (
     kif_DatatypeTestCase,
@@ -46,4 +47,8 @@ __all__ = (
     # deep data value
     'kif_DeepDataValueTemplateTestCase',
     'kif_DeepDataValueTestCase',
+
+    # snak
+    'kif_SnakTemplateTestCase',
+    'kif_SnakTestCase',
 )

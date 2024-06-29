@@ -635,7 +635,6 @@ if __name__ == '__main__':
             content: Variable
     ):
         self.assertIsInstance(obj, IRI_Template)
-        assert isinstance(obj, IRI_Template)
         assert isinstance(content, StringVariable)
         self.assert_shallow_data_value_template(obj, content)
 
@@ -758,17 +757,18 @@ if __name__ == '__main__':
             obj: VSomeValueSnak,
             property: VTProperty
     ):
-        self.assert_snak_template(obj, property)
         self.assertIsInstance(obj, SomeValueSnakTemplate)
+        assert isinstance(property, (PropertyTemplate, PropertyVariable))
+        self.assert_snak_template(obj, property)
 
     def assert_no_value_snak_template(
             self,
             obj: VNoValueSnak,
-            property: VTProperty,
+            property: VProperty,
     ):
-        obj_ = cast(NoValueSnakTemplate, obj)
-        self.assert_snak_template(obj_, property)
-        self.assertIsInstance(obj_, NoValueSnakTemplate)
+        self.assertIsInstance(obj, NoValueSnakTemplate)
+        assert isinstance(property, (PropertyTemplate, PropertyVariable))
+        self.assert_snak_template(obj, property)
 
     def assert_statement_template(
             self,
@@ -916,15 +916,8 @@ if __name__ == '__main__':
         self.assertEqual(obj.mask, Snak.SOME_VALUE_SNAK)
         self.assertEqual(obj.get_mask(), Snak.SOME_VALUE_SNAK)
 
-    def assert_no_value_snak(
-            self,
-            obj: Snak,
-            prop: Property
-    ):
-        self.assertIsInstance(obj, NoValueSnak)
-        assert isinstance(obj, NoValueSnak)
+    def assert_no_value_snak(self, obj: NoValueSnak, prop: Property):
         self.assert_snak(obj, prop)
-        self.assertTrue(obj.is_no_value_snak())
         self.assertEqual(obj.mask, Snak.NO_VALUE_SNAK)
         self.assertEqual(obj.get_mask(), Snak.NO_VALUE_SNAK)
 

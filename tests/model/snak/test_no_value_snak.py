@@ -1,30 +1,85 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import IRI, NoValueSnak, Property, String
+from kif_lib import (
+    ExternalId,
+    IRI,
+    Item,
+    ItemTemplate,
+    NoValueSnak,
+    NoValueSnakTemplate,
+    NoValueSnakVariable,
+    Property,
+    Quantity,
+    SomeValueSnak,
+    String,
+    Text,
+    Variable,
+)
+from kif_lib.typing import assert_type
 
-from ...tests import kif_TestCase
+from ...tests import kif_SnakTestCase
 
 
-class Test(kif_TestCase):
+class Test(kif_SnakTestCase):
 
-    def test__init__(self):
-        # bad argument
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'cannot coerce int into IRI',
-            NoValueSnak, 0)
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'cannot coerce dict into IRI',
-            NoValueSnak, {})
-        # good argument
-        self.assert_no_value_snak(
-            NoValueSnak(IRI('abc')), Property(IRI('abc')))
-        self.assert_no_value_snak(
-            NoValueSnak(Property('abc')), Property(IRI('abc')))
-        self.assert_no_value_snak(
-            NoValueSnak(String('abc')), Property('abc'))
-        self.assert_no_value_snak(
-            NoValueSnak('abc'), Property('abc'))
+    def test_template_class(self) -> None:
+        assert_type(NoValueSnak.template_class, type[NoValueSnakTemplate])
+        self.assertIs(NoValueSnak.template_class, NoValueSnakTemplate)
+
+    def test_variable_class(self) -> None:
+        assert_type(NoValueSnak.variable_class, type[NoValueSnakVariable])
+        self.assertIs(NoValueSnak.variable_class, NoValueSnakVariable)
+
+    def test_mask(self) -> None:
+        assert_type(NoValueSnak.NO_VALUE_SNAK, NoValueSnak.Mask)
+        self.assertEqual(NoValueSnak.mask, NoValueSnak.NO_VALUE_SNAK)
+        self.assertEqual(NoValueSnak.get_mask(), NoValueSnak.NO_VALUE_SNAK)
+
+    def test_check(self) -> None:
+        assert_type(NoValueSnak.check(NoValueSnak('x')), NoValueSnak)
+        self._test_check(
+            NoValueSnak,
+            success=[
+                ('x', NoValueSnak(Property('x'))),
+                (ExternalId('x'), NoValueSnak('x')),
+                (IRI('x'), NoValueSnak('x')),
+                (NoValueSnak('x'), NoValueSnak('x')),
+                (Property('x', Item), NoValueSnak(Property('x', Item))),
+                (String('x'), NoValueSnak('x')),
+            ],
+            failure=[
+                0,
+                Item('x'),
+                ItemTemplate(Variable('x')),
+                Quantity(0),
+                SomeValueSnak(Property('x')),
+                Text('x'),
+                Variable('x', Text),
+                {},
+            ])
+
+    def test__init__(self) -> None:
+        assert_type(NoValueSnak('x'), NoValueSnak)
+        self._test__init__(
+            NoValueSnak,
+            self.assert_no_value_snak,
+            success=[
+                (['x'], NoValueSnak('x')),
+                ([ExternalId('x')], NoValueSnak('x')),
+                ([IRI('x')], NoValueSnak('x')),
+                ([Property('x')], NoValueSnak('x')),
+                ([String('x')], NoValueSnak('x')),
+            ],
+            failure=[
+                [0],
+                [Item('x')],
+                [Quantity(0)],
+                [String(Variable('x'))],
+                [Text('x')],
+                [Variable('x', Item)],
+                [{}],
+            ])
 
 
 if __name__ == '__main__':
