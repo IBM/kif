@@ -34,16 +34,19 @@ class Test(kif_EntityTestCase):
 
     def test_datatype_class(self) -> None:
         assert_type(Property.datatype_class, type[PropertyDatatype])
+        self.assertIs(Property.datatype_class, PropertyDatatype)
 
     def test_datatype(self) -> None:
         assert_type(Property.datatype, PropertyDatatype)
-        self.assertIsInstance(Property.datatype, PropertyDatatype)
+        self.assert_property_datatype(Property.datatype)
 
     def test_template_class(self) -> None:
         assert_type(Property.template_class, type[PropertyTemplate])
+        self.assertIs(Property.template_class, PropertyTemplate)
 
     def test_variable_class(self) -> None:
         assert_type(Property.variable_class, type[PropertyVariable])
+        self.assertIs(Property.variable_class, PropertyVariable)
 
     def test_check(self) -> None:
         assert_type(Property.check(Property('x')), Property)

@@ -20,16 +20,19 @@ class Test(kif_ShallowDataValueTestCase):
 
     def test_datatype_class(self) -> None:
         assert_type(ExternalId.datatype_class, type[ExternalIdDatatype])
+        self.assertIs(ExternalId.datatype_class, ExternalIdDatatype)
 
     def test_datatype(self) -> None:
         assert_type(ExternalId.datatype, ExternalIdDatatype)
-        self.assertIsInstance(ExternalId.datatype, ExternalIdDatatype)
+        self.assert_external_id_datatype(ExternalId.datatype)
 
     def test_template_class(self) -> None:
         assert_type(ExternalId.template_class, type[ExternalIdTemplate])
+        self.assertIs(ExternalId.template_class, ExternalIdTemplate)
 
     def test_variable_class(self) -> None:
         assert_type(ExternalId.variable_class, type[ExternalIdVariable])
+        self.assertIs(ExternalId.variable_class, ExternalIdVariable)
 
     def test_check(self) -> None:
         assert_type(ExternalId.check(ExternalId('x')), ExternalId)

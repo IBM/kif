@@ -10,7 +10,6 @@ from kif_lib import (
     Property,
     Quantity,
     String,
-    StringDatatype,
     Text,
     Time,
     TimeDatatype,
@@ -26,16 +25,19 @@ class Test(kif_DeepDataValueTestCase):
 
     def test_datatype_class(self) -> None:
         assert_type(Time.datatype_class, type[TimeDatatype])
+        self.assertIs(Time.datatype_class, TimeDatatype)
 
     def test_datatype(self) -> None:
         assert_type(Time.datatype, TimeDatatype)
-        self.assertIsInstance(String.datatype, StringDatatype)
+        self.assert_time_datatype(Time.datatype)
 
     def test_template_class(self) -> None:
         assert_type(Time.template_class, type[TimeTemplate])
+        self.assertIs(Time.template_class, TimeTemplate)
 
     def test_variable_class(self) -> None:
         assert_type(Time.variable_class, type[TimeVariable])
+        self.assertIs(Time.variable_class, TimeVariable)
 
     def test_check(self) -> None:
         assert_type(Time.check(datetime.datetime(2024, 6, 26)), Time)

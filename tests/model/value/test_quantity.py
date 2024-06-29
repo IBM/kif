@@ -13,7 +13,6 @@ from kif_lib import (
     QuantityTemplate,
     QuantityVariable,
     String,
-    StringDatatype,
     Text,
 )
 from kif_lib.typing import assert_type
@@ -25,16 +24,19 @@ class Test(kif_DeepDataValueTestCase):
 
     def test_datatype_class(self) -> None:
         assert_type(Quantity.datatype_class, type[QuantityDatatype])
+        self.assertIs(Quantity.datatype_class, QuantityDatatype)
 
     def test_datatype(self) -> None:
         assert_type(Quantity.datatype, QuantityDatatype)
-        self.assertIsInstance(String.datatype, StringDatatype)
+        self.assert_quantity_datatype(Quantity.datatype)
 
     def test_template_class(self) -> None:
         assert_type(Quantity.template_class, type[QuantityTemplate])
+        self.assertIs(Quantity.template_class, QuantityTemplate)
 
     def test_variable_class(self) -> None:
         assert_type(Quantity.variable_class, type[QuantityVariable])
+        self.assertIs(Quantity.variable_class, QuantityVariable)
 
     def test_check(self) -> None:
         assert_type(Quantity.check(0), Quantity)

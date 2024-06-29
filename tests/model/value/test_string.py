@@ -21,16 +21,19 @@ class Test(kif_ShallowDataValueTestCase):
 
     def test_datatype_class(self) -> None:
         assert_type(String.datatype_class, type[StringDatatype])
+        self.assertIs(String.datatype_class, StringDatatype)
 
     def test_datatype(self) -> None:
         assert_type(String.datatype, StringDatatype)
-        self.assertIsInstance(String.datatype, StringDatatype)
+        self.assert_string_datatype(String.datatype)
 
     def test_template_class(self) -> None:
         assert_type(String.template_class, type[StringTemplate])
+        self.assertIs(String.template_class, StringTemplate)
 
     def test_variable_class(self) -> None:
         assert_type(String.variable_class, type[StringVariable])
+        self.assertIs(String.variable_class, StringVariable)
 
     def test_check(self) -> None:
         assert_type(String.check(String('x')), String)

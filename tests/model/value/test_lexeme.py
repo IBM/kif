@@ -22,16 +22,19 @@ class Test(kif_EntityTestCase):
 
     def test_datatype_class(self) -> None:
         assert_type(Lexeme.datatype_class, type[LexemeDatatype])
+        self.assertIs(Lexeme.datatype_class, LexemeDatatype)
 
     def test_datatype(self) -> None:
         assert_type(Lexeme.datatype, LexemeDatatype)
-        self.assertIsInstance(Lexeme.datatype, LexemeDatatype)
+        self.assert_lexeme_datatype(Lexeme.datatype)
 
     def test_template_class(self) -> None:
         assert_type(Lexeme.template_class, type[LexemeTemplate])
+        self.assertIs(Lexeme.template_class, LexemeTemplate)
 
     def test_variable_class(self) -> None:
         assert_type(Lexeme.variable_class, type[LexemeVariable])
+        self.assertIs(Lexeme.variable_class, LexemeVariable)
 
     def test_check(self) -> None:
         assert_type(Lexeme.check(Lexeme('x')), Lexeme)

@@ -22,16 +22,19 @@ class Test(kif_EntityTestCase):
 
     def test_datatype_class(self) -> None:
         assert_type(Item.datatype_class, type[ItemDatatype])
+        self.assertIs(Item.datatype_class, ItemDatatype)
 
     def test_datatype(self) -> None:
         assert_type(Item.datatype, ItemDatatype)
-        self.assertIsInstance(Item.datatype, ItemDatatype)
+        self.assert_item_datatype(Item.datatype)
 
     def test_template_class(self) -> None:
         assert_type(Item.template_class, type[ItemTemplate])
+        self.assertIs(Item.template_class, ItemTemplate)
 
     def test_variable_class(self) -> None:
         assert_type(Item.variable_class, type[ItemVariable])
+        self.assertIs(Item.variable_class, ItemVariable)
 
     def test_check(self) -> None:
         assert_type(Item.check(Item('x')), Item)
