@@ -20,6 +20,7 @@ class Test(kif_VariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(IRI_Variable.object_class, type[IRI])
+        self.assertIs(IRI_Variable.object_class, IRI)
 
     def test_check(self) -> None:
         assert_type(IRI_Variable.check(IRI_Variable('x')), IRI_Variable)

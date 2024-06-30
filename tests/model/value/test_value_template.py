@@ -11,6 +11,7 @@ class Test(kif_ValueTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(ValueTemplate.object_class, type[Value])
+        self.assertIs(ValueTemplate.object_class, Value)
 
     def test__init__(self):
         self.assert_abstract_class(ValueTemplate)

@@ -24,6 +24,7 @@ class Test(kif_DeepDataValueTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(QuantityTemplate.object_class, type[Quantity])
+        self.assertIs(QuantityTemplate.object_class, Quantity)
 
     def test_check(self) -> None:
         assert_type(

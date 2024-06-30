@@ -34,6 +34,7 @@ class Test(kif_VariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(PropertyVariable.object_class, type[Property])
+        self.assertIs(PropertyVariable.object_class, Property)
 
     def test_check(self) -> None:
         assert_type(

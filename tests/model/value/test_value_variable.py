@@ -25,6 +25,7 @@ class Test(kif_VariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(ValueVariable.object_class, type[Value])
+        self.assertIs(ValueVariable.object_class, Value)
 
     def test_check(self) -> None:
         assert_type(ValueVariable.check(ValueVariable('x')), ValueVariable)

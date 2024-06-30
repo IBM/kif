@@ -27,6 +27,7 @@ class Test(kif_DeepDataValueTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(TimeTemplate.object_class, type[Time])
+        self.assertIs(TimeTemplate.object_class, Time)
 
     def test_check(self) -> None:
         assert_type(

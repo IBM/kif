@@ -11,6 +11,7 @@ class Test(kif_DeepDataValueTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(DeepDataValueTemplate.object_class, type[DeepDataValue])
+        self.assertIs(DeepDataValueTemplate.object_class, DeepDataValue)
 
     def test__init__(self):
         self.assert_abstract_class(DeepDataValueTemplate)

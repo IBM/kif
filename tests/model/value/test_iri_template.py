@@ -18,6 +18,7 @@ class Test(kif_ShallowDataValueTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(IRI_Template.object_class, type[IRI])
+        self.assertIs(IRI_Template.object_class, IRI)
 
     def test_check(self) -> None:
         assert_type(

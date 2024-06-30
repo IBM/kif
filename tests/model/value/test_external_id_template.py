@@ -17,6 +17,7 @@ class Test(kif_ShallowDataValueTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(ExternalIdTemplate.object_class, type[ExternalId])
+        self.assertIs(ExternalIdTemplate.object_class, ExternalId)
 
     def test_check(self) -> None:
         assert_type(

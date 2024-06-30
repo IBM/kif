@@ -22,8 +22,8 @@ from ...tests import kif_VariableTestCase
 class Test(kif_VariableTestCase):
 
     def test_object_class(self) -> None:
-        assert_type(
-            DeepDataValueVariable.object_class, type[DeepDataValue])
+        assert_type(DeepDataValueVariable.object_class, type[DeepDataValue])
+        self.assertIs(DeepDataValueVariable.object_class, DeepDataValue)
 
     def test_check(self) -> None:
         assert_type(

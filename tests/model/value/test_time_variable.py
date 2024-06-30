@@ -11,6 +11,7 @@ class Test(kif_VariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(TimeVariable.object_class, type[Time])
+        self.assertIs(TimeVariable.object_class, Time)
 
     def test_check(self) -> None:
         assert_type(TimeVariable.check(TimeVariable('x')), TimeVariable)

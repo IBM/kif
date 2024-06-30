@@ -18,6 +18,7 @@ class Test(kif_ShallowDataValueTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(StringTemplate.object_class, type[String])
+        self.assertIs(StringTemplate.object_class, String)
 
     def test_check(self) -> None:
         assert_type(

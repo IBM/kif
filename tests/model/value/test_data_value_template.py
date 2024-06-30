@@ -11,6 +11,7 @@ class Test(kif_DataValueTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(DataValueTemplate.object_class, type[DataValue])
+        self.assertIs(DataValueTemplate.object_class, DataValue)
 
     def test__init__(self):
         self.assert_abstract_class(DataValueTemplate)

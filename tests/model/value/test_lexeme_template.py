@@ -18,6 +18,7 @@ class Test(kif_EntityTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(LexemeTemplate.object_class, type[Lexeme])
+        self.assertIs(LexemeTemplate.object_class, Lexeme)
 
     def test_check(self) -> None:
         assert_type(

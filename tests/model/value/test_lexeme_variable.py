@@ -20,6 +20,7 @@ class Test(kif_VariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(LexemeVariable.object_class, type[Lexeme])
+        self.assertIs(LexemeVariable.object_class, Lexeme)
 
     def test_check(self) -> None:
         assert_type(

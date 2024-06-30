@@ -23,6 +23,8 @@ class Test(kif_VariableTestCase):
     def test_object_class(self) -> None:
         assert_type(
             ShallowDataValueVariable.object_class, type[ShallowDataValue])
+        self.assertIs(
+            ShallowDataValueVariable.object_class, ShallowDataValue)
 
     def test_check(self) -> None:
         assert_type(

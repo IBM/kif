@@ -23,6 +23,7 @@ class Test(kif_VariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(EntityVariable.object_class, type[Entity])
+        self.assertIs(EntityVariable.object_class, Entity)
 
     def test_check(self) -> None:
         assert_type(

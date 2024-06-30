@@ -20,6 +20,7 @@ class Test(kif_VariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(ItemVariable.object_class, type[Item])
+        self.assertIs(ItemVariable.object_class, Item)
 
     def test_check(self) -> None:
         assert_type(ItemVariable.check(ItemVariable('x')), ItemVariable)

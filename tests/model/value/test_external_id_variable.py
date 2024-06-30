@@ -21,6 +21,7 @@ class Test(kif_VariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(ExternalIdVariable.object_class, type[ExternalId])
+        self.assertIs(ExternalIdVariable.object_class, ExternalId)
 
     def test_check(self) -> None:
         assert_type(
