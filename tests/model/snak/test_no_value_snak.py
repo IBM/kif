@@ -14,6 +14,7 @@ from kif_lib import (
     SomeValueSnak,
     String,
     Text,
+    ValueSnak,
     Variable,
 )
 from kif_lib.typing import assert_type
@@ -55,6 +56,7 @@ class Test(kif_SnakTestCase):
                 Quantity(0),
                 SomeValueSnak(Property('x')),
                 Text('x'),
+                ValueSnak('x', 'y'),
                 Variable('x', Text),
                 {},
             ])
@@ -74,9 +76,12 @@ class Test(kif_SnakTestCase):
             failure=[
                 [0],
                 [Item('x')],
+                [NoValueSnak('x')],
                 [Quantity(0)],
+                [SomeValueSnak('x')],
                 [String(Variable('x'))],
                 [Text('x')],
+                [ValueSnak('x', 'y')],
                 [Variable('x', Item)],
                 [{}],
             ])

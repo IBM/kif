@@ -1,34 +1,92 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from rdflib import URIRef
+from kif_lib import (
+    ExternalId,
+    IRI,
+    Item,
+    ItemTemplate,
+    NoValueSnak,
+    Property,
+    Quantity,
+    SomeValueSnak,
+    SomeValueSnakTemplate,
+    SomeValueSnakVariable,
+    String,
+    Text,
+    ValueSnak,
+    Variable,
+)
+from kif_lib.typing import assert_type
 
-from kif_lib import IRI, Property, SomeValueSnak, String
-
-from ...tests import kif_TestCase
+from ...tests import kif_SnakTestCase
 
 
-class Test(kif_TestCase):
+class Test(kif_SnakTestCase):
 
-    def test__init__(self):
-        # bad argument
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'cannot coerce int into IRI',
-            SomeValueSnak, 0)
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'cannot coerce dict into IRI',
-            SomeValueSnak, dict())
-        # good argument
-        self.assert_some_value_snak(
-            SomeValueSnak(IRI('abc')), Property(IRI('abc')))
-        self.assert_some_value_snak(
-            SomeValueSnak(Property('abc')), Property(IRI('abc')))
-        self.assert_some_value_snak(
-            SomeValueSnak(String('abc')), Property('abc'))
-        self.assert_some_value_snak(
-            SomeValueSnak(URIRef('abc')), Property('abc'))
-        self.assert_some_value_snak(
-            SomeValueSnak('abc'), Property('abc'))
+    def test_template_class(self) -> None:
+        assert_type(SomeValueSnak.template_class, type[SomeValueSnakTemplate])
+        self.assertIs(SomeValueSnak.template_class, SomeValueSnakTemplate)
+
+    def test_variable_class(self) -> None:
+        assert_type(SomeValueSnak.variable_class, type[SomeValueSnakVariable])
+        self.assertIs(SomeValueSnak.variable_class, SomeValueSnakVariable)
+
+    def test_mask(self) -> None:
+        assert_type(SomeValueSnak.SOME_VALUE_SNAK, SomeValueSnak.Mask)
+        self.assertEqual(SomeValueSnak.mask, SomeValueSnak.SOME_VALUE_SNAK)
+        self.assertEqual(
+            SomeValueSnak.get_mask(),
+            SomeValueSnak.SOME_VALUE_SNAK)
+
+    def test_check(self) -> None:
+        assert_type(SomeValueSnak.check(SomeValueSnak('x')), SomeValueSnak)
+        self._test_check(
+            SomeValueSnak,
+            success=[
+                ('x', SomeValueSnak(Property('x'))),
+                (ExternalId('x'), SomeValueSnak('x')),
+                (IRI('x'), SomeValueSnak('x')),
+                (SomeValueSnak('x'), SomeValueSnak('x')),
+                (Property('x', Item), SomeValueSnak(Property('x', Item))),
+                (String('x'), SomeValueSnak('x')),
+            ],
+            failure=[
+                0,
+                Item('x'),
+                ItemTemplate(Variable('x')),
+                NoValueSnak('x'),
+                Quantity(0),
+                Text('x'),
+                ValueSnak(Property('x'), 'x'),
+                Variable('x', Text),
+                {},
+            ])
+
+    def test__init__(self) -> None:
+        assert_type(SomeValueSnak('x'), SomeValueSnak)
+        self._test__init__(
+            SomeValueSnak,
+            self.assert_some_value_snak,
+            success=[
+                (['x'], SomeValueSnak('x')),
+                ([ExternalId('x')], SomeValueSnak('x')),
+                ([IRI('x')], SomeValueSnak('x')),
+                ([Property('x')], SomeValueSnak('x')),
+                ([String('x')], SomeValueSnak('x')),
+            ],
+            failure=[
+                [0],
+                [Item('x')],
+                [NoValueSnak('x')],
+                [Quantity(0)],
+                [SomeValueSnak('x')],
+                [String(Variable('x'))],
+                [Text('x')],
+                [ValueSnak('x', 'x')],
+                [Variable('x', Item)],
+                [{}],
+            ])
 
 
 if __name__ == '__main__':
