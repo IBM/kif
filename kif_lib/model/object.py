@@ -450,8 +450,7 @@ class Object(Sequence, metaclass=ObjectMeta):
             to_ = cls.__qualname__
         return cls._arg_error(
             f'cannot coerce {from_} into {to_}',
-            function or cls.check, name, position,
-            exception or TypeError)
+            function or cls.check, name, position, exception or TypeError)
 
     @classmethod
     def unpack(
@@ -820,7 +819,8 @@ class Object(Sequence, metaclass=ObjectMeta):
         if name:
             msg += f' ({name})'
         if function is not None:
-            if hasattr(function, '__qualname__'):
+            if (not isinstance(function, str)
+                    and hasattr(function, '__qualname__')):
                 function = function.__qualname__
             msg += f" to '{function}'"
         if details:

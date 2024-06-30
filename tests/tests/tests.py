@@ -237,21 +237,6 @@ if __name__ == '__main__':
         self.assertRaisesRegex(
             exception, regex, func, *args, **kwargs)
 
-    def assert_raises_check_error(
-            self,
-            cls: KIF_ObjectClass,
-            arg: Any,
-            function: Optional[Union[TCallable, tuple[TCallable, str]]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None,
-            exception: Optional[type[Exception]] = None
-    ):
-        src_cls = arg if isinstance(arg, type) else type(arg)
-        self.assert_raises_bad_argument(
-            exception or TypeError, position, name,
-            f'cannot coerce {src_cls.__qualname__} into {cls.__qualname__}',
-            function or cls.check, arg)
-
     def assert_test_is_defined_for_kif_object_classes(
             self,
             name: str,

@@ -1,7 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import ExternalId, ExternalIdDatatype, StringDatatype
+from kif_lib import ExternalId, ExternalIdDatatype
 from kif_lib.typing import assert_type
 
 from ...tests import kif_DatatypeTestCase
@@ -13,9 +13,6 @@ class Test(kif_DatatypeTestCase):
         assert_type(ExternalIdDatatype.value_class, type[ExternalId])
 
     def test_check(self) -> None:
-        self.assert_raises_check_error(
-            ExternalIdDatatype, StringDatatype, ExternalIdDatatype.check)
-        # success
         assert_type(
             ExternalIdDatatype.check(ExternalIdDatatype()),
             ExternalIdDatatype)

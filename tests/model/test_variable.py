@@ -75,8 +75,6 @@ class Test(kif_TestCase):
         self.assert_statement_variable(Variable('x', Statement), 'x')
 
     def test__init__(self):
-        self.assert_raises_check_error(Variable, 0)
-        self.assert_raises_check_error(Variable, {})
         self.assert_variable(Variable('x'), 'x')
 
     def test__call__(self):

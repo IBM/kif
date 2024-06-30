@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import itertools
+
 from kif_lib import Template, Variable
 from kif_lib.model import Theta
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
@@ -17,9 +19,7 @@ class kif_TemplateTestCase(kif_ObjectTestCase):
             success: Iterable[tuple[Any, _Obj]] = tuple(),
             failure: Iterable[Any] = tuple()
     ) -> None:
-        self.assert_raises_check_error(cls, 0, cls.check)
-        self.assert_raises_check_error(cls, {}, cls.check)
-        super()._test_check(cls, success, failure)
+        super()._test_check(cls, success, itertools.chain([0, {}], failure))
 
     @override
     def _test__init__(

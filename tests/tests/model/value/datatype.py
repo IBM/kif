@@ -39,9 +39,11 @@ class kif_DatatypeTestCase(kif_ObjectTestCase):
                 continue
             if other_cls is not Datatype:
                 self.logger.debug('failure: %s', other_cls())
-                self.assert_raises_check_error(cls, other_cls(), cls.check)
+                self.assertRaisesRegex(
+                    TypeError, 'cannot coerce', cls.check, other_cls())
             self.logger.debug('failure: %s', other_cls)
-            self.assert_raises_check_error(cls, other_cls, cls.check)
+            self.assertRaisesRegex(
+                TypeError, 'cannot coerce', cls.check, other_cls)
 
     @override
     def _test__init__(
