@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from .snak import kif_SnakTemplateTestCase, kif_SnakTestCase
+from .statement import kif_StatementTemplateTestCase, kif_StatementTestCase
 from .template import kif_TemplateTestCase
 from .value import (
     kif_DatatypeTestCase,
@@ -51,4 +52,8 @@ __all__ = (
     # snak
     'kif_SnakTemplateTestCase',
     'kif_SnakTestCase',
+
+    # statement
+    'kif_StatementTemplateTestCase',
+    'kif_StatementTestCase',
 )

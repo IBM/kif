@@ -64,8 +64,9 @@ from .statement import (
     Statement,
     StatementTemplate,
     StatementVariable,
+    TStatement,
     VStatement,
-    VVStatement,
+    VTStatement,
 )
 from .template import Template, TemplateClass
 from .value import (
@@ -264,6 +265,7 @@ __all__ = (
     'TReferenceRecord',
     'TReferenceRecordSet',
     'TSnakSet',
+    'TStatement',
     'TString',
     'TText',
     'TTextSet',
@@ -301,9 +303,9 @@ __all__ = (
     'VTime',
     'VTItem',
     'VTProperty',
+    'VTStatement',
     'VTValue',
     'VValue',
     'VValueSnak',
     'VVSnak',
-    'VVStatement',
 )

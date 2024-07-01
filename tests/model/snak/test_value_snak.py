@@ -98,9 +98,11 @@ class Test(kif_SnakTestCase):
                 [{}, 'y'],
             ],
             failure_value_error=[
+                [Property('x', ExternalId), String('y')],
                 [Property('x', IRI), Item('x')],
                 [Property('x', Item), Quantity(0)],
                 [Property('x', Property), IRI('x')],
+                [Property('x', String), ExternalId('y')],
             ])
 
 

@@ -4,13 +4,13 @@
 from kif_lib import (
     IRI,
     KIF_Object,
+    Property,
     Quantity,
     SomeValueSnak,
     SomeValueSnakTemplate,
     SomeValueSnakVariable,
     Variable,
 )
-from kif_lib.model import Property
 from kif_lib.typing import assert_type, Optional
 
 from ...tests import kif_VariableTestCase

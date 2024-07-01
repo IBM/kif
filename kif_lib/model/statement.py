@@ -1,16 +1,47 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..typing import Any, override, TypeAlias, Union
+from ..typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Optional,
+    override,
+    Self,
+    TypeAlias,
+    Union,
+)
 from .kif_object import KIF_Object
-from .snak import Snak, VSnak, VVSnak
+from .snak import (
+    Snak,
+    SnakTemplate,
+    SnakVariable,
+    TValueSnak,
+    ValueSnak,
+    VSnak,
+    VVSnak,
+)
 from .template import Template
-from .value import Entity, VEntity, VTEntity
+from .value import (
+    Entity,
+    EntityTemplate,
+    EntityVariable,
+    TEntity,
+    TProperty,
+    TValue,
+    VEntity,
+    VTEntity,
+)
 from .variable import Variable
 
+TStatement: TypeAlias =\
+    Union['Statement',
+          tuple[TEntity, Snak],
+          tuple[TEntity, TValueSnak],
+          tuple[TEntity, TProperty, TValue]]
 VStatement: TypeAlias =\
     Union['StatementTemplate', 'StatementVariable', 'Statement']
-VVStatement: TypeAlias = Union[Variable, 'Statement']
+VTStatement: TypeAlias = Union[Variable, VStatement, TStatement]
 
 
 class StatementTemplate(Template):
@@ -21,25 +52,25 @@ class StatementTemplate(Template):
        snak: Snak.
     """
 
+    object_class: ClassVar[type['Statement']]  # pyright: ignore
+
     def __init__(self, subject: VTEntity, snak: VVSnak):
         super().__init__(subject, snak)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # entity
-            if Template.test(arg):
-                return self._preprocess_arg_entity_template(arg, i)
-            elif Variable.test(arg):
-                return self._preprocess_arg_entity_variable(
-                    arg, i, self.__class__)
+            if isinstance(arg, Template):
+                return EntityTemplate.check(arg, type(self), None, i)
+            elif isinstance(arg, Variable):
+                return EntityVariable.check(arg, type(self), None, i)
             else:
                 return Statement._static_preprocess_arg(self, arg, i)
         elif i == 2:            # snak
-            if Template.test(arg):
-                return self._preprocess_arg_snak_template(arg, i)
-            elif Variable.test(arg):
-                return self._preprocess_arg_snak_variable(
-                    arg, i, self.__class__)
+            if isinstance(arg, Template):
+                return SnakTemplate.check(arg, type(self), None, i)
+            elif isinstance(arg, Variable):
+                return SnakVariable.check(arg, type(self), None, i)
             else:
                 return Statement._static_preprocess_arg(self, arg, i)
         else:
@@ -79,6 +110,8 @@ class StatementVariable(Variable):
        name: Name.
     """
 
+    object_class: ClassVar[type['Statement']]  # pyright: ignore
+
 
 class Statement(
         KIF_Object,
@@ -91,6 +124,33 @@ class Statement(
        subject: Entity.
        snak: Snak.
     """
+
+    template_class: ClassVar[type[StatementTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[StatementVariable]]  # pyright: ignore
+
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, tuple) and len(arg) >= 2:
+            fn = function or cls.check
+            if len(arg) == 2:
+                return cls(
+                    Entity.check(arg[0], fn, name, position),
+                    Snak.check(arg[1], fn, name, position))
+            else:
+                return cls(
+                    Entity.check(arg[0], fn, name, position),
+                    ValueSnak.check((arg[1], arg[2]), fn, name, position))
+        else:
+            raise cls._check_error(arg, function, name, position)
 
     def __init__(self, subject: VTEntity, snak: VVSnak):
         super().__init__(subject, snak)

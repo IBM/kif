@@ -7,10 +7,10 @@ from kif_lib import (
     NoValueSnak,
     NoValueSnakTemplate,
     NoValueSnakVariable,
+    Property,
     Quantity,
     Variable,
 )
-from kif_lib.model import Property
 from kif_lib.typing import assert_type, Optional
 
 from ...tests import kif_VariableTestCase

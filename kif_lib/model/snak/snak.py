@@ -6,6 +6,7 @@ import enum
 from ...typing import (
     Any,
     Callable,
+    cast,
     ClassVar,
     Final,
     Optional,
@@ -142,6 +143,24 @@ class Snak(
     ALL: Final[Mask] = Mask.ALL
 
     TMask: TypeAlias = Union[Mask, int]
+
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, tuple):
+            from .value_snak import ValueSnak
+            return cast(Self, ValueSnak.check(
+                arg, function or cls.check, name, position))
+        else:
+            raise cls._check_error(arg, function, name, position)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:

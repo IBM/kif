@@ -960,7 +960,6 @@ if __name__ == '__main__':
     def assert_statement(self, obj: Statement, subject: Entity, snak: Snak):
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Statement)
-        self.assertTrue(obj.is_statement())
         self.assertIsInstance(obj.args[0], Entity)
         self.assertTrue(obj.args[0].is_entity())
         self.assertEqual(obj.args[0], subject)
