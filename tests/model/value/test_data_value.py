@@ -26,9 +26,11 @@ class Test(kif_DataValueTestCase):
 
     def test_template_class(self) -> None:
         assert_type(DataValue.template_class, type[DataValueTemplate])
+        self.assertIs(DataValue.template_class, DataValueTemplate)
 
     def test_variable_class(self) -> None:
         assert_type(DataValue.variable_class, type[DataValueVariable])
+        self.assertIs(DataValue.variable_class, DataValueVariable)
 
     def test_check(self) -> None:
         assert_type(DataValue.check(0), DataValue)

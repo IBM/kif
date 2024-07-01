@@ -33,9 +33,11 @@ class Test(kif_ValueTestCase):
 
     def test_template_class(self) -> None:
         assert_type(Value.template_class, type[ValueTemplate])
+        self.assertIs(Value.template_class, ValueTemplate)
 
     def test_variable_class(self) -> None:
         assert_type(Value.variable_class, type[ValueVariable])
+        self.assertIs(Value.variable_class, ValueVariable)
 
     def test_check(self) -> None:
         assert_type(Value.check(0), Value)

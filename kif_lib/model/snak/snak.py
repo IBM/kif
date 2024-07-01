@@ -19,6 +19,8 @@ from ..template import Template
 from ..value import Property, PropertyTemplate, PropertyVariable, VProperty
 from ..variable import Variable
 
+at_property = property
+
 VSnak: TypeAlias = Union['SnakTemplate', 'SnakVariable', 'Snak']
 VVSnak: TypeAlias = Union[Variable, VSnak]
 
@@ -164,7 +166,7 @@ class Snak(
         """
         return cls.mask
 
-    @property
+    @at_property
     def property(self) -> Property:
         """The property of snak."""
         return self.get_property()

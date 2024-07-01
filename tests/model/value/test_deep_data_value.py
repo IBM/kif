@@ -27,10 +27,12 @@ class Test(kif_DeepDataValueTestCase):
     def test_template_class(self) -> None:
         assert_type(
             DeepDataValue.template_class, type[DeepDataValueTemplate])
+        self.assertIs(DeepDataValue.template_class, DeepDataValueTemplate)
 
     def test_variable_class(self) -> None:
         assert_type(
             DeepDataValue.variable_class, type[DeepDataValueVariable])
+        self.assertIs(DeepDataValue.variable_class, DeepDataValueVariable)
 
     def test_check(self) -> None:
         assert_type(DeepDataValue.check(0), DeepDataValue)

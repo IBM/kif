@@ -27,10 +27,15 @@ class Test(kif_ShallowDataValueTestCase):
     def test_template_class(self) -> None:
         assert_type(
             ShallowDataValue.template_class, type[ShallowDataValueTemplate])
+        self.assertIs(
+            ShallowDataValue.template_class,
+            ShallowDataValueTemplate)
 
     def test_variable_class(self) -> None:
         assert_type(
             ShallowDataValue.variable_class, type[ShallowDataValueVariable])
+        self.assertIs(
+            ShallowDataValue.variable_class, ShallowDataValueVariable)
 
     def test_check(self) -> None:
         assert_type(ShallowDataValue.check('x'), ShallowDataValue)

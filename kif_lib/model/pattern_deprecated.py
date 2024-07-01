@@ -241,9 +241,10 @@ class FilterPattern(KIF_Object):
             return False
         # Value mismatch.
         if (self.value is not None and self.value.value is not None):
-            if not stmt.snak.is_value_snak():
+            if not isinstance(stmt.snak, ValueSnak):
                 return False
-            value = cast(ValueSnak, stmt.snak).value
+            assert isinstance(stmt.snak, ValueSnak)
+            value = stmt.snak.value
             if type(self.value.value) is not type(value):
                 return False
             if not value.is_deep_data_value():

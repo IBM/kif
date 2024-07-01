@@ -20,9 +20,11 @@ class Test(kif_EntityTestCase):
 
     def test_template_class(self) -> None:
         assert_type(Entity.template_class, type[EntityTemplate])
+        self.assertIs(Entity.template_class, EntityTemplate)
 
     def test_variable_class(self) -> None:
         assert_type(Entity.variable_class, type[EntityVariable])
+        self.assertIs(Entity.variable_class, EntityVariable)
 
     def test_check(self) -> None:
         assert_type(Entity.check(Item('x')), Entity)
