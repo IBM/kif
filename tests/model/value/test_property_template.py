@@ -25,7 +25,7 @@ from kif_lib import (
     Variable,
 )
 from kif_lib.itertools import product
-from kif_lib.model import TValue
+from kif_lib.model import TDatatype, TValue
 from kif_lib.typing import assert_type, cast, ClassVar
 
 from ...tests import kif_EntityTemplateTestCase
@@ -90,18 +90,18 @@ class Test(kif_EntityTemplateTestCase):
         Property('y', Item.datatype)
     ]
 
-    _test__call__values: ClassVar[list[TValue]] = [
-        'x',
-        0,
-        datetime.datetime(2024, 6, 24, tzinfo=datetime.timezone.utc),
-        ExternalId('x'),
-        IRI('x'),
-        Item('x'),
-        Property('x'),
-        Quantity(0),
-        String('x'),
-        Text('x', 'y'),
-        Time('2024-06-24')
+    _test__call__values: ClassVar[list[tuple[TValue, TDatatype]]] = [
+        ('x', String),
+        (0, Quantity),
+        (datetime.datetime(2024, 6, 24, tzinfo=datetime.timezone.utc), Time),
+        (ExternalId('x'), ExternalId),
+        (IRI('x'), IRI),
+        (Item('x'), Item),
+        (Property('x'), Property),
+        (Quantity(0), Quantity),
+        (String('x'), String),
+        (Text('x', 'y'), Text),
+        (Time('2024-06-24'), Time),
     ]
 
     def test__call__(self) -> None:
@@ -121,13 +121,13 @@ class Test(kif_EntityTemplateTestCase):
         assert_type(
             PropertyTemplate('x', Variable('y'))(String('x')),
             ValueSnakTemplate)
-        for v in self._test__call__values:
+        for v, dt in self._test__call__values:
             self.assert_value_snak_template(
                 PropertyTemplate(Variable('x'))(v),
-                Property(Variable('x')), Value.check(v))
+                Property(Variable('x'), dt), Value.check(v))
             self.assert_value_snak(
                 cast(ValueSnak, PropertyTemplate('p')(v)),
-                Property('p'), Value.check(v))
+                Property('p', dt), Value.check(v))
         # variant 2
         self.assert_raises_bad_argument(
             TypeError, 1, None,
@@ -155,7 +155,7 @@ class Test(kif_EntityTemplateTestCase):
             PropertyTemplate('x', Variable('y'))(Item('x'), IRI('y')),
             StatementTemplate)
         it = product(self._test__call__entities, self._test__call__values)
-        for e, v in it:
+        for e, (v, dt) in it:
             self.assert_statement_template(
                 PropertyTemplate(
                     Variable('p'))(e, v), e,

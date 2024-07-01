@@ -235,31 +235,31 @@ class Test(kif_TestCase):
             Variable('x', Property), Quantity(0))
         self.assert_value_snak_template(
             ValueSnakTemplate(Property(x), Quantity(0)),
-            Property(Variable('x', IRI)), Quantity(0))
+            Property(Variable('x', IRI), Quantity), Quantity(0))
         self.assert_value_snak_template(
             ValueSnakTemplate(Property('p'), x),
             Property('p'), ValueVariable('x'))
         self.assert_value_snak_template(
             ValueSnakTemplate(Property('p'), IRI_Template(x)),
-            Property('p'), IRI(StringVariable('x')))
+            Property('p', IRI), IRI(StringVariable('x')))
         self.assert_value_snak_template(
             ValueSnak(x, Quantity(0)),
             Variable('x', Property), Quantity(0))
         self.assert_value_snak_template(
             ValueSnak(Property(x), Quantity(0)),
-            Property(Variable('x', IRI)), Quantity(0))
+            Property(Variable('x', IRI), Quantity), Quantity(0))
         self.assert_value_snak_template(
             ValueSnak(Property('p'), x),
             Property('p'), Variable('x', Value))
         self.assert_value_snak_template(
             cast(ValueSnakTemplate, ValueSnak(Property('p'), Time(x))),
-            Property('p'), Time(Variable('x', Time)))
+            Property('p', Time), Time(Variable('x', Time)))
         self.assert_value_snak_template(
             PropertyTemplate(x)(String('s')),
-            Property(x), String('s'))
+            Property(x, String), String('s'))
         self.assert_value_snak(
             cast(ValueSnak, ValueSnakTemplate(Property('p'), Item('x'))),
-            Property('p'), Item('x'))
+            Property('p', Item), Item('x'))
 
     def test__new__some_value_snak_template(self):
         x = Variable('x')

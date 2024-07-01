@@ -14,6 +14,7 @@ from ..model import (
     KIF_Object,
     KIF_ObjectSet,
     PlainDescriptor,
+    Property,
     PropertyDescriptor,
     Quantity,
     Rank,
@@ -55,6 +56,11 @@ class MarkdownEncoder(
             yield self._encode_kif_object_name(obj)
         elif isinstance(obj, Entity):
             yield from self._iterencode_kif_object_start(obj)
+            ###
+            # FIXME: For now, ignore property datatype.
+            ###
+            if isinstance(obj, Property):
+                obj = obj.replace(obj.iri, obj.Nil)
             label = self.wd.get_entity_label(obj)
             if label:
                 yield f'[{label}]({obj.iri.value})'

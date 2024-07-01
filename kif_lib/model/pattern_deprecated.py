@@ -234,7 +234,10 @@ class FilterPattern(KIF_Object):
         # Property mismatch.
         if (self.property is not None
             and self.property.property is not None
-                and self.property.property != stmt.snak.property):
+            and (self.property.property.iri != stmt.snak.property.iri
+                 or (self.property.property.range is not None
+                     and self.property.property.range
+                     != stmt.snak.property.range))):
             return False
         # Value mismatch.
         if (self.value is not None and self.value.value is not None):

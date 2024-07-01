@@ -4,6 +4,7 @@
 from typing import cast
 
 from kif_lib import (
+    Item,
     Normal,
     NoValueSnak,
     Preferred,
@@ -44,7 +45,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assertIsInstance(stmt, Statement)
         # force pagination
         it = iter(self.new_Store(page_size=5))
-        for i in range(12):
+        for _ in range(12):
             self.assertIsInstance(next(it), Statement)
 
     def test__len__(self):
@@ -168,7 +169,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assertEqual(stmt.subject, wd.benzene)
         # property
         stmt = next(kb.filter(property=wd.mass))
-        self.assertEqual(stmt.snak.property, wd.mass)
+        self.assertEqual(stmt.snak.property, wd.mass.replace(None, Quantity))
         # value: iri
         stmt = next(kb.filter(value=wd.benzene))
         self.assertIsInstance(stmt.snak, ValueSnak)
@@ -228,21 +229,22 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         # TODO: property & value: time without precision
         ###
         # subject & property: some value
-        stmt = next(kb.filter(wd.Adam, wd.date_of_death))
-        self.assertTrue(stmt.snak.is_some_value_snak())
-        # subject & property: no value
         stmt = next(kb.filter(wd.Adam, wd.date_of_birth))
-        self.assertTrue(stmt.snak.is_no_value_snak())
+        self.assert_some_value_snak(stmt.snak, wd.date_of_birth)
+        stmt = next(kb.filter(wd.Adam, wd.date_of_death))
+        self.assert_some_value_snak(stmt.snak, wd.date_of_death)
+        # subject & property: no value
+        stmt = next(kb.filter(wd.Adam, wd.father))
+        self.assert_no_value_snak(stmt.snak, wd.father)
         # snak_class: some value
         some = list(sorted(kb.filter(
             wd.Adam, None, None, Snak.SOME_VALUE_SNAK)))
-        self.assertEqual(len(some), 2)
+        self.assertEqual(len(some), 3)
         # snak_class: no value
         wdno = list(sorted(kb.filter(
             wd.Adam, None, None, Snak.NO_VALUE_SNAK)))
         self.assert_statement(wdno[0], wd.Adam, NoValueSnak(wd.father))
         self.assert_statement(wdno[1], wd.Adam, NoValueSnak(wd.mother))
-        self.assert_statement(wdno[2], wd.Adam, NoValueSnak(wd.date_of_birth))
         # subject & property: some value (newer Wikidata)
         kb = self.new_Store()
         it = kb.filter(wd.Adam, wd.date_of_death)
@@ -333,13 +335,14 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         quals = list(get_qualifiers(stmt))
         self.assertEqual(len(quals), 1)
         self.assert_value_snak(
-            quals[0], wd.elevation_above_sea_level, Quantity(0, wd.metre))
+            quals[0], wd.elevation_above_sea_level.replace(None, Quantity),
+            Quantity(0, wd.metre))
         # one of the qualifiers is a time
         stmt = wd.country(wd.Brazil, wd.Brazil)
         quals = list(get_qualifiers(stmt))
         self.assertEqual(len(quals), 1)
         self.assert_value_snak(
-            quals[0], wd.start_time, Time(
+            quals[0], wd.start_time.replace(None, Time), Time(
                 '1822-01-01', 9, 0, wd.proleptic_Gregorian_calendar))
         # one of the qualifiers is a some value
         stmt = wd.YouTube_video_ID(
@@ -356,7 +359,8 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         quals = list(get_qualifiers(stmt))
         self.assertEqual(len(quals), 1)
         self.assert_value_snak(
-            quals[0], wd.valid_in_place, wd.autobahn_in_Germany)
+            quals[0], wd.valid_in_place.replace(None, Item),
+            wd.autobahn_in_Germany)
         # one of the qualifiers is a no value
         Italo_Balbo = wd.Q(1056)
         Governor_General_of_Italian_Libya = wd.Q(59859989)
@@ -450,7 +454,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
             else:
                 return annots[0].rank
         # preferred
-        stmt = Statement(wd.Adam, NoValueSnak(wd.date_of_birth))
+        stmt = Statement(wd.Adam, SomeValueSnak(wd.date_of_birth))
         self.assertEqual(get_rank(stmt), Preferred)
         # normal
         stmt = Statement(

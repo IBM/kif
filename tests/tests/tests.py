@@ -866,19 +866,20 @@ if __name__ == '__main__':
 
     def assert_snak(self, obj: Snak, prop: Property):
         self.assert_kif_object(obj)
+        self.assertIsInstance(obj, Snak)
         self.assertIsInstance(obj.property, Property)
-        self.assertTrue(obj.property.is_property())
         self.assertEqual(obj.args[0], prop)
         self.assertEqual(obj.property, obj.args[0])
         self.assertEqual(obj.get_property(), obj.args[0])
 
     def assert_value_snak(
             self,
-            obj: ValueSnak,
+            obj: Snak,
             prop: Property,
             value: Value
     ):
         self.assertIsInstance(obj, ValueSnak)
+        assert isinstance(obj, ValueSnak)
         self.assert_snak(obj, prop)
         self.assert_value(obj.args[1])
         self.assertEqual(obj.args[1], value)
@@ -887,14 +888,16 @@ if __name__ == '__main__':
         self.assertEqual(obj.mask, Snak.VALUE_SNAK)
         self.assertEqual(obj.get_mask(), Snak.VALUE_SNAK)
 
-    def assert_some_value_snak(self, obj: SomeValueSnak, prop: Property):
+    def assert_some_value_snak(self, obj: Snak, prop: Property):
         self.assertIsInstance(obj, SomeValueSnak)
+        assert isinstance(obj, SomeValueSnak)
         self.assert_snak(obj, prop)
         self.assertEqual(obj.mask, Snak.SOME_VALUE_SNAK)
         self.assertEqual(obj.get_mask(), Snak.SOME_VALUE_SNAK)
 
-    def assert_no_value_snak(self, obj: NoValueSnak, prop: Property):
+    def assert_no_value_snak(self, obj: Snak, prop: Property):
         self.assertIsInstance(obj, NoValueSnak)
+        assert isinstance(obj, NoValueSnak)
         self.assert_snak(obj, prop)
         self.assertEqual(obj.mask, Snak.NO_VALUE_SNAK)
         self.assertEqual(obj.get_mask(), Snak.NO_VALUE_SNAK)

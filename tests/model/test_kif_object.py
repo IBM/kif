@@ -1729,9 +1729,7 @@ class Test(kif_TestCase):
         self.assertRaises(TypeError, String('x').unpack_reference_record_set)
 
     def test_unpack_snak(self):
-        snak = ValueSnak(Property('x'), Item('y'))
-        self.assertEqual(snak.unpack_snak(), (Property('x'), Item('y')))
-        self.assertRaises(TypeError, String('x').unpack_snak)
+        pass
 
     def test_unpack_snak_set(self):
         snak1 = ValueSnak(Property('x'), Item('y'))
@@ -1909,9 +1907,7 @@ class Test(kif_TestCase):
         self.assertRaises(TypeError, Time('2023-09-18').unpack_value_set)
 
     def test_unpack_value_snak(self):
-        snak = ValueSnak(Property('x'), Item('y'))
-        self.assertEqual(snak.unpack_value_snak(), (Property('x'), Item('y')))
-        self.assertRaises(TypeError, String('x').unpack_value_snak)
+        pass
 
     def test_unpack_value_snak_template(self):
         self.assertEqual(

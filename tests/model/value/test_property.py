@@ -24,7 +24,7 @@ from kif_lib import (
     Variable,
 )
 from kif_lib.itertools import product
-from kif_lib.model import TValue
+from kif_lib.model import TDatatype, TValue
 from kif_lib.typing import assert_type, cast, ClassVar, Iterable
 
 from ...tests import kif_EntityTestCase
@@ -97,18 +97,18 @@ class Test(kif_EntityTestCase):
         Property('y', Item.datatype)
     ]
 
-    _test__call__values: ClassVar[list[TValue]] = [
-        'x',
-        0,
-        datetime.datetime(2024, 6, 24, tzinfo=datetime.timezone.utc),
-        ExternalId('x'),
-        IRI('x'),
-        Item('x'),
-        Property('x'),
-        Quantity(0),
-        String('x'),
-        Text('x', 'y'),
-        Time('2024-06-24')
+    _test__call__values: ClassVar[list[tuple[TValue, TDatatype]]] = [
+        ('x', String),
+        (0, Quantity),
+        (datetime.datetime(2024, 6, 24, tzinfo=datetime.timezone.utc), Time),
+        (ExternalId('x'), ExternalId),
+        (IRI('x'), IRI),
+        (Item('x'), Item),
+        (Property('x'), Property),
+        (Quantity(0), Quantity),
+        (String('x'), String),
+        (Text('x', 'y'), Text),
+        (Time('2024-06-24'), Time),
     ]
 
     def test__call__(self) -> None:
@@ -124,12 +124,12 @@ class Test(kif_EntityTestCase):
             ValueSnak(Property('p'), Item('x')))
         # success
         assert_type(Property('p')(String('x')), ValueSnak)
-        for v in self._test__call__values:
+        for v, dt in self._test__call__values:
             self.assert_value_snak(
-                Property('p')(v), Property('p'), Value.check(v))
+                Property('p')(v), Property('p', dt), Value.check(v))
             self.assert_value_snak(
                 cast(ValueSnak, PropertyTemplate('p')(v)),
-                Property('p'), Value.check(v))
+                Property('p', dt), Value.check(v))
         # variant 2
         self.assert_raises_bad_argument(
             TypeError, 1, None,
@@ -150,7 +150,7 @@ class Test(kif_EntityTestCase):
         # success
         assert_type(Property('p')(Item('x'), IRI('y')), Statement)
         it = product(self._test__call__entities, self._test__call__values)
-        for e, v in it:
+        for e, (v, dt) in it:
             self.assert_statement(
                 Property('p')(e, v), e, ValueSnak(Property('p'), v))
             self.assert_statement(

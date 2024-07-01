@@ -238,115 +238,183 @@ class TestStoreRDF(kif_StoreTestCase):
         # subject
         self.store_test_filter(
             kb,
-            [wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),
-             wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N'),
-             wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),
-             wd.density(wd.benzene, Quantity(
-                 '0.88', wd.gram_per_cubic_centimetre, '0.87', '.89'))],
-            subject=wd.benzene)
+            stmts=[
+                wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),
+                wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N'),
+                wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),
+                wd.density(wd.benzene, Quantity(
+                    '0.88', wd.gram_per_cubic_centimetre, '0.87', '.89'))],
+            subject=wd.benzene
+        )
         self.store_test_filter(
             kb,
-            [wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),
-             wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N'),
-             wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),
-             wd.density(wd.benzene, Quantity(
-                 '0.88', wd.gram_per_cubic_centimetre, '0.87', '.89'))],
-            subject=wd.InChIKey('UHOVQNZJYSORNB-UHFFFAOYSA-N'))
+            stmts=[
+                wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),
+                wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N'),
+                wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),
+                wd.density(wd.benzene, Quantity(
+                    '0.88', wd.gram_per_cubic_centimetre, '0.87', '.89'))],
+            subject=wd.InChIKey('UHOVQNZJYSORNB-UHFFFAOYSA-N')
+        )
         # subject, property
         self.store_test_filter(
             kb,
-            [wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')],
-            wd.benzene, wd.InChIKey)
+            stmts=[wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')],
+            subject=wd.benzene,
+            property=wd.InChIKey.replace(None, String)
+        )
         self.store_test_filter(
             kb,
-            [wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
-            wd.benzene, wd.mass)
+            stmts=[wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
+            subject=wd.benzene,
+            property=wd.mass.replace(None, Quantity)
+        )
         self.store_test_filter(
             kb,
-            [wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')],
-            wd.instance_of(wd.type_of_a_chemical_entity), wd.InChIKey)
+            stmts=[wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')],
+            subject=wd.instance_of(wd.type_of_a_chemical_entity),
+            property=wd.InChIKey.replace(None, String)
+        )
         self.store_test_filter(
             kb,
-            [wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')],
-            wd.benzene, wd.related_property(wd.InChI))
+            stmts=[wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')],
+            subject=wd.benzene,
+            property=wd.related_property(wd.InChI)
+        )
         # subject, property, value
         self.store_test_filter(
             kb,
-            [wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
-            wd.benzene, wd.mass, Quantity('78.046950192', wd.dalton))
+            stmts=[wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
+            subject=wd.benzene,
+            property=wd.mass.replace(None, Quantity),
+            value=Quantity('78.046950192', wd.dalton)
+        )
         self.store_test_filter(
             kb,
-            [],
-            wd.benzene, wd.mass, Quantity('78.12', wd.dalton))
+            stmts=[],
+            subject=wd.benzene,
+            property=wd.mass.replace(None, Quantity),
+            value=Quantity('78.12', wd.dalton)
+        )
         # property
         self.store_test_filter(
             kb,
-            [wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
-            None, wd.mass)
+            stmts=[wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
+            subject=None,
+            property=wd.mass.replace(None, Quantity)
+        )
         self.store_test_filter(
             kb,
-            [wd.density(wd.benzene, Quantity(
-                '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))],
-            None, wd.density)
+            stmts=[
+                wd.density(wd.benzene, Quantity(
+                    '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))
+            ],
+            subject=None,
+            property=wd.density.replace(None, Quantity)
+        )
         self.store_test_filter(
             kb,
-            [wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')],
-            None, PropertyFingerprint(
-                [wd.instance_of(
-                    wd.Wikidata_property_to_identify_substances),
-                 wd.related_property(wd.InChI)]))
+            stmts=[wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')],
+            subject=None,
+            property=PropertyFingerprint([
+                wd.instance_of(wd.Wikidata_property_to_identify_substances),
+                wd.related_property(wd.InChI)])
+        )
         # property, value
         self.store_test_filter(
             kb,
-            [wd.density(wd.benzene, Quantity(
-                '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))],
-            None, wd.density, Quantity('.88'))
+            stmts=[
+                wd.density(wd.benzene, Quantity(
+                    '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))
+            ],
+            subject=None,
+            property=wd.density.replace(None, Quantity),
+            value=Quantity('.88')
+        )
         self.store_test_filter(
             kb,
-            [],
-            None, wd.density, Quantity('.88', wd.kilogram))
+            stmts=[],
+            subject=None,
+            property=wd.density.replace(None, Quantity),
+            value=Quantity('.88', wd.kilogram)
+        )
         # value
         self.store_test_filter(
             kb,
-            [],
-            None, None, Text('Brazil', 'en'))
+            stmts=[],
+            subject=None,
+            property=None,
+            value=Text('Brazil', 'en')
+        )
         self.store_test_filter(
             kb,
-            [wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
-            None, None, Quantity('78.046950192'))
+            stmts=[wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
+            subject=None,
+            property=None,
+            value=Quantity('78.046950192')
+        )
         self.store_test_filter(
             kb,
-            [],
-            None, None, Quantity('78.046950192', wd.kilogram))
+            stmts=[],
+            subject=None,
+            property=None,
+            value=Quantity('78.046950192', wd.kilogram)
+        )
         self.store_test_filter(
             kb,
-            [wd.inception(wd.Brazil, Time(
-                '1822-09-07', Time.DAY, 0,
-                wd.proleptic_Gregorian_calendar))],
-            None, None, Time('1822-09-07'))
+            stmts=[
+                wd.inception(wd.Brazil, Time(
+                    '1822-09-07', Time.DAY, 0,
+                    wd.proleptic_Gregorian_calendar))
+            ],
+            subject=None,
+            property=None,
+            value=Time('1822-09-07')
+        )
         self.store_test_filter(
             kb,
-            [],
-            None, None, Time('1822-09-07', Time.YEAR))
+            stmts=[],
+            subject=None,
+            property=None,
+            value=Time('1822-09-07', Time.YEAR)
+        )
         # some value
         self.store_test_filter(
             kb,
-            [Statement(wd.Adam, SomeValueSnak(wd.family_name))],
-            None, wd.family_name, None, Snak.SOME_VALUE_SNAK)
+            stmts=[Statement(wd.Adam, SomeValueSnak(wd.family_name))],
+            subject=None,
+            property=wd.family_name,
+            value=None,
+            snak_mask=Snak.SOME_VALUE_SNAK
+        )
         self.store_test_filter(
             kb,
-            [Statement(wd.Adam, SomeValueSnak(wd.family_name))],
-            None, None, None, Snak.SOME_VALUE_SNAK)
+            stmts=[Statement(wd.Adam, SomeValueSnak(wd.family_name))],
+            subject=None,
+            property=None,
+            value=None,
+            snak_mask=Snak.SOME_VALUE_SNAK
+        )
         # no value
         self.store_test_filter(
             kb,
-            [Statement(wd.Adam, NoValueSnak(wd.date_of_birth))],
-            None, wd.date_of_birth, None, Snak.NO_VALUE_SNAK)
+            stmts=[Statement(wd.Adam, NoValueSnak(wd.date_of_birth))],
+            subject=None,
+            property=wd.date_of_birth,
+            value=None,
+            snak_mask=Snak.NO_VALUE_SNAK
+        )
         self.store_test_filter(
             kb,
-            [Statement(wd.Adam, NoValueSnak(wd.father)),
-             Statement(wd.Adam, NoValueSnak(wd.date_of_birth))],
-            None, None, None, Snak.NO_VALUE_SNAK)
+            stmts=[
+                Statement(wd.Adam, NoValueSnak(wd.father)),
+                Statement(wd.Adam, NoValueSnak(wd.date_of_birth))
+            ],
+            subject=None,
+            property=None,
+            value=None,
+            snak_mask=Snak.NO_VALUE_SNAK
+        )
 
     def test_filter_any_rank(self):
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
@@ -355,15 +423,23 @@ class TestStoreRDF(kif_StoreTestCase):
     def _test_filter_any_rank(self, kb):
         self.store_test_filter(
             kb,
-            [Statement(wd.Adam, NoValueSnak(wd.date_of_birth))],
-            wd.Adam, wd.date_of_birth)
+            stmts=[Statement(wd.Adam, NoValueSnak(wd.date_of_birth))],
+            subject=wd.Adam,
+            property=wd.date_of_birth
+        )
         kb.unset_flags(kb.BEST_RANK)
+        kb.unset_flags(kb.LATE_FILTER)
         self.store_test_filter(
             kb,
-            [Statement(wd.Adam, NoValueSnak(wd.date_of_birth)),
-             wd.date_of_birth(wd.Adam, Time(
-                 '4003-01-01', 9, 0, wd.proleptic_Julian_calendar))],
-            wd.Adam, wd.date_of_birth)
+            stmts=[
+                Statement(wd.Adam, NoValueSnak(wd.date_of_birth)),
+                wd.date_of_birth(wd.Adam, Time(
+                    '4003-01-01', 9, 0, wd.proleptic_Julian_calendar))
+            ],
+            subject=wd.Adam,
+            property=wd.date_of_birth.replace(None, Time)
+        )
+        kb.set_flags(kb.LATE_FILTER)
 
     # -- Annotations -------------------------------------------------------
 

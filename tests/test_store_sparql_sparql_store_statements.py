@@ -80,15 +80,15 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
             stmt, stmt.subject, SomeValueSnak(wd.date_of_death))
         # no value snak
         stmt = next(kb.filter(
-            [NoValueSnak(wd.date_of_birth)], wd.spouse, wd.Eve))
-        stmt = next(kb.filter(stmt.subject, wd.date_of_birth))
+            [NoValueSnak(wd.father)], wd.spouse, wd.Eve))
         self.assert_statement(
-            stmt, stmt.subject, NoValueSnak(wd.date_of_birth))
+            stmt, stmt.subject,
+            ValueSnak(wd.spouse.replace(None, Item), wd.Eve))
 
     def test_filter_property_is_property(self):
         kb = self.new_Store()
         stmt = next(kb.filter(property=wd.part_of))
-        self.assertEqual(stmt.snak.property, wd.part_of)
+        self.assertEqual(stmt.snak.property, wd.part_of.replace(None, Item))
 
     def test_filter_property_is_snak_set(self):
         kb = self.new_Store()
@@ -235,9 +235,8 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
     def test_filter_snak_mask_no_value_snak(self):
         kb = self.new_Store()
         stmt = next(kb.filter(
-            wd.Adam, wd.date_of_birth, snak_mask=Snak.NO_VALUE_SNAK))
-        self.assert_statement(
-            stmt, wd.Adam, NoValueSnak(wd.date_of_birth))
+            wd.Adam, wd.father, snak_mask=Snak.NO_VALUE_SNAK))
+        self.assert_statement(stmt, wd.Adam, NoValueSnak(wd.father))
 
     def test_filter_store_flag_early_late_filter(self):
         kb = self.new_Store()

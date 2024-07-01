@@ -32,7 +32,7 @@ class TestModelPatternFilterPattern(kif_TestCase):
         self.assert_filter_pattern(
             pat,
             EntityFingerprint(Item('x')),
-            PropertyFingerprint(Property('p')),
+            PropertyFingerprint(Property('p', Item)),
             Fingerprint(Item('x')),
             Snak.VALUE_SNAK)
         # some value snak
@@ -61,7 +61,7 @@ class TestModelPatternFilterPattern(kif_TestCase):
         self.assert_filter_pattern(
             pat,
             EntityFingerprint(Item('x')),
-            PropertyFingerprint(Property('p')),
+            PropertyFingerprint(Property('p', IRI)),
             Fingerprint(IRI('y')),
             Snak.VALUE_SNAK)
         # some value snak
