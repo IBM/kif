@@ -338,7 +338,11 @@ class SPARQL_Mapping(ABC):
         def _match(self, pat: FilterPattern) -> bool:
             # Property mismatch.
             if (pat.property is not None
-                    and pat.property.property != self.property):
+                and pat.property.property is not None
+                    and pat.property.property.iri != self.property.iri):
+                ###
+                # FIXME: Handle range mismatch!
+                ###
                 return False
             # Subject mismatch.
             if pat.subject is not None and pat.subject.entity is not None:

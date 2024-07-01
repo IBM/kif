@@ -263,7 +263,7 @@ class SPARQL_MapperStore(
             get_aliases = True
             get_description = True
         instance_of_specs = self.mapping.specs.get(
-            Property(WD['P31']), [])
+            Property(WD['P31'], Item), [])
         label_specs = self.mapping.descriptor_specs.get(
             Property('label'), [])
         alias_specs = self.mapping.descriptor_specs.get(
