@@ -12,6 +12,7 @@ from kif_lib import (
     NoValueSnakTemplate,
     Property,
     PropertyVariable,
+    SomeValueSnakTemplate,
     Variable,
 )
 from kif_lib.typing import assert_type
@@ -29,7 +30,16 @@ class Test(kif_SnakTemplateTestCase):
         assert_type(
             NoValueSnakTemplate.check(NoValueSnakTemplate(Variable('x'))),
             NoValueSnakTemplate)
-        self._test_check(NoValueSnakTemplate)
+        self._test_check(
+            NoValueSnakTemplate,
+            success=[
+                (NoValueSnakTemplate(Variable('x')),
+                 NoValueSnakTemplate(PropertyVariable('x'))),
+            ],
+            failure=[
+                SomeValueSnakTemplate(Variable('x')),
+                Variable('x'),
+            ])
 
     def test__init__(self) -> None:
         assert_type(NoValueSnakTemplate(Variable('x')), NoValueSnakTemplate)

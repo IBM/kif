@@ -1,46 +1,107 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import IRI, Item, Property, Quantity, String, ValueSnak
+from kif_lib import (
+    ExternalId,
+    IRI,
+    Item,
+    ItemTemplate,
+    NoValueSnak,
+    Property,
+    Quantity,
+    SomeValueSnak,
+    String,
+    Text,
+    Time,
+    ValueSnak,
+    ValueSnakTemplate,
+    ValueSnakVariable,
+    Variable,
+)
+from kif_lib.typing import assert_type
 
-from ...tests import kif_TestCase
+from ...tests import kif_SnakTestCase
 
 
-class Test(kif_TestCase):
+class Test(kif_SnakTestCase):
 
-    def test__init__(self):
-        # bad argument
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'cannot coerce int into IRI',
-            ValueSnak, 0, 0)
-        self.assert_raises_bad_argument(
-            TypeError, 1, None, 'cannot coerce dict into IRI',
-            ValueSnak, dict(), 0)
-        self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'cannot coerce dict into Value', ValueSnak, 'x', dict())
-        # good argument
-        self.assert_value_snak(
-            ValueSnak(Property('abc'), IRI('abc')),
-            Property(IRI('abc')), IRI('abc'))
-        self.assert_value_snak(
-            ValueSnak(Property('abc'), String('abc')),
-            Property(IRI('abc')), String('abc'))
-        self.assert_value_snak(
-            ValueSnak(Property('abc'), Property('abc')),
-            Property(IRI('abc')), Property('abc'))
-        self.assert_value_snak(
-            ValueSnak(Property('abc'), Item('abc')),
-            Property(IRI('abc')), Item('abc'))
-        self.assert_value_snak(
-            ValueSnak(Property('abc'), .5),
-            Property('abc'), Quantity(.5))
-        self.assert_value_snak(
-            ValueSnak(Property('abc'), 8),
-            Property('abc'), Quantity(8))
-        self.assert_value_snak(
-            ValueSnak(Property('abc'), 'x'),
-            Property('abc'), String('x'))
+    def test_template_class(self) -> None:
+        assert_type(ValueSnak.template_class, type[ValueSnakTemplate])
+        self.assertIs(ValueSnak.template_class, ValueSnakTemplate)
+
+    def test_variable_class(self) -> None:
+        assert_type(ValueSnak.variable_class, type[ValueSnakVariable])
+        self.assertIs(ValueSnak.variable_class, ValueSnakVariable)
+
+    def test_mask(self) -> None:
+        assert_type(ValueSnak.VALUE_SNAK, ValueSnak.Mask)
+        self.assertEqual(ValueSnak.mask, ValueSnak.VALUE_SNAK)
+        self.assertEqual(ValueSnak.get_mask(), ValueSnak.VALUE_SNAK)
+
+    def test_check(self) -> None:
+        assert_type(ValueSnak.check(ValueSnak('x', 'y')), ValueSnak)
+        self._test_check(
+            ValueSnak,
+            success=[
+                (('x', 'y'), ValueSnak(Property('x'), String('y'))),
+                (('x', ExternalId('y')), ValueSnak('x', ExternalId('y'))),
+                ((IRI('x'), IRI('y')), ValueSnak('x', IRI('y'))),
+                (ValueSnak('x', 'y'), ValueSnak('x', 'y')),
+                ((Property('x', Quantity), Quantity(0)),
+                 ValueSnak(Property('x', Quantity), Quantity(0))),
+                ((String('x'), Time('2024-06-30')),
+                 ValueSnak('x', Time('2024-06-30'))),
+            ],
+            failure=[
+                (0, 'x'),
+                (Item('x'), 'x'),
+                0,
+                Item('x'),
+                ItemTemplate(Variable('x')),
+                NoValueSnak('x'),
+                Quantity(0),
+                SomeValueSnak(Property('x')),
+                Text('x'),
+                Variable('x', Text),
+                {},
+            ])
+
+    def test__init__(self) -> None:
+        assert_type(ValueSnak('x', 'y'), ValueSnak)
+        self._test__init__(
+            ValueSnak,
+            self.assert_value_snak,
+            success=[
+                (['x', 'y'], ValueSnak('x', 'y')),
+                (['x', 0], ValueSnak('x', Quantity(0))),
+                (['x', ExternalId('y')], ValueSnak('x', ExternalId('y'))),
+                (['x', Property('y')], ValueSnak('x', Property('y'))),
+                ([IRI('x'), IRI('y')], ValueSnak('x', IRI('y'))),
+                ([Property('x', Quantity), 0],
+                 ValueSnak(Property('x', Quantity), Quantity(0))),
+                ([Property('x', Quantity), Quantity(0)],
+                 ValueSnak('x', Quantity(0))),
+                ([String('x'), Time('2024-06-30')],
+                 ValueSnak('x', Time('2024-06-30'))),
+            ],
+            failure=[
+                [0, 'x'],
+                [0, 0],
+                [Item('x'), 'x'],
+                [NoValueSnak('x'), NoValueSnak('y')],
+                [Quantity(0), Property('x')],
+                [SomeValueSnak('x'), SomeValueSnak('y')],
+                [String(Variable('x')), Property('y')],
+                [Text('x'), 'x'],
+                [ValueSnak('x', 'x'), 'y'],
+                [Variable('x', Item), Variable('y')],
+                [{}, 'y'],
+            ],
+            failure_value_error=[
+                [Property('x', IRI), Item('x')],
+                [Property('x', Item), Quantity(0)],
+                [Property('x', Property), IRI('x')],
+            ])
 
 
 if __name__ == '__main__':

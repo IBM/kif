@@ -17,11 +17,12 @@ from .some_value_snak import (
     VVSomeValueSnak,
 )
 from .value_snak import (
+    TValueSnak,
     ValueSnak,
     ValueSnakTemplate,
     ValueSnakVariable,
+    VTValueSnak,
     VValueSnak,
-    VVValueSnak,
 )
 
 __all__ = (
@@ -33,11 +34,12 @@ __all__ = (
     'VVSnak',
 
     # value snak
+    'TValueSnak',
     'ValueSnak',
     'ValueSnakTemplate',
     'ValueSnakVariable',
+    'VTValueSnak',
     'VValueSnak',
-    'VVValueSnak',
 
     # some value snak
     'SomeValueSnak',

@@ -743,6 +743,7 @@ if __name__ == '__main__':
             property: VTProperty
     ):
         self.assertIsInstance(obj, SomeValueSnakTemplate)
+        assert isinstance(obj, SomeValueSnakTemplate)
         assert isinstance(property, (PropertyTemplate, PropertyVariable))
         self.assert_snak_template(obj, property)
 
@@ -752,6 +753,7 @@ if __name__ == '__main__':
             property: VProperty,
     ):
         self.assertIsInstance(obj, NoValueSnakTemplate)
+        assert isinstance(obj, NoValueSnakTemplate)
         assert isinstance(property, (PropertyTemplate, PropertyVariable))
         self.assert_snak_template(obj, property)
 
@@ -864,8 +866,6 @@ if __name__ == '__main__':
 
     def assert_snak(self, obj: Snak, prop: Property):
         self.assert_kif_object(obj)
-        self.assertIsInstance(obj, Snak)
-        self.assertTrue(obj.is_snak())
         self.assertIsInstance(obj.property, Property)
         self.assertTrue(obj.property.is_property())
         self.assertEqual(obj.args[0], prop)
@@ -874,14 +874,12 @@ if __name__ == '__main__':
 
     def assert_value_snak(
             self,
-            obj: Snak,
+            obj: ValueSnak,
             prop: Property,
             value: Value
     ):
         self.assertIsInstance(obj, ValueSnak)
-        assert isinstance(obj, ValueSnak)
         self.assert_snak(obj, prop)
-        self.assertTrue(obj.is_value_snak())
         self.assert_value(obj.args[1])
         self.assertEqual(obj.args[1], value)
         self.assertEqual(obj.value, obj.args[1])
@@ -889,19 +887,14 @@ if __name__ == '__main__':
         self.assertEqual(obj.mask, Snak.VALUE_SNAK)
         self.assertEqual(obj.get_mask(), Snak.VALUE_SNAK)
 
-    def assert_some_value_snak(
-            self,
-            obj: Snak,
-            prop: Property
-    ):
+    def assert_some_value_snak(self, obj: SomeValueSnak, prop: Property):
         self.assertIsInstance(obj, SomeValueSnak)
-        assert isinstance(obj, SomeValueSnak)
         self.assert_snak(obj, prop)
-        self.assertTrue(obj.is_some_value_snak())
         self.assertEqual(obj.mask, Snak.SOME_VALUE_SNAK)
         self.assertEqual(obj.get_mask(), Snak.SOME_VALUE_SNAK)
 
     def assert_no_value_snak(self, obj: NoValueSnak, prop: Property):
+        self.assertIsInstance(obj, NoValueSnak)
         self.assert_snak(obj, prop)
         self.assertEqual(obj.mask, Snak.NO_VALUE_SNAK)
         self.assertEqual(obj.get_mask(), Snak.NO_VALUE_SNAK)

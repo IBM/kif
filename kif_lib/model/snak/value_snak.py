@@ -1,10 +1,23 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ...typing import Any, ClassVar, override, TypeAlias, Union
+from ...typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Optional,
+    override,
+    Self,
+    TypeAlias,
+    Union,
+)
 from ..template import Template
 from ..value import (
+    Datatype,
     Property,
+    PropertyTemplate,
+    TProperty,
+    TValue,
     Value,
     ValueTemplate,
     ValueVariable,
@@ -15,10 +28,10 @@ from ..value import (
 from ..variable import Variable
 from .snak import Snak, SnakTemplate, SnakVariable
 
+TValueSnak: TypeAlias = Union['ValueSnak', tuple[TProperty, TValue]]
+VTValueSnak: TypeAlias = Union[Variable, 'VValueSnak', TValueSnak]
 VValueSnak: TypeAlias =\
     Union['ValueSnakTemplate', 'ValueSnakVariable', 'ValueSnak']
-
-VVValueSnak: TypeAlias = Union[Variable, VValueSnak]
 
 
 class ValueSnakTemplate(SnakTemplate):
@@ -47,6 +60,66 @@ class ValueSnakTemplate(SnakTemplate):
                 return ValueSnak._static_preprocess_arg(self, arg, i)
         else:
             raise self._should_not_get_here()
+
+    @override
+    def _set_args(self, args: tuple[Any, ...]):
+        prop, value = args
+        if isinstance(prop, Variable):  # nothing to do
+            super()._set_args(args)
+            return
+        assert isinstance(prop, (Property, PropertyTemplate))
+        if isinstance(prop.range, Variable):  # nothing to do
+            super()._set_args(args)
+            return
+        assert isinstance(prop.range, (Datatype, type(None)))
+        if prop.range is None:  # guess prop.range
+            dt: Optional[Datatype] = None
+            if (isinstance(value, Variable)
+                and hasattr(value, 'object_class')
+                    and hasattr(value.object_class, 'datatype')):
+                assert isinstance(value, ValueVariable)
+                assert hasattr(value, 'object_class')
+                assert hasattr(value.object_class, 'datatype')
+                dt = value.object_class.datatype
+            elif isinstance(value, Value):
+                assert hasattr(value, 'datatype')
+                dt = value.datatype
+            elif isinstance(value, Template):
+                assert isinstance(value, ValueTemplate)
+                assert hasattr(value, 'object_class')
+                assert hasattr(value.object_class, 'datatype')
+                dt = value.object_class.datatype
+            if dt is not None:
+                prop = prop.replace(prop.iri, dt)
+                super()._set_args((prop, value))
+            else:
+                super()._set_args(args)
+            return
+        assert prop.range is not None
+        prop_dt: Datatype = prop.range
+        if isinstance(value, Variable):  # coerce value into prop.range
+            super()._set_args((
+                prop,
+                prop_dt.value_class.variable_class.check(
+                    value, type(self), 'value', 2)))
+            return
+        assert isinstance(value, (Value, ValueTemplate))
+        if isinstance(value, Value):
+            assert hasattr(value, 'datatype')
+            value_dt: Datatype = value.datatype
+        elif isinstance(value, ValueTemplate):
+            assert hasattr(value, 'object_class')
+            assert hasattr(value.object_class, 'datatype')
+            value_dt = value.object_class.datatype
+        else:
+            raise self._should_not_get_here()
+        if prop_dt != value_dt:  # range-value mismatch
+            src = prop_dt.value_class.__qualname__
+            tgt = value_dt.value_class.__qualname__
+            raise self._arg_error(
+                f"cannot apply {src} property to {tgt}",
+                type(self), 'value', 2, ValueError)
+        super()._set_args((prop, value))
 
     @property
     def value(self) -> VValue:
@@ -89,29 +162,26 @@ class ValueSnak(
 
     mask: ClassVar[Snak.Mask] = Snak.VALUE_SNAK
 
-    # class DatatypeError(ValueError):
-    #     """Bad property application attempt."""
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, tuple) and len(arg) >= 2:
+            return cls(
+                Property.check(arg[0], function or cls.check, name, position),
+                Value.check(arg[1], function or cls.check, name, position))
+        else:
+            raise cls._check_error(arg, function, name, position)
 
     def __init__(self, property: VTProperty, value: VTValue):
         super().__init__(property, value)
-
-    # @override
-    # def _set_args(self, args: TArgs):
-    #     prop, value = args
-    #     assert isinstance(prop, Property)
-    #     assert isinstance(value, Value)
-    #     if prop.range is None:
-    #         prop = prop.replace(prop.iri, value.datatype)
-    #         self._args = (prop, value)
-    #     else:
-    #         if prop.range != value.datatype:
-    #             exp = prop.range.value_class.__qualname__
-    #             got = value.datatype.value_class.__qualname__
-    #             raise self._arg_error(
-    #                 f"property expected {exp}, got {got}",
-    #                 self.__class__, 'value', None, self.DatatypeError)
-    #         else:
-    #             self._args = args
 
     @staticmethod
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
@@ -121,6 +191,23 @@ class ValueSnak(
             return Value.check(arg, type(self_), None, i)
         else:
             raise self_._should_not_get_here()
+
+    @override
+    def _set_args(self, args: tuple[Any, ...]):
+        prop, value = args
+        assert isinstance(prop, Property)
+        assert isinstance(value, Value)
+        if prop.range is None:
+            prop = prop.replace(prop.iri, value.datatype)
+            super()._set_args((prop, value))
+        elif prop.range != value.datatype:
+            src = prop.range.value_class.__qualname__
+            tgt = value.datatype.value_class.__qualname__
+            raise self._arg_error(
+                f"cannot apply {src} property to {tgt}",
+                type(self), 'value', 2, ValueError)
+        else:
+            super()._set_args(args)
 
     @property
     def value(self) -> Value:

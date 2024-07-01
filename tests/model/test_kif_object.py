@@ -1207,7 +1207,7 @@ class Test(kif_TestCase):
     def test_check_some_value_snak(self):
         snak = SomeValueSnak(Property('x'))
         self.assertEqual(snak.check_some_value_snak(), snak)
-        self.assertRaises(TypeError, String('x').check_some_value_snak)
+        self.assertRaises(TypeError, Item('x').check_some_value_snak)
 
     def test_check_some_value_snak_template(self):
         self.assertEqual(
@@ -1778,7 +1778,7 @@ class Test(kif_TestCase):
     def test_unpack_some_value_snak(self):
         snak = SomeValueSnak(Property('x'))
         self.assertEqual(snak.unpack_some_value_snak(), (Property('x'),))
-        self.assertRaises(TypeError, String('x').unpack_some_value_snak)
+        self.assertRaises(TypeError, Item('x').unpack_some_value_snak)
 
     def test_unpack_some_value_snak_template(self):
         self.assertEqual(

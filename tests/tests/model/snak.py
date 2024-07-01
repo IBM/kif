@@ -27,10 +27,14 @@ class kif_SnakTemplateTestCase(kif_TemplateTestCase):
             assert_fn: Callable[..., None],
             success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
             failure: Iterable[Sequence[Any]] = tuple(),
-            normalize: Iterable[Sequence[Any]] = tuple()
+            normalize: Iterable[Sequence[Any]] = tuple(),
+            failure_value_error: Iterable[Sequence[Any]] = tuple()
     ) -> None:
         assert issubclass(cls, SnakTemplate)
         super()._test__init__(cls, assert_fn, success, failure, normalize)
+        for t in failure_value_error:
+            self.logger.debug('failure_value_error: %s', t)
+            self.assertRaisesRegex(ValueError, 'cannot apply', cls, *t)
 
 
 class kif_SnakTestCase(kif_ObjectTestCase):
@@ -51,7 +55,11 @@ class kif_SnakTestCase(kif_ObjectTestCase):
             cls: type[_Obj],
             assert_fn: Callable[..., None],
             success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
-            failure: Iterable[Sequence[Any]] = tuple()
+            failure: Iterable[Sequence[Any]] = tuple(),
+            failure_value_error: Iterable[Sequence[Any]] = tuple()
     ) -> None:
         assert issubclass(cls, Snak)
         super()._test__init__(cls, assert_fn, success, failure)
+        for t in failure_value_error:
+            self.logger.debug('failure_value_error: %s', t)
+            self.assertRaisesRegex(ValueError, 'cannot apply', cls, *t)

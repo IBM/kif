@@ -8,6 +8,7 @@ from kif_lib import (
     Item,
     ItemVariable,
     KIF_Object,
+    NoValueSnakTemplate,
     Property,
     PropertyVariable,
     SomeValueSnak,
@@ -29,7 +30,16 @@ class Test(kif_SnakTemplateTestCase):
         assert_type(
             SomeValueSnakTemplate.check(SomeValueSnakTemplate(Variable('x'))),
             SomeValueSnakTemplate)
-        self._test_check(SomeValueSnakTemplate)
+        self._test_check(
+            SomeValueSnakTemplate,
+            success=[
+                (SomeValueSnakTemplate(Variable('x')),
+                 SomeValueSnakTemplate(PropertyVariable('x'))),
+            ],
+            failure=[
+                NoValueSnakTemplate(Variable('x')),
+                Variable('x'),
+            ])
 
     def test__init__(self) -> None:
         assert_type(
