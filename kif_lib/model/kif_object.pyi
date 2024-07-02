@@ -42,7 +42,6 @@ from .set import (
     ReferenceRecord,
     ReferenceRecordSet,
     SnakSet,
-    T_KIF_ObjectSet,
     TAnnotationRecordSet,
     TextSet,
     TReferenceRecord,
@@ -1100,7 +1099,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_arg_kif_object_set(
             cls,
-            arg: T_KIF_ObjectSet,
+            arg: KIF_ObjectSet,
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
@@ -3044,7 +3043,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_optional_arg_kif_object_set(
             cls,
-            arg: Optional[T_KIF_ObjectSet],
+            arg: Optional[KIF_ObjectSet],
             default: Optional[KIF_ObjectSet] = ...,
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
@@ -4696,7 +4695,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _preprocess_arg_kif_object_set(
             cls,
-            arg: T_KIF_ObjectSet,
+            arg: KIF_ObjectSet,
             i: int,
             function: Optional[Union[TCallable, str]] = ...
     ) -> KIF_ObjectSet:
@@ -5574,7 +5573,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _preprocess_optional_arg_kif_object_set(
             cls,
-            arg: Optional[T_KIF_ObjectSet],
+            arg: Optional[KIF_ObjectSet],
             i: int,
             default: Optional[KIF_ObjectSet] = ...,
             function: Optional[Union[TCallable, str]] = ...,

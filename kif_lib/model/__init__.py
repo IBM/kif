@@ -42,7 +42,6 @@ from .set import (
     ReferenceRecord,
     ReferenceRecordSet,
     SnakSet,
-    T_KIF_ObjectSet,
     TAnnotationRecordSet,
     TextSet,
     TReferenceRecord,

@@ -267,11 +267,7 @@ class Test(kif_TestCase):
         self.assertTrue(Item('x').test_kif_object())
 
     def test_is_kif_object_set(self):
-        snak = ValueSnak(Property('x'), Item('y'))
-        self.assertTrue(SnakSet().is_kif_object_set())
-        self.assertTrue(KIF_ObjectSet(snak).test_kif_object_set())
-        self.assertFalse(String('x').is_kif_object_set())
-        self.assertFalse(snak.test_kif_object_set())
+        pass
 
     def test_is_entity(self):
         self.assertTrue(Item('x').is_entity())
@@ -1010,10 +1006,7 @@ class Test(kif_TestCase):
         self.assertEqual(Item('x').check_kif_object(), Item('x'))
 
     def test_check_kif_object_set(self):
-        objs = KIF_ObjectSet(Item('x'), Property('y'))
-        self.assertEqual(objs.check_kif_object_set(), objs)
-        self.assertEqual(SnakSet().check_kif_object_set(), SnakSet())
-        self.assertRaises(TypeError, Item('x').check_kif_object_set)
+        pass
 
     def test_check_lexeme(self):
         self.assertEqual(Lexeme('x').check_lexeme(), Lexeme('x'))
@@ -1572,10 +1565,7 @@ class Test(kif_TestCase):
         self.assertEqual(Item('x').unpack_kif_object(), (IRI('x'),))
 
     def test_unpack_kif_object_set(self):
-        objs = KIF_ObjectSet(Item('x'), Property('y'))
-        self.assertEqual(
-            objs.unpack_kif_object_set(), (Item('x'), Property('y')))
-        self.assertRaises(TypeError, Item('x').unpack_kif_object_set)
+        pass
 
     def test_unpack_lexeme(self):
         pass

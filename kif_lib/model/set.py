@@ -4,20 +4,21 @@
 from ..typing import (
     Any,
     Callable,
+    cast,
     ClassVar,
+    Generic,
     Iterable,
     Optional,
     override,
     Self,
     TypeAlias,
+    TypeVar,
     Union,
 )
 from .annotation_record import AnnotationRecord
 from .kif_object import KIF_Object
 from .snak import Snak
 from .value import Text, TText, TValue, Value
-
-T_KIF_ObjectSet: TypeAlias = Union['KIF_ObjectSet', Iterable[KIF_Object]]
 
 TValueSet = Union['ValueSet', Iterable[TValue]]
 
@@ -32,15 +33,17 @@ TReferenceRecordSet = Union['ReferenceRecordSet', Iterable[TReferenceRecord]]
 TAnnotationRecordSet: TypeAlias =\
     Union['AnnotationRecordSet', Iterable[AnnotationRecord]]
 
+TObj = TypeVar('TObj', bound=KIF_Object)
 
-class KIF_ObjectSet(KIF_Object):
+
+class KIF_ObjectSet(KIF_Object, Generic[TObj]):
     """Set of KIF objects.
 
     Parameters:
        objects: KIF objects.
     """
 
-    children_class: ClassVar[type[KIF_Object]] = KIF_Object  # pyright: ignore
+    children_class: ClassVar[type[KIF_Object]] = KIF_Object
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -62,8 +65,8 @@ class KIF_ObjectSet(KIF_Object):
             return arg
         elif not isinstance(arg, KIF_Object) and isinstance(arg, Iterable):
             return cls(*map(
-                lambda x: cls.children_class.check(
-                    x, function or cls.check, name, position), arg))
+                lambda x: cast(TObj, cls.children_class.check(
+                    x, function or cls.check, name, position)), arg))
         else:
             raise cls._check_error(arg, function, name, position)
 
@@ -71,11 +74,7 @@ class KIF_ObjectSet(KIF_Object):
         '_frozenset',
     )
 
-    _frozenset: frozenset[KIF_Object]
-
-    @override
-    def __init__(self, *objects: KIF_Object):
-        super().__init__(*objects)
+    _frozenset: frozenset[TObj]
 
     @override
     def _set_args(self, args: tuple[Any, ...]):
@@ -105,7 +104,7 @@ class KIF_ObjectSet(KIF_Object):
             lambda x: x._frozenset, others)))
 
 
-class ValueSet(KIF_ObjectSet, children_class=Value):
+class ValueSet(KIF_ObjectSet[Value], children_class=Value):
     """Set of values.
 
     Parameters:
@@ -116,7 +115,7 @@ class ValueSet(KIF_ObjectSet, children_class=Value):
 
     @override
     def __init__(self, *values: TValue):
-        super().__init__(*values)  # type: ignore
+        super().__init__(*values)
 
 
 class TextSet(ValueSet, children_class=Text):
@@ -130,10 +129,10 @@ class TextSet(ValueSet, children_class=Text):
 
     @override
     def __init__(self, *texts: TText):
-        super().__init__(*texts)  # type: ignore
+        super().__init__(*texts)
 
 
-class SnakSet(KIF_ObjectSet, children_class=Snak):
+class SnakSet(KIF_ObjectSet[Snak], children_class=Snak):
     """Set of snaks.
 
     Parameters:
@@ -144,7 +143,7 @@ class SnakSet(KIF_ObjectSet, children_class=Snak):
 
     @override
     def __init__(self, *snaks: Snak):
-        super().__init__(*snaks)  # type: ignore
+        super().__init__(*snaks)
 
 
 class ReferenceRecord(SnakSet, children_class=Snak):
@@ -154,22 +153,44 @@ class ReferenceRecord(SnakSet, children_class=Snak):
        snaks: Snaks.
     """
 
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, SnakSet):
+            return cls(*arg)
+        else:
+            return super().check(arg, function, name, position)
 
-class ReferenceRecordSet(KIF_ObjectSet, children_class=ReferenceRecord):
+
+class ReferenceRecordSet(
+        KIF_ObjectSet[ReferenceRecord],
+        children_class=ReferenceRecord
+):
     """Set of reference records.
 
     Parameters:
-       refs: Reference records.
+       reference_records: Reference records.
     """
 
     children_class: ClassVar[type[ReferenceRecord]]  # pyright: ignore
 
     @override
-    def __init__(self, *objects: TReferenceRecord):
-        super().__init__(*objects)  # type: ignore
+    def __init__(self, *reference_records: TReferenceRecord):
+        super().__init__(*reference_records)
 
 
-class AnnotationRecordSet(KIF_ObjectSet, children_class=AnnotationRecord):
+class AnnotationRecordSet(
+        KIF_ObjectSet[AnnotationRecord],
+        children_class=AnnotationRecord
+):
     """Set of annotation records.
 
     Parameters:
@@ -180,4 +201,4 @@ class AnnotationRecordSet(KIF_ObjectSet, children_class=AnnotationRecord):
 
     @override
     def __init__(self, *annotation_records: AnnotationRecord):
-        super().__init__(*annotation_records)  # type: ignore
+        super().__init__(*annotation_records)

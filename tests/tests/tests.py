@@ -146,10 +146,12 @@ from kif_lib.typing import (
     Iterator,
     Optional,
     Set,
+    TypeVar,
     Union,
 )
 
 TESTS_TESTS_DIR: Final[pathlib.Path] = pathlib.Path(__file__).parent
+TObj = TypeVar('TObj', bound=KIF_Object)
 
 
 class kif_TestCase(unittest.TestCase):
@@ -272,10 +274,9 @@ if __name__ == '__main__':
 
 # -- KIF_ObjectSet ---------------------------------------------------------
 
-    def assert_kif_object_set(self, obj: KIF_ObjectSet, *args: KIF_Object):
+    def assert_kif_object_set(self, obj: KIF_ObjectSet[TObj], *args: TObj):
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, KIF_ObjectSet)
-        self.assertTrue(obj.is_kif_object_set())
         for i, arg in enumerate(obj):
             self.assertIsInstance(arg, KIF_Object)
             self.assertEqual(arg, args[i])
@@ -864,9 +865,8 @@ if __name__ == '__main__':
 # -- Annotations -----------------------------------------------------------
 
     def assert_reference_record(self, obj: ReferenceRecord, *snaks: Snak):
-        self.assert_snak_set(obj, *snaks)
         self.assertIsInstance(obj, ReferenceRecord)
-        self.assertTrue(obj.is_reference_record())
+        self.assert_snak_set(obj, *snaks)
 
     def assert_rank(self, obj: Rank):
         self.assert_kif_object(obj)

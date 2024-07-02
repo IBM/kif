@@ -1,6 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from .set import kif_ObjectSetTestCase
 from .snak import kif_SnakTemplateTestCase, kif_SnakTestCase
 from .statement import kif_StatementTemplateTestCase, kif_StatementTestCase
 from .template import kif_TemplateTestCase
@@ -56,4 +57,7 @@ __all__ = (
     # statement
     'kif_StatementTemplateTestCase',
     'kif_StatementTestCase',
+
+    # set
+    'kif_ObjectSetTestCase',
 )
