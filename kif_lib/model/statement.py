@@ -16,10 +16,10 @@ from .snak import (
     Snak,
     SnakTemplate,
     SnakVariable,
-    TValueSnak,
+    TSnak,
     ValueSnak,
     VSnak,
-    VVSnak,
+    VTSnak,
 )
 from .template import Template
 from .value import (
@@ -36,8 +36,7 @@ from .variable import Variable
 
 TStatement: TypeAlias =\
     Union['Statement',
-          tuple[TEntity, Snak],
-          tuple[TEntity, TValueSnak],
+          tuple[TEntity, TSnak],
           tuple[TEntity, TProperty, TValue]]
 VStatement: TypeAlias =\
     Union['StatementTemplate', 'StatementVariable', 'Statement']
@@ -54,7 +53,7 @@ class StatementTemplate(Template):
 
     object_class: ClassVar[type['Statement']]  # pyright: ignore
 
-    def __init__(self, subject: VTEntity, snak: VVSnak):
+    def __init__(self, subject: VTEntity, snak: VTSnak):
         super().__init__(subject, snak)
 
     @override
@@ -152,7 +151,7 @@ class Statement(
         else:
             raise cls._check_error(arg, function, name, position)
 
-    def __init__(self, subject: VTEntity, snak: VVSnak):
+    def __init__(self, subject: VTEntity, snak: VTSnak):
         super().__init__(subject, snak)
 
     @override

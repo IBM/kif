@@ -17,14 +17,14 @@ from ..typing import (
 )
 from .annotation_record import AnnotationRecord
 from .kif_object import KIF_Object
-from .snak import Snak
+from .snak import Snak, TSnak
 from .value import Text, TText, TValue, Value
 
 TValueSet = Union['ValueSet', Iterable[TValue]]
 
 TTextSet = Union['TextSet', Iterable[TText]]
 
-TSnakSet: TypeAlias = Union['SnakSet', Iterable[Snak]]
+TSnakSet: TypeAlias = Union['SnakSet', Iterable[TSnak]]
 
 TReferenceRecord: TypeAlias = Union['ReferenceRecord', TSnakSet]
 
@@ -33,10 +33,10 @@ TReferenceRecordSet = Union['ReferenceRecordSet', Iterable[TReferenceRecord]]
 TAnnotationRecordSet: TypeAlias =\
     Union['AnnotationRecordSet', Iterable[AnnotationRecord]]
 
-TObj = TypeVar('TObj', bound=KIF_Object)
+_TObj = TypeVar('_TObj', bound=KIF_Object)
 
 
-class KIF_ObjectSet(KIF_Object, Generic[TObj]):
+class KIF_ObjectSet(KIF_Object, Generic[_TObj]):
     """Set of KIF objects.
 
     Parameters:
@@ -65,7 +65,7 @@ class KIF_ObjectSet(KIF_Object, Generic[TObj]):
             return arg
         elif not isinstance(arg, KIF_Object) and isinstance(arg, Iterable):
             return cls(*map(
-                lambda x: cast(TObj, cls.children_class.check(
+                lambda x: cast(_TObj, cls.children_class.check(
                     x, function or cls.check, name, position)), arg))
         else:
             raise cls._check_error(arg, function, name, position)
@@ -74,7 +74,7 @@ class KIF_ObjectSet(KIF_Object, Generic[TObj]):
         '_frozenset',
     )
 
-    _frozenset: frozenset[TObj]
+    _frozenset: frozenset[_TObj]
 
     @override
     def _set_args(self, args: tuple[Any, ...]):

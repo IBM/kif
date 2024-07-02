@@ -127,10 +127,10 @@ from kif_lib.model import (
     VTime,
     VTItem,
     VTProperty,
+    VTSnak,
     VTValue,
     VValue,
     VValueSnak,
-    VVSnak,
 )
 from kif_lib.model.object import Object
 from kif_lib.model.value.quantity import VTQuantityContent
@@ -721,7 +721,7 @@ if __name__ == '__main__':
             self,
             obj: VStatement,
             subject: VTEntity,
-            snak: VVSnak
+            snak: VTSnak
     ):
         self.assertIsInstance(obj, StatementTemplate)
         assert isinstance(obj, StatementTemplate)

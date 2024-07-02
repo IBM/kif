@@ -23,7 +23,6 @@ from kif_lib import (
     ItemDatatype,
     ItemDescriptor,
     KIF_Object,
-    KIF_ObjectSet,
     Lexeme,
     LexemeDatatype,
     LexemeDescriptor,

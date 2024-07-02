@@ -3,6 +3,8 @@
 
 import enum
 
+from typing_extensions import TYPE_CHECKING
+
 from ...typing import (
     Any,
     Callable,
@@ -20,10 +22,14 @@ from ..template import Template
 from ..value import Property, PropertyTemplate, PropertyVariable, VProperty
 from ..variable import Variable
 
+if TYPE_CHECKING:                      # pragma: no cover
+    from .value_snak import TValueSnak  # noqa: F401
+
 at_property = property
 
+TSnak: TypeAlias = Union['Snak', 'TValueSnak']
 VSnak: TypeAlias = Union['SnakTemplate', 'SnakVariable', 'Snak']
-VVSnak: TypeAlias = Union[Variable, VSnak]
+VTSnak: TypeAlias = Union[Variable, VSnak, TSnak]
 
 
 class SnakTemplate(Template):

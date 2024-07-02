@@ -8,7 +8,7 @@ from .no_value_snak import (
     VNoValueSnak,
     VVNoValueSnak,
 )
-from .snak import Snak, SnakTemplate, SnakVariable, VSnak, VVSnak
+from .snak import Snak, SnakTemplate, SnakVariable, TSnak, VSnak, VTSnak
 from .some_value_snak import (
     SomeValueSnak,
     SomeValueSnakTemplate,
@@ -30,8 +30,9 @@ __all__ = (
     'Snak',
     'SnakTemplate',
     'SnakVariable',
+    'TSnak',
     'VSnak',
-    'VVSnak',
+    'VTSnak',
 
     # value snak
     'TValueSnak',
