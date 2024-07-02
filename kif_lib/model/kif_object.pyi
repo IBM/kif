@@ -18,7 +18,6 @@ from ..typing import (
 )
 from . import object
 from .annotation_record import AnnotationRecord
-from .annotation_record_set import AnnotationRecordSet, TAnnotationRecordSet
 from .descriptor import (
     Descriptor,
     ItemDescriptor,
@@ -34,12 +33,25 @@ from .fingerprint import (
     TFingerprint,
     TPropertyFingerprint,
 )
-from .kif_object_set import KIF_ObjectSet, T_KIF_ObjectSet
 from .pattern import Pattern
 from .pattern_deprecated import FilterPattern
 from .rank import DeprecatedRank, NormalRank, PreferredRank, Rank
-from .reference_record import ReferenceRecord, TReferenceRecord
-from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
+from .set import (
+    AnnotationRecordSet,
+    KIF_ObjectSet,
+    ReferenceRecord,
+    ReferenceRecordSet,
+    SnakSet,
+    T_KIF_ObjectSet,
+    TAnnotationRecordSet,
+    TextSet,
+    TReferenceRecord,
+    TReferenceRecordSet,
+    TSnakSet,
+    TTextSet,
+    TValueSet,
+    ValueSet,
+)
 from .snak import (
     NoValueSnak,
     NoValueSnakTemplate,
@@ -54,7 +66,6 @@ from .snak import (
     ValueSnakTemplate,
     ValueSnakVariable,
 )
-from .snak_set import SnakSet, TSnakSet
 from .statement import Statement, StatementTemplate, StatementVariable
 from .template import Template, TemplateClass, TTemplateClass
 from .value import (
@@ -122,7 +133,6 @@ from .value import (
     ValueTemplate,
     ValueVariable,
 )
-from .value_set import TextSet, TTextSet, TValueSet, ValueSet
 from .variable import TVariableClass, Variable, VariableClass
 
 Codec = object.Codec

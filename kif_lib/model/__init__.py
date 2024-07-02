@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from .annotation_record import AnnotationRecord
-from .annotation_record_set import AnnotationRecordSet, TAnnotationRecordSet
 from .descriptor import (
     Descriptor,
     ItemDescriptor,
@@ -26,7 +25,6 @@ from .kif_object import (
     TLocation,
     TNil,
 )
-from .kif_object_set import KIF_ObjectSet, T_KIF_ObjectSet
 from .pattern import Pattern
 from .pattern_deprecated import FilterPattern
 from .rank import (
@@ -38,8 +36,22 @@ from .rank import (
     PreferredRank,
     Rank,
 )
-from .reference_record import ReferenceRecord, TReferenceRecord
-from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
+from .set import (
+    AnnotationRecordSet,
+    KIF_ObjectSet,
+    ReferenceRecord,
+    ReferenceRecordSet,
+    SnakSet,
+    T_KIF_ObjectSet,
+    TAnnotationRecordSet,
+    TextSet,
+    TReferenceRecord,
+    TReferenceRecordSet,
+    TSnakSet,
+    TTextSet,
+    TValueSet,
+    ValueSet,
+)
 from .snak import (
     NoValueSnak,
     NoValueSnakTemplate,
@@ -59,7 +71,6 @@ from .snak import (
     VValueSnak,
     VVSnak,
 )
-from .snak_set import SnakSet, TSnakSet
 from .statement import (
     Statement,
     StatementTemplate,
@@ -152,7 +163,6 @@ from .value import (
     VTValue,
     VValue,
 )
-from .value_set import TextSet, TTextSet, TValueSet, ValueSet
 from .variable import Theta, Variable, VariableClass, Variables
 
 __all__ = (

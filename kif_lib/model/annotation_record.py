@@ -1,11 +1,14 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from typing_extensions import TYPE_CHECKING
+
 from ..typing import Any, Optional, override
 from .kif_object import KIF_Object
 from .rank import Normal, Rank
-from .reference_record_set import ReferenceRecordSet, TReferenceRecordSet
-from .snak_set import SnakSet, TSnakSet
+
+if TYPE_CHECKING:               # pragma: no cover
+    from .set import ReferenceRecordSet, SnakSet, TReferenceRecordSet, TSnakSet
 
 
 class AnnotationRecord(KIF_Object):
@@ -19,8 +22,8 @@ class AnnotationRecord(KIF_Object):
 
     def __init__(
             self,
-            qualifiers: Optional[TSnakSet] = None,
-            references: Optional[TReferenceRecordSet] = None,
+            qualifiers: Optional['TSnakSet'] = None,
+            references: Optional['TReferenceRecordSet'] = None,
             rank: Optional[Rank] = None
     ):
         super().__init__(qualifiers, references, rank)
@@ -28,21 +31,23 @@ class AnnotationRecord(KIF_Object):
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
-            return self._preprocess_optional_arg_snak_set(arg, i, SnakSet())
+            from .set import SnakSet
+            return SnakSet.check_optional(arg, SnakSet(), type(self), None, i)
         elif i == 2:
-            return self._preprocess_optional_arg_reference_record_set(
-                arg, i, ReferenceRecordSet())
+            from .set import ReferenceRecordSet
+            return ReferenceRecordSet.check_optional(
+                arg, ReferenceRecordSet(), type(self), None, i)
         elif i == 3:
-            return self._preprocess_optional_arg_rank(arg, i, Normal)
+            return Rank.check_optional(arg, Normal, type(self), None, i)
         else:
             raise self._should_not_get_here()
 
     @property
-    def qualifiers(self) -> SnakSet:
+    def qualifiers(self) -> 'SnakSet':
         """The qualifiers of annotation record."""
         return self.get_qualifiers()
 
-    def get_qualifiers(self) -> SnakSet:
+    def get_qualifiers(self) -> 'SnakSet':
         """Gets the qualifiers of annotation record.
 
         Returns:
@@ -51,11 +56,11 @@ class AnnotationRecord(KIF_Object):
         return self.args[0]
 
     @property
-    def references(self) -> ReferenceRecordSet:
+    def references(self) -> 'ReferenceRecordSet':
         """The references of annotation record."""
         return self.get_references()
 
-    def get_references(self) -> ReferenceRecordSet:
+    def get_references(self) -> 'ReferenceRecordSet':
         """Gets the references of annotation record.
 
         Returns:

@@ -5,8 +5,8 @@ from collections.abc import Iterable
 
 from ..typing import Any, cast, Optional, override, Union
 from .kif_object import KIF_Object, TLocation
+from .set import SnakSet, TSnakSet
 from .snak import Snak
-from .snak_set import SnakSet, TSnakSet
 from .value import Entity, Property, Value
 
 TFingerprint = Union['Fingerprint', Value, Snak, TSnakSet]
