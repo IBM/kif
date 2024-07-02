@@ -30,7 +30,7 @@ class TestModelReferenceRecordSet(kif_TestCase):
     def test__preprocess_optional_arg_reference_record_set(self):
         refs = ReferenceRecordSet(
             [NoValueSnak(Property('p'))],
-            SnakSet(SomeValueSnak(Property('p'))))
+            iter(SnakSet(SomeValueSnak(Property('p')))))
         self.assertIs(
             refs,
             KIF_Object._preprocess_optional_arg_reference_record_set(
@@ -54,7 +54,7 @@ class TestModelReferenceRecordSet(kif_TestCase):
             TypeError, ReferenceRecordSet, SomeValueSnak(Property('p')))
         self.assertFalse(bool(ReferenceRecordSet()))
         self.assertTrue(bool(ReferenceRecordSet(
-            SnakSet(NoValueSnak(Property('p'))))))
+            ReferenceRecord(NoValueSnak(Property('p'))))))
         self.assert_reference_record_set(ReferenceRecordSet())
         refs = [
             ReferenceRecord(NoValueSnak(Property('p')),

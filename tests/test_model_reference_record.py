@@ -3,7 +3,6 @@
 
 from kif_lib import (
     IRI,
-    KIF_Object,
     NoValueSnak,
     Property,
     ReferenceRecord,
@@ -15,32 +14,6 @@ from .tests import kif_TestCase
 
 
 class TestModelReferenceRecord(kif_TestCase):
-
-    def test__preprocess_arg_reference_record(self):
-        refs = ReferenceRecord(
-            NoValueSnak(Property('p')), Property('q')(IRI('x')))
-        self.assertIs(refs, KIF_Object._preprocess_arg_reference_record(
-            refs, 1))
-        self.assertEqual(
-            refs,
-            KIF_Object._preprocess_arg_reference_record(SnakSet(*refs), 1))
-        self.assertEqual(refs, KIF_Object._preprocess_arg_reference_record(
-            list(refs), 1))
-
-    def test__preprocess_optional_arg_reference_record(self):
-        refs = ReferenceRecord(NoValueSnak(Property('p')))
-        self.assertIs(
-            refs, KIF_Object._preprocess_optional_arg_reference_record(
-                refs, 1, None))
-        self.assertIs(
-            refs, KIF_Object._preprocess_optional_arg_reference_record(
-                None, 1, refs))
-        self.assertIsNone(
-            KIF_Object._preprocess_optional_arg_reference_record(
-                None, 1, None))
-        self.assertEqual(
-            refs, KIF_Object._preprocess_optional_arg_reference_record(
-                list(refs), 1))
 
     def test__init__(self):
         self.assertFalse(bool(ReferenceRecord()))

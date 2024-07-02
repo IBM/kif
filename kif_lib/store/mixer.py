@@ -222,7 +222,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
         assert d2 is not None
         return ItemDescriptor(
             d1.label if d1.label is not None else d2.label,
-            d1.aliases.frozenset | d2.aliases.frozenset,
+            d1.aliases.union(d2.aliases),
             d1.description if d1.description is not None else d2.description)
 
     @override
@@ -247,7 +247,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
         assert d2 is not None
         return PropertyDescriptor(
             d1.label if d1.label is not None else d2.label,
-            d1.aliases.frozenset | d2.aliases.frozenset,
+            d1.aliases.union(d2.aliases),
             d1.description if d1.description is not None else d2.description,
             d1.datatype if d1.datatype is not None else d2.datatype)
 

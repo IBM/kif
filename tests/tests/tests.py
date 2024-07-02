@@ -279,78 +279,37 @@ if __name__ == '__main__':
         for i, arg in enumerate(obj):
             self.assertIsInstance(arg, KIF_Object)
             self.assertEqual(arg, args[i])
-        self.assertEqual(obj.frozenset, set(args))
-        self.assertEqual(obj.get_frozenset(), obj.frozenset)
+        self.assertEqual(obj._frozenset, set(args))
         for arg in args:
             self.assertIn(arg, obj)
 
     def assert_value_set(self, obj: ValueSet, *values: Value):
-        self.assert_kif_object_set(obj, *values)
         self.assertIsInstance(obj, ValueSet)
-        self.assertTrue(obj.is_value_set())
-        for i, arg in enumerate(obj):
-            self.assertIsInstance(arg, Value)
-            self.assertEqual(arg, values[i])
-        self.assertEqual(obj.frozenset, set(values))
-        self.assertEqual(obj.get_frozenset(), obj.frozenset)
-        for value in values:
-            self.assertIn(value, obj)
+        self.assert_kif_object_set(obj, *values)
 
     def assert_text_set(self, obj: TextSet, *texts: Text):
-        self.assert_value_set(obj, *texts)
         self.assertIsInstance(obj, TextSet)
-        self.assertTrue(obj.is_text_set())
-        for i, arg in enumerate(obj):
-            self.assertIsInstance(arg, Text)
-            self.assertEqual(arg, texts[i])
-        self.assertEqual(obj.frozenset, set(texts))
-        self.assertEqual(obj.get_frozenset(), obj.frozenset)
-        for text in texts:
-            self.assertIn(text, obj)
+        self.assert_value_set(obj, *texts)
 
     def assert_snak_set(self, obj: SnakSet, *snaks: Snak):
-        self.assert_kif_object_set(obj, *snaks)
         self.assertIsInstance(obj, SnakSet)
-        self.assertTrue(obj.is_snak_set())
-        for i, arg in enumerate(obj):
-            self.assertIsInstance(arg, Snak)
-            self.assertEqual(arg, snaks[i])
-        self.assertEqual(obj.frozenset, set(snaks))
-        self.assertEqual(obj.get_frozenset(), obj.frozenset)
-        for snak in snaks:
-            self.assertIn(snak, obj)
+        self.assert_kif_object_set(obj, *snaks)
 
     def assert_reference_record_set(
             self,
             obj: ReferenceRecordSet,
             *refs: ReferenceRecord
     ):
-        self.assert_kif_object_set(obj, *refs)
         self.assertIsInstance(obj, ReferenceRecordSet)
-        self.assertTrue(obj.is_reference_record_set())
-        for i, arg in enumerate(obj):
-            self.assertIsInstance(arg, ReferenceRecord)
-            self.assertEqual(arg, refs[i])
-        self.assertEqual(obj.frozenset, set(refs))
-        self.assertEqual(obj.get_frozenset(), obj.frozenset)
-        for ref in refs:
-            self.assertIn(ref, obj)
+        self.assert_kif_object_set(obj, *refs)
 
     def assert_annotation_record_set(
             self,
             obj: AnnotationRecordSet,
             *annots: AnnotationRecord
     ):
-        self.assert_kif_object_set(obj, *annots)
         self.assertIsInstance(obj, AnnotationRecordSet)
-        self.assertTrue(obj.is_annotation_record_set())
-        for i, arg in enumerate(obj):
-            self.assertIsInstance(arg, AnnotationRecord)
-            self.assertEqual(arg, annots[i])
-        self.assertEqual(obj.frozenset, set(annots))
-        self.assertEqual(obj.get_frozenset(), obj.frozenset)
-        for ref in annots:
-            self.assertIn(ref, obj)
+        self.assert_kif_object_set(obj, *annots)
 
 # -- Value -----------------------------------------------------------------
 
