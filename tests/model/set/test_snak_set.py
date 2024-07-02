@@ -62,6 +62,13 @@ class Test(kif_ObjectSetTestCase):
                 [Variable('x', Text)],
             ])
 
+    def test__contains__(self):
+        self.assertNotIn(0, SnakSet())
+        self.assertIn(
+            NoValueSnak(Property('p')), SnakSet(NoValueSnak(Property('p'))))
+        self.assertNotIn(
+            NoValueSnak(Property('p')), SnakSet(NoValueSnak(Property('q'))))
+
     def test_union(self) -> None:
         assert_type(SnakSet().union(), SnakSet)
         self.assert_snak_set(SnakSet().union(SnakSet(), SnakSet()))
@@ -70,6 +77,21 @@ class Test(kif_ObjectSetTestCase):
                 SnakSet(SomeValueSnak('x'), NoValueSnak('y')),
                 SnakSet(ValueSnak('z', 'w'))),
             NoValueSnak('y'), SomeValueSnak('x'), ValueSnak('z', 'w'))
+        s1 = SnakSet(
+            Property('p')(IRI('x')),
+            Property('q')(IRI('y')))
+        s2 = SnakSet(NoValueSnak(Property('p')))
+        s3 = SnakSet()
+        s4 = SnakSet(
+            Property('q')(IRI('y')),
+            Property('q')(IRI('z')))
+        self.assertEqual(
+            s1.union(s2, s3, s4),
+            SnakSet(
+                NoValueSnak(Property('p')),
+                Property('p')(IRI('x')),
+                Property('q')(IRI('y')),
+                Property('q')(IRI('z'))))
 
 
 if __name__ == '__main__':

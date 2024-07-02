@@ -65,6 +65,31 @@ class Test(kif_ObjectSetTestCase):
                 [ItemTemplate(Variable('x'))],
                 [Variable('x', Text)],
             ])
+        self.assertNotEqual(ReferenceRecord(), SnakSet())
+        self.assertEqual(ReferenceRecord(), ReferenceRecord())
+        self.assertEqual(
+            ReferenceRecord(NoValueSnak(Property('p'))),
+            ReferenceRecord(NoValueSnak(Property('p'))))
+        self.assertEqual(
+            ReferenceRecord(
+                SomeValueSnak(Property('q')),
+                NoValueSnak(Property('p'))),
+            ReferenceRecord(
+                NoValueSnak(Property('p')),
+                SomeValueSnak(Property('q')),
+                NoValueSnak(Property('p'))))
+        self.assertNotEqual(
+            ReferenceRecord(NoValueSnak(Property('p'))),
+            ReferenceRecord(NoValueSnak(Property('q'))))
+
+    def test__contains__(self):
+        self.assertNotIn(0, ReferenceRecord())
+        self.assertIn(
+            NoValueSnak(Property('p')),
+            ReferenceRecord(NoValueSnak(Property('p'))))
+        self.assertNotIn(
+            NoValueSnak(Property('p')),
+            ReferenceRecord(NoValueSnak(Property('q'))))
 
     def test_union(self) -> None:
         assert_type(ReferenceRecord().union(), ReferenceRecord)
@@ -75,6 +100,21 @@ class Test(kif_ObjectSetTestCase):
                 ReferenceRecord(SomeValueSnak('x'), NoValueSnak('y')),
                 ReferenceRecord(ValueSnak('z', 'w'))),
             NoValueSnak('y'), SomeValueSnak('x'), ValueSnak('z', 'w'))
+        s1 = ReferenceRecord(
+            Property('p')(IRI('x')),
+            Property('q')(IRI('y')))
+        s2 = ReferenceRecord(NoValueSnak(Property('p')))
+        s3 = ReferenceRecord()
+        s4 = SnakSet(
+            Property('q')(IRI('y')),
+            Property('q')(IRI('z')))
+        self.assertEqual(
+            s1.union(s2, s3, s4),  # type: ignore
+            ReferenceRecord(
+                NoValueSnak(Property('p')),
+                Property('p')(IRI('x')),
+                Property('q')(IRI('y')),
+                Property('q')(IRI('z'))))
 
 
 if __name__ == '__main__':

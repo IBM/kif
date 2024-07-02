@@ -70,12 +70,24 @@ class Test(kif_ObjectSetTestCase):
                 [Variable('x', Text)],
             ])
 
+    def test__contains__(self):
+        self.assertNotIn(0, TextSet())
+        self.assertIn(Text('p'), TextSet(Text('p')))
+        self.assertNotIn(Text('p', 'pt'), TextSet(Text('p')))
+
     def test_union(self) -> None:
         assert_type(TextSet().union(), TextSet)
         self.assert_value_set(TextSet().union(TextSet(), TextSet()))
         self.assert_value_set(
             TextSet('x').union(TextSet('x', 'y'), TextSet('z')),
             Text('x'), Text('y'), Text('z'))
+        s1 = TextSet(Text('p'), Text('q'))
+        s2 = TextSet(Text('p'))
+        s3 = TextSet()
+        s4 = TextSet(Text('r'), Text('s'))
+        self.assertEqual(
+            s1.union(s2, s3, s4),
+            TextSet(Text('p'), Text('q'), Text('r'), Text('s')))
 
 
 if __name__ == '__main__':

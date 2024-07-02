@@ -108,6 +108,15 @@ class Test(kif_ObjectSetTestCase):
                 [Variable('x', Text)],
             ])
 
+    def test__contains__(self):
+        self.assertNotIn(0, AnnotationRecordSet())
+        self.assertIn(
+            AnnotationRecord([], [], Normal),
+            AnnotationRecordSet(AnnotationRecord([], [], Normal)))
+        self.assertNotIn(
+            AnnotationRecord([], [], Preferred),
+            AnnotationRecordSet(AnnotationRecord([], [], Normal)))
+
     def test_union(self) -> None:
         assert_type(AnnotationRecordSet().union(), AnnotationRecordSet)
         self.assert_annotation_record_set(
@@ -124,6 +133,27 @@ class Test(kif_ObjectSetTestCase):
             AnnotationRecord([NoValueSnak('y')]),
             AnnotationRecord([SomeValueSnak('x')]),
             AnnotationRecord([ValueSnak('z', 'w')]))
+        s1 = AnnotationRecordSet(
+            AnnotationRecord(
+                [Property('x')(Item('z'))], [], Normal),
+            AnnotationRecord(
+                [], [ReferenceRecord(Property('x')(Item('z')))], Normal))
+        s2 = AnnotationRecordSet(
+            AnnotationRecord(
+                [Property('y')(Item('w'))], [], Normal))
+        s3 = AnnotationRecordSet()
+        s4 = AnnotationRecordSet(
+            AnnotationRecord(
+                [Property('x')(Item('z'))], [], Normal))
+        self.assertEqual(
+            s1.union(s2, s3, s4),
+            AnnotationRecordSet(
+                *[AnnotationRecord(
+                    [Property('x')(Item('z'))], [], Normal),
+                  AnnotationRecord(
+                      [], [ReferenceRecord(Property('x')(Item('z')))], Normal),
+                  AnnotationRecord(
+                      [Property('y')(Item('w'))], [], Normal)]))
 
 
 if __name__ == '__main__':

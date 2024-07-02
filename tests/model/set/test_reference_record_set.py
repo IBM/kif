@@ -85,6 +85,15 @@ class Test(kif_ObjectSetTestCase):
                 [Variable('x', Text)],
             ])
 
+    def test__contains__(self):
+        self.assertNotIn(0, ReferenceRecordSet())
+        self.assertIn(
+            ReferenceRecord(NoValueSnak(Property('p'))),
+            ReferenceRecordSet(ReferenceRecord(NoValueSnak(Property('p')))))
+        self.assertNotIn(
+            ReferenceRecord(NoValueSnak(Property('p'))),
+            ReferenceRecordSet(ReferenceRecord(NoValueSnak(Property('q')))))
+
     def test_union(self) -> None:
         assert_type(ReferenceRecordSet().union(), ReferenceRecordSet)
         self.assert_reference_record_set(
@@ -100,6 +109,22 @@ class Test(kif_ObjectSetTestCase):
             ReferenceRecord(NoValueSnak('y')),
             ReferenceRecord(SomeValueSnak('x')),
             ReferenceRecord(ValueSnak('z', 'w')))
+        s1 = ReferenceRecordSet(
+            ReferenceRecord(Property('p')(IRI('x'))),
+            ReferenceRecord(Property('q')(IRI('y'))))
+        s2 = ReferenceRecordSet(ReferenceRecord(NoValueSnak(Property('p'))))
+        s3 = ReferenceRecordSet()
+        s4 = ReferenceRecordSet(
+            ReferenceRecord(Property('q')(IRI('y'))),
+            ReferenceRecord(Property('q')(IRI('z'))))
+        self.assertEqual(
+            s1.union(s2, s3, s4),
+            ReferenceRecordSet(
+                *map(ReferenceRecord, [
+                    NoValueSnak(Property('p')),
+                    Property('p')(IRI('x')),
+                    Property('q')(IRI('y')),
+                    Property('q')(IRI('z'))])))
 
 
 if __name__ == '__main__':
