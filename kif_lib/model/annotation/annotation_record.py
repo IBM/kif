@@ -1,28 +1,10 @@
-# Copyright (C) 2023-2024 IBM Corp.
+# Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..typing import (
-    Any,
-    ClassVar,
-    Final,
-    Iterable,
-    Optional,
-    override,
-    TypeAlias,
-    Union,
-)
-from .kif_object import KIF_Object
+from ...typing import Any, Final, Optional, override
+from ..kif_object import KIF_Object
+from ..set import ReferenceRecordSet, SnakSet, TReferenceRecordSet, TSnakSet
 from .rank import NormalRank, Rank
-from .set import (
-    KIF_ObjectSet,
-    ReferenceRecordSet,
-    SnakSet,
-    TReferenceRecordSet,
-    TSnakSet,
-)
-
-TAnnotationRecordSet: TypeAlias =\
-    Union['AnnotationRecordSet', Iterable['AnnotationRecord']]
 
 
 class AnnotationRecord(KIF_Object):
@@ -103,20 +85,3 @@ class AnnotationRecord(KIF_Object):
            Rank.
         """
         return self.args[2]
-
-
-class AnnotationRecordSet(
-        KIF_ObjectSet[AnnotationRecord],
-        children_class=AnnotationRecord
-):
-    """Set of annotation records.
-
-    Parameters:
-       annotation_records: Annotation records.
-    """
-
-    children_class: ClassVar[type[AnnotationRecord]]  # pyright: ignore
-
-    @override
-    def __init__(self, *annotation_records: AnnotationRecord):
-        super().__init__(*annotation_records)

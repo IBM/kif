@@ -1,6 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from .kif_object import kif_ObjectTestCase
 from .set import kif_ObjectSetTestCase
 from .snak import kif_SnakTemplateTestCase, kif_SnakTestCase
 from .statement import kif_StatementTemplateTestCase, kif_StatementTestCase
@@ -21,6 +22,9 @@ from .value import (
 from .variable import kif_VariableTestCase
 
 __all__ = (
+    # kif object
+    'kif_ObjectTestCase',
+
     # template
     'kif_TemplateTestCase',
 

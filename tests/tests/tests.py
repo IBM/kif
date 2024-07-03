@@ -869,24 +869,19 @@ if __name__ == '__main__':
         self.assert_snak_set(obj, *snaks)
 
     def assert_rank(self, obj: Rank):
-        self.assert_kif_object(obj)
         self.assertIsInstance(obj, Rank)
-        self.assertTrue(obj.is_rank())
 
     def assert_preferred_rank(self, obj: PreferredRank):
-        self.assert_rank(obj)
         self.assertIsInstance(obj, PreferredRank)
-        self.assertTrue(obj.is_preferred_rank())
+        self.assert_rank(obj)
 
     def assert_normal_rank(self, obj: NormalRank):
-        self.assert_rank(obj)
         self.assertIsInstance(obj, NormalRank)
-        self.assertTrue(obj.is_normal_rank())
+        self.assert_rank(obj)
 
     def assert_deprecated_rank(self, obj: DeprecatedRank):
-        self.assert_rank(obj)
         self.assertIsInstance(obj, DeprecatedRank)
-        self.assertTrue(obj.is_deprecated_rank())
+        self.assert_rank(obj)
 
     def assert_annotation_record(
             self,

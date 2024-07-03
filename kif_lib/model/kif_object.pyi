@@ -17,9 +17,13 @@ from ..typing import (
     Union,
 )
 from . import object
-from .annotation_record import (
+from .annotation import (
     AnnotationRecord,
     AnnotationRecordSet,
+    DeprecatedRank,
+    NormalRank,
+    PreferredRank,
+    Rank,
     TAnnotationRecordSet,
 )
 from .descriptor import (
@@ -39,7 +43,6 @@ from .fingerprint import (
 )
 from .pattern import Pattern
 from .pattern_deprecated import FilterPattern
-from .rank import DeprecatedRank, NormalRank, PreferredRank, Rank
 from .set import (
     KIF_ObjectSet,
     ReferenceRecord,

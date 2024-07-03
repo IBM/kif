@@ -1,9 +1,16 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from .annotation_record import (
+from .annotation import (
     AnnotationRecord,
     AnnotationRecordSet,
+    Deprecated,
+    DeprecatedRank,
+    Normal,
+    NormalRank,
+    Preferred,
+    PreferredRank,
+    Rank,
     TAnnotationRecordSet,
 )
 from .descriptor import (
@@ -31,15 +38,6 @@ from .kif_object import (
 )
 from .pattern import Pattern
 from .pattern_deprecated import FilterPattern
-from .rank import (
-    Deprecated,
-    DeprecatedRank,
-    Normal,
-    NormalRank,
-    Preferred,
-    PreferredRank,
-    Rank,
-)
 from .set import (
     KIF_ObjectSet,
     ReferenceRecord,
