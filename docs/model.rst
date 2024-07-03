@@ -8,3 +8,7 @@ Model
 
    datatype
    value
+   snak
+   statement
+   annotation
+   set

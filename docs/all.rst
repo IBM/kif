@@ -84,12 +84,42 @@ Value
    :no-index:
    :show-inheritance:
 
-
 .. autoclass:: DataValue
    :no-index:
    :show-inheritance:
 
 .. autoclass:: ShallowDataValue
    :members: content, get_content
+   :no-index:
+   :show-inheritance:
+
+Snak
+----
+
+.. autoclass:: Snak
+   :members: mask, get_mask, property, get_property
+   :no-index:
+   :show-inheritance:
+
+.. autoclass:: ValueSnak
+   :members: value, get_value
+   :no-index:
+   :show-inheritance:
+
+.. autoclass:: SomeValueSnak
+   :members:
+   :no-index:
+   :show-inheritance:
+
+.. autoclass:: NoValueSnak
+   :members:
+   :no-index:
+   :show-inheritance:
+
+Statement
+---------
+
+.. autoclass:: Statement
+   :members: subject, get_subject, snak, get_snak
    :no-index:
    :show-inheritance:
