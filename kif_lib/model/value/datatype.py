@@ -105,29 +105,28 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
         from .text import Text
         from .time import Time
         if uri == WIKIBASE.WikibaseItem:
-            return cast(Self, Item.datatype)
+            res: Datatype = Item.datatype
         elif uri == WIKIBASE.WikibaseProperty:
-            return cast(Self, Property.datatype)
+            res = Property.datatype
         elif uri == WIKIBASE.WikibaseLexeme:
-            return cast(Self, Lexeme.datatype)
+            res = Lexeme.datatype
         elif uri == WIKIBASE.Url:
-            return cast(Self, IRI.datatype)
+            res = IRI.datatype
         elif uri == WIKIBASE.Monolingualtext:
-            return cast(Self, Text.datatype)
+            res = Text.datatype
         elif uri == WIKIBASE.String:
-            return cast(Self, String.datatype)
+            res = String.datatype
         elif uri == WIKIBASE.ExternalId:
-            return cast(Self, ExternalId.datatype)
+            res = ExternalId.datatype
         elif uri == WIKIBASE.Quantity:
-            return cast(Self, Quantity.datatype)
+            res = Quantity.datatype
         elif uri == WIKIBASE.Time:
-            return cast(Self, Time.datatype)
+            res = Time.datatype
         else:
             raise cls._check_error(uri, cls._from_rdflib, 'uri', 1)
+        return cls.check(res, cls._from_rdflib, 'uri', 1)
 
-    @classmethod
-    @functools.cache
-    def _to_rdflib(cls) -> URIRef:
+    def _to_rdflib(self) -> URIRef:
         from ...namespace import WIKIBASE
         from .external_id import ExternalIdDatatype
         from .iri import IRI_Datatype
@@ -138,26 +137,26 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
         from .string import StringDatatype
         from .text import TextDatatype
         from .time import TimeDatatype
-        if cls is ItemDatatype:
+        if isinstance(self, ItemDatatype):
             return WIKIBASE.WikibaseItem
-        elif cls is PropertyDatatype:
+        elif isinstance(self, PropertyDatatype):
             return WIKIBASE.WikibaseProperty
-        elif cls is LexemeDatatype:
+        elif isinstance(self, LexemeDatatype):
             return WIKIBASE.WikibaseLexeme
-        elif cls is IRI_Datatype:
+        elif isinstance(self, IRI_Datatype):
             return WIKIBASE.Url
-        elif cls is TextDatatype:
+        elif isinstance(self, TextDatatype):
             return WIKIBASE.Monolingualtext
-        elif cls is StringDatatype:
-            return WIKIBASE.String
-        elif cls is ExternalIdDatatype:
+        elif isinstance(self, ExternalIdDatatype):
             return WIKIBASE.ExternalId
-        elif cls is QuantityDatatype:
+        elif isinstance(self, StringDatatype):
+            return WIKIBASE.String
+        elif isinstance(self, QuantityDatatype):
             return WIKIBASE.Quantity
-        elif cls is TimeDatatype:
+        elif isinstance(self, TimeDatatype):
             return WIKIBASE.Time
         else:
-            raise cls._check_error(cls, cls._to_rdflib)
+            raise self._should_not_get_here()
 
     def __init__(
             self,

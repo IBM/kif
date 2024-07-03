@@ -110,6 +110,10 @@ class Test(kif_ValueTestCase):
         self.assertRaisesRegex(
             TypeError, 'cannot coerce',
             Datatype._from_rdflib, WIKIBASE.claim)
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'uri',
+            'cannot coerce LexemeDatatype into ItemDatatype',
+            ItemDatatype._from_rdflib, WIKIBASE.WikibaseLexeme)
         # item
         self.assert_item_datatype(
             ItemDatatype._from_rdflib(WIKIBASE.WikibaseItem))
@@ -153,18 +157,24 @@ class Test(kif_ValueTestCase):
 
     def test__to_rdflib(self):
         from kif_lib.namespace import WIKIBASE
-        self.assertRaisesRegex(
-            TypeError, 'cannot coerce', Datatype._to_rdflib)
-        self.assertEqual(ItemDatatype._to_rdflib(), WIKIBASE.WikibaseItem)
         self.assertEqual(
-            PropertyDatatype._to_rdflib(), WIKIBASE.WikibaseProperty)
-        self.assertEqual(LexemeDatatype._to_rdflib(), WIKIBASE.WikibaseLexeme)
-        self.assertEqual(IRI_Datatype._to_rdflib(), WIKIBASE.Url)
-        self.assertEqual(TextDatatype._to_rdflib(), WIKIBASE.Monolingualtext)
-        self.assertEqual(StringDatatype._to_rdflib(), WIKIBASE.String)
-        self.assertEqual(ExternalIdDatatype._to_rdflib(), WIKIBASE.ExternalId)
-        self.assertEqual(QuantityDatatype._to_rdflib(), WIKIBASE.Quantity)
-        self.assertEqual(TimeDatatype._to_rdflib(), WIKIBASE.Time)
+            ItemDatatype()._to_rdflib(), WIKIBASE.WikibaseItem)
+        self.assertEqual(
+            PropertyDatatype()._to_rdflib(), WIKIBASE.WikibaseProperty)
+        self.assertEqual(
+            LexemeDatatype()._to_rdflib(), WIKIBASE.WikibaseLexeme)
+        self.assertEqual(
+            IRI_Datatype()._to_rdflib(), WIKIBASE.Url)
+        self.assertEqual(
+            TextDatatype()._to_rdflib(), WIKIBASE.Monolingualtext)
+        self.assertEqual(
+            StringDatatype()._to_rdflib(), WIKIBASE.String)
+        self.assertEqual(
+            ExternalIdDatatype()._to_rdflib(), WIKIBASE.ExternalId)
+        self.assertEqual(
+            QuantityDatatype()._to_rdflib(), WIKIBASE.Quantity)
+        self.assertEqual(
+            TimeDatatype()._to_rdflib(), WIKIBASE.Time)
 
 
 if __name__ == '__main__':
