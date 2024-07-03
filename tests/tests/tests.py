@@ -296,6 +296,10 @@ if __name__ == '__main__':
         self.assertIsInstance(obj, SnakSet)
         self.assert_kif_object_set(obj, *snaks)
 
+    def assert_reference_record(self, obj: ReferenceRecord, *snaks: Snak):
+        self.assertIsInstance(obj, ReferenceRecord)
+        self.assert_snak_set(obj, *snaks)
+
     def assert_reference_record_set(
             self,
             obj: ReferenceRecordSet,
@@ -864,9 +868,27 @@ if __name__ == '__main__':
 
 # -- Annotations -----------------------------------------------------------
 
-    def assert_reference_record(self, obj: ReferenceRecord, *snaks: Snak):
-        self.assertIsInstance(obj, ReferenceRecord)
-        self.assert_snak_set(obj, *snaks)
+    def assert_annotation_record(
+            self,
+            obj: AnnotationRecord,
+            quals: SnakSet,
+            refs: ReferenceRecordSet,
+            rank: Rank
+    ):
+        self.assertIsInstance(obj, AnnotationRecord)
+        self.assert_kif_object(obj)
+        self.assertIsInstance(obj.args[0], SnakSet)
+        self.assertEqual(obj.args[0], quals)
+        self.assertEqual(obj.qualifiers, obj.args[0])
+        self.assertEqual(obj.get_qualifiers(), obj.args[0])
+        self.assertIsInstance(obj.args[1], ReferenceRecordSet)
+        self.assertEqual(obj.args[1], refs)
+        self.assertEqual(obj.references, obj.args[1])
+        self.assertEqual(obj.get_references(), obj.args[1])
+        self.assertIsInstance(obj.args[2], Rank)
+        self.assertEqual(obj.args[2], rank)
+        self.assertEqual(obj.rank, obj.args[2])
+        self.assertEqual(obj.get_rank(), obj.args[2])
 
     def assert_rank(self, obj: Rank):
         self.assertIsInstance(obj, Rank)
@@ -882,32 +904,6 @@ if __name__ == '__main__':
     def assert_deprecated_rank(self, obj: DeprecatedRank):
         self.assertIsInstance(obj, DeprecatedRank)
         self.assert_rank(obj)
-
-    def assert_annotation_record(
-            self,
-            obj: AnnotationRecord,
-            quals: SnakSet,
-            refs: ReferenceRecordSet,
-            rank: Rank
-    ):
-        self.assert_kif_object(obj)
-        self.assertIsInstance(obj, AnnotationRecord)
-        self.assertTrue(obj.is_annotation_record())
-        self.assertIsInstance(obj.args[0], SnakSet)
-        self.assertTrue(obj.args[0].is_snak_set())
-        self.assertEqual(obj.args[0], quals)
-        self.assertEqual(obj.qualifiers, obj.args[0])
-        self.assertEqual(obj.get_qualifiers(), obj.args[0])
-        self.assertIsInstance(obj.args[1], ReferenceRecordSet)
-        self.assertTrue(obj.args[1].is_reference_record_set())
-        self.assertEqual(obj.args[1], refs)
-        self.assertEqual(obj.references, obj.args[1])
-        self.assertEqual(obj.get_references(), obj.args[1])
-        self.assertIsInstance(obj.args[2], Rank)
-        self.assertTrue(obj.args[2].is_rank())
-        self.assertEqual(obj.args[2], rank)
-        self.assertEqual(obj.rank, obj.args[2])
-        self.assertEqual(obj.get_rank(), obj.args[2])
 
 # -- Statement -------------------------------------------------------------
 
