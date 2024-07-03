@@ -453,7 +453,7 @@ class kif_StoreTestCase(kif_TestCase):
             kb.get_descriptor, Item('Q1'), 0)
         self.assert_raises_bad_argument(
             TypeError, 3, 'mask',
-            'expected Descriptor.AttributeMask or int, got str',
+            'cannot coerce str into Descriptor.AttributeMask',
             kb.get_descriptor, Item('Q1'), 'pt', 'abc')
 
     def sanity_check_get_descriptor_vacuous_calls(self, kb):
@@ -462,7 +462,7 @@ class kif_StoreTestCase(kif_TestCase):
         lexemes = list(Lexemes('_L0', '_L1', '_L2', '_L0'))
         entities = items + props + lexemes
         desc = list(kb.get_descriptor([]))
-        self.assertEqual(desc, list())
+        self.assertEqual(desc, [])
         desc = list(kb.get_descriptor(items[0]))
         self.assertEqual(desc, [(items[0], None)])
         desc = list(kb.get_descriptor(entities, 'pt'))
@@ -512,13 +512,13 @@ class kif_StoreTestCase(kif_TestCase):
             kb.get_item_descriptor, Item('Q1'), 0)
         self.assert_raises_bad_argument(
             TypeError, 3, 'mask',
-            'expected Descriptor.AttributeMask or int, got str',
+            'cannot coerce str into Descriptor.AttributeMask',
             kb.get_item_descriptor, Item('Q1'), 'pt', 'abc')
 
     def sanity_check_get_item_descriptor_vacuous_calls(self, kb):
         items = list(Items('_Q0', '_Q1', '_Q2', '_Q0'))
         desc = list(kb.get_item_descriptor([]))
-        self.assertEqual(desc, list())
+        self.assertEqual(desc, [])
         desc = list(kb.get_item_descriptor(items[0]))
         self.assertEqual(desc, [(items[0], None)])
         desc = list(kb.get_item_descriptor(items, 'pt'))
@@ -553,13 +553,13 @@ class kif_StoreTestCase(kif_TestCase):
             kb.get_property_descriptor, Property('P1'), 0)
         self.assert_raises_bad_argument(
             TypeError, 3, 'mask',
-            'expected Descriptor.AttributeMask or int, got str',
+            'cannot coerce str into Descriptor.AttributeMask',
             kb.get_property_descriptor, Property('P1'), 'pt', 'abc')
 
     def sanity_check_get_property_descriptor_vacuous_calls(self, kb):
         props = list(Properties('_P0', '_P1', '_P2', '_P0'))
         desc = list(kb.get_property_descriptor([]))
-        self.assertEqual(desc, list())
+        self.assertEqual(desc, [])
         desc = list(kb.get_property_descriptor(props[0]))
         self.assertEqual(desc, [(props[0], None)])
         desc = list(kb.get_property_descriptor(props, 'pt'))
@@ -593,7 +593,7 @@ class kif_StoreTestCase(kif_TestCase):
     def sanity_check_get_lexeme_descriptor_vacuous_calls(self, kb):
         lexs = list(Lexemes('_L0', '_L1', '_L2', '_L0'))
         desc = list(kb.get_lexeme_descriptor([]))
-        self.assertEqual(desc, list())
+        self.assertEqual(desc, [])
         desc = list(kb.get_lexeme_descriptor(lexs[0]))
         self.assertEqual(desc, [(lexs[0], None)])
         desc = list(kb.get_lexeme_descriptor(lexs))

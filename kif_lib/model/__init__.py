@@ -1,7 +1,11 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from .annotation_record import AnnotationRecord
+from .annotation_record import (
+    AnnotationRecord,
+    AnnotationRecordSet,
+    TAnnotationRecordSet,
+)
 from .descriptor import (
     Descriptor,
     ItemDescriptor,
@@ -37,12 +41,10 @@ from .rank import (
     Rank,
 )
 from .set import (
-    AnnotationRecordSet,
     KIF_ObjectSet,
     ReferenceRecord,
     ReferenceRecordSet,
     SnakSet,
-    TAnnotationRecordSet,
     TextSet,
     TReferenceRecord,
     TReferenceRecordSet,
@@ -250,7 +252,6 @@ __all__ = (
     'StringTemplate',
     'StringVariable',
     'T_IRI',
-    'T_KIF_ObjectSet',
     'TAnnotationRecordSet',
     'TCallable',
     'TDatatype',

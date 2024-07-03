@@ -15,7 +15,6 @@ from ..typing import (
     TypeVar,
     Union,
 )
-from .annotation_record import AnnotationRecord
 from .kif_object import KIF_Object
 from .snak import Snak, TSnak
 from .value import Text, TText, TValue, Value
@@ -29,9 +28,6 @@ TSnakSet: TypeAlias = Union['SnakSet', Iterable[TSnak]]
 TReferenceRecord: TypeAlias = Union['ReferenceRecord', TSnakSet]
 
 TReferenceRecordSet = Union['ReferenceRecordSet', Iterable[TReferenceRecord]]
-
-TAnnotationRecordSet: TypeAlias =\
-    Union['AnnotationRecordSet', Iterable[AnnotationRecord]]
 
 _TObj = TypeVar('_TObj', bound=KIF_Object)
 
@@ -185,20 +181,3 @@ class ReferenceRecordSet(
     @override
     def __init__(self, *reference_records: TReferenceRecord):
         super().__init__(*reference_records)
-
-
-class AnnotationRecordSet(
-        KIF_ObjectSet[AnnotationRecord],
-        children_class=AnnotationRecord
-):
-    """Set of annotation records.
-
-    Parameters:
-       annotation_records: Annotation records.
-    """
-
-    children_class: ClassVar[type[AnnotationRecord]]  # pyright: ignore
-
-    @override
-    def __init__(self, *annotation_records: AnnotationRecord):
-        super().__init__(*annotation_records)

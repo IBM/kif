@@ -1,14 +1,28 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing_extensions import TYPE_CHECKING
-
-from ..typing import Any, Optional, override
+from ..typing import (
+    Any,
+    ClassVar,
+    Final,
+    Iterable,
+    Optional,
+    override,
+    TypeAlias,
+    Union,
+)
 from .kif_object import KIF_Object
-from .rank import Normal, Rank
+from .rank import NormalRank, Rank
+from .set import (
+    KIF_ObjectSet,
+    ReferenceRecordSet,
+    SnakSet,
+    TReferenceRecordSet,
+    TSnakSet,
+)
 
-if TYPE_CHECKING:               # pragma: no cover
-    from .set import ReferenceRecordSet, SnakSet, TReferenceRecordSet, TSnakSet
+TAnnotationRecordSet: TypeAlias =\
+    Union['AnnotationRecordSet', Iterable['AnnotationRecord']]
 
 
 class AnnotationRecord(KIF_Object):
@@ -19,6 +33,15 @@ class AnnotationRecord(KIF_Object):
        references: References.
        rank: Rank.
     """
+
+    #: Default qualifiers.
+    default_qualifiers: Final[SnakSet] = SnakSet()
+
+    #: Default references.
+    default_references: Final[ReferenceRecordSet] = ReferenceRecordSet()
+
+    #: Default rank.
+    default_rank: Final[Rank] = NormalRank()
 
     def __init__(
             self,
@@ -31,14 +54,14 @@ class AnnotationRecord(KIF_Object):
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
-            from .set import SnakSet
-            return SnakSet.check_optional(arg, SnakSet(), type(self), None, i)
+            return SnakSet.check_optional(
+                arg, self.default_qualifiers, type(self), None, i)
         elif i == 2:
-            from .set import ReferenceRecordSet
             return ReferenceRecordSet.check_optional(
-                arg, ReferenceRecordSet(), type(self), None, i)
+                arg, self.default_references, type(self), None, i)
         elif i == 3:
-            return Rank.check_optional(arg, Normal, type(self), None, i)
+            return Rank.check_optional(
+                arg, self.default_rank, type(self), None, i)
         else:
             raise self._should_not_get_here()
 
@@ -80,3 +103,20 @@ class AnnotationRecord(KIF_Object):
            Rank.
         """
         return self.args[2]
+
+
+class AnnotationRecordSet(
+        KIF_ObjectSet[AnnotationRecord],
+        children_class=AnnotationRecord
+):
+    """Set of annotation records.
+
+    Parameters:
+       annotation_records: Annotation records.
+    """
+
+    children_class: ClassVar[type[AnnotationRecord]]  # pyright: ignore
+
+    @override
+    def __init__(self, *annotation_records: AnnotationRecord):
+        super().__init__(*annotation_records)

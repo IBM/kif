@@ -930,7 +930,7 @@ class Store(Set):
             language, Text.default_language,
             self.get_descriptor, 'language', 2)
         assert language is not None
-        mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
+        mask = Descriptor.AttributeMask.check_optional(
             mask, Descriptor.ALL, self.get_descriptor, 'mask', 3)
         assert mask is not None
         if Entity.test(entities):
@@ -1003,7 +1003,7 @@ class Store(Set):
             language, Text.default_language,
             self.get_item_descriptor, 'language', 2)
         assert language is not None
-        mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
+        mask = Descriptor.AttributeMask.check_optional(
             mask, Descriptor.ALL, self.get_item_descriptor, 'mask', 3)
         assert mask is not None
         if Item.test(items):
@@ -1055,7 +1055,7 @@ class Store(Set):
             language, Text.default_language,
             self.get_property_descriptor, 'language', 2)
         assert language is not None
-        mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
+        mask = Descriptor.AttributeMask.check_optional(
             mask, Descriptor.ALL, self.get_property_descriptor, 'mask', 3)
         assert mask is not None
         if Property.test(properties):
@@ -1101,7 +1101,7 @@ class Store(Set):
         KIF_Object._check_arg_isinstance(
             lexemes, (Lexeme, Iterable),
             self.get_lexeme_descriptor, 'lexemes', 1)
-        mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
+        mask = Descriptor.AttributeMask.check_optional(
             mask, Descriptor.ALL, self.get_lexeme_descriptor, 'mask', 3)
         assert mask is not None
         if Lexeme.test(lexemes):
