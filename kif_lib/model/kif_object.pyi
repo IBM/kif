@@ -71,7 +71,7 @@ from .snak import (
     ValueSnakVariable,
 )
 from .statement import Statement, StatementTemplate, StatementVariable
-from .template import Template, TemplateClass, TTemplateClass
+from .template import Template
 from .value import (
     Datatype,
     DatatypeVariable,
@@ -137,7 +137,7 @@ from .value import (
     ValueTemplate,
     ValueVariable,
 )
-from .variable import TVariableClass, Variable, VariableClass
+from .variable import Variable
 
 Codec = object.Codec
 CodecError = object.CodecError
@@ -187,10 +187,10 @@ class KIF_SExpEncoder(
 class KIF_Object(object.Object, metaclass=object.ObjectMeta):
 
     #: Template class associated with this object class.
-    template_class: ClassVar[TemplateClass]
+    template_class: ClassVar[type[Template]]
 
     #: Variable class associated with this object class.
-    variable_class: ClassVar[VariableClass]
+    variable_class: ClassVar[type[Variable]]
 
     @classmethod
     def _issubclass_template(cls, arg: Any) -> bool:
@@ -1994,7 +1994,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_arg_template_class(
             cls,
-            arg: TTemplateClass,
+            arg: type[Template],
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
@@ -2334,7 +2334,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_arg_variable_class(
             cls,
-            arg: TVariableClass,
+            arg: type[Variable],
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
             position: Optional[int] = ...
@@ -4027,7 +4027,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_optional_arg_template_class(
             cls,
-            arg: Optional[TTemplateClass],
+            arg: Optional[type[Template]],
             default: Optional[type[Template]] = ...,
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,
@@ -4401,7 +4401,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     @classmethod
     def _check_optional_arg_variable_class(
             cls,
-            arg: Optional[TVariableClass],
+            arg: Optional[type[Variable]],
             default: Optional[type[Variable]] = ...,
             function: Optional[Union[TCallable, str]] = ...,
             name: Optional[str] = ...,

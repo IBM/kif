@@ -4,7 +4,10 @@
 import decimal
 
 from kif_lib import (
+    DataValue,
+    DeepDataValue,
     IRI,
+    IRI_Variable,
     Item,
     ItemTemplate,
     ItemVariable,
@@ -15,7 +18,7 @@ from kif_lib import (
     String,
     Variable,
 )
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, cast
 
 from ...tests import kif_DeepDataValueTemplateTestCase
 
@@ -86,6 +89,106 @@ class Test(kif_DeepDataValueTemplateTestCase):
                 [0, None, None, None],
                 [0],
             ])
+
+        # extra
+        x = Variable('x')
+        self.assert_raises_bad_argument(
+            ValueError, 1, None, 'cannot coerce str into Quantity',
+            (QuantityTemplate, 'Quantity'), 'x')
+        self.assert_raises_bad_argument(
+            TypeError, 2, None, 'cannot coerce int into IRI',
+            (QuantityTemplate, 'Quantity'), 0, 0)
+        self.assert_raises_bad_argument(
+            ValueError, 3, None, 'cannot coerce str into Quantity',
+            (QuantityTemplate, 'Quantity'), 0, None, 'x')
+        self.assert_raises_bad_argument(
+            ValueError, 4, None, 'cannot coerce str into Quantity',
+            (QuantityTemplate, 'Quantity'), 0, None, None, 'x')
+        self.assert_raises_bad_argument(
+            TypeError, 1, None,
+            "cannot coerce IRI_Variable into QuantityVariable",
+            QuantityTemplate, IRI_Variable('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 1, None,
+            'cannot coerce QuantityTemplate into Quantity',
+            QuantityTemplate, QuantityTemplate(Variable('x')))
+        self.assert_raises_bad_argument(
+            TypeError, 2, None,
+            "cannot coerce IRI_Variable into ItemVariable",
+            QuantityTemplate, 0, IRI_Variable('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 3, None,
+            "cannot coerce IRI_Variable into QuantityVariable",
+            QuantityTemplate, 0, None, IRI_Variable('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 3, None,
+            'cannot coerce QuantityTemplate into Quantity',
+            QuantityTemplate, 0, None, QuantityTemplate(Variable('x')))
+        self.assert_raises_bad_argument(
+            TypeError, 4, None,
+            "cannot coerce IRI_Variable into QuantityVariable",
+            QuantityTemplate, 0, None, None, IRI_Variable('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 4, None,
+            'cannot coerce QuantityTemplate into Quantity',
+            QuantityTemplate, 0, None, None, QuantityTemplate(Variable('x')))
+        self.assert_quantity_template(
+            QuantityTemplate(x),
+            QuantityVariable('x'), None, None, None)
+        self.assert_quantity_template(
+            QuantityTemplate(0, x), decimal.Decimal(0),
+            ItemVariable('x'), None, None)
+        self.assert_quantity_template(
+            QuantityTemplate(0, None, x),
+            decimal.Decimal(0), None, QuantityVariable('x'), None)
+        self.assert_quantity_template(
+            QuantityTemplate(0, None, None, x),
+            decimal.Decimal(0), None, None, QuantityVariable('x'))
+        self.assert_quantity_template(
+            QuantityTemplate(
+                Variable('x'),
+                Variable('y'),
+                Variable('z'),
+                Variable('w')),
+            QuantityVariable('x'),
+            ItemVariable('y'),
+            QuantityVariable('z'),
+            QuantityVariable('w'))
+        self.assert_quantity_template(
+            Quantity(x), Variable('x', Quantity), None, None, None)
+        self.assert_quantity_template(
+            Quantity(0, Item(x)), decimal.Decimal(0),
+            Item(Variable('x', IRI)), None, None)
+        self.assert_quantity_template(
+            Quantity(0, Item(IRI(x))), decimal.Decimal(0),
+            ItemTemplate(IRI(Variable('x', String))), None, None)
+        self.assert_quantity_template(
+            Quantity(0, None, x), decimal.Decimal(0),
+            None, Variable('x', Quantity), None)
+        self.assert_quantity_template(
+            Quantity(0, None, 0, x),
+            decimal.Decimal(0), None,
+            decimal.Decimal(0), Variable('x', Quantity))
+        self.assert_quantity(
+            cast(Quantity, QuantityTemplate(0, None, 0, None)),
+            decimal.Decimal(0), None, decimal.Decimal(0), None)
+        self.assertRaises(TypeError, QuantityTemplate, x, x)
+        self.assertRaises(TypeError, Quantity, 0, x, x)
+        self.assertRaises(
+            TypeError, QuantityTemplate, 0, x, None, x)
+        self.assert_quantity_template(
+            QuantityTemplate(x, None, x),
+            QuantityVariable('x'), None, QuantityVariable('x'), None)
+        self.assert_quantity_template(
+            QuantityTemplate(x, None, x, Variable('x', DeepDataValue)),
+            QuantityVariable('x'), None,
+            QuantityVariable('x'), QuantityVariable('x'))
+        self.assert_quantity_template(
+            QuantityTemplate(
+                x, None, Variable('x', DataValue),
+                Variable('x', DeepDataValue)),
+            QuantityVariable('x'), None,
+            QuantityVariable('x'), QuantityVariable('x'))
 
     def test_instantiate(self) -> None:
         assert_type(

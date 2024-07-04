@@ -5,24 +5,30 @@ from kif_lib import (
     DatatypeVariable,
     Entity,
     IRI,
+    IRI_Template,
     IRI_Variable,
     Item,
     ItemDatatype,
     ItemVariable,
     KIF_Object,
     Property,
+    PropertyTemplate,
     PropertyVariable,
     Quantity,
     QuantityVariable,
+    Snak,
     SomeValueSnakTemplate,
     String,
+    StringVariable,
+    Time,
+    Value,
     ValueSnak,
     ValueSnakTemplate,
     ValueSnakVariable,
     ValueVariable,
     Variable,
 )
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, cast
 
 from ...tests import kif_SnakTemplateTestCase
 
@@ -97,6 +103,57 @@ class Test(kif_SnakTemplateTestCase):
                 [IRI('x'), 'y'],
                 [Property('x'), Item('y')],
             ])
+
+        # extra
+        x = Variable('x')
+        self.assert_raises_bad_argument(
+            TypeError, 1, None, 'cannot coerce int into IRI',
+            (ValueSnakTemplate, 'ValueSnak'), 0, Item('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 2, None,
+            'cannot coerce dict into Value',
+            (ValueSnakTemplate, 'ValueSnak'), Property('x'), {})
+        self.assert_raises_bad_argument(
+            TypeError, 1, None,
+            "cannot coerce IRI_Variable into PropertyVariable",
+            ValueSnakTemplate, IRI_Variable('x'), 0)
+        self.assert_raises_bad_argument(
+            TypeError, 2, None,
+            "cannot coerce SnakVariable into ValueVariable",
+            ValueSnakTemplate, Property('p'), Variable('x', Snak))
+        self.assert_value_snak_template(
+            ValueSnakTemplate(x, Quantity(0)),
+            Variable('x', Property), Quantity(0))
+        self.assert_value_snak_template(
+            ValueSnakTemplate(Property(x), Quantity(0)),
+            Property(Variable('x', IRI), Quantity), Quantity(0))
+        self.assert_value_snak_template(
+            ValueSnakTemplate(Property('p'), x),
+            Property('p'), ValueVariable('x'))
+        self.assert_value_snak_template(
+            ValueSnakTemplate(Property('p'), IRI_Template(x)),
+            Property('p', IRI), IRI(StringVariable('x')))
+        self.assert_value_snak_template(
+            ValueSnak(x, Quantity(0)),
+            Variable('x', Property), Quantity(0))
+        self.assert_value_snak_template(
+            ValueSnak(Property(x), Quantity(0)),
+            Property(Variable('x', IRI), Quantity), Quantity(0))
+        self.assert_value_snak_template(
+            ValueSnak(Property('p'), x),
+            Property('p'), Variable('x', Value))
+        self.assert_value_snak_template(
+            cast(ValueSnakTemplate, ValueSnak(Property('p'), Time(x))),
+            Property('p', Time), Time(Variable('x', Time)))
+        self.assert_value_snak_template(
+            PropertyTemplate(x)(String('s')),
+            Property(x, String), String('s'))
+        self.assert_value_snak(
+            cast(ValueSnak, ValueSnakTemplate(Property('p'), Item('x'))),
+            Property('p', Item), Item('x'))
+        self.assertEqual(
+            ValueSnak(x, x),
+            ValueSnak(PropertyVariable('x'), PropertyVariable('x')))
 
     def test_instantiate(self) -> None:
         assert_type(ValueSnakTemplate(

@@ -5,17 +5,19 @@ from kif_lib import (
     DatatypeVariable,
     IRI,
     IRI_Template,
+    IRI_Variable,
     Item,
     ItemVariable,
     KIF_Object,
     NoValueSnakTemplate,
     Property,
+    PropertyTemplate,
     PropertyVariable,
     SomeValueSnak,
     SomeValueSnakTemplate,
     Variable,
 )
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, cast
 
 from ...tests import kif_SnakTemplateTestCase
 
@@ -61,6 +63,31 @@ class Test(kif_SnakTemplateTestCase):
                 [IRI('x')],
                 [Property('x')],
             ])
+
+        # extra
+        x = Variable('x')
+        self.assert_raises_bad_argument(
+            TypeError, 1, None, 'cannot coerce int into IRI',
+            (SomeValueSnakTemplate, 'SomeValueSnak'), 0)
+        self.assert_raises_bad_argument(
+            TypeError, 1, None,
+            "cannot coerce IRI_Variable into PropertyVariable",
+            SomeValueSnakTemplate, IRI_Variable('x'))
+        self.assert_some_value_snak_template(
+            SomeValueSnakTemplate(x),
+            PropertyVariable('x'))
+        self.assert_some_value_snak_template(
+            SomeValueSnakTemplate(Property(x)),
+            PropertyTemplate(IRI_Variable('x')))
+        self.assert_some_value_snak_template(
+            cast(SomeValueSnakTemplate, SomeValueSnak(x)),
+            PropertyVariable('x'))
+        self.assert_some_value_snak_template(
+            SomeValueSnak(Property(x)),
+            Property(Variable('x', IRI)))
+        self.assert_some_value_snak(
+            cast(SomeValueSnak, SomeValueSnakTemplate(Property('x'))),
+            Property('x'))
 
     def test_instantiate(self) -> None:
         assert_type(

@@ -5,12 +5,15 @@ import datetime
 import decimal
 
 from kif_lib import (
+    DataValue,
     IRI,
+    IRI_Variable,
     Item,
     ItemTemplate,
     ItemVariable,
     KIF_Object,
     Quantity,
+    QuantityTemplate,
     QuantityVariable,
     String,
     Time,
@@ -18,7 +21,7 @@ from kif_lib import (
     TimeVariable,
     Variable,
 )
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, cast
 
 from ...tests import kif_DeepDataValueTemplateTestCase
 
@@ -85,6 +88,111 @@ class Test(kif_DeepDataValueTemplateTestCase):
                 [dt, None, None, None],
                 [dt],
             ])
+
+        # extra
+        x = Variable('x')
+        self.assert_raises_bad_argument(
+            ValueError, 1, None, 'cannot coerce str into Time',
+            (TimeTemplate, 'Time'), 'x')
+        self.assert_raises_bad_argument(
+            TypeError, 2, None,
+            'cannot coerce str into Time.Precision',
+            (TimeTemplate, 'Time'), '2024-05-06', 'x')
+        self.assert_raises_bad_argument(
+            ValueError, 3, None,
+            'cannot coerce str into Quantity',
+            (TimeTemplate, 'Time'), '2024-05-06', None, 'x')
+        self.assert_raises_bad_argument(
+            TypeError, 4, None, 'cannot coerce int into IRI',
+            (TimeTemplate, 'Time'), '2024-05-06', None, None, 0)
+        self.assert_raises_bad_argument(
+            TypeError, 1, None,
+            "cannot coerce IRI_Variable into TimeVariable",
+            TimeTemplate, IRI_Variable('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 1, None,
+            'cannot coerce TimeTemplate into Time',
+            TimeTemplate, TimeTemplate(Variable('x')))
+        self.assert_raises_bad_argument(
+            TypeError, 2, None,
+            "cannot coerce IRI_Variable into QuantityVariable",
+            TimeTemplate, '2024-05-06', IRI_Variable('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 2, None,
+            'cannot coerce QuantityTemplate into Quantity',
+            TimeTemplate, Variable('t', Time),
+            QuantityTemplate(Variable('x')))
+        self.assert_raises_bad_argument(
+            TypeError, 3, None,
+            "cannot coerce IRI_Variable into QuantityVariable",
+            TimeTemplate, '2024-05-06', None, IRI_Variable('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 3, None,
+            'cannot coerce QuantityTemplate into Quantity',
+            TimeTemplate, Variable('t', Time), None,
+            QuantityTemplate(Variable('x')))
+        self.assert_raises_bad_argument(
+            TypeError, 4, None,
+            "cannot coerce IRI_Variable into ItemVariable",
+            TimeTemplate, '2024-05-06', None, None, IRI_Variable('x'))
+        self.assert_time_template(
+            TimeTemplate(x),
+            TimeVariable('x'),
+            None, None, None)
+        self.assert_time_template(
+            TimeTemplate('2024-05-06', Variable('x')),
+            Time('2024-05-06').time,
+            QuantityVariable('x'), None, None)
+        self.assert_time_template(
+            TimeTemplate('2024-05-06', None, Variable('x')),
+            Time('2024-05-06').time,
+            None, QuantityVariable('x'), None)
+        self.assert_time_template(
+            TimeTemplate('2024-05-06', None, None, x),
+            Time('2024-05-06').time,
+            None, None, ItemVariable('x'))
+        self.assert_time_template(
+            TimeTemplate(
+                Variable('x'),
+                Variable('y'),
+                Variable('z'),
+                Variable('w')),
+            TimeVariable('x'),
+            QuantityVariable('y'),
+            QuantityVariable('z'),
+            ItemVariable('w'))
+        self.assert_time_template(
+            Time(x), Variable('x', Time), None, None, None)
+        self.assert_time_template(
+            Time('2024-05-06', x),
+            Time('2024-05-06').time,
+            Variable('x', Quantity), None, None)
+        self.assert_time_template(
+            Time('2024-05-06', None, x),
+            Time('2024-05-06').time,
+            None, Variable('x', Quantity), None)
+        self.assert_time_template(
+            Time('2024-05-06', None, None, x),
+            Time('2024-05-06').time,
+            None, None, Variable('x', Item))
+        self.assert_time_template(
+            Time('2024-05-06', None, None, Item(IRI(x))),
+            Time('2024-05-06').time, None, None,
+            Item(IRI(Variable('x'))))
+        self.assert_time(
+            cast(Time, TimeTemplate('2024-05-06', None, None, None)),
+            Time('2024-05-06').time, None, None, None)
+        self.assertRaises(TypeError, TimeTemplate, x, x)
+        self.assertRaises(
+            TypeError, Time, '2024-05-06', x, x, x)
+        self.assert_time_template(
+            TimeTemplate('2024-05-06', x, x),
+            Time('2024-05-06').time,
+            QuantityVariable('x'), QuantityVariable('x'), None)
+        self.assert_time_template(
+            TimeTemplate('2024-05-06', x, Variable('x', DataValue)),
+            Time('2024-05-06').time,
+            QuantityVariable('x'), QuantityVariable('x'), None)
 
     def test_instantiate(self) -> None:
         assert_type(

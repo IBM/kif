@@ -2,15 +2,22 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
+    Entity,
     EntityVariable,
     IRI,
     IRI_Variable,
     Item,
     ItemVariable,
     KIF_Object,
+    Lexeme,
+    LexemeTemplate,
     NoValueSnak,
+    NoValueSnakTemplate,
     Property,
+    PropertyTemplate,
     PropertyVariable,
+    Quantity,
+    Snak,
     SnakVariable,
     SomeValueSnak,
     SomeValueSnakTemplate,
@@ -23,7 +30,7 @@ from kif_lib import (
     ValueVariable,
     Variable,
 )
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, cast
 
 from ...tests import kif_StatementTemplateTestCase
 
@@ -90,6 +97,66 @@ class Test(kif_StatementTemplateTestCase):
                 [Item('x'), NoValueSnak('y')],
                 [Item('x'), Property('y')(Item('x'))],
             ])
+
+        # extra
+        x = Variable('x')
+        self.assert_raises_bad_argument(
+            TypeError, 1, None,
+            'cannot coerce int into Entity',
+            (StatementTemplate, 'Statement'), 0, Property('p')(0))
+        self.assert_raises_bad_argument(
+            TypeError, 2, None,
+            'cannot coerce int into Snak',
+            (StatementTemplate, 'Statement'), Item('x'), 0)
+        self.assert_raises_bad_argument(
+            TypeError, 1, None,
+            "cannot coerce IRI_Variable into EntityVariable",
+            StatementTemplate, IRI_Variable('x'), x)
+        self.assert_raises_bad_argument(
+            TypeError, 2, None,
+            "cannot coerce IRI_Variable into SnakVariable",
+            StatementTemplate, x, IRI_Variable('x'))
+        self.assert_statement_template(
+            StatementTemplate(x, Property('p')(0)),
+            Variable('x', Entity), Property('p')(Quantity(0)))
+        self.assert_statement_template(
+            StatementTemplate(Lexeme(x), Property('p')(0)),
+            LexemeTemplate(IRI_Variable('x')),
+            Property('p')(Quantity(0)))
+        self.assert_statement_template(
+            StatementTemplate(Item('x'), x), Item('x'), Variable('x', Snak))
+        self.assert_statement_template(
+            StatementTemplate(Item('x'), NoValueSnakTemplate(x)),
+            Item('x'), NoValueSnakTemplate(PropertyVariable('x')))
+        self.assert_statement_template(
+            Statement(Lexeme(x), Property('p')(0)),
+            Lexeme(IRI_Variable('x')), Property('p')(Quantity(0)))
+        self.assert_statement_template(
+            StatementTemplate(Item('x'), x), Item('x'), Variable('x', Snak))
+        self.assert_statement_template(
+            StatementTemplate(Item('x'), NoValueSnak(x)),
+            Item('x'), NoValueSnak(PropertyVariable('x')))
+        self.assert_statement_template(
+            PropertyTemplate(x)(Item('i'), String('s')),
+            Item('i'), PropertyTemplate(x)(String('s')))
+        self.assert_statement(
+            cast(Statement, PropertyTemplate('x')(Item('i'), String('s'))),
+            Item('i'), Property('x')(String('s')))
+        self.assertRaises(TypeError, Statement, x, x)
+        self.assertEqual(
+            StatementTemplate(x, x(x)),
+            StatementTemplate(PropertyVariable('x'), ValueSnak(
+                PropertyVariable('x'), PropertyVariable('x'))))
+        self.assertEqual(
+            StatementTemplate(x, SomeValueSnak(x)),
+            StatementTemplate(
+                PropertyVariable('x'),
+                SomeValueSnak(PropertyVariable('x'))))
+        self.assertEqual(
+            StatementTemplate(x, NoValueSnak(x)),
+            StatementTemplate(
+                PropertyVariable('x'),
+                NoValueSnak(PropertyVariable('x'))))
 
     def test_instantiate(self) -> None:
         assert_type(StatementTemplate(

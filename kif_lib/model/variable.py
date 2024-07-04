@@ -6,6 +6,7 @@ from typing_extensions import overload, TYPE_CHECKING
 from ..itertools import chain
 from ..typing import (
     Any,
+    Callable,
     cast,
     ClassVar,
     Iterator,
@@ -16,7 +17,7 @@ from ..typing import (
     TypeAlias,
     Union,
 )
-from .kif_object import KIF_Object, KIF_ObjectClass, TLocation
+from .kif_object import KIF_Object, TLocation
 
 if TYPE_CHECKING:
     from .snak import ValueSnakTemplate
@@ -24,8 +25,7 @@ if TYPE_CHECKING:
     from .value import VTEntity, VTValue
 
 Theta: TypeAlias = Mapping['Variable', Optional[KIF_Object]]
-VariableClass: TypeAlias = type['Variable']
-TVariableClass: TypeAlias = Union[VariableClass, KIF_ObjectClass]
+TVariableClass: TypeAlias = Union[type['Variable'], type[KIF_Object]]
 
 
 class Variable(KIF_Object):
@@ -37,7 +37,7 @@ class Variable(KIF_Object):
     """
 
     #: Object class associated with this variable class.
-    object_class: ClassVar[KIF_ObjectClass]
+    object_class: ClassVar[type[KIF_Object]]
 
     class InstantiationError(ValueError):
         """Bad instantiation attempt."""
@@ -65,7 +65,7 @@ class Variable(KIF_Object):
     def check(
             cls,
             arg: Any,
-            function: Optional[TLocation] = None,
+            function: Optional[Union[Callable[..., Any], str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Self:
@@ -79,7 +79,7 @@ class Variable(KIF_Object):
     def __init__(
             self,
             name: str,
-            object_class: Optional[KIF_ObjectClass] = None
+            object_class: Optional[type[KIF_Object]] = None
     ):
         super().__init__(name)
 

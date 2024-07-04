@@ -99,7 +99,6 @@ from kif_lib.model import (
     StatementVariable,
     TCallable,
     Template,
-    TemplateClass,
     TextTemplate,
     TextVariable,
     TimeTemplate,
@@ -108,7 +107,6 @@ from kif_lib.model import (
     ValueSnakVariable,
     ValueTemplate,
     ValueVariable,
-    VariableClass,
     VEntity,
     VExternalId,
     VItem,
@@ -161,12 +159,12 @@ class kif_TestCase(unittest.TestCase):
             lambda s: getattr(KIF_Object, s),
             filter(lambda s: re.match('^_[A-Z]', s), dir(KIF_Object)))))
 
-    ALL_TEMPLATE_CLASSES: ClassVar[Set[TemplateClass]] = frozenset(
-        cast(Iterator[TemplateClass], filter(
+    ALL_TEMPLATE_CLASSES: ClassVar[Set[type[Template]]] = frozenset(
+        cast(Iterator[type[Template]], filter(
             lambda c: issubclass(c, Template), ALL_KIF_OBJECT_CLASSES)))
 
-    ALL_VARIABLE_CLASSES: ClassVar[Set[VariableClass]] = frozenset(
-        cast(Iterator[VariableClass], filter(
+    ALL_VARIABLE_CLASSES: ClassVar[Set[type[Variable]]] = frozenset(
+        cast(Iterator[type[Variable]], filter(
             lambda c: issubclass(c, Variable), ALL_KIF_OBJECT_CLASSES)))
 
     ALL_DATATYPE_CLASSES: ClassVar[Set[type[Datatype]]] = frozenset(
@@ -176,8 +174,8 @@ class kif_TestCase(unittest.TestCase):
     @classmethod
     def _variable_class_can_check_from(
             cls,
-            variable_class: VariableClass
-    ) -> Iterable[VariableClass]:
+            variable_class: type[Variable]
+    ) -> Iterable[type[Variable]]:
         return set(itertools.chain(
             filter(lambda x: issubclass(x, Variable),
                    variable_class.__mro__),
@@ -187,8 +185,8 @@ class kif_TestCase(unittest.TestCase):
     @classmethod
     def _variable_class_cannot_check_from(
             cls,
-            variable_class: VariableClass
-    ) -> Iterable[VariableClass]:
+            variable_class: type[Variable]
+    ) -> Iterable[type[Variable]]:
         return cls.ALL_VARIABLE_CLASSES - set(
             cls._variable_class_can_check_from(variable_class))
 

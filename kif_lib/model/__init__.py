@@ -79,7 +79,7 @@ from .statement import (
     VStatement,
     VTStatement,
 )
-from .template import Template, TemplateClass
+from .template import Template
 from .value import (
     Datatype,
     DatatypeVariable,
@@ -163,7 +163,7 @@ from .value import (
     VTValue,
     VValue,
 )
-from .variable import Theta, Variable, VariableClass, Variables
+from .variable import Theta, Variable, Variables
 
 __all__ = (
     'AnnotationRecord',
@@ -254,7 +254,6 @@ __all__ = (
     'TCallable',
     'TDatatype',
     'Template',
-    'TemplateClass',
     'TEntityFingerprint',
     'Text',
     'TextDatatype',
@@ -292,7 +291,6 @@ __all__ = (
     'ValueTemplate',
     'ValueVariable',
     'Variable',
-    'VariableClass',
     'Variables',
     'VDatatype',
     'VEntity',

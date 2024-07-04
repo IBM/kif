@@ -4,44 +4,23 @@
 from ..itertools import chain
 from ..typing import (
     Any,
+    Callable,
     ClassVar,
     Iterator,
     Mapping,
     Optional,
     Set,
-    TypeAlias,
     Union,
 )
-from .kif_object import KIF_Object, KIF_ObjectClass, TLocation
+from .kif_object import KIF_Object
 from .variable import Theta, Variable
-
-TemplateClass: TypeAlias = type['Template']
-TTemplateClass: TypeAlias = Union[TemplateClass, KIF_ObjectClass]
 
 
 class Template(KIF_Object):
     """Abstract base class for templates."""
 
     #: Object class associated with this template class.
-    object_class: ClassVar[KIF_ObjectClass]
-
-    @classmethod
-    def _check_arg_template_class(
-            cls,
-            arg: TTemplateClass,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> TemplateClass:
-        if issubclass(arg, cls):
-            return arg
-        else:
-            arg = cls._check_arg_kif_object_class(
-                arg, function, name, position)
-            return getattr(cls._check_arg(
-                arg, hasattr(arg, 'template_class'),
-                f'no template class for {arg.__qualname__}',
-                function, name, position), 'template_class')
+    object_class: ClassVar[type[KIF_Object]]
 
     def _preprocess_args(self, args: tuple[Any, ...]) -> tuple[Any, ...]:
         return self._normalize_args(super()._preprocess_args(args))
@@ -120,7 +99,7 @@ class Template(KIF_Object):
             self,
             theta: Theta,
             coerce: bool,
-            function: Optional[TLocation] = None,
+            function: Optional[Union[Callable[..., Any], str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> KIF_Object:
