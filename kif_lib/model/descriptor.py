@@ -15,7 +15,7 @@ from ..typing import (
 )
 from .kif_object import KIF_Object
 from .set import TextSet, TTextSet
-from .value import Datatype, Item, Text, TText
+from .value import Datatype, Item, TDatatype, Text, TItem, TText
 
 
 class Descriptor(KIF_Object):
@@ -244,7 +244,7 @@ class PropertyDescriptor(PlainDescriptor):
             label: Optional[TText] = None,
             aliases: Optional[TTextSet] = None,
             description: Optional[TText] = None,
-            datatype: Optional[Datatype] = None
+            datatype: Optional[TDatatype] = None
     ):
         super().__init__(label, aliases, description, datatype)
 
@@ -289,8 +289,8 @@ class LexemeDescriptor(Descriptor):
     def __init__(
             self,
             lemma: Optional[TText] = None,
-            category: Optional[Item] = None,
-            language: Optional[Item] = None
+            category: Optional[TItem] = None,
+            language: Optional[TItem] = None
     ):
         super().__init__(lemma, category, language)
 

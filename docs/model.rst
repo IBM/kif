@@ -11,4 +11,5 @@ Model
    snak
    statement
    annotation
+   descriptor
    set
