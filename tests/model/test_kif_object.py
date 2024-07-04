@@ -951,9 +951,7 @@ class Test(kif_TestCase):
         self.assertRaises(TypeError, Item('x').check_filter_pattern)
 
     def test_check_fingerprint(self):
-        fp = Fingerprint(String('x'))
-        self.assertEqual(fp.check_fingerprint(), fp)
-        self.assertRaises(TypeError, Item('x').check_fingerprint)
+        pass
 
     def test_check_iri(self):
         self.assertEqual(IRI('x').check_iri(), IRI('x'))
@@ -1462,9 +1460,7 @@ class Test(kif_TestCase):
         self.assertRaises(TypeError, String('x').unpack_entity)
 
     def test_unpack_entity_fingerprint(self):
-        fp = EntityFingerprint(Item('x'))
-        self.assertEqual(fp.unpack_entity_fingerprint(), (Item('x'),))
-        self.assertRaises(TypeError, String('x').unpack_entity_fingerprint)
+        pass
 
     def test_unpack_entity_template(self):
         self.assertEqual(
@@ -1512,9 +1508,7 @@ class Test(kif_TestCase):
         self.assertRaises(TypeError, Item('x').unpack_filter_pattern)
 
     def test_unpack_fingerprint(self):
-        fp = EntityFingerprint(Item('x'))
-        self.assertEqual(fp.unpack_fingerprint(), (Item('x'),))
-        self.assertRaises(TypeError, String('x').unpack_fingerprint)
+        pass
 
     def test_unpack_item(self):
         pass
@@ -1650,9 +1644,7 @@ class Test(kif_TestCase):
         self.assertRaises(TypeError, Item('x').unpack_property_descriptor)
 
     def test_unpack_property_fingerprint(self):
-        fp = PropertyFingerprint(Property('x'))
-        self.assertEqual(fp.unpack_property_fingerprint(), (Property('x'),))
-        self.assertRaises(TypeError, String('x').unpack_property_fingerprint)
+        pass
 
     def test_unpack_property_template(self):
         self.assertEqual(

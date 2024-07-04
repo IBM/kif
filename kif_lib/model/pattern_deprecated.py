@@ -1,7 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from functools import reduce
+import functools
 
 from ..typing import Any, cast, Optional, override
 from .fingerprint import (
@@ -82,11 +82,14 @@ class FilterPattern(KIF_Object):
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
-            return self._preprocess_optional_arg_entity_fingerprint(arg, i)
+            return EntityFingerprint.check_optional(
+                arg, None, type(self), None, i)
         elif i == 2:
-            return self._preprocess_optional_arg_property_fingerprint(arg, i)
+            return PropertyFingerprint.check_optional(
+                arg, None, type(self), None, i)
         elif i == 3:
-            return self._preprocess_optional_arg_fingerprint(arg, i)
+            return Fingerprint.check_optional(
+                arg, None, type(self), None, i)
         elif i == 4:
             return Snak.Mask.check_optional(
                 arg, Snak.Mask.ALL, type(self), None, i)
@@ -293,7 +296,7 @@ class FilterPattern(KIF_Object):
         Raises:
            ValueError: Patterns cannot be combined.
         """
-        return reduce(self._combine, others, self)
+        return functools.reduce(self._combine, others, self)
 
     @classmethod
     def _combine(cls, pat1: 'FilterPattern', pat2: 'FilterPattern'):

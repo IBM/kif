@@ -1006,7 +1006,6 @@ if __name__ == '__main__':
     ):
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Fingerprint)
-        self.assertTrue(obj.is_fingerprint())
         self.assertIsInstance(obj.args[0], (Value, SnakSet))
         self.assertEqual(obj.args[0], val)
         if isinstance(obj.args[0], Value):

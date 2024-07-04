@@ -15,32 +15,28 @@ from .tests import kif_TestCase
 
 class TestModelFingerprintEntityFingerprint(kif_TestCase):
 
-    def test__preprocess_arg_entity_fingerprint(self):
+    def test_check(self):
         self.assertEqual(
-            EntityFingerprint._preprocess_arg_entity_fingerprint(
-                Item('x'), 1),
+            EntityFingerprint.check(Item('x')),
             EntityFingerprint(Item('x')))
         self.assertEqual(
-            EntityFingerprint._preprocess_arg_entity_fingerprint(
-                SnakSet(NoValueSnak(Property('p'))), 1),
+            EntityFingerprint.check(
+                SnakSet(NoValueSnak(Property('p')))),
             EntityFingerprint(SnakSet(NoValueSnak(Property('p')))))
         self.assertEqual(
-            EntityFingerprint._preprocess_arg_entity_fingerprint(
-                [NoValueSnak(Property('p'))], 1),
+            EntityFingerprint.check(
+                [NoValueSnak(Property('p'))]),
             EntityFingerprint([NoValueSnak(Property('p'))]))
-
-    def test__preprocess_optional_arg_entity_fingerprint(self):
         self.assertEqual(
-            EntityFingerprint._preprocess_optional_arg_entity_fingerprint(
-                Item('x'), 1),
+            EntityFingerprint.check_optional(
+                Item('x')),
             EntityFingerprint(Item('x')))
         self.assertEqual(
-            EntityFingerprint._preprocess_optional_arg_entity_fingerprint(
-                None, 1, EntityFingerprint(Item('x'))),
+            EntityFingerprint.check_optional(
+                None, EntityFingerprint(Item('x'))),
             EntityFingerprint(Item('x')))
         self.assertEqual(
-            EntityFingerprint._preprocess_optional_arg_entity_fingerprint(
-                None, 1, None), None)
+            EntityFingerprint.check_optional(None), None)
 
     def test__init__(self):
         self.assertRaises(TypeError, EntityFingerprint, 0)

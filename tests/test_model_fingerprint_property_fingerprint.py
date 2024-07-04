@@ -15,32 +15,26 @@ from .tests import kif_TestCase
 
 class TestModelFingerprintPropertyFingerprint(kif_TestCase):
 
-    def test__preprocess_arg_property_fingerprint(self):
+    def test_check(self):
         self.assertEqual(
-            PropertyFingerprint._preprocess_arg_property_fingerprint(
-                Property('x'), 1),
+            PropertyFingerprint.check(Property('x')),
             PropertyFingerprint(Property('x')))
         self.assertEqual(
-            PropertyFingerprint._preprocess_arg_property_fingerprint(
-                SnakSet(NoValueSnak(Property('p'))), 1),
+            PropertyFingerprint.check(
+                SnakSet(NoValueSnak(Property('p')))),
             PropertyFingerprint(SnakSet(NoValueSnak(Property('p')))))
         self.assertEqual(
-            PropertyFingerprint._preprocess_arg_property_fingerprint(
-                [NoValueSnak(Property('p'))], 1),
+            PropertyFingerprint.check(
+                [NoValueSnak(Property('p'))]),
             PropertyFingerprint([NoValueSnak(Property('p'))]))
-
-    def test__preprocess_optional_arg_property_fingerprint(self):
         self.assertEqual(
-            PropertyFingerprint._preprocess_optional_arg_property_fingerprint(
-                Property('x'), 1),
+            PropertyFingerprint.check(Property('x')),
             PropertyFingerprint(Property('x')))
         self.assertEqual(
-            PropertyFingerprint._preprocess_optional_arg_property_fingerprint(
-                None, 1, PropertyFingerprint(Property('x'))),
+            PropertyFingerprint.check_optional(
+                None, PropertyFingerprint(Property('x'))),
             PropertyFingerprint(Property('x')))
-        self.assertEqual(
-            PropertyFingerprint._preprocess_optional_arg_property_fingerprint(
-                None, 1, None), None)
+        self.assertEqual(PropertyFingerprint.check_optional(None), None)
 
     def test__init__(self):
         self.assertRaises(TypeError, PropertyFingerprint, 0)
