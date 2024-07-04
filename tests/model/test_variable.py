@@ -17,11 +17,13 @@ from kif_lib import (
     Snak,
     SomeValueSnak,
     Statement,
+    StatementTemplate,
     String,
     Text,
     Time,
     Value,
     ValueSnak,
+    ValueSnakTemplate,
     Variable,
     Variables,
 )
@@ -33,13 +35,15 @@ from kif_lib.model import (
     StringVariable,
     ValueVariable,
 )
+from kif_lib.typing import assert_type, Iterator, Optional
 
-from ..tests import kif_TestCase
+from ..tests import kif_VariableTestCase
 
 
-class Test(kif_TestCase):
+class Test(kif_VariableTestCase):
 
-    def test__new__(self):
+    def test__init__(self) -> None:
+        assert_type(Variable('x'), Variable)
         self.assert_raises_bad_argument(
             TypeError, 2, 'variable_class',
             'cannot coerce int into Variable', Variable, 'x', 0)
@@ -50,6 +54,7 @@ class Test(kif_TestCase):
             TypeError, 2, 'variable_class',
             'cannot coerce KIF_Object into Variable',
             Variable, 'x', KIF_Object)
+        self.assert_variable(Variable('x'), 'x')
         self.assert_variable(Variable('x', Variable), 'x')
         self.assert_value_variable(Variable('x', Value), 'x')
         self.assert_entity_variable(Variable('x', Entity), 'x')
@@ -74,10 +79,9 @@ class Test(kif_TestCase):
         self.assert_no_value_snak_variable(Variable('x', NoValueSnak), 'x')
         self.assert_statement_variable(Variable('x', Statement), 'x')
 
-    def test__init__(self):
-        self.assert_variable(Variable('x'), 'x')
-
-    def test__call__(self):
+    def test__call__(self) -> None:
+        assert_type(Variable('p')('x'), ValueSnakTemplate)
+        assert_type(Variable('p')(Item('x'), 'y'), StatementTemplate)
         self.assertRaises(TypeError, ItemVariable('p'), String('s'))
         self.assertEqual(
             PropertyVariable('p')(String('s')),
@@ -94,7 +98,8 @@ class Test(kif_TestCase):
             Statement(Item('x'), ValueSnak(
                 PropertyVariable('p'), String('s'))))
 
-    def test_instantiate(self):
+    def test_instantiate(self) -> None:
+        assert_type(Variable('x').instantiate({}), Optional[KIF_Object])
         self.assert_raises_bad_argument(
             TypeError, 1, 'theta', 'expected Mapping, got int',
             Variable('x').instantiate, 0)
@@ -146,7 +151,8 @@ class Test(kif_TestCase):
                 {StringVariable('x'): ExternalId('x')}, False),
             DataValueVariable('x'))
 
-    def test_variables(self):
+    def test_Variables(self) -> None:
+        assert_type(Variables('x', 'y', 'z'), Iterator[Variable])
         a, b, c, d, e = Variables(
             'a', 'b', Item,
             'c', DataValueVariable,

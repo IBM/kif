@@ -17,9 +17,9 @@ from ..typing import (
     TypeAlias,
     Union,
 )
-from .kif_object import KIF_Object, TLocation
+from .kif_object import KIF_Object
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:               # pragma: no cover
     from .snak import ValueSnakTemplate
     from .statement import StatementTemplate
     from .value import VTEntity, VTValue
@@ -92,11 +92,11 @@ class Variable(KIF_Object):
 
     @overload
     def __call__(self, v1: 'VTEntity', v2: 'VTValue') -> 'StatementTemplate':
-        ...
+        ...                     # pragma: no cover
 
     @overload
     def __call__(self, v1: 'VTValue') -> 'ValueSnakTemplate':
-        ...
+        ...                     # pragma: no cover
 
     def __call__(self, v1, v2=None):
         from .value import PropertyVariable
@@ -142,7 +142,7 @@ class Variable(KIF_Object):
             self,
             theta: Theta,
             coerce: bool,
-            function: Optional[TLocation] = None,
+            function: Optional[Union[Callable[..., Any], str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Optional[KIF_Object]:
@@ -166,7 +166,7 @@ class Variable(KIF_Object):
     def _instantiate_tail(
             self,
             theta: Theta,
-            function: Optional[TLocation] = None,
+            function: Optional[Union[Callable[..., Any], str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Optional[KIF_Object]:
@@ -188,10 +188,7 @@ class Variable(KIF_Object):
                 return obj
             else:
                 src = self.__class__.__qualname__
-                if isinstance(obj, type):
-                    dest = obj.__qualname__
-                else:
-                    dest = obj.__class__.__qualname__
+                dest = obj.__class__.__qualname__
                 raise self._arg_error(
                     f"cannot instantiate {src} '{self.name}' with {dest}",
                     function, name, position, self.InstantiationError)

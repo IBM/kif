@@ -47,7 +47,7 @@ class Test(kif_TemplateTestCase):
     def test__init__(self) -> None:
         self.assert_abstract_class(Template)
 
-    def test_variables(self) -> None:
+    def test_get_variables(self) -> None:
         assert_type(ItemTemplate(Variable('x')).variables, Set[Variable])
         self.assertEqual(
             ItemTemplate(Variable('x')).get_variables(),
