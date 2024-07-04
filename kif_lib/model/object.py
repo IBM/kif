@@ -108,7 +108,6 @@ class ObjectMeta(abc.ABCMeta):
         cls_._is_ = 'is_' + sn
         cls_._test_ = 'test_' + sn
         cls_._check_ = 'check_' + sn
-        cls_._unpack_ = 'unpack_' + sn
         cls_._check_arg_ = '_check_arg_' + sn
         cls_._check_arg__class = cls_._check_arg_ + '_class'
         cls_._check_optional_arg_ = '_check_optional_arg_' + sn
@@ -117,7 +116,6 @@ class ObjectMeta(abc.ABCMeta):
         cls_._preprocess_optional_arg_ = '_preprocess_optional_arg_' + sn
         cls._init_test_(top, cls_)
         cls._init_check_(top, cls_)
-        cls._init_unpack_(top, cls_)
         cls._init__check_arg_(top, cls_)
         cls._init__check_arg__class(top, cls_)
         cls._init__check_optional_arg_(top, cls_)
@@ -166,28 +164,6 @@ class ObjectMeta(abc.ABCMeta):
            TypeError: Object is not of class :class:`{cls_.__qualname__}`.
         """
         setattr(top, cls_._check_, f_check)
-
-    @classmethod
-    def _init_unpack_(cls, top: TObjCls, cls_: TObjCls):
-        def f_unpack(
-                arg: 'Object',
-                function: Optional[TLoc] = None,
-                name: Optional[str] = None,
-                position: Optional[int] = None
-        ) -> TArgs:
-            return cls_.unpack(
-                arg, function=function, name=name, position=position)
-        f_unpack.__doc__ = f"""\
-        Unpacks arguments of object of class :class:`{cls_.__qualname__}`.
-
-        Returns:
-           The arguments of object unpacked.
-
-        Raises:
-           TypeError: Object is not of class :class:`{cls_.__qualname__}`.
-        """
-        setattr(top, cls_._unpack_, f_unpack)
-        setattr(top, '_' + cls_._unpack_, cls_.unpack)
 
     @classmethod
     def _init__check_arg_(cls, top: TObjCls, cls_: TObjCls):
@@ -353,7 +329,6 @@ class Object(Sequence, metaclass=ObjectMeta):
     _preprocess_arg_: str
     _preprocess_optional_arg_: str
     _test_: str
-    _unpack_: str
 
     @classmethod
     def test(cls, obj: Any) -> bool:
@@ -451,30 +426,6 @@ class Object(Sequence, metaclass=ObjectMeta):
         return cls._arg_error(
             f'cannot coerce {from_} into {to_}',
             function or cls.check, name, position, exception or TypeError)
-
-    @classmethod
-    def unpack(
-            cls,
-            arg: Any,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> TArgs:
-        """Unpacks arguments of `obj` of this class.
-
-        Parameters:
-           obj: Object.
-           function: Function or function name.
-           name: Argument name.
-           position: Argument position.
-
-        Returns:
-           The arguments of `obj` unpacked.
-
-        Raises:
-           TypeError: `obj` is not an instance of this class.
-        """
-        return cls.check(arg, function or cls.unpack, name, position).args
 
     __slots__ = (
         '_args',

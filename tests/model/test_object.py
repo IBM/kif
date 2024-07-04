@@ -135,27 +135,6 @@ class Test(TestCase):
             r'\(cannot coerce B into A\)$',
             A.check_optional, B())
 
-    def test_unpack(self):
-        self.assertEqual(Object.unpack(A()), ())
-        self.assertEqual(Object.unpack(A(1, 2, 3)), (1, 2, 3))
-        self.assertEqual(A.unpack(A(1, B(), 3)), (1, B(), 3))
-        self.assertRaises(TypeError, A.unpack, B())
-        # unpack_*
-        self.assertEqual(A().unpack_a(), ())
-        self.assertEqual(A(2).unpack_object(), (2,))
-        self.assertRaisesRegex(
-            TypeError,
-            r"^bad argument to 'Object.unpack' \(cannot coerce B into A\)$",
-            A.unpack, B())
-        self.assertRaisesRegex(
-            TypeError,
-            r"^bad argument to 'Object.unpack' \(cannot coerce B into A\)$",
-            B().unpack_a)
-        self.assertRaisesRegex(
-            TypeError,
-            r"^bad argument to 'f' \(cannot coerce B into A\)$",
-            B().unpack_a, 'f')
-
     def test__init__(self):
         self.assertRaises(TypeError, A, None)
         self.assert_object(A(), ())
