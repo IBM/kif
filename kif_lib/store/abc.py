@@ -254,7 +254,7 @@ class Store(Set):
            references: Set of references.
         """
         self._extra_references =\
-            ReferenceRecordSet._check_optional_arg_reference_record_set(
+            ReferenceRecordSet.check_optional(
                 references, None, self.set_extra_references, 'references', 1)
 
 # -- Flags -----------------------------------------------------------------
@@ -633,18 +633,18 @@ class Store(Set):
             pattern: Optional[FilterPattern] = None,
             function: Optional[TLocation] = None
     ) -> FilterPattern:
-        subj = EntityFingerprint._check_optional_arg_entity_fingerprint(
+        subj = EntityFingerprint.check_optional(
             subject, None, function, 'subject', 1)
-        prop = PropertyFingerprint._check_optional_arg_property_fingerprint(
+        prop = PropertyFingerprint.check_optional(
             property, None, function, 'property', 2)
-        val = Fingerprint._check_optional_arg_fingerprint(
+        val = Fingerprint.check_optional(
             value, None, function, 'value', 3)
         mask = Snak.Mask.check_optional(
             snak_mask, Snak.ALL, function, 'snak_mask', 4)
         pat = FilterPattern(subj, prop, val, mask)
         if snak is not None:
             pat = FilterPattern._combine(
-                pat, FilterPattern.from_snak(None, Snak._check_arg_snak(
+                pat, FilterPattern.from_snak(None, Snak.check(
                     snak, function, 'snak', 5)))
         if pattern is not None:
             pat = FilterPattern._combine(

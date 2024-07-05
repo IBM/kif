@@ -51,7 +51,7 @@ class Test(TestCase):
             def _preprocess_arg(self, arg, i):
                 arg = super()._preprocess_arg(arg, i)
                 if i == 1:              # A
-                    return self._check_arg_a(arg, type(self), None, i)
+                    return A.check(arg, type(self), None, i)
                 elif i == 2:            # bool
                     return self._check_arg_bool(arg, type(self), None, i)
                 else:
@@ -441,127 +441,11 @@ B(
 
 # -- Argument checking -----------------------------------------------------
 
-    def test__check_arg(self):
-        self.assertRaisesRegex(
-            ValueError, r'^bad argument$',
-            Object._check_arg, 'x', False)
-        self.assertRaisesRegex(
-            ValueError, r'^bad argument$',
-            Object._check_arg, 'x', lambda x: False)
-        self.assertRaisesRegex(
-            ValueError, r'^bad argument \(details\)$',
-            Object._check_arg, 'x', False, 'details')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument to 'f'$",
-            Object._check_arg, 'x', False, None, 'f')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument \(v\)$",
-            Object._check_arg, 'x', False, None, None, 'v')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument #8$",
-            Object._check_arg, 'x', False, None, None, None, 8)
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument to 'f' \(details\)$",
-            Object._check_arg, 'x', False, 'details', 'f')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument to 'f'$",
-            Object._check_arg, 'x', False, None, 'f')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument \(v\) to 'f' \(details\)$",
-            Object._check_arg, 'x', False, 'details', 'f', 'v')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument \(v\) to 'f'$",
-            Object._check_arg, 'x', False, None, 'f', 'v')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument \(v\) \(details\)$",
-            Object._check_arg, 'x', False, 'details', None, 'v')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument #8 \(v\) to 'f' \(details\)$",
-            Object._check_arg, 'x', False, 'details', 'f', 'v', 8)
-        self.assertRaisesRegex(
-            ValueError,
-            r"^bad argument #8 \(v\) to 'Object.get_args' \(details\)$",
-            Object._check_arg, 'x', False, 'details',
-            Object.get_args, 'v', 8)
-        self.assertRaises(
-            AssertionError, Object._check_arg,
-            'x', False, 'details', 'f', 'v', -8)
-        # A, B, C
-        self.assertEqual(A._check_arg_a(A()), A())
-        self.assertRaises(TypeError, A()._check_arg_a, B())
-
-    def test__check_arg__class(self):
-        self.assertRaisesRegex(
-            ValueError, r'^bad argument \(expected subclass of A, got B\)$',
-            Object._check_arg_a_class, B)
-        self.assertEqual(Object._check_arg_a_class(A), A)
-
-    def test__check_optional_arg(self):
-        self.assertRaisesRegex(
-            ValueError, r'^bad argument \(details\)$',
-            Object._check_optional_arg, 'x', None, False, 'details')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument to 'f'$",
-            Object._check_optional_arg, 'x', None, False, None, 'f')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument \(v\)$",
-            Object._check_optional_arg, 'x', None, False, None, None, 'v')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument #8$",
-            Object._check_optional_arg, 'x', None, False, None, None, None, 8)
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument to 'f' \(details\)$",
-            Object._check_optional_arg, 'x', None, False, 'details', 'f')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument to 'f'$",
-            Object._check_optional_arg, 'x', None, False, None, 'f')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument \(v\) to 'f' \(details\)$",
-            Object._check_optional_arg, 'x', None, False, 'details', 'f', 'v')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument \(v\) to 'f'$",
-            Object._check_optional_arg, 'x', None, False, None, 'f', 'v')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument \(v\) \(details\)$",
-            Object._check_optional_arg,
-            'x', None, False, 'details', None, 'v')
-        self.assertRaisesRegex(
-            ValueError, r"^bad argument #8 \(v\) to 'f' \(details\)$",
-            Object._check_optional_arg,
-            'x', None, False, 'details', 'f', 'v', 8)
-        self.assertRaisesRegex(
-            ValueError,
-            r"^bad argument #8 \(v\) to 'Object.get_args' \(details\)$",
-            Object._check_optional_arg, 'x', None, False, 'details',
-            Object.get_args, 'v', 8)
-        self.assertRaises(
-            AssertionError, Object._check_optional_arg,
-            'x', None, False, 'details', 'f', 'v', -8)
-        self.assertEqual(Object._check_optional_arg(1, None, True), 1)
-        self.assertEqual(Object._check_optional_arg(None, 1, True), 1)
-        self.assertEqual(Object._check_optional_arg(None, 1, False), 1)
-        self.assertEqual(A._check_optional_arg_a(A(), None), A())
-        self.assertIsNone(A._check_optional_arg_a(None), None)
-        self.assertEqual(A._check_optional_arg_a(None, A()), A())
-        self.assertRaises(TypeError, A()._check_optional_arg_a, B())
-
-    def test__check_optional_arg__class(self):
-        self.assertRaisesRegex(
-            ValueError, r'^bad argument \(expected subclass of A, got B\)$',
-            Object._check_optional_arg_a_class, B)
-        self.assertEqual(Object._check_optional_arg_a_class(A), A)
-        self.assertEqual(Object._check_optional_arg_a_class(None, A), A)
-        self.assertIsNone(Object._check_optional_arg_a_class(None))
-
-    # -- _check_arg_not_none --
-
     def test__check_arg_not_none(self):
         self.assertRaisesRegex(
             TypeError, r'^bad argument \(expected value, got None\)$',
             Object._check_arg_not_none, None)
         self.assertEqual(Object._check_arg_not_none(0), 0)
-
-    # -- _check_arg_callable --
 
     def test__check_arg_callable(self):
         # bad argument
@@ -587,8 +471,6 @@ B(
         self.assertEqual(
             Object._check_optional_arg_callable(Object.get_args),
             Object.get_args)
-
-    # -- _check_arg_isinstance --
 
     def test__check_arg_isinstance(self):
         # bad argument
@@ -619,8 +501,6 @@ B(
         self.assertEqual(
             Object._check_optional_arg_isinstance('abc', (int, str)),
             'abc')
-
-    # -- _check_arg_issubclass --
 
     def test__check_arg_issubclass(self):
         # bad argument

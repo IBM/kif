@@ -107,13 +107,7 @@ class ObjectMeta(abc.ABCMeta):
         cls_._snake_case_name = sn
         cls_._is_ = 'is_' + sn
         cls_._test_ = 'test_' + sn
-        cls_._check_ = 'check_' + sn
-        cls_._check_arg_ = '_check_arg_' + sn
-        cls_._check_optional_arg_ = '_check_optional_arg_' + sn
         cls._init_test_(top, cls_)
-        cls._init_check_(top, cls_)
-        cls._init__check_arg_(top, cls_)
-        cls._init__check_optional_arg_(top, cls_)
         return cls_
 
     @classmethod
@@ -128,76 +122,6 @@ class ObjectMeta(abc.ABCMeta):
         """
         setattr(top, cls_._is_, f_test)
         setattr(top, cls_._test_, f_test)
-
-    @classmethod
-    def _init_check_(cls, top: TObjCls, cls_: TObjCls):
-        def mk_check_(s: str):
-            def check_(
-                    arg: 'Object',
-                    function: Optional[TLoc] = None,
-                    name: Optional[str] = None,
-                    position: Optional[int] = None
-            ) -> 'Object':
-                return cls_.check(arg, function, name, position)
-            return check_
-        f_check = mk_check_(cls_._check_)
-        f_check.__doc__ = f"""\
-        Checks whether object is of class :class:`{cls_.__qualname__}`.
-
-        Parameters:
-           function: Function or function name.
-           name: Argument name.
-           position: Argument position.
-
-        Returns:
-           Object.
-
-        Raises:
-           TypeError: Object is not of class :class:`{cls_.__qualname__}`.
-        """
-        setattr(top, cls_._check_, f_check)
-
-    @classmethod
-    def _init__check_arg_(cls, top: TObjCls, cls_: TObjCls):
-        if hasattr(cls_, cls_._check_arg_):
-            f_check_arg = getattr(cls_, cls_._check_arg_)
-        else:
-            def mk_check_arg_(c):
-                def check_arg_(
-                        cls__,
-                        arg: Any,
-                        function: Optional[TLoc] = None,
-                        name: Optional[str] = None,
-                        position: Optional[int] = None
-                ) -> c:
-                    return c.check(arg, function, name, position)
-                return check_arg_
-            f_check_arg = classmethod(mk_check_arg_(cls_))
-        setattr(top, cls_._check_arg_, f_check_arg)
-
-    @classmethod
-    def _init__check_optional_arg_(cls, top: TObjCls, cls_: TObjCls):
-        _check_arg_ = cls_._check_arg_
-        if hasattr(cls_, cls_._check_optional_arg_):
-            f_check_optional_arg = getattr(cls_, cls_._check_optional_arg_)
-        else:
-            def mk_check_optional_arg_(c):
-                def check_optional_arg_(
-                        cls__,
-                        arg: Any,
-                        default: Optional[c] = None,
-                        function: Optional[TLoc] = None,
-                        name: Optional[str] = None,
-                        position: Optional[int] = None
-                ) -> Optional[c]:
-                    if arg is None:
-                        return default
-                    else:
-                        return getattr(cls__, _check_arg_)(
-                            arg, function, name, position)
-                return check_optional_arg_
-            f_check_optional_arg = classmethod(mk_check_optional_arg_(cls_))
-        setattr(top, cls_._check_optional_arg_, f_check_optional_arg)
 
     @classmethod
     def check_object_class(
@@ -222,9 +146,6 @@ class Object(Sequence, metaclass=ObjectMeta):
     #: Absence of value distinct from ``None``.
     Nil: Final[NilType] = Nil
 
-    _check_: str
-    _check_arg_: str
-    _check_optional_arg_: str
     _is_: str
     _test_: str
 

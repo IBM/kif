@@ -225,7 +225,7 @@ class FilterPattern(KIF_Object):
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
-        self._check_arg_statement(stmt, self.match, 'stmt', 1)
+        stmt = Statement.check(stmt, self.match, 'stmt', 1)
         # Snak mask mismatch.
         if not bool(self.snak_mask & stmt.snak.mask):
             return False
