@@ -137,30 +137,6 @@ class Test(kif_TestCase):
         self.assertIsInstance(
             ItemTemplate(iri=IRI_Variable('x')), ItemTemplate)
 
-# == Argument checking =====================================================
-
-    def test__check_arg_kif_object_class(self):
-        self.assertRaises(
-            TypeError, KIF_Object._check_arg_kif_object_class, 0)
-        self.assertRaises(
-            ValueError, KIF_Object._check_arg_kif_object_class, int)
-        self.assertIs(
-            KIF_Object._check_arg_kif_object_class(KIF_Object), KIF_Object)
-        self.assertIs(
-            KIF_Object._check_arg_kif_object_class(Statement), Statement)
-
-    def test__check_optional_arg_kif_object_class(self):
-        self.assertRaises(
-            TypeError, KIF_Object._check_optional_arg_kif_object_class, 0)
-        self.assertIsNone(
-            KIF_Object._check_optional_arg_kif_object_class(None))
-        self.assertIs(
-            KIF_Object._check_optional_arg_kif_object_class(None, Statement),
-            Statement)
-        self.assertIs(
-            KIF_Object._check_optional_arg_kif_object_class(Item, Statement),
-            Item)
-
 # == Auto-defined stuff ====================================================
 # -- test_is_ --------------------------------------------------------------
 
