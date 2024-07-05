@@ -4,7 +4,7 @@
 from kif_lib import KIF_Object, KIF_ObjectSet
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from .kif_object import _Obj, kif_ObjectTestCase
+from .kif_object import kif_ObjectTestCase
 
 
 class kif_ObjectSetTestCase(kif_ObjectTestCase):
@@ -12,21 +12,23 @@ class kif_ObjectSetTestCase(kif_ObjectTestCase):
     @override
     def _test_check(
             self,
-            cls: type[_Obj],
-            success: Iterable[tuple[Any, _Obj]] = tuple(),
+            cls: Any,
+            success: Iterable[tuple[Any, KIF_Object]] = tuple(),
             failure: Iterable[Any] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, KIF_ObjectSet)
         super()._test_check(cls, success, failure)
 
     @override
     def _test__init__(
             self,
-            cls: type[_Obj],
+            cls: Any,
             assert_fn: Callable[..., None],
-            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
+            success: Iterable[tuple[Sequence[Any], KIF_Object]] = tuple(),
             failure: Iterable[Sequence[Any]] = tuple(),
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, KIF_ObjectSet)
         super()._test__init__(cls, assert_fn, success, failure)
         collect = []

@@ -30,7 +30,6 @@ from ..model import (
     TEntityFingerprint,
     Text,
     TFingerprint,
-    TLocation,
     TPropertyFingerprint,
     TReferenceRecordSet,
 )
@@ -551,7 +550,7 @@ class Store(Set):
 # -- Set interface ---------------------------------------------------------
 
     def __contains__(self, v):
-        return self.contains(v) if Statement.test(v) else False
+        return self.contains(v) if isinstance(v, Statement) else False
 
     def __iter__(self):
         return self.filter()
@@ -631,7 +630,7 @@ class Store(Set):
             snak_mask: Optional[Snak.TMask] = None,
             snak: Optional[Snak] = None,
             pattern: Optional[FilterPattern] = None,
-            function: Optional[TLocation] = None
+            function: Optional[Union[Callable[..., Any], str]] = None
     ) -> FilterPattern:
         subj = EntityFingerprint.check_optional(
             subject, None, function, 'subject', 1)
@@ -816,8 +815,8 @@ class Store(Set):
             self,
             stmts: Union[Statement, Iterable[Statement]]
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
-        if Statement.test(stmts):
-            it = self._get_annotations_with_hooks([cast(Statement, stmts)])
+        if isinstance(stmts, Statement):
+            it = self._get_annotations_with_hooks((stmts,))
         else:
             it = self._get_annotations_with_hooks(map(
                 lambda s: cast(Statement, Statement.check(
@@ -887,8 +886,8 @@ class Store(Set):
         KIF_Object._check_arg_isinstance(
             items, (Item, Iterable),
             self.has_item, 'items', 1)
-        if Item.test(items):
-            return self._has_item_tail([cast(Item, items)])
+        if isinstance(items, Item):
+            return self._has_item_tail((items,))
         else:
             return self._has_item_tail(map(
                 lambda e: cast(Item, Item.check(e, self.has_item)), items))
@@ -933,9 +932,8 @@ class Store(Set):
         mask = Descriptor.AttributeMask.check_optional(
             mask, Descriptor.ALL, self.get_descriptor, 'mask', 3)
         assert mask is not None
-        if Entity.test(entities):
-            return self._get_descriptor_tail(
-                [cast(Entity, entities)], language, mask)
+        if isinstance(entities, Entity):
+            return self._get_descriptor_tail((entities,), language, mask)
         else:
             return self._get_descriptor_tail(map(
                 lambda e: cast(Entity, Entity.check(
@@ -961,12 +959,12 @@ class Store(Set):
         properties: list[Property] = []
         lexemes: list[Lexeme] = []
         for entity in entities:
-            if entity.is_item():
-                items.append(cast(Item, entity))
-            elif entity.is_property():
-                properties.append(cast(Property, entity))
-            elif entity.is_lexeme():
-                lexemes.append(cast(Lexeme, entity))
+            if isinstance(entity, Item):
+                items.append(entity)
+            elif isinstance(entity, Property):
+                properties.append(entity)
+            elif isinstance(entity, Lexeme):
+                lexemes.append(entity)
             else:
                 raise self._should_not_get_here()
         desc = dict(chain(
@@ -1006,9 +1004,8 @@ class Store(Set):
         mask = Descriptor.AttributeMask.check_optional(
             mask, Descriptor.ALL, self.get_item_descriptor, 'mask', 3)
         assert mask is not None
-        if Item.test(items):
-            return self._get_item_descriptor_tail(
-                [cast(Item, items)], language, mask)
+        if isinstance(items, Item):
+            return self._get_item_descriptor_tail((items,), language, mask)
         else:
             return self._get_item_descriptor_tail(map(
                 lambda e: cast(Item, Item.check(
@@ -1058,9 +1055,9 @@ class Store(Set):
         mask = Descriptor.AttributeMask.check_optional(
             mask, Descriptor.ALL, self.get_property_descriptor, 'mask', 3)
         assert mask is not None
-        if Property.test(properties):
+        if isinstance(properties, Property):
             return self._get_property_descriptor_tail(
-                [cast(Property, properties)], language, mask)
+                (properties,), language, mask)
         else:
             return self._get_property_descriptor_tail(map(
                 lambda e: cast(Property, Property.check(
@@ -1104,9 +1101,8 @@ class Store(Set):
         mask = Descriptor.AttributeMask.check_optional(
             mask, Descriptor.ALL, self.get_lexeme_descriptor, 'mask', 3)
         assert mask is not None
-        if Lexeme.test(lexemes):
-            return self._get_lexeme_descriptor_tail(
-                [cast(Lexeme, lexemes)], mask)
+        if isinstance(lexemes, Lexeme):
+            return self._get_lexeme_descriptor_tail((lexemes,), mask)
         else:
             return self._get_lexeme_descriptor_tail(map(
                 lambda e: cast(Lexeme, Lexeme.check(

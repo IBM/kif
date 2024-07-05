@@ -4,8 +4,16 @@
 import datetime
 import enum
 
-from ...typing import Any, ClassVar, Optional, override, Self, TypeAlias, Union
-from ..kif_object import TLocation
+from ...typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Optional,
+    override,
+    Self,
+    TypeAlias,
+    Union,
+)
 from ..template import Template
 from ..variable import Variable
 from .deep_data_value import (
@@ -295,7 +303,7 @@ class Time(
     def check(
             cls,
             arg: Any,
-            function: Optional[TLocation] = None,
+            function: Optional[Union[Callable[..., Any], str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Self:

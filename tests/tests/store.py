@@ -21,6 +21,8 @@ from kif_lib import (
     SomeValueSnak,
     Store,
     Text,
+    Value,
+    ValueSnak,
 )
 from kif_lib.error import ShouldNotGetHere
 from kif_lib.store import (
@@ -166,11 +168,11 @@ class kif_StoreTestCase(kif_TestCase):
         values, some_values, no_values = [], [], []
         for stmt in itertools.chain([stmt1], stmts):
             self._store_test_contains1(kb, stmt)
-            if stmt.snak.is_value_snak():
+            if isinstance(stmt.snak, ValueSnak):
                 values.append(stmt)
-            elif stmt.snak.is_some_value_snak():
+            elif isinstance(stmt.snak, SomeValueSnak):
                 some_values.append(stmt)
-            elif stmt.snak.is_no_value_snak():
+            elif isinstance(stmt.snak, NoValueSnak):
                 no_values.append(stmt)
             else:
                 raise ShouldNotGetHere
@@ -257,14 +259,16 @@ class kif_StoreTestCase(kif_TestCase):
             subject, property, value, snak_mask, pattern), n)
         if (pattern is None
             and property is not None and value is not None
-                and property.is_property() and value.is_value()):
+                and isinstance(property, Property)
+                and isinstance(value, Value)):
             self.assertEqual(kb.count(subject, snak=property(value)), n)
             saved_flags = kb.flags
             kb.unset_flags(kb.VALUE_SNAK)
             self.assertEqual(kb.count(subject, snak=property(value)), 0)
             kb.flags = saved_flags
         elif (pattern is None
-              and property is not None and property.is_property()
+              and property is not None
+              and isinstance(property, Property)
               and snak_mask == Snak.SOME_VALUE_SNAK):
             some_value = SomeValueSnak(property)
             self.assertEqual(kb.count(subject, snak=some_value), n)
@@ -273,7 +277,8 @@ class kif_StoreTestCase(kif_TestCase):
             self.assertEqual(kb.count(subject, snak=some_value), 0)
             kb.flags = saved_flags
         elif (pattern is None
-              and property is not None and property.is_property()
+              and property is not None
+              and isinstance(property, Property)
               and snak_mask == Snak.NO_VALUE_SNAK):
             no_value = NoValueSnak(property)
             self.assertEqual(kb.count(subject, snak=no_value), n)
@@ -336,7 +341,8 @@ class kif_StoreTestCase(kif_TestCase):
             break               # check only the first
         if (pattern is None
             and property is not None and value is not None
-                and property.is_property() and value.is_value()):
+            and isinstance(property, Property)
+                and isinstance(value, Value)):
             self.assertEqual(set(kb.filter(
                 subject, snak=property(value))), res)
             saved_flags = kb.flags
@@ -345,7 +351,8 @@ class kif_StoreTestCase(kif_TestCase):
                 subject, snak=property(value)))))
             kb.flags = saved_flags
         elif (pattern is None
-              and property is not None and property.is_property()
+              and property is not None
+              and isinstance(property, Property)
               and snak_mask == Snak.SOME_VALUE_SNAK):
             some_value = SomeValueSnak(property)
             self.assertEqual(set(kb.filter(subject, snak=some_value)), res)
@@ -354,7 +361,8 @@ class kif_StoreTestCase(kif_TestCase):
             self.assertFalse(bool(set(kb.filter(subject, snak=some_value))))
             kb.flags = saved_flags
         elif (pattern is None
-              and property is not None and property.is_property()
+              and property is not None
+              and isinstance(property, Property)
               and snak_mask == Snak.NO_VALUE_SNAK):
             no_value = NoValueSnak(property)
             self.assertEqual(set(kb.filter(subject, snak=no_value)), res)
@@ -395,11 +403,11 @@ class kif_StoreTestCase(kif_TestCase):
             self.assertEqual(got[i][0], pairs[i][0])
             self.assertEqual(got[i][1], pairs[i][1])
             stmt, annots = got[i]
-            if stmt.snak.is_value_snak():
+            if isinstance(stmt.snak, ValueSnak):
                 values.append((i, got[i]))
-            elif stmt.snak.is_some_value_snak():
+            elif isinstance(stmt.snak, SomeValueSnak):
                 some_values.append((i, got[i]))
-            elif stmt.snak.is_no_value_snak():
+            elif isinstance(stmt.snak, NoValueSnak):
                 no_values.append((i, got[i]))
             else:
                 raise ShouldNotGetHere

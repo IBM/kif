@@ -42,7 +42,7 @@ class Template(KIF_Object):
         # that is not the case.
         ###
         vars = frozenset(chain(*map(
-            lambda x: (x,) if Variable.test(x) else x.variables,
+            lambda x: (x,) if isinstance(x, Variable) else x.variables,
             filter(self._isinstance_template_or_variable, args))))
         most_specific: dict[str, Variable] = {}
         for var in vars:
@@ -78,7 +78,8 @@ class Template(KIF_Object):
 
     def _iterate_variables(self) -> Iterator[Variable]:
         return self._traverse(
-            Variable.test, self._isinstance_template_or_variable)
+            lambda x: isinstance(x, Variable),
+            self._isinstance_template_or_variable)
 
     def instantiate(self, theta: Theta, coerce: bool = True) -> KIF_Object:
         """Applies variable instantiation `theta` to template.

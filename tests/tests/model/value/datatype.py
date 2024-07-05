@@ -8,12 +8,13 @@ from kif_lib import (
     Entity,
     ExternalIdDatatype,
     Item,
+    KIF_Object,
     StringDatatype,
     Value,
 )
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from ..kif_object import _Obj, kif_ObjectTestCase
+from ..kif_object import kif_ObjectTestCase
 
 
 class kif_DatatypeTestCase(kif_ObjectTestCase):
@@ -21,10 +22,11 @@ class kif_DatatypeTestCase(kif_ObjectTestCase):
     @override
     def _test_check(
             self,
-            cls: type[_Obj],
-            success: Iterable[tuple[Any, _Obj]] = tuple(),
+            cls: Any,
+            success: Iterable[tuple[Any, KIF_Object]] = tuple(),
             failure: Iterable[Any] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, Datatype)
         success = itertools.chain([
             (cls(), cls.value_class.datatype),
@@ -48,11 +50,12 @@ class kif_DatatypeTestCase(kif_ObjectTestCase):
     @override
     def _test__init__(
             self,
-            cls: type[_Obj],
+            cls: Any,
             assert_fn: Callable[..., None],
-            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
+            success: Iterable[tuple[Sequence[Any], KIF_Object]] = tuple(),
             failure: Iterable[Sequence[Any]] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, Datatype)
         other_cls = self.ALL_DATATYPE_CLASSES - {cls, Datatype}
         if cls is StringDatatype:

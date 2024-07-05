@@ -3,7 +3,7 @@
 
 import itertools
 
-from kif_lib import ExternalId, IRI, Item, String, Variable
+from kif_lib import ExternalId, IRI, Item, KIF_Object, String, Variable
 from kif_lib.model import Theta
 from kif_lib.typing import (
     Any,
@@ -15,7 +15,7 @@ from kif_lib.typing import (
     Sequence,
 )
 
-from .kif_object import _Obj, kif_ObjectTestCase
+from .kif_object import kif_ObjectTestCase
 
 
 class kif_VariableTestCase(kif_ObjectTestCase):
@@ -23,10 +23,11 @@ class kif_VariableTestCase(kif_ObjectTestCase):
     @override
     def _test_check(
             self,
-            cls: type[_Obj],
-            success: Iterable[tuple[Any, _Obj]] = tuple(),
+            cls: Any,
+            success: Iterable[tuple[Any, KIF_Object]] = tuple(),
             failure: Iterable[Any] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, Variable)
         can_check = list(self._variable_class_can_check_from(cls))
         cannot_check = list(self._variable_class_cannot_check_from(cls))
@@ -45,11 +46,12 @@ class kif_VariableTestCase(kif_ObjectTestCase):
     @override
     def _test__init__(
             self,
-            cls: type[_Obj],
+            cls: Any,
             assert_fn: Callable[..., None],
-            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
+            success: Iterable[tuple[Sequence[Any], KIF_Object]] = tuple(),
             failure: Iterable[Sequence[Any]] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, Variable)
         super()._test__init__(
             cls,
@@ -69,12 +71,13 @@ class kif_VariableTestCase(kif_ObjectTestCase):
 
     def _test_instantiate(
             self,
-            cls: type[_Obj],
-            success: Iterable[_Obj] = tuple(),
-            failure: Iterable[_Obj] = tuple()
+            cls: Any,
+            success: Iterable[KIF_Object] = tuple(),
+            failure: Iterable[KIF_Object] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, Variable)
-        it_success: Iterable[tuple[_Obj, Optional[_Obj], Theta]] =\
+        it_success: Iterable[tuple[KIF_Object, Optional[KIF_Object], Theta]] =\
             itertools.chain([
                 (Variable('x', cls), cls('x'), {}),
                 (Variable('x', cls), None, {cls('x'): None}),
@@ -92,7 +95,7 @@ class kif_VariableTestCase(kif_ObjectTestCase):
                 src.instantiate, 0)
             self.assertEqual(src.instantiate(cast(Theta, theta)), tgt)
         cannot_check = list(self._variable_class_cannot_check_from(cls))
-        it_failure: Iterable[tuple[_Obj, Theta]] =\
+        it_failure: Iterable[tuple[KIF_Object, Theta]] =\
             itertools.chain(
             map(lambda other: (Variable('x', cls), {cls('x'): other('x')}),
                 cannot_check),

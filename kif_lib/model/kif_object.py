@@ -8,18 +8,26 @@ import enum
 import functools
 import json
 
+from typing_extensions import TYPE_CHECKING
+
 from ..context import Context
 from ..itertools import chain
 from ..typing import (
     Any,
     Callable,
     cast,
+    ClassVar,
     Iterator,
     Optional,
     override,
-    TypeAlias,
+    Self,
+    TypeVar,
 )
 from . import object
+
+if TYPE_CHECKING:               # pragma: no cover
+    from .template import Template
+    from .variable import Variable
 
 Codec = object.Codec
 CodecError = object.CodecError
@@ -33,20 +41,19 @@ Nil = object.Nil
 Object = object.Object
 ShouldNotGetHere = object.ShouldNotGetHere
 
-T: TypeAlias = object.T
-TArgs: TypeAlias = object.TArgs
-TCallable: TypeAlias = object.TFun
-TDetails: TypeAlias = object.TDet
-TLocation: TypeAlias = object.TLoc
-TNil: TypeAlias = object.TNil
-
-KIF_ObjectClass: TypeAlias = type['KIF_Object']
+T = TypeVar('T')
 
 
 # == KIF Object ============================================================
 
-class KIF_Object(object.Object):
+class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     """Abstract base class for KIF objects."""
+
+    #: Template class associated with this object class.
+    template_class: ClassVar[type['Template']]
+
+    #: Variable class associated with this object class.
+    variable_class: ClassVar[type['Variable']]
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -65,15 +72,15 @@ class KIF_Object(object.Object):
             assert issubclass(cls.variable_class, Variable)
             cls.variable_class.object_class = cls  # pyright: ignore
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args, **kwargs) -> Self:
         has_tpl_or_var_arg = any(map(
             cls._isinstance_template_or_variable,
             chain(args, kwargs.values())))
         if hasattr(cls, 'template_class') and has_tpl_or_var_arg:
-            return cls.template_class(*args, **kwargs)
+            return cast(Self, cls.template_class(*args, **kwargs))
         elif (cls._issubclass_template(cls)
               and hasattr(cls, 'object_class') and not has_tpl_or_var_arg):
-            return cls.object_class(*args, **kwargs)  # pyright: ignore
+            return cls.object_class(*args, **kwargs)  # type: ignore
         else:
             return super().__new__(cls)
 
@@ -87,8 +94,6 @@ class KIF_Object(object.Object):
         from .template import Template
         from .variable import Variable
         return isinstance(arg, (Template, Variable))
-
-# -- context ---------------------------------------------------------------
 
     __slots__ = (
         '_context',
@@ -106,7 +111,7 @@ class KIF_Object(object.Object):
             assert isinstance(arg, KIF_Object)
             if arg.context != self.context:
                 with self.context:
-                    return arg.replace()
+                    return cast(T, arg.replace())
         return arg
 
     @property
@@ -121,8 +126,35 @@ class KIF_Object(object.Object):
            Context.
         """
         return self._context
-
-# -- misc ------------------------------------------------------------------
+
+    @classmethod
+    def from_sparql(cls, s: str, **kwargs: Any) -> Self:
+        """Decodes string using SPARQL decoder.
+
+        Parameters:
+           kwargs: Options to SPARQL decoder.
+
+        Returns:
+           The resulting object.
+
+        Raises:
+           `DecoderError`: Decoder error.
+        """
+        return cls.loads(s, 'sparql', **kwargs)
+
+    def to_markdown(self, **kwargs: Any) -> str:
+        """Encodes object using Markdown encoder.
+
+        Parameters:
+           kwargs: Options to Markdown encoder.
+
+        Returns:
+           The resulting string.
+
+        Raises:
+           `EncoderError`: Encoder error.
+        """
+        return self.dumps('markdown', **kwargs)
 
     def _repr_markdown_(self) -> str:
         return self.to_markdown()  # type: ignore
@@ -173,8 +205,6 @@ class KIF_Object(object.Object):
                 elif filter(arg):
                     yield arg
 
-
-# == Codecs ================================================================
 
 class KIF_JSON_Encoder(
         object.JSON_Encoder, format='json', description='JSON encoder'):

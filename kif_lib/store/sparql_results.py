@@ -10,6 +10,7 @@ import re
 from .. import namespace as NS
 from ..model import (
     Datatype,
+    DeepDataValue,
     Entity,
     IRI,
     Item,
@@ -281,7 +282,7 @@ class SPARQL_Results(Mapping):
                 var_qt_upper: str,
                 value: Optional[Quantity] = None
         ) -> Quantity:
-            assert value is None or value.is_quantity()
+            assert value is None or isinstance(value, Quantity)
             qt_amount: decimal.Decimal
             qt_unit: Optional[Item]
             qt_lb: Optional[decimal.Decimal]
@@ -318,7 +319,7 @@ class SPARQL_Results(Mapping):
                 var_tm_calendar: str,
                 value: Optional[Time] = None
         ) -> Time:
-            assert value is None or value.is_time()
+            assert value is None or isinstance(value, Time)
             tm_value: datetime.datetime
             tm_prec: Optional[int]
             tm_tz: Optional[int]
@@ -362,13 +363,13 @@ class SPARQL_Results(Mapping):
                 value: Optional[Value] = None,
         ) -> Snak:
             if value:
-                if value.is_deep_data_value():
-                    if value.is_quantity():
+                if isinstance(value, DeepDataValue):
+                    if isinstance(value, Quantity):
                         return ValueSnak(property, self.check_quantity(
                             var_qt_amount, var_qt_unit,
                             var_qt_lower, var_qt_upper,
                             cast(Quantity, value)))
-                    elif value.is_time():
+                    elif isinstance(value, Time):
                         return ValueSnak(property, self.check_time(
                             var_tm_value, var_tm_precision,
                             var_tm_timezone, var_tm_calendar,

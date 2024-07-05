@@ -39,7 +39,7 @@ class KIF_ObjectSet(KIF_Object, Generic[_TObj]):
        objects: KIF objects.
     """
 
-    children_class: ClassVar[type[KIF_Object]] = KIF_Object
+    children_class: ClassVar[type[KIF_Object]]
 
     @classmethod
     def __init_subclass__(cls, **kwargs):

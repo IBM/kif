@@ -29,7 +29,7 @@ from ..model import (
 )
 from ..model.kif_object import Encoder, Object
 from ..namespace import _DEFAULT_NSM
-from ..typing import cast, Iterator, Optional, override
+from ..typing import Iterator, Optional, override
 
 SP = ' '                        # space
 NL = '\n'                       # newline
@@ -46,8 +46,8 @@ class MarkdownEncoder(
 
     @override
     def iterencode(self, input: Object) -> Iterator[str]:
-        if KIF_Object.test(input):
-            yield from self._iterencode(cast(KIF_Object, input), 0)
+        if isinstance(input, KIF_Object):
+            yield from self._iterencode(input, 0)
         else:
             yield str(input)      # pragma: no cover
 
@@ -95,8 +95,8 @@ class MarkdownEncoder(
         elif isinstance(obj, Snak):
             yield from self._iterencode_kif_object_start(obj)
             yield from self._iterencode(obj.property, indent)
-            if obj.is_value_snak():
-                vsnak = cast(ValueSnak, obj)
+            if isinstance(obj, ValueSnak):
+                vsnak = obj
                 yield SP
                 yield from self._iterencode(vsnak.value, indent)
             yield from self._iterencode_kif_object_end(obj)
@@ -144,9 +144,8 @@ class MarkdownEncoder(
                 yield from self._iterencode(obj.description, indent + 1)
             else:
                 yield '*no description*'
-            if obj.is_property_descriptor():
+            if isinstance(obj, PropertyDescriptor):
                 yield sep
-                obj = cast(PropertyDescriptor, obj)
                 if obj.datatype is not None:
                     yield from self._iterencode(obj.datatype, indent + 1)
                 else:

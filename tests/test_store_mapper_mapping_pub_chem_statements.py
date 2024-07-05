@@ -50,7 +50,7 @@ class TestStoreMapperMappingPubChemStatements(
         self.check_empty_filter(
             kb, None, property, snak_mask=Snak.SOME_VALUE_SNAK)
         self.check_empty_filter(kb, Item('x'), property)
-        if datatype.is_string_datatype():
+        if isinstance(datatype, StringDatatype):
             self.check_empty_filter(kb, None, property, Item('x'))
         else:
             self.check_empty_filter(kb, None, property, String('x'))
@@ -72,7 +72,7 @@ class TestStoreMapperMappingPubChemStatements(
         return self.check_filter_property(
             kb, property, datatype,
             subject=subject, subject_check=(
-                lambda kb, v: v.is_item()
+                lambda kb, v: isinstance(v, Item)
                 and kb.mapping.is_pubchem_compound_iri(v.iri)),
             value=value, value_check=value_check, **kwargs)
 
@@ -207,7 +207,7 @@ class TestStoreMapperMappingPubChemStatements(
         return self.check_filter_property(
             kb, property, datatype,
             subject=subject, subject_check=(
-                lambda kb, v: v.is_item()
+                lambda kb, v: isinstance(v, Item)
                 and kb.mapping.is_pubchem_patent_iri(v.iri)),
             value=None, value_check=value_check, **kwargs)
 
@@ -269,7 +269,7 @@ class TestStoreMapperMappingPubChemStatements(
         return self.check_filter_property(
             kb, property, datatype,
             subject=subject, subject_check=(
-                lambda kb, v: v.is_item()
+                lambda kb, v: isinstance(v, Item)
                 and kb.mapping.is_pubchem_source_iri(v.iri)),
             value=None, value_check=value_check, **kwargs)
 

@@ -54,7 +54,7 @@ class TestCodecMarkdown(kif_TestCase):
             return f'(**{name}**{sep1}{body}{sep3})'
 
     def _md_sexp_helper(self, x):
-        return x.to_markdown() if KIF_Object.test(x) else str(x)
+        return x.to_markdown() if isinstance(x, KIF_Object) else str(x)
 
     def assert_to_markdown(self, obj, md):
         self.assertEqual(obj.to_markdown(), md)

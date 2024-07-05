@@ -86,7 +86,8 @@ class Variable(KIF_Object):
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
-            return self._String.check(arg, type(self), None, i).content
+            from .value import String
+            return String.check(arg, type(self), None, i).content
         else:
             raise self._should_not_get_here()
 
@@ -149,7 +150,7 @@ class Variable(KIF_Object):
         if self in theta:
             return self._instantiate_tail(theta, function, name, position)
         elif coerce:
-            for other in filter(Variable.test, theta):
+            for other in filter(lambda v: isinstance(v, Variable), theta):
                 assert isinstance(other, Variable)
                 if other.name == self.name:
                     try:

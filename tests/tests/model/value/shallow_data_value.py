@@ -10,6 +10,7 @@ from kif_lib import (
     Item,
     ItemTemplate,
     ItemVariable,
+    KIF_Object,
     ShallowDataValue,
     ShallowDataValueTemplate,
     String,
@@ -21,7 +22,6 @@ from kif_lib.model import Theta
 from kif_lib.rdflib import Literal, URIRef
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from ..kif_object import _Obj
 from .data_value import kif_DataValueTemplateTestCase, kif_DataValueTestCase
 
 
@@ -30,10 +30,11 @@ class kif_ShallowDataValueTemplateTestCase(kif_DataValueTemplateTestCase):
     @override
     def _test_check(
             self,
-            cls: type[_Obj],
-            success: Iterable[tuple[Any, _Obj]] = tuple(),
+            cls: Any,
+            success: Iterable[tuple[Any, KIF_Object]] = tuple(),
             failure: Iterable[Any] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, ShallowDataValueTemplate)
         super()._test_check(
             cls,
@@ -55,12 +56,13 @@ class kif_ShallowDataValueTemplateTestCase(kif_DataValueTemplateTestCase):
     @override
     def _test__init__(
             self,
-            cls: type[_Obj],
+            cls: Any,
             assert_fn: Callable[..., None],
-            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
+            success: Iterable[tuple[Sequence[Any], KIF_Object]] = tuple(),
             failure: Iterable[Sequence[Any]] = tuple(),
             normalize: Iterable[Sequence[Any]] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, ShallowDataValueTemplate)
         super()._test__init__(
             cls,
@@ -86,11 +88,12 @@ class kif_ShallowDataValueTemplateTestCase(kif_DataValueTemplateTestCase):
     @override
     def _test_instantiate(
             self,
-            cls: type[_Obj],
-            success: Iterable[tuple[_Obj, _Obj, Theta]] = tuple(),
-            failure: Iterable[tuple[_Obj, Theta]] = tuple(),
-            failure_coerce: Iterable[tuple[_Obj, Theta]] = tuple()
+            cls: Any,
+            success: Iterable[tuple[KIF_Object, KIF_Object, Theta]] = tuple(),
+            failure: Iterable[tuple[KIF_Object, Theta]] = tuple(),
+            failure_coerce: Iterable[tuple[KIF_Object, Theta]] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, ShallowDataValueTemplate)
         super()._test_instantiate(
             cls,
@@ -122,10 +125,11 @@ class kif_ShallowDataValueTestCase(kif_DataValueTestCase):
     @override
     def _test_check(
             self,
-            cls: type[_Obj],
-            success: Iterable[tuple[Any, _Obj]] = tuple(),
+            cls: Any,
+            success: Iterable[tuple[Any, KIF_Object]] = tuple(),
             failure: Iterable[Any] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, ShallowDataValue)
         failure_prelude = [0, IRI(Variable('x')), Variable('x', Item), {}]
         if cls is ShallowDataValue:
@@ -149,9 +153,9 @@ class kif_ShallowDataValueTestCase(kif_DataValueTestCase):
     @override
     def _test__init__(
             self,
-            cls: type[_Obj],
+            cls: Any,
             assert_fn: Callable[..., None],
-            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
+            success: Iterable[tuple[Sequence[Any], KIF_Object]] = tuple(),
             failure: Iterable[Sequence[Any]] = tuple()
     ) -> None:
         assert issubclass(cls, ShallowDataValue)

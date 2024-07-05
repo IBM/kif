@@ -80,7 +80,6 @@ from kif_lib.model import (
     EntityVariable,
     ItemTemplate,
     ItemVariable,
-    KIF_ObjectClass,
     LexemeTemplate,
     LexemeVariable,
     NoValueSnakTemplate,
@@ -97,7 +96,6 @@ from kif_lib.model import (
     SomeValueSnakVariable,
     StatementTemplate,
     StatementVariable,
-    TCallable,
     Template,
     TextTemplate,
     TextVariable,
@@ -137,6 +135,7 @@ from kif_lib.model.value.time import VTTimeContent
 from kif_lib.namespace import XSD
 from kif_lib.typing import (
     Any,
+    Callable,
     cast,
     ClassVar,
     Final,
@@ -154,7 +153,7 @@ TObj = TypeVar('TObj', bound=KIF_Object)
 
 class kif_TestCase(unittest.TestCase):
 
-    ALL_KIF_OBJECT_CLASSES: ClassVar[Set[KIF_ObjectClass]] = frozenset(filter(
+    ALL_KIF_OBJECT_CLASSES: ClassVar[Set[type[KIF_Object]]] = frozenset(filter(
         lambda c: isinstance(c, type) and issubclass(c, KIF_Object), map(
             lambda s: getattr(KIF_Object, s),
             filter(lambda s: re.match('^_[A-Z]', s), dir(KIF_Object)))))
@@ -222,7 +221,8 @@ if __name__ == '__main__':
             position: Optional[int],
             name: Optional[str],
             details: Optional[str],
-            function: Union[TCallable, tuple[TCallable, str]],
+            function: Union[
+                Callable[..., Any], tuple[Callable[..., Any], str]],
             *args: Any,
             **kwargs: Any
     ):
@@ -240,7 +240,7 @@ if __name__ == '__main__':
     def assert_test_is_defined_for_kif_object_classes(
             self,
             name: str,
-            classes: Optional[Set[KIF_ObjectClass]] = None
+            classes: Optional[Set[type[KIF_Object]]] = None
     ):
         if name.startswith('_'):
             prefix = 'test' + name
@@ -266,9 +266,7 @@ if __name__ == '__main__':
     def assert_kif_object(self, obj: KIF_Object):
         self.assertIsInstance(obj, Object)
         self.assertIsInstance(obj, Object)
-        self.assertTrue(obj.is_object())
         self.assertIsInstance(obj, KIF_Object)
-        self.assertTrue(obj.is_kif_object())
 
 # -- KIF_ObjectSet ---------------------------------------------------------
 
@@ -319,12 +317,10 @@ if __name__ == '__main__':
     def assert_value(self, obj: Value):
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Value)
-        self.assertTrue(obj.is_value())
 
     def assert_entity(self, obj: Entity, iri: IRI):
         self.assert_value(obj)
         self.assertIsInstance(obj, Entity)
-        self.assertTrue(obj.is_entity())
         self.assertIsInstance(obj.args[0], IRI)
         self.assertEqual(obj.args[0], iri)
         self.assertIs(obj.iri, obj.args[0])
@@ -909,12 +905,10 @@ if __name__ == '__main__':
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Statement)
         self.assertIsInstance(obj.args[0], Entity)
-        self.assertTrue(obj.args[0].is_entity())
         self.assertEqual(obj.args[0], subject)
         self.assertEqual(obj.subject, obj.args[0])
         self.assertEqual(obj.get_subject(), obj.args[0])
         self.assertIsInstance(obj.args[1], Snak)
-        self.assertTrue(obj.args[1].is_snak())
         self.assertEqual(obj.args[1], snak)
         self.assertEqual(obj.snak, obj.args[1])
         self.assertEqual(obj.get_snak(), obj.args[1])
@@ -924,7 +918,6 @@ if __name__ == '__main__':
     def assert_descriptor(self, obj: Descriptor):
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Descriptor)
-        self.assertTrue(obj.is_descriptor())
 
     def assert_plain_descriptor(
             self,
@@ -935,7 +928,6 @@ if __name__ == '__main__':
     ):
         self.assert_descriptor(obj)
         self.assertIsInstance(obj, PlainDescriptor)
-        self.assertTrue(obj.is_plain_descriptor())
         label = Text(*label) if label is not None else label
         aliases = TextSet(*aliases) if aliases is not None else aliases
         description = (
@@ -960,7 +952,6 @@ if __name__ == '__main__':
         self.assertIsInstance(obj, ItemDescriptor)
         assert isinstance(obj, ItemDescriptor)
         self.assert_plain_descriptor(obj, label, aliases, description)
-        self.assertTrue(obj.is_item_descriptor())
 
     def assert_property_descriptor(
             self,
@@ -1024,7 +1015,6 @@ if __name__ == '__main__':
     ):
         self.assert_fingerprint(obj, val)
         self.assertIsInstance(obj, EntityFingerprint)
-        self.assertTrue(obj.is_entity_fingerprint())
 
     def assert_property_fingerprint(
             self,
@@ -1033,12 +1023,10 @@ if __name__ == '__main__':
     ):
         self.assert_fingerprint(obj, val)
         self.assertIsInstance(obj, PropertyFingerprint)
-        self.assertTrue(obj.is_property_fingerprint())
 
     def assert_pattern(self, obj: Pattern):
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Pattern)
-        self.assertTrue(obj.is_pattern())
 
     def assert_filter_pattern(
             self,
@@ -1049,7 +1037,6 @@ if __name__ == '__main__':
             mask: Snak.Mask = Snak.ALL
     ):
         self.assertIsInstance(obj, FilterPattern)
-        self.assertTrue(obj.is_filter_pattern())
         self.assertEqual(obj.args[0], subject)
         self.assertEqual(obj.subject, subject)
         self.assertEqual(obj.get_subject(), subject)

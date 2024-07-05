@@ -84,23 +84,6 @@ class Test(TestCase):
         self.assertNotEqual(A(), A(1))
         self.assertNotEqual(A(), B())
 
-    def test_test(self):
-        self.assertFalse(Object.test(-1))
-        self.assertTrue(Object.test(A()))
-        self.assertTrue(Object.test(B(A())))
-        self.assertTrue(A.test(A()))
-        self.assertFalse(A.test(B(A())))
-        self.assertTrue(A().test_object())
-        self.assertTrue(A().test_a())
-        self.assertFalse(A().test_b())
-        self.assertFalse(B().test_a())
-
-    def test_is(self):
-        self.assertTrue(A().is_object())
-        self.assertTrue(A().is_a())
-        self.assertFalse(A().is_b())
-        self.assertFalse(B().is_a())
-
     def test_check(self):
         self.assertEqual(Object.check(A()), A())
         self.assertEqual(Object.check(B()), B())

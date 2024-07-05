@@ -4,13 +4,8 @@
 import abc
 
 from ..model.kif_object import Error as KIF_ObjectError
-from ..model.kif_object import (
-    KIF_Object,
-    MustBeImplementedInSubclass,
-    TDetails,
-    TLocation,
-)
-from ..typing import Any, ClassVar, Final, Optional, TypeAlias
+from ..model.kif_object import KIF_Object
+from ..typing import Any, Callable, ClassVar, Final, Optional, TypeAlias, Union
 
 TCompilerPattern: TypeAlias = KIF_Object
 
@@ -34,7 +29,8 @@ class Compiler(abc.ABC):
     def __init_subclass__(
             cls,
             format: str,
-            description: str):
+            description: str
+    ):
         Compiler._register(cls, format, description)
 
     @classmethod
@@ -42,7 +38,8 @@ class Compiler(abc.ABC):
             cls,
             compiler: type['Compiler'],
             format: str,
-            description: str):
+            description: str
+    ):
         compiler.format = format
         compiler.description = description
         cls.registry[format] = compiler
@@ -51,10 +48,10 @@ class Compiler(abc.ABC):
     def from_format(
             cls,
             format: Optional[str] = None,
-            function: Optional[TLocation] = None,
+            function: Optional[Union[Callable[..., Any], str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None,
-            details: Optional[TDetails] = None
+            details: Optional[Union[Callable[[Any], str], str]] = None
     ) -> type['Compiler']:
         fmt: str = format or cls.default
         KIF_Object._check_arg(
@@ -87,4 +84,4 @@ class Compiler(abc.ABC):
         Raises:
            `CompilerError`: Compiler error.
         """
-        raise MustBeImplementedInSubclass
+        raise NotImplementedError

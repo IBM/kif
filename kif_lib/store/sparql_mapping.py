@@ -13,15 +13,19 @@ from ..model import (
     ExternalId,
     FilterPattern,
     IRI,
+    IRI_Datatype,
     Property,
     Quantity,
+    QuantityDatatype,
     Snak,
     Statement,
     String,
+    StringDatatype,
     T_IRI,
     Text,
     TextDatatype,
     Time,
+    TimeDatatype,
     Value,
 )
 from ..store.abc import Store
@@ -163,7 +167,7 @@ class SPARQL_Mapping(ABC):
             Raises:
                Spec.Skip: `v` is not an IRI value.
             """
-            return cast(IRI, cls._check(v, IRI.test))
+            return cast(IRI, cls._check(v, lambda x: isinstance(x, IRI)))
 
         @classmethod
         def check_text(cls, v: Value) -> Text:
@@ -175,7 +179,7 @@ class SPARQL_Mapping(ABC):
             Raises:
                Spec.Skip: `v` is not a text value.
             """
-            return cast(Text, cls._check(v, Text.test))
+            return cast(Text, cls._check(v, lambda x: isinstance(x, Text)))
 
         @classmethod
         def check_string(cls, v: Value) -> String:
@@ -187,7 +191,7 @@ class SPARQL_Mapping(ABC):
             Raises:
                Spec.Skip: `v` is not a string value.
             """
-            return cast(String, cls._check(v, String.test))
+            return cast(String, cls._check(v, lambda x: isinstance(x, String)))
 
         @classmethod
         def check_external_id(cls, v: Value) -> ExternalId:
@@ -199,7 +203,8 @@ class SPARQL_Mapping(ABC):
             Raises:
                Spec.Skip: `v` is not an external id value.
             """
-            return cast(ExternalId, cls._check(v, ExternalId.test))
+            return cast(ExternalId, cls._check(
+                v, lambda x: isinstance(x, ExternalId)))
 
         @classmethod
         def check_quantity(cls, v: Value) -> Quantity:
@@ -211,7 +216,8 @@ class SPARQL_Mapping(ABC):
             Raises:
                Spec.Skip: `v` is not a quantity value.
             """
-            return cast(Quantity, cls._check(v, Quantity.test))
+            return cast(Quantity, cls._check(
+                v, lambda x: isinstance(x, Quantity)))
 
         @classmethod
         def check_time(cls, v: Value) -> Time:
@@ -223,7 +229,8 @@ class SPARQL_Mapping(ABC):
             Raises:
                Spec.Skip: `v` is not a time value.
             """
-            return cast(Time, cls._check(v, Time.test))
+            return cast(Time, cls._check(
+                v, lambda x: isinstance(x, Time)))
 
         #: The (decoded) property being mapped.
         property: Property
@@ -301,23 +308,23 @@ class SPARQL_Mapping(ABC):
                     value = q.strdt(q.matched_value, dt)
                 else:
                     value = q.matched_value
-                if self.datatype.is_iri_datatype():
+                if isinstance(self.datatype, IRI_Datatype):
                     pass        # nothing to do
-                elif self.datatype.is_string_datatype():
+                elif isinstance(self.datatype, StringDatatype):
                     value = q.str_(q.matched_value)
-                elif self.datatype.is_text_datatype():
+                elif isinstance(self.datatype, TextDatatype):
                     lang = self.kwargs.get('value_language')
                     if (lang is not None
                             and isinstance(q.matched_value, Variable)):
                         value = q.strlang(q.matched_value, String(lang))
                     else:
                         value = q.matched_value
-                elif self.datatype.is_quantity_datatype():
+                elif isinstance(self.datatype, QuantityDatatype):
                     q.bind(value, q.qt_amount)
                     unit = self.kwargs.get('value_unit')
                     if unit is not None:
                         q.bind(unit, q.qt_unit)
-                elif self.datatype.is_time_datatype():
+                elif isinstance(self.datatype, TimeDatatype):
                     q.bind(value, q.tm_value)
                     prec = self.kwargs.get('value_precision')
                     if prec is not None:
@@ -361,7 +368,7 @@ class SPARQL_Mapping(ABC):
                 if pat.value.value is not None:
                     value = pat.value.value
                     assert value is not None
-                    if not value_class.test(value):
+                    if not isinstance(value, value_class):
                         return False
                     if self.kwargs.get('value') is not None:
                         if self.kwargs.get('value') != value:
@@ -543,8 +550,8 @@ class SPARQL_Mapping(ABC):
         Returns:
            The resulting term.
         """
-        if value.is_entity():
-            return cls.encode_entity(cast(Entity, value))
+        if isinstance(value, Entity):
+            return cls.encode_entity(value)
         else:
             return value
 

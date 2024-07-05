@@ -184,7 +184,7 @@ class Property(
             return Statement(v1, ValueSnak(self, v2))
         else:
             from ..snak import ValueSnak
-            return self._ValueSnak(self, v1)
+            return ValueSnak(self, v1)
 
     @property
     def range(self) -> Optional[Datatype]:

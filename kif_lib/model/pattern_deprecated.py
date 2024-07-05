@@ -15,7 +15,7 @@ from .fingerprint import (
 from .kif_object import KIF_Object
 from .snak import Snak, ValueSnak
 from .statement import Statement
-from .value import Quantity, Time
+from .value import DeepDataValue, Quantity, Time
 
 at_property = property
 
@@ -51,8 +51,8 @@ class FilterPattern(KIF_Object):
             snak_mask = None
         else:
             property = snak.property
-            if snak.is_value_snak():
-                value = cast(ValueSnak, snak).value
+            if isinstance(snak, ValueSnak):
+                value = snak.value
             else:
                 value = None
             snak_mask = snak.mask
@@ -250,13 +250,12 @@ class FilterPattern(KIF_Object):
             value = stmt.snak.value
             if type(self.value.value) is not type(value):
                 return False
-            if not value.is_deep_data_value():
+            if not isinstance(value, DeepDataValue):
                 if self.value.value != value:
                     return False
-            elif value.is_quantity():
-                assert self.value.value.is_quantity()
+            elif isinstance(value, Quantity):
                 pat_qt = cast(Quantity, self.value.value)
-                qt = cast(Quantity, value)
+                qt = value
                 if (pat_qt.amount != qt.amount
                     or (pat_qt.unit is not None
                         and pat_qt.unit != qt.unit)
@@ -265,9 +264,8 @@ class FilterPattern(KIF_Object):
                     or (pat_qt.upper_bound is not None
                         and pat_qt.upper_bound != qt.upper_bound)):
                     return False
-            elif value.is_time():
-                assert self.value.value.is_time()
-                pat_tm, tm = cast(Time, self.value.value), cast(Time, value)
+            elif isinstance(value, Time):
+                pat_tm, tm = cast(Time, self.value.value), value
                 pat_tm_time, tm_time = pat_tm.time, tm.time
                 if pat_tm_time.tzinfo is None:
                     tm_time = tm_time.replace(tzinfo=None)

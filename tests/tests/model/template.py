@@ -3,11 +3,11 @@
 
 import itertools
 
-from kif_lib import Template, Variable
+from kif_lib import KIF_Object, Template, Variable
 from kif_lib.model import Theta
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from .kif_object import _Obj, kif_ObjectTestCase
+from .kif_object import kif_ObjectTestCase
 
 
 class kif_TemplateTestCase(kif_ObjectTestCase):
@@ -15,18 +15,20 @@ class kif_TemplateTestCase(kif_ObjectTestCase):
     @override
     def _test_check(
             self,
-            cls: type[_Obj],
-            success: Iterable[tuple[Any, _Obj]] = tuple(),
+            cls: Any,
+            success: Iterable[tuple[Any, KIF_Object]] = tuple(),
             failure: Iterable[Any] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, Template)
         super()._test_check(cls, success, itertools.chain([0, {}], failure))
 
     @override
     def _test__init__(
             self,
-            cls: type[_Obj],
+            cls: Any,
             assert_fn: Callable[..., None],
-            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
+            success: Iterable[tuple[Sequence[Any], KIF_Object]] = tuple(),
             failure: Iterable[Sequence[Any]] = tuple(),
             normalize: Iterable[Sequence[Any]] = tuple()
     ) -> None:
@@ -38,11 +40,12 @@ class kif_TemplateTestCase(kif_ObjectTestCase):
 
     def _test_instantiate(
             self,
-            cls: type[_Obj],
-            success: Iterable[tuple[_Obj, _Obj, Theta]] = tuple(),
-            failure: Iterable[tuple[_Obj, Theta]] = tuple(),
-            failure_coerce: Iterable[tuple[_Obj, Theta]] = tuple()
+            cls: Any,
+            success: Iterable[tuple[KIF_Object, KIF_Object, Theta]] = tuple(),
+            failure: Iterable[tuple[KIF_Object, Theta]] = tuple(),
+            failure_coerce: Iterable[tuple[KIF_Object, Theta]] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, Template)
         for src, tgt, theta in success:
             self.logger.debug('success: %s %s %s', src, tgt, theta)

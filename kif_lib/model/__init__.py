@@ -28,14 +28,7 @@ from .fingerprint import (
     TFingerprint,
     TPropertyFingerprint,
 )
-from .kif_object import (
-    KIF_Object,
-    KIF_ObjectClass,
-    Nil,
-    TCallable,
-    TLocation,
-    TNil,
-)
+from .kif_object import KIF_Object, Nil
 from .pattern import Pattern
 from .pattern_deprecated import FilterPattern
 from .set import (
@@ -200,7 +193,6 @@ __all__ = (
     'ItemTemplate',
     'ItemVariable',
     'KIF_Object',
-    'KIF_ObjectClass',
     'KIF_ObjectSet',
     'Lexeme',
     'LexemeDatatype',
@@ -251,7 +243,6 @@ __all__ = (
     'StringVariable',
     'T_IRI',
     'TAnnotationRecordSet',
-    'TCallable',
     'TDatatype',
     'Template',
     'TEntityFingerprint',
@@ -267,7 +258,6 @@ __all__ = (
     'TimeDatatype',
     'TimeTemplate',
     'TimeVariable',
-    'TLocation',
     'TNil',
     'TPropertyFingerprint',
     'TReferenceRecord',

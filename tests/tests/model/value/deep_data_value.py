@@ -11,13 +11,13 @@ from kif_lib import (
     Item,
     ItemTemplate,
     ItemVariable,
+    KIF_Object,
     String,
     StringTemplate,
     Variable,
 )
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from ..kif_object import _Obj
 from .data_value import kif_DataValueTemplateTestCase, kif_DataValueTestCase
 
 
@@ -26,10 +26,11 @@ class kif_DeepDataValueTemplateTestCase(kif_DataValueTemplateTestCase):
     @override
     def _test_check(
             self,
-            cls: type[_Obj],
-            success: Iterable[tuple[Any, _Obj]] = tuple(),
+            cls: Any,
+            success: Iterable[tuple[Any, KIF_Object]] = tuple(),
             failure: Iterable[Any] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, DeepDataValueTemplate)
         super()._test_check(
             cls,
@@ -49,12 +50,13 @@ class kif_DeepDataValueTemplateTestCase(kif_DataValueTemplateTestCase):
     @override
     def _test__init__(
             self,
-            cls: type[_Obj],
+            cls: Any,
             assert_fn: Callable[..., None],
-            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
+            success: Iterable[tuple[Sequence[Any], KIF_Object]] = tuple(),
             failure: Iterable[Sequence[Any]] = tuple(),
             normalize: Iterable[Sequence[Any]] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, DeepDataValueTemplate)
         super()._test__init__(
             cls,
@@ -79,11 +81,12 @@ class kif_DeepDataValueTestCase(kif_DataValueTestCase):
     @override
     def _test_check(
             self,
-            cls: type[_Obj],
-            success: Iterable[tuple[Any, _Obj]] = tuple(),
+            cls: Any,
+            success: Iterable[tuple[Any, KIF_Object]] = tuple(),
             failure: Iterable[Any] = tuple(),
             failure_value_error: Iterable[Any] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, DeepDataValue)
         failure_prelude = [
             IRI(Variable('x')),
@@ -105,11 +108,12 @@ class kif_DeepDataValueTestCase(kif_DataValueTestCase):
     @override
     def _test__init__(
             self,
-            cls: type[_Obj],
+            cls: Any,
             assert_fn: Callable[..., None],
-            success: Iterable[tuple[Sequence[Any], _Obj]] = tuple(),
+            success: Iterable[tuple[Sequence[Any], KIF_Object]] = tuple(),
             failure: Iterable[Sequence[Any]] = tuple()
     ) -> None:
+        assert isinstance(cls, type)
         assert issubclass(cls, DeepDataValue)
         super()._test__init__(
             cls, assert_fn, success=success,

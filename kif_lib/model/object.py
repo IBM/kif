@@ -101,27 +101,10 @@ class ObjectMeta(abc.ABCMeta):
     def _init(cls, cls_, name, bases, namespace, **kwargs):
         cls._object_subclasses[name] = cls_
         top = cls._object_class or cls_
-        setattr(top, '_' + name, cls_)
         sn = top._camel2snake(name)
         cls._object_subclasses[sn] = cls_
         cls_._snake_case_name = sn
-        cls_._is_ = 'is_' + sn
-        cls_._test_ = 'test_' + sn
-        cls._init_test_(top, cls_)
         return cls_
-
-    @classmethod
-    def _init_test_(cls, top: TObjCls, cls_: TObjCls):
-        def f_test(arg: Any) -> bool:
-            return cls_.test(arg)
-        f_test.__doc__ = f"""\
-        Tests whether object is of class :class:`{cls_.__qualname__}`.
-
-        Returns:
-           ``True`` if successful; ``False`` otherwise.
-        """
-        setattr(top, cls_._is_, f_test)
-        setattr(top, cls_._test_, f_test)
 
     @classmethod
     def check_object_class(
@@ -145,22 +128,6 @@ class Object(Sequence, metaclass=ObjectMeta):
 
     #: Absence of value distinct from ``None``.
     Nil: Final[NilType] = Nil
-
-    _is_: str
-    _test_: str
-
-    @classmethod
-    def test(cls, obj: Any) -> bool:
-        """Tests whether `obj` is an instance of this class.
-
-        Parameters:
-           obj: Value.
-
-        Returns:
-           ``True`` if `obj` is an instance of this class;
-           ``False`` otherwise.
-        """
-        return isinstance(obj, cls)
 
     @classmethod
     def check(
@@ -1070,7 +1037,7 @@ class ReprEncoder(
     ) -> Iterator[str]:
         yield from self._indent(n, indent)
         if self._is_object_or_collection(v):
-            if Object.test(v):
+            if isinstance(v, Object):
                 yield from self._start_object(v, indent)
             else:
                 yield from self._start_collection(v, indent)
@@ -1083,7 +1050,7 @@ class ReprEncoder(
             if v:
                 yield from self._delim(indent)
                 yield from self._indent(n, indent)
-            if Object.test(v):
+            if isinstance(v, Object):
                 yield from self._end_object(v)
             else:
                 yield from self._end_collection(v)

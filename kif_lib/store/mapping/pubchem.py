@@ -556,7 +556,7 @@ def wd_COMPOUND_description(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     datatype=StringDatatype(),
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_canonical_SMILES(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: Canonical SMILES values in PubChem are tagged with @en.
         ###
@@ -572,7 +572,7 @@ def wd_canonical_SMILES(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     datatype=StringDatatype(),
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_chemical_formula(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: Chemical formula values in PubChem are tagged with @en.
         ###
@@ -647,7 +647,7 @@ def wd_has_part(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_InChI(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: InChI values in PubChem are tagged with @en.
         ###
@@ -663,7 +663,7 @@ def wd_InChI(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_InChIKey(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: InChIKey values in PubChem are tagged with @en.
         ###
@@ -694,7 +694,7 @@ def wd_COMPOUND_instance_of(
     datatype=StringDatatype(),
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_isomeric_SMILES(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: Isomeric SMILES values in PubChem are tagged with @en.
         ###
@@ -723,7 +723,7 @@ def wd_legal_status(
     value_datatype_encoded=XSD.float,
     value_unit=wd.gram_per_mole)
 def wd_mass(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: Mass values in PubChem have datatype float.
         ###
@@ -760,7 +760,7 @@ def wd_manufacturer(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
             wd.based_on_heuristic, wd.machine_learning)])])
 def wd_partition_coefficient_water_octanol(
         spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: LogP values in PubChem have datatype float.
         ###
@@ -777,7 +777,7 @@ def wd_partition_coefficient_water_octanol(
     datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_PubChem_CID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: CID values in PubChem are tagged with @en.
         ###
@@ -803,7 +803,7 @@ def wd_stereoisomer_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     subject_prefix=PubChemMapping.COMPOUND,
     value_language='en')
 def wd_trading_name(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: Trading name values in PubChem have no language tag.
         ###
@@ -897,7 +897,7 @@ def wd_sponsor(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
     subject_prefix=PubChemMapping.PATENT,
     value_language='en')
 def wd_title(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: Title values in PubChem have no language tag.
         ###

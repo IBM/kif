@@ -8,6 +8,7 @@ from kif_lib import (
     Normal,
     NoValueSnak,
     Preferred,
+    Property,
     Quantity,
     ReferenceRecord,
     Snak,
@@ -248,7 +249,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         # subject & property: some value (newer Wikidata)
         kb = self.new_Store()
         it = kb.filter(wd.Adam, wd.date_of_death)
-        self.assertTrue(next(it).snak.is_some_value_snak())
+        self.assertIsInstance(next(it).snak, SomeValueSnak)
         self.assertRaises(StopIteration, next, it)
         # snak
         kb = self.new_Store()
@@ -259,7 +260,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         # subject is a property
         stmt = next(kb.filter(
             snak=wd.type_of_unit_for_this_property(wd.unit_of_mass)))
-        self.assertTrue(stmt.subject.is_property())
+        self.assertIsInstance(stmt.subject, Property)
         # snak: some value
         stmt = next(kb.filter(wd.Adam, snak=SomeValueSnak(wd.family_name)))
         self.assert_statement(stmt, wd.Adam, SomeValueSnak(wd.family_name))
@@ -367,7 +368,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         it = kb.filter(Italo_Balbo, wd.position_held,
                        Governor_General_of_Italian_Libya)
         quals = list(filter(
-            lambda q: q.is_no_value_snak(), get_qualifiers(next(it))))
+            lambda q: isinstance(q, NoValueSnak), get_qualifiers(next(it))))
         self.assertEqual(len(quals), 1)
         self.assert_no_value_snak(quals[0], wd.P(1365))
 

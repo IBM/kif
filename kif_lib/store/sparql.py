@@ -32,6 +32,7 @@ from ..model import (
     ReferenceRecord,
     Snak,
     SnakSet,
+    SomeValueSnak,
     Statement,
     String,
     T_IRI,
@@ -458,8 +459,8 @@ At line {line}, column {column}:
                             else:
                                 assert pat.value is not None
                                 assert pat.value.value is not None
-                                if pat.value.value.is_deep_data_value():
-                                    deep = cast(DeepDataValue, pat.value.value)
+                                if isinstance(pat.value.value, DeepDataValue):
+                                    deep = pat.value.value
                                     self._push_deep_data_value(q, t, deep)
                                 else:
                                     pass  # nothing to do
@@ -538,9 +539,9 @@ At line {line}, column {column}:
         if pat.value is not None and pat.value.value is not None:
             value = cast(Value, pat.value.value)
             val = value
-            if value.is_deep_data_value():
-                if value.is_quantity():
-                    qt = cast(Quantity, value)
+            if isinstance(value, DeepDataValue):
+                if isinstance(value, Quantity):
+                    qt = value
                     qt_amount = Quantity(qt.amount)
                     if qt.unit is not None:
                         qt_unit = qt.unit
@@ -548,8 +549,8 @@ At line {line}, column {column}:
                         qt_lower = Quantity(qt.lower_bound)
                     if qt.upper_bound is not None:
                         qt_upper = Quantity(qt.upper_bound)
-                elif value.is_time():
-                    tm = cast(Time, value)
+                elif isinstance(value, Time):
+                    tm = value
                     tm_value = tm
                     if tm.precision is not None:
                         tm_precision = tm.precision.value
@@ -582,9 +583,9 @@ At line {line}, column {column}:
             tm_timezone: str = 'tm_timezone',
             tm_calendar: str = 'tm_calendar',
     ) -> SPARQL_Builder:
-        assert value is None or value.is_deep_data_value()
+        assert value is None or isinstance(value, DeepDataValue)
         with q.union(cond=value is None) as cup:
-            if value is None or value.is_quantity():
+            if value is None or isinstance(value, Quantity):
                 cup.branch()
                 q.triples(
                     (t[wds], t[psv], t[wdv]),
@@ -605,7 +606,7 @@ At line {line}, column {column}:
                             Quantity, value).upper_bound is None)):
                     q.triple(
                         t[wdv], NS.WIKIBASE.quantityUpperBound, t[qt_upper])
-            if value is None or value.is_time():
+            if value is None or isinstance(value, Time):
                 cup.branch()
                 q.triples(
                     (t[wds], t[psv], t[wdv]),
@@ -637,14 +638,13 @@ At line {line}, column {column}:
     ) -> SPARQL_Builder:
         for snak in snaks:
             pname = NS.Wikidata.get_wikidata_name(snak.property.iri.value)
-            if snak.is_value_snak():
-                val = cast(ValueSnak, snak).value
-                q.triple(subj, NS.WDT[pname], val)
-            elif snak.is_some_value_snak():
+            if isinstance(snak, ValueSnak):
+                q.triple(subj, NS.WDT[pname], snak.value)
+            elif isinstance(snak, SomeValueSnak):
                 some = q.var()
                 q.triple(subj, NS.WDT[pname], some)
                 self._push_some_value_filter(q, some)
-            elif snak.is_no_value_snak():
+            elif isinstance(snak, NoValueSnak):
                 wds = q.bnode()
                 q.triples(
                     (subj, NS.P[pname], wds),
@@ -767,12 +767,12 @@ At line {line}, column {column}:
         no_values: list[tuple[int, Statement]] = []
         for i, stmt in stmts:
             if ((self.has_flags(self.VALUE_SNAK)
-                and stmt.snak.is_value_snak())
+                and isinstance(stmt.snak, ValueSnak))
                 or (self.has_flags(self.SOME_VALUE_SNAK)
-                    and stmt.snak.is_some_value_snak())):
+                    and isinstance(stmt.snak, SomeValueSnak))):
                 values.append((i, stmt))
             elif (self.has_flags(self.NO_VALUE_SNAK)
-                  and stmt.snak.is_no_value_snak()):
+                  and isinstance(stmt.snak, NoValueSnak)):
                 no_values.append((i, stmt))
         ###
         # FIXME: Find a way to do this using a single query.
@@ -871,7 +871,7 @@ At line {line}, column {column}:
                 if wdref is None:
                     if wds not in wds2quals:
                         wds2quals[wds] = set()
-                    if (snak.is_no_value_snak()
+                    if (isinstance(snak, NoValueSnak)
                             and snak == wds2stmt[wds].snak):
                         ###
                         # IMPORTANT: The representation of NoValueSnak's
@@ -1100,12 +1100,12 @@ At line {line}, column {column}:
                 desc[entity]['datatype'] = datatype
         for entity in entities:
             if entity in desc:
-                if entity.is_item() and cls is Item:
+                if isinstance(entity, Item) and cls is Item:
                     yield (cast(Item, entity), ItemDescriptor(
                         desc[entity].get('label'),
                         desc[entity].get('aliases'),
                         desc[entity].get('description')))
-                elif entity.is_property() and cls is Property:
+                elif isinstance(entity, Property) and cls is Property:
                     yield (cast(Property, entity), PropertyDescriptor(
                         desc[entity].get('label'),
                         desc[entity].get('aliases'),
@@ -1164,7 +1164,7 @@ At line {line}, column {column}:
                         q.filter(q.eq(q.lang(t['description']), language))
             with q.values(t['subject']) as values:
                 for entity in entities:
-                    if cls.test(entity):
+                    if isinstance(entity, cls):
                         values.push(entity.iri)
         return q
 
@@ -1284,7 +1284,7 @@ At line {line}, column {column}:
                 q.triple(t['subject'], NS.DCT.language, t['language'])
             with q.values(t['subject']) as values:
                 for lexeme in lexemes:
-                    if Lexeme.test(lexeme):
+                    if isinstance(lexeme, Lexeme):
                         values.push(lexeme.iri)
         return q
 

@@ -160,7 +160,7 @@ class SPARQL_MapperStore(
                                 continue  # value mismatch
                             value = spec.kwargs.get('value')
                             if value is not None:
-                                if not Entity.test(value):
+                                if not isinstance(value, Entity):
                                     continue  # value mismatch
                                 if not value.value.startswith(
                                         value_prefix.value):
@@ -186,7 +186,7 @@ class SPARQL_MapperStore(
     ) -> tuple[bool, Optional[IRI]]:
         subject_prefixes = set()
         for snak in snaks:
-            if not snak.is_value_snak():
+            if not isinstance(snak, ValueSnak):
                 return False, None  # no such snak
             vsnak = cast(ValueSnak, snak)
             if vsnak.property not in self.mapping.specs:
