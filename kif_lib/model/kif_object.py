@@ -43,8 +43,6 @@ ShouldNotGetHere = object.ShouldNotGetHere
 
 T = TypeVar('T')
 
-
-# == KIF Object ============================================================
 
 class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     """Abstract base class for KIF objects."""

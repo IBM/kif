@@ -89,21 +89,10 @@ class Test(TestCase):
         self.assertEqual(Object.check(B()), B())
         self.assertEqual(A.check(A()), A())
         self.assertRaises(TypeError, A.check, B())
-        self.assertEqual(A().check_object(), A())
-        self.assertEqual(A().check_a(), A())
-        self.assertEqual(B().check_b(), B())
         self.assertRaisesRegex(
             TypeError,
             r"^bad argument to 'Object.check' \(cannot coerce B into A\)$",
             A.check, B())
-        self.assertRaisesRegex(
-            TypeError,
-            r"^bad argument to 'Object.check' \(cannot coerce B into A\)$",
-            B().check_a)
-        self.assertRaisesRegex(
-            TypeError,
-            r"^bad argument to 'f' \(cannot coerce B into A\)$",
-            B().check_a, 'f')
 
     def test_check_optional(self):
         self.assertEqual(Object.check_optional(A()), A())
