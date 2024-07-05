@@ -6,32 +6,24 @@ from kif_lib import Fingerprint, IRI, Item, NoValueSnak, Property, SnakSet
 from .tests import kif_TestCase
 
 
-class TestModelFingerprintFingerprint(kif_TestCase):
+class Test(kif_TestCase):
 
-    def test__preprocess_arg_fingerprint(self):
+    def test_check(self):
         self.assertEqual(
-            Fingerprint._preprocess_arg_fingerprint(IRI('x'), 1),
-            Fingerprint(IRI('x')))
+            Fingerprint.check(IRI('x')), Fingerprint(IRI('x')))
         self.assertEqual(
-            Fingerprint._preprocess_arg_fingerprint(
-                SnakSet(NoValueSnak(Property('p'))), 1),
+            Fingerprint.check(SnakSet(NoValueSnak(Property('p')))),
             Fingerprint(SnakSet(NoValueSnak(Property('p')))))
         self.assertEqual(
-            Fingerprint._preprocess_arg_fingerprint(
-                [NoValueSnak(Property('p'))], 1),
+            Fingerprint.check([NoValueSnak(Property('p'))]),
             Fingerprint([NoValueSnak(Property('p'))]))
-
-    def test__preprocess_optional_arg_fingerprint(self):
         self.assertEqual(
-            Fingerprint._preprocess_optional_arg_fingerprint(IRI('x'), 1),
+            Fingerprint.check_optional(IRI('x')),
             Fingerprint(IRI('x')))
         self.assertEqual(
-            Fingerprint._preprocess_optional_arg_fingerprint(
-                None, 1, Fingerprint(IRI('x'))),
+            Fingerprint.check_optional(None, Fingerprint(IRI('x'))),
             Fingerprint(IRI('x')))
-        self.assertEqual(
-            Fingerprint._preprocess_optional_arg_fingerprint(None, 1, None),
-            None)
+        self.assertEqual(Fingerprint.check_optional(None, None), None)
 
     def test__init__(self):
         # self.assertRaises(TypeError, Fingerprint, 0)
@@ -64,4 +56,4 @@ class TestModelFingerprintFingerprint(kif_TestCase):
 
 
 if __name__ == '__main__':
-    TestModelFingerprintFingerprint.main()
+    Test.main()

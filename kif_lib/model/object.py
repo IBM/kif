@@ -110,14 +110,10 @@ class ObjectMeta(abc.ABCMeta):
         cls_._check_ = 'check_' + sn
         cls_._check_arg_ = '_check_arg_' + sn
         cls_._check_optional_arg_ = '_check_optional_arg_' + sn
-        cls_._preprocess_arg_ = '_preprocess_arg_' + sn
-        cls_._preprocess_optional_arg_ = '_preprocess_optional_arg_' + sn
         cls._init_test_(top, cls_)
         cls._init_check_(top, cls_)
         cls._init__check_arg_(top, cls_)
         cls._init__check_optional_arg_(top, cls_)
-        cls._init__preprocess_arg_(top, cls_)
-        cls._init__preprocess_optional_arg_(top, cls_)
         return cls_
 
     @classmethod
@@ -204,50 +200,6 @@ class ObjectMeta(abc.ABCMeta):
         setattr(top, cls_._check_optional_arg_, f_check_optional_arg)
 
     @classmethod
-    def _init__preprocess_arg_(cls, top: TObjCls, cls_: TObjCls):
-        _check_arg_ = cls_._check_arg_
-        if hasattr(cls_, cls_._preprocess_arg_):
-            f_preprocess_arg = getattr(cls_, cls_._preprocess_arg_)
-        else:
-            def mk_preprocess_arg_(c):
-                def preprocess_arg_(
-                        cls__,
-                        arg: Any,
-                        i: int,
-                        function: Optional[TLoc] = None
-                ) -> c:
-                    return getattr(cls__, _check_arg_)(
-                        arg, function or cls__, None, i)
-                return preprocess_arg_
-            f_preprocess_arg = classmethod(mk_preprocess_arg_(cls_))
-        setattr(top, cls_._preprocess_arg_, f_preprocess_arg)
-
-    @classmethod
-    def _init__preprocess_optional_arg_(cls, top: TObjCls, cls_: TObjCls):
-        _preprocess_arg_ = cls_._preprocess_arg_
-        if hasattr(cls_, cls_._preprocess_optional_arg_):
-            f_preprocess_optional_arg = getattr(
-                cls_, cls_._preprocess_optional_arg_)
-        else:
-            def mk_preprocess_optional_arg_(c):
-                def preprocess_optional_arg_(
-                        cls__,
-                        arg: Any,
-                        i: int,
-                        default: Optional[c] = None,
-                        function: Optional[TLoc] = None
-                ) -> Optional[c]:
-                    if arg is None:
-                        return default
-                    else:
-                        return getattr(
-                            cls__, _preprocess_arg_)(arg, i, function)
-                return preprocess_optional_arg_
-            f_preprocess_optional_arg = classmethod(
-                mk_preprocess_optional_arg_(cls_))
-        setattr(top, cls_._preprocess_optional_arg_, f_preprocess_optional_arg)
-
-    @classmethod
     def check_object_class(
             cls,
             cls_name: str,
@@ -274,8 +226,6 @@ class Object(Sequence, metaclass=ObjectMeta):
     _check_arg_: str
     _check_optional_arg_: str
     _is_: str
-    _preprocess_arg_: str
-    _preprocess_optional_arg_: str
     _test_: str
 
     @classmethod
@@ -919,26 +869,6 @@ class Object(Sequence, metaclass=ObjectMeta):
         return cls._check_optional_arg_isinstance(
             arg, bool, default, function, name, position)
 
-    @classmethod
-    def _preprocess_arg_bool(
-            cls,
-            arg: bool,
-            i: int,
-            function: Optional[TLoc] = None
-    ) -> bool:
-        return cls._check_arg_bool(arg, function or cls, None, i)
-
-    @classmethod
-    def _preprocess_optional_arg_bool(
-            cls,
-            arg: Optional[bool],
-            i: int,
-            default: Optional[bool] = None,
-            function: Optional[TLoc] = None
-    ) -> Optional[bool]:
-        return cls._check_optional_arg_bool(
-            arg, default, function or cls, None, i)
-
     # -- int --
 
     @classmethod
@@ -963,26 +893,6 @@ class Object(Sequence, metaclass=ObjectMeta):
     ) -> Optional[int]:
         return cls._check_optional_arg_isinstance(
             arg, int, default, function, name, position)
-
-    @classmethod
-    def _preprocess_arg_int(
-            cls,
-            arg: int,
-            i: int,
-            function: Optional[TLoc] = None
-    ) -> int:
-        return cls._check_arg_int(arg, function or cls, None, i)
-
-    @classmethod
-    def _preprocess_optional_arg_int(
-            cls,
-            arg: Optional[int],
-            i: int,
-            default: Optional[int] = None,
-            function: Optional[TLoc] = None
-    ) -> Optional[int]:
-        return cls._check_optional_arg_int(
-            arg, default, function or cls, None, i)
 
     # -- float --
 
@@ -1009,26 +919,6 @@ class Object(Sequence, metaclass=ObjectMeta):
         return cls._check_optional_arg_isinstance(
             arg, float, default, function, name, position)
 
-    @classmethod
-    def _preprocess_arg_float(
-            cls,
-            arg: float,
-            i: int,
-            function: Optional[TLoc] = None
-    ) -> float:
-        return cls._check_arg_float(arg, function or cls, None, i)
-
-    @classmethod
-    def _preprocess_optional_arg_float(
-            cls,
-            arg: Optional[float],
-            i: int,
-            default: Optional[float] = None,
-            function: Optional[TLoc] = None
-    ) -> Optional[float]:
-        return cls._check_optional_arg_float(
-            arg, default, function or cls, None, i)
-
     # -- number --
 
     @classmethod
@@ -1054,26 +944,6 @@ class Object(Sequence, metaclass=ObjectMeta):
         return cls._check_optional_arg_isinstance(
             arg, (float, int), default, function, name, position)
 
-    @classmethod
-    def _preprocess_arg_number(
-            cls,
-            arg: TNum,
-            i: int,
-            function: Optional[TLoc] = None
-    ) -> TNum:
-        return cls._check_arg_number(arg, function or cls, None, i)
-
-    @classmethod
-    def _preprocess_optional_arg_number(
-            cls,
-            arg: Optional[TNum],
-            i: int,
-            default: Optional[TNum] = None,
-            function: Optional[TLoc] = None
-    ) -> Optional[TNum]:
-        return cls._check_optional_arg_number(
-            arg, default, function or cls, None, i)
-
     # -- str --
 
     @classmethod
@@ -1098,26 +968,6 @@ class Object(Sequence, metaclass=ObjectMeta):
     ) -> Optional[str]:
         return cls._check_optional_arg_isinstance(
             arg, str, default, function, name, position)
-
-    @classmethod
-    def _preprocess_arg_str(
-            cls,
-            arg: str,
-            i: int,
-            function: Optional[TLoc] = None
-    ) -> str:
-        return cls._check_arg_str(arg, function or cls, None, i)
-
-    @classmethod
-    def _preprocess_optional_arg_str(
-            cls,
-            arg: Optional[str],
-            i: int,
-            default: Optional[str] = None,
-            function: Optional[TLoc] = None
-    ) -> Optional[str]:
-        return cls._check_optional_arg_str(
-            arg, default, function or cls, None, i)
 
 # -- Utility ---------------------------------------------------------------
 
