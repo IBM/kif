@@ -12,7 +12,6 @@ import copy
 import functools
 import itertools
 import json
-import re
 from collections.abc import Iterator, Mapping, Sequence
 
 import lark  # for S-expression parsing
@@ -30,9 +29,7 @@ from typing_extensions import (
     Union,
 )
 
-__version__ = '0.1'
-
-__all__ = [
+__all__ = (
     'Codec',
     'CodecError',
     'Decoder',
@@ -43,7 +40,7 @@ __all__ = [
     'MustBeImplementedInSubclass',
     'Object',
     'ShouldNotGetHere',
-]
+)
 
 
 class Error(Exception):
@@ -78,7 +75,6 @@ TFun = Callable[..., Any]
 TLoc = Union[TFun, str]
 TNil = NilType
 TNum = Union[float, int]
-TObjCls = type['Object']
 
 F = TypeVar('F', bound=Callable[..., Any])
 T = TypeVar('T')
@@ -89,21 +85,11 @@ T = TypeVar('T')
 class ObjectMeta(abc.ABCMeta):
     """Meta-class for syntactical objects."""
 
-    _object_class: Optional[TObjCls] = None
-    _object_subclasses: Final[dict[str, TObjCls]] = {}
+    _object_subclasses: Final[dict[str, type['Object']]] = {}
 
     def __new__(cls, name, bases, namespace, **kwargs):
         cls_ = super().__new__(cls, name, bases, namespace, **kwargs)
-        cls._init(cls_, name, bases, namespace, **kwargs)
-        return cls_
-
-    @classmethod
-    def _init(cls, cls_, name, bases, namespace, **kwargs):
         cls._object_subclasses[name] = cls_
-        top = cls._object_class or cls_
-        sn = top._camel2snake(name)
-        cls._object_subclasses[sn] = cls_
-        cls_._snake_case_name = sn
         return cls_
 
     @classmethod
@@ -122,9 +108,6 @@ class ObjectMeta(abc.ABCMeta):
 @functools.total_ordering
 class Object(Sequence, metaclass=ObjectMeta):
     """Abstract base class for syntactical objects."""
-
-    #: Class name in snake case.
-    _snake_case_name: Final[str] = 'object'
 
     #: Absence of value distinct from ``None``.
     Nil: Final[NilType] = Nil
@@ -366,7 +349,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         """Converts object to abstract syntax tree.
 
         Returns:
-           The resulting dictionary.
+           Dictionary.
         """
         return {
             'class': self.__class__.__qualname__,
@@ -388,7 +371,7 @@ class Object(Sequence, metaclass=ObjectMeta):
            ast: Abstract syntax tree.
 
         Returns:
-           The resulting object.
+           Object.
         """
         return cls.check(cls._from_ast(cls._check_arg_isinstance(
             ast, Mapping, cls.from_ast, 'ast', 1)))
@@ -410,27 +393,6 @@ class Object(Sequence, metaclass=ObjectMeta):
 
 # -- Encoding --------------------------------------------------------------
 
-    @classmethod
-    def _install_encoder(cls, encoder: type['Encoder']):
-        def mk_to_(fmt: str):
-            def to_(obj: Object, **kwargs: Any) -> str:
-                return obj.dumps(fmt, **kwargs)
-            return to_
-        f_to = mk_to_(encoder.format)
-        f_to.__doc__ = f"""\
-        Encodes object using {encoder.description}.
-
-        Parameters:
-           kwargs: Options to {encoder.description}.
-
-        Returns:
-           The resulting string.
-
-        Raises:
-           `EncoderError`: Encoder error.
-        """
-        setattr(cls, 'to_' + encoder.format, f_to)
-
     def dump(self, stream: IO[Any], format: Optional[str] = None, **kwargs):
         """Encodes object and writes the result to `stream`.
 
@@ -438,9 +400,6 @@ class Object(Sequence, metaclass=ObjectMeta):
            stream: A ``.write()``-supporting file-like object.
            format: Encoding format.
            kwargs: Encoder options.
-
-        Raises:
-           `EncoderError`: Encoder error.
         """
         enc = Encoder.from_format(format, self.dump, 'format', 2)
         for chunk in enc(**kwargs).iterencode(self):
@@ -454,40 +413,12 @@ class Object(Sequence, metaclass=ObjectMeta):
            kwargs: Encoder options.
 
         Returns:
-           The resulting string.
-
-        Raises:
-           `EncoderError`: Encoder error.
+           String.
         """
         enc = Encoder.from_format(format, self.dumps, 'format', 1)
         return enc(**kwargs).encode(self)
 
 # -- Decoding --------------------------------------------------------------
-
-    @classmethod
-    def _install_decoder(cls, decoder: type['Decoder']):
-        def mk_from_(fmt: str):
-            def from_(
-                    obj_cls: type[Object],
-                    s: str,
-                    **kwargs
-            ) -> Object:
-                return obj_cls.loads(s, fmt, **kwargs)
-            return from_
-        f_from = mk_from_(decoder.format)
-        f_from.__doc__ = f"""\
-        Decodes string using {decoder.description}.
-
-        Parameters:
-           kwargs: Options to {decoder.description}.
-
-        Returns:
-           The resulting object.
-
-        Raises:
-           `DecoderError`: Decoder error.
-        """
-        setattr(cls, 'from_' + decoder.format, classmethod(f_from))
 
     @classmethod
     def load(
@@ -504,10 +435,7 @@ class Object(Sequence, metaclass=ObjectMeta):
            kwargs: Decoder options.
 
         Returns:
-           The resulting object.
-
-        Raises:
-           `DecoderError`: Decoder error.
+           Object.
         """
         return cls.loads(stream.read(), format, **kwargs)
 
@@ -526,13 +454,84 @@ class Object(Sequence, metaclass=ObjectMeta):
            kwargs: Options to decoder.
 
         Returns:
-           The resulting object.
-
-        Raises:
-           `DecoderError`: Decoder error.
+           Object.
         """
         dec = Decoder.from_format(format, cls.loads, 'format', 2)
         return cls.check(dec(**kwargs).decode(input))
+
+# -- Built-in codecs -------------------------------------------------------
+
+    @classmethod
+    def from_json(cls, input: str, **kwargs: Any) -> Self:
+        """Decodes string using JSON decoder.
+
+        Parameters:
+           input: Input string.
+           kwargs: Options to decoder.
+
+        Returns:
+           Object.
+        """
+        return cls.loads(input, 'json', **kwargs)
+
+    def to_json(self, **kwargs: Any) -> str:
+        """Encodes object using json encoder.
+
+        Parameters:
+           kwargs: Options to encoder.
+
+        Returns:
+           String.
+        """
+        return self.dumps('json', **kwargs)
+
+    @classmethod
+    def from_repr(cls, input: str, **kwargs: Any) -> Self:
+        """Decodes string using repr decoder.
+
+        Parameters:
+           input: Input string.
+           kwargs: Options to decoder.
+
+        Returns:
+           Object.
+        """
+        return cls.loads(input, 'repr', **kwargs)
+
+    def to_repr(self, **kwargs: Any) -> str:
+        """Encodes object using repr encoder.
+
+        Parameters:
+           kwargs: Options to encoder.
+
+        Returns:
+           String.
+        """
+        return self.dumps('repr', **kwargs)
+
+    @classmethod
+    def from_sexp(cls, input: str, **kwargs: Any) -> Self:
+        """Decodes string using S-expression decoder.
+
+        Parameters:
+           input: Input string.
+           kwargs: Options to decoder.
+
+        Returns:
+           Object.
+        """
+        return cls.loads(input, 'sexp', **kwargs)
+
+    def to_sexp(self, **kwargs: Any) -> str:
+        """Encodes object using S-expression encoder.
+
+        Parameters:
+           kwargs: Options to encoder.
+
+        Returns:
+           String.
+        """
+        return self.dumps('sexp', **kwargs)
 
 # -- Argument checking -----------------------------------------------------
 
@@ -859,22 +858,6 @@ class Object(Sequence, metaclass=ObjectMeta):
 
 # -- Utility ---------------------------------------------------------------
 
-    _camel2snake_re1 = re.compile(r'([^_])([A-Z][a-z]+)')
-    _camel2snake_re2 = re.compile(r'([a-z0-9])([A-Z])')
-
-    @classmethod
-    def _camel2snake(cls, name: str) -> str:
-        """Converts camel-case `name` to snake-case.
-
-        Parameters:
-           name: Id-like name.
-
-        Returns:
-           `name` converted to snake-case.
-        """
-        return cls._camel2snake_re2.sub(
-            r'\1_\2', cls._camel2snake_re1.sub(r'\1_\2', name)).lower()
-
     @classmethod
     def _must_be_implemented_in_subclass(
             cls,
@@ -922,7 +905,7 @@ class Codec(abc.ABC):
     """Abstract base class for codecs."""
 
     registry: ClassVar[dict[str, type['Codec']]]
-    default: ClassVar[str]
+    default: ClassVar[str] = 'repr'
 
     format: ClassVar[str]
     description: ClassVar[str]
@@ -968,7 +951,6 @@ class Encoder(Codec):
             format: str,
             description: str):
         Encoder._register(cls, format, description)
-        Object._install_encoder(cls)
 
     _from_format_default_details = (lambda x: f"no such encoder '{x}'")
 
@@ -993,10 +975,7 @@ class Encoder(Codec):
            obj: Object.
 
         Returns:
-           The resulting string.
-
-        Raises:
-           `DecoderError`: Decoder error.
+           String.
         """
         return ''.join(self.iterencode(input))
 
@@ -1173,7 +1152,6 @@ class Decoder(Codec):
     @classmethod
     def __init_subclass__(cls, format: str, description: str):
         Decoder._register(cls, format, description)
-        Object._install_decoder(cls)
 
     _from_format_default_details = (lambda x: f"no such decoder '{x}'")
 
@@ -1207,10 +1185,7 @@ class Decoder(Codec):
            input: String.
 
         Return:
-           The resulting object.
-
-        Raises:
-           `DecoderError`: Decoder error.
+           Object.
         """
         raise MustBeImplementedInSubclass
 
@@ -1342,10 +1317,3 @@ class JSON_Decoder(Decoder, format='json', description='JSON decoder'):
     @override
     def decode(self, input: str) -> Object:
         return self.dec.decode(input)
-
-
-# == Defaults ==============================================================
-
-Decoder.default = SExpDecoder.format
-Encoder.default = ReprEncoder.format
-ObjectMeta._object_class = Object

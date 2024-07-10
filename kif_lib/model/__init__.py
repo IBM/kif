@@ -258,7 +258,6 @@ __all__ = (
     'TimeDatatype',
     'TimeTemplate',
     'TimeVariable',
-    'TNil',
     'TPropertyFingerprint',
     'TReferenceRecord',
     'TReferenceRecordSet',

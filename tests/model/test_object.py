@@ -323,13 +323,13 @@ B(
 
     def test_loads_sexp(self):
         self.assertRaisesRegex(
-            DecoderError, 'syntax error', A.loads, '{}')
+            DecoderError, 'syntax error', A.from_sexp, '{}')
         self.assertRaisesRegex(
-            DecoderError, r"^no such object class 'Z'$", A.loads, 'Z')
+            DecoderError, r"^no such object class 'Z'$", A.from_sexp, 'Z')
         self.assert_load_sexp(A(), 'A')
         self.assert_load_sexp(A(), '(A)')
         self.assertRaisesRegex(
-            DecoderError, 'syntax error', A.loads, '((A))')
+            DecoderError, 'syntax error', A.from_sexp, '((A))')
         self.assert_load_sexp(A(1), '(A 1)')
         self.assert_load_sexp(A(1, 2, 3), '(A 1 2 3)')
         self.assert_load_sexp(A(1, '2', 3), '(A 1 "2" 3)')
@@ -515,24 +515,6 @@ B(
             int)
 
 # -- Utility ---------------------------------------------------------------
-
-    def test_camel2snake(self):
-        self.assertEqual(
-            Object._camel2snake('a'), 'a')
-        self.assertEqual(
-            Object._camel2snake('aB'), 'a_b')
-        self.assertEqual(
-            Object._camel2snake('a_B'), 'a_b')
-        self.assertEqual(
-            Object._camel2snake('AaB'), 'aa_b')
-        self.assertEqual(
-            Object._camel2snake('Aa_B'), 'aa_b')
-        self.assertEqual(
-            Object._camel2snake('AAB'), 'aab')
-        self.assertEqual(
-            Object._camel2snake('AA_B'), 'aa_b')
-        self.assertEqual(
-            Object._camel2snake('CamelToSnake'), 'camel_to_snake')
 
     def test_must_be_implemented_in_subclass(self):
         def f(msg=None):

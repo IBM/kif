@@ -236,30 +236,6 @@ if __name__ == '__main__':
             details, func_name, name, position, exception)))
         self.assertRaisesRegex(
             exception, regex, func, *args, **kwargs)
-
-    def assert_test_is_defined_for_kif_object_classes(
-            self,
-            name: str,
-            classes: Optional[Set[type[KIF_Object]]] = None
-    ):
-        if name.startswith('_'):
-            prefix = 'test' + name
-        else:
-            prefix = 'test_' + name
-        tests = set(filter(
-            lambda s: s.startswith(prefix), dir(self)))
-        meths = set(map(
-            lambda c: prefix + c._snake_case_name,
-            classes if classes is not None else self.ALL_KIF_OBJECT_CLASSES))
-        self.assertEqual(meths, tests - (tests - meths))
-
-    def assert_test_is_defined_for_template_classes(self, name: str):
-        self.assert_test_is_defined_for_kif_object_classes(
-            name, self.ALL_TEMPLATE_CLASSES)
-
-    def assert_test_is_defined_for_variable_classes(self, name: str):
-        self.assert_test_is_defined_for_kif_object_classes(
-            name, self.ALL_VARIABLE_CLASSES)
 
 # -- KIF_Object ------------------------------------------------------------
 
