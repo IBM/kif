@@ -29,25 +29,9 @@ from typing_extensions import (
     Union,
 )
 
-
-class NilType:
-    """Type for absence of value distinct from ``NoneType``."""
-
-    Nil: Optional['NilType'] = None
-
-    def __new__(cls):
-        if cls.Nil is None:
-            cls.Nil = super().__new__(cls)
-        return cls.Nil
-
-
-#: Absence of value distinct from ``None``.
-Nil: Final[NilType] = NilType()
-
 TDet = Union[Callable[[Any], str], str]
 TFun = Callable[..., Any]
 TLoc = Union[TFun, str]
-TNil = NilType
 TNum = Union[float, int]
 
 F = TypeVar('F', bound=Callable[..., Any])
@@ -83,9 +67,6 @@ class Object(Sequence, metaclass=ObjectMeta):
 
     class Error(Exception):
         """Base class for errors."""
-
-    #: Absence of value distinct from ``None``.
-    Nil: Final[NilType] = Nil
 
     @classmethod
     def check(
@@ -293,14 +274,16 @@ class Object(Sequence, metaclass=ObjectMeta):
         """
         return copy.deepcopy(self, memo=memo)
 
+    class KEEP:
+        """See :meth:`Object.replace`."""
+        def __new__(cls):
+            return cls
+
     def replace(self, *args: Any) -> Self:
         """Shallow-copies object overwriting its arguments.
 
-        If argument is ``None`` in `args`, keeps the value of the
-        corresponding argument in the resulting object.
-
-        If argument is :attr:`Nil` in `args`, sets the corresponding
-        argument to ``None`` in the resulting object.
+        If argument is :class:`Object.KEEP` in `args`, keeps the value of
+        the corresponding argument in the resulting object.
 
         Parameters:
            args: Arguments.
@@ -309,13 +292,12 @@ class Object(Sequence, metaclass=ObjectMeta):
            A shallow copy of object.
         """
         return self.__class__(*itertools.starmap(
-            self._replace, itertools.zip_longest(self.args, args)))
+            self._replace, itertools.zip_longest(
+                self.args, args, fillvalue=self.KEEP)))
 
     def _replace(self, x, y):
-        if y is None:
+        if y is self.KEEP:
             return x
-        elif y is self.Nil:
-            return None
         else:
             return y
 
@@ -451,7 +433,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         return cls.loads(input, 'json', **kwargs)
 
     def to_json(self, **kwargs: Any) -> str:
-        """Encodes object using json encoder.
+        """Encodes object using JSON encoder.
 
         Parameters:
            kwargs: Options to encoder.

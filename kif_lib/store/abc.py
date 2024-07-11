@@ -648,7 +648,7 @@ class Store(Set):
         if self.has_flags(self.NO_VALUE_SNAK):
             store_snak_mask |= Snak.NO_VALUE_SNAK
         return cast(FilterPattern, pat.replace(
-            None, None, None, pat.snak_mask & store_snak_mask))
+            pat.KEEP, pat.KEEP, pat.KEEP, pat.snak_mask & store_snak_mask))
 
     def filter(
             self,

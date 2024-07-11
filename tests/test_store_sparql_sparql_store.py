@@ -5,6 +5,7 @@ from typing import cast
 
 from kif_lib import (
     Item,
+    KIF_Object,
     Normal,
     NoValueSnak,
     Preferred,
@@ -170,7 +171,9 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assertEqual(stmt.subject, wd.benzene)
         # property
         stmt = next(kb.filter(property=wd.mass))
-        self.assertEqual(stmt.snak.property, wd.mass.replace(None, Quantity))
+        self.assertEqual(
+            stmt.snak.property,
+            wd.mass.replace(KIF_Object.KEEP, Quantity))
         # value: iri
         stmt = next(kb.filter(value=wd.benzene))
         self.assertIsInstance(stmt.snak, ValueSnak)
@@ -336,15 +339,17 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         quals = list(get_qualifiers(stmt))
         self.assertEqual(len(quals), 1)
         self.assert_value_snak(
-            quals[0], wd.elevation_above_sea_level.replace(None, Quantity),
+            quals[0],
+            wd.elevation_above_sea_level.replace(KIF_Object.KEEP, Quantity),
             Quantity(0, wd.metre))
         # one of the qualifiers is a time
         stmt = wd.country(wd.Brazil, wd.Brazil)
         quals = list(get_qualifiers(stmt))
         self.assertEqual(len(quals), 1)
         self.assert_value_snak(
-            quals[0], wd.start_time.replace(None, Time), Time(
-                '1822-01-01', 9, 0, wd.proleptic_Gregorian_calendar))
+            quals[0],
+            wd.start_time.replace(KIF_Object.KEEP, Time),
+            Time('1822-01-01', 9, 0, wd.proleptic_Gregorian_calendar))
         # one of the qualifiers is a some value
         stmt = wd.YouTube_video_ID(
             wd.Supercalifragilisticexpialidocious, String('tRFHXMQP-QU'))
@@ -360,7 +365,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         quals = list(get_qualifiers(stmt))
         self.assertEqual(len(quals), 1)
         self.assert_value_snak(
-            quals[0], wd.valid_in_place.replace(None, Item),
+            quals[0], wd.valid_in_place.replace(KIF_Object.KEEP, Item),
             wd.autobahn_in_Germany)
         # one of the qualifiers is a no value
         Italo_Balbo = wd.Q(1056)

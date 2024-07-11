@@ -28,7 +28,7 @@ from .fingerprint import (
     TFingerprint,
     TPropertyFingerprint,
 )
-from .kif_object import KIF_Object, Nil
+from .kif_object import KIF_Object
 from .pattern import Pattern
 from .pattern_deprecated import FilterPattern
 from .set import (
@@ -200,7 +200,6 @@ __all__ = (
     'Lexemes',
     'LexemeTemplate',
     'LexemeVariable',
-    'Nil',
     'Normal',
     'NormalRank',
     'NoValueSnak',

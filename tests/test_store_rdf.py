@@ -4,6 +4,7 @@
 from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
+    KIF_Object,
     Normal,
     NoValueSnak,
     Preferred,
@@ -261,19 +262,19 @@ class TestStoreRDF(kif_StoreTestCase):
             kb,
             stmts=[wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')],
             subject=wd.benzene,
-            property=wd.InChIKey.replace(None, String)
+            property=wd.InChIKey.replace(KIF_Object.KEEP, String)
         )
         self.store_test_filter(
             kb,
             stmts=[wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
             subject=wd.benzene,
-            property=wd.mass.replace(None, Quantity)
+            property=wd.mass.replace(KIF_Object.KEEP, Quantity)
         )
         self.store_test_filter(
             kb,
             stmts=[wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')],
             subject=wd.instance_of(wd.type_of_a_chemical_entity),
-            property=wd.InChIKey.replace(None, String)
+            property=wd.InChIKey.replace(KIF_Object.KEEP, String)
         )
         self.store_test_filter(
             kb,
@@ -286,14 +287,14 @@ class TestStoreRDF(kif_StoreTestCase):
             kb,
             stmts=[wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
             subject=wd.benzene,
-            property=wd.mass.replace(None, Quantity),
+            property=wd.mass.replace(KIF_Object.KEEP, Quantity),
             value=Quantity('78.046950192', wd.dalton)
         )
         self.store_test_filter(
             kb,
             stmts=[],
             subject=wd.benzene,
-            property=wd.mass.replace(None, Quantity),
+            property=wd.mass.replace(KIF_Object.KEEP, Quantity),
             value=Quantity('78.12', wd.dalton)
         )
         # property
@@ -301,7 +302,7 @@ class TestStoreRDF(kif_StoreTestCase):
             kb,
             stmts=[wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
             subject=None,
-            property=wd.mass.replace(None, Quantity)
+            property=wd.mass.replace(KIF_Object.KEEP, Quantity)
         )
         self.store_test_filter(
             kb,
@@ -310,7 +311,7 @@ class TestStoreRDF(kif_StoreTestCase):
                     '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))
             ],
             subject=None,
-            property=wd.density.replace(None, Quantity)
+            property=wd.density.replace(KIF_Object.KEEP, Quantity)
         )
         self.store_test_filter(
             kb,
@@ -328,14 +329,14 @@ class TestStoreRDF(kif_StoreTestCase):
                     '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))
             ],
             subject=None,
-            property=wd.density.replace(None, Quantity),
+            property=wd.density.replace(KIF_Object.KEEP, Quantity),
             value=Quantity('.88')
         )
         self.store_test_filter(
             kb,
             stmts=[],
             subject=None,
-            property=wd.density.replace(None, Quantity),
+            property=wd.density.replace(KIF_Object.KEEP, Quantity),
             value=Quantity('.88', wd.kilogram)
         )
         # value
@@ -437,7 +438,7 @@ class TestStoreRDF(kif_StoreTestCase):
                     '4003-01-01', 9, 0, wd.proleptic_Julian_calendar))
             ],
             subject=wd.Adam,
-            property=wd.date_of_birth.replace(None, Time)
+            property=wd.date_of_birth.replace(KIF_Object.KEEP, Time)
         )
         kb.set_flags(kb.LATE_FILTER)
 

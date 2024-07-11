@@ -60,7 +60,7 @@ class MarkdownEncoder(
             # FIXME: For now, ignore property datatype.
             ###
             if isinstance(obj, Property):
-                obj = obj.replace(obj.iri, obj.Nil)
+                obj = obj.replace(obj.iri, None)
             label = self.wd.get_entity_label(obj)
             if label:
                 yield f'[{label}]({obj.iri.value})'

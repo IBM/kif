@@ -6,9 +6,9 @@ from kif_lib import (
     Item,
     ItemDatatype,
     ItemDescriptor,
+    KIF_Object,
     Lexeme,
     LexemeDescriptor,
-    Nil,
     Property,
     PropertyDescriptor,
     Store,
@@ -26,6 +26,8 @@ from .data import (
     PAINT_TTL,
 )
 from .tests import kif_StoreTestCase
+
+KEEP = KIF_Object.KEEP
 
 
 class TestStoreMixerDescriptors(kif_StoreTestCase):
@@ -354,11 +356,11 @@ wd:P31
             ItemDescriptor(None, None, self.extra_benzene_pt_br[2]))
         test_case(
             kb, Descriptor.LABEL | Descriptor.ALIASES,
-            ADAM_TTL.Adam_pt_br.replace(None, None, Nil),
+            ADAM_TTL.Adam_pt_br.replace(KEEP, KEEP, None),
             BRAZIL_TTL.Brazil_pt_br.replace(
-                None,
+                KEEP,
                 TextSet(*self.extra_Brazil_pt_br[1],
-                        *BRAZIL_TTL.Brazil_pt_br[1]), Nil),
+                        *BRAZIL_TTL.Brazil_pt_br[1]), None),
             ItemDescriptor(*self.extra_benzene_pt_br[0:2]))
         # no early filter
         kb.unset_flags(kb.EARLY_FILTER)
@@ -373,7 +375,7 @@ wd:P31
             kb, 0,
             ADAM_TTL.Adam_pt_br,
             BRAZIL_TTL.Brazil_pt_br.replace(
-                None,
+                KEEP,
                 TextSet(*self.extra_Brazil_pt_br[1],
                         *BRAZIL_TTL.Brazil_pt_br[1])),
             self.extra_benzene_pt_br)

@@ -143,8 +143,8 @@ class Test(TestCase):
         c = C(1, C(2, 3), C(4))
         self.assertEqual(c.replace(), c)
         self.assertEqual(c.replace(2), C(2, *c[1:]))
-        self.assertEqual(c.replace(None), c)
-        self.assertEqual(c.replace(None, c.Nil), C(1, None, C(4)))
+        self.assertEqual(c.replace(c.KEEP), c)
+        self.assertEqual(c.replace(c.KEEP, None), C(1, None, C(4)))
 
 # -- Conversion ------------------------------------------------------------
 

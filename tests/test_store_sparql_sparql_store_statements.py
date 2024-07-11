@@ -5,6 +5,7 @@ from kif_lib import (
     FilterPattern,
     IRI,
     Item,
+    KIF_Object,
     NoValueSnak,
     Quantity,
     Snak,
@@ -83,12 +84,13 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
             [NoValueSnak(wd.father)], wd.spouse, wd.Eve))
         self.assert_statement(
             stmt, stmt.subject,
-            ValueSnak(wd.spouse.replace(None, Item), wd.Eve))
+            ValueSnak(wd.spouse.replace(KIF_Object.KEEP, Item), wd.Eve))
 
     def test_filter_property_is_property(self):
         kb = self.new_Store()
         stmt = next(kb.filter(property=wd.part_of))
-        self.assertEqual(stmt.snak.property, wd.part_of.replace(None, Item))
+        self.assertEqual(
+            stmt.snak.property, wd.part_of.replace(KIF_Object.KEEP, Item))
 
     def test_filter_property_is_snak_set(self):
         kb = self.new_Store()
@@ -143,24 +145,24 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         stmt = next(kb.filter(wd.benzene, wd.density, qt))
         self.assert_statement(stmt, wd.benzene, wd.density(qt))
         stmt = next(kb.filter(wd.benzene, wd.density, qt.replace(
-            None, qt.Nil, qt.Nil, qt.Nil)))
+            qt.KEEP, None, None, None)))
         self.assert_statement(stmt, wd.benzene, wd.density(qt))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.benzene, wd.density, qt.replace(
-                    '.87', qt.Nil, qt.Nil, qt.Nil)))
+                    '.87', None, None, None)))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.benzene, wd.density, qt.replace(
-                    None, wd.kilogram, qt.Nil, qt.Nil)))
+                    qt.KEEP, wd.kilogram, None, None)))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.benzene, wd.density, qt.replace(
-                    None, qt.Nil, '.88', qt.Nil)))
+                    qt.KEEP, None, '.88', None)))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.benzene, wd.density, qt.replace(
-                    None, qt.Nil, qt.Nil, '.88')))
+                    qt.KEEP, None, None, '.88')))
 
     def test_filter_value_is_time(self):
         kb = self.new_Store()
@@ -169,24 +171,24 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         stmt = next(kb.filter(wd.Brazil, wd.inception, tm))
         self.assert_statement(stmt, wd.Brazil, wd.inception(tm))
         stmt = next(kb.filter(wd.Brazil, wd.inception, tm.replace(
-            None, tm.Nil, tm.Nil, tm.Nil)))
+            tm.KEEP, None, None, None)))
         self.assert_statement(stmt, wd.Brazil, wd.inception(tm))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.Brazil, wd.inception, tm.replace(
-                    '1822-09-08', tm.Nil, tm.Nil, tm.Nil)))
+                    '1822-09-08', None, None, None)))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.Brazil, wd.inception, tm.replace(
-                    None, tm.HOUR, tm.Nil, tm.Nil)))
+                    tm.KEEP, tm.HOUR, None, None)))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.Brazil, wd.inception, tm.replace(
-                    None, tm.Nil, 1, tm.Nil)))
+                    tm.KEEP, None, 1, None)))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.Brazil, wd.inception, tm.replace(
-                    None, tm.Nil, 0, wd.proleptic_Julian_calendar)))
+                    tm.KEEP, None, 0, wd.proleptic_Julian_calendar)))
 
     def test_filter_value_is_snak_set(self):
         kb = self.new_Store()
