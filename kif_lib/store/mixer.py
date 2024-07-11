@@ -5,7 +5,7 @@ from ..itertools import cycle
 from ..model import (
     AnnotationRecordSet,
     Descriptor,
-    FilterPattern,
+    Filter,
     Item,
     ItemDescriptor,
     KIF_Object,
@@ -130,22 +130,22 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
 # -- Statements ------------------------------------------------------------
 
     @override
-    def _contains(self, pattern: FilterPattern) -> bool:
-        return any(map(lambda kb: kb._contains(pattern), self._sources))
+    def _contains(self, filter: Filter) -> bool:
+        return any(map(lambda kb: kb._contains(filter), self._sources))
 
     @override
-    def _count(self, pattern: FilterPattern) -> int:
-        return sum(map(lambda kb: kb._count(pattern), self._sources))
+    def _count(self, filter: Filter) -> int:
+        return sum(map(lambda kb: kb._count(filter), self._sources))
 
     @override
     def _filter(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
         its = map(
-            lambda kb: kb._filter_with_hooks(pattern, limit, distinct),
+            lambda kb: kb._filter_with_hooks(filter, limit, distinct),
             self._sources)
         return self._filter_mixed(list(its), limit, distinct)
 

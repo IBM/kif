@@ -24,7 +24,7 @@ from kif_lib import (
     ExternalIdDatatype,
     ExternalIdTemplate,
     ExternalIdVariable,
-    FilterPattern,
+    Filter,
     Fingerprint,
     IRI,
     IRI_Datatype,
@@ -1006,13 +1006,13 @@ if __name__ == '__main__':
 
     def assert_filter_pattern(
             self,
-            obj: FilterPattern,
+            obj: Filter,
             subject: Optional[EntityFingerprint] = None,
             property: Optional[PropertyFingerprint] = None,
             value: Optional[Fingerprint] = None,
             mask: Snak.Mask = Snak.ALL
     ):
-        self.assertIsInstance(obj, FilterPattern)
+        self.assertIsInstance(obj, Filter)
         self.assertEqual(obj.args[0], subject)
         self.assertEqual(obj.subject, subject)
         self.assertEqual(obj.get_subject(), subject)

@@ -4,7 +4,7 @@
 from kif_lib import (
     DecoderError,
     EntityFingerprint,
-    FilterPattern,
+    Filter,
     Fingerprint,
     PropertyFingerprint,
     Quantity,
@@ -20,30 +20,30 @@ class TestCodecSPARQL(kif_TestCase):
     def test_from_sparql(self):
         # bad query
         self.assertRaisesRegex(DecoderError, 'bad query',
-                               FilterPattern.from_sparql, 'xxx')
+                               Filter.from_sparql, 'xxx')
         # bad return
         self.assertRaises(
             TypeError, Value.from_sparql, 'select * where {?s ?p ?o}')
         # no restrictions
         q = 'select * where {?s ?p ?o}'
-        self.assert_filter_pattern(FilterPattern.from_sparql(q))
+        self.assert_filter_pattern(Filter.from_sparql(q))
         # subject: item
         q = 'select * where {wd:Q2270 ?p ?o}'
         self.assert_filter_pattern(
-            FilterPattern.from_sparql(q), EntityFingerprint(wd.benzene))
+            Filter.from_sparql(q), EntityFingerprint(wd.benzene))
         # subject: property
         q = 'select * where {wd:P31 ?p ?o}'
         self.assert_filter_pattern(
-            FilterPattern.from_sparql(q), EntityFingerprint(wd.instance_of))
+            Filter.from_sparql(q), EntityFingerprint(wd.instance_of))
         # property: property
         q = 'select * where {?s wd:P31 ?o}'
         self.assert_filter_pattern(
-            FilterPattern.from_sparql(q),
+            Filter.from_sparql(q),
             None, PropertyFingerprint(wd.instance_of))
         # value: item
         q = 'select * where {?s ?p wd:Q2270}'
         self.assert_filter_pattern(
-            FilterPattern.from_sparql(q),
+            Filter.from_sparql(q),
             None, None, Fingerprint(wd.benzene))
 
     def test_text2sparql(self):
@@ -53,7 +53,7 @@ SELECT ?value WHERE {
     wd:Q2270 wdt:P2067 ?value .
 } LIMIT 50'''
         self.assert_filter_pattern(
-            FilterPattern.from_sparql(q),
+            Filter.from_sparql(q),
             EntityFingerprint(wd.benzene),
             PropertyFingerprint(wd.mass))
         # Give me the LD50 of benzene.
@@ -62,7 +62,7 @@ SELECT ?value WHERE {
     wd:Q2270 wdt:P2240 ?value .
 } LIMIT 50'''
         self.assert_filter_pattern(
-            FilterPattern.from_sparql(q),
+            Filter.from_sparql(q),
             EntityFingerprint(wd.benzene),
             PropertyFingerprint(wd.median_lethal_dose))
         # What is the solubility of benzene?
@@ -71,7 +71,7 @@ SELECT ?value WHERE {
     wd:Q2270 wdt:P2177 ?value .
 } LIMIT 50'''
         self.assert_filter_pattern(
-            FilterPattern.from_sparql(q),
+            Filter.from_sparql(q),
             EntityFingerprint(wd.benzene),
             PropertyFingerprint(wd.solubility))
         # Give me the mass of the compound with
@@ -83,7 +83,7 @@ SELECT ?mass WHERE {
     ?compound wdt:P2067 ?mass .
 } LIMIT 50'''
         self.assert_filter_pattern(
-            FilterPattern.from_sparql(q),
+            Filter.from_sparql(q),
             EntityFingerprint(wd.InChIKey('UHOVQNZJYSORNB-UHFFFAOYSA-N')),
             PropertyFingerprint(wd.mass))
         q = '''
@@ -94,7 +94,7 @@ SELECT ?value WHERE {
 } LIMIT 50
 '''
         self.assert_filter_pattern(
-            FilterPattern.from_sparql(q),
+            Filter.from_sparql(q),
             EntityFingerprint(
                 [wd.InChI('InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H'),
                  wd.instance_of(wd.chemical_compound)]),
@@ -106,7 +106,7 @@ SELECT ?entity_type WHERE {
     ?entity_type wdt:P2177 "0.07"^^xsd:decimal .
 } LIMIT 50'''
         self.assert_filter_pattern(
-            FilterPattern.from_sparql(q),
+            Filter.from_sparql(q),
             EntityFingerprint(
                 [wd.solubility(Quantity('0.07')),
                  wd.P(2305)(wd.chemical_entity)]))
@@ -118,7 +118,7 @@ SELECT ?report WHERE {
 } LIMIT 50
 '''
         self.assert_filter_pattern(
-            FilterPattern.from_sparql(q),
+            Filter.from_sparql(q),
             None, PropertyFingerprint(wd.part_of), Fingerprint(wd.benzene))
 
 

@@ -8,7 +8,7 @@ from ..model import (
     AnnotationRecordSet,
     Descriptor,
     Entity,
-    FilterPattern,
+    Filter,
     IRI,
     Item,
     KIF_Object,
@@ -86,8 +86,8 @@ class SPARQL_MapperStore(
 # -- Statements ------------------------------------------------------------
 
     @override
-    def _count(self, pattern: FilterPattern) -> int:
-        q = self._make_filter_query(pattern)
+    def _count(self, filter: Filter) -> int:
+        q = self._make_filter_query(filter)
         text = q.select('(count (distinct *) as ?count)')
         res = self._eval_select_query_string(text)
         return self._parse_count_query_results(res)
@@ -95,39 +95,39 @@ class SPARQL_MapperStore(
     @override
     def _filter_pre_hook(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool
-    ) -> tuple[FilterPattern, int, bool, Any]:
-        return self.mapping.filter_pre_hook(self, pattern, limit, distinct)
+    ) -> tuple[Filter, int, bool, Any]:
+        return self.mapping.filter_pre_hook(self, filter, limit, distinct)
 
     @override
     def _filter_post_hook(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool,
             data: Any,
             it: Iterator[Statement]
     ) -> Iterator[Statement]:
         return self.mapping.filter_post_hook(
-            self, pattern, limit, distinct, data, it)
+            self, filter, limit, distinct, data, it)
 
     @override
     def _make_filter_query(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
     ) -> SPARQL_Builder:
         q = self.mapping.Builder()
         with q.where():
             subject_prefix: Optional[IRI] = None
-            if pattern.subject is not None:
-                if pattern.subject.entity is not None:
+            if filter.subject is not None:
+                if filter.subject.entity is not None:
                     q.matched_subject = self.mapping.encode_entity(
-                        pattern.subject.entity)
-                elif pattern.subject.snak_set is not None:
+                        filter.subject.entity)
+                elif filter.subject.snak_set is not None:
                     status, subject_prefix = self._try_push_snak_set(
-                        q, q.matched_subject, pattern.subject.snak_set)
+                        q, q.matched_subject, filter.subject.snak_set)
                     if not status:
                         return q  # empty query
                     assert subject_prefix is not None
@@ -135,13 +135,13 @@ class SPARQL_MapperStore(
                     raise self._should_not_get_here()
             value: Optional[Value] = None
             value_prefix: Optional[IRI] = None
-            if pattern.value is not None:
-                if pattern.value.value is not None:
-                    value = pattern.value.value
+            if filter.value is not None:
+                if filter.value.value is not None:
+                    value = filter.value.value
                     q.matched_value = self.mapping.encode_value(value)
-                elif pattern.value.snak_set is not None:
+                elif filter.value.snak_set is not None:
                     status, value_prefix = self._try_push_snak_set(
-                        q, q.matched_value, pattern.value.snak_set)
+                        q, q.matched_value, filter.value.snak_set)
                     if not status:
                         return q  # empty query
                     assert value_prefix is not None
@@ -165,8 +165,8 @@ class SPARQL_MapperStore(
                                 if not value.value.startswith(
                                         value_prefix.value):
                                     continue  # mismatch value
-                        if not spec._match(pattern):
-                            continue  # spec does not match pattern
+                        if not spec._match(filter):
+                            continue  # spec does not match filter
                         cup.branch()
                         spec._define(q, with_binds=True)
         return q
@@ -192,7 +192,7 @@ class SPARQL_MapperStore(
             if vsnak.property not in self.mapping.specs:
                 return False, None  # no such property
             for spec in self.mapping.specs[vsnak.property]:
-                pat = FilterPattern.from_snak(None, vsnak)
+                pat = Filter.from_snak(None, vsnak)
                 if not spec._match(pat):
                     continue    # spec does not match snak
                 spec._define(
@@ -275,7 +275,7 @@ class SPARQL_MapperStore(
                 for instance_of_spec in instance_of_specs:
                     matched_entities = [
                         e for e in entities
-                        if instance_of_spec._match(FilterPattern(e))]
+                        if instance_of_spec._match(Filter(e))]
                     if not matched_entities:
                         continue  # nothing to do
 
@@ -288,7 +288,7 @@ class SPARQL_MapperStore(
                             q.matched_subject, q.subject,
                             spec.kwargs.get('subject_prefix_replacement'))
                     cup.branch()
-                    pat = FilterPattern(matched_entities[0])
+                    pat = Filter(matched_entities[0])
                     matched_specs = {}
                     if get_label:
                         matched_specs['label'] = [

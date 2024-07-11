@@ -13,7 +13,7 @@ from ... import namespace as NS
 from ...error import ShouldNotGetHere
 from ...model import (
     EntityFingerprint,
-    FilterPattern,
+    Filter,
     Fingerprint,
     Property,
     PropertyFingerprint,
@@ -109,7 +109,7 @@ At line {line}, column {column}:
                         f"bad object ({o})")
         if subj is None and pred is None and obj is None:
             if not fpmap:
-                return FilterPattern(None, None, None, 0)
+                return Filter(None, None, None, 0)
             else:
                 assert len(fpmap) == 1
                 snaks = list(fpmap.values())[0]
@@ -119,11 +119,11 @@ At line {line}, column {column}:
                 else:
                     ###
                     # If it is a single triple, do the right thing, i.e.,
-                    # return the pattern FilterPattern(s, p, o).
+                    # returns the filter Filter(s, p, o).
                     ###
                     subj = None
                     pred, obj = snmap[cast(ValueSnak, snaks[0])]
-        return FilterPattern(
+        return Filter(
             self._subject_to_entity_fingerprint(subj, fpmap),
             self._predicate_to_property_fingerprint(pred, fpmap),
             self._object_to_fingerprint(obj, fpmap)

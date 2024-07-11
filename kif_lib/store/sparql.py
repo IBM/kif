@@ -17,7 +17,7 @@ from ..model import (
     DeepDataValue,
     Descriptor,
     Entity,
-    FilterPattern,
+    Filter,
     IRI,
     Item,
     ItemDescriptor,
@@ -281,8 +281,8 @@ At line {line}, column {column}:
 # -- Statements ------------------------------------------------------------
 
     @override
-    def _contains(self, pattern: FilterPattern) -> bool:
-        it = self._filter_with_hooks(pattern, 1, False)
+    def _contains(self, filter: Filter) -> bool:
+        it = self._filter_with_hooks(filter, 1, False)
         try:
             next(it)
             return True
@@ -290,15 +290,15 @@ At line {line}, column {column}:
             return False
 
     @override
-    def _count(self, pattern: FilterPattern) -> int:
-        q = self._make_count_query(pattern)
+    def _count(self, filter: Filter) -> int:
+        q = self._make_count_query(filter)
         text = q.select('(count (distinct *) as ?count)')
         res = self._eval_select_query_string(text)
         return self._parse_count_query_results(res)
 
-    def _make_count_query(self, pattern: FilterPattern) -> SPARQL_Builder:
-        if pattern.is_nonfull():
-            return self._make_filter_query(pattern)
+    def _make_count_query(self, filter: Filter) -> SPARQL_Builder:
+        if filter.is_nonfull():
+            return self._make_filter_query(filter)
         else:
             q = SPARQL_Builder()
             with q.where():
@@ -330,18 +330,18 @@ At line {line}, column {column}:
     @override
     def _filter(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
         assert limit > 0
-        q = self._make_filter_query(pattern)
+        q = self._make_filter_query(filter)
         if (q.has_variable(q.var('subject'))
             and q.has_variable(q.var('property'))
                 and q.has_variable(q.var('value'))):
             order_by = '?wds' if self.has_flags(self.ORDER) else None
             return self._eval_select_query(
-                q, lambda res: self._parse_filter_results(res, pattern),
+                q, lambda res: self._parse_filter_results(res, filter),
                 vars=self._filter_vars,
                 limit=limit, distinct=distinct, order_by=order_by, trim=True)
         else:
@@ -350,11 +350,11 @@ At line {line}, column {column}:
                 q.select(*self._filter_vars, limit=limit, distinct=distinct))
             return iter(())     # query is empty
 
-    def _make_filter_query(self, pattern: FilterPattern) -> SPARQL_Builder:
+    def _make_filter_query(self, filter: Filter) -> SPARQL_Builder:
         q = SPARQL_Builder()
         t = self._make_filter_query_vars_dict(q)
         q.where_start()
-        self._push_filter_pattern(q, t, pattern)
+        self._push_filter(q, t, filter)
         q.where_end()
         return q
 
@@ -384,11 +384,11 @@ At line {line}, column {column}:
             'wdv',
         )
 
-    def _push_filter_pattern(
+    def _push_filter(
             self,
             q: SPARQL_Builder,
             t: Mapping[str, TTrm],
-            pat: FilterPattern
+            pat: Filter
     ) -> SPARQL_Builder:
         # Push subject and property snak sets (if any).
         if pat.subject is not None and pat.subject.snak_set is not None:
@@ -408,16 +408,16 @@ At line {line}, column {column}:
                 q.bind(
                     q.substr(q.str_(t['property']), len(NS.WD) + 1),
                     cast(SPARQL_Builder.Variable, t['pname']))
-                self._push_filter_pattern_bind_pname_as(
+                self._push_filter_bind_pname_as(
                     q, t, (NS.P, 'p'))
             else:
                 # Property is unknown: use ?p as basis.
                 q.bind(
                     q.substr(q.str_(t['p']), len(NS.P) + 1),
                     cast(SPARQL_Builder.Variable, t['pname']))
-                self._push_filter_pattern_bind_pname_as(
+                self._push_filter_bind_pname_as(
                     q, t, (NS.WD, 'property'))
-            self._push_filter_pattern_bind_pname_as(
+            self._push_filter_bind_pname_as(
                 q, t, (NS.PS, 'ps'), (NS.PSV, 'psv'), (NS.WDNO, 'wdno'))
         # Value.
         if pat.value is not None and pat.value.snak_set is not None:
@@ -468,10 +468,10 @@ At line {line}, column {column}:
                     cup.branch()
                     q.triple(t['wds'], NS.RDF.type, t['wdno'])
         # Push subject, property, value entities/literals (if any).
-        self._push_filter_patterns_as_values(q, t, [(0, pat)])
+        self._push_filters_as_values(q, t, [(0, pat)])
         return q
 
-    def _push_filter_pattern_bind_pname_as(
+    def _push_filter_bind_pname_as(
             self,
             q: SPARQL_Builder,
             t: Mapping[str, TTrm],
@@ -481,11 +481,11 @@ At line {line}, column {column}:
             q.bind(q.uri(q.concat(String(str(ns)), t['pname'])), t[name])
         return t
 
-    def _push_filter_patterns_as_values(
+    def _push_filters_as_values(
             self,
             q: SPARQL_Builder,
             t: Mapping[str, TTrm],
-            pats: Iterable[tuple[int, FilterPattern]]
+            pats: Iterable[tuple[int, Filter]]
     ) -> Mapping[str, TTrm]:
         values = q.values(
             t['i'], t['subject'], t['property'],
@@ -495,15 +495,15 @@ At line {line}, column {column}:
             t['tm_timezone'], t['tm_calendar'])
         with values:
             for i, pat in pats:
-                self._push_filter_patterns_as_values_helper(
+                self._push_filters_as_values_helper(
                     q, values, pat, i)
         return t
 
-    def _push_filter_patterns_as_values_helper(
+    def _push_filters_as_values_helper(
             self,
             q: SPARQL_Builder,
             values: SPARQL_Builder.Values,
-            pat: FilterPattern,
+            pat: Filter,
             i: int
     ) -> SPARQL_Builder:
         p: TTrm = q.UNDEF
@@ -671,14 +671,14 @@ At line {line}, column {column}:
     def _parse_filter_results(
             self,
             results: SPARQL_Results,
-            pattern: FilterPattern
+            filter: Filter
     ) -> Iterator[Optional[Statement]]:
         for entry in results.bindings:
             stmt = entry.check_statement(
                 'subject', 'property', 'value',
                 'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
                 'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
-            if self.has_flags(self.LATE_FILTER) and not pattern.match(stmt):
+            if self.has_flags(self.LATE_FILTER) and not filter.match(stmt):
                 yield None
                 continue
             wds = self._parse_filter_results_check_wds(entry, stmt)
@@ -819,8 +819,8 @@ At line {line}, column {column}:
             t: Mapping[str, TTrm],
             stmts: Iterable[tuple[int, Statement]]
     ):
-        self._push_filter_patterns_as_values(q, t, map(
-            lambda x: (x[0], FilterPattern.from_statement(x[1])), stmts))
+        self._push_filters_as_values(q, t, map(
+            lambda x: (x[0], Filter.from_statement(x[1])), stmts))
         q.where_end()
 
     def _parse_get_wdss_results(

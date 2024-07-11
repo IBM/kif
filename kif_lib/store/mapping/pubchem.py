@@ -7,7 +7,7 @@ from ...itertools import batched
 from ...model import (
     AnnotationRecord,
     AnnotationRecordSet,
-    FilterPattern,
+    Filter,
     IRI,
     IRI_Datatype,
     Item,
@@ -210,16 +210,16 @@ class PubChemMapping(SPARQL_Mapping):
     def filter_pre_hook(
             cls,
             store: Store,
-            pattern: FilterPattern,
+            pattern: Filter,
             limit: int,
             distinct: bool
-    ) -> tuple[FilterPattern, int, bool, Any]:
+    ) -> tuple[Filter, int, bool, Any]:
         if (pattern.property is None
                 or pattern.property.property
                 not in cls._toxicity_properties_inv):
             return pattern, limit, distinct, None
         else:
-            new_pattern = FilterPattern(
+            new_pattern = Filter(
                 pattern.subject,
                 wd.instance_of,
                 wd.type_of_a_chemical_entity,
@@ -233,7 +233,7 @@ class PubChemMapping(SPARQL_Mapping):
     def filter_post_hook(
             cls,
             store: Store,
-            pattern: FilterPattern,
+            pattern: Filter,
             limit: int,
             distinct: bool,
             data: Any,
@@ -245,7 +245,7 @@ class PubChemMapping(SPARQL_Mapping):
             def mk_it():
                 assert isinstance(data, dict)
                 original_pattern = data['original_pattern']
-                assert isinstance(original_pattern, FilterPattern)
+                assert isinstance(original_pattern, Filter)
                 original_limit = data['original_limit']
                 assert isinstance(original_limit, int)
                 count = 0

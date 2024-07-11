@@ -6,7 +6,7 @@ from kif_lib import (
     Deprecated,
     EntityFingerprint,
     ExternalIdDatatype,
-    FilterPattern,
+    Filter,
     Fingerprint,
     IRI,
     IRI_Datatype,
@@ -320,20 +320,20 @@ class TestCodecMarkdown(kif_TestCase):
   - (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Quantity** 0))))''')  # noqa: E501
 
     def test_filter_pattern_to_markdown(self):
-        self.assert_to_markdown(FilterPattern(), '''\
-(**FilterPattern**
+        self.assert_to_markdown(Filter(), '''\
+(**Filter**
 - *any entity*
 - *any property*
 - *any value*
 - `0b111`)''')
-        pat = FilterPattern(wd.benzene)
+        pat = Filter(wd.benzene)
         self.assert_to_markdown(pat, '''\
-(**FilterPattern**
+(**Filter**
 - (**EntityFingerprint** (**Item** [benzene](http://www.wikidata.org/entity/Q2270)))
 - *any property*
 - *any value*
 - `0b111`)''')  # noqa: E501
-        pat = FilterPattern(
+        pat = Filter(
             None,
             None,
             [cast(ValueSnak, wd.country(wd.Brazil)),
@@ -341,7 +341,7 @@ class TestCodecMarkdown(kif_TestCase):
             Snak.NO_VALUE_SNAK)
         self.assert_to_markdown(
             pat, '''\
-(**FilterPattern**
+(**Filter**
 - *any entity*
 - *any property*
 - (**Fingerprint** (**SnakSet**

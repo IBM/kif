@@ -8,7 +8,7 @@ from ..model import (
     AnnotationRecord,
     Datatype,
     Entity,
-    FilterPattern,
+    Filter,
     Fingerprint,
     IRI,
     KIF_Object,
@@ -163,7 +163,7 @@ class MarkdownEncoder(
             else:
                 raise obj._should_not_get_here()
             yield from self._iterencode_kif_object_end(obj)
-        elif isinstance(obj, FilterPattern):
+        elif isinstance(obj, Filter):
             yield from self._iterencode_kif_object_start(obj, '')
             sep = f'{NL}{2 * SP * indent}-{SP}'
             for name in ['subject', 'property', 'value']:

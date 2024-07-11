@@ -11,7 +11,7 @@ from ..model import (
     DataValue,
     Entity,
     ExternalId,
-    FilterPattern,
+    Filter,
     IRI,
     IRI_Datatype,
     Property,
@@ -342,7 +342,7 @@ class SPARQL_Mapping(ABC):
             else:
                 raise ShouldNotGetHere
 
-        def _match(self, pat: FilterPattern) -> bool:
+        def _match(self, pat: Filter) -> bool:
             # Property mismatch.
             if (pat.property is not None
                 and pat.property.property is not None
@@ -561,17 +561,17 @@ class SPARQL_Mapping(ABC):
     def filter_pre_hook(
             cls,
             store: Store,
-            pattern: FilterPattern,
+            pattern: Filter,
             limit: int,
             distinct: bool
-    ) -> tuple[FilterPattern, int, bool, Any]:
+    ) -> tuple[Filter, int, bool, Any]:
         return pattern, limit, distinct, None
 
     @classmethod
     def filter_post_hook(
             cls,
             store: Store,
-            pattern: FilterPattern,
+            pattern: Filter,
             limit: int,
             distinct: bool,
             data: Any,

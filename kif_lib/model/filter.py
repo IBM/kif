@@ -1,4 +1,4 @@
-# Copyright (C) 2023-2024 IBM Corp.
+# Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
@@ -20,8 +20,8 @@ from .value import DeepDataValue, Quantity, Time
 at_property = property
 
 
-class FilterPattern(KIF_Object):
-    """Filter pattern.
+class Filter(KIF_Object):
+    """Filter specification.
 
     Parameters:
        subject: Entity fingerprint.
@@ -35,15 +35,15 @@ class FilterPattern(KIF_Object):
             cls,
             subject: Optional[TEntityFingerprint] = None,
             snak: Optional[Snak] = None
-    ) -> 'FilterPattern':
-        """Creates filter pattern from snak.
+    ) -> 'Filter':
+        """Creates filter from snak.
 
         Parameters:
-           subject_pattern: Entity fingerprint.
+           subject: Entity fingerprint.
            snak: Snak.
 
         Returns:
-           Filter pattern.
+           Filter.
         """
         if snak is None:
             property = None
@@ -59,14 +59,14 @@ class FilterPattern(KIF_Object):
         return cls(subject, property, value, snak_mask)
 
     @classmethod
-    def from_statement(cls, stmt: Statement) -> 'FilterPattern':
-        """Creates filter pattern from statement.
+    def from_statement(cls, stmt: Statement) -> 'Filter':
+        """Creates filter from statement.
 
         Parameters:
            stmt: Statement.
 
         Returns:
-           Filter pattern.
+           Filter.
         """
         return cls.from_snak(stmt.subject, stmt.snak)
 
@@ -98,14 +98,14 @@ class FilterPattern(KIF_Object):
 
     @at_property
     def subject(self) -> Optional[EntityFingerprint]:
-        """The subject of filter pattern."""
+        """The subject of filter."""
         return self.get_subject()
 
     def get_subject(
             self,
             default: Optional[EntityFingerprint] = None
     ) -> Optional[EntityFingerprint]:
-        """Gets the subject of filter pattern.
+        """Gets the subject of filter.
 
         If the subject is ``None``, returns `default`.
 
@@ -120,14 +120,14 @@ class FilterPattern(KIF_Object):
 
     @at_property
     def property(self) -> Optional[PropertyFingerprint]:
-        """The property of filter pattern."""
+        """The property of filter."""
         return self.get_property()
 
     def get_property(
             self,
             default: Optional[PropertyFingerprint] = None
     ) -> Optional[PropertyFingerprint]:
-        """Gets the property of filter pattern.
+        """Gets the property of filter.
 
         If the property is ``None``, returns `default`.
 
@@ -142,14 +142,14 @@ class FilterPattern(KIF_Object):
 
     @at_property
     def value(self) -> Optional[Fingerprint]:
-        """Filter pattern value."""
+        """Filter value."""
         return self.get_value()
 
     def get_value(
             self,
             default: Optional[Fingerprint] = None
     ) -> Optional[Fingerprint]:
-        """Gets the value of filter pattern.
+        """Gets the value of filter.
 
         If the value is ``None``, returns `default`.
 
@@ -164,11 +164,11 @@ class FilterPattern(KIF_Object):
 
     @at_property
     def snak_mask(self) -> Snak.Mask:
-        """The snak mask of filter pattern."""
+        """The snak mask of filter."""
         return self.get_snak_mask()
 
     def get_snak_mask(self) -> Snak.Mask:
-        """Gets the snak mask of filter pattern.
+        """Gets the snak mask of filter.
 
         Returns:
            Snak mask.
@@ -176,9 +176,9 @@ class FilterPattern(KIF_Object):
         return Snak.Mask(self.args[3])
 
     def is_full(self) -> bool:
-        """Tests whether filter pattern is full.
+        """Tests whether filter is full.
 
-        A full pattern matches anything.
+        A full filter matches anything.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
@@ -188,7 +188,7 @@ class FilterPattern(KIF_Object):
             and self.value is None and self.snak_mask is Snak.ALL)
 
     def is_nonfull(self) -> bool:
-        """Tests whether filter pattern is non-full.
+        """Tests whether filter is non-full.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
@@ -196,9 +196,9 @@ class FilterPattern(KIF_Object):
         return not self.is_full()
 
     def is_empty(self) -> bool:
-        """Tests whether filter pattern is empty.
+        """Tests whether filter is empty.
 
-        An empty pattern matches nothing.
+        An empty filter matches nothing.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
@@ -209,7 +209,7 @@ class FilterPattern(KIF_Object):
                 and not (self.snak_mask & Snak.VALUE_SNAK)))
 
     def is_nonempty(self) -> bool:
-        """Tests whether filter pattern is non-empty.
+        """Tests whether filter is non-empty.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
@@ -217,7 +217,7 @@ class FilterPattern(KIF_Object):
         return not self.is_empty()
 
     def match(self, stmt: Statement) -> bool:
-        """Tests whether filter pattern shallow-matches statement.
+        """Tests whether filter shallow-matches statement.
 
         Parameters:
            stmt: Statement.
@@ -282,23 +282,20 @@ class FilterPattern(KIF_Object):
         # Success.
         return True
 
-    def combine(self, *others: 'FilterPattern') -> 'FilterPattern':
-        """Combines filter pattern with `others`.
+    def combine(self, *others: 'Filter') -> 'Filter':
+        """Combines filter with `others`.
 
         Parameters:
-           others: Filter patterns.
+           others: Filters.
 
         Returns:
-           The resulting filter pattern.
-
-        Raises:
-           ValueError: Patterns cannot be combined.
+           Filter.
         """
         return functools.reduce(self._combine, others, self)
 
     @classmethod
-    def _combine(cls, pat1: 'FilterPattern', pat2: 'FilterPattern'):
-        pat2 = cast(FilterPattern, FilterPattern.check(pat2, cls.combine))
+    def _combine(cls, pat1: 'Filter', pat2: 'Filter'):
+        pat2 = cast(Filter, Filter.check(pat2, cls.combine))
         return pat1.__class__(
             pat1._combine_subject(pat2.subject),
             pat1._combine_property(pat2.property),

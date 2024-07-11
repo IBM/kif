@@ -14,7 +14,7 @@ from ..model import (
     Descriptor,
     Entity,
     EntityFingerprint,
-    FilterPattern,
+    Filter,
     Fingerprint,
     Item,
     ItemDescriptor,
@@ -557,20 +557,20 @@ class Store(Set):
         Statement.check(stmt, self.contains, 'stmt', 1)
         status = self._cache_get_presence(stmt)
         if status is None:
-            pat = self._normalize_filter_pattern(
-                FilterPattern.from_statement(stmt))
-            status = self._contains_tail(pat)
+            filter = self._normalize_filter(
+                Filter.from_statement(stmt))
+            status = self._contains_tail(filter)
             status = self._cache_set_presence(stmt, status)
         assert status is not None
         return status
 
-    def _contains_tail(self, pattern: FilterPattern) -> bool:
-        if pattern.is_nonempty():
-            return self._contains(pattern)
+    def _contains_tail(self, filter: Filter) -> bool:
+        if filter.is_nonempty():
+            return self._contains(filter)
         else:
             return False
 
-    def _contains(self, pattern: FilterPattern) -> bool:
+    def _contains(self, filter: Filter) -> bool:
         return False
 
     def count(
@@ -580,9 +580,9 @@ class Store(Set):
             value: Optional[TFingerprint] = None,
             snak_mask: Optional[Snak.TMask] = None,
             snak: Optional[Snak] = None,
-            pattern: Optional[FilterPattern] = None
+            filter: Optional[Filter] = None
     ) -> int:
-        """Counts statements matching pattern.
+        """Counts statements matching filter.
 
         Parameters:
            subject: Entity.
@@ -590,33 +590,33 @@ class Store(Set):
            value: Value.
            snak_mask: Snak mask.
            snak: Snak.
-           pattern: Filter pattern.
+           filter: Filter.
 
         Returns:
-           The number of statements matching pattern.
+           The number of statements matching filter.
         """
-        return self._count_tail(self._check_filter_pattern(
-            subject, property, value, snak_mask, snak, pattern, self.count))
+        return self._count_tail(self._check_filter(
+            subject, property, value, snak_mask, snak, filter, self.count))
 
-    def _count_tail(self, pattern: FilterPattern) -> int:
-        if pattern.is_nonempty():
-            return self._count(pattern)
+    def _count_tail(self, filter: Filter) -> int:
+        if filter.is_nonempty():
+            return self._count(filter)
         else:
             return 0
 
-    def _count(self, pattern: FilterPattern) -> int:
+    def _count(self, filter: Filter) -> int:
         return 0
 
-    def _check_filter_pattern(
+    def _check_filter(
             self,
             subject: Optional[TEntityFingerprint] = None,
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
             snak_mask: Optional[Snak.TMask] = None,
             snak: Optional[Snak] = None,
-            pattern: Optional[FilterPattern] = None,
+            filter: Optional[Filter] = None,
             function: Optional[Union[Callable[..., Any], str]] = None
-    ) -> FilterPattern:
+    ) -> Filter:
         subj = EntityFingerprint.check_optional(
             subject, None, function, 'subject', 1)
         prop = PropertyFingerprint.check_optional(
@@ -625,21 +625,20 @@ class Store(Set):
             value, None, function, 'value', 3)
         mask = Snak.Mask.check_optional(
             snak_mask, Snak.ALL, function, 'snak_mask', 4)
-        pat = FilterPattern(subj, prop, val, mask)
+        if filter is None:
+            filter = Filter(subj, prop, val, mask)
+        else:
+            filter = Filter.check(filter, function, 'filter', 6).combine(
+                Filter(subj, prop, val, mask))
         if snak is not None:
-            pat = FilterPattern._combine(
-                pat, FilterPattern.from_snak(None, Snak.check(
-                    snak, function, 'snak', 5)))
-        if pattern is not None:
-            pat = FilterPattern._combine(
-                pat, cast(FilterPattern, FilterPattern.check(
-                    pattern, function, 'pattern', 6)))
-        return self._normalize_filter_pattern(pat)
+            filter = filter.combine(Filter.from_snak(None, Snak.check(
+                snak, function, 'snak', 5)))
+        return self._normalize_filter(filter)
 
-    def _normalize_filter_pattern(
+    def _normalize_filter(
             self,
-            pat: FilterPattern
-    ) -> FilterPattern:
+            filter: Filter
+    ) -> Filter:
         store_snak_mask = Snak.Mask(0)
         if self.has_flags(self.VALUE_SNAK):
             store_snak_mask |= Snak.VALUE_SNAK
@@ -647,8 +646,9 @@ class Store(Set):
             store_snak_mask |= Snak.SOME_VALUE_SNAK
         if self.has_flags(self.NO_VALUE_SNAK):
             store_snak_mask |= Snak.NO_VALUE_SNAK
-        return cast(FilterPattern, pat.replace(
-            pat.KEEP, pat.KEEP, pat.KEEP, pat.snak_mask & store_snak_mask))
+        return filter.replace(
+            filter.KEEP, filter.KEEP, filter.KEEP,
+            filter.snak_mask & store_snak_mask)
 
     def filter(
             self,
@@ -657,11 +657,11 @@ class Store(Set):
             value: Optional[TFingerprint] = None,
             snak_mask: Optional[Snak.TMask] = None,
             snak: Optional[Snak] = None,
-            pattern: Optional[FilterPattern] = None,
+            filter: Optional[Filter] = None,
             limit: Optional[int] = None,
             distinct: Optional[bool] = None
     ) -> Iterator[Statement]:
-        """Filters statements matching pattern.
+        """Filters statements matching filter.
 
         Parameters:
            subject: Entity.
@@ -669,62 +669,62 @@ class Store(Set):
            value: Value.
            snak_mask: Snak mask.
            snak: Snak.
-           pattern: Filter pattern.
+           filter: Filter filter.
            limit: Maximum number of statements to return.
            distinct: Whether to remove duplicates.
 
         Returns:
-           An iterator of statements matching pattern.
+           An iterator of statements matching filter.
         """
-        pat = self._check_filter_pattern(
-            subject, property, value, snak_mask, snak, pattern, self.filter)
+        filter = self._check_filter(
+            subject, property, value, snak_mask, snak, filter, self.filter)
         KIF_Object._check_optional_arg_int(
             limit, None, self.filter, 'limit', 7)
         KIF_Object._check_optional_arg_bool(
             distinct, None, self.filter, 'distinct', 8)
-        return self._filter_tail(pat, limit, distinct)
+        return self._filter_tail(filter, limit, distinct)
 
     def _filter_tail(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: Optional[int],
             distinct: Optional[bool]
     ) -> Iterator[Statement]:
         return self._filter_with_hooks(
-            pattern,
+            filter,
             self.maximum_page_size if limit is None else max(limit, 0),
             self.has_flags(self.DISTINCT) if distinct is None else distinct)
 
     def _filter_with_hooks(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
-        pattern, limit, distinct, data = self._filter_pre_hook(
-            pattern, limit, distinct)
+        filter, limit, distinct, data = self._filter_pre_hook(
+            filter, limit, distinct)
         it_in: Iterator[Statement]
         it_out: Iterator[Statement]
-        if limit > 0 and pattern.is_nonempty():
-            it_in = self._filter(pattern, limit, distinct)
+        if limit > 0 and filter.is_nonempty():
+            it_in = self._filter(filter, limit, distinct)
         else:
             it_in = iter(())
-        it_out = self._filter_post_hook(pattern, limit, distinct, data, it_in)
+        it_out = self._filter_post_hook(filter, limit, distinct, data, it_in)
         if distinct:
             it_out = unique_everseen(it_out)
         return islice(it_out, limit)
 
     def _filter_pre_hook(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool
-    ) -> tuple[FilterPattern, int, bool, Any]:
-        return pattern, limit, distinct, None
+    ) -> tuple[Filter, int, bool, Any]:
+        return filter, limit, distinct, None
 
     def _filter_post_hook(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool,
             data: Any,
@@ -734,7 +734,7 @@ class Store(Set):
 
     def _filter(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
@@ -749,7 +749,7 @@ class Store(Set):
             value: Optional[TFingerprint] = None,
             snak_mask: Optional[Snak.TMask] = None,
             snak: Optional[Snak] = None,
-            pattern: Optional[FilterPattern] = None,
+            filter: Optional[Filter] = None,
             limit: Optional[int] = None
     ) -> Iterator[tuple[Statement, AnnotationRecordSet]]:
         """:meth:`Store.filter` with annotations.
@@ -763,14 +763,14 @@ class Store(Set):
            value: Value.
            snak_mask: Snak mask.
            snak: Snak.
-           pattern: Filter pattern.
+           filter: Filter.
            limit: Maximum number of statements to return.
 
         Returns:
            An iterator of pairs "(statement, annotation record set)".
         """
         return self._filter_annotated_tail(self.filter(
-            subject, property, value, snak_mask, snak, pattern, limit))
+            subject, property, value, snak_mask, snak, filter, limit))
 
     def _filter_annotated_tail(
             self,

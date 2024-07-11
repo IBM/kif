@@ -20,6 +20,7 @@ from .descriptor import (
     PlainDescriptor,
     PropertyDescriptor,
 )
+from .filter import Filter
 from .fingerprint import (
     EntityFingerprint,
     Fingerprint,
@@ -30,7 +31,6 @@ from .fingerprint import (
 )
 from .kif_object import KIF_Object
 from .pattern import Pattern
-from .pattern_deprecated import FilterPattern
 from .set import (
     KIF_ObjectSet,
     ReferenceRecord,
@@ -180,7 +180,7 @@ __all__ = (
     'ExternalIdDatatype',
     'ExternalIdTemplate',
     'ExternalIdVariable',
-    'FilterPattern',
+    'Filter',
     'Fingerprint',
     'IRI',
     'IRI_Datatype',

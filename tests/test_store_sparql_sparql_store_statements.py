@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
-    FilterPattern,
+    Filter,
     IRI,
     Item,
     KIF_Object,
@@ -38,20 +38,20 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
             TypeError, kb.filter, None, None, None, 'abc')
         self.assertRaises(
             TypeError, kb.filter, None, None, Item('x'), NoValueSnak)
-        # bad argument: pattern
-        self.assertRaises(TypeError, kb.filter, pattern=Item('x'))
+        # bad argument: filter
+        self.assertRaises(TypeError, kb.filter, filter=Item('x'))
         # bad argument: limit
         self.assertRaises(TypeError, kb.filter, limit=Item('x'))
 
     def test_filter_full(self):
         kb = self.new_Store()
-        pat = FilterPattern()
-        self.assertEqual(len(list(kb.filter(pattern=pat, limit=1))), 1)
+        filter = Filter()
+        self.assertEqual(len(list(kb.filter(filter=filter, limit=1))), 1)
 
     def test_filter_empty(self):
         kb = self.new_Store()
-        pat = FilterPattern(None, None, None, Snak.Mask(0))
-        self.assertEqual(len(list(kb.filter(pattern=pat, limit=1))), 0)
+        filter = Filter(None, None, None, Snak.Mask(0))
+        self.assertEqual(len(list(kb.filter(filter=filter, limit=1))), 0)
 
     def test_filter_duplicated_statements(self):
         kb = self.new_Store()
