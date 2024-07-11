@@ -6,7 +6,6 @@ from .model.kif_object import (
     DecoderError,
     EncoderError,
     Error,
-    MustBeImplementedInSubclass,
     ShouldNotGetHere,
 )
 
@@ -15,6 +14,5 @@ __all__ = (
     'DecoderError',
     'EncoderError',
     'Error',
-    'MustBeImplementedInSubclass',
     'ShouldNotGetHere',
 )

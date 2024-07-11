@@ -4,7 +4,6 @@
 from abc import abstractmethod
 from collections.abc import Mapping, Sequence
 
-from ..error import MustBeImplementedInSubclass
 from ..itertools import chain
 from ..model import IRI, Value
 from ..typing import Any, Hashable, Iterable, Iterator
@@ -42,7 +41,7 @@ class SPARQL_Builder(Sequence):
 
         @abstractmethod
         def n3(self) -> str:
-            raise MustBeImplementedInSubclass
+            raise NotImplementedError
 
     class BNode(Term):
         """SPARQL builder blank node."""

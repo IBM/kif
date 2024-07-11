@@ -30,16 +30,15 @@ if TYPE_CHECKING:               # pragma: no cover
     from .variable import Variable
 
 Codec = object.Codec
-CodecError = object.CodecError
+CodecError = object.Codec.Error
 Decoder = object.Decoder
-DecoderError = object.DecoderError
+DecoderError = object.Decoder.Error
 Encoder = object.Encoder
-EncoderError = object.EncoderError
-Error = object.Error
-MustBeImplementedInSubclass = object.MustBeImplementedInSubclass
+EncoderError = object.Encoder.Error
+Error = object.Object.Error
 Nil = object.Nil
 Object = object.Object
-ShouldNotGetHere = object.ShouldNotGetHere
+ShouldNotGetHere = object.Object.ShouldNotGetHere
 
 T = TypeVar('T')
 
@@ -205,7 +204,10 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
 
 
 class KIF_JSON_Encoder(
-        object.JSON_Encoder, format='json', description='JSON encoder'):
+        object.JSON_Encoder,
+        format='json',
+        description='JSON encoder'
+):
     """KIF JSON encoder."""
 
     class Encoder(object.JSON_Encoder.Encoder):
@@ -231,7 +233,10 @@ class KIF_JSON_Encoder(
 
 
 class KIF_ReprDecoder(
-        object.ReprDecoder, format='repr', description='Repr. decoder'):
+        object.ReprDecoder,
+        format='repr',
+        description='Repr. decoder'
+):
     """KIF repr. decoder."""
 
     @classmethod
@@ -242,7 +247,10 @@ class KIF_ReprDecoder(
 
 
 class KIF_ReprEncoder(
-        object.ReprEncoder, format='repr', description='Repr. encoder'):
+        object.ReprEncoder,
+        format='repr',
+        description='Repr. encoder'
+):
     """KIF repr. encoder."""
 
     @override
@@ -263,7 +271,10 @@ class KIF_ReprEncoder(
 
 
 class KIF_SExpEncoder(
-        object.SExpEncoder, format='sexp', description='S-expression encoder'):
+        object.SExpEncoder,
+        format='sexp',
+        description='S-expression encoder'
+):
     """KIF S-expression encoder."""
 
     @override

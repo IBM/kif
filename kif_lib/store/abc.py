@@ -6,7 +6,7 @@ from enum import auto, Flag
 
 from ..cache import Cache
 from ..error import Error as KIF_Error
-from ..error import MustBeImplementedInSubclass, ShouldNotGetHere
+from ..error import ShouldNotGetHere
 from ..itertools import batched, chain, islice, unique_everseen
 from ..model import (
     AnnotationRecord,
@@ -111,21 +111,6 @@ class Store(Set):
            Store error.
         """
         return cls.Error(details)
-
-    @classmethod
-    def _must_be_implemented_in_subclass(
-            cls,
-            details: Optional[str] = None
-    ) -> MustBeImplementedInSubclass:
-        """Makes a "must be implemented in subclass" error.
-
-        Parameters:
-           details: Details.
-
-        Returns:
-           :class:`MustBeImplementedInSubclass` error.
-        """
-        return KIF_Object._must_be_implemented_in_subclass(details)
 
     @classmethod
     def _should_not_get_here(

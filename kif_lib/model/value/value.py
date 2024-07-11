@@ -110,7 +110,7 @@ class Value(
         Returns:
            Simple value.
         """
-        raise self._must_be_implemented_in_subclass()
+        raise NotImplementedError
 
     def n3(self) -> str:
         """Gets the simple value of value in N3 format.

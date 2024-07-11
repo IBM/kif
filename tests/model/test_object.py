@@ -516,13 +516,6 @@ B(
 
 # -- Utility ---------------------------------------------------------------
 
-    def test_must_be_implemented_in_subclass(self):
-        def f(msg=None):
-            raise Object._must_be_implemented_in_subclass(msg)
-        self.assertRaisesRegex(MustBeImplementedInSubclass, r'^$', f)
-        self.assertRaisesRegex(
-            MustBeImplementedInSubclass, r'^details$', f, 'details')
-
     def test_should_not_get_here(self):
         def f(msg=None):
             raise Object._should_not_get_here(msg)
