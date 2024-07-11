@@ -14,12 +14,9 @@ class Test(TestCase):
         import kif_lib.model.object as obj
 
         global Decoder
-        global DecoderError
         global Encoder
-        global EncoderError
         global JSON_Decoder
         global JSON_Encoder
-        global MustBeImplementedInSubclass
         global Object
         global ObjectMeta
         global SExpDecoder
@@ -28,17 +25,14 @@ class Test(TestCase):
         global A, B, C
 
         Decoder = obj.Decoder
-        DecoderError = obj.DecoderError
         Encoder = obj.Encoder
-        EncoderError = obj.EncoderError
         JSON_Decoder = obj.JSON_Decoder
         JSON_Encoder = obj.JSON_Encoder
-        MustBeImplementedInSubclass = obj.MustBeImplementedInSubclass
         Object = obj.Object
         ObjectMeta = obj.ObjectMeta
         SExpDecoder = obj.SExpDecoder
         SExpEncoder = obj.SExpEncoder
-        ShouldNotGetHere = obj.ShouldNotGetHere
+        ShouldNotGetHere = obj.Object.ShouldNotGetHere
 
         class A(Object):
             def __init__(self, *args):
@@ -230,7 +224,7 @@ B(
 )''', indent=4)
 
     def test_dump_sexp(self):
-        self.assertRaises(EncoderError, A(set()).dumps, format='sexp')
+        self.assertRaises(Encoder.Error, A(set()).dumps, format='sexp')
         self.assert_dump_sexp(A(), 'A')
         self.assert_dump_sexp(A(1), '(A 1)')
         self.assert_dump_sexp(A(1, 2, 3), '(A 1 2 3)')
@@ -260,7 +254,7 @@ B(
         def js(A, *args):
             args = ", ".join(args)
             return f'{{"class": "{A}", "args": [{args}]}}'
-        self.assertRaises(EncoderError, A(set()).dumps, format='json')
+        self.assertRaises(Encoder.Error, A(set()).dumps, format='json')
         self.assert_dump(A(), js('A'), 'json')
         self.assert_dump(A(1), js('A', '1'), 'json')
         self.assert_dump(A(1, 2, 3), js('A', '1', '2', '3'), 'json')
@@ -323,13 +317,13 @@ B(
 
     def test_loads_sexp(self):
         self.assertRaisesRegex(
-            DecoderError, 'syntax error', A.from_sexp, '{}')
+            Decoder.Error, 'syntax error', A.from_sexp, '{}')
         self.assertRaisesRegex(
-            DecoderError, r"^no such object class 'Z'$", A.from_sexp, 'Z')
+            Decoder.Error, r"^no such object class 'Z'$", A.from_sexp, 'Z')
         self.assert_load_sexp(A(), 'A')
         self.assert_load_sexp(A(), '(A)')
         self.assertRaisesRegex(
-            DecoderError, 'syntax error', A.from_sexp, '((A))')
+            Decoder.Error, 'syntax error', A.from_sexp, '((A))')
         self.assert_load_sexp(A(1), '(A 1)')
         self.assert_load_sexp(A(1, 2, 3), '(A 1 2 3)')
         self.assert_load_sexp(A(1, '2', 3), '(A 1 "2" 3)')
@@ -374,10 +368,10 @@ B(
             args = ", ".join(args)
             return f'{{"class": "{A}", "args": [{args}]}}'
         self.assertRaisesRegex(
-            DecoderError, r"^missing attribute 'class'$", A.loads, '{}',
+            Decoder.Error, r"^missing attribute 'class'$", A.loads, '{}',
             format='json')
         self.assertRaisesRegex(
-            DecoderError, r"^no such object class 'Z'$", A.loads,
+            Decoder.Error, r"^no such object class 'Z'$", A.loads,
             js('Z'), format='json')
         self.assert_load(A(), js('A'), 'json')
         self.assert_load(A(1), js('A', '1'), 'json')
