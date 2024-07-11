@@ -28,6 +28,51 @@
 @prefix wikibase: <http://wikiba.se/ontology#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
+# demonym
+wd:P1549
+    schema:version "0"^^xsd:integer ;
+    wikibase:claim p:P1549 ;
+    wikibase:novalue wdno:P1549 ;
+    wikibase:propertyType wikibase:Monolingualtext ;
+    wikibase:statementProperty ps:P1549 ;
+    wikibase:statementValue psv:P1549 .
+
+# instance of
+wd:P31
+    schema:version "0"^^xsd:integer ;
+    wikibase:claim p:P31 ;
+    wikibase:novalue wdno:P31 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:statementProperty ps:P31 ;
+    wikibase:statementValue psv:P31 .
+
+# part of
+wd:P361
+    schema:version "0"^^xsd:integer ;
+    wikibase:claim p:P361 ;
+    wikibase:novalue wdno:P361 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:statementProperty ps:P361 ;
+    wikibase:statementValue psv:P361 .
+
+# official name
+wd:P1448
+    schema:version "0"^^xsd:integer ;
+    wikibase:claim p:P1448 ;
+    wikibase:novalue wdno:P1448 ;
+    wikibase:propertyType wikibase:Monolingualtext ;
+    wikibase:statementProperty ps:P1448 ;
+    wikibase:statementValue psv:P1448 .
+
+# inception
+wd:P571
+    schema:version "0"^^xsd:integer ;
+    wikibase:claim p:P571 ;
+    wikibase:novalue wdno:P571 ;
+    wikibase:propertyType wikibase:Time ;
+    wikibase:statementProperty ps:P571 ;
+    wikibase:statementValue psv:P571 .
+
 # Latin America
 wd:Q12585
     schema:version "0"^^xsd:integer ;

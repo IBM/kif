@@ -292,6 +292,10 @@ At line {line}, column {column}:
     @override
     def _count(self, filter: Filter) -> int:
         q = self._make_count_query(filter)
+        ###
+        # FIXME: We should use ?wds instead of "*" here.  But ?wds times out
+        # the Wikidata query service
+        ###
         text = q.select('(count (distinct *) as ?count)')
         res = self._eval_select_query_string(text)
         return self._parse_count_query_results(res)
@@ -313,6 +317,7 @@ At line {line}, column {column}:
         return int(next(results.bindings).check_literal('count'))
 
     _filter_vars = (
+        '?datatype',
         '?property',
         '?qt_amount',
         '?qt_lower',
@@ -363,6 +368,7 @@ At line {line}, column {column}:
             q: SPARQL_Builder
     ) -> Mapping[str, TTrm]:
         return q.vars_dict(
+            'datatype',
             'i',
             'p',
             'pname',
@@ -400,27 +406,32 @@ At line {line}, column {column}:
         # Push wds.
         q.triples(
             (t['subject'], t['p'], t['wds']),
+            (t['property'], NS.WIKIBASE.claim, t['p']),
+            (t['property'], NS.WIKIBASE.propertyType, t['datatype']),
+            (t['property'], NS.WIKIBASE.statementProperty, t['ps']),
+            (t['property'], NS.WIKIBASE.statementValue, t['psv']),
+            (t['property'], NS.WIKIBASE.novalue, t['wdno']),
             (t['wds'], NS.WIKIBASE.rank, q.bnode()))
+        # Best-rank only?
         if self.has_flags(self.BEST_RANK):
             q.triple(t['wds'], NS.RDF.type, NS.WIKIBASE.BestRank)
-        if filter.property is None or filter.property.property is None:
-            if filter.property is not None:
-                # Property is snak set: use ?property as basis.
-                assert filter.property.snak_set is not None
-                q.bind(
-                    q.substr(q.str_(t['property']), len(NS.WD) + 1),
-                    cast(SPARQL_Builder.Variable, t['pname']))
-                self._push_filter_bind_pname_as(
-                    q, t, (NS.P, 'p'))
-            else:
-                # Property is unknown: use ?p as basis.
-                q.bind(
-                    q.substr(q.str_(t['p']), len(NS.P) + 1),
-                    cast(SPARQL_Builder.Variable, t['pname']))
-                self._push_filter_bind_pname_as(
-                    q, t, (NS.WD, 'property'))
-            self._push_filter_bind_pname_as(
-                q, t, (NS.PS, 'ps'), (NS.PSV, 'psv'), (NS.WDNO, 'wdno'))
+        # No property or property is a snak set.
+        # if filter.property is None or filter.property.property is None:
+        #     if filter.property is not None:
+        #         # Property is snak set: use ?property as basis.
+        #         assert filter.property.snak_set is not None
+        #         q.bind(
+        #             q.substr(q.str_(t['property']), len(NS.WD) + 1),
+        #             cast(SPARQL_Builder.Variable, t['pname']))
+        #         self._push_filter_bind_pname_as(
+        #             q, t, (NS.P, 'p'))
+        #     else:
+        #         # Property is unknown: use ?p as basis.
+        #         q.bind(
+        #             q.substr(q.str_(t['p']), len(NS.P) + 1),
+        #             cast(SPARQL_Builder.Variable, t['pname']))
+        #     self._push_filter_bind_pname_as(
+        #         q, t, (NS.PS, 'ps'), (NS.PSV, 'psv'), (NS.WDNO, 'wdno'))
         # Value.
         if filter.value is not None and filter.value.snak_set is not None:
             # Push value snak set.

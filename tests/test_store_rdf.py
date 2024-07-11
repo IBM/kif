@@ -146,6 +146,8 @@ class TestStoreRDF(kif_StoreTestCase):
     def _test_count(self, kb):
         self.store_test_count(kb, 15)
         self.store_test_count(kb, 12, snak_mask=Filter.VALUE_SNAK)
+        self.store_test_count(kb, 2, snak_mask=Filter.NO_VALUE_SNAK)
+        self.store_test_count(kb, 1, snak_mask=Filter.SOME_VALUE_SNAK)
         self.store_test_count(kb, 2, wd.InChIKey)
         self.store_test_count(kb, 4, wd.Brazil)
         self.store_test_count(kb, 1, wd.benzene, wd.mass)
@@ -211,6 +213,7 @@ class TestStoreRDF(kif_StoreTestCase):
         self.store_test_count(
             kb, 4, wd.instance_of(wd.type_of_a_chemical_entity))
         # property is snak set
+        self.store_test_count(kb, 2, wd.InChIKey)
         self.store_test_count(kb, 1, None, wd.related_property(wd.InChI))
         # value is snak set
         self.store_test_count(

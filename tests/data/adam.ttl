@@ -29,11 +29,38 @@
 @prefix wikibase: <http://wikiba.se/ontology#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-# adam
+# family name
+wd:P734
+    schema:version "0"^^xsd:integer ;
+    wikibase:claim p:P734 ;
+    wikibase:novalue wdno:P734 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:statementProperty ps:P734 ;
+    wikibase:statementValue psv:P734 .
+
+# father
+wd:P22
+    schema:version "0"^^xsd:integer ;
+    wikibase:claim p:P22 ;
+    wikibase:novalue wdno:P22 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:statementProperty ps:P22 ;
+    wikibase:statementValue psv:P22 .
+
+# date of birth
+wd:P569
+    schema:version "0"^^xsd:integer ;
+    wikibase:claim p:P569 ;
+    wikibase:novalue wdno:P569 ;
+    wikibase:propertyType wikibase:Time ;
+    wikibase:statementProperty ps:P569 ;
+    wikibase:statementValue psv:P569 .
+
+# Adam
 wd:Q70899
 
-    # description
     schema:version "0"^^xsd:integer ;
+
     rdfs:label "Adam"@en ;
     rdfs:label "Adán"@es ;
     rdfs:label "Adão"@pt-br ;

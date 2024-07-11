@@ -28,12 +28,52 @@
 @prefix wikibase: <http://wikiba.se/ontology#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
+# instance of
+wd:P31
+    schema:version "0"^^xsd:integer ;
+    wikibase:claim p:P31 ;
+    wikibase:novalue wdno:P31 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:statementProperty ps:P31 ;
+    wikibase:statementValue psv:P31 .
+
+# related property
+wd:P1659
+    schema:version "0"^^xsd:integer ;
+    wikibase:claim p:P1659 ;
+    wikibase:novalue wdno:P1659 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:statementProperty ps:P1659 ;
+    wikibase:statementValue psv:P1659 .
+
+# mass
+wd:P2067
+    schema:version "0"^^xsd:integer ;
+    wikibase:claim p:P2067 ;
+    wikibase:novalue wdno:P2067 ;
+    wikibase:propertyType wikibase:Quantity ;
+    wikibase:statementProperty ps:P2067 ;
+    wikibase:statementValue psv:P2067 .
+
+# density
+wd:P2054
+    schema:version "0"^^xsd:integer ;
+    wikibase:claim p:P2054 ;
+    wikibase:novalue wdno:P2054 ;
+    wikibase:propertyType wikibase:Quantity ;
+    wikibase:statementProperty ps:P2054 ;
+    wikibase:statementValue psv:P2054 .
+
 # InChIKey
 wd:P235
 
-    # description
     schema:version "0"^^xsd:integer ;
+    wikibase:claim p:P235 ;
+    wikibase:novalue wdno:P235 ;
     wikibase:propertyType wikibase:ExternalId ;
+    wikibase:statementProperty ps:P235 ;
+    wikibase:statementValue psv:P235 ;
+
     rdfs:label "InChIKey"@en ;
     rdfs:label "InChIKey"@es ;
     schema:description "A hashed version of the full standard InChI - designed to create an identifier that encodes structural information and can also be practically used in web searching."@en ;
@@ -105,7 +145,8 @@ wd:Q2270
             ] ;
         ] ;
 
-    wdt:P2054 "0.88"^^xsd:decimal ; # density
+    # density
+    wdt:P2054 "0.88"^^xsd:decimal ;
     p:P2054 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:NormalRank ;
