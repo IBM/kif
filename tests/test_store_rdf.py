@@ -4,6 +4,7 @@
 from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
+    Filter,
     KIF_Object,
     Normal,
     NoValueSnak,
@@ -11,7 +12,6 @@ from kif_lib import (
     PropertyFingerprint,
     Quantity,
     ReferenceRecord,
-    Snak,
     SomeValueSnak,
     Statement,
     Store,
@@ -145,7 +145,7 @@ class TestStoreRDF(kif_StoreTestCase):
 
     def _test_count(self, kb):
         self.store_test_count(kb, 15)
-        self.store_test_count(kb, 12, snak_mask=Snak.VALUE_SNAK)
+        self.store_test_count(kb, 12, snak_mask=Filter.VALUE_SNAK)
         self.store_test_count(kb, 2, wd.InChIKey)
         self.store_test_count(kb, 4, wd.Brazil)
         self.store_test_count(kb, 1, wd.benzene, wd.mass)
@@ -197,16 +197,16 @@ class TestStoreRDF(kif_StoreTestCase):
             '1822-09-07', None, None, wd.proleptic_Julian_calendar))
         # some value
         self.store_test_count(
-            kb, 1, None, None, None, Snak.SOME_VALUE_SNAK)
+            kb, 1, None, None, None, Filter.SOME_VALUE_SNAK)
         self.store_test_count(
-            kb, 1, None, wd.family_name, None, Snak.SOME_VALUE_SNAK)
+            kb, 1, None, wd.family_name, None, Filter.SOME_VALUE_SNAK)
         # no value
         self.store_test_count(
-            kb, 2, None, None, None, Snak.NO_VALUE_SNAK)
+            kb, 2, None, None, None, Filter.NO_VALUE_SNAK)
         self.store_test_count(
-            kb, 1, None, wd.date_of_birth, None, Snak.NO_VALUE_SNAK)
+            kb, 1, None, wd.date_of_birth, None, Filter.NO_VALUE_SNAK)
         self.store_test_count(
-            kb, 1, None, wd.father, None, Snak.NO_VALUE_SNAK)
+            kb, 1, None, wd.father, None, Filter.NO_VALUE_SNAK)
         # subject is snak set
         self.store_test_count(
             kb, 4, wd.instance_of(wd.type_of_a_chemical_entity))
@@ -386,7 +386,7 @@ class TestStoreRDF(kif_StoreTestCase):
             subject=None,
             property=wd.family_name,
             value=None,
-            snak_mask=Snak.SOME_VALUE_SNAK
+            snak_mask=Filter.SOME_VALUE_SNAK
         )
         self.store_test_filter(
             kb,
@@ -394,7 +394,7 @@ class TestStoreRDF(kif_StoreTestCase):
             subject=None,
             property=None,
             value=None,
-            snak_mask=Snak.SOME_VALUE_SNAK
+            snak_mask=Filter.SOME_VALUE_SNAK
         )
         # no value
         self.store_test_filter(
@@ -403,7 +403,7 @@ class TestStoreRDF(kif_StoreTestCase):
             subject=None,
             property=wd.date_of_birth,
             value=None,
-            snak_mask=Snak.NO_VALUE_SNAK
+            snak_mask=Filter.NO_VALUE_SNAK
         )
         self.store_test_filter(
             kb,
@@ -414,7 +414,7 @@ class TestStoreRDF(kif_StoreTestCase):
             subject=None,
             property=None,
             value=None,
-            snak_mask=Snak.NO_VALUE_SNAK
+            snak_mask=Filter.NO_VALUE_SNAK
         )
 
     def test_filter_any_rank(self):

@@ -17,7 +17,6 @@ from kif_lib import (
     Property,
     ReferenceRecord,
     ReferenceRecordSet,
-    Snak,
     SomeValueSnak,
     Store,
     Text,
@@ -240,7 +239,7 @@ class kif_StoreTestCase(kif_TestCase):
             kb.count, None, None, Item('x'), NoValueSnak)
         self.assert_raises_bad_argument(
             TypeError, 5, 'snak', None,
-            kb.count, None, None, Item('x'), NoValueSnak.mask, Item('x'))
+            kb.count, None, None, Item('x'), Filter.NO_VALUE_SNAK, Item('x'))
         self.assert_raises_bad_argument(
             TypeError, 6, 'filter', None, kb.count, filter=Item('x'))
 
@@ -249,7 +248,7 @@ class kif_StoreTestCase(kif_TestCase):
         kb.unset_flags(kb.VALUE_SNAK | kb.SOME_VALUE_SNAK | kb.NO_VALUE_SNAK)
         self.assertEqual(kb.count(), 0)
         kb.flags = saved_flags
-        empty = Filter(None, None, None, Snak.Mask(0))
+        empty = Filter(None, None, None, Filter.SnakMask(0))
         self.assertEqual(kb.count(filter=empty), 0)
 
     def store_test_count(
@@ -269,7 +268,7 @@ class kif_StoreTestCase(kif_TestCase):
         elif (filter is None
               and property is not None
               and isinstance(property, Property)
-              and snak_mask == Snak.SOME_VALUE_SNAK):
+              and snak_mask == Filter.SOME_VALUE_SNAK):
             some_value = SomeValueSnak(property)
             self.assertEqual(kb.count(subject, snak=some_value), n)
             saved_flags = kb.flags
@@ -279,7 +278,7 @@ class kif_StoreTestCase(kif_TestCase):
         elif (filter is None
               and property is not None
               and isinstance(property, Property)
-              and snak_mask == Snak.NO_VALUE_SNAK):
+              and snak_mask == Filter.NO_VALUE_SNAK):
             no_value = NoValueSnak(property)
             self.assertEqual(kb.count(subject, snak=no_value), n)
             saved_flags = kb.flags
@@ -302,7 +301,8 @@ class kif_StoreTestCase(kif_TestCase):
             kb.filter, None, None, Item('x'), NoValueSnak)
         self.assert_raises_bad_argument(
             TypeError, 5, 'snak', None,
-            kb.filter, None, None, Item('x'), NoValueSnak.mask, Item('x'))
+            kb.filter, None, None, Item('x'),
+            Filter.NO_VALUE_SNAK, Item('x'))
         self.assert_raises_bad_argument(
             TypeError, 6, 'filter', None, kb.filter, filter=Item('x'))
         self.assert_raises_bad_argument(
@@ -315,7 +315,7 @@ class kif_StoreTestCase(kif_TestCase):
         kb.unset_flags(kb.VALUE_SNAK | kb.SOME_VALUE_SNAK | kb.NO_VALUE_SNAK)
         self.assertFalse(bool(set(kb.filter())))
         kb.flags = saved_flags
-        empty = Filter(None, None, None, Snak.Mask(0))
+        empty = Filter(None, None, None, Filter.SnakMask(0))
         self.assertFalse(bool(set(kb.filter(filter=empty))))
         self.assertFalse(bool(set(kb.filter(limit=0))))
         self.assertFalse(bool(set(kb.filter(limit=-1))))
@@ -353,7 +353,7 @@ class kif_StoreTestCase(kif_TestCase):
         elif (filter is None
               and property is not None
               and isinstance(property, Property)
-              and snak_mask == Snak.SOME_VALUE_SNAK):
+              and snak_mask == Filter.SOME_VALUE_SNAK):
             some_value = SomeValueSnak(property)
             self.assertEqual(set(kb.filter(subject, snak=some_value)), res)
             saved_flags = kb.flags
@@ -363,7 +363,7 @@ class kif_StoreTestCase(kif_TestCase):
         elif (filter is None
               and property is not None
               and isinstance(property, Property)
-              and snak_mask == Snak.NO_VALUE_SNAK):
+              and snak_mask == Filter.NO_VALUE_SNAK):
             no_value = NoValueSnak(property)
             self.assertEqual(set(kb.filter(subject, snak=no_value)), res)
             saved_flags = kb.flags

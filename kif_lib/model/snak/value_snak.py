@@ -160,8 +160,6 @@ class ValueSnak(
     template_class: ClassVar[type[ValueSnakTemplate]]  # pyright: ignore
     variable_class: ClassVar[type[ValueSnakVariable]]  # pyright: ignore
 
-    mask: ClassVar[Snak.Mask] = Snak.VALUE_SNAK
-
     @classmethod
     @override
     def check(

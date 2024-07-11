@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
+    Filter,
     IRI,
     IRI_Datatype,
     Item,
@@ -9,7 +10,6 @@ from kif_lib import (
     KIF_Object,
     Quantity,
     QuantityDatatype,
-    Snak,
     String,
     StringDatatype,
     Text,
@@ -49,7 +49,7 @@ class TestStoreMapperMappingPubChemStatements(
         if value_check is None:
             value_check = (lambda kb, v: True)
         self.check_empty_filter(
-            kb, None, property, snak_mask=Snak.SOME_VALUE_SNAK)
+            kb, None, property, snak_mask=Filter.SOME_VALUE_SNAK)
         self.check_empty_filter(kb, Item('x'), property)
         if isinstance(datatype, StringDatatype):
             self.check_empty_filter(kb, None, property, Item('x'))

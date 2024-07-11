@@ -8,7 +8,6 @@ from kif_lib import (
     KIF_Object,
     NoValueSnak,
     Quantity,
-    Snak,
     SomeValueSnak,
     Statement,
     String,
@@ -50,7 +49,7 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
 
     def test_filter_empty(self):
         kb = self.new_Store()
-        filter = Filter(None, None, None, Snak.Mask(0))
+        filter = Filter(None, None, None, Filter.SnakMask(0))
         self.assertEqual(len(list(kb.filter(filter=filter, limit=1))), 0)
 
     def test_filter_duplicated_statements(self):
@@ -217,39 +216,39 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         kb = self.new_Store()
         kb.unset_flags(kb.BEST_RANK)
         stmt = next(kb.filter(
-            wd.Adam, wd.date_of_death, snak_mask=Snak.VALUE_SNAK))
+            wd.Adam, wd.date_of_death, snak_mask=Filter.VALUE_SNAK))
         self.assert_statement(
             stmt, wd.Adam, wd.date_of_death(
                 Time('3073-01-01', 9, 0, wd.proleptic_Julian_calendar)))
         kb.set_flags(kb.BEST_RANK)
         it = kb.filter(
-            wd.Adam, wd.date_of_death, snak_mask=Snak.VALUE_SNAK)
+            wd.Adam, wd.date_of_death, snak_mask=Filter.VALUE_SNAK)
         self.assertRaises(StopIteration, next, it)
 
     def test_filter_snak_mask_some_value_snak(self):
         kb = self.new_Store()
         kb.unset_flags(kb.BEST_RANK)
         stmt = next(kb.filter(
-            wd.Adam, wd.date_of_death, snak_mask=Snak.SOME_VALUE_SNAK))
+            wd.Adam, wd.date_of_death, snak_mask=Filter.SOME_VALUE_SNAK))
         self.assert_statement(
             stmt, wd.Adam, SomeValueSnak(wd.date_of_death))
 
     def test_filter_snak_mask_no_value_snak(self):
         kb = self.new_Store()
         stmt = next(kb.filter(
-            wd.Adam, wd.father, snak_mask=Snak.NO_VALUE_SNAK))
+            wd.Adam, wd.father, snak_mask=Filter.NO_VALUE_SNAK))
         self.assert_statement(stmt, wd.Adam, NoValueSnak(wd.father))
 
     def test_filter_store_flag_early_late_filter(self):
         kb = self.new_Store()
         kb.unset_flags(kb.EARLY_FILTER | kb.BEST_RANK)
         res = list(kb.filter(
-            wd.Adam, wd.date_of_death, None, Snak.SOME_VALUE_SNAK))
+            wd.Adam, wd.date_of_death, None, Filter.SOME_VALUE_SNAK))
         self.assertEqual(
             res, [Statement(wd.Adam, SomeValueSnak(wd.date_of_death))])
         kb.unset_flags(kb.LATE_FILTER)
         res = sorted(list(kb.filter(
-            wd.Adam, wd.date_of_death, None, Snak.SOME_VALUE_SNAK)))
+            wd.Adam, wd.date_of_death, None, Filter.SOME_VALUE_SNAK)))
         self.assertEqual(len(res), 2)
         self.assert_statement(
             res[0], wd.Adam, SomeValueSnak(wd.date_of_death))

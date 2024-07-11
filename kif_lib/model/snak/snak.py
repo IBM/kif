@@ -1,8 +1,6 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import enum
-
 from typing_extensions import TYPE_CHECKING
 
 from ...typing import (
@@ -10,7 +8,6 @@ from ...typing import (
     Callable,
     cast,
     ClassVar,
-    Final,
     Optional,
     override,
     Self,
@@ -83,73 +80,6 @@ class Snak(
     template_class: ClassVar[type[SnakTemplate]]  # pyright: ignore
     variable_class: ClassVar[type[SnakVariable]]  # pyright: ignore
 
-    class Mask(enum.Flag):
-        """Mask for concrete snak classes."""
-
-        #: Mask for :class:`ValueSnak`.
-        VALUE_SNAK = enum.auto()
-
-        #: Mask for :class:`SomeValueSnak`.
-        SOME_VALUE_SNAK = enum.auto()
-
-        #: Mask for :class:`NoValueSnak`.
-        NO_VALUE_SNAK = enum.auto()
-
-        #: Mask for all snak classes.
-        ALL = (VALUE_SNAK | SOME_VALUE_SNAK | NO_VALUE_SNAK)
-
-        @classmethod
-        def check(
-                cls,
-                arg: Any,
-                function: Optional[Union[Callable[..., Any], str]] = None,
-                name: Optional[str] = None,
-                position: Optional[int] = None
-        ) -> Self:
-            if isinstance(arg, cls):
-                return arg
-            elif isinstance(arg, int):
-                try:
-                    return cls(arg)
-                except ValueError as err:
-                    raise Snak._check_error(
-                        arg, function or cls.check, name, position,
-                        ValueError, to_=cls.__qualname__) from err
-            else:
-                raise Snak._check_error(
-                    arg, function or cls.check, name, position,
-                    to_=cls.__qualname__)
-
-        @classmethod
-        def check_optional(
-                cls,
-                arg: Optional[Any],
-                default: Optional[Any] = None,
-                function: Optional[Union[Callable[..., Any], str]] = None,
-                name: Optional[str] = None,
-                position: Optional[int] = None
-        ) -> Optional[Self]:
-            if arg is None:
-                arg = default
-            if arg is None:
-                return arg
-            else:
-                return cls.check(arg, function, name, position)
-
-    #: Mask for :class:`ValueSnak`.
-    VALUE_SNAK: Final[Mask] = Mask.VALUE_SNAK
-
-    #: Mask for :class:`SomeValueSnak`.
-    SOME_VALUE_SNAK: Final[Mask] = Mask.SOME_VALUE_SNAK
-
-    #: Mask for :class:`NoValueSnak`.
-    NO_VALUE_SNAK: Final[Mask] = Mask.NO_VALUE_SNAK
-
-    #: Mask for all snak classes.
-    ALL: Final[Mask] = Mask.ALL
-
-    TMask: TypeAlias = Union[Mask, int]
-
     @classmethod
     @override
     def check(
@@ -178,18 +108,6 @@ class Snak(
             return Property.check(arg, type(self_), None, i)
         else:
             raise self_._should_not_get_here()
-
-    #: Mask of this snak class.
-    mask: ClassVar[Mask] = Mask.ALL
-
-    @classmethod
-    def get_mask(cls) -> Mask:
-        """Gets the mask of this snak class.
-
-        Returns:
-           Mask.
-        """
-        return cls.mask
 
     @at_property
     def property(self) -> Property:

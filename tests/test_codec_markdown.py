@@ -24,7 +24,6 @@ from kif_lib import (
     Quantity,
     QuantityDatatype,
     ReferenceRecord,
-    Snak,
     SnakSet,
     SomeValueSnak,
     String,
@@ -338,7 +337,7 @@ class TestCodecMarkdown(kif_TestCase):
             None,
             [cast(ValueSnak, wd.country(wd.Brazil)),
              NoValueSnak(wd.date_of_birth)],
-            Snak.NO_VALUE_SNAK)
+            Filter.NO_VALUE_SNAK)
         self.assert_to_markdown(
             pat, '''\
 (**Filter**

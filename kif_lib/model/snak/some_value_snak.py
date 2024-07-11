@@ -58,8 +58,6 @@ class SomeValueSnak(
     template_class: ClassVar[type[SomeValueSnakTemplate]]  # pyright: ignore
     variable_class: ClassVar[type[SomeValueSnakVariable]]  # pyright: ignore
 
-    mask: ClassVar[Snak.Mask] = Snak.SOME_VALUE_SNAK
-
     @classmethod
     @override
     def check(

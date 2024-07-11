@@ -4,6 +4,7 @@
 from typing import cast
 
 from kif_lib import (
+    Filter,
     Item,
     KIF_Object,
     Normal,
@@ -12,7 +13,6 @@ from kif_lib import (
     Property,
     Quantity,
     ReferenceRecord,
-    Snak,
     SomeValueSnak,
     Statement,
     String,
@@ -138,14 +138,14 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assertEqual(kb.count(snak=snak), 12)
         # empty criteria: some value
         kb.unset_flags(kb.SOME_VALUE_SNAK)
-        n = kb.count(snak_mask=Snak.SOME_VALUE_SNAK)
+        n = kb.count(snak_mask=Filter.SOME_VALUE_SNAK)
         self.assertEqual(n, 0)
         # empty criteria: no value
         kb.unset_flags(kb.NO_VALUE_SNAK)
-        n = kb.count(snak_mask=Snak.NO_VALUE_SNAK)
+        n = kb.count(snak_mask=Filter.NO_VALUE_SNAK)
         self.assertEqual(n, 0)
         # empty criteria: some value & no value
-        n = kb.count(snak_mask=Snak.SOME_VALUE_SNAK)
+        n = kb.count(snak_mask=Filter.SOME_VALUE_SNAK)
         self.assertEqual(n, 0)
         # with best rank flag disabled
         kb = self.new_Store()
@@ -242,11 +242,11 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assert_no_value_snak(stmt.snak, wd.father)
         # snak_class: some value
         some = list(sorted(kb.filter(
-            wd.Adam, None, None, Snak.SOME_VALUE_SNAK)))
+            wd.Adam, None, None, Filter.SOME_VALUE_SNAK)))
         self.assertEqual(len(some), 3)
         # snak_class: no value
         wdno = list(sorted(kb.filter(
-            wd.Adam, None, None, Snak.NO_VALUE_SNAK)))
+            wd.Adam, None, None, Filter.NO_VALUE_SNAK)))
         self.assert_statement(wdno[0], wd.Adam, NoValueSnak(wd.father))
         self.assert_statement(wdno[1], wd.Adam, NoValueSnak(wd.mother))
         # subject & property: some value (newer Wikidata)
@@ -273,12 +273,12 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         # empty criteria: some value
         kb.unset_flags(kb.SOME_VALUE_SNAK)
         self.assertFalse(list(kb.filter(
-            snak_mask=Snak.SOME_VALUE_SNAK)))
+            snak_mask=Filter.SOME_VALUE_SNAK)))
         # empty criteria: no value
         kb.unset_flags(kb.NO_VALUE_SNAK)
-        self.assertFalse(list(kb.filter(snak_mask=Snak.NO_VALUE_SNAK)))
+        self.assertFalse(list(kb.filter(snak_mask=Filter.NO_VALUE_SNAK)))
         # empty criteria: some value & no value
-        self.assertFalse(list(kb.filter(snak_mask=Snak.SOME_VALUE_SNAK)))
+        self.assertFalse(list(kb.filter(snak_mask=Filter.SOME_VALUE_SNAK)))
         # limit
         kb = self.new_Store()
         stmts = list(kb.filter(wd.Adam, limit=50))

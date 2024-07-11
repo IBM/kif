@@ -26,23 +26,23 @@ class TestCodecSPARQL(kif_TestCase):
             TypeError, Value.from_sparql, 'select * where {?s ?p ?o}')
         # no restrictions
         q = 'select * where {?s ?p ?o}'
-        self.assert_filter_pattern(Filter.from_sparql(q))
+        self.assert_filter(Filter.from_sparql(q))
         # subject: item
         q = 'select * where {wd:Q2270 ?p ?o}'
-        self.assert_filter_pattern(
+        self.assert_filter(
             Filter.from_sparql(q), EntityFingerprint(wd.benzene))
         # subject: property
         q = 'select * where {wd:P31 ?p ?o}'
-        self.assert_filter_pattern(
+        self.assert_filter(
             Filter.from_sparql(q), EntityFingerprint(wd.instance_of))
         # property: property
         q = 'select * where {?s wd:P31 ?o}'
-        self.assert_filter_pattern(
+        self.assert_filter(
             Filter.from_sparql(q),
             None, PropertyFingerprint(wd.instance_of))
         # value: item
         q = 'select * where {?s ?p wd:Q2270}'
-        self.assert_filter_pattern(
+        self.assert_filter(
             Filter.from_sparql(q),
             None, None, Fingerprint(wd.benzene))
 
@@ -52,7 +52,7 @@ class TestCodecSPARQL(kif_TestCase):
 SELECT ?value WHERE {
     wd:Q2270 wdt:P2067 ?value .
 } LIMIT 50'''
-        self.assert_filter_pattern(
+        self.assert_filter(
             Filter.from_sparql(q),
             EntityFingerprint(wd.benzene),
             PropertyFingerprint(wd.mass))
@@ -61,7 +61,7 @@ SELECT ?value WHERE {
 SELECT ?value WHERE {
     wd:Q2270 wdt:P2240 ?value .
 } LIMIT 50'''
-        self.assert_filter_pattern(
+        self.assert_filter(
             Filter.from_sparql(q),
             EntityFingerprint(wd.benzene),
             PropertyFingerprint(wd.median_lethal_dose))
@@ -70,7 +70,7 @@ SELECT ?value WHERE {
 SELECT ?value WHERE {
     wd:Q2270 wdt:P2177 ?value .
 } LIMIT 50'''
-        self.assert_filter_pattern(
+        self.assert_filter(
             Filter.from_sparql(q),
             EntityFingerprint(wd.benzene),
             PropertyFingerprint(wd.solubility))
@@ -82,7 +82,7 @@ SELECT ?mass WHERE {
     ?compound wdt:P31/wdt:P279* wd:Q11173 .
     ?compound wdt:P2067 ?mass .
 } LIMIT 50'''
-        self.assert_filter_pattern(
+        self.assert_filter(
             Filter.from_sparql(q),
             EntityFingerprint(wd.InChIKey('UHOVQNZJYSORNB-UHFFFAOYSA-N')),
             PropertyFingerprint(wd.mass))
@@ -93,7 +93,7 @@ SELECT ?value WHERE {
 ?compound wdt:P2067 ?value .
 } LIMIT 50
 '''
-        self.assert_filter_pattern(
+        self.assert_filter(
             Filter.from_sparql(q),
             EntityFingerprint(
                 [wd.InChI('InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H'),
@@ -105,7 +105,7 @@ SELECT ?entity_type WHERE {
     ?entity_type wdt:P2305 wd:Q43460564 .
     ?entity_type wdt:P2177 "0.07"^^xsd:decimal .
 } LIMIT 50'''
-        self.assert_filter_pattern(
+        self.assert_filter(
             Filter.from_sparql(q),
             EntityFingerprint(
                 [wd.solubility(Quantity('0.07')),
@@ -117,7 +117,7 @@ SELECT ?report WHERE {
     ?report wdt:P361 wd:Q2270 .
 } LIMIT 50
 '''
-        self.assert_filter_pattern(
+        self.assert_filter(
             Filter.from_sparql(q),
             None, PropertyFingerprint(wd.part_of), Fingerprint(wd.benzene))
 

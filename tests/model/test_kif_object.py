@@ -7,12 +7,12 @@ import decimal
 from kif_lib import (
     EncoderError,
     Entity,
+    Filter,
     IRI,
     Item,
     KIF_Object,
     Preferred,
     Quantity,
-    Snak,
     ValueSnak,
     Variable,
 )
@@ -107,7 +107,8 @@ class Test(kif_TestCase):
         self.assertEqual(
             enc.encode(decimal.Decimal(3.5)),  # pyright: ignore
             "Decimal('3.5')")
-        self.assertEqual(enc.encode(Snak.ALL), '7')      # pyright: ignore
+        self.assertEqual(
+            enc.encode(Filter.SnakMask.ALL), '7')    # pyright: ignore
         self.assertEqual(enc.encode(set()), 'set()')     # pyright: ignore
 
     def test_json_encoder_extensions(self):
@@ -122,7 +123,8 @@ class Test(kif_TestCase):
             decimal.Decimal(0)), '"0"')  # pyright: ignore
         self.assertEqual(enc.encode(
             decimal.Decimal(3.5)), '"3.5"')  # pyright: ignore
-        self.assertEqual(enc.encode(Snak.ALL), '"7"')      # pyright: ignore
+        self.assertEqual(
+            enc.encode(Filter.SnakMask.ALL), '"7"')        # pyright: ignore
         self.assertRaises(EncoderError, enc.encode, set())  # pyright: ignore
 
     def test_sexp_encoder_extensions(self):
@@ -136,7 +138,8 @@ class Test(kif_TestCase):
             enc.encode(decimal.Decimal(0)), '0')  # pyright: ignore
         self.assertEqual(
             enc.encode(decimal.Decimal(3.5)), '3.5')       # pyright: ignore
-        self.assertEqual(enc.encode(Snak.ALL), '7')        # pyright: ignore
+        self.assertEqual(
+            enc.encode(Filter.SnakMask.ALL), '7')          # pyright: ignore
         self.assertRaises(EncoderError, enc.encode, set())  # pyright: ignore
 
 

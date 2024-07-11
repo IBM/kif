@@ -192,8 +192,8 @@ class SPARQL_MapperStore(
             if vsnak.property not in self.mapping.specs:
                 return False, None  # no such property
             for spec in self.mapping.specs[vsnak.property]:
-                pat = Filter.from_snak(None, vsnak)
-                if not spec._match(pat):
+                filter = Filter.from_snak(None, vsnak)
+                if not spec._match(filter):
                     continue    # spec does not match snak
                 spec._define(
                     cast(SPARQL_Mapping.Builder, q), target, None,
@@ -288,17 +288,17 @@ class SPARQL_MapperStore(
                             q.matched_subject, q.subject,
                             spec.kwargs.get('subject_prefix_replacement'))
                     cup.branch()
-                    pat = Filter(matched_entities[0])
+                    filter = Filter(matched_entities[0])
                     matched_specs = {}
                     if get_label:
                         matched_specs['label'] = [
-                            s for s in label_specs if s._match(pat)]
+                            s for s in label_specs if s._match(filter)]
                     if get_aliases:
                         matched_specs['alias'] = [
-                            s for s in alias_specs if s._match(pat)]
+                            s for s in alias_specs if s._match(filter)]
                     if get_description:
                         matched_specs['description'] = [
-                            s for s in description_specs if s._match(pat)]
+                            s for s in description_specs if s._match(filter)]
                     if not any(map(bool, matched_specs.values())):
                         instance_of_spec._define(q)
                         push_values(instance_of_spec)

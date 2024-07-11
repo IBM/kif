@@ -578,7 +578,7 @@ class Store(Set):
             subject: Optional[TEntityFingerprint] = None,
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[Snak.TMask] = None,
+            snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
             filter: Optional[Filter] = None
     ) -> int:
@@ -612,7 +612,7 @@ class Store(Set):
             subject: Optional[TEntityFingerprint] = None,
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[Snak.TMask] = None,
+            snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
             filter: Optional[Filter] = None,
             function: Optional[Union[Callable[..., Any], str]] = None
@@ -623,8 +623,8 @@ class Store(Set):
             property, None, function, 'property', 2)
         val = Fingerprint.check_optional(
             value, None, function, 'value', 3)
-        mask = Snak.Mask.check_optional(
-            snak_mask, Snak.ALL, function, 'snak_mask', 4)
+        mask = Filter.SnakMask.check_optional(
+            snak_mask, Filter.SnakMask.ALL, function, 'snak_mask', 4)
         if filter is None:
             filter = Filter(subj, prop, val, mask)
         else:
@@ -639,13 +639,13 @@ class Store(Set):
             self,
             filter: Filter
     ) -> Filter:
-        store_snak_mask = Snak.Mask(0)
+        store_snak_mask = Filter.SnakMask(0)
         if self.has_flags(self.VALUE_SNAK):
-            store_snak_mask |= Snak.VALUE_SNAK
+            store_snak_mask |= Filter.VALUE_SNAK
         if self.has_flags(self.SOME_VALUE_SNAK):
-            store_snak_mask |= Snak.SOME_VALUE_SNAK
+            store_snak_mask |= Filter.SOME_VALUE_SNAK
         if self.has_flags(self.NO_VALUE_SNAK):
-            store_snak_mask |= Snak.NO_VALUE_SNAK
+            store_snak_mask |= Filter.NO_VALUE_SNAK
         return filter.replace(
             filter.KEEP, filter.KEEP, filter.KEEP,
             filter.snak_mask & store_snak_mask)
@@ -655,7 +655,7 @@ class Store(Set):
             subject: Optional[TEntityFingerprint] = None,
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[Snak.TMask] = None,
+            snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
             filter: Optional[Filter] = None,
             limit: Optional[int] = None,
@@ -747,7 +747,7 @@ class Store(Set):
             subject: Optional[TEntityFingerprint] = None,
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[Snak.TMask] = None,
+            snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
             filter: Optional[Filter] = None,
             limit: Optional[int] = None

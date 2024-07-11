@@ -28,16 +28,6 @@ class Test(kif_SnakTestCase):
         assert_type(Snak.variable_class, type[SnakVariable])
         self.assertIs(Snak.variable_class, SnakVariable)
 
-    def test_mask_check(self):
-        self.assertRaisesRegex(
-            TypeError, 'cannot coerce', Snak.Mask.check, 'abc')
-        self.assertRaisesRegex(
-            ValueError, 'cannot coerce', Snak.Mask.check, 8)
-        self.assertEqual(Snak.Mask.check(0), Snak.Mask(0))
-        self.assertEqual(Snak.Mask.check(Snak.VALUE_SNAK), Snak.VALUE_SNAK)
-        self.assertEqual(Snak.Mask.check_optional(None, Snak.ALL), Snak.ALL)
-        self.assertIsNone(Snak.Mask.check_optional(None))
-
     def test_check(self) -> None:
         assert_type(Snak.check(NoValueSnak('x')), Snak)
         super()._test_check(

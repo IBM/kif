@@ -388,23 +388,25 @@ At line {line}, column {column}:
             self,
             q: SPARQL_Builder,
             t: Mapping[str, TTrm],
-            pat: Filter
+            filter: Filter
     ) -> SPARQL_Builder:
         # Push subject and property snak sets (if any).
-        if pat.subject is not None and pat.subject.snak_set is not None:
-            self._push_snak_set(q, t['subject'], pat.subject.snak_set)
-        if pat.property is not None and pat.property.snak_set is not None:
-            self._push_snak_set(q, t['property'], pat.property.snak_set)
+        if (filter.subject is not None
+                and filter.subject.snak_set is not None):
+            self._push_snak_set(q, t['subject'], filter.subject.snak_set)
+        if (filter.property is not None
+                and filter.property.snak_set is not None):
+            self._push_snak_set(q, t['property'], filter.property.snak_set)
         # Push wds.
         q.triples(
             (t['subject'], t['p'], t['wds']),
             (t['wds'], NS.WIKIBASE.rank, q.bnode()))
         if self.has_flags(self.BEST_RANK):
             q.triple(t['wds'], NS.RDF.type, NS.WIKIBASE.BestRank)
-        if pat.property is None or pat.property.property is None:
-            if pat.property is not None:
+        if filter.property is None or filter.property.property is None:
+            if filter.property is not None:
                 # Property is snak set: use ?property as basis.
-                assert pat.property.snak_set is not None
+                assert filter.property.snak_set is not None
                 q.bind(
                     q.substr(q.str_(t['property']), len(NS.WD) + 1),
                     cast(SPARQL_Builder.Variable, t['pname']))
@@ -420,23 +422,24 @@ At line {line}, column {column}:
             self._push_filter_bind_pname_as(
                 q, t, (NS.PS, 'ps'), (NS.PSV, 'psv'), (NS.WDNO, 'wdno'))
         # Value.
-        if pat.value is not None and pat.value.snak_set is not None:
+        if filter.value is not None and filter.value.snak_set is not None:
             # Push value snak set.
             q.triple(t['wds'], t['ps'], t['value'])
-            self._push_snak_set(q, t['value'], pat.value.snak_set)
+            self._push_snak_set(q, t['value'], filter.value.snak_set)
         else:
             # Push value.
-            value_is_unknown = pat.value is None or pat.value.value is None
+            value_is_unknown = (
+                filter.value is None or filter.value.value is None)
             try_value_snak = bool(
-                pat.snak_mask & Snak.VALUE_SNAK
+                filter.snak_mask & Filter.VALUE_SNAK
                 and self.has_flags(self.VALUE_SNAK))
             try_some_value_snak = bool(
                 value_is_unknown
-                and pat.snak_mask & Snak.SOME_VALUE_SNAK
+                and filter.snak_mask & Filter.SOME_VALUE_SNAK
                 and self.has_flags(self.SOME_VALUE_SNAK))
             try_no_value_snak = bool(
                 value_is_unknown
-                and pat.snak_mask & Snak.NO_VALUE_SNAK
+                and filter.snak_mask & Filter.NO_VALUE_SNAK
                 and self.has_flags(self.NO_VALUE_SNAK))
             cond = sum(
                 (try_value_snak,
@@ -457,10 +460,11 @@ At line {line}, column {column}:
                             if value_is_unknown:
                                 self._push_deep_data_value(q, t)
                             else:
-                                assert pat.value is not None
-                                assert pat.value.value is not None
-                                if isinstance(pat.value.value, DeepDataValue):
-                                    deep = pat.value.value
+                                assert filter.value is not None
+                                assert filter.value.value is not None
+                                if isinstance(
+                                        filter.value.value, DeepDataValue):
+                                    deep = filter.value.value
                                     self._push_deep_data_value(q, t, deep)
                                 else:
                                     pass  # nothing to do
@@ -468,7 +472,7 @@ At line {line}, column {column}:
                     cup.branch()
                     q.triple(t['wds'], NS.RDF.type, t['wdno'])
         # Push subject, property, value entities/literals (if any).
-        self._push_filters_as_values(q, t, [(0, pat)])
+        self._push_filters_as_values(q, t, [(0, filter)])
         return q
 
     def _push_filter_bind_pname_as(
@@ -485,7 +489,7 @@ At line {line}, column {column}:
             self,
             q: SPARQL_Builder,
             t: Mapping[str, TTrm],
-            pats: Iterable[tuple[int, Filter]]
+            filters: Iterable[tuple[int, Filter]]
     ) -> Mapping[str, TTrm]:
         values = q.values(
             t['i'], t['subject'], t['property'],
@@ -494,16 +498,16 @@ At line {line}, column {column}:
             t['tm_value'], t['tm_precision'],
             t['tm_timezone'], t['tm_calendar'])
         with values:
-            for i, pat in pats:
+            for i, filter in filters:
                 self._push_filters_as_values_helper(
-                    q, values, pat, i)
+                    q, values, filter, i)
         return t
 
     def _push_filters_as_values_helper(
             self,
             q: SPARQL_Builder,
             values: SPARQL_Builder.Values,
-            pat: Filter,
+            filter: Filter,
             i: int
     ) -> SPARQL_Builder:
         p: TTrm = q.UNDEF
@@ -523,11 +527,12 @@ At line {line}, column {column}:
         val: TTrm = q.UNDEF
         wdno: TTrm = q.UNDEF
         # Subject:
-        if pat.subject is not None and pat.subject.entity is not None:
-            subj = cast(Entity, pat.subject.entity)
+        if filter.subject is not None and filter.subject.entity is not None:
+            subj = cast(Entity, filter.subject.entity)
         # Property:
-        if pat.property is not None and pat.property.property is not None:
-            prop_ = cast(Property, pat.property.property)
+        if (filter.property is not None
+                and filter.property.property is not None):
+            prop_ = cast(Property, filter.property.property)
             name = NS.Wikidata.get_wikidata_name(prop_.iri.value)
             prop = prop_
             pname = String(name)
@@ -536,8 +541,8 @@ At line {line}, column {column}:
             psv = NS.PSV[name]
             wdno = NS.WDNO[name]
         # Value:
-        if pat.value is not None and pat.value.value is not None:
-            value = cast(Value, pat.value.value)
+        if filter.value is not None and filter.value.value is not None:
+            value = cast(Value, filter.value.value)
             val = value
             if isinstance(value, DeepDataValue):
                 if isinstance(value, Quantity):

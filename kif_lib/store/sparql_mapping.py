@@ -17,7 +17,6 @@ from ..model import (
     Property,
     Quantity,
     QuantityDatatype,
-    Snak,
     Statement,
     String,
     StringDatatype,
@@ -342,31 +341,32 @@ class SPARQL_Mapping(ABC):
             else:
                 raise ShouldNotGetHere
 
-        def _match(self, pat: Filter) -> bool:
+        def _match(self, filter: Filter) -> bool:
             # Property mismatch.
-            if (pat.property is not None
-                and pat.property.property is not None
-                    and pat.property.property.iri != self.property.iri):
+            if (filter.property is not None
+                and filter.property.property is not None
+                    and filter.property.property.iri != self.property.iri):
                 ###
                 # FIXME: Handle range mismatch!
                 ###
                 return False
             # Subject mismatch.
-            if pat.subject is not None and pat.subject.entity is not None:
-                subject = pat.subject.entity
+            if (filter.subject is not None
+                    and filter.subject.entity is not None):
+                subject = filter.subject.entity
                 assert subject is not None
                 if not self._match_kwargs(
                         'subject_prefix', subject.value,
                         lambda x, y: x.startswith(y.value)):
                     return False
             # Snak mask mismatch.
-            if not (pat.snak_mask & Snak.VALUE_SNAK):
+            if not (filter.snak_mask & Filter.VALUE_SNAK):
                 return False
             # Value mismatch.
-            if pat.value is not None:
+            if filter.value is not None:
                 value_class = self.datatype.value_class
-                if pat.value.value is not None:
-                    value = pat.value.value
+                if filter.value.value is not None:
+                    value = filter.value.value
                     assert value is not None
                     if not isinstance(value, value_class):
                         return False
@@ -406,7 +406,7 @@ class SPARQL_Mapping(ABC):
                             and not self._match_kwargs(
                                 'value_calendar', tm.calendar)):
                             return False
-                elif pat.value.snak_set is not None:
+                elif filter.value.snak_set is not None:
                     if not issubclass(value_class, Entity):
                         return False
             # Success.

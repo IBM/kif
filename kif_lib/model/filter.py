@@ -1,9 +1,20 @@
-# Copyright (C) 2024 IBM Corp.
+# Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import enum
 import functools
 
-from ..typing import Any, cast, Optional, override
+from ..typing import (
+    Any,
+    Callable,
+    cast,
+    Final,
+    Optional,
+    override,
+    Self,
+    TypeAlias,
+    Union,
+)
 from .fingerprint import (
     EntityFingerprint,
     Fingerprint,
@@ -13,8 +24,8 @@ from .fingerprint import (
     TPropertyFingerprint,
 )
 from .kif_object import KIF_Object
-from .snak import Snak, ValueSnak
-from .statement import Statement
+from .snak import NoValueSnak, Snak, SomeValueSnak, ValueSnak
+from .statement import Statement, TStatement
 from .value import DeepDataValue, Quantity, Time
 
 at_property = property
@@ -29,6 +40,77 @@ class Filter(KIF_Object):
        value: Fingerprint.
        snak_mask: Snak mask.
     """
+
+    class SnakMask(enum.Flag):
+        """Mask for concrete snak classes."""
+
+        #: Mask for :class:`ValueSnak`.
+        VALUE_SNAK = enum.auto()
+
+        #: Mask for :class:`SomeValueSnak`.
+        SOME_VALUE_SNAK = enum.auto()
+
+        #: Mask for :class:`NoValueSnak`.
+        NO_VALUE_SNAK = enum.auto()
+
+        #: Mask for all snak classes.
+        ALL = (VALUE_SNAK | SOME_VALUE_SNAK | NO_VALUE_SNAK)
+
+        @classmethod
+        def check(
+                cls,
+                arg: Any,
+                function: Optional[Union[Callable[..., Any], str]] = None,
+                name: Optional[str] = None,
+                position: Optional[int] = None
+        ) -> Self:
+            if isinstance(arg, cls):
+                return arg
+            elif isinstance(arg, int):
+                try:
+                    return cls(arg)
+                except ValueError as err:
+                    raise Snak._check_error(
+                        arg, function or cls.check, name, position,
+                        ValueError, to_=cls.__qualname__) from err
+            elif isinstance(arg, ValueSnak):
+                return cast(Self, cls.VALUE_SNAK)
+            elif isinstance(arg, SomeValueSnak):
+                return cast(Self, cls.SOME_VALUE_SNAK)
+            elif isinstance(arg, NoValueSnak):
+                return cast(Self, cls.NO_VALUE_SNAK)
+            else:
+                raise Snak._check_error(
+                    arg, function or cls.check, name, position,
+                    to_=cls.__qualname__)
+
+        @classmethod
+        def check_optional(
+                cls,
+                arg: Optional[Any],
+                default: Optional[Any] = None,
+                function: Optional[Union[Callable[..., Any], str]] = None,
+                name: Optional[str] = None,
+                position: Optional[int] = None
+        ) -> Optional[Self]:
+            if arg is None:
+                arg = default
+            if arg is None:
+                return arg
+            else:
+                return cls.check(arg, function, name, position)
+
+    #: Mask for :class:`ValueSnak`.
+    VALUE_SNAK: Final[SnakMask] = SnakMask.VALUE_SNAK
+
+    #: Mask for :class:`SomeValueSnak`.
+    SOME_VALUE_SNAK: Final[SnakMask] = SnakMask.SOME_VALUE_SNAK
+
+    #: Mask for :class:`NoValueSnak`.
+    NO_VALUE_SNAK: Final[SnakMask] = SnakMask.NO_VALUE_SNAK
+
+    #: Type alias for SnakMask.
+    TSnakMask: TypeAlias = Union[SnakMask, Snak, int]
 
     @classmethod
     def from_snak(
@@ -55,7 +137,7 @@ class Filter(KIF_Object):
                 value = snak.value
             else:
                 value = None
-            snak_mask = snak.mask
+            snak_mask = cls.SnakMask.check(snak)
         return cls(subject, property, value, snak_mask)
 
     @classmethod
@@ -75,7 +157,7 @@ class Filter(KIF_Object):
             subject: Optional[TEntityFingerprint] = None,
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[Snak.TMask] = None
+            snak_mask: Optional[TSnakMask] = None
     ):
         super().__init__(subject, property, value, snak_mask)
 
@@ -91,8 +173,8 @@ class Filter(KIF_Object):
             return Fingerprint.check_optional(
                 arg, None, type(self), None, i)
         elif i == 4:
-            return Snak.Mask.check_optional(
-                arg, Snak.Mask.ALL, type(self), None, i)
+            return self.SnakMask.check_optional(
+                arg, self.SnakMask.ALL, type(self), None, i)
         else:
             raise self._should_not_get_here()
 
@@ -163,17 +245,17 @@ class Filter(KIF_Object):
         return val if val is not None else default
 
     @at_property
-    def snak_mask(self) -> Snak.Mask:
+    def snak_mask(self) -> SnakMask:
         """The snak mask of filter."""
         return self.get_snak_mask()
 
-    def get_snak_mask(self) -> Snak.Mask:
+    def get_snak_mask(self) -> SnakMask:
         """Gets the snak mask of filter.
 
         Returns:
            Snak mask.
         """
-        return Snak.Mask(self.args[3])
+        return self.SnakMask(self.args[3])
 
     def is_full(self) -> bool:
         """Tests whether filter is full.
@@ -184,8 +266,10 @@ class Filter(KIF_Object):
            ``True`` if successful; ``False`` otherwise.
         """
         return (
-            self.subject is None and self.property is None
-            and self.value is None and self.snak_mask is Snak.ALL)
+            self.subject is None
+            and self.property is None
+            and self.value is None
+            and self.snak_mask is self.SnakMask.ALL)
 
     def is_nonfull(self) -> bool:
         """Tests whether filter is non-full.
@@ -206,7 +290,7 @@ class Filter(KIF_Object):
         return (
             self.snak_mask.value == 0
             or (self.value is not None
-                and not (self.snak_mask & Snak.VALUE_SNAK)))
+                and not (self.snak_mask & self.VALUE_SNAK)))
 
     def is_nonempty(self) -> bool:
         """Tests whether filter is non-empty.
@@ -216,7 +300,7 @@ class Filter(KIF_Object):
         """
         return not self.is_empty()
 
-    def match(self, stmt: Statement) -> bool:
+    def match(self, stmt: TStatement) -> bool:
         """Tests whether filter shallow-matches statement.
 
         Parameters:
@@ -227,7 +311,7 @@ class Filter(KIF_Object):
         """
         stmt = Statement.check(stmt, self.match, 'stmt', 1)
         # Snak mask mismatch.
-        if not bool(self.snak_mask & stmt.snak.mask):
+        if not bool(self.snak_mask & self.SnakMask.check(stmt.snak)):
             return False
         # Subject mismatch.
         if (self.subject is not None
@@ -254,28 +338,28 @@ class Filter(KIF_Object):
                 if self.value.value != value:
                     return False
             elif isinstance(value, Quantity):
-                pat_qt = cast(Quantity, self.value.value)
+                fr_qt = cast(Quantity, self.value.value)
                 qt = value
-                if (pat_qt.amount != qt.amount
-                    or (pat_qt.unit is not None
-                        and pat_qt.unit != qt.unit)
-                    or (pat_qt.lower_bound is not None
-                        and pat_qt.lower_bound != qt.lower_bound)
-                    or (pat_qt.upper_bound is not None
-                        and pat_qt.upper_bound != qt.upper_bound)):
+                if (fr_qt.amount != qt.amount
+                    or (fr_qt.unit is not None
+                        and fr_qt.unit != qt.unit)
+                    or (fr_qt.lower_bound is not None
+                        and fr_qt.lower_bound != qt.lower_bound)
+                    or (fr_qt.upper_bound is not None
+                        and fr_qt.upper_bound != qt.upper_bound)):
                     return False
             elif isinstance(value, Time):
-                pat_tm, tm = cast(Time, self.value.value), value
-                pat_tm_time, tm_time = pat_tm.time, tm.time
-                if pat_tm_time.tzinfo is None:
+                fr_tm, tm = cast(Time, self.value.value), value
+                fr_tm_time, tm_time = fr_tm.time, tm.time
+                if fr_tm_time.tzinfo is None:
                     tm_time = tm_time.replace(tzinfo=None)
-                if (pat_tm_time != tm_time
-                    or (pat_tm.precision is not None
-                        and pat_tm.precision != tm.precision)
-                    or (pat_tm.timezone is not None
-                        and pat_tm.timezone != tm.timezone)
-                    or (pat_tm.calendar is not None
-                        and pat_tm.calendar != tm.calendar)):
+                if (fr_tm_time != tm_time
+                    or (fr_tm.precision is not None
+                        and fr_tm.precision != tm.precision)
+                    or (fr_tm.timezone is not None
+                        and fr_tm.timezone != tm.timezone)
+                    or (fr_tm.calendar is not None
+                        and fr_tm.calendar != tm.calendar)):
                     return False
             else:
                 raise self._should_not_get_here()

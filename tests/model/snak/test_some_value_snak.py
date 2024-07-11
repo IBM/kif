@@ -32,13 +32,6 @@ class Test(kif_SnakTestCase):
         assert_type(SomeValueSnak.variable_class, type[SomeValueSnakVariable])
         self.assertIs(SomeValueSnak.variable_class, SomeValueSnakVariable)
 
-    def test_mask(self) -> None:
-        assert_type(SomeValueSnak.SOME_VALUE_SNAK, SomeValueSnak.Mask)
-        self.assertEqual(SomeValueSnak.mask, SomeValueSnak.SOME_VALUE_SNAK)
-        self.assertEqual(
-            SomeValueSnak.get_mask(),
-            SomeValueSnak.SOME_VALUE_SNAK)
-
     def test_check(self) -> None:
         assert_type(SomeValueSnak.check(SomeValueSnak('x')), SomeValueSnak)
         self._test_check(

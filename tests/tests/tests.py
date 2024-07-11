@@ -819,22 +819,16 @@ if __name__ == '__main__':
         self.assertEqual(obj.args[1], value)
         self.assertEqual(obj.value, obj.args[1])
         self.assertEqual(obj.get_value(), obj.args[1])
-        self.assertEqual(obj.mask, Snak.VALUE_SNAK)
-        self.assertEqual(obj.get_mask(), Snak.VALUE_SNAK)
 
     def assert_some_value_snak(self, obj: Snak, prop: Property):
         self.assertIsInstance(obj, SomeValueSnak)
         assert isinstance(obj, SomeValueSnak)
         self.assert_snak(obj, prop)
-        self.assertEqual(obj.mask, Snak.SOME_VALUE_SNAK)
-        self.assertEqual(obj.get_mask(), Snak.SOME_VALUE_SNAK)
 
     def assert_no_value_snak(self, obj: Snak, prop: Property):
         self.assertIsInstance(obj, NoValueSnak)
         assert isinstance(obj, NoValueSnak)
         self.assert_snak(obj, prop)
-        self.assertEqual(obj.mask, Snak.NO_VALUE_SNAK)
-        self.assertEqual(obj.get_mask(), Snak.NO_VALUE_SNAK)
 
 # -- Annotations -----------------------------------------------------------
 
@@ -1004,13 +998,13 @@ if __name__ == '__main__':
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Pattern)
 
-    def assert_filter_pattern(
+    def assert_filter(
             self,
             obj: Filter,
             subject: Optional[EntityFingerprint] = None,
             property: Optional[PropertyFingerprint] = None,
             value: Optional[Fingerprint] = None,
-            mask: Snak.Mask = Snak.ALL
+            mask: Filter.SnakMask = Filter.SnakMask.ALL
     ):
         self.assertIsInstance(obj, Filter)
         self.assertEqual(obj.args[0], subject)
@@ -1022,5 +1016,5 @@ if __name__ == '__main__':
         self.assertEqual(obj.args[2], value)
         self.assertEqual(obj.value, value)
         self.assertEqual(obj.get_value(), value)
-        self.assertEqual(Snak.Mask(obj.args[3]), mask)
+        self.assertEqual(Filter.SnakMask(obj.args[3]), mask)
         self.assertEqual(obj.snak_mask, mask)
