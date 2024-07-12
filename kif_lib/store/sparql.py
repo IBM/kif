@@ -7,9 +7,9 @@ import httpx
 from rdflib.plugins.sparql import prepareQuery
 from rdflib.plugins.sparql.sparql import Query
 
+from .. import itertools
 from .. import namespace as NS
 from ..compiler.sparql import SPARQL_Compiler
-from ..itertools import chain, starmap
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -776,7 +776,7 @@ At line {line}, column {column}:
                 else:
                     it2 = iter(())
                 seen = set()
-                for (stmt, wds, i) in chain(it1, it2):
+                for (stmt, wds, i) in itertools.chain(it1, it2):
                     seen.add(i)
                     if stmt != reduced_batch[i]:
                         continue  # nothing to do
@@ -941,7 +941,7 @@ At line {line}, column {column}:
                         else:
                             quals = set()
                         if wds in wds2refs:
-                            refs = set(starmap(
+                            refs = set(itertools.starmap(
                                 ReferenceRecord, wds2refs[wds].values()))
                         else:
                             refs = set()

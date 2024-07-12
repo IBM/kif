@@ -10,8 +10,8 @@ import json
 
 from typing_extensions import TYPE_CHECKING
 
+from .. import itertools
 from ..context import Context
-from ..itertools import chain
 from ..typing import (
     Any,
     Callable,
@@ -71,7 +71,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     def __new__(cls, *args, **kwargs) -> Self:
         has_tpl_or_var_arg = any(map(
             cls._isinstance_template_or_variable,
-            chain(args, kwargs.values())))
+            itertools.chain(args, kwargs.values())))
         if hasattr(cls, 'template_class') and has_tpl_or_var_arg:
             return cast(Self, cls.template_class(*args, **kwargs))
         elif (cls._issubclass_template(cls)

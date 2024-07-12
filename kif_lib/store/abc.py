@@ -4,10 +4,10 @@
 import sys
 from enum import auto, Flag
 
+from .. import itertools
 from ..cache import Cache
 from ..error import Error as KIF_Error
 from ..error import ShouldNotGetHere
-from ..itertools import batched, chain, islice, unique_everseen
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -451,7 +451,7 @@ class Store(Set):
         Returns:
            The resulting tuples.
         """
-        return batched(
+        return itertools.batched(
             it, page_size if page_size is not None else self.page_size)
 
     def _chain_map_batched(
@@ -472,7 +472,8 @@ class Store(Set):
         Returns:
            The resulting iterator.
         """
-        return chain.from_iterable(map(op, self._batched(it, page_size)))
+        return itertools.chain.from_iterable(
+            map(op, self._batched(it, page_size)))
 
 
 # -- Timeout ---------------------------------------------------------------
@@ -711,8 +712,8 @@ class Store(Set):
             it_in = iter(())
         it_out = self._filter_post_hook(filter, limit, distinct, data, it_in)
         if distinct:
-            it_out = unique_everseen(it_out)
-        return islice(it_out, limit)
+            it_out = itertools.unique_everseen(it_out)
+        return itertools.islice(it_out, limit)
 
     def _filter_pre_hook(
             self,
@@ -952,7 +953,7 @@ class Store(Set):
                 lexemes.append(entity)
             else:
                 raise self._should_not_get_here()
-        desc = dict(chain(
+        desc = dict(itertools.chain(
             self._get_item_descriptor(items, language, mask)
             if items else iter(()),
             self._get_property_descriptor(properties, language, mask)

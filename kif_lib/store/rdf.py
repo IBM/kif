@@ -5,9 +5,8 @@ import json
 import logging
 from pathlib import PurePath
 
-from ..itertools import chain
+from .. import itertools, rdflib
 from ..model import KIF_Object
-from ..rdflib import Graph, InputSource, RDFLibError
 from ..typing import Any, BinaryIO, cast, IO, Optional, override, TextIO, Union
 from .sparql import SPARQL_Store
 from .sparql_results import SPARQL_Results
@@ -35,26 +34,26 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
         '_graph',
     )
 
-    _graph: Graph
+    _graph: rdflib.Graph
 
     def __init__(
             self,
             store_name: str,
-            source: Optional[Union[IO[bytes], TextIO, InputSource,
+            source: Optional[Union[IO[bytes], TextIO, rdflib.InputSource,
                                    str, bytes, PurePath]] = None,
-            *args: Optional[Union[IO[bytes], TextIO, InputSource,
+            *args: Optional[Union[IO[bytes], TextIO, rdflib.InputSource,
                                   str, bytes, PurePath]],
             publicID: Optional[str] = None,
             format: Optional[str] = None,
             location: Optional[str] = None,
             file: Optional[Union[BinaryIO, TextIO]] = None,
             data: Optional[Union[str, bytes]] = None,
-            graph: Optional[Graph] = None,
+            graph: Optional[rdflib.Graph] = None,
             skolemize: bool = True,
             **kwargs: Any
     ):
         super().__init__(store_name, 'file:///dev/null', **kwargs)
-        sources = [s for s in chain([source], args) if s is not None]
+        sources = [s for s in itertools.chain([source], args) if s is not None]
         input = {
             'source': sources,
             'location': location,
@@ -69,7 +68,8 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
             raise KIF_Object._arg_error(
                 f'{msg} are mutually exclusive', self.__class__, names[0])
         graph = KIF_Object._check_optional_arg_isinstance(
-            graph, Graph, Graph(), self.__class__, 'graph', None)
+            graph, rdflib.Graph, rdflib.Graph(),
+            self.__class__, 'graph', None)
         assert graph is not None
         try:
             if location or file or data:
@@ -81,7 +81,7 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
                 assert not location and not file and not data
                 for src in sources:
                     graph.parse(src, publicID=publicID, format=format)
-        except RDFLibError as err:
+        except rdflib.RDFLibError as err:
             raise self._error(str(err))
         if skolemize:
             self._graph = graph.skolemize()

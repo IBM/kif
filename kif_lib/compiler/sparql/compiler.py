@@ -4,9 +4,9 @@
 import datetime
 import decimal
 
+from ... import itertools
 from ... import namespace as NS
 from ...error import ShouldNotGetHere
-from ...itertools import chain
 from ...model import (
     Datatype,
     Entity,
@@ -377,7 +377,7 @@ class SPARQL_Compiler(
             var: TQueryVariable,
             *vars_: TQueryVariable
     ) -> Iterator[QueryVariable]:
-        return map(self._qvar, chain((var,), vars_))
+        return map(self._qvar, itertools.chain((var,), vars_))
 
     def _fresh_qvar(self) -> QueryVariable:
         return self._q.fresh_var()
@@ -393,7 +393,7 @@ class SPARQL_Compiler(
             var: Variable,
             *vars: Variable
     ) -> Iterator[QueryVariable]:
-        return map(self._as_qvar, chain((var,), vars))
+        return map(self._as_qvar, itertools.chain((var,), vars))
 
     def _fresh_variable(self, variable_class: type[Variable]) -> Variable:
         return variable_class(str(self._fresh_qvar()))

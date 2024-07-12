@@ -4,7 +4,7 @@
 from abc import abstractmethod
 from collections.abc import Mapping, Sequence
 
-from ..itertools import chain
+from .. import itertools
 from ..model import IRI, Value
 from ..typing import Any, Hashable, Iterable, Iterator
 from ..typing import Optional as Opt
@@ -366,10 +366,11 @@ class SPARQL_Builder(Sequence):
         return self.Variable(name)
 
     def vars(self, name: str, *names: str) -> Iterable[Variable]:
-        return map(self.Variable, chain([name], names))
+        return map(self.Variable, itertools.chain([name], names))
 
     def vars_dict(self, name: str, *names: str) -> Mapping[str, Variable]:
-        return dict(zip(chain([name], names), self.vars(name, *names)))
+        return dict(zip(
+            itertools.chain([name], names), self.vars(name, *names)))
 
     def has_bnode(self, bnode: BNode) -> bool:
         return bnode in self._bnodes
@@ -591,7 +592,8 @@ class SPARQL_Builder(Sequence):
         return sep.join(map(self._n3, xs))
 
     def _infix(self, op: str, x: TTrm, y: TTrm, *xs: TTrm) -> str:
-        return self._brace(*map(self._brace, chain([x, y], xs)), sep=op)
+        return self._brace(*map(
+            self._brace, itertools.chain([x, y], xs)), sep=op)
 
     def and_(self, x: TTrm, y: TTrm, *xs: TTrm) -> str:
         return self._infix(' && ', x, y, *xs)

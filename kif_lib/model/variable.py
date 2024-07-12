@@ -3,7 +3,7 @@
 
 from typing_extensions import overload, TYPE_CHECKING
 
-from ..itertools import chain
+from .. import itertools
 from ..typing import (
     Any,
     Callable,
@@ -218,6 +218,6 @@ def Variables(
                 vars = []
         if vars:
             yield (vars, None)
-    for xs, variable_class in it(chain((name,), names)):
+    for xs, variable_class in it(itertools.chain((name,), names)):
         for x in xs:
             yield Variable(x, variable_class)

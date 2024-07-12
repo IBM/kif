@@ -1,7 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..itertools import cycle
+from .. import itertools
 from ..model import (
     AnnotationRecordSet,
     Descriptor,
@@ -155,7 +155,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
-        cyc = cycle(its)
+        cyc = itertools.cycle(its)
         exausted: set[Iterator[Statement]] = set()
         seen: set[Statement] = set()
         while limit > 0 and len(exausted) < len(its):

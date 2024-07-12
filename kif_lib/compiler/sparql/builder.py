@@ -9,9 +9,9 @@
 
 import datetime
 import decimal
+import itertools
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, MutableSequence, Sequence
-from itertools import chain
 
 from rdflib import BNode, Literal, URIRef, Variable
 from typing_extensions import (
@@ -774,7 +774,7 @@ class ValuesBlock(GraphPattern):
     ):
         super().__init__(clause, parent)
         self.variables = tuple(map(
-            Coerce.variable, chain((variable,), variables)))
+            Coerce.variable, itertools.chain((variable,), variables)))
         self.lines = []
 
     def __call__(self, *lines: TValuesLine) -> 'ValuesBlock':
@@ -862,7 +862,7 @@ class CompoundGraphPattern(GraphPattern):
 
     def _iterencode(self, n: int) -> Iterator[str]:
         yield from self._iterencode_begin(n)
-        for pat in chain(self.children, self.binds, self.filters):
+        for pat in itertools.chain(self.children, self.binds, self.filters):
             if isinstance(pat, GraphPattern):
                 yield from self._iterencode_graph_pattern(pat, n + 1)
             elif isinstance(pat, Pattern):
@@ -1202,7 +1202,7 @@ class Query(Encodable):
         Returns:
            Iterator of :class:`Variable`.
         """
-        return map(self.var, chain((name,), names))
+        return map(self.var, itertools.chain((name,), names))
 
     def fresh_var(self) -> Variable:
         """Construct fresh variable.

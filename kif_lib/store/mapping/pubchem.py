@@ -3,7 +3,7 @@
 
 import re
 
-from ...itertools import batched
+from ... import itertools
 from ...model import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -261,7 +261,8 @@ class PubChemMapping(SPARQL_Mapping):
                     lambda iri: iri.value[len(cls.COMPOUND.value) + 3:],
                     filter_(cls.is_pubchem_compound_iri, map(
                         lambda stmt: stmt.subject.iri, it)))
-                for batch in batched(cids_it, store.default_page_size):
+                for batch in itertools.batched(
+                        cids_it, store.default_page_size):
                     for stmt, annots in cls._get_toxicity(set(batch)):
                         if original_filter.match(stmt):
                             from ..sparql import SPARQL_Store

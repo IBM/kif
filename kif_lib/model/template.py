@@ -1,7 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..itertools import chain
+from .. import itertools
 from ..typing import (
     Any,
     Callable,
@@ -41,7 +41,7 @@ class Template(KIF_Object):
         # variables are inter-coercible.  This method will throw an error if
         # that is not the case.
         ###
-        vars = frozenset(chain(*map(
+        vars = frozenset(itertools.chain(*map(
             lambda x: (x,) if isinstance(x, Variable) else x.variables,
             filter(self._isinstance_template_or_variable, args))))
         most_specific: dict[str, Variable] = {}
