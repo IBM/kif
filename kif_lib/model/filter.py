@@ -279,9 +279,9 @@ class Filter(KIF_Object):
            ``True`` if successful; ``False`` otherwise.
         """
         return (
-            self.subject is None
-            and self.property is None
-            and self.value is None
+            Fp.check(self.subject).is_full()
+            and Fp.check(self.property).is_full()
+            and Fp.check(self.value).is_full()
             and self.snak_mask is self.SnakMask.ALL)
 
     def is_nonfull(self) -> bool:
@@ -300,10 +300,17 @@ class Filter(KIF_Object):
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
-        return (
-            self.snak_mask.value == 0
-            or (self.value is not None
-                and not (self.snak_mask & self.VALUE_SNAK)))
+        if self.snak_mask.value == 0:
+            return True
+        if Fp.check(self.subject).is_empty():
+            return True
+        if Fp.check(self.property).is_empty():
+            return True
+        fp = Fp.check(self.value)
+        if not fp.is_empty() and not fp.is_full():
+            if not (self.snak_mask & self.VALUE_SNAK):
+                return True
+        return False
 
     def is_nonempty(self) -> bool:
         """Tests whether filter is non-empty.
