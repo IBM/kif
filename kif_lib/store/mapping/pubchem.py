@@ -7,13 +7,16 @@ from ...itertools import batched
 from ...model import (
     AnnotationRecord,
     AnnotationRecordSet,
+    EntityFingerprint,
     Filter,
+    Fingerprint,
     IRI,
     IRI_Datatype,
     Item,
     ItemDatatype,
     KIF_Object,
     Property,
+    PropertyFingerprint,
     Quantity,
     QuantityDatatype,
     ReferenceRecord,
@@ -43,6 +46,8 @@ from ...typing import (
 from ...vocabulary import wd
 from ..abc import Store
 from ..sparql_mapping import SPARQL_Mapping
+
+filter_ = filter
 
 CITO = Namespace('http://purl.org/spar/cito/')
 OBO = Namespace('http://purl.obolibrary.org/obo/')
@@ -210,22 +215,25 @@ class PubChemMapping(SPARQL_Mapping):
     def filter_pre_hook(
             cls,
             store: Store,
-            pattern: Filter,
+            filter: Filter,
             limit: int,
             distinct: bool
     ) -> tuple[Filter, int, bool, Any]:
-        if (pattern.property is None
-                or pattern.property.property
+        assert isinstance(filter.subject, (EntityFingerprint, type(None)))
+        assert isinstance(filter.property, (PropertyFingerprint, type(None)))
+        assert isinstance(filter.value, (Fingerprint, type(None)))
+        if (filter.property is None
+                or filter.property.property
                 not in cls._toxicity_properties_inv):
-            return pattern, limit, distinct, None
+            return filter, limit, distinct, None
         else:
-            new_pattern = Filter(
-                pattern.subject,
+            new_filter = Filter(
+                filter.subject,
                 wd.instance_of,
                 wd.type_of_a_chemical_entity,
-                pattern.snak_mask)
-            return new_pattern, store.maximum_page_size, distinct, dict(
-                original_pattern=pattern,
+                filter.snak_mask)
+            return new_filter, store.maximum_page_size, distinct, dict(
+                original_filter=filter,
                 original_limit=limit)
 
     @classmethod
@@ -233,7 +241,7 @@ class PubChemMapping(SPARQL_Mapping):
     def filter_post_hook(
             cls,
             store: Store,
-            pattern: Filter,
+            filter: Filter,
             limit: int,
             distinct: bool,
             data: Any,
@@ -244,18 +252,18 @@ class PubChemMapping(SPARQL_Mapping):
         else:
             def mk_it():
                 assert isinstance(data, dict)
-                original_pattern = data['original_pattern']
-                assert isinstance(original_pattern, Filter)
+                original_filter = data['original_filter']
+                assert isinstance(original_filter, Filter)
                 original_limit = data['original_limit']
                 assert isinstance(original_limit, int)
                 count = 0
                 cids_it = map(
                     lambda iri: iri.value[len(cls.COMPOUND.value) + 3:],
-                    filter(cls.is_pubchem_compound_iri, map(
+                    filter_(cls.is_pubchem_compound_iri, map(
                         lambda stmt: stmt.subject.iri, it)))
                 for batch in batched(cids_it, store.default_page_size):
                     for stmt, annots in cls._get_toxicity(set(batch)):
-                        if original_pattern.match(stmt):
+                        if original_filter.match(stmt):
                             from ..sparql import SPARQL_Store
                             st = cast(SPARQL_Store, store)
                             st._cache_add_wds(stmt, WDS[stmt.digest])

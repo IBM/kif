@@ -23,10 +23,10 @@ from .fingerprint import (
     TFingerprint,
     TPropertyFingerprint,
 )
+from .fingerprint.expression import Fp
 from .kif_object import KIF_Object
 from .snak import NoValueSnak, Snak, SomeValueSnak, ValueSnak
 from .statement import Statement, TStatement
-from .value import DeepDataValue, Quantity, Time
 
 at_property = property
 
@@ -164,29 +164,42 @@ class Filter(KIF_Object):
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
-            return EntityFingerprint.check_optional(
-                arg, None, type(self), None, i)
+            if isinstance(arg, Fp):
+                return arg
+            else:
+                return EntityFingerprint.check_optional(
+                    arg, None, type(self), None, i)
         elif i == 2:
-            return PropertyFingerprint.check_optional(
-                arg, None, type(self), None, i)
+            if isinstance(arg, Fp):
+                return arg
+            else:
+                return PropertyFingerprint.check_optional(
+                    arg, None, type(self), None, i)
         elif i == 3:
-            return Fingerprint.check_optional(
-                arg, None, type(self), None, i)
+            if isinstance(arg, Fp):
+                return arg
+            else:
+                return Fingerprint.check_optional(
+                    arg, None, type(self), None, i)
         elif i == 4:
             return self.SnakMask.check_optional(
                 arg, self.SnakMask.ALL, type(self), None, i)
         else:
             raise self._should_not_get_here()
 
+    @override
+    def _set_args(self, args: tuple[Any, ...]):
+        super()._set_args(args)
+
     @at_property
-    def subject(self) -> Optional[EntityFingerprint]:
+    def subject(self) -> Optional[Union[EntityFingerprint, Fp]]:
         """The subject of filter."""
         return self.get_subject()
 
     def get_subject(
             self,
-            default: Optional[EntityFingerprint] = None
-    ) -> Optional[EntityFingerprint]:
+            default: Optional[Union[EntityFingerprint, Fp]] = None
+    ) -> Optional[Union[EntityFingerprint, Fp]]:
         """Gets the subject of filter.
 
         If the subject is ``None``, returns `default`.
@@ -201,14 +214,14 @@ class Filter(KIF_Object):
         return subj if subj is not None else default
 
     @at_property
-    def property(self) -> Optional[PropertyFingerprint]:
+    def property(self) -> Optional[Union[PropertyFingerprint, Fp]]:
         """The property of filter."""
         return self.get_property()
 
     def get_property(
             self,
-            default: Optional[PropertyFingerprint] = None
-    ) -> Optional[PropertyFingerprint]:
+            default: Optional[Union[PropertyFingerprint, Fp]] = None
+    ) -> Optional[Union[PropertyFingerprint, Fp]]:
         """Gets the property of filter.
 
         If the property is ``None``, returns `default`.
@@ -223,14 +236,14 @@ class Filter(KIF_Object):
         return prop if prop is not None else default
 
     @at_property
-    def value(self) -> Optional[Fingerprint]:
+    def value(self) -> Optional[Union[Fingerprint, Fp]]:
         """Filter value."""
         return self.get_value()
 
     def get_value(
             self,
-            default: Optional[Fingerprint] = None
-    ) -> Optional[Fingerprint]:
+            default: Optional[Union[Fingerprint, Fp]] = None
+    ) -> Optional[Union[Fingerprint, Fp]]:
         """Gets the value of filter.
 
         If the value is ``None``, returns `default`.
@@ -310,60 +323,21 @@ class Filter(KIF_Object):
            ``True`` if successful; ``False`` otherwise.
         """
         stmt = Statement.check(stmt, self.match, 'stmt', 1)
-        # Snak mask mismatch.
         if not bool(self.snak_mask & self.SnakMask.check(stmt.snak)):
-            return False
-        # Subject mismatch.
-        if (self.subject is not None
-            and self.subject.entity is not None
-                and self.subject.entity != stmt.subject):
-            return False
-        # Property mismatch.
-        if (self.property is not None
-            and self.property.property is not None
-            and (self.property.property.iri != stmt.snak.property.iri
-                 or (self.property.property.range is not None
-                     and self.property.property.range
-                     != stmt.snak.property.range))):
-            return False
-        # Value mismatch.
-        if (self.value is not None and self.value.value is not None):
-            if not isinstance(stmt.snak, ValueSnak):
-                return False
-            assert isinstance(stmt.snak, ValueSnak)
-            value = stmt.snak.value
-            if type(self.value.value) is not type(value):
-                return False
-            if not isinstance(value, DeepDataValue):
-                if self.value.value != value:
-                    return False
-            elif isinstance(value, Quantity):
-                fr_qt = cast(Quantity, self.value.value)
-                qt = value
-                if (fr_qt.amount != qt.amount
-                    or (fr_qt.unit is not None
-                        and fr_qt.unit != qt.unit)
-                    or (fr_qt.lower_bound is not None
-                        and fr_qt.lower_bound != qt.lower_bound)
-                    or (fr_qt.upper_bound is not None
-                        and fr_qt.upper_bound != qt.upper_bound)):
-                    return False
-            elif isinstance(value, Time):
-                fr_tm, tm = cast(Time, self.value.value), value
-                fr_tm_time, tm_time = fr_tm.time, tm.time
-                if fr_tm_time.tzinfo is None:
-                    tm_time = tm_time.replace(tzinfo=None)
-                if (fr_tm_time != tm_time
-                    or (fr_tm.precision is not None
-                        and fr_tm.precision != tm.precision)
-                    or (fr_tm.timezone is not None
-                        and fr_tm.timezone != tm.timezone)
-                    or (fr_tm.calendar is not None
-                        and fr_tm.calendar != tm.calendar)):
-                    return False
-            else:
-                raise self._should_not_get_here()
-        # Success.
+            return False        # snak mask mismatch
+        if not Fp.check(self.subject).match(stmt.subject):
+            return False        # subject mismatch
+        if not Fp.check(self.property).match(stmt.snak.property):
+            return False        # property mismatch
+        fp = Fp.check(self.value)
+        if isinstance(stmt.snak, ValueSnak):
+            if fp.is_empty():
+                return False    # snak mismatch
+            if not fp.match(stmt.snak.value):
+                return False    # value mismatch
+        else:
+            if not fp.is_empty() and not fp.is_full():
+                return False    # snak mismatch
         return True
 
     def combine(self, *others: 'Filter') -> 'Filter':
@@ -378,18 +352,28 @@ class Filter(KIF_Object):
         return functools.reduce(self._combine, others, self)
 
     @classmethod
-    def _combine(cls, pat1: 'Filter', pat2: 'Filter'):
-        pat2 = cast(Filter, Filter.check(pat2, cls.combine))
-        return pat1.__class__(
-            pat1._combine_subject(pat2.subject),
-            pat1._combine_property(pat2.property),
-            pat1._combine_value(pat2.value),
-            pat1.snak_mask & pat2.snak_mask)
+    def _combine(cls, f1: 'Filter', f2: 'Filter'):
+        f2 = Filter.check(f2, cls.combine)
+        return f1.__class__(
+            f1._combine_subject(f2.subject),
+            f1._combine_property(f2.property),
+            f1._combine_value(f2.value),
+            f1.snak_mask & f2.snak_mask)
 
     def _combine_subject(
             self,
-            other: Optional[EntityFingerprint]
+            other: Optional[Union[EntityFingerprint, Fp]]
+    ) -> Optional[Union[EntityFingerprint, Fp]]:
+        if isinstance(self.subject, Fp) or isinstance(other, Fp):
+            return Fp.check(self.subject) & Fp.check(other)
+        else:
+            return self._combine_subject_legacy(other)
+
+    def _combine_subject_legacy(
+            self, other: Optional[EntityFingerprint]
     ) -> Optional[EntityFingerprint]:
+        assert isinstance(self.subject, (EntityFingerprint, type(None)))
+        assert isinstance(other, (EntityFingerprint, type(None)))
         if self.subject is None:
             return other
         if other is None:
@@ -404,8 +388,19 @@ class Filter(KIF_Object):
 
     def _combine_property(
             self,
+            other: Optional[Union[PropertyFingerprint, Fp]]
+    ) -> Optional[Union[PropertyFingerprint, Fp]]:
+        if isinstance(self.property, Fp) or isinstance(other, Fp):
+            return Fp.check(self.property) & Fp.check(other)
+        else:
+            return self._combine_property_legacy(other)
+
+    def _combine_property_legacy(
+            self,
             other: Optional[PropertyFingerprint]
     ) -> Optional[PropertyFingerprint]:
+        assert isinstance(self.property, (PropertyFingerprint, type(None)))
+        assert isinstance(other, (PropertyFingerprint, type(None)))
         if self.property is None:
             return other
         if other is None:
@@ -420,8 +415,19 @@ class Filter(KIF_Object):
 
     def _combine_value(
             self,
+            other: Optional[Union[Fingerprint, Fp]]
+    ) -> Optional[Union[Fingerprint, Fp]]:
+        if isinstance(self.value, Fp) or isinstance(other, Fp):
+            return Fp.check(self.value) & Fp.check(other)
+        else:
+            return self._combine_value_legacy(other)
+
+    def _combine_value_legacy(
+            self,
             other: Optional[Fingerprint]
     ) -> Optional[Fingerprint]:
+        assert isinstance(self.value, (Fingerprint, type(None)))
+        assert isinstance(other, (Fingerprint, type(None)))
         if self.value is None:
             return other
         if other is None:

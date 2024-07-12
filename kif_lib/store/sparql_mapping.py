@@ -10,11 +10,14 @@ from ..model import (
     Datatype,
     DataValue,
     Entity,
+    EntityFingerprint,
     ExternalId,
     Filter,
+    Fingerprint,
     IRI,
     IRI_Datatype,
     Property,
+    PropertyFingerprint,
     Quantity,
     QuantityDatatype,
     Statement,
@@ -342,6 +345,12 @@ class SPARQL_Mapping(ABC):
                 raise ShouldNotGetHere
 
         def _match(self, filter: Filter) -> bool:
+            assert isinstance(
+                filter.subject, (EntityFingerprint, type(None)))
+            assert isinstance(
+                filter.property, (PropertyFingerprint, type(None)))
+            assert isinstance(
+                filter.value, (Fingerprint, type(None)))
             # Property mismatch.
             if (filter.property is not None
                 and filter.property.property is not None
@@ -561,17 +570,17 @@ class SPARQL_Mapping(ABC):
     def filter_pre_hook(
             cls,
             store: Store,
-            pattern: Filter,
+            filter: Filter,
             limit: int,
             distinct: bool
     ) -> tuple[Filter, int, bool, Any]:
-        return pattern, limit, distinct, None
+        return filter, limit, distinct, None
 
     @classmethod
     def filter_post_hook(
             cls,
             store: Store,
-            pattern: Filter,
+            filter: Filter,
             limit: int,
             distinct: bool,
             data: Any,

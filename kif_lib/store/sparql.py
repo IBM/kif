@@ -17,7 +17,9 @@ from ..model import (
     DeepDataValue,
     Descriptor,
     Entity,
+    EntityFingerprint,
     Filter,
+    Fingerprint,
     IRI,
     Item,
     ItemDescriptor,
@@ -27,6 +29,7 @@ from ..model import (
     Pattern,
     Property,
     PropertyDescriptor,
+    PropertyFingerprint,
     Quantity,
     Rank,
     ReferenceRecord,
@@ -41,6 +44,7 @@ from ..model import (
     Value,
     ValueSnak,
 )
+from ..model.fingerprint.expression import Fp, ValueFp
 from ..rdflib import BNode, URIRef
 from ..typing import (
     Any,
@@ -396,6 +400,13 @@ At line {line}, column {column}:
             t: Mapping[str, TTrm],
             filter: Filter
     ) -> SPARQL_Builder:
+        assert isinstance(filter.subject, (EntityFingerprint, type(None)))
+        assert isinstance(filter.property, (PropertyFingerprint, type(None)))
+        assert isinstance(filter.value, (Fingerprint, type(None)))
+        # if isinstance(filter.subject, EntityFingerprint):
+        #     subject: Fp = Fp.check(filter.subject.args[0])
+        # else:
+        #     subject = Fp.check(filter.subject)
         # Push subject and property snak sets (if any).
         if (filter.subject is not None
                 and filter.subject.snak_set is not None):
@@ -486,6 +497,17 @@ At line {line}, column {column}:
         self._push_filters_as_values(q, t, [(0, filter)])
         return q
 
+    def _push_fp(
+            self,
+            q: SPARQL_Builder,
+            var: TTrm,
+            fp: Fp
+    ) -> SPARQL_Builder:
+        assert isinstance(fp, ValueFp)
+        with q.values(var) as values:
+            values.push(fp.value)
+        return q
+
     def _push_filter_bind_pname_as(
             self,
             q: SPARQL_Builder,
@@ -537,6 +559,9 @@ At line {line}, column {column}:
         tm_value: TTrm = q.UNDEF
         val: TTrm = q.UNDEF
         wdno: TTrm = q.UNDEF
+        assert isinstance(filter.subject, (EntityFingerprint, type(None)))
+        assert isinstance(filter.property, (PropertyFingerprint, type(None)))
+        assert isinstance(filter.value, (Fingerprint, type(None)))
         # Subject:
         if filter.subject is not None and filter.subject.entity is not None:
             subj = cast(Entity, filter.subject.entity)

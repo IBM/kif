@@ -3,7 +3,7 @@
 
 from itertools import chain, cycle, islice, product, starmap
 
-from more_itertools import batched, partition, unique_everseen
+from more_itertools import batched, partition, take, unique_everseen
 
 __all__ = (
     'batched',
@@ -13,5 +13,6 @@ __all__ = (
     'partition',
     'product',
     'starmap',
+    'take',
     'unique_everseen',
 )

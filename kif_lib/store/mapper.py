@@ -8,12 +8,15 @@ from ..model import (
     AnnotationRecordSet,
     Descriptor,
     Entity,
+    EntityFingerprint,
     Filter,
+    Fingerprint,
     IRI,
     Item,
     KIF_Object,
     Lexeme,
     Property,
+    PropertyFingerprint,
     SnakSet,
     Statement,
     T_IRI,
@@ -118,6 +121,9 @@ class SPARQL_MapperStore(
             self,
             filter: Filter,
     ) -> SPARQL_Builder:
+        assert isinstance(filter.subject, (EntityFingerprint, type(None)))
+        assert isinstance(filter.property, (PropertyFingerprint, type(None)))
+        assert isinstance(filter.value, (Fingerprint, type(None)))
         q = self.mapping.Builder()
         with q.where():
             subject_prefix: Optional[IRI] = None
