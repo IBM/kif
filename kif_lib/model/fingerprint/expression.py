@@ -120,7 +120,6 @@ class Fp(KIF_Object):
 
         Returns:
            Normal fingerprint expression.
-
         """
         if isinstance(self, ValueFp):
             if isinstance(self.value, value_class):

@@ -27,6 +27,7 @@ from ..variable import Variable
 from .datatype import Datatype
 
 if typing_extensions.TYPE_CHECKING:  # pragma: no cover
+    from ..fingerprint import Fp, TFp
     from .quantity import TDecimal  # noqa: F401
     from .time import TDatetime  # noqa: F401
 
@@ -97,6 +98,22 @@ class Value(
             from .quantity import Quantity
             arg = Quantity.check(arg, function, name, position)
         return super().check(arg, function, name, position)
+
+    def __and__(self, other: 'TFp') -> 'Fp':
+        from ..fingerprint import AndFp
+        return AndFp(self, other)
+
+    def __rand__(self, other: 'TFp') -> 'Fp':
+        from ..fingerprint import AndFp
+        return AndFp(other, self)
+
+    def __or__(self, other: 'TFp') -> 'Fp':
+        from ..fingerprint import OrFp
+        return OrFp(self, other)
+
+    def __ror__(self, other: 'TFp') -> 'Fp':
+        from ..fingerprint import OrFp
+        return OrFp(self, other)
 
     @property
     def value(self) -> str:

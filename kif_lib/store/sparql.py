@@ -44,7 +44,15 @@ from ..model import (
     Value,
     ValueSnak,
 )
-from ..model.fingerprint.expression import Fp, ValueFp
+from ..model.fingerprint.expression import (
+    AndFp,
+    CompoundFp,
+    Fp,
+    FullFp,
+    OrFp,
+    SnakFp,
+    ValueFp,
+)
 from ..rdflib import BNode, URIRef
 from ..typing import (
     Any,
@@ -346,8 +354,7 @@ At line {line}, column {column}:
         assert limit > 0
         q = self._make_filter_query(filter)
         if (q.has_variable(q.var('subject'))
-            and q.has_variable(q.var('property'))
-                and q.has_variable(q.var('value'))):
+                and q.has_variable(q.var('property'))):
             order_by = '?wds' if self.has_flags(self.ORDER) else None
             return self._eval_select_query(
                 q, lambda res: self._parse_filter_results(res, filter),
@@ -395,6 +402,179 @@ At line {line}, column {column}:
         )
 
     def _push_filter(
+            self,
+            q: SPARQL_Builder,
+            t: Mapping[str, TTrm],
+            filter: Filter
+    ) -> SPARQL_Builder:
+        assert not filter.is_empty()
+        filter = filter.normalize()
+        subject = filter.subject
+        property = filter.property
+        value = filter.value
+        assert isinstance(subject, Fp)
+        assert isinstance(property, Fp)
+        assert isinstance(value, Fp)
+        # Push wds.
+        q.triples(
+            (t['subject'], t['p'], t['wds']),
+            (t['property'], NS.WIKIBASE.claim, t['p']),
+            (t['property'], NS.WIKIBASE.propertyType, t['datatype']),
+            (t['property'], NS.WIKIBASE.statementProperty, t['ps']),
+            (t['property'], NS.WIKIBASE.statementValue, t['psv']),
+            (t['property'], NS.WIKIBASE.novalue, t['wdno']),
+            (t['wds'], NS.WIKIBASE.rank, q.bnode()))
+        # Best-rank only?
+        if self.has_flags(self.BEST_RANK):
+            q.triple(t['wds'], NS.RDF.type, NS.WIKIBASE.BestRank)
+        self._push_fp(q, t['subject'], subject)
+        self._push_fp(q, t['property'], property)
+        if not value.is_empty() and not value.is_full():  # value snak
+            q.triple(t['wds'], t['ps'], t['value'])
+            with q.optional():
+                self._push_deep_data_value(q, t)
+            self._push_fp(q, t['value'], value)
+        else:
+            try_value_snak = bool(
+                not value.is_empty()
+                and filter.snak_mask & Filter.VALUE_SNAK
+                and self.has_flags(self.VALUE_SNAK))
+            try_some_value_snak = bool(
+                filter.snak_mask & Filter.SOME_VALUE_SNAK
+                and self.has_flags(self.SOME_VALUE_SNAK))
+            try_no_value_snak = bool(
+                filter.snak_mask & Filter.NO_VALUE_SNAK
+                and self.has_flags(self.NO_VALUE_SNAK))
+            cond = sum(
+                (try_value_snak,
+                 try_some_value_snak,
+                 try_no_value_snak)) > 1
+            with q.union(cond=cond) as cup:
+                if try_value_snak or try_some_value_snak:
+                    cup.branch()
+                    q.triple(t['wds'], t['ps'], t['value'])
+                    if self.has_flags(self.EARLY_FILTER):
+                        if not try_value_snak:
+                            self._push_some_value_filter(q, t['value'])
+                        elif not try_some_value_snak:
+                            self._push_some_value_filter(
+                                q, t['value'], negate=True)
+                    if try_value_snak:
+                        with q.optional():
+                            self._push_deep_data_value(q, t)
+                if try_no_value_snak:
+                    cup.branch()
+                    q.triple(t['wds'], NS.RDF.type, t['wdno'])
+        return q
+
+    def _push_fp(
+            self,
+            q: SPARQL_Builder,
+            var: TTrm,
+            fp: Fp
+    ) -> SPARQL_Builder:
+        if isinstance(fp, CompoundFp):
+            atoms, comps = map(list, itertools.partition(
+                lambda x: isinstance(x, CompoundFp), fp.args))
+            snaks, values = map(list, itertools.partition(
+                lambda x: isinstance(x, ValueFp), atoms))
+            with q.group():
+                if isinstance(fp, AndFp):
+                    for child in itertools.chain(snaks, comps):
+                        self._push_fp(q, var, child)
+                    self._push_value_fps(q, var, values)
+                elif isinstance(fp, OrFp):
+                    with q.union() as cup:
+                        for child in itertools.chain(snaks, comps):
+                            cup.branch()
+                            self._push_fp(q, var, child)
+                        if values:
+                            cup.branch()
+                            self._push_value_fps(q, var, values)
+                else:
+                    raise self._should_not_get_here()
+        elif isinstance(fp, SnakFp):
+            wdt = q.var()
+            q.triple(fp.snak.property, NS.WIKIBASE.directClaim, wdt)
+            if isinstance(fp.snak, ValueSnak):
+                q.triple(var, wdt, fp.snak.value)
+            elif isinstance(fp.snak, SomeValueSnak):
+                some = q.var()
+                q.triple(var, wdt, some)
+                self._push_some_value_filter(q, some)
+            elif isinstance(fp.snak, NoValueSnak):
+                p, wdno, wdt = q.var(), q.var(), q.var()
+                q.triple(fp.snak.property, NS.WIKIBASE.claim, p)
+                q.triple(fp.snak.property, NS.WIKIBASE.novalue, wdno)
+                wds = q.bnode()
+                q.triples(
+                    (var, p, wds),
+                    (wds, NS.RDF.type, wdno))
+            else:
+                raise self._should_not_get_here()
+        elif isinstance(fp, ValueFp):
+            self._push_value_fps(q, var, (fp,))
+        elif isinstance(fp, FullFp):
+            pass                # nothing to do
+        else:
+            raise self._should_not_get_here()
+        return q
+
+    def _push_value_fps(
+            self,
+            q: SPARQL_Builder,
+            var: TTrm,
+            fps: Collection[ValueFp]
+    ) -> SPARQL_Builder:
+        if not fps:
+            return q            # nothing to do
+        values = map(lambda fp: fp.value, fps)
+        shallow, deep = map(list, itertools.partition(
+            lambda v: isinstance(v, DeepDataValue), values))
+        tms, qts = map(list, itertools.partition(
+            lambda v: isinstance(v, Quantity), deep))
+        with q.union() as cup:
+            if shallow:
+                cup.branch()
+                with q.values(var) as vs:
+                    for v in shallow:
+                        vs.push(v)
+            if qts:
+                cup.branch()
+                vars = itertools.chain(
+                    (var,), map(q.var, map(lambda s: f'{s}', (
+                        'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper'))))
+                with q.values(*vars) as vs:
+                    for v in qts:
+                        assert isinstance(v, Quantity)
+                        vs.push(
+                            v, v,
+                            v.unit
+                            if v.unit is not None else q.UNDEF,
+                            Quantity(v.lower_bound)
+                            if v.lower_bound is not None else q.UNDEF,
+                            Quantity(v.upper_bound)
+                            if v.upper_bound is not None else q.UNDEF)
+            if tms:
+                cup.branch()
+                vars = itertools.chain(
+                    (var,), map(q.var, map(lambda s: f'{s}', (
+                        'tm_time', 'tm_precision',
+                        'tm_timezone', 'tm_calendar'))))
+                with q.values(*vars) as vs:
+                    for v in tms:
+                        assert isinstance(v, Time)
+                        vs.push(
+                            v, v,
+                            v.precision.value
+                            if v.precision is not None else q.UNDEF,
+                            v.timezone
+                            if v.timezone is not None else q.UNDEF,
+                            v.calendar
+                            if v.calendar is not None else q.UNDEF)
+        return q
+
+    def _push_filter2(
             self,
             q: SPARQL_Builder,
             t: Mapping[str, TTrm],
@@ -495,17 +675,6 @@ At line {line}, column {column}:
                     q.triple(t['wds'], NS.RDF.type, t['wdno'])
         # Push subject, property, value entities/literals (if any).
         self._push_filters_as_values(q, t, [(0, filter)])
-        return q
-
-    def _push_fp(
-            self,
-            q: SPARQL_Builder,
-            var: TTrm,
-            fp: Fp
-    ) -> SPARQL_Builder:
-        assert isinstance(fp, ValueFp)
-        with q.values(var) as values:
-            values.push(fp.value)
         return q
 
     def _push_filter_bind_pname_as(

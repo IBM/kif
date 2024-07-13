@@ -18,15 +18,16 @@ from ..typing import (
 from .fingerprint import (
     EntityFingerprint,
     Fingerprint,
+    Fp,
     PropertyFingerprint,
     TEntityFingerprint,
     TFingerprint,
     TPropertyFingerprint,
 )
-from .fingerprint.expression import Fp
 from .kif_object import KIF_Object
 from .snak import NoValueSnak, Snak, SomeValueSnak, ValueSnak
 from .statement import Statement, TStatement
+from .value import Entity, Property, Value
 
 at_property = property
 
@@ -346,6 +347,20 @@ class Filter(KIF_Object):
             if not fp.is_empty() and not fp.is_full():
                 return False    # snak mismatch
         return True
+
+    def normalize(self) -> 'Filter':
+        """Reduce filter to a normal form.
+
+        Normalizes the fingerprint expressions in filter.
+
+        Returns:
+           Filter.
+        """
+        return Filter(
+            subject=Fp.check(self.subject).normalize(Entity),  # type: ignore
+            property=Fp.check(self.property).normalize(Property),
+            value=Fp.check(self.value).normalize(Value),  # type: ignore
+            snak_mask=self.snak_mask)
 
     def combine(self, *others: 'Filter') -> 'Filter':
         """Combines filter with `others`.

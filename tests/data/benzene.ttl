@@ -32,6 +32,7 @@
 wd:P31
     schema:version "0"^^xsd:integer ;
     wikibase:claim p:P31 ;
+    wikibase:directClaim wdt:P31 ;
     wikibase:novalue wdno:P31 ;
     wikibase:propertyType wikibase:WikibaseItem ;
     wikibase:statementProperty ps:P31 ;
@@ -41,6 +42,7 @@ wd:P31
 wd:P1659
     schema:version "0"^^xsd:integer ;
     wikibase:claim p:P1659 ;
+    wikibase:directClaim wdt:P1659 ;
     wikibase:novalue wdno:P1659 ;
     wikibase:propertyType wikibase:WikibaseItem ;
     wikibase:statementProperty ps:P1659 ;
@@ -50,6 +52,7 @@ wd:P1659
 wd:P2067
     schema:version "0"^^xsd:integer ;
     wikibase:claim p:P2067 ;
+    wikibase:directClaim wdt:P2067 ;
     wikibase:novalue wdno:P2067 ;
     wikibase:propertyType wikibase:Quantity ;
     wikibase:statementProperty ps:P2067 ;
@@ -59,6 +62,7 @@ wd:P2067
 wd:P2054
     schema:version "0"^^xsd:integer ;
     wikibase:claim p:P2054 ;
+    wikibase:directClaim wdt:P2054 ;
     wikibase:novalue wdno:P2054 ;
     wikibase:propertyType wikibase:Quantity ;
     wikibase:statementProperty ps:P2054 ;
@@ -69,6 +73,7 @@ wd:P235
 
     schema:version "0"^^xsd:integer ;
     wikibase:claim p:P235 ;
+    wikibase:directClaim wdt:P235 ;
     wikibase:novalue wdno:P235 ;
     wikibase:propertyType wikibase:ExternalId ;
     wikibase:statementProperty ps:P235 ;
