@@ -497,6 +497,9 @@ At line {line}, column {column}:
             wdt = q.var()
             q.triple(fp.snak.property, NS.WIKIBASE.directClaim, wdt)
             if isinstance(fp.snak, ValueSnak):
+                ###
+                # TODO: Match deep data values (besides wdt).
+                ###
                 q.triple(var, wdt, fp.snak.value)
             elif isinstance(fp.snak, SomeValueSnak):
                 some = q.var()
