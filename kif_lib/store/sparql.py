@@ -34,7 +34,6 @@ from ..model import (
     Rank,
     ReferenceRecord,
     Snak,
-    SnakSet,
     SomeValueSnak,
     Statement,
     String,
@@ -634,119 +633,6 @@ At line {line}, column {column}:
                                     tm_calendar)
         return q
 
-    def _push_filter2(
-            self,
-            q: SPARQL_Builder,
-            t: Mapping[str, TTrm],
-            filter: Filter
-    ) -> SPARQL_Builder:
-        assert isinstance(filter.subject, (EntityFingerprint, type(None)))
-        assert isinstance(filter.property, (PropertyFingerprint, type(None)))
-        assert isinstance(filter.value, (Fingerprint, type(None)))
-        # if isinstance(filter.subject, EntityFingerprint):
-        #     subject: Fp = Fp.check(filter.subject.args[0])
-        # else:
-        #     subject = Fp.check(filter.subject)
-        # Push subject and property snak sets (if any).
-        if (filter.subject is not None
-                and filter.subject.snak_set is not None):
-            self._push_snak_set(q, t['subject'], filter.subject.snak_set)
-        if (filter.property is not None
-                and filter.property.snak_set is not None):
-            self._push_snak_set(q, t['property'], filter.property.snak_set)
-        # Push wds.
-        q.triples(
-            (t['subject'], t['p'], t['wds']),
-            (t['property'], NS.WIKIBASE.claim, t['p']),
-            (t['property'], NS.WIKIBASE.propertyType, t['datatype']),
-            (t['property'], NS.WIKIBASE.statementProperty, t['ps']),
-            (t['property'], NS.WIKIBASE.statementValue, t['psv']),
-            (t['property'], NS.WIKIBASE.novalue, t['wdno']),
-            (t['wds'], NS.WIKIBASE.rank, q.bnode()))
-        # Best-rank only?
-        if self.has_flags(self.BEST_RANK):
-            q.triple(t['wds'], NS.RDF.type, NS.WIKIBASE.BestRank)
-        # No property or property is a snak set.
-        # if filter.property is None or filter.property.property is None:
-        #     if filter.property is not None:
-        #         # Property is snak set: use ?property as basis.
-        #         assert filter.property.snak_set is not None
-        #         q.bind(
-        #             q.substr(q.str_(t['property']), len(NS.WD) + 1),
-        #             cast(SPARQL_Builder.Variable, t['pname']))
-        #         self._push_filter_bind_pname_as(
-        #             q, t, (NS.P, 'p'))
-        #     else:
-        #         # Property is unknown: use ?p as basis.
-        #         q.bind(
-        #             q.substr(q.str_(t['p']), len(NS.P) + 1),
-        #             cast(SPARQL_Builder.Variable, t['pname']))
-        #     self._push_filter_bind_pname_as(
-        #         q, t, (NS.PS, 'ps'), (NS.PSV, 'psv'), (NS.WDNO, 'wdno'))
-        # Value.
-        if filter.value is not None and filter.value.snak_set is not None:
-            # Push value snak set.
-            q.triple(t['wds'], t['ps'], t['value'])
-            self._push_snak_set(q, t['value'], filter.value.snak_set)
-        else:
-            # Push value.
-            value_is_unknown = (
-                filter.value is None or filter.value.value is None)
-            try_value_snak = bool(
-                filter.snak_mask & Filter.VALUE_SNAK
-                and self.has_flags(self.VALUE_SNAK))
-            try_some_value_snak = bool(
-                value_is_unknown
-                and filter.snak_mask & Filter.SOME_VALUE_SNAK
-                and self.has_flags(self.SOME_VALUE_SNAK))
-            try_no_value_snak = bool(
-                value_is_unknown
-                and filter.snak_mask & Filter.NO_VALUE_SNAK
-                and self.has_flags(self.NO_VALUE_SNAK))
-            cond = sum(
-                (try_value_snak,
-                 try_some_value_snak,
-                 try_no_value_snak)) > 1
-            with q.union(cond=cond) as cup:
-                if try_value_snak or try_some_value_snak:
-                    cup.branch()
-                    q.triple(t['wds'], t['ps'], t['value'])
-                    if self.has_flags(self.EARLY_FILTER):
-                        if not try_value_snak:
-                            self._push_some_value_filter(q, t['value'])
-                        elif not try_some_value_snak:
-                            self._push_some_value_filter(
-                                q, t['value'], negate=True)
-                    if try_value_snak:
-                        with q.optional(cond=value_is_unknown):
-                            if value_is_unknown:
-                                self._push_deep_data_value(q, t)
-                            else:
-                                assert filter.value is not None
-                                assert filter.value.value is not None
-                                if isinstance(
-                                        filter.value.value, DeepDataValue):
-                                    deep = filter.value.value
-                                    self._push_deep_data_value(q, t, deep)
-                                else:
-                                    pass  # nothing to do
-                if try_no_value_snak:
-                    cup.branch()
-                    q.triple(t['wds'], NS.RDF.type, t['wdno'])
-        # Push subject, property, value entities/literals (if any).
-        self._push_filters_as_values(q, t, [(0, filter)])
-        return q
-
-    def _push_filter_bind_pname_as(
-            self,
-            q: SPARQL_Builder,
-            t: Mapping[str, TTrm],
-            *args: tuple[NS.T_NS, str]
-    ) -> Mapping[str, TTrm]:
-        for ns, name in args:
-            q.bind(q.uri(q.concat(String(str(ns)), t['pname'])), t[name])
-        return t
-
     def _push_filters_as_values(
             self,
             q: SPARQL_Builder,
@@ -898,29 +784,6 @@ At line {line}, column {column}:
                     q.triple(
                         t[wdv], NS.WIKIBASE.timeCalendarModel,
                         t[tm_calendar])
-        return q
-
-    def _push_snak_set(
-            self,
-            q: SPARQL_Builder,
-            subj: TTrm,
-            snaks: SnakSet
-    ) -> SPARQL_Builder:
-        for snak in snaks:
-            pname = NS.Wikidata.get_wikidata_name(snak.property.iri.value)
-            if isinstance(snak, ValueSnak):
-                q.triple(subj, NS.WDT[pname], snak.value)
-            elif isinstance(snak, SomeValueSnak):
-                some = q.var()
-                q.triple(subj, NS.WDT[pname], some)
-                self._push_some_value_filter(q, some)
-            elif isinstance(snak, NoValueSnak):
-                wds = q.bnode()
-                q.triples(
-                    (subj, NS.P[pname], wds),
-                    (wds, NS.RDF.type, NS.WDNO[pname]))
-            else:
-                raise self._should_not_get_here()
         return q
 
     def _push_some_value_filter(
