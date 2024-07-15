@@ -305,8 +305,7 @@ At line {line}, column {column}:
     def _count(self, filter: Filter) -> int:
         q = self._make_count_query(filter)
         ###
-        # FIXME: We should use ?wds instead of "*" here.  But ?wds times out
-        # the Wikidata query service
+        # NOTE: If we use ?wds instead of "*" here, the WQS times out.
         ###
         text = q.select('(count (distinct *) as ?count)')
         res = self._eval_select_query_string(text)
@@ -427,14 +426,15 @@ At line {line}, column {column}:
         # Best-rank only?
         if self.has_flags(self.BEST_RANK):
             q.triple(t['wds'], NS.RDF.type, NS.WIKIBASE.BestRank)
+        # Push subject fingerprint.
         self._push_fp(q, t['subject'], subject)
+        # Push property fingerprint.
         self._push_fp(q, t['property'], property)
-        if not value.is_empty() and not value.is_full():  # value snak
+        # Push value fingerprint.
+        if not value.is_empty() and not value.is_full():  # specified value?
             q.triple(t['wds'], t['ps'], t['value'])
-            with q.optional():
-                self._push_deep_data_value(q, t)
             self._push_fp(q, t['value'], value)
-        else:
+        else:                   # no/some value or unspecified value
             try_value_snak = bool(
                 not value.is_empty()
                 and filter.snak_mask & Filter.VALUE_SNAK
@@ -541,37 +541,94 @@ At line {line}, column {column}:
                         vs.push(v)
             if qts:
                 cup.branch()
-                vars = itertools.chain(
-                    (var,), map(q.var, map(lambda s: f'{s}', (
-                        'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper'))))
-                with q.values(*vars) as vs:
-                    for v in qts:
-                        assert isinstance(v, Quantity)
-                        vs.push(
-                            v, v,
-                            v.unit
-                            if v.unit is not None else q.UNDEF,
-                            Quantity(v.lower_bound)
-                            if v.lower_bound is not None else q.UNDEF,
-                            Quantity(v.upper_bound)
-                            if v.upper_bound is not None else q.UNDEF)
+                wds, psv, wdv = q.vars('wds', 'psv', 'wdv')
+                qt_amount, qt_unit, qt_lower, qt_upper = q.vars(
+                    'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper')
+                q.triples(
+                    (wds, psv, wdv),
+                    (wdv, NS.RDF.type, NS.WIKIBASE.QuantityValue))
+                with q.union() as cup:
+                    ###
+                    # NOTE: If we use VALUES to join the quantities the
+                    # query gets significantly slower.  That's why we use a
+                    # union here.  The same comment applies to times below.
+                    ###
+                    for qt in qts:
+                        assert isinstance(qt, Quantity)
+                        cup.branch()
+                        q.triple(wdv, NS.WIKIBASE.quantityAmount, qt)
+                        q.bind(qt, var)
+                        q.bind(qt, qt_amount)
+                        if qt.unit is not None:
+                            q.triple(wdv, NS.WIKIBASE.quantityUnit, qt.unit)
+                            q.bind(qt.unit, qt_unit)
+                        else:
+                            with q.optional():
+                                q.triple(
+                                    wdv, NS.WIKIBASE.quantityUnit, qt_unit)
+                        if qt.lower_bound is not None:
+                            q.triple(wdv, NS.WIKIBASE.quantityLowerBound,
+                                     qt.lower_bound)
+                            q.bind(qt.lower_bound, qt_lower)
+                        else:
+                            with q.optional():
+                                q.triple(
+                                    wdv, NS.WIKIBASE.quantityLowerBound,
+                                    qt_lower)
+                        if qt.upper_bound is not None:
+                            q.triple(wdv, NS.WIKIBASE.quantityUpperBound,
+                                     qt.upper_bound)
+                            q.bind(qt.upper_bound, qt_upper)
+                        else:
+                            with q.optional():
+                                q.triple(
+                                    wdv, NS.WIKIBASE.quantityUpperBound,
+                                    qt_upper)
             if tms:
                 cup.branch()
-                vars = itertools.chain(
-                    (var,), map(q.var, map(lambda s: f'{s}', (
-                        'tm_time', 'tm_precision',
-                        'tm_timezone', 'tm_calendar'))))
-                with q.values(*vars) as vs:
-                    for v in tms:
-                        assert isinstance(v, Time)
-                        vs.push(
-                            v, v,
-                            v.precision.value
-                            if v.precision is not None else q.UNDEF,
-                            v.timezone
-                            if v.timezone is not None else q.UNDEF,
-                            v.calendar
-                            if v.calendar is not None else q.UNDEF)
+                wds, psv, wdv = q.vars('wds', 'psv', 'wdv')
+                tm_value, tm_precision, tm_timezone, tm_calendar = q.vars(
+                    'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
+                q.triples(
+                    (wds, psv, wdv),
+                    (wdv, NS.RDF.type, NS.WIKIBASE.TimeValue))
+                with q.union() as cup:
+                    for tm in tms:
+                        assert isinstance(tm, Time)
+                        cup.branch()
+                        q.triple(wdv, NS.WIKIBASE.timeValue, tm)
+                        q.bind(tm, var)
+                        q.bind(tm, tm_value)
+                        if tm.precision is not None:
+                            q.triple(
+                                wdv, NS.WIKIBASE.timePrecision,
+                                tm.precision.value)
+                            q.bind(tm.precision.value, tm_precision)
+                        else:
+                            with q.optional():
+                                q.triple(
+                                    wdv, NS.WIKIBASE.timePrecision,
+                                    tm_precision)
+                        if tm.timezone is not None:
+                            q.triple(
+                                wdv, NS.WIKIBASE.timeTimezone,
+                                tm.timezone)
+                            q.bind(tm.timezone, tm_timezone)
+                        else:
+                            with q.optional():
+                                q.triple(
+                                    wdv, NS.WIKIBASE.timeTimezone,
+                                    tm_timezone)
+                        if tm.calendar is not None:
+                            q.triple(
+                                wdv, NS.WIKIBASE.timeCalendarModel,
+                                tm.calendar)
+                            q.bind(tm.calendar, tm_calendar)
+                        else:
+                            with q.optional():
+                                q.triple(
+                                    wdv, NS.WIKIBASE.timeCalendarModel,
+                                    tm_calendar)
         return q
 
     def _push_filter2(

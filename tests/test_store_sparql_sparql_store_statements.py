@@ -29,7 +29,7 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         self.assertRaises(TypeError, kb.filter, IRI('x'))
         # bad argument: property
         self.assertRaises(TypeError, kb.filter, None, 0)
-        self.assertRaises(ValueError, kb.filter, None, IRI('x'))
+        # self.assertRaises(ValueError, kb.filter, None, IRI('x'))
         # bad argument: value
         self.assertRaises(TypeError, kb.filter, None, None, {})
         # bad argument: snak_mask

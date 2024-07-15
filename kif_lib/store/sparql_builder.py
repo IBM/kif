@@ -1,7 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from abc import abstractmethod
+import abc
+import decimal
 from collections.abc import Mapping, Sequence
 
 from .. import itertools
@@ -39,7 +40,7 @@ class SPARQL_Builder(Sequence):
         def get_id(self) -> Hashable:
             return self._id
 
-        @abstractmethod
+        @abc.abstractmethod
         def n3(self) -> str:
             raise NotImplementedError
 
@@ -55,7 +56,7 @@ class SPARQL_Builder(Sequence):
         def n3(self) -> str:
             return f'?{self.id}'
 
-    TTrm = Uni[Term, Value, int, str]  # term
+    TTrm = Uni[Term, Value, int, decimal.Decimal, str]  # term
 
     class Block:
         """Block within a query."""
@@ -116,11 +117,11 @@ class SPARQL_Builder(Sequence):
         def get_end_lineno(self) -> Opt[int]:
             return self._end_lineno
 
-        @abstractmethod
+        @abc.abstractmethod
         def _start(self):
             self._start_lineno = self.builder.current_lineno
 
-        @abstractmethod
+        @abc.abstractmethod
         def _end(self):
             self._end_lineno = self.builder.current_lineno
 
@@ -390,6 +391,8 @@ class SPARQL_Builder(Sequence):
             self._vals.add(v)
         if isinstance(v, int):
             return f'"{v}"^^<http://www.w3.org/2001/XMLSchema#integer>'
+        elif isinstance(v, decimal.Decimal):
+            return f'"{v}"^^<http://www.w3.org/2001/XMLSchema#decimal>'
         elif hasattr(v, 'n3'):
             return v.n3()       # pyright: ignore
         else:
