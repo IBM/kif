@@ -92,11 +92,13 @@ class Symbol:
     GREATER_THAN: Final[str] = '>'
     GREATER_THAN_OR_EQUAL: Final[str] = '>='
     INDENT: Final[str] = '  '
+    IS_BLANK: Final[str] = 'isBlank'
     IS_URI: Final[str] = 'isURI'
     LANG: Final[str] = 'LANG'
     LESS_THAN: Final[str] = '<'
     LESS_THAN_OR_EQUAL: Final[str] = '<='
     LIMIT: Final[str] = 'LIMIT'
+    NOT: Final[str] = '!'
     NOT_EQUAL: Final[str] = '!='
     OFFSET: Final[str] = 'OFFSET'
     OPTIONAL: Final[str] = 'OPTIONAL'
@@ -254,6 +256,9 @@ class Expression(Encodable):
 class BooleanExpression(Expression):
     """Abstract base class for boolean expressions."""
 
+    def __invert__(self):
+        return Not(self)
+
     def __or__(self, other):
         return Or(self, other)
 
@@ -287,6 +292,21 @@ class LogicExpression(BooleanExpression):
             yield '('
             yield f' {self.operator} '.join(map(Encodable.encode, self.args))
             yield ')'
+
+
+class Not(LogicExpression):
+    """Negation."""
+    operator: str = Symbol.NOT
+
+    def __init__(self, arg: BooleanExpression):
+        super().__init__(arg)
+
+    @override
+    def iterencode(self) -> Iterator[str]:
+        assert len(self.args) == 1
+        yield f'{self.operator}('
+        yield self.args[0].encode()
+        yield ')'
 
 
 class Or(LogicExpression):
@@ -470,6 +490,14 @@ class STRLANG(BinaryBuiltInCall):
     See <https://www.w3.org/TR/sparql11-query/#func-strlang>.
     """
     operator: str = Symbol.STRLANG
+
+
+class IsBlank(UnaryBuiltInCall):
+    """The isURI built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-isBlank>.
+    """
+    operator: str = Symbol.IS_BLANK
 
 
 class IsURI(UnaryBuiltInCall):
@@ -1246,6 +1274,9 @@ class Query(Encodable):
 
     def strstarts(self, arg1: TNumExpr, arg2: TNumExpr) -> BuiltInCall:
         return STRSTARTS(arg1, arg2)
+
+    def is_blank(self, arg: TNumExpr) -> BuiltInCall:
+        return IsBlank(arg)
 
     def is_uri(self, arg: TNumExpr) -> BuiltInCall:
         return IsURI(arg)
