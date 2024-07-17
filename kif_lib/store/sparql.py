@@ -10,7 +10,7 @@ from rdflib.plugins.sparql.sparql import Query
 from .. import itertools
 from .. import namespace as NS
 from ..compiler.sparql import SPARQL_Compiler
-from ..compiler.sparql.builder import Expression, SelectQuery
+from ..compiler.sparql.builder import BooleanExpression, SelectQuery
 from ..compiler.sparql.builder import Variable as QueryVariable
 from ..model import (
     AnnotationRecord,
@@ -417,11 +417,10 @@ At line {line}, column {column}:
                                 q.filter(self._compile_some_value(q, value))
                             elif not try_some_value_snak:
                                 q.filter(~self._compile_some_value(q, value))
-                        if try_value_snak:
-                            ###
-                            # TODO: push deep data value
-                            ###
-                            raise self._should_not_get_here()
+                        if try_value_snak:  # deep data value?
+                            with q.optional():
+                                self._compile_unknown_deep_data_value(
+                                    q, value, psv, wds)
                 if try_no_value_snak:
                     with q.group():
                         q.triples()((wds, NS.RDF.type, wdno))
@@ -469,6 +468,9 @@ At line {line}, column {column}:
             lambda x: isinstance(x, ValueFp), atoms))
         if isinstance(fp, AndFp):
             for child in itertools.chain(snaks, comps):
+                ###
+                # TODO: Aggregate snaks with the same property.
+                ###
                 self._compile_fingerprint(q, child, dest, psv, wds)
             if values:
                 self._compile_value_fingerprints(q, values, dest, psv, wds)
@@ -669,11 +671,61 @@ At line {line}, column {column}:
                     (wdv, NS.WIKIBASE.timeCalendarModel, v_tm_calendar))
         return q
 
+    def _compile_unknown_deep_data_value(
+            self,
+            q: SelectQuery,
+            dest: QueryVariable,
+            psv: QueryVariable,
+            wds: QueryVariable
+    ) -> SelectQuery:
+        wdv = q.fresh_var()
+        with q.union():
+            with q.group():     # quantity?
+                v_qt_amount, v_qt_unit, v_qt_lower, v_qt_upper = q.vars(
+                    f'{dest}_qt_amount',
+                    f'{dest}_qt_unit',
+                    f'{dest}_qt_lower',
+                    f'{dest}_qt_upper')
+                q.triples()(
+                    (wds, psv, wdv),
+                    (wdv, NS.RDF.type, NS.WIKIBASE.QuantityValue),
+                    (wdv, NS.WIKIBASE.quantityAmount, v_qt_amount))
+                with q.optional():
+                    q.triples()(
+                        (wdv, NS.WIKIBASE.quantityUnit, v_qt_unit))
+                with q.optional():
+                    q.triples()(
+                        (wdv, NS.WIKIBASE.quantityLowerBound, v_qt_lower))
+                with q.optional():
+                    q.triples()(
+                        (wdv, NS.WIKIBASE.quantityUpperBound, v_qt_upper))
+            with q.group():     # time?
+                v_tm_time, v_tm_precision, v_tm_timezone, v_tm_calendar\
+                    = q.vars(
+                        f'{dest}_tm_time',
+                        f'{dest}_tm_precision',
+                        f'{dest}_tm_timezone',
+                        f'{dest}_tm_calendar')
+                q.triples()(
+                    (wds, psv, wdv),
+                    (wdv, NS.RDF.type, NS.WIKIBASE.TimeValue),
+                    (wdv, NS.WIKIBASE.timeValue, v_tm_time))
+                with q.optional():
+                    q.triples()(
+                        (wdv, NS.WIKIBASE.timePrecision, v_tm_precision))
+                with q.optional():
+                    q.triples()(
+                        (wdv, NS.WIKIBASE.timeTimezone, v_tm_timezone))
+                with q.optional():
+                    q.triples()(
+                        (wdv, NS.WIKIBASE.timeCalendarModel, v_tm_calendar))
+        return q
+
     def _compile_some_value(
             self,
             q: SelectQuery,
             dest: QueryVariable
-    ) -> Expression:
+    ) -> BooleanExpression:
         ###
         # TODO: Use native test when available.
         ###
@@ -757,8 +809,7 @@ At line {line}, column {column}:
             (t['property'], NS.WIKIBASE.propertyType, t['datatype']),
             (t['property'], NS.WIKIBASE.statementProperty, t['ps']),
             (t['property'], NS.WIKIBASE.statementValue, t['psv']),
-            (t['property'], NS.WIKIBASE.novalue, t['wdno']),
-            (t['wds'], NS.WIKIBASE.rank, q.bnode()))
+            (t['property'], NS.WIKIBASE.novalue, t['wdno']))
         # Best-rank only?
         if self.has_flags(self.BEST_RANK):
             q.triple(t['wds'], NS.RDF.type, NS.WIKIBASE.BestRank)
