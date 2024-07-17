@@ -3,7 +3,10 @@
 
 import re
 
-from kif_lib.compiler.sparql.compiler import SPARQL_PatternCompiler, TPattern
+from kif_lib.compiler.sparql.pattern_compiler import (
+    SPARQL_PatternCompiler,
+    TPattern,
+)
 from kif_lib.model import (
     IRI,
     IRI_Template,
