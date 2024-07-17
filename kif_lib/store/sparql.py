@@ -9,7 +9,7 @@ from rdflib.plugins.sparql.sparql import Query
 
 from .. import itertools
 from .. import namespace as NS
-from ..compiler.sparql import SPARQL_Compiler
+from ..compiler.sparql import SPARQL_PatternCompiler
 from ..compiler.sparql.builder import BooleanExpression, SelectQuery
 from ..compiler.sparql.builder import Variable as QueryVariable
 from ..model import (
@@ -259,7 +259,7 @@ At line {line}, column {column}:
         """The match handle."""
 
         _store: 'SPARQL_Store'
-        _compiler_results: SPARQL_Compiler.Results
+        _compiler_results: SPARQL_PatternCompiler.Results
 
         __slots__ = (
             '_store',
@@ -269,7 +269,7 @@ At line {line}, column {column}:
         def __init__(
                 self,
                 store: 'SPARQL_Store',
-                compiler_results: SPARQL_Compiler.Results,
+                compiler_results: SPARQL_PatternCompiler.Results,
         ):
             self._store = store
             self._compiler_results = compiler_results
@@ -287,10 +287,9 @@ At line {line}, column {column}:
             return res
 
     def _match(self, pat: Pattern) -> Match:
-        from ..compiler import Compiler
-        compiler = Compiler.from_format()(pat, debug=True)
+        compiler = SPARQL_PatternCompiler(pat, debug=True)
         return self.Match(self, cast(
-            SPARQL_Compiler.Results, compiler.compile()))
+            SPARQL_PatternCompiler.Results, compiler.compile()))
 
 # -- Statements ------------------------------------------------------------
 

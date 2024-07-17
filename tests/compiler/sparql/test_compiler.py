@@ -3,8 +3,7 @@
 
 import re
 
-from kif_lib.compiler import TCompilerPattern
-from kif_lib.compiler.sparql.compiler import SPARQL_Compiler
+from kif_lib.compiler.sparql.compiler import SPARQL_PatternCompiler, TPattern
 from kif_lib.model import (
     IRI,
     IRI_Template,
@@ -28,8 +27,8 @@ from ...tests import kif_TestCase
 
 class Test(kif_TestCase):
 
-    def assert_compile(self, pat: TCompilerPattern, template: str):
-        res = SPARQL_Compiler(pat).compile()
+    def assert_compile(self, pat: TPattern, template: str):
+        res = SPARQL_PatternCompiler(pat).compile()
         self.assertEqual(res.pattern, pat)
         try:
             self.assert_compiled_query_string(str(res.query), template)

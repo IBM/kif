@@ -88,7 +88,7 @@ from ...typing import (
     TypeVar,
     Union,
 )
-from .. import Compiler, TCompilerPattern
+from .. import Compiler
 from .builder import Literal as QueryLiteral
 from .builder import SelectQuery
 from .builder import URIRef as QueryURI
@@ -96,6 +96,7 @@ from .builder import Variable as QueryVariable
 
 T = TypeVar('T')
 
+TPattern: TypeAlias = KIF_Object
 TQueryVariable: TypeAlias = Union[QueryVariable, str]
 
 VQueryLiteral: TypeAlias = Union[QueryLiteral, QueryVariable]
@@ -257,17 +258,16 @@ class Substitution(MutableMapping):
 
 # == Compiler ==============================================================
 
-class SPARQL_Compiler(
-        Compiler, format='sparql', description='SPARQL compiler'):
-    """SPARQL compiler."""
+class SPARQL_PatternCompiler(Compiler):
+    """SPARQL pattern compiler."""
 
     class Error(Compiler.Error):
-        """Base class for SPARQL compiler errors."""
+        """Base class for SPARQL pattern compiler errors."""
 
     class Results(Compiler.Results):
-        """SPARQL compiler results."""
+        """SPARQL pattern compiler results."""
 
-        _compiler: 'SPARQL_Compiler'
+        _compiler: 'SPARQL_PatternCompiler'
         _query: CompiledQuery
         _theta: Substitution
 
@@ -279,7 +279,7 @@ class SPARQL_Compiler(
 
         def __init__(
                 self,
-                compiler: 'SPARQL_Compiler',
+                compiler: 'SPARQL_PatternCompiler',
                 query: CompiledQuery,
                 theta: Substitution
         ):
@@ -288,11 +288,11 @@ class SPARQL_Compiler(
             self._theta = theta
 
         @property
-        def compiler(self) -> 'SPARQL_Compiler':
+        def compiler(self) -> 'SPARQL_PatternCompiler':
             """The compiler that produced the results."""
             return self.get_compiler()
 
-        def get_compiler(self) -> 'SPARQL_Compiler':
+        def get_compiler(self) -> 'SPARQL_PatternCompiler':
             """Gets the compiler that produced the results.
 
             Returns:
@@ -301,11 +301,11 @@ class SPARQL_Compiler(
             return self._compiler
 
         @property
-        def pattern(self) -> TCompilerPattern:
+        def pattern(self) -> TPattern:
             """The input pattern."""
             return self.get_pattern()
 
-        def get_pattern(self) -> TCompilerPattern:
+        def get_pattern(self) -> TPattern:
             """Gets the input pattern.
 
             Returns:
@@ -344,13 +344,15 @@ class SPARQL_Compiler(
     _debug: bool
 
     __slots__ = (
+        '_pattern',
         '_q',
         '_theta',
         '_debug',
     )
 
-    def __init__(self, pattern: TCompilerPattern, debug: bool = False):
-        super().__init__(pattern)
+    def __init__(self, pattern: TPattern, debug: bool = False):
+        super().__init__()
+        self._pattern = pattern
         self._q = CompiledQuery()
         self._theta = Substitution()
         self._debug = debug
@@ -436,8 +438,8 @@ class SPARQL_Compiler(
 # -- Compilation -----------------------------------------------------------
 
     @override
-    def compile(self) -> 'SPARQL_Compiler.Results':
-        self._compile(self.pattern)
+    def compile(self) -> 'SPARQL_PatternCompiler.Results':
+        self._compile(self._pattern)
         return self.Results(self, self._q, self._theta)
 
     def _cannot_compile_error(self, obj) -> Compiler.Error:
