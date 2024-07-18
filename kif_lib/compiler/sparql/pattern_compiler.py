@@ -97,7 +97,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     """SPARQL pattern compiler."""
 
     class Error(SPARQL_Compiler.Error):
-        """Base class for SPARQL pattern compiler errors."""
+        """SPARQL pattern compiler error."""
 
     class Results(SPARQL_Compiler.Results):
         """SPARQL pattern compiler results."""
@@ -115,8 +115,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
 
         def __init__(
                 self,
-                pattern: TPattern,
                 query: 'SPARQL_PatternCompiler.Query',
+                pattern: TPattern,
                 theta: Substitution
         ):
             super().__init__(query)
@@ -154,8 +154,11 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         '_theta',
     )
 
+    #: The source pattern.
+    _pattern: TPattern
+
+    #: The compiled substitution.
     _theta: Substitution
-    _debug: bool
 
     def __init__(self, pattern: TPattern, debug: bool = False):
         super().__init__(debug)
@@ -229,10 +232,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     @override
     def compile(self) -> 'SPARQL_PatternCompiler.Results':
         self._compile(self._pattern)
-        return self.Results(self._pattern, self._q, self._theta)
-
-    def _cannot_compile_error(self, obj) -> 'SPARQL_PatternCompiler.Error':
-        return self.Error(f'cannot compile {obj}')
+        return self.Results(self._q, self._pattern, self._theta)
 
     def _compile(self, obj: KIF_Object) -> Any:
         if isinstance(obj, Template):

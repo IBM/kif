@@ -4,11 +4,13 @@
 from .entity_fingerprint import EntityFingerprint, TEntityFingerprint
 from .expression import (
     AndFp,
+    CompoundFp,
     ConverseSnakFp,
     EmptyFp,
     Fp,
     FullFp,
     OrFp,
+    SnakFp,
     TFp,
     ValueFp,
 )
@@ -17,6 +19,7 @@ from .property_fingerprint import PropertyFingerprint, TPropertyFingerprint
 
 __all__ = (
     'AndFp',
+    'CompoundFp',
     'ConverseSnakFp',
     'EmptyFp',
     'EntityFingerprint',
@@ -25,6 +28,7 @@ __all__ = (
     'FullFp',
     'OrFp',
     'PropertyFingerprint',
+    'SnakFp',
     'TEntityFingerprint',
     'TFingerprint',
     'TFp',

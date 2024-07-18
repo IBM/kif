@@ -1170,6 +1170,17 @@ class Query(Encodable):
             yield s
             yield '\n'
 
+# -- Static analysis -------------------------------------------------------
+
+    def where_is_empty(self) -> bool:
+        """Tests whether the WHERE clause of query is empty.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        assert isinstance(self.where.root, GroupGraphPattern)
+        return not bool(self.where.root.children)
+
 # -- Stashing --------------------------------------------------------------
 
     def stash_begin(self) -> 'Query':

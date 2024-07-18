@@ -15,6 +15,12 @@ class Compiler(abc.ABC):
     class Results(abc.ABC):
         """Abstract base class for compiler results."""
 
+    def _cannot_compile_error(self, obj) -> 'Compiler.Error':
+        return self.Error(f'cannot compile {obj}')
+
+    def _should_not_get_here(self):
+        return KIF_Object._should_not_get_here()
+
     @abc.abstractmethod
     def compile(self) -> 'Compiler.Results':
         """Compiles pattern.
