@@ -4,17 +4,9 @@
 import abc
 import itertools
 
-from ...typing import Iterator, Optional, TypeAlias, Union
+from ...typing import Iterator, Optional
 from ..compiler import Compiler
-from .builder import Literal as QueryLiteral
 from .builder import SelectQuery
-from .builder import URIRef as QueryURI
-from .builder import Variable as QueryVariable
-
-TQueryVariable: TypeAlias = Union[QueryVariable, str]
-VQueryLiteral: TypeAlias = Union[QueryLiteral, QueryVariable]
-VQueryTerm: TypeAlias = Union[QueryURI, QueryLiteral, QueryVariable]
-VQueryURI: TypeAlias = Union[QueryURI, QueryVariable]
 
 
 class SPARQL_Compiler(Compiler):
@@ -72,18 +64,18 @@ class SPARQL_Compiler(Compiler):
         self._q = self.Query()
         self._debug = debug if debug is not None else False
 
-    def _qvar(self, var: TQueryVariable) -> QueryVariable:
+    def _qvar(self, var: Query.TVariable) -> Query.Variable:
         return self._q.var(var)
 
     def _qvars(
             self,
-            var: TQueryVariable,
-            *vars_: TQueryVariable
-    ) -> Iterator[QueryVariable]:
+            var: Query.TVariable,
+            *vars_: Query.Variable
+    ) -> Iterator[Query.Variable]:
         return map(self._qvar, itertools.chain((var,), vars_))
 
-    def _fresh_qvar(self) -> QueryVariable:
+    def _fresh_qvar(self) -> Query.Variable:
         return self._q.fresh_var()
 
-    def _fresh_qvars(self, n: int) -> Iterator[QueryVariable]:
+    def _fresh_qvars(self, n: int) -> Iterator[Query.Variable]:
         return self._q.fresh_vars(n)

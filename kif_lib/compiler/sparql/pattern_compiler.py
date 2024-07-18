@@ -85,15 +85,8 @@ from ...typing import (
     TypeAlias,
     TypeVar,
 )
-from .compiler import (
-    QueryLiteral,
-    QueryURI,
-    QueryVariable,
-    SPARQL_Compiler,
-    VQueryLiteral,
-    VQueryTerm,
-    VQueryURI,
-)
+from .builder import Query
+from .compiler import SPARQL_Compiler
 from .substitution import Substitution
 
 T = TypeVar('T')
@@ -183,14 +176,14 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     ) -> Variable:
         return self._theta.add_default(var, value)
 
-    def _as_qvar(self, var: Variable) -> QueryVariable:
+    def _as_qvar(self, var: Variable) -> Query.Variable:
         return self._qvar(var.name)
 
     def _as_qvars(
             self,
             var: Variable,
             *vars: Variable
-    ) -> Iterator[QueryVariable]:
+    ) -> Iterator[Query.Variable]:
         return map(self._as_qvar, itertools.chain((var,), vars))
 
     def _fresh_variable(self, variable_class: type[Variable]) -> Variable:
@@ -354,7 +347,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
 
 # -- Entity ----------------------------------------------------------------
 
-    def _push_entity_variable(self, obj: EntityVariable) -> QueryVariable:
+    def _push_entity_variable(self, obj: EntityVariable) -> Query.Variable:
         with self._q.union():
             v = self._as_qvar(obj)
             with self._q.group():
@@ -376,7 +369,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
 
 # -- Item ------------------------------------------------------------------
 
-    def _push_v_item(self, obj: VItem) -> VQueryURI:
+    def _push_v_item(self, obj: VItem) -> Query.V_URI:
         if isinstance(obj, ItemTemplate):
             return self._push_item_template(obj)
         elif isinstance(obj, ItemVariable):
@@ -386,26 +379,26 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         else:
             raise ShouldNotGetHere
 
-    def _push_item_template(self, obj: ItemTemplate) -> VQueryURI:
+    def _push_item_template(self, obj: ItemTemplate) -> Query.V_URI:
         iri = self._push_v_iri(obj.iri)
         self._q.triples()((iri, NS.SCHEMA.version, self._q.bnode()))
         return iri
 
-    def _push_item_variable(self, obj: ItemVariable) -> QueryVariable:
+    def _push_item_variable(self, obj: ItemVariable) -> Query.Variable:
         obj_iri = IRI_Variable(obj.name)
         var = self._push_item_template(
             self._theta_add(obj, ItemTemplate(obj_iri)))
-        assert isinstance(var, QueryVariable)
+        assert isinstance(var, Query.Variable)
         return var
 
-    def _push_item(self, obj: Item) -> QueryURI:
+    def _push_item(self, obj: Item) -> Query.URI:
         iri = self._push_item_template(ItemTemplate(*obj.args))
-        assert isinstance(iri, QueryURI)
+        assert isinstance(iri, Query.URI)
         return iri
 
 # -- Property --------------------------------------------------------------
 
-    def _push_v_property(self, obj: VProperty) -> VQueryURI:
+    def _push_v_property(self, obj: VProperty) -> Query.V_URI:
         if isinstance(obj, PropertyTemplate):
             return self._push_property_template(obj)
         elif isinstance(obj, PropertyVariable):
@@ -415,26 +408,26 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         else:
             raise ShouldNotGetHere
 
-    def _push_property_template(self, obj: PropertyTemplate) -> VQueryURI:
+    def _push_property_template(self, obj: PropertyTemplate) -> Query.V_URI:
         iri = self._push_v_iri(obj.iri)
         self._q.triples()((iri, NS.RDF.type, NS.WIKIBASE.Property))
         return iri
 
-    def _push_property_variable(self, obj: PropertyVariable) -> QueryVariable:
+    def _push_property_variable(self, obj: PropertyVariable) -> Query.Variable:
         obj_iri = IRI_Variable(obj.name)
         iri = self._push_property_template(
             self._theta_add(obj, PropertyTemplate(obj_iri)))
-        assert isinstance(iri, QueryVariable)
+        assert isinstance(iri, Query.Variable)
         return iri
 
-    def _push_property(self, obj: Property) -> QueryURI:
+    def _push_property(self, obj: Property) -> Query.URI:
         iri = self._push_property_template(PropertyTemplate(*obj.args))
-        assert isinstance(iri, QueryURI)
+        assert isinstance(iri, Query.URI)
         return iri
 
 # -- Lexeme ----------------------------------------------------------------
 
-    def _push_v_lexeme(self, obj: VLexeme) -> VQueryURI:
+    def _push_v_lexeme(self, obj: VLexeme) -> Query.V_URI:
         if isinstance(obj, LexemeTemplate):
             return self._push_lexeme_template(obj)
         elif isinstance(obj, LexemeVariable):
@@ -444,26 +437,26 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         else:
             raise ShouldNotGetHere
 
-    def _push_lexeme_template(self, obj: LexemeTemplate) -> VQueryURI:
+    def _push_lexeme_template(self, obj: LexemeTemplate) -> Query.V_URI:
         iri = self._push_v_iri(obj.iri)
         self._q.triples()((iri, NS.RDF.type, NS.ONTOLEX.LexicalEntry))
         return iri
 
-    def _push_lexeme_variable(self, obj: LexemeVariable) -> QueryVariable:
+    def _push_lexeme_variable(self, obj: LexemeVariable) -> Query.Variable:
         obj_iri = IRI_Variable(obj.name)
         iri = self._push_lexeme_template(
             self._theta_add(obj, LexemeTemplate(obj_iri)))
-        assert isinstance(iri, QueryVariable)
+        assert isinstance(iri, Query.Variable)
         return iri
 
-    def _push_lexeme(self, obj: Lexeme) -> QueryURI:
+    def _push_lexeme(self, obj: Lexeme) -> Query.URI:
         iri = self._push_lexeme_template(LexemeTemplate(*obj.args))
-        assert isinstance(iri, QueryURI)
+        assert isinstance(iri, Query.URI)
         return iri
 
 # -- IRI -------------------------------------------------------------------
 
-    def _push_v_iri(self, obj: V_IRI) -> VQueryURI:
+    def _push_v_iri(self, obj: V_IRI) -> Query.V_URI:
         if isinstance(obj, IRI_Template):
             return self._push_iri_template(obj)
         elif isinstance(obj, IRI_Variable):
@@ -473,9 +466,9 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         else:
             raise ShouldNotGetHere
 
-    def _push_iri_template(self, obj: IRI_Template) -> VQueryURI:
+    def _push_iri_template(self, obj: IRI_Template) -> Query.V_URI:
         obj_content = obj.content
-        content: VQueryURI
+        content: Query.V_URI
         if isinstance(obj_content, StringVariable):
             content = self._as_qvar(obj_content)
             content_str = self._theta_add(obj_content, self._fresh_qvar())
@@ -487,10 +480,10 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             raise ShouldNotGetHere
         return content
 
-    def _push_iri_variable(self, obj: IRI_Variable) -> QueryVariable:
-        return cast(QueryVariable, self._theta_add(obj, self._as_qvar(obj)))
+    def _push_iri_variable(self, obj: IRI_Variable) -> Query.Variable:
+        return cast(Query.Variable, self._theta_add(obj, self._as_qvar(obj)))
 
-    def _push_iri(self, obj: IRI) -> QueryURI:
+    def _push_iri(self, obj: IRI) -> Query.URI:
         return self._q.uri(obj.content)
 
 # -- Text ------------------------------------------------------------------
@@ -498,7 +491,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_v_text(
             self,
             obj: VText
-    ) -> tuple[VQueryLiteral, VQueryLiteral]:
+    ) -> tuple[Query.VLiteral, Query.VLiteral]:
         if isinstance(obj, TextTemplate):
             return self._push_text_template(obj)
         elif isinstance(obj, TextVariable):
@@ -511,11 +504,11 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_text_template(
             self,
             obj: TextTemplate
-    ) -> tuple[VQueryLiteral, VQueryLiteral]:
+    ) -> tuple[Query.VLiteral, Query.VLiteral]:
         obj_content = obj.content
         obj_lang = obj.language
-        content: VQueryLiteral
-        lang: VQueryLiteral
+        content: Query.VLiteral
+        lang: Query.VLiteral
         if isinstance(obj_content, StringVariable):
             content = self._as_qvar(obj_content)
             lang = self._push_text_template_language(obj, content)
@@ -535,10 +528,10 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_text_template_language(
             self,
             obj: TextTemplate,
-            content: VQueryLiteral
-    ) -> VQueryLiteral:
+            content: Query.VLiteral
+    ) -> Query.VLiteral:
         obj_lang = obj.language
-        lang: VQueryLiteral
+        lang: Query.VLiteral
         if isinstance(obj_lang, StringVariable):
             lang = self._theta_add(obj_lang, self._fresh_qvar())
             self._q.bind(self._q.lang(content), lang)
@@ -552,23 +545,23 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_text_variable(
             self,
             obj: TextVariable
-    ) -> tuple[QueryVariable, QueryVariable]:
+    ) -> tuple[Query.Variable, Query.Variable]:
         obj_content = self._fresh_string_variable()
         obj_lang = self._fresh_string_variable()
         tpl = self._theta_add(obj, TextTemplate(obj_content, obj_lang))
         content, lang = self._push_text_template(tpl)
-        assert isinstance(content, QueryVariable)
-        assert isinstance(lang, QueryVariable)
+        assert isinstance(content, Query.Variable)
+        assert isinstance(lang, Query.Variable)
         return content, lang
 
-    def _push_text(self, obj: Text) -> tuple[QueryLiteral, QueryLiteral]:
+    def _push_text(self, obj: Text) -> tuple[Query.Literal, Query.Literal]:
         return (
             self._q.literal(obj.content, language=obj.language),
             self._q.literal(obj.language))
 
 # -- String ----------------------------------------------------------------
 
-    def _push_v_string(self, obj: VString) -> VQueryTerm:
+    def _push_v_string(self, obj: VString) -> Query.VTerm:
         if isinstance(obj, StringTemplate):
             return self._push_string_template(obj)
         elif isinstance(obj, StringVariable):
@@ -578,9 +571,9 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         else:
             raise ShouldNotGetHere
 
-    def _push_string_template(self, obj: StringTemplate) -> VQueryLiteral:
+    def _push_string_template(self, obj: StringTemplate) -> Query.VLiteral:
         obj_content = obj.content
-        content: VQueryLiteral
+        content: Query.VLiteral
         if isinstance(obj_content, StringVariable):
             content = self._theta_add(obj_content, self._as_qvar(obj_content))
         elif isinstance(obj_content, str):
@@ -589,15 +582,15 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             raise ShouldNotGetHere
         return content
 
-    def _push_string_variable(self, obj: StringVariable) -> QueryVariable:
-        return cast(QueryVariable, self._theta_add(obj, self._as_qvar(obj)))
+    def _push_string_variable(self, obj: StringVariable) -> Query.Variable:
+        return cast(Query.Variable, self._theta_add(obj, self._as_qvar(obj)))
 
-    def _push_string(self, obj: String) -> QueryLiteral:
+    def _push_string(self, obj: String) -> Query.Literal:
         return self._q.literal(obj.content)
 
 # -- External id -----------------------------------------------------------
 
-    def _push_v_external_id(self, obj: VExternalId) -> VQueryTerm:
+    def _push_v_external_id(self, obj: VExternalId) -> Query.VTerm:
         if isinstance(obj, ExternalIdTemplate):
             return self._push_external_id_template(obj)
         elif isinstance(obj, ExternalIdVariable):
@@ -610,9 +603,9 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_external_id_template(
             self,
             obj: ExternalIdTemplate
-    ) -> VQueryLiteral:
+    ) -> Query.VLiteral:
         obj_content = obj.content
-        content: VQueryLiteral
+        content: Query.VLiteral
         if isinstance(obj_content, StringVariable):
             content = self._theta_add(
                 obj_content, self._as_qvar(obj_content))
@@ -625,10 +618,10 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_external_id_variable(
             self,
             obj: ExternalIdVariable
-    ) -> QueryVariable:
+    ) -> Query.Variable:
         return self._theta_add(obj, self._as_qvar(obj))
 
-    def _push_external_id(self, obj: ExternalId) -> QueryLiteral:
+    def _push_external_id(self, obj: ExternalId) -> Query.Literal:
         return self._q.literal(obj.content)
 
 # -- Quantity --------------------------------------------------------------
@@ -636,9 +629,9 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_v_quantity(
             self,
             obj: VQuantity,
-            prop: VQueryURI,
-            wds: VQueryURI
-    ) -> tuple[VQueryLiteral, VQueryURI, VQueryLiteral, VQueryLiteral]:
+            prop: Query.V_URI,
+            wds: Query.V_URI
+    ) -> tuple[Query.VLiteral, Query.V_URI, Query.VLiteral, Query.VLiteral]:
         if isinstance(obj, QuantityTemplate):
             return self._push_quantity_template(obj, prop, wds)
         elif isinstance(obj, QuantityVariable):
@@ -651,14 +644,14 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_quantity_template(
             self,
             obj: QuantityTemplate,
-            prop: VQueryURI,
-            wds: VQueryURI
-    ) -> tuple[VQueryLiteral, VQueryURI, VQueryLiteral, VQueryLiteral]:
+            prop: Query.V_URI,
+            wds: Query.V_URI
+    ) -> tuple[Query.VLiteral, Query.V_URI, Query.VLiteral, Query.VLiteral]:
         obj_amount, obj_unit, obj_lb, obj_ub = obj.args
-        amount: VQueryLiteral
-        unit: VQueryURI
-        lb: VQueryLiteral
-        ub: VQueryLiteral
+        amount: Query.VLiteral
+        unit: Query.V_URI
+        lb: Query.VLiteral
+        ub: Query.VLiteral
         with self._q.group():
             if isinstance(obj_amount, QuantityVariable):
                 amount = self._as_qvar(obj_amount)
@@ -696,20 +689,20 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
                 (wds, psv, wdv),
                 (wdv, NS.RDF.type, NS.WIKIBASE.QuantityValue),
                 (wdv, NS.WIKIBASE.quantityAmount, amount))
-            with self._q.optional_if(isinstance(unit, QueryVariable)):
+            with self._q.optional_if(isinstance(unit, Query.Variable)):
                 self._q.triples()((wdv, NS.WIKIBASE.quantityUnit, unit))
-            with self._q.optional_if(isinstance(lb, QueryVariable)):
+            with self._q.optional_if(isinstance(lb, Query.Variable)):
                 self._q.triples()((wdv, NS.WIKIBASE.quantityLowerBound, lb))
-            with self._q.optional_if(isinstance(ub, QueryVariable)):
+            with self._q.optional_if(isinstance(ub, Query.Variable)):
                 self._q.triples()((wdv, NS.WIKIBASE.quantityUpperBound, ub))
             return amount, unit, lb, ub
 
     def _push_quantity_variable(
             self,
             obj: QuantityVariable,
-            prop: VQueryURI,
-            wds: VQueryURI
-    ) -> tuple[QueryVariable, QueryVariable, QueryVariable, QueryVariable]:
+            prop: Query.V_URI,
+            wds: Query.V_URI
+    ) -> tuple[Query.Variable, Query.Variable, Query.Variable, Query.Variable]:
         obj_amount = self._fresh_quantity_variable()
         obj_unit = self._fresh_item_variable()
         obj_lb = self._fresh_quantity_variable()
@@ -717,21 +710,21 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         tpl = self._theta_add(
             obj, QuantityTemplate(obj_amount, obj_unit, obj_lb, obj_ub))
         amount, unit, lb, ub = self._push_quantity_template(tpl, prop, wds)
-        assert isinstance(amount, QueryVariable)
-        assert isinstance(unit, QueryVariable)
-        assert isinstance(lb, QueryVariable)
-        assert isinstance(ub, QueryVariable)
+        assert isinstance(amount, Query.Variable)
+        assert isinstance(unit, Query.Variable)
+        assert isinstance(lb, Query.Variable)
+        assert isinstance(ub, Query.Variable)
         return amount, unit, lb, ub
 
     def _push_quantity(
             self,
             obj: Quantity,
-            prop: VQueryURI,
-            wds: VQueryURI
-    ) -> tuple[QueryLiteral, VQueryURI, VQueryLiteral, VQueryLiteral]:
+            prop: Query.V_URI,
+            wds: Query.V_URI
+    ) -> tuple[Query.Literal, Query.V_URI, Query.VLiteral, Query.VLiteral]:
         tpl = QuantityTemplate(*obj.args)
         amount, unit, lb, ub = self._push_quantity_template(tpl, prop, wds)
-        assert isinstance(amount, QueryLiteral)
+        assert isinstance(amount, Query.Literal)
         return amount, unit, lb, ub
 
 # -- Time ------------------------------------------------------------------
@@ -739,9 +732,9 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_v_time(
             self,
             obj: VTime,
-            prop: VQueryURI,
-            wds: VQueryURI
-    ) -> tuple[VQueryLiteral, VQueryLiteral, VQueryLiteral, VQueryURI]:
+            prop: Query.V_URI,
+            wds: Query.V_URI
+    ) -> tuple[Query.VLiteral, Query.VLiteral, Query.VLiteral, Query.V_URI]:
         if isinstance(obj, TimeTemplate):
             return self._push_time_template(obj, prop, wds)
         elif isinstance(obj, TimeVariable):
@@ -754,14 +747,14 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_time_template(
             self,
             obj: TimeTemplate,
-            prop: VQueryURI,
-            wds: VQueryURI
-    ) -> tuple[VQueryLiteral, VQueryLiteral, VQueryLiteral, VQueryURI]:
+            prop: Query.V_URI,
+            wds: Query.V_URI
+    ) -> tuple[Query.VLiteral, Query.VLiteral, Query.VLiteral, Query.V_URI]:
         obj_time, obj_prec, obj_tz, obj_cal = obj.args
-        time: VQueryLiteral
-        prec: VQueryLiteral
-        tz: VQueryLiteral
-        cal: VQueryURI
+        time: Query.VLiteral
+        prec: Query.VLiteral
+        tz: Query.VLiteral
+        cal: Query.V_URI
         with self._q.group():
             if isinstance(obj_time, TimeVariable):
                 time = self._theta_add(obj_time, self._as_qvar(obj_time))
@@ -798,20 +791,20 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
                 (wds, psv, wdv),
                 (wdv, NS.RDF.type, NS.WIKIBASE.TimeValue),
                 (wdv, NS.WIKIBASE.timeValue, time))
-            with self._q.optional_if(isinstance(prec, QueryVariable)):
+            with self._q.optional_if(isinstance(prec, Query.Variable)):
                 self._q.triples()((wdv, NS.WIKIBASE.timePrecision, prec))
-            with self._q.optional_if(isinstance(tz, QueryVariable)):
+            with self._q.optional_if(isinstance(tz, Query.Variable)):
                 self._q.triples()((wdv, NS.WIKIBASE.timeTimezone, tz))
-            with self._q.optional_if(isinstance(cal, QueryVariable)):
+            with self._q.optional_if(isinstance(cal, Query.Variable)):
                 self._q.triples()((wdv, NS.WIKIBASE.timeCalendarModel, cal))
             return time, prec, tz, cal
 
     def _push_time_variable(
             self,
             obj: TimeVariable,
-            prop: VQueryURI,
-            wds: VQueryURI
-    ) -> tuple[QueryVariable, QueryVariable, QueryVariable, QueryVariable]:
+            prop: Query.V_URI,
+            wds: Query.V_URI
+    ) -> tuple[Query.Variable, Query.Variable, Query.Variable, Query.Variable]:
         obj_time = self._fresh_time_variable()
         obj_prec = self._fresh_quantity_variable()
         obj_tz = self._fresh_quantity_variable()
@@ -819,21 +812,21 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         tpl = self._theta_add(
             obj, TimeTemplate(obj_time, obj_prec, obj_tz, obj_cal))
         time, prec, tz, cal = self._push_time_template(tpl, prop, wds)
-        assert isinstance(time, QueryVariable)
-        assert isinstance(prec, QueryVariable)
-        assert isinstance(tz, QueryVariable)
-        assert isinstance(cal, QueryVariable)
+        assert isinstance(time, Query.Variable)
+        assert isinstance(prec, Query.Variable)
+        assert isinstance(tz, Query.Variable)
+        assert isinstance(cal, Query.Variable)
         return time, prec, tz, cal
 
     def _push_time(
             self,
             obj: Time,
-            prop: VQueryURI,
-            wds: VQueryURI
-    ) -> tuple[QueryLiteral, VQueryLiteral, VQueryLiteral, VQueryURI]:
+            prop: Query.V_URI,
+            wds: Query.V_URI
+    ) -> tuple[Query.Literal, Query.VLiteral, Query.VLiteral, Query.V_URI]:
         tpl = TimeTemplate(*obj.args)
         time, prec, tz, cal = self._push_time_template(tpl, prop, wds)
-        assert isinstance(time, QueryLiteral)
+        assert isinstance(time, Query.Literal)
         return time, prec, tz, cal
 
 # -- Snak ------------------------------------------------------------------
@@ -841,9 +834,9 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_snak_variable(
             self,
             obj: SnakVariable,
-            wds: Optional[QueryVariable] = None,
-            subject: Optional[VQueryURI] = None
-    ) -> QueryVariable:
+            wds: Optional[Query.Variable] = None,
+            subject: Optional[Query.V_URI] = None
+    ) -> Query.Variable:
         def _push_subject(wds, prop):
             if subject is not None:
                 p = self._fresh_qvar()
@@ -872,8 +865,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_v_value_snak(
             self,
             obj: VValueSnak,
-            wds: Optional[QueryVariable] = None
-    ) -> tuple[QueryVariable, VQueryURI]:
+            wds: Optional[Query.Variable] = None
+    ) -> tuple[Query.Variable, Query.V_URI]:
         if isinstance(obj, ValueSnakTemplate):
             return self._push_value_snak_template(obj, wds)
         elif isinstance(obj, ValueSnakVariable):
@@ -886,8 +879,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_value_snak_template(
             self,
             obj: ValueSnakTemplate,
-            wds: Optional[QueryVariable] = None
-    ) -> tuple[QueryVariable, VQueryURI]:
+            wds: Optional[Query.Variable] = None
+    ) -> tuple[Query.Variable, Query.V_URI]:
         with self._q.group():
             obj_property = obj.property
             prop = self._push_v_property(obj_property)
@@ -943,9 +936,9 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_v_value(
             self,
             obj: VValue,
-            prop: VQueryURI,
-            wds: VQueryURI
-    ) -> VQueryTerm:
+            prop: Query.V_URI,
+            wds: Query.V_URI
+    ) -> Query.VTerm:
         if isinstance(obj, (EntityTemplate, EntityVariable, Entity)):
             return self._push_v_entity(obj)
         elif isinstance(obj, (IRI_Template, IRI_Variable, IRI)):
@@ -967,7 +960,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_v_entity(
             self,
             obj: VEntity,
-    ) -> VQueryURI:
+    ) -> Query.V_URI:
         if isinstance(obj, (ItemTemplate, ItemVariable, Item)):
             return self._push_v_item(obj)
         elif isinstance(obj, (PropertyTemplate, PropertyVariable, Property)):
@@ -980,23 +973,23 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_value_snak_variable(
             self,
             obj: ValueSnakVariable,
-            wds: Optional[QueryVariable] = None
-    ) -> tuple[QueryVariable, VQueryURI]:
+            wds: Optional[Query.Variable] = None
+    ) -> tuple[Query.Variable, Query.V_URI]:
         obj_prop = self._fresh_property_variable()
         obj_value = self._fresh_value_variable()
         tpl = self._theta_add(obj, ValueSnakTemplate(obj_prop, obj_value))
         wds, prop = self._push_value_snak_template(tpl, wds)
-        assert isinstance(wds, QueryVariable)
+        assert isinstance(wds, Query.Variable)
         return wds, prop
 
     def _push_value_snak(
             self,
             obj: ValueSnak,
-            wds: Optional[QueryVariable] = None
-    ) -> tuple[QueryVariable, VQueryURI]:
+            wds: Optional[Query.Variable] = None
+    ) -> tuple[Query.Variable, Query.V_URI]:
         tpl = ValueSnakTemplate(*obj.args)
         wds, prop = self._push_value_snak_template(tpl, wds)
-        assert isinstance(wds, QueryVariable)
+        assert isinstance(wds, Query.Variable)
         return wds, prop
 
 # -- Some-value snak -------------------------------------------------------
@@ -1004,8 +997,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_v_some_value_snak(
             self,
             obj: VSomeValueSnak,
-            wds: Optional[QueryVariable] = None
-    ) -> tuple[QueryVariable, VQueryURI]:
+            wds: Optional[Query.Variable] = None
+    ) -> tuple[Query.Variable, Query.V_URI]:
         if isinstance(obj, SomeValueSnakTemplate):
             return self._push_some_value_snak_template(obj, wds)
         elif isinstance(obj, SomeValueSnakVariable):
@@ -1018,8 +1011,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_some_value_snak_template(
             self,
             obj: SomeValueSnakTemplate,
-            wds: Optional[QueryVariable] = None
-    ) -> tuple[QueryVariable, VQueryURI]:
+            wds: Optional[Query.Variable] = None
+    ) -> tuple[Query.Variable, Query.V_URI]:
         with self._q.group():
             prop = self._push_v_property(obj.property)
             ps, value = self._fresh_qvars(2)
@@ -1035,22 +1028,22 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_some_value_snak_variable(
             self,
             obj: SomeValueSnakVariable,
-            wds: Optional[QueryVariable] = None
-    ) -> tuple[QueryVariable, VQueryURI]:
+            wds: Optional[Query.Variable] = None
+    ) -> tuple[Query.Variable, Query.V_URI]:
         obj_prop = self._fresh_property_variable()
         tpl = self._theta_add(obj, SomeValueSnakTemplate(obj_prop))
         wds, prop = self._push_some_value_snak_template(tpl, wds)
-        assert isinstance(wds, QueryVariable)
+        assert isinstance(wds, Query.Variable)
         return wds, prop
 
     def _push_some_value_snak(
             self,
             obj: SomeValueSnak,
-            wds: Optional[QueryVariable] = None
-    ) -> tuple[QueryVariable, VQueryURI]:
+            wds: Optional[Query.Variable] = None
+    ) -> tuple[Query.Variable, Query.V_URI]:
         tpl = SomeValueSnakTemplate(*obj.args)
         wds, prop = self._push_some_value_snak_template(tpl, wds)
-        assert isinstance(wds, QueryVariable)
+        assert isinstance(wds, Query.Variable)
         return wds, prop
 
 # -- No-value snak ---------------------------------------------------------
@@ -1058,8 +1051,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_v_no_value_snak(
             self,
             obj: VNoValueSnak,
-            wds: Optional[QueryVariable] = None
-    ) -> tuple[QueryVariable, VQueryURI]:
+            wds: Optional[Query.Variable] = None
+    ) -> tuple[Query.Variable, Query.V_URI]:
         if isinstance(obj, NoValueSnakTemplate):
             return self._push_no_value_snak_template(obj, wds)
         elif isinstance(obj, NoValueSnakVariable):
@@ -1072,8 +1065,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_no_value_snak_template(
             self,
             obj: NoValueSnakTemplate,
-            wds: Optional[QueryVariable] = None
-    ) -> tuple[QueryVariable, VQueryURI]:
+            wds: Optional[Query.Variable] = None
+    ) -> tuple[Query.Variable, Query.V_URI]:
         with self._q.group():
             prop = self._push_v_property(obj.property)
             wdno = self._fresh_qvar()
@@ -1088,22 +1081,22 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_no_value_snak_variable(
             self,
             obj: NoValueSnakVariable,
-            wds: Optional[QueryVariable] = None
-    ) -> tuple[QueryVariable, VQueryURI]:
+            wds: Optional[Query.Variable] = None
+    ) -> tuple[Query.Variable, Query.V_URI]:
         obj_prop = self._fresh_property_variable()
         tpl = self._theta_add(obj, NoValueSnakTemplate(obj_prop))
         wds, prop = self._push_no_value_snak_template(tpl, wds)
-        assert isinstance(wds, QueryVariable)
+        assert isinstance(wds, Query.Variable)
         return wds, prop
 
     def _push_no_value_snak(
             self,
             obj: NoValueSnak,
-            wds: Optional[QueryVariable] = None
-    ) -> tuple[QueryVariable, VQueryURI]:
+            wds: Optional[Query.Variable] = None
+    ) -> tuple[Query.Variable, Query.V_URI]:
         tpl = NoValueSnakTemplate(*obj.args)
         wds, prop = self._push_no_value_snak_template(tpl, wds)
-        assert isinstance(wds, QueryVariable)
+        assert isinstance(wds, Query.Variable)
         return wds, prop
 
 # -- Statement -------------------------------------------------------------
@@ -1111,11 +1104,11 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_statement_template(
             self,
             obj: StatementTemplate
-    ) -> QueryVariable:
+    ) -> Query.Variable:
         with self._q.group():
             obj_subj, obj_snak = obj.args
-            subj: VQueryURI
-            wds: QueryVariable
+            subj: Query.V_URI
+            wds: Query.Variable
             if type(obj_subj) is EntityVariable:
                 subj = self._push_entity_variable(obj_subj)
             else:
@@ -1133,8 +1126,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_v_snak(
             self,
             obj: VSnak,
-            wds: Optional[QueryVariable] = None
-    ) -> tuple[QueryVariable, VQueryURI]:
+            wds: Optional[Query.Variable] = None
+    ) -> tuple[Query.Variable, Query.V_URI]:
         if isinstance(obj, (
                 ValueSnakTemplate,
                 ValueSnakVariable,
@@ -1156,16 +1149,16 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _push_statement_variable(
             self,
             obj: StatementVariable
-    ) -> QueryVariable:
+    ) -> Query.Variable:
         obj_subj = self._fresh_entity_variable()
         obj_snak = self._fresh_snak_variable()
         tpl = self._theta_add(obj, StatementTemplate(obj_subj, obj_snak))
         wds = self._push_statement_template(tpl)
-        assert isinstance(wds, QueryVariable)
+        assert isinstance(wds, Query.Variable)
         return wds
 
-    def _push_statement(self, obj: Statement) -> QueryVariable:
+    def _push_statement(self, obj: Statement) -> Query.Variable:
         tpl = StatementTemplate(*obj.args)
         wds = self._push_statement_template(tpl)
-        assert isinstance(wds, QueryVariable)
+        assert isinstance(wds, Query.Variable)
         return wds

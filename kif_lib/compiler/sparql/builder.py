@@ -1107,6 +1107,22 @@ class OffsetClause(Clause):
 class Query(Encodable):
     """Abstract base class for queries."""
 
+    _mk_bnode: Final[type[BNode]] = BNode
+    _mk_literal: Final[type[Literal]] = Literal
+    _mk_uri: Final[type[URIRef]] = URIRef
+    _mk_variable: Final[type[Variable]] = Variable
+
+    BNode: TypeAlias = BNode
+    Literal: TypeAlias = Literal
+    URI: TypeAlias = URIRef
+    Variable: TypeAlias = Variable
+
+    TVariable: TypeAlias = Union[Variable, _str]
+
+    VLiteral: TypeAlias = Union[Literal, Variable]
+    VTerm: TypeAlias = Union[URIRef, Literal, Variable]
+    V_URI: TypeAlias = Union[URIRef, Variable]
+
     #: Currently targeted clause.
     clause: Clause
 

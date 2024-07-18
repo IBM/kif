@@ -11,7 +11,7 @@ from ...typing import (
     TypeVar,
     Union,
 )
-from .compiler import QueryVariable
+from .builder import Query
 
 T = TypeVar('T')
 
@@ -19,11 +19,11 @@ T = TypeVar('T')
 class Substitution(MutableMapping):
     """Substitution."""
 
-    _map: MutableMapping[Variable, Union[KIF_Object, QueryVariable]]
+    _map: MutableMapping[Variable, Union[KIF_Object, Query.Variable]]
     _dependency_graph: MutableMapping[
-        Variable, set[Union[Variable, QueryVariable]]]
+        Variable, set[Union[Variable, Query.Variable]]]
     _reverse_dependency_graph: MutableMapping[
-        Union[Variable, QueryVariable], set[Variable]]
+        Union[Variable, Query.Variable], set[Variable]]
     _defaults: MutableMapping[Variable, Optional[KIF_Object]]
 
     __slots__ = (
@@ -61,7 +61,7 @@ class Substitution(MutableMapping):
 
     @classmethod
     def _dump_value(cls, v: Any) -> str:
-        return v.n3() if isinstance(v, QueryVariable) else str(v)
+        return v.n3() if isinstance(v, Query.Variable) else str(v)
 
     def __getitem__(self, k):
         return self._map[k]
@@ -84,7 +84,7 @@ class Substitution(MutableMapping):
             value: T,
     ) -> T:
         assert isinstance(var, Variable)
-        assert isinstance(value, (KIF_Object, QueryVariable))
+        assert isinstance(value, (KIF_Object, Query.Variable))
         self._add_to_map(var, value)
         self._add_to_dependency_graph(var, value)
         return cast(T, value)
@@ -100,7 +100,7 @@ class Substitution(MutableMapping):
     def _add_to_map(
             self,
             var: Variable,
-            value: Union[KIF_Object, QueryVariable],
+            value: Union[KIF_Object, Query.Variable],
     ):
         assert var not in self or self[var] == value
         self._map[var] = value
@@ -108,11 +108,11 @@ class Substitution(MutableMapping):
     def _add_to_dependency_graph(
             self,
             source: Variable,
-            target: Union[KIF_Object, QueryVariable]
+            target: Union[KIF_Object, Query.Variable]
     ):
         if source not in self._dependency_graph:
             self._dependency_graph[source] = set()
-        if isinstance(target, (Variable, QueryVariable)):
+        if isinstance(target, (Variable, Query.Variable)):
             self._dependency_graph[source].add(target)
             self._add_to_reverse_dependency_graph(target, source)
         elif isinstance(target, Template):
@@ -122,7 +122,7 @@ class Substitution(MutableMapping):
 
     def _add_to_reverse_dependency_graph(
             self,
-            source: Union[Variable, QueryVariable],
+            source: Union[Variable, Query.Variable],
             target: Variable
     ):
         if source not in self._reverse_dependency_graph:
@@ -136,7 +136,7 @@ class Substitution(MutableMapping):
         theta: MutableMapping[Variable, Optional[KIF_Object]] = {}
         it = map(lambda t: (t[0], t[1]['value']), binding.items())
         for qvar_name, qvar_value in it:
-            qvar = QueryVariable(qvar_name)
+            qvar = Query._mk_variable(qvar_name)
             if qvar not in self._reverse_dependency_graph:
                 continue
             for rdep in self._reverse_dependency_graph[qvar]:
