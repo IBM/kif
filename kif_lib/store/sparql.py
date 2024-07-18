@@ -49,6 +49,7 @@ from ..model import (
 from ..model.fingerprint.expression import (
     AndFp,
     CompoundFp,
+    ConverseSnakFp,
     Fp,
     FullFp,
     OrFp,
@@ -882,7 +883,11 @@ At line {line}, column {column}:
         elif isinstance(fp, SnakFp):
             wdt = q.var()
             q.triple(fp.snak.property, NS.WIKIBASE.directClaim, wdt)
-            if isinstance(fp.snak, ValueSnak):
+            if isinstance(fp, ConverseSnakFp):
+                assert isinstance(fp.snak, ValueSnak)
+                assert isinstance(fp.snak.value, Entity)
+                q.triple(fp.snak.value, wdt, var)
+            elif isinstance(fp.snak, ValueSnak):
                 ###
                 # TODO: Match deep data values (besides wdt).
                 ###

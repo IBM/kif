@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from typing_extensions import TYPE_CHECKING
+
 from ...typing import (
     Any,
     Callable,
@@ -32,6 +34,9 @@ TValueSnak: TypeAlias = Union['ValueSnak', tuple[TProperty, TValue]]
 VTValueSnak: TypeAlias = Union[Variable, 'VValueSnak', TValueSnak]
 VValueSnak: TypeAlias =\
     Union['ValueSnakTemplate', 'ValueSnakVariable', 'ValueSnak']
+
+if TYPE_CHECKING:                      # pragma: no cover
+    from ..fingerprint import Fp
 
 
 class ValueSnakTemplate(SnakTemplate):
@@ -206,6 +211,10 @@ class ValueSnak(
                 type(self), 'value', 2, ValueError)
         else:
             super()._set_args(args)
+
+    def __neg__(self) -> 'Fp':
+        from ..fingerprint import ConverseSnakFp
+        return ConverseSnakFp(self)
 
     @property
     def value(self) -> Value:

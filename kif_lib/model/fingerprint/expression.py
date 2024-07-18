@@ -19,8 +19,16 @@ from ...typing import (
 )
 from ..kif_object import KIF_Object
 from ..set import SnakSet
-from ..snak import Snak, TSnak
-from ..value import DeepDataValue, Property, Quantity, Time, TValue, Value
+from ..snak import Snak, TSnak, ValueSnak
+from ..value import (
+    DeepDataValue,
+    Entity,
+    Property,
+    Quantity,
+    Time,
+    TValue,
+    Value,
+)
 from .entity_fingerprint import EntityFingerprint
 from .fingerprint import Fingerprint
 from .property_fingerprint import PropertyFingerprint
@@ -231,7 +239,10 @@ class SnakFp(AtomicFp):
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
-        return Snak.check(arg, type(self), None, i)
+        if i == 1:
+            return Snak.check(arg, type(self), None, i)
+        else:
+            raise self._should_not_get_here()
 
     @property
     def snak(self) -> Snak:
@@ -249,6 +260,39 @@ class SnakFp(AtomicFp):
     @override
     def _match(self, value: Value) -> bool:
         return True
+
+
+class ConverseSnakFp(SnakFp):
+    """Converse snak fingerprint expression."""
+
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        else:
+            snak = ValueSnak.check(
+                arg, function or cls.check, name, position)
+            if isinstance(snak.value, Entity):
+                return cls(snak)
+            else:
+                raise cls._check_error(
+                    arg, function or cls.check, name, position)
+
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
+        if i == 1:
+            snak = ValueSnak.check(arg, type(self), None, i)
+            Entity.check(snak.value, type(self), None, i)
+            return snak
+        else:
+            self._should_not_get_here()
 
 
 class ValueFp(AtomicFp):
