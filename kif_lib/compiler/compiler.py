@@ -4,6 +4,7 @@
 import abc
 
 from ..model.kif_object import KIF_Object
+from ..typing import Self
 
 
 class Compiler(abc.ABC):
@@ -12,9 +13,6 @@ class Compiler(abc.ABC):
     class Error(KIF_Object.Error):
         """Base class for compiler errors."""
 
-    class Results(abc.ABC):
-        """Abstract base class for compiler results."""
-
     def _cannot_compile_error(self, obj) -> 'Compiler.Error':
         return self.Error(f'cannot compile {obj}')
 
@@ -22,16 +20,10 @@ class Compiler(abc.ABC):
         return KIF_Object._should_not_get_here()
 
     @abc.abstractmethod
-    def compile(self) -> 'Compiler.Results':
-        """Compiles pattern.
-
-        Parameter:
-           pat: Pattern.
+    def compile(self) -> Self:
+        """Run compiler.
 
         Returns:
-           The compiled results.
-
-        Raises:
-           `CompilerError`: Compiler error.
+           The (finished) compiler.
         """
         raise NotImplementedError

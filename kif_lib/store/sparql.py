@@ -260,37 +260,36 @@ At line {line}, column {column}:
         """The match handle."""
 
         _store: 'SPARQL_Store'
-        _compiler_results: SPARQL_PatternCompiler.Results
+        _compiler: SPARQL_PatternCompiler
 
         __slots__ = (
             '_store',
-            '_compiler_results',
+            '_compiler',
         )
 
         def __init__(
                 self,
                 store: 'SPARQL_Store',
-                compiler_results: SPARQL_PatternCompiler.Results,
+                compiler: SPARQL_PatternCompiler
         ):
             self._store = store
-            self._compiler_results = compiler_results
+            self._compiler = compiler
 
         def _read_next_page(self):
-            query_string = str(self._compiler_results.query.select(limit=1))
-            print(self._compiler_results.pattern)
+            query_string = str(self._compiler.query.select(limit=1))
+            print(self._compiler.pattern)
             print()
-            print(self._compiler_results.theta)
+            print(self._compiler.theta)
             print()
-            print(self._compiler_results.query)
+            print(self._compiler.query)
             print()
             res = self._store._eval_select_query_string(query_string)
             print(dict(res))
             return res
 
     def _match(self, pat: Pattern) -> Match:
-        compiler = SPARQL_PatternCompiler(pat, debug=True)
-        return self.Match(self, cast(
-            SPARQL_PatternCompiler.Results, compiler.compile()))
+        compiler = SPARQL_PatternCompiler(pat, SPARQL_PatternCompiler.DEBUG)
+        return self.Match(self, compiler.compile())
 
 # -- Statements ------------------------------------------------------------
 

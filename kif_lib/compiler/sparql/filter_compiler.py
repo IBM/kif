@@ -12,11 +12,13 @@ from ...model import (
     NoValueSnak,
     Quantity,
     SomeValueSnak,
+    Statement,
     String,
     Text,
     Time,
     Value,
     ValueSnak,
+    Variable,
 )
 from ...model.fingerprint import (
     AndFp,
@@ -28,51 +30,16 @@ from ...model.fingerprint import (
     SnakFp,
     ValueFp,
 )
-from ...typing import Iterable, Optional, override, Union
+from ...typing import Iterable, Optional, override, Self, Union
 from .builder import Query
-from .compiler import SPARQL_Compiler
+from .pattern_compiler import SPARQL_PatternCompiler
 
 
-class SPARQL_FilterCompiler(SPARQL_Compiler):
+class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     """SPARQL filter compiler."""
-
-    class Error(SPARQL_Compiler.Error):
-        """SPARQL filter compiler error."""
-
-    class Results(SPARQL_Compiler.Results):
-        """SPARQL filter compiler results."""
-
-        __slots__ = (
-            '_filter',
-        )
-
-        #: The source filter.
-        _pattern: Filter
-
-        def __init__(
-                self,
-                query: 'SPARQL_FilterCompiler.Query',
-                filter: Filter,
-        ):
-            super().__init__(query)
-            self._filter = filter
-
-        @property
-        def filter(self) -> Filter:
-            """The source filter."""
-            return self.get_filter()
-
-        def get_filter(self) -> Filter:
-            """Gets the source filter.
-
-            Returns:
-               Filter.
-            """
-            return self._filter
 
     __slots__ = (
         '_filter',
-        '_flags',
     )
 
     # The source filter.
@@ -81,18 +48,32 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
     def __init__(
             self,
             filter: Filter,
-            debug: Optional[bool] = None
+            flags: Optional['SPARQL_FilterCompiler.Flags'] = None
     ):
-        super().__init__(debug)
+        super().__init__(
+            Statement(Variable('subject'), Variable('snak')), flags)
         self._filter = filter
 
-    @override
-    def compile(self) -> 'SPARQL_FilterCompiler.Results':
-        filter = self._filter.normalize()
-        self._compile(filter)
-        return self.Results(self._q, filter)
+    @property
+    def filter(self) -> Filter:
+        """The source filter."""
+        return self.get_filter()
 
-    def _compile(self, filter: Filter):
+    def get_filter(self) -> Filter:
+        """Gets the source filter.
+
+        Returns:
+           Filter.
+        """
+        return self._filter
+
+    @override
+    def compile(self) -> Self:
+        filter = self._filter.normalize()
+        self._push_filter(filter)
+        return self
+
+    def _push_filter(self, filter: Filter):
         if filter.is_empty():
             return              # nothing to do
         assert isinstance(filter.subject, Fp)
@@ -115,8 +96,41 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         ###
         # Push subject.
         self._push_fingerprint(filter.subject, subject, psv, wds)
-        # Push property fingerprint.
+        # Push property.
         self._push_fingerprint(filter.property, property, psv, wds)
+        # Push value.
+        if (not filter.value.is_empty()
+                and not filter.value.is_full()):  # specified value?
+            self._q.triples()((wds, ps, value))
+            self._push_fingerprint(filter.value, value, psv, wds)
+        else:                   # no/some value or unspecified value
+            try_value_snak = bool(
+                not filter.value.is_empty()
+                and filter.snak_mask & Filter.VALUE_SNAK
+                and self.has_flags(self.VALUE_SNAK))
+            try_some_value_snak = bool(
+                filter.snak_mask & Filter.SOME_VALUE_SNAK
+                and self.has_flags(self.SOME_VALUE_SNAK))
+            try_no_value_snak = bool(
+                filter.snak_mask & Filter.NO_VALUE_SNAK
+                and self.has_flags(self.NO_VALUE_SNAK))
+            with self._q.union():
+                if try_value_snak or try_some_value_snak:
+                    with self._q.group():
+                        self._q.triples()((wds, ps, value))
+                        if self.has_flags(self.EARLY_FILTER):
+                            if not try_value_snak:
+                                self._push_some_value_filter(value)
+                            elif not try_some_value_snak:
+                                self._push_some_value_filter(
+                                    value, negate=True)
+                        if try_value_snak:  # deep data value?
+                            with self._q.optional():
+                                self._push_unknown_deep_data_value(
+                                    value, psv, wds)
+                if try_no_value_snak:
+                    with self._q.group():
+                        self._q.triples()((wds, NS.RDF.type, wdno))
 
     def _push_fingerprint(
             self,
@@ -251,7 +265,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                         for qt in qts:
                             assert isinstance(qt, Quantity)
                             with self._q.group():
-                                self._push_quantity(qt, dest, wdv, bind)
+                                self._push_quantity_value(qt, dest, wdv, bind)
             if tms:
                 with self._q.group():
                     wdv = self._q.fresh_var()
@@ -262,9 +276,9 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                         for tm in tms:
                             assert isinstance(tm, Time)
                             with self._q.group():
-                                self._push_time(tm, dest, wdv, bind)
+                                self._push_time_value(tm, dest, wdv, bind)
 
-    def _push_quantity(
+    def _push_quantity_value(
             self,
             qt: Quantity,
             dest: Query.Variable,
@@ -310,7 +324,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                 self._q.triples()(
                     (wdv, NS.WIKIBASE.quantityUpperBound, v_qt_upper))
 
-    def _push_time(
+    def _push_time_value(
             self,
             tm: Time,
             dest: Query.Variable,
@@ -357,18 +371,67 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                 self._q.triples()(
                     (wdv, NS.WIKIBASE.timeCalendarModel, v_tm_calendar))
 
+    def _push_unknown_deep_data_value(
+            self,
+            dest: Query.Variable,
+            psv: Query.Variable,
+            wds: Query.Variable
+    ):
+        wdv = self._q.fresh_var()
+        with self._q.union():
+            with self._q.group():     # quantity?
+                v_qt_amount, v_qt_unit, v_qt_lower, v_qt_upper = self._q.vars(
+                    f'{dest}_qt_amount',
+                    f'{dest}_qt_unit',
+                    f'{dest}_qt_lower',
+                    f'{dest}_qt_upper')
+                self._q.triples()(
+                    (wds, psv, wdv),
+                    (wdv, NS.RDF.type, NS.WIKIBASE.QuantityValue),
+                    (wdv, NS.WIKIBASE.quantityAmount, v_qt_amount))
+                with self._q.optional():
+                    self._q.triples()(
+                        (wdv, NS.WIKIBASE.quantityUnit, v_qt_unit))
+                with self._q.optional():
+                    self._q.triples()(
+                        (wdv, NS.WIKIBASE.quantityLowerBound, v_qt_lower))
+                with self._q.optional():
+                    self._q.triples()(
+                        (wdv, NS.WIKIBASE.quantityUpperBound, v_qt_upper))
+            with self._q.group():     # time?
+                v_tm_time, v_tm_precision, v_tm_timezone, v_tm_calendar\
+                    = self._q.vars(
+                        f'{dest}_tm_time',
+                        f'{dest}_tm_precision',
+                        f'{dest}_tm_timezone',
+                        f'{dest}_tm_calendar')
+                self._q.triples()(
+                    (wds, psv, wdv),
+                    (wdv, NS.RDF.type, NS.WIKIBASE.TimeValue),
+                    (wdv, NS.WIKIBASE.timeValue, v_tm_time))
+                with self._q.optional():
+                    self._q.triples()(
+                        (wdv, NS.WIKIBASE.timePrecision, v_tm_precision))
+                with self._q.optional():
+                    self._q.triples()(
+                        (wdv, NS.WIKIBASE.timeTimezone, v_tm_timezone))
+                with self._q.optional():
+                    self._q.triples()(
+                        (wdv, NS.WIKIBASE.timeCalendarModel, v_tm_calendar))
+
     def _push_some_value_filter(
             self,
-            dest: Query.Variable
+            dest: Query.Variable,
+            negate: bool = False
     ):
         ###
         # TODO: Use native test when available.
         ###
         # return q.call(NS.WIKIBASE.isSomeValue, dest)
-        self._q.filter(
-            self._q.is_blank(dest) | (
-                self._q.is_uri(dest) & self._q.strstarts(
-                    self._q.str(dest), str(NS.WDGENID))))
+        cond = self._q.is_blank(dest) | (
+            self._q.is_uri(dest) & self._q.strstarts(
+                self._q.str(dest), str(NS.WDGENID)))
+        self._q.filter(cond if not negate else ~cond)
 
     def _as_simple_value(
             self,

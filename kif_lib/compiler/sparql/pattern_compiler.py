@@ -82,6 +82,7 @@ from ...typing import (
     Iterator,
     Optional,
     override,
+    Self,
     TypeAlias,
     TypeVar,
 )
@@ -96,59 +97,6 @@ TPattern: TypeAlias = KIF_Object
 class SPARQL_PatternCompiler(SPARQL_Compiler):
     """SPARQL pattern compiler."""
 
-    class Error(SPARQL_Compiler.Error):
-        """SPARQL pattern compiler error."""
-
-    class Results(SPARQL_Compiler.Results):
-        """SPARQL pattern compiler results."""
-
-        __slots__ = (
-            '_pattern',
-            '_theta',
-        )
-
-        #: The source pattern.
-        _pattern: TPattern
-
-        #: The substitution that produced these results.
-        _theta: Substitution
-
-        def __init__(
-                self,
-                query: 'SPARQL_PatternCompiler.Query',
-                pattern: TPattern,
-                theta: Substitution
-        ):
-            super().__init__(query)
-            self._pattern = pattern
-            self._theta = theta
-
-        @property
-        def pattern(self) -> TPattern:
-            """The source pattern."""
-            return self.get_pattern()
-
-        def get_pattern(self) -> TPattern:
-            """Gets the source pattern.
-
-            Returns:
-               Pattern.
-            """
-            return self._pattern
-
-        @property
-        def theta(self) -> Substitution:
-            """The substitution that produced these results."""
-            return self.get_theta()
-
-        def get_theta(self) -> Substitution:
-            """Gets the substitution that produced these results.
-
-            Returns:
-               Substitution.
-            """
-            return self._theta
-
     __slots__ = (
         '_pattern',
         '_theta',
@@ -160,15 +108,45 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     #: The compiled substitution.
     _theta: Substitution
 
-    def __init__(self, pattern: TPattern, debug: bool = False):
-        super().__init__(debug)
+    def __init__(
+            self,
+            pattern: TPattern,
+            flags: Optional['SPARQL_PatternCompiler.Flags'] = None
+    ):
+        super().__init__(flags)
         self._pattern = pattern
         self._theta = Substitution()
+
+    @property
+    def pattern(self) -> TPattern:
+        """The source pattern."""
+        return self.get_pattern()
+
+    def get_pattern(self) -> TPattern:
+        """Gets the source pattern.
+
+        Returns:
+           Pattern.
+        """
+        return self._pattern
+
+    @property
+    def theta(self) -> Substitution:
+        """The compiled substitution."""
+        return self.get_theta()
+
+    def get_theta(self) -> Substitution:
+        """Gets the compiled substitution.
+
+        Returns:
+           Substitution.
+        """
+        return self._theta
 
 # -- Helper methods --------------------------------------------------------
 
     def _theta_add(self, var: Variable, v: T) -> T:
-        if self._debug:
+        if self.has_flags(self.DEBUG):
             self._q.comments()(f'{var} := {Substitution._dump_value(v)}')
         return self._theta.add(var, v)
 
@@ -230,9 +208,9 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
 # -- Compilation -----------------------------------------------------------
 
     @override
-    def compile(self) -> 'SPARQL_PatternCompiler.Results':
+    def compile(self) -> Self:
         self._compile(self._pattern)
-        return self.Results(self._q, self._pattern, self._theta)
+        return self
 
     def _compile(self, obj: KIF_Object) -> Any:
         if isinstance(obj, Template):

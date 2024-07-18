@@ -31,10 +31,10 @@ from ...tests import kif_TestCase
 class Test(kif_TestCase):
 
     def assert_compile(self, pat: TPattern, template: str):
-        res = SPARQL_PatternCompiler(pat).compile()
-        self.assertEqual(res.pattern, pat)
+        compiler = SPARQL_PatternCompiler(pat).compile()
+        self.assertEqual(compiler.pattern, pat)
         try:
-            self.assert_compiled_query_string(str(res.query), template)
+            self.assert_compiled_query_string(str(compiler.query), template)
         except AssertionError as err:
             print('-- expected --')
             print(template.strip())
