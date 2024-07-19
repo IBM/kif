@@ -9,6 +9,7 @@ from ... import namespace as NS
 from ...error import ShouldNotGetHere
 from ...model import (
     Datatype,
+    DatatypeVariable,
     Entity,
     EntityTemplate,
     EntityVariable,
@@ -178,6 +179,9 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         return map(
             lambda qvar: variable_class(str(qvar)), self._fresh_qvars(n))
 
+    def _fresh_datatype_variable(self) -> DatatypeVariable:
+        return cast(DatatypeVariable, self._fresh_variable(DatatypeVariable))
+
     def _fresh_value_variable(self) -> ValueVariable:
         return cast(ValueVariable, self._fresh_variable(ValueVariable))
 
@@ -193,6 +197,9 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _fresh_lexeme_variable(self) -> LexemeVariable:
         return cast(LexemeVariable, self._fresh_variable(LexemeVariable))
 
+    def _fresh_iri_variable(self) -> IRI_Variable:
+        return cast(IRI_Variable, self._fresh_variable(IRI_Variable))
+
     def _fresh_string_variable(self) -> StringVariable:
         return cast(StringVariable, self._fresh_variable(StringVariable))
 
@@ -204,6 +211,9 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
 
     def _fresh_snak_variable(self) -> SnakVariable:
         return cast(SnakVariable, self._fresh_variable(SnakVariable))
+
+    def _fresh_statement_variable(self) -> StatementVariable:
+        return cast(StatementVariable, self._fresh_variable(StatementVariable))
 
 # -- Compilation -----------------------------------------------------------
 

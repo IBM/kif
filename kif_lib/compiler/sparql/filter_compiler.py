@@ -9,10 +9,17 @@ from ...model import (
     ExternalId,
     Filter,
     IRI,
+    Item,
+    ItemVariable,
+    Lexeme,
+    LexemeVariable,
     NoValueSnak,
+    Property,
+    PropertyVariable,
     Quantity,
     SomeValueSnak,
     Statement,
+    StatementVariable,
     String,
     Text,
     Time,
@@ -50,8 +57,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             filter: Filter,
             flags: Optional['SPARQL_FilterCompiler.Flags'] = None
     ):
-        super().__init__(
-            Statement(Variable('subject'), Variable('snak')), flags)
+        super().__init__(Variable('_', Statement), flags)
         self._filter = filter
 
     @property
@@ -79,30 +85,59 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         assert isinstance(filter.subject, Fp)
         assert isinstance(filter.property, Fp)
         assert isinstance(filter.value, Fp)
-        subject, property, datatype, value = self._q.vars(
-            'subject', 'property', 'datatype', 'value')
+        assert isinstance(self.pattern, StatementVariable)
+        subject = self._fresh_entity_variable()
+        snak = self._fresh_snak_variable()
+        self._theta_add(self.pattern, Statement(subject, snak))
+        v_subject = self._as_qvar(subject)
+        v_property, v_property_datatype, v_value = self._q.vars(
+            'property', 'datatype', 'value')
         p, ps, psv, wdno, wds = self._q.fresh_vars(5)
         self._q.triples()(
-            (subject, p, wds),
-            (property, NS.WIKIBASE.claim, p),
-            (property, NS.WIKIBASE.novalue, wdno),
-            (property, NS.WIKIBASE.propertyType, datatype),
-            (property, NS.WIKIBASE.statementProperty, ps),
-            (property, NS.WIKIBASE.statementValue, psv))
-        ###
-        # TODO: Best-ranked only?
-        # if self.has_flags(self.BEST_RANK):
-        #     self._q.triples()((wds, NS.RDF.type, NS.WIKIBASE.BestRank))
-        ###
+            (v_subject, p, wds),
+            (v_property, NS.WIKIBASE.claim, p),
+            (v_property, NS.WIKIBASE.novalue, wdno),
+            (v_property, NS.WIKIBASE.propertyType, v_property_datatype),
+            (v_property, NS.WIKIBASE.statementProperty, ps),
+            (v_property, NS.WIKIBASE.statementValue, psv))
+        # Best-ranked only?
+        if self.has_flags(self.BEST_RANK):
+            self._q.triples()((wds, NS.RDF.type, NS.WIKIBASE.BestRank))
         # Push subject.
-        self._push_fingerprint(filter.subject, subject, psv, wds)
+        with self._q.group():
+            with self._q.union():
+                with self._q.group():
+                    iri = self._fresh_iri_variable()
+                    v_iri = self._push_iri_variable(iri)
+                    self._theta_add(
+                        ItemVariable(subject.name), Item(iri))
+                    self._q.triples()(
+                        (v_subject, NS.WIKIBASE.sitelinks, self._q.bnode()))
+                    self._q.bind(v_subject, v_iri)
+                with self._q.group():
+                    iri = self._fresh_iri_variable()
+                    v_iri = self._push_iri_variable(iri)
+                    self._theta_add(
+                        PropertyVariable(subject.name), Property(iri))
+                    self._q.triples()(
+                        (v_subject, NS.RDF.type, NS.WIKIBASE.Property))
+                    self._q.bind(v_subject, v_iri)
+                with self._q.group():
+                    iri = self._fresh_iri_variable()
+                    v_iri = self._push_iri_variable(iri)
+                    self._theta_add(
+                        LexemeVariable(subject.name), Lexeme(iri))
+                    self._q.triples()(
+                        (v_subject, NS.RDF.type, NS.ONTOLEX.LexicalEntry))
+                    self._q.bind(v_subject, v_iri)
+            self._push_fingerprint(filter.subject, v_subject, psv, wds)
         # Push property.
-        self._push_fingerprint(filter.property, property, psv, wds)
+        self._push_fingerprint(filter.property, v_property, psv, wds)
         # Push value.
         if (not filter.value.is_empty()
                 and not filter.value.is_full()):  # specified value?
-            self._q.triples()((wds, ps, value))
-            self._push_fingerprint(filter.value, value, psv, wds)
+            self._q.triples()((wds, ps, v_value))
+            self._push_fingerprint(filter.value, v_value, psv, wds)
         else:                   # no/some value or unspecified value
             try_value_snak = bool(
                 not filter.value.is_empty()
@@ -117,17 +152,17 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             with self._q.union():
                 if try_value_snak or try_some_value_snak:
                     with self._q.group():
-                        self._q.triples()((wds, ps, value))
+                        self._q.triples()((wds, ps, v_value))
                         if self.has_flags(self.EARLY_FILTER):
                             if not try_value_snak:
-                                self._push_some_value_filter(value)
+                                self._push_some_value_filter(v_value)
                             elif not try_some_value_snak:
                                 self._push_some_value_filter(
-                                    value, negate=True)
+                                    v_value, negate=True)
                         if try_value_snak:  # deep data value?
                             with self._q.optional():
                                 self._push_unknown_deep_data_value(
-                                    value, psv, wds)
+                                    v_value, psv, wds)
                 if try_no_value_snak:
                     with self._q.group():
                         self._q.triples()((wds, NS.RDF.type, wdno))

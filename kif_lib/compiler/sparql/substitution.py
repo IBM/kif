@@ -158,7 +158,29 @@ class Substitution(MutableMapping):
             theta: MutableMapping[Variable, Optional[KIF_Object]]
     ):
         theta[var] = value
-        for rdep in self._reverse_dependency_graph.get(var, ()):
-            dep = self[rdep]
-            assert isinstance(dep, (Template, Variable))
-            self._instantiate(rdep, dep.instantiate(theta), theta)
+        ###
+        # FIXME: Update dependency graphs to take coercions into account.
+        #        Then we'll be able to use the following.
+        ###
+        # rdeps = self._reverse_dependency_graph.get(var, ())
+        # for rdep in rdeps:
+        #     dep = self[rdep]
+        #     assert isinstance(dep, (Template, Variable))
+        #     value = dep.instantiate(theta)
+        #     self._instantiate(rdep, value, theta)
+        ###
+        for xvar in self._reverse_dependency_graph:
+            if not isinstance(xvar, Variable):
+                continue
+            if isinstance(xvar, Variable):
+                try:
+                    xvar.check(var)
+                except TypeError:
+                    continue    # not coercible, skip
+            if var.name != xvar.name:
+                continue
+            for rdep in self._reverse_dependency_graph.get(xvar, ()):
+                dep = self[rdep]
+                assert isinstance(dep, (Template, Variable))
+                value = dep.instantiate(theta)
+                self._instantiate(rdep, value, theta)
