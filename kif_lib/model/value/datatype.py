@@ -84,10 +84,13 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
     ) -> Self:
         if isinstance(arg, cls):
             return arg
-        elif isinstance(arg, type) and issubclass(arg, cls):
+        elif (isinstance(arg, type)
+              and issubclass(arg, cls)
+              and hasattr(arg, 'value_class')):
             return cast(Self, arg.value_class.datatype)
         elif isinstance(arg, type) and hasattr(arg, 'datatype'):
-            return cls.check(arg.datatype, function, name, position)
+            return cls.check(
+                arg.datatype, function, name, position)  # pyright: ignore
         else:
             raise cls._check_error(arg, function, name, position)
 

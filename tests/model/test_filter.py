@@ -4,11 +4,14 @@
 import datetime
 
 from kif_lib import (
+    Datatype,
     EntityFingerprint,
+    ExternalId,
     Filter,
     Fingerprint,
     IRI,
     Item,
+    ItemDatatype,
     Items,
     ItemTemplate,
     Lexeme,
@@ -20,8 +23,10 @@ from kif_lib import (
     SnakSet,
     SomeValueSnak,
     Statement,
+    String,
     Text,
     Time,
+    ValueSnak,
     Variable,
 )
 from kif_lib.typing import assert_type
@@ -31,12 +36,63 @@ from ..tests import kif_ObjectTestCase
 
 class Test(kif_ObjectTestCase):
 
+    def test_DatatypeMask_check(self) -> None:
+        self.assertRaisesRegex(
+            TypeError, 'cannot coerce', Filter.DatatypeMask.check, 'abc')
+        self.assertRaisesRegex(
+            ValueError, 'cannot coerce', Filter.DatatypeMask.check, 999)
+        self.assertEqual(Filter.DatatypeMask.check(0), Filter.DatatypeMask(0))
+        self.assertEqual(
+            Filter.DatatypeMask.check(Datatype),
+            Filter.DatatypeMask.ALL)
+        self.assertEqual(
+            Filter.DatatypeMask.check(ItemDatatype()), Filter.ITEM)
+        self.assertEqual(
+            Filter.DatatypeMask.check(ItemDatatype), Filter.ITEM)
+        self.assertEqual(Filter.DatatypeMask.check(Item), Filter.ITEM)
+        self.assertEqual(
+            Filter.DatatypeMask.check(Property), Filter.PROPERTY)
+        self.assertEqual(Filter.DatatypeMask.check(Lexeme), Filter.LEXEME)
+        self.assertEqual(Filter.DatatypeMask.check(IRI), Filter.IRI)
+        self.assertEqual(Filter.DatatypeMask.check(Text), Filter.TEXT)
+        self.assertEqual(Filter.DatatypeMask.check(String), Filter.STRING)
+        self.assertEqual(
+            Filter.DatatypeMask.check(ExternalId), Filter.EXTERNAL_ID)
+        self.assertEqual(Filter.DatatypeMask.check(Quantity), Filter.QUANTITY)
+        self.assertEqual(Filter.DatatypeMask.check(Time), Filter.TIME)
+        self.assertEqual(
+            Filter.DatatypeMask.check(Filter.ITEM), Filter.ITEM)
+        self.assertEqual(
+            Filter.DatatypeMask.check_optional(None, Filter.DatatypeMask.ALL),
+            Filter.DatatypeMask.ALL)
+        self.assertIsNone(Filter.DatatypeMask.check_optional(None))
+
     def test_SnakMask_check(self) -> None:
         self.assertRaisesRegex(
             TypeError, 'cannot coerce', Filter.SnakMask.check, 'abc')
         self.assertRaisesRegex(
             ValueError, 'cannot coerce', Filter.SnakMask.check, 8)
         self.assertEqual(Filter.SnakMask.check(0), Filter.SnakMask(0))
+        self.assertEqual(
+            Filter.SnakMask.check(Snak), Filter.SnakMask(Filter.SnakMask.ALL))
+        self.assertEqual(
+            Filter.SnakMask.check(ValueSnak),
+            Filter.SnakMask(Filter.SnakMask.VALUE_SNAK))
+        self.assertEqual(
+            Filter.SnakMask.check(('x', 'y')),
+            Filter.SnakMask(Filter.SnakMask.VALUE_SNAK))
+        self.assertEqual(
+            Filter.SnakMask.check(SomeValueSnak('x')),
+            Filter.SnakMask(Filter.SnakMask.SOME_VALUE_SNAK))
+        self.assertEqual(
+            Filter.SnakMask.check(SomeValueSnak),
+            Filter.SnakMask(Filter.SnakMask.SOME_VALUE_SNAK))
+        self.assertEqual(
+            Filter.SnakMask.check(NoValueSnak('x')),
+            Filter.SnakMask(Filter.SnakMask.NO_VALUE_SNAK))
+        self.assertEqual(
+            Filter.SnakMask.check(NoValueSnak),
+            Filter.SnakMask(Filter.SnakMask.NO_VALUE_SNAK))
         self.assertEqual(
             Filter.SnakMask.check(Filter.VALUE_SNAK),
             Filter.VALUE_SNAK)

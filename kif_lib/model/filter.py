@@ -4,17 +4,7 @@
 import enum
 import functools
 
-from ..typing import (
-    Any,
-    Callable,
-    cast,
-    Final,
-    Optional,
-    override,
-    Self,
-    TypeAlias,
-    Union,
-)
+from ..typing import Any, Callable, Final, Optional, override, TypeAlias, Union
 from .fingerprint import (
     EntityFingerprint,
     Fingerprint,
@@ -25,9 +15,24 @@ from .fingerprint import (
     TPropertyFingerprint,
 )
 from .kif_object import KIF_Object
-from .snak import NoValueSnak, Snak, SomeValueSnak, ValueSnak
+from .snak import NoValueSnak, Snak, SomeValueSnak, TSnak, ValueSnak
 from .statement import Statement, TStatement
-from .value import Entity, Property, Value
+from .value import (
+    Datatype,
+    Entity,
+    ExternalIdDatatype,
+    IRI_Datatype,
+    ItemDatatype,
+    LexemeDatatype,
+    Property,
+    PropertyDatatype,
+    QuantityDatatype,
+    StringDatatype,
+    TDatatype,
+    TextDatatype,
+    TimeDatatype,
+    Value,
+)
 
 at_property = property
 
@@ -41,6 +46,141 @@ class Filter(KIF_Object):
        value: Fingerprint.
        snak_mask: Snak mask.
     """
+
+    class DatatypeMask(enum.Flag):
+        """Mask for concrete datatype classes."""
+
+        #: Mask for :class:`ItemDatatype`.
+        ITEM = enum.auto()
+
+        #: Mask for :class:`PropertyDatatype`.
+        PROPERTY = enum.auto()
+
+        #: Mask for :class:`LexemeDatatype`.
+        LEXEME = enum.auto()
+
+        #: Mask for :class:`IRI_Datatype`.
+        IRI = enum.auto()
+
+        #: Mask for :class:`TextDatatype`.
+        TEXT = enum.auto()
+
+        #: Mask for :class:`StringDatatype`.
+        STRING = enum.auto()
+
+        #: Mask for :class:`ExternalIdDatatype`.
+        EXTERNAL_ID = enum.auto()
+
+        #: Mask for :class:`QuantityDatatype`.
+        QUANTITY = enum.auto()
+
+        #: Mask for :class:`TimeDatatype`.
+        TIME = enum.auto()
+
+        #: Mask for all datatype classes.
+        ALL = (
+            ITEM
+            | PROPERTY
+            | LEXEME
+            | IRI
+            | TEXT
+            | STRING
+            | EXTERNAL_ID
+            | QUANTITY
+            | TIME)
+
+        @classmethod
+        def check(
+                cls,
+                arg: Any,
+                function: Optional[Union[Callable[..., Any], str]] = None,
+                name: Optional[str] = None,
+                position: Optional[int] = None
+        ) -> 'Filter.DatatypeMask':
+            if isinstance(arg, cls):
+                return arg
+            elif isinstance(arg, int):
+                try:
+                    return cls(arg)
+                except ValueError as err:
+                    raise Datatype._check_error(
+                        arg, function or cls.check, name, position,
+                        ValueError, to_=cls.__qualname__) from err
+            elif arg is Datatype:
+                return cls.ALL
+            else:
+                return cls._from_datatype(Datatype.check(
+                    arg, function or cls.check, name, position))
+
+        @classmethod
+        def check_optional(
+                cls,
+                arg: Optional[Any],
+                default: Optional[Any] = None,
+                function: Optional[Union[Callable[..., Any], str]] = None,
+                name: Optional[str] = None,
+                position: Optional[int] = None
+        ) -> Optional['Filter.DatatypeMask']:
+            if arg is None:
+                arg = default
+            if arg is None:
+                return arg
+            else:
+                return cls.check(arg, function, name, position)
+
+        @classmethod
+        @functools.cache
+        def _from_datatype(cls, datatype: Datatype) -> 'Filter.DatatypeMask':
+            if isinstance(datatype, ItemDatatype):
+                return cls.ITEM
+            elif isinstance(datatype, PropertyDatatype):
+                return cls.PROPERTY
+            elif isinstance(datatype, LexemeDatatype):
+                return cls.LEXEME
+            elif isinstance(datatype, IRI_Datatype):
+                return cls.IRI
+            elif isinstance(datatype, TextDatatype):
+                return cls.TEXT
+            elif isinstance(datatype, ExternalIdDatatype):
+                return cls.EXTERNAL_ID
+            elif isinstance(datatype, StringDatatype):
+                return cls.STRING
+            elif isinstance(datatype, QuantityDatatype):
+                return cls.QUANTITY
+            elif isinstance(datatype, TimeDatatype):
+                return cls.TIME
+            else:
+                raise Filter._should_not_get_here()
+
+    #: Mask for :class:`ItemDatatype`.
+    ITEM: Final[DatatypeMask] = DatatypeMask.ITEM
+
+    #: Mask for :class:`PropertyDatatype`.
+    PROPERTY: Final[DatatypeMask] = DatatypeMask.PROPERTY
+
+    #: Mask for :class:`LexemeDatatype`.
+    LEXEME: Final[DatatypeMask] = DatatypeMask.LEXEME
+
+    #: Mask for :class:`IRI_Datatype`.
+    IRI: Final[DatatypeMask] = DatatypeMask.IRI
+
+    #: Mask for :class:`TextDatatype`.
+    TEXT: Final[DatatypeMask] = DatatypeMask.TEXT
+
+    #: Mask for :class:`StringDatatype`.
+    STRING: Final[DatatypeMask] = DatatypeMask.STRING
+
+    #: Mask for :class:`ExternalIdDatatype`.
+    EXTERNAL_ID: Final[DatatypeMask] = DatatypeMask.EXTERNAL_ID
+
+    #: Mask for :class:`QuantityDatatype`.
+    QUANTITY: Final[DatatypeMask] = DatatypeMask.QUANTITY
+
+    #: Mask for :class:`TimeDatatype`.
+    TIME: Final[DatatypeMask] = DatatypeMask.TIME
+
+    #: Type alias for DatatypeMask.
+    TDatatypeMask: TypeAlias = Union[DatatypeMask, TDatatype, int]
 
     class SnakMask(enum.Flag):
         """Mask for concrete snak classes."""
@@ -64,7 +204,7 @@ class Filter(KIF_Object):
                 function: Optional[Union[Callable[..., Any], str]] = None,
                 name: Optional[str] = None,
                 position: Optional[int] = None
-        ) -> Self:
+        ) -> 'Filter.SnakMask':
             if isinstance(arg, cls):
                 return arg
             elif isinstance(arg, int):
@@ -74,16 +214,11 @@ class Filter(KIF_Object):
                     raise Snak._check_error(
                         arg, function or cls.check, name, position,
                         ValueError, to_=cls.__qualname__) from err
-            elif isinstance(arg, ValueSnak):
-                return cast(Self, cls.VALUE_SNAK)
-            elif isinstance(arg, SomeValueSnak):
-                return cast(Self, cls.SOME_VALUE_SNAK)
-            elif isinstance(arg, NoValueSnak):
-                return cast(Self, cls.NO_VALUE_SNAK)
+            elif isinstance(arg, type) and issubclass(arg, Snak):
+                return cls._from_snak_class(arg)
             else:
-                raise Snak._check_error(
-                    arg, function or cls.check, name, position,
-                    to_=cls.__qualname__)
+                return cls._from_snak(Snak.check(
+                    arg, function or cls.check, name, position))
 
         @classmethod
         def check_optional(
@@ -93,13 +228,42 @@ class Filter(KIF_Object):
                 function: Optional[Union[Callable[..., Any], str]] = None,
                 name: Optional[str] = None,
                 position: Optional[int] = None
-        ) -> Optional[Self]:
+        ) -> Optional['Filter.SnakMask']:
             if arg is None:
                 arg = default
             if arg is None:
                 return arg
             else:
                 return cls.check(arg, function, name, position)
+
+        @classmethod
+        @functools.cache
+        def _from_snak_class(
+                cls,
+                snak_class: type[Snak]
+        ) -> 'Filter.SnakMask':
+            if snak_class is Snak:
+                return Filter.SnakMask.ALL
+            elif snak_class is ValueSnak:
+                return cls.VALUE_SNAK
+            elif snak_class is SomeValueSnak:
+                return cls.SOME_VALUE_SNAK
+            elif snak_class is NoValueSnak:
+                return cls.NO_VALUE_SNAK
+            else:
+                raise Filter._should_not_get_here()
+
+        @classmethod
+        @functools.cache
+        def _from_snak(cls, snak: Snak) -> 'Filter.SnakMask':
+            if isinstance(snak, ValueSnak):
+                return cls.VALUE_SNAK
+            elif isinstance(snak, SomeValueSnak):
+                return cls.SOME_VALUE_SNAK
+            elif isinstance(snak, NoValueSnak):
+                return cls.NO_VALUE_SNAK
+            else:
+                raise Filter._should_not_get_here()
 
     #: Mask for :class:`ValueSnak`.
     VALUE_SNAK: Final[SnakMask] = SnakMask.VALUE_SNAK
@@ -111,7 +275,7 @@ class Filter(KIF_Object):
     NO_VALUE_SNAK: Final[SnakMask] = SnakMask.NO_VALUE_SNAK
 
     #: Type alias for SnakMask.
-    TSnakMask: TypeAlias = Union[SnakMask, Snak, int]
+    TSnakMask: TypeAlias = Union[SnakMask, type['Snak'], TSnak, int]
 
     @classmethod
     def from_snak(
@@ -158,7 +322,9 @@ class Filter(KIF_Object):
             subject: Optional[TEntityFingerprint] = None,
             property: Optional[TPropertyFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[TSnakMask] = None
+            snak_mask: Optional[TSnakMask] = None,
+            subject_mask: Optional[TDatatypeMask] = None,
+            value_mask: Optional[TDatatypeMask] = None
     ):
         super().__init__(subject, property, value, snak_mask)
 

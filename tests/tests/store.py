@@ -236,7 +236,7 @@ class kif_StoreTestCase(kif_TestCase):
             kb.count, None, None, None, 'abc')
         self.assert_raises_bad_argument(
             TypeError, 4, 'snak_mask', None,
-            kb.count, None, None, Item('x'), NoValueSnak)
+            kb.count, None, None, Item('x'), Item)
         self.assert_raises_bad_argument(
             TypeError, 5, 'snak', None,
             kb.count, None, None, Item('x'), Filter.NO_VALUE_SNAK, Item('x'))
@@ -298,7 +298,7 @@ class kif_StoreTestCase(kif_TestCase):
             kb.filter, None, None, None, 'a')
         self.assert_raises_bad_argument(
             TypeError, 4, 'snak_mask', None,
-            kb.filter, None, None, Item('x'), NoValueSnak)
+            kb.filter, None, None, Item('x'), Item)
         self.assert_raises_bad_argument(
             TypeError, 5, 'snak', None,
             kb.filter, None, None, Item('x'),
