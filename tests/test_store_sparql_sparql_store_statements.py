@@ -36,7 +36,7 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         self.assertRaises(
             TypeError, kb.filter, None, None, None, 'abc')
         self.assertRaises(
-            TypeError, kb.filter, None, None, Item('x'), NoValueSnak)
+            TypeError, kb.filter, None, None, Item('x'), Item)
         # bad argument: filter
         self.assertRaises(TypeError, kb.filter, filter=Item('x'))
         # bad argument: limit
