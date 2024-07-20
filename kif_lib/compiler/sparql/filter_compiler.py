@@ -88,16 +88,15 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         assert isinstance(self.pattern, StatementVariable)
         subject = self._fresh_entity_variable()
         snak = self._fresh_snak_variable()
+        property = self._fresh_property_variable()
         self._theta_add(self.pattern, Statement(subject, snak))
-        v_subject = self._as_qvar(subject)
-        v_property, v_property_datatype, v_value = self._q.vars(
-            'property', 'datatype', 'value')
+        v_subject, v_property = self._as_qvars(subject, property)
+        v_value = self._q.var('value')
         p, ps, psv, wdno, wds = self._q.fresh_vars(5)
         self._q.triples()(
             (v_subject, p, wds),
             (v_property, NS.WIKIBASE.claim, p),
             (v_property, NS.WIKIBASE.novalue, wdno),
-            (v_property, NS.WIKIBASE.propertyType, v_property_datatype),
             (v_property, NS.WIKIBASE.statementProperty, ps),
             (v_property, NS.WIKIBASE.statementValue, psv))
         # Best-ranked only?
@@ -107,32 +106,16 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         with self._q.group():
             with self._q.union():
                 with self._q.group():
-                    iri = self._fresh_iri_variable()
-                    v_iri = self._push_iri_variable(iri)
-                    self._theta_add(
-                        ItemVariable(subject.name), Item(iri))
-                    self._q.triples()(
-                        (v_subject, NS.WIKIBASE.sitelinks, self._q.bnode()))
-                    self._q.bind(v_subject, v_iri)
+                    self._bind_as_item(v_subject)
                 with self._q.group():
-                    iri = self._fresh_iri_variable()
-                    v_iri = self._push_iri_variable(iri)
-                    self._theta_add(
-                        PropertyVariable(subject.name), Property(iri))
-                    self._q.triples()(
-                        (v_subject, NS.RDF.type, NS.WIKIBASE.Property))
-                    self._q.bind(v_subject, v_iri)
+                    self._bind_as_property(v_subject)
                 with self._q.group():
-                    iri = self._fresh_iri_variable()
-                    v_iri = self._push_iri_variable(iri)
-                    self._theta_add(
-                        LexemeVariable(subject.name), Lexeme(iri))
-                    self._q.triples()(
-                        (v_subject, NS.RDF.type, NS.ONTOLEX.LexicalEntry))
-                    self._q.bind(v_subject, v_iri)
+                    self._bind_as_lexeme(v_subject)
             self._push_fingerprint(filter.subject, v_subject, psv, wds)
         # Push property.
-        self._push_fingerprint(filter.property, v_property, psv, wds)
+        with self._q.group():
+            self._bind_as_property(v_property)
+            self._push_fingerprint(filter.property, v_property, psv, wds)
         # Push value.
         if (not filter.value.is_empty()
                 and not filter.value.is_full()):  # specified value?
@@ -166,6 +149,30 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                 if try_no_value_snak:
                     with self._q.group():
                         self._q.triples()((wds, NS.RDF.type, wdno))
+
+    def _bind_as_item(self, dest: Query.Variable):
+        iri = self._fresh_iri_variable()
+        self._theta_add(ItemVariable(str(dest)), Item(iri))
+        self._q.triples()((dest, NS.WIKIBASE.sitelinks, self._q.bnode()))
+        self._q.bind(dest, self._theta_add(iri, self._as_qvar(iri)))
+
+    def _bind_as_property(self, dest: Query.Variable):
+        datatype = self._fresh_datatype_variable()
+        datatype_iri = self._fresh_iri_variable()
+        iri = self._fresh_iri_variable()
+        self._theta_add(datatype, datatype_iri)
+        self._theta_add(PropertyVariable(str(dest)), Property(iri, datatype))
+        self._q.triples()(
+            (dest, NS.RDF.type, NS.WIKIBASE.Property),
+            (dest, NS.WIKIBASE.propertyType, self._theta_add(
+                datatype_iri, self._as_qvar(datatype_iri))))
+        self._q.bind(dest, self._theta_add(iri, self._as_qvar(iri)))
+
+    def _bind_as_lexeme(self, dest: Query.Variable):
+        iri = self._fresh_iri_variable()
+        self._theta_add(LexemeVariable(str(dest)), Lexeme(iri))
+        self._q.triples()((dest, NS.RDF.type, NS.ONTOLEX.LexicalEntry))
+        self._q.bind(dest, self._theta_add(iri, self._as_qvar(iri)))
 
     def _push_fingerprint(
             self,

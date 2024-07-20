@@ -73,9 +73,11 @@ class Test(kif_EntityTestCase):
         self._test__init__(
             Property,
             self.assert_property,
+            success=[
+                (['x', String('y')], Property('x', 'y')),  # type: ignore
+            ],
             failure=[
                 ['x', Item('y')],
-                ['x', String('y')],
                 ['x', Text('y')],
                 [Item('x')],
                 [Lexeme('x')],

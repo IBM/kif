@@ -38,9 +38,10 @@ class Test(kif_ObjectTestCase):
 
     def test_DatatypeMask_check(self) -> None:
         self.assertRaisesRegex(
-            TypeError, 'cannot coerce', Filter.DatatypeMask.check, 'abc')
+            TypeError, 'cannot coerce', Filter.DatatypeMask.check, {})
         self.assertRaisesRegex(
             ValueError, 'cannot coerce', Filter.DatatypeMask.check, 999)
+        self.assertEqual(Filter.DatatypeMask.check('x'), Filter.STRING)
         self.assertEqual(Filter.DatatypeMask.check(0), Filter.DatatypeMask(0))
         self.assertEqual(
             Filter.DatatypeMask.check(Datatype),

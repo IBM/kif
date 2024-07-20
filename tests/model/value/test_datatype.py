@@ -107,13 +107,12 @@ class Test(kif_ValueTestCase):
 
     def test__from_rdflib(self):
         from kif_lib.namespace import WIKIBASE
-        self.assertRaisesRegex(
-            TypeError, 'cannot coerce',
-            Datatype._from_rdflib, WIKIBASE.claim)
         self.assert_raises_bad_argument(
             TypeError, 1, 'uri',
             'cannot coerce LexemeDatatype into ItemDatatype',
             ItemDatatype._from_rdflib, WIKIBASE.WikibaseLexeme)
+        # fallback
+        self.assert_string_datatype(Datatype._from_rdflib(WIKIBASE.claim))
         # item
         self.assert_item_datatype(
             ItemDatatype._from_rdflib(WIKIBASE.WikibaseItem))

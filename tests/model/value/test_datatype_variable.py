@@ -11,9 +11,10 @@ from kif_lib import (
     ItemDatatype,
     ItemVariable,
     KIF_Object,
+    String,
     Variable,
 )
-from kif_lib.typing import assert_type, Optional
+from kif_lib.typing import assert_type, cast, Optional
 
 from ...tests import kif_VariableTestCase
 
@@ -38,15 +39,26 @@ class Test(kif_VariableTestCase):
     def test_instantiate(self) -> None:
         assert_type(
             DatatypeVariable('x').instantiate({}), Optional[KIF_Object])
+        self.assert_string_datatype(cast(
+            Datatype, DatatypeVariable('x').instantiate({
+                DatatypeVariable('x'): String('y')
+            })))
+        self.assert_string_datatype(cast(
+            Datatype, DatatypeVariable('x').instantiate({
+                DatatypeVariable('x'): IRI('y')
+            })))
+        self.assert_string_datatype(cast(
+            Datatype, DatatypeVariable('x').instantiate({
+                DatatypeVariable('x'): 'y'  # type: ignore
+            })))
         self._test_instantiate(
             DatatypeVariable,
             success=[
+                DatatypeVariable('y'),
                 IRI_Datatype(),
                 ItemDatatype(),
-                DatatypeVariable('y'),
             ],
             failure=[
-                IRI('x'),
                 IRI_Variable('x'),
                 Item('x'),
                 ItemVariable('x'),

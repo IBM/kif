@@ -18,7 +18,7 @@ from ...typing import (
     Union,
 )
 from ..kif_object import KIF_Object
-from ..variable import Variable
+from ..variable import Theta, Variable
 
 if typing_extensions.TYPE_CHECKING:  # pragma: no cover
     from .value import Value
@@ -36,6 +36,26 @@ class DatatypeVariable(Variable):
     """
 
     object_class: ClassVar[type['Datatype']]  # pyright: ignore
+
+    @override
+    def _instantiate_tail(
+            self,
+            theta: Theta,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Optional[KIF_Object]:
+        from .iri import IRI
+        from .string import String
+        obj = theta[self]
+        if isinstance(obj, (IRI, String, str)):
+            ###
+            # IMPORTANT: We need to be able to use Wikidata datatype IRIs to
+            # instantiate datatype variables.
+            ###
+            return Datatype.check(obj, function, name, position)
+        else:
+            return super()._instantiate_tail(theta, function, name, position)
 
 
 class Datatype(KIF_Object, variable_class=DatatypeVariable):
@@ -82,6 +102,8 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Self:
+        from .iri import IRI
+        from .string import String
         if isinstance(arg, cls):
             return arg
         elif (isinstance(arg, type)
@@ -91,6 +113,13 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
         elif isinstance(arg, type) and hasattr(arg, 'datatype'):
             return cls.check(
                 arg.datatype, function, name, position)  # pyright: ignore
+        elif isinstance(arg, (IRI, String, str)):
+            iri = IRI.check(arg, function, name, position)
+            try:
+                return cls._from_rdflib(URIRef(iri.content))
+            except TypeError as err:
+                raise cls._check_error(
+                    arg, function, name, position) from err
         else:
             raise cls._check_error(arg, function, name, position)
 
@@ -125,8 +154,8 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
             res = Quantity.datatype
         elif uri == WIKIBASE.Time:
             res = Time.datatype
-        else:
-            raise cls._check_error(uri, cls._from_rdflib, 'uri', 1)
+        else:                   # fallback
+            res = String.datatype
         return cls.check(res, cls._from_rdflib, 'uri', 1)
 
     def _to_rdflib(self) -> URIRef:
