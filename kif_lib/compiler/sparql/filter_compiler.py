@@ -7,6 +7,7 @@ from ...model import (
     DeepDataValue,
     Entity,
     ExternalId,
+    ExternalIdVariable,
     Filter,
     IRI,
     IRI_Variable,
@@ -19,14 +20,17 @@ from ...model import (
     Property,
     PropertyVariable,
     Quantity,
+    QuantityVariable,
     SomeValueSnak,
     SomeValueSnakVariable,
     Statement,
     StatementVariable,
     String,
+    StringVariable,
     Text,
     TextVariable,
     Time,
+    TimeVariable,
     Value,
     ValueSnak,
     ValueSnakVariable,
@@ -171,13 +175,49 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                      NS.WIKIBASE.Url),
                                     (v_subject, wdt, v_value))
                                 self._bind_as_iri(v_value)
-                            with self._q.group():  # iri?
+                            with self._q.group():  # text?
                                 self._q.triples()(
                                     (v_property,
                                      NS.WIKIBASE.propertyType,
                                      NS.WIKIBASE.Monolingualtext),
                                     (v_subject, wdt, v_value))
                                 self._bind_as_text(v_value)
+                            with self._q.group():  # string?
+                                self._q.triples()(
+                                    (v_property,
+                                     NS.WIKIBASE.propertyType,
+                                     NS.WIKIBASE.String),
+                                    (v_subject, wdt, v_value))
+                                self._bind_as_string(v_value)
+                            with self._q.group():  # external id?
+                                self._q.triples()(
+                                    (v_property,
+                                     NS.WIKIBASE.propertyType,
+                                     NS.WIKIBASE.ExternalId),
+                                    (v_subject, wdt, v_value))
+                                self._bind_as_external_id(v_value)
+                            with self._q.group():  # quantity?
+                                wdv = self._q.fresh_var()
+                                self._q.triples()(
+                                    (v_property,
+                                     NS.WIKIBASE.propertyType,
+                                     NS.WIKIBASE.Quantity),
+                                    (v_subject, wdt, v_value),
+                                    (wds, psv, wdv),
+                                    (wdv, NS.RDF.type,
+                                     NS.WIKIBASE.QuantityValue))
+                                self._bind_as_quantity(v_value, wdv)
+                            with self._q.group():  # time?
+                                wdv = self._q.fresh_var()
+                                self._q.triples()(
+                                    (v_property,
+                                     NS.WIKIBASE.propertyType,
+                                     NS.WIKIBASE.Time),
+                                    (v_subject, wdt, v_value),
+                                    (wds, psv, wdv),
+                                    (wdv, NS.RDF.type,
+                                     NS.WIKIBASE.TimeValue))
+                                self._bind_as_time(v_value, wdv)
                         self._push_fingerprint(
                             filter.value, v_value, psv, wds)
             if try_some_value_snak:
@@ -228,17 +268,67 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         self._q.bind(dest, self._theta_add(iri, self._as_qvar(iri)))
 
     def _bind_as_iri(self, dest: Query.Variable):
-        string = self._fresh_string_variable()
-        self._theta_add(IRI_Variable(str(dest)), IRI(string))
-        self._q.bind(dest, self._theta_add(string, self._as_qvar(string)))
+        content = self._fresh_string_variable()
+        self._theta_add(IRI_Variable(str(dest)), IRI(content))
+        self._q.bind(dest, self._theta_add(content, self._as_qvar(content)))
 
     def _bind_as_text(self, dest: Query.Variable):
-        string = self._fresh_string_variable()
+        content = self._fresh_string_variable()
         lang = self._fresh_string_variable()
-        self._theta_add(TextVariable(str(dest)), Text(string, lang))
-        self._q.bind(dest, self._theta_add(string, self._as_qvar(string)))
-        self._q.bind(
-            self._q.lang(dest), self._theta_add(lang, self._as_qvar(lang)))
+        self._theta_add(TextVariable(str(dest)), Text(content, lang))
+        self._q.bind(dest, self._theta_add(content, self._as_qvar(content)))
+        self._q.bind(self._q.lang(dest), self._theta_add(
+            lang, self._as_qvar(lang)))
+
+    def _bind_as_string(self, dest: Query.Variable):
+        content = self._fresh_string_variable()
+        self._theta_add(StringVariable(str(dest)), String(content))
+        self._q.bind(dest, self._theta_add(content, self._as_qvar(content)))
+
+    def _bind_as_external_id(self, dest: Query.Variable):
+        content = self._fresh_string_variable()
+        self._theta_add(ExternalIdVariable(str(dest)), ExternalId(content))
+        self._q.bind(dest, self._theta_add(content, self._as_qvar(content)))
+
+    def _bind_as_quantity(self, dest: Query.Variable, wdv: Query.Variable):
+        amount = self._fresh_quantity_variable()
+        unit = self._theta_add_default(self._fresh_item_variable(), None)
+        lower = self._theta_add_default(self._fresh_quantity_variable(), None)
+        upper = self._theta_add_default(self._fresh_quantity_variable(), None)
+        self._theta_add(
+            QuantityVariable(str(dest)), Quantity(amount, unit, lower, upper))
+        v_amount, v_unit, v_lower, v_upper = self._as_qvars(
+            amount, unit, lower, upper)
+        self._theta_add(amount, v_amount)
+        self._q.triples()((wdv, NS.WIKIBASE.quantityAmount, v_amount))
+        self._theta_add(unit, v_unit)
+        with self._q.optional():
+            self._q.triples()((wdv, NS.WIKIBASE.quantityUnit, v_unit))
+        self._theta_add(lower, v_lower)
+        with self._q.optional():
+            self._q.triples()((wdv, NS.WIKIBASE.quantityLowerBound, v_lower))
+        self._theta_add(upper, v_upper)
+        with self._q.optional():
+            self._q.triples()((wdv, NS.WIKIBASE.quantityUpperBound, v_upper))
+
+    def _bind_as_time(self, dest: Query.Variable, wdv: Query.Variable):
+        time = self._fresh_time_variable()
+        prec = self._theta_add_default(self._fresh_quantity_variable(), None)
+        tz = self._theta_add_default(self._fresh_quantity_variable(), None)
+        cal = self._theta_add_default(self._fresh_item_variable(), None)
+        self._theta_add(TimeVariable(str(dest)), Time(time, prec, tz, cal))
+        v_time, v_prec, v_tz, v_cal = self._as_qvars(time, prec, tz, cal)
+        self._theta_add(time, v_time)
+        self._q.triples()((wdv, NS.WIKIBASE.timeValue, v_time))
+        self._theta_add(prec, v_prec)
+        with self._q.optional():
+            self._q.triples()((wdv, NS.WIKIBASE.timePrecision, v_prec))
+        self._theta_add(tz, v_tz)
+        with self._q.optional():
+            self._q.triples()((wdv, NS.WIKIBASE.timeTimezone, v_tz))
+        self._theta_add(cal, v_cal)
+        with self._q.optional():
+            self._q.triples()((wdv, NS.WIKIBASE.timeCalendarModel, v_cal))
 
     def _push_fingerprint(
             self,
@@ -393,44 +483,21 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             wdv: Query.Variable,
             bind: bool = True
     ):
-        v_qt_amount, v_qt_unit, v_qt_lower, v_qt_upper = self._q.vars(
-            f'{dest}_qt_amount',
-            f'{dest}_qt_unit',
-            f'{dest}_qt_lower',
-            f'{dest}_qt_upper')
         amount = self._q.literal(qt.amount)
         self._q.triples()((wdv, NS.WIKIBASE.quantityAmount, amount))
         if bind:
             self._q.bind(amount, dest)
-            self._q.bind(amount, v_qt_amount)
         if qt.unit is not None:
             unit = self._q.uri(qt.unit.iri.value)
             self._q.triples()((wdv, NS.WIKIBASE.quantityUnit, unit))
-            if bind:
-                self._q.bind(unit, v_qt_unit)
-        elif bind:
-            with self._q.optional():
-                self._q.triples()((wdv, NS.WIKIBASE.quantityUnit, v_qt_unit))
         if qt.lower_bound is not None:
             lower = self._q.literal(qt.lower_bound)
             self._q.triples()(
                 (wdv, NS.WIKIBASE.quantityLowerBound, lower))
-            if bind:
-                self._q.bind(lower, v_qt_lower)
-        elif bind:
-            with self._q.optional():
-                self._q.triples()(
-                    (wdv, NS.WIKIBASE.quantityLowerBound, v_qt_lower))
         if qt.upper_bound is not None:
             upper = self._q.literal(qt.upper_bound)
             self._q.triples()(
                 (wdv, NS.WIKIBASE.quantityUpperBound, upper))
-            if bind:
-                self._q.bind(upper, v_qt_upper)
-        elif bind:
-            with self._q.optional():
-                self._q.triples()(
-                    (wdv, NS.WIKIBASE.quantityUpperBound, v_qt_upper))
 
     def _push_time_value(
             self,
@@ -439,93 +506,21 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             wdv: Query.Variable,
             bind: bool = True
     ):
-        v_tm_time, v_tm_precision, v_tm_timezone, v_tm_calendar = self._q.vars(
-            f'{dest}_tm_time',
-            f'{dest}_tm_precision',
-            f'{dest}_tm_timezone',
-            f'{dest}_tm_calendar')
         time = self._q.literal(tm.time)
         self._q.triples()((wdv, NS.WIKIBASE.timeValue, time))
         if bind:
             self._q.bind(time, dest)
-            self._q.bind(time, v_tm_time)
         if tm.precision is not None:
             precision = self._q.literal(tm.precision.value)
             self._q.triples()(
                 (wdv, NS.WIKIBASE.timePrecision, precision))
-            if bind:
-                self._q.bind(precision, v_tm_precision)
-        elif bind:
-            with self._q.optional():
-                self._q.triples()(
-                    (wdv, NS.WIKIBASE.timePrecision, v_tm_precision))
         if tm.timezone is not None:
             timezone = self._q.literal(tm.timezone)
             self._q.triples()(
                 (wdv, NS.WIKIBASE.timeTimezone, timezone))
-            if bind:
-                self._q.bind(timezone, v_tm_timezone)
-        elif bind:
-            with self._q.optional():
-                self._q.triples()(
-                    (wdv, NS.WIKIBASE.timeTimezone, v_tm_timezone))
         if tm.calendar is not None:
             calendar = self._q.uri(tm.calendar.iri.value)
             self._q.triples()((wdv, NS.WIKIBASE.timeCalendarModel, calendar))
-            if bind:
-                self._q.bind(calendar, v_tm_calendar)
-        elif bind:
-            with self._q.optional():
-                self._q.triples()(
-                    (wdv, NS.WIKIBASE.timeCalendarModel, v_tm_calendar))
-
-    def _push_unknown_deep_data_value(
-            self,
-            dest: Query.Variable,
-            psv: Query.Variable,
-            wds: Query.Variable
-    ):
-        wdv = self._q.fresh_var()
-        with self._q.union():
-            with self._q.group():     # quantity?
-                v_qt_amount, v_qt_unit, v_qt_lower, v_qt_upper = self._q.vars(
-                    f'{dest}_qt_amount',
-                    f'{dest}_qt_unit',
-                    f'{dest}_qt_lower',
-                    f'{dest}_qt_upper')
-                self._q.triples()(
-                    (wds, psv, wdv),
-                    (wdv, NS.RDF.type, NS.WIKIBASE.QuantityValue),
-                    (wdv, NS.WIKIBASE.quantityAmount, v_qt_amount))
-                with self._q.optional():
-                    self._q.triples()(
-                        (wdv, NS.WIKIBASE.quantityUnit, v_qt_unit))
-                with self._q.optional():
-                    self._q.triples()(
-                        (wdv, NS.WIKIBASE.quantityLowerBound, v_qt_lower))
-                with self._q.optional():
-                    self._q.triples()(
-                        (wdv, NS.WIKIBASE.quantityUpperBound, v_qt_upper))
-            with self._q.group():     # time?
-                v_tm_time, v_tm_precision, v_tm_timezone, v_tm_calendar\
-                    = self._q.vars(
-                        f'{dest}_tm_time',
-                        f'{dest}_tm_precision',
-                        f'{dest}_tm_timezone',
-                        f'{dest}_tm_calendar')
-                self._q.triples()(
-                    (wds, psv, wdv),
-                    (wdv, NS.RDF.type, NS.WIKIBASE.TimeValue),
-                    (wdv, NS.WIKIBASE.timeValue, v_tm_time))
-                with self._q.optional():
-                    self._q.triples()(
-                        (wdv, NS.WIKIBASE.timePrecision, v_tm_precision))
-                with self._q.optional():
-                    self._q.triples()(
-                        (wdv, NS.WIKIBASE.timeTimezone, v_tm_timezone))
-                with self._q.optional():
-                    self._q.triples()(
-                        (wdv, NS.WIKIBASE.timeCalendarModel, v_tm_calendar))
 
     def _push_some_value_filter(
             self,
