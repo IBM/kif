@@ -52,7 +52,7 @@ class SPARQL_Compiler(Compiler):
 
     #: The default flags.
     default_flags: Final['Flags'] = (
-        Flags.ALL & ~(Flags.DEBUG & Flags.WIKIDATA_EXTENSIONS))
+        Flags.ALL & ~(Flags.DEBUG | Flags.WIKIDATA_EXTENSIONS))
 
     DEBUG = Flags.DEBUG
     BEST_RANK = Flags.BEST_RANK
