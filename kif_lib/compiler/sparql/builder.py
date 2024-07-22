@@ -84,6 +84,7 @@ class Symbol:
     AS: Final[str] = 'AS'
     ASK: Final[str] = 'ASK'
     BIND: Final[str] = 'BIND'
+    BOUND: Final[str] = 'BOUND'
     COMMENT: Final[str] = '#'
     DISTINCT: Final[str] = 'DISTINCT'
     DOT: Final[str] = '.'
@@ -91,6 +92,7 @@ class Symbol:
     FILTER: Final[str] = 'FILTER'
     GREATER_THAN: Final[str] = '>'
     GREATER_THAN_OR_EQUAL: Final[str] = '>='
+    IF: Final[str] = 'IF'
     INDENT: Final[str] = '  '
     IS_BLANK: Final[str] = 'isBlank'
     IS_URI: Final[str] = 'isURI'
@@ -460,6 +462,48 @@ class BinaryBuiltInCall(BuiltInCall):
             Coerce.numeric_expression(arg2))
 
 
+class TernaryBuiltInCall(BuiltInCall):
+    """Abstract base class for 3-ary built-in calls."""
+
+    def __init__(self, arg1: TNumExpr, arg2: TNumExpr, arg3: TNumExpr):
+        self.args = (
+            Coerce.numeric_expression(arg1),
+            Coerce.numeric_expression(arg2),
+            Coerce.numeric_expression(arg3))
+
+
+class BOUND(UnaryBuiltInCall):
+    """The BOUND built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-bound>.
+    """
+    operator: str = Symbol.BOUND
+
+
+class IF(TernaryBuiltInCall):
+    """The IF built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-if>.
+    """
+    operator: str = Symbol.IF
+
+
+class IsBlank(UnaryBuiltInCall):
+    """The isURI built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-isBlank>.
+    """
+    operator: str = Symbol.IS_BLANK
+
+
+class IsURI(UnaryBuiltInCall):
+    """The isURI built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-isIRI>.
+    """
+    operator: str = Symbol.IS_URI
+
+
 class LANG(UnaryBuiltInCall):
     """The LANG built-in.
 
@@ -490,22 +534,6 @@ class STRLANG(BinaryBuiltInCall):
     See <https://www.w3.org/TR/sparql11-query/#func-strlang>.
     """
     operator: str = Symbol.STRLANG
-
-
-class IsBlank(UnaryBuiltInCall):
-    """The isURI built-in.
-
-    See <https://www.w3.org/TR/sparql11-query/#func-isBlank>.
-    """
-    operator: str = Symbol.IS_BLANK
-
-
-class IsURI(UnaryBuiltInCall):
-    """The isURI built-in.
-
-    See <https://www.w3.org/TR/sparql11-query/#func-isIRI>.
-    """
-    operator: str = Symbol.IS_URI
 
 
 # == Pattern ===============================================================
@@ -1287,8 +1315,19 @@ class Query(Encodable):
 
 # -- Functions -------------------------------------------------------------
 
+    def bound(self, arg1: TNumExpr) -> BuiltInCall:
+        return BOUND(arg1)
+
     def call(self, op: T_URI, *args: TNumExpr) -> URI_Call:
         return URI_Call(op, *args)
+
+    def if_(
+            self,
+            arg1: TNumExpr,
+            arg2: TNumExpr,
+            arg3: TNumExpr
+    ) -> BuiltInCall:
+        return IF(arg1, arg2, arg3)
 
     def lang(self, arg: TNumExpr) -> BuiltInCall:
         return LANG(arg)

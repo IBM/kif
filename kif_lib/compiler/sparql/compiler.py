@@ -37,6 +37,9 @@ class SPARQL_Compiler(Compiler):
         #: Whether to push early filters.
         EARLY_FILTER = enum.auto()
 
+        #: Whether to use Wikidata RDF extensions.
+        WIKIDATA_EXTENSIONS = enum.auto()
+
         #: All flags.
         ALL = (
             DEBUG
@@ -44,10 +47,12 @@ class SPARQL_Compiler(Compiler):
             | VALUE_SNAK
             | SOME_VALUE_SNAK
             | NO_VALUE_SNAK
-            | EARLY_FILTER)
+            | EARLY_FILTER
+            | WIKIDATA_EXTENSIONS)
 
     #: The default flags.
-    default_flags: Final['Flags'] = Flags.ALL & ~Flags.DEBUG
+    default_flags: Final['Flags'] = (
+        Flags.ALL & ~(Flags.DEBUG & Flags.WIKIDATA_EXTENSIONS))
 
     DEBUG = Flags.DEBUG
     BEST_RANK = Flags.BEST_RANK
@@ -55,6 +60,7 @@ class SPARQL_Compiler(Compiler):
     SOME_VALUE_SNAK = Flags.SOME_VALUE_SNAK
     NO_VALUE_SNAK = Flags.NO_VALUE_SNAK
     EARLY_FILTER = Flags.EARLY_FILTER
+    WIKIDATA_EXTENSIONS = Flags.WIKIDATA_EXTENSIONS
 
     __slots__ = (
         '_q',

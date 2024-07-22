@@ -9,22 +9,27 @@ from ...model import (
     ExternalId,
     Filter,
     IRI,
+    IRI_Variable,
     Item,
     ItemVariable,
     Lexeme,
     LexemeVariable,
     NoValueSnak,
+    NoValueSnakVariable,
     Property,
     PropertyVariable,
     Quantity,
     SomeValueSnak,
+    SomeValueSnakVariable,
     Statement,
     StatementVariable,
     String,
     Text,
+    TextVariable,
     Time,
     Value,
     ValueSnak,
+    ValueSnakVariable,
     Variable,
 )
 from ...model.fingerprint import (
@@ -88,14 +93,14 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         assert isinstance(self.pattern, StatementVariable)
         subject = self._fresh_entity_variable()
         snak = self._fresh_snak_variable()
-        property = self._fresh_property_variable()
         self._theta_add(self.pattern, Statement(subject, snak))
+        property = self._fresh_property_variable()
         v_subject, v_property = self._as_qvars(subject, property)
-        v_value = self._q.var('value')
-        p, ps, psv, wdno, wds = self._q.fresh_vars(5)
+        p, ps, psv, wdno, wdt, wds = self._q.fresh_vars(6)
         self._q.triples()(
             (v_subject, p, wds),
             (v_property, NS.WIKIBASE.claim, p),
+            (v_property, NS.WIKIBASE.directClaim, wdt),
             (v_property, NS.WIKIBASE.novalue, wdno),
             (v_property, NS.WIKIBASE.statementProperty, ps),
             (v_property, NS.WIKIBASE.statementValue, psv))
@@ -117,38 +122,86 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self._bind_as_property(v_property)
             self._push_fingerprint(filter.property, v_property, psv, wds)
         # Push value.
-        if (not filter.value.is_empty()
-                and not filter.value.is_full()):  # specified value?
-            self._q.triples()((wds, ps, v_value))
-            self._push_fingerprint(filter.value, v_value, psv, wds)
-        else:                   # no/some value or unspecified value
-            try_value_snak = bool(
-                not filter.value.is_empty()
-                and filter.snak_mask & Filter.VALUE_SNAK
-                and self.has_flags(self.VALUE_SNAK))
-            try_some_value_snak = bool(
-                filter.snak_mask & Filter.SOME_VALUE_SNAK
-                and self.has_flags(self.SOME_VALUE_SNAK))
-            try_no_value_snak = bool(
-                filter.snak_mask & Filter.NO_VALUE_SNAK
-                and self.has_flags(self.NO_VALUE_SNAK))
-            with self._q.union():
-                if try_value_snak or try_some_value_snak:
+        try_value_snak = bool(
+            not filter.value.is_empty()
+            and filter.snak_mask & Filter.VALUE_SNAK
+            and self.has_flags(self.VALUE_SNAK))
+        try_some_value_snak = bool(
+            (filter.value.is_empty() or filter.value.is_full())
+            and filter.snak_mask & Filter.SOME_VALUE_SNAK
+            and self.has_flags(self.SOME_VALUE_SNAK))
+        try_no_value_snak = bool(
+            (filter.value.is_empty() or filter.value.is_full())
+            and filter.snak_mask & Filter.NO_VALUE_SNAK
+            and self.has_flags(self.NO_VALUE_SNAK))
+        assert try_value_snak or try_some_value_snak or try_no_value_snak
+        with self._q.union():
+            if try_value_snak:
+                with self._q.group():
+                    value = self._fresh_value_variable()
+                    v_value = self._as_qvar(value)
+                    self._theta_add(
+                        ValueSnakVariable(snak.name),
+                        ValueSnak(property, value))
+                    self._q.triples()((wds, ps, v_value))
                     with self._q.group():
-                        self._q.triples()((wds, ps, v_value))
-                        if self.has_flags(self.EARLY_FILTER):
-                            if not try_value_snak:
-                                self._push_some_value_filter(v_value)
-                            elif not try_some_value_snak:
-                                self._push_some_value_filter(
-                                    v_value, negate=True)
-                        if try_value_snak:  # deep data value?
-                            with self._q.optional():
-                                self._push_unknown_deep_data_value(
-                                    v_value, psv, wds)
-                if try_no_value_snak:
-                    with self._q.group():
-                        self._q.triples()((wds, NS.RDF.type, wdno))
+                        with self._q.union():
+                            with self._q.group():  # item?
+                                self._q.triples()(
+                                    (v_property,
+                                     NS.WIKIBASE.propertyType,
+                                     NS.WIKIBASE.WikibaseItem))
+                                self._bind_as_item(v_value)
+                            with self._q.group():  # property?
+                                self._q.triples()(
+                                    (v_property,
+                                     NS.WIKIBASE.propertyType,
+                                     NS.WIKIBASE.WikibaseProperty))
+                                self._bind_as_property(v_value)
+                            with self._q.group():  # lexeme?
+                                self._q.triples()(
+                                    (v_property,
+                                     NS.WIKIBASE.propertyType,
+                                     NS.WIKIBASE.WikibaseLexeme))
+                                self._bind_as_lexeme(v_value)
+                            with self._q.group():  # iri?
+                                self._q.triples()(
+                                    (v_property,
+                                     NS.WIKIBASE.propertyType,
+                                     NS.WIKIBASE.Url),
+                                    (v_subject, wdt, v_value))
+                                self._bind_as_iri(v_value)
+                            with self._q.group():  # iri?
+                                self._q.triples()(
+                                    (v_property,
+                                     NS.WIKIBASE.propertyType,
+                                     NS.WIKIBASE.Monolingualtext),
+                                    (v_subject, wdt, v_value))
+                                self._bind_as_text(v_value)
+                        self._push_fingerprint(
+                            filter.value, v_value, psv, wds)
+            if try_some_value_snak:
+                with self._q.group():
+                    some_prop = self._fresh_property_variable()
+                    self._bind_as_property(self._as_qvar(some_prop))
+                    self._theta_add(
+                        SomeValueSnakVariable(snak.name),
+                        SomeValueSnak(some_prop))
+                    v_some = self._q.fresh_var()
+                    self._q.triples()(
+                        (self._as_qvar(some_prop),
+                         NS.WIKIBASE.statementProperty, ps),
+                        (wds, ps, v_some))
+                    self._push_some_value_filter(v_some)
+            if try_no_value_snak:
+                with self._q.group():
+                    no_prop = self._fresh_property_variable()
+                    self._bind_as_property(self._as_qvar(no_prop))
+                    self._theta_add(
+                        NoValueSnakVariable(snak.name), NoValueSnak(no_prop))
+                    self._q.triples()(
+                        (self._as_qvar(no_prop), NS.WIKIBASE.novalue, wdno),
+                        (wds, NS.RDF.type, wdno))
 
     def _bind_as_item(self, dest: Query.Variable):
         iri = self._fresh_iri_variable()
@@ -174,6 +227,19 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         self._q.triples()((dest, NS.RDF.type, NS.ONTOLEX.LexicalEntry))
         self._q.bind(dest, self._theta_add(iri, self._as_qvar(iri)))
 
+    def _bind_as_iri(self, dest: Query.Variable):
+        string = self._fresh_string_variable()
+        self._theta_add(IRI_Variable(str(dest)), IRI(string))
+        self._q.bind(dest, self._theta_add(string, self._as_qvar(string)))
+
+    def _bind_as_text(self, dest: Query.Variable):
+        string = self._fresh_string_variable()
+        lang = self._fresh_string_variable()
+        self._theta_add(TextVariable(str(dest)), Text(string, lang))
+        self._q.bind(dest, self._theta_add(string, self._as_qvar(string)))
+        self._q.bind(
+            self._q.lang(dest), self._theta_add(lang, self._as_qvar(lang)))
+
     def _push_fingerprint(
             self,
             fp: Fp,
@@ -184,15 +250,15 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         assert not fp.is_empty()
         if isinstance(fp, CompoundFp):
             with self._q.group():
-                self._q.comments()(f'?{dest} := {type(fp).__qualname__}')
+                self._q.comments()(f'{dest} := {type(fp).__qualname__}')
                 self._push_compound_fingerprint(fp, dest, psv, wds)
         elif isinstance(fp, SnakFp):
             with self._q.group():
-                self._q.comments()(f'?{dest} := {fp}')
+                self._q.comments()(f'{dest} := {fp}')
                 self._push_snak_fingerprint(fp, dest)
         elif isinstance(fp, ValueFp):
             with self._q.group():
-                self._q.comments()(f'?{dest} := {fp}')
+                self._q.comments()(f'{dest} := {fp}')
                 self._push_value_fingerprints((fp,), dest, psv, wds)
         elif isinstance(fp, FullFp):
             pass                # nothing to do
@@ -466,13 +532,12 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             dest: Query.Variable,
             negate: bool = False
     ):
-        ###
-        # TODO: Use native test when available.
-        ###
-        # return q.call(NS.WIKIBASE.isSomeValue, dest)
-        cond = self._q.is_blank(dest) | (
-            self._q.is_uri(dest) & self._q.strstarts(
-                self._q.str(dest), str(NS.WDGENID)))
+        if self.has_flags(self.WIKIDATA_EXTENSIONS):
+            cond = self._q.call(NS.WIKIBASE.isSomeValue, dest)
+        else:
+            cond = self._q.is_blank(dest) | (
+                self._q.is_uri(dest) & self._q.strstarts(
+                    self._q.str(dest), str(NS.WDGENID)))
         self._q.filter(cond if not negate else ~cond)
 
     def _as_simple_value(

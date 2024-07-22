@@ -29,6 +29,7 @@ from ...model import (
     NoValueSnak,
     NoValueSnakTemplate,
     NoValueSnakVariable,
+    NoValueSnakVariable,
     Property,
     PropertyTemplate,
     PropertyVariable,
@@ -40,6 +41,7 @@ from ...model import (
     SnakVariable,
     SomeValueSnak,
     SomeValueSnakTemplate,
+    SomeValueSnakVariable,
     SomeValueSnakVariable,
     Statement,
     StatementTemplate,
@@ -58,6 +60,7 @@ from ...model import (
     Value,
     ValueSnak,
     ValueSnakTemplate,
+    ValueSnakVariable,
     ValueSnakVariable,
     ValueTemplate,
     ValueVariable,
@@ -211,6 +214,18 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
 
     def _fresh_snak_variable(self) -> SnakVariable:
         return cast(SnakVariable, self._fresh_variable(SnakVariable))
+
+    def _fresh_value_snak_variable(self) -> ValueSnakVariable:
+        return cast(ValueSnakVariable, self._fresh_variable(
+            ValueSnakVariable))
+
+    def _fresh_some_value_snak_variable(self) -> SomeValueSnakVariable:
+        return cast(SomeValueSnakVariable, self._fresh_variable(
+            SomeValueSnakVariable))
+
+    def _fresh_no_value_snak_variable(self) -> NoValueSnakVariable:
+        return cast(NoValueSnakVariable, self._fresh_variable(
+            NoValueSnakVariable))
 
     def _fresh_statement_variable(self) -> StatementVariable:
         return cast(StatementVariable, self._fresh_variable(StatementVariable))
