@@ -197,7 +197,7 @@ class SPARQL_Store(
             text: str,
             **kwargs: Any
     ) -> SPARQL_Results:
-        text = self._prepare_query_string_wrapper(text)
+        # text = self._prepare_query_string_wrapper(text)
         return SPARQL_Results(self._eval_query_string(text, **kwargs).json())
 
     def _prepare_query_string_wrapper(self, text: str) -> str:
