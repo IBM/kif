@@ -4,6 +4,7 @@
 from typing import cast
 
 from kif_lib import (
+    ExternalId,
     Filter,
     Item,
     KIF_Object,
@@ -183,11 +184,11 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         stmt = next(kb.filter(
             value=Text('Federative Republic of Brazil', 'en')))
         self.assert_statement(stmt, wd.Brazil, ValueSnak(
-            wd.name_in_native_language,
+            wd.name_in_native_language.replace(KIF_Object.KEEP, Text),
             Text('Federative Republic of Brazil', 'en')))
         # value: string
         stmt = next(kb.filter(value=String('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
-        self.assert_statement(stmt, wd.benzene, wd.InChIKey(String(
+        self.assert_statement(stmt, wd.benzene, wd.InChIKey(ExternalId(
             'UHOVQNZJYSORNB-UHFFFAOYSA-N')))
         # subject & property
         stmt = next(kb.filter(subject=wd.benzene, property=wd.mass))
@@ -234,12 +235,15 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         ###
         # subject & property: some value
         stmt = next(kb.filter(wd.Adam, wd.date_of_birth))
-        self.assert_some_value_snak(stmt.snak, wd.date_of_birth)
+        self.assert_some_value_snak(
+            stmt.snak, wd.date_of_birth.replace(KIF_Object.KEEP, Time))
         stmt = next(kb.filter(wd.Adam, wd.date_of_death))
-        self.assert_some_value_snak(stmt.snak, wd.date_of_death)
+        self.assert_some_value_snak(
+            stmt.snak, wd.date_of_death.replace(KIF_Object.KEEP, Time))
         # subject & property: no value
         stmt = next(kb.filter(wd.Adam, wd.father))
-        self.assert_no_value_snak(stmt.snak, wd.father)
+        self.assert_no_value_snak(
+            stmt.snak, wd.father.replace(KIF_Object.KEEP, Item))
         # snak_class: some value
         some = list(sorted(kb.filter(
             wd.Adam, None, None, Filter.SOME_VALUE_SNAK)))
@@ -247,8 +251,10 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         # snak_class: no value
         wdno = list(sorted(kb.filter(
             wd.Adam, None, None, Filter.NO_VALUE_SNAK)))
-        self.assert_statement(wdno[0], wd.Adam, NoValueSnak(wd.father))
-        self.assert_statement(wdno[1], wd.Adam, NoValueSnak(wd.mother))
+        self.assert_statement(wdno[0], wd.Adam, NoValueSnak(
+            wd.father.replace(KIF_Object.KEEP, Item)))
+        self.assert_statement(wdno[1], wd.Adam, NoValueSnak(
+            wd.mother.replace(KIF_Object.KEEP, Item)))
         # subject & property: some value (newer Wikidata)
         kb = self.new_Store()
         it = kb.filter(wd.Adam, wd.date_of_death)
@@ -266,10 +272,12 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assertIsInstance(stmt.subject, Property)
         # snak: some value
         stmt = next(kb.filter(wd.Adam, snak=SomeValueSnak(wd.family_name)))
-        self.assert_statement(stmt, wd.Adam, SomeValueSnak(wd.family_name))
+        self.assert_statement(stmt, wd.Adam, SomeValueSnak(
+            wd.family_name.replace(KIF_Object.KEEP, Item)))
         # snak: no value
         stmt = next(kb.filter(wd.Adam, snak=NoValueSnak(wd.father)))
-        self.assert_statement(stmt, wd.Adam, NoValueSnak(wd.father))
+        self.assert_statement(stmt, wd.Adam, NoValueSnak(
+            wd.father.replace(KIF_Object.KEEP, Item)))
         # empty criteria: some value
         kb.unset_flags(kb.SOME_VALUE_SNAK)
         self.assertFalse(list(kb.filter(

@@ -116,16 +116,15 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         property = self._fresh_property_variable()
         v_subject, v_property = self._as_qvars(subject, property)
         wds = self.wds
-        p, ps, psv, wdno, wdt = self._q.fresh_vars(5)
+        p, psv, wdt = self._q.fresh_vars(3)
         self._q.triples()(
             (v_subject, p, wds),
             (v_property, NS.WIKIBASE.claim, p),
             (v_property, NS.WIKIBASE.directClaim, wdt),
-            (v_property, NS.WIKIBASE.novalue, wdno),
-            (v_property, NS.WIKIBASE.statementProperty, ps),
             (v_property, NS.WIKIBASE.statementValue, psv))
         # Best-ranked only?
-        if self.has_flags(self.BEST_RANK):
+        best_ranked = self.has_flags(self.BEST_RANK)
+        if best_ranked:
             self._q.triples()((wds, NS.RDF.type, NS.WIKIBASE.BestRank))
         # Push subject.
         with self._q.group():
@@ -163,7 +162,13 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                     self._theta_add(
                         ValueSnakVariable(snak.name),
                         ValueSnak(property, value))
-                    self._q.triples()((wds, ps, v_value))
+                    ###
+                    # TODO: Use wdt instead of ps when BEST_RANK is on.
+                    ###
+                    ps = self._q.fresh_var()
+                    self._q.triples()(
+                        (v_property, NS.WIKIBASE.statementProperty, ps),
+                        (wds, ps, v_value))
                     with self._q.group():
                         with self._q.union():
                             with self._q.group():  # item?
@@ -189,47 +194,51 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                     (v_property,
                                      NS.WIKIBASE.propertyType,
                                      NS.WIKIBASE.Url),
-                                    (v_subject, wdt, v_value))
+                                    (wds, ps, v_value))
                                 self._bind_as_iri(v_value)
                             with self._q.group():  # text?
                                 self._q.triples()(
                                     (v_property,
                                      NS.WIKIBASE.propertyType,
                                      NS.WIKIBASE.Monolingualtext),
-                                    (v_subject, wdt, v_value))
+                                    (wds, ps, v_value))
                                 self._bind_as_text(v_value)
                             with self._q.group():  # string?
                                 self._q.triples()(
                                     (v_property,
                                      NS.WIKIBASE.propertyType,
                                      NS.WIKIBASE.String),
-                                    (v_subject, wdt, v_value))
+                                    (wds, ps, v_value))
                                 self._bind_as_string(v_value)
                             with self._q.group():  # external id?
                                 self._q.triples()(
                                     (v_property,
                                      NS.WIKIBASE.propertyType,
                                      NS.WIKIBASE.ExternalId),
-                                    (v_subject, wdt, v_value))
+                                    (wds, ps, v_value))
                                 self._bind_as_external_id(v_value)
                             with self._q.group():  # quantity?
-                                wdv = self._q.fresh_var()
+                                psv, wdv = self._q.fresh_vars(2)
                                 self._q.triples()(
                                     (v_property,
                                      NS.WIKIBASE.propertyType,
                                      NS.WIKIBASE.Quantity),
-                                    (v_subject, wdt, v_value),
+                                    (v_property,
+                                     NS.WIKIBASE.statementValue,
+                                     psv),
                                     (wds, psv, wdv),
                                     (wdv, NS.RDF.type,
                                      NS.WIKIBASE.QuantityValue))
                                 self._bind_as_quantity(v_value, wdv)
                             with self._q.group():  # time?
-                                wdv = self._q.fresh_var()
+                                psv, wdv = self._q.fresh_vars(2)
                                 self._q.triples()(
                                     (v_property,
                                      NS.WIKIBASE.propertyType,
                                      NS.WIKIBASE.Time),
-                                    (v_subject, wdt, v_value),
+                                    (v_property,
+                                     NS.WIKIBASE.statementValue,
+                                     psv),
                                     (wds, psv, wdv),
                                     (wdv, NS.RDF.type,
                                      NS.WIKIBASE.TimeValue))
@@ -243,19 +252,22 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                     self._theta_add(
                         SomeValueSnakVariable(snak.name),
                         SomeValueSnak(some_prop))
-                    v_some = self._q.fresh_var()
+                    ps, v_some = self._q.fresh_vars(2)
                     self._q.triples()(
+                        (v_property, NS.WIKIBASE.statementProperty, ps),
                         (self._as_qvar(some_prop),
                          NS.WIKIBASE.statementProperty, ps),
                         (wds, ps, v_some))
                     self._push_some_value_filter(v_some)
             if try_no_value_snak:
                 with self._q.group():
+                    wdno = self._q.fresh_var()
                     no_prop = self._fresh_property_variable()
                     self._bind_as_property(self._as_qvar(no_prop))
                     self._theta_add(
                         NoValueSnakVariable(snak.name), NoValueSnak(no_prop))
                     self._q.triples()(
+                        (v_property, NS.WIKIBASE.novalue, wdno),
                         (self._as_qvar(no_prop), NS.WIKIBASE.novalue, wdno),
                         (wds, NS.RDF.type, wdno))
 

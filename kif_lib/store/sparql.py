@@ -368,6 +368,8 @@ At line {line}, column {column}:
                 self._cache_add_wds(stmt, URIRef(binding[str(wds)]['value']))
                 yield stmt
                 count += 1
+            if len(bindings) < self.page_size:
+                break           # done
             if count == limit:
                 break           # done
             offset += self.page_size
