@@ -31,7 +31,7 @@
 
 # family name
 wd:P734
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:claim p:P734 ;
     wikibase:directClaim wdt:P734 ;
     wikibase:novalue wdno:P734 ;
@@ -41,7 +41,7 @@ wd:P734
 
 # father
 wd:P22
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:claim p:P22 ;
     wikibase:directClaim wdt:P22 ;
     wikibase:novalue wdno:P22 ;
@@ -51,9 +51,8 @@ wd:P22
 
 # date of birth
 wd:P569
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:claim p:P569 ;
-    wikibase:directClaim wdt:P569 ;
     wikibase:directClaim wdt:P569 ;
     wikibase:novalue wdno:P569 ;
     wikibase:propertyType wikibase:Time ;
@@ -63,7 +62,7 @@ wd:P569
 # Adam
 wd:Q70899
 
-    schema:version "0"^^xsd:integer ;
+    wikibase:sitelinks [] ;
 
     rdfs:label "Adam"@en ;
     rdfs:label "Adán"@es ;
@@ -86,7 +85,6 @@ wd:Q70899
         ps:P734 wdgenid:some_family_name ;
         ] ;
 
-
     # father
     p:P22 [
         a wikibase:BestRank ;
@@ -94,7 +92,7 @@ wd:Q70899
         a wdno:P22 ;
         ] ;
 
-    # date of birth
+    # # date of birth
     p:P569 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:PreferredRank ;
@@ -105,6 +103,7 @@ wd:Q70899
         ] ;
 
     # date of birth
+    wdt:P569 "4003-01-01T00:00:00Z"^^xsd:dateTime ;
     p:P569 [
         wikibase:rank wikibase:NormalRank ;
         ps:P569 "4003-01-01T00:00:00Z"^^xsd:dateTime ;

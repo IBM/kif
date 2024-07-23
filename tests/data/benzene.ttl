@@ -30,7 +30,7 @@
 
 # instance of
 wd:P31
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:claim p:P31 ;
     wikibase:directClaim wdt:P31 ;
     wikibase:novalue wdno:P31 ;
@@ -40,17 +40,17 @@ wd:P31
 
 # related property
 wd:P1659
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:claim p:P1659 ;
     wikibase:directClaim wdt:P1659 ;
     wikibase:novalue wdno:P1659 ;
-    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:propertyType wikibase:WikibaseProperty ;
     wikibase:statementProperty ps:P1659 ;
     wikibase:statementValue psv:P1659 .
 
 # mass
 wd:P2067
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:claim p:P2067 ;
     wikibase:directClaim wdt:P2067 ;
     wikibase:novalue wdno:P2067 ;
@@ -60,7 +60,7 @@ wd:P2067
 
 # density
 wd:P2054
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:claim p:P2054 ;
     wikibase:directClaim wdt:P2054 ;
     wikibase:novalue wdno:P2054 ;
@@ -68,10 +68,23 @@ wd:P2054
     wikibase:statementProperty ps:P2054 ;
     wikibase:statementValue psv:P2054 .
 
+# Wikidata property to identify substances
+wd:Q19833835
+    wikibase:sitelinks [] .
+
+# InChI
+wd:P234
+    a wikibase:Property ;
+    wikibase:claim p:P234 ;
+    wikibase:directClaim wdt:P234 ;
+    wikibase:novalue wdno:P234 ;
+    wikibase:propertyType wikibase:ExternalId ;
+    wikibase:statementProperty ps:P234 ;
+    wikibase:statementValue psv:P234 .
+
 # InChIKey
 wd:P235
-
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:claim p:P235 ;
     wikibase:directClaim wdt:P235 ;
     wikibase:novalue wdno:P235 ;
@@ -100,11 +113,12 @@ wd:P235
         ps:P1659 wd:P234 ;
         ] .
 
+wd:Q113145171
+    wikibase:sitelinks [] .
+
 # benzene
 wd:Q2270
-
-    # description
-    schema:version "0"^^xsd:integer ;
+    wikibase:sitelinks [] ;
     rdfs:label "benzene"@en ;
     skos:altLabel "benzol"@en ;
 

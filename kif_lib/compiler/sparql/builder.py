@@ -86,6 +86,7 @@ class Symbol:
     BIND: Final[str] = 'BIND'
     BOUND: Final[str] = 'BOUND'
     COMMENT: Final[str] = '#'
+    COUNT: Final[str] = 'COUNT'
     DISTINCT: Final[str] = 'DISTINCT'
     DOT: Final[str] = '.'
     EQUAL: Final[str] = '='
@@ -453,6 +454,10 @@ class UnaryBuiltInCall(BuiltInCall):
         self.args = (Coerce.numeric_expression(arg),)
 
 
+class Aggregate(UnaryBuiltInCall):
+    """Abstract base class for aggregates."""
+
+
 class BinaryBuiltInCall(BuiltInCall):
     """Abstract base class for 2-ary built-in calls."""
 
@@ -478,6 +483,26 @@ class BOUND(UnaryBuiltInCall):
     See <https://www.w3.org/TR/sparql11-query/#func-bound>.
     """
     operator: str = Symbol.BOUND
+
+
+class COUNT(Aggregate):
+    """The COUNT aggregate built-in."""
+
+    operator: str = Symbol.COUNT
+
+
+class COUNT_STAR(COUNT):
+    """The COUNT aggregate built-in with argument set to star (*)."""
+
+    def __init__(self):
+        self.args = ()
+
+    @override
+    def iterencode(self) -> Iterator[str]:
+        yield self.operator
+        yield '('
+        yield '*'
+        yield ')'
 
 
 class IF(TernaryBuiltInCall):
@@ -1315,36 +1340,42 @@ class Query(Encodable):
 
 # -- Functions -------------------------------------------------------------
 
-    def bound(self, arg1: TNumExpr) -> BuiltInCall:
+    def bound(self, arg1: TNumExpr) -> BOUND:
         return BOUND(arg1)
 
     def call(self, op: T_URI, *args: TNumExpr) -> URI_Call:
         return URI_Call(op, *args)
+
+    def count(self, arg1: Optional[TNumExpr] = None) -> COUNT:
+        if arg1 is None:
+            return COUNT_STAR()
+        else:
+            return COUNT(arg1)
 
     def if_(
             self,
             arg1: TNumExpr,
             arg2: TNumExpr,
             arg3: TNumExpr
-    ) -> BuiltInCall:
+    ) -> IF:
         return IF(arg1, arg2, arg3)
 
-    def lang(self, arg: TNumExpr) -> BuiltInCall:
+    def lang(self, arg: TNumExpr) -> LANG:
         return LANG(arg)
 
-    def str(self, arg: TNumExpr) -> BuiltInCall:
+    def str(self, arg: TNumExpr) -> STR:
         return STR(arg)
 
-    def strlang(self, arg1: TNumExpr, arg2: TNumExpr) -> BuiltInCall:
+    def strlang(self, arg1: TNumExpr, arg2: TNumExpr) -> STRLANG:
         return STRLANG(arg1, arg2)
 
-    def strstarts(self, arg1: TNumExpr, arg2: TNumExpr) -> BuiltInCall:
+    def strstarts(self, arg1: TNumExpr, arg2: TNumExpr) -> STRSTARTS:
         return STRSTARTS(arg1, arg2)
 
-    def is_blank(self, arg: TNumExpr) -> BuiltInCall:
+    def is_blank(self, arg: TNumExpr) -> IsBlank:
         return IsBlank(arg)
 
-    def is_uri(self, arg: TNumExpr) -> BuiltInCall:
+    def is_uri(self, arg: TNumExpr) -> IsURI:
         return IsURI(arg)
 
 # -- Non-graph patterns ----------------------------------------------------

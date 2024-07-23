@@ -9,7 +9,7 @@ from rdflib.plugins.sparql.sparql import Query
 
 from .. import itertools
 from .. import namespace as NS
-from ..compiler.sparql import SPARQL_PatternCompiler
+from ..compiler.sparql import SPARQL_FilterCompiler, SPARQL_PatternCompiler
 from ..compiler.sparql.builder import BooleanExpression, SelectQuery
 from ..compiler.sparql.builder import Variable as QueryVariable
 from ..model import (
@@ -39,6 +39,8 @@ from ..model import (
     Snak,
     SomeValueSnak,
     Statement,
+    StatementTemplate,
+    StatementVariable,
     String,
     T_IRI,
     Text,
@@ -210,10 +212,15 @@ class SPARQL_Store(
     def _eval_select_query_string(
             self,
             text: str,
+            fake_results: bool = False,
             **kwargs: Any
     ) -> SPARQL_Results:
-        text = self._prepare_query_string_wrapper(text)
-        return SPARQL_Results(self._eval_query_string(text, **kwargs).json())
+        # text = self._prepare_query_string_wrapper(text)
+        results = self._eval_query_string(text, **kwargs).json()
+        if fake_results:
+            return cast(SPARQL_Results, results)
+        else:
+            return SPARQL_Results(results)
 
     def _prepare_query_string_wrapper(self, text: str) -> str:
         return self._prepare_query_string(text)._original_args[0]
@@ -295,38 +302,28 @@ At line {line}, column {column}:
 
     @override
     def _contains(self, filter: Filter) -> bool:
-        it = self._filter_with_hooks(filter, 1, False)
-        try:
-            next(it)
-            return True
-        except StopIteration:
-            return False
+        compiler = self._compile_filter1(filter)
+        res = self._eval_select_query_string(
+            str(compiler.query.ask()), fake_results=True)
+        return res['boolean']
 
     @override
     def _count(self, filter: Filter) -> int:
-        q = self._make_count_query(filter)
-        ###
-        # NOTE: If we use ?wds instead of "*" here, the WQS times out.
-        ###
-        text = q.select('(count (distinct *) as ?count)')
-        res = self._eval_select_query_string(text)
-        return self._parse_count_query_results(res)
-
-    def _make_count_query(self, filter: Filter) -> SPARQL_Builder:
-        if filter.is_nonfull():
-            return self._make_filter_query(filter)
+        if not filter.is_full():
+            compiler = self._compile_filter1(filter)
+            q = compiler.query
         else:
-            q = SPARQL_Builder()
-            with q.where():
-                wds = q.var('wds')
-                if self.has_flags(self.BEST_RANK):
-                    q.triple(wds, NS.RDF.type, NS.WIKIBASE.BestRank)
-                else:
-                    q.triple(wds, NS.WIKIBASE.rank, q.var('rank'))
-            return q
-
-    def _parse_count_query_results(self, results: SPARQL_Results) -> int:
-        return int(next(results.bindings).check_literal('count'))
+            q = SPARQL_PatternCompiler.Query()
+            wds = q.fresh_var()
+            if self.has_flags(self.BEST_RANK):
+                q.triples()((wds, NS.RDF.type, NS.WIKIBASE.BestRank))
+            else:
+                q.triples()((wds, NS.WIKIBASE.rank, q.var('rank')))
+        count = q.fresh_var()
+        res = self._eval_select_query_string(
+            str(q.select((q.count(), count))))
+        assert len(res['results']['bindings']) == 1
+        return int(res['results']['bindings'][0][str(count)]['value'])
 
     _filter_vars = (
         '?datatype',
@@ -351,20 +348,65 @@ At line {line}, column {column}:
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
-        assert limit > 0
-        q = self._make_filter_query(filter)
-        if (q.has_variable(q.var('subject'))
-                and q.has_variable(q.var('property'))):
-            order_by = '?wds' if self.has_flags(self.ORDER) else None
-            return self._eval_select_query(
-                q, lambda res: self._parse_filter_results(res, filter),
-                vars=self._filter_vars,
-                limit=limit, distinct=distinct, order_by=order_by, trim=True)
+        compiler = self._compile_filter1(filter)
+        offset, count = 0, 0
+        assert limit >= 0
+        while count <= limit:
+            query = compiler.query.select(
+                limit=self.page_size, offset=offset, distinct=distinct)
+            assert isinstance(compiler.pattern, StatementVariable)
+            pattern = compiler.pattern
+            res = self._eval_select_query_string(str(query))
+            bindings = res['results']['bindings']
+            if not bindings:
+                break           # done
+            for binding in bindings:
+                theta = compiler.theta.instantiate(binding)
+                # for k, v in theta.items():
+                #     print(k, v)
+                stmt = pattern.instantiate(theta)
+                # print(stmt)
+                assert isinstance(stmt, Statement)
+                yield stmt
+                count += 1
+            if count == limit:
+                break           # done
+            offset += self.page_size
+
+    def _compile_filter1(
+            self,
+            filter: Filter
+    ) -> SPARQL_FilterCompiler:
+        compiler = SPARQL_FilterCompiler(filter)
+        compiler.set_flags(compiler.DEBUG)
+        if self.has_flags(self.BEST_RANK):
+            compiler.set_flags(compiler.BEST_RANK)
         else:
-            LOG.debug(
-                '%s(): nothing to select:\n%s', self._filter.__qualname__,
-                q.select(*self._filter_vars, limit=limit, distinct=distinct))
-            return iter(())     # query is empty
+            compiler.unset_flags(compiler.BEST_RANK)
+        compiler.compile()
+        return compiler
+
+    # @override
+    # def _filter(
+    #         self,
+    #         filter: Filter,
+    #         limit: int,
+    #         distinct: bool
+    # ) -> Iterator[Statement]:
+    #     assert limit > 0
+    #     q = self._make_filter_query(filter)
+    #     if (q.has_variable(q.var('subject'))
+    #             and q.has_variable(q.var('property'))):
+    #         order_by = '?wds' if self.has_flags(self.ORDER) else None
+    #         return self._eval_select_query(
+    #             q, lambda res: self._parse_filter_results(res, filter),
+    #             vars=self._filter_vars,
+    #             limit=limit, distinct=distinct, order_by=order_by, trim=True)
+    #     else:
+    #         LOG.debug(
+    #             '%s(): nothing to select:\n%s', self._filter.__qualname__,
+    #             q.select(*self._filter_vars, limit=limit, distinct=distinct))
+    #         return iter(())     # query is empty
 
     def _compile_filter(self, filter: Filter) -> SelectQuery:
         assert not filter.is_empty()

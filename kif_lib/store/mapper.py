@@ -95,6 +95,9 @@ class SPARQL_MapperStore(
         res = self._eval_select_query_string(text)
         return self._parse_count_query_results(res)
 
+    def _parse_count_query_results(self, results: SPARQL_Results) -> int:
+        return int(next(results.bindings).check_literal('count'))
+
     @override
     def _filter_pre_hook(
             self,

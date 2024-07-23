@@ -30,7 +30,7 @@
 
 # demonym
 wd:P1549
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:claim p:P1549 ;
     wikibase:directClaim wdt:P1549 ;
     wikibase:novalue wdno:P1549 ;
@@ -40,7 +40,7 @@ wd:P1549
 
 # instance of
 wd:P31
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:claim p:P31 ;
     wikibase:directClaim wdt:P31 ;
     wikibase:novalue wdno:P31 ;
@@ -50,7 +50,7 @@ wd:P31
 
 # part of
 wd:P361
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:claim p:P361 ;
     wikibase:directClaim wdt:P361 ;
     wikibase:novalue wdno:P361 ;
@@ -60,7 +60,7 @@ wd:P361
 
 # official name
 wd:P1448
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:claim p:P1448 ;
     wikibase:directClaim wdt:P1448 ;
     wikibase:novalue wdno:P1448 ;
@@ -70,7 +70,7 @@ wd:P1448
 
 # inception
 wd:P571
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:claim p:P571 ;
     wikibase:directClaim wdt:P571 ;
     wikibase:novalue wdno:P571 ;
@@ -80,7 +80,7 @@ wd:P571
 
 # Latin America
 wd:Q12585
-    schema:version "0"^^xsd:integer ;
+    wikibase:sitelinks [] ;
     rdfs:label "Latin America"@en ;
     skos:altLabel "LatAm"@en ;
     schema:description "region of the Americas where Romance languages are primarily spoken"@en ;
@@ -102,11 +102,15 @@ wd:Q12585
         pq:P518 wd:Q1775415 ;     # applies to part - feminine
         ] .
 
+# country
+wd:Q6256
+    wikibase:sitelinks [] .
+
 # Brazil
 wd:Q155
 
     # description
-    schema:version "0"^^xsd:integer ;
+    wikibase:sitelinks [] ;
     rdfs:label "Brazil"@en ;
     rdfs:label "Brasil"@pt-br ;
     skos:altLabel "🇧🇷"@pt-br ;

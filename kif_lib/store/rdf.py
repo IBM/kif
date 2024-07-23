@@ -93,10 +93,17 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
             self,
             text: str,
             headers: Optional[dict[str, Any]] = None,
+            fake_results: bool = False,
             **kwargs
     ) -> SPARQL_Results:
         LOG.debug('%s()\n%s', self._eval_query_string.__qualname__, text)
         res = self._graph.query(self._prepare_query_string(text))
         data = cast(bytes, res.serialize(format='json'))
         assert data is not None
-        return SPARQL_Results(json.loads(data))
+        if not fake_results:
+            return SPARQL_Results(json.loads(data))
+        else:
+            ###
+            # FIXME: Fake results.
+            ###
+            return cast(SPARQL_Results, json.loads(data))

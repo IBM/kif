@@ -56,6 +56,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
 
     __slots__ = (
         '_filter',
+        '_wds',
     )
 
     # The source filter.
@@ -68,6 +69,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     ):
         super().__init__(Variable('_', Statement), flags)
         self._filter = filter
+        self._wds = self._q.fresh_var()
 
     @property
     def filter(self) -> Filter:
@@ -81,6 +83,19 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
            Filter.
         """
         return self._filter
+
+    @property
+    def wds(self) -> Query.Variable:
+        """The variable storing the statement id."""
+        return self.get_wds()
+
+    def get_wds(self) -> Query.Variable:
+        """Gets the variable storing the statement id.
+
+        Returns:
+           Query.Variable.
+        """
+        return self._wds
 
     @override
     def compile(self) -> Self:
@@ -100,7 +115,8 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         self._theta_add(self.pattern, Statement(subject, snak))
         property = self._fresh_property_variable()
         v_subject, v_property = self._as_qvars(subject, property)
-        p, ps, psv, wdno, wdt, wds = self._q.fresh_vars(6)
+        wds = self.wds
+        p, ps, psv, wdno, wdt = self._q.fresh_vars(5)
         self._q.triples()(
             (v_subject, p, wds),
             (v_property, NS.WIKIBASE.claim, p),
