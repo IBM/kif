@@ -92,8 +92,8 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
     def _eval_select_query_string(
             self,
             text: str,
-            headers: Optional[dict[str, Any]] = None,
             fake_results: bool = False,
+            headers: Optional[dict[str, Any]] = None,
             **kwargs
     ) -> SPARQL_Results:
         LOG.debug('%s()\n%s', self._eval_query_string.__qualname__, text)

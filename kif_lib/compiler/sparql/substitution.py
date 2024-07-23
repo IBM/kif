@@ -30,6 +30,7 @@ class Substitution(Mapping):
         '_name_map',
         '_defaults',
         '_G',
+        '_cached_topsorted_G',
     )
 
     #: Maps KIF variables to KIF objects or query variables.
@@ -41,14 +42,18 @@ class Substitution(Mapping):
     #: Keeps the default values of variables.
     _defaults: MutableMapping[Variable, Optional[KIF_Object]]
 
-    #: Resolution graph (variable dependency graph).
+    #: Variable name dependency graph.
     _G: nx.DiGraph
+
+    #: Order produced by top-soritng `_G`.
+    _cached_topsorted_G: Optional[list[str]]
 
     def __init__(self):
         self._map = {}
         self._name_map = {}
         self._defaults = {}
         self._G = nx.DiGraph()
+        self._cached_topsorted_G = None
 
     def __str__(self):
         return ''.join(self._dump())
@@ -128,6 +133,11 @@ class Substitution(Mapping):
         self._defaults[var] = value
         return var
 
+    def _topsorted_G(self) -> list[str]:
+        if self._cached_topsorted_G is None:
+            self._cached_topsorted_G = list(nx.topological_sort(self._G))
+        return self._cached_topsorted_G
+
     class Theta(Mapping):
         """Auxiliary instantiation table.
 
@@ -194,7 +204,7 @@ class Substitution(Mapping):
            The resulting variable instantiation (theta).
         """
         theta = self.Theta()
-        for name in nx.topological_sort(self._G):
+        for name in self._topsorted_G():
             assert name in self._name_map
             if name in binding:
                 for var in self._name_map[name]:

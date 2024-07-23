@@ -356,17 +356,16 @@ At line {line}, column {column}:
                 limit=self.page_size, offset=offset, distinct=distinct)
             assert isinstance(compiler.pattern, StatementVariable)
             pattern = compiler.pattern
+            wds = compiler.wds
             res = self._eval_select_query_string(str(query))
             bindings = res['results']['bindings']
             if not bindings:
                 break           # done
             for binding in bindings:
                 theta = compiler.theta.instantiate(binding)
-                # for k, v in theta.items():
-                #     print(k, v)
                 stmt = pattern.instantiate(theta)
-                # print(stmt)
                 assert isinstance(stmt, Statement)
+                self._cache_add_wds(stmt, URIRef(binding[str(wds)]['value']))
                 yield stmt
                 count += 1
             if count == limit:
