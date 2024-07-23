@@ -7,7 +7,6 @@ from ...model import KIF_Object, Template, Variable
 from ...typing import (
     Any,
     cast,
-    Iterator,
     Mapping,
     MutableMapping,
     Optional,
@@ -42,7 +41,7 @@ class Substitution(Mapping):
     #: Keeps the default values of variables.
     _defaults: MutableMapping[Variable, Optional[KIF_Object]]
 
-    #: Variable name dependency graph.
+    #: Variable dependency graph (modulo homonymous variables).
     _G: nx.DiGraph
 
     #: Order produced by top-soritng `_G`.
@@ -125,7 +124,7 @@ class Substitution(Mapping):
 
         Parameters:
            variable: Variable.
-           value: Value.
+           value: KIF_Object or ``None``.
 
         Returns:
            The given `variable`.
@@ -164,8 +163,10 @@ class Substitution(Mapping):
             if len(homonyms) == 1:
                 return self._map[k]
             else:
-                # Gets the most "grounded" homonyms variable, i.e., the one
-                # with fewer variables.
+                ###
+                # Gets the "most grounded" variable in `homonyms`, i.e., the
+                # one whose value has fewer variables.
+                ###
                 return next(iter(sorted(
                     map(lambda h: self._map[h], homonyms),
                     key=self._count_vars)))

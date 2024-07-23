@@ -117,10 +117,19 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         v_subject, v_property = self._as_qvars(subject, property)
         wds = self.wds
         p, psv, wdt = self._q.fresh_vars(3)
+        ###
+        # IMPORTANT: Some SPARQL engines are sensitive to the place a
+        # variable is bound.  As a rule of thumb, we should bound a variable
+        # as close as possible to the place where it is actually used.  This
+        # is why we do not bind the `ps`, `wdno`, etc., here.
+        ###
         self._q.triples()(
             (v_subject, p, wds),
             (v_property, NS.WIKIBASE.claim, p),
             (v_property, NS.WIKIBASE.directClaim, wdt),
+            ###
+            # TODO: Remove this early bind of `psv`.
+            ###
             (v_property, NS.WIKIBASE.statementValue, psv))
         # Best-ranked only?
         best_ranked = self.has_flags(self.BEST_RANK)
@@ -162,9 +171,6 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                     self._theta_add(
                         ValueSnakVariable(snak.name),
                         ValueSnak(property, value))
-                    ###
-                    # TODO: Use wdt instead of ps when BEST_RANK is on.
-                    ###
                     ps = self._q.fresh_var()
                     self._q.triples()(
                         (v_property, NS.WIKIBASE.statementProperty, ps),

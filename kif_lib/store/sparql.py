@@ -39,7 +39,6 @@ from ..model import (
     Snak,
     SomeValueSnak,
     Statement,
-    StatementTemplate,
     StatementVariable,
     String,
     T_IRI,
