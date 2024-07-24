@@ -150,7 +150,6 @@ class SPARQL_MapperStore(
         return self.mapping.filter_post_hook(
             self, filter, limit, distinct, data, it)
 
-    @override
     def _make_filter_query(
             self,
             filter: Filter,

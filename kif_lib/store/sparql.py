@@ -10,8 +10,6 @@ from rdflib.plugins.sparql.sparql import Query
 from .. import itertools
 from .. import namespace as NS
 from ..compiler.sparql import SPARQL_FilterCompiler, SPARQL_PatternCompiler
-from ..compiler.sparql.builder import BooleanExpression, SelectQuery
-from ..compiler.sparql.builder import Variable as QueryVariable
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -20,7 +18,6 @@ from ..model import (
     Descriptor,
     Entity,
     EntityFingerprint,
-    ExternalId,
     Filter,
     Fingerprint,
     IRI,
@@ -57,7 +54,7 @@ from ..model.fingerprint.expression import (
     SnakFp,
     ValueFp,
 )
-from ..rdflib import BNode, Literal, URIRef
+from ..rdflib import BNode, URIRef
 from ..typing import (
     Any,
     Callable,
@@ -301,7 +298,7 @@ At line {line}, column {column}:
 
     @override
     def _contains(self, filter: Filter) -> bool:
-        compiler = self._compile_filter1(filter)
+        compiler = self._compile_filter(filter)
         res = self._eval_select_query_string(
             str(compiler.query.ask()), fake_results=True)
         return res['boolean']
@@ -309,7 +306,7 @@ At line {line}, column {column}:
     @override
     def _count(self, filter: Filter) -> int:
         if not filter.is_full():
-            compiler = self._compile_filter1(filter)
+            compiler = self._compile_filter(filter)
             q = compiler.query
         else:
             q = SPARQL_PatternCompiler.Query()
@@ -347,7 +344,7 @@ At line {line}, column {column}:
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
-        compiler = self._compile_filter1(filter)
+        compiler = self._compile_filter(filter)
         offset, count = 0, 0
         assert limit >= 0
         while count <= limit:
@@ -375,7 +372,7 @@ At line {line}, column {column}:
                 break           # done
             offset += self.page_size
 
-    def _compile_filter1(
+    def _compile_filter(
             self,
             filter: Filter
     ) -> SPARQL_FilterCompiler:
@@ -387,400 +384,6 @@ At line {line}, column {column}:
             compiler.unset_flags(compiler.BEST_RANK)
         compiler.compile()
         return compiler
-
-    def _compile_filter(self, filter: Filter) -> SelectQuery:
-        assert not filter.is_empty()
-        q = SelectQuery()
-        filter = filter.normalize()
-        assert isinstance(filter.subject, Fp)
-        assert isinstance(filter.property, Fp)
-        assert isinstance(filter.value, Fp)
-        # Push wds.
-        subject, property, datatype, value = q.vars(
-            'subject', 'property', 'datatype', 'value')
-        p, ps, psv, wdno, wds = q.fresh_vars(5)
-        q.triples()(
-            (subject, p, wds),
-            (property, NS.WIKIBASE.claim, p),
-            (property, NS.WIKIBASE.novalue, wdno),
-            (property, NS.WIKIBASE.propertyType, datatype),
-            (property, NS.WIKIBASE.statementProperty, ps),
-            (property, NS.WIKIBASE.statementValue, psv))
-        # Best-ranked only?
-        if self.has_flags(self.BEST_RANK):
-            q.triples()((wds, NS.RDF.type, NS.WIKIBASE.BestRank))
-        # Push subject fingerprint.
-        self._compile_fingerprint(q, filter.subject, subject, psv, wds)
-        # Push property fingerprint.
-        self._compile_fingerprint(q, filter.property, property, psv, wds)
-        # Push value fingerprint.
-        if (not filter.value.is_empty()
-                and not filter.value.is_full()):  # specified value?
-            q.triples()((wds, ps, value))
-            self._compile_fingerprint(q, filter.value, value, psv, wds)
-        else:                   # no/some value or unspecified value
-            try_value_snak = bool(
-                not filter.value.is_empty()
-                and filter.snak_mask & Filter.VALUE_SNAK
-                and self.has_flags(self.VALUE_SNAK))
-            try_some_value_snak = bool(
-                filter.snak_mask & Filter.SOME_VALUE_SNAK
-                and self.has_flags(self.SOME_VALUE_SNAK))
-            try_no_value_snak = bool(
-                filter.snak_mask & Filter.NO_VALUE_SNAK
-                and self.has_flags(self.NO_VALUE_SNAK))
-            with q.union():
-                if try_value_snak or try_some_value_snak:
-                    with q.group():
-                        q.triples()((wds, ps, value))
-                        if self.has_flags(self.EARLY_FILTER):
-                            if not try_value_snak:
-                                q.filter(self._compile_some_value(q, value))
-                            elif not try_some_value_snak:
-                                q.filter(~self._compile_some_value(q, value))
-                        if try_value_snak:  # deep data value?
-                            with q.optional():
-                                self._compile_unknown_deep_data_value(
-                                    q, value, psv, wds)
-                if try_no_value_snak:
-                    with q.group():
-                        q.triples()((wds, NS.RDF.type, wdno))
-        # Done.
-        return q
-
-    def _compile_fingerprint(
-            self,
-            q: SelectQuery,
-            fp: Fp,
-            dest: QueryVariable,
-            psv: QueryVariable,
-            wds: QueryVariable
-    ) -> SelectQuery:
-        assert not fp.is_empty()
-        if isinstance(fp, CompoundFp):
-            with q.group():
-                q.comments()(f'?{dest} := {type(fp).__qualname__}')
-                q = self._compile_compound_fingerprint(q, fp, dest, psv, wds)
-        elif isinstance(fp, SnakFp):
-            with q.group():
-                q.comments()(f'?{dest} := {fp}')
-                q = self._compile_snak_fingerprint(q, fp, dest)
-        elif isinstance(fp, ValueFp):
-            with q.group():
-                q.comments()(f'?{dest} := {fp}')
-                q = self._compile_value_fingerprints(q, (fp,), dest, psv, wds)
-        elif isinstance(fp, FullFp):
-            pass                # nothing to do
-        else:
-            raise self._should_not_get_here()
-        return q
-
-    def _compile_compound_fingerprint(
-            self,
-            q: SelectQuery,
-            fp: CompoundFp,
-            dest: QueryVariable,
-            psv: QueryVariable,
-            wds: QueryVariable
-    ) -> SelectQuery:
-        atoms, comps = map(list, itertools.partition(
-            lambda x: isinstance(x, CompoundFp), fp.args))
-        snaks, values = map(list, itertools.partition(
-            lambda x: isinstance(x, ValueFp), atoms))
-        if isinstance(fp, AndFp):
-            for child in itertools.chain(snaks, comps):
-                ###
-                # TODO: Aggregate snaks with the same property.
-                ###
-                self._compile_fingerprint(q, child, dest, psv, wds)
-            if values:
-                self._compile_value_fingerprints(q, values, dest, psv, wds)
-        elif isinstance(fp, OrFp):
-            with q.union():
-                for child in itertools.chain(snaks, comps):
-                    with q.group():
-                        self._compile_fingerprint(q, child, dest, psv, wds)
-                if values:
-                    with q.group():
-                        self._compile_value_fingerprints(
-                            q, values, dest, psv, wds)
-        else:
-            raise self._should_not_get_here()
-        return q
-
-    def _compile_snak_fingerprint(
-            self,
-            q: SelectQuery,
-            fp: SnakFp,
-            dest: QueryVariable,
-    ) -> SelectQuery:
-        prop = q.uri(fp.snak.property.iri.value)
-        if isinstance(fp.snak, ValueSnak):
-            wdt = q.fresh_var()
-            value = self._compile_simple_value(q, fp.snak.value)
-            q.triples()(
-                (prop, NS.WIKIBASE.directClaim, wdt),
-                (dest, wdt, value))
-            if isinstance(fp.snak.value, DeepDataValue):
-                p, ps, psv, wds = q.fresh_vars(4)
-                q.triples()(
-                    (prop, NS.WIKIBASE.claim, p),
-                    (prop, NS.WIKIBASE.statementProperty, ps),
-                    (prop, NS.WIKIBASE.statementValue, psv),
-                    (dest, p, wds),
-                    (wds, ps, value))
-                q = self._compile_value_fingerprints(
-                    q, (ValueFp(fp.snak.value),),
-                    q.fresh_var(), psv, wds, bind=False)
-        elif isinstance(fp.snak, SomeValueSnak):
-            some, wdt = q.fresh_vars(2)
-            q.triples()(
-                (prop, NS.WIKIBASE.directClaim, wdt),
-                (dest, wdt, some))
-            q.filter(self._compile_some_value(q, some))
-        elif isinstance(fp.snak, NoValueSnak):
-            p, wdno, wds, wdt = q.fresh_vars(4)
-            q.triples()(
-                (prop, NS.WIKIBASE.directClaim, wdt),
-                (prop, NS.WIKIBASE.claim, p),
-                (prop, NS.WIKIBASE.novalue, wdno),
-                (dest, p, wds),
-                (wds, NS.RDF.type, wdno))
-        else:
-            raise self._should_not_get_here()
-        return q
-
-    def _compile_value_fingerprints(
-            self,
-            q: SelectQuery,
-            fps: Iterable[ValueFp],
-            dest: QueryVariable,
-            psv: QueryVariable,
-            wds: QueryVariable,
-            bind: bool = True
-    ) -> SelectQuery:
-        values = map(lambda fp: fp.value, fps)
-        shallow, deep = map(list, itertools.partition(
-            lambda v: isinstance(v, DeepDataValue), values))
-        tms, qts = map(list, itertools.partition(
-            lambda v: isinstance(v, Quantity), deep))
-        with q.union():
-            if shallow:
-                with q.group():
-                    q.values(dest)(*map(
-                        lambda v: (self._compile_simple_value(q, v),),
-                        shallow))
-            if qts:
-                with q.group():
-                    wdv = q.fresh_var()
-                    q.triples()(
-                        (wds, psv, wdv),
-                        (wdv, NS.RDF.type, NS.WIKIBASE.QuantityValue))
-                    with q.union():
-                        for qt in qts:
-                            assert isinstance(qt, Quantity)
-                            with q.group():
-                                self._compile_quantity(
-                                    q, qt, dest, wdv, bind)
-            if tms:
-                with q.group():
-                    wdv = q.fresh_var()
-                    q.triples()(
-                        (wds, psv, wdv),
-                        (wdv, NS.RDF.type, NS.WIKIBASE.TimeValue))
-                    with q.union():
-                        for tm in tms:
-                            assert isinstance(tm, Time)
-                            with q.group():
-                                self._compile_time(q, tm, dest, wdv, bind)
-        return q
-
-    def _compile_quantity(
-            self,
-            q: SelectQuery,
-            qt: Quantity,
-            dest: QueryVariable,
-            wdv: QueryVariable,
-            bind: bool = True
-    ) -> SelectQuery:
-        v_qt_amount, v_qt_unit, v_qt_lower, v_qt_upper = q.vars(
-            f'{dest}_qt_amount',
-            f'{dest}_qt_unit',
-            f'{dest}_qt_lower',
-            f'{dest}_qt_upper')
-        amount = q.literal(qt.amount)
-        q.triples()((wdv, NS.WIKIBASE.quantityAmount, amount))
-        if bind:
-            q.bind(amount, dest)
-            q.bind(amount, v_qt_amount)
-        if qt.unit is not None:
-            unit = q.uri(qt.unit.iri.value)
-            q.triples()((wdv, NS.WIKIBASE.quantityUnit, unit))
-            if bind:
-                q.bind(unit, v_qt_unit)
-        elif bind:
-            with q.optional():
-                q.triples()((wdv, NS.WIKIBASE.quantityUnit, v_qt_unit))
-        if qt.lower_bound is not None:
-            lower = q.literal(qt.lower_bound)
-            q.triples()(
-                (wdv, NS.WIKIBASE.quantityLowerBound, lower))
-            if bind:
-                q.bind(lower, v_qt_lower)
-        elif bind:
-            with q.optional():
-                q.triples()(
-                    (wdv, NS.WIKIBASE.quantityLowerBound, v_qt_lower))
-        if qt.upper_bound is not None:
-            upper = q.literal(qt.upper_bound)
-            q.triples()(
-                (wdv, NS.WIKIBASE.quantityUpperBound, upper))
-            if bind:
-                q.bind(upper, v_qt_upper)
-        elif bind:
-            with q.optional():
-                q.triples()(
-                    (wdv, NS.WIKIBASE.quantityUpperBound, v_qt_upper))
-        return q
-
-    def _compile_time(
-            self,
-            q: SelectQuery,
-            tm: Time,
-            dest: QueryVariable,
-            wdv: QueryVariable,
-            bind: bool = True
-    ) -> SelectQuery:
-        v_tm_time, v_tm_precision, v_tm_timezone, v_tm_calendar = q.vars(
-            f'{dest}_tm_time',
-            f'{dest}_tm_precision',
-            f'{dest}_tm_timezone',
-            f'{dest}_tm_calendar')
-        time = q.literal(tm.time)
-        q.triples()((wdv, NS.WIKIBASE.timeValue, time))
-        if bind:
-            q.bind(time, dest)
-            q.bind(time, v_tm_time)
-        if tm.precision is not None:
-            precision = q.literal(tm.precision.value)
-            q.triples()(
-                (wdv, NS.WIKIBASE.timePrecision, precision))
-            if bind:
-                q.bind(precision, v_tm_precision)
-        elif bind:
-            with q.optional():
-                q.triples()(
-                    (wdv, NS.WIKIBASE.timePrecision, v_tm_precision))
-        if tm.timezone is not None:
-            timezone = q.literal(tm.timezone)
-            q.triples()(
-                (wdv, NS.WIKIBASE.timeTimezone, timezone))
-            if bind:
-                q.bind(timezone, v_tm_timezone)
-        elif bind:
-            with q.optional():
-                q.triples()(
-                    (wdv, NS.WIKIBASE.timeTimezone, v_tm_timezone))
-        if tm.calendar is not None:
-            calendar = q.uri(tm.calendar.iri.value)
-            q.triples()((wdv, NS.WIKIBASE.timeCalendarModel, calendar))
-            if bind:
-                q.bind(calendar, v_tm_calendar)
-        elif bind:
-            with q.optional():
-                q.triples()(
-                    (wdv, NS.WIKIBASE.timeCalendarModel, v_tm_calendar))
-        return q
-
-    def _compile_unknown_deep_data_value(
-            self,
-            q: SelectQuery,
-            dest: QueryVariable,
-            psv: QueryVariable,
-            wds: QueryVariable
-    ) -> SelectQuery:
-        wdv = q.fresh_var()
-        with q.union():
-            with q.group():     # quantity?
-                v_qt_amount, v_qt_unit, v_qt_lower, v_qt_upper = q.vars(
-                    f'{dest}_qt_amount',
-                    f'{dest}_qt_unit',
-                    f'{dest}_qt_lower',
-                    f'{dest}_qt_upper')
-                q.triples()(
-                    (wds, psv, wdv),
-                    (wdv, NS.RDF.type, NS.WIKIBASE.QuantityValue),
-                    (wdv, NS.WIKIBASE.quantityAmount, v_qt_amount))
-                with q.optional():
-                    q.triples()(
-                        (wdv, NS.WIKIBASE.quantityUnit, v_qt_unit))
-                with q.optional():
-                    q.triples()(
-                        (wdv, NS.WIKIBASE.quantityLowerBound, v_qt_lower))
-                with q.optional():
-                    q.triples()(
-                        (wdv, NS.WIKIBASE.quantityUpperBound, v_qt_upper))
-            with q.group():     # time?
-                v_tm_time, v_tm_precision, v_tm_timezone, v_tm_calendar\
-                    = q.vars(
-                        f'{dest}_tm_time',
-                        f'{dest}_tm_precision',
-                        f'{dest}_tm_timezone',
-                        f'{dest}_tm_calendar')
-                q.triples()(
-                    (wds, psv, wdv),
-                    (wdv, NS.RDF.type, NS.WIKIBASE.TimeValue),
-                    (wdv, NS.WIKIBASE.timeValue, v_tm_time))
-                with q.optional():
-                    q.triples()(
-                        (wdv, NS.WIKIBASE.timePrecision, v_tm_precision))
-                with q.optional():
-                    q.triples()(
-                        (wdv, NS.WIKIBASE.timeTimezone, v_tm_timezone))
-                with q.optional():
-                    q.triples()(
-                        (wdv, NS.WIKIBASE.timeCalendarModel, v_tm_calendar))
-        return q
-
-    def _compile_some_value(
-            self,
-            q: SelectQuery,
-            dest: QueryVariable
-    ) -> BooleanExpression:
-        ###
-        # TODO: Use native test when available.
-        ###
-        # return q.call(NS.WIKIBASE.isSomeValue, dest)
-        return q.is_blank(dest) | (
-            q.is_uri(dest) & q.strstarts(q.str(dest), str(NS.WDGENID)))
-
-    def _compile_simple_value(
-            self,
-            q: SelectQuery,
-            value: Value
-    ) -> Union[URIRef, Literal]:
-        if isinstance(value, Entity):
-            return q.uri(value.iri.value)
-        elif isinstance(value, IRI):
-            return q.uri(value.content)
-        elif isinstance(value, Text):
-            return q.literal(value.content, value.language)
-        elif isinstance(value, (String, ExternalId)):
-            return q.literal(value.content)
-        elif isinstance(value, Quantity):
-            return q.literal(value.amount)
-        elif isinstance(value, Time):
-            return q.literal(value.time)
-        else:
-            raise self._should_not_get_here()
-
-    def _make_filter_query(self, filter: Filter) -> SPARQL_Builder:
-        q = SPARQL_Builder()
-        t = self._make_filter_query_vars_dict(q)
-        q.where_start()
-        self._push_filter(q, t, filter)
-        q.where_end()
-        return q
 
     def _make_filter_query_vars_dict(
             self,
@@ -1579,8 +1182,6 @@ At line {line}, column {column}:
         q.optional_end()
         q.where_end()
         return q
-
-# -- Entities --------------------------------------------------------------
 
 # -- Descriptors -----------------------------------------------------------
 
