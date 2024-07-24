@@ -181,10 +181,10 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         assert isinstance(stmt.snak, ValueSnak)
         self.assertEqual(stmt.snak.value, wd.benzene)
         # value: text
-        stmt = next(kb.filter(
-            value=Text('Federative Republic of Brazil', 'en')))
+        stmt = next(iter(sorted(list(kb.filter(
+            value=Text('Federative Republic of Brazil', 'en'))))))
         self.assert_statement(stmt, wd.Brazil, ValueSnak(
-            wd.name_in_native_language.replace(KIF_Object.KEEP, Text),
+            wd.official_name.replace(KIF_Object.KEEP, Text),
             Text('Federative Republic of Brazil', 'en')))
         # value: string
         stmt = next(kb.filter(value=ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N')))

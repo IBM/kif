@@ -122,10 +122,10 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
 
     def test_filter_value_is_text(self):
         kb = self.new_Store()
-        stmt = next(kb.filter(
-            value=Text('Federative Republic of Brazil', 'en')))
+        stmt = next(iter(sorted(list(kb.filter(
+            value=Text('Federative Republic of Brazil', 'en'))))))
         self.assert_statement(
-            stmt, wd.Brazil, wd.name_in_native_language(Text(
+            stmt, wd.Brazil, wd.official_name(Text(
                 'Federative Republic of Brazil', 'en')))
 
     def test_filter_value_is_string(self):
