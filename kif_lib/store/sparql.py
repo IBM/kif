@@ -364,6 +364,8 @@ At line {line}, column {column}:
                 theta = compiler.theta.instantiate(binding)
                 stmt = pattern.instantiate(theta)
                 assert isinstance(stmt, Statement)
+                if self.has_flags(self.LATE_FILTER) and not filter.match(stmt):
+                    continue
                 self._cache_add_wds(stmt, URIRef(binding[str(wds)]['value']))
                 yield stmt
                 count += 1
@@ -385,28 +387,6 @@ At line {line}, column {column}:
             compiler.unset_flags(compiler.BEST_RANK)
         compiler.compile()
         return compiler
-
-    # @override
-    # def _filter(
-    #         self,
-    #         filter: Filter,
-    #         limit: int,
-    #         distinct: bool
-    # ) -> Iterator[Statement]:
-    #     assert limit > 0
-    #     q = self._make_filter_query(filter)
-    #     if (q.has_variable(q.var('subject'))
-    #             and q.has_variable(q.var('property'))):
-    #         order_by = '?wds' if self.has_flags(self.ORDER) else None
-    #         return self._eval_select_query(
-    #             q, lambda res: self._parse_filter_results(res, filter),
-    #             vars=self._filter_vars,
-    #             limit=limit, distinct=distinct, order_by=order_by, trim=True)
-    #     else:
-    #         LOG.debug(
-    #             '%s(): nothing to select:\n%s', self._filter.__qualname__,
-    #             q.select(*self._filter_vars, limit=limit, distinct=distinct))
-    #         return iter(())     # query is empty
 
     def _compile_filter(self, filter: Filter) -> SelectQuery:
         assert not filter.is_empty()
@@ -1709,7 +1689,10 @@ At line {line}, column {column}:
             get_datatype = cls is Property
         with q.where():
             # We use schema:version check whether ?subject exists.
-            q.triple(t['subject'], NS.SCHEMA.version, q.bnode())
+            with q.union() as cup:
+                q.triple(t['subject'], NS.WIKIBASE.sitelinks, q.bnode())
+                cup.branch()
+                q.triple(t['subject'], NS.RDF.type, NS.WIKIBASE.Property)
             if get_datatype:
                 q.triple(t['subject'], NS.WIKIBASE.propertyType, t['datatype'])
             with q.optional(cond=get_label or get_aliases or get_description):
@@ -1840,7 +1823,7 @@ At line {line}, column {column}:
             get_category = True
             get_language = True
         with q.where():
-            q.triple(t['subject'], NS.SCHEMA.version, q.bnode())
+            q.triple(t['subject'], NS.RDF.type, NS.ONTOLEX.LexicalEntry)
             if get_lemma:
                 q.triple(t['subject'], NS.WIKIBASE.lemma, t['lemma'])
             if get_category:

@@ -42,14 +42,15 @@ class TestStoreMixerDescriptors(kif_StoreTestCase):
     kb_extra = kif_StoreTestCase.parse('''
 # andar - verb - portuguese
 wd:L46803
-    schema:version "0"^^xsd:integer ;
+    a <http://www.w3.org/ns/lemon/ontolex#LexicalEntry> ;
+    wikibase:sitelinks [] ;
     wikibase:lemma "andar"@pt ;
     wikibase:lexicalCategory wd:Q24905 ;
     dct:language wd:Q5146 .
 
 # benzene
 wd:Q2270
-    schema:version "0"^^xsd:integer ;
+    wikibase:sitelinks [] ;
     rdfs:label "benzene"@en ;
     rdfs:label "benzeno"@pt-br ;
     skos:altLabel "C6H6"@en ;
@@ -60,7 +61,7 @@ wd:Q2270
 
 # Brazil
 wd:Q155
-    schema:version "0"^^xsd:integer ;
+    wikibase:sitelinks [] ;
     rdfs:label "Brazil"@en ;
     rdfs:label "Brasil"@pt-br ;
     skos:altLabel "🇧🇷"@en ;
@@ -68,8 +69,13 @@ wd:Q155
 
 # instance of
 wd:P31
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:claim p:P31 ;
+    wikibase:directClaim wdt:P31 ;
+    wikibase:novalue wdno:P31 ;
+    wikibase:statementProperty ps:P31 ;
+    wikibase:statementValue psv:P31 ;
     rdfs:label "instancia de"@es ;
     skos:altLabel "∈"@en ;
     skos:altLabel "rdf:type"@en ;

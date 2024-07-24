@@ -270,7 +270,7 @@ class TestStoreRDF(kif_StoreTestCase):
             stmts=[wd.InChIKey(
                 wd.benzene, ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N'))],
             subject=wd.benzene,
-            property=wd.InChIKey.replace(KIF_Object.KEEP, String)
+            property=wd.InChIKey.replace(KIF_Object.KEEP, ExternalId)
         )
         self.store_test_filter(
             kb,
@@ -283,7 +283,7 @@ class TestStoreRDF(kif_StoreTestCase):
             stmts=[wd.InChIKey(
                 wd.benzene, ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N'))],
             subject=wd.instance_of(wd.type_of_a_chemical_entity),
-            property=wd.InChIKey.replace(KIF_Object.KEEP, String)
+            property=wd.InChIKey.replace(KIF_Object.KEEP, ExternalId)
         )
         self.store_test_filter(
             kb,

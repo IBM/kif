@@ -89,6 +89,15 @@ class SPARQL_MapperStore(
 # -- Statements ------------------------------------------------------------
 
     @override
+    def _contains(self, filter: Filter) -> bool:
+        it = self._filter_with_hooks(filter, 1, False)
+        try:
+            next(it)
+            return True
+        except StopIteration:
+            return False
+
+    @override
     def _count(self, filter: Filter) -> int:
         q = self._make_filter_query(filter)
         text = q.select('(count (distinct *) as ?count)')
@@ -97,6 +106,28 @@ class SPARQL_MapperStore(
 
     def _parse_count_query_results(self, results: SPARQL_Results) -> int:
         return int(next(results.bindings).check_literal('count'))
+
+    @override
+    def _filter(
+            self,
+            filter: Filter,
+            limit: int,
+            distinct: bool
+    ) -> Iterator[Statement]:
+        assert limit > 0
+        q = self._make_filter_query(filter)
+        if (q.has_variable(q.var('subject'))
+                and q.has_variable(q.var('property'))):
+            order_by = '?wds' if self.has_flags(self.ORDER) else None
+            return self._eval_select_query(
+                q, lambda res: self._parse_filter_results(res, filter),
+                vars=self._filter_vars,
+                limit=limit, distinct=distinct, order_by=order_by, trim=True)
+        else:
+            LOG.debug(
+                '%s(): nothing to select:\n%s', self._filter.__qualname__,
+                q.select(*self._filter_vars, limit=limit, distinct=distinct))
+            return iter(())     # query is empty
 
     @override
     def _filter_pre_hook(

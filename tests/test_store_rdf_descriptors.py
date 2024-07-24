@@ -225,7 +225,7 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
     def test_get_item_descriptor_missing_attribute(self):
         def test_case(comments, desc):
             lines = [
-                'schema:version 0',
+                'wikibase:sitelinks []',
                 'rdfs:label "lll"@en',
                 'skos:altLabel "xxx"@en',
                 'skos:altLabel "yyy"@en',
@@ -331,7 +331,7 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
     def test_get_property_descriptor_missing_attribute(self):
         def test_case(comments, desc):
             lines = [
-                'schema:version 0',
+                'a wikibase:Property',
                 'wikibase:propertyType wikibase:WikibaseItem',
                 'rdfs:label "lll"@en',
                 'skos:altLabel "xxx"@en',

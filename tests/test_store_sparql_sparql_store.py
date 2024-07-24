@@ -313,9 +313,10 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
             quals[0], wd.temperature(Quantity('298', wd.kelvin)))
         self.assertEqual(quals[1], wd.phase_of_matter(wd.liquid))
         stmt = next(kb.filter(
-            wd.benzene, wd.safety_classification_and_labelling, limit=1))
+            wd.benzene, wd.safety_classification_and_labelling, wd.Q(2005334),
+            limit=1))
         quals = list(get_qualifiers(stmt))
-        self.assertEqual(len(quals), 4)
+        self.assertEqual(len(quals), 18)
         # no such statement
         self.assertRaises(
             ValueError, get_qualifiers,
