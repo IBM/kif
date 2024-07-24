@@ -11,7 +11,6 @@ from kif_lib import (
     Quantity,
     SomeValueSnak,
     Statement,
-    String,
     Text,
     Time,
     ValueSnak,
