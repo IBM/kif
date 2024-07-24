@@ -28,10 +28,12 @@ from ..typing import (
     Any,
     cast,
     Collection,
+    Final,
     Iterable,
     Iterator,
     Optional,
     override,
+    Sequence,
     Union,
 )
 from .sparql import (
@@ -106,6 +108,22 @@ class SPARQL_MapperStore(
 
     def _parse_count_query_results(self, results: SPARQL_Results) -> int:
         return int(next(results.bindings).check_literal('count'))
+
+    _filter_vars: Final[Sequence[str]] = (
+        '?datatype',
+        '?property',
+        '?qt_amount',
+        '?qt_lower',
+        '?qt_unit',
+        '?qt_upper',
+        '?subject',
+        '?tm_calendar',
+        '?tm_precision',
+        '?tm_timezone',
+        '?tm_value',
+        '?value',
+        '?wds',
+    )
 
     @override
     def _filter(
