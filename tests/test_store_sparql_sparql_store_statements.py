@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
+    ExternalId,
     Filter,
     IRI,
     Item,
@@ -77,7 +78,8 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
             SomeValueSnak(wd.date_of_death), wd.spouse, wd.Eve))
         stmt = next(kb.filter(stmt.subject, wd.date_of_death))
         self.assert_statement(
-            stmt, stmt.subject, SomeValueSnak(wd.date_of_death))
+            stmt, stmt.subject, SomeValueSnak(
+                wd.date_of_death.replace(KIF_Object.KEEP, Time)))
         # no value snak
         stmt = next(kb.filter(
             [NoValueSnak(wd.father)], wd.spouse, wd.Eve))
@@ -110,15 +112,14 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         kb = self.new_Store()
         stmt = next(kb.filter(None, wd.Wikidata_property, wd.continent))
         self.assert_statement(
-            stmt, wd.continent_, wd.Wikidata_property(wd.continent))
+            stmt, wd.continent_, wd.Wikidata_property(
+                wd.continent.replace(KIF_Object.KEEP, Item)))
 
     def test_filter_value_is_iri(self):
         kb = self.new_Store()
-        stmt = next(kb.filter(wd.benzene, wd.chemical_structure))
+        stmt = next(kb.filter(wd.IBM, wd.official_website))
         self.assert_statement(
-            stmt, wd.benzene, wd.chemical_structure(IRI(
-                'http://commons.wikimedia.org/wiki/Special:FilePath/'
-                'Benzene-2D-full.svg')))
+            stmt, wd.IBM, wd.official_website(IRI('https://www.ibm.com/')))
 
     def test_filter_value_is_text(self):
         kb = self.new_Store()
@@ -130,10 +131,10 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
 
     def test_filter_value_is_string(self):
         kb = self.new_Store()
-        stmt = next(kb.filter(value=String('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
+        stmt = next(kb.filter(value=ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
         self.assert_statement(
             stmt, wd.benzene,
-            wd.InChIKey(String('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
+            wd.InChIKey(ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
 
     def test_filter_value_is_quantity(self):
         kb = self.new_Store()
@@ -203,14 +204,16 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         assert isinstance(stmt.snak, ValueSnak)
         stmt = next(kb.filter(stmt.snak.value, wd.date_of_death))
         self.assert_statement(
-            stmt, stmt.subject, SomeValueSnak(wd.date_of_death))
+            stmt, stmt.subject, SomeValueSnak(
+                wd.date_of_death.replace(KIF_Object.KEEP, Time)))
         # no value snak
         stmt = next(kb.filter(value=[NoValueSnak(wd.date_of_birth)]))
         self.assertIsInstance(stmt.snak, ValueSnak)
         assert isinstance(stmt.snak, ValueSnak)
         stmt = next(kb.filter(stmt.snak.value, wd.date_of_birth))
         self.assert_statement(
-            stmt, stmt.subject, NoValueSnak(wd.date_of_birth))
+            stmt, stmt.subject, NoValueSnak(
+                wd.date_of_birth.replace(KIF_Object.KEEP, Time)))
 
     def test_filter_snak_mask_value_snak(self):
         kb = self.new_Store()
@@ -231,13 +234,15 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         stmt = next(kb.filter(
             wd.Adam, wd.date_of_death, snak_mask=Filter.SOME_VALUE_SNAK))
         self.assert_statement(
-            stmt, wd.Adam, SomeValueSnak(wd.date_of_death))
+            stmt, wd.Adam, SomeValueSnak(
+                wd.date_of_death.replace(KIF_Object.KEEP, Time)))
 
     def test_filter_snak_mask_no_value_snak(self):
         kb = self.new_Store()
         stmt = next(kb.filter(
             wd.Adam, wd.father, snak_mask=Filter.NO_VALUE_SNAK))
-        self.assert_statement(stmt, wd.Adam, NoValueSnak(wd.father))
+        self.assert_statement(stmt, wd.Adam, NoValueSnak(
+            wd.father.replace(KIF_Object.KEEP, Item)))
 
     def test_filter_store_flag_early_late_filter(self):
         kb = self.new_Store()
@@ -245,15 +250,17 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         res = list(kb.filter(
             wd.Adam, wd.date_of_death, None, Filter.SOME_VALUE_SNAK))
         self.assertEqual(
-            res, [Statement(wd.Adam, SomeValueSnak(wd.date_of_death))])
+            res, [Statement(wd.Adam, SomeValueSnak(
+                wd.date_of_death.replace(KIF_Object.KEEP, Time)))])
         kb.unset_flags(kb.LATE_FILTER)
-        res = sorted(list(kb.filter(
-            wd.Adam, wd.date_of_death, None, Filter.SOME_VALUE_SNAK)))
+        res = sorted(list(kb.filter(wd.Adam, wd.date_of_death)))
         self.assertEqual(len(res), 2)
         self.assert_statement(
-            res[0], wd.Adam, SomeValueSnak(wd.date_of_death))
+            res[0], wd.Adam, SomeValueSnak(wd.date_of_death.replace(
+                KIF_Object.KEEP, Time)))
         self.assert_statement(
-            res[1], wd.Adam, wd.date_of_death(Time('3073-01-01')))
+            res[1], wd.Adam, wd.date_of_death(
+                Time('3073-01-01', 9, 0, wd.proleptic_Julian_calendar)))
 
 
 if __name__ == '__main__':

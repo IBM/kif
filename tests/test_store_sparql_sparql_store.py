@@ -187,7 +187,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
             wd.name_in_native_language.replace(KIF_Object.KEEP, Text),
             Text('Federative Republic of Brazil', 'en')))
         # value: string
-        stmt = next(kb.filter(value=String('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
+        stmt = next(kb.filter(value=ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
         self.assert_statement(stmt, wd.benzene, wd.InChIKey(ExternalId(
             'UHOVQNZJYSORNB-UHFFFAOYSA-N')))
         # subject & property
