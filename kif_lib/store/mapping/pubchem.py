@@ -7,16 +7,13 @@ from ... import itertools
 from ...model import (
     AnnotationRecord,
     AnnotationRecordSet,
-    EntityFingerprint,
     Filter,
-    Fingerprint,
     IRI,
     IRI_Datatype,
     Item,
     ItemDatatype,
     KIF_Object,
     Property,
-    PropertyFingerprint,
     Quantity,
     QuantityDatatype,
     ReferenceRecord,
@@ -219,19 +216,19 @@ class PubChemMapping(SPARQL_Mapping):
             limit: int,
             distinct: bool
     ) -> tuple[Filter, int, bool, Any]:
-        assert isinstance(filter.subject, (EntityFingerprint, type(None)))
-        assert isinstance(filter.property, (PropertyFingerprint, type(None)))
-        assert isinstance(filter.value, (Fingerprint, type(None)))
-        if (filter.property is None
-                or filter.property.property
+        from ..sparql import SPARQL_Store
+        assert isinstance(store, SPARQL_Store)
+        subject, property, value, snak_mask = store._filter_unpack(filter)
+        if (property is None
+                or property
                 not in cls._toxicity_properties_inv):
             return filter, limit, distinct, None
         else:
             new_filter = Filter(
-                filter.subject,
+                subject,
                 wd.instance_of,
                 wd.type_of_a_chemical_entity,
-                filter.snak_mask)
+                snak_mask)
             return new_filter, store.maximum_page_size, distinct, dict(
                 original_filter=filter,
                 original_limit=limit)

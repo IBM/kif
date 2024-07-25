@@ -17,9 +17,7 @@ from ..model import (
     DeepDataValue,
     Descriptor,
     Entity,
-    EntityFingerprint,
     Filter,
-    Fingerprint,
     IRI,
     Item,
     ItemDescriptor,
@@ -29,11 +27,11 @@ from ..model import (
     Pattern,
     Property,
     PropertyDescriptor,
-    PropertyFingerprint,
     Quantity,
     Rank,
     ReferenceRecord,
     Snak,
+    SnakSet,
     SomeValueSnak,
     Statement,
     StatementVariable,
@@ -44,6 +42,7 @@ from ..model import (
     Value,
     ValueSnak,
 )
+from ..model.fingerprint import AndFp, Fp, SnakFp, ValueFp
 from ..rdflib import BNode, URIRef
 from ..typing import (
     Any,
@@ -404,6 +403,56 @@ At line {line}, column {column}:
                     q, values, filter, i)
         return t
 
+    def _filter_unpack(
+            self,
+            filter: Filter
+    ) -> tuple[
+        Optional[Union[Value, SnakSet]],
+        Optional[Union[Value, SnakSet]],
+        Optional[Union[Value, SnakSet]],
+        Filter.SnakMask
+    ]:
+        filter = filter.normalize()
+        assert isinstance(filter.subject, Fp)
+        assert isinstance(filter.property, Fp)
+        assert isinstance(filter.value, Fp)
+        subject: Optional[Union[Value, SnakSet]]
+        property: Optional[Union[Value, SnakSet]]
+        value: Optional[Union[Value, SnakSet]]
+        if filter.subject.is_full():
+            subject = None
+        elif isinstance(filter.subject, ValueFp):
+            subject = filter.subject.value
+        elif isinstance(filter.subject, (SnakFp, AndFp)):
+            subject = self._fp_to_snak_set(filter.subject)
+        else:
+            raise self._should_not_get_here()
+        if filter.property.is_full():
+            property = None
+        elif isinstance(filter.property, ValueFp):
+            property = filter.property.value
+        elif isinstance(filter.property, (SnakFp, AndFp)):
+            property = self._fp_to_snak_set(filter.property)
+        else:
+            raise self._should_not_get_here()
+        if filter.value.is_full():
+            value = None
+        elif isinstance(filter.value, ValueFp):
+            value = filter.value.value
+        elif isinstance(filter.value, (SnakFp, AndFp)):
+            value = self._fp_to_snak_set(filter.value)
+        else:
+            raise self._should_not_get_here()
+        return subject, property, value, filter.snak_mask
+
+    def _fp_to_snak_set(self, fp: Fp) -> SnakSet:
+        if isinstance(fp, SnakFp):
+            return SnakSet(fp.snak)
+        elif isinstance(fp, AndFp):
+            return SnakSet().union(*map(self._fp_to_snak_set, fp.args))
+        else:
+            raise self._should_not_get_here()
+
     def _push_filters_as_values_helper(
             self,
             q: SPARQL_Builder,
@@ -427,16 +476,13 @@ At line {line}, column {column}:
         tm_value: TTrm = q.UNDEF
         val: TTrm = q.UNDEF
         wdno: TTrm = q.UNDEF
-        assert isinstance(filter.subject, (EntityFingerprint, type(None)))
-        assert isinstance(filter.property, (PropertyFingerprint, type(None)))
-        assert isinstance(filter.value, (Fingerprint, type(None)))
+        subject, property, value, _ = self._filter_unpack(filter)
         # Subject:
-        if filter.subject is not None and filter.subject.entity is not None:
-            subj = cast(Entity, filter.subject.entity)
+        if subject is not None and isinstance(subject, Entity):
+            subj = subject
         # Property:
-        if (filter.property is not None
-                and filter.property.property is not None):
-            prop_ = cast(Property, filter.property.property)
+        if property is not None and isinstance(property, Property):
+            prop_ = property
             name = NS.Wikidata.get_wikidata_name(prop_.iri.value)
             prop = prop_
             pname = String(name)
@@ -445,8 +491,7 @@ At line {line}, column {column}:
             psv = NS.PSV[name]
             wdno = NS.WDNO[name]
         # Value:
-        if filter.value is not None and filter.value.value is not None:
-            value = cast(Value, filter.value.value)
+        if value is not None and isinstance(value, Value):
             val = value
             if isinstance(value, DeepDataValue):
                 if isinstance(value, Quantity):

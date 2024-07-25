@@ -8,15 +8,12 @@ from ..model import (
     AnnotationRecordSet,
     Descriptor,
     Entity,
-    EntityFingerprint,
     Filter,
-    Fingerprint,
     IRI,
     Item,
     KIF_Object,
     Lexeme,
     Property,
-    PropertyFingerprint,
     SnakSet,
     Statement,
     T_IRI,
@@ -170,35 +167,30 @@ class SPARQL_MapperStore(
 
     def _make_filter_query(
             self,
-            filter: Filter,
+            filter: Filter
     ) -> SPARQL_Builder:
-        assert isinstance(filter.subject, (EntityFingerprint, type(None)))
-        assert isinstance(filter.property, (PropertyFingerprint, type(None)))
-        assert isinstance(filter.value, (Fingerprint, type(None)))
+        subject, property, value, snak_mask = self._filter_unpack(filter)
         q = self.mapping.Builder()
         with q.where():
             subject_prefix: Optional[IRI] = None
-            if filter.subject is not None:
-                if filter.subject.entity is not None:
-                    q.matched_subject = self.mapping.encode_entity(
-                        filter.subject.entity)
-                elif filter.subject.snak_set is not None:
+            if subject is not None:
+                if isinstance(subject, Entity):
+                    q.matched_subject = self.mapping.encode_entity(subject)
+                elif isinstance(subject, SnakSet):
                     status, subject_prefix = self._try_push_snak_set(
-                        q, q.matched_subject, filter.subject.snak_set)
+                        q, q.matched_subject, subject)
                     if not status:
                         return q  # empty query
                     assert subject_prefix is not None
                 else:
                     raise self._should_not_get_here()
-            value: Optional[Value] = None
             value_prefix: Optional[IRI] = None
-            if filter.value is not None:
-                if filter.value.value is not None:
-                    value = filter.value.value
+            if value is not None:
+                if isinstance(value, Value):
                     q.matched_value = self.mapping.encode_value(value)
-                elif filter.value.snak_set is not None:
+                elif isinstance(value, SnakSet):
                     status, value_prefix = self._try_push_snak_set(
-                        q, q.matched_value, filter.value.snak_set)
+                        q, q.matched_value, value)
                     if not status:
                         return q  # empty query
                     assert value_prefix is not None
@@ -222,7 +214,8 @@ class SPARQL_MapperStore(
                                 if not value.value.startswith(
                                         value_prefix.value):
                                     continue  # mismatch value
-                        if not spec._match(filter):
+                        if not spec._match(
+                                subject, property, value, snak_mask):
                             continue  # spec does not match filter
                         cup.branch()
                         spec._define(q, with_binds=True)
@@ -249,8 +242,8 @@ class SPARQL_MapperStore(
             if vsnak.property not in self.mapping.specs:
                 return False, None  # no such property
             for spec in self.mapping.specs[vsnak.property]:
-                filter = Filter.from_snak(None, vsnak)
-                if not spec._match(filter):
+                t = self._filter_unpack(Filter.from_snak(None, vsnak))
+                if not spec._match(*t):
                     continue    # spec does not match snak
                 spec._define(
                     cast(SPARQL_Mapping.Builder, q), target, None,
@@ -332,7 +325,8 @@ class SPARQL_MapperStore(
                 for instance_of_spec in instance_of_specs:
                     matched_entities = [
                         e for e in entities
-                        if instance_of_spec._match(Filter(e))]
+                        if instance_of_spec._match(
+                            *self._filter_unpack(Filter(e)))]
                     if not matched_entities:
                         continue  # nothing to do
 
@@ -349,13 +343,16 @@ class SPARQL_MapperStore(
                     matched_specs = {}
                     if get_label:
                         matched_specs['label'] = [
-                            s for s in label_specs if s._match(filter)]
+                            s for s in label_specs if s._match(
+                                *self._filter_unpack(filter))]
                     if get_aliases:
                         matched_specs['alias'] = [
-                            s for s in alias_specs if s._match(filter)]
+                            s for s in alias_specs if s._match(
+                                *self._filter_unpack(filter))]
                     if get_description:
                         matched_specs['description'] = [
-                            s for s in description_specs if s._match(filter)]
+                            s for s in description_specs if s._match(
+                                *self._filter_unpack(filter))]
                     if not any(map(bool, matched_specs.values())):
                         instance_of_spec._define(q)
                         push_values(instance_of_spec)

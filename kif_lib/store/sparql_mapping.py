@@ -10,16 +10,14 @@ from ..model import (
     Datatype,
     DataValue,
     Entity,
-    EntityFingerprint,
     ExternalId,
     Filter,
-    Fingerprint,
     IRI,
     IRI_Datatype,
     Property,
-    PropertyFingerprint,
     Quantity,
     QuantityDatatype,
+    SnakSet,
     Statement,
     String,
     StringDatatype,
@@ -40,6 +38,7 @@ from ..typing import (
     NoReturn,
     Optional,
     TypeVar,
+    Union,
 )
 from .sparql_builder import SPARQL_Builder
 
@@ -344,39 +343,35 @@ class SPARQL_Mapping(ABC):
             else:
                 raise ShouldNotGetHere
 
-        def _match(self, filter: Filter) -> bool:
-            assert isinstance(
-                filter.subject, (EntityFingerprint, type(None)))
-            assert isinstance(
-                filter.property, (PropertyFingerprint, type(None)))
-            assert isinstance(
-                filter.value, (Fingerprint, type(None)))
+        def _match(
+                self,
+                subject: Optional[Union[Value, SnakSet]],
+                property: Optional[Union[Value, SnakSet]],
+                value: Optional[Union[Value, SnakSet]],
+                snak_mask: Filter.SnakMask
+        ) -> bool:
             # Property mismatch.
-            if (filter.property is not None
-                and filter.property.property is not None
-                    and filter.property.property.iri != self.property.iri):
+            if (property is not None
+                and isinstance(property, Property)
+                    and property.iri != self.property.iri):
                 ###
                 # FIXME: Handle range mismatch!
                 ###
                 return False
             # Subject mismatch.
-            if (filter.subject is not None
-                    and filter.subject.entity is not None):
-                subject = filter.subject.entity
+            if subject is not None and isinstance(subject, Entity):
                 assert subject is not None
                 if not self._match_kwargs(
                         'subject_prefix', subject.value,
                         lambda x, y: x.startswith(y.value)):
                     return False
             # Snak mask mismatch.
-            if not (filter.snak_mask & Filter.VALUE_SNAK):
+            if not (snak_mask & Filter.VALUE_SNAK):
                 return False
             # Value mismatch.
-            if filter.value is not None:
+            if value is not None:
                 value_class = self.datatype.value_class
-                if filter.value.value is not None:
-                    value = filter.value.value
-                    assert value is not None
+                if isinstance(value, Value):
                     if not isinstance(value, value_class):
                         return False
                     if self.kwargs.get('value') is not None:
@@ -415,7 +410,7 @@ class SPARQL_Mapping(ABC):
                             and not self._match_kwargs(
                                 'value_calendar', tm.calendar)):
                             return False
-                elif filter.value.snak_set is not None:
+                elif isinstance(value, SnakSet):
                     if not issubclass(value_class, Entity):
                         return False
             # Success.
