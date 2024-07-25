@@ -28,17 +28,9 @@ $ pip install -e .
 
 See the [API documentation](https://ibm.github.io/kif/) and [examples](https://github.com/IBM/kif/tree/main/examples).
 
-## Testing ##
+## Citation ##
 
-Install the test dependencies:
-```shell
-$ make install-deps
-```
-
-Run all tests:
-```shell
-$ make check
-```
+[KIF: A Wikidata-Based Framework for Integrating Heterogeneous Knowledge Sources](https://arxiv.org/abs/2403.10304), arXiv, 2024.
 
 ## License ##
 
