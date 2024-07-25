@@ -1,15 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import (
-    DecoderError,
-    EntityFingerprint,
-    Filter,
-    Fingerprint,
-    PropertyFingerprint,
-    Quantity,
-    Value,
-)
+from kif_lib import DecoderError, Filter, Quantity, Value
+from kif_lib.model.fingerprint import AndFp, ValueFp
 from kif_lib.vocabulary import wd
 
 from .tests import kif_TestCase
@@ -30,21 +23,21 @@ class TestCodecSPARQL(kif_TestCase):
         # subject: item
         q = 'select * where {wd:Q2270 ?p ?o}'
         self.assert_filter(
-            Filter.from_sparql(q), EntityFingerprint(wd.benzene))
+            Filter.from_sparql(q), ValueFp(wd.benzene))
         # subject: property
         q = 'select * where {wd:P31 ?p ?o}'
         self.assert_filter(
-            Filter.from_sparql(q), EntityFingerprint(wd.instance_of))
+            Filter.from_sparql(q), ValueFp(wd.instance_of))
         # property: property
         q = 'select * where {?s wd:P31 ?o}'
         self.assert_filter(
             Filter.from_sparql(q),
-            None, PropertyFingerprint(wd.instance_of))
+            None, ValueFp(wd.instance_of))
         # value: item
         q = 'select * where {?s ?p wd:Q2270}'
         self.assert_filter(
             Filter.from_sparql(q),
-            None, None, Fingerprint(wd.benzene))
+            None, None, ValueFp(wd.benzene))
 
     def test_text2sparql(self):
         # Give me the mass of benzene.
@@ -54,8 +47,8 @@ SELECT ?value WHERE {
 } LIMIT 50'''
         self.assert_filter(
             Filter.from_sparql(q),
-            EntityFingerprint(wd.benzene),
-            PropertyFingerprint(wd.mass))
+            ValueFp(wd.benzene),
+            ValueFp(wd.mass))
         # Give me the LD50 of benzene.
         q = '''
 SELECT ?value WHERE {
@@ -63,8 +56,8 @@ SELECT ?value WHERE {
 } LIMIT 50'''
         self.assert_filter(
             Filter.from_sparql(q),
-            EntityFingerprint(wd.benzene),
-            PropertyFingerprint(wd.median_lethal_dose))
+            ValueFp(wd.benzene),
+            ValueFp(wd.median_lethal_dose))
         # What is the solubility of benzene?
         q = '''
 SELECT ?value WHERE {
@@ -72,8 +65,8 @@ SELECT ?value WHERE {
 } LIMIT 50'''
         self.assert_filter(
             Filter.from_sparql(q),
-            EntityFingerprint(wd.benzene),
-            PropertyFingerprint(wd.solubility))
+            ValueFp(wd.benzene),
+            ValueFp(wd.solubility))
         # Give me the mass of the compound with
         # InChIKey "UHOVQNZJYSORNB-UHFFFAOYSA-N".
         q = '''
@@ -84,8 +77,8 @@ SELECT ?mass WHERE {
 } LIMIT 50'''
         self.assert_filter(
             Filter.from_sparql(q),
-            EntityFingerprint(wd.InChIKey('UHOVQNZJYSORNB-UHFFFAOYSA-N')),
-            PropertyFingerprint(wd.mass))
+            AndFp(wd.InChIKey('UHOVQNZJYSORNB-UHFFFAOYSA-N')),
+            ValueFp(wd.mass))
         q = '''
 SELECT ?value WHERE {
 ?compound wdt:P234 "InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H" .
@@ -95,10 +88,10 @@ SELECT ?value WHERE {
 '''
         self.assert_filter(
             Filter.from_sparql(q),
-            EntityFingerprint(
-                [wd.InChI('InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H'),
-                 wd.instance_of(wd.chemical_compound)]),
-            PropertyFingerprint(wd.mass))
+            AndFp(
+                wd.InChI('InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H'),
+                wd.instance_of(wd.chemical_compound)),
+            ValueFp(wd.mass))
         # What are the chemical entity types with solubility 0.07?
         q = '''
 SELECT ?entity_type WHERE {
@@ -107,9 +100,9 @@ SELECT ?entity_type WHERE {
 } LIMIT 50'''
         self.assert_filter(
             Filter.from_sparql(q),
-            EntityFingerprint(
-                [wd.solubility(Quantity('0.07')),
-                 wd.P(2305)(wd.chemical_entity)]))
+            AndFp(
+                wd.solubility(Quantity('0.07')),
+                wd.P(2305)(wd.chemical_entity)))
         # Give me the reports that are about benzene
         q = '''
 SELECT ?report WHERE {
@@ -119,7 +112,7 @@ SELECT ?report WHERE {
 '''
         self.assert_filter(
             Filter.from_sparql(q),
-            None, PropertyFingerprint(wd.part_of), Fingerprint(wd.benzene))
+            None, ValueFp(wd.part_of), ValueFp(wd.benzene))
 
 
 if __name__ == '__main__':

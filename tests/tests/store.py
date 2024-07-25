@@ -226,9 +226,9 @@ class kif_StoreTestCase(kif_TestCase):
 
     def store_test_count_bad_argument(self, kb):
         self.assert_raises_bad_argument(
-            TypeError, 1, 'subject', None, kb.count, 0)
+            TypeError, 1, 'subject', None, kb.count, {})
         self.assert_raises_bad_argument(
-            TypeError, 2, 'property', None, kb.count, None, 0)
+            TypeError, 2, 'property', None, kb.count, None, {})
         self.assert_raises_bad_argument(
             TypeError, 3, 'value', None, kb.count, None, None, {})
         self.assert_raises_bad_argument(
@@ -288,9 +288,9 @@ class kif_StoreTestCase(kif_TestCase):
 
     def store_test_filter_bad_argument(self, kb):
         self.assert_raises_bad_argument(
-            TypeError, 1, 'subject', None, kb.filter, 0)
+            TypeError, 1, 'subject', None, kb.filter, {})
         self.assert_raises_bad_argument(
-            TypeError, 2, 'property', None, kb.filter, None, 0)
+            TypeError, 2, 'property', None, kb.filter, None, {})
         self.assert_raises_bad_argument(
             TypeError, 3, 'value', None, kb.filter, None, None, {})
         self.assert_raises_bad_argument(

@@ -128,6 +128,7 @@ from kif_lib.model import (
     VValue,
     VValueSnak,
 )
+from kif_lib.model.fingerprint import Fp
 from kif_lib.model.object import Object
 from kif_lib.model.value.quantity import VTQuantityContent
 from kif_lib.model.value.string import VTStringContent
@@ -1001,9 +1002,9 @@ if __name__ == '__main__':
     def assert_filter(
             self,
             obj: Filter,
-            subject: Optional[EntityFingerprint] = None,
-            property: Optional[PropertyFingerprint] = None,
-            value: Optional[Fingerprint] = None,
+            subject: Optional[Fp] = None,
+            property: Optional[Fp] = None,
+            value: Optional[Fp] = None,
             mask: Filter.SnakMask = Filter.SnakMask.ALL
     ):
         self.assertIsInstance(obj, Filter)

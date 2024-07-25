@@ -11,25 +11,18 @@ from rdflib.term import Literal, URIRef, Variable
 
 from ... import namespace as NS
 from ...error import ShouldNotGetHere
-from ...model import (
-    EntityFingerprint,
-    Filter,
-    Fingerprint,
-    Property,
-    PropertyFingerprint,
-    Snak,
-    Value,
-    ValueSnak,
-)
+from ...model import Filter, Property, Snak, Value, ValueSnak
+from ...model.fingerprint import AndFp, Fp, ValueFp
 from ...model.kif_object import Decoder, DecoderError, Object
 from ...typing import Any, cast, Optional, override
 
 
 class SPARQL_Decoder(
-        Decoder, format='sparql', description='SPARQL decoder'):
+        Decoder,
+        format='sparql',
+        description='SPARQL decoder'
+):
     """SPARQL decoder."""
-
-    _namespace: Optional[Mapping[str, Any]]
 
     @classmethod
     def _error_bad_query(
@@ -58,6 +51,12 @@ At line {line}, column {column}:
             details: str,
     ) -> DecoderError:
         return DecoderError(f'unsupported expression: {details}')
+
+    __slots__ = (
+        '_namespace',
+    )
+
+    _namespace: Optional[Mapping[str, Any]]
 
     def __init__(self):
         self._namespace = dict(NS._DEFAULT_NSM.namespaces())
@@ -124,8 +123,8 @@ At line {line}, column {column}:
                     subj = None
                     pred, obj = snmap[cast(ValueSnak, snaks[0])]
         return Filter(
-            self._subject_to_entity_fingerprint(subj, fpmap),
-            self._predicate_to_property_fingerprint(pred, fpmap),
+            self._subject_to_fingerprint(subj, fpmap),
+            self._predicate_to_fingerprint(pred, fpmap),
             self._object_to_fingerprint(obj, fpmap)
         )
 
@@ -162,35 +161,35 @@ At line {line}, column {column}:
     def _literal_to_value(self, literal: Literal) -> Value:
         return Value._from_rdflib(literal)
 
-    def _subject_to_entity_fingerprint(
+    def _subject_to_fingerprint(
             self,
             subj: Optional[Id],
             fpmap: dict[Variable, list[Snak]]
-    ) -> Optional[EntityFingerprint]:
+    ) -> Optional[Fp]:
         if subj is None:
             return None
         elif isinstance(subj, URIRef):
-            return EntityFingerprint(self._uriref_to_value(subj))
+            return ValueFp(self._uriref_to_value(subj))
         elif isinstance(subj, Variable):
             if subj in fpmap:
-                return EntityFingerprint(fpmap[subj])
+                return AndFp(*fpmap[subj])
             else:
                 return None
         else:
             raise ShouldNotGetHere
 
-    def _predicate_to_property_fingerprint(
+    def _predicate_to_fingerprint(
             self,
             pred: Optional[Id],
             fpmap: dict[Variable, list[Snak]]
-    ) -> Optional[PropertyFingerprint]:
+    ) -> Optional[Fp]:
         if pred is None:
             return None
         elif isinstance(pred, URIRef):
-            return PropertyFingerprint(self._uriref_to_property(pred))
+            return ValueFp(self._uriref_to_property(pred))
         elif isinstance(pred, Variable):
             if pred in fpmap:
-                return PropertyFingerprint(fpmap[pred])
+                return AndFp(*fpmap[pred])
             else:
                 return None
         else:
@@ -200,16 +199,16 @@ At line {line}, column {column}:
             self,
             obj: Optional[Id],
             fpmap: dict[Variable, list[Snak]]
-    ) -> Optional[Fingerprint]:
+    ) -> Optional[Fp]:
         if obj is None:
             return None
         elif isinstance(obj, URIRef):
-            return Fingerprint(self._uriref_to_value(obj))
+            return ValueFp(self._uriref_to_value(obj))
         elif isinstance(obj, Literal):
-            return Fingerprint(self._literal_to_value(obj))
+            return ValueFp(self._literal_to_value(obj))
         elif isinstance(obj, Variable):
             if obj in fpmap:
-                return Fingerprint(fpmap[obj])
+                return AndFp(*fpmap[obj])
             else:
                 return None
         else:

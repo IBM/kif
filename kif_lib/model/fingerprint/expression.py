@@ -29,19 +29,20 @@ from ..value import (
     TValue,
     Value,
 )
-from .entity_fingerprint import EntityFingerprint
 from .fingerprint import Fingerprint
-from .property_fingerprint import PropertyFingerprint
 
-TFp: TypeAlias =\
-    Union['Fp', 'TAtomicFp',
-          Fingerprint, EntityFingerprint, PropertyFingerprint]
+TFp: TypeAlias = Union['Fp', 'TCompoundFp', 'TAtomicFp']
+
 TAtomicFp: TypeAlias =\
     Union['AtomicFp', 'TSnakFp', 'TValueFp', 'TFullFp', 'TEmptyFp']
 TSnakFp: TypeAlias = Union['SnakFp', TSnak]
 TValueFp: TypeAlias = Union['ValueFp', TValue]
 TFullFp: TypeAlias = Union['FullFp', bool, Literal[None]]
 TEmptyFp: TypeAlias = Union['EmptyFp', bool]
+
+TCompoundFp: TypeAlias = Union['CompoundFp', 'TAndFp', 'TOrFp']
+TAndFp: TypeAlias = Union[list[Snak], Set[Snak], SnakSet]
+TOrFp: TypeAlias = 'OrFp'
 
 
 class Fp(KIF_Object):

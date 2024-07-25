@@ -13,9 +13,7 @@ from ..model import (
     AnnotationRecordSet,
     Descriptor,
     Entity,
-    EntityFingerprint,
     Filter,
-    Fingerprint,
     Item,
     ItemDescriptor,
     KIF_Object,
@@ -23,16 +21,13 @@ from ..model import (
     LexemeDescriptor,
     Property,
     PropertyDescriptor,
-    PropertyFingerprint,
     ReferenceRecordSet,
     Snak,
     Statement,
-    TEntityFingerprint,
     Text,
-    TFingerprint,
-    TPropertyFingerprint,
     TReferenceRecordSet,
 )
+from ..model.fingerprint import Fp, TFp
 from ..typing import (
     Any,
     Callable,
@@ -576,9 +571,9 @@ class Store(Set):
 
     def count(
             self,
-            subject: Optional[TEntityFingerprint] = None,
-            property: Optional[TPropertyFingerprint] = None,
-            value: Optional[TFingerprint] = None,
+            subject: Optional[TFp] = None,
+            property: Optional[TFp] = None,
+            value: Optional[TFp] = None,
             snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
             filter: Optional[Filter] = None
@@ -610,19 +605,19 @@ class Store(Set):
 
     def _check_filter(
             self,
-            subject: Optional[TEntityFingerprint] = None,
-            property: Optional[TPropertyFingerprint] = None,
-            value: Optional[TFingerprint] = None,
+            subject: Optional[TFp] = None,
+            property: Optional[TFp] = None,
+            value: Optional[TFp] = None,
             snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
             filter: Optional[Filter] = None,
             function: Optional[Union[Callable[..., Any], str]] = None
     ) -> Filter:
-        subj = EntityFingerprint.check_optional(
+        subj = Fp.check_optional(
             subject, None, function, 'subject', 1)
-        prop = PropertyFingerprint.check_optional(
+        prop = Fp.check_optional(
             property, None, function, 'property', 2)
-        val = Fingerprint.check_optional(
+        val = Fp.check_optional(
             value, None, function, 'value', 3)
         mask = Filter.SnakMask.check_optional(
             snak_mask, Filter.SnakMask.ALL, function, 'snak_mask', 4)
@@ -653,9 +648,9 @@ class Store(Set):
 
     def filter(
             self,
-            subject: Optional[TEntityFingerprint] = None,
-            property: Optional[TPropertyFingerprint] = None,
-            value: Optional[TFingerprint] = None,
+            subject: Optional[TFp] = None,
+            property: Optional[TFp] = None,
+            value: Optional[TFp] = None,
             snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
             filter: Optional[Filter] = None,
@@ -745,9 +740,9 @@ class Store(Set):
 
     def filter_annotated(
             self,
-            subject: Optional[TEntityFingerprint] = None,
-            property: Optional[TPropertyFingerprint] = None,
-            value: Optional[TFingerprint] = None,
+            subject: Optional[TFp] = None,
+            property: Optional[TFp] = None,
+            value: Optional[TFp] = None,
             snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
             filter: Optional[Filter] = None,
