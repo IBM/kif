@@ -169,7 +169,7 @@ class SPARQL_MapperStore(
             self,
             filter: Filter
     ) -> SPARQL_Builder:
-        subject, property, value, snak_mask = self._filter_unpack(filter)
+        subject, property, value, snak_mask = filter._unpack_legacy()
         q = self.mapping.Builder()
         with q.where():
             subject_prefix: Optional[IRI] = None
@@ -242,7 +242,7 @@ class SPARQL_MapperStore(
             if vsnak.property not in self.mapping.specs:
                 return False, None  # no such property
             for spec in self.mapping.specs[vsnak.property]:
-                t = self._filter_unpack(Filter.from_snak(None, vsnak))
+                t = Filter.from_snak(None, vsnak)._unpack_legacy()
                 if not spec._match(*t):
                     continue    # spec does not match snak
                 spec._define(
@@ -326,7 +326,7 @@ class SPARQL_MapperStore(
                     matched_entities = [
                         e for e in entities
                         if instance_of_spec._match(
-                            *self._filter_unpack(Filter(e)))]
+                            *Filter(e)._unpack_legacy())]
                     if not matched_entities:
                         continue  # nothing to do
 
@@ -344,15 +344,15 @@ class SPARQL_MapperStore(
                     if get_label:
                         matched_specs['label'] = [
                             s for s in label_specs if s._match(
-                                *self._filter_unpack(filter))]
+                                *filter._unpack_legacy())]
                     if get_aliases:
                         matched_specs['alias'] = [
                             s for s in alias_specs if s._match(
-                                *self._filter_unpack(filter))]
+                                *filter._unpack_legacy())]
                     if get_description:
                         matched_specs['description'] = [
                             s for s in description_specs if s._match(
-                                *self._filter_unpack(filter))]
+                                *filter._unpack_legacy())]
                     if not any(map(bool, matched_specs.values())):
                         instance_of_spec._define(q)
                         push_values(instance_of_spec)

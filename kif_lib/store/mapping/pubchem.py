@@ -218,7 +218,7 @@ class PubChemMapping(SPARQL_Mapping):
     ) -> tuple[Filter, int, bool, Any]:
         from ..sparql import SPARQL_Store
         assert isinstance(store, SPARQL_Store)
-        subject, property, value, snak_mask = store._filter_unpack(filter)
+        subject, property, value, snak_mask = filter._unpack_legacy()
         if (property is None
                 or property
                 not in cls._toxicity_properties_inv):

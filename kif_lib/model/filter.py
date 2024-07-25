@@ -6,15 +6,19 @@ import functools
 
 from ..typing import Any, Callable, Final, Optional, override, TypeAlias, Union
 from .fingerprint import (
+    AndFp,
     EntityFingerprint,
     Fingerprint,
     Fp,
     PropertyFingerprint,
+    SnakFp,
     TEntityFingerprint,
     TFingerprint,
     TPropertyFingerprint,
+    ValueFp,
 )
 from .kif_object import KIF_Object
+from .set import SnakSet
 from .snak import NoValueSnak, Snak, SomeValueSnak, TSnak, ValueSnak
 from .statement import Statement, TStatement
 from .value import (
@@ -627,3 +631,53 @@ class Filter(KIF_Object):
             return Fingerprint(
                 self.value.snak_set.union(other.snak_set))
         raise ValueError('values cannot be combined')
+
+    def _unpack_legacy(
+            self
+    ) -> tuple[
+        Optional[Union[Value, SnakSet]],
+        Optional[Union[Value, SnakSet]],
+        Optional[Union[Value, SnakSet]],
+        'Filter.SnakMask'
+    ]:
+        filter = self.normalize()
+        assert isinstance(filter.subject, Fp)
+        assert isinstance(filter.property, Fp)
+        assert isinstance(filter.value, Fp)
+        subject: Optional[Union[Value, SnakSet]]
+        property: Optional[Union[Value, SnakSet]]
+        value: Optional[Union[Value, SnakSet]]
+        if filter.subject.is_full():
+            subject = None
+        elif isinstance(filter.subject, ValueFp):
+            subject = filter.subject.value
+        elif isinstance(filter.subject, (SnakFp, AndFp)):
+            subject = filter._unpack_legacy_fp_to_snak_set(filter.subject)
+        else:
+            raise filter._should_not_get_here()
+        if filter.property.is_full():
+            property = None
+        elif isinstance(filter.property, ValueFp):
+            property = filter.property.value
+        elif isinstance(filter.property, (SnakFp, AndFp)):
+            property = filter._unpack_legacy_fp_to_snak_set(filter.property)
+        else:
+            raise filter._should_not_get_here()
+        if filter.value.is_full():
+            value = None
+        elif isinstance(filter.value, ValueFp):
+            value = filter.value.value
+        elif isinstance(filter.value, (SnakFp, AndFp)):
+            value = filter._unpack_legacy_fp_to_snak_set(filter.value)
+        else:
+            raise filter._should_not_get_here()
+        return subject, property, value, filter.snak_mask
+
+    def _unpack_legacy_fp_to_snak_set(self, fp: Fp) -> SnakSet:
+        if isinstance(fp, SnakFp):
+            return SnakSet(fp.snak)
+        elif isinstance(fp, AndFp):
+            return SnakSet().union(*map(
+                self._unpack_legacy_fp_to_snak_set, fp.args))
+        else:
+            raise self._should_not_get_here()
