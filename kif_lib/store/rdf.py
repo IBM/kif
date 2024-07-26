@@ -1,6 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import functools
 import json
 import logging
 from pathlib import PurePath
@@ -50,35 +51,22 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
             **kwargs: Any
     ):
         super().__init__(store_name, 'file:///dev/null', **kwargs)
-        sources = [s for s in args if s is not None]
-        input = {
-            'source': sources,
-            'location': location,
-            'file': file,
-            'data': data,
-        }
-        nonempty = list(filter(lambda t: bool(t[1]), input.items()))
-        if len(nonempty) > 1:
-            names = list(map(lambda t: t[0], nonempty))
-            sep = ' and ' if len(names) == 2 else ', and '
-            msg = ', '.join(names[:-1]) + sep + names[-1]
-            raise KIF_Object._arg_error(
-                f'{msg} are mutually exclusive', self.__class__, names[0])
         graph = KIF_Object._check_optional_arg_isinstance(
             graph, rdflib.Graph, rdflib.Graph(),
             self.__class__, 'graph', None)
         assert graph is not None
+        load = functools.partial(
+            graph.parse, format=format, publicID=publicID)
         try:
-            if location or file or data:
-                assert not sources
-                graph.parse(
-                    publicID=publicID, format=format,
-                    location=location, file=file, data=data)
-            else:
-                assert not location and not file and not data
-                for src in sources:
-                    graph.parse(src, publicID=publicID, format=format)
-        except rdflib.RDFLibError as err:
+            if location is not None:
+                load(location=location)
+            if file is not None:
+                load(file=file)
+            if data is not None:
+                load(data=data)
+            for src in args:
+                load(src)
+        except Exception as err:
             raise self._error(str(err)) from err
         if skolemize:
             self._graph = graph.skolemize()
