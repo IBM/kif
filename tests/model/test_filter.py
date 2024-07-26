@@ -23,10 +23,10 @@ from kif_lib import (
     String,
     Text,
     Time,
-    ValueFingerprint,
     ValueSnak,
     Variable,
 )
+from kif_lib.model import ValueFingerprint
 from kif_lib.typing import assert_type
 
 from ..tests import kif_ObjectTestCase

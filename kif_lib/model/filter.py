@@ -479,9 +479,11 @@ class Filter(KIF_Object):
            Filter.
         """
         return Filter(
-            subject=Fingerprint.check(self.subject).normalize(Entity),
+            subject=Fingerprint.check(
+                self.subject).normalize(Entity),  # type: ignore
             property=Fingerprint.check(self.property).normalize(Property),
-            value=Fingerprint.check(self.value).normalize(Value),
+            value=Fingerprint.check(
+                self.value).normalize(Value),  # type: ignore
             snak_mask=self.snak_mask)
 
     def combine(self, *others: 'Filter') -> 'Filter':
