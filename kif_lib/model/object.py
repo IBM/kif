@@ -61,7 +61,6 @@ class ObjectMeta(abc.ABCMeta):
         return mcs._object_subclasses[cls_name]
 
 
-@functools.total_ordering
 class Object(Sequence, metaclass=ObjectMeta):
     """Abstract base class for syntactical objects."""
 
@@ -186,7 +185,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         return type(self) is type(other) and self._args == other._args
 
     def __getitem__(self, i):
-        return self.args[i]
+        return self._args[i]
 
     def __hash__(self) -> int:
         if self._hash is None:
@@ -194,15 +193,25 @@ class Object(Sequence, metaclass=ObjectMeta):
         return self._hash
 
     def __len__(self) -> int:
-        return len(self.args)
+        return len(self._args)
 
     def __lt__(self, other: 'Object') -> bool:
-        other = Object.check(other, self.__class__.__lt__)
-        if type(self) is not type(other):
+        if not isinstance(other, Object):
+            return NotImplemented
+        elif type(self) is not type(other):
             return (self.__class__.__qualname__
                     < other.__class__.__qualname__)
         else:
-            return self.args < other.args
+            return self._args < other._args
+
+    def __le__(self, other: 'Object') -> bool:
+        return self == other or self < other
+
+    def __gt__(self, other: 'Object') -> bool:
+        return other < self
+
+    def __ge__(self, other: 'Object') -> bool:
+        return self == other or self > other
 
     def __repr__(self) -> str:
         return self.dumps()
