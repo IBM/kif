@@ -1,7 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from ...typing import (
     Any,

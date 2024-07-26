@@ -4,8 +4,7 @@
 import abc
 import datetime
 import decimal
-
-import typing_extensions
+from typing import TYPE_CHECKING
 
 from ... import namespace as NS
 from ...rdflib import Literal, URIRef
@@ -26,7 +25,7 @@ from ..template import Template
 from ..variable import Variable
 from .datatype import Datatype
 
-if typing_extensions.TYPE_CHECKING:  # pragma: no cover
+if TYPE_CHECKING:  # pragma: no cover
     from ..fingerprint import Fingerprint, TFingerprint
     from .quantity import TDecimal  # noqa: F401
     from .time import TDatetime  # noqa: F401

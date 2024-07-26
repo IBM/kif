@@ -1,7 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import typing_extensions
+from typing import TYPE_CHECKING
 
 from ...typing import (
     Any,
@@ -15,7 +15,7 @@ from ...typing import (
 )
 from .data_value import DataValue, DataValueTemplate, DataValueVariable
 
-if typing_extensions.TYPE_CHECKING:  # pragma: no cover
+if TYPE_CHECKING:  # pragma: no cover
     from .string import VStringContent
 
 

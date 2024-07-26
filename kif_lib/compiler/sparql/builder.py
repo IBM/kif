@@ -1189,10 +1189,10 @@ class Query(Encodable):
     _offset: OffsetClause
 
     #: Default fresh variable prefix.
-    _fresh_var_default_prefix: str = '_v'
+    _fresh_var_default_prefix: _str = '_v'
 
     #: Fresh variable prefix.
-    _fresh_var_prefix: str
+    _fresh_var_prefix: _str
 
     #: Fresh variable counter.
     _fresh_var_counter: int

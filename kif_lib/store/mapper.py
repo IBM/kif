@@ -281,13 +281,10 @@ class SPARQL_MapperStore(
             if self._cache_get_wdss(stmt) or stmt in self:
                 assert self._cache_get_wdss(stmt)
 
-                def it():
-                    for spec in self.mapping.specs.get(
-                            stmt.snak.property, []):
-                        annots = spec.kwargs.get('annotations', [])
-                        for annot in annots:
-                            yield annot
-                annots = AnnotationRecordSet(*it())
+                def it(property):
+                    for spec in self.mapping.specs.get(property, ()):
+                        yield from spec.kwargs.get('annotations', ())
+                annots = AnnotationRecordSet(*it(stmt.snak.property))
                 if not annots:
                     annots = AnnotationRecordSet(AnnotationRecord())
                 yield stmt, annots

@@ -330,7 +330,7 @@ class Time(
 
     @staticmethod
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
-        if arg is None and i >= 2 and i <= 4:
+        if arg is None and 2 <= i <= 4:
             return None
         if i == 1:              # time
             if isinstance(arg, Time):

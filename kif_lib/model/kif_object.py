@@ -7,8 +7,7 @@ import decimal
 import enum
 import functools
 import json
-
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from .. import itertools
 from ..context import Context

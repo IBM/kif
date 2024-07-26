@@ -45,20 +45,20 @@ class ObjectMeta(abc.ABCMeta):
 
     _object_subclasses: Final[dict[str, type['Object']]] = {}
 
-    def __new__(cls, name, bases, namespace, **kwargs):
-        cls_ = super().__new__(cls, name, bases, namespace, **kwargs)
-        cls._object_subclasses[name] = cls_
-        return cls_
+    def __new__(mcs, name, bases, namespace, **kwargs):
+        cls = super().__new__(mcs, name, bases, namespace, **kwargs)
+        mcs._object_subclasses[name] = cls
+        return cls
 
     @classmethod
     def _check_object_class(
-            cls,
+            mcs,
             cls_name: str,
             exception: type[Exception] = TypeError
     ) -> type['Object']:
-        if cls_name not in cls._object_subclasses:
+        if cls_name not in mcs._object_subclasses:
             raise exception(f"no such object class '{cls_name}'")
-        return cls._object_subclasses[cls_name]
+        return mcs._object_subclasses[cls_name]
 
 
 @functools.total_ordering

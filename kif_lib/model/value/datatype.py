@@ -2,8 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
-
-import typing_extensions
+from typing import TYPE_CHECKING
 
 from ...rdflib import URIRef
 from ...typing import (
@@ -20,7 +19,7 @@ from ...typing import (
 from ..kif_object import KIF_Object
 from ..variable import Theta, Variable
 
-if typing_extensions.TYPE_CHECKING:  # pragma: no cover
+if TYPE_CHECKING:               # pragma: no cover
     from .value import Value
 
 TDatatype: TypeAlias = Union['Datatype', type['Datatype'], type['Value']]

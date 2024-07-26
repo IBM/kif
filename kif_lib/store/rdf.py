@@ -5,7 +5,7 @@ import json
 import logging
 from pathlib import PurePath
 
-from .. import itertools, rdflib
+from .. import rdflib
 from ..model import KIF_Object
 from ..typing import Any, BinaryIO, cast, IO, Optional, override, TextIO, Union
 from .sparql import SPARQL_Store
@@ -19,8 +19,7 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
 
     Parameters:
        store_name: Name of the store plugin to instantiate.
-       source: An input source, file, path, or string.
-       args: More input sources, files, paths, or strings.
+       args: Input sources, files, paths, or strings.
        publicID: Logical URI to use as the document base.
        format: Input source format (file extension or media type).
        location: Relative or absolute URL of the input source.
@@ -39,8 +38,6 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
     def __init__(
             self,
             store_name: str,
-            source: Optional[Union[IO[bytes], TextIO, rdflib.InputSource,
-                                   str, bytes, PurePath]] = None,
             *args: Optional[Union[IO[bytes], TextIO, rdflib.InputSource,
                                   str, bytes, PurePath]],
             publicID: Optional[str] = None,
@@ -53,7 +50,7 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
             **kwargs: Any
     ):
         super().__init__(store_name, 'file:///dev/null', **kwargs)
-        sources = [s for s in itertools.chain([source], args) if s is not None]
+        sources = [s for s in args if s is not None]
         input = {
             'source': sources,
             'location': location,
@@ -82,7 +79,7 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
                 for src in sources:
                     graph.parse(src, publicID=publicID, format=format)
         except rdflib.RDFLibError as err:
-            raise self._error(str(err))
+            raise self._error(str(err)) from err
         if skolemize:
             self._graph = graph.skolemize()
         else:

@@ -8,6 +8,7 @@ disable=
     invalid-name,
     missing-function-docstring,
     missing-module-docstring,
+    no-else-continue,
     no-else-return,
     no-member,
     no-name-in-module,
@@ -30,4 +31,5 @@ disable=
     unnecessary-lambda-assignment,
     unsupported-binary-operation,
     unused-argument,
+    unused-import,
 

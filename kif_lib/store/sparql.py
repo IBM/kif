@@ -1,6 +1,7 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import functools
 import logging
 
 import httpx
@@ -623,8 +624,8 @@ At line {line}, column {column}:
                     stmt2wdss[stmt].add(wds)
                 unseen = set(range(len(reduced_batch))) - seen
                 if unseen and retries > 0:
-                    unseen_stmts = list(map(
-                        lambda i: reduced_batch[i], unseen))
+                    f = functools.partial(lambda t, i: t[i], reduced_batch)
+                    unseen_stmts = list(map(f, unseen))
                     LOG.debug(
                         '%s(): retrying (%d left)',
                         self._get_wdss.__qualname__, retries - 1)
@@ -774,10 +775,7 @@ At line {line}, column {column}:
                     for wds in wdss:
                         if wds not in wds2rank:
                             continue
-                        if wds in wds2quals:
-                            quals = wds2quals[wds]
-                        else:
-                            quals = set()
+                        quals = wds2quals.get(wds, set())
                         if wds in wds2refs:
                             refs = set(itertools.starmap(
                                 ReferenceRecord, wds2refs[wds].values()))

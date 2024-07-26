@@ -28,7 +28,7 @@ class TestStoreRDF_Init(kif_StoreTestCase):
         # bad argument: syntax error
         self.assertRaises(SyntaxError, Store, 'rdf', data='x', format='ttl')
         # bad argument: mutually exclusive
-        self.assertRaises(ValueError, Store, 'rdf', source='x', data='x')
+        self.assertRaises(ValueError, Store, 'rdf', 'x', data='x')
         # zero sources
         kb = Store('rdf')
         self.assertRaises(StopIteration, next, kb.filter())
