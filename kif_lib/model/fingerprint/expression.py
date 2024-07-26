@@ -46,7 +46,7 @@ TOrFp: TypeAlias = 'OrFp'
 
 
 class Fp(KIF_Object):
-    """Abstract base class for fingerprint expressions."""
+    """Abstract base class for fingerprints."""
 
     @classmethod
     @override
@@ -87,7 +87,7 @@ class Fp(KIF_Object):
         return OrFp(self, other)
 
     def is_full(self) -> bool:
-        """Tests whether fingerprint expression is full.
+        """Tests whether fingerprint is full.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
@@ -95,7 +95,7 @@ class Fp(KIF_Object):
         return isinstance(self, FullFp)
 
     def is_empty(self) -> bool:
-        """Tests whether fingerprint expression is empty.
+        """Tests whether fingerprint is empty.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
@@ -103,7 +103,7 @@ class Fp(KIF_Object):
         return isinstance(self, EmptyFp)
 
     def match(self, value: TValue) -> bool:
-        """Tests whether fingerprint expression shallow-matches value.
+        """Tests whether fingerprint shallow-matches value.
 
         Parameters:
            value: Value.
@@ -119,16 +119,16 @@ class Fp(KIF_Object):
         raise NotImplementedError
 
     def normalize(self, value_class: type[Value] = Value) -> 'Fp':
-        """Reduce fingerprint expression to a normal form.
+        """Reduce fingerprint to a normal form.
 
-        Produces a normal fingerprint expression that does *not* match
-        values of a type different from `value_class`.
+        Produces a normal fingerprint that does *not* match values of a type
+        different from `value_class`.
 
         Parameters:
            value_class: Value class.
 
         Returns:
-           Normal fingerprint expression.
+           Normal fingerprint.
         """
         if isinstance(self, ValueFp):
             if isinstance(self.value, value_class):
@@ -151,7 +151,7 @@ class Fp(KIF_Object):
             elif isinstance(self, OrFp) and FullFp() in args:
                 return FullFp()
             else:
-                return self.__class__(*args)
+                return self.__class__(*sorted(args))
 
     def _normalize_args(
             self,
@@ -188,7 +188,7 @@ class Fp(KIF_Object):
 
 
 class CompoundFp(Fp):
-    """Compound fingerprint expression."""
+    """Compound fingerprint."""
 
     def __init__(self, *fps: TFp):
         super().__init__(*fps)
@@ -199,7 +199,7 @@ class CompoundFp(Fp):
 
 
 class AndFp(CompoundFp):
-    """Conjunction of fingerprint expressions."""
+    """Conjunction of fingerprints."""
 
     @override
     def _match(self, value: Value) -> bool:
@@ -207,7 +207,7 @@ class AndFp(CompoundFp):
 
 
 class OrFp(CompoundFp):
-    """Disjunction of fingerprint expressions."""
+    """Disjunction of fingerprints."""
 
     @override
     def _match(self, value: Value) -> bool:
@@ -215,11 +215,11 @@ class OrFp(CompoundFp):
 
 
 class AtomicFp(Fp):
-    """Atomic fingerprint expression."""
+    """Atomic fingerprint."""
 
 
 class SnakFp(AtomicFp):
-    """Snak fingerprint expression."""
+    """Snak fingerprint."""
 
     @classmethod
     @override
@@ -247,11 +247,11 @@ class SnakFp(AtomicFp):
 
     @property
     def snak(self) -> Snak:
-        """The snak of fingerprint expression."""
+        """The snak of fingerprint."""
         return self.get_snak()
 
     def get_snak(self) -> Snak:
-        """Gets the snak of fingerprint expression.
+        """Gets the snak of fingerprint.
 
         Returns:
            Snak.
@@ -264,7 +264,7 @@ class SnakFp(AtomicFp):
 
 
 class ConverseSnakFp(SnakFp):
-    """Converse snak fingerprint expression."""
+    """Converse snak fingerprint."""
 
     @classmethod
     @override
@@ -297,7 +297,7 @@ class ConverseSnakFp(SnakFp):
 
 
 class ValueFp(AtomicFp):
-    """Value fingerprint expression."""
+    """Value fingerprint."""
 
     @classmethod
     @override
@@ -322,11 +322,11 @@ class ValueFp(AtomicFp):
 
     @property
     def value(self) -> Value:
-        """The value of fingerprint expression."""
+        """The value of fingerprint."""
         return self.get_value()
 
     def get_value(self) -> Value:
-        """Gets the value of fingerprint expression.
+        """Gets the value of fingerprint.
 
         Returns:
            Value.
@@ -376,7 +376,7 @@ class ValueFp(AtomicFp):
 
 
 class FullFp(AtomicFp):
-    """The full fingerprint expression (matches anything)."""
+    """The full fingerprint (matches anything)."""
 
     @classmethod
     @override
@@ -403,7 +403,7 @@ class FullFp(AtomicFp):
 
 
 class EmptyFp(AtomicFp):
-    """The empty fingerprint expression (matches nothing)."""
+    """The empty fingerprint (matches nothing)."""
 
     @classmethod
     @override

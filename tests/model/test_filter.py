@@ -182,7 +182,7 @@ class Test(kif_ObjectTestCase):
             ])
 
     def test__init__(self) -> None:
-        self.assertRaises(TypeError, Filter, 0)
+        self.assertRaises(TypeError, Filter, {})
         self.assert_filter(Filter())
 
     def test_is_empty(self) -> None:
@@ -281,18 +281,23 @@ class Test(kif_ObjectTestCase):
         # bad argument: incompatible subjects
         pat1 = Filter(Item('x'))
         pat2 = Filter(SnakSet())
-        self.assertRaisesRegex(
-            ValueError, 'subjects cannot be combined', pat1.combine, pat2)
+        self.assertEqual(
+            pat1.combine(pat2), Filter(Item('x') & SnakSet()).normalize())
         # bad argument: incompatible predicates
         pat1 = Filter(None, SnakSet(NoValueSnak(Property('x'))))
         pat2 = Filter(None, Property('p'))
-        self.assertRaisesRegex(
-            ValueError, 'properties cannot be combined', pat1.combine, pat2)
+        print(pat1.combine(pat2))
+        self.assertEqual(
+            pat1.combine(pat2),
+            Filter(None, Property('p') & SnakSet(
+                NoValueSnak(Property('x')))).normalize())
         # bad argument: incompatible values
         pat1 = Filter(None, None, SnakSet(NoValueSnak(Property('x'))))
         pat2 = Filter(None, None, Property('p'))
-        self.assertRaisesRegex(
-            ValueError, 'values cannot be combined', pat1.combine, pat2)
+        self.assertEqual(
+            pat1.combine(pat2),
+            Filter(None, None, Property('p') & SnakSet(NoValueSnak(
+                Property('x')))).normalize())
         # good arguments
         self.assertEqual(Filter().combine(), Filter())
         self.assertEqual(
@@ -309,7 +314,7 @@ class Test(kif_ObjectTestCase):
             pat1.combine(pat2),
             Filter([
                 SomeValueSnak(Property('p')),
-                NoValueSnak(Property('q'))]))
+                NoValueSnak(Property('q'))]).normalize())
         # property
         pat1 = Filter(None, Property('p'))
         pat2 = Filter(Item('x'))
@@ -322,7 +327,7 @@ class Test(kif_ObjectTestCase):
             pat1.combine(pat2),
             Filter(None, [
                 SomeValueSnak(Property('p')),
-                NoValueSnak(Property('q'))]))
+                NoValueSnak(Property('q'))]).normalize())
         # value
         pat1 = Filter(None, Property('p'), IRI('x'))
         pat2 = Filter(Item('x'), None, None)
@@ -337,7 +342,7 @@ class Test(kif_ObjectTestCase):
             pat1.combine(pat2),
             Filter(None, None, [
                 SomeValueSnak(Property('p')),
-                NoValueSnak(Property('q'))]))
+                NoValueSnak(Property('q'))]).normalize())
         # snak mask
         self.assertEqual(
             Filter(None, None, None, Filter.SnakMask.ALL).combine(

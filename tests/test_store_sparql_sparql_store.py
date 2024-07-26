@@ -111,9 +111,9 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
     def test_count(self):
         kb = self.new_Store()
         # bad argument: subject
-        self.assertRaises(TypeError, kb.count, 0)
+        self.assertRaises(TypeError, kb.count, {})
         # bad argument: property
-        self.assertRaises(TypeError, kb.count, None, 0)
+        self.assertRaises(TypeError, kb.count, None, {})
         # bad argument: value
         self.assertRaises(TypeError, kb.count, None, None, {})
         # bad argument: snak_class

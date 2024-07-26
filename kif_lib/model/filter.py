@@ -14,6 +14,7 @@ from .fingerprint import (
     SnakFp,
     TEntityFingerprint,
     TFingerprint,
+    TFp,
     TPropertyFingerprint,
     ValueFp,
 )
@@ -284,7 +285,7 @@ class Filter(KIF_Object):
     @classmethod
     def from_snak(
             cls,
-            subject: Optional[TEntityFingerprint] = None,
+            subject: Optional[TFp] = None,
             snak: Optional[Snak] = None
     ) -> 'Filter':
         """Creates filter from snak.
@@ -323,9 +324,9 @@ class Filter(KIF_Object):
 
     def __init__(
             self,
-            subject: Optional[TEntityFingerprint] = None,
-            property: Optional[TPropertyFingerprint] = None,
-            value: Optional[TFingerprint] = None,
+            subject: Optional[TFp] = None,
+            property: Optional[TFp] = None,
+            value: Optional[TFp] = None,
             snak_mask: Optional[TSnakMask] = None,
             subject_mask: Optional[TDatatypeMask] = None,
             value_mask: Optional[TDatatypeMask] = None
@@ -334,24 +335,8 @@ class Filter(KIF_Object):
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
-        if i == 1:
-            if isinstance(arg, Fp):
-                return arg
-            else:
-                return EntityFingerprint.check_optional(
-                    arg, None, type(self), None, i)
-        elif i == 2:
-            if isinstance(arg, Fp):
-                return arg
-            else:
-                return PropertyFingerprint.check_optional(
-                    arg, None, type(self), None, i)
-        elif i == 3:
-            if isinstance(arg, Fp):
-                return arg
-            else:
-                return Fingerprint.check_optional(
-                    arg, None, type(self), None, i)
+        if 1 <= i <= 3:
+            return Fp.check(arg, type(self), None, i)
         elif i == 4:
             return self.SnakMask.check_optional(
                 arg, self.SnakMask.ALL, type(self), None, i)
@@ -547,90 +532,10 @@ class Filter(KIF_Object):
     def _combine(cls, f1: 'Filter', f2: 'Filter'):
         f2 = Filter.check(f2, cls.combine)
         return f1.__class__(
-            f1._combine_subject(f2.subject),
-            f1._combine_property(f2.property),
-            f1._combine_value(f2.value),
-            f1.snak_mask & f2.snak_mask)
-
-    def _combine_subject(
-            self,
-            other: Optional[Union[EntityFingerprint, Fp]]
-    ) -> Optional[Union[EntityFingerprint, Fp]]:
-        if isinstance(self.subject, Fp) or isinstance(other, Fp):
-            return Fp.check(self.subject) & Fp.check(other)
-        else:
-            return self._combine_subject_legacy(other)
-
-    def _combine_subject_legacy(
-            self, other: Optional[EntityFingerprint]
-    ) -> Optional[EntityFingerprint]:
-        assert isinstance(self.subject, (EntityFingerprint, type(None)))
-        assert isinstance(other, (EntityFingerprint, type(None)))
-        if self.subject is None:
-            return other
-        if other is None:
-            return self.subject
-        assert self.subject is not None
-        assert other is not None
-        if (self.subject.snak_set is not None
-                and other.snak_set is not None):
-            return EntityFingerprint(
-                self.subject.snak_set.union(other.snak_set))
-        raise ValueError('subjects cannot be combined')
-
-    def _combine_property(
-            self,
-            other: Optional[Union[PropertyFingerprint, Fp]]
-    ) -> Optional[Union[PropertyFingerprint, Fp]]:
-        if isinstance(self.property, Fp) or isinstance(other, Fp):
-            return Fp.check(self.property) & Fp.check(other)
-        else:
-            return self._combine_property_legacy(other)
-
-    def _combine_property_legacy(
-            self,
-            other: Optional[PropertyFingerprint]
-    ) -> Optional[PropertyFingerprint]:
-        assert isinstance(self.property, (PropertyFingerprint, type(None)))
-        assert isinstance(other, (PropertyFingerprint, type(None)))
-        if self.property is None:
-            return other
-        if other is None:
-            return self.property
-        assert self.property is not None
-        assert other is not None
-        if (self.property.snak_set is not None
-                and other.snak_set is not None):
-            return PropertyFingerprint(
-                self.property.snak_set.union(other.snak_set))
-        raise ValueError('properties cannot be combined')
-
-    def _combine_value(
-            self,
-            other: Optional[Union[Fingerprint, Fp]]
-    ) -> Optional[Union[Fingerprint, Fp]]:
-        if isinstance(self.value, Fp) or isinstance(other, Fp):
-            return Fp.check(self.value) & Fp.check(other)
-        else:
-            return self._combine_value_legacy(other)
-
-    def _combine_value_legacy(
-            self,
-            other: Optional[Fingerprint]
-    ) -> Optional[Fingerprint]:
-        assert isinstance(self.value, (Fingerprint, type(None)))
-        assert isinstance(other, (Fingerprint, type(None)))
-        if self.value is None:
-            return other
-        if other is None:
-            return self.value
-        assert self.value is not None
-        assert other is not None
-        if (self.value.snak_set is not None
-                and other.snak_set is not None):
-            return Fingerprint(
-                self.value.snak_set.union(other.snak_set))
-        raise ValueError('values cannot be combined')
+            Fp.check(f1.subject) & Fp.check(f2.subject),
+            Fp.check(f1.property) & Fp.check(f2.property),
+            Fp.check(f1.value) & Fp.check(f2.value),
+            f1.snak_mask & f2.snak_mask).normalize()
 
     def _unpack_legacy(
             self

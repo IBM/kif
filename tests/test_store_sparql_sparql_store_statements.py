@@ -25,10 +25,9 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
     def test_filter_bad_argument(self):
         kb = self.new_Store()
         # bad argument: subject
-        self.assertRaises(TypeError, kb.filter, 0)
-        self.assertRaises(TypeError, kb.filter, IRI('x'))
+        self.assertRaises(TypeError, kb.filter, {})
         # bad argument: property
-        self.assertRaises(TypeError, kb.filter, None, 0)
+        self.assertRaises(TypeError, kb.filter, None, {})
         # self.assertRaises(ValueError, kb.filter, None, IRI('x'))
         # bad argument: value
         self.assertRaises(TypeError, kb.filter, None, None, {})

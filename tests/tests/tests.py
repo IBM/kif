@@ -128,7 +128,7 @@ from kif_lib.model import (
     VValue,
     VValueSnak,
 )
-from kif_lib.model.fingerprint import Fp
+from kif_lib.model.fingerprint import Fp, FullFp
 from kif_lib.model.object import Object
 from kif_lib.model.value.quantity import VTQuantityContent
 from kif_lib.model.value.string import VTStringContent
@@ -1008,12 +1008,18 @@ if __name__ == '__main__':
             mask: Filter.SnakMask = Filter.SnakMask.ALL
     ):
         self.assertIsInstance(obj, Filter)
+        if subject is None:
+            subject = FullFp()
         self.assertEqual(obj.args[0], subject)
         self.assertEqual(obj.subject, subject)
         self.assertEqual(obj.get_subject(), subject)
+        if property is None:
+            property = FullFp()
         self.assertEqual(obj.args[1], property)
         self.assertEqual(obj.property, property)
         self.assertEqual(obj.get_property(), property)
+        if value is None:
+            value = FullFp()
         self.assertEqual(obj.args[2], value)
         self.assertEqual(obj.value, value)
         self.assertEqual(obj.get_value(), value)
