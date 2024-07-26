@@ -23,10 +23,10 @@ from kif_lib import (
     String,
     Text,
     Time,
+    ValueFingerprint,
     ValueSnak,
     Variable,
 )
-from kif_lib.model.fingerprint import ValueFp
 from kif_lib.typing import assert_type
 
 from ..tests import kif_ObjectTestCase
@@ -104,23 +104,23 @@ class Test(kif_ObjectTestCase):
         # snak is none
         pat = Filter.from_snak(Item('x'), None)
         self.assert_filter(
-            pat, ValueFp(Item('x')), None, None, Filter.SnakMask.ALL)
+            pat, ValueFingerprint(Item('x')), None, None, Filter.SnakMask.ALL)
         # value snak
         snak: Snak = Property('p')(Item('x'))
         pat = Filter.from_snak(Item('x'), snak)
         self.assert_filter(
             pat,
-            ValueFp(Item('x')),
-            ValueFp(Property('p', Item)),
-            ValueFp(Item('x')),
+            ValueFingerprint(Item('x')),
+            ValueFingerprint(Property('p', Item)),
+            ValueFingerprint(Item('x')),
             Filter.VALUE_SNAK)
         # some value snak
         snak = SomeValueSnak(Property('p'))
         pat = Filter.from_snak(Item('x'), snak)
         self.assert_filter(
             pat,
-            ValueFp(Item('x')),
-            ValueFp(Property('p')),
+            ValueFingerprint(Item('x')),
+            ValueFingerprint(Property('p')),
             None,
             Filter.SOME_VALUE_SNAK)
         # no value snak
@@ -128,8 +128,8 @@ class Test(kif_ObjectTestCase):
         pat = Filter.from_snak(Item('x'), snak)
         self.assert_filter(
             pat,
-            ValueFp(Item('x')),
-            ValueFp(Property('p')),
+            ValueFingerprint(Item('x')),
+            ValueFingerprint(Property('p')),
             None,
             Filter.NO_VALUE_SNAK)
 
@@ -139,17 +139,17 @@ class Test(kif_ObjectTestCase):
         pat = Filter.from_statement(stmt)
         self.assert_filter(
             pat,
-            ValueFp(Item('x')),
-            ValueFp(Property('p', IRI)),
-            ValueFp(IRI('y')),
+            ValueFingerprint(Item('x')),
+            ValueFingerprint(Property('p', IRI)),
+            ValueFingerprint(IRI('y')),
             Filter.VALUE_SNAK)
         # some value snak
         stmt = Statement(Item('x'), SomeValueSnak(Property('p')))
         pat = Filter.from_statement(stmt)
         self.assert_filter(
             pat,
-            ValueFp(Item('x')),
-            ValueFp(Property('p')),
+            ValueFingerprint(Item('x')),
+            ValueFingerprint(Property('p')),
             None,
             Filter.SOME_VALUE_SNAK)
         # no value snak
@@ -157,8 +157,8 @@ class Test(kif_ObjectTestCase):
         pat = Filter.from_statement(stmt)
         self.assert_filter(
             pat,
-            ValueFp(Item('x')),
-            ValueFp(Property('p')),
+            ValueFingerprint(Item('x')),
+            ValueFingerprint(Property('p')),
             None,
             Filter.NO_VALUE_SNAK)
 

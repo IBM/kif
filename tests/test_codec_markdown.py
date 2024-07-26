@@ -301,16 +301,16 @@ class TestCodecMarkdown(kif_TestCase):
     def test_filter_to_markdown(self):
         self.assert_to_markdown(Filter(), '''\
 (**Filter**
-- (**FullFp**)
-- (**FullFp**)
-- (**FullFp**)
+- (**FullFingerprint**)
+- (**FullFingerprint**)
+- (**FullFingerprint**)
 - `0b111`)''')
         pat = Filter(wd.benzene)
         self.assert_to_markdown(pat, '''\
 (**Filter**
-- (**ValueFp** (**Item** [benzene](http://www.wikidata.org/entity/Q2270)))
-- (**FullFp**)
-- (**FullFp**)
+- (**ValueFingerprint** (**Item** [benzene](http://www.wikidata.org/entity/Q2270)))
+- (**FullFingerprint**)
+- (**FullFingerprint**)
 - `0b111`)''')  # noqa: E501
         pat = Filter(
             None,
@@ -321,11 +321,11 @@ class TestCodecMarkdown(kif_TestCase):
         self.assert_to_markdown(
             pat, '''\
 (**Filter**
-- (**FullFp**)
-- (**FullFp**)
-- (**AndFp**
-  - (**SnakFp** (**ValueSnak** (**Property** [country](http://www.wikidata.org/entity/P17)) (**Item** [Brazil](http://www.wikidata.org/entity/Q155))))
-  - (**SnakFp** (**NoValueSnak** (**Property** [date of birth](http://www.wikidata.org/entity/P569)))))
+- (**FullFingerprint**)
+- (**FullFingerprint**)
+- (**AndFingerprint**
+  - (**SnakFingerprint** (**ValueSnak** (**Property** [country](http://www.wikidata.org/entity/P17)) (**Item** [Brazil](http://www.wikidata.org/entity/Q155))))
+  - (**SnakFingerprint** (**NoValueSnak** (**Property** [date of birth](http://www.wikidata.org/entity/P569)))))
 - `0b100`)''')  # noqa: E501
 
     def test_snak_set_to_markdown(self):

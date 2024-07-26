@@ -5,7 +5,13 @@ import enum
 import functools
 
 from ..typing import Any, Callable, Final, Optional, override, TypeAlias, Union
-from .fingerprint import AndFp, Fp, SnakFp, TFp, ValueFp
+from .fingerprint import (
+    AndFingerprint,
+    Fingerprint,
+    SnakFingerprint,
+    TFingerprint,
+    ValueFingerprint,
+)
 from .kif_object import KIF_Object
 from .set import SnakSet
 from .snak import NoValueSnak, Snak, SomeValueSnak, TSnak, ValueSnak
@@ -273,7 +279,7 @@ class Filter(KIF_Object):
     @classmethod
     def from_snak(
             cls,
-            subject: Optional[TFp] = None,
+            subject: Optional[TFingerprint] = None,
             snak: Optional[Snak] = None
     ) -> 'Filter':
         """Creates filter from snak.
@@ -312,9 +318,9 @@ class Filter(KIF_Object):
 
     def __init__(
             self,
-            subject: Optional[TFp] = None,
-            property: Optional[TFp] = None,
-            value: Optional[TFp] = None,
+            subject: Optional[TFingerprint] = None,
+            property: Optional[TFingerprint] = None,
+            value: Optional[TFingerprint] = None,
             snak_mask: Optional[TSnakMask] = None,
             subject_mask: Optional[TDatatypeMask] = None,
             value_mask: Optional[TDatatypeMask] = None
@@ -324,7 +330,7 @@ class Filter(KIF_Object):
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if 1 <= i <= 3:
-            return Fp.check(arg, type(self), None, i)
+            return Fingerprint.check(arg, type(self), None, i)
         elif i == 4:
             return self.SnakMask.check_optional(
                 arg, self.SnakMask.ALL, type(self), None, i)
@@ -336,11 +342,11 @@ class Filter(KIF_Object):
         super()._set_args(args)
 
     @at_property
-    def subject(self) -> Fp:
+    def subject(self) -> Fingerprint:
         """The subject of filter."""
         return self.get_subject()
 
-    def get_subject(self) -> Fp:
+    def get_subject(self) -> Fingerprint:
         """Gets the subject of filter.
 
         Returns:
@@ -349,11 +355,11 @@ class Filter(KIF_Object):
         return self.args[0]
 
     @at_property
-    def property(self) -> Fp:
+    def property(self) -> Fingerprint:
         """The property of filter."""
         return self.get_property()
 
-    def get_property(self) -> Fp:
+    def get_property(self) -> Fingerprint:
         """Gets the property of filter.
 
         Returns:
@@ -362,11 +368,11 @@ class Filter(KIF_Object):
         return self.args[1]
 
     @at_property
-    def value(self) -> Fp:
+    def value(self) -> Fingerprint:
         """Filter value."""
         return self.get_value()
 
-    def get_value(self) -> Fp:
+    def get_value(self) -> Fingerprint:
         """Gets the value of filter.
 
         Returns:
@@ -396,9 +402,9 @@ class Filter(KIF_Object):
            ``True`` if successful; ``False`` otherwise.
         """
         return (
-            Fp.check(self.subject).is_full()
-            and Fp.check(self.property).is_full()
-            and Fp.check(self.value).is_full()
+            Fingerprint.check(self.subject).is_full()
+            and Fingerprint.check(self.property).is_full()
+            and Fingerprint.check(self.value).is_full()
             and self.snak_mask is self.SnakMask.ALL)
 
     def is_nonfull(self) -> bool:
@@ -419,11 +425,11 @@ class Filter(KIF_Object):
         """
         if self.snak_mask.value == 0:
             return True
-        if Fp.check(self.subject).is_empty():
+        if Fingerprint.check(self.subject).is_empty():
             return True
-        if Fp.check(self.property).is_empty():
+        if Fingerprint.check(self.property).is_empty():
             return True
-        fp = Fp.check(self.value)
+        fp = Fingerprint.check(self.value)
         if not fp.is_empty() and not fp.is_full():
             if not (self.snak_mask & self.VALUE_SNAK):
                 return True
@@ -449,11 +455,11 @@ class Filter(KIF_Object):
         stmt = Statement.check(stmt, self.match, 'stmt', 1)
         if not bool(self.snak_mask & self.SnakMask.check(stmt.snak)):
             return False        # snak mask mismatch
-        if not Fp.check(self.subject).match(stmt.subject):
+        if not Fingerprint.check(self.subject).match(stmt.subject):
             return False        # subject mismatch
-        if not Fp.check(self.property).match(stmt.snak.property):
+        if not Fingerprint.check(self.property).match(stmt.snak.property):
             return False        # property mismatch
-        fp = Fp.check(self.value)
+        fp = Fingerprint.check(self.value)
         if isinstance(stmt.snak, ValueSnak):
             if fp.is_empty():
                 return False    # snak mismatch
@@ -473,9 +479,9 @@ class Filter(KIF_Object):
            Filter.
         """
         return Filter(
-            subject=Fp.check(self.subject).normalize(Entity),  # type: ignore
-            property=Fp.check(self.property).normalize(Property),
-            value=Fp.check(self.value).normalize(Value),  # type: ignore
+            subject=Fingerprint.check(self.subject).normalize(Entity),
+            property=Fingerprint.check(self.property).normalize(Property),
+            value=Fingerprint.check(self.value).normalize(Value),
             snak_mask=self.snak_mask)
 
     def combine(self, *others: 'Filter') -> 'Filter':
@@ -493,9 +499,9 @@ class Filter(KIF_Object):
     def _combine(cls, f1: 'Filter', f2: 'Filter'):
         f2 = Filter.check(f2, cls.combine)
         return f1.__class__(
-            Fp.check(f1.subject) & Fp.check(f2.subject),
-            Fp.check(f1.property) & Fp.check(f2.property),
-            Fp.check(f1.value) & Fp.check(f2.value),
+            Fingerprint.check(f1.subject) & Fingerprint.check(f2.subject),
+            Fingerprint.check(f1.property) & Fingerprint.check(f2.property),
+            Fingerprint.check(f1.value) & Fingerprint.check(f2.value),
             f1.snak_mask & f2.snak_mask).normalize()
 
     def _unpack_legacy(
@@ -507,42 +513,42 @@ class Filter(KIF_Object):
         'Filter.SnakMask'
     ]:
         filter = self.normalize()
-        assert isinstance(filter.subject, Fp)
-        assert isinstance(filter.property, Fp)
-        assert isinstance(filter.value, Fp)
+        assert isinstance(filter.subject, Fingerprint)
+        assert isinstance(filter.property, Fingerprint)
+        assert isinstance(filter.value, Fingerprint)
         subject: Optional[Union[Value, SnakSet]]
         property: Optional[Union[Value, SnakSet]]
         value: Optional[Union[Value, SnakSet]]
         if filter.subject.is_full():
             subject = None
-        elif isinstance(filter.subject, ValueFp):
+        elif isinstance(filter.subject, ValueFingerprint):
             subject = filter.subject.value
-        elif isinstance(filter.subject, (SnakFp, AndFp)):
+        elif isinstance(filter.subject, (SnakFingerprint, AndFingerprint)):
             subject = filter._unpack_legacy_fp_to_snak_set(filter.subject)
         else:
             raise filter._should_not_get_here()
         if filter.property.is_full():
             property = None
-        elif isinstance(filter.property, ValueFp):
+        elif isinstance(filter.property, ValueFingerprint):
             property = filter.property.value
-        elif isinstance(filter.property, (SnakFp, AndFp)):
+        elif isinstance(filter.property, (SnakFingerprint, AndFingerprint)):
             property = filter._unpack_legacy_fp_to_snak_set(filter.property)
         else:
             raise filter._should_not_get_here()
         if filter.value.is_full():
             value = None
-        elif isinstance(filter.value, ValueFp):
+        elif isinstance(filter.value, ValueFingerprint):
             value = filter.value.value
-        elif isinstance(filter.value, (SnakFp, AndFp)):
+        elif isinstance(filter.value, (SnakFingerprint, AndFingerprint)):
             value = filter._unpack_legacy_fp_to_snak_set(filter.value)
         else:
             raise filter._should_not_get_here()
         return subject, property, value, filter.snak_mask
 
-    def _unpack_legacy_fp_to_snak_set(self, fp: Fp) -> SnakSet:
-        if isinstance(fp, SnakFp):
+    def _unpack_legacy_fp_to_snak_set(self, fp: Fingerprint) -> SnakSet:
+        if isinstance(fp, SnakFingerprint):
             return SnakSet(fp.snak)
-        elif isinstance(fp, AndFp):
+        elif isinstance(fp, AndFingerprint):
             return SnakSet().union(*map(
                 self._unpack_legacy_fp_to_snak_set, fp.args))
         else:

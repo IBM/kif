@@ -20,7 +20,7 @@ from ..value import Property, PropertyTemplate, PropertyVariable, VProperty
 from ..variable import Variable
 
 if TYPE_CHECKING:                      # pragma: no cover
-    from ..fingerprint import Fp, TFp
+    from ..fingerprint import Fingerprint, TFingerprint
     from .value_snak import TValueSnak  # noqa: F401
 
 at_property = property
@@ -110,21 +110,21 @@ class Snak(
         else:
             raise self_._should_not_get_here()
 
-    def __and__(self, other: 'TFp') -> 'Fp':
-        from ..fingerprint import AndFp
-        return AndFp(self, other)
+    def __and__(self, other: 'TFingerprint') -> 'Fingerprint':
+        from ..fingerprint import AndFingerprint
+        return AndFingerprint(self, other)
 
-    def __rand__(self, other: 'TFp') -> 'Fp':
-        from ..fingerprint import AndFp
-        return AndFp(other, self)
+    def __rand__(self, other: 'TFingerprint') -> 'Fingerprint':
+        from ..fingerprint import AndFingerprint
+        return AndFingerprint(other, self)
 
-    def __or__(self, other: 'TFp') -> 'Fp':
-        from ..fingerprint import OrFp
-        return OrFp(self, other)
+    def __or__(self, other: 'TFingerprint') -> 'Fingerprint':
+        from ..fingerprint import OrFingerprint
+        return OrFingerprint(self, other)
 
-    def __ror__(self, other: 'TFp') -> 'Fp':
-        from ..fingerprint import OrFp
-        return OrFp(self, other)
+    def __ror__(self, other: 'TFingerprint') -> 'Fingerprint':
+        from ..fingerprint import OrFingerprint
+        return OrFingerprint(self, other)
 
     @at_property
     def property(self) -> Property:

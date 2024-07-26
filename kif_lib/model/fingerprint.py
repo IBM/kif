@@ -1,4 +1,4 @@
-# Copyright (C) 2023-2024 IBM Corp.
+# Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
 import abc
@@ -30,21 +30,24 @@ from .value import (
     Value,
 )
 
-TFp: TypeAlias = Union['Fp', 'TCompoundFp', 'TAtomicFp']
+TFingerprint: TypeAlias =\
+    Union['Fingerprint', 'TCompoundFingerprint', 'TAtomicFingerprint']
 
-TAtomicFp: TypeAlias =\
-    Union['AtomicFp', 'TSnakFp', 'TValueFp', 'TFullFp', 'TEmptyFp']
-TSnakFp: TypeAlias = Union['SnakFp', TSnak]
-TValueFp: TypeAlias = Union['ValueFp', TValue]
-TFullFp: TypeAlias = Union['FullFp', bool, Literal[None]]
-TEmptyFp: TypeAlias = Union['EmptyFp', bool]
+TAtomicFingerprint: TypeAlias =\
+    Union['AtomicFingerprint', 'TSnakFingerprint',
+          'TValueFingerprint', 'TFullFingerprint', 'TEmptyFingerprint']
+TSnakFingerprint: TypeAlias = Union['SnakFingerprint', TSnak]
+TValueFingerprint: TypeAlias = Union['ValueFingerprint', TValue]
+TFullFingerprint: TypeAlias = Union['FullFingerprint', bool, Literal[None]]
+TEmptyFingerprint: TypeAlias = Union['EmptyFingerprint', bool]
 
-TCompoundFp: TypeAlias = Union['CompoundFp', 'TAndFp', 'TOrFp']
-TAndFp: TypeAlias = Union[list[Snak], Set[Snak], SnakSet]
-TOrFp: TypeAlias = 'OrFp'
+TCompoundFingerprint: TypeAlias = Union[
+    'CompoundFingerprint', 'TAndFingerprint', 'TOrFingerprint']
+TAndFingerprint: TypeAlias = Union[list[Snak], Set[Snak], SnakSet]
+TOrFingerprint: TypeAlias = 'OrFingerprint'
 
 
-class Fp(KIF_Object):
+class Fingerprint(KIF_Object):
     """Abstract base class for fingerprints."""
 
     @classmethod
@@ -59,29 +62,30 @@ class Fp(KIF_Object):
         if isinstance(arg, cls):
             return arg
         elif isinstance(arg, (list, Set, SnakSet)):
-            return cast(Self, AndFp(*arg))
+            return cast(Self, AndFingerprint(*arg))
         elif isinstance(arg, (tuple, Snak)):
-            return cast(Self, SnakFp.check(
+            return cast(Self, SnakFingerprint.check(
                 arg, function or cls.check, name, position))
         elif isinstance(arg, bool):
-            return cast(Self, (FullFp if arg else EmptyFp)())
+            return cast(Self, (
+                FullFingerprint if arg else EmptyFingerprint)())
         elif arg is None:
-            return cast(Self, FullFp())
+            return cast(Self, FullFingerprint())
         else:
-            return cast(Self, ValueFp.check(
+            return cast(Self, ValueFingerprint.check(
                 arg, function or cls.check, name, position))
 
-    def __and__(self, other: TFp) -> 'Fp':
-        return AndFp(self, other)
+    def __and__(self, other: TFingerprint) -> 'Fingerprint':
+        return AndFingerprint(self, other)
 
-    def __rand__(self, other: TFp) -> 'Fp':
-        return AndFp(other, self)
+    def __rand__(self, other: TFingerprint) -> 'Fingerprint':
+        return AndFingerprint(other, self)
 
-    def __or__(self, other: TFp) -> 'Fp':
-        return OrFp(self, other)
+    def __or__(self, other: TFingerprint) -> 'Fingerprint':
+        return OrFingerprint(self, other)
 
-    def __ror__(self, other: TFp) -> 'Fp':
-        return OrFp(self, other)
+    def __ror__(self, other: TFingerprint) -> 'Fingerprint':
+        return OrFingerprint(self, other)
 
     def is_full(self) -> bool:
         """Tests whether fingerprint is full.
@@ -89,7 +93,7 @@ class Fp(KIF_Object):
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
-        return isinstance(self, FullFp)
+        return isinstance(self, FullFingerprint)
 
     def is_empty(self) -> bool:
         """Tests whether fingerprint is empty.
@@ -97,7 +101,7 @@ class Fp(KIF_Object):
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
-        return isinstance(self, EmptyFp)
+        return isinstance(self, EmptyFingerprint)
 
     def match(self, value: TValue) -> bool:
         """Tests whether fingerprint shallow-matches value.
@@ -115,7 +119,7 @@ class Fp(KIF_Object):
     def _match(self, value: Value) -> bool:
         raise NotImplementedError
 
-    def normalize(self, value_class: type[Value] = Value) -> 'Fp':
+    def normalize(self, value_class: type[Value] = Value) -> 'Fingerprint':
         """Reduce fingerprint to a normal form.
 
         Produces a normal fingerprint that does *not* match values of a type
@@ -127,34 +131,37 @@ class Fp(KIF_Object):
         Returns:
            Normal fingerprint.
         """
-        if isinstance(self, ValueFp):
+        if isinstance(self, ValueFingerprint):
             if isinstance(self.value, value_class):
                 return self
             else:
-                return EmptyFp()
-        elif isinstance(self, AtomicFp):
+                return EmptyFingerprint()
+        elif isinstance(self, AtomicFingerprint):
             return self
         else:
             args = list(itertools.unique_everseen(
                 self._normalize_args(value_class, iter(self.args))))
             if len(args) == 0:
-                return FullFp()
+                return FullFingerprint()
             if len(args) == 1:
                 return args[0].normalize(value_class)
-            if (isinstance(self, AndFp)
-                and (EmptyFp() in args or len(itertools.take(2, filter(
-                    lambda fp: isinstance(fp, ValueFp), args))) > 1)):
-                return EmptyFp()
-            elif isinstance(self, OrFp) and FullFp() in args:
-                return FullFp()
+            if (isinstance(self, AndFingerprint)
+                and (EmptyFingerprint() in args or len(
+                    itertools.take(2, filter(
+                        lambda fp: isinstance(fp, ValueFingerprint),
+                        args))) > 1)):
+                return EmptyFingerprint()
+            elif (isinstance(self, OrFingerprint)
+                  and FullFingerprint() in args):
+                return FullFingerprint()
             else:
                 return self.__class__(*sorted(args))
 
     def _normalize_args(
             self,
             value_class: type[Value],
-            it: Iterator['Fp']
-    ) -> Iterator['Fp']:
+            it: Iterator['Fingerprint']
+    ) -> Iterator['Fingerprint']:
         while True:
             try:
                 arg = next(it)
@@ -164,19 +171,19 @@ class Fp(KIF_Object):
             if isinstance(arg, type(self)):
                 it = itertools.chain(arg.args, it)
                 continue
-            elif isinstance(arg, FullFp):
-                if isinstance(self, AndFp):
+            elif isinstance(arg, FullFingerprint):
+                if isinstance(self, AndFingerprint):
                     continue    # skip full
-                elif isinstance(self, OrFp):
-                    yield FullFp()
+                elif isinstance(self, OrFingerprint):
+                    yield FullFingerprint()
                     break
                 else:
                     raise self._should_not_get_here()
-            elif isinstance(arg, EmptyFp):
-                if isinstance(self, OrFp):
+            elif isinstance(arg, EmptyFingerprint):
+                if isinstance(self, OrFingerprint):
                     continue    # skip empty
-                elif isinstance(self, AndFp):
-                    yield EmptyFp()
+                elif isinstance(self, AndFingerprint):
+                    yield EmptyFingerprint()
                     break
                 else:
                     raise self._should_not_get_here()
@@ -184,18 +191,18 @@ class Fp(KIF_Object):
                 yield arg
 
 
-class CompoundFp(Fp):
+class CompoundFingerprint(Fingerprint):
     """Compound fingerprint."""
 
-    def __init__(self, *fps: TFp):
+    def __init__(self, *fps: TFingerprint):
         super().__init__(*fps)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
-        return Fp.check(arg, type(self), None, i)
+        return Fingerprint.check(arg, type(self), None, i)
 
 
-class AndFp(CompoundFp):
+class AndFingerprint(CompoundFingerprint):
     """Conjunction of fingerprints."""
 
     @override
@@ -203,7 +210,7 @@ class AndFp(CompoundFp):
         return all(map(lambda fp: fp._match(value), self.args))
 
 
-class OrFp(CompoundFp):
+class OrFingerprint(CompoundFingerprint):
     """Disjunction of fingerprints."""
 
     @override
@@ -211,11 +218,11 @@ class OrFp(CompoundFp):
         return any(map(lambda fp: fp._match(value), self.args))
 
 
-class AtomicFp(Fp):
+class AtomicFingerprint(Fingerprint):
     """Atomic fingerprint."""
 
 
-class SnakFp(AtomicFp):
+class SnakFingerprint(AtomicFingerprint):
     """Snak fingerprint."""
 
     @classmethod
@@ -244,11 +251,11 @@ class SnakFp(AtomicFp):
 
     @property
     def snak(self) -> Snak:
-        """The snak of fingerprint."""
+        """The snak of snak fingerprint."""
         return self.get_snak()
 
     def get_snak(self) -> Snak:
-        """Gets the snak of fingerprint.
+        """Gets the snak of snak fingerprint.
 
         Returns:
            Snak.
@@ -260,7 +267,7 @@ class SnakFp(AtomicFp):
         return True
 
 
-class ConverseSnakFp(SnakFp):
+class ConverseSnakFingerprint(SnakFingerprint):
     """Converse snak fingerprint."""
 
     @classmethod
@@ -290,10 +297,10 @@ class ConverseSnakFp(SnakFp):
             Entity.check(snak.value, type(self), None, i)
             return snak
         else:
-            self._should_not_get_here()
+            raise self._should_not_get_here()
 
 
-class ValueFp(AtomicFp):
+class ValueFingerprint(AtomicFingerprint):
     """Value fingerprint."""
 
     @classmethod
@@ -319,11 +326,11 @@ class ValueFp(AtomicFp):
 
     @property
     def value(self) -> Value:
-        """The value of fingerprint."""
+        """The value of value fingerprint."""
         return self.get_value()
 
     def get_value(self) -> Value:
-        """Gets the value of fingerprint.
+        """Gets the value of value fingerprint.
 
         Returns:
            Value.
@@ -372,7 +379,7 @@ class ValueFp(AtomicFp):
         return True
 
 
-class FullFp(AtomicFp):
+class FullFingerprint(AtomicFingerprint):
     """The full fingerprint (matches anything)."""
 
     @classmethod
@@ -399,7 +406,7 @@ class FullFp(AtomicFp):
         return True
 
 
-class EmptyFp(AtomicFp):
+class EmptyFingerprint(AtomicFingerprint):
     """The empty fingerprint (matches nothing)."""
 
     @classmethod

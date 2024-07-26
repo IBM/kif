@@ -11,8 +11,16 @@ from rdflib.term import Literal, URIRef, Variable
 
 from ... import namespace as NS
 from ...error import ShouldNotGetHere
-from ...model import Filter, Property, Snak, Value, ValueSnak
-from ...model.fingerprint import AndFp, Fp, ValueFp
+from ...model import (
+    AndFingerprint,
+    Filter,
+    Fingerprint,
+    Property,
+    Snak,
+    Value,
+    ValueFingerprint,
+    ValueSnak,
+)
 from ...model.kif_object import Decoder, DecoderError, Object
 from ...typing import Any, cast, Optional, override
 
@@ -165,14 +173,14 @@ At line {line}, column {column}:
             self,
             subj: Optional[Id],
             fpmap: dict[Variable, list[Snak]]
-    ) -> Optional[Fp]:
+    ) -> Optional[Fingerprint]:
         if subj is None:
             return None
         elif isinstance(subj, URIRef):
-            return ValueFp(self._uriref_to_value(subj))
+            return ValueFingerprint(self._uriref_to_value(subj))
         elif isinstance(subj, Variable):
             if subj in fpmap:
-                return AndFp(*fpmap[subj])
+                return AndFingerprint(*fpmap[subj])
             else:
                 return None
         else:
@@ -182,14 +190,14 @@ At line {line}, column {column}:
             self,
             pred: Optional[Id],
             fpmap: dict[Variable, list[Snak]]
-    ) -> Optional[Fp]:
+    ) -> Optional[Fingerprint]:
         if pred is None:
             return None
         elif isinstance(pred, URIRef):
-            return ValueFp(self._uriref_to_property(pred))
+            return ValueFingerprint(self._uriref_to_property(pred))
         elif isinstance(pred, Variable):
             if pred in fpmap:
-                return AndFp(*fpmap[pred])
+                return AndFingerprint(*fpmap[pred])
             else:
                 return None
         else:
@@ -199,16 +207,16 @@ At line {line}, column {column}:
             self,
             obj: Optional[Id],
             fpmap: dict[Variable, list[Snak]]
-    ) -> Optional[Fp]:
+    ) -> Optional[Fingerprint]:
         if obj is None:
             return None
         elif isinstance(obj, URIRef):
-            return ValueFp(self._uriref_to_value(obj))
+            return ValueFingerprint(self._uriref_to_value(obj))
         elif isinstance(obj, Literal):
-            return ValueFp(self._literal_to_value(obj))
+            return ValueFingerprint(self._literal_to_value(obj))
         elif isinstance(obj, Variable):
             if obj in fpmap:
-                return AndFp(*fpmap[obj])
+                return AndFingerprint(*fpmap[obj])
             else:
                 return None
         else:

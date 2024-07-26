@@ -37,14 +37,14 @@ from ...model import (
     Variable,
 )
 from ...model.fingerprint import (
-    AndFp,
-    CompoundFp,
-    ConverseSnakFp,
-    Fp,
-    FullFp,
-    OrFp,
-    SnakFp,
-    ValueFp,
+    AndFingerprint,
+    CompoundFingerprint,
+    ConverseSnakFingerprint,
+    Fingerprint,
+    FullFingerprint,
+    OrFingerprint,
+    SnakFingerprint,
+    ValueFingerprint,
 )
 from ...typing import Iterable, Optional, override, Self, Union
 from .builder import Query
@@ -106,9 +106,9 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     def _push_filter(self, filter: Filter):
         if filter.is_empty():
             return              # nothing to do
-        assert isinstance(filter.subject, Fp)
-        assert isinstance(filter.property, Fp)
-        assert isinstance(filter.value, Fp)
+        assert isinstance(filter.subject, Fingerprint)
+        assert isinstance(filter.property, Fingerprint)
+        assert isinstance(filter.value, Fingerprint)
         assert isinstance(self.pattern, StatementVariable)
         subject = self._fresh_entity_variable()
         snak = self._fresh_snak_variable()
@@ -364,41 +364,41 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
 
     def _push_fingerprint(
             self,
-            fp: Fp,
+            fp: Fingerprint,
             dest: Query.Variable,
             property: Union[Query.URI, Query.Variable],
             wds: Query.Variable
     ):
         assert not fp.is_empty()
-        if isinstance(fp, CompoundFp):
+        if isinstance(fp, CompoundFingerprint):
             with self._q.group():
                 self._q.comments()(f'{dest} := {type(fp).__qualname__}')
                 self._push_compound_fingerprint(fp, dest, property, wds)
-        elif isinstance(fp, SnakFp):
+        elif isinstance(fp, SnakFingerprint):
             with self._q.group():
                 self._q.comments()(f'{dest} := {fp}')
                 self._push_snak_fingerprint(fp, dest)
-        elif isinstance(fp, ValueFp):
+        elif isinstance(fp, ValueFingerprint):
             with self._q.group():
                 self._q.comments()(f'{dest} := {fp}')
                 self._push_value_fingerprints((fp,), dest, property, wds)
-        elif isinstance(fp, FullFp):
+        elif isinstance(fp, FullFingerprint):
             pass                # nothing to do
         else:
             raise self._should_not_get_here()
 
     def _push_compound_fingerprint(
             self,
-            fp: CompoundFp,
+            fp: CompoundFingerprint,
             dest: Query.Variable,
             property: Union[Query.URI, Query.Variable],
             wds: Query.Variable
     ):
         atoms, comps = map(list, itertools.partition(
-            lambda x: isinstance(x, CompoundFp), fp.args))
+            lambda x: isinstance(x, CompoundFingerprint), fp.args))
         snaks, values = map(list, itertools.partition(
-            lambda x: isinstance(x, ValueFp), atoms))
-        if isinstance(fp, AndFp):
+            lambda x: isinstance(x, ValueFingerprint), atoms))
+        if isinstance(fp, AndFingerprint):
             for child in itertools.chain(snaks, comps):
                 ###
                 # TODO: Aggregate snaks with the same property.
@@ -406,7 +406,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                 self._push_fingerprint(child, dest, property, wds)
             if values:
                 self._push_value_fingerprints(values, dest, property, wds)
-        elif isinstance(fp, OrFp):
+        elif isinstance(fp, OrFingerprint):
             with self._q.union():
                 for child in itertools.chain(snaks, comps):
                     with self._q.group():
@@ -420,11 +420,11 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
 
     def _push_snak_fingerprint(
             self,
-            fp: SnakFp,
+            fp: SnakFingerprint,
             dest: Query.Variable,
     ):
         prop = self._q.uri(fp.snak.property.iri.value)
-        if isinstance(fp, ConverseSnakFp):
+        if isinstance(fp, ConverseSnakFingerprint):
             assert isinstance(fp.snak, ValueSnak)
             assert isinstance(fp.snak.value, Entity)
             wdt = self._q.fresh_var()
@@ -447,7 +447,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                     (dest, p, wds),
                     (wds, ps, value))
                 self._push_value_fingerprints(
-                    (ValueFp(fp.snak.value),), self._q.fresh_var(),
+                    (ValueFingerprint(fp.snak.value),), self._q.fresh_var(),
                     prop, wds)
         elif isinstance(fp.snak, SomeValueSnak):
             some, wdt = self._q.fresh_vars(2)
@@ -468,7 +468,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
 
     def _push_value_fingerprints(
             self,
-            fps: Iterable[ValueFp],
+            fps: Iterable[ValueFingerprint],
             dest: Query.Variable,
             property: Union[Query.URI, Query.Variable],
             wds: Query.Variable

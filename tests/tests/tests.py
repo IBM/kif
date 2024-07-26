@@ -74,6 +74,8 @@ from kif_lib.model import (
     DeepDataValueVariable,
     EntityTemplate,
     EntityVariable,
+    Fingerprint,
+    FullFingerprint,
     ItemTemplate,
     ItemVariable,
     LexemeTemplate,
@@ -124,7 +126,6 @@ from kif_lib.model import (
     VValue,
     VValueSnak,
 )
-from kif_lib.model.fingerprint import Fp, FullFp
 from kif_lib.model.object import Object
 from kif_lib.model.value.quantity import VTQuantityContent
 from kif_lib.model.value.string import VTStringContent
@@ -960,24 +961,24 @@ if __name__ == '__main__':
     def assert_filter(
             self,
             obj: Filter,
-            subject: Optional[Fp] = None,
-            property: Optional[Fp] = None,
-            value: Optional[Fp] = None,
+            subject: Optional[Fingerprint] = None,
+            property: Optional[Fingerprint] = None,
+            value: Optional[Fingerprint] = None,
             mask: Filter.SnakMask = Filter.SnakMask.ALL
     ):
         self.assertIsInstance(obj, Filter)
         if subject is None:
-            subject = FullFp()
+            subject = FullFingerprint()
         self.assertEqual(obj.args[0], subject)
         self.assertEqual(obj.subject, subject)
         self.assertEqual(obj.get_subject(), subject)
         if property is None:
-            property = FullFp()
+            property = FullFingerprint()
         self.assertEqual(obj.args[1], property)
         self.assertEqual(obj.property, property)
         self.assertEqual(obj.get_property(), property)
         if value is None:
-            value = FullFp()
+            value = FullFingerprint()
         self.assertEqual(obj.args[2], value)
         self.assertEqual(obj.value, value)
         self.assertEqual(obj.get_value(), value)

@@ -14,6 +14,7 @@ from ..model import (
     Descriptor,
     Entity,
     Filter,
+    Fingerprint,
     Item,
     ItemDescriptor,
     KIF_Object,
@@ -25,9 +26,9 @@ from ..model import (
     Snak,
     Statement,
     Text,
+    TFingerprint,
     TReferenceRecordSet,
 )
-from ..model.fingerprint import Fp, TFp
 from ..typing import (
     Any,
     Callable,
@@ -571,9 +572,9 @@ class Store(Set):
 
     def count(
             self,
-            subject: Optional[TFp] = None,
-            property: Optional[TFp] = None,
-            value: Optional[TFp] = None,
+            subject: Optional[TFingerprint] = None,
+            property: Optional[TFingerprint] = None,
+            value: Optional[TFingerprint] = None,
             snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
             filter: Optional[Filter] = None
@@ -605,19 +606,19 @@ class Store(Set):
 
     def _check_filter(
             self,
-            subject: Optional[TFp] = None,
-            property: Optional[TFp] = None,
-            value: Optional[TFp] = None,
+            subject: Optional[TFingerprint] = None,
+            property: Optional[TFingerprint] = None,
+            value: Optional[TFingerprint] = None,
             snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
             filter: Optional[Filter] = None,
             function: Optional[Union[Callable[..., Any], str]] = None
     ) -> Filter:
-        subj = Fp.check_optional(
+        subj = Fingerprint.check_optional(
             subject, None, function, 'subject', 1)
-        prop = Fp.check_optional(
+        prop = Fingerprint.check_optional(
             property, None, function, 'property', 2)
-        val = Fp.check_optional(
+        val = Fingerprint.check_optional(
             value, None, function, 'value', 3)
         mask = Filter.SnakMask.check_optional(
             snak_mask, Filter.SnakMask.ALL, function, 'snak_mask', 4)
@@ -648,9 +649,9 @@ class Store(Set):
 
     def filter(
             self,
-            subject: Optional[TFp] = None,
-            property: Optional[TFp] = None,
-            value: Optional[TFp] = None,
+            subject: Optional[TFingerprint] = None,
+            property: Optional[TFingerprint] = None,
+            value: Optional[TFingerprint] = None,
             snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
             filter: Optional[Filter] = None,
@@ -740,9 +741,9 @@ class Store(Set):
 
     def filter_annotated(
             self,
-            subject: Optional[TFp] = None,
-            property: Optional[TFp] = None,
-            value: Optional[TFp] = None,
+            subject: Optional[TFingerprint] = None,
+            property: Optional[TFingerprint] = None,
+            value: Optional[TFingerprint] = None,
             snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
             filter: Optional[Filter] = None,

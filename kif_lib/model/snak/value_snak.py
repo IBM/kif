@@ -36,7 +36,7 @@ VValueSnak: TypeAlias =\
     Union['ValueSnakTemplate', 'ValueSnakVariable', 'ValueSnak']
 
 if TYPE_CHECKING:                      # pragma: no cover
-    from ..fingerprint import Fp
+    from ..fingerprint import Fingerprint
 
 
 class ValueSnakTemplate(SnakTemplate):
@@ -212,9 +212,9 @@ class ValueSnak(
         else:
             super()._set_args(args)
 
-    def __neg__(self) -> 'Fp':
-        from ..fingerprint import ConverseSnakFp
-        return ConverseSnakFp(self)
+    def __neg__(self) -> 'Fingerprint':
+        from ..fingerprint import ConverseSnakFingerprint
+        return ConverseSnakFingerprint(self)
 
     @property
     def value(self) -> Value:

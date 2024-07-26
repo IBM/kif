@@ -6,11 +6,11 @@ import re
 
 from ..model import (
     AnnotationRecord,
-    CompoundFp,
+    CompoundFingerprint,
     Datatype,
     Entity,
     Filter,
-    Fp,
+    Fingerprint,
     IRI,
     KIF_Object,
     KIF_ObjectSet,
@@ -20,13 +20,13 @@ from ..model import (
     Quantity,
     Rank,
     Snak,
-    SnakFp,
+    SnakFingerprint,
     Statement,
     String,
     Template,
     Text,
     Time,
-    ValueFp,
+    ValueFingerprint,
     ValueSnak,
     Variable,
 )
@@ -155,15 +155,15 @@ class MarkdownEncoder(
                     yield '*no datatype*'
             yield ''
             yield from self._iterencode_kif_object_end(obj)
-        elif isinstance(obj, Fp):
+        elif isinstance(obj, Fingerprint):
             yield from self._iterencode_kif_object_start(obj, '')
-            if isinstance(obj, ValueFp):
+            if isinstance(obj, ValueFingerprint):
                 yield SP
                 yield from self._iterencode(obj.value, indent)
-            elif isinstance(obj, SnakFp):
+            elif isinstance(obj, SnakFingerprint):
                 yield SP
                 yield from self._iterencode(obj.snak, indent)
-            elif isinstance(obj, CompoundFp) and len(obj) > 0:
+            elif isinstance(obj, CompoundFingerprint) and len(obj) > 0:
                 for s in obj:
                     yield f'{NL}{2 * SP * indent}-{SP}'
                     yield from self._iterencode(s, indent + 1)
