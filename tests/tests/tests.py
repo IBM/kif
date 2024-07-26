@@ -19,13 +19,11 @@ from kif_lib import (
     DeprecatedRank,
     Descriptor,
     Entity,
-    EntityFingerprint,
     ExternalId,
     ExternalIdDatatype,
     ExternalIdTemplate,
     ExternalIdVariable,
     Filter,
-    Fingerprint,
     IRI,
     IRI_Datatype,
     IRI_Template,
@@ -40,13 +38,11 @@ from kif_lib import (
     LexemeDescriptor,
     NormalRank,
     NoValueSnak,
-    Pattern,
     PlainDescriptor,
     PreferredRank,
     Property,
     PropertyDatatype,
     PropertyDescriptor,
-    PropertyFingerprint,
     Quantity,
     QuantityDatatype,
     Rank,
@@ -959,45 +955,7 @@ if __name__ == '__main__':
         self.assertEqual(obj.language, language)
         self.assertEqual(obj.get_language(), language)
 
-# -- Fingerprint -----------------------------------------------------------
-
-    def assert_fingerprint(
-            self,
-            obj: Fingerprint,
-            val: Union[Value, SnakSet]
-    ):
-        self.assert_kif_object(obj)
-        self.assertIsInstance(obj, Fingerprint)
-        self.assertIsInstance(obj.args[0], (Value, SnakSet))
-        self.assertEqual(obj.args[0], val)
-        if isinstance(obj.args[0], Value):
-            self.assertEqual(obj.value, obj.args[0])
-            self.assertEqual(obj.value, val)
-            self.assertIsNone(obj.snak_set)
-        else:
-            self.assertEqual(obj.snak_set, obj.args[0])
-            self.assertEqual(obj.snak_set, val)
-            self.assertIsNone(obj.value)
-
-    def assert_entity_fingerprint(
-            self,
-            obj: EntityFingerprint,
-            val: Union[Value, SnakSet]
-    ):
-        self.assert_fingerprint(obj, val)
-        self.assertIsInstance(obj, EntityFingerprint)
-
-    def assert_property_fingerprint(
-            self,
-            obj: PropertyFingerprint,
-            val: Union[Value, SnakSet]
-    ):
-        self.assert_fingerprint(obj, val)
-        self.assertIsInstance(obj, PropertyFingerprint)
-
-    def assert_pattern(self, obj: Pattern):
-        self.assert_kif_object(obj)
-        self.assertIsInstance(obj, Pattern)
+# -- Filter ----------------------------------------------------------------
 
     def assert_filter(
             self,

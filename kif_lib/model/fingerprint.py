@@ -1,10 +1,10 @@
-# Copyright (C) 2024 IBM Corp.
+# Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
 import abc
 
-from ... import itertools
-from ...typing import (
+from .. import itertools
+from ..typing import (
     Any,
     Callable,
     cast,
@@ -17,10 +17,10 @@ from ...typing import (
     TypeAlias,
     Union,
 )
-from ..kif_object import KIF_Object
-from ..set import SnakSet
-from ..snak import Snak, TSnak, ValueSnak
-from ..value import (
+from .kif_object import KIF_Object
+from .set import SnakSet
+from .snak import Snak, TSnak, ValueSnak
+from .value import (
     DeepDataValue,
     Entity,
     Property,
@@ -29,7 +29,6 @@ from ..value import (
     TValue,
     Value,
 )
-from .fingerprint import Fingerprint
 
 TFp: TypeAlias = Union['Fp', 'TCompoundFp', 'TAtomicFp']
 
@@ -59,8 +58,6 @@ class Fp(KIF_Object):
     ) -> Self:
         if isinstance(arg, cls):
             return arg
-        elif isinstance(arg, Fingerprint):
-            return cls.check(arg[0], function, name, position)
         elif isinstance(arg, (list, Set, SnakSet)):
             return cast(Self, AndFp(*arg))
         elif isinstance(arg, (tuple, Snak)):

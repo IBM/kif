@@ -6,10 +6,11 @@ import re
 
 from ..model import (
     AnnotationRecord,
+    CompoundFp,
     Datatype,
     Entity,
     Filter,
-    Fingerprint,
+    Fp,
     IRI,
     KIF_Object,
     KIF_ObjectSet,
@@ -19,11 +20,13 @@ from ..model import (
     Quantity,
     Rank,
     Snak,
+    SnakFp,
     Statement,
     String,
     Template,
     Text,
     Time,
+    ValueFp,
     ValueSnak,
     Variable,
 )
@@ -152,16 +155,18 @@ class MarkdownEncoder(
                     yield '*no datatype*'
             yield ''
             yield from self._iterencode_kif_object_end(obj)
-        elif isinstance(obj, Fingerprint):
-            if obj.value is not None:
-                yield from self._iterencode_kif_object_start(obj)
-                yield from self._iterencode(obj.value, indent)
-            elif obj.snak_set is not None:
-                yield from self._iterencode_kif_object_start(obj, '')
+        elif isinstance(obj, Fp):
+            yield from self._iterencode_kif_object_start(obj, '')
+            if isinstance(obj, ValueFp):
                 yield SP
-                yield from self._iterencode(obj.snak_set, indent + 1)
-            else:
-                raise obj._should_not_get_here()
+                yield from self._iterencode(obj.value, indent)
+            elif isinstance(obj, SnakFp):
+                yield SP
+                yield from self._iterencode(obj.snak, indent)
+            elif isinstance(obj, CompoundFp) and len(obj) > 0:
+                for s in obj:
+                    yield f'{NL}{2 * SP * indent}-{SP}'
+                    yield from self._iterencode(s, indent + 1)
             yield from self._iterencode_kif_object_end(obj)
         elif isinstance(obj, Filter):
             yield from self._iterencode_kif_object_start(obj, '')
@@ -169,13 +174,7 @@ class MarkdownEncoder(
             for name in ['subject', 'property', 'value']:
                 yield sep
                 value = getattr(obj, name)
-                if value is not None:
-                    yield from self._iterencode(value, indent + 1)
-                else:
-                    if name == 'subject':
-                        yield '*any entity*'
-                    else:
-                        yield f'*any {name}*'
+                yield from self._iterencode(value, indent + 1)
             yield sep
             yield f'`{bin(obj.snak_mask.value)}`'
             yield ''

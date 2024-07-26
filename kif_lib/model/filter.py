@@ -5,19 +5,7 @@ import enum
 import functools
 
 from ..typing import Any, Callable, Final, Optional, override, TypeAlias, Union
-from .fingerprint import (
-    AndFp,
-    EntityFingerprint,
-    Fingerprint,
-    Fp,
-    PropertyFingerprint,
-    SnakFp,
-    TEntityFingerprint,
-    TFingerprint,
-    TFp,
-    TPropertyFingerprint,
-    ValueFp,
-)
+from .fingerprint import AndFp, Fp, SnakFp, TFp, ValueFp
 from .kif_object import KIF_Object
 from .set import SnakSet
 from .snak import NoValueSnak, Snak, SomeValueSnak, TSnak, ValueSnak
@@ -46,8 +34,8 @@ class Filter(KIF_Object):
     """Filter specification.
 
     Parameters:
-       subject: Entity fingerprint.
-       property: Property fingerprint.
+       subject: Fingerprint.
+       property: Fingerprint.
        value: Fingerprint.
        snak_mask: Snak mask.
     """
@@ -348,70 +336,43 @@ class Filter(KIF_Object):
         super()._set_args(args)
 
     @at_property
-    def subject(self) -> Optional[Union[EntityFingerprint, Fp]]:
+    def subject(self) -> Fp:
         """The subject of filter."""
         return self.get_subject()
 
-    def get_subject(
-            self,
-            default: Optional[Union[EntityFingerprint, Fp]] = None
-    ) -> Optional[Union[EntityFingerprint, Fp]]:
+    def get_subject(self) -> Fp:
         """Gets the subject of filter.
-
-        If the subject is ``None``, returns `default`.
-
-        Parameters:
-           default: Default subject.
-
-        Returns:
-           Entity fingerprint.
-        """
-        subj = self.args[0]
-        return subj if subj is not None else default
-
-    @at_property
-    def property(self) -> Optional[Union[PropertyFingerprint, Fp]]:
-        """The property of filter."""
-        return self.get_property()
-
-    def get_property(
-            self,
-            default: Optional[Union[PropertyFingerprint, Fp]] = None
-    ) -> Optional[Union[PropertyFingerprint, Fp]]:
-        """Gets the property of filter.
-
-        If the property is ``None``, returns `default`.
-
-        Parameters:
-           default: Default property.
-
-        Returns:
-           Property fingerprint.
-        """
-        prop = self.args[1]
-        return prop if prop is not None else default
-
-    @at_property
-    def value(self) -> Optional[Union[Fingerprint, Fp]]:
-        """Filter value."""
-        return self.get_value()
-
-    def get_value(
-            self,
-            default: Optional[Union[Fingerprint, Fp]] = None
-    ) -> Optional[Union[Fingerprint, Fp]]:
-        """Gets the value of filter.
-
-        If the value is ``None``, returns `default`.
-
-        Parameters:
-           default: Default value.
 
         Returns:
            Fingerprint.
         """
-        val = self.args[2]
-        return val if val is not None else default
+        return self.args[0]
+
+    @at_property
+    def property(self) -> Fp:
+        """The property of filter."""
+        return self.get_property()
+
+    def get_property(self) -> Fp:
+        """Gets the property of filter.
+
+        Returns:
+           Fingerprint.
+        """
+        return self.args[1]
+
+    @at_property
+    def value(self) -> Fp:
+        """Filter value."""
+        return self.get_value()
+
+    def get_value(self) -> Fp:
+        """Gets the value of filter.
+
+        Returns:
+           Fingerprint.
+        """
+        return self.args[2]
 
     @at_property
     def snak_mask(self) -> SnakMask:

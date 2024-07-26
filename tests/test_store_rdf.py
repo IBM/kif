@@ -11,7 +11,6 @@ from kif_lib import (
     Normal,
     NoValueSnak,
     Preferred,
-    PropertyFingerprint,
     Quantity,
     ReferenceRecord,
     SomeValueSnak,
@@ -328,9 +327,9 @@ class TestStoreRDF(kif_StoreTestCase):
             stmts=[wd.InChIKey(
                 wd.benzene, ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N'))],
             subject=None,
-            property=PropertyFingerprint([
-                wd.instance_of(wd.Wikidata_property_to_identify_substances),
-                wd.related_property(wd.InChI)])
+            property=(
+                wd.instance_of(wd.Wikidata_property_to_identify_substances)
+                & wd.related_property(wd.InChI))
         )
         # property, value
         self.store_test_filter(
