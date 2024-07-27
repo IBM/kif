@@ -33,7 +33,8 @@ class Test(kif_FingerprintTestCase):
     def test_check(self) -> None:
         assert_type(Fingerprint.check(None), Fingerprint)
         super()._test_check(
-            Fingerprint, [
+            Fingerprint,
+            success=[
                 (['x', 'y'], AndFingerprint('x', 'y')),
                 ({'y', 'x'}, AndFingerprint('x', 'y')),
                 (SnakSet(NoValueSnak('x'), ValueSnak(Property('x'), 'y')),

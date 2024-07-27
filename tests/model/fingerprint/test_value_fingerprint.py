@@ -5,6 +5,7 @@ import datetime
 
 from kif_lib import (
     ExternalId,
+    Filter,
     IRI,
     Item,
     Lexeme,
@@ -32,7 +33,8 @@ class Test(kif_FingerprintTestCase):
     def test_check(self) -> None:
         assert_type(ValueFingerprint.check('x'), ValueFingerprint)
         super()._test_check(
-            ValueFingerprint, [
+            ValueFingerprint,
+            success=[
                 (ValueFingerprint(Item('x')), ValueFingerprint(Item('x'))),
                 (Item('x'), ValueFingerprint(Item('x'))),
                 (Property('x'), ValueFingerprint(Property('x'))),
@@ -137,22 +139,23 @@ class Test(kif_FingerprintTestCase):
             Quantity(1), Item('x'), IRI('x'), Time('2024-07-27'))
         self.assert_match(
             ValueFingerprint(Quantity(0, Item('x'))),
-            Quantity(0), Quantity(0, Item('x'), 1, 2))
+            Quantity(0, Item('x')), Quantity(0, Item('x'), 1, 2))
         self.assert_not_match(
             ValueFingerprint(Quantity(0, Item('x'))),
-            Quantity(1), Quantity(0, Item('y'), 1, 2))
+            Quantity(0), Quantity(1), Quantity(0, Item('y'), 1, 2))
         self.assert_match(
             ValueFingerprint(Quantity(0, None, 1)),
-            Quantity(0), Quantity(0, Item('x'), 1, 2))
+            Quantity(0, None, 1), Quantity(0, Item('x'), 1, 2))
         self.assert_not_match(
             ValueFingerprint(Quantity(0, None, 1)),
-            Quantity(1), Quantity(0, Item('x'), 2, 2))
+            Quantity(0), Quantity(1, None, 1), Quantity(0, Item('x'), 2, 2))
         self.assert_match(
             ValueFingerprint(Quantity(0, None, None, 2)),
-            Quantity(0), Quantity(0, Item('x'), 1, 2))
+            Quantity(0, None, None, 2), Quantity(0, Item('x'), 1, 2))
         self.assert_not_match(
             ValueFingerprint(Quantity(0, None, None, 1)),
-            Quantity(1), Quantity(0, Item('x'), 1, 2))
+            Quantity(0), Quantity(1, None, None, 1),
+            Quantity(0, Item('x'), 1, 2))
         # time
         self.assert_match(
             ValueFingerprint(Time('2024-07-27')),
@@ -168,25 +171,36 @@ class Test(kif_FingerprintTestCase):
             Time(datetime.datetime(2024, 7, 27)))
         self.assert_match(
             ValueFingerprint(Time('2024-07-27', Time.Precision.DAY)),
-            Time('2024-07-27'), Time('2024-07-27', 11, 0, Item('x')))
+            Time('2024-07-27', 11), Time('2024-07-27', 11, 0, Item('x')))
         self.assert_not_match(
             ValueFingerprint(Time('2024-07-27', Time.Precision.DAY)),
-            Time('2024-07-28'), Time('2024-07-27', 12, 0, Item('x')))
+            Time('2024-07-27'), Time('2024-07-28'),
+            Time('2024-07-27', 12, 0, Item('x')))
         self.assert_match(
             ValueFingerprint(Time('2024-07-27', None, 0)),
-            Time('2024-07-27'), Time('2024-07-27', 11, 0, Item('x')))
+            Time('2024-07-27', None, 0),
+            Time('2024-07-27', 11, 0, Item('x')))
         self.assert_not_match(
             ValueFingerprint(Time('2024-07-27', None, 0)),
-            Time('2024-07-28'), Time('2024-07-27', 12, 1, Item('x')))
+            Time('2024-07-27'), Time('2024-07-28', None, 0),
+            Time('2024-07-27', 12, 1, Item('x')))
         self.assert_match(
             ValueFingerprint(Time('2024-07-27', None, None, Item('x'))),
-            Time('2024-07-27'), Time('2024-07-27', 11, 0, Item('x')))
+            Time('2024-07-27', None, None, Item('x')),
+            Time('2024-07-27', 11, 0, Item('x')))
         self.assert_not_match(
             ValueFingerprint(Time('2024-07-27', None, None, Item('x'))),
-            Time('2024-07-28'), Time('2024-07-27', 12, 1, Item('y')))
+            Time('2024-07-27'), Time('2024-07-28', None, None, Item('x')),
+            Time('2024-07-27', 12, 1, Item('y')))
 
     def test_normalize(self) -> None:
         assert_type(ValueFingerprint('x').normalize(), Fingerprint)
+        self.assert_value_fingerprint(
+            ValueFingerprint(Item('x')).normalize(), Item('x'))
+        self.assert_value_fingerprint(
+            ValueFingerprint(Item('x')).normalize(Filter.ENTITY), Item('x'))
+        self.assert_empty_fingerprint(
+            ValueFingerprint(Item('x')).normalize(Filter.DEEP_DATA_VALUE))
 
 
 if __name__ == '__main__':

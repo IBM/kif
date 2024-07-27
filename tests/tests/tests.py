@@ -69,6 +69,10 @@ from kif_lib import (
     Variable,
 )
 from kif_lib.model import (
+    AndFingerprint,
+    AtomicFingerprint,
+    CompoundFingerprint,
+    ConverseSnakFingerprint,
     DataValueTemplate,
     DataValueVariable,
     DeepDataValueTemplate,
@@ -83,12 +87,14 @@ from kif_lib.model import (
     LexemeVariable,
     NoValueSnakTemplate,
     NoValueSnakVariable,
+    OrFingerprint,
     PropertyTemplate,
     PropertyVariable,
     QuantityTemplate,
     QuantityVariable,
     ShallowDataValueTemplate,
     ShallowDataValueVariable,
+    SnakFingerprint,
     SnakTemplate,
     SnakVariable,
     SomeValueSnakTemplate,
@@ -802,24 +808,64 @@ if __name__ == '__main__':
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Fingerprint)
 
-    def assert_value_fingerprint(self, obj: ValueFingerprint, value: Value):
+    def assert_compound_fingerprint(
+            self,
+            obj: Fingerprint,
+            *args: Fingerprint
+    ):
         self.assert_fingerprint(obj)
+        self.assertIsInstance(obj, CompoundFingerprint)
+        assert isinstance(obj, CompoundFingerprint)
+        for i, arg in enumerate(args):
+            self.assertEqual(obj.args[i], arg)
+
+    def assert_and_fingerprint(self, obj: Fingerprint, *args: Fingerprint):
+        self.assert_compound_fingerprint(obj)
+        self.assertIsInstance(obj, AndFingerprint)
+
+    def assert_or_fingerprint(self, obj: Fingerprint, *args: Fingerprint):
+        self.assert_compound_fingerprint(obj)
+        self.assertIsInstance(obj, OrFingerprint)
+
+    def assert_atomic_fingerprint(self, obj: Fingerprint):
+        self.assert_fingerprint(obj)
+        self.assertIsInstance(obj, AtomicFingerprint)
+
+    def assert_snak_fingerprint(self, obj: Fingerprint, snak: Snak):
+        self.assert_atomic_fingerprint(obj)
+        self.assertIsInstance(obj, SnakFingerprint)
+        assert isinstance(obj, SnakFingerprint)
+        self.assertFalse(obj.is_full())
+        self.assertFalse(obj.is_empty())
+        self.assertEqual(obj.args[0], snak)
+        self.assertEqual(obj.snak, snak)
+        self.assertEqual(obj.get_snak(), snak)
+
+    def assert_converse_snak_fingerprint(self, obj: Fingerprint, snak: Snak):
+        self.assert_snak_fingerprint(obj, snak)
+        self.assertIsInstance(obj, ConverseSnakFingerprint)
+
+    def assert_value_fingerprint(self, obj: Fingerprint, value: Value):
+        self.assert_atomic_fingerprint(obj)
         self.assertIsInstance(obj, ValueFingerprint)
+        assert isinstance(obj, ValueFingerprint)
         self.assertFalse(obj.is_full())
         self.assertFalse(obj.is_empty())
         self.assertEqual(obj.args[0], value)
         self.assertEqual(obj.value, value)
         self.assertEqual(obj.get_value(), value)
 
-    def assert_full_fingerprint(self, obj: FullFingerprint):
-        self.assert_fingerprint(obj)
+    def assert_full_fingerprint(self, obj: Fingerprint):
+        self.assert_atomic_fingerprint(obj)
         self.assertIsInstance(obj, FullFingerprint)
+        assert isinstance(obj, FullFingerprint)
         self.assertTrue(obj.is_full())
         self.assertFalse(obj.is_empty())
 
-    def assert_empty_fingerprint(self, obj: EmptyFingerprint):
-        self.assert_fingerprint(obj)
+    def assert_empty_fingerprint(self, obj: Fingerprint):
+        self.assert_atomic_fingerprint(obj)
         self.assertIsInstance(obj, EmptyFingerprint)
+        assert isinstance(obj, EmptyFingerprint)
         self.assertFalse(obj.is_full())
         self.assertTrue(obj.is_empty())
 

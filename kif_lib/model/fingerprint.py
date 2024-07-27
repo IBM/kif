@@ -65,20 +65,11 @@ class Fingerprint(KIF_Object):
     ) -> Self:
         if isinstance(arg, cls):
             return arg
-        elif isinstance(arg, Set):
-            return cast(Self, AndFingerprint(*sorted(arg)))
-        elif isinstance(arg, (list, SnakSet)):
-            return cast(Self, AndFingerprint(*arg))
-        elif isinstance(arg, (tuple, Snak)):
-            return cast(Self, SnakFingerprint.check(
+        elif isinstance(arg, (list, Set, SnakSet)):
+            return cast(Self, AndFingerprint.check(
                 arg, function or cls.check, name, position))
-        elif isinstance(arg, bool):
-            return cast(Self, (
-                FullFingerprint if arg else EmptyFingerprint)())
-        elif arg is None:
-            return cast(Self, FullFingerprint())
         else:
-            return cast(Self, ValueFingerprint.check(
+            return cast(Self, AtomicFingerprint.check(
                 arg, function or cls.check, name, position))
 
     def __and__(self, other: TFingerprint) -> 'Fingerprint':
@@ -147,74 +138,38 @@ class Fingerprint(KIF_Object):
         assert mask is not None
         return self._normalize(mask)
 
+    @abc.abstractmethod
     def _normalize(
             self,
             datatype_mask: 'Filter.DatatypeMask'
     ) -> 'Fingerprint':
-        if datatype_mask.value == 0:
-            return EmptyFingerprint()
-        elif isinstance(self, ValueFingerprint):
-            if datatype_mask.match(type(self.value)):
-                return self
-            else:
-                return EmptyFingerprint()
-        elif isinstance(self, AtomicFingerprint):
-            return self
-        else:
-            args = list(itertools.unique_everseen(
-                self._normalize_args(datatype_mask, iter(self.args))))
-            if len(args) == 0:
-                return FullFingerprint()
-            if len(args) == 1:
-                return args[0].normalize(datatype_mask)
-            if (isinstance(self, AndFingerprint)
-                and (EmptyFingerprint() in args or len(
-                    itertools.take(2, filter(
-                        lambda fp: isinstance(fp, ValueFingerprint),
-                        args))) > 1)):
-                return EmptyFingerprint()
-            elif (isinstance(self, OrFingerprint)
-                  and FullFingerprint() in args):
-                return FullFingerprint()
-            else:
-                return self.__class__(*sorted(args))
-
-    def _normalize_args(
-            self,
-            datatype_mask: 'Filter.DatatypeMask',
-            it: Iterator['Fingerprint']
-    ) -> Iterator['Fingerprint']:
-        while True:
-            try:
-                arg = next(it)
-            except StopIteration:
-                break
-            arg = arg.normalize(datatype_mask)
-            if isinstance(arg, type(self)):
-                it = itertools.chain(arg.args, it)
-                continue
-            elif isinstance(arg, FullFingerprint):
-                if isinstance(self, AndFingerprint):
-                    continue    # skip full
-                elif isinstance(self, OrFingerprint):
-                    yield FullFingerprint()
-                    break
-                else:
-                    raise self._should_not_get_here()
-            elif isinstance(arg, EmptyFingerprint):
-                if isinstance(self, OrFingerprint):
-                    continue    # skip empty
-                elif isinstance(self, AndFingerprint):
-                    yield EmptyFingerprint()
-                    break
-                else:
-                    raise self._should_not_get_here()
-            else:
-                yield arg
+        raise NotImplementedError
 
 
 class CompoundFingerprint(Fingerprint):
     """Compound fingerprint."""
+
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        else:
+            constr: type[CompoundFingerprint] = cls
+            if cls is CompoundFingerprint:
+                constr = AndFingerprint
+            if isinstance(arg, Set):
+                return cast(Self, constr(*sorted(arg)))
+            if isinstance(arg, (list, SnakSet, tuple)):
+                return cast(Self, constr(*arg))
+            else:
+                raise cls._check_error(arg, function, name, position)
 
     def __init__(self, *fps: TFingerprint):
         super().__init__(*fps)
@@ -222,6 +177,77 @@ class CompoundFingerprint(Fingerprint):
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         return Fingerprint.check(arg, type(self), None, i)
+
+    @override
+    def _normalize(
+            self,
+            datatype_mask: 'Filter.DatatypeMask'
+    ) -> 'Fingerprint':
+        if datatype_mask.value == 0:
+            return EmptyFingerprint()
+        if len(self.args) == 0:  # 0-ary compound
+            return FullFingerprint()
+        if len(self.args) == 1:  # 1-ary compound
+            return self.args[0]._normalize(datatype_mask)
+        args = list(itertools.unique_everseen(
+            self._normalize_args(datatype_mask, iter(self.args))))
+        assert len(args) >= 1
+        if len(args) == 1:
+            return args[0]
+        elif (isinstance(self, AndFingerprint)
+              and (EmptyFingerprint() in args or len(
+                itertools.take(2, filter(
+                    lambda fp: isinstance(fp, ValueFingerprint),
+                    args))) > 1)):
+            return EmptyFingerprint()
+        elif (isinstance(self, OrFingerprint)
+              and FullFingerprint() in args):
+            return FullFingerprint()
+        else:
+            return self.__class__(*args)
+
+    def _normalize_args(
+            self,
+            datatype_mask: 'Filter.DatatypeMask',
+            it: Iterator['Fingerprint']
+    ) -> Iterator['Fingerprint']:
+        count, skipped_full, skipped_empty = 0, False, False
+        while True:
+            try:
+                arg = next(it)
+            except StopIteration:
+                assert not (skipped_full and skipped_empty)
+                if count == 0:
+                    if skipped_full:
+                        yield FullFingerprint()
+                    elif skipped_empty:
+                        yield EmptyFingerprint()
+                break
+            arg = arg._normalize(datatype_mask)
+            if isinstance(arg, type(self)):
+                it = itertools.chain(arg.args, it)
+                continue
+            elif isinstance(arg, FullFingerprint):
+                if isinstance(self, AndFingerprint):
+                    skipped_full = True
+                    continue    # skip full
+                elif isinstance(self, OrFingerprint):
+                    yield arg
+                    break
+                else:
+                    raise self._should_not_get_here()
+            elif isinstance(arg, EmptyFingerprint):
+                if isinstance(self, OrFingerprint):
+                    skipped_empty = True
+                    continue    # skip empty
+                elif isinstance(self, AndFingerprint):
+                    yield arg
+                    break
+                else:
+                    raise self._should_not_get_here()
+            else:
+                yield arg
+                count += 1
 
 
 class AndFingerprint(CompoundFingerprint):
@@ -242,6 +268,30 @@ class OrFingerprint(CompoundFingerprint):
 
 class AtomicFingerprint(Fingerprint):
     """Atomic fingerprint."""
+
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, (tuple, Snak)):
+            return cast(Self, SnakFingerprint.check(
+                arg, function or cls.check, name, position))
+        elif arg is None or arg is True:
+            return cast(Self, FullFingerprint.check(
+                arg, function or cls.check, name, position))
+        elif arg is False:
+            return cast(Self, EmptyFingerprint.check(
+                arg, function or cls.check, name, position))
+        else:
+            return cast(Self, ValueFingerprint.check(
+                arg, function or cls.check, name, position))
 
 
 class SnakFingerprint(AtomicFingerprint):
@@ -286,40 +336,38 @@ class SnakFingerprint(AtomicFingerprint):
 
     @override
     def _match(self, value: Value) -> bool:
-        return True
+        return isinstance(value, Entity)
+
+    @override
+    def _normalize(
+            self,
+            datatype_mask: 'Filter.DatatypeMask'
+    ) -> 'Fingerprint':
+        if datatype_mask.match(Entity):
+            return self
+        else:
+            return EmptyFingerprint()
 
 
 class ConverseSnakFingerprint(SnakFingerprint):
     """Converse snak fingerprint."""
 
-    @classmethod
     @override
-    def check(
-            cls,
-            arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Self:
-        if isinstance(arg, cls):
-            return arg
-        else:
-            snak = ValueSnak.check(
-                arg, function or cls.check, name, position)
-            if isinstance(snak.value, Entity):
-                return cls(snak)
-            else:
-                raise cls._check_error(
-                    arg, function or cls.check, name, position)
+    def _match(self, value: Value) -> bool:
+        return (isinstance(self.snak, ValueSnak)
+                and isinstance(self.snak.value, Entity))
 
     @override
-    def _preprocess_arg(self, arg: Any, i: int) -> Any:
-        if i == 1:
-            snak = ValueSnak.check(arg, type(self), None, i)
-            Entity.check(snak.value, type(self), None, i)
-            return snak
+    def _normalize(
+            self,
+            datatype_mask: 'Filter.DatatypeMask'
+    ) -> 'Fingerprint':
+        if (isinstance(self.snak, ValueSnak)
+            and isinstance(self.snak.value, Entity)
+                and datatype_mask.match(Value)):
+            return self
         else:
-            raise self._should_not_get_here()
+            return EmptyFingerprint()
 
 
 class ValueFingerprint(AtomicFingerprint):
@@ -382,13 +430,10 @@ class ValueFingerprint(AtomicFingerprint):
             assert isinstance(v1, Quantity)
             if (v1.amount != v2.amount
                 or (v1.unit is not None
-                    and v2.unit is not None
                     and v1.unit != v2.unit)
                 or (v1.lower_bound is not None
-                    and v2.lower_bound is not None
                     and v1.lower_bound != v2.lower_bound)
                 or (v1.upper_bound is not None
-                    and v2.upper_bound is not None
                     and v1.upper_bound != v2.upper_bound)):
                 return False
         elif isinstance(v2, Time):
@@ -398,18 +443,25 @@ class ValueFingerprint(AtomicFingerprint):
                 v2_time = v2_time.replace(tzinfo=None)
             if (v1_time != v2_time
                 or (v1.precision is not None
-                    and v2.precision is not None
                     and v1.precision != v2.precision)
                 or (v1.timezone is not None
-                    and v2.timezone is not None
                     and v1.timezone != v2.timezone)
                 or (v1.calendar is not None
-                    and v2.calendar is not None
                     and v1.calendar != v2.calendar)):
                 return False
         else:
             raise self._should_not_get_here()
         return True
+
+    @override
+    def _normalize(
+            self,
+            datatype_mask: 'Filter.DatatypeMask'
+    ) -> 'Fingerprint':
+        if datatype_mask.match(type(self.value)):
+            return self
+        else:
+            return EmptyFingerprint()
 
 
 class FullFingerprint(AtomicFingerprint):
@@ -438,6 +490,16 @@ class FullFingerprint(AtomicFingerprint):
     def _match(self, value: Value) -> bool:
         return True
 
+    @override
+    def _normalize(
+            self,
+            datatype_mask: 'Filter.DatatypeMask'
+    ) -> 'Fingerprint':
+        if datatype_mask.value > 0:
+            return self
+        else:
+            return EmptyFingerprint()
+
 
 class EmptyFingerprint(AtomicFingerprint):
     """The empty fingerprint (matches nothing)."""
@@ -464,3 +526,10 @@ class EmptyFingerprint(AtomicFingerprint):
     @override
     def _match(self, value: Value) -> bool:
         return False
+
+    @override
+    def _normalize(
+            self,
+            datatype_mask: 'Filter.DatatypeMask'
+    ) -> 'Fingerprint':
+        return self

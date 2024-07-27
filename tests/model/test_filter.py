@@ -319,7 +319,7 @@ class Test(kif_ObjectTestCase):
         self.assertTrue(Filter(property=p).match(p(x, x)))
         self.assertTrue(Filter(property=p).match(
             p.replace(p.KEEP, Item)(x, x)))
-        self.assertFalse(Filter(property=p.replace(p.KEEP, Item)).match(
+        self.assertTrue(Filter(property=p.replace(p.KEEP, Item)).match(
             Statement(x, NoValueSnak(p))))
         self.assertFalse(Filter(property=p.replace(p.KEEP, Property)).match(
             p.replace(p.KEEP, Item)(x, x)))
@@ -378,18 +378,17 @@ class Test(kif_ObjectTestCase):
         # bad argument: incompatible predicates
         pat1 = Filter(None, SnakSet(NoValueSnak(Property('x'))))
         pat2 = Filter(None, Property('p'))
-        print(pat1.combine(pat2))
         self.assertEqual(
             pat1.combine(pat2),
-            Filter(None, Property('p') & SnakSet(
-                NoValueSnak(Property('x')))).normalize())
+            Filter(None, SnakSet(NoValueSnak(Property('x')))
+                   & Property('p')).normalize())
         # bad argument: incompatible values
         pat1 = Filter(None, None, SnakSet(NoValueSnak(Property('x'))))
         pat2 = Filter(None, None, Property('p'))
         self.assertEqual(
             pat1.combine(pat2),
-            Filter(None, None, Property('p') & SnakSet(NoValueSnak(
-                Property('x')))).normalize())
+            Filter(None, None, SnakSet(NoValueSnak(Property('x')))
+                   & Property('p')).normalize())
         # good arguments
         self.assertEqual(Filter().combine(), Filter())
         self.assertEqual(

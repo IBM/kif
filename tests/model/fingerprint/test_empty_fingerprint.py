@@ -30,7 +30,8 @@ class Test(kif_FingerprintTestCase):
     def test_check(self) -> None:
         assert_type(EmptyFingerprint.check(False), EmptyFingerprint)
         super()._test_check(
-            EmptyFingerprint, [
+            EmptyFingerprint,
+            success=[
                 (EmptyFingerprint(), EmptyFingerprint()),
                 (False, EmptyFingerprint()),
             ],

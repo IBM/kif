@@ -208,7 +208,13 @@ class Object(Sequence, metaclass=ObjectMeta):
         return self == other or self < other
 
     def __gt__(self, other: 'Object') -> bool:
-        return other < self
+        if not isinstance(other, Object):
+            return NotImplemented
+        elif type(self) is not type(other):
+            return (self.__class__.__qualname__
+                    > other.__class__.__qualname__)
+        else:
+            return self._args > other._args
 
     def __ge__(self, other: 'Object') -> bool:
         return self == other or self > other
