@@ -127,7 +127,7 @@ class Fingerprint(KIF_Object):
 
     def normalize(
             self,
-            datatype_mask: Optional['Filter.DatatypeMask'] = None
+            datatype_mask: Optional['Filter.TDatatypeMask'] = None
     ) -> 'Fingerprint':
         """Reduce fingerprint to a normal form.
 
@@ -139,10 +139,22 @@ class Fingerprint(KIF_Object):
 
         Returns:
            Normal fingerprint.
-
         """
-        if isinstance(self, ValueFingerprint):
-            if datatype_mask is None or datatype_mask.match(type(self.value)):
+        from .filter import Filter
+        mask = Filter.DatatypeMask.check_optional(
+            datatype_mask, Filter.DatatypeMask.ALL,
+            self.normalize, 'datatype_mask', 1)
+        assert mask is not None
+        return self._normalize(mask)
+
+    def _normalize(
+            self,
+            datatype_mask: 'Filter.DatatypeMask'
+    ) -> 'Fingerprint':
+        if datatype_mask.value == 0:
+            return EmptyFingerprint()
+        elif isinstance(self, ValueFingerprint):
+            if datatype_mask.match(type(self.value)):
                 return self
             else:
                 return EmptyFingerprint()
@@ -169,7 +181,7 @@ class Fingerprint(KIF_Object):
 
     def _normalize_args(
             self,
-            datatype_mask: Optional['Filter.DatatypeMask'],
+            datatype_mask: 'Filter.DatatypeMask',
             it: Iterator['Fingerprint']
     ) -> Iterator['Fingerprint']:
         while True:
@@ -349,40 +361,51 @@ class ValueFingerprint(AtomicFingerprint):
 
     @override
     def _match(self, value: Value) -> bool:
-        if type(self.value) is not type(value):
-            return False
-        if isinstance(value, Property):
-            fr_prop, prop = cast(Property, self.value), value
+        v1, v2 = self.value, value
+        t1, t2 = type(v1), type(v2)
+        if t1 is not t2:
+            if not issubclass(t1, t2):
+                return False
+            v2 = t1.check(v2)   # coerce v2 to type(v1)
+        if isinstance(v2, Property):
+            fr_prop, prop = cast(Property, v1), v2
             if fr_prop.iri != prop.iri:
                 return False
-            if fr_prop.range is not None and fr_prop.range != prop.range:
+            if (fr_prop.range is not None
+                and prop.range is not None
+                    and fr_prop.range != prop.range):
                 return False
-        elif not isinstance(value, DeepDataValue):
-            if self.value != value:
+        elif not isinstance(v2, DeepDataValue):
+            if v1 != v2:
                 return False
-        elif isinstance(value, Quantity):
-            fr_qt = cast(Quantity, self.value)
-            qt = value
-            if (fr_qt.amount != qt.amount
-                or (fr_qt.unit is not None
-                    and fr_qt.unit != qt.unit)
-                or (fr_qt.lower_bound is not None
-                    and fr_qt.lower_bound != qt.lower_bound)
-                or (fr_qt.upper_bound is not None
-                    and fr_qt.upper_bound != qt.upper_bound)):
+        elif isinstance(v2, Quantity):
+            assert isinstance(v1, Quantity)
+            if (v1.amount != v2.amount
+                or (v1.unit is not None
+                    and v2.unit is not None
+                    and v1.unit != v2.unit)
+                or (v1.lower_bound is not None
+                    and v2.lower_bound is not None
+                    and v1.lower_bound != v2.lower_bound)
+                or (v1.upper_bound is not None
+                    and v2.upper_bound is not None
+                    and v1.upper_bound != v2.upper_bound)):
                 return False
-        elif isinstance(value, Time):
-            fr_tm, tm = cast(Time, self.value), value
-            fr_tm_time, tm_time = fr_tm.time, tm.time
-            if fr_tm_time.tzinfo is None:
-                tm_time = tm_time.replace(tzinfo=None)
-            if (fr_tm_time != tm_time
-                or (fr_tm.precision is not None
-                    and fr_tm.precision != tm.precision)
-                or (fr_tm.timezone is not None
-                    and fr_tm.timezone != tm.timezone)
-                or (fr_tm.calendar is not None
-                    and fr_tm.calendar != tm.calendar)):
+        elif isinstance(v2, Time):
+            assert isinstance(v1, Time)
+            v1_time, v2_time = v1.time, v2.time
+            if v1_time.tzinfo is None:
+                v2_time = v2_time.replace(tzinfo=None)
+            if (v1_time != v2_time
+                or (v1.precision is not None
+                    and v2.precision is not None
+                    and v1.precision != v2.precision)
+                or (v1.timezone is not None
+                    and v2.timezone is not None
+                    and v1.timezone != v2.timezone)
+                or (v1.calendar is not None
+                    and v2.calendar is not None
+                    and v1.calendar != v2.calendar)):
                 return False
         else:
             raise self._should_not_get_here()
@@ -403,10 +426,10 @@ class FullFingerprint(AtomicFingerprint):
     ) -> Self:
         if isinstance(arg, cls):
             return arg
-        elif bool(arg):
+        elif arg is True or arg is None:
             return cls()
         else:
-            raise cls._check_error(arg, function, name, position, ValueError)
+            raise cls._check_error(arg, function, name, position)
 
     def __init__(self):
         super().__init__()
@@ -430,10 +453,10 @@ class EmptyFingerprint(AtomicFingerprint):
     ) -> Self:
         if isinstance(arg, cls):
             return arg
-        elif not bool(arg):
+        elif arg is False:
             return cls()
         else:
-            raise cls._check_error(arg, function, name, position, ValueError)
+            raise cls._check_error(arg, function, name, position)
 
     def __init__(self):
         super().__init__()

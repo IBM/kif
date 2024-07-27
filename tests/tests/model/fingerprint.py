@@ -2,12 +2,23 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import Fingerprint, KIF_Object
+from kif_lib.model import TValue
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
 from .kif_object import kif_ObjectTestCase
 
 
 class kif_FingerprintTestCase(kif_ObjectTestCase):
+
+    def assert_match(self, fp: Fingerprint, *values: TValue) -> None:
+        for value in values:
+            self.logger.debug('success: %s %s', fp, value)
+            self.assertTrue(fp.match(value))
+
+    def assert_not_match(self, fp: Fingerprint, *values: TValue) -> None:
+        for value in values:
+            self.logger.debug('failure: %s %s', fp, value)
+            self.assertFalse(fp.match(value))
 
     @override
     def _test_check(
@@ -31,16 +42,3 @@ class kif_FingerprintTestCase(kif_ObjectTestCase):
         assert isinstance(cls, type)
         assert issubclass(cls, Fingerprint)
         super()._test__init__(cls, assert_fn, success, failure)
-        collect = []
-        for t, obj in success:
-            assert isinstance(obj, Fingerprint)
-            for child in t:
-                collect.append(child)
-                self.assertIn(
-                    obj.children_class.check(child), obj)  # type: ignore
-            for child in t:
-                if not isinstance(child, KIF_Object):
-                    self.assertNotIn(child, obj)
-        self.assertEqual(
-            cls(*collect),
-            cls().union(*map(lambda p: p[1], success)))  # type: ignore

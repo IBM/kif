@@ -24,6 +24,7 @@ from kif_lib import (
     ExternalIdTemplate,
     ExternalIdVariable,
     Filter,
+    Fingerprint,
     IRI,
     IRI_Datatype,
     IRI_Template,
@@ -72,9 +73,9 @@ from kif_lib.model import (
     DataValueVariable,
     DeepDataValueTemplate,
     DeepDataValueVariable,
+    EmptyFingerprint,
     EntityTemplate,
     EntityVariable,
-    Fingerprint,
     FullFingerprint,
     ItemTemplate,
     ItemVariable,
@@ -99,6 +100,7 @@ from kif_lib.model import (
     TextVariable,
     TimeTemplate,
     TimeVariable,
+    ValueFingerprint,
     ValueSnakTemplate,
     ValueSnakVariable,
     ValueTemplate,
@@ -286,6 +288,48 @@ if __name__ == '__main__':
         self.assertIsInstance(obj, AnnotationRecordSet)
         self.assert_kif_object_set(obj, *annots)
 
+# -- Datatype --------------------------------------------------------------
+
+    def assert_datatype(self, obj: Datatype):
+        self.assert_kif_object(obj)
+        self.assertIsInstance(obj, Datatype)
+
+    def assert_item_datatype(self, obj: Datatype):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, ItemDatatype)
+
+    def assert_property_datatype(self, obj: Datatype):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, PropertyDatatype)
+
+    def assert_lexeme_datatype(self, obj: Datatype):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, LexemeDatatype)
+
+    def assert_iri_datatype(self, obj: Datatype):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, IRI_Datatype)
+
+    def assert_text_datatype(self, obj: Datatype):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, TextDatatype)
+
+    def assert_string_datatype(self, obj: Datatype):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, StringDatatype)
+
+    def assert_external_id_datatype(self, obj: Datatype):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, ExternalIdDatatype)
+
+    def assert_quantity_datatype(self, obj: Datatype):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, QuantityDatatype)
+
+    def assert_time_datatype(self, obj: Datatype):
+        self.assert_datatype(obj)
+        self.assertIsInstance(obj, TimeDatatype)
+
 # -- Value -----------------------------------------------------------------
 
     def assert_value(self, obj: Value):
@@ -446,48 +490,6 @@ if __name__ == '__main__':
             obj.args[3], cal if cal is not None else None)
         self.assertEqual(obj.calendar, obj.args[3])
         self.assertEqual(obj.get_calendar(), obj.args[3])
-
-# -- Datatype --------------------------------------------------------------
-
-    def assert_datatype(self, obj: Datatype):
-        self.assert_kif_object(obj)
-        self.assertIsInstance(obj, Datatype)
-
-    def assert_item_datatype(self, obj: Datatype):
-        self.assert_datatype(obj)
-        self.assertIsInstance(obj, ItemDatatype)
-
-    def assert_property_datatype(self, obj: Datatype):
-        self.assert_datatype(obj)
-        self.assertIsInstance(obj, PropertyDatatype)
-
-    def assert_lexeme_datatype(self, obj: Datatype):
-        self.assert_datatype(obj)
-        self.assertIsInstance(obj, LexemeDatatype)
-
-    def assert_iri_datatype(self, obj: Datatype):
-        self.assert_datatype(obj)
-        self.assertIsInstance(obj, IRI_Datatype)
-
-    def assert_text_datatype(self, obj: Datatype):
-        self.assert_datatype(obj)
-        self.assertIsInstance(obj, TextDatatype)
-
-    def assert_string_datatype(self, obj: Datatype):
-        self.assert_datatype(obj)
-        self.assertIsInstance(obj, StringDatatype)
-
-    def assert_external_id_datatype(self, obj: Datatype):
-        self.assert_datatype(obj)
-        self.assertIsInstance(obj, ExternalIdDatatype)
-
-    def assert_quantity_datatype(self, obj: Datatype):
-        self.assert_datatype(obj)
-        self.assertIsInstance(obj, QuantityDatatype)
-
-    def assert_time_datatype(self, obj: Datatype):
-        self.assert_datatype(obj)
-        self.assertIsInstance(obj, TimeDatatype)
 
 # -- Template --------------------------------------------------------------
 
@@ -793,6 +795,33 @@ if __name__ == '__main__':
     def assert_statement_variable(self, obj: Variable, name: str):
         self.assert_variable(obj, name)
         self.assertIsInstance(obj, StatementVariable)
+
+# -- Fingerprint -----------------------------------------------------------
+
+    def assert_fingerprint(self, obj: Fingerprint):
+        self.assert_kif_object(obj)
+        self.assertIsInstance(obj, Fingerprint)
+
+    def assert_value_fingerprint(self, obj: ValueFingerprint, value: Value):
+        self.assert_fingerprint(obj)
+        self.assertIsInstance(obj, ValueFingerprint)
+        self.assertFalse(obj.is_full())
+        self.assertFalse(obj.is_empty())
+        self.assertEqual(obj.args[0], value)
+        self.assertEqual(obj.value, value)
+        self.assertEqual(obj.get_value(), value)
+
+    def assert_full_fingerprint(self, obj: FullFingerprint):
+        self.assert_fingerprint(obj)
+        self.assertIsInstance(obj, FullFingerprint)
+        self.assertTrue(obj.is_full())
+        self.assertFalse(obj.is_empty())
+
+    def assert_empty_fingerprint(self, obj: EmptyFingerprint):
+        self.assert_fingerprint(obj)
+        self.assertIsInstance(obj, EmptyFingerprint)
+        self.assertFalse(obj.is_full())
+        self.assertTrue(obj.is_empty())
 
 # -- Snak ------------------------------------------------------------------
 
