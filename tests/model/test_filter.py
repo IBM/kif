@@ -5,17 +5,25 @@ import datetime
 
 from kif_lib import (
     Datatype,
+    DataValue,
+    DeepDataValue,
+    Entity,
     ExternalId,
     Filter,
     IRI,
+    IRI_Datatype,
     Item,
     ItemDatatype,
     Items,
     ItemTemplate,
     Lexeme,
+    LexemeDatatype,
     NoValueSnak,
     Property,
+    PropertyDatatype,
     Quantity,
+    QuantityDatatype,
+    ShallowDataValue,
     Snak,
     SnakSet,
     SomeValueSnak,
@@ -23,6 +31,7 @@ from kif_lib import (
     String,
     Text,
     Time,
+    Value,
     ValueSnak,
     Variable,
 )
@@ -35,6 +44,8 @@ from ..tests import kif_ObjectTestCase
 class Test(kif_ObjectTestCase):
 
     def test_DatatypeMask_check(self) -> None:
+        assert_type(
+            Filter.DatatypeMask.check(Quantity), Filter.DatatypeMask)
         self.assertRaisesRegex(
             TypeError, 'cannot coerce', Filter.DatatypeMask.check, {})
         self.assertRaisesRegex(
@@ -45,6 +56,12 @@ class Test(kif_ObjectTestCase):
             Filter.DatatypeMask.check(Datatype),
             Filter.DatatypeMask.ALL)
         self.assertEqual(
+            Filter.DatatypeMask.check(Value),
+            Filter.VALUE)
+        self.assertEqual(
+            Filter.DatatypeMask.check(Entity),
+            Filter.ENTITY)
+        self.assertEqual(
             Filter.DatatypeMask.check(ItemDatatype()), Filter.ITEM)
         self.assertEqual(
             Filter.DatatypeMask.check(ItemDatatype), Filter.ITEM)
@@ -52,11 +69,20 @@ class Test(kif_ObjectTestCase):
         self.assertEqual(
             Filter.DatatypeMask.check(Property), Filter.PROPERTY)
         self.assertEqual(Filter.DatatypeMask.check(Lexeme), Filter.LEXEME)
+        self.assertEqual(
+            Filter.DatatypeMask.check(DataValue),
+            Filter.DATA_VALUE)
+        self.assertEqual(
+            Filter.DatatypeMask.check(ShallowDataValue),
+            Filter.SHALLOW_DATA_VALUE)
         self.assertEqual(Filter.DatatypeMask.check(IRI), Filter.IRI)
         self.assertEqual(Filter.DatatypeMask.check(Text), Filter.TEXT)
         self.assertEqual(Filter.DatatypeMask.check(String), Filter.STRING)
         self.assertEqual(
             Filter.DatatypeMask.check(ExternalId), Filter.EXTERNAL_ID)
+        self.assertEqual(
+            Filter.DatatypeMask.check(DeepDataValue),
+            Filter.DEEP_DATA_VALUE)
         self.assertEqual(Filter.DatatypeMask.check(Quantity), Filter.QUANTITY)
         self.assertEqual(Filter.DatatypeMask.check(Time), Filter.TIME)
         self.assertEqual(
@@ -66,7 +92,40 @@ class Test(kif_ObjectTestCase):
             Filter.DatatypeMask.ALL)
         self.assertIsNone(Filter.DatatypeMask.check_optional(None))
 
+    def test_DatatypeMask_match(self) -> None:
+        assert_type(Filter.DatatypeMask(0).match(Item), bool)
+        for m in (Filter.DatatypeMask.ALL, Filter.VALUE, Filter.ENTITY):
+            self.assertTrue(m.match(Item))
+            self.assertTrue(m.match(PropertyDatatype))
+            self.assertTrue(m.match(LexemeDatatype()))
+        for m in (Filter.DatatypeMask.check(0),
+                  Filter.DATA_VALUE, Filter.STRING):
+            self.assertFalse(m.match(Item))
+            self.assertFalse(m.match(PropertyDatatype))
+            self.assertFalse(m.match(LexemeDatatype()))
+        for m in (Filter.DatatypeMask.ALL, Filter.VALUE,
+                  Filter.DATA_VALUE, Filter.SHALLOW_DATA_VALUE):
+            self.assertTrue(m.match(IRI_Datatype()))
+            self.assertTrue(m.match(Text))
+            self.assertTrue(m.match(String))
+            self.assertTrue(m.match(ExternalId.datatype))
+        for m in (Filter.DatatypeMask.check(0),
+                  Filter.ENTITY, Filter.ITEM, Filter.QUANTITY):
+            self.assertFalse(m.match(IRI_Datatype()))
+            self.assertFalse(m.match(Text))
+            self.assertFalse(m.match(String))
+            self.assertFalse(m.match(ExternalId.datatype))
+        for m in (Filter.DatatypeMask.ALL, Filter.VALUE,
+                  Filter.DATA_VALUE, Filter.DEEP_DATA_VALUE):
+            self.assertTrue(m.match(QuantityDatatype))
+            self.assertTrue(m.match(Time))
+        for m in (Filter.DatatypeMask.check(0), Filter.ENTITY,
+                  Filter.SHALLOW_DATA_VALUE, Filter.IRI):
+            self.assertFalse(m.match(QuantityDatatype))
+            self.assertFalse(m.match(Time))
+
     def test_SnakMask_check(self) -> None:
+        assert_type(Filter.SnakMask.check(Snak), Filter.SnakMask)
         self.assertRaisesRegex(
             TypeError, 'cannot coerce', Filter.SnakMask.check, 'abc')
         self.assertRaisesRegex(
@@ -99,6 +158,39 @@ class Test(kif_ObjectTestCase):
             Filter.SnakMask.check_optional(None, Filter.SnakMask.ALL),
             Filter.SnakMask.ALL)
         self.assertIsNone(Filter.SnakMask.check_optional(None))
+
+    def test_SnakMask_match(self) -> None:
+        assert_type(Filter.SnakMask(0).match(('x', 'y')), bool)
+        m = Filter.SnakMask.ALL
+        self.assertTrue(m.match(('x', 'y')))
+        self.assertTrue(m.match(Property('x')('y')))
+        self.assertTrue(m.match(SomeValueSnak('x')))
+        self.assertTrue(m.match(NoValueSnak('x')))
+        m = Filter.VALUE_SNAK
+        self.assertTrue(m.match(('x', 'y')))
+        self.assertTrue(m.match(Property('x')('y')))
+        self.assertFalse(m.match(SomeValueSnak('x')))
+        self.assertFalse(m.match(NoValueSnak('x')))
+        m = Filter.SOME_VALUE_SNAK
+        self.assertFalse(m.match(('x', 'y')))
+        self.assertFalse(m.match(Property('x')('y')))
+        self.assertTrue(m.match(SomeValueSnak('x')))
+        self.assertFalse(m.match(NoValueSnak('x')))
+        m = Filter.NO_VALUE_SNAK
+        self.assertFalse(m.match(('x', 'y')))
+        self.assertFalse(m.match(Property('x')('y')))
+        self.assertFalse(m.match(SomeValueSnak('x')))
+        self.assertTrue(m.match(NoValueSnak('x')))
+        m = Filter.SOME_VALUE_SNAK | Filter.NO_VALUE_SNAK
+        self.assertFalse(m.match(('x', 'y')))
+        self.assertFalse(m.match(Property('x')('y')))
+        self.assertTrue(m.match(SomeValueSnak('x')))
+        self.assertTrue(m.match(NoValueSnak('x')))
+        m = Filter.SnakMask.ALL & ~Filter.NO_VALUE_SNAK
+        self.assertTrue(m.match(('x', 'y')))
+        self.assertTrue(m.match(Property('x')('y')))
+        self.assertTrue(m.match(SomeValueSnak('x')))
+        self.assertFalse(m.match(NoValueSnak('x')))
 
     def test_from_snak(self) -> None:
         # snak is none

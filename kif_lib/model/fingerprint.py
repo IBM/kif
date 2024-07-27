@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import abc
+from typing import TYPE_CHECKING
 
 from .. import itertools
 from ..typing import (
@@ -29,6 +30,9 @@ from .value import (
     TValue,
     Value,
 )
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .filter import Filter
 
 TFingerprint: TypeAlias =\
     Union['Fingerprint', 'TCompoundFingerprint', 'TAtomicFingerprint']
@@ -121,20 +125,24 @@ class Fingerprint(KIF_Object):
     def _match(self, value: Value) -> bool:
         raise NotImplementedError
 
-    def normalize(self, value_class: type[Value] = Value) -> 'Fingerprint':
+    def normalize(
+            self,
+            datatype_mask: Optional['Filter.DatatypeMask'] = None
+    ) -> 'Fingerprint':
         """Reduce fingerprint to a normal form.
 
-        Produces a normal fingerprint that does *not* match values of a type
-        different from `value_class`.
+        If `datatype_mask` is given, ensures that the resulting fingerprint
+        does not match values with a datatype not in `datatype_mask`.
 
         Parameters:
            value_class: Value class.
 
         Returns:
            Normal fingerprint.
+
         """
         if isinstance(self, ValueFingerprint):
-            if isinstance(self.value, value_class):
+            if datatype_mask is None or datatype_mask.match(type(self.value)):
                 return self
             else:
                 return EmptyFingerprint()
@@ -142,11 +150,11 @@ class Fingerprint(KIF_Object):
             return self
         else:
             args = list(itertools.unique_everseen(
-                self._normalize_args(value_class, iter(self.args))))
+                self._normalize_args(datatype_mask, iter(self.args))))
             if len(args) == 0:
                 return FullFingerprint()
             if len(args) == 1:
-                return args[0].normalize(value_class)
+                return args[0].normalize(datatype_mask)
             if (isinstance(self, AndFingerprint)
                 and (EmptyFingerprint() in args or len(
                     itertools.take(2, filter(
@@ -161,7 +169,7 @@ class Fingerprint(KIF_Object):
 
     def _normalize_args(
             self,
-            value_class: type[Value],
+            datatype_mask: Optional['Filter.DatatypeMask'],
             it: Iterator['Fingerprint']
     ) -> Iterator['Fingerprint']:
         while True:
@@ -169,7 +177,7 @@ class Fingerprint(KIF_Object):
                 arg = next(it)
             except StopIteration:
                 break
-            arg = arg.normalize(value_class)
+            arg = arg.normalize(datatype_mask)
             if isinstance(arg, type(self)):
                 it = itertools.chain(arg.args, it)
                 continue

@@ -18,14 +18,16 @@ from .snak import NoValueSnak, Snak, SomeValueSnak, TSnak, ValueSnak
 from .statement import Statement, TStatement
 from .value import (
     Datatype,
+    DataValue,
+    DeepDataValue,
     Entity,
     ExternalIdDatatype,
     IRI_Datatype,
     ItemDatatype,
     LexemeDatatype,
-    Property,
     PropertyDatatype,
     QuantityDatatype,
+    ShallowDataValue,
     StringDatatype,
     TDatatype,
     TextDatatype,
@@ -77,7 +79,7 @@ class Filter(KIF_Object):
         TIME = enum.auto()
 
         #: Mask for all datatype classes.
-        ALL = (
+        VALUE = (
             ITEM
             | PROPERTY
             | LEXEME
@@ -88,14 +90,42 @@ class Filter(KIF_Object):
             | QUANTITY
             | TIME)
 
+        #: Mask for entity datatype classes.
+        ENTITY = ITEM | PROPERTY | LEXEME
+
+        #: Mask for data-value datatype classes.
+        DATA_VALUE = VALUE & ~ENTITY
+
+        #: Mask for shallow data-value datatype classes.
+        SHALLOW_DATA_VALUE = IRI | TEXT | STRING | EXTERNAL_ID
+
+        #: Mask for deep data-value datatype classes.
+        DEEP_DATA_VALUE = DATA_VALUE & ~SHALLOW_DATA_VALUE
+
+        #: Mask for all datatype classes.
+        ALL = VALUE
+
         @classmethod
         def check(
                 cls,
                 arg: Any,
                 function: Optional[Union[Callable[..., Any], str]] = None,
                 name: Optional[str] = None,
-                position: Optional[int] = None
+                position: Optional[int] = None,
         ) -> 'Filter.DatatypeMask':
+            """Coerces `arg` to datatype mask.
+
+            If `arg` cannot be coerced, raises an error.
+
+            Parameters:
+               arg: Value.
+               function: Function or function name.
+               name: Argument name.
+               position: Argument position.
+
+            Returns:
+               Datatype mask.
+            """
             if isinstance(arg, cls):
                 return arg
             elif isinstance(arg, int):
@@ -105,9 +135,12 @@ class Filter(KIF_Object):
                     raise Datatype._check_error(
                         arg, function or cls.check, name, position,
                         ValueError, to_=cls.__qualname__) from err
-            elif arg is Datatype:
-                return cls.ALL
             else:
+                if (isinstance(arg, type)
+                        and issubclass(arg, (Datatype, Value))):
+                    mask = cls._from_abstract_datatype_or_value_class(arg)
+                    if mask is not None:
+                        return mask
                 return cls._from_datatype(Datatype.check(
                     arg, function or cls.check, name, position))
 
@@ -120,12 +153,49 @@ class Filter(KIF_Object):
                 name: Optional[str] = None,
                 position: Optional[int] = None
         ) -> Optional['Filter.DatatypeMask']:
+            """Coerces optional `arg` to datatype mask.
+
+            If `arg` cannot be coerced, raises an error.
+
+            If `arg` is ``None``, returns `default`.
+
+            Parameters:
+               arg: Value.
+               default: Default value.
+               function: Function or function name.
+               name: Argument name.
+               position: Argument position.
+
+            Returns:
+               Datatype mask or `default`.
+            """
             if arg is None:
                 arg = default
             if arg is None:
                 return arg
             else:
                 return cls.check(arg, function, name, position)
+
+        @classmethod
+        @functools.cache
+        def _from_abstract_datatype_or_value_class(
+                cls,
+                arg: Union[type[Datatype], type[Value]]
+        ) -> Optional['Filter.DatatypeMask']:
+            if arg is Datatype:
+                return cls.ALL
+            elif arg is Value:
+                return cls.VALUE
+            elif arg is Entity:
+                return cls.ENTITY
+            elif arg is DataValue:
+                return cls.DATA_VALUE
+            elif arg is ShallowDataValue:
+                return cls.SHALLOW_DATA_VALUE
+            elif arg is DeepDataValue:
+                return cls.DEEP_DATA_VALUE
+            else:
+                return None
 
         @classmethod
         @functools.cache
@@ -151,6 +221,23 @@ class Filter(KIF_Object):
             else:
                 raise Filter._should_not_get_here()
 
+        def match(self, datatype: TDatatype) -> bool:
+            """Tests whether datatype mask matches `datatype`.
+
+            Parameters:
+               datatype: Datatype.
+
+            Returns:
+               ``True`` if successful; ``False`` otherwise.
+            """
+            return bool(self & self.check(datatype))
+
+    #: Mask for value datatypes.
+    VALUE: Final[DatatypeMask] = DatatypeMask.VALUE
+
+    #: Mask for entity datatypes.
+    ENTITY: Final[DatatypeMask] = DatatypeMask.ENTITY
+
     #: Mask for :class:`ItemDatatype`.
     ITEM: Final[DatatypeMask] = DatatypeMask.ITEM
 
@@ -159,6 +246,12 @@ class Filter(KIF_Object):
 
     #: Mask for :class:`LexemeDatatype`.
     LEXEME: Final[DatatypeMask] = DatatypeMask.LEXEME
+
+    #: Mask for data-value datatypes.
+    DATA_VALUE: Final[DatatypeMask] = DatatypeMask.DATA_VALUE
+
+    #: Mask for shallow-data-value datatypes.
+    SHALLOW_DATA_VALUE: Final[DatatypeMask] = DatatypeMask.SHALLOW_DATA_VALUE
 
     #: Mask for :class:`IRI_Datatype`.
     IRI: Final[DatatypeMask] = DatatypeMask.IRI
@@ -171,6 +264,9 @@ class Filter(KIF_Object):
 
     #: Mask for :class:`ExternalIdDatatype`.
     EXTERNAL_ID: Final[DatatypeMask] = DatatypeMask.EXTERNAL_ID
+
+    #: Mask for deep-data-value datatypes.
+    DEEP_DATA_VALUE: Final[DatatypeMask] = DatatypeMask.DEEP_DATA_VALUE
 
     #: Mask for :class:`QuantityDatatype`.
     QUANTITY: Final[DatatypeMask] = DatatypeMask.QUANTITY
@@ -204,6 +300,19 @@ class Filter(KIF_Object):
                 name: Optional[str] = None,
                 position: Optional[int] = None
         ) -> 'Filter.SnakMask':
+            """Coerces `arg` to snak mask.
+
+            If `arg` cannot be coerced, raises an error.
+
+            Parameters:
+               arg: Value.
+               function: Function or function name.
+               name: Argument name.
+               position: Argument position.
+
+            Returns:
+               Snak mask.
+            """
             if isinstance(arg, cls):
                 return arg
             elif isinstance(arg, int):
@@ -228,6 +337,22 @@ class Filter(KIF_Object):
                 name: Optional[str] = None,
                 position: Optional[int] = None
         ) -> Optional['Filter.SnakMask']:
+            """Coerces optional `arg` to snak mask.
+
+            If `arg` cannot be coerced, raises an error.
+
+            If `arg` is ``None``, returns `default`.
+
+            Parameters:
+               arg: Value.
+               default: Default value.
+               function: Function or function name.
+               name: Argument name.
+               position: Argument position.
+
+            Returns:
+               Snak mask or `default`.
+            """
             if arg is None:
                 arg = default
             if arg is None:
@@ -263,6 +388,17 @@ class Filter(KIF_Object):
                 return cls.NO_VALUE_SNAK
             else:
                 raise Filter._should_not_get_here()
+
+        def match(self, snak: TSnak) -> bool:
+            """Tests whether snak mask matches `snak`.
+
+            Parameters:
+               snak: Snak.
+
+            Returns:
+               ``True`` if successful; ``False`` otherwise.
+            """
+            return bool(self & self.check(snak))
 
     #: Mask for :class:`ValueSnak`.
     VALUE_SNAK: Final[SnakMask] = SnakMask.VALUE_SNAK
@@ -479,12 +615,10 @@ class Filter(KIF_Object):
            Filter.
         """
         return Filter(
-            subject=Fingerprint.check(
-                self.subject).normalize(Entity),  # type: ignore
-            property=Fingerprint.check(self.property).normalize(Property),
-            value=Fingerprint.check(
-                self.value).normalize(Value),  # type: ignore
-            snak_mask=self.snak_mask)
+            Fingerprint.check(self.subject).normalize(Filter.ENTITY),
+            Fingerprint.check(self.property).normalize(Filter.PROPERTY),
+            Fingerprint.check(self.value).normalize(Filter.VALUE),
+            self.snak_mask)
 
     def combine(self, *others: 'Filter') -> 'Filter':
         """Combines filter with `others`.

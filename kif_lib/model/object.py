@@ -86,7 +86,7 @@ class Object(Sequence, metaclass=ObjectMeta):
            position: Argument position.
 
         Returns:
-           `obj`.
+           Object.
         """
         if isinstance(arg, cls):
             return arg
@@ -116,7 +116,7 @@ class Object(Sequence, metaclass=ObjectMeta):
            position: Argument position.
 
         Returns:
-           `obj` or `default`.
+           Object or `default`.
         """
         if arg is None:
             arg = default
