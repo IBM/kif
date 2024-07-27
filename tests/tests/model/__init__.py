@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from .descriptor import kif_DescriptorTestCase
+from .fingerprint import kif_FingerprintTestCase
 from .kif_object import kif_ObjectTestCase
 from .set import kif_ObjectSetTestCase
 from .snak import kif_SnakTemplateTestCase, kif_SnakTestCase
@@ -65,6 +66,9 @@ __all__ = (
 
     # descriptor
     'kif_DescriptorTestCase',
+
+    # fingerprint
+    'kif_FingerprintTestCase',
 
     # set
     'kif_ObjectSetTestCase',

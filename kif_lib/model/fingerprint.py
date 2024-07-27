@@ -61,7 +61,9 @@ class Fingerprint(KIF_Object):
     ) -> Self:
         if isinstance(arg, cls):
             return arg
-        elif isinstance(arg, (list, Set, SnakSet)):
+        elif isinstance(arg, Set):
+            return cast(Self, AndFingerprint(*sorted(arg)))
+        elif isinstance(arg, (list, SnakSet)):
             return cast(Self, AndFingerprint(*arg))
         elif isinstance(arg, (tuple, Snak)):
             return cast(Self, SnakFingerprint.check(
@@ -85,10 +87,10 @@ class Fingerprint(KIF_Object):
         return OrFingerprint(self, other)
 
     def __ror__(self, other: TFingerprint) -> 'Fingerprint':
-        return OrFingerprint(self, other)
+        return OrFingerprint(other, self)
 
     def is_full(self) -> bool:
-        """Tests whether fingerprint is full.
+        """Tests whether fingerprint is full (matches anything).
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
@@ -96,7 +98,7 @@ class Fingerprint(KIF_Object):
         return isinstance(self, FullFingerprint)
 
     def is_empty(self) -> bool:
-        """Tests whether fingerprint is empty.
+        """Tests whether fingerprint is empty (matches nothing).
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
