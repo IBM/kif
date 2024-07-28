@@ -81,6 +81,28 @@ class Test(kif_FingerprintTestCase):
                 [Variable('x', Item)],
             ])
 
+    def test_datatype_mask(self) -> None:
+        assert_type(ValueFingerprint('x').datatype_mask, Filter.DatatypeMask)
+        self.assertEqual(
+            ValueFingerprint(Item('x')).datatype_mask, Filter.ITEM)
+        self.assertEqual(
+            ValueFingerprint(Property('x')).datatype_mask, Filter.PROPERTY)
+        self.assertEqual(
+            ValueFingerprint(Lexeme('x')).datatype_mask, Filter.LEXEME)
+        self.assertEqual(
+            ValueFingerprint(IRI('x')).datatype_mask, Filter.IRI)
+        self.assertEqual(
+            ValueFingerprint(Text('x')).datatype_mask, Filter.TEXT)
+        self.assertEqual(
+            ValueFingerprint(String('x')).datatype_mask, Filter.STRING)
+        self.assertEqual(
+            ValueFingerprint(ExternalId('x')).datatype_mask,
+            Filter.EXTERNAL_ID)
+        self.assertEqual(
+            ValueFingerprint(Quantity(0)).datatype_mask, Filter.QUANTITY)
+        self.assertEqual(
+            ValueFingerprint(Time('2024-07-27')).datatype_mask, Filter.TIME)
+
     def test_match(self) -> None:
         assert_type(ValueFingerprint(Item('x')).match('x'), bool)
         # item

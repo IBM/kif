@@ -97,6 +97,17 @@ class Test(kif_FingerprintTestCase):
                 [{}],
             ])
 
+    def test_datatype_mask(self) -> None:
+        assert_type(
+            ConverseSnakFingerprint(ValueSnak('x', 'y')).datatype_mask,
+            Filter.DatatypeMask)
+        self.assertEqual(
+            ConverseSnakFingerprint(Property('x')(Item('y'))).datatype_mask,
+            Filter.VALUE)
+        snaks = [Property('x')('y'), SomeValueSnak('x'), NoValueSnak('x')]
+        for fp in map(ConverseSnakFingerprint, snaks):
+            self.assertEqual(fp.datatype_mask, Filter.DatatypeMask(0))
+
     def test_match(self) -> None:
         assert_type(ConverseSnakFingerprint(
             SomeValueSnak('x')).match('x'), bool)

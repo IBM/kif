@@ -3,6 +3,7 @@
 
 from kif_lib import (
     ExternalId,
+    Filter,
     IRI,
     Item,
     Lexeme,
@@ -100,6 +101,29 @@ class Test(kif_FingerprintTestCase):
                 [Variable('x', Item)],
                 [{}],
             ])
+
+    def test_datatype_mask(self) -> None:
+        assert_type(AndFingerprint().datatype_mask, Filter.DatatypeMask)
+        self.assertEqual(
+            AndFingerprint(Item('x'), Property('x')('y')).datatype_mask,
+            Filter.ITEM & Filter.ENTITY)
+        self.assertEqual(
+            AndFingerprint(
+                Item('x'), NoValueSnak('x'),
+                ConverseSnakFingerprint(Property('x')(Item('y')))
+            ).datatype_mask,
+            Filter.ITEM & Filter.ENTITY & Filter.VALUE)
+        self.assertEqual(
+            AndFingerprint(Item('x'), FullFingerprint()).datatype_mask,
+            Filter.ITEM)
+        self.assertEqual(
+            AndFingerprint(
+                NoValueSnak('x'),
+                OrFingerprint(Item('x'), Property('x'))).datatype_mask,
+            Filter.ENTITY & (Filter.ITEM | Filter.PROPERTY))
+        self.assertEqual(
+            AndFingerprint(Item('x'), String('y')).datatype_mask,
+            Filter.ITEM & Filter.STRING)
 
     def test_match(self) -> None:
         assert_type(AndFingerprint(SomeValueSnak('x')).match('x'), bool)

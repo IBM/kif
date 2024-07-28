@@ -3,6 +3,7 @@
 
 from kif_lib import (
     ExternalId,
+    Filter,
     IRI,
     Item,
     Lexeme,
@@ -51,6 +52,10 @@ class Test(kif_FingerprintTestCase):
             FullFingerprint,
             self.assert_full_fingerprint,
             success=[((), FullFingerprint())])
+
+    def test_datatype_mask(self) -> None:
+        assert_type(FullFingerprint().datatype_mask, Filter.DatatypeMask)
+        self.assertEqual(FullFingerprint().datatype_mask, Filter.VALUE)
 
     def test_match(self) -> None:
         assert_type(FullFingerprint().match(Item('x')), bool)

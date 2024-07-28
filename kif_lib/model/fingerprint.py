@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import abc
+import functools
 from typing import TYPE_CHECKING
 
 from .. import itertools
@@ -83,6 +84,20 @@ class Fingerprint(KIF_Object):
 
     def __ror__(self, other: TFingerprint) -> 'Fingerprint':
         return OrFingerprint(other, self)
+
+    @property
+    def datatype_mask(self) -> 'Filter.DatatypeMask':
+        """The datatypes that can shallow-matched by fingerprint."""
+        return self.get_datatype_mask()
+
+    @abc.abstractmethod
+    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+        """Gets datatypes that can shallow-matched by fingerprint.
+
+        Returns:
+           Datatype mask.
+        """
+        raise NotImplementedError
 
     def is_full(self) -> bool:
         """Tests whether fingerprint is full (matches anything).
@@ -253,6 +268,13 @@ class CompoundFingerprint(Fingerprint):
 class AndFingerprint(CompoundFingerprint):
     """Conjunction of fingerprints."""
 
+    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+        from .filter import Filter
+        return functools.reduce(
+            lambda x, y: x & y,
+            map(lambda fp: fp.datatype_mask, self.args),
+            Filter.DatatypeMask.ALL)
+
     @override
     def _match(self, value: Value) -> bool:
         return all(map(lambda fp: fp._match(value), self.args))
@@ -260,6 +282,13 @@ class AndFingerprint(CompoundFingerprint):
 
 class OrFingerprint(CompoundFingerprint):
     """Disjunction of fingerprints."""
+
+    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+        from .filter import Filter
+        return functools.reduce(
+            lambda x, y: x | y,
+            map(lambda fp: fp.datatype_mask, self.args),
+            Filter.DatatypeMask(0))
 
     @override
     def _match(self, value: Value) -> bool:
@@ -292,6 +321,16 @@ class AtomicFingerprint(Fingerprint):
         else:
             return cast(Self, ValueFingerprint.check(
                 arg, function or cls.check, name, position))
+
+    @override
+    def _normalize(
+            self,
+            datatype_mask: 'Filter.DatatypeMask'
+    ) -> 'Fingerprint':
+        if bool(self.datatype_mask & datatype_mask):
+            return self
+        else:
+            return EmptyFingerprint()
 
 
 class SnakFingerprint(AtomicFingerprint):
@@ -335,39 +374,26 @@ class SnakFingerprint(AtomicFingerprint):
         return self.args[0]
 
     @override
-    def _match(self, value: Value) -> bool:
-        return isinstance(value, Entity)
+    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+        from .filter import Filter
+        return Filter.ENTITY
 
     @override
-    def _normalize(
-            self,
-            datatype_mask: 'Filter.DatatypeMask'
-    ) -> 'Fingerprint':
-        if datatype_mask.match(Entity):
-            return self
-        else:
-            return EmptyFingerprint()
+    def _match(self, value: Value) -> bool:
+        return self.datatype_mask.match(type(value))
 
 
 class ConverseSnakFingerprint(SnakFingerprint):
     """Converse snak fingerprint."""
 
     @override
-    def _match(self, value: Value) -> bool:
-        return (isinstance(self.snak, ValueSnak)
-                and isinstance(self.snak.value, Entity))
-
-    @override
-    def _normalize(
-            self,
-            datatype_mask: 'Filter.DatatypeMask'
-    ) -> 'Fingerprint':
+    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+        from .filter import Filter
         if (isinstance(self.snak, ValueSnak)
-            and isinstance(self.snak.value, Entity)
-                and datatype_mask.match(Value)):
-            return self
+                and isinstance(self.snak.value, Entity)):
+            return Filter.VALUE
         else:
-            return EmptyFingerprint()
+            return Filter.DatatypeMask(0)
 
 
 class ValueFingerprint(AtomicFingerprint):
@@ -406,6 +432,11 @@ class ValueFingerprint(AtomicFingerprint):
            Value.
         """
         return self.args[0]
+
+    @override
+    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+        from .filter import Filter
+        return Filter.DatatypeMask.check(type(self.value))
 
     @override
     def _match(self, value: Value) -> bool:
@@ -453,16 +484,6 @@ class ValueFingerprint(AtomicFingerprint):
             raise self._should_not_get_here()
         return True
 
-    @override
-    def _normalize(
-            self,
-            datatype_mask: 'Filter.DatatypeMask'
-    ) -> 'Fingerprint':
-        if datatype_mask.match(type(self.value)):
-            return self
-        else:
-            return EmptyFingerprint()
-
 
 class FullFingerprint(AtomicFingerprint):
     """The full fingerprint (matches anything)."""
@@ -487,18 +508,13 @@ class FullFingerprint(AtomicFingerprint):
         super().__init__()
 
     @override
-    def _match(self, value: Value) -> bool:
-        return True
+    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+        from .filter import Filter
+        return Filter.VALUE
 
     @override
-    def _normalize(
-            self,
-            datatype_mask: 'Filter.DatatypeMask'
-    ) -> 'Fingerprint':
-        if datatype_mask.value > 0:
-            return self
-        else:
-            return EmptyFingerprint()
+    def _match(self, value: Value) -> bool:
+        return True
 
 
 class EmptyFingerprint(AtomicFingerprint):
@@ -522,6 +538,11 @@ class EmptyFingerprint(AtomicFingerprint):
 
     def __init__(self):
         super().__init__()
+
+    @override
+    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+        from .filter import Filter
+        return Filter.DatatypeMask(0)
 
     @override
     def _match(self, value: Value) -> bool:
