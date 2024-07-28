@@ -493,8 +493,9 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                         shallow))
             if qts:
                 with self._q.group():
-                    psv, wdv = self._q.fresh_vars(2)
+                    ps, psv, wdv = self._q.fresh_vars(3)
                     self._q.triples()(
+                        (property, NS.WIKIBASE.statementProperty, ps),
                         (property, NS.WIKIBASE.statementValue, psv),
                         (wds, psv, wdv),
                         (wdv, NS.RDF.type, NS.WIKIBASE.QuantityValue))
@@ -502,11 +503,14 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                         for qt in qts:
                             assert isinstance(qt, Quantity)
                             with self._q.group():
+                                self._q.triples()(
+                                    (wds, ps, self._q.literal(qt.amount)))
                                 self._push_quantity_value(qt, dest, wdv)
             if tms:
                 with self._q.group():
-                    psv, wdv = self._q.fresh_vars(2)
+                    ps, psv, wdv = self._q.fresh_vars(3)
                     self._q.triples()(
+                        (property, NS.WIKIBASE.statementProperty, ps),
                         (property, NS.WIKIBASE.statementValue, psv),
                         (wds, psv, wdv),
                         (wdv, NS.RDF.type, NS.WIKIBASE.TimeValue))
@@ -514,6 +518,8 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                         for tm in tms:
                             assert isinstance(tm, Time)
                             with self._q.group():
+                                self._q.triples()(
+                                    (wds, ps, self._q.literal(tm.time)))
                                 self._push_time_value(tm, dest, wdv)
 
     def _push_quantity_value(
