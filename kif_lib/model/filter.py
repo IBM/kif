@@ -46,6 +46,9 @@ class Filter(KIF_Object):
        property: Fingerprint.
        value: Fingerprint.
        snak_mask: Snak mask.
+       subject_mask: Datatype mask.
+       property_mask: Datatype mask.
+       value_mask: Datatype mask.
     """
 
     class DatatypeMask(enum.Flag):
@@ -459,17 +462,29 @@ class Filter(KIF_Object):
             value: Optional[TFingerprint] = None,
             snak_mask: Optional[TSnakMask] = None,
             subject_mask: Optional[TDatatypeMask] = None,
+            property_mask: Optional[TDatatypeMask] = None,
             value_mask: Optional[TDatatypeMask] = None
     ):
-        super().__init__(subject, property, value, snak_mask)
+        super().__init__(
+            subject, property, value, snak_mask,
+            subject_mask, property_mask, value_mask)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
-        if 1 <= i <= 3:
+        if 1 <= i <= 3:         # subject, property, value
             return Fingerprint.check(arg, type(self), None, i)
-        elif i == 4:
+        elif i == 4:            # snak mask
             return self.SnakMask.check_optional(
                 arg, self.SnakMask.ALL, type(self), None, i)
+        elif i == 5:            # subject mask
+            return self.DatatypeMask.check_optional(
+                arg, self.ENTITY, type(self), None, i)
+        elif i == 6:            # property mask
+            return self.DatatypeMask.check_optional(
+                arg, self.PROPERTY, type(self), None, i)
+        elif i == 7:            # value mask
+            return self.DatatypeMask.check_optional(
+                arg, self.VALUE, type(self), None, i)
         else:
             raise self._should_not_get_here()
 
@@ -527,7 +542,46 @@ class Filter(KIF_Object):
         Returns:
            Snak mask.
         """
-        return self.SnakMask(self.args[3])
+        return self.args[3]
+
+    @at_property
+    def subject_mask(self) -> DatatypeMask:
+        """The subject datatype mask of filter."""
+        return self.get_subject_mask()
+
+    def get_subject_mask(self) -> DatatypeMask:
+        """Gets the subject datatype mask of filter.
+
+        Returns:
+           Subject datatype mask.
+        """
+        return self.args[4] & self.ENTITY
+
+    @at_property
+    def property_mask(self) -> DatatypeMask:
+        """The property datatype mask of filter."""
+        return self.get_property_mask()
+
+    def get_property_mask(self) -> DatatypeMask:
+        """Gets the property datatype mask of filter.
+
+        Returns:
+           Property datatype mask.
+        """
+        return self.args[5] & self.PROPERTY
+
+    @at_property
+    def value_mask(self) -> DatatypeMask:
+        """The value datatype mask of filter."""
+        return self.get_value_mask()
+
+    def get_value_mask(self) -> DatatypeMask:
+        """Gets the value datatype mask of filter.
+
+        Returns:
+           Value datatype mask.
+        """
+        return self.args[6] & self.VALUE
 
     def is_full(self) -> bool:
         """Tests whether filter is full.
@@ -537,11 +591,14 @@ class Filter(KIF_Object):
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
-        return (
-            Fingerprint.check(self.subject).is_full()
-            and Fingerprint.check(self.property).is_full()
-            and Fingerprint.check(self.value).is_full()
-            and self.snak_mask is self.SnakMask.ALL)
+        f = self.normalize()
+        return (f.snak_mask == self.SnakMask.ALL
+                and f.subject.is_full()
+                and f.subject_mask == self.ENTITY
+                and f.property.is_full()
+                and f.property_mask == self.PROPERTY
+                and f.value.is_full()
+                and f.value_mask == self.VALUE)
 
     def is_nonfull(self) -> bool:
         """Tests whether filter is non-full.
@@ -559,17 +616,10 @@ class Filter(KIF_Object):
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
-        if self.snak_mask.value == 0:
-            return True
-        if Fingerprint.check(self.subject).is_empty():
-            return True
-        if Fingerprint.check(self.property).is_empty():
-            return True
-        fp = Fingerprint.check(self.value)
-        if not fp.is_empty() and not fp.is_full():
-            if not (self.snak_mask & self.VALUE_SNAK):
-                return True
-        return False
+        f = self.normalize()
+        return (f.snak_mask.value == 0
+                or f.subject_mask.value == 0
+                or f.property_mask.value == 0)
 
     def is_nonempty(self) -> bool:
         """Tests whether filter is non-empty.
@@ -614,11 +664,18 @@ class Filter(KIF_Object):
         Returns:
            Filter.
         """
+        subject = self.subject.normalize(Filter.ENTITY)
+        subject_mask = self.subject_mask & subject.datatype_mask
+        property = self.property.normalize(Filter.PROPERTY)
+        property_mask = self.property_mask & property.datatype_mask
+        value = self.value.normalize(self.VALUE)
+        value_mask = self.value_mask & value.datatype_mask
+        snak_mask = self.snak_mask
+        if 0 < value_mask.value < self.VALUE.value:
+            snak_mask &= self.VALUE_SNAK
         return Filter(
-            Fingerprint.check(self.subject).normalize(Filter.ENTITY),
-            Fingerprint.check(self.property).normalize(Filter.PROPERTY),
-            Fingerprint.check(self.value).normalize(Filter.VALUE),
-            self.snak_mask)
+            subject, property, value, snak_mask,
+            subject_mask, property_mask, value_mask)
 
     def combine(self, *others: 'Filter') -> 'Filter':
         """Combines filter with `others`.
@@ -635,10 +692,13 @@ class Filter(KIF_Object):
     def _combine(cls, f1: 'Filter', f2: 'Filter'):
         f2 = Filter.check(f2, cls.combine)
         return f1.__class__(
-            Fingerprint.check(f1.subject) & Fingerprint.check(f2.subject),
-            Fingerprint.check(f1.property) & Fingerprint.check(f2.property),
-            Fingerprint.check(f1.value) & Fingerprint.check(f2.value),
-            f1.snak_mask & f2.snak_mask).normalize()
+            f1.subject & f2.subject,
+            f1.property & f2.property,
+            f1.value & f2.value,
+            f1.snak_mask & f2.snak_mask,
+            f1.subject_mask & f2.subject_mask,
+            f1.property_mask & f2.property_mask,
+            f1.value_mask & f2.value_mask).normalize()
 
     def _unpack_legacy(
             self

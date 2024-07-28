@@ -106,9 +106,6 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     def _push_filter(self, filter: Filter):
         if filter.is_empty():
             return              # nothing to do
-        assert isinstance(filter.subject, Fingerprint)
-        assert isinstance(filter.property, Fingerprint)
-        assert isinstance(filter.value, Fingerprint)
         assert isinstance(self.pattern, StatementVariable)
         subject = self._fresh_entity_variable()
         snak = self._fresh_snak_variable()
@@ -134,12 +131,15 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         # Push subject.
         with self._q.group():
             with self._q.union():
-                with self._q.group():
-                    self._bind_as_item(v_subject)
-                with self._q.group():
-                    self._bind_as_property(v_subject)
-                with self._q.group():
-                    self._bind_as_lexeme(v_subject)
+                if bool(filter.subject_mask & filter.ITEM):
+                    with self._q.group():
+                        self._bind_as_item(v_subject)
+                if bool(filter.subject_mask & filter.PROPERTY):
+                    with self._q.group():
+                        self._bind_as_property(v_subject)
+                if bool(filter.subject_mask & filter.LEXEME):
+                    with self._q.group():
+                        self._bind_as_lexeme(v_subject)
             self._push_fingerprint(
                 filter.subject, v_subject, v_property, wds)
         # Push property.
@@ -149,16 +149,13 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                 filter.property, v_property, v_property, wds)
         # Push value.
         try_value_snak = bool(
-            not filter.value.is_empty()
-            and filter.snak_mask & Filter.VALUE_SNAK
+            filter.snak_mask & Filter.VALUE_SNAK
             and self.has_flags(self.VALUE_SNAK))
         try_some_value_snak = bool(
-            (filter.value.is_empty() or filter.value.is_full())
-            and filter.snak_mask & Filter.SOME_VALUE_SNAK
+            filter.snak_mask & Filter.SOME_VALUE_SNAK
             and self.has_flags(self.SOME_VALUE_SNAK))
         try_no_value_snak = bool(
-            (filter.value.is_empty() or filter.value.is_full())
-            and filter.snak_mask & Filter.NO_VALUE_SNAK
+            filter.snak_mask & Filter.NO_VALUE_SNAK
             and self.has_flags(self.NO_VALUE_SNAK))
         assert try_value_snak or try_some_value_snak or try_no_value_snak
         with self._q.union():
@@ -175,78 +172,88 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                         (wds, ps, v_value))
                     with self._q.group():
                         with self._q.union():
-                            with self._q.group():  # item?
-                                self._q.triples()(
-                                    (v_property,
-                                     NS.WIKIBASE.propertyType,
-                                     NS.WIKIBASE.WikibaseItem))
-                                self._bind_as_item(v_value)
-                            with self._q.group():  # property?
-                                self._q.triples()(
-                                    (v_property,
-                                     NS.WIKIBASE.propertyType,
-                                     NS.WIKIBASE.WikibaseProperty))
-                                self._bind_as_property(v_value)
-                            with self._q.group():  # lexeme?
-                                self._q.triples()(
-                                    (v_property,
-                                     NS.WIKIBASE.propertyType,
-                                     NS.WIKIBASE.WikibaseLexeme))
-                                self._bind_as_lexeme(v_value)
-                            with self._q.group():  # iri?
-                                self._q.triples()(
-                                    (v_property,
-                                     NS.WIKIBASE.propertyType,
-                                     NS.WIKIBASE.Url),
-                                    (wds, ps, v_value))
-                                self._bind_as_iri(v_value)
-                            with self._q.group():  # text?
-                                self._q.triples()(
-                                    (v_property,
-                                     NS.WIKIBASE.propertyType,
-                                     NS.WIKIBASE.Monolingualtext),
-                                    (wds, ps, v_value))
-                                self._bind_as_text(v_value)
-                            with self._q.group():  # string?
-                                self._q.triples()(
-                                    (v_property,
-                                     NS.WIKIBASE.propertyType,
-                                     NS.WIKIBASE.String),
-                                    (wds, ps, v_value))
-                                self._bind_as_string(v_value)
-                            with self._q.group():  # external id?
-                                self._q.triples()(
-                                    (v_property,
-                                     NS.WIKIBASE.propertyType,
-                                     NS.WIKIBASE.ExternalId),
-                                    (wds, ps, v_value))
-                                self._bind_as_external_id(v_value)
-                            with self._q.group():  # quantity?
-                                psv, wdv = self._q.fresh_vars(2)
-                                self._q.triples()(
-                                    (v_property,
-                                     NS.WIKIBASE.propertyType,
-                                     NS.WIKIBASE.Quantity),
-                                    (v_property,
-                                     NS.WIKIBASE.statementValue,
-                                     psv),
-                                    (wds, psv, wdv),
-                                    (wdv, NS.RDF.type,
-                                     NS.WIKIBASE.QuantityValue))
-                                self._bind_as_quantity(v_value, wdv)
-                            with self._q.group():  # time?
-                                psv, wdv = self._q.fresh_vars(2)
-                                self._q.triples()(
-                                    (v_property,
-                                     NS.WIKIBASE.propertyType,
-                                     NS.WIKIBASE.Time),
-                                    (v_property,
-                                     NS.WIKIBASE.statementValue,
-                                     psv),
-                                    (wds, psv, wdv),
-                                    (wdv, NS.RDF.type,
-                                     NS.WIKIBASE.TimeValue))
-                                self._bind_as_time(v_value, wdv)
+                            if filter.value_mask & filter.ITEM:
+                                with self._q.group():  # item?
+                                    self._q.triples()(
+                                        (v_property,
+                                         NS.WIKIBASE.propertyType,
+                                         NS.WIKIBASE.WikibaseItem))
+                                    self._bind_as_item(v_value)
+                            if filter.value_mask & filter.PROPERTY:
+                                with self._q.group():  # property?
+                                    self._q.triples()(
+                                        (v_property,
+                                         NS.WIKIBASE.propertyType,
+                                         NS.WIKIBASE.WikibaseProperty))
+                                    self._bind_as_property(v_value)
+                            if filter.value_mask & filter.LEXEME:
+                                with self._q.group():  # lexeme?
+                                    self._q.triples()(
+                                        (v_property,
+                                         NS.WIKIBASE.propertyType,
+                                         NS.WIKIBASE.WikibaseLexeme))
+                                    self._bind_as_lexeme(v_value)
+                            if filter.value_mask & filter.IRI:
+                                with self._q.group():  # iri?
+                                    self._q.triples()(
+                                        (v_property,
+                                         NS.WIKIBASE.propertyType,
+                                         NS.WIKIBASE.Url),
+                                        (wds, ps, v_value))
+                                    self._bind_as_iri(v_value)
+                            if filter.value_mask & filter.TEXT:
+                                with self._q.group():  # text?
+                                    self._q.triples()(
+                                        (v_property,
+                                         NS.WIKIBASE.propertyType,
+                                         NS.WIKIBASE.Monolingualtext),
+                                        (wds, ps, v_value))
+                                    self._bind_as_text(v_value)
+                            if filter.value_mask & (
+                                    filter.STRING | filter.EXTERNAL_ID):
+                                with self._q.group():  # string?
+                                    self._q.triples()(
+                                        (v_property,
+                                         NS.WIKIBASE.propertyType,
+                                         NS.WIKIBASE.String),
+                                        (wds, ps, v_value))
+                                    self._bind_as_string(v_value)
+                            if filter.value_mask & filter.EXTERNAL_ID:
+                                with self._q.group():  # external id?
+                                    self._q.triples()(
+                                        (v_property,
+                                         NS.WIKIBASE.propertyType,
+                                         NS.WIKIBASE.ExternalId),
+                                        (wds, ps, v_value))
+                                    self._bind_as_external_id(v_value)
+                            if filter.value_mask & filter.QUANTITY:
+                                with self._q.group():  # quantity?
+                                    psv, wdv = self._q.fresh_vars(2)
+                                    self._q.triples()(
+                                        (v_property,
+                                         NS.WIKIBASE.propertyType,
+                                         NS.WIKIBASE.Quantity),
+                                        (v_property,
+                                         NS.WIKIBASE.statementValue,
+                                         psv),
+                                        (wds, psv, wdv),
+                                        (wdv, NS.RDF.type,
+                                         NS.WIKIBASE.QuantityValue))
+                                    self._bind_as_quantity(v_value, wdv)
+                            if filter.value_mask & filter.TIME:
+                                with self._q.group():  # time?
+                                    psv, wdv = self._q.fresh_vars(2)
+                                    self._q.triples()(
+                                        (v_property,
+                                         NS.WIKIBASE.propertyType,
+                                         NS.WIKIBASE.Time),
+                                        (v_property,
+                                         NS.WIKIBASE.statementValue,
+                                         psv),
+                                        (wds, psv, wdv),
+                                        (wdv, NS.RDF.type,
+                                         NS.WIKIBASE.TimeValue))
+                                    self._bind_as_time(v_value, wdv)
                         self._push_fingerprint(
                             filter.value, v_value, v_property, wds)
             if try_some_value_snak:

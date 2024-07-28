@@ -52,13 +52,13 @@ class ObjectMeta(abc.ABCMeta):
 
     @classmethod
     def _check_object_class(
-            mcs,
+            cls,
             cls_name: str,
             exception: type[Exception] = TypeError
     ) -> type['Object']:
-        if cls_name not in mcs._object_subclasses:
+        if cls_name not in cls._object_subclasses:
             raise exception(f"no such object class '{cls_name}'")
-        return mcs._object_subclasses[cls_name]
+        return cls._object_subclasses[cls_name]
 
 
 class Object(Sequence, metaclass=ObjectMeta):

@@ -284,7 +284,8 @@ class Test(kif_ObjectTestCase):
         self.assertTrue(Filter().is_full())
         self.assertTrue(Filter(None, None, None, 0).is_empty())
         self.assertFalse(Filter(None, None, None, 0).is_nonempty())
-        pat = Filter(None, None, IRI('x'), Filter.SOME_VALUE_SNAK)
+        pat = Filter(
+            None, None, IRI('x'), Filter.SOME_VALUE_SNAK)
         self.assertTrue(pat.is_empty())
         self.assertFalse(pat.is_nonempty())
         pat = Filter(None, None, IRI('x'), Filter.NO_VALUE_SNAK)
@@ -398,7 +399,7 @@ class Test(kif_ObjectTestCase):
         pat2 = Filter(None, Property('p'))
         self.assertEqual(
             pat1.combine(pat2),
-            Filter(Item('x'), Property('p')))
+            Filter(Item('x'), Property('p'), subject_mask=Filter.ITEM))
         pat1 = Filter(SnakSet(SomeValueSnak(Property('p'))))
         pat2 = Filter(SnakSet(NoValueSnak(Property('q'))))
         self.assertEqual(
@@ -411,7 +412,7 @@ class Test(kif_ObjectTestCase):
         pat2 = Filter(Item('x'))
         self.assertEqual(
             pat1.combine(pat2),
-            Filter(Item('x'), Property('p')))
+            Filter(Item('x'), Property('p'), subject_mask=Filter.ITEM))
         pat1 = Filter(None, SnakSet(SomeValueSnak(Property('p'))))
         pat2 = Filter(None, SnakSet(NoValueSnak(Property('q'))))
         self.assertEqual(
@@ -424,7 +425,10 @@ class Test(kif_ObjectTestCase):
         pat2 = Filter(Item('x'), None, None)
         self.assertEqual(
             pat1.combine(pat2),
-            Filter(Item('x'), Property('p'), IRI('x')))
+            Filter(Item('x'), Property('p'), IRI('x'),
+                   snak_mask=Filter.VALUE_SNAK,
+                   subject_mask=Filter.ITEM,
+                   value_mask=Filter.IRI))
         pat1 = Filter(
             None, None, SnakSet(SomeValueSnak(Property('p'))))
         pat2 = Filter(

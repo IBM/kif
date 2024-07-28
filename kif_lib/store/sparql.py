@@ -293,6 +293,7 @@ At line {line}, column {column}:
 
     @override
     def _count(self, filter: Filter) -> int:
+        filter = filter.normalize()
         if not filter.is_full():
             compiler = self._compile_filter(filter)
             q = compiler.query
