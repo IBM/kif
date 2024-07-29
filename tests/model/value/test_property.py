@@ -9,12 +9,14 @@ from kif_lib import (
     IRI,
     Item,
     Lexeme,
+    NoValueSnak,
     Properties,
     Property,
     PropertyDatatype,
     PropertyTemplate,
     PropertyVariable,
     Quantity,
+    SomeValueSnak,
     Statement,
     String,
     Text,
@@ -158,6 +160,22 @@ class Test(kif_EntityTestCase):
             self.assert_statement(
                 cast(Statement, PropertyTemplate('p')(e, v)),
                 e, ValueSnak(Property('p'), v))
+
+    def test_no_value(self) -> None:
+        assert_type(Property('x').no_value(), NoValueSnak)
+        self.assert_no_value_snak(Property('x').no_value(), Property('x'))
+        self.assert_no_value_snak(
+            Property('x', Item).no_value(), Property('x', Item))
+        self.assert_no_value_snak(
+            Property('x', Quantity).no_value(), Property('x', Quantity))
+
+    def test_some_value(self) -> None:
+        assert_type(Property('x').some_value(), SomeValueSnak)
+        self.assert_some_value_snak(Property('x').some_value(), Property('x'))
+        self.assert_some_value_snak(
+            Property('x', Item).some_value(), Property('x', Item))
+        self.assert_some_value_snak(
+            Property('x', Quantity).some_value(), Property('x', Quantity))
 
     def test_Properties(self) -> None:
         assert_type(Properties('a', 'b', 'c'), Iterable[Property])

@@ -5,15 +5,19 @@ import datetime
 
 from kif_lib import (
     Datatype,
+    DatatypeVariable,
     Entity,
     ExternalId,
     IRI,
+    IRI_Variable,
     Item,
     KIF_Object,
     Lexeme,
+    NoValueSnakTemplate,
     Property,
     PropertyTemplate,
     Quantity,
+    SomeValueSnakTemplate,
     Statement,
     StatementTemplate,
     String,
@@ -166,6 +170,32 @@ class Test(kif_EntityTemplateTestCase):
             self.assert_statement(
                 cast(Statement, PropertyTemplate('p')(e, v)),
                 e, ValueSnak(Property('p'), v))
+
+    def test_no_value(self) -> None:
+        x = IRI_Variable('x')
+        y = DatatypeVariable('y')
+        assert_type(PropertyTemplate(x).no_value(), NoValueSnakTemplate)
+        self.assert_no_value_snak_template(
+            PropertyTemplate(x).no_value(), PropertyTemplate(x))
+        self.assert_no_value_snak_template(
+            Property(x, Item).no_value(), Property(x, Item))
+        self.assert_no_value_snak_template(
+            Property('z', y).no_value(), Property('z', y))
+        self.assert_no_value_snak_template(
+            Property(x, y).no_value(), Property(x, y))
+
+    def test_some_value(self) -> None:
+        x = IRI_Variable('x')
+        y = DatatypeVariable('y')
+        assert_type(PropertyTemplate(x).some_value(), SomeValueSnakTemplate)
+        self.assert_some_value_snak_template(
+            PropertyTemplate(x).some_value(), PropertyTemplate(x))
+        self.assert_some_value_snak_template(
+            Property(x, Item).some_value(), Property(x, Item))
+        self.assert_some_value_snak_template(
+            Property('z', y).some_value(), Property('z', y))
+        self.assert_some_value_snak_template(
+            Property(x, y).some_value(), Property(x, y))
 
 
 if __name__ == '__main__':

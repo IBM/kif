@@ -22,7 +22,14 @@ from .iri import IRI_Template, T_IRI, VT_IRI
 from .value import VTValue
 
 if TYPE_CHECKING:               # pragma: no cover
-    from ..snak import ValueSnak, ValueSnakTemplate
+    from ..snak import (
+        NoValueSnak,
+        NoValueSnakTemplate,
+        SomeValueSnak,
+        SomeValueSnakTemplate,
+        ValueSnak,
+        ValueSnakTemplate,
+    )
     from ..statement import Statement, StatementTemplate
 
 TProperty: TypeAlias = Union['Property', T_IRI]
@@ -102,6 +109,24 @@ class PropertyTemplate(EntityTemplate):
         """
         return self.get(1, default)
 
+    def no_value(self) -> 'NoValueSnakTemplate':
+        """Constructs a no-value snak template from property template.
+
+        Returns:
+           No-value snak template.
+        """
+        from ..snak import NoValueSnakTemplate
+        return NoValueSnakTemplate(self)
+
+    def some_value(self) -> 'SomeValueSnakTemplate':
+        """Constructs a some-value snak template from property template.
+
+        Returns:
+           Some-value snak template.
+        """
+        from ..snak import SomeValueSnakTemplate
+        return SomeValueSnakTemplate(self)
+
 
 class PropertyVariable(EntityVariable):
     """Property variable.
@@ -128,6 +153,24 @@ class PropertyVariable(EntityVariable):
         else:
             from ..snak import ValueSnakTemplate
             return ValueSnakTemplate(self, v1)
+
+    def no_value(self) -> 'NoValueSnakTemplate':
+        """Constructs a no-value snak template from property variable.
+
+        Returns:
+           No-value snak template.
+        """
+        from ..snak import NoValueSnakTemplate
+        return NoValueSnakTemplate(self)
+
+    def some_value(self) -> 'SomeValueSnakTemplate':
+        """Constructs a some-value snak template from property variable.
+
+        Returns:
+           Some-value snak template.
+        """
+        from ..snak import SomeValueSnakTemplate
+        return SomeValueSnakTemplate(self)
 
 
 class PropertyDatatype(Datatype):
@@ -208,6 +251,24 @@ class Property(
            Datatype.
         """
         return self.get(1, default)
+
+    def no_value(self) -> 'NoValueSnak':
+        """Constructs a no-value snak from property.
+
+        Returns:
+           No-value snak.
+        """
+        from ..snak import NoValueSnak
+        return NoValueSnak(self)
+
+    def some_value(self) -> 'SomeValueSnak':
+        """Constructs a some-value snak from property.
+
+        Returns:
+           Some-value snak.
+        """
+        from ..snak import SomeValueSnak
+        return SomeValueSnak(self)
 
 
 def Properties(

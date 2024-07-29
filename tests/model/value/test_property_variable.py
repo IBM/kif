@@ -10,10 +10,12 @@ from kif_lib import (
     Item,
     KIF_Object,
     Lexeme,
+    NoValueSnakTemplate,
     Property,
     PropertyTemplate,
     PropertyVariable,
     Quantity,
+    SomeValueSnakTemplate,
     StatementTemplate,
     String,
     Text,
@@ -126,6 +128,16 @@ class Test(kif_VariableTestCase):
             self.assert_statement_template(
                 PropertyVariable('p')(e, v),
                 e, ValueSnak(PropertyVariable('p'), v))
+
+    def test_no_value(self) -> None:
+        assert_type(PropertyVariable('x').no_value(), NoValueSnakTemplate)
+        self.assert_no_value_snak_template(
+            PropertyVariable('x').no_value(), PropertyVariable('x'))
+
+    def test_some_value(self) -> None:
+        assert_type(PropertyVariable('x').some_value(), SomeValueSnakTemplate)
+        self.assert_some_value_snak_template(
+            PropertyVariable('x').some_value(), PropertyVariable('x'))
 
 
 if __name__ == '__main__':
