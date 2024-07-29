@@ -47,6 +47,7 @@ from ..typing import (
     Any,
     Callable,
     cast,
+    ClassVar,
     Collection,
     Hashable,
     Iterable,
@@ -72,7 +73,10 @@ TTrm = SPARQL_Builder.TTrm
 
 
 class SPARQL_Store(
-        Store, store_name='sparql', store_description='SPARQL endpoint'):
+        Store,
+        store_name='sparql',
+        store_description='SPARQL endpoint'
+):
     """SPARQL store.
 
     Parameters:
@@ -345,12 +349,19 @@ At line {line}, column {column}:
                 break           # done
             offset += self.page_size
 
+    #: Flags to be passed to filter compiler.
+    _compile_filter_flags: ClassVar[SPARQL_FilterCompiler.Flags] = (
+        SPARQL_FilterCompiler.default_flags)
+
     def _compile_filter(
             self,
             filter: Filter
     ) -> SPARQL_FilterCompiler:
-        compiler = SPARQL_FilterCompiler(filter)
-        compiler.set_flags(compiler.DEBUG)
+        compiler = SPARQL_FilterCompiler(filter, self._compile_filter_flags)
+        if self.has_flags(self.DEBUG):
+            compiler.set_flags(compiler.DEBUG)
+        else:
+            compiler.unset_flags(compiler.DEBUG)
         if self.has_flags(self.BEST_RANK):
             compiler.set_flags(compiler.BEST_RANK)
         else:

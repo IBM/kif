@@ -7,6 +7,7 @@ from .mapper import SPARQL_MapperStore
 from .mixer import MixerStore
 from .rdf import RDF_Store
 from .sparql import SPARQL_Store
+from .wikidata import WikidataStore
 
 __all__ = (
     'EmptyStore',
@@ -15,4 +16,5 @@ __all__ = (
     'SPARQL_MapperStore',
     'SPARQL_Store',
     'Store',
+    'WikidataStore',
 )

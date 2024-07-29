@@ -245,6 +245,9 @@ class Store(Set):
         #: Whether to enable cache.
         CACHE = auto()
 
+        #: Whether to enable debugging.
+        DEBUG = auto()
+
         #: Whether to remove duplicates.
         DISTINCT = auto()
 
@@ -272,6 +275,7 @@ class Store(Set):
         #: All flags.
         ALL = (
             CACHE
+            | DEBUG
             | DISTINCT
             | ORDER
             | BEST_RANK
@@ -283,6 +287,9 @@ class Store(Set):
 
     #: Whether to enable cache.
     CACHE = Flags.CACHE
+
+    #: Whether to enable debugging.
+    DEBUG = Flags.DEBUG
 
     #: Whether to remove duplicates.
     DISTINCT = Flags.DISTINCT
