@@ -10,7 +10,7 @@ class TestStoreABC_Flags(kif_EmptyStoreTestCase):
 
     def test_flags_default(self):
         kb = self.new_Store()
-        self.assertEqual(kb.default_flags, kb.ALL & ~kb.ORDER)
+        self.assertEqual(kb.default_flags, kb.ALL & ~(kb.DEBUG | kb.ORDER))
 
     def test_flags_init(self):
         kb = self.new_Store()

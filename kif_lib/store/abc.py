@@ -319,7 +319,7 @@ class Store(Set):
     ALL = Flags.ALL
 
     #: The default flags.
-    default_flags: Final['Flags'] = Flags.ALL & ~Flags.ORDER
+    default_flags: Final['Flags'] = Flags.ALL & ~(Flags.DEBUG | Flags.ORDER)
 
     _flags: 'Flags'
 

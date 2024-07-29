@@ -258,29 +258,55 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                             filter.value, v_value, v_property, wds)
             if try_some_value_snak:
                 with self._q.group():
-                    some_prop = self._fresh_property_variable()
-                    self._bind_as_property(self._as_qvar(some_prop))
+                    prop_some_datatype = self._fresh_datatype_variable()
+                    prop_some_datatype_iri = self._fresh_iri_variable()
+                    self._theta_add(
+                        prop_some_datatype_iri,
+                        self._as_qvar(prop_some_datatype_iri))
+                    self._theta_add(
+                        prop_some_datatype, prop_some_datatype_iri)
+                    prop_some = self._fresh_property_variable()
+                    prop_some_iri = self._fresh_iri_variable()
+                    self._theta_add(
+                        prop_some_iri, self._as_qvar(prop_some_iri))
+                    self._theta_add(
+                        prop_some, Property(prop_some_iri, prop_some_datatype))
                     self._theta_add(
                         SomeValueSnakVariable(snak.name),
-                        SomeValueSnak(some_prop))
+                        SomeValueSnak(prop_some))
                     ps, v_some = self._q.fresh_vars(2)
                     self._q.triples()(
                         (v_property, NS.WIKIBASE.statementProperty, ps),
-                        (self._as_qvar(some_prop),
-                         NS.WIKIBASE.statementProperty, ps),
+                        (v_property, NS.WIKIBASE.propertyType,
+                         self._as_qvar(prop_some_datatype_iri)),
                         (wds, ps, v_some))
+                    self._q.bind(v_property, self._as_qvar(prop_some_iri))
                     self._push_some_value_filter(v_some)
             if try_no_value_snak:
                 with self._q.group():
-                    wdno = self._q.fresh_var()
-                    no_prop = self._fresh_property_variable()
-                    self._bind_as_property(self._as_qvar(no_prop))
+                    prop_no_datatype = self._fresh_datatype_variable()
+                    prop_no_datatype_iri = self._fresh_iri_variable()
                     self._theta_add(
-                        NoValueSnakVariable(snak.name), NoValueSnak(no_prop))
+                        prop_no_datatype_iri,
+                        self._as_qvar(prop_no_datatype_iri))
+                    self._theta_add(
+                        prop_no_datatype, prop_no_datatype_iri)
+                    prop_no = self._fresh_property_variable()
+                    prop_no_iri = self._fresh_iri_variable()
+                    self._theta_add(
+                        prop_no_iri, self._as_qvar(prop_no_iri))
+                    self._theta_add(
+                        prop_no, Property(prop_no_iri, prop_no_datatype))
+                    self._theta_add(
+                        NoValueSnakVariable(snak.name),
+                        NoValueSnak(prop_no))
+                    wdno = self._q.fresh_var()
                     self._q.triples()(
                         (v_property, NS.WIKIBASE.novalue, wdno),
-                        (self._as_qvar(no_prop), NS.WIKIBASE.novalue, wdno),
+                        (v_property, NS.WIKIBASE.propertyType,
+                         self._as_qvar(prop_no_datatype_iri)),
                         (wds, NS.RDF.type, wdno))
+                    self._q.bind(v_property, self._as_qvar(prop_no_iri))
 
     def _bind_as_item(self, dest: Query.Variable):
         iri = self._fresh_iri_variable()
