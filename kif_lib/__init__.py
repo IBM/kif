@@ -105,7 +105,7 @@ from .model import (
 )
 from .store import Store
 
-__version__ = '0.3'
+__version__ = '0.4'
 
 __all__ = (
     'AnnotationRecord',
