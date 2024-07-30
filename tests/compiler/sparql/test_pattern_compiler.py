@@ -18,7 +18,7 @@ from kif_lib.model import (
     PropertyTemplate,
     StringVariable,
 )
-from kif_lib.namespace import ONTOLEX, RDF, SCHEMA, WIKIBASE
+from kif_lib.namespace import ONTOLEX, RDF, WIKIBASE
 
 from ...tests import kif_TestCase
 
