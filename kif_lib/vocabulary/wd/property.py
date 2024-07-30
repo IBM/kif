@@ -30,6 +30,7 @@ download_link = P(4945)
 duration = P(2047)
 elevation_above_sea_level = P(2044)
 end_time = P(582)
+equivalent_property = P(1628)
 exact_match = P(2888)
 family_name = P(734)
 father = P(22)
@@ -132,6 +133,7 @@ __all__ = (
     'elevation_above_sea_level',
     'elevation_above_sea_level',
     'end_time',
+    'equivalent_property',
     'exact_match',
     'family_name',
     'father',
