@@ -265,10 +265,10 @@ class TestCodecMarkdown(kif_TestCase):
     def test_reference_record_to_markdown(self):
         ref = ReferenceRecord()
         self.assert_to_markdown(ref, '(**ReferenceRecord**)')
-        ref = ReferenceRecord(ValueSnak(wd.mass, wd.benzene))
+        ref = ReferenceRecord(ValueSnak(wd.part_of, wd.benzene))
         self.assert_to_markdown(ref, '''\
 (**ReferenceRecord**
-- (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Item** [benzene](http://www.wikidata.org/entity/Q2270))))''')  # noqa: E501
+- (**ValueSnak** (**Property** [part of](http://www.wikidata.org/entity/P361)) (**Item** [benzene](http://www.wikidata.org/entity/Q2270))))''')  # noqa: E501
         ref = ReferenceRecord(
             cast(ValueSnak, wd.canonical_SMILES(String('ABC'))),
             cast(ValueSnak, wd.country(wd.Brazil)),
@@ -331,10 +331,10 @@ class TestCodecMarkdown(kif_TestCase):
     def test_snak_set_to_markdown(self):
         s = SnakSet()
         self.assert_to_markdown(s, '(**SnakSet**)')
-        s = SnakSet(cast(ValueSnak, wd.mass(wd.benzene)))
+        s = SnakSet(cast(ValueSnak, wd.part_of(wd.benzene)))
         self.assert_to_markdown(s, '''\
 (**SnakSet**
-- (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Item** [benzene](http://www.wikidata.org/entity/Q2270))))''')  # noqa: E501
+- (**ValueSnak** (**Property** [part of](http://www.wikidata.org/entity/P361)) (**Item** [benzene](http://www.wikidata.org/entity/Q2270))))''')  # noqa: E501
 
 
 if __name__ == '__main__':

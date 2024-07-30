@@ -18,6 +18,7 @@ from ..model import (
     DeepDataValue,
     Descriptor,
     Entity,
+    ExternalId,
     Filter,
     IRI,
     Item,
@@ -628,12 +629,30 @@ At line {line}, column {column}:
                     it2 = iter(())
                 seen = set()
                 for (stmt, wds, i) in itertools.chain(it1, it2):
+                    ###
+                    # FIXME: Compatibility with legacy queries.
+                    ###
                     seen.add(i)
-                    if stmt != reduced_batch[i]:
+                    stmti = reduced_batch[i]
+                    saved_stmti = stmti
+                    if isinstance(stmt.snak, (SomeValueSnak, NoValueSnak)):
+                        stmti = stmti.replace(stmti.KEEP, type(stmti.snak)(
+                            stmti.snak.property.replace(stmti.KEEP, None)))
+                    elif (isinstance(stmt.snak, ValueSnak)
+                          and isinstance(stmti.snak, ValueSnak)
+                          and isinstance(stmt.snak.value, String)
+                          and isinstance(stmti.snak.value, ExternalId)):
+                        stmti = stmti.replace(
+                            stmti.KEEP,
+                            stmti.snak.property.replace(stmti.KEEP, None)(
+                                stmti.snak.value.content))
+                    else:
+                        self._should_not_get_here()
+                    if stmt != stmti:
                         continue  # nothing to do
                     if stmt not in stmt2wdss:
-                        stmt2wdss[stmt] = set()
-                    stmt2wdss[stmt].add(wds)
+                        stmt2wdss[saved_stmti] = set()
+                    stmt2wdss[saved_stmti].add(wds)
                 unseen = set(range(len(reduced_batch))) - seen
                 if unseen and retries > 0:
                     f = functools.partial(lambda t, i: t[i], reduced_batch)
@@ -764,7 +783,9 @@ At line {line}, column {column}:
                     if wds not in wds2quals:
                         wds2quals[wds] = set()
                     if (isinstance(snak, NoValueSnak)
-                            and snak == wds2stmt[wds].snak):
+                        and isinstance(wds2stmt[wds].snak, NoValueSnak)
+                            and snak.property.iri == wds2stmt[
+                                wds].snak.property.iri):
                         ###
                         # IMPORTANT: The representation of NoValueSnak's
                         # (via rdf:type) is ambiguous.  To be considered a
@@ -968,36 +989,39 @@ At line {line}, column {column}:
             LOG.debug(
                 '%s(): nothing to select:\n%s',
                 self._filter.__qualname__, q.select())
-        desc: dict[Union[Item, Property], dict[str, Any]] = {}
+        desc: dict[Union[IRI, Property], dict[str, Any]] = {}
+        ###
+        # FIXME: Compatibility with legacy queries.
+        ###
         for entity, label, alias, description, datatype in it:
-            if entity not in desc:
-                desc[entity] = {
+            if entity.iri not in desc:
+                desc[entity.iri] = {
                     'label': None,
                     'aliases': [],
                     'description': None,
                     'datatype': None
                 }
             if label is not None:
-                desc[entity]['label'] = label
+                desc[entity.iri]['label'] = label
             if alias is not None:
-                desc[entity]['aliases'].append(alias)
+                desc[entity.iri]['aliases'].append(alias)
             if description is not None:
-                desc[entity]['description'] = description
+                desc[entity.iri]['description'] = description
             if datatype is not None:
-                desc[entity]['datatype'] = datatype
+                desc[entity.iri]['datatype'] = datatype
         for entity in entities:
-            if entity in desc:
+            if entity.iri in desc:
                 if isinstance(entity, Item) and cls is Item:
                     yield (cast(Item, entity), ItemDescriptor(
-                        desc[entity].get('label'),
-                        desc[entity].get('aliases'),
-                        desc[entity].get('description')))
+                        desc[entity.iri].get('label'),
+                        desc[entity.iri].get('aliases'),
+                        desc[entity.iri].get('description')))
                 elif isinstance(entity, Property) and cls is Property:
                     yield (cast(Property, entity), PropertyDescriptor(
-                        desc[entity].get('label'),
-                        desc[entity].get('aliases'),
-                        desc[entity].get('description'),
-                        desc[entity].get('datatype')))
+                        desc[entity.iri].get('label'),
+                        desc[entity.iri].get('aliases'),
+                        desc[entity.iri].get('description'),
+                        desc[entity.iri].get('datatype')))
                 else:
                     raise self._should_not_get_here()
             else:

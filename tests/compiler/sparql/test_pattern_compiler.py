@@ -53,13 +53,13 @@ class Test(kif_TestCase):
     def test_compile_item_template(self):
         self.assert_compile(ItemTemplate(IRI_Variable('x')), f'''
 SELECT * WHERE {{
-  ?x <{SCHEMA.version}> _: .
+  ?x <{WIKIBASE.sitelinks}> _: .
 }}
 ''')
         self.assert_compile(
             ItemTemplate(IRI_Template(StringVariable('x'))), f'''
 SELECT * WHERE {{
-  ?x <{SCHEMA.version}> _: .
+  ?x <{WIKIBASE.sitelinks}> _: .
   BIND (STR(?x) AS ?_v0)
 }}
 ''')
@@ -77,7 +77,7 @@ SELECT * WHERE {{
     def test_compile_item(self):
         self.assert_compile(Item('x'), f'''
 SELECT * WHERE {{
-  <x> <{SCHEMA.version}> _: .
+  <x> <{WIKIBASE.sitelinks}> _: .
 }}
 ''')
 

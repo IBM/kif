@@ -204,11 +204,9 @@ class ValueSnak(
             prop = prop.replace(prop.iri, value.datatype)
             super()._set_args((prop, value))
         elif prop.range != value.datatype:
-            src = prop.range.value_class.__qualname__
-            tgt = value.datatype.value_class.__qualname__
-            raise self._arg_error(
-                f"cannot apply {src} property to {tgt}",
-                type(self), 'value', 2, ValueError)
+            value = prop.range.value_class.check(
+                value, type(self), 'value', 2)
+            super()._set_args((prop, value))
         else:
             super()._set_args(args)
 

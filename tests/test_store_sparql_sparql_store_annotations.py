@@ -1,7 +1,14 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import AnnotationRecord, IRI, Normal, Quantity, ReferenceRecord
+from kif_lib import (
+    AnnotationRecord,
+    IRI,
+    KIF_Object,
+    Normal,
+    Quantity,
+    ReferenceRecord,
+)
 from kif_lib.vocabulary import wd
 
 from .tests import kif_WikidataSPARQL_StoreTestCase
@@ -29,7 +36,8 @@ class TestStoreSPARQL_SPARQL_StoreAnnotations(
                 [wd.temperature(Quantity(20, wd.degree_Celsius, 19, 21)),
                  wd.phase_of_matter(wd.liquid)],
                 [ReferenceRecord(
-                    wd.HSDB_ID('35#section=TSCA-Test-Submissions'),
+                    wd.HSDB_ID.replace(KIF_Object.KEEP, None)(
+                        '35#section=TSCA-Test-Submissions'),
                     wd.stated_in(wd.Hazardous_Substances_Data_Bank))],
                 Normal))
 

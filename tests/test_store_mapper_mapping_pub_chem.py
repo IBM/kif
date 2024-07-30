@@ -4,6 +4,7 @@
 from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
+    KIF_Object,
     Quantity,
     Statement,
     String,
@@ -49,7 +50,7 @@ class TestStoreMapperMappingPubChem(kif_PubChemSPARQL_StoreTestCase):
                 Text('Improved method for quantifying DNA'
                      ' in a biological sample')),
             # string
-            wd.patent_number(
+            wd.patent_number.replace(KIF_Object.KEEP, None)(
                 wd.Q('_PUBCHEM_PATENT_AP-0102072-A0'),
                 String('AP-0102072-A0')),
             # quantity

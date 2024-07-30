@@ -34,6 +34,7 @@ from typing_extensions import (
     Self,
     TextIO,
     TypeAlias,
+    TypedDict,
     TypeVar,
     Union,
 )
@@ -68,6 +69,7 @@ __all__ = (
     'TextIO',
     'TracebackType',
     'TypeAlias',
+    'TypedDict',
     'TypeVar',
     'Union',
 )

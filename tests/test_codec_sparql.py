@@ -1,8 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import DecoderError, Filter, Quantity, Value
-from kif_lib.model import AndFingerprint, ValueFingerprint
+from kif_lib import DecoderError, Filter, Quantity, String, Value
+from kif_lib.model import AndFingerprint, KIF_Object, ValueFingerprint
 from kif_lib.vocabulary import wd
 
 from .tests import kif_TestCase
@@ -27,12 +27,14 @@ class TestCodecSPARQL(kif_TestCase):
         # subject: property
         q = 'select * where {wd:P31 ?p ?o}'
         self.assert_filter(
-            Filter.from_sparql(q), ValueFingerprint(wd.instance_of))
+            Filter.from_sparql(q), ValueFingerprint(
+                wd.instance_of.replace(KIF_Object.KEEP, None)))
         # property: property
         q = 'select * where {?s wd:P31 ?o}'
         self.assert_filter(
             Filter.from_sparql(q),
-            None, ValueFingerprint(wd.instance_of))
+            None, ValueFingerprint(
+                wd.instance_of.replace(KIF_Object.KEEP, None)))
         # value: item
         q = 'select * where {?s ?p wd:Q2270}'
         self.assert_filter(
@@ -48,7 +50,7 @@ SELECT ?value WHERE {
         self.assert_filter(
             Filter.from_sparql(q),
             ValueFingerprint(wd.benzene),
-            ValueFingerprint(wd.mass))
+            ValueFingerprint(wd.mass.replace(KIF_Object.KEEP, None)))
         # Give me the LD50 of benzene.
         q = '''
 SELECT ?value WHERE {
@@ -57,7 +59,8 @@ SELECT ?value WHERE {
         self.assert_filter(
             Filter.from_sparql(q),
             ValueFingerprint(wd.benzene),
-            ValueFingerprint(wd.median_lethal_dose))
+            ValueFingerprint(
+                wd.median_lethal_dose.replace(KIF_Object.KEEP, None)))
         # What is the solubility of benzene?
         q = '''
 SELECT ?value WHERE {
@@ -66,7 +69,7 @@ SELECT ?value WHERE {
         self.assert_filter(
             Filter.from_sparql(q),
             ValueFingerprint(wd.benzene),
-            ValueFingerprint(wd.solubility))
+            ValueFingerprint(wd.solubility.replace(KIF_Object.KEEP, None)))
         # Give me the mass of the compound with
         # InChIKey "UHOVQNZJYSORNB-UHFFFAOYSA-N".
         q = '''
@@ -77,8 +80,10 @@ SELECT ?mass WHERE {
 } LIMIT 50'''
         self.assert_filter(
             Filter.from_sparql(q),
-            AndFingerprint(wd.InChIKey('UHOVQNZJYSORNB-UHFFFAOYSA-N')),
-            ValueFingerprint(wd.mass))
+            AndFingerprint(
+                wd.InChIKey.replace(KIF_Object.KEEP, String)(
+                    'UHOVQNZJYSORNB-UHFFFAOYSA-N')),
+            ValueFingerprint(wd.mass.replace(KIF_Object.KEEP, None)))
         q = '''
 SELECT ?value WHERE {
 ?compound wdt:P234 "InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H" .
@@ -89,9 +94,10 @@ SELECT ?value WHERE {
         self.assert_filter(
             Filter.from_sparql(q),
             AndFingerprint(
-                wd.InChI('InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H'),
+                wd.InChI.replace(KIF_Object.KEEP, String)(
+                    'InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H'),
                 wd.instance_of(wd.chemical_compound)),
-            ValueFingerprint(wd.mass))
+            ValueFingerprint(wd.mass.replace(KIF_Object.KEEP, None)))
         # What are the chemical entity types with solubility 0.07?
         q = '''
 SELECT ?entity_type WHERE {
@@ -112,7 +118,8 @@ SELECT ?report WHERE {
 '''
         self.assert_filter(
             Filter.from_sparql(q),
-            None, ValueFingerprint(wd.part_of), ValueFingerprint(wd.benzene))
+            None, ValueFingerprint(wd.part_of.replace(
+                KIF_Object.KEEP, None)), ValueFingerprint(wd.benzene))
 
 
 if __name__ == '__main__':

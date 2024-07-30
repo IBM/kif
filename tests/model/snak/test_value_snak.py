@@ -78,12 +78,19 @@ class Test(kif_SnakTestCase):
                  ValueSnak('x', Quantity(0))),
                 ([String('x'), Time('2024-06-30')],
                  ValueSnak('x', Time('2024-06-30'))),
+                ([Property('x', ExternalId), String('y')],
+                 ValueSnak('x', ExternalId('y'))),
+                ([Property('x', Property), IRI('x')],
+                 ValueSnak('x', Property('x'))),
+                ([Property('x', String), ExternalId('y')],
+                 ValueSnak(Property('x', String), ExternalId('y'))),
             ],
             failure=[
                 [0, 'x'],
                 [0, 0],
                 [Item('x'), 'x'],
                 [NoValueSnak('x'), NoValueSnak('y')],
+                [Property('x', IRI), Item('x')],
                 [Quantity(0), Property('x')],
                 [SomeValueSnak('x'), SomeValueSnak('y')],
                 [String(Variable('x')), Property('y')],
@@ -91,13 +98,7 @@ class Test(kif_SnakTestCase):
                 [ValueSnak('x', 'x'), 'y'],
                 [Variable('x', Item), Variable('y')],
                 [{}, 'y'],
-            ],
-            failure_value_error=[
-                [Property('x', ExternalId), String('y')],
-                [Property('x', IRI), Item('x')],
                 [Property('x', Item), Quantity(0)],
-                [Property('x', Property), IRI('x')],
-                [Property('x', String), ExternalId('y')],
             ])
 
 

@@ -16,7 +16,6 @@ from kif_lib import (
     SomeValueSnak,
     Statement,
     Store,
-    String,
     Text,
     Time,
 )
@@ -475,7 +474,7 @@ class TestStoreRDF(kif_StoreTestCase):
                       [ReferenceRecord(
                           wd.stated_in(wd.PubChem),
                           wd.language_of_work_or_name(wd.English),
-                          wd.PubChem_CID('241'),
+                          wd.PubChem_CID.replace(KIF_Object.KEEP, None)('241'),
                           wd.title(Text('benzene', 'en')),
                           wd.retrieved(Time(
                               '2016-10-19', 11, 0,
@@ -493,15 +492,17 @@ class TestStoreRDF(kif_StoreTestCase):
                            20, wd.degree_Celsius, 19, 21))],
                       [ReferenceRecord(
                           wd.stated_in(wd.Hazardous_Substances_Data_Bank),
-                          wd.HSDB_ID('35#section=TSCA-Test-Submissions'))],
+                          wd.HSDB_ID.replace(KIF_Object.KEEP, None)(
+                              '35#section=TSCA-Test-Submissions'))],
                       Normal))),
              # 3
              (Statement(wd.Adam, NoValueSnak(wd.date_of_birth)),
               AnnotationRecordSet(
                   AnnotationRecord(
                       [],
-                      [ReferenceRecord(wd.reference_URL(String(
-                          'http://islamqa.info/ar/20907')))],
+                      [ReferenceRecord(
+                          wd.reference_URL.replace(KIF_Object.KEEP, None)(
+                              'http://islamqa.info/ar/20907'))],
                       Preferred))),
              # 4
              (wd.date_of_birth(wd.Adam, Time(
@@ -543,7 +544,7 @@ class TestStoreRDF(kif_StoreTestCase):
                       [ReferenceRecord(
                           wd.stated_in(wd.PubChem),
                           wd.language_of_work_or_name(wd.English),
-                          wd.PubChem_CID('241'),
+                          wd.PubChem_CID.replace(KIF_Object.KEEP, None)('241'),
                           wd.title(Text('benzene', 'en')),
                           wd.retrieved(Time(
                               '2016-10-19', 11, 0,
@@ -564,7 +565,8 @@ class TestStoreRDF(kif_StoreTestCase):
                            20, wd.degree_Celsius, 19, 21))],
                       [ReferenceRecord(
                           wd.stated_in(wd.Hazardous_Substances_Data_Bank),
-                          wd.HSDB_ID('35#section=TSCA-Test-Submissions')),
+                          wd.HSDB_ID.replace(KIF_Object.KEEP, None)(
+                              '35#section=TSCA-Test-Submissions')),
                        ReferenceRecord(
                            wd.stated_in(wd.Wikidata),
                            wd.reference_URL('http://www.wikidata.org/')),
@@ -586,19 +588,19 @@ class TestStoreRDF(kif_StoreTestCase):
               AnnotationRecordSet(
                   AnnotationRecord(
                       [],
-                      [ReferenceRecord(wd.reference_URL(String(
-                          'http://islamqa.info/ar/20907')))],
+                      [ReferenceRecord(wd.reference_URL.replace(
+                          KIF_Object.KEEP, None)(
+                          'http://islamqa.info/ar/20907'))],
                       Preferred))),
              (wd.date_of_birth(wd.Adam, Time(
                  '4003-01-01', 9, 0, wd.proleptic_Julian_calendar)),
               AnnotationRecordSet(
                   AnnotationRecord(
-                      [wd.statement_supported_by(
-                          'https://amazingbibletimeline.com/'
-                          'timeline_online/')],
-                      [ReferenceRecord(wd.reference_URL(String(
-                          'https://amazingbibletimeline.com/'
-                          'timeline_online/')))],
+                      [wd.statement_supported_by(wd.Q(746069))],
+                      [ReferenceRecord(wd.reference_URL.replace(
+                          KIF_Object.KEEP, None)(
+                              'https://amazingbibletimeline.com/'
+                              'timeline_online/'))],
                       Normal))),
              ],
             Statement(wd.Adam, NoValueSnak(wd.date_of_birth)),

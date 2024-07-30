@@ -381,7 +381,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
 
     def _push_item_template(self, obj: ItemTemplate) -> Query.V_URI:
         iri = self._push_v_iri(obj.iri)
-        self._q.triples()((iri, NS.SCHEMA.version, self._q.bnode()))
+        self._q.triples()((iri, NS.WIKIBASE.sitelinks, self._q.bnode()))
         return iri
 
     def _push_item_variable(self, obj: ItemVariable) -> Query.Variable:
