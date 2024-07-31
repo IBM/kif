@@ -34,6 +34,7 @@ equivalent_property = P(1628)
 exact_match = P(2888)
 family_name = P(734)
 father = P(22)
+field_of_work = P(101)
 file_format = P(2701)
 half_life = P(2114)
 has_effect = P(1542)
@@ -71,6 +72,7 @@ patent_number = P(1246)
 phase_of_matter = P(515)
 pKa = P(1117)
 place_of_birth = P(19)
+population = P(1082)
 position_held = P(39)
 PubChem_CID = P(662)
 publication_date = P(577)
@@ -79,6 +81,7 @@ related_property = P(1659)
 retrieved = P(813)
 route_of_administration = P(636)
 safety_classification_and_labelling = P(4952)
+sex_or_gender = P(21)
 short_name = P(1813)
 solubility = P(2177)
 specific_heat_capacity = P(2056)
@@ -137,6 +140,7 @@ __all__ = (
     'exact_match',
     'family_name',
     'father',
+    'field_of_work',
     'file_format',
     'half_life',
     'has_effect',
@@ -174,6 +178,7 @@ __all__ = (
     'phase_of_matter',
     'pKa',
     'place_of_birth',
+    'population',
     'position_held',
     'PubChem_CID',
     'publication_date',
@@ -182,6 +187,7 @@ __all__ = (
     'retrieved',
     'route_of_administration',
     'safety_classification_and_labelling',
+    'sex_or_gender',
     'short_name',
     'solubility',
     'specific_heat_capacity',

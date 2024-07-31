@@ -91,6 +91,7 @@ class Symbol:
     DOT: Final[str] = '.'
     EQUAL: Final[str] = '='
     FILTER: Final[str] = 'FILTER'
+    FILTER_NOT_EXISTS: Final[str] = 'FILTER NOT EXISTS'
     GREATER_THAN: Final[str] = '>'
     GREATER_THAN_OR_EQUAL: Final[str] = '>='
     IF: Final[str] = 'IF'
@@ -993,6 +994,17 @@ class GroupGraphPattern(CompoundGraphPattern):
         yield '{\n'
 
 
+# -- Filter-not-exists graph pattern ---------------------------------------
+
+class FilterNotExistsGraphPattern(CompoundGraphPattern):
+    """FILTER NOT EXISTS graph pattern."""
+
+    def _iterencode_begin(self, n: int) -> Iterator[str]:
+        yield self._indent(n)
+        yield Symbol.FILTER_NOT_EXISTS
+        yield ' {\n'
+
+
 # -- Optional graph pattern ------------------------------------------------
 
 class OptionalGraphPattern(CompoundGraphPattern):
@@ -1468,6 +1480,32 @@ class Query(Encodable):
         """
         assert isinstance(self.clause.current, GroupGraphPattern)
         return cast(GroupGraphPattern, self.clause._end())
+
+    def filter_not_exists(self) -> FilterNotExistsGraphPattern:
+        """Constructs FILTER NOT EXISTS graph pattern.
+
+        Returns:
+           :class:`FilterNotExistsGraphPattern` owned by clause.
+        """
+        return FilterNotExistsGraphPattern(self.clause)
+
+    def begin_filter_not_exists(self) -> FilterNotExistsGraphPattern:
+        """Pushes FILTER NOT EXISTS graph pattern.
+
+        Returns:
+           :class:`FilterNotExistsGraphPattern`.
+        """
+        return cast(FilterNotExistsGraphPattern, self.clause._begin(
+            self.filter_not_exists()))
+
+    def end_filter_not_exists(self) -> FilterNotExistsGraphPattern:
+        """Pops FILTER NOT EXISTS graph pattern.
+
+        Returns:
+           :class:`FilterNotExistsGraphPattern`.
+        """
+        assert isinstance(self.clause.current, FilterNotExistsGraphPattern)
+        return cast(FilterNotExistsGraphPattern, self.clause._end())
 
     def optional(self) -> OptionalGraphPattern:
         """Constructs OPTIONAL graph pattern.

@@ -3,19 +3,24 @@
 
 import pathlib
 
+from ... import itertools
+from ... import namespace as NS
 from ...model import Datatype, Entity, Item, Lexeme, Property, TDatatype
-from ...namespace import WD
-from ...typing import Any, cast, ClassVar, Iterator, Optional, TypedDict, Union
+from ...typing import (
+    cast,
+    ClassVar,
+    Final,
+    Iterable,
+    Iterator,
+    Optional,
+    Sequence,
+    TypedDict,
+    Union,
+)
 
 
 class WikidataEntityRegistry:
     """Wikidata entity registry."""
-
-    #: Path to wikidata_items.json.
-    _wikidata_items_json: ClassVar[str] = 'wikidata_items.json'
-
-    #: Path to wikidata_propertis.json
-    _wikidata_properties_json: ClassVar[str] = 'wikidata_properties.json'
 
     #: Entry in Wikidata entity registry.
     class Entry(TypedDict):
@@ -23,59 +28,57 @@ class WikidataEntityRegistry:
         label: Optional[str]
         description: Optional[str]
 
-    @classmethod
-    def _load_wikidata_entities(cls) -> dict[str, Entry]:
-        return dict(cls._iterate_wikidata_entities())
+    WIKIDATA_ITEMS_TSV: Final[str] = 'wikidata_items.tsv'
+    WIKIDATA_PROPERTIES_TSV: Final[str] = 'wikidata_properties.tsv'
+
+    #: Names of the TSVs to load.
+    _entity_tsvs: ClassVar[Sequence[str]] = (
+        # WIKIDATA_ITEMS_TSV,
+        WIKIDATA_PROPERTIES_TSV,
+    )
 
     @classmethod
-    def _iterate_wikidata_entities(cls) -> Iterator[tuple[str, Entry]]:
-        it = [(Item, cls._load_wikidata_items_json()),
-              (Property, cls._load_wikidata_properties_json().items())]
-        for cons, table in it:
-            for _, entry_dict in table:
-                entity = Entity.from_ast(entry_dict['object'])
-                assert isinstance(entity, cons)
-                yield entity.iri.content, cls.Entry({
-                    'entity': entity,
-                    'label': entry_dict.get('label'),
-                    'description': entry_dict.get('description')
-                })
-
-    @classmethod
-    def _load_wikidata_items_json(cls) -> dict[str, Any]:
-        return cls._load_wikidata_json(cls._wikidata_items_json)
-
-    @classmethod
-    def _load_wikidata_properties_json(cls) -> dict[str, Any]:
-        return cls._load_wikidata_json(cls._wikidata_properties_json)
-
-    @classmethod
-    def _load_wikidata_json(cls, name: str) -> dict[str, Any]:
-        import json
-        try:
-            path = cls._get_wikidata_json_path(name)
-            with open(path, encoding='utf-8') as fp:
-                return json.load(fp)
-        except FileNotFoundError:
-            return {}
-
-    @classmethod
-    def _get_wikidata_json_path(cls, name: str) -> pathlib.Path:
+    def _get_registry_dir(cls) -> pathlib.Path:
         from importlib import util
         spec = util.find_spec(__name__)
         assert spec is not None
         assert spec.origin is not None
-        return pathlib.Path(cast(str, spec.origin)).parent / name
+        return pathlib.Path(cast(str, spec.origin)).parent
+
+    @classmethod
+    def _load_tsvs(cls, paths: Iterable[pathlib.Path]) -> dict[str, Entry]:
+        return dict(itertools.chain(*map(cls._iterate_tsv, paths)))
+
+    @classmethod
+    def _iterate_tsv(cls, path: pathlib.Path) -> Iterator[tuple[str, Entry]]:
+        try:
+            with open(path, encoding='utf-8') as fp:
+                for line in fp:
+                    _, label, entity_repr = line.split('\t')
+                    entity = Entity.from_repr(entity_repr)
+                    yield entity.iri.content, {
+                        'entity': entity,
+                        'label': label,
+                        'description': None,
+                    }
+        except FileNotFoundError:
+            pass
 
     __slots__ = (
         '_registry',
+        '_registry_dir',
     )
 
     #: Registry table.
     _registry: dict[str, Entry]
 
+    #: Directory where the this file is installed.
+    _registry_dir: pathlib.Path
+
     def __init__(self):
-        self._registry = self._load_wikidata_entities()
+        self._registry_dir = self._get_registry_dir()
+        self._registry = self._load_tsvs(map(
+            lambda p: self._registry_dir / p, self._entity_tsvs))
 
     def _add_or_update_entry(
             self,
@@ -113,7 +116,7 @@ class WikidataEntityRegistry:
             datatype: Optional[TDatatype] = None
     ) -> Property:
         if not isinstance(name, str) or name[0] != 'P':
-            name = str(WD[f'P{name}'])
+            name = str(NS.WD[f'P{name}'])
         if name in self._registry:
             entity = self._registry[name]['entity']
             assert isinstance(entity, Property)
@@ -131,7 +134,7 @@ class WikidataEntityRegistry:
             description: Optional[str] = None
     ) -> Item:
         if not isinstance(name, str) or name[0] != 'Q':
-            name = str(WD[f'Q{name}'])
+            name = str(NS.WD[f'Q{name}'])
         if name in self._registry:
             entity = self._registry[name]['entity']
             assert isinstance(entity, Item)
@@ -143,7 +146,7 @@ class WikidataEntityRegistry:
 
     def L(self, name: Union[int, str]) -> Lexeme:
         if not isinstance(name, str) or name[0] != 'L':
-            name = str(WD[f'L{name}'])
+            name = str(NS.WD[f'L{name}'])
         if name in self._registry:
             entity = self._registry[name]['entity']
             assert isinstance(entity, Lexeme)

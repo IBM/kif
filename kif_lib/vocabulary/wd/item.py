@@ -22,6 +22,7 @@ characterization = Q(2165586, 'characterization')
 chemical_compound = Q(11173, 'chemical compound')
 chemical_entity = Q(43460564, 'chemical entity')
 ChemIDplus = Q(20593, 'ChemIDplus')
+chemistry = Q(2329, 'chemistry')
 ChemSpider = Q(2311683, 'ChemSpider')
 child = Q(7569, 'child')
 comma_separated_values = Q(935809, 'comma-separated values')
@@ -41,6 +42,7 @@ English_Wikipedia = Q(328, 'English Wikipedia')
 Eve = Q(830183, 'Eve')
 exact_match_ = Q(39893449, 'exact match')
 FDA_approved = Q(111972129, 'FDA-approved')
+female = Q(6581072, 'female')
 female_human = Q(84048852, 'female human')
 feminine = Q(1775415, 'feminine')
 flame_retardant = Q(902863, 'flame retardant')
@@ -71,10 +73,12 @@ Latin_America = Q(12585, 'Latin America')
 lion = Q(140, 'lion')
 liquid = Q(11435, 'liquid')
 machine_learning = Q(2539, 'machine learning')
+male = Q(6581097, 'male')
 male_human = Q(84048850, 'male human')
 mammal = Q(7377, 'mammal')
 man = Q(8441, 'man')
 masculine = Q(499327, 'masculine')
+mathematics = Q(395, 'mathematics')
 methanol = Q(14982, 'methanol')
 metre = Q(11573, 'metre')
 microgram_per_kilogram = Q(107313731, 'microgram per kilogram')
@@ -82,12 +86,14 @@ milligram_per_kilogram = Q(21091747, 'milligram per kilogram')
 minute = Q(7727, 'minute')
 Monte_Pascoal = Q(1499212, 'Monte_Pascoal')
 mountain = Q(8502, 'mountain')
+New_York_City = Q(60, 'New York City')
 oral_administration = Q(285166, 'oral administration')
 Paraguay = Q(733, 'Paraguay')
 part = Q(15989253, 'part')
 parts_per_million = Q(21006887, 'parts per million')
 patent = Q(253623, 'patent')
 per_and_polyfluoroalkyl_substances = Q(648037, 'per- and polyfluoroalkyl substances')
+physics = Q(413, 'physics')
 Pico_da_Neblina = Q(739484, 'Pico da Neblina')
 Portuguese = Q(5146, 'Portuguese')
 proleptic_Gregorian_calendar = Q(1985727, 'proleptic Gregorian calendar')
@@ -96,10 +102,15 @@ PubChem = Q(278487, 'PubChem')
 rabbit = Q(9394, 'rabbit')
 rectal_administration = Q(419892, 'rectal administration')
 report = Q(10870555, 'report')
+Rio_de_Janeiro = Q(8678, 'Rio de Janeiro')
+river = Q(4022, 'river')
+scholarly_article = Q(13442814, 'scholarly article')
+scientist = Q(901, 'scientist')
 second = Q(11574, 'second')
 skin_absorption = Q(4669896, 'skin absorption')
 sodium_bicarbonate = Q(179731, 'sodium bicarbonate')
 South_America = Q(18, 'South America')
+Spanish = Q(1321, 'Spanish')
 subcutaneous_injection = Q(2035485, 'subcutaneous injection')
 Supercalifragilisticexpialidocious = Q(103, 'Supercalifragilisticexpialidocious')
 type_of_a_chemical_entity = Q(113145171, 'type of a chemical entity')
@@ -130,6 +141,7 @@ __all__ = (
     'chemical_compound',
     'chemical_entity',
     'ChemIDplus',
+    'chemistry',
     'ChemSpider',
     'child',
     'comma_separated_values',
@@ -149,6 +161,7 @@ __all__ = (
     'Eve',
     'exact_match_',
     'FDA_approved',
+    'female',
     'female_human',
     'feminine',
     'flame_retardant',
@@ -179,10 +192,12 @@ __all__ = (
     'lion',
     'liquid',
     'machine_learning',
+    'male',
     'male_human',
     'mammal',
     'man',
     'masculine',
+    'mathematics',
     'methanol',
     'metre',
     'microgram_per_kilogram',
@@ -190,12 +205,14 @@ __all__ = (
     'minute',
     'Monte_Pascoal',
     'mountain',
+    'New_York_City',
     'oral_administration',
     'Paraguay',
     'part',
     'parts_per_million',
     'patent',
     'per_and_polyfluoroalkyl_substances',
+    'physics',
     'Pico_da_Neblina',
     'Portuguese',
     'proleptic_Gregorian_calendar',
@@ -204,10 +221,15 @@ __all__ = (
     'rabbit',
     'rectal_administration',
     'report',
+    'Rio_de_Janeiro',
+    'river',
+    'scholarly_article',
+    'scientist',
     'second',
     'skin_absorption',
     'sodium_bicarbonate',
     'South_America',
+    'Spanish',
     'subcutaneous_injection',
     'Supercalifragilisticexpialidocious',
     'type_of_a_chemical_entity',
