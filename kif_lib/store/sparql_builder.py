@@ -1,11 +1,11 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from abc import abstractmethod
+import abc
+import decimal
 from collections.abc import Mapping, Sequence
 
-from ..error import MustBeImplementedInSubclass
-from ..itertools import chain
+from .. import itertools
 from ..model import IRI, Value
 from ..typing import Any, Hashable, Iterable, Iterator
 from ..typing import Optional as Opt
@@ -40,9 +40,9 @@ class SPARQL_Builder(Sequence):
         def get_id(self) -> Hashable:
             return self._id
 
-        @abstractmethod
+        @abc.abstractmethod
         def n3(self) -> str:
-            raise MustBeImplementedInSubclass
+            raise NotImplementedError
 
     class BNode(Term):
         """SPARQL builder blank node."""
@@ -56,7 +56,7 @@ class SPARQL_Builder(Sequence):
         def n3(self) -> str:
             return f'?{self.id}'
 
-    TTrm = Uni[Term, Value, int, str]  # term
+    TTrm = Uni[Term, Value, int, decimal.Decimal, str]  # term
 
     class Block:
         """Block within a query."""
@@ -117,11 +117,11 @@ class SPARQL_Builder(Sequence):
         def get_end_lineno(self) -> Opt[int]:
             return self._end_lineno
 
-        @abstractmethod
+        @abc.abstractmethod
         def _start(self):
             self._start_lineno = self.builder.current_lineno
 
-        @abstractmethod
+        @abc.abstractmethod
         def _end(self):
             self._end_lineno = self.builder.current_lineno
 
@@ -367,10 +367,11 @@ class SPARQL_Builder(Sequence):
         return self.Variable(name)
 
     def vars(self, name: str, *names: str) -> Iterable[Variable]:
-        return map(self.Variable, chain([name], names))
+        return map(self.Variable, itertools.chain([name], names))
 
     def vars_dict(self, name: str, *names: str) -> Mapping[str, Variable]:
-        return dict(zip(chain([name], names), self.vars(name, *names)))
+        return dict(zip(
+            itertools.chain([name], names), self.vars(name, *names)))
 
     def has_bnode(self, bnode: BNode) -> bool:
         return bnode in self._bnodes
@@ -390,6 +391,8 @@ class SPARQL_Builder(Sequence):
             self._vals.add(v)
         if isinstance(v, int):
             return f'"{v}"^^<http://www.w3.org/2001/XMLSchema#integer>'
+        elif isinstance(v, decimal.Decimal):
+            return f'"{v}"^^<http://www.w3.org/2001/XMLSchema#decimal>'
         elif hasattr(v, 'n3'):
             return v.n3()       # pyright: ignore
         else:
@@ -592,7 +595,8 @@ class SPARQL_Builder(Sequence):
         return sep.join(map(self._n3, xs))
 
     def _infix(self, op: str, x: TTrm, y: TTrm, *xs: TTrm) -> str:
-        return self._brace(*map(self._brace, chain([x, y], xs)), sep=op)
+        return self._brace(*map(
+            self._brace, itertools.chain([x, y], xs)), sep=op)
 
     def and_(self, x: TTrm, y: TTrm, *xs: TTrm) -> str:
         return self._infix(' && ', x, y, *xs)

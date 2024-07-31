@@ -1,10 +1,18 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ... import namespace as NS
-from ...rdflib import URIRef
-from ...typing import Any, cast, ClassVar, Optional, override, TypeAlias, Union
-from ..kif_object import Decimal, TDecimal, TLocation
+import decimal
+
+from ...typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Optional,
+    override,
+    Self,
+    TypeAlias,
+    Union,
+)
 from ..template import Template
 from ..variable import Variable
 from .deep_data_value import (
@@ -12,19 +20,16 @@ from .deep_data_value import (
     DeepDataValueTemplate,
     DeepDataValueVariable,
 )
-from .item import Item, VItem, VTItemContent
+from .item import Item, ItemTemplate, ItemVariable, VItem, VTItem
+from .string import String, TString
 from .value import Datatype
 
-QuantityClass: TypeAlias = type['Quantity']
-QuantityDatatypeClass: TypeAlias = type['QuantityDatatype']
-QuantityTemplateClass: TypeAlias = type['QuantityTemplate']
-QuantityVariableClass: TypeAlias = type['QuantityVariable']
-
+TDecimal: TypeAlias = Union[decimal.Decimal, float, int, TString]
 TQuantity: TypeAlias = Union['Quantity', TDecimal]
-VTQuantityContent: TypeAlias = Union[Variable, TQuantity]
-VQuantityContent: TypeAlias = Union['QuantityVariable', Decimal]
 VQuantity: TypeAlias =\
-    Union['QuantityTemplate', 'QuantityVariable', TQuantity]
+    Union['QuantityTemplate', 'QuantityVariable', 'Quantity']
+VQuantityContent: TypeAlias = Union['QuantityVariable', decimal.Decimal]
+VTQuantityContent: TypeAlias = Union[Variable, TQuantity]
 
 
 class QuantityTemplate(DeepDataValueTemplate):
@@ -37,12 +42,12 @@ class QuantityTemplate(DeepDataValueTemplate):
        upper_bound: Upper bound or quantity variable.
     """
 
-    object_class: ClassVar[QuantityClass]  # pyright: ignore
+    object_class: ClassVar[type['Quantity']]  # pyright: ignore
 
     def __init__(
             self,
             amount: VTQuantityContent,
-            unit: Optional[VTItemContent] = None,
+            unit: Optional[VTItem] = None,
             lower_bound: Optional[VTQuantityContent] = None,
             upper_bound: Optional[VTQuantityContent] = None):
         super().__init__(amount, unit, lower_bound, upper_bound)
@@ -50,29 +55,25 @@ class QuantityTemplate(DeepDataValueTemplate):
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # amount
-            if Variable.test(arg):
-                return self._preprocess_arg_quantity_variable(
-                    arg, i, self.__class__)
+            if isinstance(arg, Variable):
+                return QuantityVariable.check(arg, type(self), None, i)
             else:
                 return Quantity._static_preprocess_arg(self, arg, i)
         elif i == 2:            # unit
-            if Template.test(arg):
-                return self._preprocess_arg_item_template(arg, i)
-            elif Variable.test(arg):
-                return self._preprocess_arg_item_variable(
-                    arg, i, self.__class__)
+            if isinstance(arg, Template):
+                return ItemTemplate.check(arg, type(self), None, i)
+            elif isinstance(arg, Variable):
+                return ItemVariable.check(arg, type(self), None, i)
             else:
                 return Quantity._static_preprocess_arg(self, arg, i)
         elif i == 3:            # lower-bound
-            if Variable.test(arg):
-                return self._preprocess_arg_quantity_variable(
-                    arg, i, self.__class__)
+            if isinstance(arg, Variable):
+                return QuantityVariable.check(arg, type(self), None, i)
             else:
                 return Quantity._static_preprocess_arg(self, arg, i)
         elif i == 4:            # upper-bound
-            if Variable.test(arg):
-                return self._preprocess_arg_quantity_variable(
-                    arg, i, self.__class__)
+            if isinstance(arg, Variable):
+                return QuantityVariable.check(arg, type(self), None, i)
             else:
                 return Quantity._static_preprocess_arg(self, arg, i)
         else:
@@ -107,8 +108,7 @@ class QuantityTemplate(DeepDataValueTemplate):
         Returns:
            Unit, item template, or item variable.
         """
-        unit = self.args[1]
-        return unit if unit is not None else default
+        return self.get(1, default)
 
     @property
     def lower_bound(self) -> Optional[VQuantityContent]:
@@ -129,8 +129,7 @@ class QuantityTemplate(DeepDataValueTemplate):
         Returns:
            Lower bound or quantity variable.
         """
-        lb = self.args[2]
-        return lb if lb is not None else default
+        return self.get(2, default)
 
     @property
     def upper_bound(self) -> Optional[VQuantityContent]:
@@ -151,8 +150,7 @@ class QuantityTemplate(DeepDataValueTemplate):
         Returns:
            Upper bound or quantity variable.
         """
-        ub = self.args[3]
-        return ub if ub is not None else default
+        return self.get(3, default)
 
 
 class QuantityVariable(DeepDataValueVariable):
@@ -162,25 +160,13 @@ class QuantityVariable(DeepDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[QuantityClass]  # pyright: ignore
-
-    @classmethod
-    def _preprocess_arg_quantity_variable(
-            cls,
-            arg: Variable,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> 'QuantityVariable':
-        return cast(QuantityVariable, cls._preprocess_arg_variable(
-            arg, i, function or cls))
+    object_class: ClassVar[type['Quantity']]  # pyright: ignore
 
 
 class QuantityDatatype(Datatype):
     """Quantity datatype."""
 
-    value_class: ClassVar[QuantityClass]  # pyright: ignore
-
-    _uri: ClassVar[URIRef] = NS.WIKIBASE.Quantity
+    value_class: ClassVar[type['Quantity']]  # pyright: ignore
 
 
 class Quantity(
@@ -198,26 +184,39 @@ class Quantity(
        upper_bound: Upper bound.
     """
 
-    datatype_class: ClassVar[QuantityDatatypeClass]  # pyright: ignore
-    datatype: ClassVar[QuantityDatatype]             # pyright: ignore
-    template_class: ClassVar[QuantityTemplateClass]  # pyright: ignore
-    variable_class: ClassVar[QuantityVariableClass]  # pyright: ignore
+    datatype_class: ClassVar[type[QuantityDatatype]]  # pyright: ignore
+    datatype: ClassVar[QuantityDatatype]              # pyright: ignore
+    template_class: ClassVar[type[QuantityTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[QuantityVariable]]  # pyright: ignore
 
     @classmethod
-    def _check_arg_quantity(
+    @override
+    def check(
             cls,
-            arg: TQuantity,
-            function: Optional[TLocation] = None,
+            arg: Any,
+            function: Optional[Union[Callable[..., Any], str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> 'Quantity':
-        return cls(cls._check_arg_isinstance(
-            arg, (cls, Decimal, float, int, str), function, name, position))
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, (decimal.Decimal, float, int)):
+            return cls(arg)
+        elif isinstance(arg, str):
+            try:
+                return cls(arg)
+            except ValueError as err:
+                raise cls._check_error(
+                    arg, function, name, position, ValueError) from err
+        elif isinstance(arg, String):
+            return cls.check(arg.content, function, name, position)
+        else:
+            raise cls._check_error(arg, function, name, position)
 
     def __init__(
             self,
             amount: VTQuantityContent,
-            unit: Optional[VTItemContent] = None,
+            unit: Optional[VTItem] = None,
             lower_bound: Optional[VTQuantityContent] = None,
             upper_bound: Optional[VTQuantityContent] = None):
         super().__init__(amount, unit, lower_bound, upper_bound)
@@ -228,29 +227,34 @@ class Quantity(
 
     @staticmethod
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
-        if i == 1:              # amount
-            return self_._preprocess_arg_decimal(
-                arg.args[0] if isinstance(arg, Quantity) else arg, i)
+        if i == 1 or i == 3 or i == 4:  # amount, lower/upper_bound
+            if arg is None and (i == 3 or i == 4):
+                return None
+            if isinstance(arg, Quantity):
+                return arg.amount
+            elif isinstance(arg, (decimal.Decimal, float, int, str)):
+                try:
+                    return decimal.Decimal(arg)
+                except decimal.InvalidOperation as err:
+                    raise Quantity._check_error(
+                        arg, type(self_), None, i, ValueError) from err
+            else:
+                raise Quantity._check_error(arg, type(self_), None, i)
         elif i == 2:            # unit
-            return self_._preprocess_optional_arg_item(arg, i)
-        elif i == 3:            # lower-bound
-            return self_._preprocess_optional_arg_decimal(
-                arg.args[0] if isinstance(arg, Quantity) else arg, i)
-        elif i == 4:            # upper-bound
-            return self_._preprocess_optional_arg_decimal(
-                arg.args[0] if isinstance(arg, Quantity) else arg, i)
+            return Item.check_optional(arg, None, type(self_), None, i)
         else:
             raise self_._should_not_get_here()
 
+    @override
     def get_value(self) -> str:
-        return str(self.args[0])
+        return str(self.amount)
 
     @property
-    def amount(self) -> Decimal:
+    def amount(self) -> decimal.Decimal:
         """The amount of quantity."""
         return self.get_amount()
 
-    def get_amount(self) -> Decimal:
+    def get_amount(self) -> decimal.Decimal:
         """Gets the amount of quantity.
 
         Returns:
@@ -277,18 +281,17 @@ class Quantity(
         Returns:
            Unit.
         """
-        unit = self.args[1]
-        return unit if unit is not None else default
+        return self.get(1, default)
 
     @property
-    def lower_bound(self) -> Optional[Decimal]:
+    def lower_bound(self) -> Optional[decimal.Decimal]:
         """The lower bound of quantity."""
         return self.get_lower_bound()
 
     def get_lower_bound(
             self,
-            default: Optional[Decimal] = None
-    ) -> Optional[Decimal]:
+            default: Optional[decimal.Decimal] = None
+    ) -> Optional[decimal.Decimal]:
         """Gets the lower bound of quantity.
 
         If the lower bound is ``None``, returns `default`.
@@ -299,18 +302,17 @@ class Quantity(
         Returns:
            Lower bound.
         """
-        lb = self.args[2]
-        return lb if lb is not None else default
+        return self.get(2, default)
 
     @property
-    def upper_bound(self) -> Optional[Decimal]:
+    def upper_bound(self) -> Optional[decimal.Decimal]:
         """The upper bound of quantity."""
         return self.get_upper_bound()
 
     def get_upper_bound(
             self,
-            default: Optional[Decimal] = None
-    ) -> Optional[Decimal]:
+            default: Optional[decimal.Decimal] = None
+    ) -> Optional[decimal.Decimal]:
         """Gets the upper bound of quantity.
 
         If the upper bound is ``None``, returns `default`.
@@ -321,5 +323,4 @@ class Quantity(
         Returns:
            Upper bound.
         """
-        ub = self.args[3]
-        return ub if ub is not None else default
+        return self.get(3, default)

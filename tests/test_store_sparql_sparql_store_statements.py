@@ -2,15 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
-    FilterPattern,
+    ExternalId,
+    Filter,
     IRI,
     Item,
+    KIF_Object,
     NoValueSnak,
     Quantity,
-    Snak,
     SomeValueSnak,
     Statement,
-    String,
     Text,
     Time,
     ValueSnak,
@@ -25,32 +25,31 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
     def test_filter_bad_argument(self):
         kb = self.new_Store()
         # bad argument: subject
-        self.assertRaises(TypeError, kb.filter, 0)
-        self.assertRaises(TypeError, kb.filter, IRI('x'))
+        self.assertRaises(TypeError, kb.filter, {})
         # bad argument: property
-        self.assertRaises(TypeError, kb.filter, None, 0)
-        self.assertRaises(ValueError, kb.filter, None, IRI('x'))
+        self.assertRaises(TypeError, kb.filter, None, {})
+        # self.assertRaises(ValueError, kb.filter, None, IRI('x'))
         # bad argument: value
-        self.assertRaises(TypeError, kb.filter, None, None, 0)
+        self.assertRaises(TypeError, kb.filter, None, None, {})
         # bad argument: snak_mask
         self.assertRaises(
             TypeError, kb.filter, None, None, None, 'abc')
         self.assertRaises(
-            TypeError, kb.filter, None, None, Item('x'), NoValueSnak)
-        # bad argument: pattern
-        self.assertRaises(TypeError, kb.filter, pattern=Item('x'))
+            TypeError, kb.filter, None, None, Item('x'), Item)
+        # bad argument: filter
+        self.assertRaises(TypeError, kb.filter, filter=Item('x'))
         # bad argument: limit
         self.assertRaises(TypeError, kb.filter, limit=Item('x'))
 
     def test_filter_full(self):
         kb = self.new_Store()
-        pat = FilterPattern()
-        self.assertEqual(len(list(kb.filter(pattern=pat, limit=1))), 1)
+        filter = Filter()
+        self.assertEqual(len(list(kb.filter(filter=filter, limit=1))), 1)
 
     def test_filter_empty(self):
         kb = self.new_Store()
-        pat = FilterPattern(None, None, None, Snak.Mask(0))
-        self.assertEqual(len(list(kb.filter(pattern=pat, limit=1))), 0)
+        filter = Filter(None, None, None, Filter.SnakMask(0))
+        self.assertEqual(len(list(kb.filter(filter=filter, limit=1))), 0)
 
     def test_filter_duplicated_statements(self):
         kb = self.new_Store()
@@ -77,18 +76,20 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
             SomeValueSnak(wd.date_of_death), wd.spouse, wd.Eve))
         stmt = next(kb.filter(stmt.subject, wd.date_of_death))
         self.assert_statement(
-            stmt, stmt.subject, SomeValueSnak(wd.date_of_death))
+            stmt, stmt.subject, SomeValueSnak(
+                wd.date_of_death.replace(KIF_Object.KEEP, Time)))
         # no value snak
         stmt = next(kb.filter(
-            [NoValueSnak(wd.date_of_birth)], wd.spouse, wd.Eve))
-        stmt = next(kb.filter(stmt.subject, wd.date_of_birth))
+            [NoValueSnak(wd.father)], wd.spouse, wd.Eve))
         self.assert_statement(
-            stmt, stmt.subject, NoValueSnak(wd.date_of_birth))
+            stmt, stmt.subject,
+            ValueSnak(wd.spouse.replace(KIF_Object.KEEP, Item), wd.Eve))
 
     def test_filter_property_is_property(self):
         kb = self.new_Store()
         stmt = next(kb.filter(property=wd.part_of))
-        self.assertEqual(stmt.snak.property, wd.part_of)
+        self.assertEqual(
+            stmt.snak.property, wd.part_of.replace(KIF_Object.KEEP, Item))
 
     def test_filter_property_is_snak_set(self):
         kb = self.new_Store()
@@ -109,30 +110,29 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         kb = self.new_Store()
         stmt = next(kb.filter(None, wd.Wikidata_property, wd.continent))
         self.assert_statement(
-            stmt, wd.continent_, wd.Wikidata_property(wd.continent))
+            stmt, wd.continent_, wd.Wikidata_property(
+                wd.continent.replace(KIF_Object.KEEP, Item)))
 
     def test_filter_value_is_iri(self):
         kb = self.new_Store()
-        stmt = next(kb.filter(wd.benzene, wd.chemical_structure))
+        stmt = next(kb.filter(wd.IBM, wd.official_website))
         self.assert_statement(
-            stmt, wd.benzene, wd.chemical_structure(IRI(
-                'http://commons.wikimedia.org/wiki/Special:FilePath/'
-                'Benzene-2D-full.svg')))
+            stmt, wd.IBM, wd.official_website(IRI('https://www.ibm.com/')))
 
     def test_filter_value_is_text(self):
         kb = self.new_Store()
-        stmt = next(kb.filter(
-            value=Text('Federative Republic of Brazil', 'en')))
+        stmt = next(iter(sorted(list(kb.filter(
+            value=Text('Federative Republic of Brazil', 'en'))))))
         self.assert_statement(
-            stmt, wd.Brazil, wd.name_in_native_language(Text(
+            stmt, wd.Brazil, wd.official_name(Text(
                 'Federative Republic of Brazil', 'en')))
 
     def test_filter_value_is_string(self):
         kb = self.new_Store()
-        stmt = next(kb.filter(value=String('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
+        stmt = next(kb.filter(value=ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
         self.assert_statement(
             stmt, wd.benzene,
-            wd.InChIKey(String('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
+            wd.InChIKey(ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
 
     def test_filter_value_is_quantity(self):
         kb = self.new_Store()
@@ -143,24 +143,24 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         stmt = next(kb.filter(wd.benzene, wd.density, qt))
         self.assert_statement(stmt, wd.benzene, wd.density(qt))
         stmt = next(kb.filter(wd.benzene, wd.density, qt.replace(
-            None, qt.Nil, qt.Nil, qt.Nil)))
+            qt.KEEP, None, None, None)))
         self.assert_statement(stmt, wd.benzene, wd.density(qt))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.benzene, wd.density, qt.replace(
-                    '.87', qt.Nil, qt.Nil, qt.Nil)))
+                    '.87', None, None, None)))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.benzene, wd.density, qt.replace(
-                    None, wd.kilogram, qt.Nil, qt.Nil)))
+                    qt.KEEP, wd.kilogram, None, None)))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.benzene, wd.density, qt.replace(
-                    None, qt.Nil, '.88', qt.Nil)))
+                    qt.KEEP, None, '.88', None)))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.benzene, wd.density, qt.replace(
-                    None, qt.Nil, qt.Nil, '.88')))
+                    qt.KEEP, None, None, '.88')))
 
     def test_filter_value_is_time(self):
         kb = self.new_Store()
@@ -169,24 +169,24 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         stmt = next(kb.filter(wd.Brazil, wd.inception, tm))
         self.assert_statement(stmt, wd.Brazil, wd.inception(tm))
         stmt = next(kb.filter(wd.Brazil, wd.inception, tm.replace(
-            None, tm.Nil, tm.Nil, tm.Nil)))
+            tm.KEEP, None, None, None)))
         self.assert_statement(stmt, wd.Brazil, wd.inception(tm))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.Brazil, wd.inception, tm.replace(
-                    '1822-09-08', tm.Nil, tm.Nil, tm.Nil)))
+                    '1822-09-08', None, None, None)))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.Brazil, wd.inception, tm.replace(
-                    None, tm.HOUR, tm.Nil, tm.Nil)))
+                    tm.KEEP, tm.HOUR, None, None)))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.Brazil, wd.inception, tm.replace(
-                    None, tm.Nil, 1, tm.Nil)))
+                    tm.KEEP, None, 1, None)))
         self.assertRaises(
             StopIteration, next, kb.filter(
                 wd.Brazil, wd.inception, tm.replace(
-                    None, tm.Nil, 0, wd.proleptic_Julian_calendar)))
+                    tm.KEEP, None, 0, wd.proleptic_Julian_calendar)))
 
     def test_filter_value_is_snak_set(self):
         kb = self.new_Store()
@@ -202,58 +202,63 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         assert isinstance(stmt.snak, ValueSnak)
         stmt = next(kb.filter(stmt.snak.value, wd.date_of_death))
         self.assert_statement(
-            stmt, stmt.subject, SomeValueSnak(wd.date_of_death))
+            stmt, stmt.subject, SomeValueSnak(
+                wd.date_of_death.replace(KIF_Object.KEEP, Time)))
         # no value snak
         stmt = next(kb.filter(value=[NoValueSnak(wd.date_of_birth)]))
         self.assertIsInstance(stmt.snak, ValueSnak)
         assert isinstance(stmt.snak, ValueSnak)
         stmt = next(kb.filter(stmt.snak.value, wd.date_of_birth))
         self.assert_statement(
-            stmt, stmt.subject, NoValueSnak(wd.date_of_birth))
+            stmt, stmt.subject, NoValueSnak(
+                wd.date_of_birth.replace(KIF_Object.KEEP, Time)))
 
     def test_filter_snak_mask_value_snak(self):
         kb = self.new_Store()
         kb.unset_flags(kb.BEST_RANK)
         stmt = next(kb.filter(
-            wd.Adam, wd.date_of_death, snak_mask=Snak.VALUE_SNAK))
+            wd.Adam, wd.date_of_death, snak_mask=Filter.VALUE_SNAK))
         self.assert_statement(
             stmt, wd.Adam, wd.date_of_death(
                 Time('3073-01-01', 9, 0, wd.proleptic_Julian_calendar)))
         kb.set_flags(kb.BEST_RANK)
         it = kb.filter(
-            wd.Adam, wd.date_of_death, snak_mask=Snak.VALUE_SNAK)
+            wd.Adam, wd.date_of_death, snak_mask=Filter.VALUE_SNAK)
         self.assertRaises(StopIteration, next, it)
 
     def test_filter_snak_mask_some_value_snak(self):
         kb = self.new_Store()
         kb.unset_flags(kb.BEST_RANK)
         stmt = next(kb.filter(
-            wd.Adam, wd.date_of_death, snak_mask=Snak.SOME_VALUE_SNAK))
+            wd.Adam, wd.date_of_death, snak_mask=Filter.SOME_VALUE_SNAK))
         self.assert_statement(
-            stmt, wd.Adam, SomeValueSnak(wd.date_of_death))
+            stmt, wd.Adam, SomeValueSnak(
+                wd.date_of_death.replace(KIF_Object.KEEP, Time)))
 
     def test_filter_snak_mask_no_value_snak(self):
         kb = self.new_Store()
         stmt = next(kb.filter(
-            wd.Adam, wd.date_of_birth, snak_mask=Snak.NO_VALUE_SNAK))
-        self.assert_statement(
-            stmt, wd.Adam, NoValueSnak(wd.date_of_birth))
+            wd.Adam, wd.father, snak_mask=Filter.NO_VALUE_SNAK))
+        self.assert_statement(stmt, wd.Adam, NoValueSnak(
+            wd.father.replace(KIF_Object.KEEP, Item)))
 
     def test_filter_store_flag_early_late_filter(self):
         kb = self.new_Store()
         kb.unset_flags(kb.EARLY_FILTER | kb.BEST_RANK)
         res = list(kb.filter(
-            wd.Adam, wd.date_of_death, None, Snak.SOME_VALUE_SNAK))
+            wd.Adam, wd.date_of_death, None, Filter.SOME_VALUE_SNAK))
         self.assertEqual(
-            res, [Statement(wd.Adam, SomeValueSnak(wd.date_of_death))])
+            res, [Statement(wd.Adam, SomeValueSnak(
+                wd.date_of_death.replace(KIF_Object.KEEP, Time)))])
         kb.unset_flags(kb.LATE_FILTER)
-        res = sorted(list(kb.filter(
-            wd.Adam, wd.date_of_death, None, Snak.SOME_VALUE_SNAK)))
+        res = sorted(list(kb.filter(wd.Adam, wd.date_of_death)))
         self.assertEqual(len(res), 2)
         self.assert_statement(
-            res[0], wd.Adam, SomeValueSnak(wd.date_of_death))
+            res[0], wd.Adam, SomeValueSnak(wd.date_of_death.replace(
+                KIF_Object.KEEP, Time)))
         self.assert_statement(
-            res[1], wd.Adam, wd.date_of_death(Time('3073-01-01')))
+            res[1], wd.Adam, wd.date_of_death(
+                Time('3073-01-01', 9, 0, wd.proleptic_Julian_calendar)))
 
 
 if __name__ == '__main__':

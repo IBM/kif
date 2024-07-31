@@ -6,9 +6,9 @@ from kif_lib import (
     Item,
     ItemDatatype,
     ItemDescriptor,
+    KIF_Object,
     Lexeme,
     LexemeDescriptor,
-    Nil,
     Property,
     PropertyDescriptor,
     Store,
@@ -27,6 +27,8 @@ from .data import (
 )
 from .tests import kif_StoreTestCase
 
+KEEP = KIF_Object.KEEP
+
 
 class TestStoreMixerDescriptors(kif_StoreTestCase):
 
@@ -40,14 +42,15 @@ class TestStoreMixerDescriptors(kif_StoreTestCase):
     kb_extra = kif_StoreTestCase.parse('''
 # andar - verb - portuguese
 wd:L46803
-    schema:version "0"^^xsd:integer ;
+    a <http://www.w3.org/ns/lemon/ontolex#LexicalEntry> ;
+    wikibase:sitelinks [] ;
     wikibase:lemma "andar"@pt ;
     wikibase:lexicalCategory wd:Q24905 ;
     dct:language wd:Q5146 .
 
 # benzene
 wd:Q2270
-    schema:version "0"^^xsd:integer ;
+    wikibase:sitelinks [] ;
     rdfs:label "benzene"@en ;
     rdfs:label "benzeno"@pt-br ;
     skos:altLabel "C6H6"@en ;
@@ -58,7 +61,7 @@ wd:Q2270
 
 # Brazil
 wd:Q155
-    schema:version "0"^^xsd:integer ;
+    wikibase:sitelinks [] ;
     rdfs:label "Brazil"@en ;
     rdfs:label "Brasil"@pt-br ;
     skos:altLabel "🇧🇷"@en ;
@@ -66,8 +69,13 @@ wd:Q155
 
 # instance of
 wd:P31
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:claim p:P31 ;
+    wikibase:directClaim wdt:P31 ;
+    wikibase:novalue wdno:P31 ;
+    wikibase:statementProperty ps:P31 ;
+    wikibase:statementValue psv:P31 ;
     rdfs:label "instancia de"@es ;
     skos:altLabel "∈"@en ;
     skos:altLabel "rdf:type"@en ;
@@ -354,11 +362,11 @@ wd:P31
             ItemDescriptor(None, None, self.extra_benzene_pt_br[2]))
         test_case(
             kb, Descriptor.LABEL | Descriptor.ALIASES,
-            ADAM_TTL.Adam_pt_br.replace(None, None, Nil),
+            ADAM_TTL.Adam_pt_br.replace(KEEP, KEEP, None),
             BRAZIL_TTL.Brazil_pt_br.replace(
-                None,
+                KEEP,
                 TextSet(*self.extra_Brazil_pt_br[1],
-                        *BRAZIL_TTL.Brazil_pt_br[1]), Nil),
+                        *BRAZIL_TTL.Brazil_pt_br[1]), None),
             ItemDescriptor(*self.extra_benzene_pt_br[0:2]))
         # no early filter
         kb.unset_flags(kb.EARLY_FILTER)
@@ -373,7 +381,7 @@ wd:P31
             kb, 0,
             ADAM_TTL.Adam_pt_br,
             BRAZIL_TTL.Brazil_pt_br.replace(
-                None,
+                KEEP,
                 TextSet(*self.extra_Brazil_pt_br[1],
                         *BRAZIL_TTL.Brazil_pt_br[1])),
             self.extra_benzene_pt_br)

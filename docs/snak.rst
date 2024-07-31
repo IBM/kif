@@ -4,14 +4,8 @@ Snak
 
 .. currentmodule:: kif_lib
 
-.. inheritance-diagram:: KIF_Object
-                         NoValueSnak
-                         Snak
-                         SomeValueSnak
-                         ValueSnak
-   :top-classes: kif_lib.model.kif_object.KIF_Object
-   :parts: -3
-   :caption: Snak hierarchy.
+.. autosummary::
+   :toctree: generated/
 
 Snak
 ----
@@ -19,7 +13,6 @@ Snak
    :toctree: generated/
 
    Snak
-   Snak.mask
    Snak.property
 
 Mask
@@ -46,7 +39,6 @@ SomeValueSnak
    :toctree: generated/
 
    SomeValueSnak
-
 
 NoValueSnak
 -----------

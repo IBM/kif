@@ -31,9 +31,7 @@
 
 # andar - verb - portuguese
 wd:L46803
-
-    # description
-    schema:version "0"^^xsd:integer ;
+    a <http://www.w3.org/ns/lemon/ontolex#LexicalEntry> ;
     wikibase:lemma "andar"@pt ;
     wikibase:lexicalCategory wd:Q24905 ;
     dct:language wd:Q5146 .

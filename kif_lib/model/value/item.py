@@ -1,25 +1,16 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ... import namespace as NS
-from ...itertools import chain
-from ...rdflib import URIRef
-from ...typing import cast, ClassVar, Iterable, Optional, TypeAlias, Union
-from ..kif_object import TLocation
+from ...typing import ClassVar, Iterable, TypeAlias, Union
 from ..variable import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
-from .iri import IRI, IRI_Template, T_IRI
-from .string import String
+from .iri import IRI_Template, T_IRI
 from .value import Datatype
 
-ItemClass: TypeAlias = type['Item']
-ItemDatatypeClass: TypeAlias = type['ItemDatatype']
-ItemTemplateClass: TypeAlias = type['ItemTemplate']
-ItemVariableClass: TypeAlias = type['ItemVariable']
-
 TItem: TypeAlias = Union['Item', T_IRI]
-VTItemContent: TypeAlias = Union[IRI_Template, Variable, 'TItem']
 VItem: TypeAlias = Union['ItemTemplate', 'ItemVariable', 'Item']
+VTItem: TypeAlias = Union[Variable, VItem, TItem]
+VTItemContent: TypeAlias = Union[Variable, IRI_Template, TItem]
 
 
 class ItemTemplate(EntityTemplate):
@@ -29,7 +20,7 @@ class ItemTemplate(EntityTemplate):
        iri: IRI, IRI template, or IRI variable.
     """
 
-    object_class: ClassVar[ItemClass]  # pyright: ignore
+    object_class: ClassVar[type['Item']]  # pyright: ignore
 
     def __init__(self, iri: VTItemContent):
         super().__init__(iri)
@@ -42,25 +33,13 @@ class ItemVariable(EntityVariable):
        name: Name.
     """
 
-    object_class: ClassVar[ItemClass]  # pyright: ignore
-
-    @classmethod
-    def _preprocess_arg_item_variable(
-            cls,
-            arg: Variable,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> 'ItemVariable':
-        return cast(ItemVariable, cls._preprocess_arg_variable(
-            arg, i, function or cls))
+    object_class: ClassVar[type['Item']]  # pyright: ignore
 
 
 class ItemDatatype(Datatype):
     """Item datatype."""
 
-    value_class: ClassVar[ItemClass]  # pyright: ignore
-
-    _uri: ClassVar[URIRef] = NS.WIKIBASE.WikibaseItem
+    value_class: ClassVar[type['Item']]  # pyright: ignore
 
 
 class Item(
@@ -75,21 +54,10 @@ class Item(
        iri: IRI.
     """
 
-    datatype_class: ClassVar[ItemDatatypeClass]  # pyright: ignore
-    datatype: ClassVar[ItemDatatype]             # pyright: ignore
-    template_class: ClassVar[ItemTemplateClass]  # pyright: ignore
-    variable_class: ClassVar[ItemVariableClass]  # pyright: ignore
-
-    @classmethod
-    def _check_arg_item(
-            cls,
-            arg: TItem,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> 'Item':
-        return cls(cls._check_arg_isinstance(
-            arg, (cls, IRI, URIRef, String, str), function, name, position))
+    datatype_class: ClassVar[type[ItemDatatype]]  # pyright: ignore
+    datatype: ClassVar[ItemDatatype]              # pyright: ignore
+    template_class: ClassVar[type[ItemTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[ItemVariable]]  # pyright: ignore
 
     def __init__(self, iri: VTItemContent):
         super().__init__(iri)
@@ -105,4 +73,5 @@ def Items(iri: VTItemContent, *iris: VTItemContent) -> Iterable[Item]:
     Returns:
        The resulting items.
     """
-    return map(Item, chain([iri], iris))
+    from ... import itertools
+    return map(Item, itertools.chain((iri,), iris))

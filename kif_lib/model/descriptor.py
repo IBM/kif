@@ -3,10 +3,19 @@
 
 from enum import auto, Flag
 
-from ..typing import Any, Final, Optional, override, Union
-from .kif_object import KIF_Object, TLocation
-from .value import Datatype, Item, Text, TText
-from .value_set import TextSet, TTextSet
+from ..typing import (
+    Any,
+    Callable,
+    Final,
+    Optional,
+    override,
+    Self,
+    TypeAlias,
+    Union,
+)
+from .kif_object import KIF_Object
+from .set import TextSet, TTextSet
+from .value import Datatype, Item, TDatatype, Text, TItem, TText
 
 
 class Descriptor(KIF_Object):
@@ -51,6 +60,44 @@ class Descriptor(KIF_Object):
             | PROPERTY_DESCRIPTOR_ATTRIBUTES
             | LEXEME_DESCRIPTOR_ATTRIBUTES)
 
+        @classmethod
+        def check(
+                cls,
+                arg: Any,
+                function: Optional[Union[Callable[..., Any], str]] = None,
+                name: Optional[str] = None,
+                position: Optional[int] = None
+        ) -> Self:
+            if isinstance(arg, cls):
+                return arg
+            elif isinstance(arg, int):
+                try:
+                    return cls(arg)
+                except ValueError as err:
+                    raise Descriptor._check_error(
+                        arg, function or cls.check, name, position,
+                        ValueError, to_=cls.__qualname__) from err
+            else:
+                raise Descriptor._check_error(
+                    arg, function or cls.check, name, position,
+                    to_=cls.__qualname__)
+
+        @classmethod
+        def check_optional(
+                cls,
+                arg: Optional[Any],
+                default: Optional[Any] = None,
+                function: Optional[Union[Callable[..., Any], str]] = None,
+                name: Optional[str] = None,
+                position: Optional[int] = None
+        ) -> Optional[Self]:
+            if arg is None:
+                arg = default
+            if arg is None:
+                return arg
+            else:
+                return cls.check(arg, function, name, position)
+
     #: Mask for the label attribute of descriptor.
     LABEL: Final[AttributeMask] = AttributeMask.LABEL
 
@@ -87,70 +134,24 @@ class Descriptor(KIF_Object):
     #: Mask for all attributes of descriptor.
     ALL: Final[AttributeMask] = AttributeMask.ALL
 
-    TAttributeMask = Union[AttributeMask, int]
-
-    @classmethod
-    def _check_arg_descriptor_attribute_mask(
-            cls,
-            arg: TAttributeMask,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> AttributeMask:
-        return cls.AttributeMask(cls._check_arg_isinstance(
-            arg, (cls.AttributeMask, int), function, name, position))
-
-    @classmethod
-    def _check_optional_arg_descriptor_attribute_mask(
-            cls,
-            arg: Optional[TAttributeMask],
-            default: Optional[AttributeMask] = None,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[AttributeMask]:
-        if arg is None:
-            return default
-        else:
-            return cls._check_arg_descriptor_attribute_mask(
-                arg, function, name, position)
-
-    @classmethod
-    def _preprocess_arg_descriptor_attribute_mask(
-            cls,
-            arg: TAttributeMask,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> AttributeMask:
-        return cls._check_arg_descriptor_attribute_mask(
-            arg, function or cls, None, i)
-
-    @classmethod
-    def _preprocess_optional_arg_descriptor_attribute_mask(
-            cls,
-            arg,
-            i: int,
-            default: Optional[AttributeMask] = None,
-            function: Optional[TLocation] = None
-    ) -> Optional[AttributeMask]:
-        if arg is None:
-            return default
-        else:
-            return cls._preprocess_arg_descriptor_attribute_mask(
-                arg, i, function)
+    TAttributeMask: TypeAlias = Union[AttributeMask, int]
 
 
 class PlainDescriptor(Descriptor):
     """Abstract base class for plain descriptors."""
 
+    #: Default aliases.
+    default_aliases: Final[TextSet] = TextSet()
+
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
-        if i == 1:
-            return self._preprocess_optional_arg_text(arg, i)
-        elif i == 2:
-            return self._preprocess_optional_arg_text_set(arg, i, TextSet())
-        elif i == 3:
-            return self._preprocess_optional_arg_text(arg, i)
+        if i == 1:              # label
+            return Text.check_optional(arg, None, type(self), None, i)
+        elif i == 2:            # aliases
+            return TextSet.check_optional(
+                arg, self.default_aliases, type(self), None, i)
+        elif i == 3:            # description
+            return Text.check_optional(arg, None, type(self), None, i)
         else:
             raise self._should_not_get_here()
 
@@ -173,8 +174,7 @@ class PlainDescriptor(Descriptor):
         Returns:
            Label.
         """
-        label = self.args[0]
-        return label if label is not None else default
+        return self.get(0, default)
 
     @property
     def aliases(self) -> TextSet:
@@ -208,8 +208,7 @@ class PlainDescriptor(Descriptor):
         Returns:
            Description.
         """
-        description = self.args[2]
-        return description if description is not None else default
+        return self.get(2, default)
 
 
 class ItemDescriptor(PlainDescriptor):
@@ -245,14 +244,14 @@ class PropertyDescriptor(PlainDescriptor):
             label: Optional[TText] = None,
             aliases: Optional[TTextSet] = None,
             description: Optional[TText] = None,
-            datatype: Optional[Datatype] = None
+            datatype: Optional[TDatatype] = None
     ):
         super().__init__(label, aliases, description, datatype)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
-        if i == 4:
-            return self._preprocess_optional_arg_datatype(arg, i)
+        if i == 4:              # datatype
+            return Datatype.check_optional(arg, None, type(self), None, i)
         else:
             return super()._preprocess_arg(arg, i)
 
@@ -275,8 +274,7 @@ class PropertyDescriptor(PlainDescriptor):
         Returns:
            Datatype.
         """
-        datatype = self.args[3]
-        return datatype if datatype is not None else default
+        return self.get(3, default)
 
 
 class LexemeDescriptor(Descriptor):
@@ -291,19 +289,19 @@ class LexemeDescriptor(Descriptor):
     def __init__(
             self,
             lemma: Optional[TText] = None,
-            category: Optional[Item] = None,
-            language: Optional[Item] = None
+            category: Optional[TItem] = None,
+            language: Optional[TItem] = None
     ):
         super().__init__(lemma, category, language)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
-        if i == 1:
-            return self._preprocess_optional_arg_text(arg, i)
-        elif i == 2:
-            return self._preprocess_optional_arg_item(arg, i)
-        elif i == 3:
-            return self._preprocess_optional_arg_item(arg, i)
+        if i == 1:              # lemma
+            return Text.check_optional(arg, None, type(self), None, i)
+        elif i == 2:            # category
+            return Item.check_optional(arg, None, type(self), None, i)
+        elif i == 3:            # language
+            return Item.check_optional(arg, None, type(self), None, i)
         else:
             raise self._should_not_get_here()
 
@@ -323,8 +321,7 @@ class LexemeDescriptor(Descriptor):
         Returns:
            Lemma.
         """
-        lemma = self.args[0]
-        return lemma if lemma is not None else default
+        return self.get(0, default)
 
     @property
     def category(self) -> Optional[Item]:
@@ -342,8 +339,7 @@ class LexemeDescriptor(Descriptor):
         Returns:
            Lexical category.
         """
-        category = self.args[1]
-        return category if category is not None else default
+        return self.get(1, default)
 
     @property
     def language(self) -> Optional[Item]:
@@ -361,5 +357,4 @@ class LexemeDescriptor(Descriptor):
         Returns:
            Language.
         """
-        language = self.args[2]
-        return language if language is not None else default
+        return self.get(2, default)

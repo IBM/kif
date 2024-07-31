@@ -14,25 +14,34 @@ from collections.abc import (
     Sequence,
     Set,
 )
-from typing import (
+from types import TracebackType
+
+from typing_extensions import (
     Any,
+    assert_type,
     BinaryIO,
     cast,
     ClassVar,
     Final,
+    Generic,
     IO,
+    Literal,
     NoReturn,
     Optional,
     overload,
+    override,
+    Protocol,
+    Self,
     TextIO,
+    TypeAlias,
+    TypedDict,
     TypeVar,
     Union,
 )
 
-from typing_extensions import override, TypeAlias
-
 __all__ = (
     'Any',
+    'assert_type',
     'BinaryIO',
     'Callable',
     'cast',
@@ -40,10 +49,12 @@ __all__ = (
     'Collection',
     'Final',
     'Generator',
+    'Generic',
     'Hashable',
     'IO',
     'Iterable',
     'Iterator',
+    'Literal',
     'Mapping',
     'MutableMapping',
     'MutableSet',
@@ -51,10 +62,14 @@ __all__ = (
     'Optional',
     'overload',
     'override',
+    'Protocol',
+    'Self',
     'Sequence',
     'Set',
     'TextIO',
+    'TracebackType',
     'TypeAlias',
+    'TypedDict',
     'TypeVar',
     'Union',
 )

@@ -1,6 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
+import decimal
 import io
 import json
 import re
@@ -8,8 +10,7 @@ import re
 from .. import namespace as NS
 from ..model import (
     Datatype,
-    Datetime,
-    Decimal,
+    DeepDataValue,
     Entity,
     IRI,
     Item,
@@ -154,7 +155,8 @@ class SPARQL_Results(Mapping):
                     ###
                     for fmt in ['%Y-%m-%d', '%Y-%m-%d%z']:
                         try:
-                            value = Datetime.strptime(value, fmt).isoformat()
+                            value = datetime.datetime.strptime(
+                                value, fmt).isoformat()
                             break
                         except ValueError:
                             pass
@@ -280,11 +282,11 @@ class SPARQL_Results(Mapping):
                 var_qt_upper: str,
                 value: Optional[Quantity] = None
         ) -> Quantity:
-            assert value is None or value.is_quantity()
-            qt_amount: Decimal
+            assert value is None or isinstance(value, Quantity)
+            qt_amount: decimal.Decimal
             qt_unit: Optional[Item]
-            qt_lb: Optional[Decimal]
-            qt_ub: Optional[Decimal]
+            qt_lb: Optional[decimal.Decimal]
+            qt_ub: Optional[decimal.Decimal]
             if value:
                 qt_amount = cast(Quantity, value).amount
             else:
@@ -317,8 +319,8 @@ class SPARQL_Results(Mapping):
                 var_tm_calendar: str,
                 value: Optional[Time] = None
         ) -> Time:
-            assert value is None or value.is_time()
-            tm_value: Datetime
+            assert value is None or isinstance(value, Time)
+            tm_value: datetime.datetime
             tm_prec: Optional[int]
             tm_tz: Optional[int]
             tm_cal: Optional[Item]
@@ -361,13 +363,13 @@ class SPARQL_Results(Mapping):
                 value: Optional[Value] = None,
         ) -> Snak:
             if value:
-                if value.is_deep_data_value():
-                    if value.is_quantity():
+                if isinstance(value, DeepDataValue):
+                    if isinstance(value, Quantity):
                         return ValueSnak(property, self.check_quantity(
                             var_qt_amount, var_qt_unit,
                             var_qt_lower, var_qt_upper,
                             cast(Quantity, value)))
-                    elif value.is_time():
+                    elif isinstance(value, Time):
                         return ValueSnak(property, self.check_time(
                             var_tm_value, var_tm_precision,
                             var_tm_timezone, var_tm_calendar,
@@ -443,7 +445,7 @@ class SPARQL_Results(Mapping):
                 self,
                 var: str,
                 _re=re.compile(r'^[+-]?(\d+)-(\d+)-(\d+)')
-        ) -> Datetime:
+        ) -> datetime.datetime:
             from datetime import date, time
             val = self.check_literal(var)
             if val.datatype != NS.XSD.dateTime:
@@ -452,23 +454,23 @@ class SPARQL_Results(Mapping):
                 dt = val.toPython()
             except ValueError:
                 dt = str(val)
-            if isinstance(dt, Datetime):
+            if isinstance(dt, datetime.datetime):
                 return dt
             elif isinstance(dt, date):
-                return Datetime.combine(dt, time())
+                return datetime.datetime.combine(dt, time())
             elif isinstance(dt, str):
                 m = _re.match(dt)
                 if m is None:
-                    return Datetime.fromisoformat(str(val))
+                    return datetime.datetime.fromisoformat(str(val))
                 else:
                     y, m, _ = map(int, m.groups())
                     y = max(min(y, 9999), 1)
                     m = max(min(m, 12), 1)
-                    return Datetime(y, m, 1)
+                    return datetime.datetime(y, m, 1)
             else:
                 raise Store._should_not_get_here()
 
-        def check_decimal(self, var: str) -> Decimal:
+        def check_decimal(self, var: str) -> decimal.Decimal:
             val = self.check_literal(var)
             if val.datatype != NS.XSD.decimal:
                 self._error_bad(var, 'a xsd:decimal', val.n3())

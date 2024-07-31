@@ -36,6 +36,7 @@ class WIKIBASE(DefinedNamespace):
     quantityUnit: URIRef
     quantityUpperBound: URIRef
     rank: URIRef
+    sitelinks: URIRef
     statementProperty: URIRef
     statementValue: URIRef
     timeCalendarModel: URIRef

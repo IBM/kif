@@ -4,17 +4,18 @@
 from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
+    ExternalId,
+    Filter,
+    Item,
+    KIF_Object,
     Normal,
     NoValueSnak,
     Preferred,
-    PropertyFingerprint,
     Quantity,
     ReferenceRecord,
-    Snak,
     SomeValueSnak,
     Statement,
     Store,
-    String,
     Text,
     Time,
 )
@@ -144,7 +145,9 @@ class TestStoreRDF(kif_StoreTestCase):
 
     def _test_count(self, kb):
         self.store_test_count(kb, 15)
-        self.store_test_count(kb, 12, snak_mask=Snak.VALUE_SNAK)
+        self.store_test_count(kb, 12, snak_mask=Filter.VALUE_SNAK)
+        self.store_test_count(kb, 2, snak_mask=Filter.NO_VALUE_SNAK)
+        self.store_test_count(kb, 1, snak_mask=Filter.SOME_VALUE_SNAK)
         self.store_test_count(kb, 2, wd.InChIKey)
         self.store_test_count(kb, 4, wd.Brazil)
         self.store_test_count(kb, 1, wd.benzene, wd.mass)
@@ -196,20 +199,21 @@ class TestStoreRDF(kif_StoreTestCase):
             '1822-09-07', None, None, wd.proleptic_Julian_calendar))
         # some value
         self.store_test_count(
-            kb, 1, None, None, None, Snak.SOME_VALUE_SNAK)
+            kb, 1, None, None, None, Filter.SOME_VALUE_SNAK)
         self.store_test_count(
-            kb, 1, None, wd.family_name, None, Snak.SOME_VALUE_SNAK)
+            kb, 1, None, wd.family_name, None, Filter.SOME_VALUE_SNAK)
         # no value
         self.store_test_count(
-            kb, 2, None, None, None, Snak.NO_VALUE_SNAK)
+            kb, 2, None, None, None, Filter.NO_VALUE_SNAK)
         self.store_test_count(
-            kb, 1, None, wd.date_of_birth, None, Snak.NO_VALUE_SNAK)
+            kb, 1, None, wd.date_of_birth, None, Filter.NO_VALUE_SNAK)
         self.store_test_count(
-            kb, 1, None, wd.father, None, Snak.NO_VALUE_SNAK)
+            kb, 1, None, wd.father, None, Filter.NO_VALUE_SNAK)
         # subject is snak set
         self.store_test_count(
             kb, 4, wd.instance_of(wd.type_of_a_chemical_entity))
         # property is snak set
+        self.store_test_count(kb, 2, wd.InChIKey)
         self.store_test_count(kb, 1, None, wd.related_property(wd.InChI))
         # value is snak set
         self.store_test_count(
@@ -238,115 +242,194 @@ class TestStoreRDF(kif_StoreTestCase):
         # subject
         self.store_test_filter(
             kb,
-            [wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),
-             wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N'),
-             wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),
-             wd.density(wd.benzene, Quantity(
-                 '0.88', wd.gram_per_cubic_centimetre, '0.87', '.89'))],
-            subject=wd.benzene)
+            stmts=[
+                wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),
+                wd.InChIKey(
+                    wd.benzene, ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N')),
+                wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),
+                wd.density(wd.benzene, Quantity(
+                    '0.88', wd.gram_per_cubic_centimetre, '0.87', '.89'))],
+            subject=wd.benzene
+        )
         self.store_test_filter(
             kb,
-            [wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),
-             wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N'),
-             wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),
-             wd.density(wd.benzene, Quantity(
-                 '0.88', wd.gram_per_cubic_centimetre, '0.87', '.89'))],
-            subject=wd.InChIKey('UHOVQNZJYSORNB-UHFFFAOYSA-N'))
+            stmts=[
+                wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),
+                wd.InChIKey(
+                    wd.benzene, ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N')),
+                wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),
+                wd.density(wd.benzene, Quantity(
+                    '0.88', wd.gram_per_cubic_centimetre, '0.87', '.89'))],
+            subject=wd.InChIKey('UHOVQNZJYSORNB-UHFFFAOYSA-N')
+        )
         # subject, property
         self.store_test_filter(
             kb,
-            [wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')],
-            wd.benzene, wd.InChIKey)
+            stmts=[wd.InChIKey(
+                wd.benzene, ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N'))],
+            subject=wd.benzene,
+            property=wd.InChIKey.replace(KIF_Object.KEEP, ExternalId)
+        )
         self.store_test_filter(
             kb,
-            [wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
-            wd.benzene, wd.mass)
+            stmts=[wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
+            subject=wd.benzene,
+            property=wd.mass.replace(KIF_Object.KEEP, Quantity)
+        )
         self.store_test_filter(
             kb,
-            [wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')],
-            wd.instance_of(wd.type_of_a_chemical_entity), wd.InChIKey)
+            stmts=[wd.InChIKey(
+                wd.benzene, ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N'))],
+            subject=wd.instance_of(wd.type_of_a_chemical_entity),
+            property=wd.InChIKey.replace(KIF_Object.KEEP, ExternalId)
+        )
         self.store_test_filter(
             kb,
-            [wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')],
-            wd.benzene, wd.related_property(wd.InChI))
+            stmts=[wd.InChIKey(
+                wd.benzene, ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N'))],
+            subject=wd.benzene,
+            property=wd.related_property(wd.InChI)
+        )
         # subject, property, value
         self.store_test_filter(
             kb,
-            [wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
-            wd.benzene, wd.mass, Quantity('78.046950192', wd.dalton))
+            stmts=[wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
+            subject=wd.benzene,
+            property=wd.mass.replace(KIF_Object.KEEP, Quantity),
+            value=Quantity('78.046950192', wd.dalton)
+        )
         self.store_test_filter(
             kb,
-            [],
-            wd.benzene, wd.mass, Quantity('78.12', wd.dalton))
+            stmts=[],
+            subject=wd.benzene,
+            property=wd.mass.replace(KIF_Object.KEEP, Quantity),
+            value=Quantity('78.12', wd.dalton)
+        )
         # property
         self.store_test_filter(
             kb,
-            [wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
-            None, wd.mass)
+            stmts=[wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
+            subject=None,
+            property=wd.mass.replace(KIF_Object.KEEP, Quantity)
+        )
         self.store_test_filter(
             kb,
-            [wd.density(wd.benzene, Quantity(
-                '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))],
-            None, wd.density)
+            stmts=[
+                wd.density(wd.benzene, Quantity(
+                    '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))
+            ],
+            subject=None,
+            property=wd.density.replace(KIF_Object.KEEP, Quantity)
+        )
         self.store_test_filter(
             kb,
-            [wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')],
-            None, PropertyFingerprint(
-                [wd.instance_of(
-                    wd.Wikidata_property_to_identify_substances),
-                 wd.related_property(wd.InChI)]))
+            stmts=[wd.InChIKey(
+                wd.benzene, ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N'))],
+            subject=None,
+            property=(
+                wd.instance_of(wd.Wikidata_property_to_identify_substances)
+                & wd.related_property(wd.InChI))
+        )
         # property, value
         self.store_test_filter(
             kb,
-            [wd.density(wd.benzene, Quantity(
-                '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))],
-            None, wd.density, Quantity('.88'))
+            stmts=[
+                wd.density(wd.benzene, Quantity(
+                    '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))
+            ],
+            subject=None,
+            property=wd.density.replace(KIF_Object.KEEP, Quantity),
+            value=Quantity('.88')
+        )
         self.store_test_filter(
             kb,
-            [],
-            None, wd.density, Quantity('.88', wd.kilogram))
+            stmts=[],
+            subject=None,
+            property=wd.density.replace(KIF_Object.KEEP, Quantity),
+            value=Quantity('.88', wd.kilogram)
+        )
         # value
         self.store_test_filter(
             kb,
-            [],
-            None, None, Text('Brazil', 'en'))
+            stmts=[],
+            subject=None,
+            property=None,
+            value=Text('Brazil', 'en')
+        )
         self.store_test_filter(
             kb,
-            [wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
-            None, None, Quantity('78.046950192'))
+            stmts=[wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
+            subject=None,
+            property=None,
+            value=Quantity('78.046950192')
+        )
         self.store_test_filter(
             kb,
-            [],
-            None, None, Quantity('78.046950192', wd.kilogram))
+            stmts=[],
+            subject=None,
+            property=None,
+            value=Quantity('78.046950192', wd.kilogram)
+        )
         self.store_test_filter(
             kb,
-            [wd.inception(wd.Brazil, Time(
-                '1822-09-07', Time.DAY, 0,
-                wd.proleptic_Gregorian_calendar))],
-            None, None, Time('1822-09-07'))
+            stmts=[
+                wd.inception(wd.Brazil, Time(
+                    '1822-09-07', Time.DAY, 0,
+                    wd.proleptic_Gregorian_calendar))
+            ],
+            subject=None,
+            property=None,
+            value=Time('1822-09-07')
+        )
         self.store_test_filter(
             kb,
-            [],
-            None, None, Time('1822-09-07', Time.YEAR))
+            stmts=[],
+            subject=None,
+            property=None,
+            value=Time('1822-09-07', Time.YEAR)
+        )
         # some value
         self.store_test_filter(
             kb,
-            [Statement(wd.Adam, SomeValueSnak(wd.family_name))],
-            None, wd.family_name, None, Snak.SOME_VALUE_SNAK)
+            stmts=[Statement(wd.Adam, SomeValueSnak(
+                wd.family_name.replace(KIF_Object.KEEP, Item)))],
+            subject=None,
+            property=wd.family_name,
+            value=None,
+            snak_mask=Filter.SOME_VALUE_SNAK
+        )
         self.store_test_filter(
             kb,
-            [Statement(wd.Adam, SomeValueSnak(wd.family_name))],
-            None, None, None, Snak.SOME_VALUE_SNAK)
+            stmts=[Statement(wd.Adam, SomeValueSnak(
+                wd.family_name.replace(KIF_Object.KEEP, Item)))],
+            subject=None,
+            property=None,
+            value=None,
+            snak_mask=Filter.SOME_VALUE_SNAK
+        )
         # no value
         self.store_test_filter(
             kb,
-            [Statement(wd.Adam, NoValueSnak(wd.date_of_birth))],
-            None, wd.date_of_birth, None, Snak.NO_VALUE_SNAK)
+            stmts=[Statement(wd.Adam, NoValueSnak(
+                wd.date_of_birth.replace(KIF_Object.KEEP, Time)))],
+            subject=None,
+            property=wd.date_of_birth,
+            value=None,
+            snak_mask=Filter.NO_VALUE_SNAK
+        )
         self.store_test_filter(
             kb,
-            [Statement(wd.Adam, NoValueSnak(wd.father)),
-             Statement(wd.Adam, NoValueSnak(wd.date_of_birth))],
-            None, None, None, Snak.NO_VALUE_SNAK)
+            stmts=[
+                Statement(wd.Adam, NoValueSnak(
+                    wd.father.replace(KIF_Object.KEEP, Item))),
+                Statement(wd.Adam, NoValueSnak(
+                    wd.date_of_birth.replace(KIF_Object.KEEP, Time)))
+            ],
+            subject=None,
+            property=None,
+            value=None,
+            snak_mask=Filter.NO_VALUE_SNAK
+        )
 
     def test_filter_any_rank(self):
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
@@ -355,15 +438,25 @@ class TestStoreRDF(kif_StoreTestCase):
     def _test_filter_any_rank(self, kb):
         self.store_test_filter(
             kb,
-            [Statement(wd.Adam, NoValueSnak(wd.date_of_birth))],
-            wd.Adam, wd.date_of_birth)
+            stmts=[Statement(wd.Adam, NoValueSnak(
+                wd.date_of_birth.replace(KIF_Object.KEEP, Time)))],
+            subject=wd.Adam,
+            property=wd.date_of_birth
+        )
         kb.unset_flags(kb.BEST_RANK)
+        kb.unset_flags(kb.LATE_FILTER)
         self.store_test_filter(
             kb,
-            [Statement(wd.Adam, NoValueSnak(wd.date_of_birth)),
-             wd.date_of_birth(wd.Adam, Time(
-                 '4003-01-01', 9, 0, wd.proleptic_Julian_calendar))],
-            wd.Adam, wd.date_of_birth)
+            stmts=[
+                Statement(wd.Adam, NoValueSnak(
+                    wd.date_of_birth.replace(KIF_Object.KEEP, Time))),
+                wd.date_of_birth(wd.Adam, Time(
+                    '4003-01-01', 9, 0, wd.proleptic_Julian_calendar))
+            ],
+            subject=wd.Adam,
+            property=wd.date_of_birth.replace(KIF_Object.KEEP, Time)
+        )
+        kb.set_flags(kb.LATE_FILTER)
 
     # -- Annotations -------------------------------------------------------
 
@@ -381,7 +474,7 @@ class TestStoreRDF(kif_StoreTestCase):
                       [ReferenceRecord(
                           wd.stated_in(wd.PubChem),
                           wd.language_of_work_or_name(wd.English),
-                          wd.PubChem_CID('241'),
+                          wd.PubChem_CID.replace(KIF_Object.KEEP, None)('241'),
                           wd.title(Text('benzene', 'en')),
                           wd.retrieved(Time(
                               '2016-10-19', 11, 0,
@@ -399,15 +492,17 @@ class TestStoreRDF(kif_StoreTestCase):
                            20, wd.degree_Celsius, 19, 21))],
                       [ReferenceRecord(
                           wd.stated_in(wd.Hazardous_Substances_Data_Bank),
-                          wd.HSDB_ID('35#section=TSCA-Test-Submissions'))],
+                          wd.HSDB_ID.replace(KIF_Object.KEEP, None)(
+                              '35#section=TSCA-Test-Submissions'))],
                       Normal))),
              # 3
              (Statement(wd.Adam, NoValueSnak(wd.date_of_birth)),
               AnnotationRecordSet(
                   AnnotationRecord(
                       [],
-                      [ReferenceRecord(wd.reference_URL(String(
-                          'http://islamqa.info/ar/20907')))],
+                      [ReferenceRecord(
+                          wd.reference_URL.replace(KIF_Object.KEEP, None)(
+                              'http://islamqa.info/ar/20907'))],
                       Preferred))),
              # 4
              (wd.date_of_birth(wd.Adam, Time(
@@ -449,7 +544,7 @@ class TestStoreRDF(kif_StoreTestCase):
                       [ReferenceRecord(
                           wd.stated_in(wd.PubChem),
                           wd.language_of_work_or_name(wd.English),
-                          wd.PubChem_CID('241'),
+                          wd.PubChem_CID.replace(KIF_Object.KEEP, None)('241'),
                           wd.title(Text('benzene', 'en')),
                           wd.retrieved(Time(
                               '2016-10-19', 11, 0,
@@ -470,7 +565,8 @@ class TestStoreRDF(kif_StoreTestCase):
                            20, wd.degree_Celsius, 19, 21))],
                       [ReferenceRecord(
                           wd.stated_in(wd.Hazardous_Substances_Data_Bank),
-                          wd.HSDB_ID('35#section=TSCA-Test-Submissions')),
+                          wd.HSDB_ID.replace(KIF_Object.KEEP, None)(
+                              '35#section=TSCA-Test-Submissions')),
                        ReferenceRecord(
                            wd.stated_in(wd.Wikidata),
                            wd.reference_URL('http://www.wikidata.org/')),
@@ -492,19 +588,19 @@ class TestStoreRDF(kif_StoreTestCase):
               AnnotationRecordSet(
                   AnnotationRecord(
                       [],
-                      [ReferenceRecord(wd.reference_URL(String(
-                          'http://islamqa.info/ar/20907')))],
+                      [ReferenceRecord(wd.reference_URL.replace(
+                          KIF_Object.KEEP, None)(
+                          'http://islamqa.info/ar/20907'))],
                       Preferred))),
              (wd.date_of_birth(wd.Adam, Time(
                  '4003-01-01', 9, 0, wd.proleptic_Julian_calendar)),
               AnnotationRecordSet(
                   AnnotationRecord(
-                      [wd.statement_supported_by(
-                          'https://amazingbibletimeline.com/'
-                          'timeline_online/')],
-                      [ReferenceRecord(wd.reference_URL(String(
-                          'https://amazingbibletimeline.com/'
-                          'timeline_online/')))],
+                      [wd.statement_supported_by(wd.Q(746069))],
+                      [ReferenceRecord(wd.reference_URL.replace(
+                          KIF_Object.KEEP, None)(
+                              'https://amazingbibletimeline.com/'
+                              'timeline_online/'))],
                       Normal))),
              ],
             Statement(wd.Adam, NoValueSnak(wd.date_of_birth)),

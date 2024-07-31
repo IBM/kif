@@ -1,47 +1,26 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..itertools import chain
+from .. import itertools
 from ..typing import (
     Any,
+    Callable,
     ClassVar,
     Iterator,
     Mapping,
     Optional,
     Set,
-    TypeAlias,
     Union,
 )
-from .kif_object import KIF_Object, KIF_ObjectClass, TLocation
+from .kif_object import KIF_Object
 from .variable import Theta, Variable
-
-TemplateClass: TypeAlias = type['Template']
-TTemplateClass: TypeAlias = Union[TemplateClass, KIF_ObjectClass]
 
 
 class Template(KIF_Object):
     """Abstract base class for templates."""
 
     #: Object class associated with this template class.
-    object_class: ClassVar[KIF_ObjectClass]
-
-    @classmethod
-    def _check_arg_template_class(
-            cls,
-            arg: TTemplateClass,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> TemplateClass:
-        if issubclass(arg, cls):
-            return arg
-        else:
-            arg = cls._check_arg_kif_object_class(
-                arg, function, name, position)
-            return getattr(cls._check_arg(
-                arg, hasattr(arg, 'template_class'),
-                f'no template class for {arg.__qualname__}',
-                function, name, position), 'template_class')
+    object_class: ClassVar[type[KIF_Object]]
 
     def _preprocess_args(self, args: tuple[Any, ...]) -> tuple[Any, ...]:
         return self._normalize_args(super()._preprocess_args(args))
@@ -62,8 +41,8 @@ class Template(KIF_Object):
         # variables are inter-coercible.  This method will throw an error if
         # that is not the case.
         ###
-        vars = frozenset(chain(*map(
-            lambda x: (x,) if Variable.test(x) else x.variables,
+        vars = frozenset(itertools.chain(*map(
+            lambda x: (x,) if isinstance(x, Variable) else x.variables,
             filter(self._isinstance_template_or_variable, args))))
         most_specific: dict[str, Variable] = {}
         for var in vars:
@@ -72,8 +51,7 @@ class Template(KIF_Object):
             else:
                 cur = most_specific[var.name]
                 assert var != cur  # as there are no repetitions in vars
-                most_specific[var.name] = var._coerce(
-                    cur.__class__, self.__class__)
+                most_specific[var.name] = cur.check(var, type(self))
         theta: dict[Variable, Variable] = {}
         for var in vars:
             if var.name in most_specific and most_specific[var.name] != var:
@@ -100,7 +78,8 @@ class Template(KIF_Object):
 
     def _iterate_variables(self) -> Iterator[Variable]:
         return self._traverse(
-            Variable.test, self._isinstance_template_or_variable)
+            lambda x: isinstance(x, Variable),
+            self._isinstance_template_or_variable)
 
     def instantiate(self, theta: Theta, coerce: bool = True) -> KIF_Object:
         """Applies variable instantiation `theta` to template.
@@ -121,7 +100,7 @@ class Template(KIF_Object):
             self,
             theta: Theta,
             coerce: bool,
-            function: Optional[TLocation] = None,
+            function: Optional[Union[Callable[..., Any], str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> KIF_Object:

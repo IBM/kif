@@ -31,9 +31,7 @@
 
 # paint - verb - english
 wd:L96
-
-    # description
-    schema:version "0"^^xsd:integer ;
+    a <http://www.w3.org/ns/lemon/ontolex#LexicalEntry> ;
     wikibase:lemma "paint"@en ;
     wikibase:lexicalCategory wd:Q24905 ;
     dct:language wd:Q1860 .

@@ -49,7 +49,8 @@ class TestStoreABC_ExtraReferences(kif_EmptyStoreTestCase):
     def test_set_extra_references(self):
         kb = self.new_Store()
         self.assert_raises_bad_argument(
-            TypeError, 1, 'references', 'expected KIF_ObjectSet, got int',
+            TypeError, 1, 'references',
+            'cannot coerce int into ReferenceRecordSet',
             kb.set_extra_references, 0)
         self.assertEqual(
             kb.get_extra_references(), kb.default_extra_references)

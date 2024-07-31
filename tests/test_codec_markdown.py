@@ -4,10 +4,8 @@
 from kif_lib import (
     AnnotationRecord,
     Deprecated,
-    EntityFingerprint,
     ExternalIdDatatype,
-    FilterPattern,
-    Fingerprint,
+    Filter,
     IRI,
     IRI_Datatype,
     Item,
@@ -20,11 +18,9 @@ from kif_lib import (
     Preferred,
     Property,
     PropertyDatatype,
-    PropertyFingerprint,
     Quantity,
     QuantityDatatype,
     ReferenceRecord,
-    Snak,
     SnakSet,
     SomeValueSnak,
     String,
@@ -54,7 +50,7 @@ class TestCodecMarkdown(kif_TestCase):
             return f'(**{name}**{sep1}{body}{sep3})'
 
     def _md_sexp_helper(self, x):
-        return x.to_markdown() if KIF_Object.test(x) else str(x)
+        return x.to_markdown() if isinstance(x, KIF_Object) else str(x)
 
     def assert_to_markdown(self, obj, md):
         self.assertEqual(obj.to_markdown(), md)
@@ -269,10 +265,10 @@ class TestCodecMarkdown(kif_TestCase):
     def test_reference_record_to_markdown(self):
         ref = ReferenceRecord()
         self.assert_to_markdown(ref, '(**ReferenceRecord**)')
-        ref = ReferenceRecord(ValueSnak(wd.mass, wd.benzene))
+        ref = ReferenceRecord(ValueSnak(wd.part_of, wd.benzene))
         self.assert_to_markdown(ref, '''\
 (**ReferenceRecord**
-- (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Item** [benzene](http://www.wikidata.org/entity/Q2270))))''')  # noqa: E501
+- (**ValueSnak** (**Property** [part of](http://www.wikidata.org/entity/P361)) (**Item** [benzene](http://www.wikidata.org/entity/Q2270))))''')  # noqa: E501
         ref = ReferenceRecord(
             cast(ValueSnak, wd.canonical_SMILES(String('ABC'))),
             cast(ValueSnak, wd.country(wd.Brazil)),
@@ -302,60 +298,43 @@ class TestCodecMarkdown(kif_TestCase):
   - "sinônimo"@pt)
 - "descrição"@pt)''')
 
-    def test_fingerprint_to_markdown(self):
-        fp = Fingerprint(Quantity(0))
-        self.assert_to_markdown(
-            fp, self.md_sexp('Fingerprint', Quantity(0)))
-        fp = PropertyFingerprint([])
-        self.assert_to_markdown(fp, '''\
-(**PropertyFingerprint** (**SnakSet**))''')
-        fp = EntityFingerprint([
-            cast(ValueSnak, wd.mass(Quantity(0))),
-            cast(ValueSnak, wd.country(wd.Brazil))])
-
-        self.assert_to_markdown(
-            fp, '''\
-(**EntityFingerprint** (**SnakSet**
-  - (**ValueSnak** (**Property** [country](http://www.wikidata.org/entity/P17)) (**Item** [Brazil](http://www.wikidata.org/entity/Q155)))
-  - (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Quantity** 0))))''')  # noqa: E501
-
-    def test_filter_pattern_to_markdown(self):
-        self.assert_to_markdown(FilterPattern(), '''\
-(**FilterPattern**
-- *any entity*
-- *any property*
-- *any value*
+    def test_filter_to_markdown(self):
+        self.assert_to_markdown(Filter(), '''\
+(**Filter**
+- (**FullFingerprint**)
+- (**FullFingerprint**)
+- (**FullFingerprint**)
 - `0b111`)''')
-        pat = FilterPattern(wd.benzene)
+        pat = Filter(wd.benzene)
         self.assert_to_markdown(pat, '''\
-(**FilterPattern**
-- (**EntityFingerprint** (**Item** [benzene](http://www.wikidata.org/entity/Q2270)))
-- *any property*
-- *any value*
+(**Filter**
+- (**ValueFingerprint** (**Item** [benzene](http://www.wikidata.org/entity/Q2270)))
+- (**FullFingerprint**)
+- (**FullFingerprint**)
 - `0b111`)''')  # noqa: E501
-        pat = FilterPattern(
+        pat = Filter(
             None,
             None,
             [cast(ValueSnak, wd.country(wd.Brazil)),
              NoValueSnak(wd.date_of_birth)],
-            Snak.NO_VALUE_SNAK)
+            Filter.NO_VALUE_SNAK)
         self.assert_to_markdown(
             pat, '''\
-(**FilterPattern**
-- *any entity*
-- *any property*
-- (**Fingerprint** (**SnakSet**
-    - (**NoValueSnak** (**Property** [date of birth](http://www.wikidata.org/entity/P569)))
-    - (**ValueSnak** (**Property** [country](http://www.wikidata.org/entity/P17)) (**Item** [Brazil](http://www.wikidata.org/entity/Q155)))))
+(**Filter**
+- (**FullFingerprint**)
+- (**FullFingerprint**)
+- (**AndFingerprint**
+  - (**SnakFingerprint** (**ValueSnak** (**Property** [country](http://www.wikidata.org/entity/P17)) (**Item** [Brazil](http://www.wikidata.org/entity/Q155))))
+  - (**SnakFingerprint** (**NoValueSnak** (**Property** [date of birth](http://www.wikidata.org/entity/P569)))))
 - `0b100`)''')  # noqa: E501
 
     def test_snak_set_to_markdown(self):
         s = SnakSet()
         self.assert_to_markdown(s, '(**SnakSet**)')
-        s = SnakSet(cast(ValueSnak, wd.mass(wd.benzene)))
+        s = SnakSet(cast(ValueSnak, wd.part_of(wd.benzene)))
         self.assert_to_markdown(s, '''\
 (**SnakSet**
-- (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Item** [benzene](http://www.wikidata.org/entity/Q2270))))''')  # noqa: E501
+- (**ValueSnak** (**Property** [part of](http://www.wikidata.org/entity/P361)) (**Item** [benzene](http://www.wikidata.org/entity/Q2270))))''')  # noqa: E501
 
 
 if __name__ == '__main__':

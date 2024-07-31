@@ -4,12 +4,16 @@
 from typing import cast
 
 from kif_lib import (
+    ExternalId,
+    Filter,
+    Item,
+    KIF_Object,
     Normal,
     NoValueSnak,
     Preferred,
+    Property,
     Quantity,
     ReferenceRecord,
-    Snak,
     SomeValueSnak,
     Statement,
     String,
@@ -44,7 +48,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assertIsInstance(stmt, Statement)
         # force pagination
         it = iter(self.new_Store(page_size=5))
-        for i in range(12):
+        for _ in range(12):
             self.assertIsInstance(next(it), Statement)
 
     def test__len__(self):
@@ -107,11 +111,11 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
     def test_count(self):
         kb = self.new_Store()
         # bad argument: subject
-        self.assertRaises(TypeError, kb.count, 0)
+        self.assertRaises(TypeError, kb.count, {})
         # bad argument: property
-        self.assertRaises(TypeError, kb.count, None, 0)
+        self.assertRaises(TypeError, kb.count, None, {})
         # bad argument: value
-        self.assertRaises(TypeError, kb.count, None, None, 0)
+        self.assertRaises(TypeError, kb.count, None, None, {})
         # bad argument: snak_class
         self.assertRaises(TypeError, kb.count, None, None, None, 'abc')
         # good arguments
@@ -132,17 +136,17 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assertEqual(n, 1)
         # snak
         snak = ValueSnak(wd.mass, Quantity('78.046950192', wd.dalton))
-        self.assertEqual(kb.count(snak=snak), 10)
+        self.assertEqual(kb.count(snak=snak), 12)
         # empty criteria: some value
         kb.unset_flags(kb.SOME_VALUE_SNAK)
-        n = kb.count(snak_mask=Snak.SOME_VALUE_SNAK)
+        n = kb.count(snak_mask=Filter.SOME_VALUE_SNAK)
         self.assertEqual(n, 0)
         # empty criteria: no value
         kb.unset_flags(kb.NO_VALUE_SNAK)
-        n = kb.count(snak_mask=Snak.NO_VALUE_SNAK)
+        n = kb.count(snak_mask=Filter.NO_VALUE_SNAK)
         self.assertEqual(n, 0)
         # empty criteria: some value & no value
-        n = kb.count(snak_mask=Snak.SOME_VALUE_SNAK)
+        n = kb.count(snak_mask=Filter.SOME_VALUE_SNAK)
         self.assertEqual(n, 0)
         # with best rank flag disabled
         kb = self.new_Store()
@@ -164,25 +168,27 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assertEqual(stmt.subject, wd.benzene)
         # subject is fingerprint
         stmt = next(kb.filter([wd.InChIKey(
-            String('UHOVQNZJYSORNB-UHFFFAOYSA-N'))]))
+            'UHOVQNZJYSORNB-UHFFFAOYSA-N')]))
         self.assertEqual(stmt.subject, wd.benzene)
         # property
         stmt = next(kb.filter(property=wd.mass))
-        self.assertEqual(stmt.snak.property, wd.mass)
+        self.assertEqual(
+            stmt.snak.property,
+            wd.mass.replace(KIF_Object.KEEP, Quantity))
         # value: iri
         stmt = next(kb.filter(value=wd.benzene))
         self.assertIsInstance(stmt.snak, ValueSnak)
         assert isinstance(stmt.snak, ValueSnak)
         self.assertEqual(stmt.snak.value, wd.benzene)
         # value: text
-        stmt = next(kb.filter(
-            value=Text('Federative Republic of Brazil', 'en')))
+        stmt = next(iter(sorted(list(kb.filter(
+            value=Text('Federative Republic of Brazil', 'en'))))))
         self.assert_statement(stmt, wd.Brazil, ValueSnak(
-            wd.name_in_native_language,
+            wd.official_name.replace(KIF_Object.KEEP, Text),
             Text('Federative Republic of Brazil', 'en')))
         # value: string
-        stmt = next(kb.filter(value=String('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
-        self.assert_statement(stmt, wd.benzene, wd.InChIKey(String(
+        stmt = next(kb.filter(value=ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
+        self.assert_statement(stmt, wd.benzene, wd.InChIKey(ExternalId(
             'UHOVQNZJYSORNB-UHFFFAOYSA-N')))
         # subject & property
         stmt = next(kb.filter(subject=wd.benzene, property=wd.mass))
@@ -228,25 +234,31 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         # TODO: property & value: time without precision
         ###
         # subject & property: some value
-        stmt = next(kb.filter(wd.Adam, wd.date_of_death))
-        self.assertTrue(stmt.snak.is_some_value_snak())
-        # subject & property: no value
         stmt = next(kb.filter(wd.Adam, wd.date_of_birth))
-        self.assertTrue(stmt.snak.is_no_value_snak())
+        self.assert_some_value_snak(
+            stmt.snak, wd.date_of_birth.replace(KIF_Object.KEEP, Time))
+        stmt = next(kb.filter(wd.Adam, wd.date_of_death))
+        self.assert_some_value_snak(
+            stmt.snak, wd.date_of_death.replace(KIF_Object.KEEP, Time))
+        # subject & property: no value
+        stmt = next(kb.filter(wd.Adam, wd.father))
+        self.assert_no_value_snak(
+            stmt.snak, wd.father.replace(KIF_Object.KEEP, Item))
         # snak_class: some value
         some = list(sorted(kb.filter(
-            wd.Adam, None, None, Snak.SOME_VALUE_SNAK)))
-        self.assertEqual(len(some), 2)
+            wd.Adam, None, None, Filter.SOME_VALUE_SNAK)))
+        self.assertEqual(len(some), 3)
         # snak_class: no value
         wdno = list(sorted(kb.filter(
-            wd.Adam, None, None, Snak.NO_VALUE_SNAK)))
-        self.assert_statement(wdno[0], wd.Adam, NoValueSnak(wd.father))
-        self.assert_statement(wdno[1], wd.Adam, NoValueSnak(wd.mother))
-        self.assert_statement(wdno[2], wd.Adam, NoValueSnak(wd.date_of_birth))
+            wd.Adam, None, None, Filter.NO_VALUE_SNAK)))
+        self.assert_statement(wdno[0], wd.Adam, NoValueSnak(
+            wd.father.replace(KIF_Object.KEEP, Item)))
+        self.assert_statement(wdno[1], wd.Adam, NoValueSnak(
+            wd.mother.replace(KIF_Object.KEEP, Item)))
         # subject & property: some value (newer Wikidata)
         kb = self.new_Store()
         it = kb.filter(wd.Adam, wd.date_of_death)
-        self.assertTrue(next(it).snak.is_some_value_snak())
+        self.assertIsInstance(next(it).snak, SomeValueSnak)
         self.assertRaises(StopIteration, next, it)
         # snak
         kb = self.new_Store()
@@ -257,26 +269,28 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         # subject is a property
         stmt = next(kb.filter(
             snak=wd.type_of_unit_for_this_property(wd.unit_of_mass)))
-        self.assertTrue(stmt.subject.is_property())
+        self.assertIsInstance(stmt.subject, Property)
         # snak: some value
         stmt = next(kb.filter(wd.Adam, snak=SomeValueSnak(wd.family_name)))
-        self.assert_statement(stmt, wd.Adam, SomeValueSnak(wd.family_name))
+        self.assert_statement(stmt, wd.Adam, SomeValueSnak(
+            wd.family_name.replace(KIF_Object.KEEP, Item)))
         # snak: no value
         stmt = next(kb.filter(wd.Adam, snak=NoValueSnak(wd.father)))
-        self.assert_statement(stmt, wd.Adam, NoValueSnak(wd.father))
+        self.assert_statement(stmt, wd.Adam, NoValueSnak(
+            wd.father.replace(KIF_Object.KEEP, Item)))
         # empty criteria: some value
         kb.unset_flags(kb.SOME_VALUE_SNAK)
         self.assertFalse(list(kb.filter(
-            snak_mask=Snak.SOME_VALUE_SNAK)))
+            snak_mask=Filter.SOME_VALUE_SNAK)))
         # empty criteria: no value
         kb.unset_flags(kb.NO_VALUE_SNAK)
-        self.assertFalse(list(kb.filter(snak_mask=Snak.NO_VALUE_SNAK)))
+        self.assertFalse(list(kb.filter(snak_mask=Filter.NO_VALUE_SNAK)))
         # empty criteria: some value & no value
-        self.assertFalse(list(kb.filter(snak_mask=Snak.SOME_VALUE_SNAK)))
+        self.assertFalse(list(kb.filter(snak_mask=Filter.SOME_VALUE_SNAK)))
         # limit
         kb = self.new_Store()
-        stmts = list(kb.filter(wd.Adam, limit=120))
-        self.assertEqual(len(stmts), 120)
+        stmts = list(kb.filter(wd.Adam, limit=50))
+        self.assertEqual(len(stmts), 50)
 
     # -- Annotations -------------------------------------------------------
 
@@ -299,9 +313,10 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
             quals[0], wd.temperature(Quantity('298', wd.kelvin)))
         self.assertEqual(quals[1], wd.phase_of_matter(wd.liquid))
         stmt = next(kb.filter(
-            wd.benzene, wd.safety_classification_and_labelling, limit=1))
+            wd.benzene, wd.safety_classification_and_labelling, wd.Q(2005334),
+            limit=1))
         quals = list(get_qualifiers(stmt))
-        self.assertEqual(len(quals), 4)
+        self.assertEqual(len(quals), 18)
         # no such statement
         self.assertRaises(
             ValueError, get_qualifiers,
@@ -333,39 +348,46 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         quals = list(get_qualifiers(stmt))
         self.assertEqual(len(quals), 1)
         self.assert_value_snak(
-            quals[0], wd.elevation_above_sea_level, Quantity(0, wd.metre))
+            quals[0],
+            wd.elevation_above_sea_level.replace(KIF_Object.KEEP, Quantity),
+            Quantity(0, wd.metre))
         # one of the qualifiers is a time
         stmt = wd.country(wd.Brazil, wd.Brazil)
         quals = list(get_qualifiers(stmt))
         self.assertEqual(len(quals), 1)
         self.assert_value_snak(
-            quals[0], wd.start_time, Time(
-                '1822-01-01', 9, 0, wd.proleptic_Gregorian_calendar))
+            quals[0],
+            wd.start_time.replace(KIF_Object.KEEP, Time),
+            Time('1822-01-01', 9, 0, wd.proleptic_Gregorian_calendar))
         # one of the qualifiers is a some value
         stmt = wd.YouTube_video_ID(
             wd.Supercalifragilisticexpialidocious, String('tRFHXMQP-QU'))
         quals = list(get_qualifiers(stmt))
         self.assertEqual(len(quals), 1)
-        self.assert_some_value_snak(quals[0], wd.end_time)
+        self.assert_some_value_snak(quals[0], wd.end_time.replace(
+            KIF_Object.KEEP, None))
         # same thing with newer Wikidata
         quals = get_qualifiers(stmt)
         self.assertEqual(len(quals), 1)
-        self.assert_some_value_snak(quals[0], wd.end_time)
+        self.assert_some_value_snak(quals[0], wd.end_time.replace(
+            KIF_Object.KEEP, None))
         # statement is a no value
         stmt = Statement(wd.Germany, NoValueSnak(wd.speed_limit))
         quals = list(get_qualifiers(stmt))
         self.assertEqual(len(quals), 1)
         self.assert_value_snak(
-            quals[0], wd.valid_in_place, wd.autobahn_in_Germany)
+            quals[0], wd.valid_in_place.replace(KIF_Object.KEEP, Item),
+            wd.autobahn_in_Germany)
         # one of the qualifiers is a no value
         Italo_Balbo = wd.Q(1056)
         Governor_General_of_Italian_Libya = wd.Q(59859989)
         it = kb.filter(Italo_Balbo, wd.position_held,
                        Governor_General_of_Italian_Libya)
         quals = list(filter(
-            lambda q: q.is_no_value_snak(), get_qualifiers(next(it))))
+            lambda q: isinstance(q, NoValueSnak), get_qualifiers(next(it))))
         self.assertEqual(len(quals), 1)
-        self.assert_no_value_snak(quals[0], wd.P(1365))
+        self.assert_no_value_snak(
+            quals[0], wd.P(1365).replace(KIF_Object.KEEP, None))
 
     def test_get_references(self):
         kb = self.new_Store()
@@ -409,7 +431,8 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         refs = sorted(list(get_references(stmt)))
         self.assertEqual(len(refs), 1)
         self.assertEqual(refs[0], ReferenceRecord(
-            wd.HSDB_ID(String('35#section=TSCA-Test-Submissions')),
+            wd.HSDB_ID.replace(KIF_Object.KEEP, String)(
+                '35#section=TSCA-Test-Submissions'),
             wd.stated_in(wd.Hazardous_Substances_Data_Bank)))
         ###
         # TODO: statement is a some value
@@ -450,7 +473,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
             else:
                 return annots[0].rank
         # preferred
-        stmt = Statement(wd.Adam, NoValueSnak(wd.date_of_birth))
+        stmt = Statement(wd.Adam, SomeValueSnak(wd.date_of_birth))
         self.assertEqual(get_rank(stmt), Preferred)
         # normal
         stmt = Statement(

@@ -44,7 +44,7 @@ class TestStoreMixer(kif_StoreTestCase):
         stmt = next(iter(kb))
         self.assertIsInstance(stmt, Statement)
         it = iter(Store('mixer', kb.sources, page_size=1))
-        for i in range(3):
+        for _ in range(3):
             self.assertIsInstance(next(it), Statement)
 
     def test__len__(self):

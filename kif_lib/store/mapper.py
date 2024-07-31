@@ -8,7 +8,7 @@ from ..model import (
     AnnotationRecordSet,
     Descriptor,
     Entity,
-    FilterPattern,
+    Filter,
     IRI,
     Item,
     KIF_Object,
@@ -25,10 +25,12 @@ from ..typing import (
     Any,
     cast,
     Collection,
+    Final,
     Iterable,
     Iterator,
     Optional,
     override,
+    Sequence,
     Union,
 )
 from .sparql import (
@@ -86,62 +88,109 @@ class SPARQL_MapperStore(
 # -- Statements ------------------------------------------------------------
 
     @override
-    def _count(self, pattern: FilterPattern) -> int:
-        q = self._make_filter_query(pattern)
+    def _contains(self, filter: Filter) -> bool:
+        it = self._filter_with_hooks(filter, 1, False)
+        try:
+            next(it)
+            return True
+        except StopIteration:
+            return False
+
+    @override
+    def _count(self, filter: Filter) -> int:
+        q = self._make_filter_query(filter)
         text = q.select('(count (distinct *) as ?count)')
         res = self._eval_select_query_string(text)
         return self._parse_count_query_results(res)
 
+    def _parse_count_query_results(self, results: SPARQL_Results) -> int:
+        return int(next(results.bindings).check_literal('count'))
+
+    _filter_vars: Final[Sequence[str]] = (
+        '?datatype',
+        '?property',
+        '?qt_amount',
+        '?qt_lower',
+        '?qt_unit',
+        '?qt_upper',
+        '?subject',
+        '?tm_calendar',
+        '?tm_precision',
+        '?tm_timezone',
+        '?tm_value',
+        '?value',
+        '?wds',
+    )
+
+    @override
+    def _filter(
+            self,
+            filter: Filter,
+            limit: int,
+            distinct: bool
+    ) -> Iterator[Statement]:
+        assert limit > 0
+        q = self._make_filter_query(filter)
+        if (q.has_variable(q.var('subject'))
+                and q.has_variable(q.var('property'))):
+            order_by = '?wds' if self.has_flags(self.ORDER) else None
+            return self._eval_select_query(
+                q, lambda res: self._parse_filter_results(res, filter),
+                vars=self._filter_vars,
+                limit=limit, distinct=distinct, order_by=order_by, trim=True)
+        else:
+            LOG.debug(
+                '%s(): nothing to select:\n%s', self._filter.__qualname__,
+                q.select(*self._filter_vars, limit=limit, distinct=distinct))
+            return iter(())     # query is empty
+
     @override
     def _filter_pre_hook(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool
-    ) -> tuple[FilterPattern, int, bool, Any]:
-        return self.mapping.filter_pre_hook(self, pattern, limit, distinct)
+    ) -> tuple[Filter, int, bool, Any]:
+        return self.mapping.filter_pre_hook(self, filter, limit, distinct)
 
     @override
     def _filter_post_hook(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool,
             data: Any,
             it: Iterator[Statement]
     ) -> Iterator[Statement]:
         return self.mapping.filter_post_hook(
-            self, pattern, limit, distinct, data, it)
+            self, filter, limit, distinct, data, it)
 
-    @override
     def _make_filter_query(
             self,
-            pattern: FilterPattern,
+            filter: Filter
     ) -> SPARQL_Builder:
+        subject, property, value, snak_mask = filter._unpack_legacy()
         q = self.mapping.Builder()
         with q.where():
             subject_prefix: Optional[IRI] = None
-            if pattern.subject is not None:
-                if pattern.subject.entity is not None:
-                    q.matched_subject = self.mapping.encode_entity(
-                        pattern.subject.entity)
-                elif pattern.subject.snak_set is not None:
+            if subject is not None:
+                if isinstance(subject, Entity):
+                    q.matched_subject = self.mapping.encode_entity(subject)
+                elif isinstance(subject, SnakSet):
                     status, subject_prefix = self._try_push_snak_set(
-                        q, q.matched_subject, pattern.subject.snak_set)
+                        q, q.matched_subject, subject)
                     if not status:
                         return q  # empty query
                     assert subject_prefix is not None
                 else:
                     raise self._should_not_get_here()
-            value: Optional[Value] = None
             value_prefix: Optional[IRI] = None
-            if pattern.value is not None:
-                if pattern.value.value is not None:
-                    value = pattern.value.value
+            if value is not None:
+                if isinstance(value, Value):
                     q.matched_value = self.mapping.encode_value(value)
-                elif pattern.value.snak_set is not None:
+                elif isinstance(value, SnakSet):
                     status, value_prefix = self._try_push_snak_set(
-                        q, q.matched_value, pattern.value.snak_set)
+                        q, q.matched_value, value)
                     if not status:
                         return q  # empty query
                     assert value_prefix is not None
@@ -160,13 +209,14 @@ class SPARQL_MapperStore(
                                 continue  # value mismatch
                             value = spec.kwargs.get('value')
                             if value is not None:
-                                if not Entity.test(value):
+                                if not isinstance(value, Entity):
                                     continue  # value mismatch
                                 if not value.value.startswith(
                                         value_prefix.value):
                                     continue  # mismatch value
-                        if not spec._match(pattern):
-                            continue  # spec does not match pattern
+                        if not spec._match(
+                                subject, property, value, snak_mask):
+                            continue  # spec does not match filter
                         cup.branch()
                         spec._define(q, with_binds=True)
         return q
@@ -186,14 +236,14 @@ class SPARQL_MapperStore(
     ) -> tuple[bool, Optional[IRI]]:
         subject_prefixes = set()
         for snak in snaks:
-            if not snak.is_value_snak():
+            if not isinstance(snak, ValueSnak):
                 return False, None  # no such snak
             vsnak = cast(ValueSnak, snak)
             if vsnak.property not in self.mapping.specs:
                 return False, None  # no such property
             for spec in self.mapping.specs[vsnak.property]:
-                pat = FilterPattern.from_snak(None, vsnak)
-                if not spec._match(pat):
+                t = Filter.from_snak(None, vsnak)._unpack_legacy()
+                if not spec._match(*t):
                     continue    # spec does not match snak
                 spec._define(
                     cast(SPARQL_Mapping.Builder, q), target, None,
@@ -231,13 +281,10 @@ class SPARQL_MapperStore(
             if self._cache_get_wdss(stmt) or stmt in self:
                 assert self._cache_get_wdss(stmt)
 
-                def it():
-                    for spec in self.mapping.specs.get(
-                            stmt.snak.property, []):
-                        annots = spec.kwargs.get('annotations', [])
-                        for annot in annots:
-                            yield annot
-                annots = AnnotationRecordSet(*it())
+                def it(property):
+                    for spec in self.mapping.specs.get(property, ()):
+                        yield from spec.kwargs.get('annotations', ())
+                annots = AnnotationRecordSet(*it(stmt.snak.property))
                 if not annots:
                     annots = AnnotationRecordSet(AnnotationRecord())
                 yield stmt, annots
@@ -263,7 +310,7 @@ class SPARQL_MapperStore(
             get_aliases = True
             get_description = True
         instance_of_specs = self.mapping.specs.get(
-            Property(WD['P31']), [])
+            Property(WD['P31'], Item), [])
         label_specs = self.mapping.descriptor_specs.get(
             Property('label'), [])
         alias_specs = self.mapping.descriptor_specs.get(
@@ -275,7 +322,8 @@ class SPARQL_MapperStore(
                 for instance_of_spec in instance_of_specs:
                     matched_entities = [
                         e for e in entities
-                        if instance_of_spec._match(FilterPattern(e))]
+                        if instance_of_spec._match(
+                            *Filter(e)._unpack_legacy())]
                     if not matched_entities:
                         continue  # nothing to do
 
@@ -288,17 +336,20 @@ class SPARQL_MapperStore(
                             q.matched_subject, q.subject,
                             spec.kwargs.get('subject_prefix_replacement'))
                     cup.branch()
-                    pat = FilterPattern(matched_entities[0])
+                    filter = Filter(matched_entities[0])
                     matched_specs = {}
                     if get_label:
                         matched_specs['label'] = [
-                            s for s in label_specs if s._match(pat)]
+                            s for s in label_specs if s._match(
+                                *filter._unpack_legacy())]
                     if get_aliases:
                         matched_specs['alias'] = [
-                            s for s in alias_specs if s._match(pat)]
+                            s for s in alias_specs if s._match(
+                                *filter._unpack_legacy())]
                     if get_description:
                         matched_specs['description'] = [
-                            s for s in description_specs if s._match(pat)]
+                            s for s in description_specs if s._match(
+                                *filter._unpack_legacy())]
                     if not any(map(bool, matched_specs.values())):
                         instance_of_spec._define(q)
                         push_values(instance_of_spec)

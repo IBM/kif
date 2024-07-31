@@ -28,9 +28,59 @@
 @prefix wikibase: <http://wikiba.se/ontology#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
+# demonym
+wd:P1549
+    a wikibase:Property ;
+    wikibase:claim p:P1549 ;
+    wikibase:directClaim wdt:P1549 ;
+    wikibase:novalue wdno:P1549 ;
+    wikibase:propertyType wikibase:Monolingualtext ;
+    wikibase:statementProperty ps:P1549 ;
+    wikibase:statementValue psv:P1549 .
+
+# instance of
+wd:P31
+    a wikibase:Property ;
+    wikibase:claim p:P31 ;
+    wikibase:directClaim wdt:P31 ;
+    wikibase:novalue wdno:P31 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:statementProperty ps:P31 ;
+    wikibase:statementValue psv:P31 .
+
+# part of
+wd:P361
+    a wikibase:Property ;
+    wikibase:claim p:P361 ;
+    wikibase:directClaim wdt:P361 ;
+    wikibase:novalue wdno:P361 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:statementProperty ps:P361 ;
+    wikibase:statementValue psv:P361 .
+
+# official name
+wd:P1448
+    a wikibase:Property ;
+    wikibase:claim p:P1448 ;
+    wikibase:directClaim wdt:P1448 ;
+    wikibase:novalue wdno:P1448 ;
+    wikibase:propertyType wikibase:Monolingualtext ;
+    wikibase:statementProperty ps:P1448 ;
+    wikibase:statementValue psv:P1448 .
+
+# inception
+wd:P571
+    a wikibase:Property ;
+    wikibase:claim p:P571 ;
+    wikibase:directClaim wdt:P571 ;
+    wikibase:novalue wdno:P571 ;
+    wikibase:propertyType wikibase:Time ;
+    wikibase:statementProperty ps:P571 ;
+    wikibase:statementValue psv:P571 .
+
 # Latin America
 wd:Q12585
-    schema:version "0"^^xsd:integer ;
+    wikibase:sitelinks [] ;
     rdfs:label "Latin America"@en ;
     skos:altLabel "LatAm"@en ;
     schema:description "region of the Americas where Romance languages are primarily spoken"@en ;
@@ -52,11 +102,15 @@ wd:Q12585
         pq:P518 wd:Q1775415 ;     # applies to part - feminine
         ] .
 
+# country
+wd:Q6256
+    wikibase:sitelinks [] .
+
 # Brazil
 wd:Q155
 
     # description
-    schema:version "0"^^xsd:integer ;
+    wikibase:sitelinks [] ;
     rdfs:label "Brazil"@en ;
     rdfs:label "Brasil"@pt-br ;
     skos:altLabel "🇧🇷"@pt-br ;

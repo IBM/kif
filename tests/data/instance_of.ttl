@@ -30,8 +30,13 @@
 
 # instance of
 wd:P31
-    schema:version "0"^^xsd:integer ;
+    a wikibase:Property ;
     wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:claim p:P31 ;
+    wikibase:directClaim wdt:P31 ;
+    wikibase:novalue wdno:P31 ;
+    wikibase:statementProperty ps:P31 ;
+    wikibase:statementValue psv:P31 ;
     rdfs:label "instance of"@en ;
     skos:altLabel "is a"@en ;
     skos:altLabel "type"@en ;

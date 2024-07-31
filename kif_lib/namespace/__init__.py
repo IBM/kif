@@ -5,7 +5,6 @@ from ..rdflib import (
     DCT,
     FOAF,
     Graph,
-    Namespace,
     NamespaceManager,
     OWL,
     RDF,
@@ -15,6 +14,7 @@ from ..rdflib import (
 )
 from .ontolex import ONTOLEX
 from .prov import PROV
+from .schema import SCHEMA
 from .wikibase import WIKIBASE
 from .wikidata import T_NS as T_NS_
 from .wikidata import T_URI as T_URI_
@@ -53,8 +53,6 @@ __all__ = [
 
 T_NS = T_NS_
 T_URI = T_URI_
-
-SCHEMA = Namespace('http://schema.org/')
 
 P = Wikidata.P
 PQ = Wikidata.PQ

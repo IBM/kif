@@ -29,20 +29,52 @@
 @prefix wikibase: <http://wikiba.se/ontology#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-# adam
-wd:Q70899
+# family name
+wd:P734
+    a wikibase:Property ;
+    wikibase:claim p:P734 ;
+    wikibase:directClaim wdt:P734 ;
+    wikibase:novalue wdno:P734 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:statementProperty ps:P734 ;
+    wikibase:statementValue psv:P734 .
 
-    # description
-    schema:version "0"^^xsd:integer ;
+# father
+wd:P22
+    a wikibase:Property ;
+    wikibase:claim p:P22 ;
+    wikibase:directClaim wdt:P22 ;
+    wikibase:novalue wdno:P22 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:statementProperty ps:P22 ;
+    wikibase:statementValue psv:P22 .
+
+# date of birth
+wd:P569
+    a wikibase:Property ;
+    wikibase:claim p:P569 ;
+    wikibase:directClaim wdt:P569 ;
+    wikibase:novalue wdno:P569 ;
+    wikibase:propertyType wikibase:Time ;
+    wikibase:statementProperty ps:P569 ;
+    wikibase:statementValue psv:P569 .
+
+wd:Q1985786
+    wikibase:sitelinks [] .
+
+wd:Q746069
+    wikibase:sitelinks [] .
+
+# Adam
+wd:Q70899
+    wikibase:sitelinks [] ;
     rdfs:label "Adam"@en ;
     rdfs:label "Adán"@es ;
     rdfs:label "Adão"@pt-br ;
-
     skos:altLabel "Adánico"@es ;
     skos:altLabel "Adam"@es ;
     skos:altLabel "Adan"@es ;
     skos:altLabel "Adanico"@es ;
-
     schema:description "first man according to the Abrahamic creation and religions such as Judaism, Christianity, and Islam"@en ;
     schema:description "primer hombre, según la Biblia"@es ;
     schema:description "figura bíblica do livro de Gênesis"@pt-br ;
@@ -55,7 +87,6 @@ wd:Q70899
         ps:P734 wdgenid:some_family_name ;
         ] ;
 
-
     # father
     p:P22 [
         a wikibase:BestRank ;
@@ -63,7 +94,7 @@ wd:Q70899
         a wdno:P22 ;
         ] ;
 
-    # date of birth
+    # # date of birth
     p:P569 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:PreferredRank ;
@@ -74,6 +105,7 @@ wd:Q70899
         ] ;
 
     # date of birth
+    wdt:P569 "4003-01-01T00:00:00Z"^^xsd:dateTime ;
     p:P569 [
         wikibase:rank wikibase:NormalRank ;
         ps:P569 "4003-01-01T00:00:00Z"^^xsd:dateTime ;
@@ -84,7 +116,7 @@ wd:Q70899
             wikibase:timeTimezone "0"^^xsd:integer ;
             wikibase:timeCalendarModel wd:Q1985786 ;
             ] ;
-        pq:P3680 "https://amazingbibletimeline.com/timeline_online/" ;
+        pq:P3680 wd:Q746069 ;
         prov:wasDerivedFrom [
             pr:P854 "https://amazingbibletimeline.com/timeline_online/" ;
             ] ;

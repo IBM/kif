@@ -1,11 +1,11 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ..itertools import cycle
+from .. import itertools
 from ..model import (
     AnnotationRecordSet,
     Descriptor,
-    FilterPattern,
+    Filter,
     Item,
     ItemDescriptor,
     KIF_Object,
@@ -130,22 +130,22 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
 # -- Statements ------------------------------------------------------------
 
     @override
-    def _contains(self, pattern: FilterPattern) -> bool:
-        return any(map(lambda kb: kb._contains(pattern), self._sources))
+    def _contains(self, filter: Filter) -> bool:
+        return any(map(lambda kb: kb._contains(filter), self._sources))
 
     @override
-    def _count(self, pattern: FilterPattern) -> int:
-        return sum(map(lambda kb: kb._count(pattern), self._sources))
+    def _count(self, filter: Filter) -> int:
+        return sum(map(lambda kb: kb._count(filter), self._sources))
 
     @override
     def _filter(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
         its = map(
-            lambda kb: kb._filter_with_hooks(pattern, limit, distinct),
+            lambda kb: kb._filter_with_hooks(filter, limit, distinct),
             self._sources)
         return self._filter_mixed(list(its), limit, distinct)
 
@@ -155,7 +155,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
-        cyc = cycle(its)
+        cyc = itertools.cycle(its)
         exausted: set[Iterator[Statement]] = set()
         seen: set[Statement] = set()
         while limit > 0 and len(exausted) < len(its):
@@ -222,7 +222,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
         assert d2 is not None
         return ItemDescriptor(
             d1.label if d1.label is not None else d2.label,
-            d1.aliases.frozenset | d2.aliases.frozenset,
+            d1.aliases.union(d2.aliases),
             d1.description if d1.description is not None else d2.description)
 
     @override
@@ -247,7 +247,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
         assert d2 is not None
         return PropertyDescriptor(
             d1.label if d1.label is not None else d2.label,
-            d1.aliases.frozenset | d2.aliases.frozenset,
+            d1.aliases.union(d2.aliases),
             d1.description if d1.description is not None else d2.description,
             d1.datatype if d1.datatype is not None else d2.datatype)
 

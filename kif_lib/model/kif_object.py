@@ -1,56 +1,54 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import abc
 import datetime
 import decimal
 import enum
 import functools
 import json
+from typing import TYPE_CHECKING
 
-from ..itertools import chain
+from .. import itertools
+from ..context import Context
 from ..typing import (
     Any,
     Callable,
     cast,
+    ClassVar,
     Iterator,
     Optional,
     override,
-    TypeAlias,
-    Union,
+    Self,
+    TypeVar,
 )
 from . import object
 
-Datetime = datetime.datetime
-Decimal = decimal.Decimal
-UTC = datetime.timezone.utc
+if TYPE_CHECKING:               # pragma: no cover
+    from .template import Template
+    from .variable import Variable
 
 Codec = object.Codec
-CodecError = object.CodecError
+CodecError = object.Codec.Error
 Decoder = object.Decoder
-DecoderError = object.DecoderError
+DecoderError = object.Decoder.Error
 Encoder = object.Encoder
-EncoderError = object.EncoderError
-Error = object.Error
-MustBeImplementedInSubclass = object.MustBeImplementedInSubclass
-Nil = object.Nil
+EncoderError = object.Encoder.Error
+Error = object.Object.Error
 Object = object.Object
-ShouldNotGetHere = object.ShouldNotGetHere
+ShouldNotGetHere = object.Object.ShouldNotGetHere
 
-TArgs: TypeAlias = object.TArgs
-TCallable: TypeAlias = object.TFun
-TDatetime: TypeAlias = Union[Datetime, str]
-TDecimal: TypeAlias = Union[Decimal, float, int, str]
-TDetails: TypeAlias = object.TDet
-TLocation: TypeAlias = object.TLoc
-TNil: TypeAlias = object.TNil
+T = TypeVar('T')
 
-KIF_ObjectClass: TypeAlias = type['KIF_Object']
 
-
-# == KIF Object ============================================================
-
-class KIF_Object(object.Object):
+class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     """Abstract base class for KIF objects."""
+
+    #: Template class associated with this object class.
+    template_class: ClassVar[type['Template']]
+
+    #: Variable class associated with this object class.
+    variable_class: ClassVar[type['Variable']]
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -69,15 +67,15 @@ class KIF_Object(object.Object):
             assert issubclass(cls.variable_class, Variable)
             cls.variable_class.object_class = cls  # pyright: ignore
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args, **kwargs) -> Self:
         has_tpl_or_var_arg = any(map(
             cls._isinstance_template_or_variable,
-            chain(args, kwargs.values())))
+            itertools.chain(args, kwargs.values())))
         if hasattr(cls, 'template_class') and has_tpl_or_var_arg:
-            return cls.template_class(*args, **kwargs)
+            return cast(Self, cls.template_class(*args, **kwargs))
         elif (cls._issubclass_template(cls)
               and hasattr(cls, 'object_class') and not has_tpl_or_var_arg):
-            return cls.object_class(*args, **kwargs)  # pyright: ignore
+            return cls.object_class(*args, **kwargs)  # type: ignore
         else:
             return super().__new__(cls)
 
@@ -91,142 +89,78 @@ class KIF_Object(object.Object):
         from .template import Template
         from .variable import Variable
         return isinstance(arg, (Template, Variable))
-
-# -- datetime --------------------------------------------------------------
+
+    __slots__ = (
+        '_context',
+    )
+
+    _context: Context
+
+    @abc.abstractmethod
+    def __init__(self, *args: Any, context: Optional[Context] = None):
+        self._context = context if context is not None else Context.top()
+        super().__init__(*map(self._copy_in_context, args))
+
+    def _copy_in_context(self, arg: T) -> T:
+        if isinstance(arg, KIF_Object):
+            assert isinstance(arg, KIF_Object)
+            if arg.context != self.context:
+                with self.context:
+                    return cast(T, arg.replace())
+        return arg
+
+    @property
+    def context(self) -> Context:
+        """The associated KIF context."""
+        return self.get_context()
+
+    def get_context(self) -> Context:
+        """Gets the associated KIF context.
+
+        Returns:
+           Context.
+        """
+        return self._context
 
     @classmethod
-    def _check_arg_datetime(
-            cls,
-            arg: TDatetime,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Datetime:
-        arg = cls._check_arg_isinstance(
-            arg, (Datetime, str), function, name, position)
-        if isinstance(arg, str):
-            if arg[0] == '+' or arg[0] == '-':
-                ###
-                # FIXME: Python's fromisoformat() does not support the +/-
-                # sign used by Wikidata at the start of date-time literals.
-                ###
-                arg = arg[1:]
-            try:
-                dt = Datetime.fromisoformat(arg)
-                if dt.tzinfo is None:
-                    ###
-                    # IMPORTANT: If no timezone is given, we assume UTC.
-                    ###
-                    return dt.replace(tzinfo=UTC)
-                else:
-                    return dt
-            except Exception as err:
-                raise cls._arg_error(
-                    f'expected {Datetime.__qualname__}',
-                    function, name, position, ValueError) from err
-        elif isinstance(arg, Datetime):
-            return arg
-        else:
-            raise cls._should_not_get_here()
+    def from_sparql(cls, s: str, **kwargs: Any) -> Self:
+        """Decodes string using SPARQL decoder.
 
-    @classmethod
-    def _check_optional_arg_datetime(
-            cls,
-            arg: Optional[TDatetime],
-            default: Optional[Datetime] = None,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[Datetime]:
-        if arg is None:
-            return default
-        else:
-            return cls._check_arg_datetime(arg, function, name, position)
+        Parameters:
+           kwargs: Options to SPARQL decoder.
 
-    @classmethod
-    def _preprocess_arg_datetime(
-            cls,
-            arg: TDatetime,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> Datetime:
-        return cls._check_arg_datetime(arg, function or cls, None, i)
+        Returns:
+           The resulting object.
 
-    @classmethod
-    def _preprocess_optional_arg_datetime(
-            cls,
-            arg: Optional[TDatetime],
-            i: int,
-            default: Optional[Datetime] = None,
-            function: Optional[TLocation] = None
-    ) -> Optional[Datetime]:
-        if arg is None:
-            return default
-        else:
-            return cls._preprocess_arg_datetime(arg, i, function)
-
-# -- decimal ---------------------------------------------------------------
+        Raises:
+           `DecoderError`: Decoder error.
+        """
+        return cls.loads(s, 'sparql', **kwargs)
 
-    @classmethod
-    def _check_arg_decimal(
-            cls,
-            arg: TDecimal,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Decimal:
-        arg = cls._check_arg_isinstance(
-            arg, (Decimal, float, int, str), function, name, position)
-        try:
-            return Decimal(arg)
-        except decimal.InvalidOperation as err:
-            raise cls._arg_error(
-                f'expected {Decimal.__qualname__}',
-                function, name, position, ValueError) from err
+    def to_markdown(self, **kwargs: Any) -> str:
+        """Encodes object using Markdown encoder.
 
-    @classmethod
-    def _check_optional_arg_decimal(
-            cls,
-            arg: Optional[TDecimal],
-            default: Optional[Decimal] = None,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[Decimal]:
-        if arg is None:
-            return default
-        else:
-            return cls._check_arg_decimal(arg, function, name, position)
+        Parameters:
+           kwargs: Options to Markdown encoder.
 
-    @classmethod
-    def _preprocess_arg_decimal(
-            cls,
-            arg: TDecimal,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> Decimal:
-        return cls._check_arg_decimal(arg, function or cls, None, i)
+        Returns:
+           The resulting string.
 
-    @classmethod
-    def _preprocess_optional_arg_decimal(
-            cls,
-            arg: Optional[TDecimal],
-            i: int,
-            default: Optional[Decimal] = None,
-            function: Optional[TLocation] = None
-    ) -> Optional[Decimal]:
-        if arg is None:
-            return default
-        else:
-            return cls._preprocess_arg_decimal(arg, i, function)
-
-# -- misc ------------------------------------------------------------------
+        Raises:
+           `EncoderError`: Encoder error.
+        """
+        return self.dumps('markdown', **kwargs)
 
     def _repr_markdown_(self) -> str:
-        return self.to_markdown()  # pyright: ignore
+        return self.to_markdown()  # type: ignore
 
-    _traverse_default_filter = (lambda _: True)
-    _traverse_default_visit = (lambda _: True)
+    @staticmethod
+    def _traverse_default_filter(arg: Any) -> bool:
+        return True
+
+    @staticmethod
+    def _traverse_default_visit(arg: Any) -> bool:
+        return True
 
     def traverse(
         self,
@@ -266,11 +200,12 @@ class KIF_Object(object.Object):
                 elif filter(arg):
                     yield arg
 
-
-# == Codecs ================================================================
 
 class KIF_JSON_Encoder(
-        object.JSON_Encoder, format='json', description='JSON encoder'):
+        object.JSON_Encoder,
+        format='json',
+        description='JSON encoder'
+):
     """KIF JSON encoder."""
 
     class Encoder(object.JSON_Encoder.Encoder):
@@ -284,7 +219,7 @@ class KIF_JSON_Encoder(
                     'class': obj.__class__.__qualname__,
                     'args': obj.args,
                 }
-            elif isinstance(o, (Datetime, Decimal)):
+            elif isinstance(o, (datetime.datetime, decimal.Decimal)):
                 return str(o)
             elif isinstance(o, enum.Enum):
                 return str(o.value)
@@ -296,17 +231,24 @@ class KIF_JSON_Encoder(
 
 
 class KIF_ReprDecoder(
-        object.ReprDecoder, format='repr', description='Repr. decoder'):
+        object.ReprDecoder,
+        format='repr',
+        description='Repr. decoder'
+):
     """KIF repr. decoder."""
 
     @classmethod
     @functools.cache
     def _globals(cls) -> dict[str, Any]:
-        return {'Decimal': Decimal, 'datetime': datetime, **super()._globals()}
+        return {'Decimal': decimal.Decimal, 'datetime': datetime,
+                **super()._globals()}
 
 
 class KIF_ReprEncoder(
-        object.ReprEncoder, format='repr', description='Repr. encoder'):
+        object.ReprEncoder,
+        format='repr',
+        description='Repr. encoder'
+):
     """KIF repr. encoder."""
 
     @override
@@ -316,7 +258,7 @@ class KIF_ReprEncoder(
             n: int = 0,
             indent: int = 0
     ) -> Iterator[str]:
-        if isinstance(v, (Datetime, Decimal)):
+        if isinstance(v, (datetime.datetime, decimal.Decimal)):
             yield from self._indent(n, indent)
             yield repr(v)
         elif isinstance(v, enum.Enum):
@@ -327,7 +269,10 @@ class KIF_ReprEncoder(
 
 
 class KIF_SExpEncoder(
-        object.SExpEncoder, format='sexp', description='S-expression encoder'):
+        object.SExpEncoder,
+        format='sexp',
+        description='S-expression encoder'
+):
     """KIF S-expression encoder."""
 
     @override
@@ -337,7 +282,7 @@ class KIF_SExpEncoder(
             n: int = 0,
             indent: int = 0
     ) -> Iterator[str]:
-        if isinstance(v, (Datetime, Decimal)):
+        if isinstance(v, (datetime.datetime, decimal.Decimal)):
             yield from self._indent(n, indent)
             yield str(v)
         elif isinstance(v, enum.Enum):

@@ -1,41 +1,32 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from .data_value import (
-    DataValue,
-    DataValueClass,
-    DataValueTemplate,
-    DataValueTemplateClass,
-    DataValueVariable,
-    DataValueVariableClass,
+from .data_value import DataValue, DataValueTemplate, DataValueVariable
+from .datatype import (
+    Datatype,
+    DatatypeVariable,
+    TDatatype,
+    VDatatype,
+    VTDatatype,
 )
 from .deep_data_value import (
     DeepDataValue,
-    DeepDataValueClass,
     DeepDataValueTemplate,
-    DeepDataValueTemplateClass,
     DeepDataValueVariable,
-    DeepDataValueVariableClass,
 )
 from .entity import (
     Entity,
-    EntityClass,
     EntityTemplate,
-    EntityTemplateClass,
     EntityVariable,
-    EntityVariableClass,
+    TEntity,
     VEntity,
-    VVEntity,
+    VTEntity,
 )
 from .external_id import (
     ExternalId,
-    ExternalIdClass,
     ExternalIdDatatype,
-    ExternalIdDatatypeClass,
     ExternalIdTemplate,
-    ExternalIdTemplateClass,
     ExternalIdVariable,
-    ExternalIdVariableClass,
     TExternalId,
     VExternalId,
 )
@@ -46,7 +37,7 @@ from .iri import (
     IRI_Variable,
     T_IRI,
     V_IRI,
-    VV_IRI,
+    VT_IRI,
 )
 from .item import (
     Item,
@@ -56,7 +47,7 @@ from .item import (
     ItemVariable,
     TItem,
     VItem,
-    VTItemContent,
+    VTItem,
 )
 from .lexeme import (
     Lexeme,
@@ -75,18 +66,15 @@ from .property import (
     PropertyVariable,
     TProperty,
     VProperty,
-    VTPropertyContent,
-    VVProperty,
-    VVTPropertyContent,
+    VTProperty,
 )
 from .quantity import (
     Quantity,
     QuantityDatatype,
     QuantityTemplate,
     QuantityVariable,
+    TQuantity,
     VQuantity,
-    VQuantityContent,
-    VTQuantityContent,
 )
 from .shallow_data_value import (
     ShallowDataValue,
@@ -100,8 +88,6 @@ from .string import (
     StringVariable,
     TString,
     VString,
-    VStringContent,
-    VTStringContent,
 )
 from .text import Text, TextDatatype, TextTemplate, TextVariable, TText, VText
 from .time import (
@@ -109,141 +95,128 @@ from .time import (
     TimeDatatype,
     TimeTemplate,
     TimeVariable,
+    TTime,
     TTimePrecision,
     VTime,
-    VTimeContent,
-    VTimePrecisionContent,
-    VTimeTimezoneContent,
-    VTTimeContent,
-    VTTimePrecisionContent,
-    VTTimeTimezoneContent,
 )
-from .value import (
-    Datatype,
-    DatatypeClass,
-    DatatypeVariable,
-    TDatatypeClass,
-    TValue,
-    Value,
-    ValueTemplate,
-    ValueVariable,
-    VDatatype,
-    VValue,
-    VVDatatype,
-    VVTValue,
-    VVValue,
-)
+from .value import TValue, Value, ValueTemplate, ValueVariable, VTValue, VValue
 
 __all__ = (
+
+    # datatype
     'Datatype',
-    'DatatypeClass',
     'DatatypeVariable',
-    'DataValue',
-    'DataValueClass',
-    'DataValueTemplate',
-    'DataValueTemplateClass',
-    'DataValueVariable',
-    'DataValueVariableClass',
-    'DeepDataValue',
-    'DeepDataValueClass',
-    'DeepDataValueTemplate',
-    'DeepDataValueTemplateClass',
-    'DeepDataValueVariable',
-    'DeepDataValueVariableClass',
+    'TDatatype',
+    'VDatatype',
+    'VTDatatype',
+
+    # value
+    'TValue',
+    'Value',
+    'ValueTemplate',
+    'ValueVariable',
+    'VTValue',
+    'VValue',
+
+    # entity
     'Entity',
-    'EntityClass',
     'EntityTemplate',
-    'EntityTemplateClass',
     'EntityVariable',
-    'EntityVariableClass',
-    'ExternalId',
-    'ExternalIdClass',
-    'ExternalIdDatatype',
-    'ExternalIdDatatypeClass',
-    'ExternalIdTemplate',
-    'ExternalIdTemplateClass',
-    'ExternalIdVariable',
-    'ExternalIdVariableClass',
-    'IRI',
-    'IRI_Datatype',
-    'IRI_Template',
-    'IRI_Variable',
+    'TEntity',
+    'VEntity',
+    'VTEntity',
+
+    # item
     'Item',
     'ItemDatatype',
     'Items',
     'ItemTemplate',
     'ItemVariable',
-    'Lexeme',
-    'LexemeDatatype',
-    'Lexemes',
-    'LexemeTemplate',
-    'LexemeVariable',
+    'TItem',
+    'VItem',
+    'VTItem',
+
+    # property
     'Properties',
     'Property',
     'PropertyDatatype',
     'PropertyTemplate',
     'PropertyVariable',
-    'Quantity',
-    'QuantityDatatype',
-    'QuantityTemplate',
-    'QuantityVariable',
+    'TProperty',
+    'VProperty',
+    'VTProperty',
+
+    # lexeme
+    'Lexeme',
+    'LexemeDatatype',
+    'Lexemes',
+    'LexemeTemplate',
+    'LexemeVariable',
+    'TLexeme',
+    'VLexeme',
+
+    # data value
+    'DataValue',
+    'DataValueTemplate',
+    'DataValueVariable',
+
+    # shallow data value
     'ShallowDataValue',
     'ShallowDataValueTemplate',
     'ShallowDataValueVariable',
+
+    # iri
+    'IRI',
+    'IRI_Datatype',
+    'IRI_Template',
+    'IRI_Variable',
+    'T_IRI',
+    'V_IRI',
+    'VT_IRI',
+
+    # text
+    'Text',
+    'TextDatatype',
+    'TextTemplate',
+    'TextVariable',
+    'TText',
+    'VText',
+
+    # string
     'String',
     'StringDatatype',
     'StringTemplate',
     'StringVariable',
-    'T_IRI',
-    'TDatatypeClass',
-    'Text',
-    'TextDatatype',
+    'TString',
+    'VString',
+
+    # external id
+    'ExternalId',
+    'ExternalIdDatatype',
+    'ExternalIdTemplate',
+    'ExternalIdVariable',
     'TExternalId',
-    'TextTemplate',
-    'TextVariable',
+    'VExternalId',
+
+    # deep data value
+    'DeepDataValue',
+    'DeepDataValueTemplate',
+    'DeepDataValueVariable',
+
+    # quantity
+    'Quantity',
+    'QuantityDatatype',
+    'QuantityTemplate',
+    'QuantityVariable',
+    'TQuantity',
+    'VQuantity',
+
+    # time
     'Time',
     'TimeDatatype',
     'TimeTemplate',
     'TimeVariable',
-    'TItem',
-    'TLexeme',
-    'TProperty',
-    'TString',
-    'TText',
+    'TTime',
     'TTimePrecision',
-    'TValue',
-    'V_IRI',
-    'Value',
-    'ValueTemplate',
-    'ValueVariable',
-    'VDatatype',
-    'VEntity',
-    'VExternalId',
-    'VItem',
-    'VLexeme',
-    'VProperty',
-    'VQuantity',
-    'VQuantityContent',
-    'VString',
-    'VStringContent',
-    'VText',
     'VTime',
-    'VTimeContent',
-    'VTimePrecisionContent',
-    'VTimeTimezoneContent',
-    'VTItemContent',
-    'VTPropertyContent',
-    'VTQuantityContent',
-    'VTStringContent',
-    'VTTimeContent',
-    'VTTimePrecisionContent',
-    'VTTimeTimezoneContent',
-    'VV_IRI',
-    'VValue',
-    'VVDatatype',
-    'VVEntity',
-    'VVProperty',
-    'VVTPropertyContent',
-    'VVTValue',
-    'VVValue',
 )

@@ -1,33 +1,38 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import decimal
 import re
 
 from ..model import (
     AnnotationRecord,
+    CompoundFingerprint,
     Datatype,
     Entity,
-    FilterPattern,
+    Filter,
     Fingerprint,
     IRI,
     KIF_Object,
     KIF_ObjectSet,
     PlainDescriptor,
+    Property,
     PropertyDescriptor,
     Quantity,
     Rank,
     Snak,
+    SnakFingerprint,
     Statement,
     String,
     Template,
     Text,
     Time,
+    ValueFingerprint,
     ValueSnak,
     Variable,
 )
-from ..model.kif_object import Decimal, Encoder, Object
+from ..model.kif_object import Encoder, Object
 from ..namespace import _DEFAULT_NSM
-from ..typing import cast, Iterator, Optional, override
+from ..typing import Iterator, Optional, override
 
 SP = ' '                        # space
 NL = '\n'                       # newline
@@ -44,8 +49,8 @@ class MarkdownEncoder(
 
     @override
     def iterencode(self, input: Object) -> Iterator[str]:
-        if KIF_Object.test(input):
-            yield from self._iterencode(cast(KIF_Object, input), 0)
+        if isinstance(input, KIF_Object):
+            yield from self._iterencode(input, 0)
         else:
             yield str(input)      # pragma: no cover
 
@@ -54,6 +59,11 @@ class MarkdownEncoder(
             yield self._encode_kif_object_name(obj)
         elif isinstance(obj, Entity):
             yield from self._iterencode_kif_object_start(obj)
+            ###
+            # FIXME: For now, ignore property datatype.
+            ###
+            if isinstance(obj, Property):
+                obj = obj.replace(obj.iri, None)
             label = self.wd.get_entity_label(obj)
             if label:
                 yield f'[{label}]({obj.iri.value})'
@@ -88,8 +98,8 @@ class MarkdownEncoder(
         elif isinstance(obj, Snak):
             yield from self._iterencode_kif_object_start(obj)
             yield from self._iterencode(obj.property, indent)
-            if obj.is_value_snak():
-                vsnak = cast(ValueSnak, obj)
+            if isinstance(obj, ValueSnak):
+                vsnak = obj
                 yield SP
                 yield from self._iterencode(vsnak.value, indent)
             yield from self._iterencode_kif_object_end(obj)
@@ -137,9 +147,8 @@ class MarkdownEncoder(
                 yield from self._iterencode(obj.description, indent + 1)
             else:
                 yield '*no description*'
-            if obj.is_property_descriptor():
+            if isinstance(obj, PropertyDescriptor):
                 yield sep
-                obj = cast(PropertyDescriptor, obj)
                 if obj.datatype is not None:
                     yield from self._iterencode(obj.datatype, indent + 1)
                 else:
@@ -147,29 +156,25 @@ class MarkdownEncoder(
             yield ''
             yield from self._iterencode_kif_object_end(obj)
         elif isinstance(obj, Fingerprint):
-            if obj.value is not None:
-                yield from self._iterencode_kif_object_start(obj)
-                yield from self._iterencode(obj.value, indent)
-            elif obj.snak_set is not None:
-                yield from self._iterencode_kif_object_start(obj, '')
+            yield from self._iterencode_kif_object_start(obj, '')
+            if isinstance(obj, ValueFingerprint):
                 yield SP
-                yield from self._iterencode(obj.snak_set, indent + 1)
-            else:
-                raise obj._should_not_get_here()
+                yield from self._iterencode(obj.value, indent)
+            elif isinstance(obj, SnakFingerprint):
+                yield SP
+                yield from self._iterencode(obj.snak, indent)
+            elif isinstance(obj, CompoundFingerprint) and len(obj) > 0:
+                for s in obj:
+                    yield f'{NL}{2 * SP * indent}-{SP}'
+                    yield from self._iterencode(s, indent + 1)
             yield from self._iterencode_kif_object_end(obj)
-        elif isinstance(obj, FilterPattern):
+        elif isinstance(obj, Filter):
             yield from self._iterencode_kif_object_start(obj, '')
             sep = f'{NL}{2 * SP * indent}-{SP}'
             for name in ['subject', 'property', 'value']:
                 yield sep
                 value = getattr(obj, name)
-                if value is not None:
-                    yield from self._iterencode(value, indent + 1)
-                else:
-                    if name == 'subject':
-                        yield '*any entity*'
-                    else:
-                        yield f'*any {name}*'
+                yield from self._iterencode(value, indent + 1)
             yield sep
             yield f'`{bin(obj.snak_mask.value)}`'
             yield ''
@@ -216,9 +221,9 @@ class MarkdownEncoder(
         if qtd.lower_bound is not None or qtd.upper_bound is not None:
             val: Optional[str] = None
             if qtd.lower_bound is not None and qtd.upper_bound is not None:
-                qt = Decimal(qtd.amount)
-                lb = Decimal(qtd.lower_bound)
-                ub = Decimal(qtd.upper_bound)
+                qt = decimal.Decimal(qtd.amount)
+                lb = decimal.Decimal(qtd.lower_bound)
+                ub = decimal.Decimal(qtd.upper_bound)
                 if (ub + lb) / 2 == qt:
                     val = f'{qt} ±{ub - qt}'
             if not val:

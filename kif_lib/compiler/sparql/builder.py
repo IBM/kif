@@ -9,13 +9,21 @@
 
 import datetime
 import decimal
+import itertools
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, MutableSequence, Sequence
-from itertools import chain
-from typing import Any, cast, Final, Optional, TypeVar, Union
 
 from rdflib import BNode, Literal, URIRef, Variable
-from typing_extensions import override, TypeAlias
+from typing_extensions import (
+    Any,
+    cast,
+    Final,
+    Optional,
+    override,
+    TypeAlias,
+    TypeVar,
+    Union,
+)
 
 _str = str
 T = TypeVar('T')
@@ -76,19 +84,25 @@ class Symbol:
     AS: Final[str] = 'AS'
     ASK: Final[str] = 'ASK'
     BIND: Final[str] = 'BIND'
+    BOUND: Final[str] = 'BOUND'
     COMMENT: Final[str] = '#'
+    COUNT: Final[str] = 'COUNT'
     DISTINCT: Final[str] = 'DISTINCT'
     DOT: Final[str] = '.'
     EQUAL: Final[str] = '='
     FILTER: Final[str] = 'FILTER'
+    FILTER_NOT_EXISTS: Final[str] = 'FILTER NOT EXISTS'
     GREATER_THAN: Final[str] = '>'
     GREATER_THAN_OR_EQUAL: Final[str] = '>='
+    IF: Final[str] = 'IF'
     INDENT: Final[str] = '  '
+    IS_BLANK: Final[str] = 'isBlank'
     IS_URI: Final[str] = 'isURI'
     LANG: Final[str] = 'LANG'
     LESS_THAN: Final[str] = '<'
     LESS_THAN_OR_EQUAL: Final[str] = '<='
     LIMIT: Final[str] = 'LIMIT'
+    NOT: Final[str] = '!'
     NOT_EQUAL: Final[str] = '!='
     OFFSET: Final[str] = 'OFFSET'
     OPTIONAL: Final[str] = 'OPTIONAL'
@@ -246,6 +260,9 @@ class Expression(Encodable):
 class BooleanExpression(Expression):
     """Abstract base class for boolean expressions."""
 
+    def __invert__(self):
+        return Not(self)
+
     def __or__(self, other):
         return Or(self, other)
 
@@ -279,6 +296,21 @@ class LogicExpression(BooleanExpression):
             yield '('
             yield f' {self.operator} '.join(map(Encodable.encode, self.args))
             yield ')'
+
+
+class Not(LogicExpression):
+    """Negation."""
+    operator: str = Symbol.NOT
+
+    def __init__(self, arg: BooleanExpression):
+        super().__init__(arg)
+
+    @override
+    def iterencode(self) -> Iterator[str]:
+        assert len(self.args) == 1
+        yield f'{self.operator}('
+        yield self.args[0].encode()
+        yield ')'
 
 
 class Or(LogicExpression):
@@ -423,6 +455,10 @@ class UnaryBuiltInCall(BuiltInCall):
         self.args = (Coerce.numeric_expression(arg),)
 
 
+class Aggregate(UnaryBuiltInCall):
+    """Abstract base class for aggregates."""
+
+
 class BinaryBuiltInCall(BuiltInCall):
     """Abstract base class for 2-ary built-in calls."""
 
@@ -430,6 +466,68 @@ class BinaryBuiltInCall(BuiltInCall):
         self.args = (
             Coerce.numeric_expression(arg1),
             Coerce.numeric_expression(arg2))
+
+
+class TernaryBuiltInCall(BuiltInCall):
+    """Abstract base class for 3-ary built-in calls."""
+
+    def __init__(self, arg1: TNumExpr, arg2: TNumExpr, arg3: TNumExpr):
+        self.args = (
+            Coerce.numeric_expression(arg1),
+            Coerce.numeric_expression(arg2),
+            Coerce.numeric_expression(arg3))
+
+
+class BOUND(UnaryBuiltInCall):
+    """The BOUND built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-bound>.
+    """
+    operator: str = Symbol.BOUND
+
+
+class COUNT(Aggregate):
+    """The COUNT aggregate built-in."""
+
+    operator: str = Symbol.COUNT
+
+
+class COUNT_STAR(COUNT):
+    """The COUNT aggregate built-in with argument set to star (*)."""
+
+    def __init__(self):
+        self.args = ()
+
+    @override
+    def iterencode(self) -> Iterator[str]:
+        yield self.operator
+        yield '('
+        yield '*'
+        yield ')'
+
+
+class IF(TernaryBuiltInCall):
+    """The IF built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-if>.
+    """
+    operator: str = Symbol.IF
+
+
+class IsBlank(UnaryBuiltInCall):
+    """The isURI built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-isBlank>.
+    """
+    operator: str = Symbol.IS_BLANK
+
+
+class IsURI(UnaryBuiltInCall):
+    """The isURI built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-isIRI>.
+    """
+    operator: str = Symbol.IS_URI
 
 
 class LANG(UnaryBuiltInCall):
@@ -462,14 +560,6 @@ class STRLANG(BinaryBuiltInCall):
     See <https://www.w3.org/TR/sparql11-query/#func-strlang>.
     """
     operator: str = Symbol.STRLANG
-
-
-class IsURI(UnaryBuiltInCall):
-    """The isURI built-in.
-
-    See <https://www.w3.org/TR/sparql11-query/#func-isIRI>.
-    """
-    operator: str = Symbol.IS_URI
 
 
 # == Pattern ===============================================================
@@ -766,7 +856,7 @@ class ValuesBlock(GraphPattern):
     ):
         super().__init__(clause, parent)
         self.variables = tuple(map(
-            Coerce.variable, chain((variable,), variables)))
+            Coerce.variable, itertools.chain((variable,), variables)))
         self.lines = []
 
     def __call__(self, *lines: TValuesLine) -> 'ValuesBlock':
@@ -854,7 +944,7 @@ class CompoundGraphPattern(GraphPattern):
 
     def _iterencode(self, n: int) -> Iterator[str]:
         yield from self._iterencode_begin(n)
-        for pat in chain(self.children, self.binds, self.filters):
+        for pat in itertools.chain(self.children, self.binds, self.filters):
             if isinstance(pat, GraphPattern):
                 yield from self._iterencode_graph_pattern(pat, n + 1)
             elif isinstance(pat, Pattern):
@@ -902,6 +992,17 @@ class GroupGraphPattern(CompoundGraphPattern):
                     yield ' '
                 break
         yield '{\n'
+
+
+# -- Filter-not-exists graph pattern ---------------------------------------
+
+class FilterNotExistsGraphPattern(CompoundGraphPattern):
+    """FILTER NOT EXISTS graph pattern."""
+
+    def _iterencode_begin(self, n: int) -> Iterator[str]:
+        yield self._indent(n)
+        yield Symbol.FILTER_NOT_EXISTS
+        yield ' {\n'
 
 
 # -- Optional graph pattern ------------------------------------------------
@@ -1071,6 +1172,22 @@ class OffsetClause(Clause):
 class Query(Encodable):
     """Abstract base class for queries."""
 
+    _mk_bnode: Final[type[BNode]] = BNode
+    _mk_literal: Final[type[Literal]] = Literal
+    _mk_uri: Final[type[URIRef]] = URIRef
+    _mk_variable: Final[type[Variable]] = Variable
+
+    BNode: TypeAlias = BNode
+    Literal: TypeAlias = Literal
+    URI: TypeAlias = URIRef
+    Variable: TypeAlias = Variable
+
+    TVariable: TypeAlias = Union[Variable, _str]
+
+    VLiteral: TypeAlias = Union[Literal, Variable]
+    VTerm: TypeAlias = Union[URIRef, Literal, Variable]
+    V_URI: TypeAlias = Union[URIRef, Variable]
+
     #: Currently targeted clause.
     clause: Clause
 
@@ -1084,10 +1201,10 @@ class Query(Encodable):
     _offset: OffsetClause
 
     #: Default fresh variable prefix.
-    _fresh_var_default_prefix: str = '_v'
+    _fresh_var_default_prefix: _str = '_v'
 
     #: Fresh variable prefix.
-    _fresh_var_prefix: str
+    _fresh_var_prefix: _str
 
     #: Fresh variable counter.
     _fresh_var_counter: int
@@ -1117,6 +1234,17 @@ class Query(Encodable):
                 Encodable.encode, (self._limit, self._offset))):
             yield s
             yield '\n'
+
+# -- Static analysis -------------------------------------------------------
+
+    def where_is_empty(self) -> bool:
+        """Tests whether the WHERE clause of query is empty.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        assert isinstance(self.where.root, GroupGraphPattern)
+        return not bool(self.where.root.children)
 
 # -- Stashing --------------------------------------------------------------
 
@@ -1194,7 +1322,7 @@ class Query(Encodable):
         Returns:
            Iterator of :class:`Variable`.
         """
-        return map(self.var, chain((name,), names))
+        return map(self.var, itertools.chain((name,), names))
 
     def fresh_var(self) -> Variable:
         """Construct fresh variable.
@@ -1224,22 +1352,42 @@ class Query(Encodable):
 
 # -- Functions -------------------------------------------------------------
 
+    def bound(self, arg1: TNumExpr) -> BOUND:
+        return BOUND(arg1)
+
     def call(self, op: T_URI, *args: TNumExpr) -> URI_Call:
         return URI_Call(op, *args)
 
-    def lang(self, arg: TNumExpr) -> BuiltInCall:
+    def count(self, arg1: Optional[TNumExpr] = None) -> COUNT:
+        if arg1 is None:
+            return COUNT_STAR()
+        else:
+            return COUNT(arg1)
+
+    def if_(
+            self,
+            arg1: TNumExpr,
+            arg2: TNumExpr,
+            arg3: TNumExpr
+    ) -> IF:
+        return IF(arg1, arg2, arg3)
+
+    def lang(self, arg: TNumExpr) -> LANG:
         return LANG(arg)
 
-    def str(self, arg: TNumExpr) -> BuiltInCall:
+    def str(self, arg: TNumExpr) -> STR:
         return STR(arg)
 
-    def strlang(self, arg1: TNumExpr, arg2: TNumExpr) -> BuiltInCall:
+    def strlang(self, arg1: TNumExpr, arg2: TNumExpr) -> STRLANG:
         return STRLANG(arg1, arg2)
 
-    def strstarts(self, arg1: TNumExpr, arg2: TNumExpr) -> BuiltInCall:
+    def strstarts(self, arg1: TNumExpr, arg2: TNumExpr) -> STRSTARTS:
         return STRSTARTS(arg1, arg2)
 
-    def is_uri(self, arg: TNumExpr) -> BuiltInCall:
+    def is_blank(self, arg: TNumExpr) -> IsBlank:
+        return IsBlank(arg)
+
+    def is_uri(self, arg: TNumExpr) -> IsURI:
         return IsURI(arg)
 
 # -- Non-graph patterns ----------------------------------------------------
@@ -1332,6 +1480,32 @@ class Query(Encodable):
         """
         assert isinstance(self.clause.current, GroupGraphPattern)
         return cast(GroupGraphPattern, self.clause._end())
+
+    def filter_not_exists(self) -> FilterNotExistsGraphPattern:
+        """Constructs FILTER NOT EXISTS graph pattern.
+
+        Returns:
+           :class:`FilterNotExistsGraphPattern` owned by clause.
+        """
+        return FilterNotExistsGraphPattern(self.clause)
+
+    def begin_filter_not_exists(self) -> FilterNotExistsGraphPattern:
+        """Pushes FILTER NOT EXISTS graph pattern.
+
+        Returns:
+           :class:`FilterNotExistsGraphPattern`.
+        """
+        return cast(FilterNotExistsGraphPattern, self.clause._begin(
+            self.filter_not_exists()))
+
+    def end_filter_not_exists(self) -> FilterNotExistsGraphPattern:
+        """Pops FILTER NOT EXISTS graph pattern.
+
+        Returns:
+           :class:`FilterNotExistsGraphPattern`.
+        """
+        assert isinstance(self.clause.current, FilterNotExistsGraphPattern)
+        return cast(FilterNotExistsGraphPattern, self.clause._end())
 
     def optional(self) -> OptionalGraphPattern:
         """Constructs OPTIONAL graph pattern.

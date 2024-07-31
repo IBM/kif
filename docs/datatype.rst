@@ -4,39 +4,72 @@ Datatype
 
 .. currentmodule:: kif_lib
 
-.. inheritance-diagram:: KIF_Object
-                         Datatype
-                         ExternalIdDatatype
-                         IRI_Datatype
-                         ItemDatatype
-                         LexemeDatatype
-                         PropertyDatatype
-                         QuantityDatatype
-                         StringDatatype
-                         TextDatatype
-                         TimeDatatype
-   :top-classes: kif_lib.model.kif_object.KIF_Object
-   :parts: -3
-   :caption: Datatype hierarchy.
-
+Datatype
+--------
 .. autosummary::
+   :toctree: generated/
+
    Datatype
 
-Concrete subclasses
--------------------
+ItemDatatype
+~~~~~~~~~~~~
 .. autosummary::
-   ItemDatatype
-   PropertyDatatype
-   LexemeDatatype
-   IRI_Datatype
-   TextDatatype
-   StringDatatype
-   ExternalIdDatatype
-   QuantityDatatype
-   TimeDatatype
+   :toctree: generated/
 
-Value-class conversion
-----------------------
+   ItemDatatype
+
+PropertyDatatype
+~~~~~~~~~~~~~~~~
 .. autosummary::
-   Datatype.from_value_class
-   Datatype.to_value_class
+   :toctree: generated/
+
+   PropertyDatatype
+
+LexemeDatatype
+~~~~~~~~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   LexemeDatatype
+
+IRI_Datatype
+~~~~~~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   IRI_Datatype
+
+TextDatatype
+~~~~~~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   TextDatatype
+
+StringDatatype
+~~~~~~~~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   StringDatatype
+
+ExternalIdDatatype
+~~~~~~~~~~~~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   ExternalIdDatatype
+
+QuantityDatatype
+~~~~~~~~~~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   QuantityDatatype
+
+TimeDatatype
+~~~~~~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   TimeDatatype

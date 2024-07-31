@@ -3,11 +3,11 @@
 
 import re
 
-from ...itertools import batched
+from ... import itertools
 from ...model import (
     AnnotationRecord,
     AnnotationRecordSet,
-    FilterPattern,
+    Filter,
     IRI,
     IRI_Datatype,
     Item,
@@ -43,6 +43,8 @@ from ...typing import (
 from ...vocabulary import wd
 from ..abc import Store
 from ..sparql_mapping import SPARQL_Mapping
+
+filter_ = filter
 
 CITO = Namespace('http://purl.org/spar/cito/')
 OBO = Namespace('http://purl.obolibrary.org/obo/')
@@ -210,30 +212,33 @@ class PubChemMapping(SPARQL_Mapping):
     def filter_pre_hook(
             cls,
             store: Store,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool
-    ) -> tuple[FilterPattern, int, bool, Any]:
-        if (pattern.property is None
-                or pattern.property.property
+    ) -> tuple[Filter, int, bool, Any]:
+        from ..sparql import SPARQL_Store
+        assert isinstance(store, SPARQL_Store)
+        subject, property, value, snak_mask = filter._unpack_legacy()
+        if (property is None
+                or property
                 not in cls._toxicity_properties_inv):
-            return pattern, limit, distinct, None
+            return filter, limit, distinct, None
         else:
-            new_pattern = FilterPattern(
-                pattern.subject,
+            new_filter = Filter(
+                subject,
                 wd.instance_of,
                 wd.type_of_a_chemical_entity,
-                pattern.snak_mask)
-            return new_pattern, store.maximum_page_size, distinct, dict(
-                original_pattern=pattern,
+                snak_mask)
+            return new_filter, store.maximum_page_size, distinct, dict(
+                original_filter=filter,
                 original_limit=limit)
 
-    @override
     @classmethod
+    @override
     def filter_post_hook(
             cls,
             store: Store,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool,
             data: Any,
@@ -244,18 +249,19 @@ class PubChemMapping(SPARQL_Mapping):
         else:
             def mk_it():
                 assert isinstance(data, dict)
-                original_pattern = data['original_pattern']
-                assert isinstance(original_pattern, FilterPattern)
+                original_filter = data['original_filter']
+                assert isinstance(original_filter, Filter)
                 original_limit = data['original_limit']
                 assert isinstance(original_limit, int)
                 count = 0
                 cids_it = map(
                     lambda iri: iri.value[len(cls.COMPOUND.value) + 3:],
-                    filter(cls.is_pubchem_compound_iri, map(
+                    filter_(cls.is_pubchem_compound_iri, map(
                         lambda stmt: stmt.subject.iri, it)))
-                for batch in batched(cids_it, store.default_page_size):
+                for batch in itertools.batched(
+                        cids_it, store.default_page_size):
                     for stmt, annots in cls._get_toxicity(set(batch)):
-                        if original_pattern.match(stmt):
+                        if original_filter.match(stmt):
                             from ..sparql import SPARQL_Store
                             st = cast(SPARQL_Store, store)
                             st._cache_add_wds(stmt, WDS[stmt.digest])
@@ -469,7 +475,7 @@ class PubChemMapping(SPARQL_Mapping):
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
-        iri = IRI._check_arg_iri(iri, cls.is_pubchem_compound_iri, 'iri', 1)
+        iri = IRI.check(iri, cls.is_pubchem_compound_iri, 'iri', 1)
         return iri.value.startswith(cls.COMPOUND.value)
 
     @classmethod
@@ -482,7 +488,7 @@ class PubChemMapping(SPARQL_Mapping):
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
-        iri = IRI._check_arg_iri(iri, cls.is_pubchem_patent_iri, 'iri', 1)
+        iri = IRI.check(iri, cls.is_pubchem_patent_iri, 'iri', 1)
         return iri.value.startswith(cls.PATENT.value)
 
     @classmethod
@@ -495,7 +501,7 @@ class PubChemMapping(SPARQL_Mapping):
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
-        iri = IRI._check_arg_iri(iri, cls.is_pubchem_source_iri, 'iri', 1)
+        iri = IRI.check(iri, cls.is_pubchem_source_iri, 'iri', 1)
         return iri.value.startswith(cls.SOURCE.value)
 
 
@@ -552,11 +558,11 @@ def wd_COMPOUND_description(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.canonical_SMILES,
+    property=wd.canonical_SMILES.replace(KIF_Object.KEEP, String),
     datatype=StringDatatype(),
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_canonical_SMILES(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: Canonical SMILES values in PubChem are tagged with @en.
         ###
@@ -568,11 +574,11 @@ def wd_canonical_SMILES(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.chemical_formula,
+    property=wd.chemical_formula.replace(KIF_Object.KEEP, String),
     datatype=StringDatatype(),
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_chemical_formula(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: Chemical formula values in PubChem are tagged with @en.
         ###
@@ -585,7 +591,7 @@ def wd_chemical_formula(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.CAS_Registry_Number,
+    property=wd.CAS_Registry_Number.replace(KIF_Object.KEEP, String),
     datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_CAS_Registry_Number(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -597,7 +603,7 @@ def wd_CAS_Registry_Number(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.ChEBI_ID,
+    property=wd.ChEBI_ID.replace(KIF_Object.KEEP, String),
     datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_ChEBI_ID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -609,7 +615,7 @@ def wd_ChEBI_ID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.ChEMBL_ID,
+    property=wd.ChEMBL_ID.replace(KIF_Object.KEEP, String),
     datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_ChEMBL_ID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -621,7 +627,7 @@ def wd_ChEMBL_ID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.described_by_source,
+    property=wd.described_by_source.replace(KIF_Object.KEEP, Item),
     datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value_prefix=PubChemMapping.PATENT)
@@ -634,7 +640,7 @@ def wd_described_by_source(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.has_part,
+    property=wd.has_part.replace(KIF_Object.KEEP, Item),
     datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value_prefix=PubChemMapping.COMPOUND)
@@ -643,11 +649,11 @@ def wd_has_part(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.InChI,
+    property=wd.InChI.replace(KIF_Object.KEEP, String),
     datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_InChI(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: InChI values in PubChem are tagged with @en.
         ###
@@ -659,11 +665,11 @@ def wd_InChI(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.InChIKey,
+    property=wd.InChIKey.replace(KIF_Object.KEEP, String),
     datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_InChIKey(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: InChIKey values in PubChem are tagged with @en.
         ###
@@ -677,7 +683,7 @@ def wd_InChIKey(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.instance_of,
+    property=wd.instance_of.replace(KIF_Object.KEEP, Item),
     datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value=wd.type_of_a_chemical_entity)
@@ -690,11 +696,11 @@ def wd_COMPOUND_instance_of(
 
 
 @PubChemMapping.register(
-    property=wd.isomeric_SMILES,
+    property=wd.isomeric_SMILES.replace(KIF_Object.KEEP, String),
     datatype=StringDatatype(),
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_isomeric_SMILES(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: Isomeric SMILES values in PubChem are tagged with @en.
         ###
@@ -706,7 +712,7 @@ def wd_isomeric_SMILES(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.legal_status,
+    property=wd.legal_status.replace(KIF_Object.KEEP, String),
     datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value=wd.FDA_approved)
@@ -716,14 +722,14 @@ def wd_legal_status(
 
 
 @PubChemMapping.register(
-    property=wd.mass,
+    property=wd.mass.replace(KIF_Object.KEEP, Quantity),
     datatype=QuantityDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value_datatype=XSD.decimal,
     value_datatype_encoded=XSD.float,
     value_unit=wd.gram_per_mole)
 def wd_mass(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: Mass values in PubChem have datatype float.
         ###
@@ -737,7 +743,7 @@ def wd_mass(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.manufacturer,
+    property=wd.manufacturer.replace(KIF_Object.KEEP, Item),
     datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value_prefix=PubChemMapping.SOURCE)
@@ -750,7 +756,8 @@ def wd_manufacturer(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.partition_coefficient_water_octanol,
+    property=wd.partition_coefficient_water_octanol.replace(
+        KIF_Object.KEEP, Quantity),
     datatype=QuantityDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value_datatype=XSD.decimal,
@@ -760,7 +767,7 @@ def wd_manufacturer(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
             wd.based_on_heuristic, wd.machine_learning)])])
 def wd_partition_coefficient_water_octanol(
         spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: LogP values in PubChem have datatype float.
         ###
@@ -773,11 +780,11 @@ def wd_partition_coefficient_water_octanol(
 
 
 @PubChemMapping.register(
-    property=wd.PubChem_CID,
+    property=wd.PubChem_CID.replace(KIF_Object.KEEP, String),
     datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.COMPOUND)
 def wd_PubChem_CID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: CID values in PubChem are tagged with @en.
         ###
@@ -789,7 +796,7 @@ def wd_PubChem_CID(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.stereoisomer_of,
+    property=wd.stereoisomer_of.replace(KIF_Object.KEEP, String),
     datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value_prefix=PubChemMapping.COMPOUND)
@@ -798,12 +805,12 @@ def wd_stereoisomer_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.trading_name,
+    property=wd.trading_name.replace(KIF_Object.KEEP, Text),
     datatype=TextDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value_language='en')
 def wd_trading_name(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: Trading name values in PubChem have no language tag.
         ###
@@ -832,7 +839,7 @@ def wd_PATENT_description(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.author_name_string,
+    property=wd.author_name_string.replace(KIF_Object.KEEP, String),
     datatype=StringDatatype(),
     subject_prefix=PubChemMapping.PATENT)
 def wd_author_name_string(
@@ -842,7 +849,7 @@ def wd_author_name_string(
 
 
 @PubChemMapping.register(
-    property=wd.instance_of,
+    property=wd.instance_of.replace(KIF_Object.KEEP, Item),
     datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.PATENT,
     value=wd.patent)
@@ -851,7 +858,7 @@ def wd_PATENT_instance_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.main_subject,
+    property=wd.main_subject.replace(KIF_Object.KEEP, Item),
     datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.PATENT,
     value_prefix=PubChemMapping.COMPOUND)
@@ -864,7 +871,7 @@ def wd_main_subject(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.patent_number,
+    property=wd.patent_number.replace(KIF_Object.KEEP, String),
     datatype=StringDatatype(),   # FIXME: ExternalId
     subject_prefix=PubChemMapping.PATENT)
 def wd_patent_number(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -872,7 +879,7 @@ def wd_patent_number(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.publication_date,
+    property=wd.publication_date.replace(KIF_Object.KEEP, String),
     datatype=TimeDatatype(),
     subject_prefix=PubChemMapping.PATENT,
     value_precision=Time.DAY,
@@ -883,7 +890,7 @@ def wd_publication_date(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.sponsor,
+    property=wd.sponsor.replace(KIF_Object.KEEP, String),
     datatype=StringDatatype(),
     subject_prefix=PubChemMapping.PATENT)
 def wd_sponsor(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
@@ -892,12 +899,12 @@ def wd_sponsor(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.title,
+    property=wd.title.replace(KIF_Object.KEEP, Text),
     datatype=TextDatatype(),
     subject_prefix=PubChemMapping.PATENT,
     value_language='en')
 def wd_title(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
-    if Value.test(v):
+    if isinstance(v, Value):
         ###
         # IMPORTANT: Title values in PubChem have no language tag.
         ###
@@ -922,7 +929,7 @@ def wd_SOURCE_alias(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.instance_of,
+    property=wd.instance_of.replace(KIF_Object.KEEP, Item),
     datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.SOURCE,
     value=wd.business)
@@ -931,7 +938,7 @@ def wd_SOURCE_instance_of(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
 
 
 @PubChemMapping.register(
-    property=wd.official_website,
+    property=wd.official_website.replace(KIF_Object.KEEP, IRI),
     datatype=IRI_Datatype(),
     subject_prefix=PubChemMapping.SOURCE)
 def wd_SOURCE_official_website(
@@ -942,7 +949,7 @@ def wd_SOURCE_official_website(
 
 
 @PubChemMapping.register(
-    property=wd.short_name,
+    property=wd.short_name.replace(KIF_Object.KEEP, String),
     datatype=StringDatatype(),
     subject_prefix=PubChemMapping.SOURCE)
 def wd_SOURCE_short_name(

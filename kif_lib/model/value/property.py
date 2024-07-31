@@ -1,14 +1,12 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import overload, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-from ... import namespace as NS
-from ...itertools import chain
-from ...rdflib import URIRef
+from typing_extensions import overload
+
 from ...typing import (
     Any,
-    cast,
     ClassVar,
     Iterable,
     Optional,
@@ -16,29 +14,29 @@ from ...typing import (
     TypeAlias,
     Union,
 )
-from ..kif_object import TLocation
 from ..template import Template
 from ..variable import Variable
-from .entity import Entity, EntityTemplate, EntityVariable, VVEntity
-from .iri import IRI, IRI_Template, T_IRI
-from .string import String
-from .value import Datatype, VDatatype, VTDatatypeContent, VVTValue
+from .datatype import Datatype, DatatypeVariable, VDatatype, VTDatatype
+from .entity import Entity, EntityTemplate, EntityVariable, VTEntity
+from .iri import IRI_Template, T_IRI, VT_IRI
+from .value import VTValue
 
-if TYPE_CHECKING:
-    from ..snak import ValueSnak, ValueSnakTemplate
+if TYPE_CHECKING:               # pragma: no cover
+    from ..snak import (
+        NoValueSnak,
+        NoValueSnakTemplate,
+        SomeValueSnak,
+        SomeValueSnakTemplate,
+        ValueSnak,
+        ValueSnakTemplate,
+    )
     from ..statement import Statement, StatementTemplate
 
-PropertyClass: TypeAlias = type['Property']
-PropertyDatatypeClass: TypeAlias = type['PropertyDatatype']
-PropertyTemplateClass: TypeAlias = type['PropertyTemplate']
-PropertyVariableClass: TypeAlias = type['PropertyVariable']
-
 TProperty: TypeAlias = Union['Property', T_IRI]
-VTPropertyContent: TypeAlias = Union[IRI_Template, Variable, 'TProperty']
 VProperty: TypeAlias =\
     Union['PropertyTemplate', 'PropertyVariable', 'Property']
-VVProperty: TypeAlias = Union[Variable, VProperty]
-VVTPropertyContent: TypeAlias = Union[VVProperty, VTPropertyContent]
+VTProperty: TypeAlias = Union[Variable, VProperty, TProperty]
+VTPropertyContent: TypeAlias = Union[Variable, IRI_Template, TProperty]
 
 
 class PropertyTemplate(EntityTemplate):
@@ -49,12 +47,12 @@ class PropertyTemplate(EntityTemplate):
        range: Datatype or datatype variable.
     """
 
-    object_class: ClassVar[PropertyClass]  # pyright: ignore
+    object_class: ClassVar[type['Property']]  # pyright: ignore
 
     def __init__(
             self,
-            iri: VTPropertyContent,
-            range: Optional[VTDatatypeContent] = None
+            iri: VT_IRI,
+            range: Optional[VTDatatype] = None
     ):
         super().__init__(iri, range)
 
@@ -66,27 +64,29 @@ class PropertyTemplate(EntityTemplate):
             else:
                 return Property._static_preprocess_arg(self, arg, i)
         elif i == 2:            # range
-            if Variable.test(arg):
-                return self._preprocess_arg_datatype_variable(
-                    arg, i, self.__class__)
+            if isinstance(arg, Variable):
+                return DatatypeVariable.check(arg, type(self), None, i)
             else:
                 return Property._static_preprocess_arg(self, arg, i)
         else:
             raise self._should_not_get_here()
 
     @overload
-    def __call__(self, v1: VVEntity, v2: VVTValue) -> 'StatementTemplate':
-        ...
+    def __call__(self, v1: VTEntity, v2: VTValue) -> 'StatementTemplate':
+        ...                     # pragma: no cover
 
     @overload
-    def __call__(self, v1: VVTValue) -> 'ValueSnakTemplate':
-        ...
+    def __call__(self, v1: VTValue) -> 'ValueSnakTemplate':
+        ...                     # pragma: no cover
 
     def __call__(self, v1, v2=None):
         if v2 is not None:
-            return self._StatementTemplate(v1, self._ValueSnak(self, v2))
+            from ..snak import ValueSnak
+            from ..statement import StatementTemplate
+            return StatementTemplate(v1, ValueSnak(self, v2))
         else:
-            return self._ValueSnakTemplate(self, v1)
+            from ..snak import ValueSnakTemplate
+            return ValueSnakTemplate(self, v1)
 
     @property
     def range(self) -> Optional[VDatatype]:
@@ -107,8 +107,25 @@ class PropertyTemplate(EntityTemplate):
         Returns:
            Datatype or datatype variable.
         """
-        range = self.args[1]
-        return range if range is not None else default
+        return self.get(1, default)
+
+    def no_value(self) -> 'NoValueSnakTemplate':
+        """Constructs a no-value snak template from property template.
+
+        Returns:
+           No-value snak template.
+        """
+        from ..snak import NoValueSnakTemplate
+        return NoValueSnakTemplate(self)
+
+    def some_value(self) -> 'SomeValueSnakTemplate':
+        """Constructs a some-value snak template from property template.
+
+        Returns:
+           Some-value snak template.
+        """
+        from ..snak import SomeValueSnakTemplate
+        return SomeValueSnakTemplate(self)
 
 
 class PropertyVariable(EntityVariable):
@@ -118,39 +135,48 @@ class PropertyVariable(EntityVariable):
        name: Name.
     """
 
-    object_class: ClassVar[PropertyClass]  # pyright: ignore
-
-    @classmethod
-    def _preprocess_arg_property_variable(
-            cls,
-            arg: Variable,
-            i: int,
-            function: Optional[TLocation] = None
-    ) -> 'PropertyVariable':
-        return cast(PropertyVariable, cls._preprocess_arg_variable(
-            arg, i, function or cls))
+    object_class: ClassVar[type['Property']]  # pyright: ignore
 
     @overload
-    def __call__(self, v1: VVEntity, v2: VVTValue) -> 'StatementTemplate':
-        ...
+    def __call__(self, v1: VTEntity, v2: VTValue) -> 'StatementTemplate':
+        ...                     # pragma: no cover
 
     @overload
-    def __call__(self, v1: VVTValue) -> 'ValueSnakTemplate':
-        ...
+    def __call__(self, v1: VTValue) -> 'ValueSnakTemplate':
+        ...                     # pragma: no cover
 
     def __call__(self, v1, v2=None):
         if v2 is not None:
-            return self._StatementTemplate(v1, self._ValueSnak(self, v2))
+            from ..snak import ValueSnak
+            from ..statement import StatementTemplate
+            return StatementTemplate(v1, ValueSnak(self, v2))
         else:
-            return self._ValueSnakTemplate(self, v1)
+            from ..snak import ValueSnakTemplate
+            return ValueSnakTemplate(self, v1)
+
+    def no_value(self) -> 'NoValueSnakTemplate':
+        """Constructs a no-value snak template from property variable.
+
+        Returns:
+           No-value snak template.
+        """
+        from ..snak import NoValueSnakTemplate
+        return NoValueSnakTemplate(self)
+
+    def some_value(self) -> 'SomeValueSnakTemplate':
+        """Constructs a some-value snak template from property variable.
+
+        Returns:
+           Some-value snak template.
+        """
+        from ..snak import SomeValueSnakTemplate
+        return SomeValueSnakTemplate(self)
 
 
 class PropertyDatatype(Datatype):
     """Property datatype."""
 
-    value_class: ClassVar[PropertyClass]  # pyright: ignore
-
-    _uri: ClassVar[URIRef] = NS.WIKIBASE.WikibaseProperty
+    value_class: ClassVar[type['Property']]  # pyright: ignore
 
 
 class Property(
@@ -166,52 +192,44 @@ class Property(
        range: Datatype.
     """
 
-    datatype_class: ClassVar[PropertyDatatypeClass]  # pyright: ignore
-    datatype: ClassVar[PropertyDatatype]             # pyright: ignore
-    template_class: ClassVar[PropertyTemplateClass]  # pyright: ignore
-    variable_class: ClassVar[PropertyVariableClass]  # pyright: ignore
-
-    @classmethod
-    def _check_arg_property(
-            cls,
-            arg: TProperty,
-            function: Optional[TLocation] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> 'Property':
-        return cls(cls._check_arg_isinstance(
-            arg, (cls, IRI, URIRef, String, str), function, name, position))
+    datatype_class: ClassVar[type[PropertyDatatype]]  # pyright: ignore
+    datatype: ClassVar[PropertyDatatype]              # pyright: ignore
+    template_class: ClassVar[type[PropertyTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[PropertyVariable]]  # pyright: ignore
 
     def __init__(
             self,
             iri: VTPropertyContent,
-            range: Optional[VTDatatypeContent] = None
+            range: Optional[VTDatatype] = None
     ):
         super().__init__(iri, range)
 
-    @override
     @staticmethod
+    @override
     def _static_preprocess_arg(self_, arg: Any, i: int) -> Any:
         if i == 1:              # iri
             return Entity._static_preprocess_arg(self_, arg, i)
         elif i == 2:            # range
-            return self_._preprocess_optional_arg_datatype(arg, i)
+            return Datatype.check_optional(arg, None, type(self_), None, i)
         else:
             raise self_._should_not_get_here()
 
     @overload
-    def __call__(self, v1: VVEntity, v2: VVTValue) -> 'Statement':
-        ...
+    def __call__(self, v1: VTEntity, v2: VTValue) -> 'Statement':
+        ...                     # pragma: no cover
 
     @overload
-    def __call__(self, v1: VVTValue) -> 'ValueSnak':
-        ...
+    def __call__(self, v1: VTValue) -> 'ValueSnak':
+        ...                     # pragma: no cover
 
     def __call__(self, v1, v2=None):
         if v2 is not None:
-            return self._Statement(v1, self._ValueSnak(self, v2))
+            from ..snak import ValueSnak
+            from ..statement import Statement
+            return Statement(v1, ValueSnak(self, v2))
         else:
-            return self._ValueSnak(self, v1)
+            from ..snak import ValueSnak
+            return ValueSnak(self, v1)
 
     @property
     def range(self) -> Optional[Datatype]:
@@ -232,8 +250,25 @@ class Property(
         Returns:
            Datatype.
         """
-        range = self.args[1]
-        return range if range is not None else default
+        return self.get(1, default)
+
+    def no_value(self) -> 'NoValueSnak':
+        """Constructs a no-value snak from property.
+
+        Returns:
+           No-value snak.
+        """
+        from ..snak import NoValueSnak
+        return NoValueSnak(self)
+
+    def some_value(self) -> 'SomeValueSnak':
+        """Constructs a some-value snak from property.
+
+        Returns:
+           Some-value snak.
+        """
+        from ..snak import SomeValueSnak
+        return SomeValueSnak(self)
 
 
 def Properties(
@@ -249,4 +284,5 @@ def Properties(
     Returns:
        The resulting properties.
     """
-    return map(Property, chain([iri], iris))
+    from ... import itertools
+    return map(Property, itertools.chain((iri,), iris))

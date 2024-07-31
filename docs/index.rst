@@ -8,8 +8,6 @@ A knowledge integration framework based on Wikidata.
    :caption: Contents
 
    model
-   store
-   internal
    all
 
 Indices and tables

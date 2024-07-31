@@ -4,17 +4,16 @@
 import sys
 from enum import auto, Flag
 
+from .. import itertools
 from ..cache import Cache
 from ..error import Error as KIF_Error
-from ..error import MustBeImplementedInSubclass, ShouldNotGetHere
-from ..itertools import batched, chain, islice, unique_everseen
+from ..error import ShouldNotGetHere
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
     Descriptor,
     Entity,
-    EntityFingerprint,
-    FilterPattern,
+    Filter,
     Fingerprint,
     Item,
     ItemDescriptor,
@@ -23,15 +22,11 @@ from ..model import (
     LexemeDescriptor,
     Property,
     PropertyDescriptor,
-    PropertyFingerprint,
     ReferenceRecordSet,
     Snak,
     Statement,
-    TEntityFingerprint,
     Text,
     TFingerprint,
-    TLocation,
-    TPropertyFingerprint,
     TReferenceRecordSet,
 )
 from ..typing import (
@@ -112,21 +107,6 @@ class Store(Set):
            Store error.
         """
         return cls.Error(details)
-
-    @classmethod
-    def _must_be_implemented_in_subclass(
-            cls,
-            details: Optional[str] = None
-    ) -> MustBeImplementedInSubclass:
-        """Makes a "must be implemented in subclass" error.
-
-        Parameters:
-           details: Details.
-
-        Returns:
-           :class:`MustBeImplementedInSubclass` error.
-        """
-        return KIF_Object._must_be_implemented_in_subclass(details)
 
     @classmethod
     def _should_not_get_here(
@@ -254,7 +234,7 @@ class Store(Set):
            references: Set of references.
         """
         self._extra_references =\
-            ReferenceRecordSet._check_optional_arg_reference_record_set(
+            ReferenceRecordSet.check_optional(
                 references, None, self.set_extra_references, 'references', 1)
 
 # -- Flags -----------------------------------------------------------------
@@ -264,6 +244,9 @@ class Store(Set):
 
         #: Whether to enable cache.
         CACHE = auto()
+
+        #: Whether to enable debugging.
+        DEBUG = auto()
 
         #: Whether to remove duplicates.
         DISTINCT = auto()
@@ -292,6 +275,7 @@ class Store(Set):
         #: All flags.
         ALL = (
             CACHE
+            | DEBUG
             | DISTINCT
             | ORDER
             | BEST_RANK
@@ -303,6 +287,9 @@ class Store(Set):
 
     #: Whether to enable cache.
     CACHE = Flags.CACHE
+
+    #: Whether to enable debugging.
+    DEBUG = Flags.DEBUG
 
     #: Whether to remove duplicates.
     DISTINCT = Flags.DISTINCT
@@ -332,7 +319,7 @@ class Store(Set):
     ALL = Flags.ALL
 
     #: The default flags.
-    default_flags: Final['Flags'] = Flags.ALL & ~Flags.ORDER
+    default_flags: Final['Flags'] = Flags.ALL & ~(Flags.DEBUG | Flags.ORDER)
 
     _flags: 'Flags'
 
@@ -467,7 +454,7 @@ class Store(Set):
         Returns:
            The resulting tuples.
         """
-        return batched(
+        return itertools.batched(
             it, page_size if page_size is not None else self.page_size)
 
     def _chain_map_batched(
@@ -488,7 +475,8 @@ class Store(Set):
         Returns:
            The resulting iterator.
         """
-        return chain.from_iterable(map(op, self._batched(it, page_size)))
+        return itertools.chain.from_iterable(
+            map(op, self._batched(it, page_size)))
 
 
 # -- Timeout ---------------------------------------------------------------
@@ -551,7 +539,7 @@ class Store(Set):
 # -- Set interface ---------------------------------------------------------
 
     def __contains__(self, v):
-        return self.contains(v) if Statement.test(v) else False
+        return self.contains(v) if isinstance(v, Statement) else False
 
     def __iter__(self):
         return self.filter()
@@ -573,32 +561,32 @@ class Store(Set):
         Statement.check(stmt, self.contains, 'stmt', 1)
         status = self._cache_get_presence(stmt)
         if status is None:
-            pat = self._normalize_filter_pattern(
-                FilterPattern.from_statement(stmt))
-            status = self._contains_tail(pat)
+            filter = self._normalize_filter(
+                Filter.from_statement(stmt))
+            status = self._contains_tail(filter)
             status = self._cache_set_presence(stmt, status)
         assert status is not None
         return status
 
-    def _contains_tail(self, pattern: FilterPattern) -> bool:
-        if pattern.is_nonempty():
-            return self._contains(pattern)
+    def _contains_tail(self, filter: Filter) -> bool:
+        if filter.is_nonempty():
+            return self._contains(filter)
         else:
             return False
 
-    def _contains(self, pattern: FilterPattern) -> bool:
+    def _contains(self, filter: Filter) -> bool:
         return False
 
     def count(
             self,
-            subject: Optional[TEntityFingerprint] = None,
-            property: Optional[TPropertyFingerprint] = None,
+            subject: Optional[TFingerprint] = None,
+            property: Optional[TFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[Snak.TMask] = None,
+            snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
-            pattern: Optional[FilterPattern] = None
+            filter: Optional[Filter] = None
     ) -> int:
-        """Counts statements matching pattern.
+        """Counts statements matching filter.
 
         Parameters:
            subject: Entity.
@@ -606,78 +594,78 @@ class Store(Set):
            value: Value.
            snak_mask: Snak mask.
            snak: Snak.
-           pattern: Filter pattern.
+           filter: Filter.
 
         Returns:
-           The number of statements matching pattern.
+           The number of statements matching filter.
         """
-        return self._count_tail(self._check_filter_pattern(
-            subject, property, value, snak_mask, snak, pattern, self.count))
+        return self._count_tail(self._check_filter(
+            subject, property, value, snak_mask, snak, filter, self.count))
 
-    def _count_tail(self, pattern: FilterPattern) -> int:
-        if pattern.is_nonempty():
-            return self._count(pattern)
+    def _count_tail(self, filter: Filter) -> int:
+        if filter.is_nonempty():
+            return self._count(filter)
         else:
             return 0
 
-    def _count(self, pattern: FilterPattern) -> int:
+    def _count(self, filter: Filter) -> int:
         return 0
 
-    def _check_filter_pattern(
+    def _check_filter(
             self,
-            subject: Optional[TEntityFingerprint] = None,
-            property: Optional[TPropertyFingerprint] = None,
+            subject: Optional[TFingerprint] = None,
+            property: Optional[TFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[Snak.TMask] = None,
+            snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
-            pattern: Optional[FilterPattern] = None,
-            function: Optional[TLocation] = None
-    ) -> FilterPattern:
-        subj = EntityFingerprint._check_optional_arg_entity_fingerprint(
+            filter: Optional[Filter] = None,
+            function: Optional[Union[Callable[..., Any], str]] = None
+    ) -> Filter:
+        subj = Fingerprint.check_optional(
             subject, None, function, 'subject', 1)
-        prop = PropertyFingerprint._check_optional_arg_property_fingerprint(
+        prop = Fingerprint.check_optional(
             property, None, function, 'property', 2)
-        val = Fingerprint._check_optional_arg_fingerprint(
+        val = Fingerprint.check_optional(
             value, None, function, 'value', 3)
-        mask = Snak._check_optional_arg_snak_mask(
-            snak_mask, Snak.ALL, function, 'snak_mask', 4)
-        pat = FilterPattern(subj, prop, val, mask)
+        mask = Filter.SnakMask.check_optional(
+            snak_mask, Filter.SnakMask.ALL, function, 'snak_mask', 4)
+        if filter is None:
+            filter = Filter(subj, prop, val, mask)
+        else:
+            filter = Filter.check(filter, function, 'filter', 6).combine(
+                Filter(subj, prop, val, mask))
         if snak is not None:
-            pat = FilterPattern._combine(
-                pat, FilterPattern.from_snak(None, Snak._check_arg_snak(
-                    snak, function, 'snak', 5)))
-        if pattern is not None:
-            pat = FilterPattern._combine(
-                pat, cast(FilterPattern, FilterPattern.check(
-                    pattern, function, 'pattern', 6)))
-        return self._normalize_filter_pattern(pat)
+            filter = filter.combine(Filter.from_snak(None, Snak.check(
+                snak, function, 'snak', 5)))
+        return self._normalize_filter(filter)
 
-    def _normalize_filter_pattern(
+    def _normalize_filter(
             self,
-            pat: FilterPattern
-    ) -> FilterPattern:
-        store_snak_mask = Snak.Mask(0)
+            filter: Filter
+    ) -> Filter:
+        store_snak_mask = Filter.SnakMask(0)
         if self.has_flags(self.VALUE_SNAK):
-            store_snak_mask |= Snak.VALUE_SNAK
+            store_snak_mask |= Filter.VALUE_SNAK
         if self.has_flags(self.SOME_VALUE_SNAK):
-            store_snak_mask |= Snak.SOME_VALUE_SNAK
+            store_snak_mask |= Filter.SOME_VALUE_SNAK
         if self.has_flags(self.NO_VALUE_SNAK):
-            store_snak_mask |= Snak.NO_VALUE_SNAK
-        return cast(FilterPattern, pat.replace(
-            None, None, None, pat.snak_mask & store_snak_mask))
+            store_snak_mask |= Filter.NO_VALUE_SNAK
+        return filter.replace(
+            filter.KEEP, filter.KEEP, filter.KEEP,
+            filter.snak_mask & store_snak_mask)
 
     def filter(
             self,
-            subject: Optional[TEntityFingerprint] = None,
-            property: Optional[TPropertyFingerprint] = None,
+            subject: Optional[TFingerprint] = None,
+            property: Optional[TFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[Snak.TMask] = None,
+            snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
-            pattern: Optional[FilterPattern] = None,
+            filter: Optional[Filter] = None,
             limit: Optional[int] = None,
             distinct: Optional[bool] = None
     ) -> Iterator[Statement]:
-        """Filters statements matching pattern.
+        """Filters statements matching filter.
 
         Parameters:
            subject: Entity.
@@ -685,62 +673,62 @@ class Store(Set):
            value: Value.
            snak_mask: Snak mask.
            snak: Snak.
-           pattern: Filter pattern.
+           filter: Filter filter.
            limit: Maximum number of statements to return.
            distinct: Whether to remove duplicates.
 
         Returns:
-           An iterator of statements matching pattern.
+           An iterator of statements matching filter.
         """
-        pat = self._check_filter_pattern(
-            subject, property, value, snak_mask, snak, pattern, self.filter)
+        filter = self._check_filter(
+            subject, property, value, snak_mask, snak, filter, self.filter)
         KIF_Object._check_optional_arg_int(
             limit, None, self.filter, 'limit', 7)
         KIF_Object._check_optional_arg_bool(
             distinct, None, self.filter, 'distinct', 8)
-        return self._filter_tail(pat, limit, distinct)
+        return self._filter_tail(filter, limit, distinct)
 
     def _filter_tail(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: Optional[int],
             distinct: Optional[bool]
     ) -> Iterator[Statement]:
         return self._filter_with_hooks(
-            pattern,
+            filter,
             self.maximum_page_size if limit is None else max(limit, 0),
             self.has_flags(self.DISTINCT) if distinct is None else distinct)
 
     def _filter_with_hooks(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
-        pattern, limit, distinct, data = self._filter_pre_hook(
-            pattern, limit, distinct)
+        filter, limit, distinct, data = self._filter_pre_hook(
+            filter, limit, distinct)
         it_in: Iterator[Statement]
         it_out: Iterator[Statement]
-        if limit > 0 and pattern.is_nonempty():
-            it_in = self._filter(pattern, limit, distinct)
+        if limit > 0 and filter.is_nonempty():
+            it_in = self._filter(filter, limit, distinct)
         else:
             it_in = iter(())
-        it_out = self._filter_post_hook(pattern, limit, distinct, data, it_in)
+        it_out = self._filter_post_hook(filter, limit, distinct, data, it_in)
         if distinct:
-            it_out = unique_everseen(it_out)
-        return islice(it_out, limit)
+            it_out = itertools.unique_everseen(it_out)
+        return itertools.islice(it_out, limit)
 
     def _filter_pre_hook(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool
-    ) -> tuple[FilterPattern, int, bool, Any]:
-        return pattern, limit, distinct, None
+    ) -> tuple[Filter, int, bool, Any]:
+        return filter, limit, distinct, None
 
     def _filter_post_hook(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool,
             data: Any,
@@ -750,7 +738,7 @@ class Store(Set):
 
     def _filter(
             self,
-            pattern: FilterPattern,
+            filter: Filter,
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
@@ -760,12 +748,12 @@ class Store(Set):
 
     def filter_annotated(
             self,
-            subject: Optional[TEntityFingerprint] = None,
-            property: Optional[TPropertyFingerprint] = None,
+            subject: Optional[TFingerprint] = None,
+            property: Optional[TFingerprint] = None,
             value: Optional[TFingerprint] = None,
-            snak_mask: Optional[Snak.TMask] = None,
+            snak_mask: Optional[Filter.TSnakMask] = None,
             snak: Optional[Snak] = None,
-            pattern: Optional[FilterPattern] = None,
+            filter: Optional[Filter] = None,
             limit: Optional[int] = None
     ) -> Iterator[tuple[Statement, AnnotationRecordSet]]:
         """:meth:`Store.filter` with annotations.
@@ -779,14 +767,14 @@ class Store(Set):
            value: Value.
            snak_mask: Snak mask.
            snak: Snak.
-           pattern: Filter pattern.
+           filter: Filter.
            limit: Maximum number of statements to return.
 
         Returns:
            An iterator of pairs "(statement, annotation record set)".
         """
         return self._filter_annotated_tail(self.filter(
-            subject, property, value, snak_mask, snak, pattern, limit))
+            subject, property, value, snak_mask, snak, filter, limit))
 
     def _filter_annotated_tail(
             self,
@@ -816,8 +804,8 @@ class Store(Set):
             self,
             stmts: Union[Statement, Iterable[Statement]]
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
-        if Statement.test(stmts):
-            it = self._get_annotations_with_hooks([cast(Statement, stmts)])
+        if isinstance(stmts, Statement):
+            it = self._get_annotations_with_hooks((stmts,))
         else:
             it = self._get_annotations_with_hooks(map(
                 lambda s: cast(Statement, Statement.check(
@@ -887,8 +875,8 @@ class Store(Set):
         KIF_Object._check_arg_isinstance(
             items, (Item, Iterable),
             self.has_item, 'items', 1)
-        if Item.test(items):
-            return self._has_item_tail([cast(Item, items)])
+        if isinstance(items, Item):
+            return self._has_item_tail((items,))
         else:
             return self._has_item_tail(map(
                 lambda e: cast(Item, Item.check(e, self.has_item)), items))
@@ -930,12 +918,11 @@ class Store(Set):
             language, Text.default_language,
             self.get_descriptor, 'language', 2)
         assert language is not None
-        mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
+        mask = Descriptor.AttributeMask.check_optional(
             mask, Descriptor.ALL, self.get_descriptor, 'mask', 3)
         assert mask is not None
-        if Entity.test(entities):
-            return self._get_descriptor_tail(
-                [cast(Entity, entities)], language, mask)
+        if isinstance(entities, Entity):
+            return self._get_descriptor_tail((entities,), language, mask)
         else:
             return self._get_descriptor_tail(map(
                 lambda e: cast(Entity, Entity.check(
@@ -961,15 +948,15 @@ class Store(Set):
         properties: list[Property] = []
         lexemes: list[Lexeme] = []
         for entity in entities:
-            if entity.is_item():
-                items.append(cast(Item, entity))
-            elif entity.is_property():
-                properties.append(cast(Property, entity))
-            elif entity.is_lexeme():
-                lexemes.append(cast(Lexeme, entity))
+            if isinstance(entity, Item):
+                items.append(entity)
+            elif isinstance(entity, Property):
+                properties.append(entity)
+            elif isinstance(entity, Lexeme):
+                lexemes.append(entity)
             else:
                 raise self._should_not_get_here()
-        desc = dict(chain(
+        desc = dict(itertools.chain(
             self._get_item_descriptor(items, language, mask)
             if items else iter(()),
             self._get_property_descriptor(properties, language, mask)
@@ -1003,12 +990,11 @@ class Store(Set):
             language, Text.default_language,
             self.get_item_descriptor, 'language', 2)
         assert language is not None
-        mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
+        mask = Descriptor.AttributeMask.check_optional(
             mask, Descriptor.ALL, self.get_item_descriptor, 'mask', 3)
         assert mask is not None
-        if Item.test(items):
-            return self._get_item_descriptor_tail(
-                [cast(Item, items)], language, mask)
+        if isinstance(items, Item):
+            return self._get_item_descriptor_tail((items,), language, mask)
         else:
             return self._get_item_descriptor_tail(map(
                 lambda e: cast(Item, Item.check(
@@ -1055,12 +1041,12 @@ class Store(Set):
             language, Text.default_language,
             self.get_property_descriptor, 'language', 2)
         assert language is not None
-        mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
+        mask = Descriptor.AttributeMask.check_optional(
             mask, Descriptor.ALL, self.get_property_descriptor, 'mask', 3)
         assert mask is not None
-        if Property.test(properties):
+        if isinstance(properties, Property):
             return self._get_property_descriptor_tail(
-                [cast(Property, properties)], language, mask)
+                (properties,), language, mask)
         else:
             return self._get_property_descriptor_tail(map(
                 lambda e: cast(Property, Property.check(
@@ -1101,12 +1087,11 @@ class Store(Set):
         KIF_Object._check_arg_isinstance(
             lexemes, (Lexeme, Iterable),
             self.get_lexeme_descriptor, 'lexemes', 1)
-        mask = Descriptor._check_optional_arg_descriptor_attribute_mask(
+        mask = Descriptor.AttributeMask.check_optional(
             mask, Descriptor.ALL, self.get_lexeme_descriptor, 'mask', 3)
         assert mask is not None
-        if Lexeme.test(lexemes):
-            return self._get_lexeme_descriptor_tail(
-                [cast(Lexeme, lexemes)], mask)
+        if isinstance(lexemes, Lexeme):
+            return self._get_lexeme_descriptor_tail((lexemes,), mask)
         else:
             return self._get_lexeme_descriptor_tail(map(
                 lambda e: cast(Lexeme, Lexeme.check(

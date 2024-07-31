@@ -1,7 +1,14 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import NoValueSnak, Quantity, Snak, SomeValueSnak, Statement, Time
+from kif_lib import (
+    Filter,
+    NoValueSnak,
+    Quantity,
+    SomeValueSnak,
+    Statement,
+    Time,
+)
 from kif_lib.vocabulary import wd
 
 from .tests import kif_EmptyStoreTestCase
@@ -58,7 +65,7 @@ class TestStoreEmpty(kif_EmptyStoreTestCase):
     def test_count(self):
         kb = self.new_Store()
         self.store_test_count(kb, 0)
-        self.store_test_count(kb, 0, snak_mask=Snak.VALUE_SNAK)
+        self.store_test_count(kb, 0, snak_mask=Filter.VALUE_SNAK)
         self.store_test_count(kb, 0, wd.InChIKey)
         self.store_test_count(kb, 0, wd.Brazil)
         self.store_test_count(kb, 0, wd.benzene, wd.mass)
