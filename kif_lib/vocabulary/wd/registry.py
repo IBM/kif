@@ -115,7 +115,9 @@ class WikidataEntityRegistry:
             description: Optional[str] = None,
             datatype: Optional[TDatatype] = None
     ) -> Property:
-        if not isinstance(name, str) or name[0] != 'P':
+        if isinstance(name, str) and name[0] == 'P':
+            name = str(NS.WD[name])
+        else:
             name = str(NS.WD[f'P{name}'])
         if name in self._registry:
             entity = self._registry[name]['entity']
@@ -133,7 +135,9 @@ class WikidataEntityRegistry:
             label: Optional[str] = None,
             description: Optional[str] = None
     ) -> Item:
-        if not isinstance(name, str) or name[0] != 'Q':
+        if isinstance(name, str) and name[0] == 'Q':
+            name = str(NS.WD[name])
+        else:
             name = str(NS.WD[f'Q{name}'])
         if name in self._registry:
             entity = self._registry[name]['entity']
@@ -145,7 +149,9 @@ class WikidataEntityRegistry:
         return item
 
     def L(self, name: Union[int, str]) -> Lexeme:
-        if not isinstance(name, str) or name[0] != 'L':
+        if isinstance(name, str) and name[0] == 'L':
+            name = str(NS.WD[name])
+        else:
             name = str(NS.WD[f'L{name}'])
         if name in self._registry:
             entity = self._registry[name]['entity']
