@@ -21,7 +21,8 @@ T = TypeVar('T')
 class Substitution(Mapping):
     """Substitution.
 
-    Maps KIF variables to KIF objects or query variables.
+    Used to produce a variable instantiation table (theta) from a SPARQL
+    results binding.
     """
 
     __slots__ = (
@@ -44,7 +45,7 @@ class Substitution(Mapping):
     #: Variable dependency graph (modulo homonymous variables).
     _G: nx.DiGraph
 
-    #: Order produced by top-soritng `_G`.
+    #: Order produced by top-sorting `_G`.
     _cached_topsorted_G: Optional[list[str]]
 
     def __init__(self):

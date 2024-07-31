@@ -221,6 +221,23 @@ class SPARQL_MapperStore(
                         spec._define(q, with_binds=True)
         return q
 
+    def _parse_filter_results(
+            self,
+            results: SPARQL_Results,
+            filter: Filter
+    ) -> Iterator[Optional[Statement]]:
+        for entry in results.bindings:
+            stmt = entry.check_statement(
+                'subject', 'property', 'value',
+                'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
+                'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
+            if self.has_flags(self.LATE_FILTER) and not filter.match(stmt):
+                yield None
+                continue
+            wds = self._parse_filter_results_check_wds(entry, stmt)
+            self._cache_add_wds(stmt, wds)
+            yield stmt
+
     def _parse_filter_results_check_wds(
             self,
             entry: SPARQL_Results.Bindings,

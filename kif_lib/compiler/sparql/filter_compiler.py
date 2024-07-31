@@ -115,10 +115,11 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         wds = self.wds
         p, wdt = self._q.fresh_vars(2)
         ###
-        # IMPORTANT: Some SPARQL engines are sensitive to the place a
-        # variable is bound.  As a rule of thumb, we should bound a variable
-        # as close as possible to the place where it is actually used.  This
-        # is why we do not bind the `ps`, `wdno`, etc., here.
+        # IMPORTANT: Some SPARQL engines are sensitive to the place where a
+        # variable is bound.  As a rule of thumb, we should bind variables
+        # as late as possible, i.e., as close as possible to where it is
+        # actually used.  This is why we do not bind the `ps`, `wdno`, etc.,
+        # here.
         ###
         self._q.triples()(
             (v_subject, p, wds),
