@@ -11,6 +11,8 @@ kb = Store('sparql', 'https://query.wikidata.org/sparql')
 print(next(kb.filter()))
 ```
 
+First time here? See the [quickstart guide](https://github.com/IBM/kif/tree/main/examples/quickstart.ipynb).
+
 ## Installation ##
 
 ```shell
