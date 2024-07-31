@@ -4,6 +4,7 @@
 import logging
 
 import httpx
+from time import sleep
 from rdflib.plugins.sparql import prepareQuery
 from rdflib.plugins.sparql.sparql import Query
 
@@ -100,6 +101,8 @@ class SPARQL_Store(
         self._client = httpx.Client(headers=self._headers)
         super().__init__(**kwargs)
         self._iri = KIF_Object._check_arg_iri(iri, self.__class__, 'iri', 2)
+        self._max_retries = kwargs.pop('max_retries', 10)
+        self._retry_sleep_interval = kwargs.pop('retry_sleep_interval', 1)
 
     def __del__(self):
         self._client.close()
@@ -155,11 +158,31 @@ class SPARQL_Store(
                 eval_limit: Optional[int] = None,
                 eval_offset: Optional[int] = None
         ) -> Iterator[Optional[T]]:
-            return parse_results_fn(
+            def synchronous_eval_fn():
                 self._eval_select_query_string(
                     query.select(
                         *vars, distinct=distinct, order_by=order_by,
-                        limit=eval_limit, offset=eval_offset)))
+                        limit=eval_limit, offset=eval_offset))
+            def run_synchronous_eval_fn_with_retry():
+                success = False
+                retries = 0
+                while not success and retries < self._max_retries:        
+                    try:
+                        result = synchronous_eval_fn()
+                        success = True
+                        return result
+                    except Exception as e: # FIXME change for a better exception class, if possible
+                        LOG.error(e.message)
+                    finally:
+                        if not success and retries < self._max_retries:
+                            LOG.warning(f'WARNING: Sleeping for {self._retry_sleep_interval} seconds ...')
+                            sleep(self._retry_sleep_interval)
+                            retries += 1
+                            LOG.warning(f"WARNING: Retry {retries}/{self._max_retries} ...")
+                else:
+                    # FIXME change for a better exception class, if possible
+                    raise Exception("Number of max retries exceeded without function returning its result successfully!")
+            return parse_results_fn(run_synchronous_eval_fn_with_retry)
         return self._eval_query(query, eval_fn, limit, trim)
 
     def _eval_query(
