@@ -1,8 +1,6 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import pathlib
-
 import httpx
 
 from ... import namespace as NS
@@ -12,56 +10,75 @@ from ...model import (
     Datatype,
     Entity,
     IRI,
+    Item,
     ItemTemplate,
+    Property,
     PropertyTemplate,
     Template,
     Variable,
 )
 from ...store.wikidata import WikidataStore
-from ...typing import Callable, Iterator, Optional
+from ...typing import Callable, Iterator, Optional, TextIO
 from .registry import WikidataEntityRegistry as Registry
 
+#: Wikidata SPARQL endpoint to use (`None` means the official endpoint).
+WIKIDATA: Optional[str] = None
 
-def download_properties_tsv(append: Optional[bool] = False):
-    registry_dir = Registry._get_registry_dir()
-    write(registry_dir / Registry.WIKIDATA_PROPERTIES_TSV,
-          iterate_query_results(generate_properties_query), append)
-
-
-def download_items_tsv(append: Optional[bool] = False):
-    registry_dir = Registry._get_registry_dir()
-    write(registry_dir / Registry.WIKIDATA_ITEMS_TSV,
-          iterate_query_results(generate_items_query), append)
+#: Page-size to use.
+PAGE_SIZE: int = 30000
 
 
-def write(
-        path: pathlib.Path,
-        input: Iterator[tuple[Entity, Optional[str]]],
-        append: Optional[bool] = False
-):
-    count, seen = 0, set()
-    with open(path, 'a' if append else 'w', encoding='utf-8') as fp:
-        for entity, label in input:
-            if label is None or entity in seen:
-                continue
-            seen.add(entity)
-            i = int(NS.Wikidata.get_wikidata_name(entity.iri.content)[1:])
-            fp.write(f'{i}\t{label.strip()}\t{entity}\n')
-            fp.flush()
-            count += 1
-    print(f'Wrote {count} entries to {path}')
+def download_properties_tsv(append: Optional[bool] = None):
+    def write(fp: TextIO, data: tuple[Entity, str]):
+        prop, label = data
+        assert isinstance(prop, Property)
+        uri = prop.iri.content
+        assert prop.range is not None
+        datatype_uri = str(prop.range._to_rdflib())
+        fp.write(f'{uri}\t{datatype_uri}\t{label}\n')
+    _download_helper(
+        Registry.WIKIDATA_PROPERTIES_TSV,
+        _generate_properties_query, write, append)
 
 
-def iterate_query_results(
+def download_items_tsv(*types: str, append: Optional[bool] = None):
+    def write(fp: TextIO, data: tuple[Entity, str]):
+        item, label = data
+        assert isinstance(item, Item)
+        fp.write(f'{item.iri.content}\t{label}\n')
+    _download_helper(
+        Registry.WIKIDATA_ITEMS_TSV,
+        lambda: _generate_items_query(*types), write, append)
+
+
+def _download_helper(
+        tsv: str,
         gen_fn: Callable[[], tuple[SelectQuery, Template, Substitution]],
-        page_size: int = 15000,
+        write_fn: Callable[[TextIO, tuple[Entity, str]], None],
+        append: Optional[bool] = None
+):
+    registry_dir = Registry._get_registry_dir()
+    path = registry_dir / tsv
+    with open(path, 'a' if append else 'w', encoding='utf-8') as fp:
+        for t in _iterate_query_results(gen_fn):
+            write_fn(fp, t)
+            fp.flush()
+
+
+def _iterate_query_results(
+        gen_fn: Callable[[], tuple[SelectQuery, Template, Substitution]],
+        page_size: int = 30000,
         limit: Optional[int] = None
-) -> Iterator[tuple[Entity, Optional[str]]]:
+) -> Iterator[tuple[Entity, str]]:
     import json
+    import logging
+    import time
     q, tpl, subst = gen_fn()
-    kb = WikidataStore('wikidata')
-    offset = 0
+    kb = WikidataStore('wikidata', iri=WIKIDATA)
+    offset, page_count = 0, 0
     while True:
+        page_count += 1
+        dt = time.time()
         try:
             res = kb._eval_query_string(str(q.select(
                 distinct=True, limit=page_size, offset=offset))).json()
@@ -75,24 +92,30 @@ def iterate_query_results(
         for binding in bindings:
             entity = tpl.instantiate(subst.instantiate(binding))
             assert isinstance(entity, Entity)
-            if 'label' in binding and 'value' in binding['label']:
-                label: Optional[str] = binding['label']['value']
-            else:
-                label = None
-            yield entity, label
+            if 'label' not in binding or 'value' not in binding['label']:
+                continue        # skip
+            label = binding['label']['value']
+            assert isinstance(label, str)
+            yield entity, label.strip()
+        logging.info(
+            'page %d\t[%.0fs since last page]',
+            page_count, time.time() - dt)
         if len(bindings) < page_size:
             break
         offset += page_size
 
 
-def generate_items_query() -> tuple[SelectQuery, ItemTemplate, Substitution]:
+def _generate_items_query(
+        *types: str
+) -> tuple[SelectQuery, ItemTemplate, Substitution]:
     q = SelectQuery()
-    v_item, v_label = q.vars('item', 'label')
+    v_item, v_label, v_type = q.vars('item', 'label', 'type')
     q.triples()(
         (v_item, NS.WIKIBASE.sitelinks, q.bnode()),
         (v_item, NS.RDFS.label, v_label))
-    with q.filter_not_exists():  # exclude scholarly articles
-        q.triples()((v_item, NS.WDT['P31'], NS.WD['Q13442814']))
+    if types:
+        q.triples()((v_item, NS.WDT['P31'], v_type))
+        q.values(v_type)(*map(lambda t: (q.uri(NS.WD[t]),), types))
     q.filter(q.eq(q.lang(v_label), q.literal('en')))
     item_iri = Variable('item', IRI)
     item_tpl = ItemTemplate(item_iri)
@@ -101,7 +124,7 @@ def generate_items_query() -> tuple[SelectQuery, ItemTemplate, Substitution]:
     return q, item_tpl, subst
 
 
-def generate_properties_query() -> tuple[
+def _generate_properties_query() -> tuple[
         SelectQuery, PropertyTemplate, Substitution]:
     q = SelectQuery()
     v_property, v_datatype, v_label = q.vars('property', 'datatype', 'label')
@@ -118,6 +141,22 @@ def generate_properties_query() -> tuple[
     subst.add(Variable('datatype', IRI), q.Variable('datatype'))
     subst.add(prop_range, Variable('datatype', IRI))
     return q, prop_tpl, subst
+
+
+def _get_default_item_types() -> list[str]:
+    return [
+        'Q125824188',           # ecosystem type
+        'Q223662',              # SI base unit
+        'Q28640',               # profession
+        'Q34770',               # language
+        'Q39367',               # dog breed
+        'Q4022',                # river
+        'Q4830453',             # business
+        'Q5',                   # human
+        'Q515',                 # city
+        'Q6256',                # country
+        'Q8502',                # mountain
+    ]
 
 
 def main():
@@ -137,14 +176,35 @@ def main():
     parser.add_argument(
         '-Q', '--download-items', action='store_true',
         help=f'download {Registry.WIKIDATA_ITEMS_TSV}')
+    parser.add_argument(
+        '-s', '--page-size', metavar='N', type=int,
+        help='page-size to use')
+    parser.add_argument(
+        '-t', '--type', metavar='TYPE', action='append', default=[],
+        help='item type to consider')
+    parser.add_argument(
+        '-T', '--default-types', action='store_true',
+        help='consider the default item types')
+    parser.add_argument(
+        '-w', '--wikidata', metavar='URL', type=str,
+        help='Wikidata SPARQL endpoint to use')
     args = parser.parse_args()
+    if args.page_size:
+        global PAGE_SIZE
+        PAGE_SIZE = args.page_size
+    if args.wikidata:
+        global WIKIDATA
+        WIKIDATA = args.wikidata
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO)
     noop = True
     if args.download_properties:
         download_properties_tsv(append=args.append)
         noop = False
     if args.download_items:
-        download_items_tsv(append=args.append)
+        types = list(args.type)
+        if args.default_types:
+            types += _get_default_item_types()
+        download_items_tsv(*types, append=args.append)
         noop = False
     if noop:
         print('Nothing to do.')

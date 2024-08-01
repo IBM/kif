@@ -13,7 +13,3 @@ L = _registry.L  # type: ignore
 
 def get_entity_label(entity: Entity) -> Optional[str]:
     return _registry.get_entity_label(entity)
-
-
-def get_entity_description(entity: Entity) -> Optional[str]:
-    return _registry.get_entity_description(entity)

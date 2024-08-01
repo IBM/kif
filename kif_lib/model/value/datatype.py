@@ -124,7 +124,7 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
 
     @classmethod
     @functools.cache
-    def _from_rdflib(cls, uri: URIRef) -> Self:
+    def _from_rdflib(cls, uri: Union[URIRef, str]) -> Self:
         from ...namespace import WIKIBASE
         from .external_id import ExternalId
         from .iri import IRI
@@ -135,23 +135,24 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
         from .string import String
         from .text import Text
         from .time import Time
-        if uri == WIKIBASE.WikibaseItem:
+        uri = str(uri)
+        if uri == str(WIKIBASE.WikibaseItem):
             res: Datatype = Item.datatype
-        elif uri == WIKIBASE.WikibaseProperty:
+        elif uri == str(WIKIBASE.WikibaseProperty):
             res = Property.datatype
-        elif uri == WIKIBASE.WikibaseLexeme:
+        elif uri == str(WIKIBASE.WikibaseLexeme):
             res = Lexeme.datatype
-        elif uri == WIKIBASE.Url:
+        elif uri == str(WIKIBASE.Url):
             res = IRI.datatype
-        elif uri == WIKIBASE.Monolingualtext:
+        elif uri == str(WIKIBASE.Monolingualtext):
             res = Text.datatype
-        elif uri == WIKIBASE.String:
+        elif uri == str(WIKIBASE.String):
             res = String.datatype
-        elif uri == WIKIBASE.ExternalId:
+        elif uri == str(WIKIBASE.ExternalId):
             res = ExternalId.datatype
-        elif uri == WIKIBASE.Quantity:
+        elif uri == str(WIKIBASE.Quantity):
             res = Quantity.datatype
-        elif uri == WIKIBASE.Time:
+        elif uri == str(WIKIBASE.Time):
             res = Time.datatype
         else:                   # fallback
             res = String.datatype
