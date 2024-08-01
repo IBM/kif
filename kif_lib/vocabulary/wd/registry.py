@@ -1,7 +1,6 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import gzip
 import pathlib
 
 from ... import namespace as NS
@@ -68,7 +67,7 @@ class WikidataEntityRegistry:
 
     def __init__(self):
         self._registry_dir = self._get_registry_dir()
-        self._item_registry = self._load_items_tsv()
+        self._item_registry = {}
         self._property_registry = self._load_properties_tsv()
         self._lexeme_registry = {}
 
@@ -86,8 +85,7 @@ class WikidataEntityRegistry:
 
     def _load_items_tsv(self) -> dict[str, ItemEntry]:
         try:
-            path = str(self._items_tsv.with_suffix('.tsv.gz'))
-            with gzip.open(path, 'rt', encoding='utf-8') as fp:
+            with open(self._items_tsv, 'rt', encoding='utf-8') as fp:
                 return dict(map(self._load_items_tsv_helper, fp.readlines()))
         except FileNotFoundError:
             return {}
@@ -104,8 +102,7 @@ class WikidataEntityRegistry:
 
     def _load_properties_tsv(self) -> dict[str, PropertyEntry]:
         try:
-            path = str(self._properties_tsv.with_suffix('.tsv.gz'))
-            with gzip.open(path, 'rt', encoding='utf-8') as fp:
+            with open(self._properties_tsv, 'rt', encoding='utf-8') as fp:
                 return dict(map(
                     self._load_properties_tsv_helper, fp.readlines()))
         except FileNotFoundError:
