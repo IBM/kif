@@ -67,7 +67,7 @@ class WikidataEntityRegistry:
 
     def __init__(self):
         self._registry_dir = self._get_registry_dir()
-        self._item_registry = {}
+        self._item_registry = self._load_items_tsv()
         self._property_registry = self._load_properties_tsv()
         self._lexeme_registry = {}
 

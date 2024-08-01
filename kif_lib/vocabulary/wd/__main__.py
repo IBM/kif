@@ -1,6 +1,9 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
+import pathlib
+
 import httpx
 
 from ... import namespace as NS
@@ -19,7 +22,7 @@ from ...model import (
 )
 from ...store.wikidata import WikidataStore
 from ...typing import Callable, Iterator, Optional, TextIO
-from .registry import WikidataEntityRegistry as Registry
+from .prelude import _registry as Registry
 
 #: Wikidata SPARQL endpoint to use (`None` means the official endpoint).
 WIKIDATA: Optional[str] = None
@@ -35,9 +38,12 @@ def download_properties_tsv(append: Optional[bool] = None):
         uri = prop.iri.content
         assert prop.range is not None
         datatype_uri = str(prop.range._to_rdflib())
-        fp.write(f'{uri}\t{datatype_uri}\t{label}\n')
+        if not append or uri not in Registry._property_registry:
+            fp.write(f'{uri}\t{datatype_uri}\t{label}\n')
+        else:
+            logging.info(f'skipping {uri}')
     _download_helper(
-        Registry.WIKIDATA_PROPERTIES_TSV,
+        Registry._properties_tsv,
         _generate_properties_query, write, append)
 
 
@@ -45,20 +51,22 @@ def download_items_tsv(*types: str, append: Optional[bool] = None):
     def write(fp: TextIO, data: tuple[Entity, str]):
         item, label = data
         assert isinstance(item, Item)
-        fp.write(f'{item.iri.content}\t{label}\n')
+        uri = item.iri.content
+        if not append or uri not in Registry._item_registry:
+            fp.write(f'{item.iri.content}\t{label}\n')
+        else:
+            logging.info(f'skipping {uri}')
     _download_helper(
-        Registry.WIKIDATA_ITEMS_TSV,
+        Registry._items_tsv,
         lambda: _generate_items_query(*types), write, append)
 
 
 def _download_helper(
-        tsv: str,
+        path: pathlib.Path,
         gen_fn: Callable[[], tuple[SelectQuery, Template, Substitution]],
         write_fn: Callable[[TextIO, tuple[Entity, str]], None],
         append: Optional[bool] = None
 ):
-    registry_dir = Registry._get_registry_dir()
-    path = registry_dir / tsv
     with open(path, 'a' if append else 'w', encoding='utf-8') as fp:
         for t in _iterate_query_results(gen_fn):
             write_fn(fp, t)
@@ -67,12 +75,13 @@ def _download_helper(
 
 def _iterate_query_results(
         gen_fn: Callable[[], tuple[SelectQuery, Template, Substitution]],
-        page_size: int = 30000,
         limit: Optional[int] = None
 ) -> Iterator[tuple[Entity, str]]:
     import json
-    import logging
     import time
+    global PAGE_SIZE
+    page_size = PAGE_SIZE
+    assert page_size > 0
     q, tpl, subst = gen_fn()
     kb = WikidataStore('wikidata', iri=WIKIDATA)
     offset, page_count = 0, 0
@@ -114,7 +123,14 @@ def _generate_items_query(
         (v_item, NS.WIKIBASE.sitelinks, q.bnode()),
         (v_item, NS.RDFS.label, v_label))
     if types:
-        q.triples()((v_item, NS.WDT['P31'], v_type))
+        with q.union():
+            with q.group():
+                q.triples()((v_item, NS.WDT['P31'], v_type))
+            with q.group():
+                x = q.fresh_var()
+                q.triples()(
+                    (v_type, NS.WDT['P31'], x),
+                    (v_item, NS.WDT['P31'], x))
         q.values(v_type)(*map(lambda t: (q.uri(NS.WD[t]),), types))
     q.filter(q.eq(q.lang(v_label), q.literal('en')))
     item_iri = Variable('item', IRI)
@@ -145,17 +161,18 @@ def _generate_properties_query() -> tuple[
 
 def _get_default_item_types() -> list[str]:
     return [
-        'Q125824188',           # ecosystem type
-        'Q223662',              # SI base unit
-        'Q28640',               # profession
-        'Q34770',               # language
-        'Q39367',               # dog breed
-        'Q4022',                # river
-        'Q4830453',             # business
-        'Q5',                   # human
-        'Q515',                 # city
-        'Q6256',                # country
-        'Q8502',                # mountain
+        'Q113145171',          # type of chemical entity
+        'Q16521',              # taxon
+        'Q223662',             # SI base unit
+        'Q28640',              # profession
+        'Q34770',              # language
+        'Q4022',               # river
+        'Q4830453',            # business
+        'Q5',                  # human
+        'Q515',                # city
+        'Q55983715',           # organisms known by a particular common name
+        'Q6256',               # country
+        'Q8502',               # mountain
     ]
 
 
