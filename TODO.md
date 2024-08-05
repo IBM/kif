@@ -18,8 +18,8 @@ Model
   compile the negation of a snak `S`, i.e., `~S`, as a `FILTER NOT EXISTS`.
 
 - Fingerprint (normalization): We can use the distributive laws to decompose
-  complex filters.  E.g., `𝜂[A∧(B∨(C∧(D∨E)))]` ⤳ `𝜂[A∧B]∨𝜂[A∧(C∧(D∨E))]` ⤳
-  `(A∧B)∨𝜂[(X≔A∧C)∧(D∨E)]` ⤳ `(A∧B)∨𝜂[X∧(D∨E)]` ⤳ `(A∧B)∨𝜂[X∧D]∨𝜂[X∧E]` ⤳
+  complex fingerprint.  E.g., `𝜂[A∧(B∨(C∧(D∨E)))]` ⤳ `𝜂[A∧B]∨𝜂[A∧(C∧(D∨E))]`
+  ⤳ `(A∧B)∨𝜂[(X≔A∧C)∧(D∨E)]` ⤳ `(A∧B)∨𝜂[X∧(D∨E)]` ⤳ `(A∧B)∨𝜂[X∧D]∨𝜂[X∧E]` ⤳
   `(A∧B)∨(A∧C∧D)∨(A∧C∧E)`. Now we now that the value mask of the original
   formula is equal to the mask of `(A∧B) | (A∧C∧D) | (A∧C∧E)`; also we can
   break the original query into three queries (executed in parallel).  We
