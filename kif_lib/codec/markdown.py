@@ -64,7 +64,7 @@ class MarkdownEncoder(
             ###
             if isinstance(obj, Property):
                 obj = obj.replace(obj.iri, None)
-            label = self.wd.get_entity_label(obj)
+            label = self.wd.get_label(obj)
             if label:
                 yield f'[{label}]({obj.iri.value})'
             else:

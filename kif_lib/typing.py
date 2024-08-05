@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from collections.abc import (
+    Awaitable,
     Callable,
     Collection,
     Generator,
@@ -19,6 +20,7 @@ from types import TracebackType
 from typing_extensions import (
     Any,
     assert_type,
+    AsyncIterator,
     BinaryIO,
     cast,
     ClassVar,
@@ -42,6 +44,8 @@ from typing_extensions import (
 __all__ = (
     'Any',
     'assert_type',
+    'AsyncIterator',
+    'Awaitable',
     'BinaryIO',
     'Callable',
     'cast',

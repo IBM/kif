@@ -21,6 +21,7 @@ class WikidataEntityRegistry:
         property: Optional[Property]
         datatype_uri: Optional[str]
         label: Optional[str]
+        inverse_uri: Optional[str]
 
     #: Entry in lexeme registry.
     class LexemeEntry(TypedDict):
@@ -83,6 +84,19 @@ class WikidataEntityRegistry:
     def _lexemes_tsv(self) -> pathlib.Path:
         return self._registry_dir / self.WIKIDATA_LEXEMES_TSV
 
+    # def load(self) -> None:
+    #     if not (self._registry_dir / self._items_tsv).exists():
+    #         self._download_items_tsv()
+    #     self._item_registry.update(self._load_items_tsv())
+
+    # def _download_items_tsv(self) -> None:
+    #     import gzip
+    #     import httpx
+    #     res = httpx.get('http://example.org', follow_redirects=True)
+    #     res.raise_for_status()
+    #     with open(self._registry_dir / self.WIKIDATA_ITEMS_TSV, 'wb') as fp:
+    #         fp.write(gzip.decompress(res.content))
+
     def _load_items_tsv(self) -> dict[str, ItemEntry]:
         try:
             with open(self._items_tsv, 'rt', encoding='utf-8') as fp:
@@ -94,7 +108,7 @@ class WikidataEntityRegistry:
             self,
             line: str
     ) -> tuple[str, ItemEntry]:
-        uri, label = line[:-1].split('\t')
+        _, uri, label = line[:-1].split('\t')
         return uri, {
             'item': None,
             'label': label,
@@ -112,45 +126,84 @@ class WikidataEntityRegistry:
             self,
             line: str
     ) -> tuple[str, PropertyEntry]:
-        uri, datatype_uri, label = line[:-1].split('\t')
+        _, uri, datatype_uri, label, inverse_uri = line[:-1].split('\t')
         return uri, {
             'property': None,
             'datatype_uri': datatype_uri,
             'label': label,
+            'inverse_uri': inverse_uri,
         }
 
     def _load_lexemes_tsv(self) -> dict[str, LexemeEntry]:
         raise NotImplementedError
 
-    def get_entity_label(self, entity: Entity) -> Optional[str]:
+    def get_label(
+            self,
+            entity: Entity,
+            default: Optional[str] = None
+    ) -> Optional[str]:
+        """Gets the registered label of `entity`.
+
+        If entity has no label registered, returns `default`.
+
+        Parameters:
+           default: Default label.
+
+        Returns:
+           Label.
+        """
         uri = entity.iri.content
         if isinstance(entity, Item) and uri in self._item_registry:
-            return self._item_registry[uri].get('label')
+            return self._item_registry[uri].get('label', default)
         elif isinstance(entity, Property) and uri in self._property_registry:
-            return self._property_registry[uri].get('label')
+            return self._property_registry[uri].get('label', default)
         else:
-            return None
+            return default
+
+    def get_inverse(
+            self,
+            property: Property,
+            default: Optional[Property] = None
+    ) -> Optional[Property]:
+        """Gets the registered inverse property of `property`.
+        If entity has no inverse property registered, returns `default`.
+
+        Parameters:
+           default: Default inverse property.
+
+        Returns:
+           Property.
+        """
+        uri = property.iri.content
+        if uri in self._property_registry:
+            inverse_uri = self._property_registry[uri].get('inverse_uri')
+            if inverse_uri in self._property_registry:
+                inverse = self._property_registry[inverse_uri].get('property')
+                assert inverse is not None
+                return inverse
+        return default
 
     def P(
             self,
             name: Union[int, str],
             label: Optional[str] = None,
-            datatype: Optional[TDatatype] = None
+            datatype: Optional[TDatatype] = None,
     ) -> Property:
         if isinstance(name, str) and name[0] == 'P':
             name = str(NS.WD[name])
         else:
             name = str(NS.WD[f'P{name}'])
-        if name not in self._property_registry:
+        if name not in self._property_registry:  # add
             prop = Property(name, Datatype.check_optional(datatype))
             if label is not None or datatype is not None:
                 self._property_registry[name] = {
                     'property': prop,
                     'datatype_uri': str(prop.datatype._to_rdflib()),
                     'label': label,
+                    'inverse_uri': None,
                 }
             return prop
-        else:
+        else:                   # update
             entry = self._property_registry[name]
             if datatype is not None:
                 entry['datatype_uri'] = str(Datatype.check(

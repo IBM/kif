@@ -1649,6 +1649,11 @@ class Query(Encodable):
         Returns:
            :class:`SelectQuery`.
         """
+        if isinstance(self, SelectQuery):
+            if distinct is None:
+                distinct = self._select.distinct
+            if reduced is None:
+                reduced = self._select.reduced
         return SelectQuery(
             *variables,
             distinct=distinct,

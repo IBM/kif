@@ -6,6 +6,7 @@
 /.docs
 /build
 /dist
+/kif_lib/vocabulary/wd/wikidata_items.tsv
 /Makefile_local.conf
 /venv
 __pycache__
