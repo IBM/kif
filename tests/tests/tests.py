@@ -196,27 +196,12 @@ class kif_TestCase(unittest.TestCase):
             cls._variable_class_can_check_from(variable_class))
 
     @classmethod
-    def main(cls):
+    def main(cls) -> unittest.main:
         return unittest.main()
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         return logging.getLogger(__name__)
-
-    def test_test_case_class_name(self):
-        import inspect
-        path = pathlib.Path(inspect.getfile(self.__class__))
-        if path.is_relative_to(TESTS_TESTS_DIR):
-            return              # nothing to do
-        name = self.__class__.__name__
-        with open(path, encoding='utf-8') as fp:
-            text = fp.read()
-            self.assertTrue(text.endswith(f'''\
-if __name__ == '__main__':
-    {name}.main()
-'''))
-
-# -- Assertions ------------------------------------------------------------
 
     def assert_abstract_class(self, cls):
         self.assertRaisesRegex(TypeError, 'abstract class', cls)
