@@ -226,12 +226,12 @@ class Wikidata:
 
     @classmethod
     def is_wikibase_preferred_rank(cls, uri: T_URI) -> bool:
-        return uri == cls.PREFERRED
+        return str(uri) == cls.PREFERRED
 
     @classmethod
     def is_wikibase_normal_rank(cls, uri: T_URI) -> bool:
-        return uri == cls.NORMAL
+        return str(uri) == cls.NORMAL
 
     @classmethod
     def is_wikibase_deprecated_rank(cls, uri: T_URI) -> bool:
-        return uri == cls.DEPRECATED
+        return str(uri) == cls.DEPRECATED

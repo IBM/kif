@@ -24,6 +24,7 @@ from kif_lib import (
     ValueVariable,
     Variable,
 )
+from kif_lib.model import AndFingerprint, OrFingerprint, ValueFingerprint
 from kif_lib.typing import assert_type, cast
 
 from ...tests import kif_ValueTestCase
@@ -69,7 +70,35 @@ class Test(kif_ValueTestCase):
     def test__init__(self):
         self.assert_abstract_class(Value)
 
-    def test_value(self):
+    def test__and__(self) -> None:
+        assert_type(String('x') & Quantity(0), AndFingerprint)
+        self.assert_and_fingerprint(
+            String('x') & Quantity(0),
+            ValueFingerprint(String('x')),
+            ValueFingerprint(Quantity(0)))
+
+    def test__rand__(self) -> None:
+        assert_type('x' & Quantity(0), AndFingerprint)
+        self.assert_and_fingerprint(
+            'x' & Quantity(0),
+            ValueFingerprint(String('x')),
+            ValueFingerprint(Quantity(0)))
+
+    def test__or__(self) -> None:
+        assert_type(String('x') | Quantity(0), OrFingerprint)
+        self.assert_or_fingerprint(
+            String('x') | Quantity(0),
+            ValueFingerprint(String('x')),
+            ValueFingerprint(Quantity(0)))
+
+    def test__ror__(self) -> None:
+        assert_type('x' | Quantity(0), OrFingerprint)
+        self.assert_or_fingerprint(
+            'x' | Quantity(0),
+            ValueFingerprint(String('x')),
+            ValueFingerprint(Quantity(0)))
+
+    def test_value(self) -> None:
         self.assertEqual(Item('x').value, 'x')
         self.assertEqual(Property('x', Item).value, 'x')
         self.assertEqual(Lexeme('x').value, 'x')
@@ -82,7 +111,7 @@ class Test(kif_ValueTestCase):
             Time('2024-06-27', 11, 0, Item('x')).value,
             '2024-06-27T00:00:00+00:00')
 
-    def test_n3(self):
+    def test_n3(self) -> None:
         self.assertEqual(Item('x').n3(), '<x>')
         self.assertEqual(Property('x', Item).n3(), '<x>')
         self.assertEqual(Lexeme('x').n3(), '<x>')
@@ -98,7 +127,7 @@ class Test(kif_ValueTestCase):
             '"2024-06-27T00:00:00+00:00"'
             '^^<http://www.w3.org/2001/XMLSchema#dateTime>')
 
-    def test__from_rdflib(self):
+    def test__from_rdflib(self) -> None:
         from kif_lib.namespace import P, WD, WDT, XSD
         from kif_lib.rdflib import Literal, URIRef
 

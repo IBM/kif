@@ -18,6 +18,7 @@ from kif_lib import (
     ValueSnakVariable,
     Variable,
 )
+from kif_lib.model import ConverseSnakFingerprint
 from kif_lib.typing import assert_type
 
 from ...tests import kif_SnakTestCase
@@ -100,6 +101,11 @@ class Test(kif_SnakTestCase):
                 [{}, 'y'],
                 [Property('x', Item), Quantity(0)],
             ])
+
+    def test__neg__(self) -> None:
+        assert_type(-(ValueSnak('x', 'y')), ConverseSnakFingerprint)
+        self.assert_converse_snak_fingerprint(
+            -(ValueSnak('x', 'y')), ValueSnak('x', 'y'))
 
 
 if __name__ == '__main__':

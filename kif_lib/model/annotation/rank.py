@@ -4,7 +4,7 @@
 import functools
 
 from ...rdflib import URIRef
-from ...typing import Self
+from ...typing import Self, Union
 from ..kif_object import KIF_Object
 
 
@@ -13,7 +13,8 @@ class Rank(KIF_Object):
 
     @classmethod
     @functools.cache
-    def _from_rdflib(cls, uri: URIRef) -> Self:
+    def _from_rdflib(cls, uri: Union[URIRef, str]) -> Self:
+        uri = str(uri)
         from ...namespace import Wikidata
         if Wikidata.is_wikibase_preferred_rank(uri):
             res: Rank = Preferred

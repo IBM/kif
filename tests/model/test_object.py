@@ -114,8 +114,7 @@ class Test(TestCase):
         self.assertNotEqual(hash(A()), hash(B()))  # unlikely
 
     def test__lt__(self):
-        self.assertRaisesRegex(
-            TypeError, r"^bad argument to 'Object.__lt__'", A().__lt__, 0)
+        self.assertRaises(TypeError, lambda x, y: x < y, A(), 0)
         self.assertLess(A(), A(1))
         self.assertGreater(B(), A())
 

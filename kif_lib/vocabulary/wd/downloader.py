@@ -393,7 +393,7 @@ class Downloader:
                 *map(lambda f: f(client), tasks), return_exceptions=True)
 
 
-def main():
+def main() -> None:
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument(

@@ -115,7 +115,7 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
         elif isinstance(arg, (IRI, String, str)):
             iri = IRI.check(arg, function, name, position)
             try:
-                return cls._from_rdflib(URIRef(iri.content))
+                return cls._from_rdflib(iri.content)
             except TypeError as err:
                 raise cls._check_error(
                     arg, function, name, position) from err

@@ -26,7 +26,7 @@ from ..variable import Variable
 from .datatype import Datatype
 
 if TYPE_CHECKING:  # pragma: no cover
-    from ..fingerprint import Fingerprint, TFingerprint
+    from ..fingerprint import AndFingerprint, OrFingerprint, TFingerprint
     from .quantity import TDecimal  # noqa: F401
     from .time import TDatetime  # noqa: F401
 
@@ -98,19 +98,19 @@ class Value(
             arg = Quantity.check(arg, function, name, position)
         return super().check(arg, function, name, position)
 
-    def __and__(self, other: 'TFingerprint') -> 'Fingerprint':
+    def __and__(self, other: 'TFingerprint') -> 'AndFingerprint':
         from ..fingerprint import AndFingerprint
         return AndFingerprint(self, other)
 
-    def __rand__(self, other: 'TFingerprint') -> 'Fingerprint':
+    def __rand__(self, other: 'TFingerprint') -> 'AndFingerprint':
         from ..fingerprint import AndFingerprint
         return AndFingerprint(other, self)
 
-    def __or__(self, other: 'TFingerprint') -> 'Fingerprint':
+    def __or__(self, other: 'TFingerprint') -> 'OrFingerprint':
         from ..fingerprint import OrFingerprint
         return OrFingerprint(self, other)
 
-    def __ror__(self, other: 'TFingerprint') -> 'Fingerprint':
+    def __ror__(self, other: 'TFingerprint') -> 'OrFingerprint':
         from ..fingerprint import OrFingerprint
         return OrFingerprint(self, other)
 

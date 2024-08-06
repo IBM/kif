@@ -35,6 +35,7 @@ class Test(kif_ValueTestCase):
 
     def test_check(self) -> None:
         assert_type(Datatype.check(Item), Datatype)
+        self.assertRaises(TypeError, ItemDatatype.check, 'x')
         super()._test_check(
             Datatype,
             success=[
