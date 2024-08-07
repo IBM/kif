@@ -22,6 +22,7 @@ from .descriptor import (
 )
 from .filter import Filter
 from .fingerprint import (
+    And,
     AndFingerprint,
     AtomicFingerprint,
     CompoundFingerprint,
@@ -29,6 +30,7 @@ from .fingerprint import (
     EmptyFingerprint,
     Fingerprint,
     FullFingerprint,
+    Or,
     OrFingerprint,
     SnakFingerprint,
     TFingerprint,
@@ -363,6 +365,7 @@ __all__ = (
     'ValueSet',
 
     # fingerprint
+    'And',
     'AndFingerprint',
     'AtomicFingerprint',
     'CompoundFingerprint',
@@ -370,6 +373,7 @@ __all__ = (
     'EmptyFingerprint',
     'Fingerprint',
     'FullFingerprint',
+    'Or',
     'OrFingerprint',
     'SnakFingerprint',
     'TFingerprint',

@@ -64,7 +64,7 @@ class Test(kif_FingerprintTestCase):
         self.assert_abstract_class(Fingerprint)
 
     def test__and__(self) -> None:
-        assert_type(FullFingerprint() & FullFingerprint(), Fingerprint)
+        assert_type(FullFingerprint() & FullFingerprint(), AndFingerprint)
         self.assertEqual(
             FullFingerprint() & ValueFingerprint('x'),
             AndFingerprint(FullFingerprint(), ValueFingerprint(String('x'))))
@@ -77,7 +77,7 @@ class Test(kif_FingerprintTestCase):
                 ('x', 'y')))
 
     def test__or__(self) -> None:
-        assert_type(FullFingerprint() | FullFingerprint(), Fingerprint)
+        assert_type(FullFingerprint() | FullFingerprint(), OrFingerprint)
         self.assertEqual(
             FullFingerprint() | ValueFingerprint('x'),
             OrFingerprint(FullFingerprint(), ValueFingerprint(String('x'))))

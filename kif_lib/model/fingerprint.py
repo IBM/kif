@@ -73,16 +73,16 @@ class Fingerprint(KIF_Object):
             return cast(Self, AtomicFingerprint.check(
                 arg, function or cls.check, name, position))
 
-    def __and__(self, other: TFingerprint) -> 'Fingerprint':
+    def __and__(self, other: TFingerprint) -> 'AndFingerprint':
         return AndFingerprint(self, other)
 
-    def __rand__(self, other: TFingerprint) -> 'Fingerprint':
+    def __rand__(self, other: TFingerprint) -> 'AndFingerprint':
         return AndFingerprint(other, self)
 
-    def __or__(self, other: TFingerprint) -> 'Fingerprint':
+    def __or__(self, other: TFingerprint) -> 'OrFingerprint':
         return OrFingerprint(self, other)
 
-    def __ror__(self, other: TFingerprint) -> 'Fingerprint':
+    def __ror__(self, other: TFingerprint) -> 'OrFingerprint':
         return OrFingerprint(other, self)
 
     @property
@@ -280,6 +280,10 @@ class AndFingerprint(CompoundFingerprint):
         return all(map(lambda fp: fp._match(value), self.args))
 
 
+#: Alias for :class:`AndFingerprint`.
+And = AndFingerprint
+
+
 class OrFingerprint(CompoundFingerprint):
     """Disjunction of fingerprints."""
 
@@ -293,6 +297,10 @@ class OrFingerprint(CompoundFingerprint):
     @override
     def _match(self, value: Value) -> bool:
         return any(map(lambda fp: fp._match(value), self.args))
+
+
+#: Alias for :class:`OrFingerprint`.
+Or = OrFingerprint
 
 
 class AtomicFingerprint(Fingerprint):

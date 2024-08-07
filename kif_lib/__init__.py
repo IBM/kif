@@ -4,6 +4,7 @@
 from . import codec  # noqa: F401
 from .error import CodecError, DecoderError, EncoderError, Error
 from .model import (
+    And,
     AnnotationRecord,
     AnnotationRecordSet,
     Datatype,
@@ -49,6 +50,7 @@ from .model import (
     NoValueSnak,
     NoValueSnakTemplate,
     NoValueSnakVariable,
+    Or,
     Pattern,
     PlainDescriptor,
     Preferred,
@@ -108,6 +110,7 @@ from .store import Store
 __version__ = '0.4'
 
 __all__ = (
+    'And',
     'AnnotationRecord',
     'AnnotationRecordSet',
     'CodecError',
@@ -157,6 +160,7 @@ __all__ = (
     'NoValueSnak',
     'NoValueSnakTemplate',
     'NoValueSnakVariable',
+    'Or',
     'Pattern',
     'PlainDescriptor',
     'Preferred',
