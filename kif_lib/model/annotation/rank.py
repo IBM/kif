@@ -14,7 +14,6 @@ class Rank(KIF_Object):
     @classmethod
     @functools.cache
     def _from_rdflib(cls, uri: Union[URIRef, str]) -> Self:
-        uri = str(uri)
         from ...namespace import Wikidata
         if Wikidata.is_wikibase_preferred_rank(uri):
             res: Rank = Preferred

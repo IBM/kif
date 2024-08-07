@@ -1,36 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import dataclasses
-import os
-
+from .options import Options
 from .typing import ClassVar, Optional, TracebackType
-
-
-@dataclasses.dataclass
-class Options:
-    """KIF options."""
-    model: 'ModelOptions'
-
-
-@dataclasses.dataclass
-class ModelOptions:
-    """KIF/Model options."""
-    text: 'TextOptions'
-
-
-@dataclasses.dataclass
-class TextOptions:
-    """KIF/Model/Text options."""
-    default_language: str = os.getenv('KIF_MODEL_TEXT_DEFAULT_LANGUAGE', 'en')
-
-
-#: Default values for all options.
-_DEFAULT_OPTIONS: Options = Options(
-    model=ModelOptions(
-        text=TextOptions(),
-    ),
-)
 
 
 class Context:
@@ -54,8 +26,7 @@ class Context:
         return cls._stack[-1]
 
     def __init__(self):
-        from copy import deepcopy
-        self._options = deepcopy(_DEFAULT_OPTIONS)
+        self._options = Options()
 
     @property
     def options(self):
