@@ -211,7 +211,7 @@ class Substitution(Mapping):
         """
         theta = self.Theta()
         for name in self._topsorted_G():
-            assert name in self._name_map
+            assert name in self._name_map, name
             if name in binding:
                 for var in self._name_map[name]:
                     value = self._map[var]

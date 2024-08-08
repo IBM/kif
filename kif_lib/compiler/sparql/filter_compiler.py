@@ -111,9 +111,15 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         snak = self._fresh_snak_variable()
         self._theta_add(self.pattern, Statement(subject, snak))
         property = self._fresh_property_variable()
-        v_subject, v_property = self._as_qvars(subject, property)
+        v_subject = self._as_qvar(subject)
+        if isinstance(filter.property, ValueFingerprint):
+            assert isinstance(filter.property.value, Property)
+            v_property: Query.V_URI = self._q._mk_uri(
+                filter.property.value.iri.content)
+        else:
+            v_property = self._as_qvar(property)
         wds = self.wds
-        p, wdt = self._q.fresh_vars(2)
+        p = self._q.fresh_var()
         ###
         # IMPORTANT: Some SPARQL engines are sensitive to the place where a
         # variable is bound.  As a rule of thumb, we should bind variables
@@ -123,8 +129,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         ###
         self._q.triples()(
             (v_subject, p, wds),
-            (v_property, NS.WIKIBASE.claim, p),
-            (v_property, NS.WIKIBASE.directClaim, wdt))
+            (v_property, NS.WIKIBASE.claim, p))
         # Best-ranked only?
         best_ranked = self.has_flags(self.BEST_RANK)
         if best_ranked:
@@ -145,9 +150,10 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                 filter.subject, v_subject, v_property, wds)
         # Push property.
         with self._q.group():
-            self._bind_as_property(v_property)
-            self._push_fingerprint(
-                filter.property, v_property, v_property, wds)
+            self._bind_as_property(v_property, property)
+            if isinstance(v_property, Query.Variable):
+                self._push_fingerprint(
+                    filter.property, v_property, v_property, wds)
         # Push value.
         try_value_snak = bool(
             filter.snak_mask & Filter.VALUE_SNAK
@@ -161,6 +167,8 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         assert try_value_snak or try_some_value_snak or try_no_value_snak
         with self._q.union():
             if try_value_snak:
+                value_mask = filter.value_mask\
+                    & filter.property.range_datatype_mask
                 with self._q.group():
                     value = self._fresh_value_variable()
                     v_value = self._as_qvar(value)
@@ -173,28 +181,28 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                         (wds, ps, v_value))
                     with self._q.group():
                         with self._q.union():
-                            if filter.value_mask & filter.ITEM:
+                            if value_mask & filter.ITEM:
                                 with self._q.group():  # item?
                                     self._q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.WikibaseItem))
                                     self._bind_as_item(v_value)
-                            if filter.value_mask & filter.PROPERTY:
+                            if value_mask & filter.PROPERTY:
                                 with self._q.group():  # property?
                                     self._q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.WikibaseProperty))
                                     self._bind_as_property(v_value)
-                            if filter.value_mask & filter.LEXEME:
+                            if value_mask & filter.LEXEME:
                                 with self._q.group():  # lexeme?
                                     self._q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.WikibaseLexeme))
                                     self._bind_as_lexeme(v_value)
-                            if filter.value_mask & filter.IRI:
+                            if value_mask & filter.IRI:
                                 with self._q.group():  # iri?
                                     self._q.triples()(
                                         (v_property,
@@ -202,7 +210,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                          NS.WIKIBASE.Url),
                                         (wds, ps, v_value))
                                     self._bind_as_iri(v_value)
-                            if filter.value_mask & filter.TEXT:
+                            if value_mask & filter.TEXT:
                                 with self._q.group():  # text?
                                     self._q.triples()(
                                         (v_property,
@@ -210,7 +218,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                          NS.WIKIBASE.Monolingualtext),
                                         (wds, ps, v_value))
                                     self._bind_as_text(v_value)
-                            if filter.value_mask & (
+                            if value_mask & (
                                     filter.STRING | filter.EXTERNAL_ID):
                                 with self._q.group():  # string?
                                     self._q.triples()(
@@ -219,7 +227,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                          NS.WIKIBASE.String),
                                         (wds, ps, v_value))
                                     self._bind_as_string(v_value)
-                            if filter.value_mask & filter.EXTERNAL_ID:
+                            if value_mask & filter.EXTERNAL_ID:
                                 with self._q.group():  # external id?
                                     self._q.triples()(
                                         (v_property,
@@ -227,7 +235,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                          NS.WIKIBASE.ExternalId),
                                         (wds, ps, v_value))
                                     self._bind_as_external_id(v_value)
-                            if filter.value_mask & filter.QUANTITY:
+                            if value_mask & filter.QUANTITY:
                                 with self._q.group():  # quantity?
                                     psv, wdv = self._q.fresh_vars(2)
                                     self._q.triples()(
@@ -241,7 +249,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                         (wdv, NS.RDF.type,
                                          NS.WIKIBASE.QuantityValue))
                                     self._bind_as_quantity(v_value, wdv)
-                            if filter.value_mask & filter.TIME:
+                            if value_mask & filter.TIME:
                                 with self._q.group():  # time?
                                     psv, wdv = self._q.fresh_vars(2)
                                     self._q.triples()(
@@ -315,12 +323,17 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         self._q.triples()((dest, NS.WIKIBASE.sitelinks, self._q.bnode()))
         self._q.bind(dest, self._theta_add(iri, self._as_qvar(iri)))
 
-    def _bind_as_property(self, dest: Query.Variable):
+    def _bind_as_property(
+            self,
+            dest: Query.V_URI,
+            var: Optional[PropertyVariable] = None
+    ):
+        var = var or PropertyVariable(str(dest))
         datatype = self._fresh_datatype_variable()
         datatype_iri = self._fresh_iri_variable()
         iri = self._fresh_iri_variable()
         self._theta_add(datatype, datatype_iri)
-        self._theta_add(PropertyVariable(str(dest)), Property(iri, datatype))
+        self._theta_add(var, Property(iri, datatype))
         self._q.triples()(
             (dest, NS.RDF.type, NS.WIKIBASE.Property),
             (dest, NS.WIKIBASE.propertyType, self._theta_add(
@@ -400,7 +413,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self,
             fp: Fingerprint,
             dest: Query.Variable,
-            property: Union[Query.URI, Query.Variable],
+            property: Query.V_URI,
             wds: Query.Variable
     ):
         assert not fp.is_empty()
@@ -425,7 +438,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self,
             fp: CompoundFingerprint,
             dest: Query.Variable,
-            property: Union[Query.URI, Query.Variable],
+            property: Query.V_URI,
             wds: Query.Variable
     ):
         atoms, comps = map(list, itertools.partition(
@@ -504,7 +517,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self,
             fps: Iterable[ValueFingerprint],
             dest: Query.Variable,
-            property: Union[Query.URI, Query.Variable],
+            property: Query.V_URI,
             wds: Query.Variable
     ):
         values = map(lambda fp: fp.value, fps)

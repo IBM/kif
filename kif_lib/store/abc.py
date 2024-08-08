@@ -650,7 +650,7 @@ class Store(Set):
             store_snak_mask |= Filter.SOME_VALUE_SNAK
         if self.has_flags(self.NO_VALUE_SNAK):
             store_snak_mask |= Filter.NO_VALUE_SNAK
-        return filter.replace(
+        return filter.normalize().replace(
             filter.KEEP, filter.KEEP, filter.KEEP,
             filter.snak_mask & store_snak_mask)
 

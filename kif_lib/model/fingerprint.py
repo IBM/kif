@@ -87,16 +87,32 @@ class Fingerprint(KIF_Object):
 
     @property
     def datatype_mask(self) -> 'Filter.DatatypeMask':
-        """The datatypes that can shallow-matched by fingerprint."""
+        """The datatypes shallow-matched by fingerprint."""
         return self.get_datatype_mask()
 
-    @abc.abstractmethod
     def get_datatype_mask(self) -> 'Filter.DatatypeMask':
-        """Gets datatypes that can shallow-matched by fingerprint.
+        """Gets the datatypes shallow-matched by fingerprint.
 
         Returns:
            Datatype mask.
         """
+        return self._get_datatype_mask(False)
+
+    @property
+    def range_datatype_mask(self) -> 'Filter.DatatypeMask':
+        """The datatypes shallow-matched by the range of fingerprint."""
+        return self.get_range_datatype_mask()
+
+    def get_range_datatype_mask(self) -> 'Filter.DatatypeMask':
+        """Gets the datatypes shallow-matched by the range of fingerprint.
+
+        Returns:
+           Datatype mask.
+        """
+        return self._get_datatype_mask(True)
+
+    @abc.abstractmethod
+    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
         raise NotImplementedError
 
     def is_full(self) -> bool:
@@ -268,12 +284,15 @@ class CompoundFingerprint(Fingerprint):
 class AndFingerprint(CompoundFingerprint):
     """Conjunction of fingerprints."""
 
-    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+    @override
+    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
         from .filter import Filter
+        if range:
+            f = Fingerprint.get_range_datatype_mask
+        else:
+            f = Fingerprint.get_datatype_mask
         return functools.reduce(
-            lambda x, y: x & y,
-            map(lambda fp: fp.datatype_mask, self.args),
-            Filter.DatatypeMask.ALL)
+            lambda x, y: x & y, map(f, self.args), Filter.DatatypeMask.ALL)
 
     @override
     def _match(self, value: Value) -> bool:
@@ -287,12 +306,15 @@ And = AndFingerprint
 class OrFingerprint(CompoundFingerprint):
     """Disjunction of fingerprints."""
 
-    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+    @override
+    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
         from .filter import Filter
+        if range:
+            f = Fingerprint.get_range_datatype_mask
+        else:
+            f = Fingerprint.get_datatype_mask
         return functools.reduce(
-            lambda x, y: x | y,
-            map(lambda fp: fp.datatype_mask, self.args),
-            Filter.DatatypeMask(0))
+            lambda x, y: x | y, map(f, self.args), Filter.DatatypeMask(0))
 
     @override
     def _match(self, value: Value) -> bool:
@@ -382,9 +404,12 @@ class SnakFingerprint(AtomicFingerprint):
         return self.args[0]
 
     @override
-    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
         from .filter import Filter
-        return Filter.ENTITY
+        if range:
+            return Filter.VALUE
+        else:
+            return Filter.ENTITY
 
     @override
     def _match(self, value: Value) -> bool:
@@ -395,7 +420,7 @@ class ConverseSnakFingerprint(SnakFingerprint):
     """Converse snak fingerprint."""
 
     @override
-    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
         from .filter import Filter
         if (isinstance(self.snak, ValueSnak)
                 and isinstance(self.snak.value, Entity)):
@@ -442,9 +467,18 @@ class ValueFingerprint(AtomicFingerprint):
         return self.args[0]
 
     @override
-    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
         from .filter import Filter
-        return Filter.DatatypeMask.check(type(self.value))
+        if range:
+            if isinstance(self.value, Property):
+                if self.value.range is not None:
+                    return Filter.DatatypeMask.check(type(self.value.range))
+                else:
+                    return Filter.VALUE
+            else:
+                return Filter.DatatypeMask(0)
+        else:
+            return Filter.DatatypeMask.check(type(self.value))
 
     @override
     def _match(self, value: Value) -> bool:
@@ -516,7 +550,7 @@ class FullFingerprint(AtomicFingerprint):
         super().__init__()
 
     @override
-    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
         from .filter import Filter
         return Filter.VALUE
 
@@ -548,7 +582,7 @@ class EmptyFingerprint(AtomicFingerprint):
         super().__init__()
 
     @override
-    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
         from .filter import Filter
         return Filter.DatatypeMask(0)
 

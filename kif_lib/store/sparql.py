@@ -298,7 +298,6 @@ At line {line}, column {column}:
 
     @override
     def _count(self, filter: Filter) -> int:
-        filter = filter.normalize()
         if not filter.is_full():
             compiler = self._compile_filter(filter)
             q = compiler.query
@@ -323,11 +322,12 @@ At line {line}, column {column}:
             distinct: bool
     ) -> Iterator[Statement]:
         compiler = self._compile_filter(filter)
-        offset, count = 0, 0
         assert limit >= 0
+        page_size = min(self.page_size, limit)
+        offset, count = 0, 0
         while count <= limit:
             query = compiler.query.select(
-                limit=self.page_size, offset=offset, distinct=distinct)
+                limit=page_size, offset=offset, distinct=distinct)
             assert isinstance(compiler.pattern, StatementVariable)
             pattern = compiler.pattern
             wds = compiler.wds
@@ -344,11 +344,11 @@ At line {line}, column {column}:
                 self._cache_add_wds(stmt, URIRef(binding[str(wds)]['value']))
                 yield stmt
                 count += 1
-            if len(bindings) < self.page_size:
+            if len(bindings) < page_size:
                 break           # done
             if count == limit:
                 break           # done
-            offset += self.page_size
+            offset += page_size
 
     #: Flags to be passed to filter compiler.
     _compile_filter_flags: ClassVar[SPARQL_FilterCompiler.Flags] = (
