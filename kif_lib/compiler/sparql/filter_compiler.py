@@ -186,11 +186,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                     v_value: Query.VTerm
                     if isinstance(filter.value, ValueFingerprint):
                         assert isinstance(filter.value.value, Value)
-                        if not isinstance(filter.value.value, DeepDataValue):
-                            v_value = self._as_simple_value(
-                                filter.value.value)
-                        else:
-                            v_value = self._as_qvar(value)
+                        v_value = self._as_simple_value(filter.value.value)
                     else:
                         v_value = self._as_qvar(value)
                     self._theta_add(
@@ -288,8 +284,16 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                         (wds, psv, wdv),
                                         (wdv, NS.RDF.type,
                                          NS.WIKIBASE.QuantityValue))
-                                    assert isinstance(v_value, Query.Variable)
-                                    self._bind_as_quantity(v_value, wdv)
+                                    assert not isinstance(v_value, Query.URI)
+                                    qt: Optional[Quantity] = None
+                                    if isinstance(
+                                            filter.value, ValueFingerprint):
+                                        assert isinstance(
+                                            filter.value.value, Quantity)
+                                        qt = filter.value.value
+                                    self._bind_as_quantity(
+                                        v_value, wdv,
+                                        QuantityVariable(value.name), qt)
                             if value_mask & filter.TIME:
                                 with self._q.group():  # time?
                                     psv, wdv = self._q.fresh_vars(2)
@@ -303,8 +307,16 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                         (wds, psv, wdv),
                                         (wdv, NS.RDF.type,
                                          NS.WIKIBASE.TimeValue))
-                                    assert isinstance(v_value, Query.Variable)
-                                    self._bind_as_time(v_value, wdv)
+                                    assert not isinstance(v_value, Query.URI)
+                                    tm: Optional[Time] = None
+                                    if isinstance(
+                                            filter.value, ValueFingerprint):
+                                        assert isinstance(
+                                            filter.value.value, Time)
+                                        tm = filter.value.value
+                                    self._bind_as_time(
+                                        v_value, wdv,
+                                        TimeVariable(value.name), tm)
                         if isinstance(v_value, Query.Variable):
                             self._push_fingerprint(
                                 filter.value, v_value, v_property, wds)
@@ -442,44 +454,112 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         self._theta_add(var, ExternalId(content))
         self._q.bind(dest, self._theta_add(content, self._as_qvar(content)))
 
-    def _bind_as_quantity(self, dest: Query.Variable, wdv: Query.Variable):
+    def _bind_as_quantity(
+            self,
+            dest: Query.VLiteral,
+            wdv: Query.Variable,
+            var: Optional[QuantityVariable] = None,
+            qt: Optional[Quantity] = None
+    ):
+        var = var or QuantityVariable(str(dest))
         amount = self._fresh_quantity_variable()
         unit = self._theta_add_default(self._fresh_item_variable(), None)
         lower = self._theta_add_default(self._fresh_quantity_variable(), None)
         upper = self._theta_add_default(self._fresh_quantity_variable(), None)
-        self._theta_add(
-            QuantityVariable(str(dest)), Quantity(amount, unit, lower, upper))
-        v_amount, v_unit, v_lower, v_upper = self._as_qvars(
-            amount, unit, lower, upper)
-        self._theta_add(amount, v_amount)
+        self._theta_add(var, Quantity(amount, unit, lower, upper))
+        # Push amount.
+        if qt is not None:
+            v_amount: Query.VLiteral = cast(
+                Query.Literal, self._as_simple_value(Quantity(qt.amount)))
+            self._q.bind(
+                v_amount, self._theta_add(amount, self._as_qvar(amount)))
+        else:
+            v_amount = self._as_qvar(amount)
+            self._theta_add(amount, v_amount)
         self._q.triples()((wdv, NS.WIKIBASE.quantityAmount, v_amount))
-        self._theta_add(unit, v_unit)
-        with self._q.optional():
+        # Push unit.
+        if qt is not None and qt.unit is not None:
+            v_unit: Query.V_URI = cast(
+                Query.URI, self._as_simple_value(qt.unit))
+            self._q.bind(
+                v_unit, self._theta_add(unit, self._as_qvar(unit)))
+        else:
+            v_unit = self._as_qvar(unit)
+            self._theta_add(unit, v_unit)
+        with self._q.optional_if(isinstance(v_unit, Query.Variable)):
             self._q.triples()((wdv, NS.WIKIBASE.quantityUnit, v_unit))
-        self._theta_add(lower, v_lower)
-        with self._q.optional():
+        # Push lower-bound.
+        if qt is not None and qt.lower_bound is not None:
+            v_lower: Query.VLiteral = cast(
+                Query.Literal, self._as_simple_value(Quantity(qt.lower_bound)))
+            self._q.bind(
+                v_lower, self._theta_add(lower, self._as_qvar(lower)))
+        else:
+            v_lower = self._as_qvar(lower)
+            self._theta_add(lower, v_lower)
+        with self._q.optional_if(isinstance(v_lower, Query.Variable)):
             self._q.triples()((wdv, NS.WIKIBASE.quantityLowerBound, v_lower))
-        self._theta_add(upper, v_upper)
-        with self._q.optional():
+        # Push upper-bound.
+        if qt is not None and qt.upper_bound is not None:
+            v_upper: Query.VLiteral = cast(
+                Query.Literal, self._as_simple_value(Quantity(qt.upper_bound)))
+            self._q.bind(
+                v_upper, self._theta_add(upper, self._as_qvar(upper)))
+        else:
+            v_upper = self._as_qvar(upper)
+            self._theta_add(upper, v_upper)
+        with self._q.optional_if(isinstance(v_upper, Query.Variable)):
             self._q.triples()((wdv, NS.WIKIBASE.quantityUpperBound, v_upper))
 
-    def _bind_as_time(self, dest: Query.Variable, wdv: Query.Variable):
+    def _bind_as_time(
+            self,
+            dest: Query.VLiteral,
+            wdv: Query.Variable,
+            var: Optional[TimeVariable] = None,
+            tm: Optional[Time] = None
+    ):
+        var = var or TimeVariable(str(dest))
         time = self._fresh_time_variable()
         prec = self._theta_add_default(self._fresh_quantity_variable(), None)
         tz = self._theta_add_default(self._fresh_quantity_variable(), None)
         cal = self._theta_add_default(self._fresh_item_variable(), None)
-        self._theta_add(TimeVariable(str(dest)), Time(time, prec, tz, cal))
-        v_time, v_prec, v_tz, v_cal = self._as_qvars(time, prec, tz, cal)
-        self._theta_add(time, v_time)
+        self._theta_add(var, Time(time, prec, tz, cal))
+        # Push time.
+        if tm is not None:
+            v_time: Query.VLiteral = cast(
+                Query.Literal, self._as_simple_value(Time(tm.time)))
+            self._q.bind(v_time, self._theta_add(time, self._as_qvar(time)))
+        else:
+            v_time = self._as_qvar(time)
+            self._theta_add(time, v_time)
         self._q.triples()((wdv, NS.WIKIBASE.timeValue, v_time))
-        self._theta_add(prec, v_prec)
-        with self._q.optional():
+        # Push precision.
+        if tm is not None and tm.precision is not None:
+            v_prec: Query.VLiteral = Query.Literal(tm.precision.value)
+            self._q.bind(v_prec, self._theta_add(prec, self._as_qvar(prec)))
+        else:
+            v_prec = self._as_qvar(prec)
+            self._theta_add(prec, v_prec)
+        with self._q.optional_if(isinstance(v_prec, Query.Variable)):
             self._q.triples()((wdv, NS.WIKIBASE.timePrecision, v_prec))
-        self._theta_add(tz, v_tz)
-        with self._q.optional():
+        # Push timezone.
+        if tm is not None and tm.timezone is not None:
+            v_tz: Query.VLiteral = Query.Literal(tm.timezone)
+            self._q.bind(v_tz, self._theta_add(tz, self._as_qvar(tz)))
+        else:
+            v_tz = self._as_qvar(tz)
+            self._theta_add(tz, v_tz)
+        with self._q.optional_if(isinstance(v_tz, Query.Variable)):
             self._q.triples()((wdv, NS.WIKIBASE.timeTimezone, v_tz))
-        self._theta_add(cal, v_cal)
-        with self._q.optional():
+        # Push calendar.
+        if tm is not None and tm.calendar is not None:
+            v_cal: Query.V_URI = cast(
+                Query.URI, self._as_simple_value(tm.calendar))
+            self._q.bind(v_cal, self._theta_add(cal, self._as_qvar(cal)))
+        else:
+            v_cal = self._as_qvar(cal)
+            self._theta_add(cal, v_cal)
+        with self._q.optional_if(isinstance(v_cal, Query.Variable)):
             self._q.triples()((wdv, NS.WIKIBASE.timeCalendarModel, v_cal))
 
     def _push_fingerprint(
