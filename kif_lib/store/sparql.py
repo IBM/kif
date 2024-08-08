@@ -87,8 +87,8 @@ class SPARQL_Store(
 
     _headers = {
         # See <https://meta.wikimedia.org/wiki/User-Agent_policy>.
-        'User-Agent': 'CoolBot/0.0 (https://example.org/coolbot/; '
-        'coolbot@example.org) generic-library/0.0',
+        'User-Agent': 'KIF/0.4 (https://github.com/IBM/kif/; '
+        'guilherme.lima@ibm.com)',
         'Content-Type': 'application/sparql-query;charset=utf-8',
         'Accept': 'application/sparql-results+json;charset=utf-8',
     }

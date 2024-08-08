@@ -46,7 +46,7 @@ from ...model.fingerprint import (
     SnakFingerprint,
     ValueFingerprint,
 )
-from ...typing import Iterable, Optional, override, Self, Union
+from ...typing import cast, Iterable, Optional, override, Self, Union
 from .builder import Query
 from .pattern_compiler import SPARQL_PatternCompiler
 
@@ -107,15 +107,23 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         if filter.is_empty():
             return              # nothing to do
         assert isinstance(self.pattern, StatementVariable)
+        # Subject variable.
         subject = self._fresh_entity_variable()
+        if isinstance(filter.subject, ValueFingerprint):
+            assert isinstance(filter.subject.value, Entity)
+            v_subject: Query.V_URI = cast(Query.V_URI, self._as_simple_value(
+                filter.subject.value))
+        else:
+            v_subject = self._as_qvar(subject)
+        # Snak variable.
         snak = self._fresh_snak_variable()
         self._theta_add(self.pattern, Statement(subject, snak))
+        # Property variable.
         property = self._fresh_property_variable()
-        v_subject = self._as_qvar(subject)
         if isinstance(filter.property, ValueFingerprint):
             assert isinstance(filter.property.value, Property)
-            v_property: Query.V_URI = self._q._mk_uri(
-                filter.property.value.iri.content)
+            v_property: Query.V_URI = cast(Query.V_URI, self._as_simple_value(
+                filter.property.value))
         else:
             v_property = self._as_qvar(property)
         wds = self.wds
@@ -123,7 +131,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         ###
         # IMPORTANT: Some SPARQL engines are sensitive to the place where a
         # variable is bound.  As a rule of thumb, we should bind variables
-        # as late as possible, i.e., as close as possible to where it is
+        # as late as possible, i.e., as close as possible to where they are
         # actually used.  This is why we do not bind the `ps`, `wdno`, etc.,
         # here.
         ###
@@ -139,15 +147,19 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             with self._q.union():
                 if bool(filter.subject_mask & filter.ITEM):
                     with self._q.group():
-                        self._bind_as_item(v_subject)
+                        self._bind_as_item(
+                            v_subject, ItemVariable(subject.name))
                 if bool(filter.subject_mask & filter.PROPERTY):
                     with self._q.group():
-                        self._bind_as_property(v_subject)
+                        self._bind_as_property(
+                            v_subject, PropertyVariable(subject.name))
                 if bool(filter.subject_mask & filter.LEXEME):
                     with self._q.group():
-                        self._bind_as_lexeme(v_subject)
-            self._push_fingerprint(
-                filter.subject, v_subject, v_property, wds)
+                        self._bind_as_lexeme(
+                            v_subject, LexemeVariable(subject.name))
+            if isinstance(v_subject, Query.Variable):
+                self._push_fingerprint(
+                    filter.subject, v_subject, v_property, wds)
         # Push property.
         with self._q.group():
             self._bind_as_property(v_property, property)
@@ -171,7 +183,16 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                     & filter.property.range_datatype_mask
                 with self._q.group():
                     value = self._fresh_value_variable()
-                    v_value = self._as_qvar(value)
+                    v_value: Query.VTerm
+                    if isinstance(filter.value, ValueFingerprint):
+                        assert isinstance(filter.value.value, Value)
+                        if not isinstance(filter.value.value, DeepDataValue):
+                            v_value = self._as_simple_value(
+                                filter.value.value)
+                        else:
+                            v_value = self._as_qvar(value)
+                    else:
+                        v_value = self._as_qvar(value)
                     self._theta_add(
                         ValueSnakVariable(snak.name),
                         ValueSnak(property, value))
@@ -187,21 +208,30 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.WikibaseItem))
-                                    self._bind_as_item(v_value)
+                                    assert not isinstance(
+                                        v_value, Query.Literal)
+                                    self._bind_as_item(
+                                        v_value, ItemVariable(value.name))
                             if value_mask & filter.PROPERTY:
                                 with self._q.group():  # property?
                                     self._q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.WikibaseProperty))
-                                    self._bind_as_property(v_value)
+                                    assert not isinstance(
+                                        v_value, Query.Literal)
+                                    self._bind_as_property(
+                                        v_value, PropertyVariable(value.name))
                             if value_mask & filter.LEXEME:
                                 with self._q.group():  # lexeme?
                                     self._q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.WikibaseLexeme))
-                                    self._bind_as_lexeme(v_value)
+                                    assert not isinstance(
+                                        v_value, Query.Literal)
+                                    self._bind_as_lexeme(
+                                        v_value, LexemeVariable(value.name))
                             if value_mask & filter.IRI:
                                 with self._q.group():  # iri?
                                     self._q.triples()(
@@ -209,7 +239,10 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.Url),
                                         (wds, ps, v_value))
-                                    self._bind_as_iri(v_value)
+                                    assert not isinstance(
+                                        v_value, Query.Literal)
+                                    self._bind_as_iri(
+                                        v_value, IRI_Variable(value.name))
                             if value_mask & filter.TEXT:
                                 with self._q.group():  # text?
                                     self._q.triples()(
@@ -217,24 +250,31 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.Monolingualtext),
                                         (wds, ps, v_value))
-                                    self._bind_as_text(v_value)
-                            if value_mask & (
-                                    filter.STRING | filter.EXTERNAL_ID):
+                                    assert not isinstance(v_value, Query.URI)
+                                    self._bind_as_text(
+                                        v_value, TextVariable(value.name))
+                            if value_mask & filter.STRING:
                                 with self._q.group():  # string?
                                     self._q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.String),
                                         (wds, ps, v_value))
-                                    self._bind_as_string(v_value)
-                            if value_mask & filter.EXTERNAL_ID:
+                                    assert not isinstance(v_value, Query.URI)
+                                    self._bind_as_string(
+                                        v_value, StringVariable(value.name))
+                            if value_mask & (
+                                    filter.STRING | filter.EXTERNAL_ID):
                                 with self._q.group():  # external id?
                                     self._q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.ExternalId),
                                         (wds, ps, v_value))
-                                    self._bind_as_external_id(v_value)
+                                    assert not isinstance(v_value, Query.URI)
+                                    self._bind_as_external_id(
+                                        v_value,
+                                        ExternalIdVariable(value.name))
                             if value_mask & filter.QUANTITY:
                                 with self._q.group():  # quantity?
                                     psv, wdv = self._q.fresh_vars(2)
@@ -248,6 +288,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                         (wds, psv, wdv),
                                         (wdv, NS.RDF.type,
                                          NS.WIKIBASE.QuantityValue))
+                                    assert isinstance(v_value, Query.Variable)
                                     self._bind_as_quantity(v_value, wdv)
                             if value_mask & filter.TIME:
                                 with self._q.group():  # time?
@@ -262,9 +303,11 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                         (wds, psv, wdv),
                                         (wdv, NS.RDF.type,
                                          NS.WIKIBASE.TimeValue))
+                                    assert isinstance(v_value, Query.Variable)
                                     self._bind_as_time(v_value, wdv)
-                        self._push_fingerprint(
-                            filter.value, v_value, v_property, wds)
+                        if isinstance(v_value, Query.Variable):
+                            self._push_fingerprint(
+                                filter.value, v_value, v_property, wds)
             if try_some_value_snak:
                 with self._q.group():
                     prop_some_datatype = self._fresh_datatype_variable()
@@ -317,9 +360,14 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                         (wds, NS.RDF.type, wdno))
                     self._q.bind(v_property, self._as_qvar(prop_no_iri))
 
-    def _bind_as_item(self, dest: Query.Variable):
+    def _bind_as_item(
+            self,
+            dest: Query.V_URI,
+            var: Optional[ItemVariable] = None
+    ):
+        var = var or ItemVariable(str(dest))
         iri = self._fresh_iri_variable()
-        self._theta_add(ItemVariable(str(dest)), Item(iri))
+        self._theta_add(var, Item(iri))
         self._q.triples()((dest, NS.WIKIBASE.sitelinks, self._q.bnode()))
         self._q.bind(dest, self._theta_add(iri, self._as_qvar(iri)))
 
@@ -340,33 +388,58 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                 datatype_iri, self._as_qvar(datatype_iri))))
         self._q.bind(dest, self._theta_add(iri, self._as_qvar(iri)))
 
-    def _bind_as_lexeme(self, dest: Query.Variable):
+    def _bind_as_lexeme(
+            self,
+            dest: Query.V_URI,
+            var: Optional[LexemeVariable] = None
+    ):
+        var = var or LexemeVariable(str(dest))
         iri = self._fresh_iri_variable()
-        self._theta_add(LexemeVariable(str(dest)), Lexeme(iri))
+        self._theta_add(var, Lexeme(iri))
         self._q.triples()((dest, NS.RDF.type, NS.ONTOLEX.LexicalEntry))
         self._q.bind(dest, self._theta_add(iri, self._as_qvar(iri)))
 
-    def _bind_as_iri(self, dest: Query.Variable):
+    def _bind_as_iri(
+            self,
+            dest: Query.V_URI,
+            var: Optional[IRI_Variable] = None
+    ):
+        var = var or IRI_Variable(str(dest))
         content = self._fresh_string_variable()
-        self._theta_add(IRI_Variable(str(dest)), IRI(content))
+        self._theta_add(var, IRI(content))
         self._q.bind(dest, self._theta_add(content, self._as_qvar(content)))
 
-    def _bind_as_text(self, dest: Query.Variable):
+    def _bind_as_text(
+            self,
+            dest: Query.VLiteral,
+            var: Optional[TextVariable] = None
+    ):
+        var = var or TextVariable(str(dest))
         content = self._fresh_string_variable()
         lang = self._fresh_string_variable()
-        self._theta_add(TextVariable(str(dest)), Text(content, lang))
+        self._theta_add(var, Text(content, lang))
         self._q.bind(dest, self._theta_add(content, self._as_qvar(content)))
         self._q.bind(self._q.lang(dest), self._theta_add(
             lang, self._as_qvar(lang)))
 
-    def _bind_as_string(self, dest: Query.Variable):
+    def _bind_as_string(
+            self,
+            dest: Query.VLiteral,
+            var: Optional[StringVariable] = None
+    ):
+        var = var or StringVariable(str(dest))
         content = self._fresh_string_variable()
-        self._theta_add(StringVariable(str(dest)), String(content))
+        self._theta_add(var, String(content))
         self._q.bind(dest, self._theta_add(content, self._as_qvar(content)))
 
-    def _bind_as_external_id(self, dest: Query.Variable):
+    def _bind_as_external_id(
+            self,
+            dest: Query.VLiteral,
+            var: Optional[ExternalIdVariable] = None
+    ):
+        var = var or ExternalIdVariable(str(dest))
         content = self._fresh_string_variable()
-        self._theta_add(ExternalIdVariable(str(dest)), ExternalId(content))
+        self._theta_add(var, ExternalId(content))
         self._q.bind(dest, self._theta_add(content, self._as_qvar(content)))
 
     def _bind_as_quantity(self, dest: Query.Variable, wdv: Query.Variable):
