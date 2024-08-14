@@ -34,6 +34,8 @@ Compiler
 
 - Filter compiler (optimization): Aggregate snaks with the same property.
 
+- Use subqueries to implement fingerprints.
+
 Codec
 -----
 
