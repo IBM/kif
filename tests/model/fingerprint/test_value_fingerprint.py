@@ -4,6 +4,7 @@
 import datetime
 
 from kif_lib import (
+    Context,
     ExternalId,
     Filter,
     IRI,
@@ -136,9 +137,11 @@ class Test(kif_FingerprintTestCase):
         self.assert_not_match(
             ValueFingerprint(Text('x')), Text('y'), Text('x', 'pt'))
         self.assert_match(
-            ValueFingerprint(Text('x', Text.default_language)), Text('x'))
+            ValueFingerprint(Text(
+                'x', Context.top().options.default_language)), Text('x'))
         self.assert_match(
-            ValueFingerprint(Text('x')), Text('x', Text.default_language))
+            ValueFingerprint(Text('x')), Text(
+                'x', Context.top().options.default_language))
         # string
         self.assert_match(ValueFingerprint('x'), String('x'))
         self.assert_match(ValueFingerprint(String('x')), String('x'))

@@ -10,7 +10,9 @@ class TestStoreABC_Flags(kif_EmptyStoreTestCase):
 
     def test_flags_default(self):
         kb = self.new_Store()
-        self.assertEqual(kb.default_flags, kb.ALL & ~(kb.DEBUG | kb.ORDER))
+        self.assertEqual(
+            kb.default_flags,
+            kb.Flags.ALL & ~(kb.DEBUG | kb.ORDER))
 
     def test_flags_init(self):
         kb = self.new_Store()
@@ -48,9 +50,9 @@ class TestStoreABC_Flags(kif_EmptyStoreTestCase):
         self.assertEqual(kb.flags, kb.Flags(0))
         kb.unset_flags(kb.Flags(kb.BEST_RANK))
         self.assertEqual(kb.flags, kb.Flags(0))
-        kb.flags |= kb.ALL
+        kb.flags |= kb.Flags.ALL
         kb.unset_flags(kb.BEST_RANK)
-        self.assertTrue(kb.has_flags(kb.ALL & ~kb.BEST_RANK))
+        self.assertTrue(kb.has_flags(kb.Flags.ALL & ~kb.BEST_RANK))
 
 
 if __name__ == '__main__':

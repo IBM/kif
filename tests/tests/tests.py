@@ -392,7 +392,7 @@ class kif_TestCase(unittest.TestCase):
         self.assert_text_datatype(obj.datatype)
         self.assertEqual(obj.args[0], content)
         if language is None:
-            language = Text.default_language
+            language = obj.context.options.default_language
         assert isinstance(language, str)
         self.assertEqual(obj.args[1], language)
         self.assertEqual(obj.value, obj.args[0])
@@ -558,7 +558,7 @@ class kif_TestCase(unittest.TestCase):
         assert isinstance(obj, TextTemplate)
         assert isinstance(content, (StringVariable, str))
         if language is None:
-            language = Text.default_language
+            language = obj.context.options.default_language
         assert isinstance(language, (StringVariable, str))
         self.assert_shallow_data_value_template(obj, content)
         self.assertEqual(obj.language, language)

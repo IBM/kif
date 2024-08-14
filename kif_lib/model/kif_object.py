@@ -94,11 +94,12 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         '_context',
     )
 
+    #: The associated KIF context.
     _context: Context
 
     @abc.abstractmethod
     def __init__(self, *args: Any, context: Optional[Context] = None):
-        self._context = context if context is not None else Context.top()
+        self._context = Context.top(context)
         super().__init__(*map(self._copy_in_context, args))
 
     def _copy_in_context(self, arg: T) -> T:

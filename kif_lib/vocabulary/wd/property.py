@@ -82,6 +82,7 @@ retrieved = P(813)
 route_of_administration = P(636)
 safety_classification_and_labelling = P(4952)
 sex_or_gender = P(21)
+shares_border_with = P(47)
 short_name = P(1813)
 solubility = P(2177)
 specific_heat_capacity = P(2056)
@@ -188,6 +189,7 @@ __all__ = (
     'route_of_administration',
     'safety_classification_and_labelling',
     'sex_or_gender',
+    'shares_border_with',
     'short_name',
     'solubility',
     'specific_heat_capacity',

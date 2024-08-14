@@ -6,6 +6,7 @@ from enum import auto, Flag
 
 from .. import itertools
 from ..cache import Cache
+from ..context import Context
 from ..error import Error as KIF_Error
 from ..error import ShouldNotGetHere
 from ..model import (
@@ -25,7 +26,6 @@ from ..model import (
     ReferenceRecordSet,
     Snak,
     Statement,
-    Text,
     TFingerprint,
     TReferenceRecordSet,
 )
@@ -125,11 +125,15 @@ class Store(Set):
 
     __slots__ = (
         '_cache',
+        '_context',
         '_extra_references',
         '_flags',
         '_page_size',
         '_timeout',
     )
+
+    #: The associated KIF context.
+    _context: Context
 
     def __init__(
             self,
@@ -138,13 +142,28 @@ class Store(Set):
             flags: Optional['Flags'] = None,
             page_size: Optional[int] = None,
             timeout: Optional[int] = None,
+            context: Optional[Context] = None,
             **kwargs: Any
     ):
+        self._context = Context.top(context)
         self._init_flags(flags)
         self._init_cache(self.has_flags(self.CACHE))
         self.set_extra_references(extra_references)
         self.set_page_size(page_size)
         self.set_timeout(timeout)
+
+    @property
+    def context(self) -> Context:
+        """The associated KIF context."""
+        return self.get_context()
+
+    def get_context(self) -> Context:
+        """Gets the associated KIF context.
+
+        Returns:
+           Context.
+        """
+        return self._context
 
 # -- Caching ---------------------------------------------------------------
 
@@ -286,41 +305,36 @@ class Store(Set):
             | LATE_FILTER)
 
     #: Whether to enable cache.
-    CACHE = Flags.CACHE
+    CACHE: Final[Flags] = Flags.CACHE
 
     #: Whether to enable debugging.
-    DEBUG = Flags.DEBUG
+    DEBUG: Final[Flags] = Flags.DEBUG
 
     #: Whether to remove duplicates.
-    DISTINCT = Flags.DISTINCT
+    DISTINCT: Final[Flags] = Flags.DISTINCT
 
     #: Whether to force some ordering.
-    ORDER = Flags.ORDER
+    ORDER: Final[Flags] = Flags.ORDER
 
     #: Whether to fetch only the best ranked statements.
-    BEST_RANK = Flags.BEST_RANK
+    BEST_RANK: Final[Flags] = Flags.BEST_RANK
 
     #: Whether to fetch value snaks.
-    VALUE_SNAK = Flags.VALUE_SNAK
+    VALUE_SNAK: Final[Flags] = Flags.VALUE_SNAK
 
     #: Whether to fetch some-value snaks.
-    SOME_VALUE_SNAK = Flags.SOME_VALUE_SNAK
+    SOME_VALUE_SNAK: Final[Flags] = Flags.SOME_VALUE_SNAK
 
     #: Whether to fetch no-value snaks.
-    NO_VALUE_SNAK = Flags.NO_VALUE_SNAK
+    NO_VALUE_SNAK: Final[Flags] = Flags.NO_VALUE_SNAK
 
     #: Whether to enable early filtering.
-    EARLY_FILTER = Flags.EARLY_FILTER
+    EARLY_FILTER: Final[Flags] = Flags.EARLY_FILTER
 
     #: Whether to enable late filtering.
-    LATE_FILTER = Flags.LATE_FILTER
+    LATE_FILTER: Final[Flags] = Flags.LATE_FILTER
 
-    #: All flags.
-    ALL = Flags.ALL
-
-    #: The default flags.
-    default_flags: Final['Flags'] = Flags.ALL & ~(Flags.DEBUG | Flags.ORDER)
-
+    #: Current store flags.
     _flags: 'Flags'
 
     def _init_flags(self, flags: Optional['Flags'] = None):
@@ -328,6 +342,19 @@ class Store(Set):
             self._flags = self.default_flags
         else:
             self._flags = self.Flags(flags)
+
+    @property
+    def default_flags(self) -> Flags:
+        """The default store flags."""
+        return self.get_default_flags()
+
+    def get_default_flags(self) -> Flags:
+        """Gets the default store flags.
+
+        Returns:
+           Store flags.
+        """
+        return self.context.options.store.default_flags
 
     @property
     def flags(self) -> Flags:
@@ -915,7 +942,7 @@ class Store(Set):
         KIF_Object._check_arg_isinstance(
             entities, (Entity, Iterable), self.get_descriptor, 'entities', 1)
         language = KIF_Object._check_optional_arg_str(
-            language, Text.default_language,
+            language, self.context.options.default_language,
             self.get_descriptor, 'language', 2)
         assert language is not None
         mask = Descriptor.AttributeMask.check_optional(
@@ -987,7 +1014,7 @@ class Store(Set):
             items, (Item, Iterable),
             self.get_item_descriptor, 'items', 1)
         language = KIF_Object._check_optional_arg_str(
-            language, Text.default_language,
+            language, self.context.options.default_language,
             self.get_item_descriptor, 'language', 2)
         assert language is not None
         mask = Descriptor.AttributeMask.check_optional(
@@ -1038,7 +1065,7 @@ class Store(Set):
             properties, (Property, Iterable),
             self.get_property_descriptor, 'properties', 1)
         language = KIF_Object._check_optional_arg_str(
-            language, Text.default_language,
+            language, self.context.options.default_language,
             self.get_property_descriptor, 'language', 2)
         assert language is not None
         mask = Descriptor.AttributeMask.check_optional(

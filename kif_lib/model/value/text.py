@@ -1,15 +1,10 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from ...typing import (
-    Any,
-    ClassVar,
-    Final,
-    Optional,
-    override,
-    TypeAlias,
-    Union,
-)
+import dataclasses
+
+from ...context import Section
+from ...typing import Any, ClassVar, Optional, override, TypeAlias, Union
 from ..template import Template
 from ..variable import Variable
 from .shallow_data_value import (
@@ -29,6 +24,29 @@ from .value import Datatype
 TText: TypeAlias = Union['Text', TString]
 VText: TypeAlias = Union['TextTemplate', 'TextVariable', 'Text']
 VTTextContent: TypeAlias = Union[Variable, TText]
+
+
+@dataclasses.dataclass
+class TextOptions(Section):
+    """Text options."""
+
+    #: The default language tag.
+    _default_language: str
+
+    def __init__(self, **kwargs):
+        self.default_language = kwargs.get(
+            '_default_language',
+            self.getenv('KIF_MODEL_VALUE_TEXT_DEFAULT_LANGUAGE', 'en'))
+
+    @property
+    def default_language(self) -> str:
+        """The default language tag."""
+        return self._default_language
+
+    @default_language.setter
+    def default_language(self, language: TString):
+        self._default_language = String.check(
+            language, 'default_language', 'language', 1).content
 
 
 class TextTemplate(ShallowDataValueTemplate):
@@ -111,9 +129,6 @@ class Text(
     template_class: ClassVar[type[TextTemplate]]  # pyright: ignore
     variable_class: ClassVar[type[TextVariable]]  # pyright: ignore
 
-    #: Default language tag.
-    default_language: Final[str] = 'en'
-
     def __init__(
             self,
             content: VTTextContent,
@@ -137,7 +152,7 @@ class Text(
                 return String.check(arg, type(self_), None, i).content
         elif i == 2:            # language
             if arg is None:
-                return Text.default_language
+                return self_.context.options.default_language
             else:
                 return String.check(arg, type(self_), None, i).content
         else:

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from . import codec  # noqa: F401
+from .context import Context
 from .error import CodecError, DecoderError, EncoderError, Error
 from .model import (
     And,
@@ -114,6 +115,7 @@ __all__ = (
     'AnnotationRecord',
     'AnnotationRecordSet',
     'CodecError',
+    'Context',
     'Datatype',
     'DatatypeVariable',
     'DataValue',

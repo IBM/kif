@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
+    Context,
     DataValue,
     ExternalId,
     Item,
@@ -47,7 +48,8 @@ class Test(kif_ShallowDataValueTemplateTestCase):
                  Text(Variable('x', String), 'y')),
                 ([StringVariable('x'), StringVariable('y')],
                  Text(Variable('x', String), Variable('y', String))),
-                ([Variable('x', String), Text.default_language],
+                ([Variable('x', String),
+                  Context.top().options.default_language],
                  Text(Variable('x', String)))
             ],
             normalize=[

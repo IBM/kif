@@ -95,7 +95,7 @@ class kif_StoreTestCase(kif_TestCase):
 
     def store_test_flags(self, kb):
         saved_flags = kb.flags
-        kb.flags = Store.ALL
+        kb.flags = Store.Flags.ALL
         # has flags
         self.assertTrue(kb.has_flags(Store.CACHE))
         self.assertTrue(kb.has_flags(Store.CACHE))
@@ -109,24 +109,24 @@ class kif_StoreTestCase(kif_TestCase):
         self.assertTrue(kb.has_flags(Store.NO_VALUE_SNAK))
         self.assertTrue(kb.has_flags(Store.SOME_VALUE_SNAK))
         # set flags
-        kb.flags = Store.ALL & ~Store.CACHE
+        kb.flags = Store.Flags.ALL & ~Store.CACHE
         self.assertFalse(kb.has_flags(Store.CACHE))
         self.assertTrue(kb.has_flags(Store.BEST_RANK))
         self.assertTrue(kb.has_flags(Store.NO_VALUE_SNAK))
         self.assertTrue(kb.has_flags(Store.SOME_VALUE_SNAK))
         kb.set_flags(Store.CACHE)
-        self.assertEqual(kb.flags, Store.ALL)
+        self.assertEqual(kb.flags, Store.Flags.ALL)
         # unset_flags
-        kb.flags = Store.ALL
+        kb.flags = Store.Flags.ALL
         self.assertTrue(kb.has_flags(Store.CACHE))
         self.assertTrue(kb.has_flags(Store.BEST_RANK))
         self.assertTrue(kb.has_flags(Store.NO_VALUE_SNAK))
         self.assertTrue(kb.has_flags(Store.SOME_VALUE_SNAK))
         kb.unset_flags(Store.CACHE | Store.BEST_RANK)
         self.assertEqual(
-            kb.flags, Store.ALL ^ (Store.CACHE | Store.BEST_RANK))
+            kb.flags, Store.Flags.ALL ^ (Store.CACHE | Store.BEST_RANK))
         kb.set_flags(Store.CACHE | Store.BEST_RANK)
-        self.assertEqual(kb.flags, Store.ALL)
+        self.assertEqual(kb.flags, Store.Flags.ALL)
         kb.flags = saved_flags
 
     def store_test_page_size(self, kb, default=100):

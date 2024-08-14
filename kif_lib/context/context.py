@@ -1,44 +1,59 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from .options import Options
-from .typing import ClassVar, Optional, TracebackType
+from typing import TYPE_CHECKING
+
+from ..typing import ClassVar, Optional, TracebackType
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .options import Options
 
 
 class Context:
-    """KIF context.
-
-    Stores the global options of the KIF library.
-    """
+    """KIF context."""
 
     _stack: ClassVar[list['Context']] = []
 
     @classmethod
-    def top(cls) -> 'Context':
-        """Gets the current top-level context.
+    def top(cls, context: Optional['Context'] = None) -> 'Context':
+        """Gets the top-level context.
+
+        If `context` is given, returns it instead.
 
         Returns:
            Context.
         """
+        if context is not None:
+            return context
         if not cls._stack:
             cls._stack.append(cls())
         assert cls._stack
         return cls._stack[-1]
 
+    __slots__ = (
+        '_options',
+    )
+
+    #: Context options.
+    _options: Optional['Options']
+
     def __init__(self):
-        self._options = Options()
+        self._options = None
 
     @property
     def options(self):
         """The options of context."""
         return self.get_options()
 
-    def get_options(self) -> Options:
+    def get_options(self) -> 'Options':
         """Gets the options of context.
 
         Returns:
            Options.
         """
+        if self._options is None:
+            from .options import Options
+            self._options = Options()
         return self._options
 
     def __enter__(self) -> 'Context':
