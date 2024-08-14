@@ -19,33 +19,52 @@ class Section:
 
     @classmethod
     def getenv(cls, name: str, default: Optional[Any] = None) -> Any:
+        """Alias for :func:`os.getenv`."""
         return os.getenv(name, default)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> Self:
+    def from_ast(cls, ast: dict[str, Any]) -> Self:
+        """Converts abstract syntax tree to section.
+
+        Parameters:
+           ast: Abstract syntax tree.
+
+        Returns:
+           Section.
+        """
         def it():
             for field in dataclasses.fields(cls):
-                if field.name not in data:
+                if field.name not in ast:
                     continue
                 if (isinstance(field.default_factory, type)
                         and issubclass(field.default_factory, Section)):
                     yield (field.name,
-                           field.default_factory.from_dict(data[field.name]))
+                           field.default_factory.from_ast(ast[field.name]))
                 else:
-                    yield (field.name, data[field.name])
+                    yield (field.name, ast[field.name])
         return cls(**dict(it()))
+
+    def to_ast(self) -> dict[str, Any]:
+        """Converts section to abstract syntax tree.
+
+        Returns:
+           Dictionary.
+        """
+        return dataclasses.asdict(self)
 
     def __str__(self) -> str:
         return self.to_str()
 
-    def to_dict(self) -> dict[str, Any]:
-        return dataclasses.asdict(self)
-
     def to_str(self) -> str:
+        """Converts section to string.
+
+        Returns:
+           String.
+        """
         return '\n'.join(self._to_str(self.name))
 
     def _to_str(self, prefix: str) -> Iterator[str]:
-        for field in dataclasses.fields(self):
+        for field in sorted(dataclasses.fields(self), key=lambda f: f.name):
             value = getattr(self, field.name)
             if field.name[0] == '_':
                 name = prefix + '.' + field.name[1:]

@@ -131,7 +131,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
            kwargs: Options to SPARQL decoder.
 
         Returns:
-           The resulting object.
+           Object.
 
         Raises:
            `DecoderError`: Decoder error.
@@ -145,7 +145,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
            kwargs: Options to Markdown encoder.
 
         Returns:
-           The resulting string.
+           String.
 
         Raises:
            `EncoderError`: Encoder error.

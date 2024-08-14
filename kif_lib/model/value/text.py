@@ -27,10 +27,9 @@ VTTextContent: TypeAlias = Union[Variable, TText]
 
 
 @dataclasses.dataclass
-class TextOptions(Section):
+class TextOptions(Section, name='text'):
     """Text options."""
 
-    #: The default language tag.
     _default_language: str
 
     def __init__(self, **kwargs):

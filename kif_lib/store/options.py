@@ -9,8 +9,8 @@ from .abc import Store
 
 
 @dataclasses.dataclass
-class StoreOptions(Section):
-    """Value options."""
+class StoreOptions(Section, name='store'):
+    """Store options."""
 
     _default_flags: Store.Flags
 

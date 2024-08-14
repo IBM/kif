@@ -18,7 +18,7 @@ class Context:
     def top(cls, context: Optional['Context'] = None) -> 'Context':
         """Gets the top-level context.
 
-        If `context` is given, returns it instead.
+        If `context` is not ``None``, returns `context`.
 
         Returns:
            Context.
@@ -40,8 +40,20 @@ class Context:
     def __init__(self):
         self._options = None
 
+    def __enter__(self) -> 'Context':
+        self._stack.append(self)
+        return self
+
+    def __exit__(
+        self,
+        exc_type: Optional[type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
+        self._stack.pop()
+
     @property
-    def options(self):
+    def options(self) -> 'Options':
         """The options of context."""
         return self.get_options()
 
@@ -55,15 +67,3 @@ class Context:
             from .options import Options
             self._options = Options()
         return self._options
-
-    def __enter__(self) -> 'Context':
-        self._stack.append(self)
-        return self
-
-    def __exit__(
-        self,
-        exc_type: Optional[type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
-    ) -> None:
-        self._stack.pop()

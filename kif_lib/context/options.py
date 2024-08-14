@@ -9,7 +9,7 @@ from .section import Section
 
 
 @dataclasses.dataclass
-class Options(Section):
+class Options(Section, name='kif'):
     """KIF options."""
 
     #: Model options.

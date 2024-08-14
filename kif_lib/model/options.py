@@ -8,7 +8,7 @@ from .value.options import ValueOptions
 
 
 @dataclasses.dataclass
-class ModelOptions(Section):
+class ModelOptions(Section, name='model'):
     """Model options."""
 
     value: 'ValueOptions' = dataclasses.field(default_factory=ValueOptions)

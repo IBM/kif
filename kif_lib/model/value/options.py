@@ -8,7 +8,7 @@ from .text import TextOptions
 
 
 @dataclasses.dataclass
-class ValueOptions(Section):
+class ValueOptions(Section, name='value'):
     """Value options."""
 
     text: 'TextOptions' = dataclasses.field(default_factory=TextOptions)
