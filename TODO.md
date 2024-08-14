@@ -28,7 +28,6 @@ Model
   ValuesFingerprint/OneOfFingepprint which behaves as `|` but aggregates
   only or-ed value fingerprints.
 
-
 Compiler
 --------
 
