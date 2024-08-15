@@ -65,11 +65,8 @@ class Section:
 
     def _to_str(self, prefix: str) -> Iterator[str]:
         for field in sorted(dataclasses.fields(self), key=lambda f: f.name):
+            name = prefix + '.' + field.name
             value = getattr(self, field.name)
-            if field.name[0] == '_':
-                name = prefix + '.' + field.name[1:]
-            else:
-                name = prefix + '.' + field.name
             if isinstance(value, Section):
                 yield from value._to_str(name)
             else:
