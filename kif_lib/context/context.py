@@ -16,7 +16,7 @@ class Context:
 
     @classmethod
     def top(cls, context: Optional['Context'] = None) -> 'Context':
-        """Gets the top-level context.
+        """Gets the current context.
 
         If `context` is not ``None``, returns `context`.
 

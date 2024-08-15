@@ -1,7 +1,6 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import abc
 import datetime
 import decimal
 import enum
@@ -90,38 +89,20 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         from .variable import Variable
         return isinstance(arg, (Template, Variable))
 
-    __slots__ = (
-        '_context',
-    )
-
-    #: The associated KIF context.
-    _context: Context
-
-    @abc.abstractmethod
-    def __init__(self, *args: Any, context: Optional[Context] = None):
-        self._context = Context.top(context)
-        super().__init__(*map(self._copy_in_context, args))
-
-    def _copy_in_context(self, arg: T) -> T:
-        if isinstance(arg, KIF_Object):
-            assert isinstance(arg, KIF_Object)
-            if arg.context != self.context:
-                with self.context:
-                    return cast(T, arg.replace())
-        return arg
-
     @property
     def context(self) -> Context:
-        """The associated KIF context."""
+        """The current KIF context."""
         return self.get_context()
 
-    def get_context(self) -> Context:
-        """Gets the associated KIF context.
+    def get_context(self, context: Optional[Context] = None) -> Context:
+        """Gets the current KIF context.
+
+        If `context` is not ``None``, returns `context`.
 
         Returns:
            Context.
         """
-        return self._context
+        return Context.top(context)
 
     @classmethod
     def from_sparql(cls, s: str, **kwargs: Any) -> Self:

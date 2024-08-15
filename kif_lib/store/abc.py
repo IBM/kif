@@ -132,9 +132,6 @@ class Store(Set):
         '_timeout',
     )
 
-    #: The associated KIF context.
-    _context: Context
-
     def __init__(
             self,
             *args: Any,
@@ -142,10 +139,8 @@ class Store(Set):
             flags: Optional['Flags'] = None,
             page_size: Optional[int] = None,
             timeout: Optional[int] = None,
-            context: Optional[Context] = None,
             **kwargs: Any
     ):
-        self._context = Context.top(context)
         self._init_flags(flags)
         self._init_cache(self.has_flags(self.CACHE))
         self.set_extra_references(extra_references)
@@ -154,16 +149,18 @@ class Store(Set):
 
     @property
     def context(self) -> Context:
-        """The associated KIF context."""
+        """The current KIF context."""
         return self.get_context()
 
-    def get_context(self) -> Context:
-        """Gets the associated KIF context.
+    def get_context(self, context: Optional[Context] = None) -> Context:
+        """Gets the current KIF context.
+
+        If `context` is not ``None``, returns `context`.
 
         Returns:
            Context.
         """
-        return self._context
+        return Context.top(context)
 
 # -- Caching ---------------------------------------------------------------
 
