@@ -4,7 +4,7 @@
 import dataclasses
 
 from ..context import Section
-from ..typing import Union
+from ..typing import ClassVar, Union
 from .abc import Store
 
 
@@ -12,15 +12,18 @@ from .abc import Store
 class StoreOptions(Section, name='store'):
     """Store options."""
 
+    _v_default_flags: ClassVar[tuple[str, Store.Flags]] =\
+        ('KIF_STORE_DEFAULT_FLAGS', (
+            Store.Flags.ALL & ~(Store.Flags.DEBUG | Store.Flags.ORDER)))
+
     _default_flags: Store.Flags
 
     def __init__(self, **kwargs):
         self.default_flags = kwargs.get(
             '_default_flags',
             int(self.getenv(
-                'KIF_STORE_DEFAULT_FLAGS',
-                (Store.Flags.ALL
-                 & ~(Store.Flags.DEBUG | Store.Flags.ORDER)).value)))
+                self._v_default_flags[0],
+                self._v_default_flags[1].value)))
 
     @property
     def default_flags(self) -> Store.Flags:

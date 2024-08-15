@@ -30,12 +30,14 @@ VTTextContent: TypeAlias = Union[Variable, TText]
 class TextOptions(Section, name='text'):
     """Text options."""
 
+    _v_default_language: ClassVar[tuple[str, str]] =\
+        ('KIF_MODEL_VALUE_TEXT_DEFAULT_LANGUAGE', 'en')
+
     _default_language: str
 
     def __init__(self, **kwargs):
         self.default_language = kwargs.get(
-            '_default_language',
-            self.getenv('KIF_MODEL_VALUE_TEXT_DEFAULT_LANGUAGE', 'en'))
+            '_default_language', self.getenv(*self._v_default_language))
 
     @property
     def default_language(self) -> str:
