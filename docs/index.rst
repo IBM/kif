@@ -1,17 +1,59 @@
+===
 KIF
 ===
 
-A knowledge integration framework based on Wikidata.
+   :Release: |version|
+   :Date: |today|
+
+
+KIF is a knowledge integration framework based on Wikidata.
+
+It written in Python and is released as open-source (see :doc:`license`).
+
+First time here? See :doc:`quickstart`.  Or go straight to
+:doc:`reference/index`.
+
+
+Installation
+============
+
+.. code-block:: shell
+
+   $ pip install kif-lib
+
+Or for the development version:
+
+.. code-block:: shell
+
+   $ git clone https://github.com/IBM/kif.git
+   $ cd kif; pip install -e .
+
+
+Hello world!
+============
+
+Prints an arbitrary statement from `Wikidata <https://www.wikidata.org/>`_:
+
+.. code-block:: python
+
+   from kif_lib import Store
+   kb = Store('wikidata')
+   print(next(kb.filter()))
+
+
+Citation
+========
+
+Guilherme Lima, João M. B. Rodrigues, Marcelo Machado, Elton Soares,
+Sandro R. Fiorini, Raphael Thiago, Leonardo G. Azevedo, Viviane T. da Silva,
+Renato Cerqueira. `"KIF: A Wikidata-Based Framework for Integrating
+Heterogeneous Knowledge Sources" <https://arxiv.org/abs/2403.10304>`_,
+arXiv:2403.10304, 2024.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents
+   :hidden:
 
-   model
-   all
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`
+   quickstart
+   reference/index
+   license

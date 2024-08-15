@@ -1,9 +1,9 @@
 =====
-Store
+Model
 =====
 
 .. toctree::
    :maxdepth: 1
 
-   store_abc
-   store_plugins
+   kif_object
+   value/index

@@ -21,9 +21,10 @@ def get_copyright():
 
 
 project = os.getenv('NAME', 'unknown')
+version = os.getenv('VERSION', 'unknown')
 copyright = get_copyright()
 extensions = [
-    'myst_parser',
+    'myst_nb',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.coverage',
@@ -32,7 +33,6 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
-    'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
 ]
 
@@ -42,8 +42,15 @@ source_suffix = ['.rst']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 add_module_names = False
 
-# html_theme = 'sphinx_rtd_theme'
+# autodoc_member_order = 'groupwise'
+autodoc_member_order = 'bysource'
+
 html_theme = 'pydata_sphinx_theme'
+html_sidebars = {
+    '**': ['sidebar-nav-bs', 'sidebar-ethical-ads'],
+    'index': [],
+    'quickstart': [],
+}
 
 graphviz_output_format = 'svg'
 inheritance_graph_attrs = dict(

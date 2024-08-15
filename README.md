@@ -7,7 +7,7 @@ A knowledge integration framework based on [Wikidata](https://www.wikidata.org/)
 Prints an arbitrary statement from [Wikidata](https://www.wikidata.org/):
 ```python
 from kif_lib import Store
-kb = Store('sparql', 'https://query.wikidata.org/sparql')
+kb = Store('wikidata')
 print(next(kb.filter()))
 ```
 
