@@ -31,14 +31,14 @@ We'll also need the Wikidata vocabulary module `wd`:
 from kif_lib.vocabulary import wd
 ```
 
-Next, we create a KIF SPARQL store pointing to the official Wikidata query
+Let us no we create a SPARQL store pointing to the official Wikidata query
 service:
 
 ```{code-cell}
 kb = Store('sparql', 'https://query.wikidata.org/sparql')
 ```
 
-A KIF store is an inteface to a knowledge source: it allows us to view the
+A KIF store is an inteface to a knowledge source.  It allows us to view the
 source as a set of Wikidata-like statements.
 
 The store `kb` we just created is an interface to Wikidata itself. We can
@@ -52,7 +52,7 @@ for stmt in it:
 
 ## Filters
 
-The `kb.filter(...)` call searches for statements in kb matching the
+The `kb.filter(...)` call searches for statements in `kb` matching the
 restrictions `...`.
 
 The result of a filter call is a (lazy) iterator `it` of statements:
@@ -70,7 +70,7 @@ next(it)
 If no `limit` argument is given to `kb.filter()`, the returned iterator
 contains all matching statements.
 
-## Basic Filters
+## Basic filters
 
 We can filter statements by any combination of *subject*, *property*, and
 *value*.
@@ -78,22 +78,30 @@ We can filter statements by any combination of *subject*, *property*, and
 For example:
 
 ```{code-cell}
+###
 # match any statement
+###
 next(kb.filter())
 ```
 
 ```{code-cell}
+###
 # match statements with subject "Brazil" and property "official website"
+###
 next(kb.filter(subject=wd.Brazil, property=wd.official_website))
 ```
 
 ```{code-cell}
+###
 # match statements with property "official website" and value "https://www.ibm.com/"
+###
 next(kb.filter(property=wd.official_website, value=IRI('https://www.ibm.com/')))
 ```
 
 ```{code-cell}
+###
 # match statements with value "78.046950192 dalton"
+###
 next(kb.filter(value=Quantity('78.046950192', unit=wd.dalton)))
 ```
 
@@ -122,7 +130,9 @@ display(wd.continent)
 Alternatively, we can use their numeric Wikidata ids:
 
 ```{code-cell}
+###
 # match statements with subject Q155 (Brazil) and property P30 (continent)
+###
 next(kb.filter(subject=wd.Q(155), property=wd.P(30)))
 ```
 
@@ -132,14 +142,18 @@ indirectly by giving not its id but a property it satisfies.
 In cases like this, we can use a *fingerprint*:
 
 ```{code-cell}
+###
 # match statemets whose subject "is a dog" and value "is a human"
+###
 next(kb.filter(subject=wd.instance_of(wd.dog), value=wd.instance_of(wd.human)))
 ```
 
 Properties themselves can also be specified using fingerprints:
 
 ```{code-cell}
+###
 # match statements whose property is "equivalent to Schema.org's 'weight'"
+###
 next(kb.filter(property=wd.equivalent_property('https://schema.org/weight')))
 ```
 
@@ -147,9 +161,13 @@ The `-` (unary minus) operator can be used to invert the direction of the
 property used in the fingerprint:
 
 ```{code-cell}
+###
 # match statements whose subject is "the continent of Brazil"
+###
 next(kb.filter(subject=-(wd.continent(wd.Brazil))))
 ```
+
+## And-ing and or-ing fingeprints
 
 Entity ids and fingerpints can be combined using the operators `&` (and) and
 `|` (or).
@@ -157,39 +175,45 @@ Entity ids and fingerpints can be combined using the operators `&` (and) and
 For example:
 
 ```{code-cell}
-# match four statements such that:
+###
+# match three statements such that:
 # - subject is "Brazil" or "Argentina"
 # - property is "continent" or "highest point"
+###
 it = kb.filter(
         subject=wd.Brazil | wd.Argentina,
         property=wd.continent | wd.highest_point,
-        limit=4)
+        limit=3)
 for stmt in it:
     display(stmt)
 ```
 
 ```{code-cell}
-# match four statements such that:
+###
+# match three statements such that:
 # - subject "has continent South America" and "official language is Portuguese"
 # - value "is a river" or "is a mountain"
+###
 it = kb.filter(
         subject=wd.continent(wd.South_America) & wd.official_language(wd.Portuguese),
         value=wd.instance_of(wd.river) | wd.instance_of(wd.mountain),
-        limit=4)
+        limit=3)
 for stmt in it:
     display(stmt)
 ```
 
 ```{code-cell}
-# match four statements such that:
+###
+# match three statements such that:
 # - subject "is a female" and ("was born in NYC" or "was born in Rio")
 # - property is "field of work" or "is equivalent to Schema.org's 'hasOccupation'"
+###
 it = kb.filter(
         subject=wd.sex_or_gender(wd.female)\
         & (wd.place_of_birth(wd.New_York_City) | wd.place_of_birth(wd.Rio_de_Janeiro)),
         property=wd.field_of_work\
         | wd.equivalent_property(IRI('https://schema.org/hasOccupation')),
-        limit=4)
+        limit=3)
 for stmt in it:
     display(stmt)
 ```
@@ -203,7 +227,7 @@ statements, counts the number of statements matching restrictions `...`:
 kb.count(subject=wd.Brazil, property=wd.population | wd.official_language)
 ```
 
-The kb.contains() call tests whether a given statement occurs in `kb`.
+The `kb.contains()` call tests whether a given statement occurs in `kb`.
 
 ```{code-cell}
 stmt1 = wd.official_language(wd.Brazil, wd.Portuguese)

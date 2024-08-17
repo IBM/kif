@@ -5,6 +5,7 @@ KIF Object
 .. currentmodule:: kif_lib
 
 .. autoclass:: KIF_Object
+   :no-index:
    :members:
-   :inherited-members: kif_lib.model.object.Object
+   :inherited-members:
    :show-inheritance:

@@ -2,10 +2,9 @@
 API Reference
 =============
 
-   :Release: |release|
+   :Version: |version|
    :Date: |today|
 
 .. toctree::
-   :maxdepth: 3
 
    model/index

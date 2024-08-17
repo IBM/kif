@@ -34,6 +34,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
+    'sphinx_rtd_theme',
 ]
 
 templates_path = ['_templates']
@@ -45,25 +46,24 @@ add_module_names = False
 # autodoc_member_order = 'groupwise'
 autodoc_member_order = 'bysource'
 
-html_theme = 'pydata_sphinx_theme'
-html_sidebars = {
-    '**': ['sidebar-nav-bs', 'sidebar-ethical-ads'],
-    'index': [],
-    'quickstart': [],
+#html_theme = 'pydata_sphinx_theme'
+html_theme = 'sphinx_rtd_theme'
+html_theme_options = {
+    'navigation_depth': -1,
 }
 
 graphviz_output_format = 'svg'
-inheritance_graph_attrs = dict(
-    rankdir='TB',
-    ratio='compress',
-)
-inheritance_node_attrs = dict(
-    fillcolor='lightgray',
-    fontsize=10,
-    ordering='out',
-    # shape='ellipse',
-    style='filled',
-)
-inheritance_edge_attrs = dict(
-    dir='back',
-)
+inheritance_graph_attrs = {
+    'rankdir': 'TB',
+    'ratio': 'compress',
+}
+inheritance_node_attrs = {
+    'fillcolor': 'lightgray',
+    'fontsize': 10,
+    'ordering': 'out',
+    # 'shape': 'ellipse',
+    'style': 'filled',
+}
+inheritance_edge_attrs = {
+    'dir': 'back',
+}
