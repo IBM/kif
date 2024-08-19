@@ -4,6 +4,7 @@
 import os
 import sys
 
+# Make Sphinx operate directly on the sources.
 sys.path.insert(0, os.path.abspath('..'))
 
 
@@ -33,24 +34,32 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
+    'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinx_rtd_theme',
 ]
 
 templates_path = ['_templates']
 source_suffix = ['.rst']
-
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+
 add_module_names = False
 
-# autodoc_member_order = 'groupwise'
-autodoc_member_order = 'bysource'
-
-#html_theme = 'pydata_sphinx_theme'
-html_theme = 'sphinx_rtd_theme'
-html_theme_options = {
-    'navigation_depth': -1,
+autodoc_member_order = 'groupwise'
+# autodoc_member_order = 'bysource'
+autodoc_default_options = {
+    # 'exclude-members': (
+    #     'datatype_class,'
+    #     'object_class,'
+    #     'template_class,'
+    #     'variable_class,'
+    # ),
+    'show-inheritance': True,
 }
+
+html_theme = 'sphinx_rtd_theme'
+# html_theme = 'pydata_sphinx_theme'
+# html_theme = 'sphinx_immaterial'
 
 graphviz_output_format = 'svg'
 inheritance_graph_attrs = {

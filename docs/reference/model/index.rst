@@ -16,10 +16,11 @@ Model
    :caption: Model classes.
 
 .. toctree::
+   :maxdepth: 1
 
-   kif_object
-   value
-   snak
+   kif_object/index
+   value/index
+   snak/index
    statement
    annotation
    descriptor
