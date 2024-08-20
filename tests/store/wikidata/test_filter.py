@@ -1,34 +1,86 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import Quantity, Statement, Store
-from kif_lib.typing import Iterable
+from kif_lib import Quantity, Text
+from kif_lib.typing import Iterable, TypeVar
 from kif_lib.vocabulary import wd
 
-from ...tests import kif_StoreTestCase
+from ...tests import kif_WikidataSPARQL_StoreTestCase
+
+T = TypeVar('T')
 
 
-class Test(kif_StoreTestCase):
+class Test(kif_WikidataSPARQL_StoreTestCase):
 
-    def assert_filter_contains(
-        self,
-        it: Iterable[Statement],
-        *stmts: Statement
-    ):
+    def assert_it_empty(self, it: Iterable[T]):
+        self.assertFalse(set(it))
+
+    def assert_it_equal(self, it: Iterable[T], *args: T):
+        return self.assertEqual(set(it), set(args))
+
+    def assert_it_contains(self, it: Iterable[T], *args: T):
         it_set = set(it)
-        for stmt in stmts:
-            self.assertTrue(stmt in it_set, f'{stmt} not in it_set')
+        for arg in args:
+            self.assertIn(arg, it_set)
 
-    def test_filter(self):
-        kb = Store('wikidata')
-        # subject
-        self.assert_filter_contains(
+    def test_filter_subject_is_empty_fp(self) -> None:
+        kb = self.new_Store()
+        self.assert_it_empty(kb.filter(Quantity(0)))
+
+    def test_filter_subject_is_value_fp(self) -> None:
+        kb = self.new_Store()
+        self.assert_it_contains(
             kb.filter(wd.Monte_Pascoal),
             wd.instance_of(wd.Monte_Pascoal, wd.mountain),
             wd.named_after(wd.Monte_Pascoal, wd.Easter),
             wd.continent(wd.Monte_Pascoal, wd.Americas),
             wd.elevation_above_sea_level(
                 wd.Monte_Pascoal, Quantity(536, wd.metre)))
+
+    def test_filter_subject_is_snak_fp(self) -> None:
+        kb = self.new_Store()
+        self.assert_it_contains(
+            kb.filter(wd.instance_of(wd.mountain), wd.named_after, wd.Easter),
+            wd.named_after(wd.Monte_Pascoal, wd.Easter))
+
+    def test_filter_subject_is_converse_snak_fp(self) -> None:
+        kb = self.new_Store()
+        self.assert_it_contains(
+            kb.filter(-(wd.instance_of(wd.Monte_Pascoal))),
+            wd.has_part(wd.mountain, wd.slope))
+
+    def test_filter_subject_is_and(self) -> None:
+        kb = self.new_Store()
+        self.assert_it_empty(
+            kb.filter(wd.Monte_Pascoal & wd.Mount_Everest))
+        self.assert_it_empty(
+            kb.filter(wd.Monte_Pascoal & wd.instance_of(wd.human)))
+        self.assert_it_equal(
+            kb.filter(
+                wd.instance_of(wd.mountain) & wd.country(wd.Brazil),
+                wd.named_after,
+                wd.Easter),
+            wd.named_after(wd.Monte_Pascoal, wd.Easter))
+        self.assert_it_contains(
+            kb.filter(
+                wd.instance_of(wd.mountain)
+                & wd.parent_peak.no_value()
+                & (wd.country(wd.Nepal) | wd.country(wd.Argentina))),
+            wd.native_label(wd.Mount_Everest, Text('सगरमाथा', 'ne')))
+
+    def test_filter_subject_is_or(self) -> None:
+        kb = self.new_Store()
+        self.assert_it_contains(
+            kb.filter(wd.Monte_Pascoal | wd.Mount_Everest, wd.country),
+            wd.country(wd.Mount_Everest, wd.Nepal),
+            wd.country(wd.Monte_Pascoal, wd.Brazil))
+        self.assert_it_equal(
+            kb.filter(
+                wd.Monte_Pascoal
+                | wd.El_Capitan
+                | (wd.parent_peak.no_value() & wd.instance_of(wd.mountain)),
+                wd.country, wd.Nepal),
+            wd.country(wd.Mount_Everest, wd.Nepal))
 
 
 if __name__ == '__main__':

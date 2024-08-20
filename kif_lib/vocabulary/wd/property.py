@@ -63,9 +63,11 @@ minimal_lethal_dose = P(2300)
 mother = P(25)
 name_in_native_language = P(1559)
 named_after = P(138)
+native_label = P(1705)
 official_language = P(37)
 official_name = P(1448)
 official_website = P(856)
+parent_peak = P(3137)
 part_of = P(361)
 partition_coefficient_water_octanol = P(2993)
 patent_number = P(1246)
@@ -170,9 +172,11 @@ __all__ = (
     'mother',
     'name_in_native_language',
     'named_after',
+    'native_label',
     'official_language',
     'official_name',
     'official_website',
+    'parent_peak',
     'part_of',
     'partition_coefficient_water_octanol',
     'patent_number',

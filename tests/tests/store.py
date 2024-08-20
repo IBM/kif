@@ -29,6 +29,7 @@ from kif_lib.store import (
     RDF_Store,
     SPARQL_MapperStore,
     SPARQL_Store,
+    WikidataStore,
 )
 from kif_lib.typing import cast, Final, Optional, override
 from kif_lib.vocabulary import wd
@@ -624,7 +625,7 @@ class kif_EmptyStoreTestCase(kif_StoreTestCase):
     @override
     @classmethod
     def new_Store(cls, *args, **kwargs) -> EmptyStore:
-        return cast(EmptyStore, super().new_Store('empty', *args, **kwargs))
+        return cast(EmptyStore, Store('empty', *args, **kwargs))
 
 
 class kif_SPARQL_StoreTestCase(kif_StoreTestCase):
@@ -632,8 +633,7 @@ class kif_SPARQL_StoreTestCase(kif_StoreTestCase):
     @override
     @classmethod
     def new_Store(cls, *args, **kwargs) -> SPARQL_Store:
-        return cast(
-            SPARQL_Store, super().new_Store('sparql', *args, **kwargs))
+        return cast(SPARQL_Store, Store('sparql', *args, **kwargs))
 
 
 class kif_RDF_StoreTestCase(kif_StoreTestCase):
@@ -641,7 +641,7 @@ class kif_RDF_StoreTestCase(kif_StoreTestCase):
     @override
     @classmethod
     def new_Store(cls, *args, **kwargs) -> RDF_Store:
-        return cast(RDF_Store, super().new_Store('rdf', *args, **kwargs))
+        return cast(RDF_Store, Store('rdf', *args, **kwargs))
 
 
 class kif_WikidataSPARQL_StoreTestCase(kif_SPARQL_StoreTestCase):
@@ -655,9 +655,10 @@ class kif_WikidataSPARQL_StoreTestCase(kif_SPARQL_StoreTestCase):
 
     @override
     @classmethod
-    def new_Store(cls, *args, **kwargs) -> SPARQL_Store:
-        return cast(SPARQL_Store, super().new_Store(
-            cls.WIKIDATA, *args, **kwargs))
+    def new_Store(cls, *args, **kwargs) -> WikidataStore:
+        assert cls.WIKIDATA is not None
+        return cast(WikidataStore, Store(
+            'wikidata', cls.WIKIDATA, *args, **kwargs))
 
 
 class kif_SPARQL_MapperStoreTestCase(kif_SPARQL_StoreTestCase):
@@ -665,9 +666,8 @@ class kif_SPARQL_MapperStoreTestCase(kif_SPARQL_StoreTestCase):
     @override
     @classmethod
     def new_Store(cls, *args, **kwargs) -> SPARQL_MapperStore:
-        return cast(
-            SPARQL_MapperStore,
-            kif_StoreTestCase.new_Store('sparql-mapper', *args, **kwargs))
+        return cast(SPARQL_MapperStore, Store(
+            'sparql-mapper', *args, **kwargs))
 
 
 class kif_PubChemSPARQL_StoreTestCase(kif_SPARQL_MapperStoreTestCase):
@@ -683,5 +683,6 @@ class kif_PubChemSPARQL_StoreTestCase(kif_SPARQL_MapperStoreTestCase):
     @classmethod
     def new_Store(cls, *args, **kwargs) -> SPARQL_MapperStore:
         from kif_lib.store.mapping import PubChemMapping
-        return cast(SPARQL_MapperStore, super().new_Store(
-            cls.PUBCHEM, PubChemMapping(), *args, **kwargs))
+        assert cls.PUBCHEM is not None
+        return cast(SPARQL_MapperStore, Store(
+            'sparql-mapper', cls.PUBCHEM, PubChemMapping(), *args, **kwargs))

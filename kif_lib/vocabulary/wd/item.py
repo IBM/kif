@@ -36,6 +36,7 @@ dog = Q(144, 'dog')
 dopamine = Q(170304, 'dopamine')
 Easter = Q(21196, 'Easter')
 ECHA_Substance_Infocard_database = Q(59911453, 'ECHA Substance Infocard database')
+El_Capitan = Q(1124852, 'El Capitan')
 electronvolt = Q(83327, 'electronvolt')
 English = Q(1860, 'English')
 English_Wikipedia = Q(328, 'English Wikipedia')
@@ -84,8 +85,10 @@ metre = Q(11573, 'metre')
 microgram_per_kilogram = Q(107313731, 'microgram per kilogram')
 milligram_per_kilogram = Q(21091747, 'milligram per kilogram')
 minute = Q(7727, 'minute')
-Monte_Pascoal = Q(1499212, 'Monte_Pascoal')
+Monte_Pascoal = Q(1499212, 'Monte Pascoal')
+Mount_Everest = Q(513, 'Mount Everest')
 mountain = Q(8502, 'mountain')
+Nepal = Q(837, 'Nepal')
 New_York_City = Q(60, 'New York City')
 oral_administration = Q(285166, 'oral administration')
 Paraguay = Q(733, 'Paraguay')
@@ -108,6 +111,7 @@ scholarly_article = Q(13442814, 'scholarly article')
 scientist = Q(901, 'scientist')
 second = Q(11574, 'second')
 skin_absorption = Q(4669896, 'skin absorption')
+slope = Q(944588, 'slope')
 sodium_bicarbonate = Q(179731, 'sodium bicarbonate')
 South_America = Q(18, 'South America')
 Spanish = Q(1321, 'Spanish')
@@ -155,6 +159,7 @@ __all__ = (
     'dopamine',
     'Easter',
     'ECHA_Substance_Infocard_database',
+    'El_Capitan',
     'electronvolt',
     'English',
     'English_Wikipedia',
@@ -204,7 +209,9 @@ __all__ = (
     'milligram_per_kilogram',
     'minute',
     'Monte_Pascoal',
+    'Mount_Everest',
     'mountain',
+    'Nepal',
     'New_York_City',
     'oral_administration',
     'Paraguay',
@@ -227,6 +234,7 @@ __all__ = (
     'scientist',
     'second',
     'skin_absorption',
+    'slope',
     'sodium_bicarbonate',
     'South_America',
     'Spanish',
