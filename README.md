@@ -2,16 +2,14 @@
 
 A knowledge integration framework based on [Wikidata](https://www.wikidata.org/).
 
-## Hello world! ##
+It written in Python and is released as [open-source](./LICENSE).
 
-Prints an arbitrary statement from [Wikidata](https://www.wikidata.org/):
-```python
-from kif_lib import Store
-kb = Store('wikidata')
-print(next(kb.filter()))
-```
+First time here? Check out the [quickstart
+guide](https://ibm.github.io/kif/quickstart.html).
 
-First time here? See the [quickstart guide](https://github.com/IBM/kif/tree/main/examples/quickstart.ipynb).
+For more information, see the [documentation](https://ibm.github.io/kif/)
+and [examples](./examples).
+
 
 ## Installation ##
 
@@ -19,21 +17,25 @@ First time here? See the [quickstart guide](https://github.com/IBM/kif/tree/main
 $ pip install kif-lib
 ```
 
-Or, for the development version:
-```shell
-$ git clone https://github.com/IBM/kif.git
-$ cd kif
-$ pip install -e .
+## Hello world! ##
+
+Prints an arbitrary statement from [Wikidata](https://www.wikidata.org/):
+
+```python
+from kif_lib import *      # import KIF namespacee
+kb = Store('wikidata')     # create a store pointing to Wikidata
+print(next(kb.filter()))   # obtain and print one arbitrary statement
 ```
-
-## Documentation ##
-
-See the [API documentation](https://ibm.github.io/kif/) and [examples](https://github.com/IBM/kif/tree/main/examples).
 
 ## Citation ##
 
-[KIF: A Wikidata-Based Framework for Integrating Heterogeneous Knowledge Sources](https://arxiv.org/abs/2403.10304), arXiv, 2024.
+Guilherme Lima, João M. B. Rodrigues, Marcelo Machado, Elton Soares, Sandro
+R. Fiorini, Raphael Thiago, Leonardo G. Azevedo, Viviane T. da Silva, Renato
+Cerqueira. ["KIF: A Wikidata-Based Framework for Integrating Heterogeneous
+Knowledge Sources"](https://arxiv.org/abs/2403.10304), arXiv:2403.10304,
+2024.
+
 
 ## License ##
 
-Released under the [Apache-2.0 license](https://github.com/IBM/kif/blob/main/LICENSE).
+Released under the [Apache-2.0 license](./LICENSE).
