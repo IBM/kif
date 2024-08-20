@@ -1,10 +1,12 @@
 # Knowledge Integration Framework #
 
-A knowledge integration framework based on [Wikidata](https://www.wikidata.org/).
+A knowledge integration framework based on
+[Wikidata](https://www.wikidata.org/).
 
 It written in Python and is released as [open-source](./LICENSE).
 
-First time here? Check out the [quickstart guide](https://ibm.github.io/kif/quickstart.html).
+First time here? Check out the [quickstart
+guide](https://ibm.github.io/kif/quickstart.html).
 
 
 ## Installation ##
@@ -25,7 +27,7 @@ print(next(kb.filter()))   # obtain and print one arbitrary statement
 
 ## Documentation ##
 
-See the [documentation](https://ibm.github.io/kif/) and [examples](./examples).
+See [documentation](https://ibm.github.io/kif/) and [examples](./examples).
 
 
 ## Citation ##
