@@ -211,8 +211,9 @@ class SPARQL_MapperStore(
                             if value is not None:
                                 if not isinstance(value, Entity):
                                     continue  # value mismatch
-                                if not value.value.startswith(
-                                        value_prefix.value):
+                                assert isinstance(value, Entity)
+                                if not value.iri.content.startswith(
+                                        value_prefix.content):
                                     continue  # mismatch value
                         if not spec._match(
                                 subject, property, value, snak_mask):

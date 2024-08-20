@@ -289,7 +289,7 @@ class SPARQL_Mapping(ABC):
                 q.matched_subject, q.subject,
                 self.kwargs.get('subject_prefix_replacement', None))
             # property
-            pname = NS.Wikidata.get_wikidata_name(self.property.iri.value)
+            pname = NS.Wikidata.get_wikidata_name(self.property.iri.content)
             q.bind_uri(
                 q.concat(String(str(NS.WD)), String(pname)), q.property)
             # value
@@ -362,8 +362,8 @@ class SPARQL_Mapping(ABC):
             if subject is not None and isinstance(subject, Entity):
                 assert subject is not None
                 if not self._match_kwargs(
-                        'subject_prefix', subject.value,
-                        lambda x, y: x.startswith(y.value)):
+                        'subject_prefix', subject.iri.content,
+                        lambda x, y: x.startswith(y.content)):
                     return False
             # Snak mask mismatch.
             if not (snak_mask & Filter.VALUE_SNAK):
@@ -378,9 +378,10 @@ class SPARQL_Mapping(ABC):
                         if self.kwargs.get('value') != value:
                             return False
                     if issubclass(value_class, Entity):
+                        assert isinstance(value, Entity)
                         if not self._match_kwargs(
-                                'value_prefix', value.value,
-                                lambda x, y: x.startswith(y.value)):
+                                'value_prefix', value.iri.content,
+                                lambda x, y: x.startswith(y.content)):
                             return False
                     elif value_class is Text:
                         text = cast(Text, value)
@@ -508,7 +509,8 @@ class SPARQL_Mapping(ABC):
             if tgt is None:
                 continue
             src = cls.iri_prefix_replacements_inv[tgt]
-            spec.kwargs[f'{key}_prefix_replacement'] = (src.value, tgt.value)
+            spec.kwargs[f'{key}_prefix_replacement'] = (
+                src.content, tgt.content)
         if spec.property not in specs:
             specs[spec.property] = []
         specs[spec.property].append(spec)
@@ -539,9 +541,9 @@ class SPARQL_Mapping(ABC):
            The resulting term.
         """
         for k, v in cls.iri_prefix_replacements.items():
-            if entity.iri.value.startswith(v.value):
+            if entity.iri.content.startswith(v.content):
                 return cast(Entity, entity.replace(
-                    k.value + entity.iri.value.removeprefix(v.value)))
+                    k.content + entity.iri.content.removeprefix(v.content)))
         return entity
 
     @classmethod

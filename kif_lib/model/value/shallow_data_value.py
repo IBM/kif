@@ -88,10 +88,6 @@ class ShallowDataValue(
                 return cls(str(arg))
         raise cls._check_error(arg, function, name, position)
 
-    @override
-    def get_value(self) -> str:
-        return self.content
-
     @property
     def content(self) -> str:
         """The content of shallow data value."""

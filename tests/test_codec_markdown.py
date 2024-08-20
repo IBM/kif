@@ -79,11 +79,11 @@ class TestCodecMarkdown(kif_TestCase):
         # known prefix: know label
         self.assert_to_markdown(
             wd.Adam, self.md_sexp('Item', self.md_link(
-                'Adam', wd.Adam.iri.value)))
+                'Adam', wd.Adam.iri.content)))
         # known prefix: unknown label
         self.assert_to_markdown(
             wd.Q('_'), self.md_sexp('Item', self.md_link(
-                'wd:Q_', wd.Q('_').iri.value)))
+                'wd:Q_', wd.Q('_').iri.content)))
         # unknown prefix
         self.assert_to_markdown(
             Item('x'), self.md_sexp('Item', self.md_link('x', 'http://x')))
@@ -92,11 +92,11 @@ class TestCodecMarkdown(kif_TestCase):
         # known prefix: know label
         self.assert_to_markdown(
             wd.mass, self.md_sexp('Property', self.md_link(
-                'mass', wd.mass.iri.value)))
+                'mass', wd.mass.iri.content)))
         # known prefix: unknown label
         self.assert_to_markdown(
             wd.P('_'), self.md_sexp('Property', self.md_link(
-                'wd:P_', wd.P('_').iri.value)))
+                'wd:P_', wd.P('_').iri.content)))
         # unknown prefix
         self.assert_to_markdown(
             Property('x'), self.md_sexp('Property', self.md_link(

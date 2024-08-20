@@ -378,10 +378,6 @@ class Time(
         else:
             raise self_._should_not_get_here()
 
-    @override
-    def get_value(self) -> str:
-        return str(self.time.isoformat())
-
     @property
     def time(self) -> datetime.datetime:
         """The date-time of time."""

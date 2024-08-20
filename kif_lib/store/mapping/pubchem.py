@@ -129,7 +129,7 @@ class PubChemMapping(SPARQL_Mapping):
             Raises:
                Spec.Skip: `v` is not a canonical SMILES.
             """
-            return cls.check_string(v).value
+            return cls.check_string(v).content
 
         @classmethod
         def check_chemical_formula(cls, v: Value) -> str:
@@ -141,7 +141,7 @@ class PubChemMapping(SPARQL_Mapping):
             Raises:
                Spec.Skip: `v` is not a chemical formula.
             """
-            return cls.check_string(v).value
+            return cls.check_string(v).content
 
         @classmethod
         def check_InChI(cls, v: Value) -> str:
@@ -154,7 +154,7 @@ class PubChemMapping(SPARQL_Mapping):
                Spec.Skip: `v` is not an InChI.
             """
             return cls._check(
-                cls.check_string(v).value,
+                cls.check_string(v).content,
                 lambda s: s.startswith('InChI='))
 
         @classmethod
@@ -167,7 +167,7 @@ class PubChemMapping(SPARQL_Mapping):
             Raises:
                Spec.Skip: `v` is not an InChIKey.
             """
-            return cls.check_string(v).value
+            return cls.check_string(v).content
 
         @classmethod
         def check_isomeric_SMILES(cls, v: Value) -> str:
@@ -196,7 +196,7 @@ class PubChemMapping(SPARQL_Mapping):
                Spec.Skip: `v` is not a PubChem CID.
             """
             return cls._check(
-                cls.check_string(v).value, lambda x: bool(_re.match(x)))
+                cls.check_string(v).content, lambda x: bool(_re.match(x)))
 
 # == Hooks =================================================================
 
@@ -255,7 +255,7 @@ class PubChemMapping(SPARQL_Mapping):
                 assert isinstance(original_limit, int)
                 count = 0
                 cids_it = map(
-                    lambda iri: iri.value[len(cls.COMPOUND.value) + 3:],
+                    lambda iri: iri.content[len(cls.COMPOUND.content) + 3:],
                     filter_(cls.is_pubchem_compound_iri, map(
                         lambda stmt: stmt.subject.iri, it)))
                 for batch in itertools.batched(
@@ -439,7 +439,7 @@ class PubChemMapping(SPARQL_Mapping):
                 id = f'CID{int(id)}'
             except ValueError:
                 pass
-        return Item(cls.COMPOUND.value + id)
+        return Item(cls.COMPOUND.content + id)
 
     @classmethod
     def patent(cls, id: str) -> Item:
@@ -451,7 +451,7 @@ class PubChemMapping(SPARQL_Mapping):
         Returns:
            The resulting item.
         """
-        return Item(cls.PATENT.value + id)
+        return Item(cls.PATENT.content + id)
 
     @classmethod
     def source(cls, id: str) -> Item:
@@ -463,7 +463,7 @@ class PubChemMapping(SPARQL_Mapping):
         Returns:
            The resulting item.
         """
-        return Item(cls.SOURCE.value + id)
+        return Item(cls.SOURCE.content + id)
 
     @classmethod
     def is_pubchem_compound_iri(cls, iri: T_IRI) -> bool:
@@ -476,7 +476,7 @@ class PubChemMapping(SPARQL_Mapping):
            ``True`` if successful; ``False`` otherwise.
         """
         iri = IRI.check(iri, cls.is_pubchem_compound_iri, 'iri', 1)
-        return iri.value.startswith(cls.COMPOUND.value)
+        return iri.content.startswith(cls.COMPOUND.content)
 
     @classmethod
     def is_pubchem_patent_iri(cls, iri: T_IRI) -> bool:
@@ -489,7 +489,7 @@ class PubChemMapping(SPARQL_Mapping):
            ``True`` if successful; ``False`` otherwise.
         """
         iri = IRI.check(iri, cls.is_pubchem_patent_iri, 'iri', 1)
-        return iri.value.startswith(cls.PATENT.value)
+        return iri.content.startswith(cls.PATENT.content)
 
     @classmethod
     def is_pubchem_source_iri(cls, iri: T_IRI) -> bool:
@@ -502,7 +502,7 @@ class PubChemMapping(SPARQL_Mapping):
            ``True`` if successful; ``False`` otherwise.
         """
         iri = IRI.check(iri, cls.is_pubchem_source_iri, 'iri', 1)
-        return iri.value.startswith(cls.SOURCE.value)
+        return iri.content.startswith(cls.SOURCE.content)
 
 
 PubChemMapping.register_iri_prefix_replacement(
@@ -734,7 +734,7 @@ def wd_mass(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
         # IMPORTANT: Mass values in PubChem have datatype float.
         ###
         qt = spec.check_quantity(cast(Value, v))
-        v = Literal(qt.value, datatype=XSD.float)
+        v = Literal(str(qt.amount), datatype=XSD.float)
     with q.sp(s, SIO.has_attribute) as sp:
         sp.pairs(
             (RDF.type, CHEMINF.
@@ -772,7 +772,7 @@ def wd_partition_coefficient_water_octanol(
         # IMPORTANT: LogP values in PubChem have datatype float.
         ###
         qt = spec.check_quantity(cast(Value, v))
-        v = Literal(qt.value, datatype=XSD.float)
+        v = Literal(str(qt.amount), datatype=XSD.float)
     with q.sp(s, SIO.has_attribute) as sp:
         sp.pairs(
             (RDF.type, CHEMINF.xlogp3_calculated_by_the_xlogp3_software),
@@ -814,7 +814,7 @@ def wd_trading_name(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
         ###
         # IMPORTANT: Trading name values in PubChem have no language tag.
         ###
-        v = String(spec.check_text(cast(Value, v)).value)
+        v = String(spec.check_text(cast(Value, v)).content)
     attr = q.bnode()
     q.triples(
         (attr, SIO.is_attribute_of, s),
@@ -908,7 +908,7 @@ def wd_title(spec: Spec, q: Builder, s: TTrm, p: TTrm, v: TTrm):
         ###
         # IMPORTANT: Title values in PubChem have no language tag.
         ###
-        v = String(spec.check_text(cast(Value, v)).value)
+        v = String(spec.check_text(cast(Value, v)).content)
     q.triple(s, PATENT.titleOfInvention, v)
 
 

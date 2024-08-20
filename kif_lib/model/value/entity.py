@@ -101,10 +101,6 @@ class Entity(
         else:
             raise self_._should_not_get_here()
 
-    @override
-    def get_value(self) -> str:
-        return self.iri.value
-
     @property
     def iri(self) -> IRI:
         """The iri of entity."""

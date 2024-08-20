@@ -245,10 +245,6 @@ class Quantity(
         else:
             raise self_._should_not_get_here()
 
-    @override
-    def get_value(self) -> str:
-        return str(self.amount)
-
     @property
     def amount(self) -> decimal.Decimal:
         """The amount of quantity."""

@@ -244,7 +244,7 @@ At line {line}, column {column}:
         LOG.debug('%s():\n%s', self._eval_query_string.__qualname__, text)
         try:
             res = self._client.post(
-                self.iri.value, content=text.encode('utf-8'), **kwargs)
+                self.iri.content, content=text.encode('utf-8'), **kwargs)
             res.raise_for_status()
             return res
         except httpx.RequestError as err:
@@ -445,7 +445,7 @@ At line {line}, column {column}:
         # Property:
         if property is not None and isinstance(property, Property):
             prop_ = property
-            name = NS.Wikidata.get_wikidata_name(prop_.iri.value)
+            name = NS.Wikidata.get_wikidata_name(prop_.iri.content)
             prop = prop_
             pname = String(name)
             p = NS.P[name]

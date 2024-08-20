@@ -1,7 +1,6 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import abc
 import datetime
 import decimal
 from typing import TYPE_CHECKING
@@ -114,20 +113,6 @@ class Value(
         from ..fingerprint import OrFingerprint
         return OrFingerprint(self, other)
 
-    @property
-    def value(self) -> str:
-        """The simple value of value."""
-        return self.get_value()
-
-    @abc.abstractmethod
-    def get_value(self) -> str:
-        """Gets the simple value of value.
-
-        Returns:
-           Simple value.
-        """
-        raise NotImplementedError
-
     def n3(self) -> str:
         """Gets the simple value of value in N3 format.
 
@@ -206,15 +191,17 @@ class Value(
         from .string import String
         from .text import Text
         from .time import Time
-        if isinstance(self, (Entity, IRI)):
-            return URIRef(self.value)
+        if isinstance(self, Entity):
+            return URIRef(self.iri.content)
+        elif isinstance(self, IRI):
+            return URIRef(self.content)
         elif isinstance(self, Quantity):
-            return Literal(self.value, datatype=NS.XSD.decimal)
+            return Literal(str(self.amount), datatype=NS.XSD.decimal)
         elif isinstance(self, Time):
-            return Literal(self.value, datatype=NS.XSD.dateTime)
+            return Literal(self.time.isoformat(), datatype=NS.XSD.dateTime)
         elif isinstance(self, Text):
-            return Literal(self.value, cast(Text, self).language)
+            return Literal(self.content, self.language)
         elif isinstance(self, String):
-            return Literal(self.value)
+            return Literal(self.content)
         else:
             raise self._should_not_get_here()

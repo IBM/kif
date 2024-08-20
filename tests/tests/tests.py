@@ -334,8 +334,6 @@ class kif_TestCase(unittest.TestCase):
         self.assertEqual(obj.args[0], iri)
         self.assertIs(obj.iri, obj.args[0])
         self.assertIs(obj.get_iri(), obj.args[0])
-        self.assertEqual(obj.value, obj.iri.value)
-        self.assertEqual(obj.get_value(), obj.iri.get_value())
         self.assertEqual(obj.n3(), obj.iri.n3())
 
     def assert_item(self, obj: Item, iri: IRI):
@@ -377,9 +375,7 @@ class kif_TestCase(unittest.TestCase):
         self.assert_iri_datatype(obj.datatype)
         self.assertIsInstance(content, str)
         self.assertEqual(obj.args[0], content)
-        self.assertEqual(obj.value, obj.args[0])
-        self.assertEqual(obj.get_value(), obj.args[0])
-        self.assertEqual(obj.n3(), f'<{obj.value}>')
+        self.assertEqual(obj.n3(), f'<{obj.content}>')
 
     def assert_text(
             self,
@@ -395,9 +391,9 @@ class kif_TestCase(unittest.TestCase):
             language = obj.context.options.default_language
         assert isinstance(language, str)
         self.assertEqual(obj.args[1], language)
-        self.assertEqual(obj.value, obj.args[0])
-        self.assertEqual(obj.get_value(), obj.args[0])
-        self.assertEqual(obj.n3(), f'"{obj.value}"@{language}')
+        self.assertEqual(obj.language, language)
+        self.assertEqual(obj.get_language(), language)
+        self.assertEqual(obj.n3(), f'"{obj.content}"@{obj.language}')
 
     def assert_string(self, obj: String, content: str):
         self.assert_shallow_data_value(obj)
@@ -405,9 +401,7 @@ class kif_TestCase(unittest.TestCase):
         self.assert_string_datatype(obj.datatype)
         self.assertIsInstance(content, str)
         self.assertEqual(obj.args[0], content)
-        self.assertEqual(obj.value, obj.args[0])
-        self.assertEqual(obj.get_value(), obj.args[0])
-        self.assertEqual(obj.n3(), f'"{obj.value}"')
+        self.assertEqual(obj.n3(), f'"{obj.content}"')
 
     def assert_external_id(self, obj: ExternalId, content: str):
         self.assert_shallow_data_value(obj)
@@ -416,9 +410,7 @@ class kif_TestCase(unittest.TestCase):
         self.assert_external_id_datatype(obj.datatype)
         assert isinstance(content, str)
         self.assertEqual(obj.args[0], content)
-        self.assertEqual(obj.value, obj.args[0])
-        self.assertEqual(obj.get_value(), obj.args[0])
-        self.assertEqual(obj.n3(), f'"{obj.value}"')
+        self.assertEqual(obj.n3(), f'"{obj.content}"')
 
     def assert_deep_data_value(self, obj: DeepDataValue):
         self.assert_data_value(obj)
@@ -436,9 +428,7 @@ class kif_TestCase(unittest.TestCase):
         self.assertIsInstance(obj, Quantity)
         self.assert_quantity_datatype(obj.datatype)
         self.assertEqual(obj.args[0], decimal.Decimal(amount))
-        self.assertEqual(obj.value, str(obj.args[0]))
-        self.assertEqual(obj.get_value(), str(obj.args[0]))
-        self.assertEqual(obj.n3(), f'"{obj.value}"^^<{XSD.decimal}>')
+        self.assertEqual(obj.n3(), f'"{obj.amount}"^^<{XSD.decimal}>')
         self.assertEqual(obj.amount, obj.args[0])
         self.assertEqual(obj.get_amount(), obj.args[0])
         self.assertEqual(obj.args[1], unit)
@@ -465,9 +455,8 @@ class kif_TestCase(unittest.TestCase):
         self.assertIsInstance(obj, Time)
         self.assert_time_datatype(obj.datatype)
         self.assertEqual(obj.args[0], time)
-        self.assertEqual(obj.value, obj.args[0].isoformat())
-        self.assertEqual(obj.get_value(), obj.args[0].isoformat())
-        self.assertEqual(obj.n3(), f'"{obj.value}"^^<{XSD.dateTime}>')
+        self.assertEqual(
+            obj.n3(), f'"{obj.time.isoformat()}"^^<{XSD.dateTime}>')
         self.assertEqual(obj.time, obj.args[0])
         self.assertEqual(obj.get_time(), obj.args[0])
         self.assertEqual(obj.args[1], prec)

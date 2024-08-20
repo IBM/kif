@@ -623,7 +623,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             fp: SnakFingerprint,
             dest: Query.Variable,
     ):
-        prop = self._q.uri(fp.snak.property.iri.value)
+        prop = self._q.uri(fp.snak.property.iri.content)
         if isinstance(fp, ConverseSnakFingerprint):
             assert isinstance(fp.snak, ValueSnak)
             assert isinstance(fp.snak.value, Entity)
@@ -724,7 +724,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         amount = self._q.literal(qt.amount)
         self._q.triples()((wdv, NS.WIKIBASE.quantityAmount, amount))
         if qt.unit is not None:
-            unit = self._q.uri(qt.unit.iri.value)
+            unit = self._q.uri(qt.unit.iri.content)
             self._q.triples()((wdv, NS.WIKIBASE.quantityUnit, unit))
         if qt.lower_bound is not None:
             lower = self._q.literal(qt.lower_bound)
@@ -752,7 +752,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self._q.triples()(
                 (wdv, NS.WIKIBASE.timeTimezone, timezone))
         if tm.calendar is not None:
-            calendar = self._q.uri(tm.calendar.iri.value)
+            calendar = self._q.uri(tm.calendar.iri.content)
             self._q.triples()((wdv, NS.WIKIBASE.timeCalendarModel, calendar))
 
     def _push_some_value_filter(
@@ -773,7 +773,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             value: Value
     ) -> Union[Query.URI, Query.Literal]:
         if isinstance(value, Entity):
-            return self._q.uri(value.iri.value)
+            return self._q.uri(value.iri.content)
         elif isinstance(value, IRI):
             return self._q.uri(value.content)
         elif isinstance(value, Text):

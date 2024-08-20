@@ -66,21 +66,22 @@ class MarkdownEncoder(
                 obj = obj.replace(obj.iri, None)
             label = self.wd.get_label(obj)
             if label:
-                yield f'[{label}]({obj.iri.value})'
+                yield f'[{label}]({obj.iri.content})'
             else:
                 yield from self._iterencode(obj.iri, indent)
             yield from self._iterencode_kif_object_end(obj)
         elif isinstance(obj, IRI):
             try:
-                yield f'[{_DEFAULT_NSM.curie(obj.value, False)}]({obj.value})'
+                curie = _DEFAULT_NSM.curie(obj.content, False)
+                yield f'[{curie}]({obj.content})'
             except KeyError:
                 yield from self._iterencode_iri_fallback(obj)
             except ValueError:
                 yield from self._iterencode_iri_fallback(obj)
         elif isinstance(obj, Text):
-            yield f'"{self._escape_md(obj.value)}"@{obj.language}'
+            yield f'"{self._escape_md(obj.content)}"@{obj.language}'
         elif isinstance(obj, String):
-            yield f'"{self._escape_md(obj.value)}"'
+            yield f'"{self._escape_md(obj.content)}"'
         elif isinstance(obj, Quantity):
             yield from self._iterencode_kif_object_start(obj)
             yield from self._iterencode_quantity(obj)
@@ -211,31 +212,31 @@ class MarkdownEncoder(
             default_scheme: str = 'http'
     ) -> Iterator[str]:
         from urllib.parse import urlparse
-        val = iri.value
+        val = iri.content
         if not urlparse(val).scheme:
             yield f'[{val}]({default_scheme}://{val})'
         else:
             yield f'[{val}]({val})'
 
-    def _iterencode_quantity(self, qtd: Quantity) -> Iterator[str]:
-        if qtd.lower_bound is not None or qtd.upper_bound is not None:
+    def _iterencode_quantity(self, qt: Quantity) -> Iterator[str]:
+        if qt.lower_bound is not None or qt.upper_bound is not None:
             val: Optional[str] = None
-            if qtd.lower_bound is not None and qtd.upper_bound is not None:
-                qt = decimal.Decimal(qtd.amount)
-                lb = decimal.Decimal(qtd.lower_bound)
-                ub = decimal.Decimal(qtd.upper_bound)
-                if (ub + lb) / 2 == qt:
-                    val = f'{qt} ±{ub - qt}'
+            if qt.lower_bound is not None and qt.upper_bound is not None:
+                n = decimal.Decimal(qt.amount)
+                lb = decimal.Decimal(qt.lower_bound)
+                ub = decimal.Decimal(qt.upper_bound)
+                if (ub + lb) / 2 == n:
+                    val = f'{n} ±{ub - n}'
             if not val:
-                lbs = (str(qtd.lower_bound)
-                       if qtd.lower_bound is not None else '-∞')
-                ubs = (str(qtd.upper_bound)
-                       if qtd.upper_bound is not None else '∞')
-                val = f'{qtd.amount} [{lbs},{ubs}]'
+                lbs = (str(qt.lower_bound)
+                       if qt.lower_bound is not None else '-∞')
+                ubs = (str(qt.upper_bound)
+                       if qt.upper_bound is not None else '∞')
+                val = f'{qt.amount} [{lbs},{ubs}]'
         else:
-            val = str(qtd.amount)
-        if qtd.unit:
-            unit = self.encode(qtd.unit)
+            val = str(qt.amount)
+        if qt.unit:
+            unit = self.encode(qt.unit)
             unit = f' {unit}'
         else:
             unit = ''

@@ -98,19 +98,6 @@ class Test(kif_ValueTestCase):
             ValueFingerprint(String('x')),
             ValueFingerprint(Quantity(0)))
 
-    def test_value(self) -> None:
-        self.assertEqual(Item('x').value, 'x')
-        self.assertEqual(Property('x', Item).value, 'x')
-        self.assertEqual(Lexeme('x').value, 'x')
-        self.assertEqual(IRI('x').value, 'x')
-        self.assertEqual(Text('x', 'y').value, 'x')
-        self.assertEqual(String('x').value, 'x')
-        self.assertEqual(ExternalId('x').value, 'x')
-        self.assertEqual(Quantity(0, Item('x'), -1, 1).value, '0')
-        self.assertEqual(
-            Time('2024-06-27', 11, 0, Item('x')).value,
-            '2024-06-27T00:00:00+00:00')
-
     def test_n3(self) -> None:
         self.assertEqual(Item('x').n3(), '<x>')
         self.assertEqual(Property('x', Item).n3(), '<x>')

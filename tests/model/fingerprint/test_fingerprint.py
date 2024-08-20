@@ -81,7 +81,6 @@ class Test(kif_FingerprintTestCase):
         self.assertEqual(
             FullFingerprint() | ValueFingerprint('x'),
             OrFingerprint(FullFingerprint(), ValueFingerprint(String('x'))))
-        print(False | ValueFingerprint('x') | SnakFingerprint(('x', 'y')))
         self.assertEqual(
             False | ValueFingerprint('x') | SnakFingerprint(('x', 'y')),
             OrFingerprint(
