@@ -1,0 +1,89 @@
+<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" xmlns:ns1="http://www.w3.org/1999/xlink" width="270pt" height="199pt" viewBox="0.00 0.00 269.88 199.00">
+<ns0:g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 195)">
+<ns0:title>inheritance32c98192ec</ns0:title>
+
+<ns0:g id="node1" class="node">
+<ns0:title>Descriptor</ns0:title>
+<ns0:g id="a_node1"><ns0:a ns1:href="../reference/model/descriptor/descriptor.html#kif_lib.Descriptor" ns1:title="Abstract base class for descriptors." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="133.75,-134.25 71.25,-134.25 71.25,-113.5 133.75,-113.5 133.75,-134.25" />
+<ns0:text text-anchor="middle" x="102.5" y="-120.75" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">Descriptor</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="node4" class="node">
+<ns0:title>PlainDescriptor</ns0:title>
+<ns0:g id="a_node4"><ns0:a ns1:href="../reference/model/descriptor/descriptor.html#kif_lib.PlainDescriptor" ns1:title="Abstract base class for plain descriptors." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="198.25,-77.5 114.75,-77.5 114.75,-56.75 198.25,-56.75 198.25,-77.5" />
+<ns0:text text-anchor="middle" x="156.5" y="-64" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">PlainDescriptor</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge4" class="edge">
+<ns0:title>Descriptor-&gt;PlainDescriptor</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M116.59,-108.59C126.14,-98.91 138.51,-86.37 146.93,-77.83" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="114.95,-107.76 112.69,-112.55 117.44,-110.22 114.95,-107.76" />
+</ns0:g>
+
+<ns0:g id="node5" class="node">
+<ns0:title>LexemeDescriptor</ns0:title>
+<ns0:g id="a_node5"><ns0:a ns1:href="../reference/model/descriptor/descriptor.html#kif_lib.LexemeDescriptor" ns1:title="Lexeme descriptor." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="97,-77.5 0,-77.5 0,-56.75 97,-56.75 97,-77.5" />
+<ns0:text text-anchor="middle" x="48.5" y="-64" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">LexemeDescriptor</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge3" class="edge">
+<ns0:title>Descriptor-&gt;LexemeDescriptor</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M88.41,-108.59C78.86,-98.91 66.49,-86.37 58.07,-77.83" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="87.56,-110.22 92.31,-112.55 90.05,-107.76 87.56,-110.22" />
+</ns0:g>
+
+<ns0:g id="node2" class="node">
+<ns0:title>KIF_Object</ns0:title>
+<ns0:g id="a_node2"><ns0:a ns1:href="../reference/model/kif_object/kif_object.html#kif_lib.KIF_Object" ns1:title="Abstract base class for KIF objects." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="134.5,-191 70.5,-191 70.5,-170.25 134.5,-170.25 134.5,-191" />
+<ns0:text text-anchor="middle" x="102.5" y="-177.5" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">KIF_Object</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge1" class="edge">
+<ns0:title>KIF_Object-&gt;Descriptor</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M102.5,-163.46C102.5,-154.08 102.5,-142.57 102.5,-134.58" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="100.75,-164.08 102.5,-169.08 104.25,-164.08 100.75,-164.08" />
+</ns0:g>
+
+<ns0:g id="node3" class="node">
+<ns0:title>ItemDescriptor</ns0:title>
+<ns0:g id="a_node3"><ns0:a ns1:href="../reference/model/descriptor/descriptor.html#kif_lib.ItemDescriptor" ns1:title="Item descriptor." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="143.25,-20.75 59.75,-20.75 59.75,0 143.25,0 143.25,-20.75" />
+<ns0:text text-anchor="middle" x="101.5" y="-7.25" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">ItemDescriptor</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge2" class="edge">
+<ns0:title>PlainDescriptor-&gt;ItemDescriptor</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M142.15,-51.84C132.42,-42.16 119.82,-29.62 111.25,-21.08" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="141.35,-53.52 146.13,-55.8 143.82,-51.04 141.35,-53.52" />
+</ns0:g>
+
+<ns0:g id="node6" class="node">
+<ns0:title>PropertyDescriptor</ns0:title>
+<ns0:g id="a_node6"><ns0:a ns1:href="../reference/model/descriptor/descriptor.html#kif_lib.PropertyDescriptor" ns1:title="Property descriptor." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="261.88,-20.75 161.12,-20.75 161.12,0 261.88,0 261.88,-20.75" />
+<ns0:text text-anchor="middle" x="211.5" y="-7.25" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">PropertyDescriptor</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge5" class="edge">
+<ns0:title>PlainDescriptor-&gt;PropertyDescriptor</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M170.85,-51.84C180.58,-42.16 193.18,-29.62 201.75,-21.08" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="169.18,-51.04 166.87,-55.8 171.65,-53.52 169.18,-51.04" />
+</ns0:g>
+</ns0:g>
+</ns0:svg>

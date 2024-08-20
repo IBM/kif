@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quickstart &mdash; kif-lib  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="reference/index.html" />
+    <link rel="prev" title="KIF" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            kif-lib
+          </a>
+              <div class="version">
+                0.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#hello-world">Hello world!</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#filters">Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-filters">Basic filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fingerprints-indirect-ids">Fingerprints (indirect ids)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#and-ing-and-or-ing-fingeprints">And-ing and or-ing fingeprints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#count-and-contains">Count and contains</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#final-remarks">Final remarks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">kif-lib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Quickstart</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/quickstart.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="quickstart">
+<h1>Quickstart<a class="headerlink" href="#quickstart" title="Link to this heading"></a></h1>
+<p>KIF is a Wikidata-based framework for integrating knowledge sources.</p>
+<p>This quickstart guide presents the basic API of KIF.</p>
+<section id="hello-world">
+<h2>Hello world!<a class="headerlink" href="#hello-world" title="Link to this heading"></a></h2>
+<p>We start by importing the <code class="docutils literal notranslate"><span class="pre">kif_lib</span></code> namespace:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kif_lib</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We’ll also need the Wikidata vocabulary module <code class="docutils literal notranslate"><span class="pre">wd</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kif_lib.vocabulary</span> <span class="kn">import</span> <span class="n">wd</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let us no we create a SPARQL store pointing to the official Wikidata query
+service:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kb</span> <span class="o">=</span> <span class="n">Store</span><span class="p">(</span><span class="s1">&#39;sparql&#39;</span><span class="p">,</span> <span class="s1">&#39;https://query.wikidata.org/sparql&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>A KIF store is an inteface to a knowledge source.  It allows us to view the
+source as a set of Wikidata-like statements.</p>
+<p>The store <code class="docutils literal notranslate"><span class="pre">kb</span></code> we just created is an interface to Wikidata itself. We can
+use it, for example, to fetch from Wikidata three statements about Brazil:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">it</span> <span class="o">=</span> <span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">Brazil</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P17">country</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>)))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P35">head of state</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q37181">Luiz Inácio Lula da Silva</a>)))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P31">instance of</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q512187">wd:Q512187</a>)))</p>
+</div>
+</div>
+</section>
+<section id="filters">
+<h2>Filters<a class="headerlink" href="#filters" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">kb.filter(...)</span></code> call searches for statements in <code class="docutils literal notranslate"><span class="pre">kb</span></code> matching the
+restrictions <code class="docutils literal notranslate"><span class="pre">...</span></code>.</p>
+<p>The result of a filter call is a (lazy) iterator <code class="docutils literal notranslate"><span class="pre">it</span></code> of statements:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">it</span> <span class="o">=</span> <span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">Brazil</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can advance <code class="docutils literal notranslate"><span class="pre">it</span></code> to obtain statements:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P17">country</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>)))</p>
+</div>
+</div>
+<p>If no <code class="docutils literal notranslate"><span class="pre">limit</span></code> argument is given to <code class="docutils literal notranslate"><span class="pre">kb.filter()</span></code>, the returned iterator
+contains all matching statements.</p>
+</section>
+<section id="basic-filters">
+<h2>Basic filters<a class="headerlink" href="#basic-filters" title="Link to this heading"></a></h2>
+<p>We can filter statements by any combination of <em>subject</em>, <em>property</em>, and
+<em>value</em>.</p>
+<p>For example:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">###</span>
+<span class="c1"># match any statement</span>
+<span class="c1">###</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q1049">Sudan</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P6">head of government</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q27654948">wd:Q27654948</a>)))</p>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">###</span>
+<span class="c1"># match statements with subject &quot;Brazil&quot; and property &quot;official website&quot;</span>
+<span class="c1">###</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">Brazil</span><span class="p">,</span> <span class="nb">property</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">official_website</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P856">official website</a>) <a class="reference external" href="https://www.gov.br">https://www.gov.br</a>))</p>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">###</span>
+<span class="c1"># match statements with property &quot;official website&quot; and value &quot;https://www.ibm.com/&quot;</span>
+<span class="c1">###</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">property</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">official_website</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">IRI</span><span class="p">(</span><span class="s1">&#39;https://www.ibm.com/&#39;</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q37156">IBM</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P856">official website</a>) <a class="reference external" href="https://www.ibm.com/">https://www.ibm.com/</a>))</p>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">###</span>
+<span class="c1"># match statements with value &quot;78.046950192 dalton&quot;</span>
+<span class="c1">###</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">Quantity</span><span class="p">(</span><span class="s1">&#39;78.046950192&#39;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">dalton</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q82526818">cyclohexa-1,2,3-triene</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P2067">mass</a>) (<strong>Quantity</strong> 78.046950192 (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q483261">dalton</a>))))</p>
+</div>
+</div>
+<p>We can also match statements having <em>some</em> (unknown) value:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">next</span><span class="p">(</span><span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">snak</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">date_of_birth</span><span class="o">.</span><span class="n">some_value</span><span class="p">()))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q8797">Aemilius Macer</a>) (<strong>SomeValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P569">date of birth</a>)))</p>
+</div>
+</div>
+<p>Or <em>no</em> value:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">next</span><span class="p">(</span><span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">snak</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">date_of_death</span><span class="o">.</span><span class="n">no_value</span><span class="p">()))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q125144271">wd:Q125144271</a>) (<strong>NoValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P570">date of death</a>)))</p>
+</div>
+</div>
+</section>
+<section id="fingerprints-indirect-ids">
+<h2>Fingerprints (indirect ids)<a class="headerlink" href="#fingerprints-indirect-ids" title="Link to this heading"></a></h2>
+<p>So far, we have been using the symbolic aliases defined in the <code class="docutils literal notranslate"><span class="pre">wd</span></code> module to
+specify entities in filters:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">Brazil</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">continent</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>)</p>
+<p>(<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P30">continent</a>)</p>
+</div>
+</div>
+<p>Alternatively, we can use their numeric Wikidata ids:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">###</span>
+<span class="c1"># match statements with subject Q155 (Brazil) and property P30 (continent)</span>
+<span class="c1">###</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">Q</span><span class="p">(</span><span class="mi">155</span><span class="p">),</span> <span class="nb">property</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">P</span><span class="p">(</span><span class="mi">30</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P30">continent</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q18">South America</a>)))</p>
+</div>
+</div>
+<p>Sometimes, however, ids are not enough.  We might need to specify an entity
+indirectly by giving not its id but a property it satisfies.</p>
+<p>In cases like this, we can use a <em>fingerprint</em>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">###</span>
+<span class="c1"># match statemets whose subject &quot;is a dog&quot; and value &quot;is a human&quot;</span>
+<span class="c1">###</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">dog</span><span class="p">),</span> <span class="n">value</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">human</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q42235">Abuwtiyuw</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P61">discoverer or inventor</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q502932">George Andrew Reisner</a>)))</p>
+</div>
+</div>
+<p>Properties themselves can also be specified using fingerprints:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">###</span>
+<span class="c1"># match statements whose property is &quot;equivalent to Schema.org&#39;s &#39;weight&#39;&quot;</span>
+<span class="c1">###</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">property</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">equivalent_property</span><span class="p">(</span><span class="s1">&#39;https://schema.org/weight&#39;</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q18922">Thick-billed Cuckoo</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P2067">mass</a>) (<strong>Quantity</strong> 2.2 (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q41803">wd:Q41803</a>))))</p>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">-</span></code> (unary minus) operator can be used to invert the direction of the
+property used in the fingerprint:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">###</span>
+<span class="c1"># match statements whose subject is &quot;the continent of Brazil&quot;</span>
+<span class="c1">###</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">subject</span><span class="o">=-</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">continent</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">Brazil</span><span class="p">))))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q18">South America</a>) (<strong>NoValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P17">country</a>)))</p>
+</div>
+</div>
+</section>
+<section id="and-ing-and-or-ing-fingeprints">
+<h2>And-ing and or-ing fingeprints<a class="headerlink" href="#and-ing-and-or-ing-fingeprints" title="Link to this heading"></a></h2>
+<p>Entity ids and fingerpints can be combined using the operators <code class="docutils literal notranslate"><span class="pre">&amp;</span></code> (and) and
+<code class="docutils literal notranslate"><span class="pre">|</span></code> (or).</p>
+<p>For example:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">###</span>
+<span class="c1"># match three statements such that:</span>
+<span class="c1"># - subject is &quot;Brazil&quot; or &quot;Argentina&quot;</span>
+<span class="c1"># - property is &quot;continent&quot; or &quot;highest point&quot;</span>
+<span class="c1">###</span>
+<span class="n">it</span> <span class="o">=</span> <span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">subject</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">Brazil</span> <span class="o">|</span> <span class="n">wd</span><span class="o">.</span><span class="n">Argentina</span><span class="p">,</span>
+        <span class="nb">property</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">continent</span> <span class="o">|</span> <span class="n">wd</span><span class="o">.</span><span class="n">highest_point</span><span class="p">,</span>
+        <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P30">continent</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q18">South America</a>)))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P610">highest point</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q739484">Pico da Neblina</a>)))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q414">Argentina</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P30">continent</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q18">South America</a>)))</p>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">###</span>
+<span class="c1"># match three statements such that:</span>
+<span class="c1"># - subject &quot;has continent South America&quot; and &quot;official language is Portuguese&quot;</span>
+<span class="c1"># - value &quot;is a river&quot; or &quot;is a mountain&quot;</span>
+<span class="c1">###</span>
+<span class="n">it</span> <span class="o">=</span> <span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">subject</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">continent</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">South_America</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">wd</span><span class="o">.</span><span class="n">official_language</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">Portuguese</span><span class="p">),</span>
+        <span class="n">value</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">river</span><span class="p">)</span> <span class="o">|</span> <span class="n">wd</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">mountain</span><span class="p">),</span>
+        <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P206">located in or next to body of water</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q127892">Paraná River</a>)))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P206">located in or next to body of water</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q3783">Amazon</a>)))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P206">located in or next to body of water</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q142148">São Francisco River</a>)))</p>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">###</span>
+<span class="c1"># match three statements such that:</span>
+<span class="c1"># - subject &quot;is a female&quot; and (&quot;was born in NYC&quot; or &quot;was born in Rio&quot;)</span>
+<span class="c1"># - property is &quot;field of work&quot; or &quot;is equivalent to Schema.org&#39;s &#39;hasOccupation&#39;&quot;</span>
+<span class="c1">###</span>
+<span class="n">it</span> <span class="o">=</span> <span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">subject</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">sex_or_gender</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">female</span><span class="p">)</span>\
+        <span class="o">&amp;</span> <span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">place_of_birth</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">New_York_City</span><span class="p">)</span> <span class="o">|</span> <span class="n">wd</span><span class="o">.</span><span class="n">place_of_birth</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">Rio_de_Janeiro</span><span class="p">)),</span>
+        <span class="nb">property</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">field_of_work</span>\
+        <span class="o">|</span> <span class="n">wd</span><span class="o">.</span><span class="n">equivalent_property</span><span class="p">(</span><span class="n">IRI</span><span class="p">(</span><span class="s1">&#39;https://schema.org/hasOccupation&#39;</span><span class="p">)),</span>
+        <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q7212">Pauline Newman</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P106">occupation</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q16533">judge</a>)))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q7212">Pauline Newman</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P106">occupation</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q593644">chemist</a>)))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q1545">Cyndi Lauper</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P101">field of work</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q11895763">wd:Q11895763</a>)))</p>
+</div>
+</div>
+</section>
+<section id="count-and-contains">
+<h2>Count and contains<a class="headerlink" href="#count-and-contains" title="Link to this heading"></a></h2>
+<p>A variant of the filter call is <code class="docutils literal notranslate"><span class="pre">kb.count(...)</span></code> which, instead of
+statements, counts the number of statements matching restrictions <code class="docutils literal notranslate"><span class="pre">...</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kb</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">subject</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">Brazil</span><span class="p">,</span> <span class="nb">property</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">population</span> <span class="o">|</span> <span class="n">wd</span><span class="o">.</span><span class="n">official_language</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2
+</pre></div>
+</div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">kb.contains()</span></code> call tests whether a given statement occurs in <code class="docutils literal notranslate"><span class="pre">kb</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stmt1</span> <span class="o">=</span> <span class="n">wd</span><span class="o">.</span><span class="n">official_language</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">Brazil</span><span class="p">,</span> <span class="n">wd</span><span class="o">.</span><span class="n">Portuguese</span><span class="p">)</span>
+<span class="n">kb</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">stmt1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stmt2</span> <span class="o">=</span> <span class="n">wd</span><span class="o">.</span><span class="n">official_language</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">Brazil</span><span class="p">,</span> <span class="n">wd</span><span class="o">.</span><span class="n">Spanish</span><span class="p">)</span>
+<span class="n">kb</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">stmt2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>False
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="final-remarks">
+<h2>Final remarks<a class="headerlink" href="#final-remarks" title="Link to this heading"></a></h2>
+<p>This concludes the quickstart guide.</p>
+<p>There are many other calls in the Store API of KIF.  For more information
+see, the <a class="reference internal" href="reference/index.html"><span class="doc std std-doc">API Reference</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="KIF" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reference/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IBM Corp.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

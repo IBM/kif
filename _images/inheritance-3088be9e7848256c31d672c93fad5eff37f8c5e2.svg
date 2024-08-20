@@ -1,0 +1,44 @@
+<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" xmlns:ns1="http://www.w3.org/1999/xlink" width="72pt" height="142pt" viewBox="0.00 0.00 72.00 142.25">
+<ns0:g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 138.25)">
+<ns0:title>inheritanceed035c3518</ns0:title>
+
+<ns0:g id="node1" class="node">
+<ns0:title>KIF_Object</ns0:title>
+<ns0:g id="a_node1"><ns0:a ns1:href="../reference/model/kif_object/kif_object.html#kif_lib.KIF_Object" ns1:title="Abstract base class for KIF objects." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="64,-20.75 0,-20.75 0,0 64,0 64,-20.75" />
+<ns0:text text-anchor="middle" x="32" y="-7.25" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">KIF_Object</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="node2" class="node">
+<ns0:title>Object</ns0:title>
+<ns0:g id="a_node2"><ns0:a ns1:href="../reference/model/kif_object/kif_object.html#kif_lib.model.object.Object" ns1:title="Abstract base class for syntactical objects." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="59,-77.5 5,-77.5 5,-56.75 59,-56.75 59,-77.5" />
+<ns0:text text-anchor="middle" x="32" y="-64" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">Object</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge1" class="edge">
+<ns0:title>Object-&gt;KIF_Object</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M32,-49.96C32,-40.58 32,-29.07 32,-21.08" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="30.25,-50.58 32,-55.58 33.75,-50.58 30.25,-50.58" />
+</ns0:g>
+
+<ns0:g id="node3" class="node">
+<ns0:title>Sequence</ns0:title>
+<ns0:g id="a_node3"><ns0:a ns1:title="All the operations on a read-only sequence.">
+<ns0:polygon fill="lightgray" stroke="black" points="62.5,-134.25 1.5,-134.25 1.5,-113.5 62.5,-113.5 62.5,-134.25" />
+<ns0:text text-anchor="middle" x="32" y="-120.75" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">Sequence</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge2" class="edge">
+<ns0:title>Sequence-&gt;Object</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M32,-106.71C32,-97.33 32,-85.82 32,-77.83" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="30.25,-107.33 32,-112.33 33.75,-107.33 30.25,-107.33" />
+</ns0:g>
+</ns0:g>
+</ns0:svg>
