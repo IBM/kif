@@ -3,7 +3,7 @@
 KIF is a knowledge integration framework based on
 [Wikidata](https://www.wikidata.org/).
 
-It written in Python and is released as [open-source](./LICENSE).
+It is written in Python and released as [open-source](./LICENSE).
 
 First time here? Check out the [quickstart
 guide](https://ibm.github.io/kif/quickstart.html).
