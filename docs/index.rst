@@ -17,21 +17,13 @@ First time here? See :doc:`quickstart`.  Or go straight to
 .. _KIF: https://github.com/ibm/kif
 .. _Wikidata: https://www.wikidata.org/
 
+
 Installation
 ============
-
-Latest stable release:
 
 .. code-block:: shell
 
    $ pip install kif-lib
-
-Latest development version:
-
-.. code-block:: shell
-
-   $ git clone https://github.com/IBM/kif.git
-   $ cd kif; pip install -e .
 
 
 Hello world!

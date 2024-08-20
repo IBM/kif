@@ -21,7 +21,7 @@ Model
    kif_object/index
    value/index
    snak/index
-   statement
-   annotation
-   descriptor
-   set
+   statement/index
+   annotation/index
+   descriptor/index
+   set/index

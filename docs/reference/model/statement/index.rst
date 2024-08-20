@@ -11,7 +11,12 @@ Statement
    :parts: 1
    :caption: Statement class.
 
-.. autoclass:: Statement
-   :no-index:
-   :members:
-   :show-inheritance:
+.. toctree::
+   :hidden:
+
+   statement
+
+.. autosummary::
+   :nosignatures:
+
+   Statement
