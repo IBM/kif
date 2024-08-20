@@ -4,11 +4,7 @@ A knowledge integration framework based on [Wikidata](https://www.wikidata.org/)
 
 It written in Python and is released as [open-source](./LICENSE).
 
-First time here? Check out the [quickstart
-guide](https://ibm.github.io/kif/quickstart.html).
-
-For more information, see the [documentation](https://ibm.github.io/kif/)
-and [examples](./examples).
+First time here? Check out the [quickstart guide](https://ibm.github.io/kif/quickstart.html).
 
 
 ## Installation ##
@@ -26,6 +22,11 @@ from kif_lib import *      # import KIF namespacee
 kb = Store('wikidata')     # create a store pointing to Wikidata
 print(next(kb.filter()))   # obtain and print one arbitrary statement
 ```
+
+## Documentation ##
+
+See the [documentation](https://ibm.github.io/kif/) and [examples](./examples).
+
 
 ## Citation ##
 
