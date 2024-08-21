@@ -1,8 +1,9 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import DecoderError, Filter, Quantity, String, Value
-from kif_lib.model import AndFingerprint, KIF_Object, ValueFingerprint
+from kif_lib import Filter, KIF_Object, Quantity, String, Value
+from kif_lib.error import DecoderError
+from kif_lib.model import AndFingerprint, ValueFingerprint
 from kif_lib.vocabulary import wd
 
 from .tests import kif_TestCase

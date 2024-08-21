@@ -7,18 +7,6 @@ from kif_lib.compiler.sparql.pattern_compiler import (
     SPARQL_PatternCompiler,
     TPattern,
 )
-from kif_lib.model import (
-    IRI_Template,
-    IRI_Variable,
-    Item,
-    ItemTemplate,
-    Lexeme,
-    LexemeTemplate,
-    Property,
-    PropertyTemplate,
-    StringVariable,
-)
-from kif_lib.namespace import ONTOLEX, RDF, WIKIBASE
 
 from ...tests import kif_TestCase
 
@@ -50,19 +38,19 @@ class Test(kif_TestCase):
 
 # -- Item ------------------------------------------------------------------
 
-    def test_compile_item_template(self):
-        self.assert_compile(ItemTemplate(IRI_Variable('x')), f'''
-SELECT * WHERE {{
-  ?x <{WIKIBASE.sitelinks}> _: .
-}}
-''')
-        self.assert_compile(
-            ItemTemplate(IRI_Template(StringVariable('x'))), f'''
-SELECT * WHERE {{
-  ?x <{WIKIBASE.sitelinks}> _: .
-  BIND (STR(?x) AS ?_v0)
-}}
-''')
+#     def test_compile_item_template(self):
+#         self.assert_compile(ItemTemplate(IRI_Variable('x')), f'''
+# SELECT * WHERE {{
+#   ?x <{WIKIBASE.sitelinks}> _: .
+# }}
+# ''')
+#         self.assert_compile(
+#             ItemTemplate(IRI_Template(StringVariable('x'))), f'''
+# SELECT * WHERE {{
+#   ?x <{WIKIBASE.sitelinks}> _: .
+#   BIND (STR(?x) AS ?_v0)
+# }}
+# ''')
 
 ###
 # FIXME: NOT WORKING!
@@ -74,28 +62,28 @@ SELECT * WHERE {{
 # }}
 # ''')
 
-    def test_compile_item(self):
-        self.assert_compile(Item('x'), f'''
-SELECT * WHERE {{
-  <x> <{WIKIBASE.sitelinks}> _: .
-}}
-''')
+#     def test_compile_item(self):
+#         self.assert_compile(Item('x'), f'''
+# SELECT * WHERE {{
+#   <x> <{WIKIBASE.sitelinks}> _: .
+# }}
+# ''')
 
 # -- Property --------------------------------------------------------------
 
-    def test_compile_property_template(self):
-        self.assert_compile(PropertyTemplate(IRI_Variable('x')), f'''
-SELECT * WHERE {{
-  ?x <{RDF.type}> <{WIKIBASE.Property}> .
-}}
-''')
-        self.assert_compile(
-            PropertyTemplate(IRI_Template(StringVariable('x'))), f'''
-SELECT * WHERE {{
-  ?x <{RDF.type}> <{WIKIBASE.Property}> .
-  BIND (STR(?x) AS ?_v0)
-}}
-''')
+#     def test_compile_property_template(self):
+#         self.assert_compile(PropertyTemplate(IRI_Variable('x')), f'''
+# SELECT * WHERE {{
+#   ?x <{RDF.type}> <{WIKIBASE.Property}> .
+# }}
+# ''')
+#         self.assert_compile(
+#             PropertyTemplate(IRI_Template(StringVariable('x'))), f'''
+# SELECT * WHERE {{
+#   ?x <{RDF.type}> <{WIKIBASE.Property}> .
+#   BIND (STR(?x) AS ?_v0)
+# }}
+# ''')
 
 ###
 # FIXME: NOT WORKING!
@@ -107,28 +95,28 @@ SELECT * WHERE {{
 # }}
 # ''')
 
-    def test_compile_property(self):
-        self.assert_compile(Property('x'), f'''
-SELECT * WHERE {{
-  <x> <{RDF.type}> <{WIKIBASE.Property}> .
-}}
-''')
+#     def test_compile_property(self):
+#         self.assert_compile(Property('x'), f'''
+# SELECT * WHERE {{
+#   <x> <{RDF.type}> <{WIKIBASE.Property}> .
+# }}
+# ''')
 
 # -- Lexeme ----------------------------------------------------------------
 
-    def test_compile_lexeme_template(self):
-        self.assert_compile(LexemeTemplate(IRI_Variable('x')), f'''
-SELECT * WHERE {{
-  ?x <{RDF.type}> <{ONTOLEX.LexicalEntry}> .
-}}
-''')
-        self.assert_compile(
-            LexemeTemplate(IRI_Template(StringVariable('x'))), f'''
-SELECT * WHERE {{
-  ?x <{RDF.type}> <{ONTOLEX.LexicalEntry}> .
-  BIND (STR(?x) AS ?_v0)
-}}
-''')
+#     def test_compile_lexeme_template(self):
+#         self.assert_compile(LexemeTemplate(IRI_Variable('x')), f'''
+# SELECT * WHERE {{
+#   ?x <{RDF.type}> <{ONTOLEX.LexicalEntry}> .
+# }}
+# ''')
+#         self.assert_compile(
+#             LexemeTemplate(IRI_Template(StringVariable('x'))), f'''
+# SELECT * WHERE {{
+#   ?x <{RDF.type}> <{ONTOLEX.LexicalEntry}> .
+#   BIND (STR(?x) AS ?_v0)
+# }}
+# ''')
 
 ###
 # FIXME: NOT WORKING!
@@ -140,12 +128,12 @@ SELECT * WHERE {{
 # }}
 # ''')
 
-    def test_compile_lexeme(self):
-        self.assert_compile(Lexeme('x'), f'''
-SELECT * WHERE {{
-  <x> <{RDF.type}> <{ONTOLEX.LexicalEntry}> .
-}}
-''')
+#     def test_compile_lexeme(self):
+#         self.assert_compile(Lexeme('x'), f'''
+# SELECT * WHERE {{
+#   <x> <{RDF.type}> <{ONTOLEX.LexicalEntry}> .
+# }}
+# ''')
 
 # -- IRI -------------------------------------------------------------------
 

@@ -5,18 +5,20 @@ import datetime
 import decimal
 
 from kif_lib import (
-    EncoderError,
     Entity,
     Filter,
     IRI,
+    IRI_Variable,
     Item,
+    ItemTemplate,
     KIF_Object,
     Preferred,
+    PropertyVariable,
     Quantity,
     ValueSnak,
     Variable,
 )
-from kif_lib.model import IRI_Variable, ItemTemplate, PropertyVariable
+from kif_lib.error import EncoderError
 from kif_lib.typing import cast
 
 from ..tests import kif_TestCase

@@ -38,6 +38,11 @@ if TYPE_CHECKING:  # pragma: no cover
 TFingerprint: TypeAlias =\
     Union['Fingerprint', 'TCompoundFingerprint', 'TAtomicFingerprint']
 
+TCompoundFingerprint: TypeAlias = Union[
+    'CompoundFingerprint', 'TAndFingerprint', 'TOrFingerprint']
+TAndFingerprint: TypeAlias = Union[list[Snak], Set[Snak], SnakSet]
+TOrFingerprint: TypeAlias = 'OrFingerprint'
+
 TAtomicFingerprint: TypeAlias =\
     Union['AtomicFingerprint', 'TSnakFingerprint',
           'TValueFingerprint', 'TFullFingerprint', 'TEmptyFingerprint']
@@ -46,14 +51,9 @@ TValueFingerprint: TypeAlias = Union['ValueFingerprint', TValue]
 TFullFingerprint: TypeAlias = Union['FullFingerprint', bool, Literal[None]]
 TEmptyFingerprint: TypeAlias = Union['EmptyFingerprint', bool]
 
-TCompoundFingerprint: TypeAlias = Union[
-    'CompoundFingerprint', 'TAndFingerprint', 'TOrFingerprint']
-TAndFingerprint: TypeAlias = Union[list[Snak], Set[Snak], SnakSet]
-TOrFingerprint: TypeAlias = 'OrFingerprint'
-
 
 class Fingerprint(KIF_Object):
-    """Abstract base class for fingerprints."""
+    """Abstract base class for fingerprint expressions."""
 
     @classmethod
     @override
@@ -178,7 +178,7 @@ class Fingerprint(KIF_Object):
 
 
 class CompoundFingerprint(Fingerprint):
-    """Compound fingerprint."""
+    """Abstract base class for compound fingerprint expressions."""
 
     @classmethod
     @override
@@ -282,7 +282,7 @@ class CompoundFingerprint(Fingerprint):
 
 
 class AndFingerprint(CompoundFingerprint):
-    """Conjunction of fingerprints."""
+    """Conjunction of fingerprint expressions."""
 
     @override
     def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
@@ -299,12 +299,12 @@ class AndFingerprint(CompoundFingerprint):
         return all(map(lambda fp: fp._match(value), self.args))
 
 
-#: Alias for :class:`AndFingerprint`.
+#: Alias of :class:`AndFingerprint`.
 And = AndFingerprint
 
 
 class OrFingerprint(CompoundFingerprint):
-    """Disjunction of fingerprints."""
+    """Disjunction of fingerprint expressions."""
 
     @override
     def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
@@ -321,12 +321,12 @@ class OrFingerprint(CompoundFingerprint):
         return any(map(lambda fp: fp._match(value), self.args))
 
 
-#: Alias for :class:`OrFingerprint`.
+#: Alias of :class:`OrFingerprint`.
 Or = OrFingerprint
 
 
 class AtomicFingerprint(Fingerprint):
-    """Atomic fingerprint."""
+    """Abstract base class for atomic fingerprint expressions."""
 
     @classmethod
     @override
@@ -364,7 +364,7 @@ class AtomicFingerprint(Fingerprint):
 
 
 class SnakFingerprint(AtomicFingerprint):
-    """Snak fingerprint."""
+    """Snak fingerprint expression."""
 
     @classmethod
     @override
@@ -417,7 +417,7 @@ class SnakFingerprint(AtomicFingerprint):
 
 
 class ConverseSnakFingerprint(SnakFingerprint):
-    """Converse snak fingerprint."""
+    """Converse-snak fingerprint expression."""
 
     @override
     def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
@@ -430,7 +430,7 @@ class ConverseSnakFingerprint(SnakFingerprint):
 
 
 class ValueFingerprint(AtomicFingerprint):
-    """Value fingerprint."""
+    """Value fingerprint expression."""
 
     @classmethod
     @override

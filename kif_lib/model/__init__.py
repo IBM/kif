@@ -13,6 +13,13 @@ from .annotation import (
     Rank,
     TAnnotationRecordSet,
 )
+from .constraint import (
+    AtomicConstraint,
+    Constraint,
+    FalseConstraint,
+    TConstraint,
+    TrueConstraint,
+)
 from .descriptor import (
     Descriptor,
     ItemDescriptor,
@@ -37,7 +44,14 @@ from .fingerprint import (
     ValueFingerprint,
 )
 from .kif_object import KIF_Object
-from .pattern import Pattern
+from .pattern import (
+    Pattern,
+    TemplatePattern,
+    TPattern,
+    TTemplatePattern,
+    TVariablePattern,
+    VariablePattern,
+)
 from .set import (
     KIF_ObjectSet,
     ReferenceRecord,
@@ -175,17 +189,6 @@ __all__ = (
 
     # kif_object
     'KIF_Object',
-
-    # pattern
-    'Pattern',
-
-    # template
-    'Template',
-
-    # variable
-    'Theta',
-    'Variable',
-    'Variables',
 
     # datatype
     'Datatype',
@@ -363,6 +366,29 @@ __all__ = (
     'TTextSet',
     'TValueSet',
     'ValueSet',
+
+    # pattern
+    'Pattern',
+    'TemplatePattern',
+    'TPattern',
+    'TTemplatePattern',
+    'TVariablePattern',
+    'VariablePattern',
+
+    # constraint
+    'AtomicConstraint',
+    'Constraint',
+    'FalseConstraint',
+    'TConstraint',
+    'TrueConstraint',
+
+    # template
+    'Template',
+
+    # variable
+    'Theta',
+    'Variable',
+    'Variables',
 
     # fingerprint
     'And',

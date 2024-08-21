@@ -3,11 +3,12 @@
 
 from . import codec  # noqa: F401
 from .context import Context
-from .error import CodecError, DecoderError, EncoderError, Error
+from .error import Error
 from .model import (
     And,
     AnnotationRecord,
     AnnotationRecordSet,
+    Constraint,
     Datatype,
     DatatypeVariable,
     DataValue,
@@ -87,6 +88,7 @@ from .model import (
     StringTemplate,
     StringVariable,
     Template,
+    TemplatePattern,
     Text,
     TextDatatype,
     TextSet,
@@ -104,6 +106,7 @@ from .model import (
     ValueTemplate,
     ValueVariable,
     Variable,
+    VariablePattern,
     Variables,
 )
 from .store import Store
@@ -111,111 +114,173 @@ from .store import Store
 __version__ = '0.4'
 
 __all__ = (
-    'And',
-    'AnnotationRecord',
-    'AnnotationRecordSet',
-    'CodecError',
+
+    # context
     'Context',
+
+    # error
+    'Error',
+
+    # model.kif_object
+    'KIF_Object',
+
+    # model.value.datatype
     'Datatype',
     'DatatypeVariable',
-    'DataValue',
-    'DataValueTemplate',
-    'DataValueVariable',
-    'DecoderError',
-    'DeepDataValue',
-    'DeepDataValueTemplate',
-    'DeepDataValueVariable',
-    'Deprecated',
-    'DeprecatedRank',
-    'Descriptor',
-    'EncoderError',
+
+    # model.value
+    'Value',
+    'ValueTemplate',
+    'ValueVariable',
+
+    # model.value.entity
     'Entity',
     'EntityTemplate',
     'EntityVariable',
-    'Error',
-    'ExternalId',
-    'ExternalIdDatatype',
-    'ExternalIdTemplate',
-    'ExternalIdVariable',
-    'Filter',
-    'Fingerprint',
+
+    # model.value.item
+    'Item',
+    'ItemDatatype',
+    'Items',
+    'ItemTemplate',
+    'ItemVariable',
+
+    # model.value.property
+    'Properties',
+    'Property',
+    'PropertyDatatype',
+    'PropertyTemplate',
+    'PropertyVariable',
+
+    # model.value.lexeme
+    'Lexeme',
+    'LexemeDatatype',
+    'Lexemes',
+    'LexemeTemplate',
+    'LexemeVariable',
+
+    # model.value.data_value
+    'DataValue',
+    'DataValueTemplate',
+    'DataValueVariable',
+
+    # model.value.shallow_data_value
+    'ShallowDataValue',
+    'ShallowDataValueTemplate',
+    'ShallowDataValueVariable',
+
+    # model.value.iri
     'IRI',
     'IRI_Datatype',
     'IRI_Template',
     'IRI_Variable',
-    'Item',
-    'ItemDatatype',
-    'ItemDescriptor',
-    'Items',
-    'ItemTemplate',
-    'ItemVariable',
-    'KIF_Object',
-    'KIF_ObjectSet',
-    'Lexeme',
-    'LexemeDatatype',
-    'LexemeDescriptor',
-    'Lexemes',
-    'LexemeTemplate',
-    'LexemeVariable',
-    'Normal',
-    'NormalRank',
-    'NoValueSnak',
-    'NoValueSnakTemplate',
-    'NoValueSnakVariable',
-    'Or',
-    'Pattern',
-    'PlainDescriptor',
-    'Preferred',
-    'PreferredRank',
-    'Properties',
-    'Property',
-    'PropertyDatatype',
-    'PropertyDescriptor',
-    'PropertyTemplate',
-    'PropertyVariable',
-    'Quantity',
-    'QuantityDatatype',
-    'QuantityTemplate',
-    'QuantityVariable',
-    'Rank',
-    'ReferenceRecord',
-    'ReferenceRecordSet',
-    'ShallowDataValue',
-    'ShallowDataValueTemplate',
-    'ShallowDataValueVariable',
-    'Snak',
-    'SnakSet',
-    'SnakTemplate',
-    'SnakTemplate',
-    'SnakVariable',
-    'SomeValueSnak',
-    'SomeValueSnakTemplate',
-    'SomeValueSnakVariable',
-    'Statement',
-    'StatementTemplate',
-    'StatementVariable',
-    'Store',
-    'String',
-    'StringDatatype',
-    'StringTemplate',
-    'StringVariable',
-    'Template',
+
+    # model.value.text
     'Text',
     'TextDatatype',
     'TextSet',
     'TextTemplate',
     'TextVariable',
+
+    # model.value.string
+    'String',
+    'StringDatatype',
+    'StringTemplate',
+    'StringVariable',
+
+    # model.value.external_id
+    'ExternalId',
+    'ExternalIdDatatype',
+    'ExternalIdTemplate',
+    'ExternalIdVariable',
+
+    # model.value.deep_data_value
+    'DeepDataValue',
+    'DeepDataValueTemplate',
+    'DeepDataValueVariable',
+
+    # model.value.quantity
+    'Quantity',
+    'QuantityDatatype',
+    'QuantityTemplate',
+    'QuantityVariable',
+
+    # model.value.time
     'Time',
     'TimeDatatype',
     'TimeTemplate',
     'TimeVariable',
-    'Value',
-    'ValueSet',
+
+    # model.snak
+    'NoValueSnak',
+    'NoValueSnakTemplate',
+    'NoValueSnakVariable',
+    'Snak',
+    'SnakTemplate',
+    'SnakVariable',
+    'SomeValueSnak',
+    'SomeValueSnakTemplate',
+    'SomeValueSnakVariable',
     'ValueSnak',
     'ValueSnakTemplate',
     'ValueSnakVariable',
-    'ValueTemplate',
-    'ValueVariable',
+
+    # model.statement
+    'Statement',
+    'StatementTemplate',
+    'StatementVariable',
+
+    # model.annotation
+    'AnnotationRecord',
+    'AnnotationRecordSet',
+    'Deprecated',
+    'DeprecatedRank',
+    'Normal',
+    'NormalRank',
+    'Preferred',
+    'PreferredRank',
+    'Rank',
+
+    # model.descriptor
+    'Descriptor',
+    'ItemDescriptor',
+    'LexemeDescriptor',
+    'PlainDescriptor',
+    'PropertyDescriptor',
+
+    # model.set
+    'KIF_ObjectSet',
+    'ReferenceRecord',
+    'ReferenceRecordSet',
+    'SnakSet',
+    'TextSet',
+    'ValueSet',
+
+    # model.pattern
+    'Pattern',
+    'TemplatePattern',
+    'VariablePattern',
+
+    # model.constraint
+    'Constraint',
+
+    # model.template
+    'Template',
+
+    # model.variable
     'Variable',
     'Variables',
+
+    # model.fingerprint
+    'And',
+    'Error',
+    'Fingerprint',
+    'Or',
+    'Store',
+
+    # model.filter
+    'Filter',
+
+    # store
+    'Store',
 )

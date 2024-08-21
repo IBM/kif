@@ -10,7 +10,7 @@ from rdflib.plugins.sparql.sparql import Query
 
 from .. import itertools
 from .. import namespace as NS
-from ..compiler.sparql import SPARQL_FilterCompiler, SPARQL_PatternCompiler
+from ..compiler.sparql import SPARQL_FilterCompiler
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
@@ -26,7 +26,6 @@ from ..model import (
     Lexeme,
     LexemeDescriptor,
     NoValueSnak,
-    Pattern,
     Property,
     PropertyDescriptor,
     Quantity,
@@ -42,6 +41,7 @@ from ..model import (
     Time,
     Value,
     ValueSnak,
+    VariablePattern,
 )
 from ..rdflib import BNode, URIRef
 from ..typing import (
@@ -252,40 +252,60 @@ At line {line}, column {column}:
 
 # -- Match -----------------------------------------------------------------
 
-    class Match:
-        """The match handle."""
+    # class Match:
+    #     """The match handle."""
 
-        _store: 'SPARQL_Store'
-        _compiler: SPARQL_PatternCompiler
+    #     _store: 'SPARQL_Store'
+    #     _compiler: SPARQL_PatternCompiler
 
-        __slots__ = (
-            '_store',
-            '_compiler',
-        )
+    #     __slots__ = (
+    #         '_store',
+    #         '_compiler',
+    #     )
 
-        def __init__(
-                self,
-                store: 'SPARQL_Store',
-                compiler: SPARQL_PatternCompiler
-        ):
-            self._store = store
-            self._compiler = compiler
+    #     def __init__(
+    #             self,
+    #             store: 'SPARQL_Store',
+    #             compiler: SPARQL_PatternCompiler
+    #     ):
+    #         self._store = store
+    #         self._compiler = compiler
 
-        def _read_next_page(self):
-            query_string = str(self._compiler.query.select(limit=1))
-            print(self._compiler.pattern)
-            print()
-            print(self._compiler.theta)
-            print()
-            print(self._compiler.query)
-            print()
-            res = self._store._eval_select_query_string(query_string)
-            print(dict(res))
-            return res
+    #     def _read_next_page(self):
+    #         query_string = str(self._compiler.query.select(limit=1))
+    #         print(self._compiler.pattern)
+    #         print()
+    #         print(self._compiler.theta)
+    #         print()
+    #         print(self._compiler.query)
+    #         print()
+    #         res = self._store._eval_select_query_string(query_string)
+    #         print(dict(res))
+    #         return res
 
-    def _match(self, pat: Pattern) -> Match:
-        compiler = SPARQL_PatternCompiler(pat, SPARQL_PatternCompiler.DEBUG)
-        return self.Match(self, compiler.compile())
+    # def _match(self, pat: StatementPattern) -> Iterator[Statement]:
+    #     compiler = SPARQL_PatternCompiler(pat, SPARQL_PatternCompiler.DEBUG)
+    #     return self.Match(self, compiler.compile())
+
+    # #: Flags to be passed to filter compiler.
+    # _compile_filter_flags: ClassVar[SPARQL_FilterCompiler.Flags] =\
+    #     SPARQL_FilterCompiler.default_flags
+
+    # def _compile_filter(
+    #         self,
+    #         filter: Filter
+    # ) -> SPARQL_FilterCompiler:
+    #     compiler = SPARQL_FilterCompiler(filter, self._compile_filter_flags)
+    #     if self.has_flags(self.DEBUG):
+    #         compiler.set_flags(compiler.DEBUG)
+    #     else:
+    #         compiler.unset_flags(compiler.DEBUG)
+    #     if self.has_flags(self.BEST_RANK):
+    #         compiler.set_flags(compiler.BEST_RANK)
+    #     else:
+    #         compiler.unset_flags(compiler.BEST_RANK)
+    #     compiler.compile()
+    #     return compiler
 
 # -- Statements ------------------------------------------------------------
 
@@ -302,7 +322,7 @@ At line {line}, column {column}:
             compiler = self._compile_filter(filter)
             q = compiler.query
         else:
-            q = SPARQL_PatternCompiler.Query()
+            q = SPARQL_FilterCompiler.Query()
             wds = q.fresh_var()
             if self.has_flags(self.BEST_RANK):
                 q.triples()((wds, NS.RDF.type, NS.WIKIBASE.BestRank))
@@ -328,8 +348,9 @@ At line {line}, column {column}:
         while count <= limit:
             query = compiler.query.select(
                 limit=page_size, offset=offset, distinct=distinct)
-            assert isinstance(compiler.pattern, StatementVariable)
-            pattern = compiler.pattern
+            assert isinstance(compiler.pattern, VariablePattern)
+            assert isinstance(compiler.pattern.variable, StatementVariable)
+            var = compiler.pattern.variable
             wds = compiler.wds
             res = self._eval_select_query_string(str(query))
             bindings = res['results']['bindings']
@@ -337,7 +358,7 @@ At line {line}, column {column}:
                 break           # done
             for binding in bindings:
                 theta = compiler.theta.instantiate(binding)
-                stmt = pattern.instantiate(theta)
+                stmt = var.instantiate(theta)
                 assert isinstance(stmt, Statement)
                 if self.has_flags(self.LATE_FILTER) and not filter.match(stmt):
                     continue
@@ -351,8 +372,8 @@ At line {line}, column {column}:
             offset += page_size
 
     #: Flags to be passed to filter compiler.
-    _compile_filter_flags: ClassVar[SPARQL_FilterCompiler.Flags] = (
-        SPARQL_FilterCompiler.default_flags)
+    _compile_filter_flags: ClassVar[SPARQL_FilterCompiler.Flags] =\
+        SPARQL_FilterCompiler.default_flags
 
     def _compile_filter(
             self,

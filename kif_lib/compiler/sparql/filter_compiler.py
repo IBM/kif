@@ -35,6 +35,7 @@ from ...model import (
     ValueSnak,
     ValueSnakVariable,
     Variable,
+    VariablePattern,
 )
 from ...model.fingerprint import (
     AndFingerprint,
@@ -106,7 +107,8 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     def _push_filter(self, filter: Filter):
         if filter.is_empty():
             return              # nothing to do
-        assert isinstance(self.pattern, StatementVariable)
+        assert isinstance(self.pattern, VariablePattern)
+        assert isinstance(self.pattern.variable, StatementVariable)
         # Subject variable.
         subject = self._fresh_entity_variable()
         if isinstance(filter.subject, ValueFingerprint):
@@ -117,7 +119,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             v_subject = self._as_qvar(subject)
         # Snak variable.
         snak = self._fresh_snak_variable()
-        self._theta_add(self.pattern, Statement(subject, snak))
+        self._theta_add(self.pattern.variable, Statement(subject, snak))
         # Property variable.
         property = self._fresh_property_variable()
         if isinstance(filter.property, ValueFingerprint):
