@@ -8,7 +8,6 @@ from kif_lib import (
     ExternalId,
     IRI,
     Item,
-    KIF_Object,
     Lexeme,
     NoValueSnakTemplate,
     Property,
@@ -18,6 +17,7 @@ from kif_lib import (
     SomeValueSnakTemplate,
     StatementTemplate,
     String,
+    Term,
     Text,
     Time,
     Value,
@@ -51,7 +51,7 @@ class Test(kif_VariableTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(
-            PropertyVariable('x').instantiate({}), Optional[KIF_Object])
+            PropertyVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             PropertyVariable,
             success=[

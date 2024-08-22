@@ -6,15 +6,12 @@ import decimal
 import enum
 import functools
 import json
-from typing import TYPE_CHECKING
 
-from .. import itertools
 from ..context import Context
 from ..typing import (
     Any,
     Callable,
     cast,
-    ClassVar,
     Iterator,
     Optional,
     override,
@@ -22,10 +19,6 @@ from ..typing import (
     TypeVar,
 )
 from . import object
-
-if TYPE_CHECKING:               # pragma: no cover
-    from .template import Template
-    from .variable import Variable
 
 Codec = object.Codec
 CodecError = object.Codec.Error
@@ -42,52 +35,6 @@ T = TypeVar('T')
 
 class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     """Abstract base class for KIF objects."""
-
-    #: Template class associated with this object class.
-    template_class: ClassVar[type['Template']]
-
-    #: Variable class associated with this object class.
-    variable_class: ClassVar[type['Variable']]
-
-    @classmethod
-    def __init_subclass__(cls, **kwargs):
-        if 'template_class' in kwargs:
-            from .template import Template
-            from .variable import Variable
-            assert not issubclass(cls, (Template, Variable))
-            cls.template_class = kwargs['template_class']
-            assert issubclass(cls.template_class, Template)
-            cls.template_class.object_class = cls  # pyright: ignore
-        if 'variable_class' in kwargs:
-            from .template import Template
-            from .variable import Variable
-            assert not issubclass(cls, (Template, Variable))
-            cls.variable_class = kwargs['variable_class']
-            assert issubclass(cls.variable_class, Variable)
-            cls.variable_class.object_class = cls  # pyright: ignore
-
-    def __new__(cls, *args, **kwargs) -> Self:
-        has_tpl_or_var_arg = any(map(
-            cls._isinstance_template_or_variable,
-            itertools.chain(args, kwargs.values())))
-        if hasattr(cls, 'template_class') and has_tpl_or_var_arg:
-            return cast(Self, cls.template_class(*args, **kwargs))
-        elif (cls._issubclass_template(cls)
-              and hasattr(cls, 'object_class') and not has_tpl_or_var_arg):
-            return cls.object_class(*args, **kwargs)  # type: ignore
-        else:
-            return super().__new__(cls)
-
-    @classmethod
-    def _issubclass_template(cls, arg: Any) -> bool:
-        from .template import Template
-        return issubclass(arg, Template)
-
-    @classmethod
-    def _isinstance_template_or_variable(cls, arg: Any) -> bool:
-        from .template import Template
-        from .variable import Variable
-        return isinstance(arg, (Template, Variable))
 
     @property
     def context(self) -> Context:

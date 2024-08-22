@@ -8,6 +8,7 @@ from .model import (
     And,
     AnnotationRecord,
     AnnotationRecordSet,
+    ClosedTerm,
     Constraint,
     Datatype,
     DatatypeVariable,
@@ -52,6 +53,7 @@ from .model import (
     NoValueSnak,
     NoValueSnakTemplate,
     NoValueSnakVariable,
+    OpenTerm,
     Or,
     Pattern,
     PlainDescriptor,
@@ -89,6 +91,7 @@ from .model import (
     StringVariable,
     Template,
     TemplatePattern,
+    Term,
     Text,
     TextDatatype,
     TextSet,
@@ -123,6 +126,14 @@ __all__ = (
 
     # model.kif_object
     'KIF_Object',
+
+    # model.term
+    'ClosedTerm',
+    'OpenTerm',
+    'Template',
+    'Term',
+    'Variable',
+    'Variables',
 
     # model.value.datatype
     'Datatype',
@@ -263,13 +274,6 @@ __all__ = (
 
     # model.constraint
     'Constraint',
-
-    # model.template
-    'Template',
-
-    # model.variable
-    'Variable',
-    'Variables',
 
     # model.fingerprint
     'And',

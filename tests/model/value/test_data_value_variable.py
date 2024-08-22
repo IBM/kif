@@ -6,9 +6,9 @@ from kif_lib import (
     DataValueVariable,
     IRI,
     Item,
-    KIF_Object,
     Quantity,
     String,
+    Term,
     Time,
     Value,
     Variable,
@@ -39,7 +39,7 @@ class Test(kif_VariableTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(
-            DataValueVariable('x').instantiate({}), Optional[KIF_Object])
+            DataValueVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             DataValueVariable,
             success=[

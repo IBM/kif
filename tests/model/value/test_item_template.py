@@ -1,7 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import Item, ItemTemplate, KIF_Object, Lexeme, Property, Variable
+from kif_lib import Item, ItemTemplate, Lexeme, Property, Term, Variable
 from kif_lib.typing import assert_type
 
 from ...tests import kif_EntityTemplateTestCase
@@ -30,7 +30,7 @@ class Test(kif_EntityTemplateTestCase):
             ])
 
     def test_instantiate(self) -> None:
-        assert_type(ItemTemplate(Variable('x')).instantiate({}), KIF_Object)
+        assert_type(ItemTemplate(Variable('x')).instantiate({}), Term)
         self._test_instantiate(ItemTemplate)
 
 

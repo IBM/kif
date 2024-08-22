@@ -5,44 +5,35 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import overload
 
-from .. import itertools
-from ..typing import (
+from ... import itertools
+from ...typing import (
     Any,
     Callable,
     cast,
-    ClassVar,
     Iterator,
-    Mapping,
     Optional,
     override,
     Self,
     TypeAlias,
     Union,
 )
-from .kif_object import KIF_Object
+from .term import ClosedTerm, OpenTerm, Term, Theta
 
 if TYPE_CHECKING:               # pragma: no cover
-    from .snak import ValueSnakTemplate
-    from .statement import StatementTemplate
-    from .value import VTEntity, VTValue
+    from ..snak import ValueSnakTemplate
+    from ..statement import StatementTemplate
+    from ..value import VTEntity, VTValue
 
-Theta: TypeAlias = Mapping['Variable', Optional[KIF_Object]]
-TVariableClass: TypeAlias = Union[type['Variable'], type[KIF_Object]]
+TVariableClass: TypeAlias = Union[type['Variable'], type[Term]]
 
 
-class Variable(KIF_Object):
+class Variable(OpenTerm):
     """Base class for variables.
 
     Parameters:
        name: Name.
        variable_class: Variable class.
     """
-
-    #: Object class associated with this variable class.
-    object_class: ClassVar[type[KIF_Object]]
-
-    class InstantiationError(ValueError):
-        """Bad instantiation attempt."""
 
     def __new__(
             cls,
@@ -52,7 +43,7 @@ class Variable(KIF_Object):
         if variable_class is None:
             variable_class = cls
         if (isinstance(variable_class, type)
-                and issubclass(variable_class, KIF_Object)
+                and issubclass(variable_class, ClosedTerm)
                 and not issubclass(variable_class, cls)
                 and hasattr(variable_class, 'variable_class')):
             variable_class = getattr(variable_class, 'variable_class')
@@ -81,14 +72,14 @@ class Variable(KIF_Object):
     def __init__(
             self,
             name: str,
-            object_class: Optional[type[KIF_Object]] = None
+            object_class: Optional[type[Term]] = None
     ):
         super().__init__(name)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
-            from .value import String
+            from ..value import String
             return String.check(arg, type(self), None, i).content
         else:
             raise self._should_not_get_here()
@@ -102,7 +93,7 @@ class Variable(KIF_Object):
         ...                     # pragma: no cover
 
     def __call__(self, v1, v2=None):
-        from .value import PropertyVariable
+        from ..value import PropertyVariable
         prop = PropertyVariable.check(self)
         if v2 is not None:
             return prop(v1, v2)
@@ -122,25 +113,7 @@ class Variable(KIF_Object):
         """
         return self.args[0]
 
-    def instantiate(
-            self,
-            theta: Theta,
-            coerce: bool = True
-    ) -> Optional[KIF_Object]:
-        """Applies variable instantiation `theta` to variable.
-
-        Parameters:
-           theta: Variable instantiation.
-           coerce: Whether to consider coercible variables equal.
-
-        Returns:
-           The resulting object.
-        """
-        self._check_arg_isinstance(
-            theta, Mapping, self.instantiate, 'theta', 1)
-        return self._instantiate(
-            theta, coerce, self.instantiate) if theta else self
-
+    @override
     def _instantiate(
             self,
             theta: Theta,
@@ -148,7 +121,7 @@ class Variable(KIF_Object):
             function: Optional[Union[Callable[..., Any], str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Optional[KIF_Object]:
+    ) -> Optional[Term]:
         if self in theta:
             return self._instantiate_tail(theta, function, name, position)
         elif coerce:
@@ -172,14 +145,14 @@ class Variable(KIF_Object):
             function: Optional[Union[Callable[..., Any], str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Optional[KIF_Object]:
+    ) -> Optional[Term]:
         obj = theta[self]
         if obj is None:
             return obj
         else:
             from .template import Template
             if self.__class__ is Variable:
-                obj_cls = KIF_Object
+                obj_cls = Term
             elif isinstance(obj, Template):
                 assert hasattr(self.object_class, 'template_class')
                 obj_cls = self.object_class.template_class

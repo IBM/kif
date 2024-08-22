@@ -10,7 +10,6 @@ from kif_lib import (
     Item,
     ItemDatatype,
     ItemVariable,
-    KIF_Object,
     Property,
     PropertyTemplate,
     PropertyVariable,
@@ -20,6 +19,7 @@ from kif_lib import (
     SomeValueSnakTemplate,
     String,
     StringVariable,
+    Term,
     Time,
     Value,
     ValueSnak,
@@ -157,7 +157,7 @@ class Test(kif_SnakTemplateTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(ValueSnakTemplate(
-            Variable('x'), Variable('y')).instantiate({}), KIF_Object)
+            Variable('x'), Variable('y')).instantiate({}), Term)
         self._test_instantiate(
             ValueSnakTemplate,
             success=[

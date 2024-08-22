@@ -3,7 +3,7 @@
 
 import itertools
 
-from kif_lib import ExternalId, IRI, Item, KIF_Object, String, Variable
+from kif_lib import ExternalId, IRI, Item, KIF_Object, String, Term, Variable
 from kif_lib.model import Theta
 from kif_lib.typing import (
     Any,
@@ -72,12 +72,12 @@ class kif_VariableTestCase(kif_ObjectTestCase):
     def _test_instantiate(
             self,
             cls: Any,
-            success: Iterable[KIF_Object] = tuple(),
-            failure: Iterable[KIF_Object] = tuple()
+            success: Iterable[Term] = tuple(),
+            failure: Iterable[Term] = tuple()
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, Variable)
-        it_success: Iterable[tuple[KIF_Object, Optional[KIF_Object], Theta]] =\
+        it_success: Iterable[tuple[Term, Optional[Term], Theta]] =\
             itertools.chain([
                 (Variable('x', cls), cls('x'), {}),
                 (Variable('x', cls), None, {cls('x'): None}),

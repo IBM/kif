@@ -43,7 +43,6 @@ class KIF_ObjectSet(KIF_Object, Generic[_TObj]):
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
         if 'children_class' in kwargs:
             cls.children_class = kwargs['children_class']
             assert issubclass(cls.children_class, KIF_Object)

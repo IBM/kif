@@ -3,9 +3,9 @@
 
 from kif_lib import (
     Item,
-    KIF_Object,
     Quantity,
     String,
+    Term,
     Text,
     TextTemplate,
     TextVariable,
@@ -32,7 +32,7 @@ class Test(kif_VariableTestCase):
         self._test__init__(TextVariable, self.assert_text_variable)
 
     def test_instantiate(self) -> None:
-        assert_type(TextVariable('x').instantiate({}), Optional[KIF_Object])
+        assert_type(TextVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             TextVariable,
             success=[

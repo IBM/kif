@@ -13,7 +13,7 @@ from ...typing import (
     TypeAlias,
     Union,
 )
-from ..template import Template
+from ..term import Template, Variable
 from ..value import (
     Datatype,
     Property,
@@ -27,7 +27,6 @@ from ..value import (
     VTValue,
     VValue,
 )
-from ..variable import Variable
 from .snak import Snak, SnakTemplate, SnakVariable
 
 TValueSnak: TypeAlias = Union['ValueSnak', tuple[TProperty, TValue]]

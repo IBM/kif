@@ -6,9 +6,9 @@ from kif_lib import (
     Item,
     ItemTemplate,
     ItemVariable,
-    KIF_Object,
     Lexeme,
     Quantity,
+    Term,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional
@@ -32,7 +32,7 @@ class Test(kif_VariableTestCase):
         self._test__init__(ItemVariable, self.assert_item_variable)
 
     def test_instantiate(self) -> None:
-        assert_type(ItemVariable('x').instantiate({}), Optional[KIF_Object])
+        assert_type(ItemVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             ItemVariable,
             success=[

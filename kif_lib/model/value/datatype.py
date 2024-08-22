@@ -16,8 +16,7 @@ from ...typing import (
     TypeAlias,
     Union,
 )
-from ..kif_object import KIF_Object
-from ..variable import Theta, Variable
+from ..term import ClosedTerm, Term, Theta, Variable
 
 if TYPE_CHECKING:               # pragma: no cover
     from .value import Value
@@ -43,7 +42,7 @@ class DatatypeVariable(Variable):
             function: Optional[Union[Callable[..., Any], str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> Optional[KIF_Object]:
+    ) -> Optional[Term]:
         from .iri import IRI
         from .string import String
         obj = theta[self]
@@ -57,7 +56,7 @@ class DatatypeVariable(Variable):
             return super()._instantiate_tail(theta, function, name, position)
 
 
-class Datatype(KIF_Object, variable_class=DatatypeVariable):
+class Datatype(ClosedTerm, variable_class=DatatypeVariable):
     """Abstract base class for datatypes.
 
     Parameters:
@@ -81,7 +80,7 @@ class Datatype(KIF_Object, variable_class=DatatypeVariable):
         elif isinstance(datatype_class, Datatype):
             datatype_class = type(datatype_class)
         if (isinstance(datatype_class, type)
-                and issubclass(datatype_class, KIF_Object)
+                and issubclass(datatype_class, ClosedTerm)
                 and not issubclass(datatype_class, cls)
                 and hasattr(datatype_class, 'datatype_class')):
             datatype_class = getattr(datatype_class, 'datatype_class')

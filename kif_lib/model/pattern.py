@@ -13,8 +13,7 @@ from ..typing import (
 )
 from .constraint import Constraint, TConstraint
 from .kif_object import KIF_Object
-from .template import Template
-from .variable import Variable
+from .term import Template, Variable
 
 TPattern: TypeAlias = Union['Pattern', 'TTemplatePattern', 'TVariablePattern']
 TTemplatePattern: TypeAlias = Union['TemplatePattern', 'Template']

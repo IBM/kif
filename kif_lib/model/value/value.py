@@ -19,9 +19,7 @@ from ...typing import (
     TypeAlias,
     Union,
 )
-from ..kif_object import KIF_Object
-from ..template import Template
-from ..variable import Variable
+from ..term import ClosedTerm, Template, Variable
 from .datatype import Datatype
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -51,7 +49,7 @@ class ValueVariable(Variable):
 
 
 class Value(
-        KIF_Object,
+        ClosedTerm,
         template_class=ValueTemplate,
         variable_class=ValueVariable
 ):

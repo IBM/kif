@@ -1,7 +1,7 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from kif_lib import Item, KIF_Object, String, Time, TimeVariable, Variable
+from kif_lib import Item, String, Term, Time, TimeVariable, Variable
 from kif_lib.typing import assert_type, Optional
 
 from ...tests import kif_VariableTestCase
@@ -24,7 +24,7 @@ class Test(kif_VariableTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(
-            TimeVariable('2024-06-26').instantiate({}), Optional[KIF_Object])
+            TimeVariable('2024-06-26').instantiate({}), Optional[Term])
         self._test_instantiate(
             TimeVariable,
             success=[

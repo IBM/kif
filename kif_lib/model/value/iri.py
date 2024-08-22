@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from ...typing import Any, ClassVar, override, TypeAlias, Union
-from ..variable import Variable
+from ..term import Variable
 from .shallow_data_value import (
     ShallowDataValue,
     ShallowDataValueTemplate,

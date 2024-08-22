@@ -13,7 +13,6 @@ from ...model import (
     Item,
     ItemTemplate,
     ItemVariable,
-    KIF_Object,
     Lexeme,
     LexemeTemplate,
     LexemeVariable,
@@ -30,6 +29,7 @@ from ...model import (
     StatementVariable,
     StringVariable,
     TemplatePattern,
+    Term,
     TimeVariable,
     TPattern,
     ValueSnakVariable,
@@ -104,7 +104,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _theta_add_default(
             self,
             var: Variable,
-            value: Optional[KIF_Object]
+            value: Optional[Term]
     ) -> Variable:
         return self._theta.add_default(var, value)
 

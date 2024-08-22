@@ -8,13 +8,13 @@ from kif_lib import (
     IRI_Variable,
     Item,
     ItemVariable,
-    KIF_Object,
     NoValueSnakTemplate,
     Property,
     PropertyTemplate,
     PropertyVariable,
     SomeValueSnak,
     SomeValueSnakTemplate,
+    Term,
     Variable,
 )
 from kif_lib.typing import assert_type, cast
@@ -90,8 +90,7 @@ class Test(kif_SnakTemplateTestCase):
             Property('x'))
 
     def test_instantiate(self) -> None:
-        assert_type(
-            SomeValueSnakTemplate(Variable('x')).instantiate({}), KIF_Object)
+        assert_type(SomeValueSnakTemplate(Variable('x')).instantiate({}), Term)
         self._test_instantiate(
             SomeValueSnakTemplate,
             success=[

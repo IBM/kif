@@ -19,6 +19,7 @@ from kif_lib import (
     Statement,
     StatementTemplate,
     String,
+    Term,
     Text,
     Time,
     Value,
@@ -99,7 +100,7 @@ class Test(kif_VariableTestCase):
                 PropertyVariable('p'), String('s'))))
 
     def test_instantiate(self) -> None:
-        assert_type(Variable('x').instantiate({}), Optional[KIF_Object])
+        assert_type(Variable('x').instantiate({}), Optional[Term])
         self.assert_raises_bad_argument(
             TypeError, 1, 'theta', 'expected Mapping, got int',
             Variable('x').instantiate, 0)

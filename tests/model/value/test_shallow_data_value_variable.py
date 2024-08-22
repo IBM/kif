@@ -5,11 +5,11 @@ from kif_lib import (
     DataValue,
     ExternalId,
     Item,
-    KIF_Object,
     Quantity,
     ShallowDataValue,
     ShallowDataValueVariable,
     String,
+    Term,
     Value,
     Variable,
 )
@@ -45,7 +45,7 @@ class Test(kif_VariableTestCase):
     def test_instantiate(self) -> None:
         assert_type(
             ShallowDataValueVariable('x').instantiate({}),
-            Optional[KIF_Object])
+            Optional[Term])
         self._test_instantiate(
             ShallowDataValueVariable,
             success=[

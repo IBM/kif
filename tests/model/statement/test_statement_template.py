@@ -8,7 +8,6 @@ from kif_lib import (
     IRI_Variable,
     Item,
     ItemVariable,
-    KIF_Object,
     Lexeme,
     LexemeTemplate,
     NoValueSnak,
@@ -24,6 +23,7 @@ from kif_lib import (
     Statement,
     StatementTemplate,
     String,
+    Term,
     ValueSnak,
     ValueSnakTemplate,
     ValueSnakVariable,
@@ -160,7 +160,7 @@ class Test(kif_StatementTemplateTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(StatementTemplate(
-            Variable('x'), Variable('y')).instantiate({}), KIF_Object)
+            Variable('x'), Variable('y')).instantiate({}), Term)
         self._test_instantiate(
             StatementTemplate,
             success=[

@@ -6,11 +6,11 @@ from kif_lib import (
     Entity,
     EntityVariable,
     Item,
-    KIF_Object,
     Lexeme,
     Property,
     Quantity,
     String,
+    Term,
     Value,
     Variable,
 )
@@ -40,7 +40,7 @@ class Test(kif_VariableTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(
-            EntityVariable('x').instantiate({}), Optional[KIF_Object])
+            EntityVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             EntityVariable,
             success=[

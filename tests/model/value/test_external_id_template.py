@@ -4,8 +4,8 @@
 from kif_lib import (
     ExternalId,
     ExternalIdTemplate,
-    KIF_Object,
     StringVariable,
+    Term,
     Variable,
 )
 from kif_lib.typing import assert_type
@@ -32,8 +32,7 @@ class Test(kif_ShallowDataValueTemplateTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(
-            ExternalIdTemplate(Variable('x')).instantiate({}),
-            KIF_Object)
+            ExternalIdTemplate(Variable('x')).instantiate({}), Term)
         self._test_instantiate(
             ExternalIdTemplate,
             success=[

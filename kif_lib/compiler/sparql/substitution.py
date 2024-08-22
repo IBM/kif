@@ -3,7 +3,7 @@
 
 import networkx as nx
 
-from ...model import KIF_Object, Template, Variable
+from ...model import OpenTerm, Template, Term, Variable
 from ...typing import (
     Any,
     cast,
@@ -34,13 +34,13 @@ class Substitution(Mapping):
     )
 
     #: Maps KIF variables to KIF objects or query variables.
-    _map: MutableMapping[Variable, Union[KIF_Object, Query.Variable]]
+    _map: MutableMapping[Variable, Union[Term, Query.Variable]]
 
     #: Maps variable names to sets of homonymous (compatible) variables.
     _name_map: MutableMapping[str, set[Variable]]
 
     #: Keeps the default values of variables.
-    _defaults: MutableMapping[Variable, Optional[KIF_Object]]
+    _defaults: MutableMapping[Variable, Optional[Term]]
 
     #: Variable dependency graph (modulo homonymous variables).
     _G: nx.DiGraph
@@ -96,13 +96,13 @@ class Substitution(Mapping):
 
         Parameters:
            variable: Variable.
-           value: KIF_Object or Query.Variable.
+           value: Term or Query.Variable.
 
         Returns:
            The given `value`.
         """
         assert isinstance(variable, Variable)
-        assert isinstance(value, (KIF_Object, Query.Variable))
+        assert isinstance(value, (Term, Query.Variable))
         assert variable not in self or self[variable] == value
         self._map[variable] = value
         if variable.name not in self._name_map:
@@ -123,13 +123,13 @@ class Substitution(Mapping):
     def add_default(
             self,
             var: Variable,
-            value: Optional[KIF_Object]
+            value: Optional[Term]
     ) -> Variable:
         """Associates default `value` to variable in substitution.
 
         Parameters:
            variable: Variable.
-           value: KIF_Object or ``None``.
+           value: Term or ``None``.
 
         Returns:
            The given `variable`.
@@ -154,7 +154,7 @@ class Substitution(Mapping):
         )
 
         #: Maps KIF variables to KIF objects or ``None``.
-        _map: MutableMapping[Variable, Optional[KIF_Object]]
+        _map: MutableMapping[Variable, Optional[Term]]
 
         #: Maps variable names to sets of homonymous (compatible) variables.
         _name_map: MutableMapping[str, set[Variable]]
@@ -163,7 +163,7 @@ class Substitution(Mapping):
             self._map = {}
             self._name_map = {}
 
-        def __getitem__(self, k: Variable) -> Optional[KIF_Object]:
+        def __getitem__(self, k: Variable) -> Optional[Term]:
             homonyms = self._name_map[k.name]
             if len(homonyms) == 1:
                 return self._map[k]
@@ -176,7 +176,7 @@ class Substitution(Mapping):
                     map(lambda h: self._map[h], homonyms),
                     key=self._count_vars)))
 
-        def _count_vars(self, obj: Optional[KIF_Object]):
+        def _count_vars(self, obj: Optional[Term]):
             if isinstance(obj, Variable):
                 return 1
             elif isinstance(obj, Template):
@@ -190,7 +190,7 @@ class Substitution(Mapping):
         def __len__(self):
             return len(self._map)
 
-        def _add(self, k: Variable, v: Optional[KIF_Object]):
+        def _add(self, k: Variable, v: Optional[Term]):
             self._map[k] = v
             if k.name not in self._name_map:
                 self._name_map[k.name] = set()
@@ -200,7 +200,7 @@ class Substitution(Mapping):
     def instantiate(
             self,
             binding: Mapping[str, dict[str, str]]
-    ) -> Mapping[Variable, Optional[KIF_Object]]:
+    ) -> Mapping[Variable, Optional[Term]]:
         """Computes variable instantiation (theta) from `binding`.
 
         Parameters:
@@ -225,7 +225,7 @@ class Substitution(Mapping):
                     if var not in theta and var in self._defaults:
                         theta._add(var, self._defaults[var])
                     continue  # nothing to do
-                assert isinstance(value, (Template, Variable))
+                assert isinstance(value, OpenTerm)
                 if isinstance(value, Variable):
                     if value in theta:
                         theta._add(var, var.instantiate({var: theta[value]}))

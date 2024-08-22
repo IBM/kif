@@ -6,11 +6,11 @@ from kif_lib import (
     ExternalIdTemplate,
     IRI,
     Item,
-    KIF_Object,
     Quantity,
     String,
     StringTemplate,
     StringVariable,
+    Term,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional
@@ -37,7 +37,7 @@ class Test(kif_VariableTestCase):
         self.assert_string_variable(Variable('x', ExternalId), 'x')
 
     def test_instantiate(self) -> None:
-        assert_type(StringVariable('x').instantiate({}), Optional[KIF_Object])
+        assert_type(StringVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             StringVariable,
             success=[

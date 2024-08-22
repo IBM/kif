@@ -11,8 +11,8 @@ from ...typing import (
     TypeAlias,
     Union,
 )
+from ..term import Variable
 from ..value import Property, VTProperty
-from ..variable import Variable
 from .snak import Snak, SnakTemplate, SnakVariable
 
 VSomeValueSnak: TypeAlias =\

@@ -10,8 +10,8 @@ from kif_lib import (
     Item,
     ItemDatatype,
     ItemVariable,
-    KIF_Object,
     String,
+    Term,
     Variable,
 )
 from kif_lib.typing import assert_type, cast, Optional
@@ -38,7 +38,7 @@ class Test(kif_VariableTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(
-            DatatypeVariable('x').instantiate({}), Optional[KIF_Object])
+            DatatypeVariable('x').instantiate({}), Optional[Term])
         self.assert_string_datatype(cast(
             Datatype, DatatypeVariable('x').instantiate({
                 DatatypeVariable('x'): String('y')

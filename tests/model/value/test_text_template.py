@@ -6,11 +6,11 @@ from kif_lib import (
     DataValue,
     ExternalId,
     Item,
-    KIF_Object,
     ShallowDataValue,
     String,
     StringTemplate,
     StringVariable,
+    Term,
     Text,
     TextTemplate,
     TextVariable,
@@ -75,7 +75,7 @@ class Test(kif_ShallowDataValueTemplateTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(
-            TextTemplate(Variable('x')).instantiate({}), KIF_Object)
+            TextTemplate(Variable('x')).instantiate({}), Term)
         self._test_instantiate(
             TextTemplate,
             success=[

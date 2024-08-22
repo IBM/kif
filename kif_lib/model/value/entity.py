@@ -11,8 +11,7 @@ from ...typing import (
     TypeAlias,
     Union,
 )
-from ..template import Template
-from ..variable import Variable
+from ..term import Template, Variable
 from .iri import IRI, IRI_Template, IRI_Variable, T_IRI, V_IRI
 from .value import Value, ValueTemplate, ValueVariable
 

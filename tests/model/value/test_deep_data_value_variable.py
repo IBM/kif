@@ -7,9 +7,9 @@ from kif_lib import (
     DeepDataValueVariable,
     IRI,
     Item,
-    KIF_Object,
     Quantity,
     String,
+    Term,
     Time,
     Value,
     Variable,
@@ -43,7 +43,7 @@ class Test(kif_VariableTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(
-            DeepDataValueVariable('x').instantiate({}), Optional[KIF_Object])
+            DeepDataValueVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             DeepDataValueVariable,
             success=[

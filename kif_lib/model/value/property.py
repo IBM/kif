@@ -14,8 +14,7 @@ from ...typing import (
     TypeAlias,
     Union,
 )
-from ..template import Template
-from ..variable import Variable
+from ..term import OpenTerm, Variable
 from .datatype import Datatype, DatatypeVariable, VDatatype, VTDatatype
 from .entity import Entity, EntityTemplate, EntityVariable, VTEntity
 from .iri import IRI_Template, T_IRI, VT_IRI
@@ -59,7 +58,7 @@ class PropertyTemplate(EntityTemplate):
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:              # iri
-            if isinstance(arg, (Template, Variable)):
+            if isinstance(arg, OpenTerm):
                 return super()._preprocess_arg(arg, i)
             else:
                 return Property._static_preprocess_arg(self, arg, i)

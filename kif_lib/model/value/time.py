@@ -14,8 +14,7 @@ from ...typing import (
     TypeAlias,
     Union,
 )
-from ..template import Template
-from ..variable import Variable
+from ..term import Template, Variable
 from .deep_data_value import (
     DeepDataValue,
     DeepDataValueTemplate,

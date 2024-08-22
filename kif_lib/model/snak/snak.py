@@ -14,10 +14,8 @@ from ...typing import (
     TypeAlias,
     Union,
 )
-from ..kif_object import KIF_Object
-from ..template import Template
+from ..term import ClosedTerm, Template, Variable
 from ..value import Property, PropertyTemplate, PropertyVariable, VProperty
-from ..variable import Variable
 
 if TYPE_CHECKING:                      # pragma: no cover
     from ..fingerprint import AndFingerprint, OrFingerprint, TFingerprint
@@ -72,7 +70,7 @@ class SnakVariable(Variable):
 
 
 class Snak(
-        KIF_Object,
+        ClosedTerm,
         template_class=SnakTemplate,
         variable_class=SnakVariable
 ):

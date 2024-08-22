@@ -93,7 +93,15 @@ from .statement import (
     VStatement,
     VTStatement,
 )
-from .template import Template
+from .term import (
+    ClosedTerm,
+    OpenTerm,
+    Template,
+    Term,
+    Theta,
+    Variable,
+    Variables,
+)
 from .value import (
     Datatype,
     DatatypeVariable,
@@ -183,12 +191,20 @@ from .value import (
     VTValue,
     VValue,
 )
-from .variable import Theta, Variable, Variables
 
 __all__ = (
 
     # kif_object
     'KIF_Object',
+
+    # term
+    'ClosedTerm',
+    'OpenTerm',
+    'Template',
+    'Term',
+    'Theta',
+    'Variable',
+    'Variables',
 
     # datatype
     'Datatype',
@@ -381,14 +397,6 @@ __all__ = (
     'FalseConstraint',
     'TConstraint',
     'TrueConstraint',
-
-    # template
-    'Template',
-
-    # variable
-    'Theta',
-    'Variable',
-    'Variables',
 
     # fingerprint
     'And',

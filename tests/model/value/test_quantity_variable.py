@@ -3,11 +3,11 @@
 
 from kif_lib import (
     Item,
-    KIF_Object,
     Quantity,
     QuantityTemplate,
     QuantityVariable,
     String,
+    Term,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional
@@ -34,7 +34,7 @@ class Test(kif_VariableTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(
-            QuantityVariable('x').instantiate({}), Optional[KIF_Object])
+            QuantityVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             QuantityVariable,
             success=[

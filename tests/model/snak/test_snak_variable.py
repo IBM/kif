@@ -3,7 +3,6 @@
 
 from kif_lib import (
     DataValue,
-    KIF_Object,
     NoValueSnak,
     Property,
     Quantity,
@@ -11,6 +10,7 @@ from kif_lib import (
     SnakVariable,
     SomeValueSnak,
     String,
+    Term,
     Value,
     ValueSnak,
     Variable,
@@ -41,7 +41,7 @@ class Test(kif_VariableTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(
-            SnakVariable('x').instantiate({}), Optional[KIF_Object])
+            SnakVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             SnakVariable,
             success=[

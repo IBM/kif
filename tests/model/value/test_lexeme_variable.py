@@ -4,11 +4,11 @@
 from kif_lib import (
     IRI,
     Item,
-    KIF_Object,
     Lexeme,
     LexemeTemplate,
     LexemeVariable,
     Quantity,
+    Term,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional
@@ -34,7 +34,7 @@ class Test(kif_VariableTestCase):
         self._test__init__(LexemeVariable, self.assert_lexeme_variable)
 
     def test_instantiate(self) -> None:
-        assert_type(LexemeVariable('x').instantiate({}), Optional[KIF_Object])
+        assert_type(LexemeVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             LexemeVariable,
             success=[

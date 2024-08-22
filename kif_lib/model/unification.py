@@ -3,8 +3,7 @@
 
 from ..typing import Any, Iterable, Optional, Set
 from .kif_object import KIF_Object
-from .template import Template
-from .variable import Theta, Variable
+from .term import Template, Theta, Variable
 
 # See: <https://en.wikipedia.org/wiki/
 #       Unification_(computer_science)#Unification_algorithms>

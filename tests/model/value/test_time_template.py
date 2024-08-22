@@ -11,11 +11,11 @@ from kif_lib import (
     Item,
     ItemTemplate,
     ItemVariable,
-    KIF_Object,
     Quantity,
     QuantityTemplate,
     QuantityVariable,
     String,
+    Term,
     Time,
     TimeTemplate,
     TimeVariable,
@@ -196,7 +196,7 @@ class Test(kif_DeepDataValueTemplateTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(
-            TimeTemplate(Variable('x')).instantiate({}), KIF_Object)
+            TimeTemplate(Variable('x')).instantiate({}), Term)
         self._test_instantiate(
             TimeTemplate,
             success=[

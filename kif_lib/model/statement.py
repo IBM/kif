@@ -11,7 +11,6 @@ from ..typing import (
     TypeAlias,
     Union,
 )
-from .kif_object import KIF_Object
 from .snak import (
     Snak,
     SnakTemplate,
@@ -21,7 +20,7 @@ from .snak import (
     VSnak,
     VTSnak,
 )
-from .template import Template
+from .term import ClosedTerm, Template, Variable
 from .value import (
     Entity,
     EntityTemplate,
@@ -32,7 +31,6 @@ from .value import (
     VEntity,
     VTEntity,
 )
-from .variable import Variable
 
 TStatement: TypeAlias =\
     Union['Statement',
@@ -113,7 +111,7 @@ class StatementVariable(Variable):
 
 
 class Statement(
-        KIF_Object,
+        ClosedTerm,
         template_class=StatementTemplate,
         variable_class=StatementVariable
 ):

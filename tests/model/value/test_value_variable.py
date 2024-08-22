@@ -4,12 +4,12 @@
 from kif_lib import (
     IRI,
     Item,
-    KIF_Object,
     Property,
     Quantity,
     Snak,
     Statement,
     String,
+    Term,
     Time,
     Value,
     ValueSnak,
@@ -37,7 +37,7 @@ class Test(kif_VariableTestCase):
         self._test__init__(ValueVariable, self.assert_value_variable)
 
     def test_instantiate(self) -> None:
-        assert_type(ValueVariable('x').instantiate({}), Optional[KIF_Object])
+        assert_type(ValueVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             ValueVariable,
             success=[

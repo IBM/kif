@@ -1,26 +1,27 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from .. import itertools
-from ..typing import (
+from ... import itertools
+from ...typing import (
     Any,
     Callable,
+    cast,
     ClassVar,
     Iterator,
-    Mapping,
     Optional,
+    override,
     Set,
     Union,
 )
-from .kif_object import KIF_Object
-from .variable import Theta, Variable
+from .term import ClosedTerm, OpenTerm, Term, Theta
+from .variable import Variable
 
 
-class Template(KIF_Object):
+class Template(OpenTerm):
     """Abstract base class for templates."""
 
     #: Object class associated with this template class.
-    object_class: ClassVar[type[KIF_Object]]
+    object_class: ClassVar[type[ClosedTerm]]
 
     def _preprocess_args(self, args: tuple[Any, ...]) -> tuple[Any, ...]:
         return self._normalize_args(super()._preprocess_args(args))
@@ -81,21 +82,11 @@ class Template(KIF_Object):
             lambda x: isinstance(x, Variable),
             self._isinstance_template_or_variable)
 
-    def instantiate(self, theta: Theta, coerce: bool = True) -> KIF_Object:
-        """Applies variable instantiation `theta` to template.
+    @override
+    def instantiate(self, theta: Theta, coerce: bool = True) -> Term:
+        return cast(Term, super().instantiate(theta, coerce))
 
-        Parameters:
-           theta: A mapping of variables to objects or ``None``.
-           coerce: Whether to consider coercible variables equal.
-
-        Returns:
-           The resulting object.
-        """
-        self._check_arg_isinstance(
-            theta, Mapping, self.instantiate, 'theta', 1)
-        return self._instantiate(
-            theta, coerce, self.instantiate) if theta else self
-
+    @override
     def _instantiate(
             self,
             theta: Theta,
@@ -103,8 +94,8 @@ class Template(KIF_Object):
             function: Optional[Union[Callable[..., Any], str]] = None,
             name: Optional[str] = None,
             position: Optional[int] = None
-    ) -> KIF_Object:
+    ) -> Term:
         return self.__class__(*map(
             lambda arg: arg._instantiate(
                 theta, coerce, function, name, position)
-            if isinstance(arg, (Template, Variable)) else arg, self.args))
+            if isinstance(arg, OpenTerm) else arg, self.args))

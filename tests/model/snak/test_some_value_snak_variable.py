@@ -3,12 +3,12 @@
 
 from kif_lib import (
     IRI,
-    KIF_Object,
     Property,
     Quantity,
     SomeValueSnak,
     SomeValueSnakTemplate,
     SomeValueSnakVariable,
+    Term,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional
@@ -37,9 +37,7 @@ class Test(kif_VariableTestCase):
             SomeValueSnakVariable, self.assert_some_value_snak_variable)
 
     def test_instantiate(self) -> None:
-        assert_type(
-            SomeValueSnakVariable('x').instantiate({}),
-            Optional[KIF_Object])
+        assert_type(SomeValueSnakVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             SomeValueSnakVariable,
             success=[

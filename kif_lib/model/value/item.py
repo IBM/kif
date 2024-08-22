@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from ...typing import ClassVar, Iterable, TypeAlias, Union
-from ..variable import Variable
+from ..term import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI_Template, T_IRI
 from .value import Datatype

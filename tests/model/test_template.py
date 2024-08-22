@@ -4,9 +4,9 @@
 from kif_lib import (
     IRI,
     Item,
-    KIF_Object,
     Quantity,
     Statement,
+    Term,
     Value,
     ValueSnak,
     ValueSnakTemplate,
@@ -61,7 +61,7 @@ class Test(kif_TemplateTestCase):
                 QuantityVariable('z')})
 
     def test_instantiate(self) -> None:
-        assert_type(ItemTemplate(Variable('x')).instantiate({}), KIF_Object)
+        assert_type(ItemTemplate(Variable('x')).instantiate({}), Term)
         x = Variable('x')
         self.assert_raises_bad_argument(
             Variable.InstantiationError, None, None,

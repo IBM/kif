@@ -11,7 +11,6 @@ from kif_lib import (
     IRI,
     IRI_Variable,
     Item,
-    KIF_Object,
     Lexeme,
     NoValueSnakTemplate,
     Property,
@@ -21,6 +20,7 @@ from kif_lib import (
     Statement,
     StatementTemplate,
     String,
+    Term,
     Text,
     Time,
     Value,
@@ -71,7 +71,7 @@ class Test(kif_EntityTemplateTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(PropertyTemplate(
-            Variable('x')).instantiate({}), KIF_Object)
+            Variable('x')).instantiate({}), Term)
         self._test_instantiate(
             PropertyTemplate,
             success=[
