@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from .model import (
+    kif_ClosedTermTestCase,
     kif_DatatypeTestCase,
     kif_DataValueTemplateTestCase,
     kif_DataValueTestCase,
@@ -13,6 +14,7 @@ from .model import (
     kif_FingerprintTestCase,
     kif_ObjectSetTestCase,
     kif_ObjectTestCase,
+    kif_OpenTermTestCase,
     kif_ShallowDataValueTemplateTestCase,
     kif_ShallowDataValueTestCase,
     kif_SnakTemplateTestCase,
@@ -20,6 +22,7 @@ from .model import (
     kif_StatementTemplateTestCase,
     kif_StatementTestCase,
     kif_TemplateTestCase,
+    kif_TermTestCase,
     kif_ValueTemplateTestCase,
     kif_ValueTestCase,
     kif_VariableTestCase,
