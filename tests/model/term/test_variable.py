@@ -38,7 +38,7 @@ from kif_lib.model import (
 )
 from kif_lib.typing import assert_type, Iterator, Optional
 
-from ..tests import kif_VariableTestCase
+from ...tests import kif_VariableTestCase
 
 
 class Test(kif_VariableTestCase):

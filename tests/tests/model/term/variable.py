@@ -15,10 +15,10 @@ from kif_lib.typing import (
     Sequence,
 )
 
-from .kif_object import kif_ObjectTestCase
+from .term import kif_OpenTermTestCase
 
 
-class kif_VariableTestCase(kif_ObjectTestCase):
+class kif_VariableTestCase(kif_OpenTermTestCase):
 
     @override
     def _test_check(

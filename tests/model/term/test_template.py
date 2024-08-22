@@ -24,7 +24,7 @@ from kif_lib.model import (
 )
 from kif_lib.typing import assert_type, cast, Set
 
-from ..tests import kif_TemplateTestCase
+from ...tests import kif_TemplateTestCase
 
 
 class Test(kif_TemplateTestCase):

@@ -27,7 +27,7 @@ from ..tests import kif_TestCase
 class Test(kif_TestCase):
 
     def test__init__(self):
-        self.assertRaises(TypeError, KIF_Object)
+        self.assert_abstract_class(KIF_Object)
 
     def test__new__(self):
         self.assertIsInstance(Item('x'), Item)

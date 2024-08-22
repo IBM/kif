@@ -7,7 +7,13 @@ from .kif_object import kif_ObjectTestCase
 from .set import kif_ObjectSetTestCase
 from .snak import kif_SnakTemplateTestCase, kif_SnakTestCase
 from .statement import kif_StatementTemplateTestCase, kif_StatementTestCase
-from .template import kif_TemplateTestCase
+from .term import (
+    kif_ClosedTermTestCase,
+    kif_OpenTermTestCase,
+    kif_TemplateTestCase,
+    kif_TermTestCase,
+    kif_VariableTestCase,
+)
 from .value import (
     kif_DatatypeTestCase,
     kif_DataValueTemplateTestCase,
@@ -21,16 +27,16 @@ from .value import (
     kif_ValueTemplateTestCase,
     kif_ValueTestCase,
 )
-from .variable import kif_VariableTestCase
 
 __all__ = (
     # kif object
     'kif_ObjectTestCase',
 
-    # template
+    # term
+    'kif_ClosedTermTestCase',
+    'kif_OpenTermTestCase',
     'kif_TemplateTestCase',
-
-    # variable
+    'kif_TermTestCase',
     'kif_VariableTestCase',
 
     # datatype

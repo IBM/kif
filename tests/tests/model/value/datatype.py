@@ -14,10 +14,10 @@ from kif_lib import (
 )
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from ..kif_object import kif_ObjectTestCase
+from ..term import kif_ClosedTermTestCase
 
 
-class kif_DatatypeTestCase(kif_ObjectTestCase):
+class kif_DatatypeTestCase(kif_ClosedTermTestCase):
 
     @override
     def _test_check(

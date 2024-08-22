@@ -7,10 +7,10 @@ from kif_lib import KIF_Object, Template, Variable
 from kif_lib.model import Theta
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from .kif_object import kif_ObjectTestCase
+from .term import kif_OpenTermTestCase
 
 
-class kif_TemplateTestCase(kif_ObjectTestCase):
+class kif_TemplateTestCase(kif_OpenTermTestCase):
 
     @override
     def _test_check(
