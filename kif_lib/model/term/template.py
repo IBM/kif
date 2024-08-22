@@ -10,7 +10,6 @@ from ...typing import (
     Iterator,
     Optional,
     override,
-    Set,
     Union,
 )
 from .term import ClosedTerm, OpenTerm, Term, Theta
@@ -43,8 +42,7 @@ class Template(OpenTerm):
         # that is not the case.
         ###
         vars = frozenset(itertools.chain(*map(
-            lambda x: (x,) if isinstance(x, Variable) else x.variables,
-            filter(self._isinstance_template_or_variable, args))))
+            OpenTerm.get_variables, filter(self.is_open, args))))
         most_specific: dict[str, Variable] = {}
         for var in vars:
             if var.name not in most_specific:
@@ -62,25 +60,11 @@ class Template(OpenTerm):
         else:
             return tuple(map(
                 lambda x: x._instantiate(theta, False)
-                if self._isinstance_template_or_variable(x) else x, args))
+                if self.is_open(x) else x, args))
 
-    @property
-    def variables(self) -> Set[Variable]:
-        """The set of variables occurring in template."""
-        return self.get_variables()
-
-    def get_variables(self) -> Set[Variable]:
-        """Gets the set of variables occurring in template.
-
-        Returns:
-           Set of variables.
-        """
-        return frozenset(self._iterate_variables())
-
+    @override
     def _iterate_variables(self) -> Iterator[Variable]:
-        return self._traverse(
-            lambda x: isinstance(x, Variable),
-            self._isinstance_template_or_variable)
+        return self._traverse(lambda x: isinstance(x, Variable), self.is_open)
 
     @override
     def instantiate(self, theta: Theta, coerce: bool = True) -> Term:

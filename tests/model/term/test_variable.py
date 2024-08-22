@@ -36,7 +36,7 @@ from kif_lib.model import (
     StringVariable,
     ValueVariable,
 )
-from kif_lib.typing import assert_type, Iterator, Optional
+from kif_lib.typing import assert_type, Iterator, Optional, Set
 
 from ...tests import VariableTestCase
 
@@ -98,6 +98,13 @@ class Test(VariableTestCase):
             ValueVariable('p')(Item('x'), String('s')),
             Statement(Item('x'), ValueSnak(
                 PropertyVariable('p'), String('s'))))
+
+    def test_get_variables(self) -> None:
+        assert_type(ItemVariable('x').variables, Set[Variable])
+        assert_type(Variable('x').get_variables(), Set[Variable])
+        self.assertEqual(
+            ItemVariable('x').get_variables(), {ItemVariable('x')})
+        self.assertEqual(Variable('y').variables, {Variable('y')})
 
     def test_instantiate(self) -> None:
         assert_type(Variable('x').instantiate({}), Optional[Term])

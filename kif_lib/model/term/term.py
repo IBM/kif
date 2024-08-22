@@ -10,9 +10,11 @@ from ...typing import (
     Callable,
     cast,
     ClassVar,
+    Iterator,
     Mapping,
     Optional,
     Self,
+    Set,
     TypeAlias,
     Union,
 )
@@ -28,9 +30,8 @@ class Term(KIF_Object):
 
     def __new__(cls, *args, **kwargs) -> Self:
         has_tpl_or_var_arg = any(map(
-            cls._isinstance_template_or_variable,
-            itertools.chain(args, kwargs.values())))
-        if cls._is_proper_subclass_of_ground(cls) and has_tpl_or_var_arg:
+            cls.is_open, itertools.chain(args, kwargs.values())))
+        if cls._is_proper_subclass_of_closed_term(cls) and has_tpl_or_var_arg:
             return cast(
                 Self, cls.template_class(*args, **kwargs))  # type:ignore
         elif (cls._is_proper_subclass_of_template(cls)
@@ -41,7 +42,7 @@ class Term(KIF_Object):
             return super().__new__(cls)
 
     @classmethod
-    def _is_proper_subclass_of_ground(cls, arg: Any) -> bool:
+    def _is_proper_subclass_of_closed_term(cls, arg: Any) -> bool:
         return (isinstance(arg, type)
                 and arg is not ClosedTerm
                 and issubclass(arg, ClosedTerm))
@@ -54,7 +55,20 @@ class Term(KIF_Object):
                 and issubclass(arg, Template))
 
     @classmethod
-    def _isinstance_template_or_variable(cls, arg: Any) -> bool:
+    def is_closed(cls, arg: Any) -> bool:
+        """Tests whether argument is a closed term.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        return isinstance(arg, ClosedTerm)
+
+    @classmethod
+    def is_open(cls, arg: Any) -> bool:
+        """Tests whether argument is an open term.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise."""
         return isinstance(arg, OpenTerm)
 
 
@@ -94,6 +108,23 @@ class OpenTerm(Term):
 
     class InstantiationError(ValueError):
         """Bad instantiation attempt."""
+
+    @property
+    def variables(self) -> Set['Variable']:
+        """The set of variables occurring in open term."""
+        return self.get_variables()
+
+    def get_variables(self) -> Set['Variable']:
+        """Gets the set of variables occurring in open term.
+
+        Returns:
+           Set of variables.
+        """
+        return frozenset(self._iterate_variables())
+
+    @abc.abstractmethod
+    def _iterate_variables(self) -> Iterator['Variable']:
+        raise NotImplementedError
 
     def instantiate(
             self,

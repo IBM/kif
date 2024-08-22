@@ -114,6 +114,10 @@ class Variable(OpenTerm):
         return self.args[0]
 
     @override
+    def _iterate_variables(self) -> Iterator['Variable']:
+        return iter((self,))
+
+    @override
     def _instantiate(
             self,
             theta: Theta,
