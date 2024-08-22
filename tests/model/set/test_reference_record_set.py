@@ -19,10 +19,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_ObjectSetTestCase
+from ...tests import ObjectSetTestCase
 
 
-class Test(kif_ObjectSetTestCase):
+class Test(ObjectSetTestCase):
 
     def test_children_class(self) -> None:
         assert_type(
@@ -85,7 +85,7 @@ class Test(kif_ObjectSetTestCase):
                 [Variable('x', Text)],
             ])
 
-    def test__contains__(self):
+    def test__contains__(self) -> None:
         self.assertNotIn(0, ReferenceRecordSet())
         self.assertIn(
             ReferenceRecord(NoValueSnak(Property('p'))),

@@ -15,10 +15,10 @@ from kif_lib import (
 from kif_lib.namespace import WIKIBASE
 from kif_lib.typing import assert_type, cast
 
-from ....tests import kif_ObjectTestCase
+from ....tests import ObjectTestCase
 
 
-class Test(kif_ObjectTestCase):
+class Test(ObjectTestCase):
 
     def test_check(self) -> None:
         assert_type(Rank.check(NormalRank()), Rank)
@@ -34,10 +34,10 @@ class Test(kif_ObjectTestCase):
             ],
             failure=[0, {}, Item('x'), SnakSet()])
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         self.assert_abstract_class(Rank)
 
-    def test__from_rdflib(self):
+    def test__from_rdflib(self) -> None:
         self.assert_raises_bad_argument(
             TypeError, 1, 'uri', 'cannot coerce URIRef into Rank',
             Rank._from_rdflib, WIKIBASE.Url)
@@ -48,13 +48,15 @@ class Test(kif_ObjectTestCase):
         self.assert_deprecated_rank(
             cast(DeprecatedRank, Rank._from_rdflib(WIKIBASE.DeprecatedRank)))
         self.assert_deprecated_rank(
-            DeprecatedRank._from_rdflib(WIKIBASE.DeprecatedRank))
+            cast(DeprecatedRank, DeprecatedRank._from_rdflib(
+                WIKIBASE.DeprecatedRank)))
         self.assert_normal_rank(
-            NormalRank._from_rdflib(WIKIBASE.NormalRank))
+            cast(NormalRank, NormalRank._from_rdflib(WIKIBASE.NormalRank)))
         self.assert_preferred_rank(
-            PreferredRank._from_rdflib(WIKIBASE.PreferredRank))
+            cast(PreferredRank, PreferredRank._from_rdflib(
+                WIKIBASE.PreferredRank)))
 
-    def test__to_rdflib(self):
+    def test__to_rdflib(self) -> None:
         self.assertEqual(Deprecated._to_rdflib(), WIKIBASE.DeprecatedRank)
         self.assertEqual(Normal._to_rdflib(), WIKIBASE.NormalRank)
         self.assertEqual(Preferred._to_rdflib(), WIKIBASE.PreferredRank)

@@ -11,10 +11,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_DescriptorTestCase
+from ...tests import DescriptorTestCase
 
 
-class Test(kif_DescriptorTestCase):
+class Test(DescriptorTestCase):
 
     def test_check(self) -> None:
         assert_type(PlainDescriptor.check(ItemDescriptor()), PlainDescriptor)

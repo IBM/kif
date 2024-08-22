@@ -1,21 +1,21 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from .tests import kif_EmptyStoreTestCase
+from .tests import EmptyStoreTestCase
 
 
-class TestStoreABC_Descriptors(kif_EmptyStoreTestCase):
+class TestStoreABC_Descriptors(EmptyStoreTestCase):
 
-    def test_get_descriptor(self):
+    def test_get_descriptor(self) -> None:
         self.sanity_check_get_descriptor(self.new_Store())
 
-    def test_get_item_descriptor(self):
+    def test_get_item_descriptor(self) -> None:
         self.sanity_check_get_item_descriptor(self.new_Store())
 
-    def test_get_property_descriptor(self):
+    def test_get_property_descriptor(self) -> None:
         self.sanity_check_get_property_descriptor(self.new_Store())
 
-    def test_get_lexeme_descriptor(self):
+    def test_get_lexeme_descriptor(self) -> None:
         self.sanity_check_get_lexeme_descriptor(self.new_Store())
 
 

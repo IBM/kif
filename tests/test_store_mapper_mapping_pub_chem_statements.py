@@ -19,20 +19,17 @@ from kif_lib import (
 )
 from kif_lib.vocabulary import wd
 
-from .tests import kif_PubChemSPARQL_StoreTestCase
+from .tests import PubChemSPARQL_StoreTestCase
 
 
 class TestStoreMapperMappingPubChemStatements(
-        kif_PubChemSPARQL_StoreTestCase):
+        PubChemSPARQL_StoreTestCase):
 
-    def test_filter_sanity(self):
-        pass
-
-    def check_empty_filter(self, kb, *args, **kwargs):
+    def check_empty_filter(self, kb, *args, **kwargs) -> None:
         limit = kwargs.pop('limit', 1)
         self.assertFalse(bool(list(kb.filter(*args, limit=limit, **kwargs))))
 
-    def check_filter(self, kb, f, *args, **kwargs):
+    def check_filter(self, kb, f, *args, **kwargs) -> None:
         limit = kwargs.pop('limit', 10)
         stmts = list(kb.filter(*args, limit=limit, **kwargs))
         self.assertEqual(len(stmts), limit)
@@ -43,7 +40,7 @@ class TestStoreMapperMappingPubChemStatements(
     def check_filter_property(
             self, kb, property, datatype,
             subject=None, subject_check=None,
-            value=None, value_check=None, **kwargs):
+            value=None, value_check=None, **kwargs) -> None:
         if subject_check is None:
             subject_check = (lambda kb, v: True)
         if value_check is None:
@@ -77,37 +74,37 @@ class TestStoreMapperMappingPubChemStatements(
                 and kb.mapping.is_pubchem_compound_iri(v.iri)),
             value=value, value_check=value_check, **kwargs)
 
-    def test_filter_property_canonical_SMILES(self):
+    def test_filter_property_canonical_SMILES(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.canonical_SMILES.replace(KIF_Object.KEEP, String),
             StringDatatype())
 
-    def test_filter_property_chemical_formula(self):
+    def test_filter_property_chemical_formula(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.chemical_formula.replace(KIF_Object.KEEP, String),
             StringDatatype())
 
-    def test_filter_property_CAS_Registry_Number(self):
+    def test_filter_property_CAS_Registry_Number(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.CAS_Registry_Number.replace(KIF_Object.KEEP, String),
             StringDatatype())
 
-    def test_filter_property_ChEBI_ID(self):
+    def test_filter_property_ChEBI_ID(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.ChEBI_ID.replace(KIF_Object.KEEP, String),
             StringDatatype())
 
-    def test_filter_property_ChEMBL(self):
+    def test_filter_property_ChEMBL(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.ChEMBL_ID.replace(KIF_Object.KEEP, String),
             StringDatatype())
 
-    def test_filter_property_described_by_source(self):
+    def test_filter_property_described_by_source(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.described_by_source.replace(KIF_Object.KEEP, Item),
@@ -115,7 +112,7 @@ class TestStoreMapperMappingPubChemStatements(
             value_check=(
                 lambda kb, v: kb.mapping.is_pubchem_patent_iri(v.iri)))
 
-    def test_filter_property_has_part(self):
+    def test_filter_property_has_part(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.has_part.replace(KIF_Object.KEEP, Item),
@@ -123,19 +120,19 @@ class TestStoreMapperMappingPubChemStatements(
             value_check=(
                 lambda kb, v: kb.mapping.is_pubchem_compound_iri(v.iri)))
 
-    def test_filter_property_InChI(self):
+    def test_filter_property_InChI(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.InChI.replace(KIF_Object.KEEP, String),
             StringDatatype())
 
-    def test_filter_property_InChIKey(self):
+    def test_filter_property_InChIKey(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.InChIKey.replace(KIF_Object.KEEP, String),
             StringDatatype())
 
-    def test_filter_property_compound_instance_of(self):
+    def test_filter_property_compound_instance_of(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.instance_of.replace(KIF_Object.KEEP, Item),
@@ -143,19 +140,19 @@ class TestStoreMapperMappingPubChemStatements(
             subject=wd.instance_of(wd.type_of_a_chemical_entity),
             value_check=(lambda kb, v: v == wd.type_of_a_chemical_entity))
 
-    def test_filter_property_isomeric_SMILES(self):
+    def test_filter_property_isomeric_SMILES(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.isomeric_SMILES.replace(KIF_Object.KEEP, String),
             StringDatatype())
 
-    def test_filter_property_legal_status(self):
+    def test_filter_property_legal_status(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.legal_status.replace(KIF_Object.KEEP, Item),
             ItemDatatype())
 
-    def test_filter_property_mass(self):
+    def test_filter_property_mass(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.mass.replace(KIF_Object.KEEP, Quantity),
@@ -164,7 +161,7 @@ class TestStoreMapperMappingPubChemStatements(
                 lambda kb, v: v.unit == wd.gram_per_mole
                 and v.lower_bound is None and v.upper_bound is None))
 
-    def test_filter_property_manufacturer(self):
+    def test_filter_property_manufacturer(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.manufacturer.replace(KIF_Object.KEEP, Item),
@@ -172,7 +169,7 @@ class TestStoreMapperMappingPubChemStatements(
             value_check=(
                 lambda kb, v: kb.mapping.is_pubchem_source_iri(v.iri)))
 
-    def test_filter_property_partition_coefficient_water_octanol(self):
+    def test_filter_property_partition_coefficient_water_octanol(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.partition_coefficient_water_octanol.replace(
@@ -182,11 +179,11 @@ class TestStoreMapperMappingPubChemStatements(
                 lambda kb, v: v.unit is None
                 and v.lower_bound is None and v.upper_bound is None))
 
-    # def test_filter_property_PubChem_CID(self):
+    # def test_filter_property_PubChem_CID(self) -> None:
     #     self.check_filter_compound_property(
     #         self.new_Store(), wd.PubChem_CID, StringDatatype())
 
-    def test_filter_property_stereoisomer_of(self):
+    def test_filter_property_stereoisomer_of(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.stereoisomer_of.replace(KIF_Object.KEEP, Item),
@@ -194,7 +191,7 @@ class TestStoreMapperMappingPubChemStatements(
             value_check=(
                 lambda kb, v: kb.mapping.is_pubchem_compound_iri(v.iri)))
 
-    def test_filter_property_trading_name(self):
+    def test_filter_property_trading_name(self) -> None:
         self.check_filter_compound_property(
             self.new_Store(),
             wd.trading_name.replace(KIF_Object.KEEP, Text),
@@ -205,7 +202,7 @@ class TestStoreMapperMappingPubChemStatements(
 
     def check_filter_patent_property(
             self, kb, property, datatype,
-            subject=None, value=None, value_check=None, **kwargs):
+            subject=None, value=None, value_check=None, **kwargs) -> None:
         return self.check_filter_property(
             kb, property, datatype,
             subject=subject, subject_check=(
@@ -213,13 +210,13 @@ class TestStoreMapperMappingPubChemStatements(
                 and kb.mapping.is_pubchem_patent_iri(v.iri)),
             value=None, value_check=value_check, **kwargs)
 
-    def test_filter_property_author_name_string(self):
+    def test_filter_property_author_name_string(self) -> None:
         self.check_filter_patent_property(
             self.new_Store(),
             wd.author_name_string.replace(KIF_Object.KEEP, String),
             StringDatatype())
 
-    def test_filter_property_patent_instance_of(self):
+    def test_filter_property_patent_instance_of(self) -> None:
         self.check_filter_patent_property(
             self.new_Store(),
             wd.instance_of.replace(KIF_Object.KEEP, Item),
@@ -227,7 +224,7 @@ class TestStoreMapperMappingPubChemStatements(
             subject=wd.instance_of(wd.patent),
             value_check=(lambda kb, v: v == wd.patent))
 
-    def test_filter_property_main_subject(self):
+    def test_filter_property_main_subject(self) -> None:
         self.check_filter_patent_property(
             self.new_Store(),
             wd.main_subject.replace(KIF_Object.KEEP, Item),
@@ -235,13 +232,13 @@ class TestStoreMapperMappingPubChemStatements(
             value_check=(
                 lambda kb, v: kb.mapping.is_pubchem_compound_iri(v.iri)))
 
-    def test_filter_property_patent_number(self):
+    def test_filter_property_patent_number(self) -> None:
         self.check_filter_patent_property(
             self.new_Store(),
             wd.patent_number.replace(KIF_Object.KEEP, String),
             StringDatatype())
 
-    def test_filter_property_publication_date(self):
+    def test_filter_property_publication_date(self) -> None:
         self.check_filter_patent_property(
             self.new_Store(),
             wd.publication_date.replace(KIF_Object.KEEP, Time),
@@ -250,13 +247,13 @@ class TestStoreMapperMappingPubChemStatements(
                 lambda kb, v: v.precision == Time.DAY and v.timezone == 0
                 and v.calendar == wd.proleptic_Gregorian_calendar))
 
-    def test_filter_property_sponsor(self):
+    def test_filter_property_sponsor(self) -> None:
         self.check_filter_patent_property(
             self.new_Store(),
             wd.sponsor.replace(KIF_Object.KEEP, String),
             StringDatatype())
 
-    def test_filter_property_title(self):
+    def test_filter_property_title(self) -> None:
         self.check_filter_patent_property(
             self.new_Store(),
             wd.title.replace(KIF_Object.KEEP, Text),
@@ -267,7 +264,7 @@ class TestStoreMapperMappingPubChemStatements(
 
     def check_filter_source_property(
             self, kb, property, datatype,
-            subject=None, value=None, value_check=None, **kwargs):
+            subject=None, value=None, value_check=None, **kwargs) -> None:
         return self.check_filter_property(
             kb, property, datatype,
             subject=subject, subject_check=(
@@ -275,7 +272,7 @@ class TestStoreMapperMappingPubChemStatements(
                 and kb.mapping.is_pubchem_source_iri(v.iri)),
             value=None, value_check=value_check, **kwargs)
 
-    def test_filter_property_source_instance_of(self):
+    def test_filter_property_source_instance_of(self) -> None:
         self.check_filter_source_property(
             self.new_Store(),
             wd.instance_of.replace(KIF_Object.KEEP, Item),
@@ -283,13 +280,13 @@ class TestStoreMapperMappingPubChemStatements(
             subject=wd.instance_of(wd.business),
             value_check=(lambda kb, v: v == wd.business))
 
-    def test_filter_property_official_website(self):
+    def test_filter_property_official_website(self) -> None:
         self.check_filter_source_property(
             self.new_Store(),
             wd.official_website.replace(KIF_Object.KEEP, IRI),
             IRI_Datatype())
 
-    def test_filter_property_short_name(self):
+    def test_filter_property_short_name(self) -> None:
         self.check_filter_source_property(
             self.new_Store(),
             wd.short_name.replace(KIF_Object.KEEP, String),

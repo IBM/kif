@@ -3,12 +3,12 @@
 
 from kif_lib import Property, ReferenceRecord, ReferenceRecordSet
 
-from .tests import kif_EmptyStoreTestCase
+from .tests import EmptyStoreTestCase
 
 
-class TestStoreABC_ExtraReferences(kif_EmptyStoreTestCase):
+class TestStoreABC_ExtraReferences(EmptyStoreTestCase):
 
-    def test_extra_references_default(self):
+    def test_extra_references_default(self) -> None:
         kb = self.new_Store()
         self.assertEqual(kb.default_extra_references, ReferenceRecordSet())
 
@@ -22,7 +22,7 @@ class TestStoreABC_ExtraReferences(kif_EmptyStoreTestCase):
 
     refs = ReferenceRecordSet(ref1, ref2, ref3)
 
-    def test_extra_references_init(self):
+    def test_extra_references_init(self) -> None:
         kb = self.new_Store()
         self.assertEqual(kb.extra_references, kb.default_extra_references)
         kb = self.new_Store(extra_references=list(self.refs))
@@ -32,7 +32,7 @@ class TestStoreABC_ExtraReferences(kif_EmptyStoreTestCase):
         kb = self.new_Store(extra_references=None)
         self.assertEqual(kb.extra_references, kb.default_extra_references)
 
-    def test_get_extra_references(self):
+    def test_get_extra_references(self) -> None:
         kb = self.new_Store()
         self.assertEqual(
             kb.get_extra_references(), kb.default_extra_references)
@@ -46,7 +46,7 @@ class TestStoreABC_ExtraReferences(kif_EmptyStoreTestCase):
         self.assertEqual(
             kb.get_extra_references(ReferenceRecordSet()), self.refs)
 
-    def test_set_extra_references(self):
+    def test_set_extra_references(self) -> None:
         kb = self.new_Store()
         self.assert_raises_bad_argument(
             TypeError, 1, 'references',
@@ -56,7 +56,7 @@ class TestStoreABC_ExtraReferences(kif_EmptyStoreTestCase):
             kb.get_extra_references(), kb.default_extra_references)
         kb.extra_references = self.refs
         self.assertEqual(kb.extra_references, self.refs)
-        kb.extra_references = None
+        kb.extra_references = None  # type: ignore
         self.assertEqual(kb.extra_references, kb.default_extra_references)
         kb.extra_references = ReferenceRecordSet()
         self.assertEqual(kb.extra_references, ReferenceRecordSet())

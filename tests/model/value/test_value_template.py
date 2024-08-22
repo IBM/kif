@@ -4,16 +4,16 @@
 from kif_lib import Value, ValueTemplate
 from kif_lib.typing import assert_type
 
-from ...tests import kif_ValueTemplateTestCase
+from ...tests import ValueTemplateTestCase
 
 
-class Test(kif_ValueTemplateTestCase):
+class Test(ValueTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(ValueTemplate.object_class, type[Value])
         self.assertIs(ValueTemplate.object_class, Value)
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         self.assert_abstract_class(ValueTemplate)
 
 

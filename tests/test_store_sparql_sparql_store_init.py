@@ -5,12 +5,12 @@ from kif_lib import IRI, Store
 from kif_lib.store.sparql import SPARQL_Store
 from kif_lib.typing import cast
 
-from .tests import kif_StoreTestCase
+from .tests import StoreTestCase
 
 
-class TestStoreSPARQL_SPARQL_StoreInit(kif_StoreTestCase):
+class TestStoreSPARQL_SPARQL_StoreInit(StoreTestCase):
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         # bad argument: iri
         self.assert_raises_bad_argument(
             TypeError, 2, 'iri', 'cannot coerce int into IRI',

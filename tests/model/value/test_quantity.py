@@ -15,12 +15,12 @@ from kif_lib import (
     String,
     Text,
 )
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, Optional
 
-from ...tests import kif_DeepDataValueTestCase
+from ...tests import DeepDataValueTestCase
 
 
-class Test(kif_DeepDataValueTestCase):
+class Test(DeepDataValueTestCase):
 
     def test_datatype_class(self) -> None:
         assert_type(Quantity.datatype_class, type[QuantityDatatype])
@@ -83,13 +83,17 @@ class Test(kif_DeepDataValueTestCase):
                 (0, None, None, Property('x')),
             ])
 
-    def test_get_unit(self):
+    def test_get_unit(self) -> None:
+        assert_type(Quantity(0).unit, Optional[Item])
+        assert_type(Quantity(0).get_unit(), Optional[Item])
         self.assertEqual(Quantity(0, Item('x')).get_unit(), Item('x'))
         self.assertEqual(Quantity(0).get_unit(Item('x')), Item('x'))
         self.assertEqual(Quantity(0).get_unit(Item(IRI('x'))), Item('x'))
         self.assertIsNone(Quantity(0).get_unit())
 
-    def test_get_lower_bound(self):
+    def test_get_lower_bound(self) -> None:
+        assert_type(Quantity(0).lower_bound, Optional[decimal.Decimal])
+        assert_type(Quantity(0).get_lower_bound(), Optional[decimal.Decimal])
         self.assertEqual(
             Quantity(0, None, 1).get_lower_bound(), decimal.Decimal('1'))
         self.assertEqual(
@@ -97,7 +101,9 @@ class Test(kif_DeepDataValueTestCase):
                 decimal.Decimal('1.')), decimal.Decimal('1.'))
         self.assertIsNone(Quantity(0, None).get_lower_bound())
 
-    def test_get_upper_bound(self):
+    def test_get_upper_bound(self) -> None:
+        assert_type(Quantity(0).upper_bound, Optional[decimal.Decimal])
+        assert_type(Quantity(0).get_upper_bound(), Optional[decimal.Decimal])
         self.assertEqual(
             Quantity(0, None, 1, 2).get_upper_bound(),
             decimal.Decimal('2'))

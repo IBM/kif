@@ -5,10 +5,10 @@ from kif_lib.context import Context, Section
 from kif_lib.context.options import Options
 from kif_lib.typing import assert_type
 
-from ..tests import kif_TestCase
+from ..tests import TestCase
 
 
-class Test(kif_TestCase):
+class Test(TestCase):
 
     def test_options(self) -> None:
         with Context() as ctx:

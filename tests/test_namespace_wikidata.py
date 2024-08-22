@@ -5,17 +5,17 @@ from rdflib.namespace import Namespace
 
 from kif_lib.namespace import WIKIBASE, Wikidata
 
-from .tests import kif_TestCase
+from .tests import TestCase
 
 
-class TestNamespaceWikidata(kif_TestCase):
+class TestNamespaceWikidata(TestCase):
 
-    def assert_namespace_value(self, ns, val):
+    def assert_namespace_value(self, ns, val) -> None:
         self.assertIsInstance(ns, Namespace)
         self.assertIsInstance(val, str)
         self.assertEqual(str(ns), val)
 
-    def test_namespace(self):
+    def test_namespace(self) -> None:
         wd = 'http://www.wikidata.org/'
         self.assert_namespace_value(
             Wikidata.WIKIDATA, wd)
@@ -56,14 +56,14 @@ class TestNamespaceWikidata(kif_TestCase):
         self.assert_namespace_value(
             Wikidata.WDV, f'{wd}value/')
 
-    def test_is_wikidata_uri(self):
+    def test_is_wikidata_uri(self) -> None:
         self.assertTrue(Wikidata.is_wikidata_uri(Wikidata.P))
         self.assertTrue(Wikidata.is_wikidata_uri(Wikidata.P.value))
         self.assertTrue(Wikidata.is_wikidata_uri(str(Wikidata.P)))
         self.assertFalse(Wikidata.is_wikidata_uri('http://www.x.org/'))
         self.assertFalse(Wikidata.is_wikidata_uri('abc'))
 
-    def test_split_wikidata_uri(self):
+    def test_split_wikidata_uri(self) -> None:
         # bad argument
         self.assertRaises(
             ValueError, Wikidata.split_wikidata_uri,
@@ -81,7 +81,7 @@ class TestNamespaceWikidata(kif_TestCase):
             Wikidata.split_wikidata_uri(Wikidata.WDS.abc),
             (Wikidata.WDS, 'abc'))
 
-    def test_get_wikidata_namespace(self):
+    def test_get_wikidata_namespace(self) -> None:
         # bad argument
         self.assertRaises(
             ValueError, Wikidata.get_wikidata_namespace, 'x')
@@ -93,7 +93,7 @@ class TestNamespaceWikidata(kif_TestCase):
             Wikidata.get_wikidata_namespace(Wikidata.WDGENID.abc),
             Wikidata.WDGENID)
 
-    def test_get_wikidata_name(self):
+    def test_get_wikidata_name(self) -> None:
         # bad argument
         self.assertRaises(
             ValueError, Wikidata.get_wikidata_name, 'x')
@@ -103,28 +103,28 @@ class TestNamespaceWikidata(kif_TestCase):
         self.assertEqual(
             Wikidata.get_wikidata_name(Wikidata.WDGENID.abc), 'abc')
 
-    def test_is_wd_entity(self):
+    def test_is_wd_entity(self) -> None:
         self.assertTrue(Wikidata.is_wd_entity(Wikidata.WD.Q155))
         self.assertTrue(Wikidata.is_wd_entity(Wikidata.WD.P31))
         self.assertFalse(Wikidata.is_wd_entity(Wikidata.P.P31))
         self.assertFalse(Wikidata.is_wd_entity(Wikidata.WDS.abc))
         self.assertFalse(Wikidata.is_wd_entity(WIKIBASE.PreferredRank))
 
-    def test_is_wd_item(self):
+    def test_is_wd_item(self) -> None:
         self.assertTrue(Wikidata.is_wd_item(Wikidata.WD.Q155))
         self.assertFalse(Wikidata.is_wd_item(Wikidata.WD.P31))
         self.assertFalse(Wikidata.is_wd_item(Wikidata.P.P31))
         self.assertFalse(Wikidata.is_wd_item(Wikidata.WDS.abc))
         self.assertFalse(Wikidata.is_wd_item(WIKIBASE.PreferredRank))
 
-    def test_is_wd_property(self):
+    def test_is_wd_property(self) -> None:
         self.assertFalse(Wikidata.is_wd_property(Wikidata.WD.Q155))
         self.assertTrue(Wikidata.is_wd_property(Wikidata.WD.P31))
         self.assertFalse(Wikidata.is_wd_property(Wikidata.P.P31))
         self.assertFalse(Wikidata.is_wd_property(Wikidata.WDS.abc))
         self.assertFalse(Wikidata.is_wd_property(WIKIBASE.PreferredRank))
 
-    def test_is_wd_some_value(self):
+    def test_is_wd_some_value(self) -> None:
         self.assertTrue(Wikidata.is_wd_some_value(Wikidata.WDGENID.abc))
         self.assertFalse(Wikidata.is_wd_some_value(Wikidata.WD.Q155))
         self.assertFalse(Wikidata.is_wd_some_value(Wikidata.WD.P31))
@@ -132,7 +132,7 @@ class TestNamespaceWikidata(kif_TestCase):
         self.assertFalse(Wikidata.is_wd_some_value(Wikidata.WDS.abc))
         self.assertFalse(Wikidata.is_wd_some_value(WIKIBASE.PreferredRank))
 
-    def test_is_wikibase_preferred_rank(self):
+    def test_is_wikibase_preferred_rank(self) -> None:
         self.assertTrue(Wikidata.is_wikibase_preferred_rank(
             WIKIBASE.PreferredRank))
         self.assertFalse(Wikidata.is_wikibase_preferred_rank(
@@ -140,7 +140,7 @@ class TestNamespaceWikidata(kif_TestCase):
         self.assertFalse(Wikidata.is_wikibase_preferred_rank(
             Wikidata.WD.Q155))
 
-    def test_is_wikibase_normal_rank(self):
+    def test_is_wikibase_normal_rank(self) -> None:
         self.assertTrue(Wikidata.is_wikibase_normal_rank(
             WIKIBASE.NormalRank))
         self.assertFalse(Wikidata.is_wikibase_normal_rank(
@@ -148,7 +148,7 @@ class TestNamespaceWikidata(kif_TestCase):
         self.assertFalse(Wikidata.is_wikibase_normal_rank(
             Wikidata.WD.Q155))
 
-    def test_is_wikibase_deprecated_rank(self):
+    def test_is_wikibase_deprecated_rank(self) -> None:
         self.assertTrue(Wikidata.is_wikibase_deprecated_rank(
             WIKIBASE.DeprecatedRank))
         self.assertFalse(Wikidata.is_wikibase_deprecated_rank(

@@ -24,10 +24,10 @@ from kif_lib.model import (
 )
 from kif_lib.typing import assert_type, cast, Set
 
-from ...tests import kif_TemplateTestCase
+from ...tests import TemplateTestCase
 
 
-class Test(kif_TemplateTestCase):
+class Test(TemplateTestCase):
 
     def test_check(self) -> None:
         assert_type(Template.check(ItemTemplate(Variable('x'))), Template)

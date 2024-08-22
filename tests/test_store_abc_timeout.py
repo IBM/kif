@@ -3,17 +3,17 @@
 
 import sys
 
-from .tests import kif_EmptyStoreTestCase
+from .tests import EmptyStoreTestCase
 
 
-class TestStoreABC_Timeout(kif_EmptyStoreTestCase):
+class TestStoreABC_Timeout(EmptyStoreTestCase):
 
-    def test_timeout_defaults(self):
+    def test_timeout_defaults(self) -> None:
         kb = self.new_Store()
         self.assertIsNone(kb.default_timeout)
         self.assertEqual(kb.maximum_page_size, sys.maxsize)
 
-    def test_timeout_init(self):
+    def test_timeout_init(self) -> None:
         kb = self.new_Store()
         self.assertEqual(kb.timeout, kb.default_timeout)
         kb = self.new_Store(timeout=33)
@@ -23,7 +23,7 @@ class TestStoreABC_Timeout(kif_EmptyStoreTestCase):
         kb = self.new_Store(timeout=-1)
         self.assertEqual(kb.timeout, kb.default_timeout)
 
-    def test_get_timeout(self):
+    def test_get_timeout(self) -> None:
         kb = self.new_Store()
         self.assertEqual(kb.get_timeout(), kb.default_timeout)
         self.assertEqual(kb.get_timeout(44.), 44.)
@@ -35,7 +35,7 @@ class TestStoreABC_Timeout(kif_EmptyStoreTestCase):
         kb = self.new_Store(timeout=33.)
         self.assertEqual(kb.get_timeout(5), 33.)
 
-    def test_set_timeout(self):
+    def test_set_timeout(self) -> None:
         kb = self.new_Store()
         self.assert_raises_bad_argument(
             TypeError, 1, 'timeout', 'expected float or int, got str',

@@ -23,14 +23,12 @@ from kif_lib import (
 )
 from kif_lib.vocabulary import wd
 
-from .tests import kif_WikidataSPARQL_StoreTestCase
+from .tests import WikidataSPARQL_StoreTestCase
 
 
-class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
+class TestStoreSPARQL_SPARQL_Store(WikidataSPARQL_StoreTestCase):
 
-    # -- Set interface -----------------------------------------------------
-
-    def test__contains__(self):
+    def test__contains__(self) -> None:
         kb = self.new_Store()
         self.assertNotIn(0, kb)
         stmt = wd.subclass_of(wd.benzene, wd.aromatic_hydrocarbon)
@@ -42,7 +40,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         stmt = wd.ionization_energy(wd.benzene, Quantity('9.24', wd.dalton))
         self.assertNotIn(stmt, kb)
 
-    def test__iter__(self):
+    def test__iter__(self) -> None:
         kb = self.new_Store()
         stmt = next(iter(kb))
         self.assertIsInstance(stmt, Statement)
@@ -51,20 +49,18 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         for _ in range(12):
             self.assertIsInstance(next(it), Statement)
 
-    def test__len__(self):
+    def test__len__(self) -> None:
         kb = self.new_Store()
         self.assertTrue(len(kb) > 1_000_000_000)
 
-    # -- Queries -----------------------------------------------------------
-
-    def test__eval_select_query_string(self):
+    def test__eval_select_query_string(self) -> None:
         kb = self.new_Store()
         res = kb._eval_select_query_string(
             'select * where {?s ?p ?o} limit 1')
         self.assertEqual(res['head'], {'vars': ['s', 'p', 'o']})
         self.assertIn('bindings', res['results'])
 
-    def test_contains(self):
+    def test_contains(self) -> None:
         kb = self.new_Store()
         stmt = wd.subclass_of(wd.benzene, wd.aromatic_hydrocarbon)
         self.assertTrue(kb.contains(stmt))
@@ -108,7 +104,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         tm = Time('1822-09-07', None, 0, wd.proleptic_Gregorian_calendar)
         self.assertIn(wd.inception(wd.Brazil, tm), kb)
 
-    def test_count(self):
+    def test_count(self) -> None:
         kb = self.new_Store()
         # bad argument: subject
         self.assertRaises(TypeError, kb.count, {})
@@ -158,7 +154,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         n = kb.count(wd.Adam, wd.date_of_birth)
         self.assertEqual(n, 1)
 
-    def test_filter(self):
+    def test_filter(self) -> None:
         kb = self.new_Store()
         # good arguments
         stmt = next(kb.filter())
@@ -292,9 +288,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         stmts = list(kb.filter(wd.Adam, limit=50))
         self.assertEqual(len(stmts), 50)
 
-    # -- Annotations -------------------------------------------------------
-
-    def test_get_qualifiers(self):
+    def test_get_qualifiers(self) -> None:
         kb = self.new_Store()
 
         def get_qualifiers(stmt):
@@ -389,7 +383,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         self.assert_no_value_snak(
             quals[0], wd.P(1365).replace(KIF_Object.KEEP, None))
 
-    def test_get_references(self):
+    def test_get_references(self) -> None:
         kb = self.new_Store()
 
         def get_references(stmt):
@@ -463,7 +457,7 @@ class TestStoreSPARQL_SPARQL_Store(kif_WikidataSPARQL_StoreTestCase):
         # TODO: one of the references is a no value
         ###
 
-    def test_get_rank(self):
+    def test_get_rank(self) -> None:
         kb = self.new_Store()
 
         def get_rank(stmt):

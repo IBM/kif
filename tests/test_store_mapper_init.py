@@ -6,12 +6,12 @@ from kif_lib.store.mapper import SPARQL_MapperStore
 from kif_lib.store.sparql_mapping import SPARQL_Mapping
 from kif_lib.typing import cast
 
-from .tests import kif_StoreTestCase
+from .tests import StoreTestCase
 
 
-class TestStoreMapper_Init(kif_StoreTestCase):
+class TestStoreMapper_Init(StoreTestCase):
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         # bad argument: iri
         self.assert_raises_bad_argument(
             TypeError, 2, 'iri', 'cannot coerce int into IRI',

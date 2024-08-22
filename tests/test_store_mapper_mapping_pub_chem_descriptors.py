@@ -13,11 +13,11 @@ from kif_lib import (
 from kif_lib.store.mapping import PubChemMapping
 from kif_lib.vocabulary import wd
 
-from .tests import kif_PubChemSPARQL_StoreTestCase
+from .tests import PubChemSPARQL_StoreTestCase
 
 
 class TestStoreMapperMappingPubChemDescriptors(
-        kif_PubChemSPARQL_StoreTestCase):
+        PubChemSPARQL_StoreTestCase):
 
     CID421 = PubChemMapping.compound('CID421')
 
@@ -170,11 +170,11 @@ class TestStoreMapperMappingPubChemDescriptors(
              'that has no ferroelectric properties in the absence of '
              'an applied voltage.', 'en'))
 
-    def test_get_descriptor_sanity(self):
+    def test_get_descriptor_sanity(self) -> None:
         kb = self.new_Store()
         self.sanity_check_get_descriptor(kb)
 
-    def test_get_descriptor_single_entity(self):
+    def test_get_descriptor_single_entity(self) -> None:
         kb = self.new_Store()
         # item: compound
         ((item, desc),) = kb.get_descriptor(self.CID421)
@@ -227,7 +227,7 @@ class TestStoreMapperMappingPubChemDescriptors(
         self.assertEqual(lexeme, wd.L(96))
         self.assertIsNone(desc)
 
-    def test_get_descriptor_multiple_entities(self):
+    def test_get_descriptor_multiple_entities(self) -> None:
         kb = self.new_Store()
         ds = list(kb.get_descriptor(
             [self.CID421,             # 0
@@ -282,7 +282,7 @@ class TestStoreMapperMappingPubChemDescriptors(
         self.assertEqual(ds[11][0], Item('x'))
         self.assertIsNone(ds[11][1])
 
-    def test_get_descriptor_mask(self):
+    def test_get_descriptor_mask(self) -> None:
         def test_case(kb, mask, desc01, desc11, desc21):
             ds = list(kb.get_descriptor(
                 [self.CID421,                # 0

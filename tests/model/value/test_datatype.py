@@ -25,10 +25,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_ValueTestCase
+from ...tests import ValueTestCase
 
 
-class Test(kif_ValueTestCase):
+class Test(ValueTestCase):
 
     def test_variable_class(self) -> None:
         assert_type(Datatype.variable_class, type[DatatypeVariable])
@@ -69,7 +69,7 @@ class Test(kif_ValueTestCase):
             ],
             failure=[None, 0, {}])
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         super()._test__init__(
             Datatype,
             self.assert_datatype,
@@ -106,7 +106,7 @@ class Test(kif_ValueTestCase):
                 [None], [0], [{}],
             ])
 
-    def test__from_rdflib(self):
+    def test__from_rdflib(self) -> None:
         from kif_lib.namespace import WIKIBASE
         self.assert_raises_bad_argument(
             TypeError, 1, 'uri',
@@ -155,7 +155,7 @@ class Test(kif_ValueTestCase):
         self.assert_time_datatype(TimeDatatype._from_rdflib(WIKIBASE.Time))
         self.assert_time_datatype(Datatype._from_rdflib(WIKIBASE.Time))
 
-    def test__to_rdflib(self):
+    def test__to_rdflib(self) -> None:
         from kif_lib.namespace import WIKIBASE
         self.assertEqual(
             ItemDatatype()._to_rdflib(), WIKIBASE.WikibaseItem)

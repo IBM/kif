@@ -10,10 +10,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_DatatypeTestCase
+from ...tests import DatatypeTestCase
 
 
-class Test(kif_DatatypeTestCase):
+class Test(DatatypeTestCase):
 
     def test_value_class(self) -> None:
         assert_type(StringDatatype.value_class, type[String])

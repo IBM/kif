@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+# type: ignore
+
 import json
 import pathlib
 import tempfile
@@ -64,7 +66,7 @@ class Test(TestCase):
         for dec in [JSON_Decoder, SExpDecoder]:
             Decoder._register(dec, dec.format, dec.description)
 
-    def assert_object(self, obj, args, kwargs={}):
+    def assert_object(self, obj, args, kwargs={}) -> None:
         self.assertIsInstance(obj, Object)
         self.assertIsInstance(args, (tuple, list))
         self.assertIs(obj.args, obj.get_args())
@@ -73,12 +75,12 @@ class Test(TestCase):
             self.assertEqual(obj[i], arg)
         self.assertLessEqual(obj, obj)
 
-    def test__eq__(self):
+    def test__eq__(self) -> None:
         self.assertEqual(A(), A())
         self.assertNotEqual(A(), A(1))
         self.assertNotEqual(A(), B())
 
-    def test_check(self):
+    def test_check(self) -> None:
         self.assertEqual(Object.check(A()), A())
         self.assertEqual(Object.check(B()), B())
         self.assertEqual(A.check(A()), A())
@@ -88,7 +90,7 @@ class Test(TestCase):
             r"^bad argument to 'Object.check' \(cannot coerce B into A\)$",
             A.check, B())
 
-    def test_check_optional(self):
+    def test_check_optional(self) -> None:
         self.assertEqual(Object.check_optional(A()), A())
         self.assertEqual(Object.check_optional(None, A()), A())
         self.assertEqual(Object.check_optional(B()), B())
@@ -101,7 +103,7 @@ class Test(TestCase):
             r'\(cannot coerce B into A\)$',
             A.check_optional, B())
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         self.assertRaises(TypeError, A, None)
         self.assert_object(A(), ())
         self.assert_object(A(1, 2, 3), (1, 2, 3))
@@ -110,15 +112,15 @@ class Test(TestCase):
         self.assertRaises(TypeError, B, 1)
         self.assertRaises(TypeError, B, A(), 1)
 
-    def test__hash__(self):
+    def test__hash__(self) -> None:
         self.assertNotEqual(hash(A()), hash(B()))  # unlikely
 
-    def test__lt__(self):
+    def test__lt__(self) -> None:
         self.assertRaises(TypeError, lambda x, y: x < y, A(), 0)
         self.assertLess(A(), A(1))
         self.assertGreater(B(), A())
 
-    def test_digest(self):
+    def test_digest(self) -> None:
         self.assertEqual(A([1, 2, 3]).digest, A([1, 2, 3]).digest)
         self.assertNotEqual(A([1, 2, 3]).digest, A((1, 2, 3)).digest)
         self.assertNotEqual(A(1).digest, A(2).digest)
@@ -126,19 +128,19 @@ class Test(TestCase):
 
 # -- Copying ---------------------------------------------------------------
 
-    def test_copy(self):
+    def test_copy(self) -> None:
         a = A(1, A(2, 3), A(4))
         self.assertEqual(a.copy(), a)
         self.assertIsNot(a.copy(), a)
         self.assertIs(a.copy()[1], a[1])
 
-    def test_deepcopy(self):
+    def test_deepcopy(self) -> None:
         a = A(1, A(2, 3), A(4))
         self.assertEqual(a.deepcopy(), a)
         self.assertIsNot(a.deepcopy(), a)
         self.assertIsNot(a.deepcopy()[1], a[1])
 
-    def test_replace(self):
+    def test_replace(self) -> None:
         c = C(1, C(2, 3), C(4))
         self.assertEqual(c.replace(), c)
         self.assertEqual(c.replace(2), C(2, *c[1:]))
@@ -147,7 +149,7 @@ class Test(TestCase):
 
 # -- Conversion ------------------------------------------------------------
 
-    def test_to_ast(self):
+    def test_to_ast(self) -> None:
         self.assertEqual(A().to_ast(), {'class': 'A', 'args': ()})
         self.assertEqual(
             A(1, A(2, 3), C(4)).to_ast(),
@@ -156,7 +158,7 @@ class Test(TestCase):
                 {'class': 'A', 'args': (2, 3)},
                 {'class': 'C', 'args': (4,)})})
 
-    def test_from_ast(self):
+    def test_from_ast(self) -> None:
         self.assertRaises(TypeError, C.from_ast, {'class': 'A', 'args': ()})
         self.assertEqual(A.from_ast({'class': 'A', 'args': ()}), A())
         self.assertEqual(C.from_ast({'class': 'C', 'args': (4,)}), C(4))
@@ -168,7 +170,7 @@ class Test(TestCase):
 
 # -- Encoding --------------------------------------------------------------
 
-    def assert_dump(self, obj, s, format=None, **kwargs):
+    def assert_dump(self, obj, s, format=None, **kwargs) -> None:
         self.assertEqual(obj.dumps(format, **kwargs), s)
         with tempfile.TemporaryDirectory() as temp:
             path = pathlib.Path(temp) / f'{__name__}.assert_dump'
@@ -177,27 +179,27 @@ class Test(TestCase):
             with open(path, 'r') as fp:
                 self.assertEqual(fp.read(), s)
 
-    def assert_dump_repr(self, obj, s, **kwargs):
+    def assert_dump_repr(self, obj, s, **kwargs) -> None:
         self.assert_dump(obj, s, format='repr', **kwargs)
 
-    def assert_dump_sexp(self, obj, s, **kwargs):
+    def assert_dump_sexp(self, obj, s, **kwargs) -> None:
         self.assert_dump(obj, s, format='sexp', **kwargs)
 
-    def test_dump(self):
+    def test_dump(self) -> None:
         self.assertRaisesRegex(
             ValueError,
             r"^bad argument #2 \(format\) to "
             r"'Object\.dump' \(no such encoder 'x'\)$",
             A().dump, None, 'x')
 
-    def test_dumps(self):
+    def test_dumps(self) -> None:
         self.assertRaisesRegex(
             ValueError,
             r"^bad argument #1 \(format\) to "
             r"'Object\.dumps' \(no such encoder 'x'\)$",
             A().dumps, 'x')
 
-    def test_dump_repr(self):
+    def test_dump_repr(self) -> None:
         self.assert_dump_repr(A(), 'A()')
         self.assert_dump_repr(A(1), 'A(1)')
         self.assert_dump_repr(A([1]), 'A([1])')
@@ -222,7 +224,7 @@ B(
     )
 )''', indent=4)
 
-    def test_dump_sexp(self):
+    def test_dump_sexp(self) -> None:
         self.assertRaises(Encoder.Error, A(set()).dumps, format='sexp')
         self.assert_dump_sexp(A(), 'A')
         self.assert_dump_sexp(A(1), '(A 1)')
@@ -244,12 +246,12 @@ B(
     )
 )''', indent=4)
 
-    def test_to_sexp(self):
+    def test_to_sexp(self) -> None:
         self.assertEqual(A().to_sexp(), 'A')
         self.assertEqual(A().to_sexp(indent=2), 'A')
         self.assertEqual(A(B()).to_sexp(indent=2), '(A\n  B\n)')
 
-    def test_dump_json(self):
+    def test_dump_json(self) -> None:
         def js(A, *args):
             args = ", ".join(args)
             return f'{{"class": "{A}", "args": [{args}]}}'
@@ -270,7 +272,7 @@ B(
                 js('B', js('A', js('B', js('A'))))), indent=4),
             format='json', indent=4)
 
-    def test_to_json(self):
+    def test_to_json(self) -> None:
         self.assertEqual(A().to_json(), '{"class": "A", "args": []}')
         self.assertEqual(A(B()).to_json(indent=2), '''\
 {
@@ -285,7 +287,7 @@ B(
 
 # -- Decoding --------------------------------------------------------------
 
-    def assert_load(self, obj, s, format=None, **kwargs):
+    def assert_load(self, obj, s, format=None, **kwargs) -> None:
         self.assertEqual(obj.loads(s, format, **kwargs), obj)
         with tempfile.TemporaryDirectory() as temp:
             path = pathlib.Path(temp) / f'{__name__}.assert_load'
@@ -294,10 +296,10 @@ B(
             with open(path, 'r') as fp:
                 self.assertEqual(obj.load(fp, format), obj)
 
-    def assert_load_sexp(self, obj, s, **kwargs):
+    def assert_load_sexp(self, obj, s, **kwargs) -> None:
         self.assert_load(obj, s, format='sexp', **kwargs)
 
-    def test_load(self):
+    def test_load(self) -> None:
         class FP():
             def read(self):
                 return ''
@@ -307,14 +309,14 @@ B(
             r"'Object\.loads' \(no such decoder 'x'\)$",
             A.load, FP(), 'x')
 
-    def test_loads(self):
+    def test_loads(self) -> None:
         self.assertRaisesRegex(
             ValueError,
             r"^bad argument #2 \(format\) to "
             r"'Object\.loads' \(no such decoder 'x'\)$",
             A.loads, '', 'x')
 
-    def test_loads_sexp(self):
+    def test_loads_sexp(self) -> None:
         self.assertRaisesRegex(
             Decoder.Error, 'syntax error', A.from_sexp, '{}')
         self.assertRaisesRegex(
@@ -342,7 +344,7 @@ B(
     )
 )''')
 
-    def test_from_repr(self):
+    def test_from_repr(self) -> None:
         self.assertRaisesRegex(
             TypeError,
             r"^bad argument to 'Object.check' \(cannot coerce A into B\)$",
@@ -352,7 +354,7 @@ B(
         self.assertEqual(A(B()), A.from_repr('A(\n  B(\n)\n)'))
         self.assertEqual(A(B(), C(1, A(2))), A.from_repr('A(B(),C(1,A(2)))'))
 
-    def test_from_sexp(self):
+    def test_from_sexp(self) -> None:
         self.assertRaisesRegex(
             TypeError,
             r"^bad argument to 'Object.check' \(cannot coerce A into B\)$",
@@ -362,7 +364,7 @@ B(
         self.assertEqual(A(B()), A.from_sexp('(A\n  B\n)'))
         self.assertEqual(A(B(), C(1, A(2))), A.from_sexp('(A(B)(C 1 (A 2)))'))
 
-    def test_load_json(self):
+    def test_load_json(self) -> None:
         def js(A, *args):
             args = ", ".join(args)
             return f'{{"class": "{A}", "args": [{args}]}}'
@@ -387,7 +389,7 @@ B(
             B(A(B(A()))), js('B', js('A', js('B', js('A')))),
             format='json')
 
-    def test_from_json(self):
+    def test_from_json(self) -> None:
         self.assertRaisesRegex(
             TypeError,
             r"^bad argument to 'Object.check' \(cannot coerce A into B\)$",
@@ -406,13 +408,13 @@ B(
 
 # -- Argument checking -----------------------------------------------------
 
-    def test__check_arg_not_none(self):
+    def test__check_arg_not_none(self) -> None:
         self.assertRaisesRegex(
             TypeError, r'^bad argument \(expected value, got None\)$',
             Object._check_arg_not_none, None)
         self.assertEqual(Object._check_arg_not_none(0), 0)
 
-    def test__check_arg_callable(self):
+    def test__check_arg_callable(self) -> None:
         # bad argument
         self.assertRaisesRegex(
             TypeError, r'^bad argument \(expected callable, got int\)$',
@@ -422,7 +424,7 @@ B(
             Object._check_arg_callable(Object.get_args),
             Object.get_args)
 
-    def test__check_optional_arg_callable(self):
+    def test__check_optional_arg_callable(self) -> None:
         # bad argument
         self.assertRaisesRegex(
             TypeError, r'^bad argument \(expected callable, got int\)$',
@@ -437,7 +439,7 @@ B(
             Object._check_optional_arg_callable(Object.get_args),
             Object.get_args)
 
-    def test__check_arg_isinstance(self):
+    def test__check_arg_isinstance(self) -> None:
         # bad argument
         self.assertRaisesRegex(
             TypeError, r'^bad argument \(expected str, got int\)$',
@@ -449,7 +451,7 @@ B(
         self.assertEqual(Object._check_arg_isinstance(0, int), 0)
         self.assertEqual(Object._check_arg_isinstance('0', (int, str)), '0')
 
-    def test__check_optional_arg_isinstance(self):
+    def test__check_optional_arg_isinstance(self) -> None:
         # bad argument
         self.assertRaisesRegex(
             TypeError, r'^bad argument \(expected str, got int\)$',
@@ -467,7 +469,7 @@ B(
             Object._check_optional_arg_isinstance('abc', (int, str)),
             'abc')
 
-    def test__check_arg_issubclass(self):
+    def test__check_arg_issubclass(self) -> None:
         # bad argument
         self.assertRaisesRegex(
             TypeError, r'^bad argument \(expected type, got int\)$',
@@ -484,7 +486,7 @@ B(
         self.assertEqual(Object._check_arg_issubclass(int, object), int)
         self.assertEqual(Object._check_arg_issubclass(int, (object, str)), int)
 
-    def test__check_optional_arg_issubclass(self):
+    def test__check_optional_arg_issubclass(self) -> None:
         # bad argument
         self.assertRaisesRegex(
             TypeError, r'^bad argument \(expected type, got int\)$',
@@ -509,7 +511,7 @@ B(
 
 # -- Utility ---------------------------------------------------------------
 
-    def test_should_not_get_here(self):
+    def test_should_not_get_here(self) -> None:
         def f(msg=None):
             raise Object._should_not_get_here(msg)
         self.assertRaisesRegex(ShouldNotGetHere, r'^$', f)

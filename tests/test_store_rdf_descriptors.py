@@ -22,16 +22,16 @@ from .data import (
     INSTANCE_OF_TTL,
     PAINT_TTL,
 )
-from .tests import kif_RDF_StoreTestCase
+from .tests import RDF_StoreTestCase
 
 
-class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
+class TestStoreRDF_Descriptors(RDF_StoreTestCase):
 
-    def test_get_descriptor_sanity(self):
+    def test_get_descriptor_sanity(self) -> None:
         kb = self.new_Store(BENZENE_TTL, INSTANCE_OF_TTL, PAINT_TTL)
         self.sanity_check_get_descriptor(kb)
 
-    def test_get_descriptor_single_entity(self):
+    def test_get_descriptor_single_entity(self) -> None:
         kb = self.new_Store(ADAM_TTL, INSTANCE_OF_TTL, PAINT_TTL)
         ((item, desc),) = kb.get_descriptor(wd.Adam)
         self.assertEqual(item, wd.Adam)
@@ -49,7 +49,7 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
         assert desc is not None
         self.assert_lexeme_descriptor(desc, *PAINT_TTL.paint_verb_en)
 
-    def test_get_descriptor_multiple_entities(self):
+    def test_get_descriptor_multiple_entities(self) -> None:
         kb = self.new_Store(ADAM_TTL, INSTANCE_OF_TTL, PAINT_TTL)
         ds = list(kb.get_descriptor(
             [wd.Adam,
@@ -79,7 +79,7 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
         self.assertEqual(ds[5][0], wd.L('z'))
         self.assertIsNone(ds[5][1])
 
-    def test_get_descriptor_mask(self):
+    def test_get_descriptor_mask(self) -> None:
         def test_case(kb, mask, desc01, desc21, desc41):
             ds = list(kb.get_descriptor(
                 [wd.Adam,
@@ -143,14 +143,12 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
             ItemDescriptor(*ADAM_TTL.Adam_en),
             PropertyDescriptor(*INSTANCE_OF_TTL.instance_of_en),
             LexemeDescriptor(*PAINT_TTL.paint_verb_en))
-
-# -- get_item_descriptor ---------------------------------------------------
 
-    def test_get_item_descriptor_sanity(self):
+    def test_get_item_descriptor_sanity(self) -> None:
         kb = self.new_Store(ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         self.sanity_check_get_item_descriptor(kb)
 
-    def test_get_item_descriptor_single_item(self):
+    def test_get_item_descriptor_single_item(self) -> None:
         kb = self.new_Store(ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         ((item, desc),) = kb.get_item_descriptor(wd.Adam)
         self.assertEqual(item, wd.Adam)
@@ -158,7 +156,7 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
         assert desc is not None
         self.assert_item_descriptor(desc, *ADAM_TTL.Adam_en)
 
-    def test_get_item_descriptor_multiple_items(self):
+    def test_get_item_descriptor_multiple_items(self) -> None:
         kb = self.new_Store(ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         ds = list(kb.get_item_descriptor(
             [wd.Adam, Item('x'), wd.Brazil], 'pt-br'))
@@ -174,7 +172,7 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
         assert ds[2][1] is not None
         self.assert_item_descriptor(ds[2][1], *BRAZIL_TTL.Brazil_pt_br)
 
-    def test_get_item_descriptor_mask(self):
+    def test_get_item_descriptor_mask(self) -> None:
         def test_case(kb, mask, desc01, desc21):
             ds = list(kb.get_item_descriptor(
                 [wd.Brazil, Item('x'), wd.Latin_America], None, mask))
@@ -222,7 +220,7 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
             ItemDescriptor(*BRAZIL_TTL.Brazil_en),
             ItemDescriptor(*BRAZIL_TTL.Latin_America_en))
 
-    def test_get_item_descriptor_missing_attribute(self):
+    def test_get_item_descriptor_missing_attribute(self) -> None:
         def test_case(comments, desc):
             lines = [
                 'wikibase:sitelinks []',
@@ -250,14 +248,12 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
         test_case(
             ['schema:description'],
             ItemDescriptor('lll', [Text('xxx'), Text('yyy')], None))
-
-# -- get_property_descriptor -----------------------------------------------
 
-    def test_get_property_descriptor_sanity(self):
+    def test_get_property_descriptor_sanity(self) -> None:
         kb = self.new_Store(INSTANCE_OF_TTL)
         self.sanity_check_get_property_descriptor(kb)
 
-    def test_get_property_descriptor_single_property(self):
+    def test_get_property_descriptor_single_property(self) -> None:
         kb = self.new_Store(BENZENE_TTL, INSTANCE_OF_TTL)
         ((prop, desc),) = kb.get_property_descriptor(wd.instance_of)
         self.assertEqual(prop, wd.instance_of)
@@ -265,7 +261,7 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
         assert desc is not None
         self.assert_property_descriptor(desc, *INSTANCE_OF_TTL.instance_of_en)
 
-    def test_get_property_descriptor_multiple_properties(self):
+    def test_get_property_descriptor_multiple_properties(self) -> None:
         kb = self.new_Store(BENZENE_TTL, INSTANCE_OF_TTL)
         ds = list(kb.get_property_descriptor(
             [wd.instance_of, Property('x'), wd.InChIKey], 'es'))
@@ -282,7 +278,7 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
         assert ds[2][1] is not None
         self.assert_property_descriptor(ds[2][1], *BENZENE_TTL.InChIKey_es)
 
-    def test_get_property_descriptor_mask(self):
+    def test_get_property_descriptor_mask(self) -> None:
         def test_case(kb, mask, desc01, desc21):
             ds = list(kb.get_property_descriptor(
                 [wd.instance_of, Property('x'), wd.InChIKey], None, mask))
@@ -328,7 +324,7 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
             PropertyDescriptor(*INSTANCE_OF_TTL.instance_of_en),
             PropertyDescriptor(*BENZENE_TTL.InChIKey_en))
 
-    def test_get_property_descriptor_missing_attribute(self):
+    def test_get_property_descriptor_missing_attribute(self) -> None:
         def test_case(comments, desc):
             lines = [
                 'a wikibase:Property',
@@ -359,14 +355,12 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
             ['schema:description'],
             PropertyDescriptor(
                 'lll', [Text('xxx'), Text('yyy')], None, ItemDatatype()))
-
-# -- get_lexeme_descriptor -------------------------------------------------
 
-    def test_get_lexeme_descriptor_sanity(self):
+    def test_get_lexeme_descriptor_sanity(self) -> None:
         kb = self.new_Store(ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         self.sanity_check_get_lexeme_descriptor(kb)
 
-    def test_get_lexeme_descriptor_single_lexeme(self):
+    def test_get_lexeme_descriptor_single_lexeme(self) -> None:
         kb = self.new_Store(PAINT_TTL)
         ((lex, desc),) = kb.get_lexeme_descriptor(wd.L(96))
         self.assertEqual(lex, wd.L(96))
@@ -374,7 +368,7 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
         assert desc is not None
         self.assert_lexeme_descriptor(desc, *PAINT_TTL.paint_verb_en)
 
-    def test_get_lexeme_descriptor_multiple_lexemes(self):
+    def test_get_lexeme_descriptor_multiple_lexemes(self) -> None:
         kb = self.new_Store(ANDAR_TTL, PAINT_TTL)
         ds = list(kb.get_lexeme_descriptor(
             [wd.L(46803), Lexeme('x'), wd.L(96)]))
@@ -390,7 +384,7 @@ class TestStoreRDF_Descriptors(kif_RDF_StoreTestCase):
         assert ds[2][1] is not None
         self.assert_lexeme_descriptor(ds[2][1], *PAINT_TTL.paint_verb_en)
 
-    def test_get_lexeme_descriptor_mask(self):
+    def test_get_lexeme_descriptor_mask(self) -> None:
         def test_case(kb, mask, desc01, desc21):
             ds = list(kb.get_lexeme_descriptor(
                 [wd.L(46803), Lexeme('x'), wd.L(96)], mask))

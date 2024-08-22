@@ -157,7 +157,7 @@ TESTS_TESTS_DIR: Final[pathlib.Path] = pathlib.Path(__file__).parent
 TObj = TypeVar('TObj', bound=KIF_Object)
 
 
-class kif_TestCase(unittest.TestCase):
+class TestCase(unittest.TestCase):
 
     ALL_KIF_OBJECT_CLASSES: ClassVar[Set[type[KIF_Object]]] = frozenset(filter(
         lambda c: isinstance(c, type) and issubclass(c, KIF_Object), map(

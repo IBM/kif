@@ -17,10 +17,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_ObjectSetTestCase
+from ...tests import ObjectSetTestCase
 
 
-class Test(kif_ObjectSetTestCase):
+class Test(ObjectSetTestCase):
 
     def test_children_class(self) -> None:
         assert_type(TextSet.children_class, type[Text])
@@ -70,7 +70,7 @@ class Test(kif_ObjectSetTestCase):
                 [Variable('x', Text)],
             ])
 
-    def test__contains__(self):
+    def test__contains__(self) -> None:
         self.assertNotIn(0, TextSet())
         self.assertIn(Text('p'), TextSet(Text('p')))
         self.assertNotIn(Text('p', 'pt'), TextSet(Text('p')))

@@ -18,10 +18,10 @@ from kif_lib import (
 )
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from .data_value import kif_DataValueTemplateTestCase, kif_DataValueTestCase
+from .data_value import DataValueTemplateTestCase, DataValueTestCase
 
 
-class kif_DeepDataValueTemplateTestCase(kif_DataValueTemplateTestCase):
+class DeepDataValueTemplateTestCase(DataValueTemplateTestCase):
 
     @override
     def _test_check(
@@ -76,7 +76,7 @@ class kif_DeepDataValueTemplateTestCase(kif_DataValueTemplateTestCase):
             normalize=normalize)
 
 
-class kif_DeepDataValueTestCase(kif_DataValueTestCase):
+class DeepDataValueTestCase(DataValueTestCase):
 
     @override
     def _test_check(

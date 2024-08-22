@@ -19,10 +19,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_DeepDataValueTestCase
+from ...tests import DeepDataValueTestCase
 
 
-class Test(kif_DeepDataValueTestCase):
+class Test(DeepDataValueTestCase):
 
     def test_template_class(self) -> None:
         assert_type(
@@ -61,7 +61,7 @@ class Test(kif_DeepDataValueTestCase):
                 {},
             ])
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         self.assert_abstract_class(DeepDataValue)
 
 

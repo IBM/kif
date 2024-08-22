@@ -11,32 +11,28 @@ from kif_lib import (
 )
 from kif_lib.vocabulary import wd
 
-from .tests import kif_EmptyStoreTestCase
+from .tests import EmptyStoreTestCase
 
 
-class TestStoreEmpty(kif_EmptyStoreTestCase):
+class TestStoreEmpty(EmptyStoreTestCase):
 
-    def test_sanity(self):
+    def test_sanity(self) -> None:
         self.store_sanity_checks(self.new_Store())
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         from kif_lib.store import EmptyStore
         kb = self.new_Store()
         self.assertIsInstance(kb, EmptyStore)
 
-    # -- Set interface -----------------------------------------------------
-
-    def test__iter__(self):
+    def test__iter__(self) -> None:
         kb = self.new_Store()
         self.assertRaises(StopIteration, next, iter(kb))
 
-    def test__len__(self):
+    def test__len__(self) -> None:
         kb = self.new_Store()
         self.assertEqual(len(kb), 0)
 
-    # -- Queries -----------------------------------------------------------
-
-    def test_contains(self):
+    def test_contains(self) -> None:
         kb = self.new_Store()
         self.store_test_not_contains(
             kb,
@@ -62,7 +58,7 @@ class TestStoreEmpty(kif_EmptyStoreTestCase):
             # no value
             Statement(wd.Adam, NoValueSnak(wd.date_of_birth)))
 
-    def test_count(self):
+    def test_count(self) -> None:
         kb = self.new_Store()
         self.store_test_count(kb, 0)
         self.store_test_count(kb, 0, snak_mask=Filter.VALUE_SNAK)
@@ -71,15 +67,13 @@ class TestStoreEmpty(kif_EmptyStoreTestCase):
         self.store_test_count(kb, 0, wd.benzene, wd.mass)
         self.store_test_count(kb, 0, None, wd.part_of, wd.Latin_America)
 
-    def test_filter(self):
+    def test_filter(self) -> None:
         kb = self.new_Store()
         self.store_test_filter(kb, [], subject=wd.benzene)
         self.store_test_filter(kb, [], property=wd.mass)
         self.store_test_filter(kb, [], value=wd.Latin_America)
 
-    # -- Annotations -------------------------------------------------------
-
-    def test_get_annotations(self):
+    def test_get_annotations(self) -> None:
         kb = self.new_Store()
         self.store_test_get_annotations(
             kb,

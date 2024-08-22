@@ -27,10 +27,10 @@ from kif_lib import (
 from kif_lib.model import AndFingerprint, OrFingerprint, ValueFingerprint
 from kif_lib.typing import assert_type, cast
 
-from ...tests import kif_ValueTestCase
+from ...tests import ValueTestCase
 
 
-class Test(kif_ValueTestCase):
+class Test(ValueTestCase):
 
     def test_template_class(self) -> None:
         assert_type(Value.template_class, type[ValueTemplate])
@@ -67,7 +67,7 @@ class Test(kif_ValueTestCase):
                 {},
             ])
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         self.assert_abstract_class(Value)
 
     def test__and__(self) -> None:

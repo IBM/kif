@@ -25,12 +25,12 @@ from .data import (
     INSTANCE_OF_TTL,
     PAINT_TTL,
 )
-from .tests import kif_StoreTestCase
+from .tests import StoreTestCase
 
 KEEP = KIF_Object.KEEP
 
 
-class TestStoreMixerDescriptors(kif_StoreTestCase):
+class TestStoreMixerDescriptors(StoreTestCase):
 
     kb_adam = Store('rdf', ADAM_TTL)
     kb_andar = Store('rdf', ANDAR_TTL)
@@ -39,7 +39,7 @@ class TestStoreMixerDescriptors(kif_StoreTestCase):
     kb_instance_of = Store('rdf', INSTANCE_OF_TTL)
     kb_paint = Store('rdf', PAINT_TTL)
 
-    kb_extra = kif_StoreTestCase.parse('''
+    kb_extra = StoreTestCase.parse('''
 # andar - verb - portuguese
 wd:L46803
     a <http://www.w3.org/ns/lemon/ontolex#LexicalEntry> ;
@@ -104,14 +104,12 @@ wd:P31
 
     extra_instance_of_es = PropertyDescriptor(
         Text('instancia de', 'es'), [Text('∈', 'es')], None, ItemDatatype())
-
-# -- get_descriptor --------------------------------------------------------
 
-    def test_get_descriptor_sanity(self):
+    def test_get_descriptor_sanity(self) -> None:
         kb = Store('mixer', [self.kb_adam, self.kb_benzene, self.kb_brazil])
         self.sanity_check_get_descriptor(kb)
 
-    def test_get_descriptor_single_entity(self):
+    def test_get_descriptor_single_entity(self) -> None:
         kb = Store(
             'mixer', [self.kb_instance_of, self.kb_paint, self.kb_brazil])
         ds = list(kb.get_item_descriptor(wd.Brazil))
@@ -121,7 +119,7 @@ wd:P31
         assert ds[0][1] is not None
         self.assert_item_descriptor(ds[0][1], *BRAZIL_TTL.Brazil_en)
 
-    def test_get_descriptor_single_entity_with_merges(self):
+    def test_get_descriptor_single_entity_with_merges(self) -> None:
         kb = Store(
             'mixer', [self.kb_extra, self.kb_instance_of,
                       self.kb_paint, self.kb_brazil])
@@ -135,9 +133,9 @@ wd:P31
             TextSet(*self.extra_Brazil_pt_br[1], *BRAZIL_TTL.Brazil_pt_br[1]),
             BRAZIL_TTL.Brazil_pt_br[2])
 
-    def test_get_descriptor_multiple_entities(self):
-        kb = Store(
-            'mixer', [self.kb_instance_of, self.kb_paint, self.kb_brazil])
+    def test_get_descriptor_multiple_entities(self) -> None:
+        kb = Store('mixer', [self.kb_instance_of,
+                   self.kb_paint, self.kb_brazil])
         ds = list(kb.get_descriptor([
             wd.Brazil, Property('x'),
             wd.L(96), Item('x'), wd.instance_of]))
@@ -160,10 +158,10 @@ wd:P31
         self.assert_property_descriptor(
             ds[4][1], *INSTANCE_OF_TTL.instance_of_en)
 
-    def test_get_descriptor_multiple_entities_with_merges(self):
-        kb = Store(
-            'mixer', [self.kb_instance_of, self.kb_paint,
-                      self.kb_extra, self.kb_brazil])
+    def test_get_descriptor_multiple_entities_with_merges(self) -> None:
+        kb = Store('mixer', [
+            self.kb_instance_of, self.kb_paint,
+            self.kb_extra, self.kb_brazil])
         ds = list(kb.get_descriptor([
             wd.Brazil, Property('x'),
             wd.L(96), Item('x'), wd.instance_of]))
@@ -192,7 +190,7 @@ wd:P31
                 *self.extra_instance_of_en[1]),
             *INSTANCE_OF_TTL.instance_of_en[2:])
 
-    def test_get_descriptor_mask(self):
+    def test_get_descriptor_mask(self) -> None:
         def test_case(kb, mask, desc01, desc21, desc41):
             ds = list(kb.get_descriptor([
                 wd.Brazil, Property('x'),
@@ -252,14 +250,12 @@ wd:P31
                 *INSTANCE_OF_TTL.instance_of_en[2:]))
         # reset
         kb.set_flags(kb.EARLY_FILTER | kb.LATE_FILTER)
-
-# -- get_item_descriptor ---------------------------------------------------
 
-    def test_get_item_descriptor_sanity(self):
+    def test_get_item_descriptor_sanity(self) -> None:
         kb = Store('mixer', [self.kb_adam, self.kb_benzene, self.kb_brazil])
         self.sanity_check_get_item_descriptor(kb)
 
-    def test_get_item_descriptor_single_item(self):
+    def test_get_item_descriptor_single_item(self) -> None:
         kb = Store('mixer', [self.kb_adam, self.kb_benzene])
         ds = list(kb.get_item_descriptor(wd.benzene))
         self.assertEqual(len(ds), 1)
@@ -268,7 +264,7 @@ wd:P31
         assert ds[0][1] is not None
         self.assert_item_descriptor(ds[0][1], *BENZENE_TTL.benzene_en)
 
-    def test_get_item_descriptor_single_item_with_merges(self):
+    def test_get_item_descriptor_single_item_with_merges(self) -> None:
         kb = Store('mixer', [self.kb_extra, self.kb_benzene])
         ds = list(kb.get_item_descriptor(wd.benzene))
         self.assertEqual(len(ds), 1)
@@ -281,7 +277,7 @@ wd:P31
             TextSet(Text('C6H6'), *BENZENE_TTL.benzene_en[1]),
             self.extra_benzene_en.description)
 
-    def test_get_item_descriptor_multiple_items(self):
+    def test_get_item_descriptor_multiple_items(self) -> None:
         kb = Store('mixer', [self.kb_adam, self.kb_benzene, self.kb_brazil])
         ds = list(kb.get_item_descriptor(
             [wd.Adam, Item('x'), wd.Brazil], 'pt-br'))
@@ -297,7 +293,7 @@ wd:P31
         assert ds[2][1] is not None
         self.assert_item_descriptor(ds[2][1], *BRAZIL_TTL.Brazil_pt_br)
 
-    def test_get_item_descriptor_multiple_items_with_merges(self):
+    def test_get_item_descriptor_multiple_items_with_merges(self) -> None:
         kb = Store('mixer', [
             self.kb_adam, self.kb_benzene, self.kb_extra, self.kb_brazil])
         ds = list(kb.get_item_descriptor(
@@ -323,7 +319,7 @@ wd:P31
         assert ds[3][1] is not None
         self.assert_item_descriptor(ds[3][1], *self.extra_benzene_pt_br)
 
-    def test_get_item_descriptor_mask(self):
+    def test_get_item_descriptor_mask(self) -> None:
         def test_case(kb, mask, desc01, desc21, desc31):
             ds = list(kb.get_item_descriptor(
                 [wd.Adam, Item('x'), wd.Brazil, wd.benzene], 'pt-br', mask))
@@ -387,14 +383,12 @@ wd:P31
             self.extra_benzene_pt_br)
         # reset
         kb.set_flags(kb.EARLY_FILTER | kb.LATE_FILTER)
-
-# -- get_property_descriptor -----------------------------------------------
 
-    def test_get_property_descriptor_sanity(self):
+    def test_get_property_descriptor_sanity(self) -> None:
         kb = Store('mixer', [self.kb_adam, self.kb_benzene, self.kb_brazil])
         self.sanity_check_get_property_descriptor(kb)
 
-    def test_get_property_descriptor_single_property(self):
+    def test_get_property_descriptor_single_property(self) -> None:
         kb = Store('mixer', [self.kb_benzene, self.kb_instance_of])
         ds = list(kb.get_property_descriptor(wd.instance_of))
         self.assertEqual(len(ds), 1)
@@ -404,7 +398,7 @@ wd:P31
         self.assert_property_descriptor(
             ds[0][1], *INSTANCE_OF_TTL.instance_of_en)
 
-    def test_get_property_descriptor_single_property_with_merges(self):
+    def test_get_property_descriptor_single_property_with_merges(self) -> None:
         kb = Store('mixer', [self.kb_extra, self.kb_instance_of])
         ds = list(kb.get_property_descriptor(wd.instance_of))
         self.assertEqual(len(ds), 1)
@@ -419,7 +413,7 @@ wd:P31
             INSTANCE_OF_TTL.instance_of_en[2],
             INSTANCE_OF_TTL.instance_of_en[3])
 
-    def test_get_property_descriptor_multiple_properties(self):
+    def test_get_property_descriptor_multiple_properties(self) -> None:
         kb = Store('mixer', [self.kb_benzene, self.kb_instance_of])
         ds = list(kb.get_property_descriptor(
             [wd.instance_of, Property('x'), wd.InChIKey]))
@@ -436,7 +430,8 @@ wd:P31
         assert ds[2][1] is not None
         self.assert_property_descriptor(ds[2][1], *BENZENE_TTL.InChIKey_en)
 
-    def test_get_property_descriptor_multiple_properties_with_merges(self):
+    def test_get_property_descriptor_multiple_properties_with_merges(
+            self) -> None:
         kb = Store(
             'mixer', [self.kb_extra, self.kb_benzene, self.kb_instance_of])
         ds = list(kb.get_property_descriptor(
@@ -458,7 +453,7 @@ wd:P31
         assert ds[2][1] is not None
         self.assert_property_descriptor(ds[2][1], *BENZENE_TTL.InChIKey_en)
 
-    def test_get_property_descriptor_mask(self):
+    def test_get_property_descriptor_mask(self) -> None:
         def test_case(kb, mask, desc01, desc21):
             ds = list(kb.get_property_descriptor(
                 [wd.instance_of, Property('x'),
@@ -519,14 +514,12 @@ wd:P31
             PropertyDescriptor(*BENZENE_TTL.InChIKey_es))
         # reset
         kb.set_flags(kb.EARLY_FILTER | kb.LATE_FILTER)
-
-# -- get_lexeme_descriptor -----------------------------------------------
 
-    def test_get_lexeme_descriptor_sanity(self):
+    def test_get_lexeme_descriptor_sanity(self) -> None:
         kb = Store('mixer', [self.kb_adam, self.kb_benzene, self.kb_brazil])
         self.sanity_check_get_lexeme_descriptor(kb)
 
-    def test_get_lexeme_descriptor_single_lexeme(self):
+    def test_get_lexeme_descriptor_single_lexeme(self) -> None:
         kb = Store('mixer', [self.kb_andar, self.kb_paint])
         ds = list(kb.get_lexeme_descriptor(wd.L(96)))
         self.assertEqual(len(ds), 1)
@@ -535,7 +528,7 @@ wd:P31
         assert ds[0][1] is not None
         self.assert_lexeme_descriptor(ds[0][1], *PAINT_TTL.paint_verb_en)
 
-    def test_get_lexeme_descriptor_multiple_lexemes(self):
+    def test_get_lexeme_descriptor_multiple_lexemes(self) -> None:
         kb = Store('mixer', [self.kb_andar, self.kb_extra, self.kb_paint])
         ds = list(kb.get_lexeme_descriptor(
             [wd.L(96), Lexeme('x'), wd.L(46803)]))
@@ -551,7 +544,7 @@ wd:P31
         assert ds[2][1] is not None
         self.assert_lexeme_descriptor(ds[2][1], *ANDAR_TTL.andar_verb_pt)
 
-    def test_get_lexeme_descriptor_mask(self):
+    def test_get_lexeme_descriptor_mask(self) -> None:
         def test_case(kb, mask, desc01, desc21):
             ds = list(kb.get_lexeme_descriptor(
                 [wd.L(96), Lexeme('x'), wd.L(46803)], mask))

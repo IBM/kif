@@ -32,10 +32,10 @@ from kif_lib.itertools import product
 from kif_lib.model import TDatatype, TValue
 from kif_lib.typing import assert_type, cast, ClassVar
 
-from ...tests import kif_EntityTemplateTestCase
+from ...tests import EntityTemplateTestCase
 
 
-class Test(kif_EntityTemplateTestCase):
+class Test(EntityTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(PropertyTemplate.object_class, type[Property])

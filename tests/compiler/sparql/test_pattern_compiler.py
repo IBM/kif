@@ -8,10 +8,10 @@ from kif_lib.compiler.sparql.pattern_compiler import (
     TPattern,
 )
 
-from ...tests import kif_TestCase
+from ...tests import TestCase
 
 
-class Test(kif_TestCase):
+class Test(TestCase):
 
     def assert_compile(self, pat: TPattern, template: str):
         compiler = SPARQL_PatternCompiler(pat).compile()
@@ -38,7 +38,7 @@ class Test(kif_TestCase):
 
 # -- Item ------------------------------------------------------------------
 
-#     def test_compile_item_template(self):
+#     def test_compile_item_template(self) -> None:
 #         self.assert_compile(ItemTemplate(IRI_Variable('x')), f'''
 # SELECT * WHERE {{
 #   ?x <{WIKIBASE.sitelinks}> _: .
@@ -55,14 +55,14 @@ class Test(kif_TestCase):
 ###
 # FIXME: NOT WORKING!
 ###
-#     def test_compile_item_variable(self):
+#     def test_compile_item_variable(self) -> None:
 #         self.assert_compile(ItemVariable('x'), f'''
 # SELECT * WHERE {{
 #   ?x <{SCHEMA.version}> _: .
 # }}
 # ''')
 
-#     def test_compile_item(self):
+#     def test_compile_item(self) -> None:
 #         self.assert_compile(Item('x'), f'''
 # SELECT * WHERE {{
 #   <x> <{WIKIBASE.sitelinks}> _: .
@@ -71,7 +71,7 @@ class Test(kif_TestCase):
 
 # -- Property --------------------------------------------------------------
 
-#     def test_compile_property_template(self):
+#     def test_compile_property_template(self) -> None:
 #         self.assert_compile(PropertyTemplate(IRI_Variable('x')), f'''
 # SELECT * WHERE {{
 #   ?x <{RDF.type}> <{WIKIBASE.Property}> .
@@ -88,14 +88,14 @@ class Test(kif_TestCase):
 ###
 # FIXME: NOT WORKING!
 ###
-#     def test_compile_property_variable(self):
+#     def test_compile_property_variable(self) -> None:
 #         self.assert_compile(PropertyVariable('x'), f'''
 # SELECT * WHERE {{
 #   ?x <{RDF.type}> <{WIKIBASE.Property}> .
 # }}
 # ''')
 
-#     def test_compile_property(self):
+#     def test_compile_property(self) -> None:
 #         self.assert_compile(Property('x'), f'''
 # SELECT * WHERE {{
 #   <x> <{RDF.type}> <{WIKIBASE.Property}> .
@@ -104,7 +104,7 @@ class Test(kif_TestCase):
 
 # -- Lexeme ----------------------------------------------------------------
 
-#     def test_compile_lexeme_template(self):
+#     def test_compile_lexeme_template(self) -> None:
 #         self.assert_compile(LexemeTemplate(IRI_Variable('x')), f'''
 # SELECT * WHERE {{
 #   ?x <{RDF.type}> <{ONTOLEX.LexicalEntry}> .
@@ -121,14 +121,14 @@ class Test(kif_TestCase):
 ###
 # FIXME: NOT WORKING!
 ###
-#     def test_compile_lexeme_variable(self):
+#     def test_compile_lexeme_variable(self) -> None:
 #         self.assert_compile(LexemeVariable('x'), f'''
 # SELECT * WHERE {{
 #   ?x <{RDF.type}> <{ONTOLEX.LexicalEntry}> .
 # }}
 # ''')
 
-#     def test_compile_lexeme(self):
+#     def test_compile_lexeme(self) -> None:
 #         self.assert_compile(Lexeme('x'), f'''
 # SELECT * WHERE {{
 #   <x> <{RDF.type}> <{ONTOLEX.LexicalEntry}> .
@@ -140,7 +140,7 @@ class Test(kif_TestCase):
 ###
 # FIXME: NOT WORKING!
 ###
-#     def test_compile_iri_template(self):
+#     def test_compile_iri_template(self) -> None:
 #         self.assert_compile(IRI_Template(StringVariable('x')), f'''
 # SELECT * WHERE {{
 #   {{
@@ -160,7 +160,7 @@ class Test(kif_TestCase):
 ###
 # FIXME: NOT WORKING!
 ###
-#     def test_compile_iri_variable(self):
+#     def test_compile_iri_variable(self) -> None:
 #         self.assert_compile(IRI_Variable('x'), f'''
 # SELECT * WHERE {{
 #   {{
@@ -179,7 +179,7 @@ class Test(kif_TestCase):
 ###
 # FIXME: NOT WORKING!
 ###
-#     def test_compile_iri(self):
+#     def test_compile_iri(self) -> None:
 #         self.assert_compile(IRI('x'), f'''
 # SELECT * WHERE {{
 #   {{
@@ -201,7 +201,7 @@ class Test(kif_TestCase):
 ###
 # FIXME: NOT WORKING!
 ###
-#     def test_compile_text_template(self):
+#     def test_compile_text_template(self) -> None:
 #         self.assert_compile(
 #             TextTemplate(StringVariable('x'), StringVariable('y')), f'''
 # SELECT * WHERE {{

@@ -22,10 +22,10 @@ from kif_lib.model import Theta
 from kif_lib.rdflib import Literal, URIRef
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from .value import kif_ValueTemplateTestCase, kif_ValueTestCase
+from .value import ValueTemplateTestCase, ValueTestCase
 
 
-class kif_EntityTemplateTestCase(kif_ValueTemplateTestCase):
+class EntityTemplateTestCase(ValueTemplateTestCase):
 
     @override
     def _test_check(
@@ -123,7 +123,7 @@ class kif_EntityTemplateTestCase(kif_ValueTemplateTestCase):
             failure_coerce=failure_coerce)
 
 
-class kif_EntityTestCase(kif_ValueTestCase):
+class EntityTestCase(ValueTestCase):
 
     @override
     def _test_check(

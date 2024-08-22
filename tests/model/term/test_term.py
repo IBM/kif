@@ -3,12 +3,12 @@
 
 from kif_lib import Term
 
-from ...tests import kif_TermTestCase
+from ...tests import TermTestCase
 
 
-class Test(kif_TermTestCase):
+class Test(TermTestCase):
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         self.assert_abstract_class(Term)
 
 

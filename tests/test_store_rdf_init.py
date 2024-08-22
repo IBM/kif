@@ -8,12 +8,12 @@ from kif_lib.store.rdf import RDF_Store
 from kif_lib.typing import cast
 
 from .data import BENZENE_TTL, BRAZIL_TTL
-from .tests import kif_StoreTestCase
+from .tests import StoreTestCase
 
 
-class TestStoreRDF_Init(kif_StoreTestCase):
+class TestStoreRDF_Init(StoreTestCase):
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         # bad argument: graph
         self.assert_raises_bad_argument(
             TypeError, None, 'graph', 'expected Graph, got int',

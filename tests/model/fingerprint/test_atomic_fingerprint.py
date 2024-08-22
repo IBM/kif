@@ -12,10 +12,10 @@ from kif_lib.model import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_FingerprintTestCase
+from ...tests import FingerprintTestCase
 
 
-class Test(kif_FingerprintTestCase):
+class Test(FingerprintTestCase):
 
     def test_check(self) -> None:
         assert_type(AtomicFingerprint.check(Item('x')), AtomicFingerprint)
@@ -37,7 +37,7 @@ class Test(kif_FingerprintTestCase):
                 {},
             ])
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         self.assert_abstract_class(AtomicFingerprint)
 
 

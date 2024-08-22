@@ -24,17 +24,15 @@ from kif_lib.typing import cast
 from kif_lib.vocabulary import wd
 
 from .data import ADAM_TTL, BENZENE_TTL, BRAZIL_TTL
-from .tests import kif_StoreTestCase
+from .tests import StoreTestCase
 
 
-class TestStoreRDF(kif_StoreTestCase):
+class TestStoreRDF(StoreTestCase):
 
-    def test_sanity(self):
+    def test_sanity(self) -> None:
         self.store_sanity_checks(Store('rdf', BENZENE_TTL))
 
-    # -- Set interface -----------------------------------------------------
-
-    def test__iter__(self):
+    def test__iter__(self) -> None:
         kb = cast(RDF_Store, Store('rdf', BENZENE_TTL))
         stmt = next(iter(kb))
         self.assertIsInstance(stmt, Statement)
@@ -43,26 +41,22 @@ class TestStoreRDF(kif_StoreTestCase):
         for i in range(3):
             self.assertIsInstance(next(it), Statement)
 
-    def test__len__(self):
+    def test__len__(self) -> None:
         kb = Store('rdf', BENZENE_TTL)
         self.assertEqual(len(kb), 6)
 
-    # -- Queries -----------------------------------------------------------
-
-    def test__eval_select_query_string(self):
+    def test__eval_select_query_string(self) -> None:
         kb = cast(RDF_Store, Store('rdf', BENZENE_TTL))
         res = kb._eval_select_query_string(
             'select * where {?s ?p ?o} limit 1')
         self.assertIn('vars', res['head'])
         self.assertIn('bindings', res['results'])
 
-    # -- contains --
-
-    def test_contains(self):
+    def test_contains(self) -> None:
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         self._test_contains(kb)
 
-    def _test_contains(self, kb):
+    def _test_contains(self, kb) -> None:
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         self.store_test_contains(
             kb,
@@ -118,11 +112,11 @@ class TestStoreRDF(kif_StoreTestCase):
             # no value
             Statement(wd.Brazil, NoValueSnak(wd.inception)))
 
-    def test_contains_any_rank(self):
+    def test_contains_any_rank(self) -> None:
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         self._test_contains_any_rank(kb)
 
-    def _test_contains_any_rank(self, kb):
+    def _test_contains_any_rank(self, kb) -> None:
         self.store_test_contains(
             kb,
             Statement(wd.Adam, NoValueSnak(wd.date_of_birth)))
@@ -137,13 +131,11 @@ class TestStoreRDF(kif_StoreTestCase):
             wd.date_of_birth(wd.Adam, Time(
                 '4003-01-01', 9, 0, wd.proleptic_Julian_calendar)))
 
-    # -- count --
-
-    def test_count(self):
+    def test_count(self) -> None:
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         self._test_count(kb)
 
-    def _test_count(self, kb):
+    def _test_count(self, kb) -> None:
         self.store_test_count(kb, 15)
         self.store_test_count(kb, 12, snak_mask=Filter.VALUE_SNAK)
         self.store_test_count(kb, 2, snak_mask=Filter.NO_VALUE_SNAK)
@@ -223,22 +215,22 @@ class TestStoreRDF(kif_StoreTestCase):
             kb, 0, None, None,
             wd.demonym(Text('Latinoamericana', 'en')))
 
-    def test_count_any_rank(self):
+    def test_count_any_rank(self) -> None:
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         self._test_count_any_rank(kb)
 
-    def _test_count_any_rank(self, kb):
+    def _test_count_any_rank(self, kb) -> None:
         self.store_test_count(kb, 15)
         kb.unset_flags(kb.BEST_RANK)
         self.store_test_count(kb, 16)
 
     # -- filter --
 
-    def test_filter(self):
+    def test_filter(self) -> None:
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         self._test_filter(kb)
 
-    def _test_filter(self, kb):
+    def _test_filter(self, kb) -> None:
         # subject
         self.store_test_filter(
             kb,
@@ -431,11 +423,11 @@ class TestStoreRDF(kif_StoreTestCase):
             snak_mask=Filter.NO_VALUE_SNAK
         )
 
-    def test_filter_any_rank(self):
+    def test_filter_any_rank(self) -> None:
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         self._test_filter_any_rank(kb)
 
-    def _test_filter_any_rank(self, kb):
+    def _test_filter_any_rank(self, kb) -> None:
         self.store_test_filter(
             kb,
             stmts=[Statement(wd.Adam, NoValueSnak(
@@ -458,13 +450,11 @@ class TestStoreRDF(kif_StoreTestCase):
         )
         kb.set_flags(kb.LATE_FILTER)
 
-    # -- Annotations -------------------------------------------------------
-
-    def test_get_annotations(self):
+    def test_get_annotations(self) -> None:
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         self._test_get_annotations(kb)
 
-    def _test_get_annotations(self, kb):
+    def _test_get_annotations(self, kb) -> None:
         self.store_test_get_annotations(
             kb,
             [(wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),  # 0
@@ -579,7 +569,7 @@ class TestStoreRDF(kif_StoreTestCase):
                 '.88', wd.gram_per_cubic_centimetre, '.87', '.89')))
         kb.extra_references = saved_references
 
-    def test_get_annotations_any_rank(self):
+    def test_get_annotations_any_rank(self) -> None:
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
         kb.unset_flags(kb.BEST_RANK)
         self.store_test_get_annotations(

@@ -6,7 +6,7 @@ import dataclasses
 from kif_lib.context import Section
 from kif_lib.typing import Any, assert_type
 
-from ..tests import kif_TestCase
+from ..tests import TestCase
 
 
 @dataclasses.dataclass
@@ -21,7 +21,7 @@ class A(Section, name='a'):
     b: B = dataclasses.field(default_factory=B)
 
 
-class Test(kif_TestCase):
+class Test(TestCase):
 
     def test_name(self) -> None:
         assert_type(A.name, str)

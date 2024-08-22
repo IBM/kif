@@ -13,17 +13,15 @@ from kif_lib import (
 )
 from kif_lib.vocabulary import wd
 
-from .tests import kif_PubChemSPARQL_StoreTestCase
+from .tests import PubChemSPARQL_StoreTestCase
 
 
-class TestStoreMapperMappingPubChem(kif_PubChemSPARQL_StoreTestCase):
+class TestStoreMapperMappingPubChem(PubChemSPARQL_StoreTestCase):
 
-    def test_sanity(self):
+    def test_sanity(self) -> None:
         self.store_sanity_checks(self.new_Store())
 
-    # -- Set interface -----------------------------------------------------
-
-    def test__iter__(self):
+    def test__iter__(self) -> None:
         kb = self.new_Store()
         stmt = next(iter(kb))
         self.assertIsInstance(stmt, Statement)
@@ -34,9 +32,7 @@ class TestStoreMapperMappingPubChem(kif_PubChemSPARQL_StoreTestCase):
         # for i in range(3):
         #     self.assertIsInstance(next(it), Statement)
 
-    # -- Queries -----------------------------------------------------------
-
-    def test_contains(self):
+    def test_contains(self) -> None:
         kb = self.new_Store()
         self.store_test_contains(
             kb,
@@ -100,12 +96,12 @@ class TestStoreMapperMappingPubChem(kif_PubChemSPARQL_StoreTestCase):
                      wd.proleptic_Julian_calendar)),
         )
 
-    def test_count(self):
+    def test_count(self) -> None:
         kb = self.new_Store()
         self.store_test_count(
             kb, 1, wd.Q('_PUBCHEM_PATENT_AP-1072-A'), wd.publication_date)
 
-    def test_filter(self):
+    def test_filter(self) -> None:
         kb = self.new_Store()
         self.store_test_filter(
             kb,
@@ -116,9 +112,7 @@ class TestStoreMapperMappingPubChem(kif_PubChemSPARQL_StoreTestCase):
             subject=wd.Q('_PUBCHEM_PATENT_AU-2010262786-A1'),
             property=wd.title)
 
-    # -- Annotations -------------------------------------------------------
-
-    def test_get_annotations(self):
+    def test_get_annotations(self) -> None:
         kb = self.new_Store()
         stmt1 = wd.title(
             wd.Q('_PUBCHEM_PATENT_AU-2010262786-A1'),

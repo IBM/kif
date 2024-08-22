@@ -34,10 +34,10 @@ from kif_lib import (
 from kif_lib.typing import cast
 from kif_lib.vocabulary import wd
 
-from .tests import kif_TestCase
+from .tests import TestCase
 
 
-class TestCodecMarkdown(kif_TestCase):
+class TestCodecMarkdown(TestCase):
 
     def md_link(self, label, url=None):
         return f'[{label}]({url or label})'
@@ -55,7 +55,7 @@ class TestCodecMarkdown(kif_TestCase):
     def assert_to_markdown(self, obj, md):
         self.assertEqual(obj.to_markdown(), md)
 
-    def test_datatype_to_markdown(self):
+    def test_datatype_to_markdown(self) -> None:
         self.assert_to_markdown(
             ItemDatatype(), self.md_sexp('ItemDatatype'))
         self.assert_to_markdown(
@@ -75,7 +75,7 @@ class TestCodecMarkdown(kif_TestCase):
         self.assert_to_markdown(
             TimeDatatype(), self.md_sexp('TimeDatatype'))
 
-    def test_item_to_markdown(self):
+    def test_item_to_markdown(self) -> None:
         # known prefix: know label
         self.assert_to_markdown(
             wd.Adam, self.md_sexp('Item', self.md_link(
@@ -88,7 +88,7 @@ class TestCodecMarkdown(kif_TestCase):
         self.assert_to_markdown(
             Item('x'), self.md_sexp('Item', self.md_link('x', 'http://x')))
 
-    def test_property_to_markdown(self):
+    def test_property_to_markdown(self) -> None:
         # known prefix: know label
         self.assert_to_markdown(
             wd.mass, self.md_sexp('Property', self.md_link(
@@ -102,7 +102,7 @@ class TestCodecMarkdown(kif_TestCase):
             Property('x'), self.md_sexp('Property', self.md_link(
                 'x', 'http://x')))
 
-    def test_iri_to_markdown(self):
+    def test_iri_to_markdown(self) -> None:
         # known prefix
         self.assert_to_markdown(
             IRI('http://www.wikidata.org/entity/Q5'),
@@ -119,13 +119,13 @@ class TestCodecMarkdown(kif_TestCase):
             IRI('x'),
             self.md_link('x', 'http://x'))
 
-    def test_text_to_markdown(self):
+    def test_text_to_markdown(self) -> None:
         self.assert_to_markdown(Text('abc'), '"abc"@en')
         self.assert_to_markdown(Text('abc', 'fr'), '"abc"@fr')
         # escape
         self.assert_to_markdown(Text('_', 'pt'), r'"\_"@pt')
 
-    def test_string_to_markdown(self):
+    def test_string_to_markdown(self) -> None:
         self.assert_to_markdown(String('abc'), '"abc"')
         # escape
         self.assert_to_markdown(String('_'), r'"\_"')
@@ -133,7 +133,7 @@ class TestCodecMarkdown(kif_TestCase):
         self.assert_to_markdown(String('`'), r'"\`"')
         self.assert_to_markdown(String('[]'), r'"\[]"')
 
-    def test_quantity_to_markdown(self):
+    def test_quantity_to_markdown(self) -> None:
         # amount
         self.assert_to_markdown(
             Quantity(0),
@@ -173,7 +173,7 @@ class TestCodecMarkdown(kif_TestCase):
             Quantity('-2', None, '-3', '-1'),
             self.md_sexp('Quantity', -2, '±1'))
 
-    def test_time_to_markdown(self):
+    def test_time_to_markdown(self) -> None:
         # time
         self.assert_to_markdown(
             Time('2023-09-28'),
@@ -209,7 +209,7 @@ class TestCodecMarkdown(kif_TestCase):
             Time('2023-09-28', None, None, wd.proleptic_Gregorian_calendar),
             self.md_sexp('Time', '2023-09-28'))
 
-    def test_snak_to_markdown(self):
+    def test_snak_to_markdown(self) -> None:
         self.assert_to_markdown(
             wd.mass(Quantity(0)),
             self.md_sexp('ValueSnak', wd.mass, Quantity(0)))
@@ -220,12 +220,12 @@ class TestCodecMarkdown(kif_TestCase):
             NoValueSnak(wd.mass),
             self.md_sexp('NoValueSnak', wd.mass))
 
-    def test_statement_to_markdown(self):
+    def test_statement_to_markdown(self) -> None:
         self.assert_to_markdown(
             wd.mass(wd.benzene, Quantity(0)),
             self.md_sexp('Statement', wd.benzene, wd.mass(Quantity(0))))
 
-    def test_annotation_record_to_markdown(self):
+    def test_annotation_record_to_markdown(self) -> None:
         annots = AnnotationRecord([], [], Normal)
         self.assert_to_markdown(annots, '''\
 (**AnnotationRecord**
@@ -257,12 +257,12 @@ class TestCodecMarkdown(kif_TestCase):
     - (**SomeValueSnak** (**Property** [q](http://q)))))
 - **DeprecatedRank**)''')
 
-    def test_rank_to_markdown(self):
+    def test_rank_to_markdown(self) -> None:
         self.assert_to_markdown(Preferred, self.md_sexp('PreferredRank'))
         self.assert_to_markdown(Normal, self.md_sexp('NormalRank'))
         self.assert_to_markdown(Deprecated, self.md_sexp('DeprecatedRank'))
 
-    def test_reference_record_to_markdown(self):
+    def test_reference_record_to_markdown(self) -> None:
         ref = ReferenceRecord()
         self.assert_to_markdown(ref, '(**ReferenceRecord**)')
         ref = ReferenceRecord(ValueSnak(wd.part_of, wd.benzene))
@@ -279,7 +279,7 @@ class TestCodecMarkdown(kif_TestCase):
 - (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Quantity** 0))
 - (**ValueSnak** (**Property** [canonical SMILES](http://www.wikidata.org/entity/P233)) "ABC"))''')  # noqa: E501
 
-    def test_item_descriptor_to_markdown(self):
+    def test_item_descriptor_to_markdown(self) -> None:
         desc = ItemDescriptor()
         self.assert_to_markdown(desc, '''\
 (**ItemDescriptor**
@@ -298,7 +298,7 @@ class TestCodecMarkdown(kif_TestCase):
   - "sinônimo"@pt)
 - "descrição"@pt)''')
 
-    def test_filter_to_markdown(self):
+    def test_filter_to_markdown(self) -> None:
         self.assert_to_markdown(Filter(), '''\
 (**Filter**
 - (**FullFingerprint**)
@@ -328,7 +328,7 @@ class TestCodecMarkdown(kif_TestCase):
   - (**SnakFingerprint** (**NoValueSnak** (**Property** [date of birth](http://www.wikidata.org/entity/P569)))))
 - `0b100`)''')  # noqa: E501
 
-    def test_snak_set_to_markdown(self):
+    def test_snak_set_to_markdown(self) -> None:
         s = SnakSet()
         self.assert_to_markdown(s, '(**SnakSet**)')
         s = SnakSet(cast(ValueSnak, wd.part_of(wd.benzene)))

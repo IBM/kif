@@ -1,81 +1,81 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from .descriptor import kif_DescriptorTestCase
-from .fingerprint import kif_FingerprintTestCase
-from .kif_object import kif_ObjectTestCase
-from .set import kif_ObjectSetTestCase
-from .snak import kif_SnakTemplateTestCase, kif_SnakTestCase
-from .statement import kif_StatementTemplateTestCase, kif_StatementTestCase
+from .descriptor import DescriptorTestCase
+from .fingerprint import FingerprintTestCase
+from .kif_object import ObjectTestCase
+from .set import ObjectSetTestCase
+from .snak import SnakTemplateTestCase, SnakTestCase
+from .statement import StatementTemplateTestCase, StatementTestCase
 from .term import (
-    kif_ClosedTermTestCase,
-    kif_OpenTermTestCase,
-    kif_TemplateTestCase,
-    kif_TermTestCase,
-    kif_VariableTestCase,
+    ClosedTermTestCase,
+    OpenTermTestCase,
+    TemplateTestCase,
+    TermTestCase,
+    VariableTestCase,
 )
 from .value import (
-    kif_DatatypeTestCase,
-    kif_DataValueTemplateTestCase,
-    kif_DataValueTestCase,
-    kif_DeepDataValueTemplateTestCase,
-    kif_DeepDataValueTestCase,
-    kif_EntityTemplateTestCase,
-    kif_EntityTestCase,
-    kif_ShallowDataValueTemplateTestCase,
-    kif_ShallowDataValueTestCase,
-    kif_ValueTemplateTestCase,
-    kif_ValueTestCase,
+    DatatypeTestCase,
+    DataValueTemplateTestCase,
+    DataValueTestCase,
+    DeepDataValueTemplateTestCase,
+    DeepDataValueTestCase,
+    EntityTemplateTestCase,
+    EntityTestCase,
+    ShallowDataValueTemplateTestCase,
+    ShallowDataValueTestCase,
+    ValueTemplateTestCase,
+    ValueTestCase,
 )
 
 __all__ = (
     # kif object
-    'kif_ObjectTestCase',
+    'ObjectTestCase',
 
     # term
-    'kif_ClosedTermTestCase',
-    'kif_OpenTermTestCase',
-    'kif_TemplateTestCase',
-    'kif_TermTestCase',
-    'kif_VariableTestCase',
+    'ClosedTermTestCase',
+    'OpenTermTestCase',
+    'TemplateTestCase',
+    'TermTestCase',
+    'VariableTestCase',
 
     # datatype
-    'kif_DatatypeTestCase',
+    'DatatypeTestCase',
 
     # value
-    'kif_ValueTemplateTestCase',
-    'kif_ValueTestCase',
+    'ValueTemplateTestCase',
+    'ValueTestCase',
 
     # entity
-    'kif_EntityTemplateTestCase',
-    'kif_EntityTestCase',
+    'EntityTemplateTestCase',
+    'EntityTestCase',
 
     # data value
-    'kif_DataValueTemplateTestCase',
-    'kif_DataValueTestCase',
+    'DataValueTemplateTestCase',
+    'DataValueTestCase',
 
     # shallow data value
-    'kif_ShallowDataValueTemplateTestCase',
-    'kif_ShallowDataValueTestCase',
+    'ShallowDataValueTemplateTestCase',
+    'ShallowDataValueTestCase',
 
     # deep data value
-    'kif_DeepDataValueTemplateTestCase',
-    'kif_DeepDataValueTestCase',
+    'DeepDataValueTemplateTestCase',
+    'DeepDataValueTestCase',
 
     # snak
-    'kif_SnakTemplateTestCase',
-    'kif_SnakTestCase',
+    'SnakTemplateTestCase',
+    'SnakTestCase',
 
     # statement
-    'kif_StatementTemplateTestCase',
-    'kif_StatementTestCase',
+    'StatementTemplateTestCase',
+    'StatementTestCase',
 
     # descriptor
-    'kif_DescriptorTestCase',
+    'DescriptorTestCase',
 
     # fingerprint
-    'kif_FingerprintTestCase',
+    'FingerprintTestCase',
 
     # set
-    'kif_ObjectSetTestCase',
+    'ObjectSetTestCase',
 )

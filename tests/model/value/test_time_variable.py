@@ -4,10 +4,10 @@
 from kif_lib import Item, String, Term, Time, TimeVariable, Variable
 from kif_lib.typing import assert_type, Optional
 
-from ...tests import kif_VariableTestCase
+from ...tests import VariableTestCase
 
 
-class Test(kif_VariableTestCase):
+class Test(VariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(TimeVariable.object_class, type[Time])

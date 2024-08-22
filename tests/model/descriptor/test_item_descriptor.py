@@ -10,12 +10,12 @@ from kif_lib import (
     Text,
     TextSet,
 )
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, Optional
 
-from ...tests import kif_DescriptorTestCase
+from ...tests import DescriptorTestCase
 
 
-class Test(kif_DescriptorTestCase):
+class Test(DescriptorTestCase):
 
     def test_check(self) -> None:
         assert_type(ItemDescriptor.check(ItemDescriptor()), ItemDescriptor)
@@ -44,18 +44,24 @@ class Test(kif_DescriptorTestCase):
                  ItemDescriptor(Text('x', 'es'), None, Text('y', 'es'))),
             ])
 
-    def test_get_label(self):
+    def test_get_label(self) -> None:
+        assert_type(ItemDescriptor().label, Optional[Text])
+        assert_type(ItemDescriptor().get_label(), Optional[Text])
         self.assertEqual(ItemDescriptor('x').get_label(), Text('x'))
         self.assertEqual(ItemDescriptor().get_label(Text('x')), Text('x'))
         self.assertIsNone(ItemDescriptor().get_label())
 
-    def test_get_aliases(self):
+    def test_get_aliases(self) -> None:
+        assert_type(ItemDescriptor().aliases, TextSet)
+        assert_type(ItemDescriptor().get_aliases(), TextSet)
         self.assertEqual(ItemDescriptor('x').get_aliases(), TextSet())
         self.assertEqual(
             ItemDescriptor(None, TextSet('x', 'y')).get_aliases(),
             TextSet(Text('x'), Text('y')))
 
-    def test_get_description(self):
+    def test_get_description(self) -> None:
+        assert_type(ItemDescriptor().description, Optional[Text])
+        assert_type(ItemDescriptor().get_description(), Optional[Text])
         self.assertEqual(
             ItemDescriptor(None, None, 'x').get_description(), Text('x'))
         self.assertEqual(

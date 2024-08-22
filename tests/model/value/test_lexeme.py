@@ -15,10 +15,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type, Iterable
 
-from ...tests import kif_EntityTestCase
+from ...tests import EntityTestCase
 
 
-class Test(kif_EntityTestCase):
+class Test(EntityTestCase):
 
     def test_datatype_class(self) -> None:
         assert_type(Lexeme.datatype_class, type[LexemeDatatype])

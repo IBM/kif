@@ -26,10 +26,10 @@ from kif_lib.model import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_FingerprintTestCase
+from ...tests import FingerprintTestCase
 
 
-class Test(kif_FingerprintTestCase):
+class Test(FingerprintTestCase):
 
     def test_check(self) -> None:
         assert_type(ValueFingerprint.check('x'), ValueFingerprint)

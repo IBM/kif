@@ -37,7 +37,7 @@ class Test(TestCase):
         self.assert_call(obj, STR, Symbol.STR, arg)
         self.assertEqual(str(obj), f'{Symbol.STR}({arg})')
 
-    def test_str(self):
+    def test_str(self) -> None:
         q = Query()
         self.assert_str(q.str(URIRef('x')), NL(URIRef('x')))
         b = BNode()

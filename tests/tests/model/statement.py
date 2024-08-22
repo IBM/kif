@@ -4,10 +4,10 @@
 from kif_lib import KIF_Object, Statement, StatementTemplate
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from .term import kif_ClosedTermTestCase, kif_TemplateTestCase
+from .term import ClosedTermTestCase, TemplateTestCase
 
 
-class kif_StatementTemplateTestCase(kif_TemplateTestCase):
+class StatementTemplateTestCase(TemplateTestCase):
 
     @override
     def _test_check(
@@ -35,7 +35,7 @@ class kif_StatementTemplateTestCase(kif_TemplateTestCase):
         super()._test__init__(cls, assert_fn, success, failure, normalize)
 
 
-class kif_StatementTestCase(kif_ClosedTermTestCase):
+class StatementTestCase(ClosedTermTestCase):
 
     @override
     def _test_check(

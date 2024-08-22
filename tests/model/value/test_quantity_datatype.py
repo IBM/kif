@@ -4,10 +4,10 @@
 from kif_lib import Quantity, QuantityDatatype
 from kif_lib.typing import assert_type
 
-from ...tests import kif_DatatypeTestCase
+from ...tests import DatatypeTestCase
 
 
-class Test(kif_DatatypeTestCase):
+class Test(DatatypeTestCase):
 
     def test_value_class(self) -> None:
         assert_type(QuantityDatatype.value_class, type[Quantity])

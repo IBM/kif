@@ -12,12 +12,12 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_DescriptorTestCase
+from ...tests import DescriptorTestCase
 
 
-class Test(kif_DescriptorTestCase):
+class Test(DescriptorTestCase):
 
-    def test_attribute_mask_check(self):
+    def test_attribute_mask_check(self) -> None:
         self.assertRaisesRegex(
             TypeError, 'cannot coerce',
             Descriptor.AttributeMask.check, 'abc')

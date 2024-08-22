@@ -16,12 +16,12 @@ from kif_lib import (
     TimeTemplate,
     TimeVariable,
 )
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, Optional
 
-from ...tests import kif_DeepDataValueTestCase
+from ...tests import DeepDataValueTestCase
 
 
-class Test(kif_DeepDataValueTestCase):
+class Test(DeepDataValueTestCase):
 
     def test_datatype_class(self) -> None:
         assert_type(Time.datatype_class, type[TimeDatatype])
@@ -94,7 +94,10 @@ class Test(kif_DeepDataValueTestCase):
                 ({},),
             ])
 
-    def test_get_precision(self):
+    def test_get_precision(self) -> None:
+        assert_type(Time('2024-08-22').precision, Optional[Time.Precision])
+        assert_type(
+            Time('2024-08-22').get_precision(), Optional[Time.Precision])
         self.assertEqual(
             Time('2023-09-04', 11).get_precision(), Time.Precision.DAY)
         self.assertEqual(
@@ -102,12 +105,16 @@ class Test(kif_DeepDataValueTestCase):
             Time.Precision.DAY)
         self.assertIsNone(Time('2023-09-04').get_precision())
 
-    def test_get_timezone(self):
+    def test_get_timezone(self) -> None:
+        assert_type(Time('2024-08-22').timezone, Optional[int])
+        assert_type(Time('2024-08-22').get_timezone(), Optional[int])
         self.assertEqual(Time('2023-09-04', None, 1).get_timezone(), 1)
         self.assertEqual(Time('2023-09-04').get_timezone(1), 1)
         self.assertIsNone(Time('2023-09-04').get_timezone())
 
-    def test_get_calendar(self):
+    def test_get_calendar(self) -> None:
+        assert_type(Time('2024-08-22').calendar, Optional[Item])
+        assert_type(Time('2024-08-22').get_calendar(), Optional[Item])
         self.assertEqual(
             Time('2023-09-04', 11, None, Item('x')).get_calendar(), Item('x'))
         self.assertEqual(

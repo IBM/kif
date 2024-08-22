@@ -1,40 +1,40 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from .data_value import kif_DataValueTemplateTestCase, kif_DataValueTestCase
-from .datatype import kif_DatatypeTestCase
+from .data_value import DataValueTemplateTestCase, DataValueTestCase
+from .datatype import DatatypeTestCase
 from .deep_data_value import (
-    kif_DeepDataValueTemplateTestCase,
-    kif_DeepDataValueTestCase,
+    DeepDataValueTemplateTestCase,
+    DeepDataValueTestCase,
 )
-from .entity import kif_EntityTemplateTestCase, kif_EntityTestCase
+from .entity import EntityTemplateTestCase, EntityTestCase
 from .shallow_data_value import (
-    kif_ShallowDataValueTemplateTestCase,
-    kif_ShallowDataValueTestCase,
+    ShallowDataValueTemplateTestCase,
+    ShallowDataValueTestCase,
 )
-from .value import kif_ValueTemplateTestCase, kif_ValueTestCase
+from .value import ValueTemplateTestCase, ValueTestCase
 
 __all__ = (
     # datatype
-    'kif_DatatypeTestCase',
+    'DatatypeTestCase',
 
     # value
-    'kif_ValueTemplateTestCase',
-    'kif_ValueTestCase',
+    'ValueTemplateTestCase',
+    'ValueTestCase',
 
     # entity
-    'kif_EntityTemplateTestCase',
-    'kif_EntityTestCase',
+    'EntityTemplateTestCase',
+    'EntityTestCase',
 
     # data value
-    'kif_DataValueTemplateTestCase',
-    'kif_DataValueTestCase',
+    'DataValueTemplateTestCase',
+    'DataValueTestCase',
 
     # shallow data value
-    'kif_ShallowDataValueTemplateTestCase',
-    'kif_ShallowDataValueTestCase',
+    'ShallowDataValueTemplateTestCase',
+    'ShallowDataValueTestCase',
 
     # deep data value
-    'kif_DeepDataValueTemplateTestCase',
-    'kif_DeepDataValueTestCase',
+    'DeepDataValueTemplateTestCase',
+    'DeepDataValueTestCase',
 )

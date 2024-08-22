@@ -3,12 +3,12 @@
 
 from kif_lib import ClosedTerm
 
-from ...tests import kif_ClosedTermTestCase
+from ...tests import ClosedTermTestCase
 
 
-class Test(kif_ClosedTermTestCase):
+class Test(ClosedTermTestCase):
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         self.assert_abstract_class(ClosedTerm)
 
 

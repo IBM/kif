@@ -34,10 +34,10 @@ from kif_lib.store import (
 from kif_lib.typing import cast, Final, Optional, override
 from kif_lib.vocabulary import wd
 
-from .tests import kif_TestCase
+from .tests import TestCase
 
 
-class kif_StoreTestCase(kif_TestCase):
+class StoreTestCase(TestCase):
 
     @classmethod
     def new_Store(cls, store_name: str, *args, **kwargs):
@@ -620,7 +620,7 @@ class kif_StoreTestCase(kif_TestCase):
         ])
 
 
-class kif_EmptyStoreTestCase(kif_StoreTestCase):
+class EmptyStoreTestCase(StoreTestCase):
 
     @override
     @classmethod
@@ -628,7 +628,7 @@ class kif_EmptyStoreTestCase(kif_StoreTestCase):
         return cast(EmptyStore, Store('empty', *args, **kwargs))
 
 
-class kif_SPARQL_StoreTestCase(kif_StoreTestCase):
+class SPARQL_StoreTestCase(StoreTestCase):
 
     @override
     @classmethod
@@ -636,7 +636,7 @@ class kif_SPARQL_StoreTestCase(kif_StoreTestCase):
         return cast(SPARQL_Store, Store('sparql', *args, **kwargs))
 
 
-class kif_RDF_StoreTestCase(kif_StoreTestCase):
+class RDF_StoreTestCase(StoreTestCase):
 
     @override
     @classmethod
@@ -644,7 +644,7 @@ class kif_RDF_StoreTestCase(kif_StoreTestCase):
         return cast(RDF_Store, Store('rdf', *args, **kwargs))
 
 
-class kif_WikidataSPARQL_StoreTestCase(kif_SPARQL_StoreTestCase):
+class WikidataSPARQL_StoreTestCase(SPARQL_StoreTestCase):
 
     WIKIDATA: Final[Optional[str]] = os.getenv('WIKIDATA')
 
@@ -661,7 +661,7 @@ class kif_WikidataSPARQL_StoreTestCase(kif_SPARQL_StoreTestCase):
             'wikidata', cls.WIKIDATA, *args, **kwargs))
 
 
-class kif_SPARQL_MapperStoreTestCase(kif_SPARQL_StoreTestCase):
+class SPARQL_MapperStoreTestCase(SPARQL_StoreTestCase):
 
     @override
     @classmethod
@@ -670,7 +670,7 @@ class kif_SPARQL_MapperStoreTestCase(kif_SPARQL_StoreTestCase):
             'sparql-mapper', *args, **kwargs))
 
 
-class kif_PubChemSPARQL_StoreTestCase(kif_SPARQL_MapperStoreTestCase):
+class PubChemSPARQL_StoreTestCase(SPARQL_MapperStoreTestCase):
 
     PUBCHEM: Final[Optional[str]] = os.getenv('PUBCHEM')
 

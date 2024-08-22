@@ -14,10 +14,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_ShallowDataValueTestCase
+from ...tests import ShallowDataValueTestCase
 
 
-class Test(kif_ShallowDataValueTestCase):
+class Test(ShallowDataValueTestCase):
 
     def test_datatype_class(self) -> None:
         assert_type(String.datatype_class, type[StringDatatype])

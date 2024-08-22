@@ -13,10 +13,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_EntityTestCase
+from ...tests import EntityTestCase
 
 
-class Test(kif_EntityTestCase):
+class Test(EntityTestCase):
 
     def test_template_class(self) -> None:
         assert_type(Entity.template_class, type[EntityTemplate])
@@ -44,7 +44,7 @@ class Test(kif_EntityTestCase):
                 {},
             ])
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         self.assert_abstract_class(Entity)
 
 

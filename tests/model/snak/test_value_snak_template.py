@@ -30,10 +30,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type, cast
 
-from ...tests import kif_SnakTemplateTestCase
+from ...tests import SnakTemplateTestCase
 
 
-class Test(kif_SnakTemplateTestCase):
+class Test(SnakTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(ValueSnakTemplate.object_class, type[ValueSnak])

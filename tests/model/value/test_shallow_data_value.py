@@ -19,10 +19,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_ShallowDataValueTestCase
+from ...tests import ShallowDataValueTestCase
 
 
-class Test(kif_ShallowDataValueTestCase):
+class Test(ShallowDataValueTestCase):
 
     def test_template_class(self) -> None:
         assert_type(
@@ -64,7 +64,7 @@ class Test(kif_ShallowDataValueTestCase):
                 {},
             ])
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         self.assert_abstract_class(ShallowDataValue)
 
 

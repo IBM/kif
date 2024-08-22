@@ -29,10 +29,10 @@ from kif_lib.itertools import product
 from kif_lib.model import TDatatype, TValue
 from kif_lib.typing import assert_type, cast, ClassVar, Iterable
 
-from ...tests import kif_EntityTestCase
+from ...tests import EntityTestCase
 
 
-class Test(kif_EntityTestCase):
+class Test(EntityTestCase):
 
     def test_datatype_class(self) -> None:
         assert_type(Property.datatype_class, type[PropertyDatatype])

@@ -21,10 +21,10 @@ from kif_lib.model import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_SnakTestCase
+from ...tests import SnakTestCase
 
 
-class Test(kif_SnakTestCase):
+class Test(SnakTestCase):
 
     def test_template_class(self) -> None:
         assert_type(Snak.template_class, type[SnakTemplate])

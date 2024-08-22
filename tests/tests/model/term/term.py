@@ -4,10 +4,10 @@
 from kif_lib import ClosedTerm, KIF_Object, OpenTerm, Term
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from ..kif_object import kif_ObjectTestCase
+from ..kif_object import ObjectTestCase
 
 
-class kif_TermTestCase(kif_ObjectTestCase):
+class TermTestCase(ObjectTestCase):
 
     @override
     def _test_check(
@@ -33,7 +33,7 @@ class kif_TermTestCase(kif_ObjectTestCase):
         super()._test__init__(cls, assert_fn, success, failure)
 
 
-class kif_ClosedTermTestCase(kif_TermTestCase):
+class ClosedTermTestCase(TermTestCase):
 
     @override
     def _test_check(
@@ -59,7 +59,7 @@ class kif_ClosedTermTestCase(kif_TermTestCase):
         super()._test__init__(cls, assert_fn, success, failure)
 
 
-class kif_OpenTermTestCase(kif_TermTestCase):
+class OpenTermTestCase(TermTestCase):
 
     @override
     def _test_check(

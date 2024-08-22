@@ -4,10 +4,10 @@
 from kif_lib import KIF_Object, Snak, SnakTemplate
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from .term import kif_ClosedTermTestCase, kif_TemplateTestCase
+from .term import ClosedTermTestCase, TemplateTestCase
 
 
-class kif_SnakTemplateTestCase(kif_TemplateTestCase):
+class SnakTemplateTestCase(TemplateTestCase):
 
     @override
     def _test_check(
@@ -38,7 +38,7 @@ class kif_SnakTemplateTestCase(kif_TemplateTestCase):
             self.assertRaisesRegex(ValueError, 'cannot apply', cls, *t)
 
 
-class kif_SnakTestCase(kif_ClosedTermTestCase):
+class SnakTestCase(ClosedTermTestCase):
 
     @override
     def _test_check(

@@ -5,12 +5,12 @@ from kif_lib import Quantity, Text
 from kif_lib.typing import Iterable, TypeVar
 from kif_lib.vocabulary import wd
 
-from ...tests import kif_WikidataSPARQL_StoreTestCase
+from ...tests import WikidataSPARQL_StoreTestCase
 
 T = TypeVar('T')
 
 
-class Test(kif_WikidataSPARQL_StoreTestCase):
+class Test(WikidataSPARQL_StoreTestCase):
 
     def assert_it_empty(self, it: Iterable[T]):
         self.assertFalse(set(it))

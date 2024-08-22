@@ -22,10 +22,10 @@ from kif_lib.model import Theta
 from kif_lib.rdflib import Literal, URIRef
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from .data_value import kif_DataValueTemplateTestCase, kif_DataValueTestCase
+from .data_value import DataValueTemplateTestCase, DataValueTestCase
 
 
-class kif_ShallowDataValueTemplateTestCase(kif_DataValueTemplateTestCase):
+class ShallowDataValueTemplateTestCase(DataValueTemplateTestCase):
 
     @override
     def _test_check(
@@ -120,7 +120,7 @@ class kif_ShallowDataValueTemplateTestCase(kif_DataValueTemplateTestCase):
             ])
 
 
-class kif_ShallowDataValueTestCase(kif_DataValueTestCase):
+class ShallowDataValueTestCase(DataValueTestCase):
 
     @override
     def _test_check(

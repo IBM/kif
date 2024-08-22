@@ -4,10 +4,10 @@
 from kif_lib import KIF_Object
 from kif_lib.typing import Any, Callable, Iterable, Sequence
 
-from ..tests import kif_TestCase
+from ..tests import TestCase
 
 
-class kif_ObjectTestCase(kif_TestCase):
+class ObjectTestCase(TestCase):
 
     def _test_check(
             self,

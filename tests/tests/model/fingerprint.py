@@ -5,10 +5,10 @@ from kif_lib import Fingerprint, KIF_Object
 from kif_lib.model import TValue
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from .kif_object import kif_ObjectTestCase
+from .kif_object import ObjectTestCase
 
 
-class kif_FingerprintTestCase(kif_ObjectTestCase):
+class FingerprintTestCase(ObjectTestCase):
 
     def assert_match(self, fp: Fingerprint, *values: TValue) -> None:
         for value in values:

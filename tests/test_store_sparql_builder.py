@@ -4,16 +4,16 @@
 from kif_lib import IRI, String
 from kif_lib.store.sparql_builder import SPARQL_Builder
 
-from .tests import kif_TestCase
+from .tests import TestCase
 
 
-class TestStoreSPARQL_Builder(kif_TestCase):
+class TestStoreSPARQL_Builder(TestCase):
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         q = SPARQL_Builder()
         self.assertIsInstance(q, SPARQL_Builder)
 
-    def test_BNode(self):
+    def test_BNode(self) -> None:
         q = SPARQL_Builder()
         self.assertEqual(q._bcnt, 0)
         self.assertFalse(bool(q._bnodes))
@@ -25,7 +25,7 @@ class TestStoreSPARQL_Builder(kif_TestCase):
         self.assertNotEqual(a, b)
         self.assertNotEqual(a, a1)
 
-    def test_Variable(self):
+    def test_Variable(self) -> None:
         q = SPARQL_Builder()
         self.assertFalse(bool(q._vars))
         self.assertFalse(bool(q._vals))
@@ -39,30 +39,30 @@ class TestStoreSPARQL_Builder(kif_TestCase):
 
     # -- Builtin calls -----------------------------------------------------
 
-    def test_concat_(self):
+    def test_concat_(self) -> None:
         q = SPARQL_Builder()
         self.assertEqual(
             q.concat(IRI('x'), q.var('y'), String('z')),
             'concat(<x>, ?y, "z")')
 
-    def test_str_(self):
+    def test_str_(self) -> None:
         q = SPARQL_Builder()
         self.assertEqual(q.str_(IRI('x')), 'str(<x>)')
 
-    def test_substr(self):
+    def test_substr(self) -> None:
         q = SPARQL_Builder()
         self.assertEqual(q.substr(IRI('x'), 8), 'substr(<x>, 8)')
         self.assertEqual(q.substr(IRI('x'), 8, 2), 'substr(<x>, 8, 2)')
         self.assertEqual(
             q.str_(q.substr(IRI('x'), 8, 2)), 'str(substr(<x>, 8, 2))')
 
-    def test_uri_(self):
+    def test_uri_(self) -> None:
         q = SPARQL_Builder()
         self.assertEqual(q.uri(String('x')), 'uri("x")')
 
     # -- Patterns ----------------------------------------------------------
 
-    def test_bind(self):
+    def test_bind(self) -> None:
         q = SPARQL_Builder()
         self.assertIs(q.bind(IRI('x'), q.var('x')), q)
         self.assertEqual(q[-1], 'bind(<x> as ?x)')
@@ -76,7 +76,7 @@ class TestStoreSPARQL_Builder(kif_TestCase):
         self.assertTrue(q.has_bnode(b0))
         self.assertFalse(q.has_bnode(q.bnode()))
 
-    def test_triple(self):
+    def test_triple(self) -> None:
         q = SPARQL_Builder()
         x, y = q.vars('x', 'y')
         u = IRI('u')
@@ -90,7 +90,7 @@ class TestStoreSPARQL_Builder(kif_TestCase):
         self.assertTrue(q.has_value(IRI('u')))
         self.assertTrue(q.has_value(String('s')))
 
-    def test_group(self):
+    def test_group(self) -> None:
         q = SPARQL_Builder()
         with q.group(cond=False):
             pass
@@ -112,7 +112,7 @@ class TestStoreSPARQL_Builder(kif_TestCase):
   }
 }''')
 
-    def test_optional(self):
+    def test_optional(self) -> None:
         q = SPARQL_Builder()
         with q.optional(cond=False):
             pass
@@ -129,19 +129,19 @@ optional {
 
     # -- Modifiers ---------------------------------------------------------
 
-    def test_limit(self):
+    def test_limit(self) -> None:
         q = SPARQL_Builder()
         q.limit(500)
         self.assertEqual(q[-1], 'limit 500')
 
-    def test_offset(self):
+    def test_offset(self) -> None:
         q = SPARQL_Builder()
         q.offset(33)
         self.assertEqual(q[-1], 'offset 33')
 
     # -- Typesetting -------------------------------------------------------
 
-    def test_select(self):
+    def test_select(self) -> None:
         q = SPARQL_Builder()
         s, p, o, c = q.vars('s', 'p', 'o', 'c')
         with q.where():

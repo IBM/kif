@@ -3,12 +3,12 @@
 
 from kif_lib.store.sparql_results import SPARQL_Results
 
-from .tests import kif_TestCase
+from .tests import TestCase
 
 
-class TestStoreSPARQL_Results(kif_TestCase):
+class TestStoreSPARQL_Results(TestCase):
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         res = SPARQL_Results(
             {'head': {'vars': {}}, 'results': {'bindings': {}}})
         self.assertIsInstance(res, SPARQL_Results)

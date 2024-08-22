@@ -20,10 +20,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_StatementTestCase
+from ...tests import StatementTestCase
 
 
-class Test(kif_StatementTestCase):
+class Test(StatementTestCase):
 
     def test_template_class(self) -> None:
         assert_type(Statement.template_class, type[StatementTemplate])

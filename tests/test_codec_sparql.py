@@ -6,12 +6,12 @@ from kif_lib.error import DecoderError
 from kif_lib.model import AndFingerprint, ValueFingerprint
 from kif_lib.vocabulary import wd
 
-from .tests import kif_TestCase
+from .tests import TestCase
 
 
-class TestCodecSPARQL(kif_TestCase):
+class TestCodecSPARQL(TestCase):
 
-    def test_from_sparql(self):
+    def test_from_sparql(self) -> None:
         # bad query
         self.assertRaisesRegex(DecoderError, 'bad query',
                                Filter.from_sparql, 'xxx')
@@ -42,7 +42,7 @@ class TestCodecSPARQL(kif_TestCase):
             Filter.from_sparql(q),
             None, None, ValueFingerprint(wd.benzene))
 
-    def test_text2sparql(self):
+    def test_text2sparql(self) -> None:
         # Give me the mass of benzene.
         q = '''
 SELECT ?value WHERE {

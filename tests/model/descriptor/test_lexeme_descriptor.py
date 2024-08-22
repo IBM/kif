@@ -11,13 +11,13 @@ from kif_lib import (
     String,
     Text,
 )
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, Optional
 from kif_lib.vocabulary import wd
 
-from ...tests import kif_DescriptorTestCase
+from ...tests import DescriptorTestCase
 
 
-class Test(kif_DescriptorTestCase):
+class Test(DescriptorTestCase):
 
     def test_check(self) -> None:
         assert_type(
@@ -51,7 +51,9 @@ class Test(kif_DescriptorTestCase):
                  LexemeDescriptor(Text('x', 'es'), None, Item('y'))),
             ])
 
-    def test_get_lemma(self):
+    def test_get_lemma(self) -> None:
+        assert_type(LexemeDescriptor().lemma, Optional[Text])
+        assert_type(LexemeDescriptor().get_lemma(), Optional[Text])
         self.assertEqual(LexemeDescriptor('x').get_lemma(), Text('x'))
         self.assertEqual(LexemeDescriptor(
             Text('x', 'es')).lemma, Text('x', 'es'))
@@ -59,14 +61,18 @@ class Test(kif_DescriptorTestCase):
             LexemeDescriptor().get_lemma(Text('x', 'es')), Text('x', 'es'))
         self.assertIsNone(LexemeDescriptor().get_lemma())
 
-    def test_get_category(self):
+    def test_get_category(self) -> None:
+        assert_type(LexemeDescriptor().category, Optional[Item])
+        assert_type(LexemeDescriptor().get_category(), Optional[Item])
         self.assertEqual(
             LexemeDescriptor(None, wd.verb).get_category(), wd.verb)
         self.assertEqual(LexemeDescriptor(None, wd.verb).category, wd.verb)
         self.assertEqual(LexemeDescriptor().get_category(wd.verb), wd.verb)
         self.assertIsNone(LexemeDescriptor().get_category())
 
-    def test_get_language(self):
+    def test_get_language(self) -> None:
+        assert_type(LexemeDescriptor().language, Optional[Item])
+        assert_type(LexemeDescriptor().get_language(), Optional[Item])
         self.assertEqual(
             LexemeDescriptor(None, None, wd.English).get_language(),
             wd.English)

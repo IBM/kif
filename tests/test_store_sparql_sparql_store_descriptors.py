@@ -12,17 +12,16 @@ from kif_lib import (
 )
 from kif_lib.vocabulary import wd
 
-from .tests import kif_WikidataSPARQL_StoreTestCase
+from .tests import WikidataSPARQL_StoreTestCase
 
 
-class TestStoreSPARQL_SPARQL_StoreDescriptors(
-        kif_WikidataSPARQL_StoreTestCase):
+class TestStoreSPARQL_SPARQL_StoreDescriptors(WikidataSPARQL_StoreTestCase):
 
-    def test_get_descriptor_sanity(self):
+    def test_get_descriptor_sanity(self) -> None:
         kb = self.new_Store()
         self.sanity_check_get_descriptor(kb)
 
-    def test_get_descriptor_single_entity(self):
+    def test_get_descriptor_single_entity(self) -> None:
         kb = self.new_Store()
         ds = list(kb.get_descriptor(wd.IBM))
         self.assertEqual(len(ds), 1)
@@ -37,7 +36,7 @@ class TestStoreSPARQL_SPARQL_StoreDescriptors(
             desc.description,
             Text('American multinational technology corporation'))
 
-    def test_get_descriptor_multiple_entities(self):
+    def test_get_descriptor_multiple_entities(self) -> None:
         kb = self.new_Store()
         ds = list(kb.get_descriptor([
             wd.IBM, Item('x'),

@@ -38,10 +38,10 @@ from kif_lib.model import (
 )
 from kif_lib.typing import assert_type, Iterator, Optional
 
-from ...tests import kif_VariableTestCase
+from ...tests import VariableTestCase
 
 
-class Test(kif_VariableTestCase):
+class Test(VariableTestCase):
 
     def test__init__(self) -> None:
         assert_type(Variable('x'), Variable)

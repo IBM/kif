@@ -4,16 +4,16 @@
 from kif_lib import Snak, SnakTemplate
 from kif_lib.typing import assert_type
 
-from ...tests import kif_SnakTemplateTestCase
+from ...tests import SnakTemplateTestCase
 
 
-class Test(kif_SnakTemplateTestCase):
+class Test(SnakTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(SnakTemplate.object_class, type[Snak])
         self.assertIs(SnakTemplate.object_class, Snak)
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         self.assert_abstract_class(SnakTemplate)
 
 

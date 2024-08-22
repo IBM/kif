@@ -22,10 +22,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_ObjectSetTestCase
+from ...tests import ObjectSetTestCase
 
 
-class Test(kif_ObjectSetTestCase):
+class Test(ObjectSetTestCase):
 
     def test_children_class(self) -> None:
         assert_type(ValueSet.children_class, type[Value])
@@ -77,7 +77,7 @@ class Test(kif_ObjectSetTestCase):
                 [Item('x'), NoValueSnak('x')],
             ])
 
-    def test__contains__(self):
+    def test__contains__(self) -> None:
         self.assertNotIn(0, ValueSet())
         self.assertIn(Text('p'), ValueSet(Text('p')))
         self.assertNotIn(Text('p', 'pt'), ValueSet(Text('p')))

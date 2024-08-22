@@ -4,10 +4,10 @@
 from kif_lib import Item, Lexeme, LexemeTemplate, Property, Term, Variable
 from kif_lib.typing import assert_type
 
-from ...tests import kif_EntityTemplateTestCase
+from ...tests import EntityTemplateTestCase
 
 
-class Test(kif_EntityTemplateTestCase):
+class Test(EntityTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(LexemeTemplate.object_class, type[Lexeme])

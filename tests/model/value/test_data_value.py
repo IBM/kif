@@ -19,10 +19,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_DataValueTestCase
+from ...tests import DataValueTestCase
 
 
-class Test(kif_DataValueTestCase):
+class Test(DataValueTestCase):
 
     def test_template_class(self) -> None:
         assert_type(DataValue.template_class, type[DataValueTemplate])
@@ -59,7 +59,7 @@ class Test(kif_DataValueTestCase):
                 {},
             ])
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         self.assert_abstract_class(DataValue)
 
 

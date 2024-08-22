@@ -11,10 +11,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import kif_ShallowDataValueTemplateTestCase
+from ...tests import ShallowDataValueTemplateTestCase
 
 
-class Test(kif_ShallowDataValueTemplateTestCase):
+class Test(ShallowDataValueTemplateTestCase):
 
     def test_object_class(self) -> None:
         assert_type(IRI_Template.object_class, type[IRI])

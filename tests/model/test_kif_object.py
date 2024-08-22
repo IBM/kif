@@ -21,15 +21,15 @@ from kif_lib import (
 from kif_lib.error import EncoderError
 from kif_lib.typing import cast
 
-from ..tests import kif_TestCase
+from ..tests import TestCase
 
 
-class Test(kif_TestCase):
+class Test(TestCase):
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         self.assert_abstract_class(KIF_Object)
 
-    def test__new__(self):
+    def test__new__(self) -> None:
         self.assertIsInstance(Item('x'), Item)
         self.assertIsInstance(ItemTemplate('x'), Item)
         self.assertIsInstance(Item(iri='x'), Item)
@@ -40,11 +40,11 @@ class Test(kif_TestCase):
         self.assertIsInstance(
             ItemTemplate(iri=IRI_Variable('x')), ItemTemplate)
 
-    def test__repr_markdown_(self):
+    def test__repr_markdown_(self) -> None:
         self.assertEqual(
             Item('x')._repr_markdown_(), '(**Item** [x](http://x))')
 
-    def test_traverse(self):
+    def test_traverse(self) -> None:
         obj = Variable('p')(Item('x'), Quantity(5, Item('u')))
         self.assert_statement_template(
             obj, Item('x'), Variable('p')(Quantity(5, Item('u'))))
@@ -87,7 +87,7 @@ class Test(kif_TestCase):
              None,
              None])
 
-    def test_repr_decoder_extensions(self):
+    def test_repr_decoder_extensions(self) -> None:
         from kif_lib.model.kif_object import KIF_ReprDecoder
         dec = KIF_ReprDecoder()
         self.assertEqual(dec.decode('5'), 5)
@@ -97,52 +97,52 @@ class Test(kif_TestCase):
         self.assertEqual(dec.decode("Decimal('.5')"), decimal.Decimal('.5'))
         self.assertEqual(dec.decode("set()"), set())
 
-    def test_repr_encoder_extensions(self):
+    def test_repr_encoder_extensions(self) -> None:
         from kif_lib.model.kif_object import KIF_ReprEncoder
         enc = KIF_ReprEncoder()
         self.assertEqual(enc.encode(IRI('x')), "IRI('x')")
         self.assertEqual(
-            enc.encode(datetime.datetime(2024, 2, 6)),  # pyright: ignore
+            enc.encode(datetime.datetime(2024, 2, 6)),  # type: ignore
             'datetime.datetime(2024, 2, 6, 0, 0)')
         self.assertEqual(
-            enc.encode(decimal.Decimal(0)), "Decimal('0')")  # pyright: ignore
+            enc.encode(decimal.Decimal(0)), "Decimal('0')")  # type: ignore
         self.assertEqual(
-            enc.encode(decimal.Decimal(3.5)),  # pyright: ignore
+            enc.encode(decimal.Decimal(3.5)),  # type: ignore
             "Decimal('3.5')")
         self.assertEqual(
-            enc.encode(Filter.SnakMask.ALL), '7')    # pyright: ignore
-        self.assertEqual(enc.encode(set()), 'set()')     # pyright: ignore
+            enc.encode(Filter.SnakMask.ALL), '7')    # type: ignore
+        self.assertEqual(enc.encode(set()), 'set()')     # type: ignore
 
-    def test_json_encoder_extensions(self):
+    def test_json_encoder_extensions(self) -> None:
         from kif_lib.model.kif_object import KIF_JSON_Encoder
         enc = KIF_JSON_Encoder()
         self.assertEqual(
             enc.encode(IRI('x')), '{"class": "IRI", "args": ["x"]}')
         self.assertEqual(
-            enc.encode(datetime.datetime(2024, 2, 6)),  # pyright: ignore
+            enc.encode(datetime.datetime(2024, 2, 6)),  # type: ignore
             '"2024-02-06 00:00:00"')
         self.assertEqual(enc.encode(
-            decimal.Decimal(0)), '"0"')  # pyright: ignore
+            decimal.Decimal(0)), '"0"')  # type: ignore
         self.assertEqual(enc.encode(
-            decimal.Decimal(3.5)), '"3.5"')  # pyright: ignore
+            decimal.Decimal(3.5)), '"3.5"')  # type: ignore
         self.assertEqual(
-            enc.encode(Filter.SnakMask.ALL), '"7"')        # pyright: ignore
-        self.assertRaises(EncoderError, enc.encode, set())  # pyright: ignore
+            enc.encode(Filter.SnakMask.ALL), '"7"')        # type: ignore
+        self.assertRaises(EncoderError, enc.encode, set())  # type: ignore
 
-    def test_sexp_encoder_extensions(self):
+    def test_sexp_encoder_extensions(self) -> None:
         from kif_lib.model.kif_object import KIF_SExpEncoder
         enc = KIF_SExpEncoder()
         self.assertEqual(enc.encode(Preferred), 'PreferredRank')
         self.assertEqual(
-            enc.encode(datetime.datetime(2024, 2, 6)),     # pyright: ignore
-            '2024-02-06 00:00:00')                         # pyright: ignore
+            enc.encode(datetime.datetime(2024, 2, 6)),     # type: ignore
+            '2024-02-06 00:00:00')                         # type: ignore
         self.assertEqual(
-            enc.encode(decimal.Decimal(0)), '0')  # pyright: ignore
+            enc.encode(decimal.Decimal(0)), '0')  # type: ignore
         self.assertEqual(
-            enc.encode(decimal.Decimal(3.5)), '3.5')       # pyright: ignore
+            enc.encode(decimal.Decimal(3.5)), '3.5')       # type: ignore
         self.assertEqual(
-            enc.encode(Filter.SnakMask.ALL), '7')          # pyright: ignore
-        self.assertRaises(EncoderError, enc.encode, set())  # pyright: ignore
+            enc.encode(Filter.SnakMask.ALL), '7')          # type: ignore
+        self.assertRaises(EncoderError, enc.encode, set())  # type: ignore
 
 
 if __name__ == '__main__':

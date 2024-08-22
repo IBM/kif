@@ -5,12 +5,12 @@ from kif_lib import Store
 from kif_lib.store.mixer import MixerStore
 from kif_lib.typing import cast
 
-from .tests import kif_StoreTestCase
+from .tests import StoreTestCase
 
 
-class TestStoreMixer_Init(kif_StoreTestCase):
+class TestStoreMixer_Init(StoreTestCase):
 
-    def test__init__(self):
+    def test__init__(self) -> None:
         # bad argument: sources
         self.assert_raises_bad_argument(
             TypeError, 2, 'sources', 'expected Iterable, got int',

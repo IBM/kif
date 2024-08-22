@@ -17,12 +17,12 @@ from kif_lib import (
 )
 from kif_lib.vocabulary import wd
 
-from .tests import kif_WikidataSPARQL_StoreTestCase
+from .tests import WikidataSPARQL_StoreTestCase
 
 
-class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
+class TestStoreSPARQL_SPARQL_StoreStatements(WikidataSPARQL_StoreTestCase):
 
-    def test_filter_bad_argument(self):
+    def test_filter_bad_argument(self) -> None:
         kb = self.new_Store()
         # bad argument: subject
         self.assertRaises(TypeError, kb.filter, {})
@@ -41,31 +41,31 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         # bad argument: limit
         self.assertRaises(TypeError, kb.filter, limit=Item('x'))
 
-    def test_filter_full(self):
+    def test_filter_full(self) -> None:
         kb = self.new_Store()
         filter = Filter()
         self.assertEqual(len(list(kb.filter(filter=filter, limit=1))), 1)
 
-    def test_filter_empty(self):
+    def test_filter_empty(self) -> None:
         kb = self.new_Store()
         filter = Filter(None, None, None, Filter.SnakMask(0))
         self.assertEqual(len(list(kb.filter(filter=filter, limit=1))), 0)
 
-    def test_filter_duplicated_statements(self):
+    def test_filter_duplicated_statements(self) -> None:
         kb = self.new_Store()
-        res = list(kb.filter(wd.Q(213611), wd.P(1411), value=wd.Q(22752868)))
-        self.assertEqual(len(res), 1)
-        res = list(kb.filter_annotated(
+        res1 = list(kb.filter(wd.Q(213611), wd.P(1411), value=wd.Q(22752868)))
+        self.assertEqual(len(res1), 1)
+        res2 = list(kb.filter_annotated(
             wd.Q(213611), wd.P(1411), value=wd.Q(22752868)))
-        self.assertEqual(len(res), 1)
-        self.assertEqual(len(res[0][1]), 6)
+        self.assertEqual(len(res2), 1)
+        self.assertEqual(len(res2[0][1]), 6)
 
-    def test_filter_subject_is_item(self):
+    def test_filter_subject_is_item(self) -> None:
         kb = self.new_Store()
         stmt = next(kb.filter(wd.Brazil))
         self.assertEqual(stmt.subject, wd.Brazil)
 
-    def test_filter_subject_is_snak_set(self):
+    def test_filter_subject_is_snak_set(self) -> None:
         kb = self.new_Store()
         stmt = next(kb.filter([
             wd.official_language(wd.Portuguese),
@@ -85,13 +85,13 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
             stmt, stmt.subject,
             ValueSnak(wd.spouse.replace(KIF_Object.KEEP, Item), wd.Eve))
 
-    def test_filter_property_is_property(self):
+    def test_filter_property_is_property(self) -> None:
         kb = self.new_Store()
         stmt = next(kb.filter(property=wd.part_of))
         self.assertEqual(
             stmt.snak.property, wd.part_of.replace(KIF_Object.KEEP, Item))
 
-    def test_filter_property_is_snak_set(self):
+    def test_filter_property_is_snak_set(self) -> None:
         kb = self.new_Store()
         stmt = next(kb.filter(
             subject=wd.Brazil,
@@ -100,26 +100,26 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
         self.assert_statement(
             stmt, wd.Brazil, ValueSnak(wd.part_of, wd.Latin_America))
 
-    def test_filter_value_is_item(self):
+    def test_filter_value_is_item(self) -> None:
         kb = self.new_Store()
         stmt = next(kb.filter(wd.Brazil, wd.continent, wd.South_America))
         self.assert_statement(
             stmt, wd.Brazil, wd.continent(wd.South_America))
 
-    def test_filter_value_is_property(self):
+    def test_filter_value_is_property(self) -> None:
         kb = self.new_Store()
         stmt = next(kb.filter(None, wd.Wikidata_property, wd.continent))
         self.assert_statement(
             stmt, wd.continent_, wd.Wikidata_property(
                 wd.continent.replace(KIF_Object.KEEP, Item)))
 
-    def test_filter_value_is_iri(self):
+    def test_filter_value_is_iri(self) -> None:
         kb = self.new_Store()
         stmt = next(kb.filter(wd.IBM, wd.official_website))
         self.assert_statement(
             stmt, wd.IBM, wd.official_website(IRI('https://www.ibm.com/')))
 
-    def test_filter_value_is_text(self):
+    def test_filter_value_is_text(self) -> None:
         kb = self.new_Store()
         stmt = next(iter(sorted(list(kb.filter(
             value=Text('Federative Republic of Brazil', 'en'))))))
@@ -127,14 +127,14 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
             stmt, wd.Brazil, wd.official_name(Text(
                 'Federative Republic of Brazil', 'en')))
 
-    def test_filter_value_is_string(self):
+    def test_filter_value_is_string(self) -> None:
         kb = self.new_Store()
         stmt = next(kb.filter(value=ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
         self.assert_statement(
             stmt, wd.benzene,
             wd.InChIKey(ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
 
-    def test_filter_value_is_quantity(self):
+    def test_filter_value_is_quantity(self) -> None:
         kb = self.new_Store()
         stmt = next(kb.filter(wd.benzene, value=Quantity('78.046950192')))
         self.assert_statement(
@@ -162,7 +162,7 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
                 wd.benzene, wd.density, qt.replace(
                     qt.KEEP, None, None, '.88')))
 
-    def test_filter_value_is_time(self):
+    def test_filter_value_is_time(self) -> None:
         kb = self.new_Store()
         tm = Time(
             '1822-09-07', Time.DAY, 0, wd.proleptic_Gregorian_calendar)
@@ -188,7 +188,7 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
                 wd.Brazil, wd.inception, tm.replace(
                     tm.KEEP, None, 0, wd.proleptic_Julian_calendar)))
 
-    def test_filter_value_is_snak_set(self):
+    def test_filter_value_is_snak_set(self) -> None:
         kb = self.new_Store()
         stmt = next(kb.filter(value=[
             wd.official_language(wd.Portuguese),
@@ -213,7 +213,7 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
             stmt, stmt.subject, NoValueSnak(
                 wd.date_of_birth.replace(KIF_Object.KEEP, Time)))
 
-    def test_filter_snak_mask_value_snak(self):
+    def test_filter_snak_mask_value_snak(self) -> None:
         kb = self.new_Store()
         kb.unset_flags(kb.BEST_RANK)
         stmt = next(kb.filter(
@@ -226,7 +226,7 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
             wd.Adam, wd.date_of_death, snak_mask=Filter.VALUE_SNAK)
         self.assertRaises(StopIteration, next, it)
 
-    def test_filter_snak_mask_some_value_snak(self):
+    def test_filter_snak_mask_some_value_snak(self) -> None:
         kb = self.new_Store()
         kb.unset_flags(kb.BEST_RANK)
         stmt = next(kb.filter(
@@ -235,14 +235,14 @@ class TestStoreSPARQL_SPARQL_StoreStatements(kif_WikidataSPARQL_StoreTestCase):
             stmt, wd.Adam, SomeValueSnak(
                 wd.date_of_death.replace(KIF_Object.KEEP, Time)))
 
-    def test_filter_snak_mask_no_value_snak(self):
+    def test_filter_snak_mask_no_value_snak(self) -> None:
         kb = self.new_Store()
         stmt = next(kb.filter(
             wd.Adam, wd.father, snak_mask=Filter.NO_VALUE_SNAK))
         self.assert_statement(stmt, wd.Adam, NoValueSnak(
             wd.father.replace(KIF_Object.KEEP, Item)))
 
-    def test_filter_store_flag_early_late_filter(self):
+    def test_filter_store_flag_early_late_filter(self) -> None:
         kb = self.new_Store()
         kb.unset_flags(kb.EARLY_FILTER | kb.BEST_RANK)
         res = list(kb.filter(

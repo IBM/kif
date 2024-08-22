@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import (
+    Datatype,
     ExternalId,
     IRI,
     IRI_Datatype,
@@ -16,12 +17,12 @@ from kif_lib import (
     Text,
     TextSet,
 )
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, Optional
 
-from ...tests import kif_DescriptorTestCase
+from ...tests import DescriptorTestCase
 
 
-class Test(kif_DescriptorTestCase):
+class Test(DescriptorTestCase):
 
     def test_check(self) -> None:
         assert_type(
@@ -60,25 +61,33 @@ class Test(kif_DescriptorTestCase):
                      Quantity.datatype)),
             ])
 
-    def test_get_label(self):
+    def test_get_label(self) -> None:
+        assert_type(PropertyDescriptor().label, Optional[Text])
+        assert_type(PropertyDescriptor().get_label(), Optional[Text])
         self.assertEqual(PropertyDescriptor('x').get_label(), Text('x'))
         self.assertEqual(PropertyDescriptor().get_label(Text('x')), Text('x'))
         self.assertIsNone(PropertyDescriptor().get_label())
 
-    def test_get_aliases(self):
+    def test_get_aliases(self) -> None:
+        assert_type(PropertyDescriptor().aliases, TextSet)
+        assert_type(PropertyDescriptor().get_aliases(), TextSet)
         self.assertEqual(PropertyDescriptor('x').get_aliases(), TextSet())
         self.assertEqual(
             PropertyDescriptor(None, TextSet('x', 'y')).get_aliases(),
             TextSet(Text('x'), Text('y')))
 
-    def test_get_description(self):
+    def test_get_description(self) -> None:
+        assert_type(PropertyDescriptor().description, Optional[Text])
+        assert_type(PropertyDescriptor().get_description(), Optional[Text])
         self.assertEqual(
             PropertyDescriptor(None, None, 'x').get_description(), Text('x'))
         self.assertEqual(
             PropertyDescriptor().get_description(Text('x')), Text('x'))
         self.assertIsNone(PropertyDescriptor().get_description())
 
-    def test_get_datatype(self):
+    def test_get_datatype(self) -> None:
+        assert_type(PropertyDescriptor().datatype, Optional[Datatype])
+        assert_type(PropertyDescriptor().get_datatype(), Optional[Datatype])
         self.assertEqual(
             PropertyDescriptor(
                 None, None, None, IRI_Datatype()).get_datatype(),
