@@ -45,7 +45,10 @@ from .fingerprint import (
 )
 from .kif_object import KIF_Object
 from .pattern import (
+    ClosedPattern,
+    OpenPattern,
     Pattern,
+    TClosedPattern,
     TemplatePattern,
     TPattern,
     TTemplatePattern,
@@ -384,7 +387,10 @@ __all__ = (
     'ValueSet',
 
     # pattern
+    'ClosedPattern',
+    'OpenPattern',
     'Pattern',
+    'TClosedPattern',
     'TemplatePattern',
     'TPattern',
     'TTemplatePattern',

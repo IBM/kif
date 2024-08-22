@@ -8,6 +8,7 @@ from .model import (
     And,
     AnnotationRecord,
     AnnotationRecordSet,
+    ClosedPattern,
     ClosedTerm,
     Constraint,
     Datatype,
@@ -53,6 +54,7 @@ from .model import (
     NoValueSnak,
     NoValueSnakTemplate,
     NoValueSnakVariable,
+    OpenPattern,
     OpenTerm,
     Or,
     Pattern,
@@ -268,6 +270,8 @@ __all__ = (
     'ValueSet',
 
     # model.pattern
+    'ClosedPattern',
+    'OpenPattern',
     'Pattern',
     'TemplatePattern',
     'VariablePattern',

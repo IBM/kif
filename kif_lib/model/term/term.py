@@ -61,10 +61,10 @@ class Term(KIF_Object):
 class ClosedTerm(Term):
     """Abstract base class for closed (ground) terms."""
 
-    #: Template class associated with this object class.
+    #: Template class associated with this closed-term class.
     template_class: ClassVar[type['Template']]
 
-    #: Variable class associated with this object class.
+    #: Variable class associated with this closed-term class.
     variable_class: ClassVar[type['Variable']]
 
     @classmethod
@@ -89,7 +89,7 @@ Theta: TypeAlias = Mapping['Variable', Optional[Term]]
 class OpenTerm(Term):
     """Abstract base class for open terms."""
 
-    #: (Closed) object class associated with this template class.
+    #: Closed-term class associated with this open-term class.
     object_class: ClassVar[type[ClosedTerm]]
 
     class InstantiationError(ValueError):

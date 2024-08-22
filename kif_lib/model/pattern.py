@@ -13,9 +13,10 @@ from ..typing import (
 )
 from .constraint import Constraint, TConstraint
 from .kif_object import KIF_Object
-from .term import Template, Variable
+from .term import ClosedTerm, Template, Variable
 
 TPattern: TypeAlias = Union['Pattern', 'TTemplatePattern', 'TVariablePattern']
+TClosedPattern: TypeAlias = Union['ClosedPattern', 'ClosedTerm']
 TTemplatePattern: TypeAlias = Union['TemplatePattern', 'Template']
 TVariablePattern: TypeAlias = Union['VariablePattern', 'Variable']
 
@@ -34,14 +35,12 @@ class Pattern(KIF_Object):
     ) -> Self:
         if isinstance(arg, cls):
             return arg
-        elif isinstance(arg, Template):
-            return cast(Self, TemplatePattern.check(
-                arg, function or cls.check, name, position))
-        elif isinstance(arg, Variable):
-            return cast(Self, VariablePattern.check(
+        elif isinstance(arg, ClosedTerm):
+            return cast(Self, ClosedPattern.check(
                 arg, function or cls.check, name, position))
         else:
-            raise cls._check_error(arg, function, name, position)
+            return cast(Self, OpenPattern.check(
+                arg, function or cls.check, name, position))
 
     @property
     def constraint(self) -> Constraint:
@@ -55,6 +54,81 @@ class Pattern(KIF_Object):
            Constraint.
         """
         return self.args[1]
+
+
+class ClosedPattern(Pattern):
+    """Closed (ground) pattern.
+
+    Parameters:
+       object: Closed term.
+       constraint: Constraint.
+    """
+
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, ClosedTerm):
+            return cls(arg)
+        else:
+            raise cls._check_error(arg, function, name, position)
+
+    def __init__(
+            self,
+            object: ClosedTerm,
+            constraint: Optional[TConstraint] = None
+    ):
+        super().__init__(object, constraint)
+
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
+        if i == 1:              # object
+            return ClosedTerm.check(arg, type(self), None, i)
+        elif i == 2:            # constraint
+            return Constraint.check(arg, type(self), None, i)
+        else:
+            raise self._should_not_get_here()
+
+    @property
+    def object(self) -> ClosedTerm:
+        """The object of closed pattern."""
+        return self.get_object()
+
+    def get_object(self) -> ClosedTerm:
+        """Gets the object of closed pattern.
+
+        Returns:
+           Object (closed term).
+        """
+        return self.args[0]
+
+
+class OpenPattern(Pattern):
+    """Abstract base class for open patterns."""
+
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, Template):
+            return cast(Self, TemplatePattern.check(
+                arg, function or cls.check, name, position))
+        else:
+            return cast(Self, VariablePattern.check(
+                arg, function or cls.check, name, position))
 
 
 class TemplatePattern(Pattern):
