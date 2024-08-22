@@ -3,8 +3,8 @@
 
 from .descriptor import DescriptorTestCase
 from .fingerprint import FingerprintTestCase
-from .kif_object import ObjectTestCase
-from .set import ObjectSetTestCase
+from .kif_object import KIF_ObjectTestCase
+from .set import KIF_ObjectSetTestCase
 from .snak import SnakTemplateTestCase, SnakTestCase
 from .statement import StatementTemplateTestCase, StatementTestCase
 from .term import (
@@ -30,7 +30,7 @@ from .value import (
 
 __all__ = (
     # kif object
-    'ObjectTestCase',
+    'KIF_ObjectTestCase',
 
     # term
     'ClosedTermTestCase',
@@ -77,5 +77,5 @@ __all__ = (
     'FingerprintTestCase',
 
     # set
-    'ObjectSetTestCase',
+    'KIF_ObjectSetTestCase',
 )

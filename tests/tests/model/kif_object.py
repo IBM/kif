@@ -7,7 +7,7 @@ from kif_lib.typing import Any, Callable, Iterable, Sequence
 from ..tests import TestCase
 
 
-class ObjectTestCase(TestCase):
+class KIF_ObjectTestCase(TestCase):
 
     def _test_check(
             self,

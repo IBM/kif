@@ -24,10 +24,10 @@ from kif_lib import (
 from kif_lib.model import ValueFingerprint
 from kif_lib.typing import assert_type
 
-from ...tests import ObjectTestCase
+from ...tests import KIF_ObjectTestCase
 
 
-class Test(ObjectTestCase):
+class Test(KIF_ObjectTestCase):
 
     def test_from_snak(self) -> None:
         # snak is none

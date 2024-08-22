@@ -17,10 +17,10 @@ from kif_lib import (
 )
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from .kif_object import ObjectTestCase
+from .kif_object import KIF_ObjectTestCase
 
 
-class DescriptorTestCase(ObjectTestCase):
+class DescriptorTestCase(KIF_ObjectTestCase):
 
     @override
     def _test_check(

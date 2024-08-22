@@ -4,10 +4,10 @@
 from kif_lib import Deprecated, Item, Normal, Preferred, PreferredRank, SnakSet
 from kif_lib.typing import assert_type
 
-from ....tests import ObjectTestCase
+from ....tests import KIF_ObjectTestCase
 
 
-class Test(ObjectTestCase):
+class Test(KIF_ObjectTestCase):
 
     def test_check(self) -> None:
         assert_type(PreferredRank.check(PreferredRank()), PreferredRank)

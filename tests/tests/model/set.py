@@ -4,10 +4,10 @@
 from kif_lib import KIF_Object, KIF_ObjectSet
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from .kif_object import ObjectTestCase
+from .kif_object import KIF_ObjectTestCase
 
 
-class ObjectSetTestCase(ObjectTestCase):
+class KIF_ObjectSetTestCase(KIF_ObjectTestCase):
 
     @override
     def _test_check(

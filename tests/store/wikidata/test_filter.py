@@ -65,7 +65,8 @@ class Test(WikidataSPARQL_StoreTestCase):
             kb.filter(
                 wd.instance_of(wd.mountain)
                 & wd.parent_peak.no_value()
-                & (wd.country(wd.Nepal) | wd.country(wd.Argentina))),
+                & (wd.country(wd.Nepal) | wd.country(wd.Argentina)),
+                wd.native_label),
             wd.native_label(wd.Mount_Everest, Text('सगरमाथा', 'ne')))
 
     def test_filter_subject_is_or(self) -> None:

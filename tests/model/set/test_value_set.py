@@ -22,10 +22,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import ObjectSetTestCase
+from ...tests import KIF_ObjectSetTestCase
 
 
-class Test(ObjectSetTestCase):
+class Test(KIF_ObjectSetTestCase):
 
     def test_children_class(self) -> None:
         assert_type(ValueSet.children_class, type[Value])

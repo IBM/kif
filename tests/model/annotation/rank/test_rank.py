@@ -15,10 +15,10 @@ from kif_lib import (
 from kif_lib.namespace import WIKIBASE
 from kif_lib.typing import assert_type, cast
 
-from ....tests import ObjectTestCase
+from ....tests import KIF_ObjectTestCase
 
 
-class Test(ObjectTestCase):
+class Test(KIF_ObjectTestCase):
 
     def test_check(self) -> None:
         assert_type(Rank.check(NormalRank()), Rank)
