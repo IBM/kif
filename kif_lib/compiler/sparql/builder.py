@@ -1181,12 +1181,13 @@ class Query(Encodable):
     Literal: TypeAlias = Literal
     URI: TypeAlias = URIRef
     Variable: TypeAlias = Variable
-
     TVariable: TypeAlias = Union[Variable, _str]
+    Term: TypeAlias = Union[BNode, Literal, URI]
 
+    V_BNode: TypeAlias = Union[BNode, Variable]
     VLiteral: TypeAlias = Union[Literal, Variable]
-    VTerm: TypeAlias = Union[URIRef, Literal, Variable]
     V_URI: TypeAlias = Union[URIRef, Variable]
+    VTerm: TypeAlias = Union[Term, Variable]
 
     #: Currently targeted clause.
     clause: Clause

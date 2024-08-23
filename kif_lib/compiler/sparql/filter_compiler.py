@@ -47,7 +47,7 @@ from ...model.fingerprint import (
     SnakFingerprint,
     ValueFingerprint,
 )
-from ...typing import cast, Iterable, Optional, override, Self, Union
+from ...typing import cast, Iterable, Optional, override, Self
 from .builder import Query
 from .pattern_compiler import SPARQL_PatternCompiler
 
@@ -769,22 +769,3 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                 self._q.is_uri(dest) & self._q.strstarts(
                     self._q.str(dest), str(NS.WDGENID)))
         self._q.filter(cond if not negate else ~cond)
-
-    def _as_simple_value(
-            self,
-            value: Value
-    ) -> Union[Query.URI, Query.Literal]:
-        if isinstance(value, Entity):
-            return self._q.uri(value.iri.content)
-        elif isinstance(value, IRI):
-            return self._q.uri(value.content)
-        elif isinstance(value, Text):
-            return self._q.literal(value.content, value.language)
-        elif isinstance(value, (String, ExternalId)):
-            return self._q.literal(value.content)
-        elif isinstance(value, Quantity):
-            return self._q.literal(value.amount)
-        elif isinstance(value, Time):
-            return self._q.literal(value.time)
-        else:
-            raise self._should_not_get_here()

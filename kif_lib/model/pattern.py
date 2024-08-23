@@ -15,7 +15,10 @@ from .constraint import Constraint, TConstraint
 from .kif_object import KIF_Object
 from .term import ClosedTerm, Template, Variable
 
-TPattern: TypeAlias = Union['Pattern', 'TTemplatePattern', 'TVariablePattern']
+TPattern: TypeAlias =\
+    Union['Pattern', 'TClosedPattern',
+          'TTemplatePattern', 'TVariablePattern']
+
 TClosedPattern: TypeAlias = Union['ClosedPattern', 'ClosedTerm']
 TTemplatePattern: TypeAlias = Union['TemplatePattern', 'Template']
 TVariablePattern: TypeAlias = Union['VariablePattern', 'Variable']

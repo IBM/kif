@@ -4,10 +4,16 @@
 from ... import itertools
 from ... import namespace as NS
 from ...model import (
+    ClosedPattern,
+    Datatype,
     DatatypeVariable,
+    DataValue,
+    DeepDataValue,
     Entity,
     EntityTemplate,
     EntityVariable,
+    ExternalId,
+    IRI,
     IRI_Template,
     IRI_Variable,
     Item,
@@ -16,39 +22,94 @@ from ...model import (
     Lexeme,
     LexemeTemplate,
     LexemeVariable,
+    NoValueSnak,
     NoValueSnakVariable,
     Pattern,
     Property,
     PropertyTemplate,
     PropertyVariable,
+    Quantity,
     QuantityVariable,
+    ShallowDataValue,
+    Snak,
+    SnakTemplate,
     SnakVariable,
+    SomeValueSnak,
     SomeValueSnakVariable,
     Statement,
     StatementTemplate,
     StatementVariable,
+    String,
     StringVariable,
     TemplatePattern,
     Term,
+    Text,
+    Time,
     TimeVariable,
     TPattern,
+    Value,
+    ValueSnak,
     ValueSnakVariable,
     ValueVariable,
     Variable,
     VariablePattern,
 )
-from ...typing import cast, Iterator, Optional, override, Self, TypeVar
+from ...typing import (
+    cast,
+    Iterator,
+    Optional,
+    override,
+    Self,
+    TypeAlias,
+    TypedDict,
+    TypeVar,
+    Union,
+)
 from .builder import Query
 from .compiler import SPARQL_Compiler
 from .substitution import Substitution
 
 T = TypeVar('T')
+VTerm1 = TypeVar('VTerm1', bound=Query.VTerm)
+VTerm2 = TypeVar('VTerm2', bound=Query.VTerm)
 V_URI1 = TypeVar('V_URI1', bound=Query.V_URI)
 V_URI2 = TypeVar('V_URI2', bound=Query.V_URI)
+V_URI3 = TypeVar('V_URI3', bound=Query.V_URI)
+
+StmtCtx: TypeAlias = 'SPARQL_PatternCompiler.StatementContext'
+SnakCtx: TypeAlias = 'SPARQL_PatternCompiler.SnakContext'
 
 
 class SPARQL_PatternCompiler(SPARQL_Compiler):
     """SPARQL pattern compiler."""
+
+    class StatementContext(TypedDict):
+        """Context to be used when compiling statement patterns."""
+        v_wds: Query.V_URI
+
+    class SnakContext(StatementContext):
+        """Context to be used when compiling snaks."""
+        v_property: Query.V_URI
+
+    @classmethod
+    def _mk_stmtctx(cls, v_wds: Query.V_URI) -> StmtCtx:
+        return {'v_wds': v_wds}
+
+    @classmethod
+    def _mk_snakctx(
+            cls,
+            v_wds: Query.V_URI,
+            v_property: Query.V_URI
+    ) -> SnakCtx:
+        return {'v_wds': v_wds, 'v_property': v_property}
+
+    @classmethod
+    def _as_snakctx(
+            cls,
+            ctx: StmtCtx,
+            v_property: Query.V_URI
+    ) -> SnakCtx:
+        return cls._mk_snakctx(ctx['v_wds'], v_property)
 
     __slots__ = (
         '_pattern',
@@ -100,6 +161,9 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         if self.has_flags(self.DEBUG):
             self._q.comments()(f'{var} := {Substitution._dump_value(v)}')
         return self._theta.add(var, v)
+
+    def _theta_add_as_qvar(self, var: Variable) -> Query.Variable:
+        return self._theta_add(var, self._as_qvar(var))
 
     def _theta_add_default(
             self,
@@ -177,13 +241,37 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     ) -> Iterator[Query.Variable]:
         return map(self._as_qvar, itertools.chain((var,), vars))
 
+    def _as_simple_value(
+            self,
+            value: Value
+    ) -> Union[Query.URI, Query.Literal]:
+        if isinstance(value, Entity):
+            return self._q.uri(value.iri.content)
+        elif isinstance(value, IRI):
+            return self._q.uri(value.content)
+        elif isinstance(value, Text):
+            return self._q.literal(value.content, value.language)
+        elif isinstance(value, (String, ExternalId)):
+            return self._q.literal(value.content)
+        elif isinstance(value, Quantity):
+            return self._q.literal(value.amount)
+        elif isinstance(value, Time):
+            return self._q.literal(value.time)
+        else:
+            raise self._should_not_get_here()
+
     @override
     def compile(self) -> Self:
         self._push_pattern(self.pattern)
         return self
 
     def _push_pattern(self, pattern: Pattern):
-        if isinstance(pattern, TemplatePattern):
+        if isinstance(pattern, ClosedPattern):
+            if isinstance(pattern.object, Statement):
+                self._push_statement(pattern.object)
+            else:
+                raise self._cannot_compile_error(pattern.object)
+        elif isinstance(pattern, TemplatePattern):
             if isinstance(pattern.template, StatementTemplate):
                 self._push_statement_template(pattern.template)
             else:
@@ -196,75 +284,147 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         else:
             raise self._should_not_get_here()
 
-    def _push_statement(self, obj: Statement):
-        raise NotImplementedError
+    def _push_statement(
+            self,
+            obj: Statement
+    ) -> tuple[Query.V_URI, Query.V_URI, Query.V_URI]:
+        v_wds = self._fresh_qvar()
+        self._q.stash_begin()
+        self._q.comments()('subject')
+        v_subject = self._push_entity(obj.subject)
+        self._q.comments()('snak')
+        v_property = self._push_snak(obj.snak, v_wds)
+        self._q.stash_end()
+        self._do_push_statement(v_wds, v_subject, v_property)
+        self._q.stash_pop()
+        return v_wds, v_subject, v_property
 
-    def _push_statement_template(self, tpl: StatementTemplate):
+    def _push_statement_template(
+            self,
+            tpl: StatementTemplate
+    ) -> tuple[Query.V_URI, Query.V_URI, Query.V_URI]:
+        v_wds = self._fresh_qvar()
+        self._q.stash_begin()
         if isinstance(tpl.subject, Entity):
-            self._push_entity(tpl.subject)
+            v_subject = self._push_entity(tpl.subject)
         elif isinstance(tpl.subject, EntityTemplate):
-            self._push_entity_template(tpl.subject)
+            v_subject = self._push_entity_template(tpl.subject)
         elif isinstance(tpl.subject, EntityVariable):
-            self._push_entity_variable(tpl.subject)
+            v_subject = self._push_entity_variable(tpl.subject)
         else:
             raise self._should_not_get_here()
+        if isinstance(tpl.snak, Snak):
+            v_property = self._push_snak(tpl.snak, v_wds)
+        elif isinstance(tpl.snak, SnakTemplate):
+            raise NotImplementedError
+        elif isinstance(tpl.snak, SnakVariable):
+            raise NotImplementedError
+        else:
+            raise self._should_not_get_here()
+        self._q.stash_end()
+        self._do_push_statement(v_wds, v_subject, v_property)
+        self._q.stash_pop()
+        return v_wds, v_subject, v_property
 
-    def _push_statement_variable(self, var: StatementVariable):
-        self._push_statement_template(
+    def _push_statement_variable(
+            self,
+            var: StatementVariable
+    ) -> tuple[Query.V_URI, Query.V_URI, Query.V_URI]:
+        return self._push_statement_template(
             self._theta_add(
                 var,
                 StatementTemplate(
                     self._fresh_entity_variable(),
                     self._fresh_snak_variable())))
 
-    def _push_entity(
+    def _do_push_statement(
             self,
-            obj: Entity
-    ) -> tuple[Query.URI, Optional[Query.V_URI]]:
+            v_wds: V_URI1,
+            v_subject: V_URI2,
+            v_property: V_URI3
+    ) -> tuple[V_URI1, V_URI2, V_URI3]:
+        p = self._fresh_qvar()
+        self._q.triples()(
+            (v_subject, p, v_wds),
+            (v_property, NS.WIKIBASE.claim, p))
+        best_ranked = self.has_flags(self.BEST_RANK)
+        if best_ranked:
+            self._q.triples()((v_wds, NS.RDF.type, NS.WIKIBASE.BestRank))
+        return v_wds, v_subject, v_property
+
+    def _push_entity(self, obj: Entity) -> Query.V_URI:
         if isinstance(obj, Item):
-            return self._push_item(obj), None
+            return self._push_item(obj)
         elif isinstance(obj, Property):
             return self._push_property(obj)
         elif isinstance(obj, Lexeme):
-            return self._push_lexeme(obj), None
+            return self._push_lexeme(obj)
         else:
             raise self._should_not_get_here()
 
-    def _push_entity_template(self, tpl: EntityTemplate) -> Query.Variable:
+    def _push_entity_template(self, tpl: EntityTemplate) -> Query.V_URI:
         if isinstance(tpl, ItemTemplate):
             return self._push_item_template(tpl)
         elif isinstance(tpl, PropertyTemplate):
-            raise NotImplementedError
+            return self._push_property_template(tpl)
         elif isinstance(tpl, LexemeTemplate):
             return self._push_lexeme_template(tpl)
         else:
             raise self._should_not_get_here()
 
-    def _push_entity_variable(self, var: EntityVariable) -> Query.Variable:
+    def _push_entity_variable(self, var: EntityVariable) -> Query.V_URI:
         if isinstance(var, ItemVariable):
             return self._push_item_variable(var)
         elif isinstance(var, PropertyVariable):
-            raise NotImplementedError
+            return self._push_property_variable(var)
         elif isinstance(var, LexemeVariable):
             return self._push_lexeme_variable(var)
-        else:
-            raise NotImplementedError
-
-    def _push_item(self, obj: Item) -> Query.URI:
-        return self._do_push_item(self._q._mk_uri(obj.iri.content))
-
-    def _push_item_template(self, tpl: ItemTemplate) -> Query.Variable:
-        if isinstance(tpl.iri, IRI_Template):
-            assert isinstance(tpl.iri.content, StringVariable)
-            return self._do_push_item(self._theta_add(
-                tpl.iri.content, self._as_qvar(tpl.iri.content)))
-        elif isinstance(tpl.iri, IRI_Variable):
-            return self._do_push_item(self._theta_add(
-                tpl.iri, self._as_qvar(tpl.iri)))
+        elif isinstance(var, EntityVariable):
+            v_entity = self._as_qvar(var)
+            with self._q.union():
+                with self._q.group():  # item
+                    item_iri = self._fresh_iri_variable()
+                    self._theta_add(
+                        ItemVariable.check(var), ItemTemplate(item_iri))
+                    self._do_push_item(v_entity)
+                    self._q.bind(v_entity, self._theta_add_as_qvar(item_iri))
+                with self._q.group():  # property
+                    datatype = self._fresh_datatype_variable()
+                    datatype_iri = self._theta_add(
+                        datatype, self._fresh_iri_variable())
+                    property_iri = self._fresh_iri_variable()
+                    self._theta_add(
+                        PropertyVariable.check(var),
+                        PropertyTemplate(property_iri, datatype))
+                    self._do_push_property(
+                        v_entity, self._theta_add_as_qvar(datatype_iri))
+                    self._q.bind(
+                        v_entity, self._theta_add_as_qvar(property_iri))
+                with self._q.group():  # lexeme
+                    lexeme_iri = self._fresh_iri_variable()
+                    self._theta_add(
+                        LexemeVariable.check(var),
+                        LexemeTemplate(lexeme_iri))
+                    self._do_push_lexeme(v_entity)
+                    self._q.bind(
+                        v_entity, self._theta_add_as_qvar(lexeme_iri))
+            return v_entity
         else:
             raise self._should_not_get_here()
 
-    def _push_item_variable(self, var: ItemVariable) -> Query.Variable:
+    def _push_item(self, obj: Item) -> Query.V_URI:
+        return self._do_push_item(self._q._mk_uri(obj.iri.content))
+
+    def _push_item_template(self, tpl: ItemTemplate) -> Query.V_URI:
+        if isinstance(tpl.iri, IRI_Template):
+            assert isinstance(tpl.iri.content, StringVariable)
+            return self._do_push_item(self._theta_add_as_qvar(tpl.iri.content))
+        elif isinstance(tpl.iri, IRI_Variable):
+            return self._do_push_item(self._theta_add_as_qvar(tpl.iri))
+        else:
+            raise self._should_not_get_here()
+
+    def _push_item_variable(self, var: ItemVariable) -> Query.V_URI:
         return self._push_item_template(
             self._theta_add(var, ItemTemplate(self._fresh_iri_variable())))
 
@@ -272,11 +432,42 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         self._q.triples()((v_item, NS.WIKIBASE.sitelinks, self._q.bnode()))
         return v_item
 
-    def _push_property(self, obj: Property) -> tuple[Query.URI, Query.V_URI]:
-        return self._do_push_property(
-            self._q._mk_uri(obj.iri.content),
-            obj.range._to_rdflib() if obj.range is not None
-            else self._fresh_qvar())
+    def _push_property(self, obj: Property) -> Query.V_URI:
+        if obj.range is None:
+            return self._push_property_template(
+                PropertyTemplate(obj.iri, self._fresh_datatype_variable()))
+        else:
+            v_property, _ = self._do_push_property(
+                self._q._mk_uri(obj.iri.content), obj.range._to_rdflib())
+            return v_property
+
+    def _push_property_template(self, tpl: PropertyTemplate) -> Query.V_URI:
+        if isinstance(tpl.iri, IRI):
+            v_property: Query.V_URI = self._q._mk_uri(tpl.iri.content)
+        elif isinstance(tpl.iri, IRI_Template):
+            assert isinstance(tpl.iri.content, StringVariable)
+            v_property = self._theta_add_as_qvar(tpl.iri.content)
+        elif isinstance(tpl.iri, IRI_Variable):
+            v_property = self._theta_add_as_qvar(tpl.iri)
+        else:
+            raise self._should_not_get_here()
+        if tpl.range is None:
+            v_datatype: Query.V_URI = self._fresh_qvar()
+        elif isinstance(tpl.range, Datatype):
+            v_datatype = self._q._mk_uri(tpl.range._to_rdflib())
+        elif isinstance(tpl.range, DatatypeVariable):
+            v_datatype = self._theta_add_as_qvar(self._theta_add(
+                tpl.range, self._fresh_iri_variable()))
+        else:
+            raise self._should_not_get_here()
+        self._do_push_property(v_property, v_datatype)
+        return v_property
+
+    def _push_property_variable(self, var: PropertyVariable) -> Query.V_URI:
+        return self._push_property_template(
+            self._theta_add(var, PropertyTemplate(
+                self._fresh_iri_variable(),
+                self._fresh_datatype_variable())))
 
     def _do_push_property(
             self,
@@ -288,24 +479,105 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             (v_property, NS.WIKIBASE.propertyType, v_datatype))
         return v_property, v_datatype
 
-    def _push_lexeme(self, obj: Lexeme) -> Query.URI:
+    def _push_lexeme(self, obj: Lexeme) -> Query.V_URI:
         return self._do_push_lexeme(self._q._mk_uri(obj.iri.content))
 
-    def _push_lexeme_template(self, tpl: LexemeTemplate) -> Query.Variable:
+    def _push_lexeme_template(self, tpl: LexemeTemplate) -> Query.V_URI:
         if isinstance(tpl.iri, IRI_Template):
             assert isinstance(tpl.iri.content, StringVariable)
-            return self._do_push_lexeme(self._theta_add(
-                tpl.iri.content, self._as_qvar(tpl.iri.content)))
+            return self._do_push_lexeme(
+                self._theta_add_as_qvar(tpl.iri.content))
         elif isinstance(tpl.iri, IRI_Variable):
-            return self._do_push_lexeme(self._theta_add(
-                tpl.iri, self._as_qvar(tpl.iri)))
+            return self._do_push_lexeme(self._theta_add_as_qvar(tpl.iri))
         else:
             raise self._should_not_get_here()
 
-    def _push_lexeme_variable(self, var: LexemeVariable) -> Query.Variable:
+    def _push_lexeme_variable(self, var: LexemeVariable) -> Query.V_URI:
         return self._push_lexeme_template(
             self._theta_add(var, LexemeTemplate(self._fresh_iri_variable())))
 
     def _do_push_lexeme(self, v_lexeme: V_URI1) -> V_URI1:
         self._q.triples()((v_lexeme, NS.RDF.type, NS.ONTOLEX.LexicalEntry))
         return v_lexeme
+
+    def _push_snak(self, obj: Snak, v_wds: Query.V_URI) -> Query.V_URI:
+        if isinstance(obj, ValueSnak):
+            return self._push_value_snak(obj, v_wds)
+        elif isinstance(obj, SomeValueSnak):
+            raise NotImplementedError
+        elif isinstance(obj, NoValueSnak):
+            raise NotImplementedError
+        else:
+            raise self._should_not_get_here()
+
+    def _push_value_snak(
+            self,
+            obj: ValueSnak,
+            v_wds: Query.V_URI
+    ) -> Query.V_URI:
+        v_property = self._push_property(obj.property)
+        v_value = self._push_value(
+            obj.value, self._mk_snakctx(v_wds, v_property))
+        self._do_push_value_snak(v_wds, v_property, v_value)
+        return v_property
+
+    def _do_push_value_snak(
+            self,
+            v_wds: V_URI1,
+            v_property: V_URI2,
+            v_value: VTerm1
+    ) -> tuple[V_URI1, V_URI2, VTerm1]:
+        ps = self._q.fresh_var()
+        self._q.triples()(
+            (v_property, NS.WIKIBASE.statementProperty, ps),
+            (v_wds, ps, v_value))
+        return v_wds, v_property, v_value
+
+    def _push_value(
+            self,
+            obj: Value,
+            ctx: SnakCtx
+    ) -> Query.VTerm:
+        if isinstance(obj, Entity):
+            return self._push_entity(obj)
+        elif isinstance(obj, DataValue):
+            return self._push_data_value(obj, ctx)
+        elif isinstance(obj, DeepDataValue):
+            raise NotImplementedError
+        else:
+            raise self._should_not_get_here()
+
+    def _push_data_value(
+            self,
+            obj: DataValue,
+            ctx: SnakCtx
+    ) -> Query.Term:
+        if isinstance(obj, ShallowDataValue):
+            return self._push_shallow_data_value(obj, ctx)
+        else:
+            raise self._should_not_get_here()
+
+    def _push_shallow_data_value(
+            self,
+            obj: ShallowDataValue,
+            ctx: SnakCtx
+    ) -> Query.Term:
+        if isinstance(obj, IRI):
+            return self._push_iri(obj, ctx)
+        elif isinstance(obj, Text):
+            raise NotImplementedError
+        elif isinstance(obj, ExternalId):
+            raise NotImplementedError
+        elif isinstance(obj, String):
+            raise NotImplementedError
+        else:
+            raise self._should_not_get_here()
+
+    def _push_iri(
+            self,
+            obj: IRI,
+            ctx: SnakCtx
+    ) -> Query.URI:
+        self._q.triples()(
+            (ctx['v_property'], NS.WIKIBASE.propertyType, NS.WIKIBASE.Url))
+        return self._q.uri(obj.content)
