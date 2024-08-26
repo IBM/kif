@@ -1,8 +1,6 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import sys
-
 from .. import itertools
 from ..cache import Cache
 from ..context import Context
@@ -22,6 +20,7 @@ from ..model import (
     LexemeDescriptor,
     Property,
     PropertyDescriptor,
+    Quantity,
     ReferenceRecordSet,
     Snak,
     Statement,
@@ -144,8 +143,8 @@ class Store(Set):
         self._init_flags(flags)
         self._init_cache(self.has_flags(self.CACHE))
         self.set_extra_references(extra_references)
-        self.set_page_size(page_size)
-        self.set_timeout(timeout)
+        self._init_page_size(page_size)
+        self._init_timeout(timeout)
 
     @property
     def context(self) -> Context:
@@ -331,15 +330,6 @@ class Store(Set):
     #: Whether to enable late filtering.
     LATE_FILTER: Final[Flags] = Flags.LATE_FILTER
 
-    #: Store flags.
-    _flags: 'Flags'
-
-    def _init_flags(self, flags: Optional['Flags'] = None):
-        flags = self.Flags.check_optional(
-            flags, self.default_flags, type(self), 'flags')
-        assert flags is not None
-        self._flags = flags
-
     @property
     def default_flags(self) -> Flags:
         """The default store flags."""
@@ -352,6 +342,15 @@ class Store(Set):
            Store flags.
         """
         return self.context.options.store.flags
+
+    #: Store flags.
+    _flags: 'Flags'
+
+    def _init_flags(self, flags: Optional['Flags'] = None):
+        flags = self.Flags.check_optional(
+            flags, self.default_flags, type(self), 'flags')
+        assert flags is not None
+        self._flags = flags
 
     @property
     def flags(self) -> Flags:
@@ -404,13 +403,64 @@ class Store(Set):
 
 # -- Page size -------------------------------------------------------------
 
-    #: The default page size.
-    default_page_size: Final[int] = 100
+    @classmethod
+    def _check_page_size(
+            cls,
+            arg: Any,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> int:
+        return max(int(Quantity.check(
+            arg, function, name, position).amount), 0)
 
-    #: The maximum page size (absolute upper limit).
-    maximum_page_size: Final[int] = sys.maxsize
+    @classmethod
+    def _check_optional_page_size(
+            cls,
+            arg: Optional[Any],
+            default: Optional[Any] = None,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Optional[int]:
+        if arg is None:
+            arg = default
+        if arg is None:
+            return default
+        else:
+            return cls._check_page_size(arg, function, name, position)
 
+    @property
+    def max_page_size(self) -> int:
+        """The maximum page size."""
+        return self.get_max_page_size()
+
+    def get_max_page_size(self) -> int:
+        """Gets the max page size.
+
+        Returns:
+           Page size.
+        """
+        return self.context.options.store.max_page_size
+
+    @property
+    def default_page_size(self) -> int:
+        """The default page size."""
+        return self.get_default_page_size()
+
+    def get_default_page_size(self) -> int:
+        """Gets the default page size.
+
+        Returns:
+           Page size.
+        """
+        return self.context.options.store.page_size
+
+    #: Page size.
     _page_size: Optional[int]
+
+    def _init_page_size(self, page_size: Optional[int] = None):
+        self.page_size = page_size  # type: ignore
 
     @property
     def page_size(self) -> int:
@@ -438,11 +488,12 @@ class Store(Set):
            Page size.
         """
         if self._page_size is not None:
-            return self._page_size
+            page_size: int = self._page_size
         elif default is not None:
-            return min(default, self.maximum_page_size)
+            page_size = default
         else:
-            return self.default_page_size
+            page_size = self.default_page_size
+        return min(page_size, self.max_page_size)
 
     def set_page_size(
             self,
@@ -450,17 +501,15 @@ class Store(Set):
     ):
         """Sets page size of paginated responses.
 
-        If `page_size` is negative, assumes ``None``.
+        If `page_size` is negative, assumes zero.
+
+        If `page_size` is ``None``, assumes :attr:`self.default_page_size`.
 
         Parameters:
            page_size: Page size.
         """
-        page_size = KIF_Object._check_optional_arg_int(
+        self._page_size = self._check_optional_page_size(
             page_size, None, self.set_page_size, 'page_size', 1)
-        if page_size is None or page_size < 0:
-            self._page_size = None
-        else:
-            self._page_size = page_size
 
     def _batched(
             self,
@@ -501,14 +550,67 @@ class Store(Set):
         """
         return itertools.chain.from_iterable(
             map(op, self._batched(it, page_size)))
-
 
 # -- Timeout ---------------------------------------------------------------
 
-    #: The default timeout (in seconds).
-    default_timeout: Final[Optional[float]] = None
+    @classmethod
+    def _check_timeout(
+            cls,
+            arg: Any,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> float:
+        return max(float(Quantity.check(
+            arg, function, name, position).amount), 0.)
 
+    @classmethod
+    def _check_optional_timeout(
+            cls,
+            arg: Optional[Any],
+            default: Optional[Any] = None,
+            function: Optional[Union[Callable[..., Any], str]] = None,
+            name: Optional[str] = None,
+            position: Optional[int] = None
+    ) -> Optional[float]:
+        if arg is None:
+            arg = default
+        if arg is None:
+            return default
+        else:
+            return cls._check_timeout(arg, function, name, position)
+
+    @property
+    def max_timeout(self) -> float:
+        """The maximum timeout (in seconds)."""
+        return self.get_max_timeout()
+
+    def get_max_timeout(self) -> float:
+        """Gets the maximum timeout (in seconds).
+
+        Returns:
+           Timeout.
+        """
+        return self.context.options.store.max_timeout
+
+    @property
+    def default_timeout(self) -> Optional[float]:
+        """The default timeout (in seconds)."""
+        return self.get_default_timeout()
+
+    def get_default_timeout(self) -> Optional[float]:
+        """Gets the default timeout (in seconds).
+
+        Returns:
+           Timeout.
+        """
+        return self.context.options.store.timeout
+
+    #: Timeout (in seconds).
     _timeout: Optional[float]
+
+    def _init_timeout(self, timeout: Optional[float] = None):
+        self.timeout = timeout  # type: ignore
 
     @property
     def timeout(self) -> Optional[float]:
@@ -536,11 +638,15 @@ class Store(Set):
            Timeout.
         """
         if self._timeout is not None:
-            return self._timeout
+            timeout: Optional[float] = self._timeout
         elif default is not None:
-            return default
+            timeout = default
         else:
-            return self.default_timeout
+            timeout = self.default_timeout
+        if timeout is None:
+            return timeout
+        else:
+            return min(timeout, self.max_timeout)
 
     def set_timeout(
             self,
@@ -548,17 +654,15 @@ class Store(Set):
     ):
         """Sets the timeout of responses (in seconds).
 
-        If `timeout` is negative, assumes ``None``.
+        If `timeout` is negative, assumes zero.
+
+        If `timeout` is ``None``, assumes :attr:`Store.default_timeout`.
 
         Parameters:
-           timeout: Timeout (in seconds).
+           timeout: Timeout.
         """
-        timeout = self._timeout = KIF_Object._check_optional_arg_number(
+        self._timeout = self._check_optional_timeout(
             timeout, None, self.set_timeout, 'timeout', 1)
-        if timeout is None or timeout < 0:
-            self._timeout = None
-        else:
-            self._timeout = float(timeout)
 
 # -- Set interface ---------------------------------------------------------
 
@@ -720,7 +824,7 @@ class Store(Set):
     ) -> Iterator[Statement]:
         return self._filter_with_hooks(
             filter,
-            self.maximum_page_size if limit is None else max(limit, 0),
+            self.max_page_size if limit is None else max(limit, 0),
             self.has_flags(self.DISTINCT) if distinct is None else distinct)
 
     def _filter_with_hooks(
@@ -960,7 +1064,7 @@ class Store(Set):
     ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
         return self._chain_map_batched(
             lambda batch: self._get_descriptor(batch, language, mask),
-            entities, min(3 * self.page_size, self.maximum_page_size))
+            entities, min(3 * self.page_size, self.max_page_size))
 
     def _get_descriptor(
             self,

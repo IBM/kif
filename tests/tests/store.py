@@ -55,12 +55,6 @@ class StoreTestCase(TestCase):
             ValueError, 1, 'store_name', None, Store, 'xxx')
         # extra references
         self.store_test_extra_references(kb)
-        # flags
-        self.store_test_flags(kb)
-        # page size
-        self.store_test_page_size(kb)
-        # timeout
-        self.store_test_timeout(kb)
         # internal stuff
         self.store_test__error(kb)
         # contains
@@ -93,60 +87,6 @@ class StoreTestCase(TestCase):
                 ReferenceRecord(), ReferenceRecord(wd.stated_in(wd.PubChem))))
         kb.extra_references = ReferenceRecordSet()
         self.assertEqual(kb.extra_references, default)
-
-    def store_test_flags(self, kb):
-        saved_flags = kb.flags
-        kb.flags = Store.Flags.ALL
-        # has flags
-        self.assertTrue(kb.has_flags(Store.CACHE))
-        self.assertTrue(kb.has_flags(Store.CACHE))
-        self.assertTrue(kb.has_flags(Store.BEST_RANK))
-        self.assertTrue(kb.has_flags(Store.CACHE | Store.BEST_RANK))
-        self.assertTrue(kb.has_flags(Store.NO_VALUE_SNAK))
-        self.assertTrue(kb.has_flags(Store.SOME_VALUE_SNAK))
-        kb.flags = kb.flags & ~Store.CACHE
-        self.assertFalse(kb.has_flags(Store.CACHE))
-        self.assertTrue(kb.has_flags(Store.BEST_RANK))
-        self.assertTrue(kb.has_flags(Store.NO_VALUE_SNAK))
-        self.assertTrue(kb.has_flags(Store.SOME_VALUE_SNAK))
-        # set flags
-        kb.flags = Store.Flags.ALL & ~Store.CACHE
-        self.assertFalse(kb.has_flags(Store.CACHE))
-        self.assertTrue(kb.has_flags(Store.BEST_RANK))
-        self.assertTrue(kb.has_flags(Store.NO_VALUE_SNAK))
-        self.assertTrue(kb.has_flags(Store.SOME_VALUE_SNAK))
-        kb.set_flags(Store.CACHE)
-        self.assertEqual(kb.flags, Store.Flags.ALL)
-        # unset_flags
-        kb.flags = Store.Flags.ALL
-        self.assertTrue(kb.has_flags(Store.CACHE))
-        self.assertTrue(kb.has_flags(Store.BEST_RANK))
-        self.assertTrue(kb.has_flags(Store.NO_VALUE_SNAK))
-        self.assertTrue(kb.has_flags(Store.SOME_VALUE_SNAK))
-        kb.unset_flags(Store.CACHE | Store.BEST_RANK)
-        self.assertEqual(
-            kb.flags, Store.Flags.ALL ^ (Store.CACHE | Store.BEST_RANK))
-        kb.set_flags(Store.CACHE | Store.BEST_RANK)
-        self.assertEqual(kb.flags, Store.Flags.ALL)
-        kb.flags = saved_flags
-
-    def store_test_page_size(self, kb, default=100):
-        self.assert_raises_bad_argument(
-            TypeError, 1, 'page_size', None, kb.set_page_size, 'abc')
-        self.assertEqual(kb.page_size, default)
-        kb.page_size = 10
-        self.assertEqual(kb.page_size, 10)
-        kb.page_size = None
-        self.assertEqual(kb.page_size, default)
-
-    def store_test_timeout(self, kb, default=None):
-        self.assert_raises_bad_argument(
-            TypeError, 1, 'timeout', None, kb.set_timeout, 'abc')
-        self.assertEqual(kb.timeout, default)
-        kb.timeout = 10
-        self.assertEqual(kb.timeout, 10)
-        kb.timeout = None
-        self.assertIsNone(kb.timeout)
 
     def store_test__error(self, kb):
         err = Store._error('x')

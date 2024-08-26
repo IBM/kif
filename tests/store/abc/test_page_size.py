@@ -1,27 +1,33 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-import sys
-
 from kif_lib import Items
 
-from .tests import EmptyStoreTestCase
+from ...tests import EmptyStoreTestCase
 
 
-class TestStoreABC_PageSize(EmptyStoreTestCase):
+class Test(EmptyStoreTestCase):
 
-    def test_page_size_defaults(self) -> None:
+    def test_default_page_size(self) -> None:
         kb = self.new_Store()
-        self.assertEqual(kb.default_page_size, 100)
-        self.assertEqual(kb.maximum_page_size, sys.maxsize)
+        self.assertEqual(
+            kb.default_page_size,
+            kb.context.options.store.page_size)
+        self.assertEqual(
+            kb.max_page_size,
+            kb.context.options.store.max_page_size)
 
-    def test_page_size_init(self) -> None:
+    def test__init_page_size(self) -> None:
         kb = self.new_Store()
         self.assertEqual(kb.page_size, kb.default_page_size)
         kb = self.new_Store(page_size=33)
         self.assertEqual(kb.page_size, 33)
         kb = self.new_Store(page_size=-1)
+        self.assertEqual(kb.page_size, 0)
+        kb = self.new_Store(page_size=None)
         self.assertEqual(kb.page_size, kb.default_page_size)
+        kb = self.new_Store(page_size=kb.max_page_size + 10)
+        self.assertEqual(kb.page_size, kb.max_page_size)
 
     def test_get_page_size(self) -> None:
         kb = self.new_Store()
@@ -30,27 +36,38 @@ class TestStoreABC_PageSize(EmptyStoreTestCase):
         kb = self.new_Store(page_size=0)
         self.assertEqual(kb.get_page_size(5), 0)
         kb = self.new_Store(page_size=-8)
-        self.assertEqual(kb.get_page_size(5), 5)
+        self.assertEqual(kb.get_page_size(5), 0)
+        kb = self.new_Store(page_size=None)
         self.assertEqual(kb.get_page_size(), kb.default_page_size)
-        kb = self.new_Store(page_size=33)
-        self.assertEqual(kb.get_page_size(5), 33)
+        kb = self.new_Store(page_size=None)
+        self.assertEqual(
+            kb.get_page_size(kb.max_page_size + 10), kb.max_page_size)
 
     def test_set_page_size(self) -> None:
         kb = self.new_Store()
         self.assert_raises_bad_argument(
-            TypeError, 1, 'page_size', 'expected int, got str',
+            TypeError, 1, 'page_size', 'cannot coerce dict into Quantity',
+            kb.set_page_size, {})
+        self.assert_raises_bad_argument(
+            ValueError, 1, 'page_size', 'cannot coerce str into Quantity',
             kb.set_page_size, 'abc')
         self.assertEqual(kb.get_page_size(), kb.default_page_size)
         kb.page_size = 3
         self.assertEqual(kb.page_size, 3)
+        kb.page_size = '33'     # type: ignore
+        self.assertEqual(kb.page_size, 33)
+        kb.page_size = 33.5     # type: ignore
+        self.assertEqual(kb.page_size, 33)
         kb.page_size = -1
-        self.assertEqual(kb.page_size, kb.default_page_size)
+        self.assertEqual(kb.page_size, 0)
         kb.page_size = None     # type: ignore
         self.assertEqual(kb.page_size, kb.default_page_size)
         kb.set_page_size()
         self.assertEqual(kb.page_size, kb.default_page_size)
         kb.set_page_size(8)
         self.assertEqual(kb.page_size, 8)
+        kb.set_page_size(kb.max_page_size + 10)
+        self.assertEqual(kb.page_size, kb.max_page_size)
 
     def test__batched(self) -> None:
         kb = self.new_Store()
@@ -63,4 +80,4 @@ class TestStoreABC_PageSize(EmptyStoreTestCase):
 
 
 if __name__ == '__main__':
-    TestStoreABC_PageSize.main()
+    Test.main()

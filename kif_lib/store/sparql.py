@@ -153,7 +153,7 @@ class SPARQL_Store(
                 [SPARQL_Results], Iterator[Optional[T]]],
             vars: Collection[Union[TTrm, tuple[TTrm, TTrm]]] = tuple(),
             order_by: Optional[TTrm] = None,
-            limit: int = Store.maximum_page_size,
+            limit: Optional[int] = None,
             distinct: bool = False,
             trim: bool = False
     ) -> Iterator[T]:
@@ -173,11 +173,14 @@ class SPARQL_Store(
             query: SPARQL_Builder,
             eval_fn: Callable[
                 [Optional[int], Optional[int]], Iterator[Optional[T]]],
-            limit: int = Store.maximum_page_size,
+            limit: Optional[int] = None,
             trim: bool = False,
             page_size: Optional[int] = None,
             offset: Optional[int] = None
     ) -> Iterator[T]:
+        import sys
+        if limit is None:
+            limit = sys.maxsize
         assert limit > 0
         page_size = page_size or self.page_size
         offset = offset or 0

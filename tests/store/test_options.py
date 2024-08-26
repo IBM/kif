@@ -19,11 +19,17 @@ class Test(TestCase):
             # flags
             assert_type(opts.flags, Store.Flags)
             self.assertEqual(opts.flags, opts._v_flags[1])
+            # max_page_size
+            assert_type(opts.max_page_size, int)
+            self.assertEqual(opts.max_page_size, opts._v_max_page_size[1])
             # page_size
             assert_type(opts.page_size, int)
             self.assertEqual(opts.page_size, opts._v_page_size[1])
+            # max_timeout
+            assert_type(opts.max_timeout, float)
+            self.assertEqual(opts.max_timeout, opts._v_max_timeout[1])
             # timeout
-            assert_type(opts.timeout, Optional[int])
+            assert_type(opts.timeout, Optional[float])
             self.assertEqual(opts.timeout, opts._v_timeout[1])
 
     def test_flags(self) -> None:
@@ -35,13 +41,37 @@ class Test(TestCase):
             del os.environ[opts._v_flags[0]]
         with Context() as ctx:
             opts = ctx.options.store
+            self.assert_raises_bad_argument(
+                TypeError, 1, 'flags', 'cannot coerce dict into Store.Flags',
+                opts.set_flags, {})
             opts.flags = Store.Flags.ALL
             self.assertEqual(opts.flags, Store.Flags.ALL)
             opts.flags = 0  # type: ignore
             self.assertEqual(opts.flags, Store.Flags(0))
+
+    def test_max_page_size(self) -> None:
+        with Context() as ctx:
+            opts = ctx.options.store
+            os.environ[opts._v_max_page_size[0]] = '33'
+            opts = StoreOptions()
+            self.assertEqual(opts.max_page_size, 33)
+            del os.environ[opts._v_max_page_size[0]]
+        with Context() as ctx:
+            opts = ctx.options.store
             self.assert_raises_bad_argument(
-                TypeError, 1, 'flags', 'cannot coerce dict into Store.Flags',
-                opts.set_flags, {})
+                TypeError, 1, 'max_page_size',
+                'cannot coerce dict into Quantity',
+                opts.set_max_page_size, {})
+            self.assert_raises_bad_argument(
+                ValueError, 1, 'max_page_size',
+                'cannot coerce str into Quantity',
+                opts.set_max_page_size, 'abc')
+            opts.max_page_size = 44
+            self.assertEqual(opts.max_page_size, 44)
+            opts.max_page_size = 0
+            self.assertEqual(opts.max_page_size, 0)
+            opts.max_page_size = -8
+            self.assertEqual(opts.max_page_size, 0)
 
     def test_page_size(self) -> None:
         with Context() as ctx:
@@ -52,16 +82,66 @@ class Test(TestCase):
             del os.environ[opts._v_page_size[0]]
         with Context() as ctx:
             opts = ctx.options.store
+            self.assert_raises_bad_argument(
+                TypeError, 1, 'page_size', 'cannot coerce dict into Quantity',
+                opts.set_page_size, {})
+            self.assert_raises_bad_argument(
+                ValueError, 1, 'page_size', 'cannot coerce str into Quantity',
+                opts.set_page_size, 'abc')
             opts.page_size = 44
             self.assertEqual(opts.page_size, 44)
             opts.page_size = 0
             self.assertEqual(opts.page_size, 0)
             opts.page_size = -8
             self.assertEqual(opts.page_size, 0)
+
+    def test_max_timeout(self) -> None:
+        with Context() as ctx:
+            opts = ctx.options.store
+            os.environ[opts._v_max_timeout[0]] = '1000'
+            opts = StoreOptions()
+            self.assertEqual(opts.max_timeout, 1000.)
+            del os.environ[opts._v_max_timeout[0]]
+        with Context() as ctx:
+            opts = ctx.options.store
             self.assert_raises_bad_argument(
-                TypeError, 1, 'page_size',
+                TypeError, 1, 'max_timeout',
                 'cannot coerce dict into Quantity',
-                opts.set_page_size, {})
+                opts.set_max_timeout, {})
+            self.assert_raises_bad_argument(
+                ValueError, 1, 'max_timeout',
+                'cannot coerce str into Quantity',
+                opts.set_max_timeout, 'abc')
+            opts.max_timeout = 44.
+            self.assertEqual(opts.max_timeout, 44.)
+            opts.max_timeout = 0.
+            self.assertEqual(opts.max_timeout, 0.)
+            opts.max_timeout = -8.
+            self.assertEqual(opts.max_timeout, 0.)
+
+    def test_timeout(self) -> None:
+        with Context() as ctx:
+            opts = ctx.options.store
+            os.environ[opts._v_timeout[0]] = '33'
+            opts = StoreOptions()
+            self.assertEqual(opts.timeout, 33.)
+            del os.environ[opts._v_timeout[0]]
+        with Context() as ctx:
+            opts = ctx.options.store
+            self.assert_raises_bad_argument(
+                TypeError, 1, 'timeout', 'cannot coerce dict into Quantity',
+                opts.set_timeout, {})
+            self.assert_raises_bad_argument(
+                ValueError, 1, 'timeout', 'cannot coerce str into Quantity',
+                opts.set_timeout, 'abc')
+            opts.timeout = 44.
+            self.assertEqual(opts.timeout, 44.)
+            opts.timeout = 0.
+            self.assertEqual(opts.timeout, 0)
+            opts.timeout = -8.
+            self.assertEqual(opts.timeout, 0.)
+            opts.timeout = None
+            self.assertIsNone(opts.timeout)
 
 
 if __name__ == '__main__':

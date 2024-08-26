@@ -3,18 +3,21 @@
 
 from kif_lib import Store
 
-from .tests import EmptyStoreTestCase
+from ...tests import EmptyStoreTestCase
 
 
-class TestStoreABC_Flags(EmptyStoreTestCase):
+class Test(EmptyStoreTestCase):
 
-    def test_flags_default(self) -> None:
+    def test_default_flags(self) -> None:
         kb = self.new_Store()
         self.assertEqual(
             kb.default_flags,
-            kb.Flags.ALL & ~(kb.DEBUG | kb.ORDER))
+            kb.context.options.store.flags)
 
-    def test_flags_init(self) -> None:
+    def test__init_flags(self) -> None:
+        self.assert_raises_bad_argument(
+            TypeError, None, 'flags', 'cannot coerce dict into Store.Flags',
+            (self.new_Store, 'EmptyStore'), flags={})
         kb = self.new_Store()
         self.assertEqual(kb.flags, kb.default_flags)
         kb = self.new_Store(flags=0)
@@ -56,4 +59,4 @@ class TestStoreABC_Flags(EmptyStoreTestCase):
 
 
 if __name__ == '__main__':
-    TestStoreABC_Flags.main()
+    Test.main()

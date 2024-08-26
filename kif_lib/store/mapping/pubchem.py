@@ -229,7 +229,7 @@ class PubChemMapping(SPARQL_Mapping):
                 wd.instance_of,
                 wd.type_of_a_chemical_entity,
                 snak_mask)
-            return new_filter, store.maximum_page_size, distinct, dict(
+            return new_filter, store.max_page_size, distinct, dict(
                 original_filter=filter,
                 original_limit=limit)
 
