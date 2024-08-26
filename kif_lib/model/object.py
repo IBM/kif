@@ -75,7 +75,7 @@ class Object(Sequence, metaclass=ObjectMeta):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Self:
-        """Coerces `arg` to an instance of this class.
+        """Coerces `arg` into an instance of this class.
 
         If `arg` cannot be coerced, raises an error.
 
@@ -102,7 +102,7 @@ class Object(Sequence, metaclass=ObjectMeta):
             name: Optional[str] = None,
             position: Optional[int] = None
     ) -> Optional[Self]:
-        """Coerces optional `arg` to an instance of this class.
+        """Coerces optional `arg` into an instance of this class.
 
         If `arg` cannot be coerced, raises an error.
 

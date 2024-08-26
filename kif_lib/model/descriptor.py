@@ -1,18 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
-from enum import auto, Flag
-
-from ..typing import (
-    Any,
-    Callable,
-    Final,
-    Optional,
-    override,
-    Self,
-    TypeAlias,
-    Union,
-)
+from ..typing import Any, Final, Optional, override, TypeAlias, Union
+from .flags import Flags
 from .kif_object import KIF_Object
 from .set import TextSet, TTextSet
 from .value import Datatype, Item, TDatatype, Text, TItem, TText
@@ -21,29 +11,29 @@ from .value import Datatype, Item, TDatatype, Text, TItem, TText
 class Descriptor(KIF_Object):
     """Abstract base class for descriptors."""
 
-    class AttributeMask(Flag):
+    class AttributeMask(Flags):
         """Mask for descriptor attributes."""
 
         #: Mask for the label attribute of descriptor.
-        LABEL = auto()
+        LABEL = Flags.auto()
 
         #: Mask for the aliases attribute of descriptor.
-        ALIASES = auto()
+        ALIASES = Flags.auto()
 
         #: Mask for the description attribute of descriptor.
-        DESCRIPTION = auto()
+        DESCRIPTION = Flags.auto()
 
         #: Mask for the datatype attribute of descriptor.
-        DATATYPE = auto()
+        DATATYPE = Flags.auto()
 
         #: Mask for the lemma attribute of descriptor.
-        LEMMA = auto()
+        LEMMA = Flags.auto()
 
         #: Mask for the lexical category attribute of descriptor.
-        CATEGORY = auto()
+        CATEGORY = Flags.auto()
 
         #: Mask for the language attribute of descriptor.
-        LANGUAGE = auto()
+        LANGUAGE = Flags.auto()
 
         #: Mask for all attributes of item descriptor.
         ITEM_DESCRIPTOR_ATTRIBUTES = LABEL | ALIASES | DESCRIPTION
@@ -59,44 +49,6 @@ class Descriptor(KIF_Object):
             ITEM_DESCRIPTOR_ATTRIBUTES
             | PROPERTY_DESCRIPTOR_ATTRIBUTES
             | LEXEME_DESCRIPTOR_ATTRIBUTES)
-
-        @classmethod
-        def check(
-                cls,
-                arg: Any,
-                function: Optional[Union[Callable[..., Any], str]] = None,
-                name: Optional[str] = None,
-                position: Optional[int] = None
-        ) -> Self:
-            if isinstance(arg, cls):
-                return arg
-            elif isinstance(arg, int):
-                try:
-                    return cls(arg)
-                except ValueError as err:
-                    raise Descriptor._check_error(
-                        arg, function or cls.check, name, position,
-                        ValueError, to_=cls.__qualname__) from err
-            else:
-                raise Descriptor._check_error(
-                    arg, function or cls.check, name, position,
-                    to_=cls.__qualname__)
-
-        @classmethod
-        def check_optional(
-                cls,
-                arg: Optional[Any],
-                default: Optional[Any] = None,
-                function: Optional[Union[Callable[..., Any], str]] = None,
-                name: Optional[str] = None,
-                position: Optional[int] = None
-        ) -> Optional[Self]:
-            if arg is None:
-                arg = default
-            if arg is None:
-                return arg
-            else:
-                return cls.check(arg, function, name, position)
 
     #: Mask for the label attribute of descriptor.
     LABEL: Final[AttributeMask] = AttributeMask.LABEL

@@ -16,9 +16,7 @@ class Test(TestCase):
             assert_type(opts, Options)
             self.assertIsInstance(opts.model, Section)
             self.assertIsInstance(opts.store, Section)
-            self.assertEqual(
-                opts.default_language,
-                opts.model.value.text.default_language)
+            self.assertEqual(opts.language, opts.model.value.text.language)
 
 
 if __name__ == '__main__':

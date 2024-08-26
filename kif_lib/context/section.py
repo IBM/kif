@@ -70,4 +70,8 @@ class Section:
             if isinstance(value, Section):
                 yield from value._to_str(name)
             else:
-                yield f'{name}: {field.type.__qualname__} = {value}'
+                if isinstance(field.type, type):
+                    type_name = field.type.__qualname__
+                else:
+                    type_name = str(field.type)
+                yield f'{name}: {type_name} = {value}'

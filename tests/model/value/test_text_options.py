@@ -16,25 +16,24 @@ class Test(TestCase):
         with Context() as ctx:
             opts = ctx.options.model.value.text
             assert_type(opts, TextOptions)
-            assert_type(opts.default_language, str)
-            self.assertEqual(
-                opts.default_language, opts._v_default_language[1])
+            assert_type(opts.language, str)
+            self.assertEqual(opts.language, opts._v_language[1])
 
-    def test_default_language(self) -> None:
+    def test_language(self) -> None:
         with Context() as ctx:
             opts = ctx.options.model.value.text
-            os.environ[opts._v_default_language[0]] = 'pt'
+            os.environ[opts._v_language[0]] = 'pt'
             opts = TextOptions()
-            self.assertEqual(opts.default_language, 'pt')
-            del os.environ[opts._v_default_language[0]]
+            self.assertEqual(opts.language, 'pt')
+            del os.environ[opts._v_language[0]]
         with Context() as ctx:
             opts = ctx.options.model.value.text
-            opts.default_language = 'abc'
-            self.assertEqual(opts.default_language, 'abc')
+            opts.language = 'abc'
+            self.assertEqual(opts.language, 'abc')
             self.assert_raises_bad_argument(
                 TypeError, 1, 'language', 'cannot coerce int into String',
-                (lambda x: setattr(opts, 'default_language', x),
-                 'default_language'), 0)
+                (lambda x: setattr(opts, 'language', x),
+                 'language'), 0)
 
 
 if __name__ == '__main__':

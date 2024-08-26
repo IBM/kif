@@ -138,10 +138,10 @@ class Test(FingerprintTestCase):
             ValueFingerprint(Text('x')), Text('y'), Text('x', 'pt'))
         self.assert_match(
             ValueFingerprint(Text(
-                'x', Context.top().options.default_language)), Text('x'))
+                'x', Context.top().options.language)), Text('x'))
         self.assert_match(
             ValueFingerprint(Text('x')), Text(
-                'x', Context.top().options.default_language))
+                'x', Context.top().options.language))
         # string
         self.assert_match(ValueFingerprint('x'), String('x'))
         self.assert_match(ValueFingerprint(String('x')), String('x'))

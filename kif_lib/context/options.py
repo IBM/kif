@@ -19,14 +19,14 @@ class Options(Section, name='kif'):
     store: 'StoreOptions' = dataclasses.field(default_factory=StoreOptions)
 
     @property
-    def default_language(self) -> str:
+    def language(self) -> str:
         """The default language tag."""
-        return self.get_default_language()
+        return self.get_language()
 
-    def get_default_language(self) -> str:
+    def get_language(self) -> str:
         """Gets the default language tag.
 
         Returns:
            Language tag.
         """
-        return self.model.value.text.default_language
+        return self.model.value.text.language

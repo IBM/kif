@@ -29,24 +29,24 @@ VTTextContent: TypeAlias = Union[Variable, TText]
 class TextOptions(Section, name='text'):
     """Text options."""
 
-    _v_default_language: ClassVar[tuple[str, str]] =\
-        ('KIF_MODEL_VALUE_TEXT_DEFAULT_LANGUAGE', 'en')
+    _v_language: ClassVar[tuple[str, str]] =\
+        ('KIF_MODEL_VALUE_TEXT_LANGUAGE', 'en')
 
-    _default_language: str
+    _language: str
 
     def __init__(self, **kwargs):
-        self.default_language = kwargs.get(
-            '_default_language', self.getenv(*self._v_default_language))
+        self.language = kwargs.get(
+            '_language', self.getenv(*self._v_language))
 
     @property
-    def default_language(self) -> str:
+    def language(self) -> str:
         """The default language tag."""
-        return self._default_language
+        return self._language
 
-    @default_language.setter
-    def default_language(self, language: TString):
-        self._default_language = String.check(
-            language, 'default_language', 'language', 1).content
+    @language.setter
+    def language(self, language: TString):
+        self._language = String.check(
+            language, 'language', 'language', 1).content
 
 
 class TextTemplate(ShallowDataValueTemplate):
@@ -152,7 +152,7 @@ class Text(
                 return String.check(arg, type(self_), None, i).content
         elif i == 2:            # language
             if arg is None:
-                return self_.context.options.default_language
+                return self_.context.options.language
             else:
                 return String.check(arg, type(self_), None, i).content
         else:

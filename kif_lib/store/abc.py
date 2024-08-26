@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import sys
-from enum import auto, Flag
 
 from .. import itertools
 from ..cache import Cache
@@ -29,6 +28,7 @@ from ..model import (
     TFingerprint,
     TReferenceRecordSet,
 )
+from ..model.flags import Flags as KIF_Flags
 from ..typing import (
     Any,
     Callable,
@@ -255,38 +255,38 @@ class Store(Set):
 
 # -- Flags -----------------------------------------------------------------
 
-    class Flags(Flag):
+    class Flags(KIF_Flags):
         """Store flags."""
 
         #: Whether to enable cache.
-        CACHE = auto()
+        CACHE = KIF_Flags.auto()
 
         #: Whether to enable debugging.
-        DEBUG = auto()
+        DEBUG = KIF_Flags.auto()
 
         #: Whether to remove duplicates.
-        DISTINCT = auto()
+        DISTINCT = KIF_Flags.auto()
 
         #: Whether to force some ordering.
-        ORDER = auto()
+        ORDER = KIF_Flags.auto()
 
         #: Whether to fetch only the best ranked statements.
-        BEST_RANK = auto()
+        BEST_RANK = KIF_Flags.auto()
 
         #: Whether to fetch value snaks.
-        VALUE_SNAK = auto()
+        VALUE_SNAK = KIF_Flags.auto()
 
         #: Whether to fetch some-value snaks.
-        SOME_VALUE_SNAK = auto()
+        SOME_VALUE_SNAK = KIF_Flags.auto()
 
         #: Whether to fetch no-value snaks.
-        NO_VALUE_SNAK = auto()
+        NO_VALUE_SNAK = KIF_Flags.auto()
 
         #: Whether to enable early filtering.
-        EARLY_FILTER = auto()
+        EARLY_FILTER = KIF_Flags.auto()
 
         #: Whether to enable late filtering.
-        LATE_FILTER = auto()
+        LATE_FILTER = KIF_Flags.auto()
 
         #: All flags.
         ALL = (
@@ -338,7 +338,7 @@ class Store(Set):
         if flags is None:
             self._flags = self.default_flags
         else:
-            self._flags = self.Flags(flags)
+            self._flags = self.Flags.check(flags, type(self))
 
     @property
     def default_flags(self) -> Flags:
@@ -351,7 +351,7 @@ class Store(Set):
         Returns:
            Store flags.
         """
-        return self.context.options.store.default_flags
+        return self.context.options.store.flags
 
     @property
     def flags(self) -> Flags:
@@ -939,7 +939,7 @@ class Store(Set):
         KIF_Object._check_arg_isinstance(
             entities, (Entity, Iterable), self.get_descriptor, 'entities', 1)
         language = KIF_Object._check_optional_arg_str(
-            language, self.context.options.default_language,
+            language, self.context.options.language,
             self.get_descriptor, 'language', 2)
         assert language is not None
         mask = Descriptor.AttributeMask.check_optional(
@@ -1011,7 +1011,7 @@ class Store(Set):
             items, (Item, Iterable),
             self.get_item_descriptor, 'items', 1)
         language = KIF_Object._check_optional_arg_str(
-            language, self.context.options.default_language,
+            language, self.context.options.language,
             self.get_item_descriptor, 'language', 2)
         assert language is not None
         mask = Descriptor.AttributeMask.check_optional(
@@ -1062,7 +1062,7 @@ class Store(Set):
             properties, (Property, Iterable),
             self.get_property_descriptor, 'properties', 1)
         language = KIF_Object._check_optional_arg_str(
-            language, self.context.options.default_language,
+            language, self.context.options.language,
             self.get_property_descriptor, 'language', 2)
         assert language is not None
         mask = Descriptor.AttributeMask.check_optional(

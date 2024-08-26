@@ -48,8 +48,7 @@ class Test(ShallowDataValueTemplateTestCase):
                  Text(Variable('x', String), 'y')),
                 ([StringVariable('x'), StringVariable('y')],
                  Text(Variable('x', String), Variable('y', String))),
-                ([Variable('x', String),
-                  Context.top().options.default_language],
+                ([Variable('x', String), Context.top().options.language],
                  Text(Variable('x', String)))
             ],
             normalize=[
