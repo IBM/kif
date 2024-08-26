@@ -265,6 +265,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         self._push_pattern(self.pattern)
         return self
 
+    # -- Pattern --
+
     def _push_pattern(self, pattern: Pattern):
         if isinstance(pattern, ClosedPattern):
             if isinstance(pattern.object, Statement):
@@ -284,26 +286,28 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         else:
             raise self._should_not_get_here()
 
+    # -- Statement --
+
     def _push_statement(
             self,
             obj: Statement
-    ) -> tuple[Query.V_URI, Query.V_URI, Query.V_URI]:
-        v_wds = self._fresh_qvar()
+    ) -> StmtCtx:
+        ctx = self._mk_stmtctx(self._fresh_qvar())
         self._q.stash_begin()
         self._q.comments()('subject')
         v_subject = self._push_entity(obj.subject)
         self._q.comments()('snak')
-        v_property = self._push_snak(obj.snak, v_wds)
+        v_property = self._push_snak(obj.snak, ctx)
         self._q.stash_end()
-        self._do_push_statement(v_wds, v_subject, v_property)
+        self._do_push_statement(ctx['v_wds'], v_subject, v_property)
         self._q.stash_pop()
-        return v_wds, v_subject, v_property
+        return ctx
 
     def _push_statement_template(
             self,
             tpl: StatementTemplate
-    ) -> tuple[Query.V_URI, Query.V_URI, Query.V_URI]:
-        v_wds = self._fresh_qvar()
+    ) -> StmtCtx:
+        ctx = self._mk_stmtctx(self._fresh_qvar())
         self._q.stash_begin()
         if isinstance(tpl.subject, Entity):
             v_subject = self._push_entity(tpl.subject)
@@ -314,7 +318,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         else:
             raise self._should_not_get_here()
         if isinstance(tpl.snak, Snak):
-            v_property = self._push_snak(tpl.snak, v_wds)
+            v_property = self._push_snak(tpl.snak, ctx)
         elif isinstance(tpl.snak, SnakTemplate):
             raise NotImplementedError
         elif isinstance(tpl.snak, SnakVariable):
@@ -322,14 +326,11 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         else:
             raise self._should_not_get_here()
         self._q.stash_end()
-        self._do_push_statement(v_wds, v_subject, v_property)
+        self._do_push_statement(ctx['v_wds'], v_subject, v_property)
         self._q.stash_pop()
-        return v_wds, v_subject, v_property
+        return ctx
 
-    def _push_statement_variable(
-            self,
-            var: StatementVariable
-    ) -> tuple[Query.V_URI, Query.V_URI, Query.V_URI]:
+    def _push_statement_variable(self, var: StatementVariable) -> StmtCtx:
         return self._push_statement_template(
             self._theta_add(
                 var,
@@ -351,6 +352,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         if best_ranked:
             self._q.triples()((v_wds, NS.RDF.type, NS.WIKIBASE.BestRank))
         return v_wds, v_subject, v_property
+
+    # -- Entity --
 
     def _push_entity(self, obj: Entity) -> Query.V_URI:
         if isinstance(obj, Item):
@@ -412,6 +415,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         else:
             raise self._should_not_get_here()
 
+    # -- Item --
+
     def _push_item(self, obj: Item) -> Query.V_URI:
         return self._do_push_item(self._q._mk_uri(obj.iri.content))
 
@@ -431,6 +436,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _do_push_item(self, v_item: V_URI1) -> V_URI1:
         self._q.triples()((v_item, NS.WIKIBASE.sitelinks, self._q.bnode()))
         return v_item
+
+    # -- Property --
 
     def _push_property(self, obj: Property) -> Query.V_URI:
         if obj.range is None:
@@ -479,6 +486,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             (v_property, NS.WIKIBASE.propertyType, v_datatype))
         return v_property, v_datatype
 
+    # -- Lexeme --
+
     def _push_lexeme(self, obj: Lexeme) -> Query.V_URI:
         return self._do_push_lexeme(self._q._mk_uri(obj.iri.content))
 
@@ -500,9 +509,11 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         self._q.triples()((v_lexeme, NS.RDF.type, NS.ONTOLEX.LexicalEntry))
         return v_lexeme
 
-    def _push_snak(self, obj: Snak, v_wds: Query.V_URI) -> Query.V_URI:
+    # -- Snak --
+
+    def _push_snak(self, obj: Snak, ctx: StmtCtx) -> Query.V_URI:
         if isinstance(obj, ValueSnak):
-            return self._push_value_snak(obj, v_wds)
+            return self._push_value_snak(obj, ctx)
         elif isinstance(obj, SomeValueSnak):
             raise NotImplementedError
         elif isinstance(obj, NoValueSnak):
@@ -510,15 +521,17 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         else:
             raise self._should_not_get_here()
 
+    # -- ValueSnak --
+
     def _push_value_snak(
             self,
             obj: ValueSnak,
-            v_wds: Query.V_URI
+            ctx: StmtCtx
     ) -> Query.V_URI:
         v_property = self._push_property(obj.property)
         v_value = self._push_value(
-            obj.value, self._mk_snakctx(v_wds, v_property))
-        self._do_push_value_snak(v_wds, v_property, v_value)
+            obj.value, self._as_snakctx(ctx, v_property))
+        self._do_push_value_snak(ctx['v_wds'], v_property, v_value)
         return v_property
 
     def _do_push_value_snak(
@@ -532,6 +545,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             (v_property, NS.WIKIBASE.statementProperty, ps),
             (v_wds, ps, v_value))
         return v_wds, v_property, v_value
+
+    # -- Value --
 
     def _push_value(
             self,
@@ -547,6 +562,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         else:
             raise self._should_not_get_here()
 
+    # -- DataValue --
+
     def _push_data_value(
             self,
             obj: DataValue,
@@ -556,6 +573,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             return self._push_shallow_data_value(obj, ctx)
         else:
             raise self._should_not_get_here()
+
+    # -- ShallowDataValue --
 
     def _push_shallow_data_value(
             self,
@@ -572,6 +591,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             raise NotImplementedError
         else:
             raise self._should_not_get_here()
+
+    # -- IRI --
 
     def _push_iri(
             self,
