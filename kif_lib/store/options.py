@@ -5,7 +5,7 @@ import dataclasses
 
 from ..context import Section
 from ..model import Quantity, TQuantity
-from ..typing import ClassVar, Optional, Union
+from ..typing import Any, ClassVar, Optional, Union
 from .abc import Store
 
 
@@ -13,28 +13,23 @@ from .abc import Store
 class StoreOptions(Section, name='store'):
     """Store options."""
 
+    def __init__(self, **kwargs) -> None:
+        self._init_flags(kwargs)
+        self._init_page_size(kwargs)
+        self._init_timeout(kwargs)
+
+    # -- flags --
+
     _v_flags: ClassVar[tuple[str, Store.Flags]] =\
         ('KIF_STORE_FLAGS', (
             Store.Flags.ALL & ~(Store.Flags.DEBUG | Store.Flags.ORDER)))
 
-    _v_page_size: ClassVar[tuple[str, int]] =\
-        ('KIF_STORE_PAGE_SIZE', 100)
-
-    _v_timeout: ClassVar[tuple[str, Optional[int]]] =\
-        ('KIF_STORE_TIMEOUT', None)
-
     _flags: Store.Flags
-    _page_size: int
-    _timeout: Optional[int]
 
-    def __init__(self, **kwargs):
+    def _init_flags(self, kwargs: dict[str, Any]) -> None:
         self.flags = kwargs.get(
             '_flags', int(self.getenv(
                 self._v_flags[0], self._v_flags[1].value)))
-        self.page_size = kwargs.get(
-            '_page_size', self.getenv(*self._v_page_size))
-        self.timeout = kwargs.get(
-            '_timeout', self.getenv(*self._v_timeout))
 
     @property
     def flags(self) -> Store.Flags:
@@ -42,8 +37,8 @@ class StoreOptions(Section, name='store'):
         return self.get_flags()
 
     @flags.setter
-    def flags(self, flags: Union[int, Store.Flags]):
-        self._flags = Store.Flags(flags)
+    def flags(self, flags: Union[Store.Flags, int]):
+        self.set_flags(flags)
 
     def get_flags(self):
         """Gets the default store flags.
@@ -52,6 +47,25 @@ class StoreOptions(Section, name='store'):
            Store flags.
         """
         return self._flags
+
+    def set_flags(self, flags: Union[Store.Flags, int]):
+        """Sets the default store flags.
+
+        Parameters:
+           flags: Store flags.
+        """
+        self._flags = Store.Flags.check(flags, self.set_flags, 'flags', 1)
+
+    # -- page size --
+
+    _v_page_size: ClassVar[tuple[str, int]] =\
+        ('KIF_STORE_PAGE_SIZE', 100)
+
+    _page_size: int
+
+    def _init_page_size(self, kwargs: dict[str, Any]) -> None:
+        self.page_size = kwargs.get(
+            '_page_size', self.getenv(*self._v_page_size))
 
     @property
     def page_size(self) -> int:
@@ -80,6 +94,16 @@ class StoreOptions(Section, name='store'):
         """
         self._page_size = max(int(Quantity.check(
             page_size, self.set_page_size, 'page_size', 1).amount), 0)
+
+    # -- timeout --
+
+    _v_timeout: ClassVar[tuple[str, Optional[int]]] =\
+        ('KIF_STORE_TIMEOUT', None)
+
+    _timeout: Optional[int]
+
+    def _init_timeout(self, kwargs: dict[str, Any]) -> None:
+        self.timeout = kwargs.get('_timeout', self.getenv(*self._v_timeout))
 
     @property
     def timeout(self) -> Optional[int]:

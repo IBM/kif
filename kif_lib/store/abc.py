@@ -331,14 +331,14 @@ class Store(Set):
     #: Whether to enable late filtering.
     LATE_FILTER: Final[Flags] = Flags.LATE_FILTER
 
-    #: Current store flags.
+    #: Store flags.
     _flags: 'Flags'
 
     def _init_flags(self, flags: Optional['Flags'] = None):
-        if flags is None:
-            self._flags = self.default_flags
-        else:
-            self._flags = self.Flags.check(flags, type(self))
+        flags = self.Flags.check_optional(
+            flags, self.default_flags, type(self), 'flags')
+        assert flags is not None
+        self._flags = flags
 
     @property
     def default_flags(self) -> Flags:
@@ -355,7 +355,7 @@ class Store(Set):
 
     @property
     def flags(self) -> Flags:
-        """The flags set in store."""
+        """The store flags."""
         return self.get_flags()
 
     @flags.setter
@@ -368,7 +368,7 @@ class Store(Set):
         return True
 
     def get_flags(self) -> Flags:
-        """Gets the flags set in store.
+        """Gets the store flags.
 
         Returns:
            Store flags.
