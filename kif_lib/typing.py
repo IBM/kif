@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from collections.abc import (
+    AsyncIterator,
     Awaitable,
     Callable,
     Collection,
@@ -18,29 +19,30 @@ from collections.abc import (
     Set,
 )
 from types import TracebackType
-
-from typing_extensions import (
-    Any,
-    assert_type,
-    AsyncIterator,
+from typing import (
     BinaryIO,
     cast,
     ClassVar,
     Final,
     Generic,
     IO,
-    Literal,
     NoReturn,
     Optional,
+    TextIO,
+    Union,
+)
+
+from typing_extensions import (
+    Any,
+    assert_type,
+    Literal,
     overload,
     override,
     Protocol,
     Self,
-    TextIO,
     TypeAlias,
     TypedDict,
     TypeVar,
-    Union,
 )
 
 __all__ = (
