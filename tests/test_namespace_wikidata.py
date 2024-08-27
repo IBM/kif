@@ -1,6 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 from rdflib.namespace import Namespace
 
 from kif_lib.namespace import WIKIBASE, Wikidata

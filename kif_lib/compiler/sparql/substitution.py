@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import networkx as nx
 
 from ...model import OpenTerm, Template, Term, Variable

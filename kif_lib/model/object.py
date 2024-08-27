@@ -1,11 +1,13 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
-
+#
 # $Id$
 #
 # Syntactical objects.
 #
 # ** KEEP THIS FILE SELF-CONTAINED! **
+
+from __future__ import annotations
 
 import abc
 import copy

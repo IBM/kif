@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import itertools
 
 from kif_lib import ExternalId, IRI, Item, KIF_Object, String, Term, Variable

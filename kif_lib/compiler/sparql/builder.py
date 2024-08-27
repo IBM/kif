@@ -1,11 +1,13 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
-
+#
 # $Id$
 #
 # RDFLib-based SPARQL query builder.
 #
 # ** KEEP THIS FILE SELF-CONTAINED! **
+
+from __future__ import annotations
 
 import datetime
 import decimal

@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 from ...typing import ClassVar, Iterable, override, TypeAlias, Union
 from ..set import KIF_ObjectSet
 from .annotation_record import AnnotationRecord

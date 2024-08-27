@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 from kif_lib import KIF_Object, KIF_ObjectSet
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 

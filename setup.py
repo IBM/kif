@@ -23,7 +23,7 @@ setuptools.setup(
     package_dir={'kif_lib': 'kif_lib'},
     install_requires=[ 'httpx', 'lark', 'more_itertools', 'networkx', 'rdflib', 'types-networkx', 'typing-extensions', ],
     extras_require={
-        'docs': [ 'myst_parser', 'pydata_sphinx_theme', ],
+        'docs': [ 'myst_nb', 'sphinx-rtd-theme', ],
         'tests': ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-cov', 'pytest-mypy', 'setuptools', 'tox'],
     },
     zip_safe=False,

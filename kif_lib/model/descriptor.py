@@ -1,6 +1,8 @@
 # Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 from ..typing import Any, Final, Optional, override, TypeAlias, Union
 from .flags import Flags
 from .kif_object import KIF_Object

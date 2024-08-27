@@ -58,6 +58,7 @@ FLAKE8RC_IGNORE?= E741, W503
 GEN_ALL_TARGETS?=
 ISORT?= ${PYTHON} -m isort
 ISORT_CFG?= .isort.cfg
+ISORT_CFG_ADD_IMPORTS?=
 ISORT_CFG_INCLUDE_TRAILING_COMMA?= True
 ISORT_CFG_MULTI_LINE_OUTPUT?= 3
 ISORT_CFG_ORDER_BY_TYPE?= False
@@ -367,6 +368,7 @@ GEN_ALL_TARGETS+= gen-isort-cfg
 gen-isort-cfg:
 	$P 'generating ${ISORT_CFG}'
 	$P '[settings]' >${ISORT_CFG}
+	$P 'add_imports = ${ISORT_CFG_ADD_IMPORTS}' >> ${ISORT_CFG}
 	$P 'include_trailing_comma = ${ISORT_CFG_INCLUDE_TRAILING_COMMA}' >>${ISORT_CFG}
 	$P 'multi_line_output = ${ISORT_CFG_MULTI_LINE_OUTPUT}' >>${ISORT_CFG}
 	$P 'order_by_type = ${ISORT_CFG_ORDER_BY_TYPE}' >>${ISORT_CFG}

@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 from .annotation_record import AnnotationRecord
 from .annotation_record_set import AnnotationRecordSet, TAnnotationRecordSet
 from .rank import (

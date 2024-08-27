@@ -1,6 +1,8 @@
 # Copyright (C) 2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 from rdflib import BNode, Graph, Literal, URIRef
 from rdflib.exceptions import Error as RDFLibError
 from rdflib.namespace import DCTERMS as DCT
