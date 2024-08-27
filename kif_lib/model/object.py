@@ -15,26 +15,15 @@ import functools
 import itertools
 import json
 from collections.abc import Iterator, Mapping, Sequence
+from typing import Callable, cast, ClassVar, Final, IO, Optional, Union
 
 import lark  # for S-expression parsing
-from typing_extensions import (
-    Any,
-    Callable,
-    cast,
-    ClassVar,
-    Final,
-    IO,
-    Optional,
-    override,
-    Self,
-    TypeVar,
-    Union,
-)
+from typing_extensions import Any, override, Self, TypeAlias, TypeVar
 
-TDet = Union[Callable[[Any], str], str]
-TFun = Callable[..., Any]
-TLoc = Union[TFun, str]
-TNum = Union[float, int]
+TDet: TypeAlias = Union[Callable[[Any], str], str]
+TFun: TypeAlias = Callable[..., Any]
+TLoc: TypeAlias = Union[TFun, str]
+TNum: TypeAlias = Union[float, int]
 
 F = TypeVar('F', bound=Callable[..., Any])
 T = TypeVar('T')
@@ -45,7 +34,7 @@ T = TypeVar('T')
 class ObjectMeta(abc.ABCMeta):
     """Meta-class for syntactical objects."""
 
-    _object_subclasses: Final[dict[str, type['Object']]] = {}
+    _object_subclasses: Final[dict[str, type[Object]]] = {}
 
     def __new__(mcs, name, bases, namespace, **kwargs):
         cls = super().__new__(mcs, name, bases, namespace, **kwargs)
@@ -57,7 +46,7 @@ class ObjectMeta(abc.ABCMeta):
             cls,
             cls_name: str,
             exception: type[Exception] = TypeError
-    ) -> type['Object']:
+    ) -> type[Object]:
         if cls_name not in cls._object_subclasses:
             raise exception(f"no such object class '{cls_name}'")
         return cls._object_subclasses[cls_name]
@@ -197,7 +186,7 @@ class Object(Sequence, metaclass=ObjectMeta):
     def __len__(self) -> int:
         return len(self._args)
 
-    def __lt__(self, other: 'Object') -> bool:
+    def __lt__(self, other: Object) -> bool:
         if not isinstance(other, Object):
             return NotImplemented
         elif type(self) is not type(other):
@@ -206,10 +195,10 @@ class Object(Sequence, metaclass=ObjectMeta):
         else:
             return self._args < other._args
 
-    def __le__(self, other: 'Object') -> bool:
+    def __le__(self, other: Object) -> bool:
         return self == other or self < other
 
-    def __gt__(self, other: 'Object') -> bool:
+    def __gt__(self, other: Object) -> bool:
         if not isinstance(other, Object):
             return NotImplemented
         elif type(self) is not type(other):
@@ -218,7 +207,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         else:
             return self._args > other._args
 
-    def __ge__(self, other: 'Object') -> bool:
+    def __ge__(self, other: Object) -> bool:
         return self == other or self > other
 
     def __repr__(self) -> str:
@@ -355,7 +344,7 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _from_ast(
             cls,
             ast: Mapping[str, Any]
-    ) -> 'Object':
+    ) -> Object:
         obj_class = ObjectMeta._check_object_class(ast['class'])
         return obj_class(*map(cls._from_ast_arg, ast['args']))
 
@@ -864,7 +853,7 @@ class Codec(abc.ABC):
         """Base class for codec errors."""
 
     #: The codec registry.
-    registry: ClassVar[dict[str, type['Codec']]]
+    registry: ClassVar[dict[str, type[Codec]]]
 
     #: The format of the default codec.
     default: ClassVar[str] = 'repr'
@@ -878,7 +867,7 @@ class Codec(abc.ABC):
     @classmethod
     def _register(
             cls,
-            codec: type['Codec'],
+            codec: type[Codec],
             format: str,
             description: str):
         codec.format = format
@@ -926,10 +915,10 @@ class Encoder(Codec):
         Encoder._register(cls, format, description)
 
     @classmethod
-    def _error(cls, details: str) -> 'Encoder.Error':
+    def _error(cls, details: str) -> Encoder.Error:
         return cls.Error(details)
 
-    def encode(self, input: 'Object') -> str:
+    def encode(self, input: Object) -> str:
         """Encodes object.
 
         Parameters:
@@ -941,7 +930,7 @@ class Encoder(Codec):
         return ''.join(self.iterencode(input))
 
     @abc.abstractmethod
-    def iterencode(self, input: 'Object') -> Iterator[str]:
+    def iterencode(self, input: Object) -> Iterator[str]:
         """Encodes object iteratively.
 
         Yields each string as available.
@@ -963,7 +952,7 @@ class ReprEncoder(
         self.indent = indent
 
     @override
-    def iterencode(self, input: 'Object') -> Iterator[str]:
+    def iterencode(self, input: Object) -> Iterator[str]:
         return self._iterencode(input, 0, self.indent)
 
     def _iterencode(
@@ -999,13 +988,13 @@ class ReprEncoder(
 
     def _start_object(
             self,
-            obj: 'Object',
+            obj: Object,
             indent: int
     ) -> Iterator[str]:
         yield obj.__class__.__qualname__
         yield '('
 
-    def _end_object(self, obj: 'Object') -> Iterator[str]:
+    def _end_object(self, obj: Object) -> Iterator[str]:
         yield ')'
 
     def _start_collection(self, v: Any, indent: int) -> Iterator[str]:
@@ -1044,14 +1033,14 @@ class SExpEncoder(
         ReprEncoder, format='sexp', description='S-expression encoder'):
     """S-expression encoder."""
 
-    def _start_object(self, obj: 'Object', indent: int) -> Iterator[str]:
+    def _start_object(self, obj: Object, indent: int) -> Iterator[str]:
         if obj:
             yield '('
         yield obj.__class__.__qualname__
         if obj and indent == 0:
             yield ' '
 
-    def _end_object(self, obj: 'Object') -> Iterator[str]:
+    def _end_object(self, obj: Object) -> Iterator[str]:
         if obj:
             yield ')'
 
@@ -1094,7 +1083,7 @@ class JSON_Encoder(Encoder, format='json', description='JSON encoder'):
         self.enc = self.Encoder(**kwargs)
 
     @override
-    def iterencode(self, input: 'Object') -> Iterator[str]:
+    def iterencode(self, input: Object) -> Iterator[str]:
         return self.enc.iterencode(input)
 
 
@@ -1117,16 +1106,16 @@ class Decoder(Codec):
             cls,
             cls_name: str,
             exception: Optional[type[Exception]] = None
-    ) -> type['Object']:
+    ) -> type[Object]:
         return ObjectMeta._check_object_class(
             cls_name, exception or cls.Error)
 
     @classmethod
-    def _error(cls, details: str) -> 'Decoder.Error':
+    def _error(cls, details: str) -> Decoder.Error:
         return cls.Error(details)
 
     @abc.abstractmethod
-    def decode(self, input: str) -> 'Object':
+    def decode(self, input: str) -> Object:
         """Decodes string.
 
         Parameters:
@@ -1148,7 +1137,7 @@ class ReprDecoder(
         return ObjectMeta._object_subclasses
 
     @override
-    def decode(self, input: str) -> 'Object':
+    def decode(self, input: str) -> Object:
         return eval(input, self._globals(), {})
 
 
@@ -1230,7 +1219,7 @@ list: "[" value* "]" -> list_
             transformer=self.Visitor(), cache=True)
 
     @override
-    def decode(self, input: str) -> 'Object':
+    def decode(self, input: str) -> Object:
         try:
             return cast(Object, self.parser.parse(input))
         except lark.exceptions.UnexpectedInput as err:
@@ -1247,7 +1236,7 @@ class JSON_Decoder(Decoder, format='json', description='JSON decoder'):
         """The underlying JSON decoder."""
 
         @staticmethod
-        def _object_hook(t: dict[str, Any]) -> 'Object':
+        def _object_hook(t: dict[str, Any]) -> Object:
             assert isinstance(t, dict)
             if 'class' not in t:
                 raise Decoder._error("missing attribute 'class'")
@@ -1263,5 +1252,5 @@ class JSON_Decoder(Decoder, format='json', description='JSON decoder'):
         self.dec = self.Decoder(**kwargs)
 
     @override
-    def decode(self, input: str) -> 'Object':
+    def decode(self, input: str) -> Object:
         return self.dec.decode(input)
