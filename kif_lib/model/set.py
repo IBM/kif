@@ -19,15 +19,16 @@ from .kif_object import KIF_Object
 from .snak import Snak, TSnak
 from .value import Text, TText, TValue, Value
 
-TValueSet = Union['ValueSet', Iterable[TValue]]
+TValueSet: TypeAlias = Union['ValueSet', Iterable[TValue]]
 
-TTextSet = Union['TextSet', Iterable[TText]]
+TTextSet: TypeAlias = Union['TextSet', Iterable[TText]]
 
 TSnakSet: TypeAlias = Union['SnakSet', Iterable[TSnak]]
 
 TReferenceRecord: TypeAlias = Union['ReferenceRecord', TSnakSet]
 
-TReferenceRecordSet = Union['ReferenceRecordSet', Iterable[TReferenceRecord]]
+TReferenceRecordSet: TypeAlias =\
+    Union['ReferenceRecordSet', Iterable[TReferenceRecord]]
 
 _TObj = TypeVar('_TObj', bound=KIF_Object)
 
