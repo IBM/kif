@@ -9,3 +9,4 @@ API Reference
    :maxdepth: 2
 
    model/index
+   store/index

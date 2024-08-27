@@ -48,19 +48,19 @@ S = TypeVar('S')
 
 
 class Store(Set):
-    """Store factory.
+    """Abstract base class for stores.
 
     Parameters:
        store_name: Name of the store plugin to instantiate.
        args: Arguments to store plugin.
        extra_references: Set of extra references to attach to statements.
-       flags: Configuration flags.
+       flags: Store flags.
        page_size: Page size of paginated responses.
        timeout: Timeout of responses (in seconds).
        kwargs: Keyword arguments to store plugin.
     """
 
-    #: The global plugin registry.
+    #: The store plugin registry.
     registry: Final[dict[str, type['Store']]] = {}
 
     #: The name of this store plugin.
@@ -270,7 +270,7 @@ class Store(Set):
         """Sets the set of extra references to attach to statements.
 
         If `extra_references` is ``None``,
-        assumes :attr:`self.default_extra_references`.
+        assumes :attr:`Store.default_extra_references`.
 
         Parameters:
            references: Reference record set.
@@ -531,7 +531,7 @@ class Store(Set):
 
         If `page_size` is negative, assumes zero.
 
-        If `page_size` is ``None``, assumes :attr:`self.default_page_size`.
+        If `page_size` is ``None``, assumes :attr:`Store.default_page_size`.
 
         Parameters:
            page_size: Page size.
@@ -1010,45 +1010,9 @@ class Store(Set):
 
     def _get_annotations(
             self,
-            stmts: Iterable[Statement],
+            stmts: Iterable[Statement]
     ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
         return map(lambda stmt: (stmt, None), stmts)
-
-# -- Entities --------------------------------------------------------------
-
-    def has_item(
-        self,
-        items: Union[Item, Iterable[Item]],
-    ) -> Iterator[tuple[Item, bool]]:
-        """Tests whether items are in store.
-
-        Parameters:
-           items: Items.
-
-        Returns:
-           An iterator of pairs "(item, status)".
-        """
-        KIF_Object._check_arg_isinstance(
-            items, (Item, Iterable),
-            self.has_item, 'items', 1)
-        if isinstance(items, Item):
-            return self._has_item_tail((items,))
-        else:
-            return self._has_item_tail(map(
-                lambda e: cast(Item, Item.check(e, self.has_item)), items))
-
-    def _has_item_tail(
-        self,
-        items: Union[Item, Iterable[Item]],
-    ) -> Iterator[tuple[Item, bool]]:
-        return self._chain_map_batched(self._has_item, items)
-
-    def _has_item(
-            self,
-            items: Iterable[Item]
-    ) -> Iterator[tuple[Item, bool]]:
-        for item in items:
-            yield item, False
 
 # -- Descriptors -----------------------------------------------------------
 
