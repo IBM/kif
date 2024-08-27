@@ -67,6 +67,8 @@ ISORT_OPTIONS?= --check --diff
 MYPY?= ${PYTHON} -m mypy
 MYPY_OPERANDS?= ${PACKAGE} ${TESTS}
 MYPY_OPTIONS?= --show-error-context --show-error-codes
+PYUPGRADE?= ${PYTHON} -m pyupgrade
+PYUPGRADE_OPTIONS?= --exit-zero-even-if-changed --py39-plus
 PERL?= perl
 PIP?= ${PYTHON} -m pip
 PYLINT?= pylint
@@ -277,6 +279,11 @@ perl_check_syntax_python:=\
   }\
   END { exit($$errcnt); }\
   ${NULL}
+
+# upgrade Python syntax
+.PHONY: pyupgrade
+pyupgrade:
+	${PYUPGRADE} ${PYUPGRADE_OPTIONS} $(shell git ls-files '*.py')
 
 # remove generated files
 .PHONY: clean
