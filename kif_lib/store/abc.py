@@ -142,7 +142,7 @@ class Store(Set):
     ):
         self._init_flags(flags)
         self._init_cache(self.has_flags(self.CACHE))
-        self.set_extra_references(extra_references)
+        self._init_extra_references(extra_references)
         self._init_page_size(page_size)
         self._init_timeout(timeout)
 
@@ -204,11 +204,27 @@ class Store(Set):
 
 # -- Extra references ------------------------------------------------------
 
-    #: The default set of extra references.
-    default_extra_references: Final[ReferenceRecordSet] =\
-        ReferenceRecordSet()
+    @property
+    def default_extra_references(self) -> ReferenceRecordSet:
+        """The default set of extra references."""
+        return self.get_default_extra_references()
 
+    def get_default_extra_references(self) -> ReferenceRecordSet:
+        """Gets the default set of extra references.
+
+        Returns:
+           Reference record set.
+        """
+        return self.context.options.store.extra_references
+
+    #: Extra references.
     _extra_references: Optional[ReferenceRecordSet]
+
+    def _init_extra_references(
+            self,
+            extra_references: Optional[TReferenceRecordSet]
+    ) -> None:
+        self.extra_references = extra_references  # type: ignore
 
     @property
     def extra_references(self) -> ReferenceRecordSet:
@@ -224,33 +240,45 @@ class Store(Set):
 
     def get_extra_references(
             self,
-            default=default_extra_references
+            default: Optional[ReferenceRecordSet] = None
     ) -> ReferenceRecordSet:
         """Gets the set of extra references to attach to statements.
 
         If the set of extra references is ``None``, returns `default`.
 
+        If `default` is ``None``,
+        assumes :attr:`Store.default_extra_references`.
+
         Parameters:
-           default: Default set of references.
+           default: Reference record set.
 
         Returns:
-           Set of references.
+           Reference record set.
         """
-        return (self._extra_references
-                if self._extra_references is not None else default)
+        if self._extra_references is not None:
+            extra_references: ReferenceRecordSet = self._extra_references
+        elif default is not None:
+            extra_references = default
+        else:
+            extra_references = self.default_extra_references
+        return extra_references
 
     def set_extra_references(
             self,
-            references: Optional[TReferenceRecordSet] = None
+            extra_references: Optional[TReferenceRecordSet] = None
     ):
         """Sets the set of extra references to attach to statements.
 
+        If `extra_references` is ``None``,
+        assumes :attr:`self.default_extra_references`.
+
         Parameters:
-           references: Set of references.
+           references: Reference record set.
         """
         self._extra_references =\
             ReferenceRecordSet.check_optional(
-                references, None, self.set_extra_references, 'references', 1)
+                extra_references, None, self.set_extra_references,
+                'extra_references', 1)
 
 # -- Flags -----------------------------------------------------------------
 
@@ -482,7 +510,7 @@ class Store(Set):
         If `default` is ``None``, assumes :attr:`Store.default_page_size`.
 
         Parameters:
-           default: Default page size.
+           default: Page size.
 
         Returns:
            Page size.

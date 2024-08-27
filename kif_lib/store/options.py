@@ -5,7 +5,7 @@ import dataclasses
 import sys
 
 from ..context import Section
-from ..model import TQuantity
+from ..model import ReferenceRecordSet, TQuantity, TReferenceRecordSet
 from ..typing import Any, ClassVar, Optional, Union
 from .abc import Store
 
@@ -15,11 +15,47 @@ class StoreOptions(Section, name='store'):
     """Store options."""
 
     def __init__(self, **kwargs) -> None:
+        self._init_extra_references(kwargs)
         self._init_flags(kwargs)
         self._init_max_page_size(kwargs)
         self._init_page_size(kwargs)
         self._init_max_timeout(kwargs)
         self._init_timeout(kwargs)
+
+    # -- extra_references --
+
+    _extra_references: ReferenceRecordSet
+
+    def _init_extra_references(self, kwargs: dict[str, Any]) -> None:
+        self.extra_references = kwargs.get(
+            '_extra_references', ReferenceRecordSet())
+
+    @property
+    def extra_references(self) -> ReferenceRecordSet:
+        """The set of extra references."""
+        return self.get_extra_references()
+
+    @extra_references.setter
+    def extra_references(self, extra_references: TReferenceRecordSet):
+        self.set_extra_references(extra_references)
+
+    def get_extra_references(self) -> ReferenceRecordSet:
+        """Gets the set of extra references.
+
+        Returns:
+           Reference record set.
+        """
+        return self._extra_references
+
+    def set_extra_references(self, extra_references: TReferenceRecordSet):
+        """Sets the set of extra reference.
+
+        Parameters:
+           extra_references: Reference record set.
+        """
+        self._extra_references = ReferenceRecordSet.check(
+            extra_references, self.set_extra_references,
+            'extra_references', 1)
 
     # -- flags --
 
@@ -43,7 +79,7 @@ class StoreOptions(Section, name='store'):
     def flags(self, flags: Union[Store.Flags, int]):
         self.set_flags(flags)
 
-    def get_flags(self):
+    def get_flags(self) -> Store.Flags:
         """Gets the store flags.
 
         Returns:

@@ -2,27 +2,30 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from kif_lib import Property, ReferenceRecord, ReferenceRecordSet
+from kif_lib.typing import Final
 
-from .tests import EmptyStoreTestCase
+from ...tests import EmptyStoreTestCase
 
 
-class TestStoreABC_ExtraReferences(EmptyStoreTestCase):
+class Test(EmptyStoreTestCase):
 
-    def test_extra_references_default(self) -> None:
-        kb = self.new_Store()
-        self.assertEqual(kb.default_extra_references, ReferenceRecordSet())
-
-    ref1 = ReferenceRecord(
+    ref1: Final[ReferenceRecord] = ReferenceRecord(
         Property('p')('abc'),
         Property('q')(Property('p')))
 
-    ref2 = ReferenceRecord(Property('r')(0))
+    ref2: Final[ReferenceRecord] = ReferenceRecord(Property('r')(0))
 
-    ref3 = ReferenceRecord()
+    ref3: Final[ReferenceRecord] = ReferenceRecord()
 
-    refs = ReferenceRecordSet(ref1, ref2, ref3)
+    refs: Final[ReferenceRecordSet] = ReferenceRecordSet(ref1, ref2, ref3)
 
-    def test_extra_references_init(self) -> None:
+    def test_default_extra_references(self) -> None:
+        kb = self.new_Store()
+        self.assertEqual(
+            kb.default_extra_references,
+            ReferenceRecordSet())
+
+    def test__init_extra_references(self) -> None:
         kb = self.new_Store()
         self.assertEqual(kb.extra_references, kb.default_extra_references)
         kb = self.new_Store(extra_references=list(self.refs))
@@ -49,7 +52,7 @@ class TestStoreABC_ExtraReferences(EmptyStoreTestCase):
     def test_set_extra_references(self) -> None:
         kb = self.new_Store()
         self.assert_raises_bad_argument(
-            TypeError, 1, 'references',
+            TypeError, 1, 'extra_references',
             'cannot coerce int into ReferenceRecordSet',
             kb.set_extra_references, 0)
         self.assertEqual(
@@ -68,4 +71,4 @@ class TestStoreABC_ExtraReferences(EmptyStoreTestCase):
 
 
 if __name__ == '__main__':
-    TestStoreABC_ExtraReferences.main()
+    Test.main()

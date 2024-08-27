@@ -3,7 +3,13 @@
 
 import os
 
-from kif_lib import Context, Store
+from kif_lib import (
+    Context,
+    Property,
+    ReferenceRecord,
+    ReferenceRecordSet,
+    Store,
+)
 from kif_lib.store.options import StoreOptions
 from kif_lib.typing import assert_type, Optional
 
@@ -16,6 +22,9 @@ class Test(TestCase):
         with Context() as ctx:
             opts = ctx.options.store
             assert_type(opts, StoreOptions)
+            # extra_references
+            assert_type(opts.extra_references, ReferenceRecordSet)
+            self.assertEqual(opts.extra_references, ReferenceRecordSet())
             # flags
             assert_type(opts.flags, Store.Flags)
             self.assertEqual(opts.flags, opts._v_flags[1])
@@ -31,6 +40,23 @@ class Test(TestCase):
             # timeout
             assert_type(opts.timeout, Optional[float])
             self.assertEqual(opts.timeout, opts._v_timeout[1])
+
+    def test_extra_references(self) -> None:
+        with Context() as ctx:
+            opts = ctx.options.store
+            self.assert_raises_bad_argument(
+                TypeError, 1, 'extra_references',
+                'cannot coerce str into Snak',
+                opts.set_extra_references, 'abc')
+            refs = ReferenceRecordSet(ReferenceRecord(
+                Property('p').no_value()))
+            opts.extra_references = refs
+            self.assertEqual(opts.extra_references, refs)
+            opts.extra_references = ReferenceRecordSet()
+            self.assertEqual(opts.extra_references, ReferenceRecordSet())
+            opts.extra_references = [
+                ReferenceRecord(Property('p').no_value())]  # type: ignore
+            self.assertEqual(opts.extra_references, refs)
 
     def test_flags(self) -> None:
         with Context() as ctx:
