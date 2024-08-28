@@ -9,10 +9,10 @@ from typing import TYPE_CHECKING
 from ... import itertools
 from ...typing import (
     Any,
-    Callable,
     cast,
     ClassVar,
     Iterator,
+    Location,
     Mapping,
     Optional,
     Self,
@@ -151,7 +151,7 @@ class OpenTerm(Term):
             self,
             theta: Theta,
             coerce: bool,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Term | None:

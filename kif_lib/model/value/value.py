@@ -11,10 +11,10 @@ from ... import namespace as NS
 from ...rdflib import Literal, URIRef
 from ...typing import (
     Any,
-    Callable,
     cast,
     ClassVar,
     Collection,
+    Location,
     override,
     Self,
     TypeAlias,
@@ -79,7 +79,7 @@ class Value(
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:

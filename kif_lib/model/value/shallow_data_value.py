@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ...typing import Any, Callable, cast, ClassVar, override, Self
+from ...typing import Any, cast, ClassVar, Location, override, Self
 from .data_value import DataValue, DataValueTemplate, DataValueVariable
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -64,7 +64,7 @@ class ShallowDataValue(
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:

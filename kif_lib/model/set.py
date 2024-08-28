@@ -5,11 +5,11 @@ from __future__ import annotations
 
 from ..typing import (
     Any,
-    Callable,
     cast,
     ClassVar,
     Generic,
     Iterable,
+    Location,
     override,
     Self,
     TypeAlias,
@@ -54,7 +54,7 @@ class KIF_ObjectSet(KIF_Object, Generic[_TObj]):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -155,7 +155,7 @@ class ReferenceRecord(SnakSet, children_class=Snak):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from ...typing import Any, Callable, ClassVar, override, Self, TypeAlias, Union
+from ...typing import Any, ClassVar, Location, override, Self, TypeAlias, Union
 from ..term import Variable
 from ..value import Property, VTProperty
 from .snak import Snak, SnakTemplate, SnakVariable
@@ -56,7 +56,7 @@ class SomeValueSnak(
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:

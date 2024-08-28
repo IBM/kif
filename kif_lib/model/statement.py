@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from ..typing import Any, Callable, ClassVar, override, Self, TypeAlias, Union
+from ..typing import Any, ClassVar, Location, override, Self, TypeAlias, Union
 from .snak import (
     Snak,
     SnakTemplate,
@@ -123,7 +123,7 @@ class Statement(
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:

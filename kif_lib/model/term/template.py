@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from ... import itertools
-from ...typing import Any, Callable, cast, ClassVar, Iterator, override
+from ...typing import Any, cast, ClassVar, Iterator, Location, override
 from .term import ClosedTerm, OpenTerm, Term, Theta
 from .variable import Variable
 
@@ -68,7 +68,7 @@ class Template(OpenTerm):
             self,
             theta: Theta,
             coerce: bool,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Term:

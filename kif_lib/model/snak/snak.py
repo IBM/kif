@@ -7,9 +7,9 @@ from typing import TYPE_CHECKING
 
 from ...typing import (
     Any,
-    Callable,
     cast,
     ClassVar,
+    Location,
     override,
     Self,
     TypeAlias,
@@ -85,7 +85,7 @@ class Snak(
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:

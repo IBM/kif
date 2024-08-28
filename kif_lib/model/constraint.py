@@ -5,9 +5,9 @@ from __future__ import annotations
 
 from ..typing import (
     Any,
-    Callable,
     cast,
     Literal,
+    Location,
     override,
     Self,
     TypeAlias,
@@ -31,7 +31,7 @@ class Constraint(KIF_Object):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -50,7 +50,7 @@ class AtomicConstraint(Constraint):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -75,7 +75,7 @@ class TrueConstraint(AtomicConstraint):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -98,7 +98,7 @@ class FalseConstraint(AtomicConstraint):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:

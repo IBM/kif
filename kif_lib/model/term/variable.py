@@ -10,9 +10,9 @@ from typing_extensions import overload
 from ... import itertools
 from ...typing import (
     Any,
-    Callable,
     cast,
     Iterator,
+    Location,
     override,
     Self,
     TypeAlias,
@@ -59,7 +59,7 @@ class Variable(OpenTerm):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -127,7 +127,7 @@ class Variable(OpenTerm):
             self,
             theta: Theta,
             coerce: bool,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Term | None:
@@ -151,7 +151,7 @@ class Variable(OpenTerm):
     def _instantiate_tail(
             self,
             theta: Theta,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Term | None:

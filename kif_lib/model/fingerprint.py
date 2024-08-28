@@ -10,10 +10,10 @@ from typing import TYPE_CHECKING
 from .. import itertools
 from ..typing import (
     Any,
-    Callable,
     cast,
     Iterator,
     Literal,
+    Location,
     override,
     Self,
     Set,
@@ -61,7 +61,7 @@ class Fingerprint(KIF_Object):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -186,7 +186,7 @@ class CompoundFingerprint(Fingerprint):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -334,7 +334,7 @@ class AtomicFingerprint(Fingerprint):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -372,7 +372,7 @@ class SnakFingerprint(AtomicFingerprint):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -438,7 +438,7 @@ class ValueFingerprint(AtomicFingerprint):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -536,7 +536,7 @@ class FullFingerprint(AtomicFingerprint):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -568,7 +568,7 @@ class EmptyFingerprint(AtomicFingerprint):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:

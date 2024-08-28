@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from ..typing import Any, Callable, cast, override, Self, TypeAlias, Union
+from ..typing import Any, cast, Location, override, Self, TypeAlias, Union
 from .constraint import Constraint, TConstraint
 from .kif_object import KIF_Object
 from .term import ClosedTerm, Template, Variable
@@ -25,7 +25,7 @@ class Pattern(KIF_Object):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -65,7 +65,7 @@ class ClosedPattern(Pattern):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -113,7 +113,7 @@ class OpenPattern(Pattern):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -140,7 +140,7 @@ class TemplatePattern(Pattern):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -193,7 +193,7 @@ class VariablePattern(Pattern):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:

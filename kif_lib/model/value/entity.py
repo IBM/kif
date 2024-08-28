@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from ...typing import Any, Callable, ClassVar, override, Self, TypeAlias, Union
+from ...typing import Any, ClassVar, Location, override, Self, TypeAlias, Union
 from ..term import Template, Variable
 from .iri import IRI, IRI_Template, IRI_Variable, T_IRI, V_IRI
 from .value import Value, ValueTemplate, ValueVariable
@@ -67,7 +67,7 @@ class Entity(
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:

@@ -38,6 +38,7 @@ from ..typing import (
     Final,
     Iterable,
     Iterator,
+    Location,
     Sequence,
     Set,
     TypeVar,
@@ -436,7 +437,7 @@ class Store(Set):
     def _check_page_size(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> int:
@@ -448,7 +449,7 @@ class Store(Set):
             cls,
             arg: Any | None,
             default: Any | None = None,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> int | None:
@@ -586,7 +587,7 @@ class Store(Set):
     def _check_timeout(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> float:
@@ -598,7 +599,7 @@ class Store(Set):
             cls,
             arg: Any | None,
             default: Any | None = None,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> float | None:
@@ -776,7 +777,7 @@ class Store(Set):
             snak_mask: Filter.TSnakMask | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
-            function: Callable[..., Any] | str | None = None
+            function: Location | None = None
     ) -> Filter:
         subj = Fingerprint.check_optional(
             subject, None, function, 'subject', 1)

@@ -6,7 +6,7 @@ from __future__ import annotations
 import datetime
 import enum
 
-from ...typing import Any, Callable, ClassVar, override, Self, TypeAlias, Union
+from ...typing import Any, ClassVar, Location, override, Self, TypeAlias, Union
 from ..term import Template, Variable
 from .deep_data_value import (
     DeepDataValue,
@@ -296,7 +296,7 @@ class Time(
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:

@@ -45,6 +45,9 @@ from typing_extensions import (
     TypeVar,
 )
 
+# Common aliases.
+Location: TypeAlias = Union[Callable[..., Any], str]
+
 __all__ = (
     'Any',
     'assert_type',
@@ -63,6 +66,7 @@ __all__ = (
     'Iterable',
     'Iterator',
     'Literal',
+    'Location',
     'Mapping',
     'ModuleType',
     'MutableMapping',

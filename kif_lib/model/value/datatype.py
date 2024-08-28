@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING
 from ...rdflib import URIRef
 from ...typing import (
     Any,
-    Callable,
     cast,
     ClassVar,
+    Location,
     override,
     Self,
     TypeAlias,
@@ -40,7 +40,7 @@ class DatatypeVariable(Variable):
     def _instantiate_tail(
             self,
             theta: Theta,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Term | None:
@@ -94,7 +94,7 @@ class Datatype(ClosedTerm, variable_class=DatatypeVariable):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:

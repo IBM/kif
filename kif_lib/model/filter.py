@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import functools
 
-from ..typing import Any, Callable, Final, override, TypeAlias, Union
+from ..typing import Any, Final, Location, override, TypeAlias, Union
 from .fingerprint import (
     AndFingerprint,
     Fingerprint,
@@ -115,7 +115,7 @@ class Filter(KIF_Object):
         def check(
                 cls,
                 arg: Any,
-                function: Callable[..., Any] | str | None = None,
+                function: Location | None = None,
                 name: str | None = None,
                 position: int | None = None,
         ) -> Filter.DatatypeMask:
@@ -240,7 +240,7 @@ class Filter(KIF_Object):
         def check(
                 cls,
                 arg: Any,
-                function: Callable[..., Any] | str | None = None,
+                function: Location | None = None,
                 name: str | None = None,
                 position: int | None = None
         ) -> Filter.SnakMask:

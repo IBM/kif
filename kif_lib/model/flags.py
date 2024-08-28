@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import enum
 
-from ..typing import Any, Callable, Self
+from ..typing import Any, Location, Self
 from .kif_object import KIF_Object
 
 
@@ -21,7 +21,7 @@ class Flags(enum.Flag):
     def check(
             cls,
             arg: Any,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self:
@@ -57,7 +57,7 @@ class Flags(enum.Flag):
             cls,
             arg: Any | None,
             default: Any | None = None,
-            function: Callable[..., Any] | str | None = None,
+            function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Self | None:
