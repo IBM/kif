@@ -117,8 +117,7 @@ from .model import (
     Variables,
 )
 from .store import Store
-
-__version__ = '0.4'
+from .version import __version__  # noqa: F401
 
 __all__ = (
 

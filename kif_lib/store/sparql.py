@@ -63,6 +63,7 @@ from ..typing import (
     TypeVar,
     Union,
 )
+from ..version import __version__
 from .abc import Store
 from .sparql_builder import SPARQL_Builder
 from .sparql_results import SPARQL_Results
@@ -89,7 +90,7 @@ class SPARQL_Store(
 
     _headers = {
         # See <https://meta.wikimedia.org/wiki/User-Agent_policy>.
-        'User-Agent': 'KIF/0.4 (https://github.com/IBM/kif/; '
+        'User-Agent': f'KIF/{__version__} (https://github.com/IBM/kif/; '
         'guilherme.lima@ibm.com)',
         'Content-Type': 'application/sparql-query;charset=utf-8',
         'Accept': 'application/sparql-results+json;charset=utf-8',
