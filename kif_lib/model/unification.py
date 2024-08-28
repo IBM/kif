@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from ..typing import Any, Iterable, Optional, Set
+from ..typing import Any, Iterable, Set
 from .kif_object import KIF_Object
 from .term import Template, Theta, Variable
 
@@ -11,11 +11,11 @@ from .term import Template, Theta, Variable
 #       Unification_(computer_science)#Unification_algorithms>
 
 
-def unify(G: Set[tuple[KIF_Object, KIF_Object]]) -> Optional[Theta]:
+def unify(G: Set[tuple[KIF_Object, KIF_Object]]) -> Theta | None:
     return _unify(set(G))
 
 
-def _unify(G: set[tuple[Any, Any]]) -> Optional[Theta]:
+def _unify(G: set[tuple[Any, Any]]) -> Theta | None:
     while True:
         done = True
         for p in G:

@@ -8,7 +8,7 @@ import sys
 
 from ..context import Section
 from ..model import ReferenceRecordSet, TQuantity, TReferenceRecordSet
-from ..typing import Any, ClassVar, Optional, Union
+from ..typing import Any, ClassVar
 from .abc import Store
 
 
@@ -78,7 +78,7 @@ class StoreOptions(Section, name='store'):
         return self.get_flags()
 
     @flags.setter
-    def flags(self, flags: Union[Store.Flags, int]):
+    def flags(self, flags: Store.Flags | int):
         self.set_flags(flags)
 
     def get_flags(self) -> Store.Flags:
@@ -89,7 +89,7 @@ class StoreOptions(Section, name='store'):
         """
         return self._flags
 
-    def set_flags(self, flags: Union[Store.Flags, int]):
+    def set_flags(self, flags: Store.Flags | int):
         """Sets the store flags.
 
         Parameters:
@@ -216,24 +216,24 @@ class StoreOptions(Section, name='store'):
 
     # -- timeout --
 
-    _v_timeout: ClassVar[tuple[str, Optional[float]]] =\
+    _v_timeout: ClassVar[tuple[str, float | None]] =\
         ('KIF_STORE_TIMEOUT', None)
 
-    _timeout: Optional[float]
+    _timeout: float | None
 
     def _init_timeout(self, kwargs: dict[str, Any]) -> None:
         self.timeout = kwargs.get('_timeout', self.getenv(*self._v_timeout))
 
     @property
-    def timeout(self) -> Optional[float]:
+    def timeout(self) -> float | None:
         """The timeout (in seconds)."""
         return self.get_timeout()
 
     @timeout.setter
-    def timeout(self, timeout: Optional[TQuantity]):
+    def timeout(self, timeout: TQuantity | None):
         self.set_timeout(timeout)
 
-    def get_timeout(self) -> Optional[float]:
+    def get_timeout(self) -> float | None:
         """Gets the timeout (in seconds).
 
         Returns:
@@ -241,7 +241,7 @@ class StoreOptions(Section, name='store'):
         """
         return self._timeout
 
-    def set_timeout(self, timeout: Optional[TQuantity]):
+    def set_timeout(self, timeout: TQuantity | None):
         """Sets the timeout.
 
         If `timeout` is negative, assumes zero.

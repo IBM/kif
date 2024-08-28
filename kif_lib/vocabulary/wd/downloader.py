@@ -25,13 +25,11 @@ from ...typing import (
     Iterable,
     Iterator,
     Mapping,
-    Optional,
     Sequence,
     TextIO,
     TypeAlias,
     TypedDict,
     TypeVar,
-    Union,
 )
 from .prelude import _registry as Registry
 from .registry import WikidataEntityRegistry
@@ -105,7 +103,7 @@ class Downloader:
     #: The downloader options.
     _options: Options
 
-    def __init__(self, options: Optional[Options] = None):
+    def __init__(self, options: Options | None = None):
         self._options = cast(Downloader.Options, dict(self.default_options))
         if options:
             self._options.update(options)
@@ -123,7 +121,7 @@ class Downloader:
         """
         return self._options
 
-    def fetch_properties(self, path: Optional[pathlib.Path] = None):
+    def fetch_properties(self, path: pathlib.Path | None = None):
         """Fetches property data.
 
         Parameters:
@@ -195,7 +193,7 @@ class Downloader:
                 'inverse_uri': inverse_uri,
             }
 
-    def fetch_items(self, path: Optional[pathlib.Path] = None):
+    def fetch_items(self, path: pathlib.Path | None = None):
         """Fetches item data.
 
         Parameters:
@@ -353,7 +351,7 @@ class Downloader:
             self,
             query: SelectQuery,
             offsets: Sequence[int]
-    ) -> Iterable[Union[QueryResults, BaseException]]:
+    ) -> Iterable[QueryResults | BaseException]:
         pages = await self._httpx_gather_async(
             map(lambda offset:
                 lambda client: self._do_eval_query_helper_async(
@@ -385,8 +383,8 @@ class Downloader:
     async def _httpx_gather_async(
         self,
         tasks: Iterable[Callable[[httpx.AsyncClient], Awaitable[T]]],
-        headers: Optional[Mapping[str, str]] = None,
-    ) -> Sequence[Union[T, BaseException]]:
+        headers: Mapping[str, str] | None = None,
+    ) -> Sequence[T | BaseException]:
         async with httpx.AsyncClient(
                 headers=self.options.get('http_headers'),
                 timeout=self.options.get('timeout'),

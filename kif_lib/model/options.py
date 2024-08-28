@@ -13,4 +13,4 @@ from .value.options import ValueOptions
 class ModelOptions(Section, name='model'):
     """Model options."""
 
-    value: 'ValueOptions' = dataclasses.field(default_factory=ValueOptions)
+    value: ValueOptions = dataclasses.field(default_factory=ValueOptions)

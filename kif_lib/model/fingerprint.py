@@ -14,7 +14,6 @@ from ..typing import (
     cast,
     Iterator,
     Literal,
-    Optional,
     override,
     Self,
     Set,
@@ -62,9 +61,9 @@ class Fingerprint(KIF_Object):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -75,24 +74,24 @@ class Fingerprint(KIF_Object):
             return cast(Self, AtomicFingerprint.check(
                 arg, function or cls.check, name, position))
 
-    def __and__(self, other: TFingerprint) -> 'AndFingerprint':
+    def __and__(self, other: TFingerprint) -> AndFingerprint:
         return AndFingerprint(self, other)
 
-    def __rand__(self, other: TFingerprint) -> 'AndFingerprint':
+    def __rand__(self, other: TFingerprint) -> AndFingerprint:
         return AndFingerprint(other, self)
 
-    def __or__(self, other: TFingerprint) -> 'OrFingerprint':
+    def __or__(self, other: TFingerprint) -> OrFingerprint:
         return OrFingerprint(self, other)
 
-    def __ror__(self, other: TFingerprint) -> 'OrFingerprint':
+    def __ror__(self, other: TFingerprint) -> OrFingerprint:
         return OrFingerprint(other, self)
 
     @property
-    def datatype_mask(self) -> 'Filter.DatatypeMask':
+    def datatype_mask(self) -> Filter.DatatypeMask:
         """The datatypes shallow-matched by fingerprint."""
         return self.get_datatype_mask()
 
-    def get_datatype_mask(self) -> 'Filter.DatatypeMask':
+    def get_datatype_mask(self) -> Filter.DatatypeMask:
         """Gets the datatypes shallow-matched by fingerprint.
 
         Returns:
@@ -101,11 +100,11 @@ class Fingerprint(KIF_Object):
         return self._get_datatype_mask(False)
 
     @property
-    def range_datatype_mask(self) -> 'Filter.DatatypeMask':
+    def range_datatype_mask(self) -> Filter.DatatypeMask:
         """The datatypes shallow-matched by the range of fingerprint."""
         return self.get_range_datatype_mask()
 
-    def get_range_datatype_mask(self) -> 'Filter.DatatypeMask':
+    def get_range_datatype_mask(self) -> Filter.DatatypeMask:
         """Gets the datatypes shallow-matched by the range of fingerprint.
 
         Returns:
@@ -114,7 +113,7 @@ class Fingerprint(KIF_Object):
         return self._get_datatype_mask(True)
 
     @abc.abstractmethod
-    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
+    def _get_datatype_mask(self, range: bool) -> Filter.DatatypeMask:
         raise NotImplementedError
 
     def is_full(self) -> bool:
@@ -151,8 +150,8 @@ class Fingerprint(KIF_Object):
 
     def normalize(
             self,
-            datatype_mask: Optional['Filter.TDatatypeMask'] = None
-    ) -> 'Fingerprint':
+            datatype_mask: Filter.TDatatypeMask | None = None
+    ) -> Fingerprint:
         """Reduce fingerprint to a normal form.
 
         If `datatype_mask` is given, ensures that the resulting fingerprint
@@ -174,8 +173,8 @@ class Fingerprint(KIF_Object):
     @abc.abstractmethod
     def _normalize(
             self,
-            datatype_mask: 'Filter.DatatypeMask'
-    ) -> 'Fingerprint':
+            datatype_mask: Filter.DatatypeMask
+    ) -> Fingerprint:
         raise NotImplementedError
 
 
@@ -187,9 +186,9 @@ class CompoundFingerprint(Fingerprint):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -214,8 +213,8 @@ class CompoundFingerprint(Fingerprint):
     @override
     def _normalize(
             self,
-            datatype_mask: 'Filter.DatatypeMask'
-    ) -> 'Fingerprint':
+            datatype_mask: Filter.DatatypeMask
+    ) -> Fingerprint:
         if datatype_mask.value == 0:
             return EmptyFingerprint()
         if len(self.args) == 0:  # 0-ary compound
@@ -241,9 +240,9 @@ class CompoundFingerprint(Fingerprint):
 
     def _normalize_args(
             self,
-            datatype_mask: 'Filter.DatatypeMask',
-            it: Iterator['Fingerprint']
-    ) -> Iterator['Fingerprint']:
+            datatype_mask: Filter.DatatypeMask,
+            it: Iterator[Fingerprint]
+    ) -> Iterator[Fingerprint]:
         count, skipped_full, skipped_empty = 0, False, False
         while True:
             try:
@@ -287,7 +286,7 @@ class AndFingerprint(CompoundFingerprint):
     """Conjunction of fingerprint expressions."""
 
     @override
-    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
+    def _get_datatype_mask(self, range: bool) -> Filter.DatatypeMask:
         from .filter import Filter
         if range:
             f = Fingerprint.get_range_datatype_mask
@@ -309,7 +308,7 @@ class OrFingerprint(CompoundFingerprint):
     """Disjunction of fingerprint expressions."""
 
     @override
-    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
+    def _get_datatype_mask(self, range: bool) -> Filter.DatatypeMask:
         from .filter import Filter
         if range:
             f = Fingerprint.get_range_datatype_mask
@@ -335,9 +334,9 @@ class AtomicFingerprint(Fingerprint):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -357,8 +356,8 @@ class AtomicFingerprint(Fingerprint):
     @override
     def _normalize(
             self,
-            datatype_mask: 'Filter.DatatypeMask'
-    ) -> 'Fingerprint':
+            datatype_mask: Filter.DatatypeMask
+    ) -> Fingerprint:
         if bool(self.datatype_mask & datatype_mask):
             return self
         else:
@@ -373,9 +372,9 @@ class SnakFingerprint(AtomicFingerprint):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -406,7 +405,7 @@ class SnakFingerprint(AtomicFingerprint):
         return self.args[0]
 
     @override
-    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
+    def _get_datatype_mask(self, range: bool) -> Filter.DatatypeMask:
         from .filter import Filter
         if range:
             return Filter.VALUE
@@ -422,7 +421,7 @@ class ConverseSnakFingerprint(SnakFingerprint):
     """Converse-snak fingerprint expression."""
 
     @override
-    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
+    def _get_datatype_mask(self, range: bool) -> Filter.DatatypeMask:
         from .filter import Filter
         if (isinstance(self.snak, ValueSnak)
                 and isinstance(self.snak.value, Entity)):
@@ -439,9 +438,9 @@ class ValueFingerprint(AtomicFingerprint):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -469,7 +468,7 @@ class ValueFingerprint(AtomicFingerprint):
         return self.args[0]
 
     @override
-    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
+    def _get_datatype_mask(self, range: bool) -> Filter.DatatypeMask:
         from .filter import Filter
         if range:
             if isinstance(self.value, Property):
@@ -537,9 +536,9 @@ class FullFingerprint(AtomicFingerprint):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -552,7 +551,7 @@ class FullFingerprint(AtomicFingerprint):
         super().__init__()
 
     @override
-    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
+    def _get_datatype_mask(self, range: bool) -> Filter.DatatypeMask:
         from .filter import Filter
         return Filter.VALUE
 
@@ -569,9 +568,9 @@ class EmptyFingerprint(AtomicFingerprint):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -584,7 +583,7 @@ class EmptyFingerprint(AtomicFingerprint):
         super().__init__()
 
     @override
-    def _get_datatype_mask(self, range: bool) -> 'Filter.DatatypeMask':
+    def _get_datatype_mask(self, range: bool) -> Filter.DatatypeMask:
         from .filter import Filter
         return Filter.DatatypeMask(0)
 
@@ -595,6 +594,6 @@ class EmptyFingerprint(AtomicFingerprint):
     @override
     def _normalize(
             self,
-            datatype_mask: 'Filter.DatatypeMask'
-    ) -> 'Fingerprint':
+            datatype_mask: Filter.DatatypeMask
+    ) -> Fingerprint:
         return self

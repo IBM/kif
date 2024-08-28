@@ -3,16 +3,7 @@
 
 from __future__ import annotations
 
-from ..typing import (
-    Any,
-    Callable,
-    cast,
-    Optional,
-    override,
-    Self,
-    TypeAlias,
-    Union,
-)
+from ..typing import Any, Callable, cast, override, Self, TypeAlias, Union
 from .constraint import Constraint, TConstraint
 from .kif_object import KIF_Object
 from .term import ClosedTerm, Template, Variable
@@ -34,9 +25,9 @@ class Pattern(KIF_Object):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -74,9 +65,9 @@ class ClosedPattern(Pattern):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -88,7 +79,7 @@ class ClosedPattern(Pattern):
     def __init__(
             self,
             object: ClosedTerm,
-            constraint: Optional[TConstraint] = None
+            constraint: TConstraint | None = None
     ):
         super().__init__(object, constraint)
 
@@ -122,9 +113,9 @@ class OpenPattern(Pattern):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -149,9 +140,9 @@ class TemplatePattern(Pattern):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -163,7 +154,7 @@ class TemplatePattern(Pattern):
     def __init__(
             self,
             template: Template,
-            constraint: Optional[TConstraint] = None
+            constraint: TConstraint | None = None
     ):
         super().__init__(template, constraint)
 
@@ -202,9 +193,9 @@ class VariablePattern(Pattern):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -216,7 +207,7 @@ class VariablePattern(Pattern):
     def __init__(
             self,
             variable: Variable,
-            constraint: Optional[TConstraint] = None
+            constraint: TConstraint | None = None
     ):
         super().__init__(variable, constraint)
 

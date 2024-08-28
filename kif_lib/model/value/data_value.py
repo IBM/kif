@@ -10,7 +10,7 @@ from .value import Value, ValueTemplate, ValueVariable
 class DataValueTemplate(ValueTemplate):
     """Abstract base class for data value templates."""
 
-    object_class: ClassVar[type['DataValue']]  # pyright: ignore
+    object_class: ClassVar[type[DataValue]]  # pyright: ignore
 
 
 class DataValueVariable(ValueVariable):
@@ -20,7 +20,7 @@ class DataValueVariable(ValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[type['DataValue']]  # pyright: ignore
+    object_class: ClassVar[type[DataValue]]  # pyright: ignore
 
 
 class DataValue(

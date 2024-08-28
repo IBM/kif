@@ -13,7 +13,6 @@ from ...typing import (
     Callable,
     cast,
     Iterator,
-    Optional,
     override,
     Self,
     TypeAlias,
@@ -40,7 +39,7 @@ class Variable(OpenTerm):
     def __new__(
             cls,
             name: str,
-            variable_class: Optional[TVariableClass] = None
+            variable_class: TVariableClass | None = None
     ):
         if variable_class is None:
             variable_class = cls
@@ -60,9 +59,9 @@ class Variable(OpenTerm):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, Variable):
             if issubclass(arg.__class__, cls):
@@ -71,11 +70,7 @@ class Variable(OpenTerm):
                 return cast(Self, cls(arg.name))
         raise cls._check_error(arg, function, name, position)
 
-    def __init__(
-            self,
-            name: str,
-            object_class: Optional[type[Term]] = None
-    ):
+    def __init__(self, name: str, object_class: type[Term] | None = None):
         super().__init__(name)
 
     @override
@@ -87,11 +82,11 @@ class Variable(OpenTerm):
             raise self._should_not_get_here()
 
     @overload
-    def __call__(self, v1: 'VTEntity', v2: 'VTValue') -> 'StatementTemplate':
+    def __call__(self, v1: VTEntity, v2: VTValue) -> StatementTemplate:
         ...                     # pragma: no cover
 
     @overload
-    def __call__(self, v1: 'VTValue') -> 'ValueSnakTemplate':
+    def __call__(self, v1: VTValue) -> ValueSnakTemplate:
         ...                     # pragma: no cover
 
     def __call__(self, v1, v2=None):
@@ -116,7 +111,7 @@ class Variable(OpenTerm):
         return self.args[0]
 
     @override
-    def _iterate_variables(self) -> Iterator['Variable']:
+    def _iterate_variables(self) -> Iterator[Variable]:
         return iter((self,))
 
     @override
@@ -124,10 +119,10 @@ class Variable(OpenTerm):
             self,
             theta: Theta,
             coerce: bool,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[Term]:
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Term | None:
         if self in theta:
             return self._instantiate_tail(theta, function, name, position)
         elif coerce:
@@ -148,10 +143,10 @@ class Variable(OpenTerm):
     def _instantiate_tail(
             self,
             theta: Theta,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[Term]:
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Term | None:
         obj = theta[self]
         if obj is None:
             return obj
@@ -176,10 +171,7 @@ class Variable(OpenTerm):
                     function, name, position, self.InstantiationError)
 
 
-def Variables(
-        name: str,
-        *names: Union[str, TVariableClass],
-) -> Iterator[Variable]:
+def Variables(name: str, *names: str | TVariableClass) -> Iterator[Variable]:
     """Constructs one or more variables.
 
     Parameters:

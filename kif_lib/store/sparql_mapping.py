@@ -31,17 +31,7 @@ from ..model import (
     Value,
 )
 from ..store.abc import Store
-from ..typing import (
-    Any,
-    Callable,
-    cast,
-    Iterable,
-    Iterator,
-    NoReturn,
-    Optional,
-    TypeVar,
-    Union,
-)
+from ..typing import Any, Callable, cast, Iterable, Iterator, NoReturn, TypeVar
 from .sparql_builder import SPARQL_Builder
 
 T = TypeVar('T')
@@ -120,8 +110,8 @@ class SPARQL_Mapping(ABC):
                 self,
                 term: TTrm,
                 var: Variable,
-                replace_prefix: Optional[tuple[str, str]] = None
-        ) -> 'SPARQL_Mapping.Builder':
+                replace_prefix: tuple[str, str] | None = None
+        ) -> SPARQL_Mapping.Builder:
             """Binds URI term to variable.
 
             If `replace_prefix` is not ``None``, applies replacement before
@@ -243,8 +233,8 @@ class SPARQL_Mapping(ABC):
 
         #: The function that expands to the definition of the mapping.
         definition: Callable[
-            ['SPARQL_Mapping.Spec', SPARQL_Builder,
-             TTrm, TTrm, TTrm], Optional[bool]]
+            [SPARQL_Mapping.Spec, SPARQL_Builder,
+             TTrm, TTrm, TTrm], bool | None]
 
         #: The other keyword-arguments of spec.
         kwargs: dict[str, Any]
@@ -254,8 +244,8 @@ class SPARQL_Mapping(ABC):
                 property: Property,
                 datatype: Datatype,
                 definition: Callable[
-                    ['SPARQL_Mapping.Spec', SPARQL_Builder,
-                     TTrm, TTrm, TTrm], Optional[bool]],
+                    [SPARQL_Mapping.Spec, SPARQL_Builder,
+                     TTrm, TTrm, TTrm], bool | None],
                 **kwargs: Any
         ):
             self.property = property
@@ -265,10 +255,10 @@ class SPARQL_Mapping(ABC):
 
         def _define(
                 self,
-                q: 'SPARQL_Mapping.Builder',
-                s: Optional[TTrm] = None,
-                p: Optional[TTrm] = None,
-                v: Optional[TTrm] = None,
+                q: SPARQL_Mapping.Builder,
+                s: TTrm | None = None,
+                p: TTrm | None = None,
+                v: TTrm | None = None,
                 with_binds: bool = False
         ) -> bool:
             if s is None:
@@ -285,7 +275,7 @@ class SPARQL_Mapping(ABC):
                 self._bind(q)
             return True
 
-        def _bind(self, q: 'SPARQL_Mapping.Builder'):
+        def _bind(self, q: SPARQL_Mapping.Builder):
             # subject
             q.bind_uri(
                 q.matched_subject, q.subject,
@@ -305,7 +295,7 @@ class SPARQL_Mapping(ABC):
                     q.matched_value, q.value,
                     self.kwargs.get('value_prefix_replacement', None))
             elif issubclass(self.datatype.value_class, DataValue):
-                value: Optional[TTrm] = None
+                value: TTrm | None = None
                 dt = self.kwargs.get('value_datatype')
                 if dt is not None and isinstance(q.matched_value, Variable):
                     value = q.strdt(q.matched_value, dt)
@@ -347,9 +337,9 @@ class SPARQL_Mapping(ABC):
 
         def _match(
                 self,
-                subject: Optional[Union[Value, SnakSet]],
-                property: Optional[Union[Value, SnakSet]],
-                value: Optional[Union[Value, SnakSet]],
+                subject: Value | SnakSet | None,
+                property: Value | SnakSet | None,
+                value: Value | SnakSet | None,
                 snak_mask: Filter.SnakMask
         ) -> bool:
             # Property mismatch.
@@ -436,10 +426,10 @@ class SPARQL_Mapping(ABC):
 # -- Mapping ---------------------------------------------------------------
 
     #: The registered specs.
-    specs: dict[Property, list['SPARQL_Mapping.Spec']]
+    specs: dict[Property, list[SPARQL_Mapping.Spec]]
 
     #: The registered descriptor specs.
-    descriptor_specs: dict[Property, list['SPARQL_Mapping.Spec']]
+    descriptor_specs: dict[Property, list[SPARQL_Mapping.Spec]]
 
     #: The registered IRI prefix replacements "(encoded, decoded)".
     iri_prefix_replacements: dict[IRI, IRI]
@@ -503,7 +493,7 @@ class SPARQL_Mapping(ABC):
     @classmethod
     def _register(
             cls,
-            specs: dict[Property, list['SPARQL_Mapping.Spec']],
+            specs: dict[Property, list[SPARQL_Mapping.Spec]],
             spec: Spec):
         # IRI prefix replacements.
         for key in ['subject', 'value']:
@@ -601,6 +591,6 @@ class SPARQL_Mapping(ABC):
             store: Store,
             stmts: Iterable[Statement],
             data: Any,
-            it: Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]
-    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+            it: Iterator[tuple[Statement, AnnotationRecordSet | None]]
+    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
         return it

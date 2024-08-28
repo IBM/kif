@@ -4,16 +4,7 @@
 from __future__ import annotations
 
 from ... import itertools
-from ...typing import (
-    Any,
-    Callable,
-    cast,
-    ClassVar,
-    Iterator,
-    Optional,
-    override,
-    Union,
-)
+from ...typing import Any, Callable, cast, ClassVar, Iterator, override
 from .term import ClosedTerm, OpenTerm, Term, Theta
 from .variable import Variable
 
@@ -77,9 +68,9 @@ class Template(OpenTerm):
             self,
             theta: Theta,
             coerce: bool,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Term:
         return self.__class__(*map(
             lambda arg: arg._instantiate(

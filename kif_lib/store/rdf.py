@@ -10,7 +10,7 @@ from pathlib import PurePath
 
 from .. import rdflib
 from ..model import KIF_Object
-from ..typing import Any, BinaryIO, cast, IO, Optional, override, TextIO, Union
+from ..typing import Any, BinaryIO, cast, IO, override, TextIO
 from .sparql import SPARQL_Store
 from .sparql_results import SPARQL_Results
 
@@ -41,14 +41,14 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
     def __init__(
             self,
             store_name: str,
-            *args: Optional[Union[IO[bytes], TextIO, rdflib.InputSource,
-                                  str, bytes, PurePath]],
-            publicID: Optional[str] = None,
-            format: Optional[str] = None,
-            location: Optional[str] = None,
-            file: Optional[Union[BinaryIO, TextIO]] = None,
-            data: Optional[Union[str, bytes]] = None,
-            graph: Optional[rdflib.Graph] = None,
+            *args: IO[bytes] | TextIO | rdflib.InputSource
+            | str | bytes | PurePath | None,
+            publicID: str | None = None,
+            format: str | None = None,
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: str | bytes | None = None,
+            graph: rdflib.Graph | None = None,
             skolemize: bool = True,
             **kwargs: Any
     ):
@@ -80,7 +80,7 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
             self,
             text: str,
             fake_results: bool = False,
-            headers: Optional[dict[str, Any]] = None,
+            headers: dict[str, Any] | None = None,
             **kwargs
     ) -> SPARQL_Results:
         LOG.debug('%s()\n%s', self._eval_query_string.__qualname__, text)

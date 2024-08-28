@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from ...model import Entity, Property
-from ...typing import Final, Optional
+from ...typing import Final
 from .registry import WikidataEntityRegistry
 
 __all__ = (
@@ -21,7 +21,7 @@ P = _registry.P  # type: ignore
 L = _registry.L  # type: ignore
 
 
-def get_label(entity: Entity, default: Optional[str] = None) -> Optional[str]:
+def get_label(entity: Entity, default: str | None = None) -> str | None:
     """Gets the registered label of `entity`.
 
     If entity has no label registered, returns `default`.
@@ -37,8 +37,8 @@ def get_label(entity: Entity, default: Optional[str] = None) -> Optional[str]:
 
 def get_inverse(
         property: Property,
-        default: Optional[Property] = None
-) -> Optional[Property]:
+        default: Property | None = None
+) -> Property | None:
     """Gets the inverse property of `property` (if any).
 
     If entity has no inverse property registered, returns `default`.

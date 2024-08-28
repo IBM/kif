@@ -22,7 +22,7 @@ class ItemTemplate(EntityTemplate):
        iri: IRI, IRI template, or IRI variable.
     """
 
-    object_class: ClassVar[type['Item']]  # pyright: ignore
+    object_class: ClassVar[type[Item]]  # pyright: ignore
 
     def __init__(self, iri: VTItemContent):
         super().__init__(iri)
@@ -35,13 +35,13 @@ class ItemVariable(EntityVariable):
        name: Name.
     """
 
-    object_class: ClassVar[type['Item']]  # pyright: ignore
+    object_class: ClassVar[type[Item]]  # pyright: ignore
 
 
 class ItemDatatype(Datatype):
     """Item datatype."""
 
-    value_class: ClassVar[type['Item']]  # pyright: ignore
+    value_class: ClassVar[type[Item]]  # pyright: ignore
 
 
 class Item(

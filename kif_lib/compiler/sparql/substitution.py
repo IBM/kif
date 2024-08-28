@@ -6,15 +6,7 @@ from __future__ import annotations
 import networkx as nx
 
 from ...model import OpenTerm, Template, Term, Variable
-from ...typing import (
-    Any,
-    cast,
-    Mapping,
-    MutableMapping,
-    Optional,
-    TypeVar,
-    Union,
-)
+from ...typing import Any, cast, Mapping, MutableMapping, TypeVar
 from .builder import Query
 
 T = TypeVar('T')
@@ -36,19 +28,19 @@ class Substitution(Mapping):
     )
 
     #: Maps KIF variables to KIF objects or query variables.
-    _map: MutableMapping[Variable, Union[Term, Query.Variable]]
+    _map: MutableMapping[Variable, Term | Query.Variable]
 
     #: Maps variable names to sets of homonymous (compatible) variables.
     _name_map: MutableMapping[str, set[Variable]]
 
     #: Keeps the default values of variables.
-    _defaults: MutableMapping[Variable, Optional[Term]]
+    _defaults: MutableMapping[Variable, Term | None]
 
     #: Variable dependency graph (modulo homonymous variables).
     _G: nx.DiGraph
 
     #: Order produced by top-sorting `_G`.
-    _cached_topsorted_G: Optional[list[str]]
+    _cached_topsorted_G: list[str] | None
 
     def __init__(self):
         self._map = {}
@@ -125,7 +117,7 @@ class Substitution(Mapping):
     def add_default(
             self,
             var: Variable,
-            value: Optional[Term]
+            value: Term | None
     ) -> Variable:
         """Associates default `value` to variable in substitution.
 
@@ -156,7 +148,7 @@ class Substitution(Mapping):
         )
 
         #: Maps KIF variables to KIF objects or ``None``.
-        _map: MutableMapping[Variable, Optional[Term]]
+        _map: MutableMapping[Variable, Term | None]
 
         #: Maps variable names to sets of homonymous (compatible) variables.
         _name_map: MutableMapping[str, set[Variable]]
@@ -165,7 +157,7 @@ class Substitution(Mapping):
             self._map = {}
             self._name_map = {}
 
-        def __getitem__(self, k: Variable) -> Optional[Term]:
+        def __getitem__(self, k: Variable) -> Term | None:
             homonyms = self._name_map[k.name]
             if len(homonyms) == 1:
                 return self._map[k]
@@ -178,7 +170,7 @@ class Substitution(Mapping):
                     map(lambda h: self._map[h], homonyms),
                     key=self._count_vars)))
 
-        def _count_vars(self, obj: Optional[Term]):
+        def _count_vars(self, obj: Term | None):
             if isinstance(obj, Variable):
                 return 1
             elif isinstance(obj, Template):
@@ -192,7 +184,7 @@ class Substitution(Mapping):
         def __len__(self):
             return len(self._map)
 
-        def _add(self, k: Variable, v: Optional[Term]):
+        def _add(self, k: Variable, v: Term | None):
             self._map[k] = v
             if k.name not in self._name_map:
                 self._name_map[k.name] = set()
@@ -202,7 +194,7 @@ class Substitution(Mapping):
     def instantiate(
             self,
             binding: Mapping[str, dict[str, str]]
-    ) -> Mapping[Variable, Optional[Term]]:
+    ) -> Mapping[Variable, Term | None]:
         """Computes variable instantiation (theta) from `binding`.
 
         Parameters:

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import enum
 
-from ..typing import Any, Callable, Optional, Self, Union
+from ..typing import Any, Callable, Self
 from .kif_object import KIF_Object
 
 
@@ -21,9 +21,9 @@ class Flags(enum.Flag):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         """Coerces `arg` into an instance of this class.
 
@@ -55,12 +55,12 @@ class Flags(enum.Flag):
     @classmethod
     def check_optional(
             cls,
-            arg: Optional[Any],
-            default: Optional[Any] = None,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[Self]:
+            arg: Any | None,
+            default: Any | None = None,
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Self | None:
         """Coerces optional `arg` into an instance of this class.
 
         If `arg` cannot be coerced, raises an error.

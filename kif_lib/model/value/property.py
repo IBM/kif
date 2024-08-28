@@ -7,15 +7,7 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import overload
 
-from ...typing import (
-    Any,
-    ClassVar,
-    Iterable,
-    Optional,
-    override,
-    TypeAlias,
-    Union,
-)
+from ...typing import Any, ClassVar, Iterable, override, TypeAlias, Union
 from ..term import OpenTerm, Variable
 from .datatype import Datatype, DatatypeVariable, VDatatype, VTDatatype
 from .entity import Entity, EntityTemplate, EntityVariable, VTEntity
@@ -48,13 +40,9 @@ class PropertyTemplate(EntityTemplate):
        range: Datatype or datatype variable.
     """
 
-    object_class: ClassVar[type['Property']]  # pyright: ignore
+    object_class: ClassVar[type[Property]]  # pyright: ignore
 
-    def __init__(
-            self,
-            iri: VT_IRI,
-            range: Optional[VTDatatype] = None
-    ):
+    def __init__(self, iri: VT_IRI, range: VTDatatype | None = None):
         super().__init__(iri, range)
 
     @override
@@ -73,11 +61,11 @@ class PropertyTemplate(EntityTemplate):
             raise self._should_not_get_here()
 
     @overload
-    def __call__(self, v1: VTEntity, v2: VTValue) -> 'StatementTemplate':
+    def __call__(self, v1: VTEntity, v2: VTValue) -> StatementTemplate:
         ...                     # pragma: no cover
 
     @overload
-    def __call__(self, v1: VTValue) -> 'ValueSnakTemplate':
+    def __call__(self, v1: VTValue) -> ValueSnakTemplate:
         ...                     # pragma: no cover
 
     def __call__(self, v1, v2=None):
@@ -90,14 +78,11 @@ class PropertyTemplate(EntityTemplate):
             return ValueSnakTemplate(self, v1)
 
     @property
-    def range(self) -> Optional[VDatatype]:
+    def range(self) -> VDatatype | None:
         """The range of property template."""
         return self.get_range()
 
-    def get_range(
-            self,
-            default: Optional[VDatatype] = None
-    ) -> Optional[VDatatype]:
+    def get_range(self, default: VDatatype | None = None) -> VDatatype | None:
         """Gets the range of property template.
 
         If range is ``None``, returns `default`.
@@ -110,7 +95,7 @@ class PropertyTemplate(EntityTemplate):
         """
         return self.get(1, default)
 
-    def no_value(self) -> 'NoValueSnakTemplate':
+    def no_value(self) -> NoValueSnakTemplate:
         """Constructs a no-value snak template from property template.
 
         Returns:
@@ -119,7 +104,7 @@ class PropertyTemplate(EntityTemplate):
         from ..snak import NoValueSnakTemplate
         return NoValueSnakTemplate(self)
 
-    def some_value(self) -> 'SomeValueSnakTemplate':
+    def some_value(self) -> SomeValueSnakTemplate:
         """Constructs a some-value snak template from property template.
 
         Returns:
@@ -136,14 +121,14 @@ class PropertyVariable(EntityVariable):
        name: Name.
     """
 
-    object_class: ClassVar[type['Property']]  # pyright: ignore
+    object_class: ClassVar[type[Property]]  # pyright: ignore
 
     @overload
-    def __call__(self, v1: VTEntity, v2: VTValue) -> 'StatementTemplate':
+    def __call__(self, v1: VTEntity, v2: VTValue) -> StatementTemplate:
         ...                     # pragma: no cover
 
     @overload
-    def __call__(self, v1: VTValue) -> 'ValueSnakTemplate':
+    def __call__(self, v1: VTValue) -> ValueSnakTemplate:
         ...                     # pragma: no cover
 
     def __call__(self, v1, v2=None):
@@ -155,7 +140,7 @@ class PropertyVariable(EntityVariable):
             from ..snak import ValueSnakTemplate
             return ValueSnakTemplate(self, v1)
 
-    def no_value(self) -> 'NoValueSnakTemplate':
+    def no_value(self) -> NoValueSnakTemplate:
         """Constructs a no-value snak template from property variable.
 
         Returns:
@@ -164,7 +149,7 @@ class PropertyVariable(EntityVariable):
         from ..snak import NoValueSnakTemplate
         return NoValueSnakTemplate(self)
 
-    def some_value(self) -> 'SomeValueSnakTemplate':
+    def some_value(self) -> SomeValueSnakTemplate:
         """Constructs a some-value snak template from property variable.
 
         Returns:
@@ -177,7 +162,7 @@ class PropertyVariable(EntityVariable):
 class PropertyDatatype(Datatype):
     """Property datatype."""
 
-    value_class: ClassVar[type['Property']]  # pyright: ignore
+    value_class: ClassVar[type[Property]]  # pyright: ignore
 
 
 class Property(
@@ -201,7 +186,7 @@ class Property(
     def __init__(
             self,
             iri: VTPropertyContent,
-            range: Optional[VTDatatype] = None
+            range: VTDatatype | None = None
     ):
         super().__init__(iri, range)
 
@@ -216,11 +201,11 @@ class Property(
             raise self_._should_not_get_here()
 
     @overload
-    def __call__(self, v1: VTEntity, v2: VTValue) -> 'Statement':
+    def __call__(self, v1: VTEntity, v2: VTValue) -> Statement:
         ...                     # pragma: no cover
 
     @overload
-    def __call__(self, v1: VTValue) -> 'ValueSnak':
+    def __call__(self, v1: VTValue) -> ValueSnak:
         ...                     # pragma: no cover
 
     def __call__(self, v1, v2=None):
@@ -233,14 +218,11 @@ class Property(
             return ValueSnak(self, v1)
 
     @property
-    def range(self) -> Optional[Datatype]:
+    def range(self) -> Datatype | None:
         """The range of property."""
         return self.get_range()
 
-    def get_range(
-            self,
-            default: Optional[Datatype] = None
-    ) -> Optional[Datatype]:
+    def get_range(self, default: Datatype | None = None) -> Datatype | None:
         """Gets the range of property.
 
         If range is ``None``, returns `default`.
@@ -253,7 +235,7 @@ class Property(
         """
         return self.get(1, default)
 
-    def no_value(self) -> 'NoValueSnak':
+    def no_value(self) -> NoValueSnak:
         """Constructs a no-value snak from property.
 
         Returns:
@@ -262,7 +244,7 @@ class Property(
         from ..snak import NoValueSnak
         return NoValueSnak(self)
 
-    def some_value(self) -> 'SomeValueSnak':
+    def some_value(self) -> SomeValueSnak:
         """Constructs a some-value snak from property.
 
         Returns:

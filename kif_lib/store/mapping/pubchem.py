@@ -32,16 +32,7 @@ from ...model import (
 )
 from ...namespace import DCT, FOAF, RDF, WD, WDS, XSD
 from ...rdflib import Literal, Namespace
-from ...typing import (
-    Any,
-    cast,
-    Iterable,
-    Iterator,
-    Optional,
-    override,
-    TypeAlias,
-    Union,
-)
+from ...typing import Any, cast, Iterable, Iterator, override, TypeAlias
 from ...vocabulary import wd
 from ..abc import Store
 from ..sparql_mapping import SPARQL_Mapping
@@ -401,8 +392,8 @@ class PubChemMapping(SPARQL_Mapping):
             store: Store,
             stmts: Iterable[Statement],
             data: Any,
-            it: Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]
-    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+            it: Iterator[tuple[Statement, AnnotationRecordSet | None]]
+    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
         for stmt, annots in it:
             if stmt.snak.property in cls._toxicity_properties_inv:
                 saved_annots = store._cache.get(stmt, 'annotations')
@@ -423,7 +414,7 @@ class PubChemMapping(SPARQL_Mapping):
     SOURCE = IRI(WD.Q_PUBCHEM_SOURCE_)
 
     @classmethod
-    def compound(cls, id: Union[int, str]) -> Item:
+    def compound(cls, id: int | str) -> Item:
         """Makes an item from compound id.
 
         Parameters:

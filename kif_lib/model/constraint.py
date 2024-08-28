@@ -8,7 +8,6 @@ from ..typing import (
     Callable,
     cast,
     Literal,
-    Optional,
     override,
     Self,
     TypeAlias,
@@ -32,9 +31,9 @@ class Constraint(KIF_Object):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -51,9 +50,9 @@ class AtomicConstraint(Constraint):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -76,9 +75,9 @@ class TrueConstraint(AtomicConstraint):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -99,9 +98,9 @@ class FalseConstraint(AtomicConstraint):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg

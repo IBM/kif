@@ -24,7 +24,7 @@ class ExternalIdTemplate(StringTemplate):
        content: External id content or string variable.
     """
 
-    object_class: ClassVar[type['ExternalId']]  # pyright: ignore
+    object_class: ClassVar[type[ExternalId]]  # pyright: ignore
 
 
 class ExternalIdVariable(StringVariable):
@@ -34,13 +34,13 @@ class ExternalIdVariable(StringVariable):
        name: Name.
     """
 
-    object_class: ClassVar[type['ExternalId']]  # pyright: ignore
+    object_class: ClassVar[type[ExternalId]]  # pyright: ignore
 
 
 class ExternalIdDatatype(StringDatatype):
     """External id datatype."""
 
-    value_class: ClassVar[type['ExternalId']]  # pyright: ignore
+    value_class: ClassVar[type[ExternalId]]  # pyright: ignore
 
 
 class ExternalId(

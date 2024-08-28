@@ -22,7 +22,7 @@ class LexemeTemplate(EntityTemplate):
        iri: IRI, IRI template, or IRI variable.
     """
 
-    object_class: ClassVar[type['Lexeme']]  # pyright: ignore
+    object_class: ClassVar[type[Lexeme]]  # pyright: ignore
 
     def __init__(self, iri: VTLexemeContent):
         super().__init__(iri)
@@ -35,13 +35,13 @@ class LexemeVariable(EntityVariable):
        name: Name.
     """
 
-    object_class: ClassVar[type['Lexeme']]  # pyright: ignore
+    object_class: ClassVar[type[Lexeme]]  # pyright: ignore
 
 
 class LexemeDatatype(Datatype):
     """Lexeme datatype."""
 
-    value_class: ClassVar[type['Lexeme']]  # pyright: ignore
+    value_class: ClassVar[type[Lexeme]]  # pyright: ignore
 
 
 class Lexeme(

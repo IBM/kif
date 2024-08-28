@@ -23,7 +23,6 @@ from ..typing import (
     Collection,
     Iterable,
     Iterator,
-    Optional,
     override,
     Sequence,
     TypeVar,
@@ -161,7 +160,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
         exausted: set[Iterator[Statement]] = set()
         seen: set[Statement] = set()
         while limit > 0 and len(exausted) < len(its):
-            src: Optional[Iterator[Statement]] = None
+            src: Iterator[Statement] | None = None
             try:
                 src = next(cyc)
                 if src in exausted:
@@ -183,15 +182,15 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
     def _get_annotations(
             self,
             stmts: Iterable[Statement]
-    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
         return self._mix_get_x(
             stmts, None, lambda kb, b: kb._get_annotations_tail(b),
             self._get_annotations_mixed)
 
     def _get_annotations_mixed(
             self,
-            it: Iterator[tuple[Statement, Optional[AnnotationRecordSet]]],
-    ) -> tuple[Statement, Optional[AnnotationRecordSet]]:
+            it: Iterator[tuple[Statement, AnnotationRecordSet | None]],
+    ) -> tuple[Statement, AnnotationRecordSet | None]:
         stmt, annots = next(it)
         for stmti, annotsi in it:
             assert stmt == stmti
@@ -209,7 +208,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
             items: Iterable[Item],
             language: str,
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
+    ) -> Iterator[tuple[Item, ItemDescriptor | None]]:
         return self._get_x_descriptor(
             items,
             lambda kb, batch: kb._get_item_descriptor(batch, language, mask),
@@ -217,8 +216,8 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
 
     def _merge_item_descriptors(
             self,
-            d1: Optional[ItemDescriptor],
-            d2: Optional[ItemDescriptor]
+            d1: ItemDescriptor | None,
+            d2: ItemDescriptor | None
     ) -> ItemDescriptor:
         assert d1 is not None
         assert d2 is not None
@@ -233,7 +232,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
             properties: Iterable[Property],
             language: str,
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
+    ) -> Iterator[tuple[Property, PropertyDescriptor | None]]:
         return self._get_x_descriptor(
             properties,
             lambda kb, batch:
@@ -242,8 +241,8 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
 
     def _merge_property_descriptors(
             self,
-            d1: Optional[PropertyDescriptor],
-            d2: Optional[PropertyDescriptor]
+            d1: PropertyDescriptor | None,
+            d2: PropertyDescriptor | None
     ) -> PropertyDescriptor:
         assert d1 is not None
         assert d2 is not None
@@ -258,7 +257,7 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
             self,
             lexemes: Iterable[Lexeme],
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
+    ) -> Iterator[tuple[Lexeme, LexemeDescriptor | None]]:
         return self._get_x_descriptor(
             lexemes,
             lambda kb, batch: kb._get_lexeme_descriptor(batch, mask),
@@ -266,8 +265,8 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
 
     def _merge_lexeme_descriptors(
             self,
-            d1: Optional[LexemeDescriptor],
-            d2: Optional[LexemeDescriptor]
+            d1: LexemeDescriptor | None,
+            d2: LexemeDescriptor | None
     ) -> LexemeDescriptor:
         assert d1 is not None
         assert d2 is not None
@@ -280,9 +279,9 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
             self,
             entities: Iterable[T],
             get: Callable[[Store, Iterable[T]],
-                          Iterator[tuple[T, Optional[S]]]],
+                          Iterator[tuple[T, S | None]]],
             merge: Callable[[S, S], S]
-    ) -> Iterator[tuple[T, Optional[S]]]:
+    ) -> Iterator[tuple[T, S | None]]:
         desc: dict[T, S] = {}
         for kb in self._sources:
             for entity, entity_desc in get(kb, entities):

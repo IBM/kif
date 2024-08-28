@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-from typing import Union
 from unittest import main, TestCase
 
 from kif_lib.compiler.sparql.builder import (
@@ -28,7 +27,7 @@ class Test(TestCase):
             self,
             obj: Call,
             cls: type[Call],
-            op: Union[URIRef, str],
+            op: URIRef | str,
             *args: NumericExpression
     ):
         self.assertIsInstance(obj, cls)

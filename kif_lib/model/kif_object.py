@@ -10,16 +10,7 @@ import functools
 import json
 
 from ..context import Context
-from ..typing import (
-    Any,
-    Callable,
-    cast,
-    Iterator,
-    Optional,
-    override,
-    Self,
-    TypeVar,
-)
+from ..typing import Any, Callable, cast, Iterator, override, Self, TypeVar
 from . import object
 
 Codec = object.Codec
@@ -43,7 +34,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         """The current KIF context."""
         return self.get_context()
 
-    def get_context(self, context: Optional[Context] = None) -> Context:
+    def get_context(self, context: Context | None = None) -> Context:
         """Gets the current KIF context.
 
         If `context` is not ``None``, returns `context`.
@@ -95,8 +86,8 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
 
     def traverse(
         self,
-        filter: Optional[Callable[[Any], bool]] = None,
-        visit: Optional[Callable[[Any], bool]] = None
+        filter: Callable[[Any], bool] | None = None,
+        visit: Callable[[Any], bool] | None = None
     ) -> Iterator[Any]:
         """Traverses KIF object-tree recursively.
 

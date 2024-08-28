@@ -3,16 +3,7 @@
 
 from __future__ import annotations
 
-from ..typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Optional,
-    override,
-    Self,
-    TypeAlias,
-    Union,
-)
+from ..typing import Any, Callable, ClassVar, override, Self, TypeAlias, Union
 from .snak import (
     Snak,
     SnakTemplate,
@@ -51,7 +42,7 @@ class StatementTemplate(Template):
        snak: Snak.
     """
 
-    object_class: ClassVar[type['Statement']]  # pyright: ignore
+    object_class: ClassVar[type[Statement]]  # pyright: ignore
 
     def __init__(self, subject: VTEntity, snak: VTSnak):
         super().__init__(subject, snak)
@@ -109,7 +100,7 @@ class StatementVariable(Variable):
        name: Name.
     """
 
-    object_class: ClassVar[type['Statement']]  # pyright: ignore
+    object_class: ClassVar[type[Statement]]  # pyright: ignore
 
 
 class Statement(
@@ -132,9 +123,9 @@ class Statement(
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg

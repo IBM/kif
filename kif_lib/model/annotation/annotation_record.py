@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from ...typing import Any, Final, Optional, override
+from ...typing import Any, Final, override
 from ..kif_object import KIF_Object
 from ..set import ReferenceRecordSet, SnakSet, TReferenceRecordSet, TSnakSet
 from .rank import NormalRank, Rank
@@ -29,9 +29,9 @@ class AnnotationRecord(KIF_Object):
 
     def __init__(
             self,
-            qualifiers: Optional['TSnakSet'] = None,
-            references: Optional['TReferenceRecordSet'] = None,
-            rank: Optional[Rank] = None
+            qualifiers: TSnakSet | None = None,
+            references: TReferenceRecordSet | None = None,
+            rank: Rank | None = None
     ):
         super().__init__(qualifiers, references, rank)
 
@@ -50,11 +50,11 @@ class AnnotationRecord(KIF_Object):
             raise self._should_not_get_here()
 
     @property
-    def qualifiers(self) -> 'SnakSet':
+    def qualifiers(self) -> SnakSet:
         """The qualifiers of annotation record."""
         return self.get_qualifiers()
 
-    def get_qualifiers(self) -> 'SnakSet':
+    def get_qualifiers(self) -> SnakSet:
         """Gets the qualifiers of annotation record.
 
         Returns:
@@ -63,11 +63,11 @@ class AnnotationRecord(KIF_Object):
         return self.args[0]
 
     @property
-    def references(self) -> 'ReferenceRecordSet':
+    def references(self) -> ReferenceRecordSet:
         """The references of annotation record."""
         return self.get_references()
 
-    def get_references(self) -> 'ReferenceRecordSet':
+    def get_references(self) -> ReferenceRecordSet:
         """Gets the references of annotation record.
 
         Returns:

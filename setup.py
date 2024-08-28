@@ -4,7 +4,7 @@ import setuptools
 with open('kif_lib/__init__.py') as fp:
     text = fp.read()
     VERSION, = re.findall(r"__version__\s*=\s*'(.*)'", text)
-with open('README.md', 'r') as fp:
+with open('README.md') as fp:
     README = fp.read()
 setuptools.setup(
     name='kif-lib',

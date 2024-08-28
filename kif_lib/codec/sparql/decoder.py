@@ -24,7 +24,7 @@ from ...model import (
     ValueSnak,
 )
 from ...model.kif_object import Decoder, DecoderError, Object
-from ...typing import Any, cast, Optional, override
+from ...typing import Any, cast, override
 
 
 class SPARQL_Decoder(
@@ -66,7 +66,7 @@ At line {line}, column {column}:
         '_namespace',
     )
 
-    _namespace: Optional[Mapping[str, Any]]
+    _namespace: Mapping[str, Any] | None
 
     def __init__(self):
         self._namespace = dict(NS._DEFAULT_NSM.namespaces())
@@ -81,9 +81,9 @@ At line {line}, column {column}:
                 input, err.lineno, err.column, err.explain())
         fpmap: dict[Variable, list[Snak]] = {}
         snmap: dict[ValueSnak, tuple[Id, Id]] = {}
-        subj: Optional[Id] = None
-        pred: Optional[Id] = None
-        obj: Optional[Id] = None
+        subj: Id | None = None
+        pred: Id | None = None
+        obj: Id | None = None
         for (s, p, o) in self._get_bgp_triples(query.algebra):
             if (isinstance(s, Variable)
                 and isinstance(p, URIRef)
@@ -173,9 +173,9 @@ At line {line}, column {column}:
 
     def _subject_to_fingerprint(
             self,
-            subj: Optional[Id],
+            subj: Id | None,
             fpmap: dict[Variable, list[Snak]]
-    ) -> Optional[Fingerprint]:
+    ) -> Fingerprint | None:
         if subj is None:
             return None
         elif isinstance(subj, URIRef):
@@ -190,9 +190,9 @@ At line {line}, column {column}:
 
     def _predicate_to_fingerprint(
             self,
-            pred: Optional[Id],
+            pred: Id | None,
             fpmap: dict[Variable, list[Snak]]
-    ) -> Optional[Fingerprint]:
+    ) -> Fingerprint | None:
         if pred is None:
             return None
         elif isinstance(pred, URIRef):
@@ -207,9 +207,9 @@ At line {line}, column {column}:
 
     def _object_to_fingerprint(
             self,
-            obj: Optional[Id],
+            obj: Id | None,
             fpmap: dict[Variable, list[Snak]]
-    ) -> Optional[Fingerprint]:
+    ) -> Fingerprint | None:
         if obj is None:
             return None
         elif isinstance(obj, URIRef):

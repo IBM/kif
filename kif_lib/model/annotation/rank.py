@@ -6,7 +6,7 @@ from __future__ import annotations
 import functools
 
 from ...rdflib import URIRef
-from ...typing import Self, Union
+from ...typing import Self
 from ..kif_object import KIF_Object
 
 
@@ -15,7 +15,7 @@ class Rank(KIF_Object):
 
     @classmethod
     @functools.cache
-    def _from_rdflib(cls, uri: Union[URIRef, str]) -> Self:
+    def _from_rdflib(cls, uri: URIRef | str) -> Self:
         from ...namespace import Wikidata
         if Wikidata.is_wikibase_preferred_rank(uri):
             res: Rank = Preferred

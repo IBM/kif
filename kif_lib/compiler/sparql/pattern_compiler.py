@@ -59,13 +59,11 @@ from ...model import (
 from ...typing import (
     cast,
     Iterator,
-    Optional,
     override,
     Self,
     TypeAlias,
     TypedDict,
     TypeVar,
-    Union,
 )
 from .builder import Query
 from .compiler import SPARQL_Compiler
@@ -127,7 +125,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def __init__(
             self,
             pattern: TPattern,
-            flags: Optional['SPARQL_PatternCompiler.Flags'] = None
+            flags: SPARQL_PatternCompiler.Flags | None = None
     ):
         super().__init__(flags)
         self._pattern = Pattern.check(pattern, type(self), 'pattern', 1)
@@ -170,7 +168,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _theta_add_default(
             self,
             var: Variable,
-            value: Optional[Term]
+            value: Term | None
     ) -> Variable:
         return self._theta.add_default(var, value)
 
@@ -246,7 +244,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _as_simple_value(
             self,
             value: Value
-    ) -> Union[Query.URI, Query.Literal]:
+    ) -> Query.URI | Query.Literal:
         if isinstance(value, Entity):
             return self._q.uri(value.iri.content)
         elif isinstance(value, IRI):

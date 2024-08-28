@@ -34,7 +34,7 @@ from ..model import (
 )
 from ..model.kif_object import Encoder, Object
 from ..namespace import _DEFAULT_NSM
-from ..typing import Iterator, Optional, override
+from ..typing import Iterator, override
 
 SP = ' '                        # space
 NL = '\n'                       # newline
@@ -222,7 +222,7 @@ class MarkdownEncoder(
 
     def _iterencode_quantity(self, qt: Quantity) -> Iterator[str]:
         if qt.lower_bound is not None or qt.upper_bound is not None:
-            val: Optional[str] = None
+            val: str | None = None
             if qt.lower_bound is not None and qt.upper_bound is not None:
                 n = decimal.Decimal(qt.amount)
                 lb = decimal.Decimal(qt.lower_bound)

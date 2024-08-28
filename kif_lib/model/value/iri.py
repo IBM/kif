@@ -26,7 +26,7 @@ class IRI_Template(ShallowDataValueTemplate):
        content: IRI content or string variable.
     """
 
-    object_class: ClassVar[type['IRI']]  # pyright: ignore
+    object_class: ClassVar[type[IRI]]  # pyright: ignore
 
     def __init__(self, content: VT_IRI_Content):
         super().__init__(content)
@@ -39,13 +39,13 @@ class IRI_Variable(ShallowDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[type['IRI']]  # pyright: ignore
+    object_class: ClassVar[type[IRI]]  # pyright: ignore
 
 
 class IRI_Datatype(Datatype):
     """IRI datatype."""
 
-    value_class: ClassVar[type['IRI']]  # pyright: ignore
+    value_class: ClassVar[type[IRI]]  # pyright: ignore
 
 
 class IRI(
@@ -73,7 +73,7 @@ class IRI(
         return self._static_preprocess_arg(self, arg, i)
 
     @staticmethod
-    def _static_preprocess_arg(self_: 'IRI', arg: Any, i: int) -> Any:
+    def _static_preprocess_arg(self_: IRI, arg: Any, i: int) -> Any:
         if i == 1:              # content
             if isinstance(arg, IRI):
                 return arg.content

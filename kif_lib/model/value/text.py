@@ -6,7 +6,7 @@ from __future__ import annotations
 import dataclasses
 
 from ...context import Section
-from ...typing import Any, ClassVar, Optional, override, TypeAlias, Union
+from ...typing import Any, ClassVar, override, TypeAlias, Union
 from ..term import OpenTerm, Variable
 from .shallow_data_value import (
     ShallowDataValue,
@@ -59,12 +59,12 @@ class TextTemplate(ShallowDataValueTemplate):
        language: Language tag or string variable.
     """
 
-    object_class: ClassVar[type['Text']]  # pyright: ignore
+    object_class: ClassVar[type[Text]]  # pyright: ignore
 
     def __init__(
             self,
             content: VTTextContent,
-            language: Optional[VTStringContent] = None
+            language: VTStringContent | None = None
     ):
         super().__init__(content, language)
 
@@ -104,13 +104,13 @@ class TextVariable(ShallowDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[type['Text']]  # pyright: ignore
+    object_class: ClassVar[type[Text]]  # pyright: ignore
 
 
 class TextDatatype(Datatype):
     """Text datatype."""
 
-    value_class: ClassVar[type['Text']]  # pyright: ignore
+    value_class: ClassVar[type[Text]]  # pyright: ignore
 
 
 class Text(
@@ -134,7 +134,7 @@ class Text(
     def __init__(
             self,
             content: VTTextContent,
-            language: Optional[VTStringContent] = None
+            language: VTStringContent | None = None
     ):
         if language is None and isinstance(content, Text):
             super().__init__(content.content, content.language)

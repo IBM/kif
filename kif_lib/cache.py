@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from .typing import Any, Hashable, Optional, TypeVar
+from .typing import Any, Hashable, TypeVar
 
 T = TypeVar('T')
 
@@ -111,7 +111,7 @@ class Cache:
         self._cache[obj][key] = value
         return value
 
-    def unset(self, obj: Hashable, key: Optional[str] = None) -> Any:
+    def unset(self, obj: Hashable, key: str | None = None) -> Any:
         """Detaches value from `key` of `obj` in cache.
 
         If `key` is ``None``, detaches all values from `obj` and removes it

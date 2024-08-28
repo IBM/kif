@@ -15,10 +15,10 @@ class Options(Section, name='kif'):
     """KIF options."""
 
     #: Model options.
-    model: 'ModelOptions' = dataclasses.field(default_factory=ModelOptions)
+    model: ModelOptions = dataclasses.field(default_factory=ModelOptions)
 
     #: Store options.
-    store: 'StoreOptions' = dataclasses.field(default_factory=StoreOptions)
+    store: StoreOptions = dataclasses.field(default_factory=StoreOptions)
 
     @property
     def language(self) -> str:

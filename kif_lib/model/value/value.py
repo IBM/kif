@@ -15,7 +15,6 @@ from ...typing import (
     cast,
     ClassVar,
     Collection,
-    Optional,
     override,
     Self,
     TypeAlias,
@@ -37,7 +36,7 @@ VValue: TypeAlias = Union['ValueTemplate', 'ValueVariable', 'Value']
 class ValueTemplate(Template):
     """Abstract base class for value templates."""
 
-    object_class: ClassVar[type['Value']]  # pyright: ignore
+    object_class: ClassVar[type[Value]]  # pyright: ignore
 
 
 class ValueVariable(Variable):
@@ -47,7 +46,7 @@ class ValueVariable(Variable):
        name: Name.
     """
 
-    object_class: ClassVar[type['Value']]  # pyright: ignore
+    object_class: ClassVar[type[Value]]  # pyright: ignore
 
 
 class Value(
@@ -80,9 +79,9 @@ class Value(
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -97,19 +96,19 @@ class Value(
             arg = Quantity.check(arg, function, name, position)
         return super().check(arg, function, name, position)
 
-    def __and__(self, other: 'TFingerprint') -> 'AndFingerprint':
+    def __and__(self, other: TFingerprint) -> AndFingerprint:
         from ..fingerprint import AndFingerprint
         return AndFingerprint(self, other)
 
-    def __rand__(self, other: 'TFingerprint') -> 'AndFingerprint':
+    def __rand__(self, other: TFingerprint) -> AndFingerprint:
         from ..fingerprint import AndFingerprint
         return AndFingerprint(other, self)
 
-    def __or__(self, other: 'TFingerprint') -> 'OrFingerprint':
+    def __or__(self, other: TFingerprint) -> OrFingerprint:
         from ..fingerprint import OrFingerprint
         return OrFingerprint(self, other)
 
-    def __ror__(self, other: 'TFingerprint') -> 'OrFingerprint':
+    def __ror__(self, other: TFingerprint) -> OrFingerprint:
         from ..fingerprint import OrFingerprint
         return OrFingerprint(self, other)
 
@@ -124,10 +123,10 @@ class Value(
     @classmethod
     def _from_rdflib(
             cls,
-            node: Union[Literal, URIRef, str],
-            item_prefixes: Optional[Collection[NS.T_NS]] = None,
-            property_prefixes: Optional[Collection[NS.T_NS]] = None,
-            lexeme_prefixes: Optional[Collection[NS.T_NS]] = None
+            node: Literal | URIRef | str,
+            item_prefixes: Collection[NS.T_NS] | None = None,
+            property_prefixes: Collection[NS.T_NS] | None = None,
+            lexeme_prefixes: Collection[NS.T_NS] | None = None
     ) -> Self:
         from ...rdflib import _NUMERIC_LITERAL_TYPES
         from .external_id import ExternalId
@@ -184,7 +183,7 @@ class Value(
             raise cls._should_not_get_here()
         return cls.check(res, cls._from_rdflib, 'node', 1)
 
-    def _to_rdflib(self) -> Union[Literal, URIRef]:
+    def _to_rdflib(self) -> Literal | URIRef:
         from .entity import Entity
         from .iri import IRI
         from .quantity import Quantity

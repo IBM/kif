@@ -10,7 +10,6 @@ from ..typing import (
     ClassVar,
     Generic,
     Iterable,
-    Optional,
     override,
     Self,
     TypeAlias,
@@ -55,9 +54,9 @@ class KIF_ObjectSet(KIF_Object, Generic[_TObj]):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -156,9 +155,9 @@ class ReferenceRecord(SnakSet, children_class=Snak):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg

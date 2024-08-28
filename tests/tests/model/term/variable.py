@@ -7,15 +7,7 @@ import itertools
 
 from kif_lib import ExternalId, IRI, Item, KIF_Object, String, Term, Variable
 from kif_lib.model import Theta
-from kif_lib.typing import (
-    Any,
-    Callable,
-    cast,
-    Iterable,
-    Optional,
-    override,
-    Sequence,
-)
+from kif_lib.typing import Any, Callable, cast, Iterable, override, Sequence
 
 from .term import OpenTermTestCase
 
@@ -79,7 +71,7 @@ class VariableTestCase(OpenTermTestCase):
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, Variable)
-        it_success: Iterable[tuple[Term, Optional[Term], Theta]] =\
+        it_success: Iterable[tuple[Term, Term | None, Theta]] =\
             itertools.chain([
                 (Variable('x', cls), cls('x'), {}),
                 (Variable('x', cls), None, {cls('x'): None}),

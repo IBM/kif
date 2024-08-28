@@ -7,7 +7,7 @@ import abc
 import enum
 import itertools
 
-from ...typing import Final, Iterator, Optional
+from ...typing import Final, Iterator
 from ..compiler import Compiler
 from .builder import SelectQuery
 
@@ -53,7 +53,7 @@ class SPARQL_Compiler(Compiler):
             | WIKIDATA_EXTENSIONS)
 
     #: The default flags.
-    default_flags: Final['Flags'] = (
+    default_flags: Final[Flags] = (
         Flags.ALL & ~(Flags.DEBUG | Flags.WIKIDATA_EXTENSIONS))
 
     DEBUG = Flags.DEBUG
@@ -70,13 +70,13 @@ class SPARQL_Compiler(Compiler):
     )
 
     #: The compiled query.
-    _q: 'SPARQL_Compiler.Query'
+    _q: SPARQL_Compiler.Query
 
     #: The compilation flags.
-    _flags: 'SPARQL_Compiler.Flags'
+    _flags: SPARQL_Compiler.Flags
 
     @abc.abstractmethod
-    def __init__(self, flags: Optional[Flags] = None):
+    def __init__(self, flags: Flags | None = None):
         super().__init__()
         self._q = self.Query()
         if flags is None:

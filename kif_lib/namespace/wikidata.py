@@ -6,11 +6,11 @@ from __future__ import annotations
 import re
 
 from ..rdflib import DefinedNamespace, Namespace, URIRef
-from ..typing import Collection, Final, Union
+from ..typing import Collection, Final, TypeAlias, Union
 from .wikibase import WIKIBASE
 
-T_NS = Union[type[DefinedNamespace], Namespace]
-T_URI = Union[URIRef, str]
+T_NS: TypeAlias = Union[type[DefinedNamespace], Namespace]
+T_URI: TypeAlias = Union[URIRef, str]
 
 
 class Wikidata:

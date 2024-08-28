@@ -6,7 +6,7 @@ from __future__ import annotations
 import dataclasses
 import os
 
-from ..typing import Any, ClassVar, Iterator, Optional, Self
+from ..typing import Any, ClassVar, Iterator, Self
 
 
 @dataclasses.dataclass
@@ -20,7 +20,7 @@ class Section:
         cls.name = kwargs.get('name', cls.__qualname__)
 
     @classmethod
-    def getenv(cls, name: str, default: Optional[Any] = None) -> Any:
+    def getenv(cls, name: str, default: Any | None = None) -> Any:
         """Alias for :func:`os.getenv`."""
         return os.getenv(name, default)
 

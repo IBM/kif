@@ -14,18 +14,10 @@ import decimal
 import itertools
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, MutableSequence, Sequence
+from typing import cast, Final, Optional, Union
 
 from rdflib import BNode, Literal, URIRef, Variable
-from typing_extensions import (
-    Any,
-    cast,
-    Final,
-    Optional,
-    override,
-    TypeAlias,
-    TypeVar,
-    Union,
-)
+from typing_extensions import Any, override, TypeAlias, TypeVar
 
 _str = str
 T = TypeVar('T')
@@ -62,7 +54,7 @@ class Encodable(ABC):
     """Abstract base class for "encodable" objects."""
 
     @classmethod
-    def _n3(cls, v: Union[URIRef, BNode, Literal, Variable]) -> str:
+    def _n3(cls, v: URIRef | BNode | Literal | Variable) -> str:
         if isinstance(v, Literal):
             return v._literal_n3(use_plain=True)
         else:
@@ -128,7 +120,7 @@ class Coerce:
     def _check(
             cls,
             value: T,
-            ty: Union[type, tuple[type, ...]]
+            ty: type | tuple[type, ...]
     ) -> T:
         if isinstance(value, ty):
             return value
@@ -150,7 +142,7 @@ class Coerce:
         return cls._check(v, BNode)
 
     @classmethod
-    def literal(cls, v: TLiteral, lang: Optional[str] = None) -> Literal:
+    def literal(cls, v: TLiteral, lang: str | None = None) -> Literal:
         return Literal(cls._check(v, (
             Literal, bool, datetime.datetime, decimal.Decimal,
             float, int, str)), lang=lang)
@@ -160,21 +152,21 @@ class Coerce:
         return cls._check(Variable(v) if isinstance(v, str) else v, Variable)
 
     @classmethod
-    def expression(cls, v: TExpression) -> 'Expression':
+    def expression(cls, v: TExpression) -> Expression:
         if isinstance(v, Expression):
             return v
         else:
             return cls.numeric_expression(v)
 
     @classmethod
-    def numeric_expression(cls, v: TNumExpr) -> 'NumericExpression':
+    def numeric_expression(cls, v: TNumExpr) -> NumericExpression:
         if isinstance(v, NumericExpression):
             return v
         else:
             return cls.numeric_literal(v)
 
     @classmethod
-    def numeric_literal(cls, v: TNumericLiteral) -> 'NumericLiteral':
+    def numeric_literal(cls, v: TNumericLiteral) -> NumericLiteral:
         if isinstance(v, NumericLiteral):
             return v
         else:
@@ -184,7 +176,7 @@ class Coerce:
     def numeric_literal_content(
             cls,
             v: TNumericLiteralContent
-    ) -> Union[URIRef, Literal, Variable]:
+    ) -> URIRef | Literal | Variable:
         if isinstance(v, (URIRef, Literal, Variable)):
             return v
         else:
@@ -206,9 +198,9 @@ class Coerce:
     def comment(
             cls,
             v: TComment,
-            clause: 'Clause',
-            parent: Optional['GraphPattern'] = None
-    ) -> 'Comment':
+            clause: Clause,
+            parent: GraphPattern | None = None
+    ) -> Comment:
         if isinstance(v, Comment):
             text = v.text
         else:
@@ -219,9 +211,9 @@ class Coerce:
     def triple(
             cls,
             v: TTriple,
-            clause: 'Clause',
-            parent: Optional['GraphPattern'] = None
-    ) -> 'Triple':
+            clause: Clause,
+            parent: GraphPattern | None = None
+    ) -> Triple:
         if isinstance(v, Triple):
             args = v.args
         else:
@@ -236,9 +228,9 @@ class Coerce:
     def values_line(
             cls,
             v: TValuesLine,
-            clause: 'Clause',
-            parent: Optional['GraphPattern'] = None
-    ) -> 'ValuesLine':
+            clause: Clause,
+            parent: GraphPattern | None = None
+    ) -> ValuesLine:
         if isinstance(v, ValuesLine):
             args = v.args
         else:
@@ -331,7 +323,7 @@ class RelationalExpression(BooleanExpression):
     """Abstract base class for relational expressions."""
 
     operator: str
-    args: tuple['NumericExpression', 'NumericExpression']
+    args: tuple[NumericExpression, NumericExpression]
 
     def __init__(self, arg1: TNumExpr, arg2: TNumExpr):
         self.args = (
@@ -393,7 +385,7 @@ class NumericExpression(BooleanExpression):
 class NumericLiteral(NumericExpression):
     """Numeric literal."""
 
-    value: Union[URIRef, Literal, Variable]
+    value: URIRef | Literal | Variable
 
     def __init__(self, value: TNumericLiteralContent):
         self.value = Coerce.numeric_literal_content(value)
@@ -569,13 +561,13 @@ class STRLANG(BinaryBuiltInCall):
 class Pattern(Encodable):
     """Abstract base class for patterns."""
 
-    clause: 'Clause'
-    parent: Optional['GraphPattern']
+    clause: Clause
+    parent: GraphPattern | None
 
     def __init__(
             self,
-            clause: 'Clause',
-            parent: Optional['GraphPattern'] = None
+            clause: Clause,
+            parent: GraphPattern | None = None
     ):
         self.clause = clause
         self.parent = parent
@@ -593,8 +585,8 @@ class Bind(Pattern):
             self,
             expression: TExpression,
             variable: TVariable,
-            clause: 'Clause',
-            parent: Optional['GraphPattern'] = None
+            clause: Clause,
+            parent: GraphPattern | None = None
     ):
         super().__init__(clause, parent)
         self.expression = Coerce.expression(expression)
@@ -627,8 +619,8 @@ class Comment(Pattern):
     def __init__(
             self,
             text: str,
-            clause: 'Clause',
-            parent: Optional['GraphPattern'] = None
+            clause: Clause,
+            parent: GraphPattern | None = None
     ):
         super().__init__(clause, parent)
         self.text = text
@@ -649,8 +641,8 @@ class Filter(Pattern):
     def __init__(
             self,
             expression: TExpression,
-            clause: 'Clause',
-            parent: Optional['GraphPattern'] = None
+            clause: Clause,
+            parent: GraphPattern | None = None
     ):
         super().__init__(clause, parent)
         self.expression = Coerce.expression(expression)
@@ -675,8 +667,8 @@ class Triple(Pattern):
             subject: TSubject,
             predicate: TPredicate,
             object: TObject,
-            clause: 'Clause',
-            parent: Optional['GraphPattern'] = None
+            clause: Clause,
+            parent: GraphPattern | None = None
     ):
         super().__init__(clause, parent)
         self.args = (
@@ -701,8 +693,8 @@ class ValuesLine(Pattern):
     def __init__(
             self,
             *args: TValuesValue,
-            clause: 'Clause',
-            parent: Optional['GraphPattern'] = None
+            clause: Clause,
+            parent: GraphPattern | None = None
     ):
         super().__init__(clause, parent)
         self.args = tuple(map(Coerce.values_value, args))
@@ -761,7 +753,7 @@ class AtomicGraphPattern(GraphPattern):
     """Abstract base class for atomic graph patterns."""
 
     @abstractmethod
-    def _push(self, pattern: Pattern) -> 'AtomicGraphPattern':
+    def _push(self, pattern: Pattern) -> AtomicGraphPattern:
         raise NotImplementedError
 
 
@@ -774,24 +766,24 @@ class CommentsBlock(AtomicGraphPattern):
 
     def __init__(
             self,
-            clause: 'Clause',
-            parent: Optional['GraphPattern'] = None
+            clause: Clause,
+            parent: GraphPattern | None = None
     ):
         super().__init__(clause, parent)
         self.comments = []
 
-    def __call__(self, *comments: TComment) -> 'CommentsBlock':
+    def __call__(self, *comments: TComment) -> CommentsBlock:
         with self:
             return self.push(*comments)
 
     def add_comment(self, comment: Comment) -> Comment:
         return cast(Comment, self._add(comment, self.comments))
 
-    def _push(self, pattern: Pattern) -> 'CommentsBlock':
+    def _push(self, pattern: Pattern) -> CommentsBlock:
         self.add_comment(cast(Comment, pattern))
         return self
 
-    def push(self, *comments: TComment) -> 'CommentsBlock':
+    def push(self, *comments: TComment) -> CommentsBlock:
         for comment in comments:
             self._push(Coerce.comment(comment, clause=self.clause))
         return self
@@ -812,24 +804,24 @@ class TriplesBlock(AtomicGraphPattern):
 
     def __init__(
             self,
-            clause: 'Clause',
-            parent: Optional['GraphPattern'] = None
+            clause: Clause,
+            parent: GraphPattern | None = None
     ):
         super().__init__(clause, parent)
         self.triples = []
 
-    def __call__(self, *triples: TTriple) -> 'TriplesBlock':
+    def __call__(self, *triples: TTriple) -> TriplesBlock:
         with self:
             return self.push(*triples)
 
     def add_triple(self, triple: Triple) -> Triple:
         return cast(Triple, self._add(triple, self.triples))
 
-    def _push(self, pattern: Pattern) -> 'TriplesBlock':
+    def _push(self, pattern: Pattern) -> TriplesBlock:
         self.add_triple(cast(Triple, pattern))
         return self
 
-    def push(self, *triples: TTriple) -> 'TriplesBlock':
+    def push(self, *triples: TTriple) -> TriplesBlock:
         for triple in triples:
             self._push(Coerce.triple(triple, clause=self.clause))
         return self
@@ -853,15 +845,15 @@ class ValuesBlock(GraphPattern):
             self,
             variable: TVariable,
             *variables: TVariable,
-            clause: 'Clause',
-            parent: Optional['GraphPattern'] = None
+            clause: Clause,
+            parent: GraphPattern | None = None
     ):
         super().__init__(clause, parent)
         self.variables = tuple(map(
             Coerce.variable, itertools.chain((variable,), variables)))
         self.lines = []
 
-    def __call__(self, *lines: TValuesLine) -> 'ValuesBlock':
+    def __call__(self, *lines: TValuesLine) -> ValuesBlock:
         with self:
             return self.push(*lines)
 
@@ -872,11 +864,11 @@ class ValuesBlock(GraphPattern):
             raise ValueError('bad values line (not enough values)')
         return cast(ValuesLine, self._add(line, self.lines))
 
-    def _push(self, line: Pattern) -> 'ValuesBlock':
+    def _push(self, line: Pattern) -> ValuesBlock:
         self.add_line(cast(ValuesLine, line))
         return self
 
-    def push(self, *lines: TValuesLine) -> 'ValuesBlock':
+    def push(self, *lines: TValuesLine) -> ValuesBlock:
         for line in lines:
             self._push(Coerce.values_line(line, clause=self.clause))
         return self
@@ -903,14 +895,14 @@ class CompoundGraphPattern(GraphPattern):
 
     binds: MutableSequence[Bind]
     filters: MutableSequence[Filter]
-    children: MutableSequence['GraphPattern']
-    stashed_children: MutableSequence['GraphPattern']
+    children: MutableSequence[GraphPattern]
+    stashed_children: MutableSequence[GraphPattern]
     _stashing: bool
 
     def __init__(
             self,
-            clause: 'Clause',
-            parent: Optional['GraphPattern'] = None
+            clause: Clause,
+            parent: GraphPattern | None = None
     ):
         super().__init__(clause, parent)
         self.binds = []
@@ -924,7 +916,7 @@ class CompoundGraphPattern(GraphPattern):
     def add_filter(self, filter: Filter) -> Filter:
         return cast(Filter, self._add(filter, self.filters))
 
-    def add_child(self, child: 'GraphPattern') -> 'GraphPattern':
+    def add_child(self, child: GraphPattern) -> GraphPattern:
         if self._stashing:
             return cast(GraphPattern, self._add(child, self.stashed_children))
         else:
@@ -1084,15 +1076,15 @@ class AskClause(Clause):
 class SelectClause(Clause):
     """SELECT clause."""
 
-    variables: Sequence[Union[Variable, Bind]]
+    variables: Sequence[Variable | Bind]
     distinct: bool
     reduced: bool
 
     def __init__(
             self,
-            *variables: Union[TVariable, TInlineBind],
-            distinct: Optional[bool] = None,
-            reduced: Optional[bool] = None
+            *variables: TVariable | TInlineBind,
+            distinct: bool | None = None,
+            reduced: bool | None = None
     ):
         super().__init__()
         self.variables = tuple(map(
@@ -1138,9 +1130,9 @@ class WhereClause(Clause):
 class LimitClause(Clause):
     """LIMIT clause."""
 
-    limit: Optional[int]
+    limit: int | None
 
-    def __init__(self, limit: Optional[int] = None):
+    def __init__(self, limit: int | None = None):
         super().__init__()
         self.limit = limit
 
@@ -1155,9 +1147,9 @@ class LimitClause(Clause):
 class OffsetClause(Clause):
     """OFFSET clause."""
 
-    offset: Optional[int]
+    offset: int | None
 
-    def __init__(self, offset: Optional[int] = None):
+    def __init__(self, offset: int | None = None):
         super().__init__()
         self.offset = offset
 
@@ -1214,11 +1206,11 @@ class Query(Encodable):
 
     def __init__(
             self,
-            limit: Optional[int] = None,
-            offset: Optional[int] = None,
-            where: Optional[WhereClause] = None,
-            fresh_var_prefix: Optional[str] = None,
-            fresh_var_counter: Optional[int] = None,
+            limit: int | None = None,
+            offset: int | None = None,
+            where: WhereClause | None = None,
+            fresh_var_prefix: str | None = None,
+            fresh_var_counter: int | None = None,
     ):
         self.where = where if where is not None else WhereClause()
         self.clause = self.where
@@ -1251,19 +1243,19 @@ class Query(Encodable):
 
 # -- Stashing --------------------------------------------------------------
 
-    def stash_begin(self) -> 'Query':
+    def stash_begin(self) -> Query:
         self.clause.stash_begin()
         return self
 
-    def stash_end(self) -> 'Query':
+    def stash_end(self) -> Query:
         self.clause.stash_end()
         return self
 
-    def stash_pop(self) -> 'Query':
+    def stash_pop(self) -> Query:
         self.clause.stash_pop()
         return self
 
-    def stash_drop(self) -> 'Query':
+    def stash_drop(self) -> Query:
         self.clause.stash_drop()
         return self
 
@@ -1291,7 +1283,7 @@ class Query(Encodable):
     def literal(
             self,
             content: TLiteral,
-            language: Optional[str] = None
+            language: str | None = None
     ) -> Literal:
         """Constructs :class:`Literal`.
 
@@ -1361,7 +1353,7 @@ class Query(Encodable):
     def call(self, op: T_URI, *args: TNumExpr) -> URI_Call:
         return URI_Call(op, *args)
 
-    def count(self, arg1: Optional[TNumExpr] = None) -> COUNT:
+    def count(self, arg1: TNumExpr | None = None) -> COUNT:
         if arg1 is None:
             return COUNT_STAR()
         else:
@@ -1395,7 +1387,7 @@ class Query(Encodable):
 
 # -- Non-graph patterns ----------------------------------------------------
 
-    def bind(self, expression: TExpression, variable: TVariable) -> 'Query':
+    def bind(self, expression: TExpression, variable: TVariable) -> Query:
         """Pushes BIND.
 
         Parameters:
@@ -1412,7 +1404,7 @@ class Query(Encodable):
         self.clause.current.add_bind(bind)
         return self
 
-    def filter(self, expression: TExpression) -> 'Query':
+    def filter(self, expression: TExpression) -> Query:
         """Pushes FILTER.
 
         Parameters:
@@ -1521,7 +1513,7 @@ class Query(Encodable):
     def optional_if(
             self,
             condition: bool
-    ) -> Union[OptionalGraphPattern, GroupGraphPattern]:
+    ) -> OptionalGraphPattern | GroupGraphPattern:
         """Constructs OPTIONAL or graph pattern depending on `condition`.
 
         Parameters:
@@ -1578,33 +1570,33 @@ class Query(Encodable):
 # -- Solution modifiers ----------------------------------------------------
 
     @property
-    def limit(self) -> Optional[int]:
+    def limit(self) -> int | None:
         """The LIMIT modifier."""
         return self._limit.limit
 
     @limit.setter
-    def limit(self, limit: Optional[int]):
+    def limit(self, limit: int | None):
         self._limit.limit = limit
 
     @property
-    def offset(self) -> Optional[int]:
+    def offset(self) -> int | None:
         """The OFFSET modifier."""
         return self._offset.offset
 
     @offset.setter
-    def offset(self, offset: Optional[int]):
+    def offset(self, offset: int | None):
         self._offset.offset = offset
 
 # -- Query conversion ------------------------------------------------------
 
     def ask(
             self,
-            limit: Optional[int] = None,
-            offset: Optional[int] = None,
-            fresh_var_prefix: Optional[_str] = None,
-            fresh_var_counter: Optional[int] = None,
+            limit: int | None = None,
+            offset: int | None = None,
+            fresh_var_prefix: _str | None = None,
+            fresh_var_counter: int | None = None,
             deepcopy: bool = True
-    ) -> 'AskQuery':
+    ) -> AskQuery:
         """Converts query to an ASK query.
 
         Parameters:
@@ -1629,15 +1621,15 @@ class Query(Encodable):
 
     def select(
             self,
-            *variables: Union[TVariable, TInlineBind],
-            distinct: Optional[bool] = None,
-            reduced: Optional[bool] = None,
-            limit: Optional[int] = None,
-            offset: Optional[int] = None,
-            fresh_var_prefix: Optional[_str] = None,
-            fresh_var_counter: Optional[int] = None,
+            *variables: TVariable | TInlineBind,
+            distinct: bool | None = None,
+            reduced: bool | None = None,
+            limit: int | None = None,
+            offset: int | None = None,
+            fresh_var_prefix: _str | None = None,
+            fresh_var_counter: int | None = None,
             deepcopy: bool = True,
-    ) -> 'SelectQuery':
+    ) -> SelectQuery:
         """Converts query to a SELECT query.
 
         Parameters:
@@ -1701,9 +1693,9 @@ class SelectQuery(Query):
 
     def __init__(
             self,
-            *variables: Union[TVariable, tuple[TExpression, TVariable]],
-            distinct: Optional[bool] = None,
-            reduced: Optional[bool] = None,
+            *variables: TVariable | tuple[TExpression, TVariable],
+            distinct: bool | None = None,
+            reduced: bool | None = None,
             **kwargs
     ):
         super().__init__(**kwargs)

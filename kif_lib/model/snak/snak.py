@@ -3,14 +3,13 @@
 
 from __future__ import annotations
 
-from typing_extensions import TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from ...typing import (
     Any,
     Callable,
     cast,
     ClassVar,
-    Optional,
     override,
     Self,
     TypeAlias,
@@ -33,7 +32,7 @@ VTSnak: TypeAlias = Union[Variable, VSnak, TSnak]
 class SnakTemplate(Template):
     """Abstract base class for snak templates."""
 
-    object_class: ClassVar[type['Snak']]  # pyright: ignore
+    object_class: ClassVar[type[Snak]]  # pyright: ignore
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -68,7 +67,7 @@ class SnakVariable(Variable):
        name: Name.
     """
 
-    object_class: ClassVar[type['Snak']]  # pyright: ignore
+    object_class: ClassVar[type[Snak]]  # pyright: ignore
 
 
 class Snak(
@@ -86,9 +85,9 @@ class Snak(
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -110,19 +109,19 @@ class Snak(
         else:
             raise self_._should_not_get_here()
 
-    def __and__(self, other: 'TFingerprint') -> 'AndFingerprint':
+    def __and__(self, other: TFingerprint) -> AndFingerprint:
         from ..fingerprint import AndFingerprint
         return AndFingerprint(self, other)
 
-    def __rand__(self, other: 'TFingerprint') -> 'AndFingerprint':
+    def __rand__(self, other: TFingerprint) -> AndFingerprint:
         from ..fingerprint import AndFingerprint
         return AndFingerprint(other, self)
 
-    def __or__(self, other: 'TFingerprint') -> 'OrFingerprint':
+    def __or__(self, other: TFingerprint) -> OrFingerprint:
         from ..fingerprint import OrFingerprint
         return OrFingerprint(self, other)
 
-    def __ror__(self, other: 'TFingerprint') -> 'OrFingerprint':
+    def __ror__(self, other: TFingerprint) -> OrFingerprint:
         from ..fingerprint import OrFingerprint
         return OrFingerprint(self, other)
 

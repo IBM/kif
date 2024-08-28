@@ -15,7 +15,7 @@ import functools
 import itertools
 import json
 from collections.abc import Iterator, Mapping, Sequence
-from typing import Callable, cast, ClassVar, Final, IO, Optional, Union
+from typing import Callable, cast, ClassVar, Final, IO, Union
 
 import lark  # for S-expression parsing
 from typing_extensions import Any, override, Self, TypeAlias, TypeVar
@@ -62,9 +62,9 @@ class Object(Sequence, metaclass=ObjectMeta):
     def check(
             cls,
             arg: Any,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         """Coerces `arg` into an instance of this class.
 
@@ -87,12 +87,12 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def check_optional(
             cls,
-            arg: Optional[Any],
-            default: Optional[Any] = None,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[Self]:
+            arg: Any | None,
+            default: Any | None = None,
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Self | None:
         """Coerces optional `arg` into an instance of this class.
 
         If `arg` cannot be coerced, raises an error.
@@ -120,12 +120,12 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_error(
             cls,
             arg: Any,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None,
-            exception: Optional[type[Exception]] = None,
-            from_: Optional[str] = None,
-            to_: Optional[str] = None
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None,
+            exception: type[Exception] | None = None,
+            from_: str | None = None,
+            to_: str | None = None
     ) -> Exception:
         if from_ is None:
             if isinstance(arg, type):
@@ -148,10 +148,10 @@ class Object(Sequence, metaclass=ObjectMeta):
     _args: tuple[Any, ...]
 
     #: The integer hash of object.
-    _hash: Optional[int]
+    _hash: int | None
 
     #: The digest of object.
-    _digest: Optional[str]
+    _digest: str | None
 
     @abc.abstractmethod
     def __init__(self, *args: Any):
@@ -229,7 +229,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         """
         return self._args
 
-    def get(self, i: int, default: Optional[Any] = None) -> Optional[Any]:
+    def get(self, i: int, default: Any | None = None) -> Any | None:
         """Gets the value of the `i`-th argument of object (origin 0).
 
         If argument's value is ``None``, returns `default`.
@@ -269,7 +269,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         """
         return copy.copy(self)
 
-    def deepcopy(self, memo: Optional[dict[Any, Any]] = None) -> Self:
+    def deepcopy(self, memo: dict[Any, Any] | None = None) -> Self:
         """Makes a deep copy of object.
 
         Parameters:
@@ -357,7 +357,7 @@ class Object(Sequence, metaclass=ObjectMeta):
 
 # -- Encoding --------------------------------------------------------------
 
-    def dump(self, stream: IO[Any], format: Optional[str] = None, **kwargs):
+    def dump(self, stream: IO[Any], format: str | None = None, **kwargs):
         """Encodes object and writes the result to `stream`.
 
         Parameters:
@@ -369,7 +369,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         for chunk in enc(**kwargs).iterencode(self):
             stream.write(chunk)
 
-    def dumps(self, format: Optional[str] = None, **kwargs) -> str:
+    def dumps(self, format: str | None = None, **kwargs) -> str:
         """Encodes object and returns the resulting string.
 
         Parameters:
@@ -388,7 +388,7 @@ class Object(Sequence, metaclass=ObjectMeta):
     def load(
             cls,
             stream: IO[Any],
-            format: Optional[str] = None,
+            format: str | None = None,
             **kwargs
     ) -> Self:
         """Decodes `stream` and returns the resulting object.
@@ -407,7 +407,7 @@ class Object(Sequence, metaclass=ObjectMeta):
     def loads(
             cls,
             input: str,
-            format: Optional[str] = None,
+            format: str | None = None,
             **kwargs
     ) -> Self:
         """Decodes string and returns the resulting object.
@@ -505,12 +505,12 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def _arg_error(
             cls,
-            details: Optional[str] = None,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None,
-            exception: Optional[type[Exception]] = None,
-            prefix: Optional[str] = None
+            details: str | None = None,
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None,
+            exception: type[Exception] | None = None,
+            prefix: str | None = None
     ) -> Exception:
         msg = prefix or Object._arg_error_prefix
         if position is not None:
@@ -531,13 +531,13 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg(
             cls,
             arg: Any,
-            test: Union[Callable[[Any], bool], bool] = lambda x: True,
-            details: Optional[TDet] = None,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None,
-            exception: Optional[type[Exception]] = None,
-            prefix: Optional[str] = None
+            test: Callable[[Any], bool] | bool = lambda x: True,
+            details: TDet | None = None,
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None,
+            exception: type[Exception] | None = None,
+            prefix: str | None = None
     ) -> Any:
         if (test(arg) if callable(test) else test):
             return arg
@@ -549,16 +549,16 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def _check_optional_arg(
             cls,
-            arg: Optional[Any],
-            default: Optional[Any] = None,
-            test: Union[Callable[[Any], bool], bool] = lambda x: True,
-            details: Optional[TDet] = None,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None,
-            exception: Optional[type[Exception]] = None,
-            prefix: Optional[str] = None
-    ) -> Optional[Any]:
+            arg: Any | None,
+            default: Any | None = None,
+            test: Callable[[Any], bool] | bool = lambda x: True,
+            details: TDet | None = None,
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None,
+            exception: type[Exception] | None = None,
+            prefix: str | None = None
+    ) -> Any | None:
         if arg is None:
             return default
         else:
@@ -570,9 +570,9 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_not_none(
             cls,
             arg: T,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> T:
         return Object._check_arg(
             arg, arg is not None, 'expected value, got None',
@@ -587,9 +587,9 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_callable(
             cls,
             arg: T,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None,
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None,
     ) -> T:
         return Object._check_arg(
             arg, callable, cls._check_arg_callable_details,
@@ -598,12 +598,12 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def _check_optional_arg_callable(
             cls,
-            arg: Optional[T],
-            default: Optional[T] = None,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[T]:
+            arg: T | None,
+            default: T | None = None,
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> T | None:
         return Object._check_optional_arg(
             arg, default, callable, cls._check_arg_callable_details,
             function, name, position, TypeError)
@@ -619,12 +619,12 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_isinstance(
             cls,
             arg: T,
-            ty: Union[type, tuple[type, ...]],
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None,
+            ty: type | tuple[type, ...],
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None,
             details: Callable[[T, str], str] = _check_arg_isinstance_details,
-            exception: Optional[type[Exception]] = None,
+            exception: type[Exception] | None = None,
             test=isinstance
     ) -> T:
         if test(arg, ty):
@@ -642,16 +642,16 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def _check_optional_arg_isinstance(
             cls,
-            arg: Optional[T],
-            ty: Union[type, tuple[type, ...]],
-            default: Optional[T] = None,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None,
+            arg: T | None,
+            ty: type | tuple[type, ...],
+            default: T | None = None,
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None,
             details: Callable[[T, str], str] = _check_arg_isinstance_details,
-            exception: Optional[type[Exception]] = None,
+            exception: type[Exception] | None = None,
             test=isinstance
-    ) -> Optional[T]:
+    ) -> T | None:
         if arg is None:
             return default
         else:
@@ -669,10 +669,10 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_issubclass(
             cls,
             arg: T,
-            ty: Union[type, tuple[type, ...]],
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            ty: type | tuple[type, ...],
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> T:
         cls._check_arg_isinstance(arg, type, function, name, position)
         return cls._check_arg_isinstance(
@@ -682,13 +682,13 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def _check_optional_arg_issubclass(
             cls,
-            arg: Optional[T],
-            ty: Union[type, tuple[type, ...]],
-            default: Optional[T] = None,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[T]:
+            arg: T | None,
+            ty: type | tuple[type, ...],
+            default: T | None = None,
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> T | None:
         if arg is None:
             return default
         else:
@@ -701,9 +701,9 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_bool(
             cls,
             arg: bool,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> bool:
         return cls._check_arg_isinstance(
             arg, bool, function, name, position)
@@ -711,12 +711,12 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def _check_optional_arg_bool(
             cls,
-            arg: Optional[bool],
-            default: Optional[bool] = None,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[bool]:
+            arg: bool | None,
+            default: bool | None = None,
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> bool | None:
         return cls._check_optional_arg_isinstance(
             arg, bool, default, function, name, position)
 
@@ -726,9 +726,9 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_int(
             cls,
             arg: int,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> int:
         return cls._check_arg_isinstance(
             arg, int, function, name, position)
@@ -736,12 +736,12 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def _check_optional_arg_int(
             cls,
-            arg: Optional[int],
-            default: Optional[int] = None,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[int]:
+            arg: int | None,
+            default: int | None = None,
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int | None:
         return cls._check_optional_arg_isinstance(
             arg, int, default, function, name, position)
 
@@ -751,9 +751,9 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_float(
             cls,
             arg: float,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> float:
         return cls._check_arg_isinstance(
             arg, float, function, name, position)
@@ -761,12 +761,12 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def _check_optional_arg_float(
             cls,
-            arg: Optional[float],
-            default: Optional[float] = None,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[float]:
+            arg: float | None,
+            default: float | None = None,
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> float | None:
         return cls._check_optional_arg_isinstance(
             arg, float, default, function, name, position)
 
@@ -776,9 +776,9 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_number(
             cls,
             arg: TNum,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> TNum:
         return cls._check_arg_isinstance(
             arg, (float, int), function, name, position)
@@ -786,12 +786,12 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def _check_optional_arg_number(
             cls,
-            arg: Optional[TNum],
-            default: Optional[TNum] = None,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[TNum]:
+            arg: TNum | None,
+            default: TNum | None = None,
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> TNum | None:
         return cls._check_optional_arg_isinstance(
             arg, (float, int), default, function, name, position)
 
@@ -801,9 +801,9 @@ class Object(Sequence, metaclass=ObjectMeta):
     def _check_arg_str(
             cls,
             arg: str,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> str:
         return cls._check_arg_isinstance(
             arg, str, function, name, position)
@@ -811,12 +811,12 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def _check_optional_arg_str(
             cls,
-            arg: Optional[str],
-            default: Optional[str] = None,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[str]:
+            arg: str | None,
+            default: str | None = None,
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> str | None:
         return cls._check_optional_arg_isinstance(
             arg, str, default, function, name, position)
 
@@ -828,7 +828,7 @@ class Object(Sequence, metaclass=ObjectMeta):
     @classmethod
     def _should_not_get_here(
             cls,
-            details: Optional[str] = None
+            details: str | None = None
     ) -> ShouldNotGetHere:
         """Makes a "should not get here" error.
 
@@ -881,11 +881,11 @@ class Codec(abc.ABC):
     @classmethod
     def _check_format(
             cls,
-            format: Optional[str] = None,
-            function: Optional[TLoc] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None,
-            details: Optional[TDet] = None
+            format: str | None = None,
+            function: TLoc | None = None,
+            name: str | None = None,
+            position: int | None = None,
+            details: TDet | None = None
     ) -> type[Self]:
         fmt: str = format or cls.default
         Object._check_arg(
@@ -1105,7 +1105,7 @@ class Decoder(Codec):
     def _check_object_class(
             cls,
             cls_name: str,
-            exception: Optional[type[Exception]] = None
+            exception: type[Exception] | None = None
     ) -> type[Object]:
         return ObjectMeta._check_object_class(
             cls_name, exception or cls.Error)

@@ -25,7 +25,7 @@ class StringTemplate(ShallowDataValueTemplate):
        content: String content or string variable.
     """
 
-    object_class: ClassVar[type['String']]  # pyright: ignore
+    object_class: ClassVar[type[String]]  # pyright: ignore
 
     def __init__(self, content: VTStringContent):
         super().__init__(content)
@@ -38,13 +38,13 @@ class StringVariable(ShallowDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[type['String']]  # pyright: ignore
+    object_class: ClassVar[type[String]]  # pyright: ignore
 
 
 class StringDatatype(Datatype):
     """String datatype."""
 
-    value_class: ClassVar[type['String']]  # pyright: ignore
+    value_class: ClassVar[type[String]]  # pyright: ignore
 
 
 class String(

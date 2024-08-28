@@ -5,16 +5,7 @@ from __future__ import annotations
 
 import decimal
 
-from ...typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Optional,
-    override,
-    Self,
-    TypeAlias,
-    Union,
-)
+from ...typing import Any, Callable, ClassVar, override, Self, TypeAlias, Union
 from ..term import Template, Variable
 from .deep_data_value import (
     DeepDataValue,
@@ -43,14 +34,14 @@ class QuantityTemplate(DeepDataValueTemplate):
        upper_bound: Upper bound or quantity variable.
     """
 
-    object_class: ClassVar[type['Quantity']]  # pyright: ignore
+    object_class: ClassVar[type[Quantity]]  # pyright: ignore
 
     def __init__(
             self,
             amount: VTQuantityContent,
-            unit: Optional[VTItem] = None,
-            lower_bound: Optional[VTQuantityContent] = None,
-            upper_bound: Optional[VTQuantityContent] = None):
+            unit: VTItem | None = None,
+            lower_bound: VTQuantityContent | None = None,
+            upper_bound: VTQuantityContent | None = None):
         super().__init__(amount, unit, lower_bound, upper_bound)
 
     @override
@@ -94,11 +85,11 @@ class QuantityTemplate(DeepDataValueTemplate):
         return self.args[0]
 
     @property
-    def unit(self) -> Optional[VItem]:
+    def unit(self) -> VItem | None:
         """The unit of quantity template."""
         return self.get_unit()
 
-    def get_unit(self, default: Optional[VItem] = None) -> Optional[VItem]:
+    def get_unit(self, default: VItem | None = None) -> VItem | None:
         """Gets the unit of quantity template
 
         If the unit is ``None``, returns `default`.
@@ -112,14 +103,14 @@ class QuantityTemplate(DeepDataValueTemplate):
         return self.get(1, default)
 
     @property
-    def lower_bound(self) -> Optional[VQuantityContent]:
+    def lower_bound(self) -> VQuantityContent | None:
         """The lower bound of quantity template."""
         return self.get_lower_bound()
 
     def get_lower_bound(
             self,
-            default: Optional[VQuantityContent] = None
-    ) -> Optional[VQuantityContent]:
+            default: VQuantityContent | None = None
+    ) -> VQuantityContent | None:
         """Gets the lower bound of quantity template
 
         If the lower bound is ``None``, returns `default`.
@@ -133,14 +124,14 @@ class QuantityTemplate(DeepDataValueTemplate):
         return self.get(2, default)
 
     @property
-    def upper_bound(self) -> Optional[VQuantityContent]:
+    def upper_bound(self) -> VQuantityContent | None:
         """The upper bound of quantity template."""
         return self.get_upper_bound()
 
     def get_upper_bound(
             self,
-            default: Optional[VQuantityContent] = None
-    ) -> Optional[VQuantityContent]:
+            default: VQuantityContent | None = None
+    ) -> VQuantityContent | None:
         """Gets the upper bound of quantity template.
 
         If the upper bound is ``None``, returns `default`.
@@ -161,13 +152,13 @@ class QuantityVariable(DeepDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[type['Quantity']]  # pyright: ignore
+    object_class: ClassVar[type[Quantity]]  # pyright: ignore
 
 
 class QuantityDatatype(Datatype):
     """Quantity datatype."""
 
-    value_class: ClassVar[type['Quantity']]  # pyright: ignore
+    value_class: ClassVar[type[Quantity]]  # pyright: ignore
 
 
 class Quantity(
@@ -195,9 +186,9 @@ class Quantity(
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -217,9 +208,9 @@ class Quantity(
     def __init__(
             self,
             amount: VTQuantityContent,
-            unit: Optional[VTItem] = None,
-            lower_bound: Optional[VTQuantityContent] = None,
-            upper_bound: Optional[VTQuantityContent] = None):
+            unit: VTItem | None = None,
+            lower_bound: VTQuantityContent | None = None,
+            upper_bound: VTQuantityContent | None = None):
         super().__init__(amount, unit, lower_bound, upper_bound)
 
     @override
@@ -260,14 +251,11 @@ class Quantity(
         return self.args[0]
 
     @property
-    def unit(self) -> Optional[Item]:
+    def unit(self) -> Item | None:
         """The unit of quantity."""
         return self.get_unit()
 
-    def get_unit(
-            self,
-            default: Optional[Item] = None
-    ) -> Optional[Item]:
+    def get_unit(self, default: Item | None = None) -> Item | None:
         """Gets the unit of quantity.
 
         If the unit is ``None``, returns `default`.
@@ -281,14 +269,14 @@ class Quantity(
         return self.get(1, default)
 
     @property
-    def lower_bound(self) -> Optional[decimal.Decimal]:
+    def lower_bound(self) -> decimal.Decimal | None:
         """The lower bound of quantity."""
         return self.get_lower_bound()
 
     def get_lower_bound(
             self,
-            default: Optional[decimal.Decimal] = None
-    ) -> Optional[decimal.Decimal]:
+            default: decimal.Decimal | None = None
+    ) -> decimal.Decimal | None:
         """Gets the lower bound of quantity.
 
         If the lower bound is ``None``, returns `default`.
@@ -302,14 +290,14 @@ class Quantity(
         return self.get(2, default)
 
     @property
-    def upper_bound(self) -> Optional[decimal.Decimal]:
+    def upper_bound(self) -> decimal.Decimal | None:
         """The upper bound of quantity."""
         return self.get_upper_bound()
 
     def get_upper_bound(
             self,
-            default: Optional[decimal.Decimal] = None
-    ) -> Optional[decimal.Decimal]:
+            default: decimal.Decimal | None = None
+    ) -> decimal.Decimal | None:
         """Gets the upper bound of quantity.
 
         If the upper bound is ``None``, returns `default`.

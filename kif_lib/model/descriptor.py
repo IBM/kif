@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from ..typing import Any, Final, Optional, override, TypeAlias, Union
+from ..typing import Any, Final, override, TypeAlias, Union
 from .flags import Flags
 from .kif_object import KIF_Object
 from .set import TextSet, TTextSet
@@ -110,14 +110,11 @@ class PlainDescriptor(Descriptor):
             raise self._should_not_get_here()
 
     @property
-    def label(self) -> Optional[Text]:
+    def label(self) -> Text | None:
         """The label of plain descriptor."""
         return self.get_label()
 
-    def get_label(
-            self,
-            default: Optional[Text] = None
-    ) -> Optional[Text]:
+    def get_label(self, default: Text | None = None) -> Text | None:
         """Gets the label of plain descriptor.
 
         If the label is ``None``, returns `default`.
@@ -144,14 +141,11 @@ class PlainDescriptor(Descriptor):
         return self.args[1]
 
     @property
-    def description(self) -> Optional[Text]:
+    def description(self) -> Text | None:
         """The description of plain descriptor."""
         return self.get_description()
 
-    def get_description(
-            self,
-            default: Optional[Text] = None
-    ) -> Optional[Text]:
+    def get_description(self, default: Text | None = None) -> Text | None:
         """Gets the description of plain descriptor.
 
         If the description is ``None``, returns `default`.
@@ -176,9 +170,9 @@ class ItemDescriptor(PlainDescriptor):
 
     def __init__(
             self,
-            label: Optional[TText] = None,
-            aliases: Optional[TTextSet] = None,
-            description: Optional[TText] = None
+            label: TText | None = None,
+            aliases: TTextSet | None = None,
+            description: TText | None = None
     ):
         super().__init__(label, aliases, description)
 
@@ -195,10 +189,10 @@ class PropertyDescriptor(PlainDescriptor):
 
     def __init__(
             self,
-            label: Optional[TText] = None,
-            aliases: Optional[TTextSet] = None,
-            description: Optional[TText] = None,
-            datatype: Optional[TDatatype] = None
+            label: TText | None = None,
+            aliases: TTextSet | None = None,
+            description: TText | None = None,
+            datatype: TDatatype | None = None
     ):
         super().__init__(label, aliases, description, datatype)
 
@@ -210,14 +204,11 @@ class PropertyDescriptor(PlainDescriptor):
             return super()._preprocess_arg(arg, i)
 
     @property
-    def datatype(self) -> Optional[Datatype]:
+    def datatype(self) -> Datatype | None:
         """The datatype of property descriptor."""
         return self.get_datatype()
 
-    def get_datatype(
-            self,
-            default: Optional[Datatype] = None
-    ) -> Optional[Datatype]:
+    def get_datatype(self, default: Datatype | None = None) -> Datatype | None:
         """Gets the datatype of property descriptor.
 
         If the datatype is ``None``, returns `default`.
@@ -242,9 +233,9 @@ class LexemeDescriptor(Descriptor):
 
     def __init__(
             self,
-            lemma: Optional[TText] = None,
-            category: Optional[TItem] = None,
-            language: Optional[TItem] = None
+            lemma: TText | None = None,
+            category: TItem | None = None,
+            language: TItem | None = None
     ):
         super().__init__(lemma, category, language)
 
@@ -260,11 +251,11 @@ class LexemeDescriptor(Descriptor):
             raise self._should_not_get_here()
 
     @property
-    def lemma(self) -> Optional[Text]:
+    def lemma(self) -> Text | None:
         """The lemma of lexeme descriptor."""
         return self.get_lemma()
 
-    def get_lemma(self, default: Optional[Text] = None) -> Optional[Text]:
+    def get_lemma(self, default: Text | None = None) -> Text | None:
         """Gets the lemma of lexeme descriptor.
 
         If the lemma is ``None``, returns `default`.
@@ -278,11 +269,11 @@ class LexemeDescriptor(Descriptor):
         return self.get(0, default)
 
     @property
-    def category(self) -> Optional[Item]:
+    def category(self) -> Item | None:
         """The lexical category of lexeme descriptor."""
         return self.get_category()
 
-    def get_category(self, default: Optional[Item] = None) -> Optional[Item]:
+    def get_category(self, default: Item | None = None) -> Item | None:
         """Gets the lexical category of lexeme descriptor.
 
         If the lexical category is ``None``, returns `default`.
@@ -296,11 +287,11 @@ class LexemeDescriptor(Descriptor):
         return self.get(1, default)
 
     @property
-    def language(self) -> Optional[Item]:
+    def language(self) -> Item | None:
         """The language of lexeme descriptor."""
         return self.get_language()
 
-    def get_language(self, default: Optional[Item] = None) -> Optional[Item]:
+    def get_language(self, default: Item | None = None) -> Item | None:
         """Gets the language of lexeme descriptor.
 
         If the language is ``None``, returns `default`.

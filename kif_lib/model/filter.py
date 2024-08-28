@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import functools
 
-from ..typing import Any, Callable, Final, Optional, override, TypeAlias, Union
+from ..typing import Any, Callable, Final, override, TypeAlias, Union
 from .fingerprint import (
     AndFingerprint,
     Fingerprint,
@@ -115,10 +115,10 @@ class Filter(KIF_Object):
         def check(
                 cls,
                 arg: Any,
-                function: Optional[Union[Callable[..., Any], str]] = None,
-                name: Optional[str] = None,
-                position: Optional[int] = None,
-        ) -> 'Filter.DatatypeMask':
+                function: Callable[..., Any] | str | None = None,
+                name: str | None = None,
+                position: int | None = None,
+        ) -> Filter.DatatypeMask:
             if isinstance(arg, (cls, int)):
                 return super().check(arg, function, name, position)
             else:
@@ -136,8 +136,8 @@ class Filter(KIF_Object):
                 arg: Union[type[Datatype], type[Value]],
                 _cache: dict[
                     Union[type[Datatype], type[Value]],
-                    'Filter.DatatypeMask'] = {}
-        ) -> Optional['Filter.DatatypeMask']:
+                    Filter.DatatypeMask] = {}
+        ) -> Filter.DatatypeMask | None:
             if not _cache:  # functools.cache does not work here
                 _cache[Datatype] = cls.ALL
                 _cache[Value] = cls.VALUE
@@ -151,8 +151,8 @@ class Filter(KIF_Object):
         def _from_datatype(
                 cls,
                 datatype: Datatype,
-                _cache: dict[Datatype, 'Filter.DatatypeMask'] = {}
-        ) -> 'Filter.DatatypeMask':
+                _cache: dict[Datatype, Filter.DatatypeMask] = {}
+        ) -> Filter.DatatypeMask:
             if not _cache:      # functools.cache does not work here
                 _cache[ItemDatatype()] = cls.ITEM
                 _cache[PropertyDatatype()] = cls.PROPERTY
@@ -241,10 +241,10 @@ class Filter(KIF_Object):
         def check(
                 cls,
                 arg: Any,
-                function: Optional[Union[Callable[..., Any], str]] = None,
-                name: Optional[str] = None,
-                position: Optional[int] = None
-        ) -> 'Filter.SnakMask':
+                function: Callable[..., Any] | str | None = None,
+                name: str | None = None,
+                position: int | None = None
+        ) -> Filter.SnakMask:
             if isinstance(arg, (cls, int)):
                 return super().check(arg, function, name, position)
             elif isinstance(arg, type) and issubclass(arg, Snak):
@@ -257,8 +257,8 @@ class Filter(KIF_Object):
         def _from_snak_class(
                 cls,
                 snak_class: type[Snak],
-                _cache: dict[type[Snak], 'Filter.SnakMask'] = {}
-        ) -> 'Filter.SnakMask':
+                _cache: dict[type[Snak], Filter.SnakMask] = {}
+        ) -> Filter.SnakMask:
             if not _cache:      # functools.cache does not work here
                 _cache[Snak] = Filter.SnakMask.ALL  # type: ignore
                 _cache[ValueSnak] = cls.VALUE_SNAK
@@ -267,7 +267,7 @@ class Filter(KIF_Object):
             return _cache[snak_class]
 
         @classmethod
-        def _from_snak(cls, snak: Snak) -> 'Filter.SnakMask':
+        def _from_snak(cls, snak: Snak) -> Filter.SnakMask:
             if isinstance(snak, ValueSnak):
                 return cls.VALUE_SNAK
             elif isinstance(snak, SomeValueSnak):
@@ -303,9 +303,9 @@ class Filter(KIF_Object):
     @classmethod
     def from_snak(
             cls,
-            subject: Optional[TFingerprint] = None,
-            snak: Optional[Snak] = None
-    ) -> 'Filter':
+            subject: TFingerprint | None = None,
+            snak: Snak | None = None
+    ) -> Filter:
         """Creates filter from snak.
 
         Parameters:
@@ -329,7 +329,7 @@ class Filter(KIF_Object):
         return cls(subject, property, value, snak_mask)
 
     @classmethod
-    def from_statement(cls, stmt: Statement) -> 'Filter':
+    def from_statement(cls, stmt: Statement) -> Filter:
         """Creates filter from statement.
 
         Parameters:
@@ -342,13 +342,13 @@ class Filter(KIF_Object):
 
     def __init__(
             self,
-            subject: Optional[TFingerprint] = None,
-            property: Optional[TFingerprint] = None,
-            value: Optional[TFingerprint] = None,
-            snak_mask: Optional[TSnakMask] = None,
-            subject_mask: Optional[TDatatypeMask] = None,
-            property_mask: Optional[TDatatypeMask] = None,
-            value_mask: Optional[TDatatypeMask] = None
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: TSnakMask | None = None,
+            subject_mask: TDatatypeMask | None = None,
+            property_mask: TDatatypeMask | None = None,
+            value_mask: TDatatypeMask | None = None
     ):
         super().__init__(
             subject, property, value, snak_mask,
@@ -541,7 +541,7 @@ class Filter(KIF_Object):
                 return False    # snak mismatch
         return True
 
-    def normalize(self) -> 'Filter':
+    def normalize(self) -> Filter:
         """Reduce filter to a normal form.
 
         Normalizes the fingerprint expressions in filter.
@@ -562,7 +562,7 @@ class Filter(KIF_Object):
             subject, property, value, snak_mask,
             subject_mask, property_mask, value_mask)
 
-    def combine(self, *others: 'Filter') -> 'Filter':
+    def combine(self, *others: Filter) -> Filter:
         """Combines filter with `others`.
 
         Parameters:
@@ -574,7 +574,7 @@ class Filter(KIF_Object):
         return functools.reduce(self._combine, others, self)
 
     @classmethod
-    def _combine(cls, f1: 'Filter', f2: 'Filter'):
+    def _combine(cls, f1: Filter, f2: Filter):
         f2 = Filter.check(f2, cls.combine)
         return f1.__class__(
             f1.subject & f2.subject,
@@ -588,18 +588,18 @@ class Filter(KIF_Object):
     def _unpack_legacy(
             self
     ) -> tuple[
-        Optional[Union[Value, SnakSet]],
-        Optional[Union[Value, SnakSet]],
-        Optional[Union[Value, SnakSet]],
-        'Filter.SnakMask'
+        Value | SnakSet | None,
+        Value | SnakSet | None,
+        Value | SnakSet | None,
+        Filter.SnakMask
     ]:
         filter = self.normalize()
         assert isinstance(filter.subject, Fingerprint)
         assert isinstance(filter.property, Fingerprint)
         assert isinstance(filter.value, Fingerprint)
-        subject: Optional[Union[Value, SnakSet]]
-        property: Optional[Union[Value, SnakSet]]
-        value: Optional[Union[Value, SnakSet]]
+        subject: Value | SnakSet | None
+        property: Value | SnakSet | None
+        value: Value | SnakSet | None
         if filter.subject.is_full():
             subject = None
         elif isinstance(filter.subject, ValueFingerprint):

@@ -6,16 +6,7 @@ from __future__ import annotations
 import datetime
 import enum
 
-from ...typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Optional,
-    override,
-    Self,
-    TypeAlias,
-    Union,
-)
+from ...typing import Any, Callable, ClassVar, override, Self, TypeAlias, Union
 from ..term import Template, Variable
 from .deep_data_value import (
     DeepDataValue,
@@ -52,14 +43,14 @@ class TimeTemplate(DeepDataValueTemplate):
        calendar: Calendar model, item template, or item variable.
     """
 
-    object_class: ClassVar[type['Time']]  # pyright: ignore
+    object_class: ClassVar[type[Time]]  # pyright: ignore
 
     def __init__(
             self,
             time: VTTimeContent,
-            precision: Optional[VTTimePrecisionContent] = None,
-            timezone: Optional[VTTimeTimezoneContent] = None,
-            calendar: Optional[VTItem] = None):
+            precision: VTTimePrecisionContent | None = None,
+            timezone: VTTimeTimezoneContent | None = None,
+            calendar: VTItem | None = None):
         super().__init__(time, precision, timezone, calendar)
 
     @override
@@ -103,14 +94,14 @@ class TimeTemplate(DeepDataValueTemplate):
         return self.args[0]
 
     @property
-    def precision(self) -> Optional[VTimePrecisionContent]:
+    def precision(self) -> VTimePrecisionContent | None:
         """The precision of time template."""
         return self.get_precision()
 
     def get_precision(
             self,
-            default: Optional[VTimePrecisionContent] = None
-    ) -> Optional[VTimePrecisionContent]:
+            default: VTimePrecisionContent | None = None
+    ) -> VTimePrecisionContent | None:
         """Gets the precision of time.
 
         If the precision is ``None``, returns `default`.
@@ -124,14 +115,14 @@ class TimeTemplate(DeepDataValueTemplate):
         return self.get(1, default)
 
     @property
-    def timezone(self) -> Optional[VTimeTimezoneContent]:
+    def timezone(self) -> VTimeTimezoneContent | None:
         """The timezone of time template."""
         return self.get_timezone()
 
     def get_timezone(
             self,
-            default: Optional[VTimeTimezoneContent] = None
-    ) -> Optional[VTimeTimezoneContent]:
+            default: VTimeTimezoneContent | None = None
+    ) -> VTimeTimezoneContent | None:
         """Gets the timezone of time template
 
         If the timezone is ``None``, returns `default`.
@@ -145,14 +136,14 @@ class TimeTemplate(DeepDataValueTemplate):
         return self.get(2, default)
 
     @property
-    def calendar(self) -> Optional[VItem]:
+    def calendar(self) -> VItem | None:
         """The calendar model of time template."""
         return self.get_calendar()
 
     def get_calendar(
             self,
-            default: Optional[VItem] = None
-    ) -> Optional[VItem]:
+            default: VItem | None = None
+    ) -> VItem | None:
         """Gets calendar model of time template.
 
         If the calendar model is ``None``, returns `default`.
@@ -173,13 +164,13 @@ class TimeVariable(DeepDataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[type['Time']]  # pyright: ignore
+    object_class: ClassVar[type[Time]]  # pyright: ignore
 
 
 class TimeDatatype(Datatype):
     """Time datatype."""
 
-    value_class: ClassVar[type['Time']]  # pyright: ignore
+    value_class: ClassVar[type[Time]]  # pyright: ignore
 
 
 class Time(
@@ -304,9 +295,9 @@ class Time(
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -320,9 +311,9 @@ class Time(
     def __init__(
             self,
             time: VTTimeContent,
-            precision: Optional[VTTimePrecisionContent] = None,
-            timezone: Optional[VTTimeTimezoneContent] = None,
-            calendar: Optional[VTItem] = None):
+            precision: VTTimePrecisionContent | None = None,
+            timezone: VTTimeTimezoneContent | None = None,
+            calendar: VTItem | None = None):
         super().__init__(time, precision, timezone, calendar)
 
     @override
@@ -393,14 +384,14 @@ class Time(
         return self.args[0]
 
     @property
-    def precision(self) -> Optional[Precision]:
+    def precision(self) -> Precision | None:
         """The precision of time."""
         return self.get_precision()
 
     def get_precision(
             self,
-            default: Optional['Time.Precision'] = None
-    ) -> Optional[Precision]:
+            default: Time.Precision | None = None
+    ) -> Precision | None:
         """Gets the precision of time.
 
         If the precision is ``None``, returns `default`.
@@ -414,14 +405,11 @@ class Time(
         return self.get(1, default)
 
     @property
-    def timezone(self) -> Optional[int]:
+    def timezone(self) -> int | None:
         """The timezone of time."""
         return self.get_timezone()
 
-    def get_timezone(
-            self,
-            default: Optional[int] = None
-    ) -> Optional[int]:
+    def get_timezone(self, default: int | None = None) -> int | None:
         """Gets the timezone of time.
 
         If the timezone is ``None``, returns `default`.
@@ -435,14 +423,11 @@ class Time(
         return self.get(2, default)
 
     @property
-    def calendar(self) -> Optional[Item]:
+    def calendar(self) -> Item | None:
         """The calendar model of time."""
         return self.get_calendar()
 
-    def get_calendar(
-            self,
-            default: Optional[Item] = None
-    ) -> Optional[Item]:
+    def get_calendar(self, default: Item | None = None) -> Item | None:
         """Gets calendar model of time.
 
         If the calendar model is ``None``, returns `default`.

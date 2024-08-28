@@ -15,7 +15,7 @@ class Compiler(abc.ABC):
     class Error(KIF_Object.Error):
         """Base class for compiler errors."""
 
-    def _cannot_compile_error(self, obj) -> 'Compiler.Error':
+    def _cannot_compile_error(self, obj) -> Compiler.Error:
         return self.Error(f'cannot compile {obj}')
 
     def _should_not_get_here(self):

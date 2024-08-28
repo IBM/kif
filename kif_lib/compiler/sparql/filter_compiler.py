@@ -49,7 +49,7 @@ from ...model.fingerprint import (
     SnakFingerprint,
     ValueFingerprint,
 )
-from ...typing import cast, Iterable, Optional, override, Self
+from ...typing import cast, Iterable, override, Self
 from .builder import Query
 from .pattern_compiler import SPARQL_PatternCompiler
 
@@ -68,7 +68,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     def __init__(
             self,
             filter: Filter,
-            flags: Optional['SPARQL_FilterCompiler.Flags'] = None
+            flags: SPARQL_FilterCompiler.Flags | None = None
     ):
         super().__init__(Variable('_', Statement), flags)
         self._filter = filter
@@ -289,7 +289,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                         (wdv, NS.RDF.type,
                                          NS.WIKIBASE.QuantityValue))
                                     assert not isinstance(v_value, Query.URI)
-                                    qt: Optional[Quantity] = None
+                                    qt: Quantity | None = None
                                     if isinstance(
                                             filter.value, ValueFingerprint):
                                         assert isinstance(
@@ -312,7 +312,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                         (wdv, NS.RDF.type,
                                          NS.WIKIBASE.TimeValue))
                                     assert not isinstance(v_value, Query.URI)
-                                    tm: Optional[Time] = None
+                                    tm: Time | None = None
                                     if isinstance(
                                             filter.value, ValueFingerprint):
                                         assert isinstance(
@@ -379,7 +379,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     def _bind_as_item(
             self,
             dest: Query.V_URI,
-            var: Optional[ItemVariable] = None
+            var: ItemVariable | None = None
     ):
         var = var or ItemVariable(str(dest))
         iri = self._fresh_iri_variable()
@@ -390,7 +390,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     def _bind_as_property(
             self,
             dest: Query.V_URI,
-            var: Optional[PropertyVariable] = None
+            var: PropertyVariable | None = None
     ):
         var = var or PropertyVariable(str(dest))
         datatype = self._fresh_datatype_variable()
@@ -407,7 +407,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     def _bind_as_lexeme(
             self,
             dest: Query.V_URI,
-            var: Optional[LexemeVariable] = None
+            var: LexemeVariable | None = None
     ):
         var = var or LexemeVariable(str(dest))
         iri = self._fresh_iri_variable()
@@ -418,7 +418,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     def _bind_as_iri(
             self,
             dest: Query.V_URI,
-            var: Optional[IRI_Variable] = None
+            var: IRI_Variable | None = None
     ):
         var = var or IRI_Variable(str(dest))
         content = self._fresh_string_variable()
@@ -428,7 +428,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     def _bind_as_text(
             self,
             dest: Query.VLiteral,
-            var: Optional[TextVariable] = None
+            var: TextVariable | None = None
     ):
         var = var or TextVariable(str(dest))
         content = self._fresh_string_variable()
@@ -441,7 +441,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     def _bind_as_string(
             self,
             dest: Query.VLiteral,
-            var: Optional[StringVariable] = None
+            var: StringVariable | None = None
     ):
         var = var or StringVariable(str(dest))
         content = self._fresh_string_variable()
@@ -451,7 +451,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     def _bind_as_external_id(
             self,
             dest: Query.VLiteral,
-            var: Optional[ExternalIdVariable] = None
+            var: ExternalIdVariable | None = None
     ):
         var = var or ExternalIdVariable(str(dest))
         content = self._fresh_string_variable()
@@ -462,8 +462,8 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self,
             dest: Query.VLiteral,
             wdv: Query.Variable,
-            var: Optional[QuantityVariable] = None,
-            qt: Optional[Quantity] = None
+            var: QuantityVariable | None = None,
+            qt: Quantity | None = None
     ):
         var = var or QuantityVariable(str(dest))
         amount = self._fresh_quantity_variable()
@@ -519,8 +519,8 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self,
             dest: Query.VLiteral,
             wdv: Query.Variable,
-            var: Optional[TimeVariable] = None,
-            tm: Optional[Time] = None
+            var: TimeVariable | None = None,
+            tm: Time | None = None
     ):
         var = var or TimeVariable(str(dest))
         time = self._fresh_time_variable()

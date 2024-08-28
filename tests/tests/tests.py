@@ -149,10 +149,8 @@ from kif_lib.typing import (
     Final,
     Iterable,
     Iterator,
-    Optional,
     Set,
     TypeVar,
-    Union,
 )
 
 TESTS_TESTS_DIR: Final[pathlib.Path] = pathlib.Path(__file__).parent
@@ -211,11 +209,10 @@ class TestCase(unittest.TestCase):
     def assert_raises_bad_argument(
             self,
             exception: type[Exception],
-            position: Optional[int],
-            name: Optional[str],
-            details: Optional[str],
-            function: Union[
-                Callable[..., Any], tuple[Callable[..., Any], str]],
+            position: int | None,
+            name: str | None,
+            details: str | None,
+            function: Callable[..., Any] | tuple[Callable[..., Any], str],
             *args: Any,
             **kwargs: Any
     ):
@@ -347,7 +344,7 @@ class TestCase(unittest.TestCase):
             self,
             obj: Property,
             iri: IRI,
-            range: Optional[Datatype] = None
+            range: Datatype | None = None
     ):
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Property)
@@ -383,7 +380,7 @@ class TestCase(unittest.TestCase):
             self,
             obj: Text,
             content: str,
-            language: Optional[str] = None
+            language: str | None = None
     ):
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, Text)
@@ -422,9 +419,9 @@ class TestCase(unittest.TestCase):
             self,
             obj: Quantity,
             amount: decimal.Decimal,
-            unit: Optional[Item] = None,
-            lb: Optional[decimal.Decimal] = None,
-            ub: Optional[decimal.Decimal] = None
+            unit: Item | None = None,
+            lb: decimal.Decimal | None = None,
+            ub: decimal.Decimal | None = None
     ):
         self.assert_deep_data_value(obj)
         self.assertIsInstance(obj, Quantity)
@@ -449,9 +446,9 @@ class TestCase(unittest.TestCase):
             self,
             obj: Time,
             time: datetime.datetime,
-            prec: Optional[Time.Precision] = None,
-            tz: Optional[int] = None,
-            cal: Optional[Item] = None
+            prec: Time.Precision | None = None,
+            tz: int | None = None,
+            cal: Item | None = None
     ):
         self.assert_deep_data_value(obj)
         self.assertIsInstance(obj, Time)
@@ -501,7 +498,7 @@ class TestCase(unittest.TestCase):
             self,
             obj: VProperty,
             iri: VT_IRI,
-            range: Optional[VTDatatype] = None
+            range: VTDatatype | None = None
     ):
         self.assertIsInstance(obj, PropertyTemplate)
         assert isinstance(obj, PropertyTemplate)
@@ -543,7 +540,7 @@ class TestCase(unittest.TestCase):
             self,
             obj: VText,
             content: VTStringContent,
-            language: Optional[VTStringContent] = None
+            language: VTStringContent | None = None
     ):
         self.assertIsInstance(obj, TextTemplate)
         assert isinstance(obj, TextTemplate)
@@ -584,9 +581,9 @@ class TestCase(unittest.TestCase):
             self,
             obj: VQuantity,
             amount: VTQuantityContent,
-            unit: Optional[VItem],
-            lower_bound: Optional[VTQuantityContent],
-            upper_bound: Optional[VTQuantityContent]
+            unit: VItem | None,
+            lower_bound: VTQuantityContent | None,
+            upper_bound: VTQuantityContent | None
     ):
         self.assertIsInstance(obj, QuantityTemplate)
         assert isinstance(obj, QuantityTemplate)
@@ -608,9 +605,9 @@ class TestCase(unittest.TestCase):
             self,
             obj: VTime,
             time: VTTimeContent,
-            precision: Optional[VTQuantityContent],
-            timezone: Optional[VTQuantityContent],
-            calendar: Optional[VTItem]
+            precision: VTQuantityContent | None,
+            timezone: VTQuantityContent | None,
+            calendar: VTItem | None
     ):
         self.assertIsInstance(obj, TimeTemplate)
         assert isinstance(obj, TimeTemplate)
@@ -941,9 +938,9 @@ class TestCase(unittest.TestCase):
     def assert_plain_descriptor(
             self,
             obj: PlainDescriptor,
-            label: Optional[Text] = None,
+            label: Text | None = None,
             aliases: TextSet = TextSet(),
-            description: Optional[Text] = None
+            description: Text | None = None
     ):
         self.assert_descriptor(obj)
         self.assertIsInstance(obj, PlainDescriptor)
@@ -964,9 +961,9 @@ class TestCase(unittest.TestCase):
     def assert_item_descriptor(
             self,
             obj: Descriptor,
-            label: Optional[Text] = None,
+            label: Text | None = None,
             aliases: TextSet = TextSet(),
-            description: Optional[Text] = None
+            description: Text | None = None
     ):
         self.assertIsInstance(obj, ItemDescriptor)
         assert isinstance(obj, ItemDescriptor)
@@ -975,10 +972,10 @@ class TestCase(unittest.TestCase):
     def assert_property_descriptor(
             self,
             obj: Descriptor,
-            label: Optional[Text] = None,
+            label: Text | None = None,
             aliases: TextSet = TextSet(),
-            desc: Optional[Text] = None,
-            dt: Optional[Datatype] = None
+            desc: Text | None = None,
+            dt: Datatype | None = None
     ):
         self.assertIsInstance(obj, PropertyDescriptor)
         assert isinstance(obj, PropertyDescriptor)
@@ -990,9 +987,9 @@ class TestCase(unittest.TestCase):
     def assert_lexeme_descriptor(
             self,
             obj: Descriptor,
-            lemma: Optional[Text],
-            category: Optional[Item],
-            language: Optional[Item]
+            lemma: Text | None,
+            category: Item | None,
+            language: Item | None
     ):
         self.assertIsInstance(obj, LexemeDescriptor)
         assert isinstance(obj, LexemeDescriptor)
@@ -1012,9 +1009,9 @@ class TestCase(unittest.TestCase):
     def assert_filter(
             self,
             obj: Filter,
-            subject: Optional[Fingerprint] = None,
-            property: Optional[Fingerprint] = None,
-            value: Optional[Fingerprint] = None,
+            subject: Fingerprint | None = None,
+            property: Fingerprint | None = None,
+            value: Fingerprint | None = None,
             mask: Filter.SnakMask = Filter.SnakMask.ALL
     ):
         self.assertIsInstance(obj, Filter)

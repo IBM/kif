@@ -12,7 +12,6 @@ from ...typing import (
     Callable,
     cast,
     ClassVar,
-    Optional,
     override,
     Self,
     TypeAlias,
@@ -35,16 +34,16 @@ class DatatypeVariable(Variable):
        name: Name.
     """
 
-    object_class: ClassVar[type['Datatype']]  # pyright: ignore
+    object_class: ClassVar[type[Datatype]]  # pyright: ignore
 
     @override
     def _instantiate_tail(
             self,
             theta: Theta,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[Term]:
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Term | None:
         from .iri import IRI
         from .string import String
         obj = theta[self]
@@ -68,12 +67,9 @@ class Datatype(ClosedTerm, variable_class=DatatypeVariable):
     variable_class: ClassVar[type[DatatypeVariable]]  # pyright: ignore
 
     #: Value class associated with this datatype class.
-    value_class: ClassVar[type['Value']]
+    value_class: ClassVar[type[Value]]
 
-    def __new__(
-            cls,
-            datatype_class: Optional[TDatatype] = None
-    ):
+    def __new__(cls, datatype_class: TDatatype | None = None):
         if datatype_class is None:
             if cls is Datatype:
                 raise cls._check_error(
@@ -98,9 +94,9 @@ class Datatype(ClosedTerm, variable_class=DatatypeVariable):
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         from .iri import IRI
         from .string import String
@@ -125,7 +121,7 @@ class Datatype(ClosedTerm, variable_class=DatatypeVariable):
 
     @classmethod
     @functools.cache
-    def _from_rdflib(cls, uri: Union[URIRef, str]) -> Self:
+    def _from_rdflib(cls, uri: URIRef | str) -> Self:
         from ...namespace import WIKIBASE
         from .external_id import ExternalId
         from .iri import IRI
@@ -191,9 +187,6 @@ class Datatype(ClosedTerm, variable_class=DatatypeVariable):
         else:
             raise self._should_not_get_here()
 
-    def __init__(
-            self,
-            datatype_class: Optional[TDatatype] = None
-    ):
+    def __init__(self, datatype_class: TDatatype | None = None):
         assert not (type(self) is Datatype and datatype_class is None)
         super().__init__()

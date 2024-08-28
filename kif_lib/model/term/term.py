@@ -18,7 +18,6 @@ from ...typing import (
     Self,
     Set,
     TypeAlias,
-    Union,
 )
 from ..kif_object import KIF_Object
 
@@ -78,10 +77,10 @@ class ClosedTerm(Term):
     """Abstract base class for closed (ground) terms."""
 
     #: Template class associated with this closed-term class.
-    template_class: ClassVar[type['Template']]
+    template_class: ClassVar[type[Template]]
 
     #: Variable class associated with this closed-term class.
-    variable_class: ClassVar[type['Variable']]
+    variable_class: ClassVar[type[Variable]]
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -112,11 +111,11 @@ class OpenTerm(Term):
         """Bad instantiation attempt."""
 
     @property
-    def variables(self) -> Set['Variable']:
+    def variables(self) -> Set[Variable]:
         """The set of variables occurring in open term."""
         return self.get_variables()
 
-    def get_variables(self) -> Set['Variable']:
+    def get_variables(self) -> Set[Variable]:
         """Gets the set of variables occurring in open term.
 
         Returns:
@@ -125,14 +124,14 @@ class OpenTerm(Term):
         return frozenset(self._iterate_variables())
 
     @abc.abstractmethod
-    def _iterate_variables(self) -> Iterator['Variable']:
+    def _iterate_variables(self) -> Iterator[Variable]:
         raise NotImplementedError
 
     def instantiate(
             self,
             theta: Theta,
             coerce: bool = True
-    ) -> Optional[Term]:
+    ) -> Term | None:
         """Applies variable instantiation `theta` to open term.
 
         Parameters:
@@ -152,8 +151,8 @@ class OpenTerm(Term):
             self,
             theta: Theta,
             coerce: bool,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[Term]:
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Term | None:
         raise NotImplementedError

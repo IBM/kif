@@ -38,11 +38,9 @@ from ..typing import (
     Final,
     Iterable,
     Iterator,
-    Optional,
     Sequence,
     Set,
     TypeVar,
-    Union,
 )
 
 T = TypeVar('T')
@@ -63,7 +61,7 @@ class Store(Set):
     """
 
     #: The store plugin registry.
-    registry: Final[dict[str, type['Store']]] = {}
+    registry: Final[dict[str, type[Store]]] = {}
 
     #: The name of this store plugin.
     store_name: ClassVar[str]
@@ -74,7 +72,7 @@ class Store(Set):
     @classmethod
     def _register(
             cls,
-            store: type['Store'],
+            store: type[Store],
             store_name: str,
             store_description: str
     ):
@@ -91,7 +89,7 @@ class Store(Set):
             store_name, store_name in cls.registry,
             f"no such store plugin '{store_name}'",
             Store, 'store_name', 1, ValueError)
-        return super(Store, cls).__new__(
+        return super().__new__(
             cls.registry[store_name])  # pyright: ignore
 
     class Error(KIF_Error):
@@ -112,7 +110,7 @@ class Store(Set):
     @classmethod
     def _should_not_get_here(
             cls,
-            details: Optional[str] = None
+            details: str | None = None
     ) -> ShouldNotGetHere:
         """Makes a "should not get here" error.
 
@@ -136,10 +134,10 @@ class Store(Set):
     def __init__(
             self,
             *args: Any,
-            extra_references: Optional[TReferenceRecordSet] = None,
-            flags: Optional['Flags'] = None,
-            page_size: Optional[int] = None,
-            timeout: Optional[int] = None,
+            extra_references: TReferenceRecordSet | None = None,
+            flags: Flags | None = None,
+            page_size: int | None = None,
+            timeout: int | None = None,
             **kwargs: Any
     ):
         self._init_flags(flags)
@@ -153,7 +151,7 @@ class Store(Set):
         """The current KIF context."""
         return self.get_context()
 
-    def get_context(self, context: Optional[Context] = None) -> Context:
+    def get_context(self, context: Context | None = None) -> Context:
         """Gets the current KIF context.
 
         If `context` is not ``None``, returns `context`.
@@ -171,10 +169,7 @@ class Store(Set):
     def _init_cache(self, enabled: bool):
         self._cache = Cache(enabled)
 
-    def _cache_get_presence(
-            self,
-            obj: Union[Entity, Statement]
-    ) -> Optional[bool]:
+    def _cache_get_presence(self, obj: Entity | Statement) -> bool | None:
         """Gets the status of `obj` presence in cache.
 
         Returns:
@@ -187,9 +182,9 @@ class Store(Set):
 
     def _cache_set_presence(
             self,
-            obj: Union[Entity, Statement],
-            status: Optional[bool] = None
-    ) -> Optional[bool]:
+            obj: Entity | Statement,
+            status: bool | None = None
+    ) -> bool | None:
         """Sets the status of `obj` presence in cache.
 
         Parameter:
@@ -220,11 +215,11 @@ class Store(Set):
         return self.context.options.store.extra_references
 
     #: Extra references.
-    _extra_references: Optional[ReferenceRecordSet]
+    _extra_references: ReferenceRecordSet | None
 
     def _init_extra_references(
             self,
-            extra_references: Optional[TReferenceRecordSet]
+            extra_references: TReferenceRecordSet | None
     ) -> None:
         self.extra_references = extra_references  # type: ignore
 
@@ -236,13 +231,13 @@ class Store(Set):
     @extra_references.setter
     def extra_references(
             self,
-            references: Optional[TReferenceRecordSet] = None
+            references: TReferenceRecordSet | None = None
     ):
         self.set_extra_references(references)
 
     def get_extra_references(
             self,
-            default: Optional[ReferenceRecordSet] = None
+            default: ReferenceRecordSet | None = None
     ) -> ReferenceRecordSet:
         """Gets the set of extra references to attach to statements.
 
@@ -267,7 +262,7 @@ class Store(Set):
 
     def set_extra_references(
             self,
-            extra_references: Optional[TReferenceRecordSet] = None
+            extra_references: TReferenceRecordSet | None = None
     ):
         """Sets the set of extra references to attach to statements.
 
@@ -374,9 +369,9 @@ class Store(Set):
         return self.context.options.store.flags
 
     #: Store flags.
-    _flags: 'Flags'
+    _flags: Flags
 
-    def _init_flags(self, flags: Optional['Flags'] = None):
+    def _init_flags(self, flags: Flags | None = None):
         flags = self.Flags.check_optional(
             flags, self.default_flags, type(self), 'flags')
         assert flags is not None
@@ -437,9 +432,9 @@ class Store(Set):
     def _check_page_size(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> int:
         return max(int(Quantity.check(
             arg, function, name, position).amount), 0)
@@ -447,12 +442,12 @@ class Store(Set):
     @classmethod
     def _check_optional_page_size(
             cls,
-            arg: Optional[Any],
-            default: Optional[Any] = None,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[int]:
+            arg: Any | None,
+            default: Any | None = None,
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int | None:
         if arg is None:
             arg = default
         if arg is None:
@@ -487,9 +482,9 @@ class Store(Set):
         return self.context.options.store.page_size
 
     #: Page size.
-    _page_size: Optional[int]
+    _page_size: int | None
 
-    def _init_page_size(self, page_size: Optional[int] = None):
+    def _init_page_size(self, page_size: int | None = None):
         self.page_size = page_size  # type: ignore
 
     @property
@@ -498,12 +493,12 @@ class Store(Set):
         return self.get_page_size()
 
     @page_size.setter
-    def page_size(self, page_size: Optional[int] = None):
+    def page_size(self, page_size: int | None = None):
         self.set_page_size(page_size)
 
     def get_page_size(
             self,
-            default: Optional[int] = None
+            default: int | None = None
     ) -> int:
         """Gets the page size of paginated responses.
 
@@ -527,7 +522,7 @@ class Store(Set):
 
     def set_page_size(
             self,
-            page_size: Optional[int] = None
+            page_size: int | None = None
     ):
         """Sets page size of paginated responses.
 
@@ -544,7 +539,7 @@ class Store(Set):
     def _batched(
             self,
             it: Iterable[T],
-            page_size: Optional[int] = None
+            page_size: int | None = None
     ) -> Iterator[Sequence[T]]:
         """Batches `it` into tuples of at most page-size length.
 
@@ -564,7 +559,7 @@ class Store(Set):
             self,
             op: Callable[[Iterable[T]], Iterator[S]],
             it: Iterable[T],
-            page_size: Optional[int] = None
+            page_size: int | None = None
     ) -> Iterator[S]:
         """Batches `it`, applies `op` to the batches, and chain them.
 
@@ -587,9 +582,9 @@ class Store(Set):
     def _check_timeout(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> float:
         return max(float(Quantity.check(
             arg, function, name, position).amount), 0.)
@@ -597,12 +592,12 @@ class Store(Set):
     @classmethod
     def _check_optional_timeout(
             cls,
-            arg: Optional[Any],
-            default: Optional[Any] = None,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
-    ) -> Optional[float]:
+            arg: Any | None,
+            default: Any | None = None,
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> float | None:
         if arg is None:
             arg = default
         if arg is None:
@@ -624,11 +619,11 @@ class Store(Set):
         return self.context.options.store.max_timeout
 
     @property
-    def default_timeout(self) -> Optional[float]:
+    def default_timeout(self) -> float | None:
         """The default timeout (in seconds)."""
         return self.get_default_timeout()
 
-    def get_default_timeout(self) -> Optional[float]:
+    def get_default_timeout(self) -> float | None:
         """Gets the default timeout (in seconds).
 
         Returns:
@@ -637,24 +632,24 @@ class Store(Set):
         return self.context.options.store.timeout
 
     #: Timeout (in seconds).
-    _timeout: Optional[float]
+    _timeout: float | None
 
-    def _init_timeout(self, timeout: Optional[float] = None):
+    def _init_timeout(self, timeout: float | None = None):
         self.timeout = timeout  # type: ignore
 
     @property
-    def timeout(self) -> Optional[float]:
+    def timeout(self) -> float | None:
         """The timeout of responses (in seconds)."""
         return self.get_timeout()
 
     @timeout.setter
-    def timeout(self, timeout: Optional[float] = None):
+    def timeout(self, timeout: float | None = None):
         self.set_timeout(timeout)
 
     def get_timeout(
             self,
-            default: Optional[float] = None
-    ) -> Optional[float]:
+            default: float | None = None
+    ) -> float | None:
         """Gets the timeout of responses (in seconds).
 
         If the timeout is ``None``, returns `default`.
@@ -668,7 +663,7 @@ class Store(Set):
            Timeout.
         """
         if self._timeout is not None:
-            timeout: Optional[float] = self._timeout
+            timeout: float | None = self._timeout
         elif default is not None:
             timeout = default
         else:
@@ -680,7 +675,7 @@ class Store(Set):
 
     def set_timeout(
             self,
-            timeout: Optional[float] = None
+            timeout: float | None = None
     ):
         """Sets the timeout of responses (in seconds).
 
@@ -737,12 +732,12 @@ class Store(Set):
 
     def count(
             self,
-            subject: Optional[TFingerprint] = None,
-            property: Optional[TFingerprint] = None,
-            value: Optional[TFingerprint] = None,
-            snak_mask: Optional[Filter.TSnakMask] = None,
-            snak: Optional[Snak] = None,
-            filter: Optional[Filter] = None
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None
     ) -> int:
         """Counts statements matching filter.
 
@@ -771,13 +766,13 @@ class Store(Set):
 
     def _check_filter(
             self,
-            subject: Optional[TFingerprint] = None,
-            property: Optional[TFingerprint] = None,
-            value: Optional[TFingerprint] = None,
-            snak_mask: Optional[Filter.TSnakMask] = None,
-            snak: Optional[Snak] = None,
-            filter: Optional[Filter] = None,
-            function: Optional[Union[Callable[..., Any], str]] = None
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            function: Callable[..., Any] | str | None = None
     ) -> Filter:
         subj = Fingerprint.check_optional(
             subject, None, function, 'subject', 1)
@@ -814,14 +809,14 @@ class Store(Set):
 
     def filter(
             self,
-            subject: Optional[TFingerprint] = None,
-            property: Optional[TFingerprint] = None,
-            value: Optional[TFingerprint] = None,
-            snak_mask: Optional[Filter.TSnakMask] = None,
-            snak: Optional[Snak] = None,
-            filter: Optional[Filter] = None,
-            limit: Optional[int] = None,
-            distinct: Optional[bool] = None
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            limit: int | None = None,
+            distinct: bool | None = None
     ) -> Iterator[Statement]:
         """Filters statements matching filter.
 
@@ -849,8 +844,8 @@ class Store(Set):
     def _filter_tail(
             self,
             filter: Filter,
-            limit: Optional[int],
-            distinct: Optional[bool]
+            limit: int | None,
+            distinct: bool | None
     ) -> Iterator[Statement]:
         return self._filter_with_hooks(
             filter,
@@ -906,13 +901,13 @@ class Store(Set):
 
     def filter_annotated(
             self,
-            subject: Optional[TFingerprint] = None,
-            property: Optional[TFingerprint] = None,
-            value: Optional[TFingerprint] = None,
-            snak_mask: Optional[Filter.TSnakMask] = None,
-            snak: Optional[Snak] = None,
-            filter: Optional[Filter] = None,
-            limit: Optional[int] = None
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            limit: int | None = None
     ) -> Iterator[tuple[Statement, AnnotationRecordSet]]:
         """:meth:`Store.filter` with annotations.
 
@@ -944,8 +939,8 @@ class Store(Set):
 
     def get_annotations(
             self,
-            stmts: Union[Statement, Iterable[Statement]]
-    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+            stmts: Statement | Iterable[Statement]
+    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
         """Gets annotation records of statements.
 
         Parameters:
@@ -960,8 +955,8 @@ class Store(Set):
 
     def _get_annotations_tail(
             self,
-            stmts: Union[Statement, Iterable[Statement]]
-    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+            stmts: Statement | Iterable[Statement]
+    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
         if isinstance(stmts, Statement):
             it = self._get_annotations_with_hooks((stmts,))
         else:
@@ -975,8 +970,8 @@ class Store(Set):
 
     def _get_annotations_attach_extra_references(
             self,
-            it: Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]
-    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+            it: Iterator[tuple[Statement, AnnotationRecordSet | None]]
+    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
         for stmt, annots in it:
             if annots is None:
                 yield stmt, annots
@@ -991,7 +986,7 @@ class Store(Set):
     def _get_annotations_with_hooks(
             self,
             stmts: Iterable[Statement]
-    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
         return self._get_annotations_post_hook(
             *self._get_annotations_pre_hook(stmts),
             self._get_annotations(stmts))
@@ -1006,24 +1001,24 @@ class Store(Set):
             self,
             stmts: Iterable[Statement],
             data: Any,
-            it: Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]
-    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+            it: Iterator[tuple[Statement, AnnotationRecordSet | None]]
+    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
         return it
 
     def _get_annotations(
             self,
             stmts: Iterable[Statement]
-    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
         return map(lambda stmt: (stmt, None), stmts)
 
 # -- Descriptors -----------------------------------------------------------
 
     def get_descriptor(
             self,
-            entities: Union[Entity, Iterable[Entity]],
-            language: Optional[str] = None,
-            mask: Optional[Descriptor.TAttributeMask] = None
-    ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
+            entities: Entity | Iterable[Entity],
+            language: str | None = None,
+            mask: Descriptor.TAttributeMask | None = None
+    ) -> Iterator[tuple[Entity, Descriptor | None]]:
         """Gets the descriptor of `entities`.
 
         Parameters:
@@ -1055,7 +1050,7 @@ class Store(Set):
             entities: Iterable[Entity],
             language: str,
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
+    ) -> Iterator[tuple[Entity, Descriptor | None]]:
         return self._chain_map_batched(
             lambda batch: self._get_descriptor(batch, language, mask),
             entities, min(3 * self.page_size, self.max_page_size))
@@ -1065,7 +1060,7 @@ class Store(Set):
             entities: Iterable[Entity],
             language: str,
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Entity, Optional[Descriptor]]]:
+    ) -> Iterator[tuple[Entity, Descriptor | None]]:
         items: list[Item] = []
         properties: list[Property] = []
         lexemes: list[Lexeme] = []
@@ -1091,10 +1086,10 @@ class Store(Set):
 
     def get_item_descriptor(
             self,
-            items: Union[Item, Iterable[Item]],
-            language: Optional[str] = None,
-            mask: Optional[Descriptor.TAttributeMask] = None
-    ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
+            items: Item | Iterable[Item],
+            language: str | None = None,
+            mask: Descriptor.TAttributeMask | None = None
+    ) -> Iterator[tuple[Item, ItemDescriptor | None]]:
         """Gets the descriptor of `items`.
 
         Parameters:
@@ -1127,7 +1122,7 @@ class Store(Set):
             items: Iterable[Item],
             language: str,
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
+    ) -> Iterator[tuple[Item, ItemDescriptor | None]]:
         return self._chain_map_batched(
             lambda batch: self._get_item_descriptor(batch, language, mask),
             items)
@@ -1137,15 +1132,15 @@ class Store(Set):
             items: Iterable[Item],
             language: str,
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
+    ) -> Iterator[tuple[Item, ItemDescriptor | None]]:
         return map(lambda item: (item, None), items)
 
     def get_property_descriptor(
             self,
-            properties: Union[Property, Iterable[Property]],
-            language: Optional[str] = None,
-            mask: Optional[Descriptor.TAttributeMask] = None
-    ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
+            properties: Property | Iterable[Property],
+            language: str | None = None,
+            mask: Descriptor.TAttributeMask | None = None
+    ) -> Iterator[tuple[Property, PropertyDescriptor | None]]:
         """Gets the descriptor of `properties`.
 
         Parameters:
@@ -1180,7 +1175,7 @@ class Store(Set):
             properties: Iterable[Property],
             language: str,
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
+    ) -> Iterator[tuple[Property, PropertyDescriptor | None]]:
         return self._chain_map_batched(
             lambda batch: self._get_property_descriptor(batch, language, mask),
             properties)
@@ -1190,14 +1185,14 @@ class Store(Set):
             properties: Iterable[Property],
             language: str,
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
+    ) -> Iterator[tuple[Property, PropertyDescriptor | None]]:
         return map(lambda property: (property, None), properties)
 
     def get_lexeme_descriptor(
             self,
-            lexemes: Union[Lexeme, Iterable[Lexeme]],
-            mask: Optional[Descriptor.TAttributeMask] = None
-    ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
+            lexemes: Lexeme | Iterable[Lexeme],
+            mask: Descriptor.TAttributeMask | None = None
+    ) -> Iterator[tuple[Lexeme, LexemeDescriptor | None]]:
         """Gets the descriptor of `lexemes`.
 
         Parameters:
@@ -1223,7 +1218,7 @@ class Store(Set):
             self,
             lexemes: Iterable[Lexeme],
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
+    ) -> Iterator[tuple[Lexeme, LexemeDescriptor | None]]:
         return self._chain_map_batched(
             lambda batch: self._get_lexeme_descriptor(batch, mask), lexemes)
 
@@ -1231,5 +1226,5 @@ class Store(Set):
             self,
             lexemes: Iterable[Lexeme],
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
+    ) -> Iterator[tuple[Lexeme, LexemeDescriptor | None]]:
         return map(lambda lexeme: (lexeme, None), lexemes)

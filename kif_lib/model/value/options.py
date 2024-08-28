@@ -13,4 +13,4 @@ from .text import TextOptions
 class ValueOptions(Section, name='value'):
     """Value options."""
 
-    text: 'TextOptions' = dataclasses.field(default_factory=TextOptions)
+    text: TextOptions = dataclasses.field(default_factory=TextOptions)

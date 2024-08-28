@@ -10,7 +10,7 @@ from .data_value import DataValue, DataValueTemplate, DataValueVariable
 class DeepDataValueTemplate(DataValueTemplate):
     """Abstract base class for deep data value templates."""
 
-    object_class: ClassVar[type['DeepDataValue']]  # pyright: ignore
+    object_class: ClassVar[type[DeepDataValue]]  # pyright: ignore
 
 
 class DeepDataValueVariable(DataValueVariable):
@@ -20,7 +20,7 @@ class DeepDataValueVariable(DataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[type['DeepDataValue']]  # pyright: ignore
+    object_class: ClassVar[type[DeepDataValue]]  # pyright: ignore
 
 
 class DeepDataValue(
@@ -30,5 +30,5 @@ class DeepDataValue(
 ):
     """Abstract base class for deep data values."""
 
-    template_class: ClassVar[type['DeepDataValueTemplate']]  # pyright: ignore
-    variable_class: ClassVar[type['DeepDataValueVariable']]  # pyright: ignore
+    template_class: ClassVar[type[DeepDataValueTemplate]]  # pyright: ignore
+    variable_class: ClassVar[type[DeepDataValueVariable]]  # pyright: ignore

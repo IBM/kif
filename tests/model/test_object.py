@@ -178,7 +178,7 @@ class Test(TestCase):
             path = pathlib.Path(temp) / f'{__name__}.assert_dump'
             with open(path, 'w') as fp:
                 obj.dump(fp, format=format, **kwargs)
-            with open(path, 'r') as fp:
+            with open(path) as fp:
                 self.assertEqual(fp.read(), s)
 
     def assert_dump_repr(self, obj, s, **kwargs) -> None:
@@ -295,7 +295,7 @@ B(
             path = pathlib.Path(temp) / f'{__name__}.assert_load'
             with open(path, 'w') as fp:
                 obj.dump(fp, format=format, **kwargs)
-            with open(path, 'r') as fp:
+            with open(path) as fp:
                 self.assertEqual(obj.load(fp, format), obj)
 
     def assert_load_sexp(self, obj, s, **kwargs) -> None:

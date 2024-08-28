@@ -3,16 +3,7 @@
 
 from __future__ import annotations
 
-from ...typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Optional,
-    override,
-    Self,
-    TypeAlias,
-    Union,
-)
+from ...typing import Any, Callable, ClassVar, override, Self, TypeAlias, Union
 from ..term import Variable
 from ..value import Property, VTProperty
 from .snak import Snak, SnakTemplate, SnakVariable
@@ -30,7 +21,7 @@ class NoValueSnakTemplate(SnakTemplate):
        parameters: Property, property template, or property variable.
     """
 
-    object_class: ClassVar[type['NoValueSnak']]  # pyright: ignore
+    object_class: ClassVar[type[NoValueSnak]]  # pyright: ignore
 
     def __init__(self, property: VTProperty):
         super().__init__(property)
@@ -43,7 +34,7 @@ class NoValueSnakVariable(SnakVariable):
        name: Name.
     """
 
-    object_class: ClassVar[type['NoValueSnak']]  # pyright: ignore
+    object_class: ClassVar[type[NoValueSnak]]  # pyright: ignore
 
 
 class NoValueSnak(
@@ -65,9 +56,9 @@ class NoValueSnak(
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg

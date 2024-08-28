@@ -31,7 +31,7 @@ from ..model import (
     ValueSnak,
 )
 from ..rdflib import BNode, Literal, Result, URIRef
-from ..typing import Any, cast, Mapping, Optional, Union
+from ..typing import Any, cast, Mapping
 from .abc import Store
 
 TRes = dict[str, Any]
@@ -71,8 +71,8 @@ class SPARQL_Results(Mapping):
         def _error_bad(
                 self,
                 var: str,
-                expected: Optional[str] = None,
-                got: Optional[str] = None
+                expected: str | None = None,
+                got: str | None = None
         ) -> Store.Error:
             msg = f"bad value for '{var}'"
             if expected and got:
@@ -87,7 +87,7 @@ class SPARQL_Results(Mapping):
 
         # -- RDFLib checks --
 
-        def check(self, var: str) -> Union[BNode, Literal, URIRef]:
+        def check(self, var: str) -> BNode | Literal | URIRef:
             bdn = self._check_binding(var)
             type = self._check_type(bdn)
             if type == 'bnode':
@@ -97,7 +97,7 @@ class SPARQL_Results(Mapping):
             else:
                 return self._check_uriref_tail(bdn)
 
-        def check_bnode_or_uriref(self, var: str) -> Union[BNode, URIRef]:
+        def check_bnode_or_uriref(self, var: str) -> BNode | URIRef:
             bdn = self._check_binding(var)
             type = self._check_type(bdn)
             if type == 'bnode':
@@ -136,10 +136,10 @@ class SPARQL_Results(Mapping):
 
         def _check_literal_tail(self, bdn: TRes) -> Literal:
             value = self._check_value(bdn)
-            datatype: Optional[URIRef] = None
+            datatype: URIRef | None = None
             if 'datatype' in bdn:
                 datatype = URIRef(bdn['datatype'])
-            lang: Optional[str] = None
+            lang: str | None = None
             if 'xml:lang' in bdn:
                 lang = bdn['xml:lang']
             if datatype == NS.XSD.dateTime or datatype == NS.XSD.date:
@@ -196,7 +196,7 @@ class SPARQL_Results(Mapping):
         def check_datatype(
                 self,
                 var: str,
-                value: Optional[Datatype] = None
+                value: Datatype | None = None
         ) -> Datatype:
             if value:
                 return value
@@ -209,7 +209,7 @@ class SPARQL_Results(Mapping):
         def check_entity(
                 self,
                 var: str,
-                value: Optional[Entity] = None
+                value: Entity | None = None
         ) -> Entity:
             if value:
                 return value
@@ -226,7 +226,7 @@ class SPARQL_Results(Mapping):
         def check_item(
                 self,
                 var: str,
-                value: Optional[Item] = None
+                value: Item | None = None
         ) -> Item:
             if value:
                 return value
@@ -238,7 +238,7 @@ class SPARQL_Results(Mapping):
         def check_property(
                 self,
                 var: str,
-                value: Optional[Property] = None,
+                value: Property | None = None,
                 split=False
         ) -> Property:
             if value:
@@ -255,7 +255,7 @@ class SPARQL_Results(Mapping):
         def check_lexeme(
                 self,
                 var: str,
-                value: Optional[Lexeme] = None,
+                value: Lexeme | None = None,
                 split=False
         ) -> Lexeme:
             if value:
@@ -282,13 +282,13 @@ class SPARQL_Results(Mapping):
                 var_qt_unit: str,
                 var_qt_lower: str,
                 var_qt_upper: str,
-                value: Optional[Quantity] = None
+                value: Quantity | None = None
         ) -> Quantity:
             assert value is None or isinstance(value, Quantity)
             qt_amount: decimal.Decimal
-            qt_unit: Optional[Item]
-            qt_lb: Optional[decimal.Decimal]
-            qt_ub: Optional[decimal.Decimal]
+            qt_unit: Item | None
+            qt_lb: decimal.Decimal | None
+            qt_ub: decimal.Decimal | None
             if value:
                 qt_amount = cast(Quantity, value).amount
             else:
@@ -319,13 +319,13 @@ class SPARQL_Results(Mapping):
                 var_tm_precision: str,
                 var_tm_timezone: str,
                 var_tm_calendar: str,
-                value: Optional[Time] = None
+                value: Time | None = None
         ) -> Time:
             assert value is None or isinstance(value, Time)
             tm_value: datetime.datetime
-            tm_prec: Optional[int]
-            tm_tz: Optional[int]
-            tm_cal: Optional[Item]
+            tm_prec: int | None
+            tm_tz: int | None
+            tm_cal: Item | None
             if value:
                 tm_value = cast(Time, value).time
             else:
@@ -362,7 +362,7 @@ class SPARQL_Results(Mapping):
                 var_tm_precision: str,
                 var_tm_timezone: str,
                 var_tm_calendar: str,
-                value: Optional[Value] = None,
+                value: Value | None = None,
         ) -> Snak:
             if value:
                 if isinstance(value, DeepDataValue):
@@ -427,7 +427,8 @@ class SPARQL_Results(Mapping):
                 var_tm_precision: str,
                 var_tm_timezone: str,
                 var_tm_calendar: str,
-                value: Optional[Value] = None) -> Statement:
+                value: Value | None = None
+        ) -> Statement:
             return Statement(
                 self.check_entity(var_subject),
                 self.check_snak(

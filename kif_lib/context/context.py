@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..typing import ClassVar, Optional, TracebackType
+from ..typing import ClassVar, TracebackType
 
 if TYPE_CHECKING:  # pragma: no cover
     from .options import Options
@@ -14,10 +14,10 @@ if TYPE_CHECKING:  # pragma: no cover
 class Context:
     """KIF context."""
 
-    _stack: ClassVar[list['Context']] = []
+    _stack: ClassVar[list[Context]] = []
 
     @classmethod
-    def top(cls, context: Optional['Context'] = None) -> 'Context':
+    def top(cls, context: Context | None = None) -> Context:
         """Gets the current context.
 
         If `context` is not ``None``, returns `context`.
@@ -37,29 +37,29 @@ class Context:
     )
 
     #: Context options.
-    _options: Optional['Options']
+    _options: Options | None
 
     def __init__(self):
         self._options = None
 
-    def __enter__(self) -> 'Context':
+    def __enter__(self) -> Context:
         self._stack.append(self)
         return self
 
     def __exit__(
         self,
-        exc_type: Optional[type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         self._stack.pop()
 
     @property
-    def options(self) -> 'Options':
+    def options(self) -> Options:
         """The options of context."""
         return self.get_options()
 
-    def get_options(self) -> 'Options':
+    def get_options(self) -> Options:
         """Gets the options of context.
 
         Returns:

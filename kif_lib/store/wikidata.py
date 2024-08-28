@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from ..compiler.sparql.filter_compiler import SPARQL_FilterCompiler
 from ..model import IRI, T_IRI
-from ..typing import Any, ClassVar, Optional
+from ..typing import Any, ClassVar
 from .sparql import SPARQL_Store
 
 
@@ -32,7 +32,7 @@ class WikidataStore(
     def __init__(
             self,
             store_name: str,
-            iri: Optional[T_IRI] = None,
+            iri: T_IRI | None = None,
             **kwargs: Any
     ):
         iri = iri if iri is not None else self._default_iri

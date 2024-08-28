@@ -3,16 +3,7 @@
 
 from __future__ import annotations
 
-from ...typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Optional,
-    override,
-    Self,
-    TypeAlias,
-    Union,
-)
+from ...typing import Any, Callable, ClassVar, override, Self, TypeAlias, Union
 from ..term import Template, Variable
 from .iri import IRI, IRI_Template, IRI_Variable, T_IRI, V_IRI
 from .value import Value, ValueTemplate, ValueVariable
@@ -25,7 +16,7 @@ VTEntity: TypeAlias = Union[Variable, VEntity, TEntity]
 class EntityTemplate(ValueTemplate):
     """Abstract base class for entity templates."""
 
-    object_class: ClassVar[type['Entity']]  # pyright: ignore
+    object_class: ClassVar[type[Entity]]  # pyright: ignore
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -58,7 +49,7 @@ class EntityVariable(ValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[type['Entity']]  # pyright: ignore
+    object_class: ClassVar[type[Entity]]  # pyright: ignore
 
 
 class Entity(
@@ -76,9 +67,9 @@ class Entity(
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg

@@ -33,7 +33,7 @@ from kif_lib.store import (
     SPARQL_Store,
     WikidataStore,
 )
-from kif_lib.typing import cast, Final, Optional, override
+from kif_lib.typing import cast, Final, override
 from kif_lib.vocabulary import wd
 
 from .tests import TestCase
@@ -588,7 +588,7 @@ class RDF_StoreTestCase(StoreTestCase):
 
 class WikidataSPARQL_StoreTestCase(SPARQL_StoreTestCase):
 
-    WIKIDATA: Final[Optional[str]] = os.getenv('WIKIDATA')
+    WIKIDATA: Final[str | None] = os.getenv('WIKIDATA')
 
     @classmethod
     def setUpClass(cls):
@@ -614,7 +614,7 @@ class SPARQL_MapperStoreTestCase(SPARQL_StoreTestCase):
 
 class PubChemSPARQL_StoreTestCase(SPARQL_MapperStoreTestCase):
 
-    PUBCHEM: Final[Optional[str]] = os.getenv('PUBCHEM')
+    PUBCHEM: Final[str | None] = os.getenv('PUBCHEM')
 
     @classmethod
     def setUpClass(cls):

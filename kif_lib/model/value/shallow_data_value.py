@@ -5,16 +5,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ...typing import (
-    Any,
-    Callable,
-    cast,
-    ClassVar,
-    Optional,
-    override,
-    Self,
-    Union,
-)
+from ...typing import Any, Callable, cast, ClassVar, override, Self
 from .data_value import DataValue, DataValueTemplate, DataValueVariable
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -24,7 +15,7 @@ if TYPE_CHECKING:  # pragma: no cover
 class ShallowDataValueTemplate(DataValueTemplate):
     """Abstract base class for shallow data value templates."""
 
-    object_class: ClassVar[type['ShallowDataValue']]  # pyright: ignore
+    object_class: ClassVar[type[ShallowDataValue]]  # pyright: ignore
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -35,11 +26,11 @@ class ShallowDataValueTemplate(DataValueTemplate):
             raise self._should_not_get_here()
 
     @property
-    def content(self) -> 'VStringContent':
+    def content(self) -> VStringContent:
         """The content of shallow data value template."""
         return self.get_content()
 
-    def get_content(self) -> 'VStringContent':
+    def get_content(self) -> VStringContent:
         """Gets the content of shallow data value.
 
         Returns:
@@ -55,7 +46,7 @@ class ShallowDataValueVariable(DataValueVariable):
        name: Name.
     """
 
-    object_class: ClassVar[type['ShallowDataValue']]  # pyright: ignore
+    object_class: ClassVar[type[ShallowDataValue]]  # pyright: ignore
 
 
 class ShallowDataValue(
@@ -73,9 +64,9 @@ class ShallowDataValue(
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         from .string import String
         if isinstance(arg, cls):

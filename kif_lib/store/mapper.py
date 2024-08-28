@@ -30,10 +30,8 @@ from ..typing import (
     Final,
     Iterable,
     Iterator,
-    Optional,
     override,
     Sequence,
-    Union,
 )
 from .sparql import (
     BNode,
@@ -174,7 +172,7 @@ class SPARQL_MapperStore(
         subject, property, value, snak_mask = filter._unpack_legacy()
         q = self.mapping.Builder()
         with q.where():
-            subject_prefix: Optional[IRI] = None
+            subject_prefix: IRI | None = None
             if subject is not None:
                 if isinstance(subject, Entity):
                     q.matched_subject = self.mapping.encode_entity(subject)
@@ -186,7 +184,7 @@ class SPARQL_MapperStore(
                     assert subject_prefix is not None
                 else:
                     raise self._should_not_get_here()
-            value_prefix: Optional[IRI] = None
+            value_prefix: IRI | None = None
             if value is not None:
                 if isinstance(value, Value):
                     q.matched_value = self.mapping.encode_value(value)
@@ -228,7 +226,7 @@ class SPARQL_MapperStore(
             self,
             results: SPARQL_Results,
             filter: Filter
-    ) -> Iterator[Optional[Statement]]:
+    ) -> Iterator[Statement | None]:
         for entry in results.bindings:
             stmt = entry.check_statement(
                 'subject', 'property', 'value',
@@ -245,7 +243,7 @@ class SPARQL_MapperStore(
             self,
             entry: SPARQL_Results.Bindings,
             stmt: Statement
-    ) -> Union[BNode, URIRef]:
+    ) -> BNode | URIRef:
         return NS.WDS[stmt.digest]
 
     def _try_push_snak_set(
@@ -253,7 +251,7 @@ class SPARQL_MapperStore(
             q: SPARQL_Builder,
             target: SPARQL_Builder.TTrm,
             snaks: SnakSet
-    ) -> tuple[bool, Optional[IRI]]:
+    ) -> tuple[bool, IRI | None]:
         subject_prefixes = set()
         for snak in snaks:
             if not isinstance(snak, ValueSnak):
@@ -288,15 +286,15 @@ class SPARQL_MapperStore(
             self,
             stmts: Iterable[Statement],
             data: Any,
-            it: Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]
-    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+            it: Iterator[tuple[Statement, AnnotationRecordSet | None]]
+    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
         return self.mapping.get_annotations_post_hook(self, stmts, data, it)
 
     @override
     def _get_annotations(
             self,
             stmts: Iterable[Statement],
-    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
         for stmt in stmts:
             if self._cache_get_wdss(stmt) or stmt in self:
                 assert self._cache_get_wdss(stmt)
@@ -315,7 +313,7 @@ class SPARQL_MapperStore(
 
     def _make_item_or_property_descriptor_query(
             self,
-            entities: Collection[Union[Item, Property]],
+            entities: Collection[Item | Property],
             cls: type[Entity],
             lang: str,
             mask: Descriptor.AttributeMask

@@ -5,16 +5,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ...typing import (
-    Any,
-    Callable,
-    ClassVar,
-    Optional,
-    override,
-    Self,
-    TypeAlias,
-    Union,
-)
+from ...typing import Any, Callable, ClassVar, override, Self, TypeAlias, Union
 from ..term import Template, Variable
 from ..value import (
     Datatype,
@@ -48,7 +39,7 @@ class ValueSnakTemplate(SnakTemplate):
        value: Value, value template, or value variable.
     """
 
-    object_class: ClassVar[type['ValueSnak']]  # pyright: ignore
+    object_class: ClassVar[type[ValueSnak]]  # pyright: ignore
 
     def __init__(self, property: VTProperty, value: VTValue):
         super().__init__(property, value)
@@ -79,7 +70,7 @@ class ValueSnakTemplate(SnakTemplate):
             return
         assert isinstance(prop.range, (Datatype, type(None)))
         if prop.range is None:  # guess prop.range
-            dt: Optional[Datatype] = None
+            dt: Datatype | None = None
             if (isinstance(value, Variable)
                 and hasattr(value, 'object_class')
                     and hasattr(value.object_class, 'datatype')):
@@ -148,7 +139,7 @@ class ValueSnakVariable(SnakVariable):
        name: Name.
     """
 
-    object_class: ClassVar[type['ValueSnak']]  # pyright: ignore
+    object_class: ClassVar[type[ValueSnak]]  # pyright: ignore
 
 
 class ValueSnak(
@@ -171,9 +162,9 @@ class ValueSnak(
     def check(
             cls,
             arg: Any,
-            function: Optional[Union[Callable[..., Any], str]] = None,
-            name: Optional[str] = None,
-            position: Optional[int] = None
+            function: Callable[..., Any] | str | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> Self:
         if isinstance(arg, cls):
             return arg
@@ -211,7 +202,7 @@ class ValueSnak(
         else:
             super()._set_args(args)
 
-    def __neg__(self) -> 'ConverseSnakFingerprint':
+    def __neg__(self) -> ConverseSnakFingerprint:
         from ..fingerprint import ConverseSnakFingerprint
         return ConverseSnakFingerprint(self)
 

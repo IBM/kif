@@ -9,9 +9,7 @@ from collections.abc import Mapping, Sequence
 
 from .. import itertools
 from ..model import IRI, Value
-from ..typing import Any, Hashable, Iterable, Iterator
-from ..typing import Optional as Opt
-from ..typing import override
+from ..typing import Any, Hashable, Iterable, Iterator, override, TypeAlias
 from ..typing import Union as Uni
 
 # See <http://www.w3.org/TR/sparql11-query/#grammar>.
@@ -58,14 +56,14 @@ class SPARQL_Builder(Sequence):
         def n3(self) -> str:
             return f'?{self.id}'
 
-    TTrm = Uni[Term, Value, int, decimal.Decimal, str]  # term
+    TTrm: TypeAlias = Uni[Term, Value, int, decimal.Decimal, str]  # term
 
     class Block:
         """Block within a query."""
 
         def __init__(
                 self,
-                builder: 'SPARQL_Builder',
+                builder: SPARQL_Builder,
                 *args: Any,
                 **kwargs: Any
         ):
@@ -77,7 +75,7 @@ class SPARQL_Builder(Sequence):
             self._cond = kwargs.get('cond', True)
 
         @property
-        def builder(self) -> 'SPARQL_Builder':
+        def builder(self) -> SPARQL_Builder:
             return self.get_builder()
 
         def get_builder(self):
@@ -106,17 +104,17 @@ class SPARQL_Builder(Sequence):
             return not self.enabled
 
         @property
-        def start_lineno(self) -> Opt[int]:
+        def start_lineno(self) -> int | None:
             return self.get_start_lineno()
 
-        def get_start_lineno(self) -> Opt[int]:
+        def get_start_lineno(self) -> int | None:
             return self._start_lineno
 
         @property
-        def end_lineno(self) -> Opt[int]:
+        def end_lineno(self) -> int | None:
             return self.get_end_lineno()
 
-        def get_end_lineno(self) -> Opt[int]:
+        def get_end_lineno(self) -> int | None:
             return self._end_lineno
 
         @abc.abstractmethod
@@ -142,7 +140,7 @@ class SPARQL_Builder(Sequence):
     class OnlyIf(Block):
         """Only-if block."""
 
-        def __init__(self, builder: 'SPARQL_Builder', cond: bool = True):
+        def __init__(self, builder: SPARQL_Builder, cond: bool = True):
             super().__init__(builder, cond=not cond)
 
         def _start(self):
@@ -158,9 +156,9 @@ class SPARQL_Builder(Sequence):
 
         def __init__(
                 self,
-                builder: 'SPARQL_Builder',
-                s: 'SPARQL_Builder.TTrm',
-                p: 'SPARQL_Builder.TTrm'):
+                builder: SPARQL_Builder,
+                s: SPARQL_Builder.TTrm,
+                p: SPARQL_Builder.TTrm):
             super().__init__(builder, s, p, builder.bnode())
 
         @override
@@ -174,16 +172,16 @@ class SPARQL_Builder(Sequence):
 
         def pair(
                 self,
-                p: 'SPARQL_Builder.TTrm',
-                o: 'SPARQL_Builder.TTrm'
-        ) -> 'SPARQL_Builder.SubjectPredicate':
+                p: SPARQL_Builder.TTrm,
+                o: SPARQL_Builder.TTrm
+        ) -> SPARQL_Builder.SubjectPredicate:
             self.builder.triple(self.args[2], p, o)
             return self
 
         def pairs(
                 self,
-                *ps: tuple['SPARQL_Builder.TTrm', 'SPARQL_Builder.TTrm'],
-        ) -> 'SPARQL_Builder.SubjectPredicate':
+                *ps: tuple[SPARQL_Builder.TTrm, SPARQL_Builder.TTrm],
+        ) -> SPARQL_Builder.SubjectPredicate:
             for p in ps:
                 self.pair(*p)
             return self
@@ -224,7 +222,7 @@ class SPARQL_Builder(Sequence):
     class Union(Block):
         """UNION block."""
 
-        def __init__(self, builder: 'SPARQL_Builder', **kwargs: Any):
+        def __init__(self, builder: SPARQL_Builder, **kwargs: Any):
             super().__init__(builder, **kwargs)
 
         def _start(self):
@@ -245,9 +243,9 @@ class SPARQL_Builder(Sequence):
 
         def __init__(
                 self,
-                builder: 'SPARQL_Builder',
-                x: 'SPARQL_Builder.TTrm',
-                *xs: 'SPARQL_Builder.TTrm',
+                builder: SPARQL_Builder,
+                x: SPARQL_Builder.TTrm,
+                *xs: SPARQL_Builder.TTrm,
                 **kwargs: Any
         ):
             super().__init__(builder, x, *xs, **kwargs)
@@ -258,8 +256,8 @@ class SPARQL_Builder(Sequence):
 
         def push(
                 self,
-                x: 'SPARQL_Builder.TTrm',
-                *xs: 'SPARQL_Builder.TTrm'):
+                x: SPARQL_Builder.TTrm,
+                *xs: SPARQL_Builder.TTrm):
             if self.enabled:
                 self.builder.values_push(x, *xs)
 
@@ -291,7 +289,7 @@ class SPARQL_Builder(Sequence):
     _vars: set[Variable]        # variables seen
     _vals: set[Value]           # values seen
 
-    def __init__(self, indent: Uni[int, str] = 2):
+    def __init__(self, indent: int | str = 2):
         self._status = True
         self._lines = []
         self._level = []
@@ -336,7 +334,7 @@ class SPARQL_Builder(Sequence):
     def disable(self):
         self._status = False
 
-    def _push(self, line: str, indent: int = 0) -> 'SPARQL_Builder':
+    def _push(self, line: str, indent: int = 0) -> SPARQL_Builder:
         if not self._status:
             return self         # nothing to do
         self._lines.append(line)
@@ -362,7 +360,7 @@ class SPARQL_Builder(Sequence):
         for _ in range(n):
             yield self.bnode()
 
-    def var(self, name: Opt[str] = None) -> Variable:
+    def var(self, name: str | None = None) -> Variable:
         if name is None:
             name = f'_v{self._vcnt}'
             self._vcnt += 1
@@ -408,17 +406,17 @@ class SPARQL_Builder(Sequence):
 
     def construct(
             self,
-            order_by: Opt[TTrm] = None,
-            limit: Opt[int] = None,
-            offset: Opt[int] = None
+            order_by: TTrm | None = None,
+            limit: int | None = None,
+            offset: int | None = None
     ) -> str:
         return ' '.join(self._construct(order_by, limit, offset))
 
     def _construct(
             self,
-            order_by: Opt[TTrm] = None,
-            limit: Opt[int] = None,
-            offset: Opt[int] = None
+            order_by: TTrm | None = None,
+            limit: int | None = None,
+            offset: int | None = None
     ) -> Iterator[str]:
         yield 'construct'
         yield self.typeset()
@@ -426,11 +424,11 @@ class SPARQL_Builder(Sequence):
 
     def select(
             self,
-            *args: Uni[TTrm, tuple[TTrm, TTrm]],
+            *args: TTrm | tuple[TTrm, TTrm],
             distinct: bool = False,
-            order_by: Opt[TTrm] = None,
-            limit: Opt[int] = None,
-            offset: Opt[int] = None
+            order_by: TTrm | None = None,
+            limit: int | None = None,
+            offset: int | None = None
     ) -> str:
         return ' '.join(self._select(
             *args, distinct=distinct, order_by=order_by,
@@ -438,11 +436,11 @@ class SPARQL_Builder(Sequence):
 
     def _select(
             self,
-            *args: Uni[TTrm, tuple[TTrm, TTrm]],
+            *args: TTrm | tuple[TTrm, TTrm],
             distinct: bool = False,
-            order_by: Opt[TTrm] = None,
-            limit: Opt[int] = None,
-            offset: Opt[int] = None
+            order_by: TTrm | None = None,
+            limit: int | None = None,
+            offset: int | None = None
     ) -> Iterator[str]:
         yield 'select'
         if distinct:
@@ -465,9 +463,9 @@ class SPARQL_Builder(Sequence):
 
     def _select_tail(
             self,
-            order_by: Opt[TTrm] = None,
-            limit: Opt[int] = None,
-            offset: Opt[int] = None
+            order_by: TTrm | None = None,
+            limit: int | None = None,
+            offset: int | None = None
     ) -> Iterator[str]:
         if order_by is not None:
             yield f'order by {self._n3(order_by)}'
@@ -488,12 +486,12 @@ class SPARQL_Builder(Sequence):
 
     # -- Clauses -----------------------------------------------------------
 
-    def from_(self, iri: IRI) -> 'SPARQL_Builder':
+    def from_(self, iri: IRI) -> SPARQL_Builder:
         return self._push(f'from {self._n3(iri)}')
 
     # -- Patterns ----------------------------------------------------------
 
-    def bind(self, term: TTrm, var: TTrm) -> 'SPARQL_Builder':
+    def bind(self, term: TTrm, var: TTrm) -> SPARQL_Builder:
         """Binds term to variable.
 
         Parameters:
@@ -506,13 +504,13 @@ class SPARQL_Builder(Sequence):
         assert isinstance(var, self.Variable)
         return self._push(f'bind({self._n3(term)} as {self._n3(var)})')
 
-    def filter(self, val: TTrm) -> 'SPARQL_Builder':
+    def filter(self, val: TTrm) -> SPARQL_Builder:
         return self._push(f'filter({self._n3(val)})')
 
-    def triple(self, s: TTrm, p: TTrm, o: TTrm) -> 'SPARQL_Builder':
+    def triple(self, s: TTrm, p: TTrm, o: TTrm) -> SPARQL_Builder:
         return self._push(f'{self._n3(s)} {self._n3(p)} {self._n3(o)} .')
 
-    def triples(self, *ts: tuple[TTrm, TTrm, TTrm]) -> 'SPARQL_Builder':
+    def triples(self, *ts: tuple[TTrm, TTrm, TTrm]) -> SPARQL_Builder:
         for t in ts:
             self.triple(*t)
         return self
@@ -536,53 +534,53 @@ class SPARQL_Builder(Sequence):
     def where(self, **kwargs) -> Where:
         return self.Where(self, **kwargs)
 
-    def where_start(self) -> 'SPARQL_Builder':
+    def where_start(self) -> SPARQL_Builder:
         return self._lbrace('where ')
 
-    def where_end(self) -> 'SPARQL_Builder':
+    def where_end(self) -> SPARQL_Builder:
         return self._rbrace()
 
     def group(self, **kwargs) -> Group:
         return self.Group(self, **kwargs)
 
-    def group_start(self) -> 'SPARQL_Builder':
+    def group_start(self) -> SPARQL_Builder:
         return self._lbrace()
 
-    def group_end(self) -> 'SPARQL_Builder':
+    def group_end(self) -> SPARQL_Builder:
         return self._rbrace()
 
     def optional(self, **kwargs) -> Optional:
         return self.Optional(self, **kwargs)
 
-    def optional_start(self) -> 'SPARQL_Builder':
+    def optional_start(self) -> SPARQL_Builder:
         return self._lbrace('optional ')
 
-    def optional_end(self) -> 'SPARQL_Builder':
+    def optional_end(self) -> SPARQL_Builder:
         return self._rbrace()
 
     def union(self, **kwargs) -> Union:
         return self.Union(self, **kwargs)
 
-    def union_start(self) -> 'SPARQL_Builder':
+    def union_start(self) -> SPARQL_Builder:
         return self._lbrace()
 
-    def union_branch(self) -> 'SPARQL_Builder':
+    def union_branch(self) -> SPARQL_Builder:
         self._rbrace()
         return self._lbrace('union ')
 
-    def union_end(self) -> 'SPARQL_Builder':
+    def union_end(self) -> SPARQL_Builder:
         return self._rbrace()
 
     def values(self, x: TTrm, *xs: TTrm, **kwargs) -> Values:
         return self.Values(self, x, *xs, **kwargs)
 
-    def values_start(self, x: TTrm, *xs: TTrm) -> 'SPARQL_Builder':
+    def values_start(self, x: TTrm, *xs: TTrm) -> SPARQL_Builder:
         return self._lbrace('values ' + self._brace(x, *xs) + ' ')
 
-    def values_push(self, x: TTrm, *xs: TTrm) -> 'SPARQL_Builder':
+    def values_push(self, x: TTrm, *xs: TTrm) -> SPARQL_Builder:
         return self._push(self._brace(x, *xs))
 
-    def values_end(self) -> 'SPARQL_Builder':
+    def values_end(self) -> SPARQL_Builder:
         return self._rbrace()
 
     # -- Builtin calls -----------------------------------------------------
@@ -642,7 +640,7 @@ class SPARQL_Builder(Sequence):
     def strstarts(self, x: TTrm, y: TTrm) -> str:
         return self._app('strstarts', x, y)
 
-    def substr(self, v: TTrm, start: int, length: Opt[int] = None) -> str:
+    def substr(self, v: TTrm, start: int, length: int | None = None) -> str:
         if length is not None:
             return self._app('substr', v, str(start), str(length))
         else:
@@ -656,8 +654,8 @@ class SPARQL_Builder(Sequence):
 
     # -- Modifiers ---------------------------------------------------------
 
-    def limit(self, n: int) -> 'SPARQL_Builder':
+    def limit(self, n: int) -> SPARQL_Builder:
         return self._push(f'limit {n}')
 
-    def offset(self, n: int) -> 'SPARQL_Builder':
+    def offset(self, n: int) -> SPARQL_Builder:
         return self._push(f'offset {n}')

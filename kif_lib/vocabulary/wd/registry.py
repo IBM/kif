@@ -7,7 +7,7 @@ import pathlib
 
 from ... import namespace as NS
 from ...model import Datatype, Entity, Item, Lexeme, Property, TDatatype
-from ...typing import cast, Final, Optional, TypedDict, Union
+from ...typing import cast, Final, TypedDict
 
 
 class WikidataEntityRegistry:
@@ -15,22 +15,22 @@ class WikidataEntityRegistry:
 
     #: Entry in item registry.
     class ItemEntry(TypedDict):
-        item: Optional[Item]
-        label: Optional[str]
+        item: Item | None
+        label: str | None
 
     #: Entry in property registry.
     class PropertyEntry(TypedDict):
-        property: Optional[Property]
-        datatype_uri: Optional[str]
-        label: Optional[str]
-        inverse_uri: Optional[str]
+        property: Property | None
+        datatype_uri: str | None
+        label: str | None
+        inverse_uri: str | None
 
     #: Entry in lexeme registry.
     class LexemeEntry(TypedDict):
-        lexeme: Optional[Lexeme]
-        lemma: Optional[str]
-        category: Optional[str]
-        language: Optional[str]
+        lexeme: Lexeme | None
+        lemma: str | None
+        category: str | None
+        language: str | None
 
     #: Name of Wikidata items cache file.
     WIKIDATA_ITEMS_TSV: Final[str] = 'wikidata_items.tsv'
@@ -101,7 +101,7 @@ class WikidataEntityRegistry:
 
     def _load_items_tsv(self) -> dict[str, ItemEntry]:
         try:
-            with open(self._items_tsv, 'rt', encoding='utf-8') as fp:
+            with open(self._items_tsv, encoding='utf-8') as fp:
                 return dict(map(self._load_items_tsv_helper, fp.readlines()))
         except FileNotFoundError:
             return {}
@@ -118,7 +118,7 @@ class WikidataEntityRegistry:
 
     def _load_properties_tsv(self) -> dict[str, PropertyEntry]:
         try:
-            with open(self._properties_tsv, 'rt', encoding='utf-8') as fp:
+            with open(self._properties_tsv, encoding='utf-8') as fp:
                 return dict(map(
                     self._load_properties_tsv_helper, fp.readlines()))
         except FileNotFoundError:
@@ -142,8 +142,8 @@ class WikidataEntityRegistry:
     def get_label(
             self,
             entity: Entity,
-            default: Optional[str] = None
-    ) -> Optional[str]:
+            default: str | None = None
+    ) -> str | None:
         """Gets the registered label of `entity`.
 
         If entity has no label registered, returns `default`.
@@ -165,8 +165,8 @@ class WikidataEntityRegistry:
     def get_inverse(
             self,
             property: Property,
-            default: Optional[Property] = None
-    ) -> Optional[Property]:
+            default: Property | None = None
+    ) -> Property | None:
         """Gets the registered inverse property of `property`.
         If entity has no inverse property registered, returns `default`.
 
@@ -187,9 +187,9 @@ class WikidataEntityRegistry:
 
     def P(
             self,
-            name: Union[int, str],
-            label: Optional[str] = None,
-            datatype: Optional[TDatatype] = None,
+            name: int | str,
+            label: str | None = None,
+            datatype: TDatatype | None = None,
     ) -> Property:
         if isinstance(name, str) and name[0] == 'P':
             name = str(NS.WD[name])
@@ -220,8 +220,8 @@ class WikidataEntityRegistry:
 
     def Q(
             self,
-            name: Union[int, str],
-            label: Optional[str] = None
+            name: int | str,
+            label: str | None = None
     ) -> Item:
         if isinstance(name, str) and name[0] == 'Q':
             name = str(NS.WD[name])
@@ -244,7 +244,7 @@ class WikidataEntityRegistry:
             assert entry['item'] is not None
             return entry['item']
 
-    def L(self, name: Union[int, str]) -> Lexeme:
+    def L(self, name: int | str) -> Lexeme:
         if isinstance(name, str) and name[0] == 'L':
             name = str(NS.WD[name])
         else:

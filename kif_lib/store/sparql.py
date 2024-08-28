@@ -57,9 +57,9 @@ from ..typing import (
     Iterator,
     Mapping,
     MutableSet,
-    Optional,
     override,
     Set,
+    TypeAlias,
     TypeVar,
     Union,
 )
@@ -71,7 +71,7 @@ LOG = logging.getLogger(__name__)
 
 T = TypeVar('T')
 T_WDS = Hashable
-TOpq = Union[BNode, URIRef]
+TOpq: TypeAlias = Union[BNode, URIRef]
 TTrm = SPARQL_Builder.TTrm
 
 
@@ -113,10 +113,7 @@ class SPARQL_Store(
         self._client.close()
 
     @override
-    def set_timeout(
-            self,
-            timeout: Optional[float] = None
-    ):
+    def set_timeout(self, timeout: float | None = None):
         super().set_timeout(timeout)
         self._client.timeout = httpx.Timeout(timeout)
 
@@ -135,7 +132,7 @@ class SPARQL_Store(
 
 # -- Caching ---------------------------------------------------------------
 
-    def _cache_get_wdss(self, stmt: Statement) -> Optional[Set[T_WDS]]:
+    def _cache_get_wdss(self, stmt: Statement) -> Set[T_WDS] | None:
         return self._cache.get(stmt, 'wdss')
 
     def _cache_add_wds(self, stmt: Statement, wds: T_WDS) -> Set[T_WDS]:
@@ -152,17 +149,17 @@ class SPARQL_Store(
             self,
             query: SPARQL_Builder,
             parse_results_fn: Callable[
-                [SPARQL_Results], Iterator[Optional[T]]],
-            vars: Collection[Union[TTrm, tuple[TTrm, TTrm]]] = tuple(),
-            order_by: Optional[TTrm] = None,
-            limit: Optional[int] = None,
+                [SPARQL_Results], Iterator[T | None]],
+            vars: Collection[TTrm | tuple[TTrm, TTrm]] = tuple(),
+            order_by: TTrm | None = None,
+            limit: int | None = None,
             distinct: bool = False,
             trim: bool = False
     ) -> Iterator[T]:
         def eval_fn(
-                eval_limit: Optional[int] = None,
-                eval_offset: Optional[int] = None
-        ) -> Iterator[Optional[T]]:
+                eval_limit: int | None = None,
+                eval_offset: int | None = None
+        ) -> Iterator[T | None]:
             return parse_results_fn(
                 self._eval_select_query_string(
                     query.select(
@@ -174,11 +171,11 @@ class SPARQL_Store(
             self,
             query: SPARQL_Builder,
             eval_fn: Callable[
-                [Optional[int], Optional[int]], Iterator[Optional[T]]],
-            limit: Optional[int] = None,
+                [int | None, int | None], Iterator[T | None]],
+            limit: int | None = None,
             trim: bool = False,
-            page_size: Optional[int] = None,
-            offset: Optional[int] = None
+            page_size: int | None = None,
+            offset: int | None = None
     ) -> Iterator[T]:
         import sys
         if limit is None:
@@ -512,7 +509,7 @@ At line {line}, column {column}:
             self,
             q: SPARQL_Builder,
             t: Mapping[str, TTrm],
-            value: Optional[DeepDataValue] = None,
+            value: DeepDataValue | None = None,
             wds: str = 'wds',
             psv: str = 'psv',
             wdv: str = 'wdv',
@@ -607,7 +604,7 @@ At line {line}, column {column}:
                 '?value',
                 '?wds',
             )
-    ) -> Iterator[tuple[Statement, Optional[Set[T_WDS]]]]:
+    ) -> Iterator[tuple[Statement, Set[T_WDS] | None]]:
         for batch in self._batched(stmts):
             reduced_batch: list[Statement] = []
             stmt2wdss: dict[Statement, MutableSet[T_WDS]] = {}
@@ -675,7 +672,7 @@ At line {line}, column {column}:
     def _make_get_wdss_queries(
             self,
             stmts: Iterator[tuple[int, Statement]]
-    ) -> tuple[Optional[SPARQL_Builder], Optional[SPARQL_Builder]]:
+    ) -> tuple[SPARQL_Builder | None, SPARQL_Builder | None]:
         values: list[tuple[int, Statement]] = []
         no_values: list[tuple[int, Statement]] = []
         for i, stmt in stmts:
@@ -739,7 +736,7 @@ At line {line}, column {column}:
     def _parse_get_wdss_results(
             self,
             results: SPARQL_Results,
-    ) -> Iterator[Optional[tuple[Statement, T_WDS, int]]]:
+    ) -> Iterator[tuple[Statement, T_WDS, int] | None]:
         for entry in results.bindings:
             i = entry.check_integer('i')
             stmt = entry.check_statement(
@@ -755,7 +752,7 @@ At line {line}, column {column}:
     def _get_annotations(
             self,
             stmts: Iterable[Statement]
-    ) -> Iterator[tuple[Statement, Optional[AnnotationRecordSet]]]:
+    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
         for batch in self._batched(stmts):
             wds_batch: list[T_WDS] = []
             stmt2wdss: dict[Statement, Set[T_WDS]] = {}
@@ -825,8 +822,7 @@ At line {line}, column {column}:
     def _parse_get_annotations_results(
             self,
             results: SPARQL_Results,
-    ) -> Iterator[Optional[tuple[
-            T_WDS, Rank, Optional[T_WDS], Optional[Snak]]]]:
+    ) -> Iterator[tuple[T_WDS, Rank, T_WDS | None, Snak | None] | None]:
         for entry in results.bindings:
             wds = entry.check_bnode_or_uriref('wds')
             rank = entry.check_rank('rank')
@@ -954,9 +950,9 @@ At line {line}, column {column}:
             items: Iterable[Item],
             language: str,
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Item, Optional[ItemDescriptor]]]:
+    ) -> Iterator[tuple[Item, ItemDescriptor | None]]:
         return cast(
-            Iterator[tuple[Item, Optional[ItemDescriptor]]],
+            Iterator[tuple[Item, Union[ItemDescriptor, None]]],
             self._get_item_or_property_descriptor(Item, items, language, mask))
 
     @override
@@ -965,20 +961,21 @@ At line {line}, column {column}:
             properties: Iterable[Property],
             language: str,
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Property, Optional[PropertyDescriptor]]]:
+    ) -> Iterator[tuple[Property, PropertyDescriptor | None]]:
         return cast(
-            Iterator[tuple[Property, Optional[PropertyDescriptor]]],
+            Iterator[tuple[Property, Union[PropertyDescriptor, None]]],
             self._get_item_or_property_descriptor(
                 Property, properties, language, mask))
 
     def _get_item_or_property_descriptor(
             self,
             cls: type[Entity],
-            entities: Iterable[Union[Item, Property]],
+            entities: Iterable[Item | Property],
             language: str,
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Union[Item, Property], Optional[Union[
-            ItemDescriptor, PropertyDescriptor]]]]:
+    ) -> Iterator[tuple[
+            Item | Property,
+            ItemDescriptor | PropertyDescriptor | None]]:
         q = self._make_item_or_property_descriptor_query(
             set(entities), cls, language, mask)
         if q.has_variable(q.var('subject')):
@@ -991,7 +988,7 @@ At line {line}, column {column}:
             LOG.debug(
                 '%s(): nothing to select:\n%s',
                 self._filter.__qualname__, q.select())
-        desc: dict[Union[IRI, Property], dict[str, Any]] = {}
+        desc: dict[IRI | Property, dict[str, Any]] = {}
         ###
         # FIXME: Compatibility with legacy queries.
         ###
@@ -1031,7 +1028,7 @@ At line {line}, column {column}:
 
     def _make_item_or_property_descriptor_query(
             self,
-            entities: Collection[Union[Item, Property]],
+            entities: Collection[Item | Property],
             cls: type[Entity],
             lang: str,
             mask: Descriptor.AttributeMask
@@ -1090,12 +1087,12 @@ At line {line}, column {column}:
             cls: type[Entity],
             language: str,
             mask: Descriptor.AttributeMask
-    ) -> Iterator[Optional[tuple[
-        Union[Item, Property],
-            Optional[Text],
-            Optional[Text],
-            Optional[Text],
-            Optional[Datatype]]]]:
+    ) -> Iterator[tuple[
+            Item | Property,
+            Text | None,
+            Text | None,
+            Text | None,
+            Datatype | None] | None]:
         if self.has_flags(self.LATE_FILTER):
             late_filter = True
             get_label = bool(mask & Descriptor.LABEL)
@@ -1110,13 +1107,13 @@ At line {line}, column {column}:
             get_datatype = cls is Property
         for entry in results.bindings:
             if cls is Item:
-                entity: Union[Item, Property] = entry.check_item('subject')
+                entity: Item | Property = entry.check_item('subject')
             elif cls is Property:
                 entity = entry.check_property('subject')
             else:
                 raise self._should_not_get_here()
             if get_datatype and 'datatype' in entry:
-                datatype: Optional[Datatype] = entry.check_datatype('datatype')
+                datatype: Datatype | None = entry.check_datatype('datatype')
             else:
                 datatype = None
             if get_label and 'label' in entry:
@@ -1141,7 +1138,7 @@ At line {line}, column {column}:
             self,
             lexemes: Iterable[Lexeme],
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Lexeme, Optional[LexemeDescriptor]]]:
+    ) -> Iterator[tuple[Lexeme, LexemeDescriptor | None]]:
         for batch in self._batched(lexemes):
             q = self._make_lexeme_descriptor_query(set(batch), mask)
             if q.has_variable(q.var('subject')):
@@ -1208,7 +1205,7 @@ At line {line}, column {column}:
             self,
             results: SPARQL_Results,
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Lexeme, Optional[Text], Optional[IRI], Optional[IRI]]]:
+    ) -> Iterator[tuple[Lexeme, Text | None, IRI | None, IRI | None]]:
         if self.has_flags(self.LATE_FILTER):
             get_lemma = bool(mask & Descriptor.LEMMA)
             get_category = bool(mask & Descriptor.CATEGORY)
