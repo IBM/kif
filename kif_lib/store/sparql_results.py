@@ -31,10 +31,10 @@ from ..model import (
     ValueSnak,
 )
 from ..rdflib import BNode, Literal, Result, URIRef
-from ..typing import Any, cast, Mapping
+from ..typing import Any, cast, Iterator, Mapping, TypeAlias
 from .abc import Store
 
-TRes = dict[str, Any]
+TRes: TypeAlias = dict[str, Any]
 
 
 class SPARQL_Results(Mapping):
@@ -53,16 +53,16 @@ class SPARQL_Results(Mapping):
 
         _bindings: TRes
 
-        def __init__(self, bindings: TRes):
+        def __init__(self, bindings: TRes) -> None:
             self._bindings = bindings
 
-        def __getitem__(self, key):
+        def __getitem__(self, key: str) -> Any:
             return self._bindings[key]
 
-        def __iter__(self):
+        def __iter__(self) -> Iterator[str]:
             return iter(self._bindings)
 
-        def __len__(self):
+        def __len__(self) -> int:
             return len(self._bindings)
 
         def _error(self, msg: str) -> Store.Error:
@@ -495,9 +495,9 @@ class SPARQL_Results(Mapping):
 
     _results: TRes
     _vars: TRes
-    _bindings: map
+    _bindings: Iterator[Bindings]
 
-    def __init__(self, results: TRes):
+    def __init__(self, results: TRes) -> None:
         self._results = results
         try:
             self._vars = results['head']['vars']
@@ -505,28 +505,28 @@ class SPARQL_Results(Mapping):
         except KeyError as err:
             raise self._error(f'no {err}')
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Any:
         return self._results[key]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         return iter(self._results)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._results)
 
-    def __str__(self):
+    def __str__(self) -> str:
         res = Result.parse(io.StringIO(json.dumps(dict(self))), format='json')
         out = res.serialize(format='txt', namespace_manager=NS._DEFAULT_NSM)
         assert out is not None
         return out.decode('utf-8')
 
-    def _error(self, msg):
+    def _error(self, msg: str) -> Store.Error:
         return Store._error(f'bad SPARQL results: {msg}')
 
     @property
-    def vars(self):
+    def vars(self) -> TRes:
         return self._vars
 
     @property
-    def bindings(self):
+    def bindings(self) -> Iterator[Bindings]:
         return self._bindings

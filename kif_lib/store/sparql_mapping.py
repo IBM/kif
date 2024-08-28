@@ -89,7 +89,7 @@ class SPARQL_Mapping(ABC):
         #: The resulting (decoded) time calendar model.
         tm_calendar: Variable
 
-        def __init__(self, *args, **kwargs):
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
             super().__init__(*args, **kwargs)
             self.matched_subject = self.var('matched_subject')
             self.matched_property = self.var('matched_property')
@@ -247,7 +247,7 @@ class SPARQL_Mapping(ABC):
                     [SPARQL_Mapping.Spec, SPARQL_Builder,
                      TTrm, TTrm, TTrm], bool | None],
                 **kwargs: Any
-        ):
+        ) -> None:
             self.property = property
             self.datatype = datatype
             self.definition = definition
@@ -275,7 +275,7 @@ class SPARQL_Mapping(ABC):
                 self._bind(q)
             return True
 
-        def _bind(self, q: SPARQL_Mapping.Builder):
+        def _bind(self, q: SPARQL_Mapping.Builder) -> None:
             # subject
             q.bind_uri(
                 q.matched_subject, q.subject,
@@ -438,11 +438,11 @@ class SPARQL_Mapping(ABC):
     iri_prefix_replacements_inv: dict[IRI, IRI]
 
     @classmethod
-    def __init_subclass__(cls):
+    def __init_subclass__(cls) -> None:
         cls._init()
 
     @classmethod
-    def _init(cls):
+    def _init(cls) -> None:
         cls.specs = {}
         cls.descriptor_specs = {}
         cls.iri_prefix_replacements = {}
@@ -494,7 +494,8 @@ class SPARQL_Mapping(ABC):
     def _register(
             cls,
             specs: dict[Property, list[SPARQL_Mapping.Spec]],
-            spec: Spec):
+            spec: Spec
+    ) -> None:
         # IRI prefix replacements.
         for key in ['subject', 'value']:
             tgt = spec.kwargs.get(f'{key}_prefix', None)
@@ -508,7 +509,11 @@ class SPARQL_Mapping(ABC):
         specs[spec.property].append(spec)
 
     @classmethod
-    def register_iri_prefix_replacement(cls, encoded: T_IRI, decoded: T_IRI):
+    def register_iri_prefix_replacement(
+            cls,
+            encoded: T_IRI,
+            decoded: T_IRI
+    ) -> None:
         """Registers prefix replacement into mapping.
 
         Parameters:

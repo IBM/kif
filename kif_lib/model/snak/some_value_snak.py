@@ -23,7 +23,7 @@ class SomeValueSnakTemplate(SnakTemplate):
 
     object_class: ClassVar[type[SomeValueSnak]]  # pyright: ignore
 
-    def __init__(self, property: VTProperty):
+    def __init__(self, property: VTProperty) -> None:
         super().__init__(property)
 
 

@@ -6,7 +6,15 @@ from __future__ import annotations
 import networkx as nx
 
 from ...model import OpenTerm, Template, Term, Variable
-from ...typing import Any, cast, Mapping, MutableMapping, TypeVar
+from ...typing import (
+    Any,
+    cast,
+    Iterator,
+    Mapping,
+    MutableMapping,
+    Sequence,
+    TypeVar,
+)
 from .builder import Query
 
 T = TypeVar('T')
@@ -42,21 +50,21 @@ class Substitution(Mapping):
     #: Order produced by top-sorting `_G`.
     _cached_topsorted_G: list[str] | None
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._map = {}
         self._name_map = {}
         self._defaults = {}
         self._G = nx.DiGraph()
         self._cached_topsorted_G = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return ''.join(self._dump())
 
-    def _dump(self, _attrs=(
+    def _dump(self, _attrs: Sequence[str] = (
             '_map',
             '_name_map',
             '_defaults'
-    )):
+    )) -> Iterator[str]:
         for attr in _attrs:
             yield f'{attr}:\n'
             for k, v in getattr(self, attr).items():
@@ -72,13 +80,13 @@ class Substitution(Mapping):
     def _dump_value(cls, v: Any) -> str:
         return v.n3() if isinstance(v, Query.Variable) else str(v)
 
-    def __getitem__(self, k):
+    def __getitem__(self, k: Variable) -> Term | Query.Variable:
         return self._map[k]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Variable]:
         return iter(self._map)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._map)
 
     def add(
@@ -153,7 +161,7 @@ class Substitution(Mapping):
         #: Maps variable names to sets of homonymous (compatible) variables.
         _name_map: MutableMapping[str, set[Variable]]
 
-        def __init__(self):
+        def __init__(self) -> None:
             self._map = {}
             self._name_map = {}
 
@@ -170,7 +178,7 @@ class Substitution(Mapping):
                     map(lambda h: self._map[h], homonyms),
                     key=self._count_vars)))
 
-        def _count_vars(self, obj: Term | None):
+        def _count_vars(self, obj: Term | None) -> int:
             if isinstance(obj, Variable):
                 return 1
             elif isinstance(obj, Template):
@@ -178,13 +186,13 @@ class Substitution(Mapping):
             else:
                 return 0
 
-        def __iter__(self):
+        def __iter__(self) -> Iterator[Variable]:
             return iter(self._map)
 
-        def __len__(self):
+        def __len__(self) -> int:
             return len(self._map)
 
-        def _add(self, k: Variable, v: Term | None):
+        def _add(self, k: Variable, v: Term | None) -> None:
             self._map[k] = v
             if k.name not in self._name_map:
                 self._name_map[k.name] = set()

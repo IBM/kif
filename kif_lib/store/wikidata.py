@@ -34,6 +34,6 @@ class WikidataStore(
             store_name: str,
             iri: T_IRI | None = None,
             **kwargs: Any
-    ):
+    ) -> None:
         iri = iri if iri is not None else self._default_iri
         super().__init__(store_name, iri, **kwargs)

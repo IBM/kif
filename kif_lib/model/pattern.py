@@ -155,7 +155,7 @@ class TemplatePattern(Pattern):
             self,
             template: Template,
             constraint: TConstraint | None = None
-    ):
+    ) -> None:
         super().__init__(template, constraint)
 
     def _preprocess_arg(self, arg: Any, i: int) -> Any:

@@ -24,7 +24,7 @@ class LexemeTemplate(EntityTemplate):
 
     object_class: ClassVar[type[Lexeme]]  # pyright: ignore
 
-    def __init__(self, iri: VTLexemeContent):
+    def __init__(self, iri: VTLexemeContent) -> None:
         super().__init__(iri)
 
 

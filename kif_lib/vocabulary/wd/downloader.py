@@ -103,7 +103,7 @@ class Downloader:
     #: The downloader options.
     _options: Options
 
-    def __init__(self, options: Options | None = None):
+    def __init__(self, options: Options | None = None) -> None:
         self._options = cast(Downloader.Options, dict(self.default_options))
         if options:
             self._options.update(options)
@@ -121,13 +121,13 @@ class Downloader:
         """
         return self._options
 
-    def fetch_properties(self, path: pathlib.Path | None = None):
+    def fetch_properties(self, path: pathlib.Path | None = None) -> None:
         """Fetches property data.
 
         Parameters:
            path: Path.
         """
-        def write(fp: TextIO, entry: PropertyEntry):
+        def write(fp: TextIO, entry: PropertyEntry) -> None:
             assert 'append' in self.options
             append = self.options['append']
             assert entry['property'] is not None
@@ -193,13 +193,13 @@ class Downloader:
                 'inverse_uri': inverse_uri,
             }
 
-    def fetch_items(self, path: pathlib.Path | None = None):
+    def fetch_items(self, path: pathlib.Path | None = None) -> None:
         """Fetches item data.
 
         Parameters:
            path: Path.
         """
-        def write(fp: TextIO, entry: ItemEntry):
+        def write(fp: TextIO, entry: ItemEntry) -> None:
             assert 'append' in self.options
             append = self.options['append']
             assert entry['item'] is not None
@@ -259,7 +259,7 @@ class Downloader:
             path: pathlib.Path,
             write_fn: Callable[[TextIO, T], None],
             it: Iterator[T]
-    ):
+    ) -> None:
         if not path.is_absolute():
             assert 'output_dir' in self.options
             path = self.options['output_dir'] / path

@@ -38,7 +38,7 @@ class StoreOptions(Section, name='store'):
         return self.get_extra_references()
 
     @extra_references.setter
-    def extra_references(self, extra_references: TReferenceRecordSet):
+    def extra_references(self, extra_references: TReferenceRecordSet) -> None:
         self.set_extra_references(extra_references)
 
     def get_extra_references(self) -> ReferenceRecordSet:
@@ -49,7 +49,10 @@ class StoreOptions(Section, name='store'):
         """
         return self._extra_references
 
-    def set_extra_references(self, extra_references: TReferenceRecordSet):
+    def set_extra_references(
+            self,
+            extra_references: TReferenceRecordSet
+    ) -> None:
         """Sets the set of extra reference.
 
         Parameters:
@@ -78,7 +81,7 @@ class StoreOptions(Section, name='store'):
         return self.get_flags()
 
     @flags.setter
-    def flags(self, flags: Store.Flags | int):
+    def flags(self, flags: Store.Flags | int) -> None:
         self.set_flags(flags)
 
     def get_flags(self) -> Store.Flags:
@@ -89,7 +92,7 @@ class StoreOptions(Section, name='store'):
         """
         return self._flags
 
-    def set_flags(self, flags: Store.Flags | int):
+    def set_flags(self, flags: Store.Flags | int) -> None:
         """Sets the store flags.
 
         Parameters:
@@ -114,7 +117,7 @@ class StoreOptions(Section, name='store'):
         return self.get_max_page_size()
 
     @max_page_size.setter
-    def max_page_size(self, max_page_size: TQuantity):
+    def max_page_size(self, max_page_size: TQuantity) -> None:
         self.set_max_page_size(max_page_size)
 
     def get_max_page_size(self) -> int:
@@ -125,7 +128,7 @@ class StoreOptions(Section, name='store'):
         """
         return self._max_page_size
 
-    def set_max_page_size(self, max_page_size: TQuantity):
+    def set_max_page_size(self, max_page_size: TQuantity) -> None:
         """Sets the maximum page size.
 
         If `max_page_size` is negative, assumes zero.
@@ -153,7 +156,7 @@ class StoreOptions(Section, name='store'):
         return self.get_page_size()
 
     @page_size.setter
-    def page_size(self, page_size: TQuantity):
+    def page_size(self, page_size: TQuantity) -> None:
         self.set_page_size(page_size)
 
     def get_page_size(self) -> int:
@@ -164,7 +167,7 @@ class StoreOptions(Section, name='store'):
         """
         return self._page_size
 
-    def set_page_size(self, page_size: TQuantity):
+    def set_page_size(self, page_size: TQuantity) -> None:
         """Sets the page size.
 
         If `page_size` is negative, assumes zero.
@@ -192,7 +195,7 @@ class StoreOptions(Section, name='store'):
         return self.get_max_timeout()
 
     @max_timeout.setter
-    def max_timeout(self, max_timeout: TQuantity):
+    def max_timeout(self, max_timeout: TQuantity) -> None:
         self.set_max_timeout(max_timeout)
 
     def get_max_timeout(self) -> float:
@@ -203,7 +206,7 @@ class StoreOptions(Section, name='store'):
         """
         return self._max_timeout
 
-    def set_max_timeout(self, max_timeout: TQuantity):
+    def set_max_timeout(self, max_timeout: TQuantity) -> None:
         """Sets the maximum timeout (in seconds).
 
         If `max_timeout` is negative, assumes zero.
@@ -230,7 +233,7 @@ class StoreOptions(Section, name='store'):
         return self.get_timeout()
 
     @timeout.setter
-    def timeout(self, timeout: TQuantity | None):
+    def timeout(self, timeout: TQuantity | None) -> None:
         self.set_timeout(timeout)
 
     def get_timeout(self) -> float | None:
@@ -241,7 +244,7 @@ class StoreOptions(Section, name='store'):
         """
         return self._timeout
 
-    def set_timeout(self, timeout: TQuantity | None):
+    def set_timeout(self, timeout: TQuantity | None) -> None:
         """Sets the timeout.
 
         If `timeout` is negative, assumes zero.

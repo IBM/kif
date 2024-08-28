@@ -381,7 +381,7 @@ class SnakFingerprint(AtomicFingerprint):
         else:
             return cls(Snak.check(arg, function or cls.check, name, position))
 
-    def __init__(self, snak: TSnak):
+    def __init__(self, snak: TSnak) -> None:
         super().__init__(snak)
 
     @override
@@ -447,7 +447,7 @@ class ValueFingerprint(AtomicFingerprint):
         else:
             return cls(Value.check(arg, function or cls.check, name, position))
 
-    def __init__(self, value: TValue):
+    def __init__(self, value: TValue) -> None:
         super().__init__(value)
 
     @override

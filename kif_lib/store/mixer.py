@@ -56,13 +56,13 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
             sources: Iterable[Store] = tuple(),
             sync_flags: bool = True,
             **kwargs: Any
-    ):
+    ) -> None:
         assert store_name == self.store_name
         super().__init__(**kwargs)
         self._init_sources(sources)
         self._sync_flags = sync_flags
 
-    def _init_sources(self, sources: Iterable[Store]):
+    def _init_sources(self, sources: Iterable[Store]) -> None:
         KIF_Object._check_arg_isinstance(
             sources, Iterable, self.__class__, 'sources', 2)
         self._sources = [

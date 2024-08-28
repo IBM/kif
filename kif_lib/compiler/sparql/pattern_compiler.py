@@ -126,7 +126,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             self,
             pattern: TPattern,
             flags: SPARQL_PatternCompiler.Flags | None = None
-    ):
+    ) -> None:
         super().__init__(flags)
         self._pattern = Pattern.check(pattern, type(self), 'pattern', 1)
         self._theta = Substitution()
@@ -267,7 +267,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
 
     # -- Pattern --
 
-    def _push_pattern(self, pattern: Pattern):
+    def _push_pattern(self, pattern: Pattern) -> None:
         if isinstance(pattern, ClosedPattern):
             if isinstance(pattern.object, Statement):
                 self._push_statement(pattern.object)

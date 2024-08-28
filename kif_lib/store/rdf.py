@@ -51,7 +51,7 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
             graph: rdflib.Graph | None = None,
             skolemize: bool = True,
             **kwargs: Any
-    ):
+    ) -> None:
         super().__init__(store_name, 'file:///dev/null', **kwargs)
         graph = KIF_Object._check_optional_arg_isinstance(
             graph, rdflib.Graph, rdflib.Graph(),

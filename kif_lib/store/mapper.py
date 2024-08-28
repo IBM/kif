@@ -66,7 +66,7 @@ class SPARQL_MapperStore(
             iri: T_IRI,
             mapping: SPARQL_Mapping,
             **kwargs: Any
-    ):
+    ) -> None:
         assert store_name == self.store_name
         super().__init__(store_name, iri, **kwargs)
         self._mapping = KIF_Object._check_arg_isinstance(
@@ -299,7 +299,7 @@ class SPARQL_MapperStore(
             if self._cache_get_wdss(stmt) or stmt in self:
                 assert self._cache_get_wdss(stmt)
 
-                def it(property):
+                def it(property: Property) -> Iterable[AnnotationRecord]:
                     for spec in self.mapping.specs.get(property, ()):
                         yield from spec.kwargs.get('annotations', ())
                 annots = AnnotationRecordSet(*it(stmt.snak.property))

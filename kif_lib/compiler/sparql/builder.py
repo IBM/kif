@@ -14,6 +14,7 @@ import decimal
 import itertools
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, MutableSequence, Sequence
+from types import TracebackType
 from typing import Callable, cast, Final, Optional, Union
 
 from rdflib import BNode, Literal, URIRef, Variable
@@ -720,7 +721,12 @@ class GraphPattern(Pattern):
     def __enter__(self) -> Self:
         return cast(Self, self.clause._begin(self))
 
-    def __exit__(self, err_type, err_val, err_bt):
+    def __exit__(
+            self,
+            err_type: type[BaseException] | None,
+            err_val: BaseException | None,
+            err_bt: TracebackType | None
+    ) -> None:
         if err_val is None:
             self.clause._end()
         else:
@@ -773,7 +779,7 @@ class CommentsBlock(AtomicGraphPattern):
             self,
             clause: Clause,
             parent: GraphPattern | None = None
-    ):
+    ) -> None:
         super().__init__(clause, parent)
         self.comments = []
 
@@ -811,7 +817,7 @@ class TriplesBlock(AtomicGraphPattern):
             self,
             clause: Clause,
             parent: GraphPattern | None = None
-    ):
+    ) -> None:
         super().__init__(clause, parent)
         self.triples = []
 
@@ -852,7 +858,7 @@ class ValuesBlock(GraphPattern):
             *variables: TVariable,
             clause: Clause,
             parent: GraphPattern | None = None
-    ):
+    ) -> None:
         super().__init__(clause, parent)
         self.variables = tuple(map(
             Coerce.variable, itertools.chain((variable,), variables)))
@@ -908,7 +914,7 @@ class CompoundGraphPattern(GraphPattern):
             self,
             clause: Clause,
             parent: GraphPattern | None = None
-    ):
+    ) -> None:
         super().__init__(clause, parent)
         self.binds = []
         self.filters = []
@@ -927,17 +933,17 @@ class CompoundGraphPattern(GraphPattern):
         else:
             return cast(GraphPattern, self._add(child, self.children))
 
-    def stash_begin(self):
+    def stash_begin(self) -> None:
         self._stashing = True
 
-    def stash_end(self):
+    def stash_end(self) -> None:
         self._stashing = False
 
-    def stash_pop(self):
+    def stash_pop(self) -> None:
         self.children += self.stashed_children
         self.stash_drop()
 
-    def stash_drop(self):
+    def stash_drop(self) -> None:
         self.stashed_children = []
         self._stashing = False
 
@@ -1035,7 +1041,7 @@ class Clause(Encodable):
     root: GraphPattern
     current: GraphPattern
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.root = GroupGraphPattern(self)
         self.current = self.root
 
@@ -1053,19 +1059,19 @@ class Clause(Encodable):
             self.current = self.current.parent
         return saved_current
 
-    def stash_begin(self):
+    def stash_begin(self) -> None:
         assert isinstance(self.current, CompoundGraphPattern)
         self.current.stash_begin()
 
-    def stash_end(self):
+    def stash_end(self) -> None:
         assert isinstance(self.current, CompoundGraphPattern)
         self.current.stash_end()
 
-    def stash_pop(self):
+    def stash_pop(self) -> None:
         assert isinstance(self.current, CompoundGraphPattern)
         self.current.stash_pop()
 
-    def stash_drop(self):
+    def stash_drop(self) -> None:
         assert isinstance(self.current, CompoundGraphPattern)
         self.current.stash_drop()
 
@@ -1074,7 +1080,7 @@ class AskClause(Clause):
     """ASK clause."""
 
     @override
-    def iterencode(self):
+    def iterencode(self) -> Iterator[str]:
         yield Symbol.ASK
 
 
@@ -1090,7 +1096,7 @@ class SelectClause(Clause):
             *variables: TVariable | TInlineBind,
             distinct: bool | None = None,
             reduced: bool | None = None
-    ):
+    ) -> None:
         super().__init__()
         self.variables = tuple(map(
             lambda v: Bind(*v, self)
@@ -1100,7 +1106,7 @@ class SelectClause(Clause):
         self.reduced = reduced if reduced is not None else False
 
     @override
-    def iterencode(self):
+    def iterencode(self) -> Iterator[str]:
         yield Symbol.SELECT
         if self.distinct:
             yield ' '
@@ -1137,12 +1143,12 @@ class LimitClause(Clause):
 
     limit: int | None
 
-    def __init__(self, limit: int | None = None):
+    def __init__(self, limit: int | None = None) -> None:
         super().__init__()
         self.limit = limit
 
     @override
-    def iterencode(self):
+    def iterencode(self) -> Iterator[str]:
         if self.limit is not None:
             yield Symbol.LIMIT
             yield ' '
@@ -1154,12 +1160,12 @@ class OffsetClause(Clause):
 
     offset: int | None
 
-    def __init__(self, offset: int | None = None):
+    def __init__(self, offset: int | None = None) -> None:
         super().__init__()
         self.offset = offset
 
     @override
-    def iterencode(self):
+    def iterencode(self) -> Iterator[str]:
         if self.offset is not None:
             yield Symbol.OFFSET
             yield ' '
@@ -1216,7 +1222,7 @@ class Query(Encodable):
             where: WhereClause | None = None,
             fresh_var_prefix: str | None = None,
             fresh_var_counter: int | None = None,
-    ):
+    ) -> None:
         self.where = where if where is not None else WhereClause()
         self.clause = self.where
         self._limit = LimitClause(limit)
@@ -1580,7 +1586,7 @@ class Query(Encodable):
         return self._limit.limit
 
     @limit.setter
-    def limit(self, limit: int | None):
+    def limit(self, limit: int | None) -> None:
         self._limit.limit = limit
 
     @property
@@ -1589,7 +1595,7 @@ class Query(Encodable):
         return self._offset.offset
 
     @offset.setter
-    def offset(self, offset: int | None):
+    def offset(self, offset: int | None) -> None:
         self._offset.offset = offset
 
 # -- Query conversion ------------------------------------------------------
@@ -1680,7 +1686,7 @@ class AskQuery(Query):
 
     _ask: AskClause
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._ask = AskClause()
 
@@ -1701,8 +1707,8 @@ class SelectQuery(Query):
             *variables: TVariable | tuple[TExpression, TVariable],
             distinct: bool | None = None,
             reduced: bool | None = None,
-            **kwargs
-    ):
+            **kwargs: Any
+    ) -> None:
         super().__init__(**kwargs)
         self._select = SelectClause(
             *variables, distinct=distinct, reduced=reduced)
@@ -1713,7 +1719,7 @@ class SelectQuery(Query):
         return self._select.distinct
 
     @distinct.setter
-    def distinct(self, distinct: bool):
+    def distinct(self, distinct: bool) -> None:
         self._select.distinct = distinct
 
     @property
@@ -1722,7 +1728,7 @@ class SelectQuery(Query):
         return self._select.reduced
 
     @reduced.setter
-    def reduced(self, reduced: bool):
+    def reduced(self, reduced: bool) -> None:
         self._select.reduced = reduced
 
     @override

@@ -9,7 +9,16 @@ from collections.abc import Mapping, Sequence
 
 from .. import itertools
 from ..model import IRI, Value
-from ..typing import Any, Hashable, Iterable, Iterator, override, TypeAlias
+from ..typing import (
+    Any,
+    Hashable,
+    Iterable,
+    Iterator,
+    override,
+    Self,
+    TracebackType,
+    TypeAlias,
+)
 from ..typing import Union as Uni
 
 # See <http://www.w3.org/TR/sparql11-query/#grammar>.
@@ -21,16 +30,16 @@ class SPARQL_Builder(Sequence):
     class Term:
         """SPARQL builder term."""
 
-        def __init__(self, id: Hashable):
+        def __init__(self, id: Hashable) -> None:
             self._id = id
 
-        def __eq__(self, other):
+        def __eq__(self, other) -> bool:
             return type(self) is type(other) and self._id == other._id
 
-        def __hash__(self):
+        def __hash__(self) -> int:
             return hash(self._id)
 
-        def __str__(self):
+        def __str__(self) -> str:
             return str(self._id)
 
         @property
@@ -61,12 +70,19 @@ class SPARQL_Builder(Sequence):
     class Block:
         """Block within a query."""
 
+        _builder: SPARQL_Builder
+        _start_lineno: int | None
+        _end_lineno: int | None
+        _args: tuple[Any, ...]
+        _kwargs: dict[str, Any]
+        _cond: bool
+
         def __init__(
                 self,
                 builder: SPARQL_Builder,
                 *args: Any,
                 **kwargs: Any
-        ):
+        ) -> None:
             self._builder = builder
             self._start_lineno = None
             self._end_lineno = None
@@ -78,7 +94,7 @@ class SPARQL_Builder(Sequence):
         def builder(self) -> SPARQL_Builder:
             return self.get_builder()
 
-        def get_builder(self):
+        def get_builder(self) -> SPARQL_Builder:
             return self._builder
 
         @property
@@ -118,19 +134,24 @@ class SPARQL_Builder(Sequence):
             return self._end_lineno
 
         @abc.abstractmethod
-        def _start(self):
+        def _start(self) -> None:
             self._start_lineno = self.builder.current_lineno
 
         @abc.abstractmethod
-        def _end(self):
+        def _end(self) -> None:
             self._end_lineno = self.builder.current_lineno
 
-        def __enter__(self):
+        def __enter__(self) -> Self:
             if self.enabled:
                 self._start()
             return self
 
-        def __exit__(self, err_type, err_val, err_bt):
+        def __exit__(
+                self,
+                err_type: type[BaseException] | None,
+                err_val: BaseException | None,
+                err_bt: TracebackType | None
+        ) -> None:
             if err_val is None:
                 if self.enabled:
                     self._end()
@@ -140,14 +161,18 @@ class SPARQL_Builder(Sequence):
     class OnlyIf(Block):
         """Only-if block."""
 
-        def __init__(self, builder: SPARQL_Builder, cond: bool = True):
+        def __init__(
+                self,
+                builder: SPARQL_Builder,
+                cond: bool = True
+        ) -> None:
             super().__init__(builder, cond=not cond)
 
-        def _start(self):
+        def _start(self) -> None:
             super()._start()
             self.builder.disable()
 
-        def _end(self):
+        def _end(self) -> None:
             self.builder.enable()
             super()._end()
 
@@ -158,16 +183,17 @@ class SPARQL_Builder(Sequence):
                 self,
                 builder: SPARQL_Builder,
                 s: SPARQL_Builder.TTrm,
-                p: SPARQL_Builder.TTrm):
+                p: SPARQL_Builder.TTrm
+        ) -> None:
             super().__init__(builder, s, p, builder.bnode())
 
         @override
-        def _start(self):
+        def _start(self) -> None:
             super()._start()
             self.builder.triple(*self.args)
 
         @override
-        def _end(self):
+        def _end(self) -> None:
             super()._end()
 
         def pair(
@@ -189,52 +215,56 @@ class SPARQL_Builder(Sequence):
     class Where(Block):
         """WHERE block."""
 
-        def _start(self):
+        def _start(self) -> None:
             super()._start()
             self.builder.where_start()
 
-        def _end(self):
+        def _end(self) -> None:
             self.builder.where_end()
             super()._end()
 
     class Group(Block):
         """Group (curly-braces) block."""
 
-        def _start(self):
+        def _start(self) -> None:
             super()._start()
             self.builder.group_start()
 
-        def _end(self):
+        def _end(self) -> None:
             self.builder.group_end()
             super()._end()
 
     class Optional(Block):
         """OPTIONAL block."""
 
-        def _start(self):
+        def _start(self) -> None:
             super()._start()
             self.builder.optional_start()
 
-        def _end(self):
+        def _end(self) -> None:
             self.builder.optional_end()
             super()._end()
 
     class Union(Block):
         """UNION block."""
 
-        def __init__(self, builder: SPARQL_Builder, **kwargs: Any):
+        def __init__(
+                self,
+                builder: SPARQL_Builder,
+                **kwargs: Any
+        ) -> None:
             super().__init__(builder, **kwargs)
 
-        def _start(self):
+        def _start(self) -> None:
             self.builder.union_start()
             super()._start()
 
-        def branch(self):
+        def branch(self) -> None:
             if (self.enabled and self.start_lineno is not None
                     and self.start_lineno < self.builder.current_lineno):
                 self.builder.union_branch()
 
-        def _end(self):
+        def _end(self) -> None:
             self.builder.union_end()
             super()._end()
 
@@ -247,21 +277,22 @@ class SPARQL_Builder(Sequence):
                 x: SPARQL_Builder.TTrm,
                 *xs: SPARQL_Builder.TTrm,
                 **kwargs: Any
-        ):
+        ) -> None:
             super().__init__(builder, x, *xs, **kwargs)
 
-        def _start(self):
+        def _start(self) -> None:
             super()._start()
             self.builder.values_start(*self.args)
 
         def push(
                 self,
                 x: SPARQL_Builder.TTrm,
-                *xs: SPARQL_Builder.TTrm):
+                *xs: SPARQL_Builder.TTrm
+        ) -> None:
             if self.enabled:
                 self.builder.values_push(x, *xs)
 
-        def _end(self):
+        def _end(self) -> None:
             self.builder.values_end()
             super()._end()
 
@@ -289,7 +320,7 @@ class SPARQL_Builder(Sequence):
     _vars: set[Variable]        # variables seen
     _vals: set[Value]           # values seen
 
-    def __init__(self, indent: int | str = 2):
+    def __init__(self, indent: int | str = 2) -> None:
         self._status = True
         self._lines = []
         self._level = []
@@ -301,37 +332,37 @@ class SPARQL_Builder(Sequence):
         self._vars = set()
         self._vals = set()
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._lines)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Any) -> str:
         return self._lines[key]
 
     @property
-    def status(self):
+    def status(self) -> bool:
         return self.get_status()
 
-    def get_status(self):
+    def get_status(self) -> bool:
         return self._status
 
     @property
-    def current_lineno(self):
+    def current_lineno(self) -> int:
         return self.get_current_lineno()
 
-    def get_current_lineno(self):
+    def get_current_lineno(self) -> int:
         return len(self._lines)
 
     @property
-    def current_level(self):
+    def current_level(self) -> int:
         return self.get_current_level()
 
-    def get_current_level(self):
+    def get_current_level(self) -> int:
         return self._curlv
 
-    def enable(self):
+    def enable(self) -> None:
         self._status = True
 
-    def disable(self):
+    def disable(self) -> None:
         self._status = False
 
     def _push(self, line: str, indent: int = 0) -> SPARQL_Builder:
@@ -345,10 +376,10 @@ class SPARQL_Builder(Sequence):
             self._curlv += indent
         return self
 
-    def _lbrace(self, prefix: str = ''):
+    def _lbrace(self, prefix: str = '') -> SPARQL_Builder:
         return self._push(prefix + '{', 1)
 
-    def _rbrace(self):
+    def _rbrace(self) -> SPARQL_Builder:
         return self._push('}', -1)
 
     def bnode(self) -> BNode:
@@ -591,7 +622,7 @@ class SPARQL_Builder(Sequence):
     def _brace(self, x: TTrm, *xs: TTrm, sep=' ') -> str:
         return f'({self._join(x, *xs, sep=sep)})'
 
-    def _join(self, *xs: TTrm, sep=' '):
+    def _join(self, *xs: TTrm, sep=' ') -> str:
         return sep.join(map(self._n3, xs))
 
     def _infix(self, op: str, x: TTrm, y: TTrm, *xs: TTrm) -> str:

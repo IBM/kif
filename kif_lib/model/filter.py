@@ -133,10 +133,9 @@ class Filter(KIF_Object):
         @classmethod
         def _from_abstract_datatype_or_value_class(
                 cls,
-                arg: Union[type[Datatype], type[Value]],
+                arg: type[Datatype] | type[Value],
                 _cache: dict[
-                    Union[type[Datatype], type[Value]],
-                    Filter.DatatypeMask] = {}
+                    type[Datatype] | type[Value], Filter.DatatypeMask] = {}
         ) -> Filter.DatatypeMask | None:
             if not _cache:  # functools.cache does not work here
                 _cache[Datatype] = cls.ALL

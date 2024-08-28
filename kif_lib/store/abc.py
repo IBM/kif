@@ -75,13 +75,17 @@ class Store(Set):
             store: type[Store],
             store_name: str,
             store_description: str
-    ):
+    ) -> None:
         store.store_name = store_name
         store.store_description = store_description
         cls.registry[store.store_name] = store
 
     @classmethod
-    def __init_subclass__(cls, store_name: str, store_description: str):
+    def __init_subclass__(
+            cls,
+            store_name: str,
+            store_description: str
+    ) -> None:
         Store._register(cls, store_name, store_description)
 
     def __new__(cls, store_name: str, *args: Any, **kwargs: Any):
@@ -139,7 +143,7 @@ class Store(Set):
             page_size: int | None = None,
             timeout: int | None = None,
             **kwargs: Any
-    ):
+    ) -> None:
         self._init_flags(flags)
         self._init_cache(self.has_flags(self.CACHE))
         self._init_extra_references(extra_references)
@@ -166,7 +170,7 @@ class Store(Set):
     #: The object cache of store.
     _cache: Cache
 
-    def _init_cache(self, enabled: bool):
+    def _init_cache(self, enabled: bool) -> None:
         self._cache = Cache(enabled)
 
     def _cache_get_presence(self, obj: Entity | Statement) -> bool | None:
@@ -232,7 +236,7 @@ class Store(Set):
     def extra_references(
             self,
             references: TReferenceRecordSet | None = None
-    ):
+    ) -> None:
         self.set_extra_references(references)
 
     def get_extra_references(
@@ -263,7 +267,7 @@ class Store(Set):
     def set_extra_references(
             self,
             extra_references: TReferenceRecordSet | None = None
-    ):
+    ) -> None:
         """Sets the set of extra references to attach to statements.
 
         If `extra_references` is ``None``,
@@ -371,7 +375,7 @@ class Store(Set):
     #: Store flags.
     _flags: Flags
 
-    def _init_flags(self, flags: Flags | None = None):
+    def _init_flags(self, flags: Flags | None = None) -> None:
         flags = self.Flags.check_optional(
             flags, self.default_flags, type(self), 'flags')
         assert flags is not None
@@ -383,7 +387,7 @@ class Store(Set):
         return self.get_flags()
 
     @flags.setter
-    def flags(self, flags: Flags):
+    def flags(self, flags: Flags) -> None:
         if flags != self._flags and self._do_set_flags(self._flags, flags):
             self._flags = self.Flags(flags)
 
@@ -410,7 +414,7 @@ class Store(Set):
         """
         return bool(self.flags & flags)
 
-    def set_flags(self, flags: Flags):
+    def set_flags(self, flags: Flags) -> None:
         """Sets `flags` in store.
 
         Parameters:
@@ -418,7 +422,7 @@ class Store(Set):
         """
         self.flags |= flags
 
-    def unset_flags(self, flags: Flags):
+    def unset_flags(self, flags: Flags) -> None:
         """Unsets `flags` in store.
 
         Parameters:
@@ -484,7 +488,7 @@ class Store(Set):
     #: Page size.
     _page_size: int | None
 
-    def _init_page_size(self, page_size: int | None = None):
+    def _init_page_size(self, page_size: int | None = None) -> None:
         self.page_size = page_size  # type: ignore
 
     @property
@@ -493,7 +497,7 @@ class Store(Set):
         return self.get_page_size()
 
     @page_size.setter
-    def page_size(self, page_size: int | None = None):
+    def page_size(self, page_size: int | None = None) -> None:
         self.set_page_size(page_size)
 
     def get_page_size(
@@ -523,7 +527,7 @@ class Store(Set):
     def set_page_size(
             self,
             page_size: int | None = None
-    ):
+    ) -> None:
         """Sets page size of paginated responses.
 
         If `page_size` is negative, assumes zero.
@@ -634,7 +638,7 @@ class Store(Set):
     #: Timeout (in seconds).
     _timeout: float | None
 
-    def _init_timeout(self, timeout: float | None = None):
+    def _init_timeout(self, timeout: float | None = None) -> None:
         self.timeout = timeout  # type: ignore
 
     @property
@@ -643,7 +647,7 @@ class Store(Set):
         return self.get_timeout()
 
     @timeout.setter
-    def timeout(self, timeout: float | None = None):
+    def timeout(self, timeout: float | None = None) -> None:
         self.set_timeout(timeout)
 
     def get_timeout(
@@ -676,7 +680,7 @@ class Store(Set):
     def set_timeout(
             self,
             timeout: float | None = None
-    ):
+    ) -> None:
         """Sets the timeout of responses (in seconds).
 
         If `timeout` is negative, assumes zero.
@@ -691,13 +695,13 @@ class Store(Set):
 
 # -- Set interface ---------------------------------------------------------
 
-    def __contains__(self, v):
+    def __contains__(self, v: Any) -> bool:
         return self.contains(v) if isinstance(v, Statement) else False
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Statement]:
         return self.filter()
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.count()
 
 # -- Statements ------------------------------------------------------------

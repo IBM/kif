@@ -103,17 +103,17 @@ class SPARQL_Store(
     _client: httpx.Client
     _iri: IRI
 
-    def __init__(self, store_name: str, iri: T_IRI, **kwargs: Any):
+    def __init__(self, store_name: str, iri: T_IRI, **kwargs: Any) -> None:
         assert store_name == self.store_name
         self._client = httpx.Client(headers=self._headers)
         super().__init__(**kwargs)
         self._iri = IRI.check(iri, self.__class__, 'iri', 2)
 
-    def __del__(self):
+    def __del__(self) -> None:
         self._client.close()
 
     @override
-    def set_timeout(self, timeout: float | None = None):
+    def set_timeout(self, timeout: float | None = None) -> None:
         super().set_timeout(timeout)
         self._client.timeout = httpx.Timeout(timeout)
 
@@ -728,7 +728,7 @@ At line {line}, column {column}:
             q: SPARQL_Builder,
             t: Mapping[str, TTrm],
             stmts: Iterable[tuple[int, Statement]]
-    ):
+    ) -> None:
         self._push_filters_as_values(q, t, map(
             lambda x: (x[0], Filter.from_statement(x[1])), stmts))
         q.where_end()
@@ -1205,7 +1205,7 @@ At line {line}, column {column}:
             self,
             results: SPARQL_Results,
             mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Lexeme, Text | None, IRI | None, IRI | None]]:
+    ) -> Iterator[tuple[Lexeme, Text | None, Item | None, Item | None]]:
         if self.has_flags(self.LATE_FILTER):
             get_lemma = bool(mask & Descriptor.LEMMA)
             get_category = bool(mask & Descriptor.CATEGORY)

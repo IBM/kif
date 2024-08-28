@@ -23,7 +23,7 @@ class NoValueSnakTemplate(SnakTemplate):
 
     object_class: ClassVar[type[NoValueSnak]]  # pyright: ignore
 
-    def __init__(self, property: VTProperty):
+    def __init__(self, property: VTProperty) -> None:
         super().__init__(property)
 
 
@@ -66,5 +66,5 @@ class NoValueSnak(
             return cls(Property.check(
                 arg, function or cls.check, name, position))
 
-    def __init__(self, property: VTProperty):
+    def __init__(self, property: VTProperty) -> None:
         super().__init__(property)
