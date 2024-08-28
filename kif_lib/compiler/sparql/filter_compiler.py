@@ -49,7 +49,7 @@ from ...model.fingerprint import (
     SnakFingerprint,
     ValueFingerprint,
 )
-from ...typing import cast, Iterable, override, Self
+from ...typing import Any, cast, Iterable, override, Self
 from .builder import Query
 from .pattern_compiler import SPARQL_PatternCompiler
 
@@ -69,7 +69,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self,
             filter: Filter,
             flags: SPARQL_FilterCompiler.Flags | None = None
-    ):
+    ) -> None:
         super().__init__(Variable('_', Statement), flags)
         self._filter = filter
         self._wds = self._q.fresh_var()
@@ -106,7 +106,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         self._push_filter(filter)
         return self
 
-    def _push_filter(self, filter: Filter):
+    def _push_filter(self, filter: Filter) -> None:
         if filter.is_empty():
             return              # nothing to do
         assert isinstance(self.pattern, VariablePattern)
@@ -380,7 +380,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self,
             dest: Query.V_URI,
             var: ItemVariable | None = None
-    ):
+    ) -> None:
         var = var or ItemVariable(str(dest))
         iri = self._fresh_iri_variable()
         self._theta_add(var, Item(iri))
@@ -391,7 +391,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self,
             dest: Query.V_URI,
             var: PropertyVariable | None = None
-    ):
+    ) -> None:
         var = var or PropertyVariable(str(dest))
         datatype = self._fresh_datatype_variable()
         datatype_iri = self._fresh_iri_variable()
@@ -408,7 +408,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self,
             dest: Query.V_URI,
             var: LexemeVariable | None = None
-    ):
+    ) -> None:
         var = var or LexemeVariable(str(dest))
         iri = self._fresh_iri_variable()
         self._theta_add(var, Lexeme(iri))
@@ -419,7 +419,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self,
             dest: Query.V_URI,
             var: IRI_Variable | None = None
-    ):
+    ) -> None:
         var = var or IRI_Variable(str(dest))
         content = self._fresh_string_variable()
         self._theta_add(var, IRI(content))
@@ -429,7 +429,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self,
             dest: Query.VLiteral,
             var: TextVariable | None = None
-    ):
+    ) -> None:
         var = var or TextVariable(str(dest))
         content = self._fresh_string_variable()
         lang = self._fresh_string_variable()
@@ -442,7 +442,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self,
             dest: Query.VLiteral,
             var: StringVariable | None = None
-    ):
+    ) -> None:
         var = var or StringVariable(str(dest))
         content = self._fresh_string_variable()
         self._theta_add(var, String(content))
@@ -452,7 +452,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self,
             dest: Query.VLiteral,
             var: ExternalIdVariable | None = None
-    ):
+    ) -> None:
         var = var or ExternalIdVariable(str(dest))
         content = self._fresh_string_variable()
         self._theta_add(var, ExternalId(content))
@@ -464,7 +464,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             wdv: Query.Variable,
             var: QuantityVariable | None = None,
             qt: Quantity | None = None
-    ):
+    ) -> None:
         var = var or QuantityVariable(str(dest))
         amount = self._fresh_quantity_variable()
         unit = self._theta_add_default(self._fresh_item_variable(), None)
@@ -521,7 +521,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             wdv: Query.Variable,
             var: TimeVariable | None = None,
             tm: Time | None = None
-    ):
+    ) -> None:
         var = var or TimeVariable(str(dest))
         time = self._fresh_time_variable()
         prec = self._theta_add_default(self._fresh_quantity_variable(), None)
@@ -572,7 +572,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             dest: Query.Variable,
             property: Query.V_URI,
             wds: Query.Variable
-    ):
+    ) -> None:
         assert not fp.is_empty()
         if isinstance(fp, CompoundFingerprint):
             with self._q.group():
@@ -597,7 +597,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             dest: Query.Variable,
             property: Query.V_URI,
             wds: Query.Variable
-    ):
+    ) -> None:
         atoms, comps = map(list, itertools.partition(
             lambda x: isinstance(x, CompoundFingerprint), fp.args))
         snaks, values = map(list, itertools.partition(
@@ -626,7 +626,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self,
             fp: SnakFingerprint,
             dest: Query.Variable,
-    ):
+    ) -> None:
         prop = self._q.uri(fp.snak.property.iri.content)
         if isinstance(fp, ConverseSnakFingerprint):
             assert isinstance(fp.snak, ValueSnak)
@@ -676,7 +676,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             dest: Query.Variable,
             property: Query.V_URI,
             wds: Query.Variable
-    ):
+    ) -> None:
         values = map(lambda fp: fp.value, fps)
         shallow, deep = map(list, itertools.partition(
             lambda v: isinstance(v, DeepDataValue), values))
@@ -724,7 +724,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             qt: Quantity,
             dest: Query.Variable,
             wdv: Query.Variable
-    ):
+    ) -> None:
         amount = self._q.literal(qt.amount)
         self._q.triples()((wdv, NS.WIKIBASE.quantityAmount, amount))
         if qt.unit is not None:
@@ -744,7 +744,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             tm: Time,
             dest: Query.Variable,
             wdv: Query.Variable,
-    ):
+    ) -> None:
         time = self._q.literal(tm.time)
         self._q.triples()((wdv, NS.WIKIBASE.timeValue, time))
         if tm.precision is not None:
@@ -763,9 +763,9 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             self,
             dest: Query.Variable,
             negate: bool = False
-    ):
+    ) -> None:
         if self.has_flags(self.WIKIDATA_EXTENSIONS):
-            cond = self._q.call(NS.WIKIBASE.isSomeValue, dest)
+            cond: Any = self._q.call(NS.WIKIBASE.isSomeValue, dest)
         else:
             cond = self._q.is_blank(dest) | (
                 self._q.is_uri(dest) & self._q.strstarts(

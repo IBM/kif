@@ -80,7 +80,7 @@ class ClosedPattern(Pattern):
             self,
             object: ClosedTerm,
             constraint: TConstraint | None = None
-    ):
+    ) -> None:
         super().__init__(object, constraint)
 
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -208,7 +208,7 @@ class VariablePattern(Pattern):
             self,
             variable: Variable,
             constraint: TConstraint | None = None
-    ):
+    ) -> None:
         super().__init__(variable, constraint)
 
     def _preprocess_arg(self, arg: Any, i: int) -> Any:

@@ -44,7 +44,7 @@ class KIF_ObjectSet(KIF_Object, Generic[_TObj]):
     children_class: ClassVar[type[KIF_Object]]
 
     @classmethod
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs: Any) -> None:
         if 'children_class' in kwargs:
             cls.children_class = kwargs['children_class']
             assert issubclass(cls.children_class, KIF_Object)
@@ -74,7 +74,7 @@ class KIF_ObjectSet(KIF_Object, Generic[_TObj]):
     _frozenset: frozenset[_TObj]
 
     @override
-    def _set_args(self, args: tuple[Any, ...]):
+    def _set_args(self, args: tuple[Any, ...]) -> None:
         self._frozenset = frozenset(args)
         self._args = tuple(sorted(self._frozenset))
 
@@ -111,7 +111,7 @@ class ValueSet(KIF_ObjectSet[Value], children_class=Value):
     children_class: ClassVar[type[Value]]  # pyright: ignore
 
     @override
-    def __init__(self, *values: TValue):
+    def __init__(self, *values: TValue) -> None:
         super().__init__(*values)
 
 
@@ -125,7 +125,7 @@ class TextSet(ValueSet, children_class=Text):
     children_class: ClassVar[type[Text]]  # pyright: ignore
 
     @override
-    def __init__(self, *texts: TText):
+    def __init__(self, *texts: TText) -> None:
         super().__init__(*texts)
 
 
@@ -139,7 +139,7 @@ class SnakSet(KIF_ObjectSet[Snak], children_class=Snak):
     children_class: ClassVar[type[Snak]]  # pyright: ignore
 
     @override
-    def __init__(self, *snaks: Snak):
+    def __init__(self, *snaks: Snak) -> None:
         super().__init__(*snaks)
 
 
@@ -180,5 +180,5 @@ class ReferenceRecordSet(
     children_class: ClassVar[type[ReferenceRecord]]  # pyright: ignore
 
     @override
-    def __init__(self, *reference_records: TReferenceRecord):
+    def __init__(self, *reference_records: TReferenceRecord) -> None:
         super().__init__(*reference_records)

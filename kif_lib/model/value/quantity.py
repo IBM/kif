@@ -41,7 +41,8 @@ class QuantityTemplate(DeepDataValueTemplate):
             amount: VTQuantityContent,
             unit: VTItem | None = None,
             lower_bound: VTQuantityContent | None = None,
-            upper_bound: VTQuantityContent | None = None):
+            upper_bound: VTQuantityContent | None = None
+    ) -> None:
         super().__init__(amount, unit, lower_bound, upper_bound)
 
     @override

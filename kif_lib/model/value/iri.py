@@ -28,7 +28,7 @@ class IRI_Template(ShallowDataValueTemplate):
 
     object_class: ClassVar[type[IRI]]  # pyright: ignore
 
-    def __init__(self, content: VT_IRI_Content):
+    def __init__(self, content: VT_IRI_Content) -> None:
         super().__init__(content)
 
 
@@ -65,7 +65,7 @@ class IRI(
     template_class: ClassVar[type[IRI_Template]]  # pyright: ignore
     variable_class: ClassVar[type[IRI_Variable]]  # pyright: ignore
 
-    def __init__(self, content: VT_IRI_Content):
+    def __init__(self, content: VT_IRI_Content) -> None:
         super().__init__(content)
 
     @override

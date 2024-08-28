@@ -61,7 +61,7 @@ class Item(
     template_class: ClassVar[type[ItemTemplate]]  # pyright: ignore
     variable_class: ClassVar[type[ItemVariable]]  # pyright: ignore
 
-    def __init__(self, iri: VTItemContent):
+    def __init__(self, iri: VTItemContent) -> None:
         super().__init__(iri)
 
 

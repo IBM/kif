@@ -50,7 +50,8 @@ class TimeTemplate(DeepDataValueTemplate):
             time: VTTimeContent,
             precision: VTTimePrecisionContent | None = None,
             timezone: VTTimeTimezoneContent | None = None,
-            calendar: VTItem | None = None):
+            calendar: VTItem | None = None
+    ) -> None:
         super().__init__(time, precision, timezone, calendar)
 
     @override
@@ -313,7 +314,8 @@ class Time(
             time: VTTimeContent,
             precision: VTTimePrecisionContent | None = None,
             timezone: VTTimeTimezoneContent | None = None,
-            calendar: VTItem | None = None):
+            calendar: VTItem | None = None
+    ) -> None:
         super().__init__(time, precision, timezone, calendar)
 
     @override

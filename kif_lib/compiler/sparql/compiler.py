@@ -76,7 +76,7 @@ class SPARQL_Compiler(Compiler):
     _flags: SPARQL_Compiler.Flags
 
     @abc.abstractmethod
-    def __init__(self, flags: Flags | None = None):
+    def __init__(self, flags: Flags | None = None) -> None:
         super().__init__()
         self._q = self.Query()
         if flags is None:
@@ -90,7 +90,7 @@ class SPARQL_Compiler(Compiler):
         return self.get_flags()
 
     @flags.setter
-    def flags(self, flags: Flags):
+    def flags(self, flags: Flags) -> None:
         if flags != self._flags:
             self._flags = self.Flags(flags)
 
@@ -113,7 +113,7 @@ class SPARQL_Compiler(Compiler):
         """
         return bool(self.flags & flags)
 
-    def set_flags(self, flags: Flags):
+    def set_flags(self, flags: Flags) -> None:
         """Sets `flags` in compiler.
 
         Parameters:
@@ -121,7 +121,7 @@ class SPARQL_Compiler(Compiler):
         """
         self.flags |= flags
 
-    def unset_flags(self, flags: Flags):
+    def unset_flags(self, flags: Flags) -> None:
         """Unsets `flags` in compiler.
 
         Parameters:

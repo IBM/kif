@@ -32,7 +32,7 @@ class AnnotationRecord(KIF_Object):
             qualifiers: TSnakSet | None = None,
             references: TReferenceRecordSet | None = None,
             rank: Rank | None = None
-    ):
+    ) -> None:
         super().__init__(qualifiers, references, rank)
 
     @override

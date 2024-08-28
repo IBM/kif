@@ -349,7 +349,7 @@ class Filter(KIF_Object):
             subject_mask: TDatatypeMask | None = None,
             property_mask: TDatatypeMask | None = None,
             value_mask: TDatatypeMask | None = None
-    ):
+    ) -> None:
         super().__init__(
             subject, property, value, snak_mask,
             subject_mask, property_mask, value_mask)
@@ -374,7 +374,7 @@ class Filter(KIF_Object):
             raise self._should_not_get_here()
 
     @override
-    def _set_args(self, args: tuple[Any, ...]):
+    def _set_args(self, args: tuple[Any, ...]) -> None:
         super()._set_args(args)
 
     @at_property
@@ -574,7 +574,7 @@ class Filter(KIF_Object):
         return functools.reduce(self._combine, others, self)
 
     @classmethod
-    def _combine(cls, f1: Filter, f2: Filter):
+    def _combine(cls, f1: Filter, f2: Filter) -> Filter:
         f2 = Filter.check(f2, cls.combine)
         return f1.__class__(
             f1.subject & f2.subject,

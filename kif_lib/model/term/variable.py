@@ -70,7 +70,11 @@ class Variable(OpenTerm):
                 return cast(Self, cls(arg.name))
         raise cls._check_error(arg, function, name, position)
 
-    def __init__(self, name: str, object_class: type[Term] | None = None):
+    def __init__(
+            self,
+            name: str,
+            object_class: type[Term] | None = None
+    ) -> None:
         super().__init__(name)
 
     @override
@@ -89,11 +93,15 @@ class Variable(OpenTerm):
     def __call__(self, v1: VTValue) -> ValueSnakTemplate:
         ...                     # pragma: no cover
 
-    def __call__(self, v1, v2=None):
+    def __call__(
+            self,
+            v1: VTEntity | VTValue,
+            v2: VTValue | None = None
+    ) -> StatementTemplate | ValueSnakTemplate:
         from ..value import PropertyVariable
         prop = PropertyVariable.check(self)
         if v2 is not None:
-            return prop(v1, v2)
+            return prop(v1, v2)  # type: ignore
         else:
             return prop(v1)
 
@@ -181,8 +189,10 @@ def Variables(name: str, *names: str | TVariableClass) -> Iterator[Variable]:
     Returns:
        The resulting variables.
     """
-    def it(args):
-        vars = []
+    def it(
+            args: Iterator[str | TVariableClass]
+    ) -> Iterator[tuple[list[str], TVariableClass | None]]:
+        vars: list[str] = []
         for x in args:
             if isinstance(x, str):
                 vars.append(x)

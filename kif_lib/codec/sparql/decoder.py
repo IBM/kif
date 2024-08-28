@@ -68,7 +68,7 @@ At line {line}, column {column}:
 
     _namespace: Mapping[str, Any] | None
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._namespace = dict(NS._DEFAULT_NSM.namespaces())
 
     @override

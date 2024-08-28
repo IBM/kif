@@ -42,21 +42,21 @@ class Rank(KIF_Object):
 class PreferredRank(Rank):
     """Most important information."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
 
 class NormalRank(Rank):
     """Complementary information."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
 
 class DeprecatedRank(Rank):
     """Unreliable information."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
 

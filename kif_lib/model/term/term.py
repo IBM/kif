@@ -83,7 +83,7 @@ class ClosedTerm(Term):
     variable_class: ClassVar[type[Variable]]
 
     @classmethod
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs: Any) -> None:
         from .template import Template
         from .variable import Variable
         assert not issubclass(cls, OpenTerm)

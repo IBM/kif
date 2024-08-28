@@ -27,6 +27,8 @@ TNum: TypeAlias = Union[float, int]
 
 F = TypeVar('F', bound=Callable[..., Any])
 T = TypeVar('T')
+T1 = TypeVar('T1')
+T2 = TypeVar('T2')
 
 
 # == Object ================================================================
@@ -154,12 +156,12 @@ class Object(Sequence, metaclass=ObjectMeta):
     _digest: str | None
 
     @abc.abstractmethod
-    def __init__(self, *args: Any):
+    def __init__(self, *args: Any) -> None:
         self._set_args(self._preprocess_args(args))
         self._hash = None
         self._digest = None
 
-    def _set_args(self, args: tuple[Any, ...]):
+    def _set_args(self, args: tuple[Any, ...]) -> None:
         self._args = args
 
     def _preprocess_args(self, args: tuple[Any, ...]) -> tuple[Any, ...]:
@@ -175,7 +177,7 @@ class Object(Sequence, metaclass=ObjectMeta):
     def __eq__(self, other: Any) -> bool:
         return type(self) is type(other) and self._args == other._args
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: Any) -> Any:
         return self._args[i]
 
     def __hash__(self) -> int:
@@ -255,7 +257,7 @@ class Object(Sequence, metaclass=ObjectMeta):
             self._digest = self._hexdigest(self.dumps())
         return self._digest
 
-    def _hexdigest(self, s: str):
+    def _hexdigest(self, s: str) -> str:
         import hashlib
         return hashlib.sha256(s.encode('utf-8')).hexdigest()
 
@@ -301,7 +303,7 @@ class Object(Sequence, metaclass=ObjectMeta):
             self._replace, itertools.zip_longest(
                 self.args, args, fillvalue=self.KEEP)))
 
-    def _replace(self, x, y):
+    def _replace(self, x: T1, y: T2) -> T1 | T2:
         if y is self.KEEP:
             return x
         else:
@@ -357,7 +359,12 @@ class Object(Sequence, metaclass=ObjectMeta):
 
 # -- Encoding --------------------------------------------------------------
 
-    def dump(self, stream: IO[Any], format: str | None = None, **kwargs):
+    def dump(
+            self,
+            stream: IO[Any],
+            format: str | None = None,
+            **kwargs: Any
+    ) -> None:
         """Encodes object and writes the result to `stream`.
 
         Parameters:
@@ -369,7 +376,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         for chunk in enc(**kwargs).iterencode(self):
             stream.write(chunk)
 
-    def dumps(self, format: str | None = None, **kwargs) -> str:
+    def dumps(self, format: str | None = None, **kwargs: Any) -> str:
         """Encodes object and returns the resulting string.
 
         Parameters:
@@ -869,7 +876,8 @@ class Codec(abc.ABC):
             cls,
             codec: type[Codec],
             format: str,
-            description: str):
+            description: str
+    ) -> None:
         codec.format = format
         codec.description = description
         cls.registry[format] = codec
@@ -911,7 +919,8 @@ class Encoder(Codec):
     def __init_subclass__(
             cls,
             format: str,
-            description: str):
+            description: str
+    ) -> None:
         Encoder._register(cls, format, description)
 
     @classmethod
@@ -944,11 +953,10 @@ class Encoder(Codec):
         raise NotImplementedError
 
 
-class ReprEncoder(
-        Encoder, format='repr', description='Repr. encoder'):
+class ReprEncoder(Encoder, format='repr', description='Repr. encoder'):
     """Repr. encoder."""
 
-    def __init__(self, indent: int = 0):
+    def __init__(self, indent: int = 0) -> None:
         self.indent = indent
 
     @override
@@ -983,7 +991,7 @@ class ReprEncoder(
         else:
             yield from self._repr(v)
 
-    def _is_object_or_collection(self, v):
+    def _is_object_or_collection(self, v) -> bool:
         return isinstance(v, (Object, list, tuple))
 
     def _start_object(
@@ -1079,7 +1087,7 @@ class JSON_Encoder(Encoder, format='json', description='JSON encoder'):
                 except TypeError as err:
                     raise Encoder._error(str(err)) from err
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self.enc = self.Encoder(**kwargs)
 
     @override
@@ -1098,7 +1106,7 @@ class Decoder(Codec):
     registry = {}
 
     @classmethod
-    def __init_subclass__(cls, format: str, description: str):
+    def __init_subclass__(cls, format: str, description: str) -> None:
         Decoder._register(cls, format, description)
 
     @classmethod
@@ -1127,8 +1135,7 @@ class Decoder(Codec):
         raise NotImplementedError
 
 
-class ReprDecoder(
-        Decoder, format='repr', description='Repr. decoder'):
+class ReprDecoder(Decoder, format='repr', description='Repr. decoder'):
     """Repr. decoder."""
 
     @classmethod
@@ -1178,7 +1185,7 @@ list: "[" value* "]" -> list_
     class Visitor(lark.visitors.Transformer_InPlaceRecursive):
         """S-expression decoder's visitor."""
 
-        def __init__(self):
+        def __init__(self) -> None:
             super().__init__()
 
         @lark.v_args(inline=True)
@@ -1213,7 +1220,7 @@ list: "[" value* "]" -> list_
         def list_(self, *args):
             return list(args)
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.parser = lark.Lark(
             self.grammar, start='sexp', parser='lalr',
             transformer=self.Visitor(), cache=True)
@@ -1245,10 +1252,11 @@ class JSON_Decoder(Decoder, format='json', description='JSON decoder'):
 
         object_hook = _object_hook
 
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, object_hook=self.object_hook, **kwargs)
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            super().__init__(
+                *args, object_hook=self.object_hook, **kwargs)  # type: ignore
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         self.dec = self.Decoder(**kwargs)
 
     @override

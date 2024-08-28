@@ -41,7 +41,7 @@ class ValueSnakTemplate(SnakTemplate):
 
     object_class: ClassVar[type[ValueSnak]]  # pyright: ignore
 
-    def __init__(self, property: VTProperty, value: VTValue):
+    def __init__(self, property: VTProperty, value: VTValue) -> None:
         super().__init__(property, value)
 
     @override
@@ -59,7 +59,7 @@ class ValueSnakTemplate(SnakTemplate):
             raise self._should_not_get_here()
 
     @override
-    def _set_args(self, args: tuple[Any, ...]):
+    def _set_args(self, args: tuple[Any, ...]) -> None:
         prop, value = args
         if isinstance(prop, Variable):  # nothing to do
             super()._set_args(args)
@@ -175,7 +175,7 @@ class ValueSnak(
         else:
             raise cls._check_error(arg, function, name, position)
 
-    def __init__(self, property: VTProperty, value: VTValue):
+    def __init__(self, property: VTProperty, value: VTValue) -> None:
         super().__init__(property, value)
 
     @staticmethod
@@ -188,7 +188,7 @@ class ValueSnak(
             raise self_._should_not_get_here()
 
     @override
-    def _set_args(self, args: tuple[Any, ...]):
+    def _set_args(self, args: tuple[Any, ...]) -> None:
         prop, value = args
         assert isinstance(prop, Property)
         assert isinstance(value, Value)

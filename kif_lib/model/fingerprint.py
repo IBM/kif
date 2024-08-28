@@ -203,7 +203,7 @@ class CompoundFingerprint(Fingerprint):
             else:
                 raise cls._check_error(arg, function, name, position)
 
-    def __init__(self, *fps: TFingerprint):
+    def __init__(self, *fps: TFingerprint) -> None:
         super().__init__(*fps)
 
     @override
@@ -547,7 +547,7 @@ class FullFingerprint(AtomicFingerprint):
         else:
             raise cls._check_error(arg, function, name, position)
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
     @override
@@ -579,7 +579,7 @@ class EmptyFingerprint(AtomicFingerprint):
         else:
             raise cls._check_error(arg, function, name, position)
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
     @override

@@ -14,10 +14,10 @@ import decimal
 import itertools
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, MutableSequence, Sequence
-from typing import cast, Final, Optional, Union
+from typing import Callable, cast, Final, Optional, Union
 
 from rdflib import BNode, Literal, URIRef, Variable
-from typing_extensions import Any, override, TypeAlias, TypeVar
+from typing_extensions import Any, override, Self, TypeAlias, TypeVar
 
 _str = str
 T = TypeVar('T')
@@ -60,7 +60,7 @@ class Encodable(ABC):
         else:
             return v.n3()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.encode()
 
     def encode(self) -> str:
@@ -244,23 +244,23 @@ class Expression(Encodable):
     """Abstract base class for expressions."""
 
     @abstractmethod
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         raise NotImplementedError
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
 
 class BooleanExpression(Expression):
     """Abstract base class for boolean expressions."""
 
-    def __invert__(self):
+    def __invert__(self) -> Not:
         return Not(self)
 
-    def __or__(self, other):
+    def __or__(self, other) -> Or:
         return Or(self, other)
 
-    def __and__(self, other):
+    def __and__(self, other) -> And:
         return And(self, other)
 
 
@@ -272,10 +272,14 @@ class LogicExpression(BooleanExpression):
     operator: str
     args: Sequence[BooleanExpression]
 
-    def __init__(self, arg: BooleanExpression, *args: BooleanExpression):
+    def __init__(
+            self,
+            arg: BooleanExpression,
+            *args: BooleanExpression
+    ) -> None:
         self.args = (arg, *args)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return (type(self) is type(other)
                 and self.operator == other.operator
                 and self.args == other.args)
@@ -296,7 +300,7 @@ class Not(LogicExpression):
     """Negation."""
     operator: str = Symbol.NOT
 
-    def __init__(self, arg: BooleanExpression):
+    def __init__(self, arg: BooleanExpression) -> None:
         super().__init__(arg)
 
     @override
@@ -325,12 +329,12 @@ class RelationalExpression(BooleanExpression):
     operator: str
     args: tuple[NumericExpression, NumericExpression]
 
-    def __init__(self, arg1: TNumExpr, arg2: TNumExpr):
+    def __init__(self, arg1: TNumExpr, arg2: TNumExpr) -> None:
         self.args = (
             Coerce.numeric_expression(arg1),
             Coerce.numeric_expression(arg2))
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return (type(self) is type(other)
                 and self.operator == other.operator
                 and self.args == other.args)
@@ -387,10 +391,10 @@ class NumericLiteral(NumericExpression):
 
     value: URIRef | Literal | Variable
 
-    def __init__(self, value: TNumericLiteralContent):
+    def __init__(self, value: TNumericLiteralContent) -> None:
         self.value = Coerce.numeric_literal_content(value)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return (type(self) is type(other) and self.value == other.value)
 
     @override
@@ -404,7 +408,7 @@ class Call(NumericExpression):
     operator: Any
     args: Sequence[NumericExpression]
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return (type(self) is type(other)
                 and self.operator == other.operator
                 and self.args == other.args)
@@ -421,7 +425,7 @@ class URI_Call(Call):
 
     operator: URIRef
 
-    def __init__(self, uri: T_URI, *args: TNumExpr):
+    def __init__(self, uri: T_URI, *args: TNumExpr) -> None:
         self.operator = Coerce.uri(uri)
         self.args = tuple(map(Coerce.numeric_expression, args))
 
@@ -445,7 +449,7 @@ class BuiltInCall(Call):
 class UnaryBuiltInCall(BuiltInCall):
     """Abstract base class for 1-ary built-in calls."""
 
-    def __init__(self, arg: TNumExpr):
+    def __init__(self, arg: TNumExpr) -> None:
         self.args = (Coerce.numeric_expression(arg),)
 
 
@@ -456,7 +460,7 @@ class Aggregate(UnaryBuiltInCall):
 class BinaryBuiltInCall(BuiltInCall):
     """Abstract base class for 2-ary built-in calls."""
 
-    def __init__(self, arg1: TNumExpr, arg2: TNumExpr):
+    def __init__(self, arg1: TNumExpr, arg2: TNumExpr) -> None:
         self.args = (
             Coerce.numeric_expression(arg1),
             Coerce.numeric_expression(arg2))
@@ -465,7 +469,7 @@ class BinaryBuiltInCall(BuiltInCall):
 class TernaryBuiltInCall(BuiltInCall):
     """Abstract base class for 3-ary built-in calls."""
 
-    def __init__(self, arg1: TNumExpr, arg2: TNumExpr, arg3: TNumExpr):
+    def __init__(self, arg1: TNumExpr, arg2: TNumExpr, arg3: TNumExpr) -> None:
         self.args = (
             Coerce.numeric_expression(arg1),
             Coerce.numeric_expression(arg2),
@@ -489,7 +493,7 @@ class COUNT(Aggregate):
 class COUNT_STAR(COUNT):
     """The COUNT aggregate built-in with argument set to star (*)."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.args = ()
 
     @override
@@ -568,7 +572,7 @@ class Pattern(Encodable):
             self,
             clause: Clause,
             parent: GraphPattern | None = None
-    ):
+    ) -> None:
         self.clause = clause
         self.parent = parent
 
@@ -587,7 +591,7 @@ class Bind(Pattern):
             variable: TVariable,
             clause: Clause,
             parent: GraphPattern | None = None
-    ):
+    ) -> None:
         super().__init__(clause, parent)
         self.expression = Coerce.expression(expression)
         self.variable = Coerce.variable(variable)
@@ -621,7 +625,7 @@ class Comment(Pattern):
             text: str,
             clause: Clause,
             parent: GraphPattern | None = None
-    ):
+    ) -> None:
         super().__init__(clause, parent)
         self.text = text
 
@@ -643,7 +647,7 @@ class Filter(Pattern):
             expression: TExpression,
             clause: Clause,
             parent: GraphPattern | None = None
-    ):
+    ) -> None:
         super().__init__(clause, parent)
         self.expression = Coerce.expression(expression)
 
@@ -669,7 +673,7 @@ class Triple(Pattern):
             object: TObject,
             clause: Clause,
             parent: GraphPattern | None = None
-    ):
+    ) -> None:
         super().__init__(clause, parent)
         self.args = (
             Coerce.subject(subject),
@@ -695,7 +699,7 @@ class ValuesLine(Pattern):
             *args: TValuesValue,
             clause: Clause,
             parent: GraphPattern | None = None
-    ):
+    ) -> None:
         super().__init__(clause, parent)
         self.args = tuple(map(Coerce.values_value, args))
 
@@ -713,8 +717,8 @@ class ValuesLine(Pattern):
 class GraphPattern(Pattern):
     """Abstract base class for graph patterns."""
 
-    def __enter__(self):
-        return self.clause._begin(self)
+    def __enter__(self) -> Self:
+        return cast(Self, self.clause._begin(self))
 
     def __exit__(self, err_type, err_val, err_bt):
         if err_val is None:
@@ -731,7 +735,8 @@ class GraphPattern(Pattern):
 
     def _add_error(
             self,
-            obj: Pattern, _f=lambda x: x.__class__.__qualname__
+            obj: Pattern,
+            _f: Callable[[Any], str] = lambda x: type(x).__qualname__
     ) -> SyntaxError:
         return SyntaxError(f'cannot add {_f(obj)} to {_f(self)}')
 

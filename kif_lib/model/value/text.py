@@ -36,7 +36,7 @@ class TextOptions(Section, name='text'):
 
     _language: str
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         self.language = kwargs.get(
             '_language', self.getenv(*self._v_language))
 
@@ -46,7 +46,7 @@ class TextOptions(Section, name='text'):
         return self._language
 
     @language.setter
-    def language(self, language: TString):
+    def language(self, language: TString) -> None:
         self._language = String.check(
             language, 'language', 'language', 1).content
 
@@ -65,7 +65,7 @@ class TextTemplate(ShallowDataValueTemplate):
             self,
             content: VTTextContent,
             language: VTStringContent | None = None
-    ):
+    ) -> None:
         super().__init__(content, language)
 
     @override
@@ -135,7 +135,7 @@ class Text(
             self,
             content: VTTextContent,
             language: VTStringContent | None = None
-    ):
+    ) -> None:
         if language is None and isinstance(content, Text):
             super().__init__(content.content, content.language)
         else:

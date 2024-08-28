@@ -27,7 +27,7 @@ class StringTemplate(ShallowDataValueTemplate):
 
     object_class: ClassVar[type[String]]  # pyright: ignore
 
-    def __init__(self, content: VTStringContent):
+    def __init__(self, content: VTStringContent) -> None:
         super().__init__(content)
 
 
@@ -64,7 +64,7 @@ class String(
     template_class: ClassVar[type[StringTemplate]]  # pyright: ignore
     variable_class: ClassVar[type[StringVariable]]  # pyright: ignore
 
-    def __init__(self, content: VTStringContent):
+    def __init__(self, content: VTStringContent) -> None:
         super().__init__(content)
 
     @override

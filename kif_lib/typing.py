@@ -18,7 +18,7 @@ from collections.abc import (
     Sequence,
     Set,
 )
-from types import TracebackType
+from types import ModuleType, TracebackType
 from typing import (
     BinaryIO,
     cast,
@@ -64,6 +64,7 @@ __all__ = (
     'Iterator',
     'Literal',
     'Mapping',
+    'ModuleType',
     'MutableMapping',
     'MutableSet',
     'NoReturn',

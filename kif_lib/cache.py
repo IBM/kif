@@ -23,7 +23,7 @@ class Cache:
     _cache: dict[Hashable, dict[str, Any]]
     _enabled: bool
 
-    def __init__(self, enabled: bool = True):
+    def __init__(self, enabled: bool = True) -> None:
         self._cache = {}
         self._enabled = enabled
 
@@ -40,16 +40,16 @@ class Cache:
         """
         return self._enabled is True
 
-    def enable(self):
+    def enable(self) -> None:
         """Enables cache."""
         self._enabled = True
 
     @property
-    def disabled(self):
+    def disabled(self) -> bool:
         """Whether cache is disabled."""
         return self.is_disabled()
 
-    def is_disabled(self):
+    def is_disabled(self) -> bool:
         """Tests whether cache is disabled.
 
         Returns:
@@ -57,7 +57,7 @@ class Cache:
         """
         return self._enabled is False
 
-    def disable(self):
+    def disable(self) -> None:
         """Disables cache."""
         self._enabled = False
 
@@ -74,7 +74,7 @@ class Cache:
         """
         return len(self._cache)
 
-    def clear(self):
+    def clear(self) -> None:
         """Clears cache."""
         self._cache = {}
 

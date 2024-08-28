@@ -34,7 +34,7 @@ from ..model import (
 )
 from ..model.kif_object import Encoder, Object
 from ..namespace import _DEFAULT_NSM
-from ..typing import Iterator, override
+from ..typing import Iterator, ModuleType, override
 
 SP = ' '                        # space
 NL = '\n'                       # newline
@@ -45,7 +45,7 @@ class MarkdownEncoder(
     """Markdown encoder."""
 
     @property
-    def wd(self):
+    def wd(self) -> ModuleType:
         from .. import vocabulary
         return vocabulary.wd
 
@@ -192,10 +192,7 @@ class MarkdownEncoder(
         else:
             yield str(obj)      # pragma: no cover
 
-    def _encode_kif_object_name(
-            self,
-            obj: KIF_Object
-    ) -> str:
+    def _encode_kif_object_name(self, obj: KIF_Object) -> str:
         return f'**{obj.__class__.__qualname__}**'
 
     def _iterencode_kif_object_start(

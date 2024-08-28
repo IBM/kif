@@ -173,7 +173,7 @@ class ItemDescriptor(PlainDescriptor):
             label: TText | None = None,
             aliases: TTextSet | None = None,
             description: TText | None = None
-    ):
+    ) -> None:
         super().__init__(label, aliases, description)
 
 
@@ -193,7 +193,7 @@ class PropertyDescriptor(PlainDescriptor):
             aliases: TTextSet | None = None,
             description: TText | None = None,
             datatype: TDatatype | None = None
-    ):
+    ) -> None:
         super().__init__(label, aliases, description, datatype)
 
     @override
@@ -236,7 +236,7 @@ class LexemeDescriptor(Descriptor):
             lemma: TText | None = None,
             category: TItem | None = None,
             language: TItem | None = None
-    ):
+    ) -> None:
         super().__init__(lemma, category, language)
 
     @override

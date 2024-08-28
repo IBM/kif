@@ -42,7 +42,7 @@ class PropertyTemplate(EntityTemplate):
 
     object_class: ClassVar[type[Property]]  # pyright: ignore
 
-    def __init__(self, iri: VT_IRI, range: VTDatatype | None = None):
+    def __init__(self, iri: VT_IRI, range: VTDatatype | None = None) -> None:
         super().__init__(iri, range)
 
     @override
@@ -68,11 +68,15 @@ class PropertyTemplate(EntityTemplate):
     def __call__(self, v1: VTValue) -> ValueSnakTemplate:
         ...                     # pragma: no cover
 
-    def __call__(self, v1, v2=None):
+    def __call__(
+            self,
+            v1: VTEntity | VTValue,
+            v2: VTValue | None = None
+    ) -> StatementTemplate | ValueSnakTemplate:
         if v2 is not None:
             from ..snak import ValueSnak
             from ..statement import StatementTemplate
-            return StatementTemplate(v1, ValueSnak(self, v2))
+            return StatementTemplate(v1, ValueSnak(self, v2))  # type: ignore
         else:
             from ..snak import ValueSnakTemplate
             return ValueSnakTemplate(self, v1)
@@ -131,11 +135,15 @@ class PropertyVariable(EntityVariable):
     def __call__(self, v1: VTValue) -> ValueSnakTemplate:
         ...                     # pragma: no cover
 
-    def __call__(self, v1, v2=None):
+    def __call__(
+            self,
+            v1: VTEntity | VTValue,
+            v2: VTValue | None = None
+    ) -> StatementTemplate | ValueSnakTemplate:
         if v2 is not None:
             from ..snak import ValueSnak
             from ..statement import StatementTemplate
-            return StatementTemplate(v1, ValueSnak(self, v2))
+            return StatementTemplate(v1, ValueSnak(self, v2))  # type: ignore
         else:
             from ..snak import ValueSnakTemplate
             return ValueSnakTemplate(self, v1)
@@ -187,7 +195,7 @@ class Property(
             self,
             iri: VTPropertyContent,
             range: VTDatatype | None = None
-    ):
+    ) -> None:
         super().__init__(iri, range)
 
     @staticmethod
@@ -208,11 +216,15 @@ class Property(
     def __call__(self, v1: VTValue) -> ValueSnak:
         ...                     # pragma: no cover
 
-    def __call__(self, v1, v2=None):
+    def __call__(
+            self,
+            v1: VTEntity | VTValue,
+            v2: VTValue | None = None
+    ) -> Statement | ValueSnak:
         if v2 is not None:
             from ..snak import ValueSnak
             from ..statement import Statement
-            return Statement(v1, ValueSnak(self, v2))
+            return Statement(v1, ValueSnak(self, v2))  # type: ignore
         else:
             from ..snak import ValueSnak
             return ValueSnak(self, v1)

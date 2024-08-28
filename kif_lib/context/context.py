@@ -39,7 +39,7 @@ class Context:
     #: Context options.
     _options: Options | None
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._options = None
 
     def __enter__(self) -> Context:

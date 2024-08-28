@@ -24,5 +24,5 @@ class AnnotationRecordSet(
     children_class: ClassVar[type[AnnotationRecord]]  # pyright: ignore
 
     @override
-    def __init__(self, *annotation_records: AnnotationRecord):
+    def __init__(self, *annotation_records: AnnotationRecord) -> None:
         super().__init__(*annotation_records)

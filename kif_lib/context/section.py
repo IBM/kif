@@ -16,7 +16,7 @@ class Section:
     #: Name of this section.
     name: ClassVar[str]
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs: Any) -> None:
         cls.name = kwargs.get('name', cls.__qualname__)
 
     @classmethod
@@ -34,7 +34,7 @@ class Section:
         Returns:
            Section.
         """
-        def it():
+        def it() -> Iterator[tuple[str, Any]]:
             for field in dataclasses.fields(cls):
                 if field.name not in ast:
                     continue

@@ -18,7 +18,7 @@ class Compiler(abc.ABC):
     def _cannot_compile_error(self, obj) -> Compiler.Error:
         return self.Error(f'cannot compile {obj}')
 
-    def _should_not_get_here(self):
+    def _should_not_get_here(self) -> KIF_Object.ShouldNotGetHere:
         return KIF_Object._should_not_get_here()
 
     @abc.abstractmethod

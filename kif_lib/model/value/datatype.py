@@ -187,6 +187,6 @@ class Datatype(ClosedTerm, variable_class=DatatypeVariable):
         else:
             raise self._should_not_get_here()
 
-    def __init__(self, datatype_class: TDatatype | None = None):
+    def __init__(self, datatype_class: TDatatype | None = None) -> None:
         assert not (type(self) is Datatype and datatype_class is None)
         super().__init__()

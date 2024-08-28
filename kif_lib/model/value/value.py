@@ -66,7 +66,7 @@ class Value(
     datatype: ClassVar[Datatype]
 
     @classmethod
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
         if 'datatype_class' in kwargs:
             cls.datatype_class = kwargs['datatype_class']

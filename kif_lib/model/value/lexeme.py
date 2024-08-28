@@ -61,7 +61,7 @@ class Lexeme(
     template_class: ClassVar[type[LexemeTemplate]]  # pyright: ignore
     variable_class: ClassVar[type[LexemeVariable]]  # pyright: ignore
 
-    def __init__(self, iri: VTLexemeContent):
+    def __init__(self, iri: VTLexemeContent) -> None:
         super().__init__(iri)
 
 

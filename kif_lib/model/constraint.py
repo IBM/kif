@@ -86,7 +86,7 @@ class TrueConstraint(AtomicConstraint):
         else:
             raise cls._check_error(arg, function, name, position)
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
 
@@ -109,5 +109,5 @@ class FalseConstraint(AtomicConstraint):
         else:
             raise cls._check_error(arg, function, name, position)
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()

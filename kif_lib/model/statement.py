@@ -44,7 +44,7 @@ class StatementTemplate(Template):
 
     object_class: ClassVar[type[Statement]]  # pyright: ignore
 
-    def __init__(self, subject: VTEntity, snak: VTSnak):
+    def __init__(self, subject: VTEntity, snak: VTSnak) -> None:
         super().__init__(subject, snak)
 
     @override
@@ -142,7 +142,7 @@ class Statement(
         else:
             raise cls._check_error(arg, function, name, position)
 
-    def __init__(self, subject: VTEntity, snak: VTSnak):
+    def __init__(self, subject: VTEntity, snak: VTSnak) -> None:
         super().__init__(subject, snak)
 
     @override
