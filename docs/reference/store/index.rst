@@ -35,16 +35,16 @@ Store
 Properties
 ==========
 
-Extra references
-----------------
+.. rubric:: Extra references
+
 .. autosummary::
    :nosignatures:
 
    Store.extra_references
    Store.default_extra_references
 
-Flags
------
+.. rubric:: Flags
+
 .. autosummary::
    :nosignatures:
 
@@ -54,8 +54,8 @@ Flags
    Store.set_flags
    Store.unset_flags
 
-Limit
------
+.. rubric:: Limit
+
 .. autosummary::
    :nosignatures:
 
@@ -63,8 +63,8 @@ Limit
    Store.max_limit
    Store.default_limit
 
-Page size
----------
+.. rubric:: Page size
+
 .. autosummary::
    :nosignatures:
 
@@ -72,8 +72,8 @@ Page size
    Store.default_page_size
    Store.max_page_size
 
-Timeout
--------
+.. rubric:: Timeout
+
 .. autosummary::
    :nosignatures:
 
@@ -84,10 +84,9 @@ Timeout
 Methods
 =======
 
-Filter
-------
 .. autosummary::
    :nosignatures:
 
+   Store.match
    Store.filter
    Store.filter_annotated
