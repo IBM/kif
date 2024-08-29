@@ -140,14 +140,14 @@ class Store(Set):
         Initializes :class:`Store`.
 
         Parameters:
-            store_name: Name of the store plugin to instantiate.
-            args: Arguments to store plugin.
-            extra_references: Extra references to attach to statements.
-            flags: Store flags.
-            limit: Limit (maximum number) of responses.
-            page_size: Page size of paginated responses.
-            timeout: Timeout of responses (in seconds).
-            kwargs: Keyword arguments to store plugin.
+           store_name: Name of the store plugin to instantiate.
+           args: Arguments to store plugin.
+           extra_references: Extra references to attach to statements.
+           flags: Store flags.
+           limit: Limit (maximum number) of responses.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           kwargs: Keyword arguments to store plugin.
         """
         self._init_flags(flags)
         self._init_cache(self.has_flags(self.CACHE))
