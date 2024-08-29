@@ -80,18 +80,10 @@
 <span></span><span class="c1"># Copyright (C) 2023-2024 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">auto</span><span class="p">,</span> <span class="n">Flag</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Any</span><span class="p">,</span>
-    <span class="n">Callable</span><span class="p">,</span>
-    <span class="n">Final</span><span class="p">,</span>
-    <span class="n">Optional</span><span class="p">,</span>
-    <span class="n">override</span><span class="p">,</span>
-    <span class="n">Self</span><span class="p">,</span>
-    <span class="n">TypeAlias</span><span class="p">,</span>
-    <span class="n">Union</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Final</span><span class="p">,</span> <span class="n">override</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">.flags</span> <span class="kn">import</span> <span class="n">Flags</span>
 <span class="kn">from</span> <span class="nn">.kif_object</span> <span class="kn">import</span> <span class="n">KIF_Object</span>
 <span class="kn">from</span> <span class="nn">.set</span> <span class="kn">import</span> <span class="n">TextSet</span><span class="p">,</span> <span class="n">TTextSet</span>
 <span class="kn">from</span> <span class="nn">.value</span> <span class="kn">import</span> <span class="n">Datatype</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="n">TDatatype</span><span class="p">,</span> <span class="n">Text</span><span class="p">,</span> <span class="n">TItem</span><span class="p">,</span> <span class="n">TText</span>
@@ -104,29 +96,29 @@
 
 <div class="viewcode-block" id="Descriptor.AttributeMask">
 <a class="viewcode-back" href="../../../reference/model/descriptor/descriptor.html#kif_lib.Descriptor.AttributeMask">[docs]</a>
-    <span class="k">class</span> <span class="nc">AttributeMask</span><span class="p">(</span><span class="n">Flag</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">AttributeMask</span><span class="p">(</span><span class="n">Flags</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Mask for descriptor attributes.&quot;&quot;&quot;</span>
 
         <span class="c1">#: Mask for the label attribute of descriptor.</span>
-        <span class="n">LABEL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+        <span class="n">LABEL</span> <span class="o">=</span> <span class="n">Flags</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
 
         <span class="c1">#: Mask for the aliases attribute of descriptor.</span>
-        <span class="n">ALIASES</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+        <span class="n">ALIASES</span> <span class="o">=</span> <span class="n">Flags</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
 
         <span class="c1">#: Mask for the description attribute of descriptor.</span>
-        <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+        <span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="n">Flags</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
 
         <span class="c1">#: Mask for the datatype attribute of descriptor.</span>
-        <span class="n">DATATYPE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+        <span class="n">DATATYPE</span> <span class="o">=</span> <span class="n">Flags</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
 
         <span class="c1">#: Mask for the lemma attribute of descriptor.</span>
-        <span class="n">LEMMA</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+        <span class="n">LEMMA</span> <span class="o">=</span> <span class="n">Flags</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
 
         <span class="c1">#: Mask for the lexical category attribute of descriptor.</span>
-        <span class="n">CATEGORY</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+        <span class="n">CATEGORY</span> <span class="o">=</span> <span class="n">Flags</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
 
         <span class="c1">#: Mask for the language attribute of descriptor.</span>
-        <span class="n">LANGUAGE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+        <span class="n">LANGUAGE</span> <span class="o">=</span> <span class="n">Flags</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
 
         <span class="c1">#: Mask for all attributes of item descriptor.</span>
         <span class="n">ITEM_DESCRIPTOR_ATTRIBUTES</span> <span class="o">=</span> <span class="n">LABEL</span> <span class="o">|</span> <span class="n">ALIASES</span> <span class="o">|</span> <span class="n">DESCRIPTION</span>
@@ -141,45 +133,7 @@
         <span class="n">ALL</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">ITEM_DESCRIPTOR_ATTRIBUTES</span>
             <span class="o">|</span> <span class="n">PROPERTY_DESCRIPTOR_ATTRIBUTES</span>
-            <span class="o">|</span> <span class="n">LEXEME_DESCRIPTOR_ATTRIBUTES</span><span class="p">)</span>
-
-        <span class="nd">@classmethod</span>
-        <span class="k">def</span> <span class="nf">check</span><span class="p">(</span>
-                <span class="bp">cls</span><span class="p">,</span>
-                <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-                <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">arg</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">Descriptor</span><span class="o">.</span><span class="n">_check_error</span><span class="p">(</span>
-                        <span class="n">arg</span><span class="p">,</span> <span class="n">function</span> <span class="ow">or</span> <span class="bp">cls</span><span class="o">.</span><span class="n">check</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span>
-                        <span class="ne">ValueError</span><span class="p">,</span> <span class="n">to_</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">Descriptor</span><span class="o">.</span><span class="n">_check_error</span><span class="p">(</span>
-                    <span class="n">arg</span><span class="p">,</span> <span class="n">function</span> <span class="ow">or</span> <span class="bp">cls</span><span class="o">.</span><span class="n">check</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span>
-                    <span class="n">to_</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">)</span>
-
-        <span class="nd">@classmethod</span>
-        <span class="k">def</span> <span class="nf">check_optional</span><span class="p">(</span>
-                <span class="bp">cls</span><span class="p">,</span>
-                <span class="n">arg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
-                <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Self</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">arg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">arg</span> <span class="o">=</span> <span class="n">default</span>
-            <span class="k">if</span> <span class="n">arg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">arg</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span></div>
+            <span class="o">|</span> <span class="n">LEXEME_DESCRIPTOR_ATTRIBUTES</span><span class="p">)</span></div>
 
 
     <span class="c1">#: Mask for the label attribute of descriptor.</span>
@@ -243,16 +197,13 @@
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Text</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The label of plain descriptor.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span>
 
 <div class="viewcode-block" id="PlainDescriptor.get_label">
 <a class="viewcode-back" href="../../../reference/model/descriptor/descriptor.html#kif_lib.PlainDescriptor.get_label">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Text</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Text</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the label of plain descriptor.</span>
 
 <span class="sd">        If the label is ``None``, returns `default`.</span>
@@ -283,16 +234,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Text</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The description of plain descriptor.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_description</span><span class="p">()</span>
 
 <div class="viewcode-block" id="PlainDescriptor.get_description">
 <a class="viewcode-back" href="../../../reference/model/descriptor/descriptor.html#kif_lib.PlainDescriptor.get_description">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Text</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Text</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the description of plain descriptor.</span>
 
 <span class="sd">        If the description is ``None``, returns `default`.</span>
@@ -319,13 +267,16 @@
 <span class="sd">       description: Description.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="ItemDescriptor.__init__">
+<a class="viewcode-back" href="../../../reference/model/descriptor/descriptor.html#kif_lib.ItemDescriptor.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TText</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">aliases</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TTextSet</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TText</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">):</span>
+            <span class="n">label</span><span class="p">:</span> <span class="n">TText</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">aliases</span><span class="p">:</span> <span class="n">TTextSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">description</span><span class="p">:</span> <span class="n">TText</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">aliases</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span></div>
+</div>
 
 
 
@@ -341,14 +292,17 @@
 <span class="sd">       datatype: Datatype.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="PropertyDescriptor.__init__">
+<a class="viewcode-back" href="../../../reference/model/descriptor/descriptor.html#kif_lib.PropertyDescriptor.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TText</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">aliases</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TTextSet</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TText</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">datatype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TDatatype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">aliases</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">datatype</span><span class="p">)</span>
+            <span class="n">label</span><span class="p">:</span> <span class="n">TText</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">aliases</span><span class="p">:</span> <span class="n">TTextSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">description</span><span class="p">:</span> <span class="n">TText</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">datatype</span><span class="p">:</span> <span class="n">TDatatype</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">aliases</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">datatype</span><span class="p">)</span></div>
+
 
     <span class="nd">@override</span>
     <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
@@ -358,16 +312,13 @@
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_preprocess_arg</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">datatype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Datatype</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">datatype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Datatype</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The datatype of property descriptor.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_datatype</span><span class="p">()</span>
 
 <div class="viewcode-block" id="PropertyDescriptor.get_datatype">
 <a class="viewcode-back" href="../../../reference/model/descriptor/descriptor.html#kif_lib.PropertyDescriptor.get_datatype">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_datatype</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Datatype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Datatype</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_datatype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Datatype</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Datatype</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the datatype of property descriptor.</span>
 
 <span class="sd">        If the datatype is ``None``, returns `default`.</span>
@@ -394,13 +345,16 @@
 <span class="sd">       language: Language.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="LexemeDescriptor.__init__">
+<a class="viewcode-back" href="../../../reference/model/descriptor/descriptor.html#kif_lib.LexemeDescriptor.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">lemma</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TText</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">category</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TItem</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">language</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TItem</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">lemma</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">language</span><span class="p">)</span>
+            <span class="n">lemma</span><span class="p">:</span> <span class="n">TText</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">category</span><span class="p">:</span> <span class="n">TItem</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">language</span><span class="p">:</span> <span class="n">TItem</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">lemma</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">language</span><span class="p">)</span></div>
+
 
     <span class="nd">@override</span>
     <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
@@ -414,13 +368,13 @@
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">lemma</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Text</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">lemma</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The lemma of lexeme descriptor.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lemma</span><span class="p">()</span>
 
 <div class="viewcode-block" id="LexemeDescriptor.get_lemma">
 <a class="viewcode-back" href="../../../reference/model/descriptor/descriptor.html#kif_lib.LexemeDescriptor.get_lemma">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_lemma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Text</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Text</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_lemma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the lemma of lexeme descriptor.</span>
 
 <span class="sd">        If the lemma is ``None``, returns `default`.</span>
@@ -435,13 +389,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">category</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Item</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">category</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The lexical category of lexeme descriptor.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_category</span><span class="p">()</span>
 
 <div class="viewcode-block" id="LexemeDescriptor.get_category">
 <a class="viewcode-back" href="../../../reference/model/descriptor/descriptor.html#kif_lib.LexemeDescriptor.get_category">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Item</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Item</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Item</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the lexical category of lexeme descriptor.</span>
 
 <span class="sd">        If the lexical category is ``None``, returns `default`.</span>
@@ -456,13 +410,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Item</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The language of lexeme descriptor.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_language</span><span class="p">()</span>
 
 <div class="viewcode-block" id="LexemeDescriptor.get_language">
 <a class="viewcode-back" href="../../../reference/model/descriptor/descriptor.html#kif_lib.LexemeDescriptor.get_language">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_language</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Item</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Item</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_language</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Item</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the language of lexeme descriptor.</span>
 
 <span class="sd">        If the language is ``None``, returns `default`.</span>

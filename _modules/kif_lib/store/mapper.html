@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kif_lib.store.mapper &mdash; kif-lib  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            kif-lib
+          </a>
+              <div class="version">
+                0.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">kif-lib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">kif_lib.store.mapper</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for kif_lib.store.mapper</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2023-2024 IBM Corp.</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">..model</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AnnotationRecord</span><span class="p">,</span>
+    <span class="n">AnnotationRecordSet</span><span class="p">,</span>
+    <span class="n">Descriptor</span><span class="p">,</span>
+    <span class="n">Entity</span><span class="p">,</span>
+    <span class="n">Filter</span><span class="p">,</span>
+    <span class="n">IRI</span><span class="p">,</span>
+    <span class="n">Item</span><span class="p">,</span>
+    <span class="n">KIF_Object</span><span class="p">,</span>
+    <span class="n">Lexeme</span><span class="p">,</span>
+    <span class="n">Property</span><span class="p">,</span>
+    <span class="n">SnakSet</span><span class="p">,</span>
+    <span class="n">Statement</span><span class="p">,</span>
+    <span class="n">T_IRI</span><span class="p">,</span>
+    <span class="n">Value</span><span class="p">,</span>
+    <span class="n">ValueSnak</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..namespace</span> <span class="kn">import</span> <span class="n">WD</span>
+<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">cast</span><span class="p">,</span>
+    <span class="n">Collection</span><span class="p">,</span>
+    <span class="n">Final</span><span class="p">,</span>
+    <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">Iterator</span><span class="p">,</span>
+    <span class="n">override</span><span class="p">,</span>
+    <span class="n">Sequence</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.sparql</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BNode</span><span class="p">,</span>
+    <span class="n">NS</span><span class="p">,</span>
+    <span class="n">SPARQL_Builder</span><span class="p">,</span>
+    <span class="n">SPARQL_Results</span><span class="p">,</span>
+    <span class="n">SPARQL_Store</span><span class="p">,</span>
+    <span class="n">URIRef</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.sparql_mapping</span> <span class="kn">import</span> <span class="n">SPARQL_Mapping</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="SPARQL_MapperStore">
+<a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.store.SPARQL_MapperStore">[docs]</a>
+<span class="k">class</span> <span class="nc">SPARQL_MapperStore</span><span class="p">(</span>
+        <span class="n">SPARQL_Store</span><span class="p">,</span>
+        <span class="n">store_name</span><span class="o">=</span><span class="s1">&#39;sparql-mapper&#39;</span><span class="p">,</span>
+        <span class="n">store_description</span><span class="o">=</span><span class="s1">&#39;SPARQL endpoint mapper&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;SPARQL mapper store.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">       store_name: Store plugin to instantiate.</span>
+<span class="sd">       iri: SPARQL endpoint IRI.</span>
+<span class="sd">       mapping: SPARQL mapping.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_mapping</span><span class="p">:</span> <span class="n">SPARQL_Mapping</span>
+
+<div class="viewcode-block" id="SPARQL_MapperStore.__init__">
+<a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.store.SPARQL_MapperStore.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">store_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">iri</span><span class="p">:</span> <span class="n">T_IRI</span><span class="p">,</span>
+            <span class="n">mapping</span><span class="p">:</span> <span class="n">SPARQL_Mapping</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">store_name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_name</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">store_name</span><span class="p">,</span> <span class="n">iri</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mapping</span> <span class="o">=</span> <span class="n">KIF_Object</span><span class="o">.</span><span class="n">_check_arg_isinstance</span><span class="p">(</span>
+            <span class="n">mapping</span><span class="p">,</span> <span class="n">SPARQL_Mapping</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="s1">&#39;mapping&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SPARQL_Mapping</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;SPARQL mapping.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mapping</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SPARQL_MapperStore.get_mapping">
+<a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.store.SPARQL_MapperStore.get_mapping">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SPARQL_Mapping</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets SPARQL mapping.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           SPARQL mapping.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mapping</span></div>
+
+
+
+<span class="c1"># -- Statements ------------------------------------------------------------</span>
+
+    <span class="nd">@override</span>
+    <span class="k">def</span> <span class="nf">_contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">it</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_with_hooks</span><span class="p">(</span><span class="nb">filter</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@override</span>
+    <span class="k">def</span> <span class="nf">_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_filter_query</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;(count (distinct *) as ?count)&#39;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_select_query_string</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_count_query_results</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_parse_count_query_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">SPARQL_Results</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">bindings</span><span class="p">)</span><span class="o">.</span><span class="n">check_literal</span><span class="p">(</span><span class="s1">&#39;count&#39;</span><span class="p">))</span>
+
+    <span class="n">_filter_vars</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;?datatype&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;?property&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;?qt_amount&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;?qt_lower&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;?qt_unit&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;?qt_upper&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;?subject&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;?tm_calendar&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;?tm_precision&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;?tm_timezone&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;?tm_value&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;?value&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;?wds&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="nd">@override</span>
+    <span class="k">def</span> <span class="nf">_filter</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span><span class="p">,</span>
+            <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">distinct</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Statement</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="n">limit</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_filter_query</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">has_variable</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="s1">&#39;subject&#39;</span><span class="p">))</span>
+                <span class="ow">and</span> <span class="n">q</span><span class="o">.</span><span class="n">has_variable</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="s1">&#39;property&#39;</span><span class="p">))):</span>
+            <span class="n">order_by</span> <span class="o">=</span> <span class="s1">&#39;?wds&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_flags</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ORDER</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_select_query</span><span class="p">(</span>
+                <span class="n">q</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">res</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_filter_results</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="nb">filter</span><span class="p">),</span>
+                <span class="nb">vars</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_vars</span><span class="p">,</span>
+                <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">distinct</span><span class="o">=</span><span class="n">distinct</span><span class="p">,</span> <span class="n">order_by</span><span class="o">=</span><span class="n">order_by</span><span class="p">,</span> <span class="n">trim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">(): nothing to select:</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">,</span>
+                <span class="n">q</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_vars</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">distinct</span><span class="o">=</span><span class="n">distinct</span><span class="p">))</span>
+            <span class="k">return</span> <span class="nb">iter</span><span class="p">(())</span>     <span class="c1"># query is empty</span>
+
+    <span class="nd">@override</span>
+    <span class="k">def</span> <span class="nf">_filter_pre_hook</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span><span class="p">,</span>
+            <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">distinct</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Filter</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">filter_pre_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">distinct</span><span class="p">)</span>
+
+    <span class="nd">@override</span>
+    <span class="k">def</span> <span class="nf">_filter_post_hook</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span><span class="p">,</span>
+            <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="n">distinct</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+            <span class="n">it</span><span class="p">:</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Statement</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Statement</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">filter_post_hook</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">distinct</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_make_filter_query</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SPARQL_Builder</span><span class="p">:</span>
+        <span class="n">subject</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">snak_mask</span> <span class="o">=</span> <span class="nb">filter</span><span class="o">.</span><span class="n">_unpack_legacy</span><span class="p">()</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">Builder</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">q</span><span class="o">.</span><span class="n">where</span><span class="p">():</span>
+            <span class="n">subject_prefix</span><span class="p">:</span> <span class="n">IRI</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">subject</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">Entity</span><span class="p">):</span>
+                    <span class="n">q</span><span class="o">.</span><span class="n">matched_subject</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">encode_entity</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">SnakSet</span><span class="p">):</span>
+                    <span class="n">status</span><span class="p">,</span> <span class="n">subject_prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_push_snak_set</span><span class="p">(</span>
+                        <span class="n">q</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">matched_subject</span><span class="p">,</span> <span class="n">subject</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">q</span>  <span class="c1"># empty query</span>
+                    <span class="k">assert</span> <span class="n">subject_prefix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
+            <span class="n">value_prefix</span><span class="p">:</span> <span class="n">IRI</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Value</span><span class="p">):</span>
+                    <span class="n">q</span><span class="o">.</span><span class="n">matched_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">encode_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">SnakSet</span><span class="p">):</span>
+                    <span class="n">status</span><span class="p">,</span> <span class="n">value_prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_push_snak_set</span><span class="p">(</span>
+                        <span class="n">q</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">matched_value</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">status</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">q</span>  <span class="c1"># empty query</span>
+                    <span class="k">assert</span> <span class="n">value_prefix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
+            <span class="k">with</span> <span class="n">q</span><span class="o">.</span><span class="n">union</span><span class="p">()</span> <span class="k">as</span> <span class="n">cup</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">specs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">specs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">specs</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">subject_prefix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">spec</span><span class="o">.</span><span class="n">_match_kwargs</span><span class="p">(</span>
+                                    <span class="s1">&#39;subject_prefix&#39;</span><span class="p">,</span> <span class="n">subject_prefix</span><span class="p">):</span>
+                                <span class="k">continue</span>  <span class="c1"># subject mismatch</span>
+                        <span class="k">if</span> <span class="n">value_prefix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">spec</span><span class="o">.</span><span class="n">_match_kwargs</span><span class="p">(</span>
+                                    <span class="s1">&#39;value_prefix&#39;</span><span class="p">,</span> <span class="n">value_prefix</span><span class="p">):</span>
+                                <span class="k">continue</span>  <span class="c1"># value mismatch</span>
+                            <span class="n">value</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Entity</span><span class="p">):</span>
+                                    <span class="k">continue</span>  <span class="c1"># value mismatch</span>
+                                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Entity</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">iri</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                                        <span class="n">value_prefix</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
+                                    <span class="k">continue</span>  <span class="c1"># mismatch value</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">spec</span><span class="o">.</span><span class="n">_match</span><span class="p">(</span>
+                                <span class="n">subject</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">snak_mask</span><span class="p">):</span>
+                            <span class="k">continue</span>  <span class="c1"># spec does not match filter</span>
+                        <span class="n">cup</span><span class="o">.</span><span class="n">branch</span><span class="p">()</span>
+                        <span class="n">spec</span><span class="o">.</span><span class="n">_define</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">with_binds</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">q</span>
+
+    <span class="k">def</span> <span class="nf">_parse_filter_results</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">results</span><span class="p">:</span> <span class="n">SPARQL_Results</span><span class="p">,</span>
+            <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Statement</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">bindings</span><span class="p">:</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">check_statement</span><span class="p">(</span>
+                <span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;property&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;qt_amount&#39;</span><span class="p">,</span> <span class="s1">&#39;qt_unit&#39;</span><span class="p">,</span> <span class="s1">&#39;qt_lower&#39;</span><span class="p">,</span> <span class="s1">&#39;qt_upper&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;tm_value&#39;</span><span class="p">,</span> <span class="s1">&#39;tm_precision&#39;</span><span class="p">,</span> <span class="s1">&#39;tm_timezone&#39;</span><span class="p">,</span> <span class="s1">&#39;tm_calendar&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_flags</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LATE_FILTER</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">filter</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">stmt</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="kc">None</span>
+                <span class="k">continue</span>
+            <span class="n">wds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_filter_results_check_wds</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">stmt</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache_add_wds</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="n">wds</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">stmt</span>
+
+    <span class="k">def</span> <span class="nf">_parse_filter_results_check_wds</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">entry</span><span class="p">:</span> <span class="n">SPARQL_Results</span><span class="o">.</span><span class="n">Bindings</span><span class="p">,</span>
+            <span class="n">stmt</span><span class="p">:</span> <span class="n">Statement</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BNode</span> <span class="o">|</span> <span class="n">URIRef</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">NS</span><span class="o">.</span><span class="n">WDS</span><span class="p">[</span><span class="n">stmt</span><span class="o">.</span><span class="n">digest</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_try_push_snak_set</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">q</span><span class="p">:</span> <span class="n">SPARQL_Builder</span><span class="p">,</span>
+            <span class="n">target</span><span class="p">:</span> <span class="n">SPARQL_Builder</span><span class="o">.</span><span class="n">TTrm</span><span class="p">,</span>
+            <span class="n">snaks</span><span class="p">:</span> <span class="n">SnakSet</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">IRI</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="n">subject_prefixes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">snak</span> <span class="ow">in</span> <span class="n">snaks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snak</span><span class="p">,</span> <span class="n">ValueSnak</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>  <span class="c1"># no such snak</span>
+            <span class="n">vsnak</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">ValueSnak</span><span class="p">,</span> <span class="n">snak</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">vsnak</span><span class="o">.</span><span class="n">property</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">specs</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>  <span class="c1"># no such property</span>
+            <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">specs</span><span class="p">[</span><span class="n">vsnak</span><span class="o">.</span><span class="n">property</span><span class="p">]:</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">Filter</span><span class="o">.</span><span class="n">from_snak</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">vsnak</span><span class="p">)</span><span class="o">.</span><span class="n">_unpack_legacy</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">spec</span><span class="o">.</span><span class="n">_match</span><span class="p">(</span><span class="o">*</span><span class="n">t</span><span class="p">):</span>
+                    <span class="k">continue</span>    <span class="c1"># spec does not match snak</span>
+                <span class="n">spec</span><span class="o">.</span><span class="n">_define</span><span class="p">(</span>
+                    <span class="n">cast</span><span class="p">(</span><span class="n">SPARQL_Mapping</span><span class="o">.</span><span class="n">Builder</span><span class="p">,</span> <span class="n">q</span><span class="p">),</span> <span class="n">target</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">encode_value</span><span class="p">(</span><span class="n">vsnak</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;subject_prefix&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">subject_prefixes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;subject_prefix&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subject_prefixes</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>  <span class="c1"># no such subject</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">subject_prefixes</span><span class="p">))</span>
+
+
+<span class="c1"># -- Annotations -----------------------------------------------------------</span>
+
+    <span class="nd">@override</span>
+    <span class="k">def</span> <span class="nf">_get_annotations_pre_hook</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">stmts</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Statement</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">Statement</span><span class="p">],</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">get_annotations_pre_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stmts</span><span class="p">)</span>
+
+    <span class="nd">@override</span>
+    <span class="k">def</span> <span class="nf">_get_annotations_post_hook</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">stmts</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Statement</span><span class="p">],</span>
+            <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+            <span class="n">it</span><span class="p">:</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Statement</span><span class="p">,</span> <span class="n">AnnotationRecordSet</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Statement</span><span class="p">,</span> <span class="n">AnnotationRecordSet</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">get_annotations_post_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stmts</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span>
+
+    <span class="nd">@override</span>
+    <span class="k">def</span> <span class="nf">_get_annotations</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">stmts</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Statement</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Statement</span><span class="p">,</span> <span class="n">AnnotationRecordSet</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]:</span>
+        <span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">stmts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_get_wdss</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span> <span class="ow">or</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_get_wdss</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+
+                <span class="k">def</span> <span class="nf">it</span><span class="p">(</span><span class="nb">property</span><span class="p">:</span> <span class="n">Property</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">AnnotationRecord</span><span class="p">]:</span>
+                    <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">specs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">property</span><span class="p">,</span> <span class="p">()):</span>
+                        <span class="k">yield from</span> <span class="n">spec</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;annotations&#39;</span><span class="p">,</span> <span class="p">())</span>
+                <span class="n">annots</span> <span class="o">=</span> <span class="n">AnnotationRecordSet</span><span class="p">(</span><span class="o">*</span><span class="n">it</span><span class="p">(</span><span class="n">stmt</span><span class="o">.</span><span class="n">snak</span><span class="o">.</span><span class="n">property</span><span class="p">))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">annots</span><span class="p">:</span>
+                    <span class="n">annots</span> <span class="o">=</span> <span class="n">AnnotationRecordSet</span><span class="p">(</span><span class="n">AnnotationRecord</span><span class="p">())</span>
+                <span class="k">yield</span> <span class="n">stmt</span><span class="p">,</span> <span class="n">annots</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">stmt</span><span class="p">,</span> <span class="kc">None</span>
+
+
+<span class="c1"># -- Descriptors -----------------------------------------------------------</span>
+
+    <span class="k">def</span> <span class="nf">_make_item_or_property_descriptor_query</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">entities</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Item</span> <span class="o">|</span> <span class="n">Property</span><span class="p">],</span>
+            <span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">Entity</span><span class="p">],</span>
+            <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">mask</span><span class="p">:</span> <span class="n">Descriptor</span><span class="o">.</span><span class="n">AttributeMask</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SPARQL_Builder</span><span class="p">:</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">SPARQL_Mapping</span><span class="o">.</span><span class="n">Builder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">Builder</span><span class="p">())</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_flags</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">EARLY_FILTER</span><span class="p">):</span>
+            <span class="n">get_label</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">mask</span> <span class="o">&amp;</span> <span class="n">Descriptor</span><span class="o">.</span><span class="n">LABEL</span><span class="p">)</span>
+            <span class="n">get_aliases</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">mask</span> <span class="o">&amp;</span> <span class="n">Descriptor</span><span class="o">.</span><span class="n">ALIASES</span><span class="p">)</span>
+            <span class="n">get_description</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">mask</span> <span class="o">&amp;</span> <span class="n">Descriptor</span><span class="o">.</span><span class="n">DESCRIPTION</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">get_label</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">get_aliases</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">get_description</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">instance_of_specs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">specs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">Property</span><span class="p">(</span><span class="n">WD</span><span class="p">[</span><span class="s1">&#39;P31&#39;</span><span class="p">],</span> <span class="n">Item</span><span class="p">),</span> <span class="p">[])</span>
+        <span class="n">label_specs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">descriptor_specs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">Property</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">),</span> <span class="p">[])</span>
+        <span class="n">alias_specs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">descriptor_specs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">Property</span><span class="p">(</span><span class="s1">&#39;alias&#39;</span><span class="p">),</span> <span class="p">[])</span>
+        <span class="n">description_specs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">descriptor_specs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">Property</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">),</span> <span class="p">[])</span>
+        <span class="k">with</span> <span class="n">q</span><span class="o">.</span><span class="n">where</span><span class="p">():</span>
+            <span class="k">with</span> <span class="n">q</span><span class="o">.</span><span class="n">union</span><span class="p">()</span> <span class="k">as</span> <span class="n">cup</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">instance_of_spec</span> <span class="ow">in</span> <span class="n">instance_of_specs</span><span class="p">:</span>
+                    <span class="n">matched_entities</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entities</span>
+                        <span class="k">if</span> <span class="n">instance_of_spec</span><span class="o">.</span><span class="n">_match</span><span class="p">(</span>
+                            <span class="o">*</span><span class="n">Filter</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">_unpack_legacy</span><span class="p">())]</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">matched_entities</span><span class="p">:</span>
+                        <span class="k">continue</span>  <span class="c1"># nothing to do</span>
+
+                    <span class="k">def</span> <span class="nf">push_values</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+                        <span class="k">with</span> <span class="n">q</span><span class="o">.</span><span class="n">values</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">matched_subject</span><span class="p">)</span> <span class="k">as</span> <span class="n">values</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">entity</span> <span class="ow">in</span> <span class="n">matched_entities</span><span class="p">:</span>
+                                <span class="n">values</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">encode_entity</span><span class="p">(</span>
+                                    <span class="n">entity</span><span class="p">))</span>
+                        <span class="n">q</span><span class="o">.</span><span class="n">bind_uri</span><span class="p">(</span>
+                            <span class="n">q</span><span class="o">.</span><span class="n">matched_subject</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span>
+                            <span class="n">spec</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;subject_prefix_replacement&#39;</span><span class="p">))</span>
+                    <span class="n">cup</span><span class="o">.</span><span class="n">branch</span><span class="p">()</span>
+                    <span class="nb">filter</span> <span class="o">=</span> <span class="n">Filter</span><span class="p">(</span><span class="n">matched_entities</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">matched_specs</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">if</span> <span class="n">get_label</span><span class="p">:</span>
+                        <span class="n">matched_specs</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">label_specs</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">_match</span><span class="p">(</span>
+                                <span class="o">*</span><span class="nb">filter</span><span class="o">.</span><span class="n">_unpack_legacy</span><span class="p">())]</span>
+                    <span class="k">if</span> <span class="n">get_aliases</span><span class="p">:</span>
+                        <span class="n">matched_specs</span><span class="p">[</span><span class="s1">&#39;alias&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">alias_specs</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">_match</span><span class="p">(</span>
+                                <span class="o">*</span><span class="nb">filter</span><span class="o">.</span><span class="n">_unpack_legacy</span><span class="p">())]</span>
+                    <span class="k">if</span> <span class="n">get_description</span><span class="p">:</span>
+                        <span class="n">matched_specs</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">description_specs</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">_match</span><span class="p">(</span>
+                                <span class="o">*</span><span class="nb">filter</span><span class="o">.</span><span class="n">_unpack_legacy</span><span class="p">())]</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="n">matched_specs</span><span class="o">.</span><span class="n">values</span><span class="p">())):</span>
+                        <span class="n">instance_of_spec</span><span class="o">.</span><span class="n">_define</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+                        <span class="n">push_values</span><span class="p">(</span><span class="n">instance_of_spec</span><span class="p">)</span>
+                        <span class="k">continue</span>  <span class="c1"># test presence, nothing else to do</span>
+                    <span class="k">with</span> <span class="n">q</span><span class="o">.</span><span class="n">union</span><span class="p">()</span> <span class="k">as</span> <span class="n">cup2</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">specs</span> <span class="ow">in</span> <span class="n">matched_specs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                            <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">specs</span><span class="p">:</span>
+                                <span class="n">cup2</span><span class="o">.</span><span class="n">branch</span><span class="p">()</span>
+                                <span class="n">instance_of_spec</span><span class="o">.</span><span class="n">_define</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+                                <span class="k">with</span> <span class="n">q</span><span class="o">.</span><span class="n">optional</span><span class="p">():</span>
+                                    <span class="n">spec</span><span class="o">.</span><span class="n">_define</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+                                    <span class="c1">###</span>
+                                    <span class="c1"># FIXME: This crashes Virtuoso!</span>
+                                    <span class="c1">###</span>
+                                    <span class="c1"># value_language = spec.kwargs.get(</span>
+                                    <span class="c1">#     &#39;value_language&#39;)</span>
+                                    <span class="c1"># if value_language is not None:</span>
+                                    <span class="c1">#     q.bind(q.strlang(</span>
+                                    <span class="c1">#         q.matched_value,</span>
+                                    <span class="c1">#         String(value_language)),</span>
+                                    <span class="c1"># else:</span>
+                                    <span class="c1">#     q.bind(q.matched_value, q.var(attr))</span>
+                                    <span class="c1">###</span>
+                                    <span class="n">q</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">matched_value</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">attr</span><span class="p">))</span>
+                                <span class="n">push_values</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">q</span>
+
+    <span class="k">def</span> <span class="nf">_make_lexeme_descriptor_query</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">lexemes</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Lexeme</span><span class="p">],</span>
+            <span class="n">mask</span><span class="p">:</span> <span class="n">Descriptor</span><span class="o">.</span><span class="n">AttributeMask</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SPARQL_Builder</span><span class="p">:</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">Builder</span><span class="p">()</span></div>
+
+        <span class="k">with</span> <span class="n">q</span><span class="o">.</span><span class="n">where</span><span class="p">():</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">q</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IBM Corp.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

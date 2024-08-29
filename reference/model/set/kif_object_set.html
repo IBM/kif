@@ -23,7 +23,7 @@
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="License" href="../../../license.html" />
+    <link rel="next" title="Store" href="../../store/index.html" />
     <link rel="prev" title="Set" href="index.html" /> 
 </head>
 
@@ -54,6 +54,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">Model</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../kif_object/index.html">KIF Object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../term/index.html">Term</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../value/index.html">Value</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../snak/index.html">Snak</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../statement/index.html">Statement</a></li>
@@ -65,6 +66,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../store/index.html">Store</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
@@ -101,7 +103,7 @@
 <h1>KIF_ObjectSet<a class="headerlink" href="#kif-objectset" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="kif_lib.KIF_ObjectSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KIF_ObjectSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#KIF_ObjectSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.KIF_ObjectSet" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KIF_ObjectSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#KIF_ObjectSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.KIF_ObjectSet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="../kif_object/kif_object.html#kif_lib.KIF_Object" title="kif_lib.model.kif_object.KIF_Object"><code class="xref py py-class docutils literal notranslate"><span class="pre">KIF_Object</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">_TObj</span></code>]</p>
 <p>Set of KIF objects.</p>
 <dl class="field-list simple">
@@ -112,7 +114,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="kif_lib.KIF_ObjectSet.check">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#KIF_ObjectSet.check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.KIF_ObjectSet.check" title="Link to this definition"></a></dt>
-<dd><p>Coerces <cite>arg</cite> to an instance of this class.</p>
+<dd><p>Coerces <cite>arg</cite> into an instance of this class.</p>
 <p>If <cite>arg</cite> cannot be coerced, raises an error.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -147,7 +149,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="kif_lib.ValueSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ValueSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#ValueSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.ValueSet" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ValueSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TValue</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#ValueSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.ValueSet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#kif_lib.KIF_ObjectSet" title="kif_lib.model.set.KIF_ObjectSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">KIF_ObjectSet</span></code></a>[<a class="reference internal" href="../value/value.html#kif_lib.Value" title="kif_lib.model.value.value.Value"><code class="xref py py-class docutils literal notranslate"><span class="pre">Value</span></code></a>]</p>
 <p>Set of values.</p>
 <dl class="field-list simple">
@@ -161,11 +163,16 @@
 <dd><p>alias of <a class="reference internal" href="../value/value.html#kif_lib.Value" title="kif_lib.model.value.value.Value"><code class="xref py py-class docutils literal notranslate"><span class="pre">Value</span></code></a></p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.ValueSet.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TValue</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#ValueSet.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.ValueSet.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="kif_lib.TextSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TextSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#TextSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.TextSet" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">TextSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">texts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TText</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#TextSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.TextSet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#kif_lib.ValueSet" title="kif_lib.model.set.ValueSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueSet</span></code></a></p>
 <p>Set of texts.</p>
 <dl class="field-list simple">
@@ -179,11 +186,16 @@
 <dd><p>alias of <a class="reference internal" href="../value/text.html#kif_lib.Text" title="kif_lib.model.value.text.Text"><code class="xref py py-class docutils literal notranslate"><span class="pre">Text</span></code></a></p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.TextSet.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">texts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TText</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#TextSet.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.TextSet.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="kif_lib.SnakSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SnakSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#SnakSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.SnakSet" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SnakSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">snaks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../snak/snak.html#kif_lib.Snak" title="kif_lib.model.snak.snak.Snak"><span class="pre">Snak</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#SnakSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.SnakSet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#kif_lib.KIF_ObjectSet" title="kif_lib.model.set.KIF_ObjectSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">KIF_ObjectSet</span></code></a>[<a class="reference internal" href="../snak/snak.html#kif_lib.Snak" title="kif_lib.model.snak.snak.Snak"><code class="xref py py-class docutils literal notranslate"><span class="pre">Snak</span></code></a>]</p>
 <p>Set of snaks.</p>
 <dl class="field-list simple">
@@ -197,11 +209,16 @@
 <dd><p>alias of <a class="reference internal" href="../snak/snak.html#kif_lib.Snak" title="kif_lib.model.snak.snak.Snak"><code class="xref py py-class docutils literal notranslate"><span class="pre">Snak</span></code></a></p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.SnakSet.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">snaks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../snak/snak.html#kif_lib.Snak" title="kif_lib.model.snak.snak.Snak"><span class="pre">Snak</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#SnakSet.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.SnakSet.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="kif_lib.ReferenceRecordSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ReferenceRecordSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#ReferenceRecordSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.ReferenceRecordSet" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ReferenceRecordSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">reference_records</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TReferenceRecord</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#ReferenceRecordSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.ReferenceRecordSet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#kif_lib.KIF_ObjectSet" title="kif_lib.model.set.KIF_ObjectSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">KIF_ObjectSet</span></code></a>[<a class="reference internal" href="../annotation/reference_record.html#kif_lib.ReferenceRecord" title="kif_lib.model.set.ReferenceRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReferenceRecord</span></code></a>]</p>
 <p>Set of reference records.</p>
 <dl class="field-list simple">
@@ -215,11 +232,16 @@
 <dd><p>alias of <a class="reference internal" href="../annotation/reference_record.html#kif_lib.ReferenceRecord" title="kif_lib.model.set.ReferenceRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">ReferenceRecord</span></code></a></p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.ReferenceRecordSet.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">reference_records</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TReferenceRecord</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#ReferenceRecordSet.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.ReferenceRecordSet.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="kif_lib.AnnotationRecordSet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AnnotationRecordSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/annotation_record_set.html#AnnotationRecordSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotationRecordSet" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AnnotationRecordSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">annotation_records</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../annotation/annotation_record.html#kif_lib.AnnotationRecord" title="kif_lib.model.annotation.annotation_record.AnnotationRecord"><span class="pre">AnnotationRecord</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/annotation_record_set.html#AnnotationRecordSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotationRecordSet" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#kif_lib.KIF_ObjectSet" title="kif_lib.model.set.KIF_ObjectSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">KIF_ObjectSet</span></code></a>[<a class="reference internal" href="../annotation/annotation_record.html#kif_lib.AnnotationRecord" title="kif_lib.model.annotation.annotation_record.AnnotationRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotationRecord</span></code></a>]</p>
 <p>Set of annotation records.</p>
 <dl class="field-list simple">
@@ -233,6 +255,11 @@
 <dd><p>alias of <a class="reference internal" href="../annotation/annotation_record.html#kif_lib.AnnotationRecord" title="kif_lib.model.annotation.annotation_record.AnnotationRecord"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotationRecord</span></code></a></p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.AnnotationRecordSet.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">annotation_records</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../annotation/annotation_record.html#kif_lib.AnnotationRecord" title="kif_lib.model.annotation.annotation_record.AnnotationRecord"><span class="pre">AnnotationRecord</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/annotation_record_set.html#AnnotationRecordSet.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotationRecordSet.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -242,7 +269,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="Set" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../../../license.html" class="btn btn-neutral float-right" title="License" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../../store/index.html" class="btn btn-neutral float-right" title="Store" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

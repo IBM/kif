@@ -80,17 +80,9 @@
 <span></span><span class="c1"># Copyright (C) 2023-2024 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Any</span><span class="p">,</span>
-    <span class="n">Callable</span><span class="p">,</span>
-    <span class="n">ClassVar</span><span class="p">,</span>
-    <span class="n">Optional</span><span class="p">,</span>
-    <span class="n">override</span><span class="p">,</span>
-    <span class="n">Self</span><span class="p">,</span>
-    <span class="n">TypeAlias</span><span class="p">,</span>
-    <span class="n">Union</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.kif_object</span> <span class="kn">import</span> <span class="n">KIF_Object</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Location</span><span class="p">,</span> <span class="n">override</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">.snak</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">Snak</span><span class="p">,</span>
     <span class="n">SnakTemplate</span><span class="p">,</span>
@@ -100,7 +92,7 @@
     <span class="n">VSnak</span><span class="p">,</span>
     <span class="n">VTSnak</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.template</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span> <span class="nn">.term</span> <span class="kn">import</span> <span class="n">ClosedTerm</span><span class="p">,</span> <span class="n">Template</span><span class="p">,</span> <span class="n">Variable</span>
 <span class="kn">from</span> <span class="nn">.value</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">Entity</span><span class="p">,</span>
     <span class="n">EntityTemplate</span><span class="p">,</span>
@@ -111,7 +103,6 @@
     <span class="n">VEntity</span><span class="p">,</span>
     <span class="n">VTEntity</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.variable</span> <span class="kn">import</span> <span class="n">Variable</span>
 
 <span class="n">TStatement</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span>\
     <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Statement&#39;</span><span class="p">,</span>
@@ -130,9 +121,9 @@
 <span class="sd">       snak: Snak.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="s1">&#39;Statement&#39;</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Statement</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span> <span class="n">snak</span><span class="p">:</span> <span class="n">VTSnak</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span> <span class="n">snak</span><span class="p">:</span> <span class="n">VTSnak</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">snak</span><span class="p">)</span>
 
     <span class="nd">@override</span>
@@ -188,13 +179,13 @@
 <span class="sd">       name: Name.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="s1">&#39;Statement&#39;</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Statement</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
 
 <div class="viewcode-block" id="Statement">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.Statement">[docs]</a>
 <span class="k">class</span> <span class="nc">Statement</span><span class="p">(</span>
-        <span class="n">KIF_Object</span><span class="p">,</span>
+        <span class="n">ClosedTerm</span><span class="p">,</span>
         <span class="n">template_class</span><span class="o">=</span><span class="n">StatementTemplate</span><span class="p">,</span>
         <span class="n">variable_class</span><span class="o">=</span><span class="n">StatementVariable</span>
 <span class="p">):</span>
@@ -215,9 +206,9 @@
     <span class="k">def</span> <span class="nf">check</span><span class="p">(</span>
             <span class="bp">cls</span><span class="p">,</span>
             <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-            <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">function</span><span class="p">:</span> <span class="n">Location</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">position</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">arg</span>
@@ -235,8 +226,11 @@
             <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_check_error</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span> <span class="n">snak</span><span class="p">:</span> <span class="n">VTSnak</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">snak</span><span class="p">)</span>
+<div class="viewcode-block" id="Statement.__init__">
+<a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.Statement.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span> <span class="n">snak</span><span class="p">:</span> <span class="n">VTSnak</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">snak</span><span class="p">)</span></div>
+
 
     <span class="nd">@override</span>
     <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>

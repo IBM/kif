@@ -6,6 +6,8 @@ Model
 
 .. inheritance-diagram::
    KIF_Object
+   Template
+   Variable
    Value
    Snak
    Statement
@@ -19,6 +21,7 @@ Model
    :maxdepth: 1
 
    kif_object/index
+   term/index
    value/index
    snak/index
    statement/index

@@ -80,7 +80,9 @@
 <span></span><span class="c1"># Copyright (C) 2023-2024 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Final</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">override</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Final</span><span class="p">,</span> <span class="n">override</span>
 <span class="kn">from</span> <span class="nn">..kif_object</span> <span class="kn">import</span> <span class="n">KIF_Object</span>
 <span class="kn">from</span> <span class="nn">..set</span> <span class="kn">import</span> <span class="n">ReferenceRecordSet</span><span class="p">,</span> <span class="n">SnakSet</span><span class="p">,</span> <span class="n">TReferenceRecordSet</span><span class="p">,</span> <span class="n">TSnakSet</span>
 <span class="kn">from</span> <span class="nn">.rank</span> <span class="kn">import</span> <span class="n">NormalRank</span><span class="p">,</span> <span class="n">Rank</span>
@@ -106,13 +108,16 @@
     <span class="c1">#: Default rank.</span>
     <span class="n">default_rank</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="n">Rank</span><span class="p">]</span> <span class="o">=</span> <span class="n">NormalRank</span><span class="p">()</span>
 
+<div class="viewcode-block" id="AnnotationRecord.__init__">
+<a class="viewcode-back" href="../../../../reference/model/annotation/annotation_record.html#kif_lib.AnnotationRecord.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
-            <span class="n">qualifiers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;TSnakSet&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">references</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;TReferenceRecordSet&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">rank</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Rank</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">qualifiers</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">rank</span><span class="p">)</span>
+            <span class="n">qualifiers</span><span class="p">:</span> <span class="n">TSnakSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">references</span><span class="p">:</span> <span class="n">TReferenceRecordSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">rank</span><span class="p">:</span> <span class="n">Rank</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">qualifiers</span><span class="p">,</span> <span class="n">references</span><span class="p">,</span> <span class="n">rank</span><span class="p">)</span></div>
+
 
     <span class="nd">@override</span>
     <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
@@ -129,13 +134,13 @@
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">qualifiers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;SnakSet&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">qualifiers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SnakSet</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The qualifiers of annotation record.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_qualifiers</span><span class="p">()</span>
 
 <div class="viewcode-block" id="AnnotationRecord.get_qualifiers">
 <a class="viewcode-back" href="../../../../reference/model/annotation/annotation_record.html#kif_lib.AnnotationRecord.get_qualifiers">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_qualifiers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;SnakSet&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_qualifiers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SnakSet</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the qualifiers of annotation record.</span>
 
 <span class="sd">        Returns:</span>
@@ -145,13 +150,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">references</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ReferenceRecordSet&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">references</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReferenceRecordSet</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The references of annotation record.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_references</span><span class="p">()</span>
 
 <div class="viewcode-block" id="AnnotationRecord.get_references">
 <a class="viewcode-back" href="../../../../reference/model/annotation/annotation_record.html#kif_lib.AnnotationRecord.get_references">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_references</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ReferenceRecordSet&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_references</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReferenceRecordSet</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the references of annotation record.</span>
 
 <span class="sd">        Returns:</span>

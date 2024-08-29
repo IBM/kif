@@ -54,6 +54,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">Model</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../kif_object/index.html">KIF Object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../term/index.html">Term</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../value/index.html">Value</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../snak/index.html">Snak</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../statement/index.html">Statement</a></li>
@@ -67,6 +68,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../set/index.html">Set</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../store/index.html">Store</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
@@ -103,7 +105,7 @@
 <h1>ReferenceRecord<a class="headerlink" href="#referencerecord" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="kif_lib.ReferenceRecord">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ReferenceRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#ReferenceRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.ReferenceRecord" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ReferenceRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">snaks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../snak/snak.html#kif_lib.Snak" title="kif_lib.model.snak.snak.Snak"><span class="pre">Snak</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#ReferenceRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.ReferenceRecord" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="../set/kif_object_set.html#kif_lib.SnakSet" title="kif_lib.model.set.SnakSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">SnakSet</span></code></a></p>
 <p>Reference record (set of snaks).</p>
 <dl class="field-list simple">
@@ -111,16 +113,10 @@
 <dd class="field-odd"><p><strong>snaks</strong> – Snaks.</p>
 </dd>
 </dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kif_lib.ReferenceRecord.children_class">
-<span class="sig-name descname"><span class="pre">children_class</span></span><a class="headerlink" href="#kif_lib.ReferenceRecord.children_class" title="Link to this definition"></a></dt>
-<dd><p>alias of <a class="reference internal" href="../snak/snak.html#kif_lib.Snak" title="kif_lib.model.snak.snak.Snak"><code class="xref py py-class docutils literal notranslate"><span class="pre">Snak</span></code></a></p>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="kif_lib.ReferenceRecord.check">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/set.html#ReferenceRecord.check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.ReferenceRecord.check" title="Link to this definition"></a></dt>
-<dd><p>Coerces <cite>arg</cite> to an instance of this class.</p>
+<dd><p>Coerces <cite>arg</cite> into an instance of this class.</p>
 <p>If <cite>arg</cite> cannot be coerced, raises an error.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -135,6 +131,12 @@
 <dd class="field-even"><p>Object.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.ReferenceRecord.children_class">
+<span class="sig-name descname"><span class="pre">children_class</span></span><a class="headerlink" href="#kif_lib.ReferenceRecord.children_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="../snak/snak.html#kif_lib.Snak" title="kif_lib.model.snak.snak.Snak"><code class="xref py py-class docutils literal notranslate"><span class="pre">Snak</span></code></a></p>
 </dd></dl>
 
 </dd></dl>

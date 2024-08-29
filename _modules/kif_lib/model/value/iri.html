@@ -80,8 +80,10 @@
 <span></span><span class="c1"># Copyright (C) 2024 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">override</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">..variable</span> <span class="kn">import</span> <span class="n">Variable</span>
+<span class="kn">from</span> <span class="nn">..term</span> <span class="kn">import</span> <span class="n">Variable</span>
 <span class="kn">from</span> <span class="nn">.shallow_data_value</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ShallowDataValue</span><span class="p">,</span>
     <span class="n">ShallowDataValueTemplate</span><span class="p">,</span>
@@ -105,10 +107,13 @@
 <span class="sd">       content: IRI content or string variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="s1">&#39;IRI&#39;</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">IRI</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">VT_IRI_Content</span><span class="p">):</span>
+<div class="viewcode-block" id="IRI_Template.__init__">
+<a class="viewcode-back" href="../../../../reference/model/value/iri.html#kif_lib.IRI_Template.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">VT_IRI_Content</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div>
+</div>
 
 
 
@@ -121,14 +126,14 @@
 <span class="sd">       name: Name.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="s1">&#39;IRI&#39;</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">IRI</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
 
 
 
 <span class="k">class</span> <span class="nc">IRI_Datatype</span><span class="p">(</span><span class="n">Datatype</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;IRI datatype.&quot;&quot;&quot;</span>
 
-    <span class="n">value_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="s1">&#39;IRI&#39;</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">value_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">IRI</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
 
 <div class="viewcode-block" id="IRI">
@@ -150,15 +155,18 @@
     <span class="n">template_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">IRI_Template</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
     <span class="n">variable_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">IRI_Variable</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">VT_IRI_Content</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+<div class="viewcode-block" id="IRI.__init__">
+<a class="viewcode-back" href="../../../../reference/model/value/iri.html#kif_lib.IRI.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">VT_IRI_Content</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div>
+
 
     <span class="nd">@override</span>
     <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_static_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_static_preprocess_arg</span><span class="p">(</span><span class="n">self_</span><span class="p">:</span> <span class="s1">&#39;IRI&#39;</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_static_preprocess_arg</span><span class="p">(</span><span class="n">self_</span><span class="p">:</span> <span class="n">IRI</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>              <span class="c1"># content</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">IRI</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">arg</span><span class="o">.</span><span class="n">content</span>

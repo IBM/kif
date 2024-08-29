@@ -54,6 +54,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">Model</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../kif_object/index.html">KIF Object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../term/index.html">Term</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="index.html">Value</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="value.html">Value</a></li>
 <li class="toctree-l4"><a class="reference internal" href="entity.html">Entity</a></li>
@@ -78,6 +79,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../set/index.html">Set</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../store/index.html">Store</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
@@ -132,6 +134,12 @@
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.Property.datatype">
+<span class="sig-name descname"><span class="pre">datatype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">PropertyDatatype</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">PropertyDatatype()</span></em><a class="headerlink" href="#kif_lib.Property.datatype" title="Link to this definition"></a></dt>
+<dd><p>Datatype associated with this value class.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="kif_lib.Property.template_class">
 <span class="sig-name descname"><span class="pre">template_class</span></span><a class="headerlink" href="#kif_lib.Property.template_class" title="Link to this definition"></a></dt>
 <dd><p>alias of <a class="reference internal" href="#kif_lib.PropertyTemplate" title="kif_lib.model.value.property.PropertyTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">PropertyTemplate</span></code></a></p>
@@ -141,6 +149,17 @@
 <dt class="sig sig-object py" id="kif_lib.Property.variable_class">
 <span class="sig-name descname"><span class="pre">variable_class</span></span><a class="headerlink" href="#kif_lib.Property.variable_class" title="Link to this definition"></a></dt>
 <dd><p>alias of <a class="reference internal" href="#kif_lib.PropertyVariable" title="kif_lib.model.value.property.PropertyVariable"><code class="xref py py-class docutils literal notranslate"><span class="pre">PropertyVariable</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.Property.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTPropertyContent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTDatatype</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/value/property.html#Property.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.Property.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kif_lib.Property.range">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">range</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Datatype</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#kif_lib.Property.range" title="Link to this definition"></a></dt>
+<dd><p>The range of property.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -180,18 +199,6 @@
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kif_lib.Property.datatype">
-<span class="sig-name descname"><span class="pre">datatype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">PropertyDatatype</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">PropertyDatatype()</span></em><a class="headerlink" href="#kif_lib.Property.datatype" title="Link to this definition"></a></dt>
-<dd><p>Datatype associated with this value class.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="kif_lib.Property.range">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">range</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Datatype</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#kif_lib.Property.range" title="Link to this definition"></a></dt>
-<dd><p>The range of property.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -211,6 +218,17 @@
 <dt class="sig sig-object py" id="kif_lib.PropertyTemplate.object_class">
 <span class="sig-name descname"><span class="pre">object_class</span></span><a class="headerlink" href="#kif_lib.PropertyTemplate.object_class" title="Link to this definition"></a></dt>
 <dd><p>alias of <a class="reference internal" href="#kif_lib.Property" title="kif_lib.model.value.property.Property"><code class="xref py py-class docutils literal notranslate"><span class="pre">Property</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.PropertyTemplate.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VT_IRI</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTDatatype</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/value/property.html#PropertyTemplate.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.PropertyTemplate.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kif_lib.PropertyTemplate.range">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">range</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DatatypeVariable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Datatype</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#kif_lib.PropertyTemplate.range" title="Link to this definition"></a></dt>
+<dd><p>The range of property template.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -250,17 +268,11 @@
 </dl>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="kif_lib.PropertyTemplate.range">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">range</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DatatypeVariable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Datatype</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#kif_lib.PropertyTemplate.range" title="Link to this definition"></a></dt>
-<dd><p>The range of property template.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="kif_lib.PropertyVariable">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PropertyVariable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">Variable</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../kif_object/kif_object.html#kif_lib.KIF_Object" title="kif_lib.model.kif_object.KIF_Object"><span class="pre">KIF_Object</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/value/property.html#PropertyVariable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.PropertyVariable" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PropertyVariable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../term/term.html#kif_lib.Variable" title="kif_lib.model.term.variable.Variable"><span class="pre">Variable</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../term/term.html#kif_lib.Term" title="kif_lib.model.term.term.Term"><span class="pre">Term</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/value/property.html#PropertyVariable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.PropertyVariable" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="entity.html#kif_lib.EntityVariable" title="kif_lib.model.value.entity.EntityVariable"><code class="xref py py-class docutils literal notranslate"><span class="pre">EntityVariable</span></code></a></p>
 <p>Property variable.</p>
 <dl class="field-list simple">

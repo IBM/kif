@@ -54,6 +54,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">Model</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../kif_object/index.html">KIF Object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../term/index.html">Term</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="index.html">Value</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="value.html">Value</a></li>
 <li class="toctree-l4"><a class="reference internal" href="entity.html">Entity</a></li>
@@ -78,6 +79,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../set/index.html">Set</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../store/index.html">Store</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
@@ -129,6 +131,12 @@
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.Item.datatype">
+<span class="sig-name descname"><span class="pre">datatype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ItemDatatype</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">ItemDatatype()</span></em><a class="headerlink" href="#kif_lib.Item.datatype" title="Link to this definition"></a></dt>
+<dd><p>Datatype associated with this value class.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="kif_lib.Item.template_class">
 <span class="sig-name descname"><span class="pre">template_class</span></span><a class="headerlink" href="#kif_lib.Item.template_class" title="Link to this definition"></a></dt>
 <dd><p>alias of <a class="reference internal" href="#kif_lib.ItemTemplate" title="kif_lib.model.value.item.ItemTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">ItemTemplate</span></code></a></p>
@@ -140,11 +148,10 @@
 <dd><p>alias of <a class="reference internal" href="#kif_lib.ItemVariable" title="kif_lib.model.value.item.ItemVariable"><code class="xref py py-class docutils literal notranslate"><span class="pre">ItemVariable</span></code></a></p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kif_lib.Item.datatype">
-<span class="sig-name descname"><span class="pre">datatype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ItemDatatype</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">ItemDatatype()</span></em><a class="headerlink" href="#kif_lib.Item.datatype" title="Link to this definition"></a></dt>
-<dd><p>Datatype associated with this value class.</p>
-</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.Item.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTItemContent</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/value/item.html#Item.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.Item.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -164,11 +171,16 @@
 <dd><p>alias of <a class="reference internal" href="#kif_lib.Item" title="kif_lib.model.value.item.Item"><code class="xref py py-class docutils literal notranslate"><span class="pre">Item</span></code></a></p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.ItemTemplate.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTItemContent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/value/item.html#ItemTemplate.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.ItemTemplate.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="kif_lib.ItemVariable">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ItemVariable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">Variable</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../kif_object/kif_object.html#kif_lib.KIF_Object" title="kif_lib.model.kif_object.KIF_Object"><span class="pre">KIF_Object</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/value/item.html#ItemVariable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.ItemVariable" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ItemVariable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../term/term.html#kif_lib.Variable" title="kif_lib.model.term.variable.Variable"><span class="pre">Variable</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../term/term.html#kif_lib.Term" title="kif_lib.model.term.term.Term"><span class="pre">Term</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/value/item.html#ItemVariable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.ItemVariable" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="entity.html#kif_lib.EntityVariable" title="kif_lib.model.value.entity.EntityVariable"><code class="xref py py-class docutils literal notranslate"><span class="pre">EntityVariable</span></code></a></p>
 <p>Item variable.</p>
 <dl class="field-list simple">

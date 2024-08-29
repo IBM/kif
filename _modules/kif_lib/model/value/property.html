@@ -80,21 +80,14 @@
 <span></span><span class="c1"># Copyright (C) 2024 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">overload</span>
 
-<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Any</span><span class="p">,</span>
-    <span class="n">ClassVar</span><span class="p">,</span>
-    <span class="n">Iterable</span><span class="p">,</span>
-    <span class="n">Optional</span><span class="p">,</span>
-    <span class="n">override</span><span class="p">,</span>
-    <span class="n">TypeAlias</span><span class="p">,</span>
-    <span class="n">Union</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">..template</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="kn">from</span> <span class="nn">..variable</span> <span class="kn">import</span> <span class="n">Variable</span>
+<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">override</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">..term</span> <span class="kn">import</span> <span class="n">OpenTerm</span><span class="p">,</span> <span class="n">Variable</span>
 <span class="kn">from</span> <span class="nn">.datatype</span> <span class="kn">import</span> <span class="n">Datatype</span><span class="p">,</span> <span class="n">DatatypeVariable</span><span class="p">,</span> <span class="n">VDatatype</span><span class="p">,</span> <span class="n">VTDatatype</span>
 <span class="kn">from</span> <span class="nn">.entity</span> <span class="kn">import</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">EntityTemplate</span><span class="p">,</span> <span class="n">EntityVariable</span><span class="p">,</span> <span class="n">VTEntity</span>
 <span class="kn">from</span> <span class="nn">.iri</span> <span class="kn">import</span> <span class="n">IRI_Template</span><span class="p">,</span> <span class="n">T_IRI</span><span class="p">,</span> <span class="n">VT_IRI</span>
@@ -128,19 +121,18 @@
 <span class="sd">       range: Datatype or datatype variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="s1">&#39;Property&#39;</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Property</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">iri</span><span class="p">:</span> <span class="n">VT_IRI</span><span class="p">,</span>
-            <span class="nb">range</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">VTDatatype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">iri</span><span class="p">,</span> <span class="nb">range</span><span class="p">)</span>
+<div class="viewcode-block" id="PropertyTemplate.__init__">
+<a class="viewcode-back" href="../../../../reference/model/value/property.html#kif_lib.PropertyTemplate.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iri</span><span class="p">:</span> <span class="n">VT_IRI</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="n">VTDatatype</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">iri</span><span class="p">,</span> <span class="nb">range</span><span class="p">)</span></div>
+
 
     <span class="nd">@override</span>
     <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>              <span class="c1"># iri</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="p">(</span><span class="n">Template</span><span class="p">,</span> <span class="n">Variable</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">OpenTerm</span><span class="p">):</span>
                 <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_preprocess_arg</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">Property</span><span class="o">.</span><span class="n">_static_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
@@ -153,33 +145,34 @@
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">VTValue</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;StatementTemplate&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">VTValue</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StatementTemplate</span><span class="p">:</span>
         <span class="o">...</span>                     <span class="c1"># pragma: no cover</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">VTValue</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ValueSnakTemplate&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">VTValue</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ValueSnakTemplate</span><span class="p">:</span>
         <span class="o">...</span>                     <span class="c1"># pragma: no cover</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">v1</span><span class="p">:</span> <span class="n">VTEntity</span> <span class="o">|</span> <span class="n">VTValue</span><span class="p">,</span>
+            <span class="n">v2</span><span class="p">:</span> <span class="n">VTValue</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StatementTemplate</span> <span class="o">|</span> <span class="n">ValueSnakTemplate</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">v2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">..snak</span> <span class="kn">import</span> <span class="n">ValueSnak</span>
             <span class="kn">from</span> <span class="nn">..statement</span> <span class="kn">import</span> <span class="n">StatementTemplate</span>
-            <span class="k">return</span> <span class="n">StatementTemplate</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">ValueSnak</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v2</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">StatementTemplate</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">ValueSnak</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v2</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">..snak</span> <span class="kn">import</span> <span class="n">ValueSnakTemplate</span>
             <span class="k">return</span> <span class="n">ValueSnakTemplate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">range</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">VDatatype</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">range</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VDatatype</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The range of property template.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_range</span><span class="p">()</span>
 
 <div class="viewcode-block" id="PropertyTemplate.get_range">
 <a class="viewcode-back" href="../../../../reference/model/value/property.html#kif_lib.PropertyTemplate.get_range">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_range</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">VDatatype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">VDatatype</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">VDatatype</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VDatatype</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the range of property template.</span>
 
 <span class="sd">        If range is ``None``, returns `default`.</span>
@@ -195,7 +188,7 @@
 
 <div class="viewcode-block" id="PropertyTemplate.no_value">
 <a class="viewcode-back" href="../../../../reference/model/value/property.html#kif_lib.PropertyTemplate.no_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">no_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;NoValueSnakTemplate&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">no_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoValueSnakTemplate</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs a no-value snak template from property template.</span>
 
 <span class="sd">        Returns:</span>
@@ -207,7 +200,7 @@
 
 <div class="viewcode-block" id="PropertyTemplate.some_value">
 <a class="viewcode-back" href="../../../../reference/model/value/property.html#kif_lib.PropertyTemplate.some_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">some_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;SomeValueSnakTemplate&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">some_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SomeValueSnakTemplate</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs a some-value snak template from property template.</span>
 
 <span class="sd">        Returns:</span>
@@ -228,28 +221,32 @@
 <span class="sd">       name: Name.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="s1">&#39;Property&#39;</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Property</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">VTValue</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;StatementTemplate&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">VTValue</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StatementTemplate</span><span class="p">:</span>
         <span class="o">...</span>                     <span class="c1"># pragma: no cover</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">VTValue</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ValueSnakTemplate&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">VTValue</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ValueSnakTemplate</span><span class="p">:</span>
         <span class="o">...</span>                     <span class="c1"># pragma: no cover</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">v1</span><span class="p">:</span> <span class="n">VTEntity</span> <span class="o">|</span> <span class="n">VTValue</span><span class="p">,</span>
+            <span class="n">v2</span><span class="p">:</span> <span class="n">VTValue</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StatementTemplate</span> <span class="o">|</span> <span class="n">ValueSnakTemplate</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">v2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">..snak</span> <span class="kn">import</span> <span class="n">ValueSnak</span>
             <span class="kn">from</span> <span class="nn">..statement</span> <span class="kn">import</span> <span class="n">StatementTemplate</span>
-            <span class="k">return</span> <span class="n">StatementTemplate</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">ValueSnak</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v2</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">StatementTemplate</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">ValueSnak</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v2</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">..snak</span> <span class="kn">import</span> <span class="n">ValueSnakTemplate</span>
             <span class="k">return</span> <span class="n">ValueSnakTemplate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PropertyVariable.no_value">
 <a class="viewcode-back" href="../../../../reference/model/value/property.html#kif_lib.PropertyVariable.no_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">no_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;NoValueSnakTemplate&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">no_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoValueSnakTemplate</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs a no-value snak template from property variable.</span>
 
 <span class="sd">        Returns:</span>
@@ -261,7 +258,7 @@
 
 <div class="viewcode-block" id="PropertyVariable.some_value">
 <a class="viewcode-back" href="../../../../reference/model/value/property.html#kif_lib.PropertyVariable.some_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">some_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;SomeValueSnakTemplate&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">some_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SomeValueSnakTemplate</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs a some-value snak template from property variable.</span>
 
 <span class="sd">        Returns:</span>
@@ -276,7 +273,7 @@
 <span class="k">class</span> <span class="nc">PropertyDatatype</span><span class="p">(</span><span class="n">Datatype</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Property datatype.&quot;&quot;&quot;</span>
 
-    <span class="n">value_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="s1">&#39;Property&#39;</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">value_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Property</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
 
 <div class="viewcode-block" id="Property">
@@ -299,12 +296,15 @@
     <span class="n">template_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">PropertyTemplate</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
     <span class="n">variable_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">PropertyVariable</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
+<div class="viewcode-block" id="Property.__init__">
+<a class="viewcode-back" href="../../../../reference/model/value/property.html#kif_lib.Property.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">iri</span><span class="p">:</span> <span class="n">VTPropertyContent</span><span class="p">,</span>
-            <span class="nb">range</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">VTDatatype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">iri</span><span class="p">,</span> <span class="nb">range</span><span class="p">)</span>
+            <span class="nb">range</span><span class="p">:</span> <span class="n">VTDatatype</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">iri</span><span class="p">,</span> <span class="nb">range</span><span class="p">)</span></div>
+
 
     <span class="nd">@staticmethod</span>
     <span class="nd">@override</span>
@@ -317,33 +317,34 @@
             <span class="k">raise</span> <span class="n">self_</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">VTValue</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Statement&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">VTValue</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Statement</span><span class="p">:</span>
         <span class="o">...</span>                     <span class="c1"># pragma: no cover</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">VTValue</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ValueSnak&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">VTValue</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ValueSnak</span><span class="p">:</span>
         <span class="o">...</span>                     <span class="c1"># pragma: no cover</span>
 
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">v1</span><span class="p">:</span> <span class="n">VTEntity</span> <span class="o">|</span> <span class="n">VTValue</span><span class="p">,</span>
+            <span class="n">v2</span><span class="p">:</span> <span class="n">VTValue</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Statement</span> <span class="o">|</span> <span class="n">ValueSnak</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">v2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">..snak</span> <span class="kn">import</span> <span class="n">ValueSnak</span>
             <span class="kn">from</span> <span class="nn">..statement</span> <span class="kn">import</span> <span class="n">Statement</span>
-            <span class="k">return</span> <span class="n">Statement</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">ValueSnak</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v2</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">Statement</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">ValueSnak</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v2</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">..snak</span> <span class="kn">import</span> <span class="n">ValueSnak</span>
             <span class="k">return</span> <span class="n">ValueSnak</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">range</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Datatype</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">range</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Datatype</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The range of property.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_range</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Property.get_range">
 <a class="viewcode-back" href="../../../../reference/model/value/property.html#kif_lib.Property.get_range">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_range</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Datatype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Datatype</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">get_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Datatype</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Datatype</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the range of property.</span>
 
 <span class="sd">        If range is ``None``, returns `default`.</span>
@@ -359,7 +360,7 @@
 
 <div class="viewcode-block" id="Property.no_value">
 <a class="viewcode-back" href="../../../../reference/model/value/property.html#kif_lib.Property.no_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">no_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;NoValueSnak&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">no_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoValueSnak</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs a no-value snak from property.</span>
 
 <span class="sd">        Returns:</span>
@@ -371,7 +372,7 @@
 
 <div class="viewcode-block" id="Property.some_value">
 <a class="viewcode-back" href="../../../../reference/model/value/property.html#kif_lib.Property.some_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">some_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;SomeValueSnak&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">some_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SomeValueSnak</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs a some-value snak from property.</span>
 
 <span class="sd">        Returns:</span>

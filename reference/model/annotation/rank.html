@@ -54,6 +54,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">Model</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../kif_object/index.html">KIF Object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../term/index.html">Term</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../value/index.html">Value</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../snak/index.html">Snak</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../statement/index.html">Statement</a></li>
@@ -67,6 +68,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../set/index.html">Set</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../store/index.html">Store</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
@@ -103,77 +105,44 @@
 <h1>Rank<a class="headerlink" href="#rank" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="kif_lib.Rank">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Rank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/rank.html#Rank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.Rank" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Rank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/rank.html#Rank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.Rank" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="../kif_object/kif_object.html#kif_lib.KIF_Object" title="kif_lib.model.kif_object.KIF_Object"><code class="xref py py-class docutils literal notranslate"><span class="pre">KIF_Object</span></code></a></p>
 <p>Abstract base class for statement ranks.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kif_lib.Rank.template_class">
-<span class="sig-name descname"><span class="pre">template_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">Template</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kif_lib.Rank.template_class" title="Link to this definition"></a></dt>
-<dd><p>Template class associated with this object class.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kif_lib.Rank.variable_class">
-<span class="sig-name descname"><span class="pre">variable_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">Variable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kif_lib.Rank.variable_class" title="Link to this definition"></a></dt>
-<dd><p>Variable class associated with this object class.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="kif_lib.PreferredRank">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PreferredRank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/rank.html#PreferredRank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.PreferredRank" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">PreferredRank</span></span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/rank.html#PreferredRank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.PreferredRank" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#kif_lib.Rank" title="kif_lib.model.annotation.rank.Rank"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rank</span></code></a></p>
 <p>Most important information.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kif_lib.PreferredRank.template_class">
-<span class="sig-name descname"><span class="pre">template_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">Template</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kif_lib.PreferredRank.template_class" title="Link to this definition"></a></dt>
-<dd><p>Template class associated with this object class.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kif_lib.PreferredRank.variable_class">
-<span class="sig-name descname"><span class="pre">variable_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">Variable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kif_lib.PreferredRank.variable_class" title="Link to this definition"></a></dt>
-<dd><p>Variable class associated with this object class.</p>
-</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.PreferredRank.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/rank.html#PreferredRank.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.PreferredRank.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="kif_lib.NormalRank">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NormalRank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/rank.html#NormalRank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.NormalRank" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NormalRank</span></span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/rank.html#NormalRank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.NormalRank" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#kif_lib.Rank" title="kif_lib.model.annotation.rank.Rank"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rank</span></code></a></p>
 <p>Complementary information.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kif_lib.NormalRank.template_class">
-<span class="sig-name descname"><span class="pre">template_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">Template</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kif_lib.NormalRank.template_class" title="Link to this definition"></a></dt>
-<dd><p>Template class associated with this object class.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kif_lib.NormalRank.variable_class">
-<span class="sig-name descname"><span class="pre">variable_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">Variable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kif_lib.NormalRank.variable_class" title="Link to this definition"></a></dt>
-<dd><p>Variable class associated with this object class.</p>
-</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.NormalRank.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/rank.html#NormalRank.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.NormalRank.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="kif_lib.DeprecatedRank">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DeprecatedRank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/rank.html#DeprecatedRank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.DeprecatedRank" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DeprecatedRank</span></span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/rank.html#DeprecatedRank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.DeprecatedRank" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#kif_lib.Rank" title="kif_lib.model.annotation.rank.Rank"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rank</span></code></a></p>
 <p>Unreliable information.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kif_lib.DeprecatedRank.template_class">
-<span class="sig-name descname"><span class="pre">template_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">Template</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kif_lib.DeprecatedRank.template_class" title="Link to this definition"></a></dt>
-<dd><p>Template class associated with this object class.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kif_lib.DeprecatedRank.variable_class">
-<span class="sig-name descname"><span class="pre">variable_class</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">Variable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#kif_lib.DeprecatedRank.variable_class" title="Link to this definition"></a></dt>
-<dd><p>Variable class associated with this object class.</p>
-</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.DeprecatedRank.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/rank.html#DeprecatedRank.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.DeprecatedRank.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

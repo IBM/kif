@@ -80,23 +80,22 @@
 <span></span><span class="c1"># Copyright (C) 2024 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
-    <span class="n">Callable</span><span class="p">,</span>
     <span class="n">cast</span><span class="p">,</span>
     <span class="n">ClassVar</span><span class="p">,</span>
-    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Location</span><span class="p">,</span>
     <span class="n">override</span><span class="p">,</span>
     <span class="n">Self</span><span class="p">,</span>
     <span class="n">TypeAlias</span><span class="p">,</span>
     <span class="n">Union</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">..kif_object</span> <span class="kn">import</span> <span class="n">KIF_Object</span>
-<span class="kn">from</span> <span class="nn">..template</span> <span class="kn">import</span> <span class="n">Template</span>
+<span class="kn">from</span> <span class="nn">..term</span> <span class="kn">import</span> <span class="n">ClosedTerm</span><span class="p">,</span> <span class="n">Template</span><span class="p">,</span> <span class="n">Variable</span>
 <span class="kn">from</span> <span class="nn">..value</span> <span class="kn">import</span> <span class="n">Property</span><span class="p">,</span> <span class="n">PropertyTemplate</span><span class="p">,</span> <span class="n">PropertyVariable</span><span class="p">,</span> <span class="n">VProperty</span>
-<span class="kn">from</span> <span class="nn">..variable</span> <span class="kn">import</span> <span class="n">Variable</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>                      <span class="c1"># pragma: no cover</span>
     <span class="kn">from</span> <span class="nn">..fingerprint</span> <span class="kn">import</span> <span class="n">AndFingerprint</span><span class="p">,</span> <span class="n">OrFingerprint</span><span class="p">,</span> <span class="n">TFingerprint</span>
@@ -114,7 +113,7 @@
 <span class="k">class</span> <span class="nc">SnakTemplate</span><span class="p">(</span><span class="n">Template</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for snak templates.&quot;&quot;&quot;</span>
 
-    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="s1">&#39;Snak&#39;</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Snak</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
     <span class="nd">@override</span>
     <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
@@ -155,14 +154,14 @@
 <span class="sd">       name: Name.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="s1">&#39;Snak&#39;</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Snak</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
 
 
 
 <div class="viewcode-block" id="Snak">
 <a class="viewcode-back" href="../../../../reference/model/snak/snak.html#kif_lib.Snak">[docs]</a>
 <span class="k">class</span> <span class="nc">Snak</span><span class="p">(</span>
-        <span class="n">KIF_Object</span><span class="p">,</span>
+        <span class="n">ClosedTerm</span><span class="p">,</span>
         <span class="n">template_class</span><span class="o">=</span><span class="n">SnakTemplate</span><span class="p">,</span>
         <span class="n">variable_class</span><span class="o">=</span><span class="n">SnakVariable</span>
 <span class="p">):</span>
@@ -178,9 +177,9 @@
     <span class="k">def</span> <span class="nf">check</span><span class="p">(</span>
             <span class="bp">cls</span><span class="p">,</span>
             <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-            <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">function</span><span class="p">:</span> <span class="n">Location</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">position</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">arg</span>
@@ -203,19 +202,19 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">self_</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s1">&#39;TFingerprint&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;AndFingerprint&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TFingerprint</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AndFingerprint</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">..fingerprint</span> <span class="kn">import</span> <span class="n">AndFingerprint</span>
         <span class="k">return</span> <span class="n">AndFingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__rand__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s1">&#39;TFingerprint&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;AndFingerprint&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__rand__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TFingerprint</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AndFingerprint</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">..fingerprint</span> <span class="kn">import</span> <span class="n">AndFingerprint</span>
         <span class="k">return</span> <span class="n">AndFingerprint</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s1">&#39;TFingerprint&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;OrFingerprint&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TFingerprint</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrFingerprint</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">..fingerprint</span> <span class="kn">import</span> <span class="n">OrFingerprint</span>
         <span class="k">return</span> <span class="n">OrFingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__ror__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s1">&#39;TFingerprint&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;OrFingerprint&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__ror__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TFingerprint</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrFingerprint</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">..fingerprint</span> <span class="kn">import</span> <span class="n">OrFingerprint</span>
         <span class="k">return</span> <span class="n">OrFingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
 

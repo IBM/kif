@@ -54,6 +54,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">Model</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../kif_object/index.html">KIF Object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../term/index.html">Term</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../value/index.html">Value</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../snak/index.html">Snak</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../statement/index.html">Statement</a></li>
@@ -67,6 +68,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../set/index.html">Set</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../../store/index.html">Store</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
@@ -103,7 +105,7 @@
 <h1>AnnotationRecord<a class="headerlink" href="#annotationrecord" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="kif_lib.AnnotationRecord">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AnnotationRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/annotation_record.html#AnnotationRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotationRecord" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AnnotationRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qualifiers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TSnakSet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TReferenceRecordSet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rank.html#kif_lib.Rank" title="kif_lib.Rank"><span class="pre">Rank</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/annotation_record.html#AnnotationRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotationRecord" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="../kif_object/kif_object.html#kif_lib.KIF_Object" title="kif_lib.model.kif_object.KIF_Object"><code class="xref py py-class docutils literal notranslate"><span class="pre">KIF_Object</span></code></a></p>
 <p>Annotation record (qualifiers, references, and rank).</p>
 <dl class="field-list simple">
@@ -115,6 +117,35 @@
 </ul>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.AnnotationRecord.default_qualifiers">
+<span class="sig-name descname"><span class="pre">default_qualifiers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../set/kif_object_set.html#kif_lib.SnakSet" title="kif_lib.SnakSet"><span class="pre">SnakSet</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SnakSet()</span></em><a class="headerlink" href="#kif_lib.AnnotationRecord.default_qualifiers" title="Link to this definition"></a></dt>
+<dd><p>Default qualifiers.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.AnnotationRecord.default_references">
+<span class="sig-name descname"><span class="pre">default_references</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../set/kif_object_set.html#kif_lib.ReferenceRecordSet" title="kif_lib.ReferenceRecordSet"><span class="pre">ReferenceRecordSet</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">ReferenceRecordSet()</span></em><a class="headerlink" href="#kif_lib.AnnotationRecord.default_references" title="Link to this definition"></a></dt>
+<dd><p>Default references.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.AnnotationRecord.default_rank">
+<span class="sig-name descname"><span class="pre">default_rank</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="rank.html#kif_lib.Rank" title="kif_lib.Rank"><span class="pre">Rank</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">NormalRank()</span></em><a class="headerlink" href="#kif_lib.AnnotationRecord.default_rank" title="Link to this definition"></a></dt>
+<dd><p>Default rank.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.AnnotationRecord.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qualifiers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TSnakSet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TReferenceRecordSet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rank.html#kif_lib.Rank" title="kif_lib.Rank"><span class="pre">Rank</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/annotation_record.html#AnnotationRecord.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotationRecord.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kif_lib.AnnotationRecord.qualifiers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qualifiers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../set/kif_object_set.html#kif_lib.SnakSet" title="kif_lib.model.set.SnakSet"><span class="pre">SnakSet</span></a></em><a class="headerlink" href="#kif_lib.AnnotationRecord.qualifiers" title="Link to this definition"></a></dt>
+<dd><p>The qualifiers of annotation record.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="kif_lib.AnnotationRecord.get_qualifiers">
 <span class="sig-name descname"><span class="pre">get_qualifiers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../set/kif_object_set.html#kif_lib.SnakSet" title="kif_lib.model.set.SnakSet"><span class="pre">SnakSet</span></a></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/annotation_record.html#AnnotationRecord.get_qualifiers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotationRecord.get_qualifiers" title="Link to this definition"></a></dt>
@@ -126,15 +157,10 @@
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="kif_lib.AnnotationRecord.get_rank">
-<span class="sig-name descname"><span class="pre">get_rank</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="rank.html#kif_lib.Rank" title="kif_lib.model.annotation.rank.Rank"><span class="pre">Rank</span></a></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/annotation_record.html#AnnotationRecord.get_rank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotationRecord.get_rank" title="Link to this definition"></a></dt>
-<dd><p>Gets rank of annotation record.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Rank.</p>
-</dd>
-</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="kif_lib.AnnotationRecord.references">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">references</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../set/kif_object_set.html#kif_lib.ReferenceRecordSet" title="kif_lib.model.set.ReferenceRecordSet"><span class="pre">ReferenceRecordSet</span></a></em><a class="headerlink" href="#kif_lib.AnnotationRecord.references" title="Link to this definition"></a></dt>
+<dd><p>The references of annotation record.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -148,40 +174,21 @@
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kif_lib.AnnotationRecord.default_qualifiers">
-<span class="sig-name descname"><span class="pre">default_qualifiers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../set/kif_object_set.html#kif_lib.SnakSet" title="kif_lib.model.set.SnakSet"><span class="pre">SnakSet</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">SnakSet()</span></em><a class="headerlink" href="#kif_lib.AnnotationRecord.default_qualifiers" title="Link to this definition"></a></dt>
-<dd><p>Default qualifiers.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kif_lib.AnnotationRecord.default_rank">
-<span class="sig-name descname"><span class="pre">default_rank</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="rank.html#kif_lib.Rank" title="kif_lib.model.annotation.rank.Rank"><span class="pre">Rank</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">NormalRank()</span></em><a class="headerlink" href="#kif_lib.AnnotationRecord.default_rank" title="Link to this definition"></a></dt>
-<dd><p>Default rank.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="kif_lib.AnnotationRecord.default_references">
-<span class="sig-name descname"><span class="pre">default_references</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Final</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../set/kif_object_set.html#kif_lib.ReferenceRecordSet" title="kif_lib.model.set.ReferenceRecordSet"><span class="pre">ReferenceRecordSet</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">ReferenceRecordSet()</span></em><a class="headerlink" href="#kif_lib.AnnotationRecord.default_references" title="Link to this definition"></a></dt>
-<dd><p>Default references.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="kif_lib.AnnotationRecord.qualifiers">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qualifiers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../set/kif_object_set.html#kif_lib.SnakSet" title="kif_lib.model.set.SnakSet"><span class="pre">SnakSet</span></a></em><a class="headerlink" href="#kif_lib.AnnotationRecord.qualifiers" title="Link to this definition"></a></dt>
-<dd><p>The qualifiers of annotation record.</p>
-</dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="kif_lib.AnnotationRecord.rank">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rank</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="rank.html#kif_lib.Rank" title="kif_lib.model.annotation.rank.Rank"><span class="pre">Rank</span></a></em><a class="headerlink" href="#kif_lib.AnnotationRecord.rank" title="Link to this definition"></a></dt>
 <dd><p>The rank of annotation record.</p>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="kif_lib.AnnotationRecord.references">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">references</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../set/kif_object_set.html#kif_lib.ReferenceRecordSet" title="kif_lib.model.set.ReferenceRecordSet"><span class="pre">ReferenceRecordSet</span></a></em><a class="headerlink" href="#kif_lib.AnnotationRecord.references" title="Link to this definition"></a></dt>
-<dd><p>The references of annotation record.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.AnnotationRecord.get_rank">
+<span class="sig-name descname"><span class="pre">get_rank</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="rank.html#kif_lib.Rank" title="kif_lib.model.annotation.rank.Rank"><span class="pre">Rank</span></a></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/annotation/annotation_record.html#AnnotationRecord.get_rank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotationRecord.get_rank" title="Link to this definition"></a></dt>
+<dd><p>Gets rank of annotation record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Rank.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

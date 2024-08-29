@@ -80,7 +80,8 @@
 <span></span><span class="c1"># Copyright (C) 2024 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">import</span> <span class="nn">datetime</span>
 <span class="kn">import</span> <span class="nn">decimal</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
@@ -89,19 +90,16 @@
 <span class="kn">from</span> <span class="nn">...rdflib</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">URIRef</span>
 <span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
-    <span class="n">Callable</span><span class="p">,</span>
     <span class="n">cast</span><span class="p">,</span>
     <span class="n">ClassVar</span><span class="p">,</span>
     <span class="n">Collection</span><span class="p">,</span>
-    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Location</span><span class="p">,</span>
     <span class="n">override</span><span class="p">,</span>
     <span class="n">Self</span><span class="p">,</span>
     <span class="n">TypeAlias</span><span class="p">,</span>
     <span class="n">Union</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">..kif_object</span> <span class="kn">import</span> <span class="n">KIF_Object</span>
-<span class="kn">from</span> <span class="nn">..template</span> <span class="kn">import</span> <span class="n">Template</span>
-<span class="kn">from</span> <span class="nn">..variable</span> <span class="kn">import</span> <span class="n">Variable</span>
+<span class="kn">from</span> <span class="nn">..term</span> <span class="kn">import</span> <span class="n">ClosedTerm</span><span class="p">,</span> <span class="n">Template</span><span class="p">,</span> <span class="n">Variable</span>
 <span class="kn">from</span> <span class="nn">.datatype</span> <span class="kn">import</span> <span class="n">Datatype</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
@@ -119,7 +117,7 @@
 <span class="k">class</span> <span class="nc">ValueTemplate</span><span class="p">(</span><span class="n">Template</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for value templates.&quot;&quot;&quot;</span>
 
-    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Value</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
 
 
 
@@ -132,14 +130,14 @@
 <span class="sd">       name: Name.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Value</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
 
 
 
 <div class="viewcode-block" id="Value">
 <a class="viewcode-back" href="../../../../reference/model/value/value.html#kif_lib.Value">[docs]</a>
 <span class="k">class</span> <span class="nc">Value</span><span class="p">(</span>
-        <span class="n">KIF_Object</span><span class="p">,</span>
+        <span class="n">ClosedTerm</span><span class="p">,</span>
         <span class="n">template_class</span><span class="o">=</span><span class="n">ValueTemplate</span><span class="p">,</span>
         <span class="n">variable_class</span><span class="o">=</span><span class="n">ValueVariable</span>
 <span class="p">):</span>
@@ -155,7 +153,7 @@
     <span class="n">datatype</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Datatype</span><span class="p">]</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="s1">&#39;datatype_class&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">datatype_class</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;datatype_class&#39;</span><span class="p">]</span>
@@ -170,9 +168,9 @@
     <span class="k">def</span> <span class="nf">check</span><span class="p">(</span>
             <span class="bp">cls</span><span class="p">,</span>
             <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-            <span class="n">function</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">function</span><span class="p">:</span> <span class="n">Location</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">position</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">arg</span>
@@ -188,38 +186,21 @@
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s1">&#39;TFingerprint&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;AndFingerprint&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TFingerprint</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AndFingerprint</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">..fingerprint</span> <span class="kn">import</span> <span class="n">AndFingerprint</span>
         <span class="k">return</span> <span class="n">AndFingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__rand__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s1">&#39;TFingerprint&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;AndFingerprint&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__rand__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TFingerprint</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AndFingerprint</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">..fingerprint</span> <span class="kn">import</span> <span class="n">AndFingerprint</span>
         <span class="k">return</span> <span class="n">AndFingerprint</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s1">&#39;TFingerprint&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;OrFingerprint&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TFingerprint</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrFingerprint</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">..fingerprint</span> <span class="kn">import</span> <span class="n">OrFingerprint</span>
         <span class="k">return</span> <span class="n">OrFingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__ror__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s1">&#39;TFingerprint&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;OrFingerprint&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__ror__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TFingerprint</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrFingerprint</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">..fingerprint</span> <span class="kn">import</span> <span class="n">OrFingerprint</span>
         <span class="k">return</span> <span class="n">OrFingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The simple value of value.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
-
-<div class="viewcode-block" id="Value.get_value">
-<a class="viewcode-back" href="../../../../reference/model/value/value.html#kif_lib.Value.get_value">[docs]</a>
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the simple value of value.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">           Simple value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
-
 
 <div class="viewcode-block" id="Value.n3">
 <a class="viewcode-back" href="../../../../reference/model/value/value.html#kif_lib.Value.n3">[docs]</a>
@@ -235,10 +216,10 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_from_rdflib</span><span class="p">(</span>
             <span class="bp">cls</span><span class="p">,</span>
-            <span class="n">node</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">,</span> <span class="n">URIRef</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
-            <span class="n">item_prefixes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Collection</span><span class="p">[</span><span class="n">NS</span><span class="o">.</span><span class="n">T_NS</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">property_prefixes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Collection</span><span class="p">[</span><span class="n">NS</span><span class="o">.</span><span class="n">T_NS</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">lexeme_prefixes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Collection</span><span class="p">[</span><span class="n">NS</span><span class="o">.</span><span class="n">T_NS</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">node</span><span class="p">:</span> <span class="n">Literal</span> <span class="o">|</span> <span class="n">URIRef</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">item_prefixes</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">NS</span><span class="o">.</span><span class="n">T_NS</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">property_prefixes</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">NS</span><span class="o">.</span><span class="n">T_NS</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lexeme_prefixes</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">NS</span><span class="o">.</span><span class="n">T_NS</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">...rdflib</span> <span class="kn">import</span> <span class="n">_NUMERIC_LITERAL_TYPES</span>
         <span class="kn">from</span> <span class="nn">.external_id</span> <span class="kn">import</span> <span class="n">ExternalId</span>
@@ -295,23 +276,25 @@
             <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_from_rdflib</span><span class="p">,</span> <span class="s1">&#39;node&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_to_rdflib</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Literal</span><span class="p">,</span> <span class="n">URIRef</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">_to_rdflib</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Literal</span> <span class="o">|</span> <span class="n">URIRef</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">.entity</span> <span class="kn">import</span> <span class="n">Entity</span>
         <span class="kn">from</span> <span class="nn">.iri</span> <span class="kn">import</span> <span class="n">IRI</span>
         <span class="kn">from</span> <span class="nn">.quantity</span> <span class="kn">import</span> <span class="n">Quantity</span>
         <span class="kn">from</span> <span class="nn">.string</span> <span class="kn">import</span> <span class="n">String</span>
         <span class="kn">from</span> <span class="nn">.text</span> <span class="kn">import</span> <span class="n">Text</span>
         <span class="kn">from</span> <span class="nn">.time</span> <span class="kn">import</span> <span class="n">Time</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">(</span><span class="n">Entity</span><span class="p">,</span> <span class="n">IRI</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="n">URIRef</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Entity</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">URIRef</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iri</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">IRI</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">URIRef</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Quantity</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">Literal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="n">NS</span><span class="o">.</span><span class="n">XSD</span><span class="o">.</span><span class="n">decimal</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Literal</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">amount</span><span class="p">),</span> <span class="n">datatype</span><span class="o">=</span><span class="n">NS</span><span class="o">.</span><span class="n">XSD</span><span class="o">.</span><span class="n">decimal</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Time</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">Literal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="n">NS</span><span class="o">.</span><span class="n">XSD</span><span class="o">.</span><span class="n">dateTime</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Literal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span> <span class="n">datatype</span><span class="o">=</span><span class="n">NS</span><span class="o">.</span><span class="n">XSD</span><span class="o">.</span><span class="n">dateTime</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Text</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">Literal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">cast</span><span class="p">(</span><span class="n">Text</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">language</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Literal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">language</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">String</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">Literal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Literal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span></div>
 

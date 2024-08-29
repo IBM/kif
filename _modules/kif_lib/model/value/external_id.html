@@ -80,6 +80,8 @@
 <span></span><span class="c1"># Copyright (C) 2024 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">.string</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">String</span><span class="p">,</span>
@@ -103,7 +105,7 @@
 <span class="sd">       content: External id content or string variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="s1">&#39;ExternalId&#39;</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">ExternalId</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
 
 
 
@@ -116,14 +118,14 @@
 <span class="sd">       name: Name.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="s1">&#39;ExternalId&#39;</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">ExternalId</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
 
 
 
 <span class="k">class</span> <span class="nc">ExternalIdDatatype</span><span class="p">(</span><span class="n">StringDatatype</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;External id datatype.&quot;&quot;&quot;</span>
 
-    <span class="n">value_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="s1">&#39;ExternalId&#39;</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">value_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">ExternalId</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
 
 <div class="viewcode-block" id="ExternalId">

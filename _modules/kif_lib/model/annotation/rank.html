@@ -80,10 +80,12 @@
 <span></span><span class="c1"># Copyright (C) 2024 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">import</span> <span class="nn">functools</span>
 
 <span class="kn">from</span> <span class="nn">...rdflib</span> <span class="kn">import</span> <span class="n">URIRef</span>
-<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">Self</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">Self</span>
 <span class="kn">from</span> <span class="nn">..kif_object</span> <span class="kn">import</span> <span class="n">KIF_Object</span>
 
 
@@ -94,7 +96,7 @@
 
     <span class="nd">@classmethod</span>
     <span class="nd">@functools</span><span class="o">.</span><span class="n">cache</span>
-    <span class="k">def</span> <span class="nf">_from_rdflib</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">uri</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">URIRef</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_from_rdflib</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">uri</span><span class="p">:</span> <span class="n">URIRef</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">...namespace</span> <span class="kn">import</span> <span class="n">Wikidata</span>
         <span class="k">if</span> <span class="n">Wikidata</span><span class="o">.</span><span class="n">is_wikibase_preferred_rank</span><span class="p">(</span><span class="n">uri</span><span class="p">):</span>
             <span class="n">res</span><span class="p">:</span> <span class="n">Rank</span> <span class="o">=</span> <span class="n">Preferred</span>
@@ -124,8 +126,11 @@
 <span class="k">class</span> <span class="nc">PreferredRank</span><span class="p">(</span><span class="n">Rank</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Most important information.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PreferredRank.__init__">
+<a class="viewcode-back" href="../../../../reference/model/annotation/rank.html#kif_lib.PreferredRank.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
+</div>
 
 
 
@@ -134,8 +139,11 @@
 <span class="k">class</span> <span class="nc">NormalRank</span><span class="p">(</span><span class="n">Rank</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Complementary information.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="NormalRank.__init__">
+<a class="viewcode-back" href="../../../../reference/model/annotation/rank.html#kif_lib.NormalRank.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
+</div>
 
 
 
@@ -144,8 +152,11 @@
 <span class="k">class</span> <span class="nc">DeprecatedRank</span><span class="p">(</span><span class="n">Rank</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Unreliable information.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DeprecatedRank.__init__">
+<a class="viewcode-back" href="../../../../reference/model/annotation/rank.html#kif_lib.DeprecatedRank.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
+</div>
 
 
 

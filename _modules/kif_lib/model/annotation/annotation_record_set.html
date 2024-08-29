@@ -80,6 +80,8 @@
 <span></span><span class="c1"># Copyright (C) 2024 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">override</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">..set</span> <span class="kn">import</span> <span class="n">KIF_ObjectSet</span>
 <span class="kn">from</span> <span class="nn">.annotation_record</span> <span class="kn">import</span> <span class="n">AnnotationRecord</span>
@@ -102,9 +104,12 @@
 
     <span class="n">children_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">AnnotationRecord</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
+<div class="viewcode-block" id="AnnotationRecordSet.__init__">
+<a class="viewcode-back" href="../../../../reference/model/set/kif_object_set.html#kif_lib.AnnotationRecordSet.__init__">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">annotation_records</span><span class="p">:</span> <span class="n">AnnotationRecord</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">annotation_records</span><span class="p">:</span> <span class="n">AnnotationRecord</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">annotation_records</span><span class="p">)</span></div>
+</div>
 
 </pre></div>
 
