@@ -49,17 +49,7 @@ S = TypeVar('S')
 
 
 class Store(Set):
-    """Abstract base class for stores.
-
-    Parameters:
-       store_name: Name of the store plugin to instantiate.
-       args: Arguments to store plugin.
-       extra_references: Set of extra references to attach to statements.
-       flags: Store flags.
-       page_size: Page size of paginated responses.
-       timeout: Timeout of responses (in seconds).
-       kwargs: Keyword arguments to store plugin.
-    """
+    """Abstract base class for stores."""
 
     #: The store plugin registry.
     registry: Final[dict[str, type[Store]]] = {}
@@ -108,7 +98,7 @@ class Store(Set):
            details: Details.
 
         Returns:
-           Store error.
+           :class:`Error`.
         """
         return cls.Error(details)
 
@@ -123,7 +113,7 @@ class Store(Set):
            details: Details.
 
         Returns:
-           :class:`ShouldNotGetHere` error.
+           :class:`ShouldNotGetHere`.
         """
         return KIF_Object._should_not_get_here(details)
 
@@ -132,6 +122,7 @@ class Store(Set):
         '_context',
         '_extra_references',
         '_flags',
+        '_limit',
         '_page_size',
         '_timeout',
     )
@@ -141,13 +132,28 @@ class Store(Set):
             *args: Any,
             extra_references: TReferenceRecordSet | None = None,
             flags: Flags | None = None,
+            limit: int | None = None,
             page_size: int | None = None,
             timeout: int | None = None,
             **kwargs: Any
     ) -> None:
+        """
+        Initializes :class:`Store`.
+
+        Parameters:
+            store_name: Name of the store plugin to instantiate.
+            args: Arguments to store plugin.
+            extra_references: Extra references to attach to statements.
+            flags: Store flags.
+            limit: Limit (maximum number) of responses.
+            page_size: Page size of paginated responses.
+            timeout: Timeout of responses (in seconds).
+            kwargs: Keyword arguments to store plugin.
+        """
         self._init_flags(flags)
         self._init_cache(self.has_flags(self.CACHE))
         self._init_extra_references(extra_references)
+        self._init_limit(limit)
         self._init_page_size(page_size)
         self._init_timeout(timeout)
 
@@ -168,7 +174,7 @@ class Store(Set):
 
 # -- Caching ---------------------------------------------------------------
 
-    #: The object cache of store.
+    #: The store cache.
     _cache: Cache
 
     def _init_cache(self, enabled: bool) -> None:
@@ -208,11 +214,11 @@ class Store(Set):
 
     @property
     def default_extra_references(self) -> ReferenceRecordSet:
-        """The default set of extra references."""
+        """The default value for :attr:`Store.extra_references`."""
         return self.get_default_extra_references()
 
     def get_default_extra_references(self) -> ReferenceRecordSet:
-        """Gets the default set of extra references.
+        """Gets the default value for :attr:`Store.extra_references`.
 
         Returns:
            Reference record set.
@@ -230,7 +236,7 @@ class Store(Set):
 
     @property
     def extra_references(self) -> ReferenceRecordSet:
-        """The set of extra references to attach to statements."""
+        """The extra references to attach to statements."""
         return self.get_extra_references()
 
     @extra_references.setter
@@ -244,9 +250,9 @@ class Store(Set):
             self,
             default: ReferenceRecordSet | None = None
     ) -> ReferenceRecordSet:
-        """Gets the set of extra references to attach to statements.
+        """Gets the extra references to attach to statements.
 
-        If the set of extra references is ``None``, returns `default`.
+        If the extra references is ``None``, returns `default`.
 
         If `default` is ``None``,
         assumes :attr:`Store.default_extra_references`.
@@ -269,7 +275,7 @@ class Store(Set):
             self,
             extra_references: TReferenceRecordSet | None = None
     ) -> None:
-        """Sets the set of extra references to attach to statements.
+        """Sets the extra references to attach to statements.
 
         If `extra_references` is ``None``,
         assumes :attr:`Store.default_extra_references`.
@@ -362,14 +368,14 @@ class Store(Set):
 
     @property
     def default_flags(self) -> Flags:
-        """The default store flags."""
+        """The default value for :attr:`Store.flags`."""
         return self.get_default_flags()
 
     def get_default_flags(self) -> Flags:
-        """Gets the default store flags.
+        """Gets the default value for :attr:`Store.flags`.
 
         Returns:
-           Store flags.
+           Default store flags.
         """
         return self.context.options.store.flags
 
@@ -431,6 +437,119 @@ class Store(Set):
         """
         self.flags &= ~flags
 
+# -- Limit -----------------------------------------------------------------
+
+    @classmethod
+    def _check_limit(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int:
+        return max(int(Quantity.check(
+            arg, function, name, position).amount), 0)
+
+    @classmethod
+    def _check_optional_limit(
+            cls,
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int | None:
+        if arg is None:
+            arg = default
+        if arg is None:
+            return default
+        else:
+            return cls._check_limit(arg, function, name, position)
+
+    @property
+    def max_limit(self) -> int:
+        """The maximum value for :attr:`Store.limit`."""
+        return self.get_max_limit()
+
+    def get_max_limit(self) -> int:
+        """Gets the maximum value for :attr:`Store.limit`.
+
+        Returns:
+           Maximum limit.
+        """
+        return self.context.options.store.max_limit
+
+    @property
+    def default_limit(self) -> int | None:
+        """The default value for :attr:`Store.limit`."""
+        return self.get_default_limit()
+
+    def get_default_limit(self) -> int | None:
+        """Gets the default value for :attr:`Store.limit`.
+
+        Returns:
+           Default limit or ``None``.
+        """
+        return self.context.options.store.limit
+
+    #: Limit.
+    _limit: int | None
+
+    def _init_limit(self, limit: int | None = None) -> None:
+        self.limit = limit  # type: ignore
+
+    @property
+    def limit(self) -> int | None:
+        """The limit (maximum number) of responses."""
+        return self.get_limit()
+
+    @limit.setter
+    def limit(self, limit: int | None = None) -> None:
+        self.set_limit(limit)
+
+    def get_limit(
+            self,
+            default: int | None = None
+    ) -> int | None:
+        """Gets the limit (maximum number) of responses.
+
+        If the limit is ``None``, returns `default`.
+
+        If `default` is ``None``, assumes :attr:`Store.default_limit`.
+
+        Parameters:
+           default: Default limit.
+
+        Returns:
+           Limit or ``None``.
+        """
+        if self._limit is not None:
+            limit: int | None = self._limit
+        elif default is not None:
+            limit = default
+        else:
+            limit = self.default_limit
+        if limit is None:
+            return limit
+        else:
+            return min(limit, self.max_limit)
+
+    def set_limit(
+            self,
+            limit: int | None = None
+    ) -> None:
+        """Sets the limit (maximum number) of responses.
+
+        If `limit` is negative, assumes zero.
+
+        If `limit` is ``None``, assumes: attr: `Store.default_limit`.
+
+        Parameters:
+           limit: Limit.
+        """
+        self._limit = self._check_optional_limit(
+            limit, None, self.set_limit, 'limit', 1)
+
 # -- Page size -------------------------------------------------------------
 
     @classmethod
@@ -462,27 +581,27 @@ class Store(Set):
 
     @property
     def max_page_size(self) -> int:
-        """The maximum page size."""
+        """The maximum value for :attr:`Store.page_size`."""
         return self.get_max_page_size()
 
     def get_max_page_size(self) -> int:
-        """Gets the max page size.
+        """Gets the maximum value for :attr:`Store.page_size`.
 
         Returns:
-           Page size.
+           Maximum page size.
         """
         return self.context.options.store.max_page_size
 
     @property
     def default_page_size(self) -> int:
-        """The default page size."""
+        """The default value for :attr:`Store.page_size`."""
         return self.get_default_page_size()
 
     def get_default_page_size(self) -> int:
-        """Gets the default page size.
+        """Gets the default value for :attr:`Store.page_size`.
 
         Returns:
-           Page size.
+           Default page size.
         """
         return self.context.options.store.page_size
 
@@ -533,7 +652,7 @@ class Store(Set):
 
         If `page_size` is negative, assumes zero.
 
-        If `page_size` is ``None``, assumes :attr:`Store.default_page_size`.
+        If `page_size` is ``None``, assumes: attr: `Store.default_page_size`.
 
         Parameters:
            page_size: Page size.
@@ -612,27 +731,27 @@ class Store(Set):
 
     @property
     def max_timeout(self) -> float:
-        """The maximum timeout (in seconds)."""
+        """The maximum value for :attr:`Store.timeout`."""
         return self.get_max_timeout()
 
     def get_max_timeout(self) -> float:
-        """Gets the maximum timeout (in seconds).
+        """Gets the maximum value for :attr:`Store.timeout`.
 
         Returns:
-           Timeout.
+           Maximum timeout (in seconds).
         """
         return self.context.options.store.max_timeout
 
     @property
     def default_timeout(self) -> float | None:
-        """The default timeout (in seconds)."""
+        """The default value for :attr:`Store.timeout`."""
         return self.get_default_timeout()
 
     def get_default_timeout(self) -> float | None:
-        """Gets the default timeout (in seconds).
+        """Gets the default value for :attr:`Store.timeout`.
 
         Returns:
-           Timeout.
+           Timeout or ``None``.
         """
         return self.context.options.store.timeout
 
@@ -665,7 +784,7 @@ class Store(Set):
            default: Default timeout.
 
         Returns:
-           Timeout.
+           Timeout or ``None``.
         """
         if self._timeout is not None:
             timeout: float | None = self._timeout
@@ -832,7 +951,7 @@ class Store(Set):
            snak_mask: Snak mask.
            snak: Snak.
            filter: Filter filter.
-           limit: Maximum number of statements to return.
+           limit: Limit(maximum number) of statements to return .
            distinct: Whether to remove duplicates.
 
         Returns:
@@ -926,7 +1045,7 @@ class Store(Set):
            snak_mask: Snak mask.
            snak: Snak.
            filter: Filter.
-           limit: Maximum number of statements to return.
+           limit: Maximum number of statements to return .
 
         Returns:
            An iterator of pairs "(statement, annotation record set)".
