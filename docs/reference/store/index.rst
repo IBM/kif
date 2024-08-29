@@ -32,8 +32,8 @@ Store
    store.SPARQL_MapperStore
    store.MixerStore
 
-Methods
-=======
+Properties
+==========
 
 Extra references
 ----------------
@@ -80,3 +80,14 @@ Timeout
    Store.timeout
    Store.default_timeout
    Store.max_timeout
+
+Methods
+=======
+
+Filter
+------
+.. autosummary::
+   :nosignatures:
+
+   Store.filter
+   Store.filter_annotated
