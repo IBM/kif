@@ -16,6 +16,7 @@ aromatic_hydrocarbon = Q(230731, 'aromatic hydrocarbon')
 Atlantic_Ocean = Q(97, 'Atlantic Ocean')
 autobahn_in_Germany = Q(313301, 'autobahn in Germany')
 benzene = Q(2270, 'benzene')
+Bolivia = Q(750, 'Bolivia')
 Brazil = Q(155, 'Brazil')
 Brazilian_Sign_Language = Q(3436689, 'Brazilian Sign Language')
 business = Q(4830453, 'business')
@@ -27,6 +28,7 @@ ChemIDplus = Q(20593, 'ChemIDplus')
 chemistry = Q(2329, 'chemistry')
 ChemSpider = Q(2311683, 'ChemSpider')
 child = Q(7569, 'child')
+Colombia = Q(739, 'Colombia')
 comma_separated_values = Q(935809, 'comma-separated values')
 continent_ = Q(5107, 'continent')
 country_ = Q(6256, 'country')
@@ -49,6 +51,8 @@ female = Q(6581072, 'female')
 female_human = Q(84048852, 'female human')
 feminine = Q(1775415, 'feminine')
 flame_retardant = Q(902863, 'flame retardant')
+France = Q(142, 'France')
+French_Guiana = Q(3769, 'French Guiana')
 frog = Q(3116510, 'frog')
 Garden_of_Eden = Q(19014, 'Garden of Eden')
 Germany = Q(183, 'Germany')
@@ -58,6 +62,7 @@ gram_per_cubic_centimetre = Q(13147228, 'gram per cubic centimetre')
 gram_per_kilogram = Q(21061369, 'gram per kilogram')
 gram_per_mole = Q(28924752, 'gram per mole')
 Guinea_pig = Q(79803, 'Guinea pig')
+Guyana = Q(734, 'Guyana')
 Hazardous_Substances_Data_Bank = Q(5687720, 'Hazardous Substances Data Bank')
 human = Q(5, 'human')
 IBM = Q(37156, 'IBM')
@@ -98,6 +103,7 @@ part = Q(15989253, 'part')
 parts_per_million = Q(21006887, 'parts per million')
 patent = Q(253623, 'patent')
 per_and_polyfluoroalkyl_substances = Q(648037, 'per- and polyfluoroalkyl substances')
+Peru =  Q(419, 'Peru')
 physics = Q(413, 'physics')
 Pico_da_Neblina = Q(739484, 'Pico da Neblina')
 Portuguese = Q(5146, 'Portuguese')
@@ -121,6 +127,8 @@ subcutaneous_injection = Q(2035485, 'subcutaneous injection')
 Supercalifragilisticexpialidocious = Q(103, 'Supercalifragilisticexpialidocious')
 type_of_a_chemical_entity = Q(113145171, 'type of a chemical entity')
 unit_of_mass = Q(3647172, 'unit of mass')
+Uruguay = Q(77, 'Uruguay')
+Venezuela = Q(717, 'Venezuela')
 verb = Q(24905, 'verb')
 water = Q(283, 'water')
 Wikidata = Q(2013, 'Wikidata')
@@ -139,6 +147,7 @@ __all__ = (
     'Atlantic_Ocean',
     'autobahn_in_Germany',
     'benzene',
+    'Bolivia',
     'Brazil',
     'Brazilian_Sign_Language',
     'business',
@@ -150,6 +159,7 @@ __all__ = (
     'chemistry',
     'ChemSpider',
     'child',
+    'Colombia',
     'comma_separated_values',
     'continent_',
     'country_',
@@ -172,6 +182,8 @@ __all__ = (
     'female_human',
     'feminine',
     'flame_retardant',
+    'France',
+    'French_Guiana',
     'frog',
     'Garden_of_Eden',
     'Germany',
@@ -181,6 +193,7 @@ __all__ = (
     'gram_per_kilogram',
     'gram_per_mole',
     'Guinea_pig',
+    'Guyana',
     'Hazardous_Substances_Data_Bank',
     'human',
     'IBM',
@@ -221,6 +234,7 @@ __all__ = (
     'parts_per_million',
     'patent',
     'per_and_polyfluoroalkyl_substances',
+    'Peru',
     'physics',
     'Pico_da_Neblina',
     'Portuguese',
@@ -244,6 +258,8 @@ __all__ = (
     'Supercalifragilisticexpialidocious',
     'type_of_a_chemical_entity',
     'unit_of_mass',
+    'Uruguay',
+    'Venezuela',
     'verb',
     'water',
     'Wikidata',

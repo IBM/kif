@@ -11,6 +11,7 @@ from ..error import ShouldNotGetHere
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
+    ClosedTerm,
     Descriptor,
     Entity,
     Filter,
@@ -20,6 +21,7 @@ from ..model import (
     KIF_Object,
     Lexeme,
     LexemeDescriptor,
+    Pattern,
     Property,
     PropertyDescriptor,
     Quantity,
@@ -27,6 +29,7 @@ from ..model import (
     Snak,
     Statement,
     TFingerprint,
+    TPattern,
     TReferenceRecordSet,
 )
 from ..model.flags import Flags as KIF_Flags
@@ -811,6 +814,60 @@ class Store(Set):
         self._timeout = self._check_optional_timeout(
             timeout, None, self.set_timeout, 'timeout', 1)
 
+# -- Match -----------------------------------------------------------------
+
+    def match(
+            self,
+            pattern: TPattern,
+            limit: int | None = None,
+            distinct: bool | None = None
+    ) -> Iterator[ClosedTerm]:
+        """Searches for terms matching `pattern`.
+
+        Parameters:
+           pattern: Pattern.
+           limit: Limit (maximum number) of matches to return.
+           distinct: Whether to skip duplicated matches.
+
+        Returns:
+           An iterator of closed-terms matching pattern.
+        """
+        pattern = Pattern.check(pattern, self.match, 'pattern', 1)
+        limit = self._as_limit(limit, self.match, 'limit', 2)
+        distinct = self._as_distinct(distinct, self.match, 'distinct', 3)
+        return self._match(pattern, limit, distinct)
+
+    def _match(
+            self,
+            pattern: Pattern,
+            limit: int,
+            distinct: bool
+    ) -> Iterator[ClosedTerm]:
+        return iter(())
+
+    def _as_limit(
+            self,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int:
+        limit = self._check_optional_limit(
+            arg, self.default_limit, function, name, position)
+        return self.max_limit if limit is None else limit
+
+    def _as_distinct(
+            self,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> bool:
+        distinct = KIF_Object._check_optional_arg_bool(
+            arg, self.has_flags(self.DISTINCT), function, name, position)
+        assert isinstance(distinct, bool)
+        return distinct
+
 # -- Set interface ---------------------------------------------------------
 
     def __contains__(self, v: Any) -> bool:
@@ -940,7 +997,7 @@ class Store(Set):
             limit: int | None = None,
             distinct: bool | None = None
     ) -> Iterator[Statement]:
-        """Filters statements matching filter.
+        """Searches for statements matching filter.
 
         Parameters:
            subject: Entity.
@@ -950,29 +1007,16 @@ class Store(Set):
            snak: Snak.
            filter: Filter filter.
            limit: Limit (maximum number) of statements to return.
-           distinct: Whether to remove duplicates.
+           distinct: Whether to skip duplicated matches.
 
         Returns:
            An iterator of statements matching filter.
         """
         filter = self._check_filter(
             subject, property, value, snak_mask, snak, filter, self.filter)
-        limit = self._check_optional_limit(
-            limit, self.default_limit, self.filter, 'limit', 7)
-        KIF_Object._check_optional_arg_bool(
-            distinct, None, self.filter, 'distinct', 8)
-        return self._filter_tail(filter, limit, distinct)
-
-    def _filter_tail(
-            self,
-            filter: Filter,
-            limit: int | None,
-            distinct: bool | None
-    ) -> Iterator[Statement]:
-        return self._filter_with_hooks(
-            filter,
-            self.max_limit if limit is None else limit,
-            self.has_flags(self.DISTINCT) if distinct is None else distinct)
+        limit = self._as_limit(limit, self.filter, 'limit', 7)
+        distinct = self._as_distinct(distinct, self.filter, 'distinct', 8)
+        return self._filter_with_hooks(filter, limit, distinct)
 
     def _filter_with_hooks(
             self,
@@ -1019,7 +1063,7 @@ class Store(Set):
     ) -> Iterator[Statement]:
         return iter(())
 
-# -- Annotations -------------------------------------------------------
+# -- Annotations -----------------------------------------------------------
 
     def filter_annotated(
             self,

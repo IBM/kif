@@ -154,6 +154,7 @@ from kif_lib.typing import (
 )
 
 TESTS_TESTS_DIR: Final[pathlib.Path] = pathlib.Path(__file__).parent
+T = TypeVar('T')
 TObj = TypeVar('TObj', bound=KIF_Object)
 
 
@@ -203,7 +204,7 @@ class TestCase(unittest.TestCase):
     def logger(self) -> logging.Logger:
         return logging.getLogger(__name__)
 
-    def assert_abstract_class(self, cls):
+    def assert_abstract_class(self, cls: Any) -> None:
         self.assertRaisesRegex(TypeError, 'abstract class', cls)
 
     def assert_raises_bad_argument(
@@ -215,7 +216,7 @@ class TestCase(unittest.TestCase):
             function: Callable[..., Any] | tuple[Callable[..., Any], str],
             *args: Any,
             **kwargs: Any
-    ):
+    ) -> None:
         if isinstance(function, tuple):
             func, func_name = function
         elif hasattr(function, '__qualname__'):
@@ -226,17 +227,32 @@ class TestCase(unittest.TestCase):
             details, func_name, name, position, exception)))
         self.assertRaisesRegex(
             exception, regex, func, *args, **kwargs)
+
+    def assert_it_empty(self, it: Iterable[T]) -> None:
+        self.assertFalse(set(it))
+
+    def assert_it_equal(self, it: Iterable[T], *args: T) -> None:
+        self.assertEqual(set(it), set(args))
+
+    def assert_it_contains(self, it: Iterable[T], *args: T) -> None:
+        it_set = set(it)
+        for arg in args:
+            self.assertIn(arg, it_set)
 
 # -- KIF_Object ------------------------------------------------------------
 
-    def assert_kif_object(self, obj: KIF_Object):
+    def assert_kif_object(self, obj: KIF_Object) -> None:
         self.assertIsInstance(obj, Object)
         self.assertIsInstance(obj, Object)
         self.assertIsInstance(obj, KIF_Object)
 
 # -- KIF_ObjectSet ---------------------------------------------------------
 
-    def assert_kif_object_set(self, obj: KIF_ObjectSet[TObj], *args: TObj):
+    def assert_kif_object_set(
+            self,
+            obj: KIF_ObjectSet[TObj],
+            *args: TObj
+    ) -> None:
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, KIF_ObjectSet)
         for i, arg in enumerate(obj):
@@ -246,19 +262,27 @@ class TestCase(unittest.TestCase):
         for arg in args:
             self.assertIn(arg, obj)
 
-    def assert_value_set(self, obj: ValueSet, *values: Value):
+    def assert_value_set(
+            self,
+            obj: ValueSet,
+            *values: Value
+    ) -> None:
         self.assertIsInstance(obj, ValueSet)
         self.assert_kif_object_set(obj, *values)
 
-    def assert_text_set(self, obj: TextSet, *texts: Text):
+    def assert_text_set(self, obj: TextSet, *texts: Text) -> None:
         self.assertIsInstance(obj, TextSet)
         self.assert_value_set(obj, *texts)
 
-    def assert_snak_set(self, obj: SnakSet, *snaks: Snak):
+    def assert_snak_set(self, obj: SnakSet, *snaks: Snak) -> None:
         self.assertIsInstance(obj, SnakSet)
         self.assert_kif_object_set(obj, *snaks)
 
-    def assert_reference_record(self, obj: ReferenceRecord, *snaks: Snak):
+    def assert_reference_record(
+            self,
+            obj: ReferenceRecord,
+            *snaks: Snak
+    ) -> None:
         self.assertIsInstance(obj, ReferenceRecord)
         self.assert_snak_set(obj, *snaks)
 
@@ -266,7 +290,7 @@ class TestCase(unittest.TestCase):
             self,
             obj: ReferenceRecordSet,
             *refs: ReferenceRecord
-    ):
+    ) -> None:
         self.assertIsInstance(obj, ReferenceRecordSet)
         self.assert_kif_object_set(obj, *refs)
 
@@ -274,59 +298,59 @@ class TestCase(unittest.TestCase):
             self,
             obj: AnnotationRecordSet,
             *annots: AnnotationRecord
-    ):
+    ) -> None:
         self.assertIsInstance(obj, AnnotationRecordSet)
         self.assert_kif_object_set(obj, *annots)
 
 # -- Datatype --------------------------------------------------------------
 
-    def assert_datatype(self, obj: Datatype):
+    def assert_datatype(self, obj: Datatype) -> None:
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Datatype)
 
-    def assert_item_datatype(self, obj: Datatype):
+    def assert_item_datatype(self, obj: Datatype) -> None:
         self.assert_datatype(obj)
         self.assertIsInstance(obj, ItemDatatype)
 
-    def assert_property_datatype(self, obj: Datatype):
+    def assert_property_datatype(self, obj: Datatype) -> None:
         self.assert_datatype(obj)
         self.assertIsInstance(obj, PropertyDatatype)
 
-    def assert_lexeme_datatype(self, obj: Datatype):
+    def assert_lexeme_datatype(self, obj: Datatype) -> None:
         self.assert_datatype(obj)
         self.assertIsInstance(obj, LexemeDatatype)
 
-    def assert_iri_datatype(self, obj: Datatype):
+    def assert_iri_datatype(self, obj: Datatype) -> None:
         self.assert_datatype(obj)
         self.assertIsInstance(obj, IRI_Datatype)
 
-    def assert_text_datatype(self, obj: Datatype):
+    def assert_text_datatype(self, obj: Datatype) -> None:
         self.assert_datatype(obj)
         self.assertIsInstance(obj, TextDatatype)
 
-    def assert_string_datatype(self, obj: Datatype):
+    def assert_string_datatype(self, obj: Datatype) -> None:
         self.assert_datatype(obj)
         self.assertIsInstance(obj, StringDatatype)
 
-    def assert_external_id_datatype(self, obj: Datatype):
+    def assert_external_id_datatype(self, obj: Datatype) -> None:
         self.assert_datatype(obj)
         self.assertIsInstance(obj, ExternalIdDatatype)
 
-    def assert_quantity_datatype(self, obj: Datatype):
+    def assert_quantity_datatype(self, obj: Datatype) -> None:
         self.assert_datatype(obj)
         self.assertIsInstance(obj, QuantityDatatype)
 
-    def assert_time_datatype(self, obj: Datatype):
+    def assert_time_datatype(self, obj: Datatype) -> None:
         self.assert_datatype(obj)
         self.assertIsInstance(obj, TimeDatatype)
 
 # -- Value -----------------------------------------------------------------
 
-    def assert_value(self, obj: Value):
+    def assert_value(self, obj: Value) -> None:
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Value)
 
-    def assert_entity(self, obj: Entity, iri: IRI):
+    def assert_entity(self, obj: Entity, iri: IRI) -> None:
         self.assert_value(obj)
         self.assertIsInstance(obj, Entity)
         self.assertIsInstance(obj.args[0], IRI)
@@ -335,7 +359,7 @@ class TestCase(unittest.TestCase):
         self.assertIs(obj.get_iri(), obj.args[0])
         self.assertEqual(obj.n3(), obj.iri.n3())
 
-    def assert_item(self, obj: Item, iri: IRI):
+    def assert_item(self, obj: Item, iri: IRI) -> None:
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Item)
         self.assert_item_datatype(obj.datatype)
@@ -345,7 +369,7 @@ class TestCase(unittest.TestCase):
             obj: Property,
             iri: IRI,
             range: Datatype | None = None
-    ):
+    ) -> None:
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Property)
         self.assert_datatype(obj.datatype)
@@ -353,22 +377,22 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.get_range(), range)
         self.assertEqual(obj.args[1], range)
 
-    def assert_lexeme(self, obj: Lexeme, iri: IRI):
+    def assert_lexeme(self, obj: Lexeme, iri: IRI) -> None:
         self.assert_entity(obj, iri)
         self.assertIsInstance(obj, Lexeme)
         self.assert_lexeme_datatype(obj.datatype)
 
-    def assert_data_value(self, obj: DataValue):
+    def assert_data_value(self, obj: DataValue) -> None:
         self.assert_value(obj)
         self.assertIsInstance(obj, DataValue)
 
-    def assert_shallow_data_value(self, obj: ShallowDataValue):
+    def assert_shallow_data_value(self, obj: ShallowDataValue) -> None:
         self.assert_data_value(obj)
         self.assertIsInstance(obj, ShallowDataValue)
         self.assertIs(obj.content, obj.args[0])
         self.assertIs(obj.get_content(), obj.args[0])
 
-    def assert_iri(self, obj: IRI, content: str):
+    def assert_iri(self, obj: IRI, content: str) -> None:
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, IRI)
         self.assert_iri_datatype(obj.datatype)
@@ -381,7 +405,7 @@ class TestCase(unittest.TestCase):
             obj: Text,
             content: str,
             language: str | None = None
-    ):
+    ) -> None:
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, Text)
         self.assert_text_datatype(obj.datatype)
@@ -394,7 +418,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.get_language(), language)
         self.assertEqual(obj.n3(), f'"{obj.content}"@{obj.language}')
 
-    def assert_string(self, obj: String, content: str):
+    def assert_string(self, obj: String, content: str) -> None:
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, String)
         self.assert_string_datatype(obj.datatype)
@@ -402,7 +426,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.args[0], content)
         self.assertEqual(obj.n3(), f'"{obj.content}"')
 
-    def assert_external_id(self, obj: ExternalId, content: str):
+    def assert_external_id(self, obj: ExternalId, content: str) -> None:
         self.assert_shallow_data_value(obj)
         self.assertIsInstance(obj, String)
         self.assertIsInstance(obj, ExternalId)
@@ -411,7 +435,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.args[0], content)
         self.assertEqual(obj.n3(), f'"{obj.content}"')
 
-    def assert_deep_data_value(self, obj: DeepDataValue):
+    def assert_deep_data_value(self, obj: DeepDataValue) -> None:
         self.assert_data_value(obj)
         self.assertIsInstance(obj, DeepDataValue)
 
@@ -422,7 +446,7 @@ class TestCase(unittest.TestCase):
             unit: Item | None = None,
             lb: decimal.Decimal | None = None,
             ub: decimal.Decimal | None = None
-    ):
+    ) -> None:
         self.assert_deep_data_value(obj)
         self.assertIsInstance(obj, Quantity)
         self.assert_quantity_datatype(obj.datatype)
@@ -449,7 +473,7 @@ class TestCase(unittest.TestCase):
             prec: Time.Precision | None = None,
             tz: int | None = None,
             cal: Item | None = None
-    ):
+    ) -> None:
         self.assert_deep_data_value(obj)
         self.assertIsInstance(obj, Time)
         self.assert_time_datatype(obj.datatype)
@@ -472,16 +496,16 @@ class TestCase(unittest.TestCase):
 
 # -- Template --------------------------------------------------------------
 
-    def assert_template(self, obj: Template):
+    def assert_template(self, obj: Template) -> None:
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Template)
 
-    def assert_value_template(self, obj: VValue):
+    def assert_value_template(self, obj: VValue) -> None:
         self.assertIsInstance(obj, ValueTemplate)
         assert isinstance(obj, ValueTemplate)
         self.assert_template(obj)
 
-    def assert_entity_template(self, obj: VEntity, iri: VT_IRI):
+    def assert_entity_template(self, obj: VEntity, iri: VT_IRI) -> None:
         self.assertIsInstance(obj, EntityTemplate)
         assert isinstance(obj, EntityTemplate)
         self.assert_value_template(obj)
@@ -489,7 +513,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.get_iri(), iri)
         self.assertEqual(obj.args[0], iri)
 
-    def assert_item_template(self, obj: VItem, iri: VT_IRI):
+    def assert_item_template(self, obj: VItem, iri: VT_IRI) -> None:
         self.assertIsInstance(obj, ItemTemplate)
         assert isinstance(obj, ItemTemplate)
         self.assert_entity_template(obj, iri)
@@ -499,7 +523,7 @@ class TestCase(unittest.TestCase):
             obj: VProperty,
             iri: VT_IRI,
             range: VTDatatype | None = None
-    ):
+    ) -> None:
         self.assertIsInstance(obj, PropertyTemplate)
         assert isinstance(obj, PropertyTemplate)
         self.assert_entity_template(obj, iri)
@@ -507,12 +531,12 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.get_range(), range)
         self.assertEqual(obj.args[1], range)
 
-    def assert_lexeme_template(self, obj: VLexeme, iri: VT_IRI):
+    def assert_lexeme_template(self, obj: VLexeme, iri: VT_IRI) -> None:
         self.assertIsInstance(obj, LexemeTemplate)
         assert isinstance(obj, LexemeTemplate)
         self.assert_entity_template(obj, iri)
 
-    def assert_data_value_template(self, obj: DataValueTemplate):
+    def assert_data_value_template(self, obj: DataValueTemplate) -> None:
         self.assert_value_template(obj)
         self.assertIsInstance(obj, DataValueTemplate)
 
@@ -520,7 +544,7 @@ class TestCase(unittest.TestCase):
             self,
             obj: ShallowDataValueTemplate,
             content: VTStringContent
-    ):
+    ) -> None:
         self.assert_data_value_template(obj)
         self.assertIsInstance(obj, ShallowDataValueTemplate)
         self.assertEqual(obj.content, content)
@@ -531,7 +555,7 @@ class TestCase(unittest.TestCase):
             self,
             obj: IRI_Template,
             content: Variable
-    ):
+    ) -> None:
         self.assertIsInstance(obj, IRI_Template)
         assert isinstance(content, StringVariable)
         self.assert_shallow_data_value_template(obj, content)
@@ -541,7 +565,7 @@ class TestCase(unittest.TestCase):
             obj: VText,
             content: VTStringContent,
             language: VTStringContent | None = None
-    ):
+    ) -> None:
         self.assertIsInstance(obj, TextTemplate)
         assert isinstance(obj, TextTemplate)
         assert isinstance(content, (StringVariable, str))
@@ -557,7 +581,7 @@ class TestCase(unittest.TestCase):
             self,
             obj: VString,
             content: Variable
-    ):
+    ) -> None:
         self.assertIsInstance(obj, StringTemplate)
         assert isinstance(obj, StringTemplate)
         assert isinstance(content, StringVariable)
@@ -567,13 +591,16 @@ class TestCase(unittest.TestCase):
             self,
             obj: VExternalId,
             content: Variable
-    ):
+    ) -> None:
         self.assertIsInstance(obj, ExternalIdTemplate)
         assert isinstance(obj, ExternalIdTemplate)
         assert isinstance(content, StringVariable)
         self.assert_string_template(obj, content)
 
-    def assert_deep_data_value_template(self, obj: DeepDataValueTemplate):
+    def assert_deep_data_value_template(
+            self,
+            obj: DeepDataValueTemplate
+    ) -> None:
         self.assert_data_value_template(obj)
         self.assertIsInstance(obj, DeepDataValueTemplate)
 
@@ -584,7 +611,7 @@ class TestCase(unittest.TestCase):
             unit: VItem | None,
             lower_bound: VTQuantityContent | None,
             upper_bound: VTQuantityContent | None
-    ):
+    ) -> None:
         self.assertIsInstance(obj, QuantityTemplate)
         assert isinstance(obj, QuantityTemplate)
         self.assert_deep_data_value_template(obj)
@@ -608,7 +635,7 @@ class TestCase(unittest.TestCase):
             precision: VTQuantityContent | None,
             timezone: VTQuantityContent | None,
             calendar: VTItem | None
-    ):
+    ) -> None:
         self.assertIsInstance(obj, TimeTemplate)
         assert isinstance(obj, TimeTemplate)
         self.assert_deep_data_value_template(obj)
@@ -629,7 +656,7 @@ class TestCase(unittest.TestCase):
             self,
             obj: VSnak,
             property: VTProperty
-    ):
+    ) -> None:
         self.assertIsInstance(obj, SnakTemplate)
         assert isinstance(obj, SnakTemplate)
         self.assert_template(obj)
@@ -642,7 +669,7 @@ class TestCase(unittest.TestCase):
             obj: VValueSnak,
             property: VTProperty,
             value: VTValue
-    ):
+    ) -> None:
         self.assertIsInstance(obj, ValueSnakTemplate)
         assert isinstance(obj, ValueSnakTemplate)
         self.assert_snak_template(obj, property)
@@ -654,7 +681,7 @@ class TestCase(unittest.TestCase):
             self,
             obj: VSomeValueSnak,
             property: VTProperty
-    ):
+    ) -> None:
         self.assertIsInstance(obj, SomeValueSnakTemplate)
         assert isinstance(obj, SomeValueSnakTemplate)
         assert isinstance(property, (PropertyTemplate, PropertyVariable))
@@ -664,7 +691,7 @@ class TestCase(unittest.TestCase):
             self,
             obj: VNoValueSnak,
             property: VProperty,
-    ):
+    ) -> None:
         self.assertIsInstance(obj, NoValueSnakTemplate)
         assert isinstance(obj, NoValueSnakTemplate)
         assert isinstance(property, (PropertyTemplate, PropertyVariable))
@@ -675,7 +702,7 @@ class TestCase(unittest.TestCase):
             obj: VStatement,
             subject: VTEntity,
             snak: VTSnak
-    ):
+    ) -> None:
         self.assertIsInstance(obj, StatementTemplate)
         assert isinstance(obj, StatementTemplate)
         self.assert_template(obj)
@@ -688,96 +715,112 @@ class TestCase(unittest.TestCase):
 
 # -- Variable --------------------------------------------------------------
 
-    def assert_variable(self, obj: Variable, name: str):
+    def assert_variable(self, obj: Variable, name: str) -> None:
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Variable)
         self.assertEqual(obj.name, name)
         self.assertEqual(obj.get_name(), name)
         self.assertEqual(obj.args[0], name)
 
-    def assert_datatype_variable(self, obj: Variable, name: str):
+    def assert_datatype_variable(self, obj: Variable, name: str) -> None:
         self.assert_variable(obj, name)
         self.assertIsInstance(obj, DatatypeVariable)
 
-    def assert_value_variable(self, obj: Variable, name: str):
+    def assert_value_variable(self, obj: Variable, name: str) -> None:
         self.assert_variable(obj, name)
         self.assertIsInstance(obj, ValueVariable)
 
-    def assert_entity_variable(self, obj: Variable, name: str):
+    def assert_entity_variable(self, obj: Variable, name: str) -> None:
         self.assert_value_variable(obj, name)
         self.assertIsInstance(obj, EntityVariable)
 
-    def assert_item_variable(self, obj: Variable, name: str):
+    def assert_item_variable(self, obj: Variable, name: str) -> None:
         self.assert_entity_variable(obj, name)
         self.assertIsInstance(obj, ItemVariable)
 
-    def assert_property_variable(self, obj: Variable, name: str):
+    def assert_property_variable(self, obj: Variable, name: str) -> None:
         self.assert_entity_variable(obj, name)
         self.assertIsInstance(obj, PropertyVariable)
 
-    def assert_lexeme_variable(self, obj: Variable, name: str):
+    def assert_lexeme_variable(self, obj: Variable, name: str) -> None:
         self.assert_entity_variable(obj, name)
         self.assertIsInstance(obj, LexemeVariable)
 
-    def assert_data_value_variable(self, obj: Variable, name: str):
+    def assert_data_value_variable(self, obj: Variable, name: str) -> None:
         self.assert_variable(obj, name)
         self.assertIsInstance(obj, DataValueVariable)
 
-    def assert_shallow_data_value_variable(self, obj: Variable, name: str):
+    def assert_shallow_data_value_variable(
+            self,
+            obj: Variable,
+            name: str
+    ) -> None:
         self.assert_data_value_variable(obj, name)
         self.assertIsInstance(obj, ShallowDataValueVariable)
 
-    def assert_iri_variable(self, obj: Variable, name: str):
+    def assert_iri_variable(self, obj: Variable, name: str) -> None:
         self.assert_shallow_data_value_variable(obj, name)
         self.assertIsInstance(obj, IRI_Variable)
 
-    def assert_text_variable(self, obj: Variable, name: str):
+    def assert_text_variable(self, obj: Variable, name: str) -> None:
         self.assert_shallow_data_value_variable(obj, name)
         self.assertIsInstance(obj, TextVariable)
 
-    def assert_string_variable(self, obj: Variable, name: str):
+    def assert_string_variable(self, obj: Variable, name: str) -> None:
         self.assert_shallow_data_value_variable(obj, name)
         self.assertIsInstance(obj, StringVariable)
 
-    def assert_external_id_variable(self, obj: Variable, name: str):
+    def assert_external_id_variable(self, obj: Variable, name: str) -> None:
         self.assert_string_variable(obj, name)
         self.assertIsInstance(obj, ExternalIdVariable)
 
-    def assert_deep_data_value_variable(self, obj: Variable, name: str):
+    def assert_deep_data_value_variable(
+            self,
+            obj: Variable,
+            name: str
+    ) -> None:
         self.assert_data_value_variable(obj, name)
         self.assertIsInstance(obj, DeepDataValueVariable)
 
-    def assert_quantity_variable(self, obj: Variable, name: str):
+    def assert_quantity_variable(self, obj: Variable, name: str) -> None:
         self.assert_deep_data_value_variable(obj, name)
         self.assertIsInstance(obj, QuantityVariable)
 
-    def assert_time_variable(self, obj: Variable, name: str):
+    def assert_time_variable(self, obj: Variable, name: str) -> None:
         self.assert_deep_data_value_variable(obj, name)
         self.assertIsInstance(obj, TimeVariable)
 
-    def assert_snak_variable(self, obj: Variable, name: str):
+    def assert_snak_variable(self, obj: Variable, name: str) -> None:
         self.assert_variable(obj, name)
         self.assertIsInstance(obj, SnakVariable)
 
-    def assert_value_snak_variable(self, obj: Variable, name: str):
+    def assert_value_snak_variable(self, obj: Variable, name: str) -> None:
         self.assert_snak_variable(obj, name)
         self.assertIsInstance(obj, ValueSnakVariable)
 
-    def assert_some_value_snak_variable(self, obj: Variable, name: str):
+    def assert_some_value_snak_variable(
+            self,
+            obj: Variable,
+            name: str
+    ) -> None:
         self.assert_snak_variable(obj, name)
         self.assertIsInstance(obj, SomeValueSnakVariable)
 
-    def assert_no_value_snak_variable(self, obj: Variable, name: str):
+    def assert_no_value_snak_variable(
+            self,
+            obj: Variable,
+            name: str
+    ) -> None:
         self.assert_snak_variable(obj, name)
         self.assertIsInstance(obj, NoValueSnakVariable)
 
-    def assert_statement_variable(self, obj: Variable, name: str):
+    def assert_statement_variable(self, obj: Variable, name: str) -> None:
         self.assert_variable(obj, name)
         self.assertIsInstance(obj, StatementVariable)
 
 # -- Fingerprint -----------------------------------------------------------
 
-    def assert_fingerprint(self, obj: Fingerprint):
+    def assert_fingerprint(self, obj: Fingerprint) -> None:
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Fingerprint)
 
@@ -785,26 +828,34 @@ class TestCase(unittest.TestCase):
             self,
             obj: Fingerprint,
             *args: Fingerprint
-    ):
+    ) -> None:
         self.assert_fingerprint(obj)
         self.assertIsInstance(obj, CompoundFingerprint)
         assert isinstance(obj, CompoundFingerprint)
         for i, arg in enumerate(args):
             self.assertEqual(obj.args[i], arg)
 
-    def assert_and_fingerprint(self, obj: Fingerprint, *args: Fingerprint):
+    def assert_and_fingerprint(
+            self,
+            obj: Fingerprint,
+            *args: Fingerprint
+    ) -> None:
         self.assert_compound_fingerprint(obj)
         self.assertIsInstance(obj, AndFingerprint)
 
-    def assert_or_fingerprint(self, obj: Fingerprint, *args: Fingerprint):
+    def assert_or_fingerprint(
+            self,
+            obj: Fingerprint,
+            *args: Fingerprint
+    ) -> None:
         self.assert_compound_fingerprint(obj)
         self.assertIsInstance(obj, OrFingerprint)
 
-    def assert_atomic_fingerprint(self, obj: Fingerprint):
+    def assert_atomic_fingerprint(self, obj: Fingerprint) -> None:
         self.assert_fingerprint(obj)
         self.assertIsInstance(obj, AtomicFingerprint)
 
-    def assert_snak_fingerprint(self, obj: Fingerprint, snak: Snak):
+    def assert_snak_fingerprint(self, obj: Fingerprint, snak: Snak) -> None:
         self.assert_atomic_fingerprint(obj)
         self.assertIsInstance(obj, SnakFingerprint)
         assert isinstance(obj, SnakFingerprint)
@@ -814,11 +865,19 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.snak, snak)
         self.assertEqual(obj.get_snak(), snak)
 
-    def assert_converse_snak_fingerprint(self, obj: Fingerprint, snak: Snak):
+    def assert_converse_snak_fingerprint(
+            self,
+            obj: Fingerprint,
+            snak: Snak
+    ) -> None:
         self.assert_snak_fingerprint(obj, snak)
         self.assertIsInstance(obj, ConverseSnakFingerprint)
 
-    def assert_value_fingerprint(self, obj: Fingerprint, value: Value):
+    def assert_value_fingerprint(
+            self,
+            obj: Fingerprint,
+            value: Value
+    ) -> None:
         self.assert_atomic_fingerprint(obj)
         self.assertIsInstance(obj, ValueFingerprint)
         assert isinstance(obj, ValueFingerprint)
@@ -828,14 +887,14 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.value, value)
         self.assertEqual(obj.get_value(), value)
 
-    def assert_full_fingerprint(self, obj: Fingerprint):
+    def assert_full_fingerprint(self, obj: Fingerprint) -> None:
         self.assert_atomic_fingerprint(obj)
         self.assertIsInstance(obj, FullFingerprint)
         assert isinstance(obj, FullFingerprint)
         self.assertTrue(obj.is_full())
         self.assertFalse(obj.is_empty())
 
-    def assert_empty_fingerprint(self, obj: Fingerprint):
+    def assert_empty_fingerprint(self, obj: Fingerprint) -> None:
         self.assert_atomic_fingerprint(obj)
         self.assertIsInstance(obj, EmptyFingerprint)
         assert isinstance(obj, EmptyFingerprint)
@@ -844,7 +903,7 @@ class TestCase(unittest.TestCase):
 
 # -- Snak ------------------------------------------------------------------
 
-    def assert_snak(self, obj: Snak, prop: Property):
+    def assert_snak(self, obj: Snak, prop: Property) -> None:
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Snak)
         self.assertIsInstance(obj.property, Property)
@@ -857,7 +916,7 @@ class TestCase(unittest.TestCase):
             obj: Snak,
             prop: Property,
             value: Value
-    ):
+    ) -> None:
         self.assertIsInstance(obj, ValueSnak)
         assert isinstance(obj, ValueSnak)
         self.assert_snak(obj, prop)
@@ -866,12 +925,12 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.value, obj.args[1])
         self.assertEqual(obj.get_value(), obj.args[1])
 
-    def assert_some_value_snak(self, obj: Snak, prop: Property):
+    def assert_some_value_snak(self, obj: Snak, prop: Property) -> None:
         self.assertIsInstance(obj, SomeValueSnak)
         assert isinstance(obj, SomeValueSnak)
         self.assert_snak(obj, prop)
 
-    def assert_no_value_snak(self, obj: Snak, prop: Property):
+    def assert_no_value_snak(self, obj: Snak, prop: Property) -> None:
         self.assertIsInstance(obj, NoValueSnak)
         assert isinstance(obj, NoValueSnak)
         self.assert_snak(obj, prop)
@@ -884,7 +943,7 @@ class TestCase(unittest.TestCase):
             quals: SnakSet,
             refs: ReferenceRecordSet,
             rank: Rank
-    ):
+    ) -> None:
         self.assertIsInstance(obj, AnnotationRecord)
         self.assert_kif_object(obj)
         self.assertIsInstance(obj.args[0], SnakSet)
@@ -900,24 +959,29 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.rank, obj.args[2])
         self.assertEqual(obj.get_rank(), obj.args[2])
 
-    def assert_rank(self, obj: Rank):
+    def assert_rank(self, obj: Rank) -> None:
         self.assertIsInstance(obj, Rank)
 
-    def assert_preferred_rank(self, obj: PreferredRank):
+    def assert_preferred_rank(self, obj: PreferredRank) -> None:
         self.assertIsInstance(obj, PreferredRank)
         self.assert_rank(obj)
 
-    def assert_normal_rank(self, obj: NormalRank):
+    def assert_normal_rank(self, obj: NormalRank) -> None:
         self.assertIsInstance(obj, NormalRank)
         self.assert_rank(obj)
 
-    def assert_deprecated_rank(self, obj: DeprecatedRank):
+    def assert_deprecated_rank(self, obj: DeprecatedRank) -> None:
         self.assertIsInstance(obj, DeprecatedRank)
         self.assert_rank(obj)
 
 # -- Statement -------------------------------------------------------------
 
-    def assert_statement(self, obj: Statement, subject: Entity, snak: Snak):
+    def assert_statement(
+            self,
+            obj: Statement,
+            subject: Entity,
+            snak: Snak
+    ) -> None:
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Statement)
         self.assertIsInstance(obj.args[0], Entity)
@@ -931,7 +995,7 @@ class TestCase(unittest.TestCase):
 
 # -- Descriptor ------------------------------------------------------------
 
-    def assert_descriptor(self, obj: Descriptor):
+    def assert_descriptor(self, obj: Descriptor) -> None:
         self.assert_kif_object(obj)
         self.assertIsInstance(obj, Descriptor)
 
@@ -941,7 +1005,7 @@ class TestCase(unittest.TestCase):
             label: Text | None = None,
             aliases: TextSet = TextSet(),
             description: Text | None = None
-    ):
+    ) -> None:
         self.assert_descriptor(obj)
         self.assertIsInstance(obj, PlainDescriptor)
         label = Text(*label) if label is not None else label
@@ -964,7 +1028,7 @@ class TestCase(unittest.TestCase):
             label: Text | None = None,
             aliases: TextSet = TextSet(),
             description: Text | None = None
-    ):
+    ) -> None:
         self.assertIsInstance(obj, ItemDescriptor)
         assert isinstance(obj, ItemDescriptor)
         self.assert_plain_descriptor(obj, label, aliases, description)
@@ -976,7 +1040,7 @@ class TestCase(unittest.TestCase):
             aliases: TextSet = TextSet(),
             desc: Text | None = None,
             dt: Datatype | None = None
-    ):
+    ) -> None:
         self.assertIsInstance(obj, PropertyDescriptor)
         assert isinstance(obj, PropertyDescriptor)
         self.assert_plain_descriptor(obj, label, aliases, desc)
@@ -990,7 +1054,7 @@ class TestCase(unittest.TestCase):
             lemma: Text | None,
             category: Item | None,
             language: Item | None
-    ):
+    ) -> None:
         self.assertIsInstance(obj, LexemeDescriptor)
         assert isinstance(obj, LexemeDescriptor)
         self.assert_descriptor(obj)
@@ -1013,7 +1077,7 @@ class TestCase(unittest.TestCase):
             property: Fingerprint | None = None,
             value: Fingerprint | None = None,
             mask: Filter.SnakMask = Filter.SnakMask.ALL
-    ):
+    ) -> None:
         self.assertIsInstance(obj, Filter)
         if subject is None:
             subject = FullFingerprint()

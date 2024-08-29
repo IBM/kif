@@ -8,11 +8,10 @@ from .constraint import Constraint, TConstraint
 from .kif_object import KIF_Object
 from .term import ClosedTerm, Template, Variable
 
-TPattern: TypeAlias =\
-    Union['Pattern', 'TClosedPattern',
-          'TTemplatePattern', 'TVariablePattern']
-
+TPattern: TypeAlias = Union['Pattern', 'TClosedPattern', 'TOpenPattern']
 TClosedPattern: TypeAlias = Union['ClosedPattern', 'ClosedTerm']
+TOpenPattern: TypeAlias =\
+    Union['OpenPattern', 'TTemplatePattern', 'TVariablePattern']
 TTemplatePattern: TypeAlias = Union['TemplatePattern', 'Template']
 TVariablePattern: TypeAlias = Union['VariablePattern', 'Variable']
 
@@ -127,7 +126,7 @@ class OpenPattern(Pattern):
                 arg, function or cls.check, name, position))
 
 
-class TemplatePattern(Pattern):
+class TemplatePattern(OpenPattern):
     """Template pattern.
 
     Parameters:
@@ -180,7 +179,7 @@ class TemplatePattern(Pattern):
         return self.args[0]
 
 
-class VariablePattern(Pattern):
+class VariablePattern(OpenPattern):
     """Variable pattern.
 
     Parameters:

@@ -12,10 +12,12 @@ from rdflib.plugins.sparql.sparql import Query
 
 from .. import itertools
 from .. import namespace as NS
-from ..compiler.sparql import SPARQL_FilterCompiler
+from ..compiler.sparql import SPARQL_FilterCompiler, SPARQL_PatternCompiler
 from ..model import (
     AnnotationRecord,
     AnnotationRecordSet,
+    ClosedPattern,
+    ClosedTerm,
     Datatype,
     DeepDataValue,
     Descriptor,
@@ -28,6 +30,8 @@ from ..model import (
     Lexeme,
     LexemeDescriptor,
     NoValueSnak,
+    OpenPattern,
+    Pattern,
     Property,
     PropertyDescriptor,
     Quantity,
@@ -39,6 +43,8 @@ from ..model import (
     StatementVariable,
     String,
     T_IRI,
+    TemplatePattern,
+    Term,
     Text,
     Time,
     Value,
@@ -101,14 +107,17 @@ class SPARQL_Store(
         '_iri',
     )
 
+    #: HTTP client.
     _client: httpx.Client
+
+    #: IRI of the target SPARQL endpoint.
     _iri: IRI
 
     def __init__(self, store_name: str, iri: T_IRI, **kwargs: Any) -> None:
         assert store_name == self.store_name
         self._client = httpx.Client(headers=self._headers)
         super().__init__(**kwargs)
-        self._iri = IRI.check(iri, self.__class__, 'iri', 2)
+        self._iri = IRI.check(iri, type(self), 'iri', 2)
 
     def __del__(self) -> None:
         self._client.close()
@@ -120,14 +129,14 @@ class SPARQL_Store(
 
     @property
     def iri(self) -> IRI:
-        """SPARQL endpoint IRI."""
+        """The IRI of the target SPARQL endpoint."""
         return self.get_iri()
 
     def get_iri(self) -> IRI:
-        """Gets SPARQL endpoint IRI.
+        """Gets the IRI of the target SPARQL endpoint.
 
         Returns:
-           SPARQL endpoint IRI.
+           IRI.
         """
         return self._iri
 
@@ -255,60 +264,66 @@ At line {line}, column {column}:
 
 # -- Match -----------------------------------------------------------------
 
-    # class Match:
-    #     """The match handle."""
+    @override
+    def _match(
+            self,
+            pattern: Pattern,
+            limit: int,
+            distinct: bool
+    ) -> Iterator[ClosedTerm]:
+        assert isinstance(pattern, Pattern)
+        assert limit >= 0
+        compiler = self._compile_pattern(pattern)
+        if isinstance(pattern, ClosedPattern):
+            raise NotImplementedError
+        elif isinstance(pattern, OpenPattern):
+            page_size = min(self.page_size, limit)
+            offset, count = 0, 0
+            while count <= limit:
+                query = compiler.query.select(
+                    limit=page_size, offset=offset, distinct=distinct)
+                res = self._eval_select_query_string(str(query))
+                bindings = res['results']['bindings']
+                if not bindings:
+                    break           # done
+                for binding in bindings:
+                    theta = compiler.theta.instantiate(binding)
+                    if isinstance(pattern, TemplatePattern):
+                        term: Term | None = pattern.template.instantiate(theta)
+                    elif isinstance(pattern, VariablePattern):
+                        term = pattern.variable.instantiate(theta)
+                    else:
+                        raise self._should_not_get_here()
+                    if isinstance(term, ClosedTerm):
+                        yield term
+                    count += 1
+                if len(bindings) < page_size:
+                    break           # done
+                if count == limit:
+                    break           # done
+                offset += page_size
+        else:
+            raise self._should_not_get_here()
 
-    #     _store: 'SPARQL_Store'
-    #     _compiler: SPARQL_PatternCompiler
+    #: Flags to be passed to filter compiler.
+    _compile_pattern_flags: ClassVar[SPARQL_FilterCompiler.Flags] =\
+        SPARQL_PatternCompiler.default_flags
 
-    #     __slots__ = (
-    #         '_store',
-    #         '_compiler',
-    #     )
-
-    #     def __init__(
-    #             self,
-    #             store: 'SPARQL_Store',
-    #             compiler: SPARQL_PatternCompiler
-    #     ):
-    #         self._store = store
-    #         self._compiler = compiler
-
-    #     def _read_next_page(self):
-    #         query_string = str(self._compiler.query.select(limit=1))
-    #         print(self._compiler.pattern)
-    #         print()
-    #         print(self._compiler.theta)
-    #         print()
-    #         print(self._compiler.query)
-    #         print()
-    #         res = self._store._eval_select_query_string(query_string)
-    #         print(dict(res))
-    #         return res
-
-    # def _match(self, pat: StatementPattern) -> Iterator[Statement]:
-    #     compiler = SPARQL_PatternCompiler(pat, SPARQL_PatternCompiler.DEBUG)
-    #     return self.Match(self, compiler.compile())
-
-    # #: Flags to be passed to filter compiler.
-    # _compile_filter_flags: ClassVar[SPARQL_FilterCompiler.Flags] =\
-    #     SPARQL_FilterCompiler.default_flags
-
-    # def _compile_filter(
-    #         self,
-    #         filter: Filter
-    # ) -> SPARQL_FilterCompiler:
-    #     compiler = SPARQL_FilterCompiler(filter, self._compile_filter_flags)
-    #     if self.has_flags(self.DEBUG):
-    #         compiler.set_flags(compiler.DEBUG)
-    #     else:
-    #         compiler.unset_flags(compiler.DEBUG)
-    #     if self.has_flags(self.BEST_RANK):
-    #         compiler.set_flags(compiler.BEST_RANK)
-    #     else:
-    #         compiler.unset_flags(compiler.BEST_RANK)
-    #     compiler.compile()
-    #     return compiler
+    def _compile_pattern(
+            self,
+            pattern: Pattern
+    ) -> SPARQL_PatternCompiler:
+        compiler = SPARQL_PatternCompiler(pattern, self._compile_pattern_flags)
+        if self.has_flags(self.DEBUG):
+            compiler.set_flags(compiler.DEBUG)
+        else:
+            compiler.unset_flags(compiler.DEBUG)
+        if self.has_flags(self.BEST_RANK):
+            compiler.set_flags(compiler.BEST_RANK)
+        else:
+            compiler.unset_flags(compiler.BEST_RANK)
+        compiler.compile()
+        return compiler
 
 # -- Statements ------------------------------------------------------------
 

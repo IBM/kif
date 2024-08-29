@@ -4,26 +4,12 @@
 from __future__ import annotations
 
 from kif_lib import Quantity, Text
-from kif_lib.typing import Iterable, TypeVar
 from kif_lib.vocabulary import wd
 
 from ...tests import WikidataSPARQL_StoreTestCase
 
-T = TypeVar('T')
-
 
 class Test(WikidataSPARQL_StoreTestCase):
-
-    def assert_it_empty(self, it: Iterable[T]):
-        self.assertFalse(set(it))
-
-    def assert_it_equal(self, it: Iterable[T], *args: T):
-        return self.assertEqual(set(it), set(args))
-
-    def assert_it_contains(self, it: Iterable[T], *args: T):
-        it_set = set(it)
-        for arg in args:
-            self.assertIn(arg, it_set)
 
     def test_filter_subject_is_empty_fp(self) -> None:
         kb = self.new_Store()
