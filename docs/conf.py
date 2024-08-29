@@ -45,8 +45,9 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 add_module_names = False
 
-# autodoc_member_order = 'groupwise'
-autodoc_member_order = 'bysource'
+autodoc_content = 'both'
+autodoc_class_signature = 'mixed'  # separated
+autodoc_member_order = 'bysource'  # alphabetical, groupwise
 autodoc_default_options = {
     # 'exclude-members': (
     #     'datatype_class,'
@@ -57,9 +58,6 @@ autodoc_default_options = {
     'show-inheritance': True,
     'special-members': '__init__',
 }
-# autodoc_type_aliases = {
-#     'TReferenceRecordSet': 'TReferenceRecordSet',
-# }
 
 html_theme = 'sphinx_rtd_theme'
 # html_theme = 'pydata_sphinx_theme'
