@@ -84,8 +84,7 @@ class Store(Set):
             store_name, store_name in cls.registry,
             f"no such store plugin '{store_name}'",
             Store, 'store_name', 1, ValueError)
-        return super().__new__(
-            cls.registry[store_name])  # pyright: ignore
+        return super().__new__(cls.registry[store_name])  # pyright: ignore
 
     class Error(KIF_Error):
         """Base class for store errors."""
@@ -187,7 +186,6 @@ class Store(Set):
            ``True`` if `obj` is present;
            ``False`` if `obj` is not present;
            ``None`` otherwise (`obj` presence is unknown).
-
         """
         return self._cache.get(obj, 'presence')
 
@@ -951,7 +949,7 @@ class Store(Set):
            snak_mask: Snak mask.
            snak: Snak.
            filter: Filter filter.
-           limit: Limit(maximum number) of statements to return .
+           limit: Limit (maximum number) of statements to return.
            distinct: Whether to remove duplicates.
 
         Returns:
@@ -959,8 +957,8 @@ class Store(Set):
         """
         filter = self._check_filter(
             subject, property, value, snak_mask, snak, filter, self.filter)
-        KIF_Object._check_optional_arg_int(
-            limit, None, self.filter, 'limit', 7)
+        limit = self._check_optional_limit(
+            limit, self.default_limit, self.filter, 'limit', 7)
         KIF_Object._check_optional_arg_bool(
             distinct, None, self.filter, 'distinct', 8)
         return self._filter_tail(filter, limit, distinct)
@@ -973,7 +971,7 @@ class Store(Set):
     ) -> Iterator[Statement]:
         return self._filter_with_hooks(
             filter,
-            self.max_page_size if limit is None else max(limit, 0),
+            self.max_limit if limit is None else limit,
             self.has_flags(self.DISTINCT) if distinct is None else distinct)
 
     def _filter_with_hooks(

@@ -5,12 +5,12 @@ from __future__ import annotations
 
 from kif_lib import Item, Items, Property
 
-from .tests import EmptyStoreTestCase
+from ...tests import EmptyStoreTestCase
 
 
-class TestStoreABC_Cache(EmptyStoreTestCase):
+class Test(EmptyStoreTestCase):
 
-    def test__cache_init(self) -> None:
+    def test__init_cache(self) -> None:
         kb = self.new_Store()
         self.assertTrue(kb._cache.enabled)
         kb = self.new_Store(flags=0)
@@ -36,4 +36,4 @@ class TestStoreABC_Cache(EmptyStoreTestCase):
 
 
 if __name__ == '__main__':
-    TestStoreABC_Cache.main()
+    Test.main()

@@ -6,10 +6,10 @@ from __future__ import annotations
 from kif_lib import Store
 from kif_lib.error import ShouldNotGetHere
 
-from .tests import StoreTestCase
+from ...tests import StoreTestCase
 
 
-class TestStoreABC_Error(StoreTestCase):
+class Test(StoreTestCase):
 
     def test__error(self) -> None:
         err = Store._error('hello')
@@ -26,4 +26,4 @@ class TestStoreABC_Error(StoreTestCase):
 
 
 if __name__ == '__main__':
-    TestStoreABC_Error.main()
+    Test.main()
