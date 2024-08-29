@@ -1,10 +1,10 @@
 # ** GENERATED FILE, DO NOT EDIT! **
 import re
 import setuptools
-with open('kif_lib/__init__.py') as fp:
+with open('kif_lib/version.py', 'r') as fp:
     text = fp.read()
     VERSION, = re.findall(r"__version__\s*=\s*'(.*)'", text)
-with open('README.md') as fp:
+with open('README.md', 'r') as fp:
     README = fp.read()
 setuptools.setup(
     name='kif-lib',
@@ -24,7 +24,7 @@ setuptools.setup(
     install_requires=[ 'httpx', 'lark', 'more_itertools', 'networkx', 'rdflib', 'types-networkx', 'typing-extensions', ],
     extras_require={
         'docs': [ 'myst_nb', 'sphinx-rtd-theme', ],
-        'tests': ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-cov', 'pytest-mypy', 'setuptools', 'tox'],
+        'tests': ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox'],
     },
     zip_safe=False,
 )
