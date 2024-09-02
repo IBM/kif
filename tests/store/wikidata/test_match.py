@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from kif_lib import (
-    DatatypeVariable,
     IRI,
     Item,
     ItemVariable,
@@ -12,7 +11,6 @@ from kif_lib import (
     LexemeVariable,
     Property,
     PropertyVariable,
-    QuantityDatatype,
     StringDatatype,
     Variable,
 )
