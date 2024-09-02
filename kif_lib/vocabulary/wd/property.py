@@ -30,6 +30,7 @@ described_at_URL = P(973)
 described_by_source = P(1343)
 download_link = P(4945)
 duration = P(2047)
+element_symbol = P(246)
 elevation_above_sea_level = P(2044)
 end_time = P(582)
 equivalent_property = P(1628)
@@ -138,6 +139,7 @@ __all__ = (
     'described_by_source',
     'download_link',
     'duration',
+    'element_symbol',
     'elevation_above_sea_level',
     'elevation_above_sea_level',
     'end_time',
