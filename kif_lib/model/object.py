@@ -57,6 +57,15 @@ class ObjectMeta(abc.ABCMeta):
 class Object(Sequence, metaclass=ObjectMeta):
     """Abstract base class for syntactical objects."""
 
+    @classmethod
+    def _get_subclasses(cls) -> Iterator[type[Self]]:
+        return filter(lambda x: issubclass(x, cls),  # type: ignore
+                      cls._object_subclasses.values())
+
+    @classmethod
+    def _get_proper_subclasses(cls) -> Iterator[type[Self]]:
+        return filter(lambda x: x is not cls, cls._get_subclasses())
+
     class Error(Exception):
         """Base class for errors."""
 

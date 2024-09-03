@@ -144,11 +144,9 @@ from kif_lib.namespace import XSD
 from kif_lib.typing import (
     Any,
     Callable,
-    cast,
     ClassVar,
     Final,
     Iterable,
-    Iterator,
     Set,
     TypeVar,
 )
@@ -160,22 +158,17 @@ TObj = TypeVar('TObj', bound=KIF_Object)
 
 class TestCase(unittest.TestCase):
 
-    ALL_KIF_OBJECT_CLASSES: ClassVar[Set[type[KIF_Object]]] = frozenset(filter(
-        lambda c: isinstance(c, type) and issubclass(c, KIF_Object), map(
-            lambda s: getattr(KIF_Object, s),
-            filter(lambda s: re.match('^_[A-Z]', s), dir(KIF_Object)))))
+    ALL_KIF_OBJECT_CLASSES: ClassVar[Set[type[KIF_Object]]] =\
+        frozenset(KIF_Object._get_subclasses())
 
-    ALL_TEMPLATE_CLASSES: ClassVar[Set[type[Template]]] = frozenset(
-        cast(Iterator[type[Template]], filter(
-            lambda c: issubclass(c, Template), ALL_KIF_OBJECT_CLASSES)))
+    ALL_TEMPLATE_CLASSES: ClassVar[Set[type[Template]]] =\
+        frozenset(Template._get_subclasses())
 
-    ALL_VARIABLE_CLASSES: ClassVar[Set[type[Variable]]] = frozenset(
-        cast(Iterator[type[Variable]], filter(
-            lambda c: issubclass(c, Variable), ALL_KIF_OBJECT_CLASSES)))
+    ALL_VARIABLE_CLASSES: ClassVar[Set[type[Variable]]] =\
+        frozenset(Variable._get_subclasses())
 
-    ALL_DATATYPE_CLASSES: ClassVar[Set[type[Datatype]]] = frozenset(
-        cast(Iterator[type[Datatype]], filter(
-            lambda c: issubclass(c, Datatype), ALL_KIF_OBJECT_CLASSES)))
+    ALL_DATATYPE_CLASSES: ClassVar[Set[type[Datatype]]] =\
+        frozenset(Datatype._get_subclasses())
 
     @classmethod
     def _variable_class_can_check_from(

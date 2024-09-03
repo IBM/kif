@@ -41,18 +41,32 @@ class Variable(OpenTerm):
             name: str,
             variable_class: TVariableClass | None = None
     ):
+        variable_class = cls._check_variable_class(
+            variable_class, cls, 'variable_class', 2)
+        assert isinstance(variable_class, type)
+        assert issubclass(variable_class, cls)
+        return super().__new__(variable_class)  # pyright: ignore
+
+    @classmethod
+    def _check_variable_class(
+            cls,
+            variable_class: TVariableClass | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> type[Variable]:
         if variable_class is None:
             variable_class = cls
         if (isinstance(variable_class, type)
-                and issubclass(variable_class, ClosedTerm)
-                and not issubclass(variable_class, cls)
+            and issubclass(variable_class, ClosedTerm)
+            and not issubclass(variable_class, cls)
                 and hasattr(variable_class, 'variable_class')):
             variable_class = getattr(variable_class, 'variable_class')
         if (isinstance(variable_class, type)
                 and issubclass(variable_class, cls)):
-            return super().__new__(variable_class)  # pyright: ignore
+            return variable_class
         else:
-            raise cls._check_error(variable_class, cls, 'variable_class', 2)
+            raise cls._check_error(variable_class, function, name, position)
 
     @classmethod
     @override
@@ -105,6 +119,9 @@ class Variable(OpenTerm):
         else:
             return prop(v1)
 
+    def __matmul__(self, variable_class: TVariableClass) -> Self:
+        return self.coerce(variable_class)
+
     @property
     def name(self) -> str:
         """The name of variable."""
@@ -117,6 +134,29 @@ class Variable(OpenTerm):
            Name.
         """
         return self.args[0]
+
+    def coerce(
+            self,
+            variable_class: TVariableClass | None = None,
+    ) -> Self:
+        """Coerces variable into `variable_class`.
+
+        If variable cannot be coerced, raises an error.
+
+        Parameters:
+           variable_class: Variable class.
+
+        Returns:
+           Variable.
+        """
+        variable_class = Variable._check_variable_class(
+            variable_class, self.coerce, 'variable_class', 1)
+        assert isinstance(variable_class, type)
+        if issubclass(type(self), variable_class):
+            return self
+        else:
+            return cast(Self, variable_class.check(
+                self, self.coerce, 'variable_class', 1))
 
     @override
     def _iterate_variables(self) -> Iterator[Variable]:
@@ -160,20 +200,20 @@ class Variable(OpenTerm):
             return obj
         else:
             from .template import Template
-            if self.__class__ is Variable:
+            if type(self) is Variable:
                 obj_cls = Term
             elif isinstance(obj, Template):
                 assert hasattr(self.object_class, 'template_class')
                 obj_cls = self.object_class.template_class
             elif isinstance(obj, Variable):
-                obj_cls = self.__class__
+                obj_cls = type(self)
             else:
                 obj_cls = self.object_class
             if isinstance(obj, obj_cls):
                 return obj
             else:
-                src = self.__class__.__qualname__
-                dest = obj.__class__.__qualname__
+                src = type(self).__qualname__
+                dest = type(obj).__qualname__
                 raise self._arg_error(
                     f"cannot instantiate {src} '{self.name}' with {dest}",
                     function, name, position, self.InstantiationError)

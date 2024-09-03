@@ -5,38 +5,38 @@ from __future__ import annotations
 
 from kif_lib import (
     DataValue,
+    DataValueVariable,
     DeepDataValue,
     Entity,
+    EntityVariable,
     ExternalId,
+    ExternalIdVariable,
     IRI,
     Item,
+    ItemVariable,
     KIF_Object,
     Lexeme,
     NoValueSnak,
     Property,
+    PropertyVariable,
     Quantity,
     ShallowDataValue,
     Snak,
+    SnakVariable,
     SomeValueSnak,
     Statement,
     StatementTemplate,
     String,
+    StringVariable,
     Term,
     Text,
     Time,
     Value,
     ValueSnak,
     ValueSnakTemplate,
+    ValueVariable,
     Variable,
     Variables,
-)
-from kif_lib.model import (
-    DataValueVariable,
-    EntityVariable,
-    ItemVariable,
-    PropertyVariable,
-    StringVariable,
-    ValueVariable,
 )
 from kif_lib.typing import assert_type, Iterator, Optional, Set
 
@@ -107,6 +107,52 @@ class Test(VariableTestCase):
         self.assertEqual(
             ItemVariable('x').get_variables(), {ItemVariable('x')})
         self.assertEqual(Variable('y').variables, {Variable('y')})
+
+    def test_coerce(self) -> None:
+        assert_type(Variable('x').coerce(), Variable)
+        assert_type(ItemVariable('x').coerce(), ItemVariable)
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'variable_class',
+            'cannot coerce KIF_Object into Variable',
+            ItemVariable('x').coerce, KIF_Object)
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'variable_class',
+            'cannot coerce SnakVariable into ItemVariable',
+            SnakVariable('x').coerce, ItemVariable)
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'variable_class',
+            'cannot coerce DataValueVariable into ItemVariable',
+            DataValueVariable('x').coerce, ItemVariable)
+        self.assertEqual(
+            Variable('x').coerce(ItemVariable),
+            ItemVariable('x'))
+        self.assertEqual(
+            Variable('x').coerce(Item),
+            ItemVariable('x'))
+        self.assertEqual(
+            ItemVariable('x').coerce(EntityVariable),
+            ItemVariable('x'))
+        self.assertEqual(
+            ItemVariable('x').coerce(Entity),
+            ItemVariable('x'))
+        self.assertEqual(
+            EntityVariable('x').coerce(ItemVariable),
+            ItemVariable('x'))
+        self.assertEqual(
+            EntityVariable('x').coerce(Item),
+            ItemVariable('x'))
+        self.assertEqual(
+            StringVariable('x').coerce(ExternalId),
+            ExternalIdVariable('x'))
+        self.assertEqual(
+            ExternalIdVariable('x').coerce(StringVariable),
+            ExternalIdVariable('x'))
+        self.assertEqual(
+            DataValueVariable('x').coerce(StringVariable),
+            StringVariable('x'))
+        self.assertEqual(
+            StringVariable('x').coerce(DataValueVariable),
+            StringVariable('x'))
 
     def test_instantiate(self) -> None:
         assert_type(Variable('x').instantiate({}), Optional[Term])

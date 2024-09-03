@@ -25,6 +25,9 @@ if TYPE_CHECKING:               # pragma: no cover
     from .template import Template
     from .variable import Variable
 
+#: The type of variable instantiations.
+Theta: TypeAlias = Mapping['Variable', Optional['Term']]
+
 
 class Term(KIF_Object):
     """Abstract base class for terms."""
@@ -72,6 +75,22 @@ class Term(KIF_Object):
            ``True`` if successful; ``False`` otherwise."""
         return isinstance(arg, OpenTerm)
 
+    @classmethod
+    def unification(
+            cls,
+            *eqs: tuple[Term, Term]
+    ) -> Theta | None:
+        """Computes an instantiation that unifies term equations.
+
+        Parameters:
+           eqs: Pairs of terms (potential equations).
+
+        Returns:
+           A variable instantiation theta if successful; ``None`` otherwise.
+        """
+        from .unification import unification
+        return unification(set(eqs))
+
 
 class ClosedTerm(Term):
     """Abstract base class for closed (ground) terms."""
@@ -95,10 +114,6 @@ class ClosedTerm(Term):
             cls.variable_class = kwargs['variable_class']
             assert issubclass(cls.variable_class, Variable)
             cls.variable_class.object_class = cls  # pyright: ignore
-
-
-#: The type of variable instantiations.
-Theta: TypeAlias = Mapping['Variable', Optional[Term]]
 
 
 class OpenTerm(Term):

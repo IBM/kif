@@ -101,6 +101,7 @@ from .model import (
     TextSet,
     TextTemplate,
     TextVariable,
+    Theta,
     Time,
     TimeDatatype,
     TimeTemplate,
@@ -135,6 +136,7 @@ __all__ = (
     'OpenTerm',
     'Template',
     'Term',
+    'Theta',
     'Variable',
     'Variables',
 

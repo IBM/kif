@@ -3,7 +3,15 @@
 
 from __future__ import annotations
 
-from itertools import chain, count, cycle, islice, product, starmap
+from itertools import (
+    chain,
+    count,
+    cycle,
+    islice,
+    permutations,
+    product,
+    starmap,
+)
 
 from more_itertools import batched, partition, take, unique_everseen
 
@@ -14,6 +22,7 @@ __all__ = (
     'cycle',
     'islice',
     'partition',
+    'permutations',
     'product',
     'starmap',
     'take',
