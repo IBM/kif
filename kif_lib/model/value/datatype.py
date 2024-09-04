@@ -40,6 +40,8 @@ class DatatypeVariable(Variable):
     def _instantiate_tail(
             self,
             theta: Theta,
+            coerce: bool,
+            strict: bool,
             function: Location | None = None,
             name: str | None = None,
             position: int | None = None
@@ -47,14 +49,15 @@ class DatatypeVariable(Variable):
         from .iri import IRI
         from .string import String
         obj = theta[self]
-        if isinstance(obj, (IRI, String, str)):
+        if not strict and isinstance(obj, (IRI, String, str)):
             ###
             # IMPORTANT: We need to be able to use Wikidata datatype IRIs to
             # instantiate datatype variables.
             ###
             return Datatype.check(obj, function, name, position)
         else:
-            return super()._instantiate_tail(theta, function, name, position)
+            return super()._instantiate_tail(
+                theta, coerce, strict, function, name, position)
 
 
 class Datatype(ClosedTerm, variable_class=DatatypeVariable):

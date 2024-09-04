@@ -3,23 +3,28 @@
 
 from __future__ import annotations
 
-from ...typing import Any, Iterable, Set
+from ...typing import cast, Iterable, Set
 from .template import Template
 from .term import Term, Theta
 from .variable import Variable
 
 
-def unification(G: Set[tuple[Term, Term]]) -> Theta | None:
+def unification(G: Set[tuple[Term | None, Term | None]]) -> Theta | None:
     """Computes an instantiation that unifies each pair of terms in `G`.
 
-    Implements the Martelli & Montanari (1982) algorithm described in
-    Wikipedia <https://en.wikipedia.org/wiki/Unification_(computer_science)>:
+    The algorithm we implement here is an adaptation of Martelli &
+    Montanari's 1982 algorithm described in Wikipedia
+    <https://en.wikipedia.org/wiki/Unification_(computer_science)>.
 
-    "Given a finite set G:={s1=t1,...,sn=tn} of potential equations, the
-    algorithm applies rules to transform it to an equivalent set of
-    equations of the form {x1=u1,...,xm=um} where x1,...,xm are distinct
-    variables and u1,...,um are terms containing none of the xi.  A set of
-    this form can be read as a substitution."
+    The main difference is the support variable coercions (e.g.,
+    `x:Entity=y:Item`) and deletions (i.e., equations of the form `x=None`).
+
+    Input-output behavior: "Given a finite set G:={s1=t1,...,sn=tn} of
+    potential equations, the algorithm applies rules to transform it into an
+    equivalent set of equations of the form {x1=u1,...,xm=um} where
+    x1,...,xm are distinct variables and u1,...,um are terms containing none
+    of the xi.  A set of this form can be read as a substitution [i.e.,
+    variable instantiation theta]."
 
     Parameters:
        G: Set of pairs of terms (potential equations).
@@ -30,88 +35,136 @@ def unification(G: Set[tuple[Term, Term]]) -> Theta | None:
     return _unification(set(G))
 
 
-def _unification(G: set[tuple[Any, Any]]) -> Theta | None:
-    while True:
-        done = True
-        for pair in G:
-            s, t = pair
-            ###
-            # DELETE:
-            # G ∪ {s=t} and s == t ⇒ G
-            ###
-            if s == t:
-                G.remove(pair)
-                done = False
-                break
-            ###
-            # DECOMPOSE:
-            # G ∪ {f(s1,...,sn)=g(t1,...,tn)} ⇒ G ∪ {s1=t1,...,sn=tn}
-            ###
-            if not isinstance(s, Variable) and not isinstance(t, Variable):
-                if isinstance(s, Template) and isinstance(t, Template):
-                    if type(s) != type(t):
-                        return None  # fail
-                elif (not isinstance(s, Template)
-                      and not isinstance(t, Template)):
-                    if s != t:
-                        return None  # fail
-                elif isinstance(s, Template) and not isinstance(t, Template):
-                    if s.object_class is not type(t):
-                        return None  # fail
-                elif not isinstance(s, Template) and isinstance(t, Template):
-                    if t.object_class is not type(s):
-                        return None  # fail
-                else:
-                    raise Term._should_not_get_here()
-                G.remove(pair)
-                assert len(s.args) == len(t.args)
-                for i, arg in enumerate(s.args):
-                    G.add((arg, t.args[i]))
-                done = False
-                break
-            ###
-            # SWAP:
-            # - G ∪ {f(s1..sn)=x} ⇒ G ∪ {x=f(s1..sn)}
-            # - G ∪ {x=y} and x is (proper) coercible to y => G ∪ {y=x}
-            ###
-            if (isinstance(t, Variable)
-                and (not isinstance(s, Variable)
-                     or (type(s) is not type(t) and isinstance(s, type(t))))):
-                G.remove(pair)
-                G.add((t, s))
-                done = False
-                break
-            ###
-            # INSTANTIATION CHECK:
-            # G ∪ {x=t} and x cannot be instantiate with t ⇒ ⊥
-            ###
-            if isinstance(s, Variable):
+class UnificationFailed(BaseException):
+    """Unification failed."""
+
+
+def _unification(G: set[tuple[Term | None, Term | None]]) -> Theta | None:
+    done = False
+    while not done:
+        try:
+            G, done = _unification_pass(G)
+        except UnificationFailed:
+            return None
+    ###
+    # TODO: Check whether the resulting G is a valid substitution.
+    #
+    # For instance,
+    #
+    #   x, y, z, w = Variables('x', 'y', 'z', 'w')
+    #   A = QuantityTemplate(x, y, None, w)
+    #   B = QuantityTemplate(y, z, x, w)
+    #   theta = Term.unification((A, B))
+    #
+    # Produces the *invalid* substitution `theta`:
+    #
+    #   {
+    #       QuantityVariable('x'): None,
+    #       ItemVariable('y'): ItemVariable('z'),
+    #       QuantityVariable('y'): None,
+    #   }
+    #
+    # Notice that variable 'y' occurs twice with incompatible types.
+    ###
+    return cast(Theta, dict(G))
+
+
+def _unification_pass(
+        G: set[tuple[Term | None, Term | None]]
+) -> tuple[set[tuple[Term | None, Term | None]], bool]:
+    for pair in G:
+        s, t = pair
+        ###
+        # DELETE:
+        # G ∪ {s=t} and s == t ⇒ G
+        ###
+        if s == t:
+            G.remove(pair)
+            return G, False      # restart
+        ###
+        # DECOMPOSE:
+        # G ∪ {f(s1,...,sn)=g(t1,...,tn)} ⇒ G ∪ {s1=t1,...,sn=tn}
+        ###
+        if not isinstance(s, Variable) and not isinstance(t, Variable):
+            if s is None or t is None:
+                raise UnificationFailed  # CONFLICT
+            elif isinstance(s, Template) and isinstance(t, Template):
+                if type(s) is not type(t):
+                    raise UnificationFailed  # CONFLICT
+            elif (not isinstance(s, Template)
+                  and not isinstance(t, Template)):
+                if s != t:
+                    raise UnificationFailed  # CONFLICT
+            elif isinstance(s, Template) and not isinstance(t, Template):
+                if s.object_class is not type(t):
+                    raise UnificationFailed  # CONFLICT
+            elif not isinstance(s, Template) and isinstance(t, Template):
+                if t.object_class is not type(s):
+                    raise UnificationFailed  # CONFLICT
+            else:
+                raise Term._should_not_get_here()
+            G.remove(pair)
+            assert len(s.args) == len(t.args)
+            for i, arg in enumerate(s.args):
+                l, r = arg, t.args[i]
+                if l is None or r is None:
+                    if ((l is not None and not isinstance(l, Variable))
+                            or (r is not None
+                                and not isinstance(r, Variable))):
+                        raise UnificationFailed  # CONFLICT
+                if l is not None or r is not None:
+                    from ..value import Value
+                    if l is not None and not isinstance(l, Term):
+                        l = Value.check(l)
+                    if r is not None and not isinstance(r, Term):
+                        r = Value.check(r)
+                    G.add((l, r))
+            return G, False     # restart
+        ###
+        # SWAP:
+        # - G ∪ {f(s1..sn)=x} ⇒ G ∪ {x=f(s1..sn)}
+        # - G ∪ {x=y} and x is (proper) coercible to y => G ∪ {y=x}
+        ###
+        if (isinstance(t, Variable)
+            and (not isinstance(s, Variable)
+                 or (type(s) is not type(t) and isinstance(s, type(t))))):
+            G.remove(pair)
+            G.add((t, s))
+            return G, False     # restart
+        ###
+        # ELIMINATE:
+        # G ∪ {x=t} ⇒ G[x:=t] ∪ {x=t}
+        ###
+        assert isinstance(s, Variable)
+        try:
+            # Attempt strict instantiation.
+            s._instantiate_tail({s: t}, True, True)
+        except Term.InstantiationError:
+            raise UnificationFailed  # bad instantiation
+        else:
+            if t is not None and _coercion_occurs_in(s, t.variables):
+                raise UnificationFailed  # CHECK
+            H, theta, changed = {pair}, {s: t}, False
+            for sx, tx in G:
+                if sx == pair[0] and tx == pair[1]:
+                    continue    # skip
+                saved_sx, saved_tx = sx, tx
                 try:
-                    s._instantiate_tail({s: t})
-                except Variable.InstantiationError:
-                    return None  # fail
-            ###
-            # ELIMINATE:
-            # G ∪ {x=t} ⇒ G[x:=t] ∪ {x=t}
-            ###
-            if isinstance(s, Variable) and isinstance(t, Template):
-                if _coercion_occurs_in(s, t.variables):
-                    return None  # fail: x ∈ t
-                G.remove(pair)
-                H, theta, changed = set(), {s: t}, False
-                for sx, tx in G:
-                    saved_sx, saved_tx = sx, tx
-                    sx = sx.instantiate(theta)
-                    tx = tx.instantiate(theta)
-                    if sx != saved_sx or tx != saved_tx:
-                        changed = True
-                    H.add((sx, tx))
-                G = H
-                G.add(pair)
-                done = not changed
-                break
-        if done:
-            return dict(G)
+                    if sx is not None:
+                        sx = cast(Term, sx.instantiate(theta, True, True))
+                    if tx is not None:
+                        tx = cast(Term, tx.instantiate(theta, True, True))
+                except Term.InstantiationError:
+                    raise UnificationFailed  # bad instantiation
+                if sx != saved_sx or tx != saved_tx:
+                    changed = True
+                H.add((sx, tx))
+            if changed:
+                return H, False  # x ∈ G, restart
+    ###
+    # Done.
+    ###
+    return G, True
 
 
 def _coercion_occurs_in(x: Variable, vars: Iterable[Variable]) -> bool:

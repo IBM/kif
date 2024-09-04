@@ -167,12 +167,14 @@ class Variable(OpenTerm):
             self,
             theta: Theta,
             coerce: bool,
+            strict: bool,
             function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Term | None:
         if self in theta:
-            return self._instantiate_tail(theta, function, name, position)
+            return self._instantiate_tail(
+                theta, coerce, strict, function, name, position)
         elif coerce:
             for other in filter(lambda v: isinstance(v, Variable), theta):
                 assert isinstance(other, Variable)
@@ -183,7 +185,7 @@ class Variable(OpenTerm):
                         continue  # not coercible, skip
                     if var in theta:
                         return var._instantiate_tail(
-                            theta, function, name, position)
+                            theta, coerce, strict, function, name, position)
             return self
         else:
             return self
@@ -191,6 +193,8 @@ class Variable(OpenTerm):
     def _instantiate_tail(
             self,
             theta: Theta,
+            coerce: bool,
+            strict: bool,
             function: Location | None = None,
             name: str | None = None,
             position: int | None = None
@@ -203,8 +207,10 @@ class Variable(OpenTerm):
             if type(self) is Variable:
                 obj_cls = Term
             elif isinstance(obj, Template):
-                assert hasattr(self.object_class, 'template_class')
-                obj_cls = self.object_class.template_class
+                if hasattr(self.object_class, 'template_class'):
+                    obj_cls = self.object_class.template_class
+                else:
+                    obj_cls = type(self)
             elif isinstance(obj, Variable):
                 obj_cls = type(self)
             else:

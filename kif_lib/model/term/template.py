@@ -52,7 +52,7 @@ class Template(OpenTerm):
             return args
         else:
             return tuple(map(
-                lambda x: x._instantiate(theta, False)
+                lambda x: x._instantiate(theta, False, False)
                 if self.is_open(x) else x, args))
 
     @override
@@ -60,19 +60,28 @@ class Template(OpenTerm):
         return self._traverse(lambda x: isinstance(x, Variable), self.is_open)
 
     @override
-    def instantiate(self, theta: Theta, coerce: bool = True) -> Term:
-        return cast(Term, super().instantiate(theta, coerce))
+    def instantiate(
+            self,
+            theta: Theta,
+            coerce: bool = True,
+            strict: bool = False
+    ) -> Term:
+        return cast(Term, super().instantiate(theta, coerce, strict))
 
     @override
     def _instantiate(
             self,
             theta: Theta,
             coerce: bool,
+            strict: bool,
             function: Location | None = None,
             name: str | None = None,
             position: int | None = None
     ) -> Term:
-        return self.__class__(*map(
-            lambda arg: arg._instantiate(
-                theta, coerce, function, name, position)
-            if isinstance(arg, OpenTerm) else arg, self.args))
+        try:
+            return self.__class__(*map(
+                lambda arg: arg._instantiate(
+                    theta, coerce, strict, function, name, position)
+                if isinstance(arg, OpenTerm) else arg, self.args))
+        except TypeError:
+            raise self.InstantiationError

@@ -15,6 +15,7 @@ from ...typing import (
     Location,
     Mapping,
     Optional,
+    override,
     Self,
     Set,
     TypeAlias,
@@ -31,6 +32,9 @@ Theta: TypeAlias = Mapping['Variable', Optional['Term']]
 
 class Term(KIF_Object):
     """Abstract base class for terms."""
+
+    class InstantiationError(ValueError):
+        """Bad instantiation attempt."""
 
     def __new__(cls, *args, **kwargs) -> Self:
         has_tpl_or_var_arg = any(map(
@@ -91,6 +95,56 @@ class Term(KIF_Object):
         from .unification import unification
         return unification(set(eqs))
 
+    @property
+    def variables(self) -> Set[Variable]:
+        """The set of variables occurring in open term."""
+        return self.get_variables()
+
+    def get_variables(self) -> Set[Variable]:
+        """Gets the set of variables occurring in open term.
+
+        Returns:
+           Set of variables.
+        """
+        return frozenset(self._iterate_variables())
+
+    @abc.abstractmethod
+    def _iterate_variables(self) -> Iterator[Variable]:
+        raise NotImplementedError
+
+    def instantiate(
+            self,
+            theta: Theta,
+            coerce: bool = True,
+            strict: bool = False
+    ) -> Term | None:
+        """Applies variable instantiation `theta` to open term.
+
+        Parameters:
+           theta: Variable instantiation.
+           coerce: Whether to consider coercible variables equal.
+           strict: Whether to adopt stricter coercion rules.
+
+        Returns:
+           Term or ``None``.
+        """
+        self._check_arg_isinstance(
+            theta, Mapping, self.instantiate, 'theta', 1)
+        return self._instantiate(
+            theta, coerce, strict, self.instantiate) if theta else self
+
+    @abc.abstractmethod
+    def _instantiate(
+            self,
+            theta: Theta,
+            coerce: bool,
+            strict: bool,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Term | None:
+        raise NotImplementedError
+
 
 class ClosedTerm(Term):
     """Abstract base class for closed (ground) terms."""
@@ -115,59 +169,25 @@ class ClosedTerm(Term):
             assert issubclass(cls.variable_class, Variable)
             cls.variable_class.object_class = cls  # pyright: ignore
 
+    @override
+    def _iterate_variables(self) -> Iterator[Variable]:
+        return iter(())
+
+    @override
+    def _instantiate(
+            self,
+            theta: Theta,
+            coerce: bool,
+            strict: bool,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Term | None:
+        return self
+
 
 class OpenTerm(Term):
     """Abstract base class for open terms."""
 
     #: Closed-term class associated with this open-term class.
     object_class: ClassVar[type[ClosedTerm]]
-
-    class InstantiationError(ValueError):
-        """Bad instantiation attempt."""
-
-    @property
-    def variables(self) -> Set[Variable]:
-        """The set of variables occurring in open term."""
-        return self.get_variables()
-
-    def get_variables(self) -> Set[Variable]:
-        """Gets the set of variables occurring in open term.
-
-        Returns:
-           Set of variables.
-        """
-        return frozenset(self._iterate_variables())
-
-    @abc.abstractmethod
-    def _iterate_variables(self) -> Iterator[Variable]:
-        raise NotImplementedError
-
-    def instantiate(
-            self,
-            theta: Theta,
-            coerce: bool = True
-    ) -> Term | None:
-        """Applies variable instantiation `theta` to open term.
-
-        Parameters:
-           theta: Variable instantiation.
-           coerce: Whether to consider coercible variables equal.
-
-        Returns:
-           Term or ``None``.
-        """
-        self._check_arg_isinstance(
-            theta, Mapping, self.instantiate, 'theta', 1)
-        return self._instantiate(
-            theta, coerce, self.instantiate) if theta else self
-
-    @abc.abstractmethod
-    def _instantiate(
-            self,
-            theta: Theta,
-            coerce: bool,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> Term | None:
-        raise NotImplementedError

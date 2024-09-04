@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import datetime
 import decimal
+import enum
 from typing import TYPE_CHECKING
 
 from ... import namespace as NS
@@ -91,7 +92,7 @@ class Value(
         elif isinstance(arg, datetime.datetime):
             from .time import Time
             arg = Time.check(arg, function, name, position)
-        elif isinstance(arg, (decimal.Decimal, float, int)):
+        elif isinstance(arg, (decimal.Decimal, float, int, enum.Enum)):
             from .quantity import Quantity
             arg = Quantity.check(arg, function, name, position)
         return super().check(arg, function, name, position)

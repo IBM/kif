@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import decimal
+import enum
 
 from ...typing import Any, ClassVar, Location, override, Self, TypeAlias, Union
 from ..term import Template, Variable
@@ -16,7 +17,7 @@ from .item import Item, ItemTemplate, ItemVariable, VItem, VTItem
 from .string import String, TString
 from .value import Datatype
 
-TDecimal: TypeAlias = Union[decimal.Decimal, float, int, TString]
+TDecimal: TypeAlias = Union[decimal.Decimal, float, int, enum.Enum, TString]
 TQuantity: TypeAlias = Union['Quantity', TDecimal]
 VQuantity: TypeAlias =\
     Union['QuantityTemplate', 'QuantityVariable', 'Quantity']
@@ -195,6 +196,8 @@ class Quantity(
             return arg
         elif isinstance(arg, (decimal.Decimal, float, int)):
             return cls(arg)
+        elif isinstance(arg, enum.Enum):
+            return cls(arg.value)
         elif isinstance(arg, str):
             try:
                 return cls(arg)
