@@ -16,8 +16,8 @@ def unification(G: Set[tuple[Term | None, Term | None]]) -> Theta | None:
     Montanari's 1982 algorithm described in Wikipedia
     <https://en.wikipedia.org/wiki/Unification_(computer_science)>.
 
-    The main difference is the support variable coercions (e.g.,
-    `x:Entity=y:Item`) and deletions (i.e., equations of the form `x=None`).
+    The main difference is the support for variable coercions and deletions
+    (i.e., equations of the form `x=None`).
 
     Input-output behavior: "Given a finite set G:={s1=t1,...,sn=tn} of
     potential equations, the algorithm applies rules to transform it into an

@@ -67,4 +67,5 @@ class TemplateTestCase(OpenTermTestCase):
             self.logger.debug('failure_coerce: %s %s', obj, theta)
             self.assertIsInstance(obj, cls)
             assert isinstance(obj, cls)
-            self.assertRaises(TypeError, obj.instantiate, theta)
+            self.assertRaises(
+                Template.InstantiationError, obj.instantiate, theta)
