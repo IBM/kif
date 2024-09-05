@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import datetime
 import decimal
-import itertools
 import logging
 import pathlib
 import re
@@ -34,6 +33,7 @@ from kif_lib import (
     Item,
     ItemDatatype,
     ItemDescriptor,
+    itertools,
     KIF_Object,
     KIF_ObjectSet,
     Lexeme,

@@ -3,12 +3,11 @@
 
 from __future__ import annotations
 
-import itertools
-
 from kif_lib import (
     Descriptor,
     ItemDescriptor,
     ItemTemplate,
+    itertools,
     KIF_Object,
     Lexeme,
     LexemeDescriptor,

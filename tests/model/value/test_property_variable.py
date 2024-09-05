@@ -56,11 +56,11 @@ class Test(VariableTestCase):
             PropertyVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             PropertyVariable,
-            success=[
+            success_auto=[
                 Property('x'),
                 PropertyTemplate(Variable('x')),
             ],
-            failure=[
+            failure_auto=[
                 IRI('x'),
                 IRI.template_class(Variable('x')),
                 Lexeme('x'),

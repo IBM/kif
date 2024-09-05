@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-import itertools
-
 from kif_lib import (
     Entity,
     EntityTemplate,
@@ -13,14 +11,16 @@ from kif_lib import (
     IRI_Template,
     IRI_Variable,
     Item,
+    itertools,
     KIF_Object,
     String,
     StringTemplate,
     StringVariable,
+    Term,
     TextTemplate,
+    Theta,
     Variable,
 )
-from kif_lib.model import Theta
 from kif_lib.rdflib import Literal, URIRef
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
@@ -94,9 +94,9 @@ class EntityTemplateTestCase(ValueTemplateTestCase):
     def _test_instantiate(
             self,
             cls: Any,
-            success: Iterable[tuple[KIF_Object, KIF_Object, Theta]] = tuple(),
-            failure: Iterable[tuple[KIF_Object, Theta]] = tuple(),
-            failure_coerce: Iterable[tuple[KIF_Object, Theta]] = tuple()
+            success: Iterable[tuple[Term, Term | None, Theta]] = tuple(),
+            failure: Iterable[tuple[Term, Theta]] = tuple(),
+            failure_coerce: Iterable[tuple[Term, Theta]] = tuple()
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, EntityTemplate)

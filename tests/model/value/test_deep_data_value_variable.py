@@ -48,14 +48,14 @@ class Test(VariableTestCase):
             DeepDataValueVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             DeepDataValueVariable,
-            success=[
+            success_auto=[
                 DeepDataValue.variable_class('x'),
                 Quantity(0),
                 Quantity(Variable('x')),
                 Time('2024-06-26'),
                 Time(Variable('x')),
             ],
-            failure=[
+            failure_auto=[
                 DataValue.variable_class('x'),
                 IRI.template_class(Variable('x')),
                 Item('x'),

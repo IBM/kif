@@ -5,24 +5,22 @@ from __future__ import annotations
 
 from kif_lib import (
     IRI,
+    IRI_Variable,
     Item,
+    ItemTemplate,
+    ItemVariable,
+    PropertyVariable,
     Quantity,
+    QuantityVariable,
     Statement,
+    StatementTemplate,
+    Template,
     Term,
     Value,
     ValueSnak,
     ValueSnakTemplate,
     Variable,
     Variables,
-)
-from kif_lib.model import (
-    IRI_Variable,
-    ItemTemplate,
-    ItemVariable,
-    PropertyVariable,
-    QuantityVariable,
-    StatementTemplate,
-    Template,
 )
 from kif_lib.typing import assert_type, cast, Set
 

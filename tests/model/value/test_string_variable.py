@@ -42,13 +42,13 @@ class Test(VariableTestCase):
         assert_type(StringVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             StringVariable,
-            success=[
+            success_auto=[
                 ExternalId('x'),
                 ExternalIdTemplate(Variable('y')),
                 String('x'),
                 StringTemplate(Variable('y')),
             ],
-            failure=[
+            failure_auto=[
                 IRI('x'),
                 IRI.template_class(Variable('x')),
                 Item('x'),

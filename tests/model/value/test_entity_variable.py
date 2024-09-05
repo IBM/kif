@@ -45,13 +45,13 @@ class Test(VariableTestCase):
             EntityVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             EntityVariable,
-            success=[
+            success_auto=[
                 Item('x'),
                 Item.template_class(Variable('y')),
                 Lexeme('x'),
                 Property.template_class(Variable('y'))
             ],
-            failure=[
+            failure_auto=[
                 DataValue.variable_class('x'),
                 Quantity(0),
                 Quantity.template_class(Variable('x')),

@@ -42,7 +42,7 @@ class Test(VariableTestCase):
         assert_type(ValueVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             ValueVariable,
-            success=[
+            success_auto=[
                 IRI.template_class(Variable('x')),
                 Item.template_class(Variable('x')),
                 Quantity(0),
@@ -52,7 +52,7 @@ class Test(VariableTestCase):
                 Time(Variable('x')),
                 Value.variable_class('x'),
             ],
-            failure=[
+            failure_auto=[
                 Statement(Item('x'), ValueSnak(Property('y'), Item('z'))),
                 Snak.variable_class('x'),
             ])

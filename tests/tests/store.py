@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import itertools
 import os
 import unittest
 
@@ -12,6 +11,7 @@ from kif_lib import (
     Filter,
     Item,
     Items,
+    itertools,
     Lexeme,
     Lexemes,
     NoValueSnak,

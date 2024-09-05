@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import ClosedTerm, KIF_Object, OpenTerm, Term
+from kif_lib import ClosedTerm, KIF_Object, OpenTerm, Term, Theta
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
 from ..kif_object import KIF_ObjectTestCase
@@ -33,6 +33,29 @@ class TermTestCase(KIF_ObjectTestCase):
         assert isinstance(cls, type)
         assert issubclass(cls, Term)
         super()._test__init__(cls, assert_fn, success, failure)
+
+    def _test_instantiate(
+            self,
+            cls: Any,
+            success: Iterable[tuple[Term, Term | None, Theta]] = tuple(),
+            failure: Iterable[tuple[Term, Theta]] = tuple()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, Term)
+        for src, tgt, theta in success:
+            self.logger.debug('success: %s %s %s', src, tgt, theta)
+            self.assertIsInstance(src, cls)
+            assert isinstance(src, cls)
+            self.assert_raises_bad_argument(
+                TypeError, 1, 'theta', 'expected Mapping, got int',
+                src.instantiate, 0)
+            self.assertEqual(src.instantiate(theta), tgt)
+        for obj, theta in failure:
+            self.logger.debug('failure: %s %s', obj, theta)
+            self.assertIsInstance(obj, cls)
+            assert isinstance(obj, cls)
+            self.assertRaises(
+                Term.InstantiationError, obj.instantiate, theta)
 
 
 class ClosedTermTestCase(TermTestCase):

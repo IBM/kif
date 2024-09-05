@@ -50,13 +50,13 @@ class Test(VariableTestCase):
             Optional[Term])
         self._test_instantiate(
             ShallowDataValueVariable,
-            success=[
+            success_auto=[
                 ExternalId('x'),
                 ExternalId.template_class(Variable('y')),
                 String('x'),
                 String.template_class(Variable('y')),
             ],
-            failure=[
+            failure_auto=[
                 DataValue.variable_class('x'),
                 Item('x'),
                 Item.template_class(Variable('x')),

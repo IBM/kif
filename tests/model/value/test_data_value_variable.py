@@ -44,7 +44,7 @@ class Test(VariableTestCase):
             DataValueVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             DataValueVariable,
-            success=[
+            success_auto=[
                 DataValue.variable_class('x'),
                 IRI.template_class(Variable('x')),
                 Quantity(0),
@@ -53,7 +53,7 @@ class Test(VariableTestCase):
                 Time('2024-06-26'),
                 Time(Variable('x')),
             ],
-            failure=[
+            failure_auto=[
                 Item('x'),
                 Item.template_class(Variable('x')),
                 Value.variable_class('x'),

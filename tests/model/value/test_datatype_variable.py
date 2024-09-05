@@ -55,12 +55,12 @@ class Test(VariableTestCase):
             })))
         self._test_instantiate(
             DatatypeVariable,
-            success=[
+            success_auto=[
                 DatatypeVariable('y'),
                 IRI_Datatype(),
                 ItemDatatype(),
             ],
-            failure=[
+            failure_auto=[
                 IRI_Variable('x'),
                 Item('x'),
                 ItemVariable('x'),

@@ -46,13 +46,13 @@ class Test(VariableTestCase):
             SnakVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             SnakVariable,
-            success=[
+            success_auto=[
                 NoValueSnak(Property('x')),
                 SomeValueSnak(Variable('y')),
                 ValueSnak('x', 'y'),
                 ValueSnak(Variable('x'), 'y'),
             ],
-            failure=[
+            failure_auto=[
                 DataValue.variable_class('x'),
                 Property('x'),
                 Quantity(0),

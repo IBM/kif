@@ -37,11 +37,11 @@ class Test(VariableTestCase):
         assert_type(ItemVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             ItemVariable,
-            success=[
+            success_auto=[
                 Item('x'),
                 ItemTemplate(Variable('x')),
             ],
-            failure=[
+            failure_auto=[
                 IRI('x'),
                 IRI.template_class(Variable('x')),
                 Lexeme('x'),

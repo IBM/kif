@@ -3,10 +3,17 @@
 
 from __future__ import annotations
 
-import itertools
-
-from kif_lib import ExternalId, IRI, Item, KIF_Object, String, Term, Variable
-from kif_lib.model import Theta
+from kif_lib import (
+    ExternalId,
+    IRI,
+    Item,
+    itertools,
+    KIF_Object,
+    String,
+    Term,
+    Theta,
+    Variable,
+)
 from kif_lib.typing import Any, Callable, cast, Iterable, override, Sequence
 
 from .term import OpenTermTestCase
@@ -63,38 +70,35 @@ class VariableTestCase(OpenTermTestCase):
                 [Variable('x')]
             ], failure))
 
+    @override
     def _test_instantiate(
             self,
             cls: Any,
-            success: Iterable[Term] = tuple(),
-            failure: Iterable[Term] = tuple()
+            success: Iterable[tuple[Term, Term | None, Theta]] = (),
+            failure: Iterable[tuple[Term, Theta]] = (),
+            success_auto: Iterable[Term] = (),
+            failure_auto: Iterable[Term] = ()
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, Variable)
         it_success: Iterable[tuple[Term, Term | None, Theta]] =\
-            itertools.chain([
-                (Variable('x', cls), cls('x'), {}),
-                (Variable('x', cls), None, {cls('x'): None}),
-                (Variable('x', cls), cls('y'),
-                 {cls('x'): Variable('y', cls)}),
-            ], map(lambda obj:
-                   (Variable('x', cls), obj, cast(Theta, {cls('x'): obj})),
-                   success))
-        for src, tgt, theta in it_success:
-            self.logger.debug('success: %s %s %s', src, tgt, theta)
-            self.assertIsInstance(src, cls)
-            assert isinstance(src, cls)
-            self.assert_raises_bad_argument(
-                TypeError, 1, 'theta', 'expected Mapping, got int',
-                src.instantiate, 0)
-            self.assertEqual(src.instantiate(cast(Theta, theta)), tgt)
-        cannot_check = list(self._variable_class_cannot_check_from(cls))
-        it_failure: Iterable[tuple[KIF_Object, Theta]] =\
             itertools.chain(
-            map(lambda other: (Variable('x', cls), {cls('x'): other('x')}),
-                cannot_check),
-            map(lambda obj: (Variable('x', cls), {cls('x'): obj}), failure))
-        for obj, theta in it_failure:
-            self.logger.debug('failure: %s %s', obj, theta)
-            self.assertRaises(
-                Variable.InstantiationError, cls('x').instantiate, theta)
+                success,
+                [(Variable('x', cls), cls('x'), {}),
+                 (Variable('x', cls), None, {cls('x'): None}),
+                 (Variable('x', cls), cls('y'),
+                  {cls('x'): Variable('y', cls)}),
+                 ], map(lambda obj:
+                        (Variable('x', cls),
+                         obj, cast(Theta, {cls('x'): obj})),
+                        success_auto))
+        cannot_check = list(self._variable_class_cannot_check_from(cls))
+        it_failure: Iterable[tuple[Term, Theta]] =\
+            itertools.chain(
+                failure,
+                map(lambda other:
+                    (Variable('x', cls), {cls('x'): other('x')}),
+                    cannot_check),
+                map(lambda obj:
+                    (Variable('x', cls), {cls('x'): obj}), failure_auto))
+        super()._test_instantiate(cls, it_success, it_failure)

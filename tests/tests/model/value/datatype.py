@@ -3,13 +3,12 @@
 
 from __future__ import annotations
 
-import itertools
-
 from kif_lib import (
     Datatype,
     Entity,
     ExternalIdDatatype,
     Item,
+    itertools,
     KIF_Object,
     StringDatatype,
     Value,

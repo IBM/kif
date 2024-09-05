@@ -44,11 +44,11 @@ class Test(VariableTestCase):
         assert_type(StatementVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             StatementVariable,
-            success=[
+            success_auto=[
                 Statement(Item('x'), ValueSnak('y', 'z')),
                 StatementTemplate(Variable('x'), Variable('y')),
             ],
-            failure=[
+            failure_auto=[
                 IRI('x'),
                 IRI.template_class(Variable('x')),
                 Property('x'),

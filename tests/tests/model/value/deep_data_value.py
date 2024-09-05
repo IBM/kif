@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-import itertools
-
 from kif_lib import (
     DeepDataValue,
     DeepDataValueTemplate,
@@ -13,6 +11,7 @@ from kif_lib import (
     Item,
     ItemTemplate,
     ItemVariable,
+    itertools,
     KIF_Object,
     String,
     StringTemplate,

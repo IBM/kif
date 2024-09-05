@@ -43,11 +43,11 @@ class Test(VariableTestCase):
             Optional[Term])
         self._test_instantiate(
             ValueSnakVariable,
-            success=[
+            success_auto=[
                 ValueSnak('x', 'y'),
                 ValueSnakTemplate(Variable('x'), Variable('y')),
             ],
-            failure=[
+            failure_auto=[
                 IRI('x'),
                 IRI.template_class(Variable('x')),
                 Property('x'),

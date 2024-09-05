@@ -29,13 +29,13 @@ class Test(VariableTestCase):
             TimeVariable('2024-06-26').instantiate({}), Optional[Term])
         self._test_instantiate(
             TimeVariable,
-            success=[
+            success_auto=[
                 Time('2024-06-26'),
                 Time('2024-06-26', None, None, Variable('x')),
                 Time(Variable('x'), None, Variable('y')),
                 Time(Variable('y'), Variable('x')),
             ],
-            failure=[
+            failure_auto=[
                 Item('x'),
                 Item.template_class(Variable('x')),
                 String('x'),

@@ -39,14 +39,14 @@ class Test(VariableTestCase):
             QuantityVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             QuantityVariable,
-            success=[
+            success_auto=[
                 Quantity(0),
                 Quantity(0, None, None, Variable('x')),
                 Quantity(0, None, Variable('x')),
                 Quantity(0, Variable('x')),
                 QuantityTemplate(Variable('y')),
             ],
-            failure=[
+            failure_auto=[
                 Item('x'),
                 Item.template_class(Variable('x')),
                 String('x'),

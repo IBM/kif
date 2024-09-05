@@ -45,11 +45,11 @@ class Test(VariableTestCase):
             ExternalIdVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             ExternalIdVariable,
-            success=[
+            success_auto=[
                 ExternalId('x'),
                 ExternalIdTemplate(Variable('y')),
             ],
-            failure=[
+            failure_auto=[
                 Item('x'),
                 Item.template_class(Variable('x')),
                 Quantity(0),

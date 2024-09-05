@@ -42,11 +42,11 @@ class Test(VariableTestCase):
         assert_type(SomeValueSnakVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             SomeValueSnakVariable,
-            success=[
+            success_auto=[
                 SomeValueSnak('x'),
                 SomeValueSnakTemplate(Variable('x')),
             ],
-            failure=[
+            failure_auto=[
                 IRI('x'),
                 IRI.template_class(Variable('x')),
                 Property('x'),

@@ -42,11 +42,11 @@ class Test(VariableTestCase):
         assert_type(NoValueSnakVariable('x').instantiate({}), Optional[Term])
         self._test_instantiate(
             NoValueSnakVariable,
-            success=[
+            success_auto=[
                 NoValueSnak('x'),
                 NoValueSnakTemplate(Variable('x')),
             ],
-            failure=[
+            failure_auto=[
                 IRI('x'),
                 IRI.template_class(Variable('x')),
                 Property('x'),
