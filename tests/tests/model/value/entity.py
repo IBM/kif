@@ -22,7 +22,7 @@ from kif_lib import (
     Variable,
 )
 from kif_lib.rdflib import Literal, URIRef
-from kif_lib.typing import Any, Callable, Iterable, override, Sequence
+from kif_lib.typing import Any, Callable, Iterable, override, Sequence, Set
 
 from .value import ValueTemplateTestCase, ValueTestCase
 
@@ -89,6 +89,17 @@ class EntityTemplateTestCase(ValueTemplateTestCase):
                 [String('x')],
                 *normalize
             ])
+
+    @override
+    def _test_variables(
+            self,
+            cls: Any,
+            *cases: tuple[Term, Set[Variable]]
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, EntityTemplate)
+        super()._test_variables(
+            cls, (cls(Variable('x')), {IRI_Variable('x')}), *cases)
 
     @override
     def _test_instantiate(
@@ -182,6 +193,31 @@ class EntityTestCase(ValueTestCase):
                 [{}],
                 *failure
             ])
+
+    @override
+    def _test_variables(
+            self,
+            cls: Any,
+            *cases: tuple[Term, Set[Variable]]
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, Entity)
+        super()._test_variables(cls, (cls('x'), set()), *cases)
+
+    @override
+    def _test_instantiate(
+            self,
+            cls: Any,
+            success: Iterable[tuple[Term, Term | None, Theta]] = tuple(),
+            failure: Iterable[tuple[Term, Theta]] = tuple()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, Entity)
+        super()._test_instantiate(
+            cls,
+            success=itertools.chain(
+                [(cls('x'), cls('x'), {IRI_Variable('x'): IRI_Variable('y')})],
+                success), failure=failure)
 
     def _test_Entities(
             self,

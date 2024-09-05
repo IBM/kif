@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from kif_lib import Item, String, Term, Time, TimeVariable, Variable
-from kif_lib.typing import assert_type, Optional
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import VariableTestCase
 
@@ -23,6 +23,10 @@ class Test(VariableTestCase):
     def test__init__(self) -> None:
         assert_type(TimeVariable('x'), TimeVariable)
         self._test__init__(TimeVariable, self.assert_time_variable)
+
+    def test_variables(self) -> None:
+        assert_type(TimeVariable('x').variables, Set[Variable])
+        self._test_variables(TimeVariable)
 
     def test_instantiate(self) -> None:
         assert_type(

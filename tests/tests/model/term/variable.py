@@ -14,7 +14,15 @@ from kif_lib import (
     Theta,
     Variable,
 )
-from kif_lib.typing import Any, Callable, cast, Iterable, override, Sequence
+from kif_lib.typing import (
+    Any,
+    Callable,
+    cast,
+    Iterable,
+    override,
+    Sequence,
+    Set,
+)
 
 from .term import OpenTermTestCase
 
@@ -69,6 +77,16 @@ class VariableTestCase(OpenTermTestCase):
                 [Item('x')],
                 [Variable('x')]
             ], failure))
+
+    @override
+    def _test_variables(
+            self,
+            cls: Any,
+            *cases: tuple[Term, Set[Variable]]
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, Variable)
+        super()._test_variables(cls, (cls('x'), {cls('x')}), *cases)
 
     @override
     def _test_instantiate(

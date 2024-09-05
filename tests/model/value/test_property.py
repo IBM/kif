@@ -9,7 +9,9 @@ from kif_lib import (
     Entity,
     ExternalId,
     IRI,
+    IRI_Variable,
     Item,
+    itertools,
     Lexeme,
     NoValueSnak,
     Properties,
@@ -21,15 +23,15 @@ from kif_lib import (
     SomeValueSnak,
     Statement,
     String,
+    Term,
     Text,
     Time,
     Value,
     ValueSnak,
     Variable,
 )
-from kif_lib.itertools import product
 from kif_lib.model import TDatatype, TValue
-from kif_lib.typing import assert_type, cast, ClassVar, Iterable
+from kif_lib.typing import assert_type, cast, ClassVar, Iterable, Set
 
 from ...tests import EntityTestCase
 
@@ -155,7 +157,8 @@ class Test(EntityTestCase):
             (Property('x'), 'ValueSnak'), Item('x'), {})
         # success
         assert_type(Property('p')(Item('x'), IRI('y')), Statement)
-        it = product(self._test__call__entities, self._test__call__values)
+        it = itertools.product(
+            self._test__call__entities, self._test__call__values)
         for e, (v, dt) in it:
             self.assert_statement(
                 Property('p')(e, v), e, ValueSnak(Property('p'), v))
@@ -178,6 +181,19 @@ class Test(EntityTestCase):
             Property('x', Item).some_value(), Property('x', Item))
         self.assert_some_value_snak(
             Property('x', Quantity).some_value(), Property('x', Quantity))
+
+    def test_variables(self) -> None:
+        assert_type(Property('x').variables, Set[Variable])
+        self._test_variables(Property, (Property('x', Item), set()))
+
+    def test_instantiate(self) -> None:
+        assert_type(Item('x').instantiate({}), Term)
+        self._test_instantiate(
+            Property, success=[
+                (Property('x', Item),
+                 Property('x', Item),
+                 {IRI_Variable('x'): IRI('y')})
+            ])
 
     def test_Properties(self) -> None:
         assert_type(Properties('a', 'b', 'c'), Iterable[Property])

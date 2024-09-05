@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from kif_lib import Item, ItemTemplate, Lexeme, Property, Term, Variable
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, Set
 
 from ...tests import EntityTemplateTestCase
 
@@ -30,6 +30,10 @@ class Test(EntityTemplateTestCase):
                 [Lexeme('x')],
                 [Property('x')],
             ])
+
+    def test_variables(self) -> None:
+        assert_type(ItemTemplate(Variable('x')).variables, Set[Variable])
+        self._test_variables(ItemTemplate)
 
     def test_instantiate(self) -> None:
         assert_type(ItemTemplate(Variable('x')).instantiate({}), Term)

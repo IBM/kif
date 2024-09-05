@@ -17,7 +17,7 @@ from kif_lib import (
     ValueSnak,
     Variable,
 )
-from kif_lib.typing import assert_type, Optional
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import VariableTestCase
 
@@ -40,6 +40,10 @@ class Test(VariableTestCase):
     def test__init__(self) -> None:
         assert_type(SnakVariable('x'), SnakVariable)
         self._test__init__(SnakVariable, self.assert_snak_variable)
+
+    def test_variables(self) -> None:
+        assert_type(SnakVariable('x').variables, Set[Variable])
+        self._test_variables(SnakVariable)
 
     def test_instantiate(self) -> None:
         assert_type(

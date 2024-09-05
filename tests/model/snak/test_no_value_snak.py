@@ -15,11 +15,12 @@ from kif_lib import (
     Quantity,
     SomeValueSnak,
     String,
+    Term,
     Text,
     ValueSnak,
     Variable,
 )
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, Set
 
 from ...tests import SnakTestCase
 
@@ -81,6 +82,19 @@ class Test(SnakTestCase):
                 [ValueSnak('x', 'y')],
                 [Variable('x', Item)],
                 [{}],
+            ])
+
+    def test_variables(self) -> None:
+        assert_type(NoValueSnak('x').variables, Set[Variable])
+        self._test_variables(NoValueSnak, (NoValueSnak('x'), set()))
+
+    def test_instantiate(self) -> None:
+        assert_type(NoValueSnak('x').instantiate({}), Term)
+        self._test_instantiate(
+            NoValueSnak, success=[
+                (NoValueSnak('x'),
+                 NoValueSnak('x'),
+                 {Variable('x'): String('y')})
             ])
 
 

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import abc
+import functools
 from typing import TYPE_CHECKING
 
 from ... import itertools
@@ -97,16 +98,21 @@ class Term(KIF_Object):
 
     @property
     def variables(self) -> Set[Variable]:
-        """The set of variables occurring in open term."""
+        """The set of variables occurring in term."""
         return self.get_variables()
 
     def get_variables(self) -> Set[Variable]:
-        """Gets the set of variables occurring in open term.
+        """Gets the set of variables occurring in term.
 
         Returns:
            Set of variables.
         """
-        return frozenset(self._iterate_variables())
+        return self._get_variables_cached(self)
+
+    @classmethod
+    @functools.cache
+    def _get_variables_cached(cls, term: Term) -> Set[Variable]:
+        return frozenset(term._iterate_variables())
 
     @abc.abstractmethod
     def _iterate_variables(self) -> Iterator[Variable]:
@@ -172,6 +178,15 @@ class ClosedTerm(Term):
     @override
     def _iterate_variables(self) -> Iterator[Variable]:
         return iter(())
+
+    @override
+    def instantiate(
+            self,
+            theta: Theta,
+            coerce: bool = True,
+            strict: bool = False
+    ) -> Term:
+        return cast(Term, super().instantiate(theta, coerce, strict))
 
     @override
     def _instantiate(

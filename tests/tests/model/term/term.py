@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from kif_lib import ClosedTerm, KIF_Object, OpenTerm, Term, Theta
-from kif_lib.typing import Any, Callable, Iterable, override, Sequence
+from kif_lib import ClosedTerm, KIF_Object, OpenTerm, Term, Theta, Variable
+from kif_lib.typing import Any, Callable, Iterable, override, Sequence, Set
 
 from ..kif_object import KIF_ObjectTestCase
 
@@ -33,6 +33,17 @@ class TermTestCase(KIF_ObjectTestCase):
         assert isinstance(cls, type)
         assert issubclass(cls, Term)
         super()._test__init__(cls, assert_fn, success, failure)
+
+    def _test_variables(
+            self,
+            cls: Any,
+            *cases: tuple[Term, Set[Variable]]
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, Term)
+        for term, vars in cases:
+            self.assertEqual(term.variables, vars)
+            self.assertEqual(term.get_variables(), vars)
 
     def _test_instantiate(
             self,

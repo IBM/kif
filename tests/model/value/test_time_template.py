@@ -23,7 +23,7 @@ from kif_lib import (
     TimeVariable,
     Variable,
 )
-from kif_lib.typing import assert_type, cast
+from kif_lib.typing import assert_type, cast, Set
 
 from ...tests import DeepDataValueTemplateTestCase
 
@@ -195,6 +195,17 @@ class Test(DeepDataValueTemplateTestCase):
             TimeTemplate('2024-05-06', x, Variable('x', DataValue)),
             Time('2024-05-06').time,
             QuantityVariable('x'), QuantityVariable('x'), None)
+
+    def test_variables(self) -> None:
+        assert_type(TimeTemplate(Variable('x')).variables, Set[Variable])
+        self._test_variables(
+            TimeTemplate,
+            (Time(Variable('x')),
+             {TimeVariable('x')}),
+            (Time(Variable('x'), Variable('y')),
+             {TimeVariable('x'), QuantityVariable('y')}),
+            (Time(Variable('x'), None, Variable('y'), Variable('z')),
+             {TimeVariable('x'), QuantityVariable('y'), ItemVariable('z')}))
 
     def test_instantiate(self) -> None:
         assert_type(

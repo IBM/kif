@@ -12,13 +12,15 @@ from kif_lib import (
     Property,
     Quantity,
     String,
+    Term,
     Text,
     Time,
     TimeDatatype,
     TimeTemplate,
     TimeVariable,
+    Variable,
 )
-from kif_lib.typing import assert_type, Optional
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import DeepDataValueTestCase
 
@@ -122,6 +124,24 @@ class Test(DeepDataValueTestCase):
         self.assertEqual(
             Time('2023-09-04').get_calendar(Item('x')), Item('x'))
         self.assertIsNone(Time('2023-09-04').get_calendar())
+
+    def test_variables(self) -> None:
+        assert_type(Time('2024-09-05').variables, Set[Variable])
+        self._test_variables(
+            Time,
+            (Time('2024-09-05'), set()),
+            (Time('2024-09-05', 0), set()),
+            (Time('2024-09-05', 0, 0), set()),
+            (Time('2024-09-05', 0, 0, 'x'), set()))
+
+    def test_instantiate(self) -> None:
+        assert_type(Time('2024-09-05').instantiate({}), Term)
+        self._test_instantiate(
+            Time, success=[
+                (Time('2024-09-05'),
+                 Time('2024-09-05'),
+                 {Variable('x'): String('y')})
+            ])
 
 
 if __name__ == '__main__':

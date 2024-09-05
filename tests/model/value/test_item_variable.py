@@ -13,7 +13,7 @@ from kif_lib import (
     Term,
     Variable,
 )
-from kif_lib.typing import assert_type, Optional
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import VariableTestCase
 
@@ -32,6 +32,10 @@ class Test(VariableTestCase):
     def test__init__(self) -> None:
         assert_type(ItemVariable('x'), ItemVariable)
         self._test__init__(ItemVariable, self.assert_item_variable)
+
+    def test_variables(self) -> None:
+        assert_type(ItemVariable('x').variables, Set[Variable])
+        self._test_variables(ItemVariable)
 
     def test_instantiate(self) -> None:
         assert_type(ItemVariable('x').instantiate({}), Optional[Term])

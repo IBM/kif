@@ -15,9 +15,11 @@ from kif_lib import (
     QuantityTemplate,
     QuantityVariable,
     String,
+    Term,
     Text,
+    Variable,
 )
-from kif_lib.typing import assert_type, Optional
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import DeepDataValueTestCase
 
@@ -113,6 +115,22 @@ class Test(DeepDataValueTestCase):
             Quantity(0).get_upper_bound(decimal.Decimal(2)),
             decimal.Decimal(2))
         self.assertIsNone(Quantity(0, None).get_upper_bound())
+
+    def test_variables(self) -> None:
+        assert_type(Quantity(0).variables, Set[Variable])
+        self._test_variables(
+            Quantity,
+            (Quantity(0), set()),
+            (Quantity(0, 'x'), set()),
+            (Quantity(0, 'x', -1), set()),
+            (Quantity(0, 'x', -1, 1), set()))
+
+    def test_instantiate(self) -> None:
+        assert_type(Quantity(0).instantiate({}), Term)
+        self._test_instantiate(
+            Quantity, success=[
+                (Quantity(0), Quantity(0), {Variable('x'): String('y')})
+            ])
 
 
 if __name__ == '__main__':

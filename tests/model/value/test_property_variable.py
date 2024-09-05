@@ -29,7 +29,7 @@ from kif_lib import (
 )
 from kif_lib.itertools import product
 from kif_lib.model import TValue
-from kif_lib.typing import assert_type, ClassVar, Optional
+from kif_lib.typing import assert_type, ClassVar, Optional, Set
 
 from ...tests import VariableTestCase
 
@@ -50,6 +50,10 @@ class Test(VariableTestCase):
     def test__init__(self) -> None:
         assert_type(PropertyVariable('x'), PropertyVariable)
         self._test__init__(PropertyVariable, self.assert_property_variable)
+
+    def test_variables(self) -> None:
+        assert_type(PropertyVariable('x').variables, Set[Variable])
+        self._test_variables(PropertyVariable)
 
     def test_instantiate(self) -> None:
         assert_type(

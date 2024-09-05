@@ -30,7 +30,7 @@ from kif_lib import (
     ValueVariable,
     Variable,
 )
-from kif_lib.typing import assert_type, cast
+from kif_lib.typing import assert_type, cast, Set
 
 from ...tests import SnakTemplateTestCase
 
@@ -156,6 +156,20 @@ class Test(SnakTemplateTestCase):
         self.assertEqual(
             ValueSnak(x, x),
             ValueSnak(PropertyVariable('x'), PropertyVariable('x')))
+
+    def test_variables(self) -> None:
+        assert_type(
+            ValueSnakTemplate(Variable('x'), 'y').variables, Set[Variable])
+        self._test_variables(
+            ValueSnakTemplate,
+            (ValueSnak(Variable('x'), Variable('y')),
+             {PropertyVariable('x'), ValueVariable('y')}),
+            (ValueSnak(Property('x'), Variable('y')),
+             {ValueVariable('y')}),
+            (ValueSnak(Variable('x'), String('y')),
+             {PropertyVariable('x')}),
+            (ValueSnak(Property('x', Variable('x')), Variable('y')),
+             {DatatypeVariable('x'), ValueVariable('y')}))
 
     def test_instantiate(self) -> None:
         assert_type(ValueSnakTemplate(

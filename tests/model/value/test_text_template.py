@@ -19,7 +19,7 @@ from kif_lib import (
     Variable,
     Variables,
 )
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, Set
 
 from ...tests import ShallowDataValueTemplateTestCase
 
@@ -73,6 +73,15 @@ class Test(ShallowDataValueTemplateTestCase):
                 Variable('x', ShallowDataValue),
                 Variable('x', DataValue)),
             StringVariable('x'), StringVariable('x'))
+
+    def test_variables(self) -> None:
+        assert_type(TextTemplate(Variable('x')).variables, Set[Variable])
+        self._test_variables(
+            TextTemplate,
+            (Text(Variable('x'), Variable('y')),
+             {StringVariable('x'), StringVariable('y')}),
+            (Text('x', Variable('y')),
+             {StringVariable('y')}))
 
     def test_instantiate(self) -> None:
         assert_type(

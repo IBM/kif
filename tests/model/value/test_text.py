@@ -8,6 +8,8 @@ from kif_lib import (
     IRI,
     Item,
     String,
+    StringVariable,
+    Term,
     Text,
     TextDatatype,
     TextTemplate,
@@ -15,7 +17,7 @@ from kif_lib import (
     Variable,
 )
 from kif_lib.rdflib import Literal, URIRef
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, Set
 
 from ...tests import ShallowDataValueTestCase
 
@@ -77,6 +79,19 @@ class Test(ShallowDataValueTestCase):
                 [Item('x')],
                 [TextTemplate(Variable('x'))],
                 [Variable('x', Item)],
+            ])
+
+    def test_variables(self) -> None:
+        assert_type(Text('x').variables, Set[Variable])
+        self._test_variables(Text, (Text('x', 'y'), set()))
+
+    def test_instantiate(self) -> None:
+        assert_type(Text('x').instantiate({}), Term)
+        self._test_instantiate(
+            Text, success=[
+                (Text('x', 'y'),
+                 Text('x', 'y'),
+                 {StringVariable('x'): String('y')})
             ])
 
 

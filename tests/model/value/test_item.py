@@ -12,10 +12,11 @@ from kif_lib import (
     ItemVariable,
     Lexeme,
     Property,
+    Term,
     Text,
     Variable,
 )
-from kif_lib.typing import assert_type, Iterable
+from kif_lib.typing import assert_type, Iterable, Set
 
 from ...tests import EntityTestCase
 
@@ -66,6 +67,14 @@ class Test(EntityTestCase):
                 [Text('x')],
                 [Variable('x', Text)],
             ])
+
+    def test_variables(self) -> None:
+        assert_type(Item('x').variables, Set[Variable])
+        self._test_variables(Item)
+
+    def test_instantiate(self) -> None:
+        assert_type(Item('x').instantiate({}), Term)
+        self._test_instantiate(Item)
 
     def test_Items(self) -> None:
         assert_type(Items('a', 'b', 'c'), Iterable[Item])

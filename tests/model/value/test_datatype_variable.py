@@ -16,7 +16,7 @@ from kif_lib import (
     Term,
     Variable,
 )
-from kif_lib.typing import assert_type, cast, Optional
+from kif_lib.typing import assert_type, cast, Optional, Set
 
 from ...tests import VariableTestCase
 
@@ -37,6 +37,10 @@ class Test(VariableTestCase):
     def test__init__(self) -> None:
         assert_type(DatatypeVariable('x'), DatatypeVariable)
         self._test__init__(DatatypeVariable, self.assert_datatype_variable)
+
+    def test_variables(self) -> None:
+        assert_type(DatatypeVariable('x').variables, Set[Variable])
+        self._test_variables(DatatypeVariable)
 
     def test_instantiate(self) -> None:
         assert_type(

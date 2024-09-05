@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from kif_lib import (
+    DatatypeVariable,
     Entity,
     EntityVariable,
     IRI,
@@ -32,7 +33,7 @@ from kif_lib import (
     ValueVariable,
     Variable,
 )
-from kif_lib.typing import assert_type, cast
+from kif_lib.typing import assert_type, cast, Set
 
 from ...tests import StatementTemplateTestCase
 
@@ -159,6 +160,27 @@ class Test(StatementTemplateTestCase):
             StatementTemplate(
                 PropertyVariable('x'),
                 NoValueSnak(PropertyVariable('x'))))
+
+    def test_variables(self) -> None:
+        assert_type(
+            StatementTemplate(Variable('x'), Variable('y')).variables,
+            Set[Variable])
+        self._test_variables(
+            StatementTemplate,
+            (StatementTemplate(Variable('x'), Variable('y')),
+             {EntityVariable('x'), SnakVariable('y')}),
+            (StatementTemplate(Property('x'), Variable('y')),
+             {SnakVariable('y')}),
+            (StatementTemplate(Property('x', Variable('y')), Variable('z')),
+             {DatatypeVariable('y'), SnakVariable('z')}),
+            (StatementTemplate(
+                Property('x', Variable('y')),
+                ValueSnakVariable('z')),
+             {DatatypeVariable('y'), ValueSnakVariable('z')}),
+            (StatementTemplate(
+                Property('x', Variable('y')),
+                NoValueSnak(Variable('z'))),
+             {DatatypeVariable('y'), PropertyVariable('z')}))
 
     def test_instantiate(self) -> None:
         assert_type(StatementTemplate(

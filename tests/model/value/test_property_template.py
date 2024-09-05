@@ -32,7 +32,7 @@ from kif_lib import (
 )
 from kif_lib.itertools import product
 from kif_lib.model import TDatatype, TValue
-from kif_lib.typing import assert_type, cast, ClassVar
+from kif_lib.typing import assert_type, cast, ClassVar, Set
 
 from ...tests import EntityTemplateTestCase
 
@@ -70,6 +70,15 @@ class Test(EntityTemplateTestCase):
         self.assert_property_template(
             PropertyTemplate(Variable('x'), Variable('y')),
             Variable('x', IRI), Variable('y', Datatype))
+
+    def test_variables(self) -> None:
+        assert_type(PropertyTemplate(Variable('x')).variables, Set[Variable])
+        self._test_variables(
+            PropertyTemplate,
+            (PropertyTemplate(Variable('x'), Variable('y')),
+             {IRI_Variable('x'), DatatypeVariable('y')}),
+            (PropertyTemplate('x', Variable('y')),
+             {DatatypeVariable('y')}))
 
     def test_instantiate(self) -> None:
         assert_type(PropertyTemplate(

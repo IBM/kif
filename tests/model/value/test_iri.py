@@ -10,10 +10,11 @@ from kif_lib import (
     IRI_Template,
     IRI_Variable,
     Item,
+    Term,
     Text,
     Variable,
 )
-from kif_lib.typing import assert_type
+from kif_lib.typing import assert_type, Set
 
 from ...tests import ShallowDataValueTestCase
 
@@ -65,6 +66,14 @@ class Test(ShallowDataValueTestCase):
                 [Text('x')],
                 [Variable('x', Item)],
             ])
+
+    def test_variables(self) -> None:
+        assert_type(IRI('x').variables, Set[Variable])
+        self._test_variables(IRI)
+
+    def test_instantiate(self) -> None:
+        assert_type(IRI('x').instantiate({}), Term)
+        self._test_instantiate(IRI)
 
 
 if __name__ == '__main__':

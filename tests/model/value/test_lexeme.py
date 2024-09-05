@@ -12,10 +12,11 @@ from kif_lib import (
     LexemeTemplate,
     LexemeVariable,
     Property,
+    Term,
     Text,
     Variable,
 )
-from kif_lib.typing import assert_type, Iterable
+from kif_lib.typing import assert_type, Iterable, Set
 
 from ...tests import EntityTestCase
 
@@ -66,6 +67,14 @@ class Test(EntityTestCase):
                 [Text('x')],
                 [Variable('x', Text)],
             ])
+
+    def test_variables(self) -> None:
+        assert_type(Lexeme('x').variables, Set[Variable])
+        self._test_variables(Lexeme)
+
+    def test_instantiate(self) -> None:
+        assert_type(Lexeme('x').instantiate({}), Term)
+        self._test_instantiate(Lexeme)
 
     def test_Lexemes(self) -> None:
         assert_type(Lexemes('a', 'b', 'c'), Iterable[Lexeme])

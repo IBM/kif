@@ -20,7 +20,7 @@ from kif_lib import (
     Term,
     Variable,
 )
-from kif_lib.typing import assert_type, cast
+from kif_lib.typing import assert_type, cast, Set
 
 from ...tests import DeepDataValueTemplateTestCase
 
@@ -191,6 +191,17 @@ class Test(DeepDataValueTemplateTestCase):
                 Variable('x', DeepDataValue)),
             QuantityVariable('x'), None,
             QuantityVariable('x'), QuantityVariable('x'))
+
+    def test_variables(self) -> None:
+        assert_type(QuantityTemplate(Variable('x')).variables, Set[Variable])
+        self._test_variables(
+            QuantityTemplate,
+            (Quantity(Variable('x')),
+             {QuantityVariable('x')}),
+            (Quantity(Variable('x'), Variable('y')),
+             {QuantityVariable('x'), ItemVariable('y')}),
+            (Quantity(Variable('x'), None, Variable('x'), Variable('y')),
+             {QuantityVariable('x'), QuantityVariable('y')}))
 
     def test_instantiate(self) -> None:
         assert_type(

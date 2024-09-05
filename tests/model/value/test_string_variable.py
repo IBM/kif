@@ -15,7 +15,7 @@ from kif_lib import (
     Term,
     Variable,
 )
-from kif_lib.typing import assert_type, Optional
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import VariableTestCase
 
@@ -37,6 +37,10 @@ class Test(VariableTestCase):
         assert_type(StringVariable('x'), StringVariable)
         self._test__init__(StringVariable, self.assert_string_variable)
         self.assert_string_variable(Variable('x', ExternalId), 'x')
+
+    def test_variables(self) -> None:
+        assert_type(StringVariable('x').variables, Set[Variable])
+        self._test_variables(StringVariable)
 
     def test_instantiate(self) -> None:
         assert_type(StringVariable('x').instantiate({}), Optional[Term])

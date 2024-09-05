@@ -83,5 +83,5 @@ class Template(OpenTerm):
                 lambda arg: arg._instantiate(
                     theta, coerce, strict, function, name, position)
                 if isinstance(arg, OpenTerm) else arg, self.args))
-        except TypeError:
-            raise self.InstantiationError
+        except TypeError as err:
+            raise self.InstantiationError from err

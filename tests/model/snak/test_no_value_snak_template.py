@@ -19,7 +19,7 @@ from kif_lib import (
     Term,
     Variable,
 )
-from kif_lib.typing import assert_type, cast
+from kif_lib.typing import assert_type, cast, Set
 
 from ...tests import SnakTemplateTestCase
 
@@ -87,6 +87,13 @@ class Test(SnakTemplateTestCase):
         self.assert_no_value_snak(
             cast(NoValueSnak, NoValueSnakTemplate(Property('x'))),
             Property('x'))
+
+    def test_variables(self) -> None:
+        assert_type(
+            NoValueSnakTemplate(Variable('x')).variables, Set[Variable])
+        self._test_variables(
+            NoValueSnakTemplate,
+            (NoValueSnak(Variable('x')), {PropertyVariable('x')}))
 
     def test_instantiate(self) -> None:
         assert_type(NoValueSnakTemplate(Variable('x')).instantiate({}), Term)

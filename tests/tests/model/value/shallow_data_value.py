@@ -22,7 +22,7 @@ from kif_lib import (
     Variable,
 )
 from kif_lib.rdflib import Literal, URIRef
-from kif_lib.typing import Any, Callable, Iterable, override, Sequence
+from kif_lib.typing import Any, Callable, Iterable, override, Sequence, Set
 
 from .data_value import DataValueTemplateTestCase, DataValueTestCase
 
@@ -86,6 +86,17 @@ class ShallowDataValueTemplateTestCase(DataValueTemplateTestCase):
                 [String('x')],
                 *normalize
             ])
+
+    @override
+    def _test_variables(
+            self,
+            cls: Any,
+            *cases: tuple[Term, Set[Variable]]
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, ShallowDataValueTemplate)
+        super()._test_variables(
+            cls, (cls(Variable('x')), {StringVariable('x')}), *cases)
 
     @override
     def _test_instantiate(
@@ -178,3 +189,28 @@ class ShallowDataValueTestCase(DataValueTestCase):
                 [{}],
                 *failure
             ])
+
+    @override
+    def _test_variables(
+            self,
+            cls: Any,
+            *cases: tuple[Term, Set[Variable]]
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, ShallowDataValue)
+        super()._test_variables(cls, (cls('x'), set()), *cases)
+
+    @override
+    def _test_instantiate(
+            self,
+            cls: Any,
+            success: Iterable[tuple[Term, Term | None, Theta]] = tuple(),
+            failure: Iterable[tuple[Term, Theta]] = tuple()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, ShallowDataValue)
+        super()._test_instantiate(
+            cls,
+            success=itertools.chain(
+                [(cls('x'), cls('x'), {StringVariable('x'): String('y')})],
+                success), failure=failure)
