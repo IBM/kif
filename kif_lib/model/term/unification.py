@@ -142,7 +142,9 @@ def _unification_pass(
         except Term.InstantiationError:
             raise UnificationFailed  # bad instantiation
         else:
-            if t is not None and _coercion_occurs_in(s, t.variables):
+            if (t is not None
+                and not isinstance(t, Variable)
+                    and _coercion_occurs_in(s, t.variables)):
                 raise UnificationFailed  # CHECK
             H, theta, changed = {pair}, {s: t}, False
             for sx, tx in G:
