@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from kif_lib import (
+    ClosedTerm,
     Entity,
     EntityTemplate,
     ExternalId,
@@ -135,6 +136,44 @@ class EntityTemplateTestCase(ValueTemplateTestCase):
             ],
             failure_coerce=failure_coerce)
 
+    def _test_match(
+            self,
+            cls,
+            success: Iterable[tuple[Term, ClosedTerm, Theta]] = (),
+            failure: Iterable[tuple[Term, ClosedTerm]] = ()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, EntityTemplate)
+        super()._test_match(
+            cls,
+            success=itertools.chain([
+                (cls(Variable('x')),
+                 cls.object_class('x'),
+                 {IRI_Variable('x'): IRI('x')}),
+            ], success),
+            failure=itertools.chain([
+                (cls(Variable('x')), IRI('x')),
+            ], failure))
+
+    def _test_unify(
+            self,
+            cls,
+            success: Iterable[tuple[Term, Term, Theta]] = (),
+            failure: Iterable[tuple[Term, Term]] = ()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, EntityTemplate)
+        super()._test_unify(
+            cls,
+            success=itertools.chain([
+                (cls(Variable('x')), cls('x'),
+                 {IRI_Variable('x'): IRI('x')}),
+            ], success),
+            failure=itertools.chain([
+                (cls(Variable('x')), IRI_Variable('y')),
+                (cls(Variable('x')), IRI('y')),
+            ], failure))
+
 
 class EntityTestCase(ValueTestCase):
 
@@ -218,6 +257,36 @@ class EntityTestCase(ValueTestCase):
             success=itertools.chain(
                 [(cls('x'), cls('x'), {IRI_Variable('x'): IRI_Variable('y')})],
                 success), failure=failure)
+
+    def _test_match(
+            self,
+            cls,
+            success: Iterable[tuple[Term, ClosedTerm, Theta]] = (),
+            failure: Iterable[tuple[Term, ClosedTerm]] = ()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, Entity)
+        super()._test_match(
+            cls,
+            success=itertools.chain([(cls('x'), cls('x'), {})], success),
+            failure=itertools.chain([(cls('x'), cls('y'))], failure))
+
+    def _test_unify(
+            self,
+            cls,
+            success: Iterable[tuple[Term, Term, Theta]] = (),
+            failure: Iterable[tuple[Term, Term]] = ()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, Entity)
+        super()._test_unify(
+            cls,
+            success=itertools.chain([
+                (cls('x'), cls('x'), {}),
+                (cls('x'), Variable('x', cls), {Variable('x', cls): cls('x')}),
+                (Variable('x', cls), cls('x'), {Variable('x', cls): cls('x')})
+            ], success),
+            failure=itertools.chain([(cls('x'), IRI_Variable('y'))], failure))
 
     def _test_Entities(
             self,

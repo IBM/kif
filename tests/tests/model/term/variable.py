@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from kif_lib import (
+    ClosedTerm,
     ExternalId,
     IRI,
     Item,
@@ -87,6 +88,33 @@ class VariableTestCase(OpenTermTestCase):
         assert isinstance(cls, type)
         assert issubclass(cls, Variable)
         super()._test_variables(cls, (cls('x'), {cls('x')}), *cases)
+
+    @override
+    def _test_match(
+            self,
+            cls,
+            success: Iterable[tuple[Term, ClosedTerm, Theta]] = (),
+            failure: Iterable[tuple[Term, ClosedTerm]] = ()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, Variable)
+        super()._test_match(cls, success, failure)
+
+    def _test_unify(
+            self,
+            cls,
+            success: Iterable[tuple[Term, Term, Theta]] = (),
+            failure: Iterable[tuple[Term, Term]] = ()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, Variable)
+        super()._test_unify(
+            cls,
+            success=itertools.chain([
+                (cls('x'), cls('y'), {cls('x'): cls('y')}),
+                (cls('x'), Variable('y'), {Variable('y'): cls('x')}),
+            ], success),
+            failure=failure)
 
     @override
     def _test_instantiate(

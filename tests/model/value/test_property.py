@@ -6,6 +6,7 @@ from __future__ import annotations
 import datetime
 
 from kif_lib import (
+    DatatypeVariable,
     Entity,
     ExternalId,
     IRI,
@@ -20,18 +21,20 @@ from kif_lib import (
     PropertyTemplate,
     PropertyVariable,
     Quantity,
+    QuantityDatatype,
     SomeValueSnak,
     Statement,
     String,
     Term,
     Text,
+    Theta,
     Time,
     Value,
     ValueSnak,
     Variable,
 )
 from kif_lib.model import TDatatype, TValue
-from kif_lib.typing import assert_type, cast, ClassVar, Iterable, Set
+from kif_lib.typing import assert_type, cast, ClassVar, Iterable, Optional, Set
 
 from ...tests import EntityTestCase
 
@@ -193,6 +196,31 @@ class Test(EntityTestCase):
                 (Property('x', Item),
                  Property('x', Item),
                  {IRI_Variable('x'): IRI('y')})
+            ])
+
+    def test_match(self) -> None:
+        assert_type(Property('x').match(Property('x')), Optional[Theta])
+        self._test_match(
+            Property,
+            success=[(Property('x', Item), Property('x', Item), {})],
+            failure=[(Property('x'), Property('x', Item))])
+
+    def test_unify(self) -> None:
+        assert_type(Property('x').unify(Variable('x')), Optional[Theta])
+        self._test_unify(
+            Property,
+            success=[
+                (Property('x'),
+                 Property(Variable('x'), Variable('y')),
+                 {IRI_Variable('x'): IRI('x'),
+                  DatatypeVariable('y'): None}),
+                (Property('x', Quantity),
+                 Property('x', Variable('y')),
+                 {DatatypeVariable('y'): QuantityDatatype()}),
+            ],
+            failure=[
+                (Property('x'), Property('x', Item)),
+                (Property('x', Quantity), Property(Variable('x'), Item)),
             ])
 
     def test_Properties(self) -> None:

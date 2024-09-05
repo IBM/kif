@@ -4,13 +4,19 @@
 from __future__ import annotations
 
 from kif_lib import (
+    EntityVariable,
     IRI,
+    IRI_Variable,
     Item,
     ItemTemplate,
     ItemVariable,
     Lexeme,
+    NoValueSnak,
+    Property,
     Quantity,
+    SnakVariable,
     Term,
+    Theta,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional, Set
@@ -52,6 +58,41 @@ class Test(VariableTestCase):
                 Lexeme.template_class(Variable('x')),
                 Quantity(0),
                 Quantity.template_class(Variable('x')),
+            ])
+
+    def test_match(self) -> None:
+        assert_type(ItemVariable('x').match(Item('x')), Optional[Theta])
+        self._test_match(
+            ItemVariable,
+            success=[
+                (ItemVariable('x'),
+                 Item('x'),
+                 {ItemVariable('x'): Item('x')}),
+            ],
+            failure=[
+                (ItemVariable('x'), Property('y')),
+                (ItemVariable('x'), IRI('x')),
+            ])
+
+    def test_unify(self) -> None:
+        assert_type(ItemVariable('x').unify(Variable('x')), Optional[Theta])
+        self._test_unify(
+            ItemVariable,
+            success=[
+                (ItemVariable('x'),
+                 Item(Variable('x')),
+                 {ItemVariable('x'): Item(IRI_Variable('x'))}),
+                (ItemVariable('x'),
+                 ItemVariable('y'),
+                 {ItemVariable('x'): ItemVariable('y')}),
+                (ItemVariable('x'),
+                 EntityVariable('y'),
+                 {EntityVariable('y'): ItemVariable('x')})
+            ],
+            failure=[
+                (ItemVariable('x'), IRI('y')),
+                (ItemVariable('x'), SnakVariable('y')),
+                (ItemVariable('x'), NoValueSnak(Variable('y'))),
             ])
 
 

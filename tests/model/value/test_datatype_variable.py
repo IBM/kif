@@ -12,8 +12,12 @@ from kif_lib import (
     Item,
     ItemDatatype,
     ItemVariable,
+    NoValueSnak,
+    Property,
+    SnakVariable,
     String,
     Term,
+    Theta,
     Variable,
 )
 from kif_lib.typing import assert_type, cast, Optional, Set
@@ -68,6 +72,43 @@ class Test(VariableTestCase):
                 IRI_Variable('x'),
                 Item('x'),
                 ItemVariable('x'),
+            ])
+
+    def test_match(self) -> None:
+        assert_type(
+            DatatypeVariable('x').match(ItemDatatype()), Optional[Theta])
+        self._test_match(
+            DatatypeVariable,
+            success=[
+                (DatatypeVariable('x'),
+                 ItemDatatype(),
+                 {DatatypeVariable('x'): ItemDatatype()}),
+            ],
+            failure=[
+                (DatatypeVariable('x'), Property('y')),
+                (DatatypeVariable('x'), IRI('x')),
+            ])
+
+    def test_unify(self) -> None:
+        assert_type(
+            DatatypeVariable('x').unify(Variable('x')), Optional[Theta])
+        self._test_unify(
+            DatatypeVariable,
+            success=[
+                (DatatypeVariable('x'),
+                 ItemDatatype(),
+                 {DatatypeVariable('x'): ItemDatatype()}),
+                (DatatypeVariable('x'),
+                 DatatypeVariable('y'),
+                 {DatatypeVariable('x'): DatatypeVariable('y')}),
+                (DatatypeVariable('x'),
+                 Variable('y'),
+                 {Variable('y'): DatatypeVariable('x')})
+            ],
+            failure=[
+                (DatatypeVariable('x'), IRI('y')),
+                (DatatypeVariable('x'), SnakVariable('y')),
+                (DatatypeVariable('x'), NoValueSnak(Variable('y'))),
             ])
 
 

@@ -6,28 +6,34 @@ from __future__ import annotations
 import datetime
 
 from kif_lib import (
+    DatatypeVariable,
     Entity,
+    EntityVariable,
     ExternalId,
     IRI,
+    IRI_Variable,
     Item,
+    itertools,
     Lexeme,
+    NoValueSnak,
     NoValueSnakTemplate,
     Property,
     PropertyTemplate,
     PropertyVariable,
     Quantity,
+    SnakVariable,
     SomeValueSnakTemplate,
     StatementTemplate,
     String,
     Term,
     Text,
+    Theta,
     Time,
     Value,
     ValueSnak,
     ValueSnakTemplate,
     Variable,
 )
-from kif_lib.itertools import product
 from kif_lib.model import TValue
 from kif_lib.typing import assert_type, ClassVar, Optional, Set
 
@@ -71,6 +77,50 @@ class Test(VariableTestCase):
                 Lexeme.template_class(Variable('x')),
                 Quantity(0),
                 Quantity.template_class(Variable('x')),
+            ])
+
+    def test_match(self) -> None:
+        assert_type(
+            PropertyVariable('x').match(Property('x')), Optional[Theta])
+        self._test_match(
+            PropertyVariable,
+            success=[
+                (PropertyVariable('x'),
+                 Property('x'),
+                 {PropertyVariable('x'): Property('x')}),
+                (PropertyVariable('x'),
+                 Property('x', Quantity),
+                 {PropertyVariable('x'): Property('x', Quantity)})
+            ],
+            failure=[
+                (PropertyVariable('x'), Item('y')),
+                (PropertyVariable('x'), IRI('x')),
+            ])
+
+    def test_unify(self) -> None:
+        assert_type(PropertyVariable('x').unify(
+            Variable('x')), Optional[Theta])
+        self._test_unify(
+            PropertyVariable,
+            success=[
+                (PropertyVariable('x'),
+                 Property(Variable('x')),
+                 {PropertyVariable('x'): Property(IRI_Variable('x'))}),
+                (PropertyVariable('x'),
+                 PropertyVariable('y'),
+                 {PropertyVariable('x'): PropertyVariable('y')}),
+                (PropertyVariable('x'),
+                 EntityVariable('y'),
+                 {EntityVariable('y'): PropertyVariable('x')}),
+                (PropertyVariable('x'),
+                 Property(Variable('x'), Variable('y')),
+                 {PropertyVariable('x'):
+                  Property(IRI_Variable('x'), DatatypeVariable('y'))}),
+            ],
+            failure=[
+                (PropertyVariable('x'), IRI('y')),
+                (PropertyVariable('x'), SnakVariable('y')),
+                (PropertyVariable('x'), NoValueSnak(Variable('y'))),
             ])
 
     _test__call__entities: ClassVar[list[Entity]] = [
@@ -129,7 +179,8 @@ class Test(VariableTestCase):
             (PropertyVariable('x'), 'ValueSnakTemplate'), Item('x'), {})
         assert_type(
             PropertyVariable('p')(Item('x'), IRI('y')), StatementTemplate)
-        it = product(self._test__call__entities, self._test__call__values)
+        it = itertools.product(
+            self._test__call__entities, self._test__call__values)
         for e, v in it:
             self.assert_statement_template(
                 PropertyVariable('p')(e, v),

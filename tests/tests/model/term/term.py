@@ -4,7 +4,15 @@
 from __future__ import annotations
 
 from kif_lib import ClosedTerm, KIF_Object, OpenTerm, Term, Theta, Variable
-from kif_lib.typing import Any, Callable, Iterable, override, Sequence, Set
+from kif_lib.typing import (
+    Any,
+    Callable,
+    Iterable,
+    Mapping,
+    override,
+    Sequence,
+    Set,
+)
 
 from ..kif_object import KIF_ObjectTestCase
 
@@ -15,8 +23,8 @@ class TermTestCase(KIF_ObjectTestCase):
     def _test_check(
             self,
             cls: Any,
-            success: Iterable[tuple[Any, KIF_Object]] = tuple(),
-            failure: Iterable[Any] = tuple()
+            success: Iterable[tuple[Any, KIF_Object]] = (),
+            failure: Iterable[Any] = ()
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, Term)
@@ -27,8 +35,8 @@ class TermTestCase(KIF_ObjectTestCase):
             self,
             cls: Any,
             assert_fn: Callable[..., None],
-            success: Iterable[tuple[Sequence[Any], KIF_Object]] = tuple(),
-            failure: Iterable[Sequence[Any]] = tuple(),
+            success: Iterable[tuple[Sequence[Any], KIF_Object]] = (),
+            failure: Iterable[Sequence[Any]] = (),
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, Term)
@@ -48,8 +56,8 @@ class TermTestCase(KIF_ObjectTestCase):
     def _test_instantiate(
             self,
             cls: Any,
-            success: Iterable[tuple[Term, Term | None, Theta]] = tuple(),
-            failure: Iterable[tuple[Term, Theta]] = tuple()
+            success: Iterable[tuple[Term, Term | None, Theta]] = (),
+            failure: Iterable[tuple[Term, Theta]] = ()
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, Term)
@@ -68,6 +76,56 @@ class TermTestCase(KIF_ObjectTestCase):
             self.assertRaises(
                 Term.InstantiationError, obj.instantiate, theta)
 
+    def _test_match(
+            self,
+            cls,
+            success: Iterable[tuple[Term, ClosedTerm, Theta]] = (),
+            failure: Iterable[tuple[Term, ClosedTerm]] = ()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, Term)
+        for src, tgt, theta in success:
+            self.logger.debug('success: %s %s %s', src, tgt, theta)
+            self.assertIsInstance(src, cls)
+            self.assertIsInstance(tgt, ClosedTerm)
+            self.assertIsInstance(theta, Mapping)
+            self.assert_raises_bad_argument(
+                TypeError, 1, 'other', 'cannot coerce int into ClosedTerm',
+                src.match, 0)
+            self.assertEqual(src.match(tgt), theta)
+            self.assertEqual(src.instantiate(theta), tgt)
+        for src, tgt in failure:
+            self.logger.debug('failure: %s %s', src, tgt)
+            self.assertIsInstance(src, cls)
+            assert isinstance(tgt, ClosedTerm)
+            self.assertIsNone(src.match(tgt))
+
+    def _test_unify(
+            self,
+            cls,
+            success: Iterable[tuple[Term, Term, Theta]] = (),
+            failure: Iterable[tuple[Term, Term]] = ()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, Term)
+        for src, tgt, theta in success:
+            self.logger.debug('success: %s %s %s', src, tgt, theta)
+            self.assertIsInstance(src, Term)
+            self.assertIsInstance(tgt, Term)
+            self.assertIsInstance(theta, Mapping)
+            self.assert_raises_bad_argument(
+                TypeError, 1, 'other', 'cannot coerce int into Term',
+                src.unify, 0)
+            self.assertEqual(src.unify(tgt), theta)
+            self.assertEqual(
+                src.instantiate(theta),
+                tgt.instantiate(theta))
+        for src, tgt in failure:
+            self.logger.debug('failure: %s %s', src, tgt)
+            self.assertIsInstance(src, cls)
+            assert isinstance(tgt, Term)
+            self.assertIsNone(src.unify(tgt))
+
 
 class ClosedTermTestCase(TermTestCase):
 
@@ -75,8 +133,8 @@ class ClosedTermTestCase(TermTestCase):
     def _test_check(
             self,
             cls: Any,
-            success: Iterable[tuple[Any, KIF_Object]] = tuple(),
-            failure: Iterable[Any] = tuple()
+            success: Iterable[tuple[Any, KIF_Object]] = (),
+            failure: Iterable[Any] = ()
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, ClosedTerm)
@@ -87,8 +145,8 @@ class ClosedTermTestCase(TermTestCase):
             self,
             cls: Any,
             assert_fn: Callable[..., None],
-            success: Iterable[tuple[Sequence[Any], KIF_Object]] = tuple(),
-            failure: Iterable[Sequence[Any]] = tuple(),
+            success: Iterable[tuple[Sequence[Any], KIF_Object]] = (),
+            failure: Iterable[Sequence[Any]] = (),
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, ClosedTerm)
@@ -101,8 +159,8 @@ class OpenTermTestCase(TermTestCase):
     def _test_check(
             self,
             cls: Any,
-            success: Iterable[tuple[Any, KIF_Object]] = tuple(),
-            failure: Iterable[Any] = tuple()
+            success: Iterable[tuple[Any, KIF_Object]] = (),
+            failure: Iterable[Any] = ()
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, OpenTerm)
@@ -113,8 +171,8 @@ class OpenTermTestCase(TermTestCase):
             self,
             cls: Any,
             assert_fn: Callable[..., None],
-            success: Iterable[tuple[Sequence[Any], KIF_Object]] = tuple(),
-            failure: Iterable[Sequence[Any]] = tuple(),
+            success: Iterable[tuple[Sequence[Any], KIF_Object]] = (),
+            failure: Iterable[Sequence[Any]] = (),
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, OpenTerm)

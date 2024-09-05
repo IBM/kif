@@ -3,8 +3,16 @@
 
 from __future__ import annotations
 
-from kif_lib import Item, Lexeme, LexemeTemplate, Property, Term, Variable
-from kif_lib.typing import assert_type, Set
+from kif_lib import (
+    Item,
+    Lexeme,
+    LexemeTemplate,
+    Property,
+    Term,
+    Theta,
+    Variable,
+)
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import EntityTemplateTestCase
 
@@ -38,6 +46,17 @@ class Test(EntityTemplateTestCase):
     def test_instantiate(self) -> None:
         assert_type(LexemeTemplate(Variable('x')).instantiate({}), Term)
         self._test_instantiate(LexemeTemplate)
+
+    def test_match(self) -> None:
+        assert_type(
+            LexemeTemplate(Variable('x')).match(Lexeme('x')), Optional[Theta])
+        self._test_match(LexemeTemplate)
+
+    def test_unify(self) -> None:
+        assert_type(
+            LexemeTemplate(Variable('x')).unify(Variable('x')),
+            Optional[Theta])
+        self._test_unify(LexemeTemplate)
 
 
 if __name__ == '__main__':

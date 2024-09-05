@@ -124,7 +124,7 @@ class Term(KIF_Object):
             coerce: bool = True,
             strict: bool = False
     ) -> Term | None:
-        """Applies variable instantiation `theta` to open term.
+        """Applies variable instantiation `theta` to term.
 
         Parameters:
            theta: Variable instantiation.
@@ -150,6 +150,30 @@ class Term(KIF_Object):
             position: int | None = None
     ) -> Term | None:
         raise NotImplementedError
+
+    def match(self, other: ClosedTerm) -> Theta | None:
+        """Tests whether term matches `other`.
+
+        Parameters:
+           other: Closed term.
+
+        Returns:
+           A variable instantiation theta if successful; ``None`` otherwise.
+        """
+        other = ClosedTerm.check(other, self.match, 'other', 1)
+        return self.unification((self, other))
+
+    def unify(self, other: Term) -> Theta | None:
+        """Computes the unification of term and `other`.
+
+        Parameters:
+           other: Term.
+
+        Returns:
+           A variable instantiation theta if successful; ``None`` otherwise.
+        """
+        other = Term.check(other, self.unify, 'other', 1)
+        return self.unification((self, other))
 
 
 class ClosedTerm(Term):
