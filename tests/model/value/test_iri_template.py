@@ -3,15 +3,8 @@
 
 from __future__ import annotations
 
-from kif_lib import (
-    ExternalId,
-    IRI,
-    IRI_Template,
-    StringVariable,
-    Term,
-    Variable,
-)
-from kif_lib.typing import assert_type, Set
+from kif_lib import IRI, IRI_Template, Term, Theta, Variable
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import ShallowDataValueTemplateTestCase
 
@@ -39,13 +32,12 @@ class Test(ShallowDataValueTemplateTestCase):
     def test_instantiate(self) -> None:
         assert_type(
             IRI_Template(Variable('x')).instantiate({}), Term)
-        self._test_instantiate(
-            IRI_Template,
-            success=[
-                (IRI_Template(Variable('x')),
-                 IRI('y'),
-                 {StringVariable('x'): ExternalId('y')}),
-            ])
+        self._test_instantiate(IRI_Template)
+
+    def test_match(self) -> None:
+        assert_type(
+            IRI_Template(Variable('x')).match(IRI('x')), Optional[Theta])
+        self._test_instantiate(IRI_Template)
 
 
 if __name__ == '__main__':

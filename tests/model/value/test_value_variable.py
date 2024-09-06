@@ -6,24 +6,21 @@ from __future__ import annotations
 from kif_lib import (
     IRI,
     Item,
-    Property,
     Quantity,
-    Snak,
-    Statement,
     String,
     Term,
+    Theta,
     Time,
     Value,
-    ValueSnak,
     ValueVariable,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional, Set
 
-from ...tests import VariableTestCase
+from ...tests import ValueVariableTestCase
 
 
-class Test(VariableTestCase):
+class Test(ValueVariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(ValueVariable.object_class, type[Value])
@@ -42,23 +39,20 @@ class Test(VariableTestCase):
         assert_type(ValueVariable('x').variables, Set[Variable])
         self._test_variables(ValueVariable)
 
-    def test_instantiate(self) -> None:
+    def test_instantiate_and_match(self) -> None:
         assert_type(ValueVariable('x').instantiate({}), Optional[Term])
-        self._test_instantiate(
+        assert_type(ValueVariable('x').match(Item('x')), Optional[Theta])
+        self._test_instantiate_and_match(
             ValueVariable,
-            success_auto=[
-                IRI.template_class(Variable('x')),
-                Item.template_class(Variable('x')),
+            success=[
+                IRI(Variable('x')),
+                Item(Variable('x')),
                 Quantity(0),
                 Quantity(Variable('x')),
                 String('x'),
                 Time('2024-06-26'),
                 Time(Variable('x')),
-                Value.variable_class('x'),
-            ],
-            failure_auto=[
-                Statement(Item('x'), ValueSnak(Property('y'), Item('z'))),
-                Snak.variable_class('x'),
+                ValueVariable('y'),
             ])
 
 

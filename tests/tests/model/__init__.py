@@ -20,14 +20,17 @@ from .value import (
     DatatypeTestCase,
     DataValueTemplateTestCase,
     DataValueTestCase,
+    DataValueVariableTestCase,
     DeepDataValueTemplateTestCase,
     DeepDataValueTestCase,
     EntityTemplateTestCase,
     EntityTestCase,
+    EntityVariableTestCase,
     ShallowDataValueTemplateTestCase,
     ShallowDataValueTestCase,
     ValueTemplateTestCase,
     ValueTestCase,
+    ValueVariableTestCase,
 )
 
 __all__ = (
@@ -47,14 +50,17 @@ __all__ = (
     # value
     'ValueTemplateTestCase',
     'ValueTestCase',
+    'ValueVariableTestCase',
 
     # entity
     'EntityTemplateTestCase',
     'EntityTestCase',
+    'EntityVariableTestCase',
 
     # data value
     'DataValueTemplateTestCase',
     'DataValueTestCase',
+    'DataValueVariableTestCase',
 
     # shallow data value
     'ShallowDataValueTemplateTestCase',

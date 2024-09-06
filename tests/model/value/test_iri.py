@@ -12,9 +12,10 @@ from kif_lib import (
     Item,
     Term,
     Text,
+    Theta,
     Variable,
 )
-from kif_lib.typing import assert_type, Set
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import ShallowDataValueTestCase
 
@@ -74,6 +75,10 @@ class Test(ShallowDataValueTestCase):
     def test_instantiate(self) -> None:
         assert_type(IRI('x').instantiate({}), Term)
         self._test_instantiate(IRI)
+
+    def test_match(self) -> None:
+        assert_type(IRI('x').match(Variable('x')), Optional[Theta])
+        self._test_match(IRI)
 
 
 if __name__ == '__main__':

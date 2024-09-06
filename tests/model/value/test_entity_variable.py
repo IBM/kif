@@ -4,24 +4,24 @@
 from __future__ import annotations
 
 from kif_lib import (
-    DataValue,
     Entity,
     EntityVariable,
     Item,
+    ItemVariable,
     Lexeme,
+    LexemeVariable,
     Property,
-    Quantity,
-    String,
+    PropertyVariable,
     Term,
-    Value,
+    Theta,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional, Set
 
-from ...tests import VariableTestCase
+from ...tests import EntityVariableTestCase
 
 
-class Test(VariableTestCase):
+class Test(EntityVariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(EntityVariable.object_class, type[Entity])
@@ -44,24 +44,20 @@ class Test(VariableTestCase):
         assert_type(EntityVariable('x').variables, Set[Variable])
         self._test_variables(EntityVariable)
 
-    def test_instantiate(self) -> None:
-        assert_type(
-            EntityVariable('x').instantiate({}), Optional[Term])
-        self._test_instantiate(
+    def test_instantiate_and_match(self) -> None:
+        assert_type(EntityVariable('x').instantiate({}), Optional[Term])
+        assert_type(EntityVariable('x').match(Item('x')), Optional[Theta])
+        self._test_instantiate_and_match(
             EntityVariable,
-            success_auto=[
+            success=[
                 Item('x'),
-                Item.template_class(Variable('y')),
+                Item(Variable('x')),
+                ItemVariable('x'),
                 Lexeme('x'),
-                Property.template_class(Variable('y'))
-            ],
-            failure_auto=[
-                DataValue.variable_class('x'),
-                Quantity(0),
-                Quantity.template_class(Variable('x')),
-                String('x'),
-                String.template_class(Variable('x')),
-                Value.variable_class('x'),
+                Lexeme(Variable('x')),
+                LexemeVariable('x'),
+                Property(Variable('x')),
+                PropertyVariable('x'),
             ])
 
 

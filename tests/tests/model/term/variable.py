@@ -88,22 +88,16 @@ class VariableTestCase(OpenTermTestCase):
         assert issubclass(cls, Variable)
         super()._test_variables(cls, (cls('x'), {cls('x')}), *cases)
 
-    @override
-    def _test_match(
+    def _test_instantiate_and_match(
             self,
-            cls,
-            success: Iterable[tuple[Term, Term, Theta]] = (),
-            failure: Iterable[tuple[Term, Term]] = ()
+            cls: Any,
+            success: Iterable[Term] = (),
+            failure: Iterable[Term] = ()
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, Variable)
-        super()._test_match(
-            cls,
-            success=itertools.chain([
-                (cls('x'), cls('y'), {cls('x'): cls('y')}),
-                (cls('x'), Variable('y'), {Variable('y'): cls('x')}),
-            ], success),
-            failure=failure)
+        self._test_instantiate(cls, success_auto=success, failure_auto=failure)
+        self._test_match(cls, success_auto=success, failure_auto=failure)
 
     @override
     def _test_instantiate(
@@ -137,3 +131,31 @@ class VariableTestCase(OpenTermTestCase):
                 map(lambda obj:
                     (Variable('x', cls), {cls('x'): obj}), failure_auto))
         super()._test_instantiate(cls, it_success, it_failure)
+
+    @override
+    def _test_match(
+            self,
+            cls,
+            success: Iterable[tuple[Term, Term, Theta]] = (),
+            failure: Iterable[tuple[Term, Term]] = (),
+            success_auto: Iterable[Term] = (),
+            failure_auto: Iterable[Term] = ()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, Variable)
+        failure_auto_extra = map(
+            lambda c: c('x'),
+            filter(lambda c: not (issubclass(c, cls) or issubclass(cls, c)),
+                   self.ALL_VARIABLE_CLASSES))
+        super()._test_match(
+            cls,
+            success=itertools.chain(
+                [(cls('x'), cls('y'), {cls('x'): cls('y')}),
+                 (cls('x'), Variable('y'), {Variable('y'): cls('x')})],
+                map(lambda term: (cls('_x'), term, {cls('_x'): term}),
+                    success_auto),
+                success),
+            failure=itertools.chain(
+                map(lambda term: (cls('_x'), term), itertools.chain(
+                    failure_auto, failure_auto_extra)),
+                failure))

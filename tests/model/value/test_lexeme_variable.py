@@ -4,26 +4,21 @@
 from __future__ import annotations
 
 from kif_lib import (
-    EntityVariable,
-    IRI,
-    IRI_Variable,
     Item,
     Lexeme,
     LexemeTemplate,
     LexemeVariable,
-    NoValueSnak,
-    Quantity,
-    SnakVariable,
+    Property,
     Term,
     Theta,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional, Set
 
-from ...tests import VariableTestCase
+from ...tests import EntityVariableTestCase
 
 
-class Test(VariableTestCase):
+class Test(EntityVariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(LexemeVariable.object_class, type[Lexeme])
@@ -44,42 +39,20 @@ class Test(VariableTestCase):
         assert_type(LexemeVariable('x').variables, Set[Variable])
         self._test_variables(LexemeVariable)
 
-    def test_instantiate(self) -> None:
+    def test_instantiate_and_match(self) -> None:
         assert_type(LexemeVariable('x').instantiate({}), Optional[Term])
-        self._test_instantiate(
+        assert_type(LexemeVariable('x').match(Variable('x')), Optional[Theta])
+        self._test_instantiate_and_match(
             LexemeVariable,
-            success_auto=[
+            success=[
                 Lexeme('x'),
                 LexemeTemplate(Variable('x')),
             ],
-            failure_auto=[
-                IRI('x'),
-                IRI.template_class(Variable('x')),
-                Item('x'),
-                Item.template_class(Variable('x')),
-                Quantity(0),
-                Quantity.template_class(Variable('x')),
-            ])
-
-    def test_match(self) -> None:
-        assert_type(LexemeVariable('x').match(Variable('x')), Optional[Theta])
-        self._test_match(
-            LexemeVariable,
-            success=[
-                (LexemeVariable('x'),
-                 Lexeme(Variable('x')),
-                 {LexemeVariable('x'): Lexeme(IRI_Variable('x'))}),
-                (LexemeVariable('x'),
-                 LexemeVariable('y'),
-                 {LexemeVariable('x'): LexemeVariable('y')}),
-                (LexemeVariable('x'),
-                 EntityVariable('y'),
-                 {EntityVariable('y'): LexemeVariable('x')})
-            ],
             failure=[
-                (LexemeVariable('x'), IRI('y')),
-                (LexemeVariable('x'), SnakVariable('y')),
-                (LexemeVariable('x'), NoValueSnak(Variable('y'))),
+                Item('x'),
+                Item(Variable('x')),
+                Property('x'),
+                Property(Variable('x')),
             ])
 
 

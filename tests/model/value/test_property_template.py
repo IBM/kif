@@ -18,12 +18,14 @@ from kif_lib import (
     Property,
     PropertyTemplate,
     Quantity,
+    QuantityDatatype,
     SomeValueSnakTemplate,
     Statement,
     StatementTemplate,
     String,
     Term,
     Text,
+    Theta,
     Time,
     Value,
     ValueSnak,
@@ -32,7 +34,7 @@ from kif_lib import (
 )
 from kif_lib.itertools import product
 from kif_lib.model import TDatatype, TValue
-from kif_lib.typing import assert_type, cast, ClassVar, Set
+from kif_lib.typing import assert_type, cast, ClassVar, Optional, Set
 
 from ...tests import EntityTemplateTestCase
 
@@ -97,6 +99,28 @@ class Test(EntityTemplateTestCase):
             failure=[
                 (PropertyTemplate(Variable('x'), Variable('y')),
                  {Variable('y', Datatype): Item('x')}),
+            ])
+
+    def test_match(self) -> None:
+        assert_type(
+            PropertyTemplate(Variable('x')).match(Variable('x')),
+            Optional[Theta])
+        self._test_match(
+            PropertyTemplate,
+            success=[
+                (Property(Variable('x')),
+                 Property('x', Variable('y')),
+                 {DatatypeVariable('y'): None,
+                  IRI_Variable('x'): IRI('x')}),
+                (Property('x', Variable('y')),
+                 Property(Variable('x'), Quantity),
+                 {IRI_Variable('x'): IRI('x'),
+                  DatatypeVariable('y'): QuantityDatatype()}),
+            ],
+            failure=[
+                (Property(Variable('x')), Property('x', Item)),
+                (Property(Variable('x'), Quantity),
+                 Property(Variable('y'), Property)),
             ])
 
     _test__call__entities: ClassVar[list[Entity]] = [

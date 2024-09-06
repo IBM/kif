@@ -4,13 +4,19 @@
 from __future__ import annotations
 
 from kif_lib import (
+    DataValueVariable,
+    EntityVariable,
     Item,
+    NoValueSnak,
     Quantity,
+    SnakVariable,
     String,
+    StringVariable,
     Term,
     Text,
     TextTemplate,
     TextVariable,
+    Theta,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional, Set
@@ -52,6 +58,30 @@ class Test(VariableTestCase):
                 Quantity.template_class(Variable('x')),
                 String('x'),
                 String.template_class(Variable('x')),
+            ])
+
+    def test_match(self) -> None:
+        assert_type(TextVariable('x').match(Variable('x')), Optional[Theta])
+        self._test_match(
+            TextVariable,
+            success=[
+                (TextVariable('x'), Text('x', 'y'),
+                 {TextVariable('x'): Text('x', 'y')}),
+                (TextVariable('x'), Text(Variable('x')),
+                 {TextVariable('x'): Text(StringVariable('x'), 'en')}),
+                (TextVariable('x'), Text('x', Variable('y')),
+                 {TextVariable('x'): Text('x', StringVariable('y'))}),
+                (TextVariable('x'), TextVariable('y'),
+                 {TextVariable('x'): TextVariable('y')}),
+                (TextVariable('x'),
+                 DataValueVariable('y'),
+                 {DataValueVariable('y'): TextVariable('x')})
+            ],
+            failure=[
+                (TextVariable('x'), EntityVariable('y')),
+                (TextVariable('x'), Item('y')),
+                (TextVariable('x'), NoValueSnak(Variable('y'))),
+                (TextVariable('x'), SnakVariable('y')),
             ])
 
 

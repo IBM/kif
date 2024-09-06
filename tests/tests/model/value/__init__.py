@@ -3,18 +3,26 @@
 
 from __future__ import annotations
 
-from .data_value import DataValueTemplateTestCase, DataValueTestCase
+from .data_value import (
+    DataValueTemplateTestCase,
+    DataValueTestCase,
+    DataValueVariableTestCase,
+)
 from .datatype import DatatypeTestCase
 from .deep_data_value import (
     DeepDataValueTemplateTestCase,
     DeepDataValueTestCase,
 )
-from .entity import EntityTemplateTestCase, EntityTestCase
+from .entity import (
+    EntityTemplateTestCase,
+    EntityTestCase,
+    EntityVariableTestCase,
+)
 from .shallow_data_value import (
     ShallowDataValueTemplateTestCase,
     ShallowDataValueTestCase,
 )
-from .value import ValueTemplateTestCase, ValueTestCase
+from .value import ValueTemplateTestCase, ValueTestCase, ValueVariableTestCase
 
 __all__ = (
     # datatype
@@ -23,14 +31,17 @@ __all__ = (
     # value
     'ValueTemplateTestCase',
     'ValueTestCase',
+    'ValueVariableTestCase',
 
     # entity
     'EntityTemplateTestCase',
     'EntityTestCase',
+    'EntityVariableTestCase',
 
     # data value
     'DataValueTemplateTestCase',
     'DataValueTestCase',
+    'DataValueVariableTestCase',
 
     # shallow data value
     'ShallowDataValueTemplateTestCase',

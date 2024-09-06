@@ -110,27 +110,46 @@ class ShallowDataValueTemplateTestCase(DataValueTemplateTestCase):
         assert issubclass(cls, ShallowDataValueTemplate)
         super()._test_instantiate(
             cls,
-            success=[
+            success=itertools.chain([
                 (cls(Variable('x')),
                  cls.object_class('x'),
                  {StringVariable('x'): String('x')}),
                 (cls(Variable('x')),
+                 cls.object_class('y'),
+                 {StringVariable('x'): ExternalId('y')}),
+                (cls(Variable('x')),
                  cls(Variable('y')),
                  {StringVariable('x'): StringVariable('y')}),
-                *success
-            ],
-            failure=[
+            ], success),
+            failure=itertools.chain([
                 (cls(Variable('x')),
                  {StringVariable('x'): Item('x')}),
                 (cls(Variable('x')),
                  {StringVariable('x'): IRI_Variable('x')}),
-                *failure
-            ],
-            failure_coerce=[
+            ], failure),
+            failure_coerce=itertools.chain([
                 (cls(Variable('x')),
                  {StringVariable('x'): StringTemplate(Variable('x'))}),
-                *failure_coerce
-            ])
+            ], failure_coerce))
+
+    @override
+    def _test_match(
+            self,
+            cls,
+            success: Iterable[tuple[Term, Term, Theta]] = (),
+            failure: Iterable[tuple[Term, Term]] = ()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, ShallowDataValue)
+        super()._test_match(
+            cls,
+            success=itertools.chain([
+                (cls('x'), cls('x'), {}),
+                (cls('x'), Variable('x', cls), {Variable('x', cls): cls('x')}),
+                (Variable('x', cls), cls('x'), {Variable('x', cls): cls('x')})
+            ], success),
+            failure=itertools.chain(
+                [(cls('x'), Item('y'))], failure))
 
 
 class ShallowDataValueTestCase(DataValueTestCase):
@@ -214,3 +233,22 @@ class ShallowDataValueTestCase(DataValueTestCase):
             success=itertools.chain(
                 [(cls('x'), cls('x'), {StringVariable('x'): String('y')})],
                 success), failure=failure)
+
+    @override
+    def _test_match(
+            self,
+            cls,
+            success: Iterable[tuple[Term, Term, Theta]] = (),
+            failure: Iterable[tuple[Term, Term]] = ()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, ShallowDataValue)
+        super()._test_match(
+            cls,
+            success=itertools.chain([
+                (cls('x'), cls('x'), {}),
+                (cls('x'), Variable('x', cls), {Variable('x', cls): cls('x')}),
+                (Variable('x', cls), cls('x'), {Variable('x', cls): cls('x')})
+            ], success),
+            failure=itertools.chain(
+                [(cls('x'), StringVariable('y'))], failure))

@@ -7,18 +7,18 @@ from kif_lib import (
     IRI,
     IRI_Template,
     IRI_Variable,
-    Item,
     Quantity,
     String,
     Term,
+    Theta,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional, Set
 
-from ...tests import VariableTestCase
+from ...tests import DataValueVariableTestCase
 
 
-class Test(VariableTestCase):
+class Test(DataValueVariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(IRI_Variable.object_class, type[IRI])
@@ -37,21 +37,20 @@ class Test(VariableTestCase):
         assert_type(IRI_Variable('x').variables, Set[Variable])
         self._test_variables(IRI_Variable)
 
-    def test_instantiate(self) -> None:
+    def test_instantiate_and_match(self) -> None:
         assert_type(IRI_Variable('x').instantiate({}), Optional[Term])
-        self._test_instantiate(
+        assert_type(IRI_Variable('x').match(Variable('x')), Optional[Theta])
+        self._test_instantiate_and_match(
             IRI_Variable,
-            success_auto=[
+            success=[
                 IRI('x'),
                 IRI_Template(Variable('y')),
             ],
-            failure_auto=[
-                Item('x'),
-                Item.template_class(Variable('x')),
+            failure=[
                 Quantity(0),
-                Quantity.template_class(Variable('x')),
+                Quantity(Variable('x')),
                 String('x'),
-                String.template_class(Variable('x')),
+                String(Variable('x')),
             ])
 
 

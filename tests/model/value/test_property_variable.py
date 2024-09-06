@@ -6,22 +6,17 @@ from __future__ import annotations
 import datetime
 
 from kif_lib import (
-    DatatypeVariable,
     Entity,
-    EntityVariable,
     ExternalId,
     IRI,
-    IRI_Variable,
     Item,
     itertools,
     Lexeme,
-    NoValueSnak,
     NoValueSnakTemplate,
     Property,
     PropertyTemplate,
     PropertyVariable,
     Quantity,
-    SnakVariable,
     SomeValueSnakTemplate,
     StatementTemplate,
     String,
@@ -37,10 +32,10 @@ from kif_lib import (
 from kif_lib.model import TValue
 from kif_lib.typing import assert_type, ClassVar, Optional, Set
 
-from ...tests import VariableTestCase
+from ...tests import EntityVariableTestCase
 
 
-class Test(VariableTestCase):
+class Test(EntityVariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(PropertyVariable.object_class, type[Property])
@@ -61,48 +56,22 @@ class Test(VariableTestCase):
         assert_type(PropertyVariable('x').variables, Set[Variable])
         self._test_variables(PropertyVariable)
 
-    def test_instantiate(self) -> None:
+    def test_instantiate_and_match(self) -> None:
         assert_type(
             PropertyVariable('x').instantiate({}), Optional[Term])
-        self._test_instantiate(
+        assert_type(PropertyVariable('x').match(
+            Variable('x')), Optional[Theta])
+        self._test_instantiate_and_match(
             PropertyVariable,
-            success_auto=[
+            success=[
                 Property('x'),
                 PropertyTemplate(Variable('x')),
             ],
-            failure_auto=[
-                IRI('x'),
-                IRI.template_class(Variable('x')),
-                Lexeme('x'),
-                Lexeme.template_class(Variable('x')),
-                Quantity(0),
-                Quantity.template_class(Variable('x')),
-            ])
-
-    def test_match(self) -> None:
-        assert_type(PropertyVariable('x').match(
-            Variable('x')), Optional[Theta])
-        self._test_match(
-            PropertyVariable,
-            success=[
-                (PropertyVariable('x'),
-                 Property(Variable('x')),
-                 {PropertyVariable('x'): Property(IRI_Variable('x'))}),
-                (PropertyVariable('x'),
-                 PropertyVariable('y'),
-                 {PropertyVariable('x'): PropertyVariable('y')}),
-                (PropertyVariable('x'),
-                 EntityVariable('y'),
-                 {EntityVariable('y'): PropertyVariable('x')}),
-                (PropertyVariable('x'),
-                 Property(Variable('x'), Variable('y')),
-                 {PropertyVariable('x'):
-                  Property(IRI_Variable('x'), DatatypeVariable('y'))}),
-            ],
             failure=[
-                (PropertyVariable('x'), IRI('y')),
-                (PropertyVariable('x'), SnakVariable('y')),
-                (PropertyVariable('x'), NoValueSnak(Variable('y'))),
+                Item('x'),
+                Item(Variable('x')),
+                Lexeme('x'),
+                Lexeme(Variable('x')),
             ])
 
     _test__call__entities: ClassVar[list[Entity]] = [

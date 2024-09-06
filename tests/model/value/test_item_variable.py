@@ -3,27 +3,13 @@
 
 from __future__ import annotations
 
-from kif_lib import (
-    EntityVariable,
-    IRI,
-    IRI_Variable,
-    Item,
-    ItemTemplate,
-    ItemVariable,
-    Lexeme,
-    NoValueSnak,
-    Quantity,
-    SnakVariable,
-    Term,
-    Theta,
-    Variable,
-)
+from kif_lib import Item, ItemVariable, Lexeme, Property, Term, Theta, Variable
 from kif_lib.typing import assert_type, Optional, Set
 
-from ...tests import VariableTestCase
+from ...tests import EntityVariableTestCase
 
 
-class Test(VariableTestCase):
+class Test(EntityVariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(ItemVariable.object_class, type[Item])
@@ -42,42 +28,20 @@ class Test(VariableTestCase):
         assert_type(ItemVariable('x').variables, Set[Variable])
         self._test_variables(ItemVariable)
 
-    def test_instantiate(self) -> None:
+    def test_instantiate_and_match(self) -> None:
         assert_type(ItemVariable('x').instantiate({}), Optional[Term])
-        self._test_instantiate(
-            ItemVariable,
-            success_auto=[
-                Item('x'),
-                ItemTemplate(Variable('x')),
-            ],
-            failure_auto=[
-                IRI('x'),
-                IRI.template_class(Variable('x')),
-                Lexeme('x'),
-                Lexeme.template_class(Variable('x')),
-                Quantity(0),
-                Quantity.template_class(Variable('x')),
-            ])
-
-    def test_match(self) -> None:
         assert_type(ItemVariable('x').match(Variable('x')), Optional[Theta])
-        self._test_match(
+        self._test_instantiate_and_match(
             ItemVariable,
             success=[
-                (ItemVariable('x'),
-                 Item(Variable('x')),
-                 {ItemVariable('x'): Item(IRI_Variable('x'))}),
-                (ItemVariable('x'),
-                 ItemVariable('y'),
-                 {ItemVariable('x'): ItemVariable('y')}),
-                (ItemVariable('x'),
-                 EntityVariable('y'),
-                 {EntityVariable('y'): ItemVariable('x')})
+                Item('x'),
+                Item(Variable('x')),
             ],
             failure=[
-                (ItemVariable('x'), IRI('y')),
-                (ItemVariable('x'), SnakVariable('y')),
-                (ItemVariable('x'), NoValueSnak(Variable('y'))),
+                Lexeme('x'),
+                Lexeme(Variable('x')),
+                Property('x'),
+                Property(Variable('x')),
             ])
 
 

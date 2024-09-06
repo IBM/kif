@@ -4,8 +4,11 @@
 from __future__ import annotations
 
 from kif_lib import (
+    DataValueVariable,
+    DeepDataValueVariable,
     Entity,
     EntityTemplate,
+    EntityVariable,
     ExternalId,
     IRI,
     IRI_Template,
@@ -13,18 +16,23 @@ from kif_lib import (
     Item,
     itertools,
     KIF_Object,
+    Quantity,
+    ShallowDataValueVariable,
     String,
     StringTemplate,
     StringVariable,
     Term,
+    Text,
     TextTemplate,
     Theta,
+    Time,
+    ValueVariable,
     Variable,
 )
 from kif_lib.rdflib import Literal, URIRef
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence, Set
 
-from .value import ValueTemplateTestCase, ValueTestCase
+from .value import ValueTemplateTestCase, ValueTestCase, ValueVariableTestCase
 
 
 class EntityTemplateTestCase(ValueTemplateTestCase):
@@ -154,6 +162,58 @@ class EntityTemplateTestCase(ValueTemplateTestCase):
                 (cls(Variable('x')), IRI_Variable('y')),
                 (cls(Variable('x')), IRI('y')),
             ], failure))
+
+
+class EntityVariableTestCase(ValueVariableTestCase):
+
+    @override
+    def _test_instantiate(
+            self,
+            cls: Any,
+            success: Iterable[tuple[Term, Term | None, Theta]] = (),
+            failure: Iterable[tuple[Term, Theta]] = (),
+            success_auto: Iterable[Term] = (),
+            failure_auto: Iterable[Term] = ()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, EntityVariable)
+        super()._test_instantiate(
+            cls, success=success, failure=failure,
+            success_auto=success_auto, failure_auto=itertools.chain([
+                DataValueVariable('x'),
+                DeepDataValueVariable('x'),
+                ExternalId('x'),
+                IRI('x'),
+                Quantity(0),
+                ShallowDataValueVariable('x'),
+                String('x'),
+                String(Variable('x')),
+                Text('x'),
+                Time(Variable('x')),
+                ValueVariable('x'),
+            ], failure_auto))
+
+    @override
+    def _test_match(
+            self,
+            cls,
+            success: Iterable[tuple[Term, Term, Theta]] = (),
+            failure: Iterable[tuple[Term, Term]] = (),
+            success_auto: Iterable[Term] = (),
+            failure_auto: Iterable[Term] = ()
+    ) -> None:
+        assert isinstance(cls, type)
+        assert issubclass(cls, EntityVariable)
+        super()._test_match(
+            cls, success=success, failure=failure,
+            success_auto=success_auto, failure_auto=itertools.chain([
+                IRI('x'),
+                Text('x'),
+                String('x'),
+                ExternalId('x'),
+                Quantity(0),
+                Time('2024-09-06'),
+            ], failure_auto))
 
 
 class EntityTestCase(ValueTestCase):
