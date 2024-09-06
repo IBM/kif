@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from kif_lib import (
-    ClosedTerm,
     ExternalId,
     IRI,
     Item,
