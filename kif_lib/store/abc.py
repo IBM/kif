@@ -259,7 +259,7 @@ class Store(Set):
         assumes :attr:`Store.default_extra_references`.
 
         Parameters:
-           default: Reference record set.
+           default: Default reference record set.
 
         Returns:
            Reference record set.
@@ -632,7 +632,7 @@ class Store(Set):
         If `default` is ``None``, assumes :attr:`Store.default_page_size`.
 
         Parameters:
-           default: Page size.
+           default: Default page size.
 
         Returns:
            Page size.

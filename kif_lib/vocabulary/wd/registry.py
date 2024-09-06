@@ -168,6 +168,7 @@ class WikidataEntityRegistry:
             default: Property | None = None
     ) -> Property | None:
         """Gets the registered inverse property of `property`.
+
         If entity has no inverse property registered, returns `default`.
 
         Parameters:
