@@ -78,12 +78,8 @@ class Test(EntityTestCase):
         self._test_instantiate(Lexeme)
 
     def test_match(self) -> None:
-        assert_type(Lexeme('x').match(Lexeme('x')), Optional[Theta])
+        assert_type(Lexeme('x').match(Variable('x')), Optional[Theta])
         self._test_match(Lexeme)
-
-    def test_unify(self) -> None:
-        assert_type(Lexeme('x').unify(Variable('x')), Optional[Theta])
-        self._test_unify(Lexeme)
 
     def test_Lexemes(self) -> None:
         assert_type(Lexemes('a', 'b', 'c'), Iterable[Lexeme])

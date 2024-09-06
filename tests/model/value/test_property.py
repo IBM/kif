@@ -199,15 +199,8 @@ class Test(EntityTestCase):
             ])
 
     def test_match(self) -> None:
-        assert_type(Property('x').match(Property('x')), Optional[Theta])
+        assert_type(Property('x').match(Variable('x')), Optional[Theta])
         self._test_match(
-            Property,
-            success=[(Property('x', Item), Property('x', Item), {})],
-            failure=[(Property('x'), Property('x', Item))])
-
-    def test_unify(self) -> None:
-        assert_type(Property('x').unify(Variable('x')), Optional[Theta])
-        self._test_unify(
             Property,
             success=[
                 (Property('x'),

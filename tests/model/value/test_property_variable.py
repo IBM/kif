@@ -80,27 +80,9 @@ class Test(VariableTestCase):
             ])
 
     def test_match(self) -> None:
-        assert_type(
-            PropertyVariable('x').match(Property('x')), Optional[Theta])
-        self._test_match(
-            PropertyVariable,
-            success=[
-                (PropertyVariable('x'),
-                 Property('x'),
-                 {PropertyVariable('x'): Property('x')}),
-                (PropertyVariable('x'),
-                 Property('x', Quantity),
-                 {PropertyVariable('x'): Property('x', Quantity)})
-            ],
-            failure=[
-                (PropertyVariable('x'), Item('y')),
-                (PropertyVariable('x'), IRI('x')),
-            ])
-
-    def test_unify(self) -> None:
-        assert_type(PropertyVariable('x').unify(
+        assert_type(PropertyVariable('x').match(
             Variable('x')), Optional[Theta])
-        self._test_unify(
+        self._test_match(
             PropertyVariable,
             success=[
                 (PropertyVariable('x'),

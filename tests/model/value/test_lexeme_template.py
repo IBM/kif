@@ -49,14 +49,9 @@ class Test(EntityTemplateTestCase):
 
     def test_match(self) -> None:
         assert_type(
-            LexemeTemplate(Variable('x')).match(Lexeme('x')), Optional[Theta])
-        self._test_match(LexemeTemplate)
-
-    def test_unify(self) -> None:
-        assert_type(
-            LexemeTemplate(Variable('x')).unify(Variable('x')),
+            LexemeTemplate(Variable('x')).match(Variable('x')),
             Optional[Theta])
-        self._test_unify(LexemeTemplate)
+        self._test_match(LexemeTemplate)
 
 
 if __name__ == '__main__':

@@ -12,7 +12,6 @@ from kif_lib import (
     LexemeTemplate,
     LexemeVariable,
     NoValueSnak,
-    Property,
     Quantity,
     SnakVariable,
     Term,
@@ -63,22 +62,8 @@ class Test(VariableTestCase):
             ])
 
     def test_match(self) -> None:
-        assert_type(LexemeVariable('x').match(Lexeme('x')), Optional[Theta])
+        assert_type(LexemeVariable('x').match(Variable('x')), Optional[Theta])
         self._test_match(
-            LexemeVariable,
-            success=[
-                (LexemeVariable('x'),
-                 Lexeme('x'),
-                 {LexemeVariable('x'): Lexeme('x')}),
-            ],
-            failure=[
-                (LexemeVariable('x'), Property('y')),
-                (LexemeVariable('x'), IRI('x')),
-            ])
-
-    def test_unify(self) -> None:
-        assert_type(LexemeVariable('x').unify(Variable('x')), Optional[Theta])
-        self._test_unify(
             LexemeVariable,
             success=[
                 (LexemeVariable('x'),

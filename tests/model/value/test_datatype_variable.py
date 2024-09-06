@@ -13,7 +13,6 @@ from kif_lib import (
     ItemDatatype,
     ItemVariable,
     NoValueSnak,
-    Property,
     SnakVariable,
     String,
     Term,
@@ -76,23 +75,8 @@ class Test(VariableTestCase):
 
     def test_match(self) -> None:
         assert_type(
-            DatatypeVariable('x').match(ItemDatatype()), Optional[Theta])
+            DatatypeVariable('x').match(Variable('x')), Optional[Theta])
         self._test_match(
-            DatatypeVariable,
-            success=[
-                (DatatypeVariable('x'),
-                 ItemDatatype(),
-                 {DatatypeVariable('x'): ItemDatatype()}),
-            ],
-            failure=[
-                (DatatypeVariable('x'), Property('y')),
-                (DatatypeVariable('x'), IRI('x')),
-            ])
-
-    def test_unify(self) -> None:
-        assert_type(
-            DatatypeVariable('x').unify(Variable('x')), Optional[Theta])
-        self._test_unify(
             DatatypeVariable,
             success=[
                 (DatatypeVariable('x'),

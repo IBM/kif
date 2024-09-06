@@ -136,26 +136,8 @@ class EntityTemplateTestCase(ValueTemplateTestCase):
             ],
             failure_coerce=failure_coerce)
 
+    @override
     def _test_match(
-            self,
-            cls,
-            success: Iterable[tuple[Term, ClosedTerm, Theta]] = (),
-            failure: Iterable[tuple[Term, ClosedTerm]] = ()
-    ) -> None:
-        assert isinstance(cls, type)
-        assert issubclass(cls, EntityTemplate)
-        super()._test_match(
-            cls,
-            success=itertools.chain([
-                (cls(Variable('x')),
-                 cls.object_class('x'),
-                 {IRI_Variable('x'): IRI('x')}),
-            ], success),
-            failure=itertools.chain([
-                (cls(Variable('x')), IRI('x')),
-            ], failure))
-
-    def _test_unify(
             self,
             cls,
             success: Iterable[tuple[Term, Term, Theta]] = (),
@@ -163,7 +145,7 @@ class EntityTemplateTestCase(ValueTemplateTestCase):
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, EntityTemplate)
-        super()._test_unify(
+        super()._test_match(
             cls,
             success=itertools.chain([
                 (cls(Variable('x')), cls('x'),
@@ -258,20 +240,8 @@ class EntityTestCase(ValueTestCase):
                 [(cls('x'), cls('x'), {IRI_Variable('x'): IRI_Variable('y')})],
                 success), failure=failure)
 
+    @override
     def _test_match(
-            self,
-            cls,
-            success: Iterable[tuple[Term, ClosedTerm, Theta]] = (),
-            failure: Iterable[tuple[Term, ClosedTerm]] = ()
-    ) -> None:
-        assert isinstance(cls, type)
-        assert issubclass(cls, Entity)
-        super()._test_match(
-            cls,
-            success=itertools.chain([(cls('x'), cls('x'), {})], success),
-            failure=itertools.chain([(cls('x'), cls('y'))], failure))
-
-    def _test_unify(
             self,
             cls,
             success: Iterable[tuple[Term, Term, Theta]] = (),
@@ -279,7 +249,7 @@ class EntityTestCase(ValueTestCase):
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, Entity)
-        super()._test_unify(
+        super()._test_match(
             cls,
             success=itertools.chain([
                 (cls('x'), cls('x'), {}),

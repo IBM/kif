@@ -70,7 +70,7 @@ class Test(TermTestCase):
 
     def assert_U(self, *eqs: tuple[Term, Term]) -> None:
         for input in [eqs, list(map(lambda eq: (eq[1], eq[0]), eqs))]:
-            theta = Term.unification(*input)
+            theta = Term.unify(*input)
             self.assertIsNotNone(theta, f'cannot unify {input}')
             assert theta is not None
             for (s, t) in input:
@@ -85,10 +85,10 @@ class Test(TermTestCase):
                 self.assertEqual(si, ti, f'{s} != {t} via {theta}')
 
     def assert_X(self, *eqs: tuple[Term, Term]) -> None:
-        self.assertIsNone(Term.unification(*eqs))
+        self.assertIsNone(Term.unify(*eqs))
 
-    def test_unification(self) -> None:
-        assert_type(Term.unification((Item('x'), Item('x'))), Optional[Theta])
+    def test_unify(self) -> None:
+        assert_type(Term.unify((Item('x'), Item('x'))), Optional[Theta])
         self.assert_U(
             (Variable('x'), ItemVariable('y')),
             (Variable('y'), Item('z')))
@@ -96,15 +96,15 @@ class Test(TermTestCase):
             (Variable('x'), ItemVariable('y')),
             (PropertyVariable('y'), Item('z')))
 
-    def test_unification_invalid_theta(self) -> None:
+    def test_unify_invalid_theta(self) -> None:
         x, y, z, w = Variables('x', 'y', 'z', 'w')
         A = QuantityTemplate(x, y, None, w)
         B = QuantityTemplate(y, z, x, w)
-        theta = Term.unification((A, B))
+        theta = Term.unify((A, B))
         self.assertIsNotNone(theta)
         self.assertRaises(Term.InstantiationError, A.instantiate, theta)
 
-    def test_unification_term_term(self) -> None:
+    def test_unify_term_term(self) -> None:
         # datatype
         self.assert_U((ItemDatatype(), ItemDatatype()))
         self.assert_U((StringDatatype(), StringDatatype()))
@@ -232,7 +232,7 @@ class Test(TermTestCase):
         self.assert_X((Property('x')(Item('y'), 0), Item('y')))
         self.assert_X((Property('x')(Item('y'), 0), ValueSnak('x', 'y')))
 
-    def test_unification_tpl_tpl(self) -> None:
+    def test_unify_tpl_tpl(self) -> None:
         x, y, z, w = Variables('x', 'y', 'z', 'w')
         x1, y1, z1, w1 = Variables('x1', 'y1', 'z1', 'w1')
         # item
@@ -378,59 +378,59 @@ class Test(TermTestCase):
             (Statement(x, ValueSnak(y, Quantity(z))),
              Statement(z, SomeValueSnak(x))))
 
-    def test_unification_var_term(self) -> None:
+    def test_unify_var_term(self) -> None:
         for tv in self.ALL_VARIABLE_CLASSES:
             # datatype
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, DatatypeVariable, ItemDatatype(),
                 ExternalIdDatatype(), StringDatatype())
             # item
-            self._test_unification_var_term(tv, ItemVariable, Item('x'))
+            self._test_unify_var_term(tv, ItemVariable, Item('x'))
             # property
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, PropertyVariable, Property('x'), Property('x', Item))
             # lexeme
-            self._test_unification_var_term(tv, LexemeVariable, Lexeme('x'))
+            self._test_unify_var_term(tv, LexemeVariable, Lexeme('x'))
             # iri
-            self._test_unification_var_term(tv, IRI_Variable, IRI('x'))
+            self._test_unify_var_term(tv, IRI_Variable, IRI('x'))
             # text
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, TextVariable, Text('x'), Text('x', 'y'))
             # string
-            self._test_unification_var_term(tv, StringVariable, String('x'))
+            self._test_unify_var_term(tv, StringVariable, String('x'))
             # external id
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, ExternalIdVariable, ExternalId('x'))
             # quantity
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, QuantityVariable, Quantity(0),
                 Quantity(0, 'x'),
                 Quantity(0, 'x', -1),
                 Quantity(0, 'x', -1, 1))
             # time
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, TimeVariable,
                 Time('2024-09-04'),
                 Time('2024-09-04', 0),
                 Time('2024-09-04', 0, 0),
                 Time('2024-09-04', 0, 0, 'x'))
             # value snak
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, ValueSnakVariable, ValueSnak('x', 'y'))
             # some value snak
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, SomeValueSnakVariable, SomeValueSnak('x'))
             # no value snak
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, NoValueSnakVariable, NoValueSnak('x'))
             # statement
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, StatementVariable,
                 Statement(Item('x'), ValueSnak('y', 'z')),
                 Statement(Item('x'), SomeValueSnak('y')),
                 Statement(Item('x'), NoValueSnak('y')))
 
-    def _test_unification_var_term(
+    def _test_unify_var_term(
             self,
             tv: type[Variable],
             variable_class: type[Variable],
@@ -444,72 +444,72 @@ class Test(TermTestCase):
             else:
                 self.assert_X((Variable('x', tv), term))
 
-    def test_unification_var_tpl(self) -> None:
+    def test_unify_var_tpl(self) -> None:
         x, y = Variables('a', 'b')
         for tv in self.ALL_VARIABLE_CLASSES:
             # item
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, ItemVariable, ItemTemplate(x))
             # property
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, PropertyVariable,
                 PropertyTemplate(x),
                 PropertyTemplate(x, Item),
                 PropertyTemplate('x', y),
                 PropertyTemplate('x', y))
             # lexeme
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, LexemeVariable, LexemeTemplate(x))
             # iri
-            self._test_unification_var_term(tv, IRI_Variable, IRI_Template(x))
+            self._test_unify_var_term(tv, IRI_Variable, IRI_Template(x))
             # text
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, TextVariable,
                 TextTemplate(x),
                 TextTemplate(x, 'y'),
                 TextTemplate('x', y),
                 TextTemplate(x, y))
             # string
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, StringVariable, StringTemplate(x))
             # external id
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, ExternalIdVariable, ExternalIdTemplate(x))
             # quantity
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, QuantityVariable,
                 QuantityTemplate(x),
                 QuantityTemplate(0, x),
                 QuantityTemplate(0, Item('x'), x),
                 QuantityTemplate(0, Item('x'), 0, x))
             # time
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, TimeVariable,
                 TimeTemplate(x),
                 TimeTemplate('2024-09-04', x),
                 TimeTemplate('2024-09-04', 0, x),
                 TimeTemplate('2024-09-04', 0, 0, x))
             # value snak
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, ValueSnakVariable,
                 ValueSnak(x, 'y'),
                 ValueSnak('x', y),
                 ValueSnak(PropertyTemplate(x), y),
                 ValueSnak(PropertyTemplate(x), ItemTemplate(y)))
             # some value snak
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, SomeValueSnakVariable,
                 SomeValueSnakTemplate(x),
                 SomeValueSnakTemplate(PropertyTemplate(x)),
                 SomeValueSnakTemplate(PropertyTemplate(IRI_Template(x))))
             # no value snak
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, NoValueSnakVariable,
                 NoValueSnakTemplate(x),
                 NoValueSnakTemplate(PropertyTemplate(x)),
                 NoValueSnakTemplate(PropertyTemplate(IRI_Template(x))))
             # statement
-            self._test_unification_var_term(
+            self._test_unify_var_term(
                 tv, StatementVariable,
                 StatementTemplate(x, ValueSnak('y', 'z')),
                 StatementTemplate(ItemTemplate(x), NoValueSnak('y')),
@@ -532,7 +532,7 @@ class Test(TermTestCase):
         self.assert_X(
             (StringVariable('x'), StringTemplate(StringVariable('x'))))
 
-    def test_unification_var_var(self) -> None:
+    def test_unify_var_var(self) -> None:
         x, y = Variables('x', 'y')
         self.assert_U((x, x))
         self.assert_U((x, y))

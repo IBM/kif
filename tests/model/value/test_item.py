@@ -78,12 +78,8 @@ class Test(EntityTestCase):
         self._test_instantiate(Item)
 
     def test_match(self) -> None:
-        assert_type(Item('x').match(Item('x')), Optional[Theta])
+        assert_type(Item('x').match(Variable('x')), Optional[Theta])
         self._test_match(Item)
-
-    def test_unify(self) -> None:
-        assert_type(Item('x').unify(Variable('x')), Optional[Theta])
-        self._test_unify(Item)
 
     def test_Items(self) -> None:
         assert_type(Items('a', 'b', 'c'), Iterable[Item])

@@ -81,7 +81,7 @@ class Term(KIF_Object):
         return isinstance(arg, OpenTerm)
 
     @classmethod
-    def unification(
+    def unify(
             cls,
             *eqs: tuple[Term, Term]
     ) -> Theta | None:
@@ -151,20 +151,12 @@ class Term(KIF_Object):
     ) -> Term | None:
         raise NotImplementedError
 
-    def match(self, other: ClosedTerm) -> Theta | None:
+    def match(self, other: Term) -> Theta | None:
         """Tests whether term matches `other`.
 
-        Parameters:
-           other: Closed term.
-
-        Returns:
-           A variable instantiation theta if successful; ``None`` otherwise.
-        """
-        other = ClosedTerm.check(other, self.match, 'other', 1)
-        return self.unification((self, other))
-
-    def unify(self, other: Term) -> Theta | None:
-        """Computes the unification of term and `other`.
+        If term matches `other`, returns a variable instantiation theta that
+        can be used to unify both term and `other`.  Otherwise, return
+        ``None``.
 
         Parameters:
            other: Term.
@@ -172,8 +164,7 @@ class Term(KIF_Object):
         Returns:
            A variable instantiation theta if successful; ``None`` otherwise.
         """
-        other = Term.check(other, self.unify, 'other', 1)
-        return self.unification((self, other))
+        return self.unify((self, Term.check(other, self.match, 'other', 1)))
 
 
 class ClosedTerm(Term):

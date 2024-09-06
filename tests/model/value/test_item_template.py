@@ -3,18 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import (
-    IRI,
-    IRI_Variable,
-    Item,
-    ItemTemplate,
-    Lexeme,
-    Property,
-    Quantity,
-    Term,
-    Theta,
-    Variable,
-)
+from kif_lib import Item, ItemTemplate, Lexeme, Property, Term, Theta, Variable
 from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import EntityTemplateTestCase
@@ -52,24 +41,8 @@ class Test(EntityTemplateTestCase):
 
     def test_match(self) -> None:
         assert_type(
-            ItemTemplate(Variable('x')).match(Item('x')), Optional[Theta])
-        self._test_match(
-            ItemTemplate,
-            success=[
-                (Item(Variable('x')),
-                 Item('x'),
-                 {IRI_Variable('x'): IRI('x')}),
-            ],
-            failure=[
-                (Item(Variable('x')), Property('x')),
-                (Item(Variable('x')), Lexeme('x')),
-                (Item(Variable('x')), Quantity(0)),
-            ])
-
-    def test_unify(self) -> None:
-        assert_type(
-            ItemTemplate(Variable('x')).unify(Variable('x')), Optional[Theta])
-        self._test_unify(ItemTemplate)
+            ItemTemplate(Variable('x')).match(Variable('x')), Optional[Theta])
+        self._test_match(ItemTemplate)
 
 
 if __name__ == '__main__':
