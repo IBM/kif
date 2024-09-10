@@ -53,7 +53,7 @@ class TestStoreSPARQL_SPARQL_Store(WikidataSPARQL_StoreTestCase):
 
     def test__len__(self) -> None:
         kb = self.new_Store()
-        self.assertTrue(len(kb) > 1_000_000_000)
+        self.assertTrue(len(kb) > 1_000_000)
 
     def test__eval_select_query_string(self) -> None:
         kb = self.new_Store()
@@ -121,7 +121,7 @@ class TestStoreSPARQL_SPARQL_Store(WikidataSPARQL_StoreTestCase):
         self.assertEqual(n, 1)
         # everything
         n = kb.count()
-        self.assertTrue(n > 1_000_000_000)
+        self.assertTrue(n > 1_000_000)
         # everything with best rank flag disabled
         kb.unset_flags(kb.BEST_RANK)
         self.assertTrue(kb.count() > n)

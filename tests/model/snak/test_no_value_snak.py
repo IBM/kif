@@ -12,15 +12,20 @@ from kif_lib import (
     NoValueSnakTemplate,
     NoValueSnakVariable,
     Property,
+    PropertyVariable,
     Quantity,
+    SnakVariable,
+    SnakVariable,
     SomeValueSnak,
+    SomeValueSnakVariable,
     String,
     Term,
     Text,
+    Theta,
     ValueSnak,
     Variable,
 )
-from kif_lib.typing import assert_type, Set
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import SnakTestCase
 
@@ -92,9 +97,24 @@ class Test(SnakTestCase):
         assert_type(NoValueSnak('x').instantiate({}), Term)
         self._test_instantiate(
             NoValueSnak, success=[
-                (NoValueSnak('x'),
-                 NoValueSnak('x'),
+                (NoValueSnak('x'), NoValueSnak('x'),
                  {Variable('x'): String('y')})
+            ])
+
+    def test_match(self) -> None:
+        assert_type(
+            NoValueSnak('x').match(NoValueSnak('x')), Optional[Theta])
+        self._test_match(
+            NoValueSnak, success=[
+                (NoValueSnak('x'), NoValueSnak('x'), {}),
+                (NoValueSnak('x'), SnakVariable('x'),
+                 {SnakVariable('x'): NoValueSnak('x')}),
+                (NoValueSnak('x'), NoValueSnak(Variable('x')),
+                 {PropertyVariable('x'): Property('x')}),
+            ],
+            failure=[
+                (NoValueSnak('x'), SomeValueSnak('x')),
+                (NoValueSnak('x'), SomeValueSnakVariable('x')),
             ])
 
 

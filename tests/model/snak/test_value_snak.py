@@ -10,21 +10,28 @@ from kif_lib import (
     ItemTemplate,
     NoValueSnak,
     Property,
+    PropertyVariable,
     Quantity,
+    SnakVariable,
     SomeValueSnak,
+    SomeValueSnakVariable,
     String,
     Term,
     Text,
+    Theta,
     Time,
     ValueSnak,
     ValueSnakTemplate,
     ValueSnakVariable,
+    ValueVariable,
     Variable,
 )
 from kif_lib.model import ConverseSnakFingerprint
-from kif_lib.typing import assert_type, Set
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import SnakTestCase
+
+from kif_lib import
 
 
 class Test(SnakTestCase):
@@ -116,6 +123,26 @@ class Test(SnakTestCase):
                 (ValueSnak('x', 'y'),
                  ValueSnak('x', 'y'),
                  {Variable('x'): String('y')})
+            ])
+
+    def test_match(self) -> None:
+        assert_type(
+            ValueSnak('x', 'y').match(ValueSnak('x', 'y')), Optional[Theta])
+        self._test_match(
+            NoValueSnak, success=[
+                (ValueSnak('x', 'y'), ValueSnak('x', 'y'), {}),
+                (ValueSnak('x', 'y'), SnakVariable('x'),
+                 {SnakVariable('x'): ValueSnak('x', 'y')}),
+                (ValueSnak('x', 'y'), ValueSnak(Variable('x'), Variable('y')),
+                 {PropertyVariable('x'): Property('x'),
+                  ValueVariable('y'): String('y')}),
+                (ValueSnak('x', 0), ValueSnak('x', Variable('y')),
+                 {ValueVariable('y'): Quantity(0)}),
+            ],
+            failure=[
+                (ValueSnak('x', 'y'), ValueSnak('y', 'x')),
+                (ValueSnak('x', 'y'), SomeValueSnak('x')),
+                (Valuesnak('x', 'y'), SomeValueSnakVariable('x')),
             ])
 
     def test__neg__(self) -> None:

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import KIF_Object, Snak, SnakTemplate
+from kif_lib import KIF_Object, Snak, SnakTemplate, Term, Theta
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
 from .term import ClosedTermTestCase, TemplateTestCase
