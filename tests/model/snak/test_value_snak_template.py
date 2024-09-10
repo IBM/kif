@@ -12,16 +12,21 @@ from kif_lib import (
     Item,
     ItemDatatype,
     ItemVariable,
+    NoValueSnak,
     Property,
     PropertyTemplate,
     PropertyVariable,
     Quantity,
+    QuantityDatatype,
     QuantityVariable,
     Snak,
+    SomeValueSnak,
     SomeValueSnakTemplate,
+    String,
     String,
     StringVariable,
     Term,
+    Theta,
     Time,
     Value,
     ValueSnak,
@@ -30,7 +35,7 @@ from kif_lib import (
     ValueVariable,
     Variable,
 )
-from kif_lib.typing import assert_type, cast, Set
+from kif_lib.typing import assert_type, cast, Optional, Set
 
 from ...tests import SnakTemplateTestCase
 
@@ -198,6 +203,27 @@ class Test(SnakTemplateTestCase):
                  {PropertyVariable('x'): Item('y')}),
                 (ValueSnakTemplate(Variable('x'), Variable('y')),
                  {ValueVariable('y'): ValueSnakVariable('y')}),
+            ])
+
+    def test_match(self) -> None:
+        assert_type(
+            ValueSnakTemplate(Variable('x'), 'y').match(
+                ValueSnak('x', 'y')), Optional[Theta])
+        self._test_match(
+            ValueSnakTemplate,
+            success=[
+                (ValueSnak(Variable('x'), Variable('y')), ValueSnak('x', 'y'),
+                 {PropertyVariable('x'): Property('x', String),
+                  ValueVariable('y'): String('y')}),
+                (ValueSnak(Property(Variable('x'), Variable('y')),
+                           Quantity(Variable('z'))),
+                 ValueSnak(Property('x', None), Quantity(0)),
+                 {IRI_Variable('x'): IRI('x'),
+                  DatatypeVariable('y'): QuantityDatatype(),
+                  QuantityVariable('z'): Quantity(0)}),
+            ], failure=[
+                (ValueSnak(Variable('x'), 'y'), NoValueSnak('x')),
+                (ValueSnak(Variable('x'), Variable('y')), SomeValueSnak('x')),
             ])
 
 

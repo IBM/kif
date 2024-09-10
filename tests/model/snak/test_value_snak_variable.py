@@ -4,10 +4,10 @@
 from __future__ import annotations
 
 from kif_lib import (
-    IRI,
-    Property,
-    Quantity,
+    NoValueSnak,
+    SomeValueSnak,
     Term,
+    Theta,
     ValueSnak,
     ValueSnakTemplate,
     ValueSnakVariable,
@@ -15,10 +15,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type, Optional, Set
 
-from ...tests import VariableTestCase
+from ...tests import SnakVariableTestCase
 
 
-class Test(VariableTestCase):
+class Test(SnakVariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(ValueSnakVariable.object_class, type[ValueSnak])
@@ -41,23 +41,21 @@ class Test(VariableTestCase):
         assert_type(ValueSnakVariable('x').variables, Set[Variable])
         self._test_variables(ValueSnakVariable)
 
-    def test_instantiate(self) -> None:
-        assert_type(
-            ValueSnakVariable('x').instantiate({}),
-            Optional[Term])
-        self._test_instantiate(
+    def test_instantiate_and_match(self) -> None:
+        assert_type(ValueSnakVariable('x').instantiate({}), Optional[Term])
+        assert_type(ValueSnakVariable('x').match(
+            Variable('x')), Optional[Theta])
+        self._test_instantiate_and_match(
             ValueSnakVariable,
-            success_auto=[
+            success=[
                 ValueSnak('x', 'y'),
                 ValueSnakTemplate(Variable('x'), Variable('y')),
             ],
-            failure_auto=[
-                IRI('x'),
-                IRI.template_class(Variable('x')),
-                Property('x'),
-                Property.template_class(Variable('x')),
-                Quantity(0),
-                Quantity.template_class(Variable('x')),
+            failure=[
+                NoValueSnak('x'),
+                NoValueSnak(Variable('x')),
+                SomeValueSnak('x'),
+                SomeValueSnak(Variable('x')),
             ])
 
 

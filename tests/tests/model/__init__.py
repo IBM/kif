@@ -7,7 +7,7 @@ from .descriptor import DescriptorTestCase
 from .fingerprint import FingerprintTestCase
 from .kif_object import KIF_ObjectTestCase
 from .set import KIF_ObjectSetTestCase
-from .snak import SnakTemplateTestCase, SnakTestCase
+from .snak import SnakTemplateTestCase, SnakTestCase, SnakVariableTestCase
 from .statement import StatementTemplateTestCase, StatementTestCase
 from .term import (
     ClosedTermTestCase,
@@ -77,6 +77,7 @@ __all__ = (
     # snak
     'SnakTemplateTestCase',
     'SnakTestCase',
+    'SnakVariableTestCase',
 
     # statement
     'StatementTemplateTestCase',

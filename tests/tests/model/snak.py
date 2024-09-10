@@ -3,10 +3,29 @@
 
 from __future__ import annotations
 
-from kif_lib import KIF_Object, Snak, SnakTemplate, Term, Theta
-from kif_lib.typing import Any, Callable, Iterable, override, Sequence
+from kif_lib import (
+    IRI,
+    Item,
+    ItemDatatype,
+    KIF_Object,
+    NoValueSnak,
+    Quantity,
+    Snak,
+    SnakTemplate,
+    SnakVariable,
+    Statement,
+    Term,
+)
+from kif_lib.typing import (
+    Any,
+    Callable,
+    Iterable,
+    Iterator,
+    override,
+    Sequence,
+)
 
-from .term import ClosedTermTestCase, TemplateTestCase
+from .term import ClosedTermTestCase, TemplateTestCase, VariableTestCase
 
 
 class SnakTemplateTestCase(TemplateTestCase):
@@ -38,6 +57,23 @@ class SnakTemplateTestCase(TemplateTestCase):
         for t in failure_value_error:
             self.logger.debug('failure_value_error: %s', t)
             self.assertRaisesRegex(ValueError, 'cannot apply', cls, *t)
+
+
+class SnakVariableTestCase(VariableTestCase):
+
+    @override
+    def _test_instantiate_and_match_failure_auto_it(
+            self,
+            cls: Any
+    ) -> Iterator[Term]:
+        assert isinstance(cls, type)
+        assert issubclass(cls, SnakVariable)
+        yield from super()._test_instantiate_and_match_failure_auto_it(cls)
+        yield ItemDatatype()
+        yield Item('x')
+        yield IRI('x')
+        yield Quantity(0)
+        yield Statement(Item('x'), NoValueSnak('y'))
 
 
 class SnakTestCase(ClosedTermTestCase):
