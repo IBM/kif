@@ -13,16 +13,17 @@ from kif_lib import (
     SomeValueSnak,
     String,
     Term,
+    Theta,
     Value,
     ValueSnak,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional, Set
 
-from ...tests import VariableTestCase
+from ...tests import SnakVariableTestCase
 
 
-class Test(VariableTestCase):
+class Test(SnakVariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(SnakVariable.object_class, type[Snak])
@@ -45,26 +46,16 @@ class Test(VariableTestCase):
         assert_type(SnakVariable('x').variables, Set[Variable])
         self._test_variables(SnakVariable)
 
-    def test_instantiate(self) -> None:
-        assert_type(
-            SnakVariable('x').instantiate({}), Optional[Term])
-        self._test_instantiate(
+    def test_instantiate_and_match(self) -> None:
+        assert_type(SnakVariable('x').instantiate({}), Optional[Term])
+        assert_type(SnakVariable('x').match(Variable('x')), Optional[Theta])
+        self._test_instantiate_and_match(
             SnakVariable,
-            success_auto=[
+            success=[
                 NoValueSnak(Property('x')),
                 SomeValueSnak(Variable('y')),
                 ValueSnak('x', 'y'),
                 ValueSnak(Variable('x'), 'y'),
-            ],
-            failure_auto=[
-                DataValue.variable_class('x'),
-                Property('x'),
-                Quantity(0),
-                Quantity.template_class(Variable('x')),
-                String('x'),
-                String.template_class(Variable('x')),
-                Value.variable_class('x'),
-                Variable('x'),
             ])
 
 
