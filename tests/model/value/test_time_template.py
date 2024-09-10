@@ -18,12 +18,13 @@ from kif_lib import (
     QuantityVariable,
     String,
     Term,
+    Theta,
     Time,
     TimeTemplate,
     TimeVariable,
     Variable,
 )
-from kif_lib.typing import assert_type, cast, Set
+from kif_lib.typing import assert_type, cast, Optional, Set
 
 from ...tests import DeepDataValueTemplateTestCase
 
@@ -230,6 +231,29 @@ class Test(DeepDataValueTemplateTestCase):
             failure=[
                 (Time(Variable('x')),
                  {TimeVariable('x'): Item('y')}),
+            ])
+
+    def test_match(self) -> None:
+        assert_type(TimeTemplate(Variable('x')).match(
+            Time('2024-09-10')), Optional[Theta])
+        self._test_match(
+            TimeTemplate,
+            success=[
+                (Time(Variable('x')), Time('2024-09-10'),
+                 {TimeVariable('x'): Time('2024-09-10')}),
+                (Time(Variable('x'), Variable('y')), Time('2024-09-10', 0),
+                 {TimeVariable('x'): Time('2024-09-10'),
+                  QuantityVariable('y'): Quantity(0)}),
+                (Time('2024-09-10', 0, Variable('x'), Variable('y')),
+                 Time('2024-09-10', Variable('x'), 0, Item('y')),
+                 {QuantityVariable('x'): Quantity(0),
+                  ItemVariable('y'): Item('y')}),
+            ],
+            failure=[
+                (Time('2024-09-10', Variable('x')),
+                 Time('2024-09-11', Variable('y'))),
+                (Time('2024-09-10', Variable('x'), Variable('x'), Item('y')),
+                 Time('2024-09-10', 0, 1, Item('y'))),
             ])
 
 

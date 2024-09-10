@@ -18,9 +18,10 @@ from kif_lib import (
     QuantityVariable,
     String,
     Term,
+    Theta,
     Variable,
 )
-from kif_lib.typing import assert_type, cast, Set
+from kif_lib.typing import assert_type, cast, Optional, Set
 
 from ...tests import DeepDataValueTemplateTestCase
 
@@ -209,8 +210,7 @@ class Test(DeepDataValueTemplateTestCase):
         self._test_instantiate(
             QuantityTemplate,
             success=[
-                (QuantityTemplate(Variable('x')),
-                 Quantity(0),
+                (Quantity(Variable('x')), Quantity(0),
                  {QuantityVariable('x'): Quantity(0)}),
                 (Quantity(0, Variable('x')),
                  Quantity(0, Item(Variable('x', IRI))),
@@ -225,6 +225,29 @@ class Test(DeepDataValueTemplateTestCase):
             failure=[
                 (Quantity(Variable('x')),
                  {QuantityVariable('x'): Item('y')}),
+            ])
+
+    def test_match(self) -> None:
+        assert_type(QuantityTemplate(Variable('x')).match(
+            Quantity(0)), Optional[Theta])
+        self._test_match(
+            QuantityTemplate,
+            success=[
+                (Quantity(Variable('x')), Quantity(0),
+                 {QuantityVariable('x'): Quantity(0)}),
+                (Quantity(Variable('x'), Variable('y')), Quantity(0, 'y'),
+                 {QuantityVariable('x'): Quantity(0),
+                  ItemVariable('y'): Item('y')}),
+                (Quantity(1, 'x', Variable('y'), Variable('y')),
+                 Quantity(Variable('z'), 'x', 1, 1),
+                 {QuantityVariable('y'): Quantity(1),
+                  QuantityVariable('z'): Quantity(1)}),
+                (Quantity(0, Variable('x')), Quantity(0),
+                 {ItemVariable('x'): None}),
+            ],
+            failure=[
+                (Quantity(1, 'x', Variable('y'), Variable('y')),
+                 Quantity(Variable('z'), 'x', 1, 2)),
             ])
 
 

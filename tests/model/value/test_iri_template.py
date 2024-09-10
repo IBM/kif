@@ -37,7 +37,7 @@ class Test(ShallowDataValueTemplateTestCase):
     def test_match(self) -> None:
         assert_type(
             IRI_Template(Variable('x')).match(IRI('x')), Optional[Theta])
-        self._test_instantiate(IRI_Template)
+        self._test_match(IRI_Template)
 
 
 if __name__ == '__main__':

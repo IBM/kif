@@ -10,6 +10,7 @@ from kif_lib import (
     IRI_Template,
     IRI_Variable,
     Item,
+    StringVariable,
     Term,
     Text,
     Theta,
@@ -78,7 +79,7 @@ class Test(ShallowDataValueTestCase):
 
     def test_match(self) -> None:
         assert_type(IRI('x').match(Variable('x')), Optional[Theta])
-        self._test_match(IRI)
+        self._test_match(IRI, failure=[(IRI('x'), StringVariable('y'))])
 
 
 if __name__ == '__main__':

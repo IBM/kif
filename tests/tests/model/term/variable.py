@@ -19,6 +19,7 @@ from kif_lib.typing import (
     Callable,
     cast,
     Iterable,
+    Iterator,
     override,
     Sequence,
     Set,
@@ -96,8 +97,17 @@ class VariableTestCase(OpenTermTestCase):
     ) -> None:
         assert isinstance(cls, type)
         assert issubclass(cls, Variable)
+        success = list(success)
+        failure = list(itertools.chain(
+            self._test_instantiate_and_match_failure_auto_it(cls), failure))
         self._test_instantiate(cls, success_auto=success, failure_auto=failure)
         self._test_match(cls, success_auto=success, failure_auto=failure)
+
+    def _test_instantiate_and_match_failure_auto_it(
+            self,
+            cls: Any
+    ) -> Iterator[Term]:
+        return iter(())
 
     @override
     def _test_instantiate(

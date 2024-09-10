@@ -7,7 +7,6 @@ from kif_lib import (
     Context,
     DataValue,
     ExternalId,
-    Item,
     ShallowDataValue,
     String,
     StringTemplate,
@@ -16,10 +15,11 @@ from kif_lib import (
     Text,
     TextTemplate,
     TextVariable,
+    Theta,
     Variable,
     Variables,
 )
-from kif_lib.typing import assert_type, Set
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import ShallowDataValueTemplateTestCase
 
@@ -84,27 +84,34 @@ class Test(ShallowDataValueTemplateTestCase):
              {StringVariable('y')}))
 
     def test_instantiate(self) -> None:
-        assert_type(
-            TextTemplate(Variable('x')).instantiate({}), Term)
+        assert_type(TextTemplate(Variable('x')).instantiate({}), Term)
         self._test_instantiate(
             TextTemplate,
             success=[
-                (TextTemplate(Variable('x'), Variable('x')),
-                 Text('x', 'x'),
+                (Text(Variable('x'), Variable('x')), Text('x', 'x'),
                  {StringVariable('x'): ExternalId('x')}),
-                (TextTemplate('x', Variable('y')),
-                 Text('x', 'y'),
+                (Text('x', Variable('y')), Text('x', 'y'),
                  {StringVariable('y'): String('y')}),
-                (TextTemplate('x', Variable('y')),
-                 TextTemplate('x', Variable('z')),
+                (Text('x', Variable('y')), Text('x', Variable('z')),
                  {StringVariable('y'): StringVariable('z')}),
-                (TextTemplate('x', Variable('y')),
-                 TextTemplate('x'),
+                (Text('x', Variable('y')), Text('x'),
                  {StringVariable('y'): None}),
+            ])
+
+    def test_match(self) -> None:
+        assert_type(
+            TextTemplate(Variable('x')).match(Text('x')), Optional[Theta])
+        self._test_match(
+            TextTemplate,
+            success=[
+                (Text(Variable('x'), Variable('y')), Text('x', 'y'),
+                 {StringVariable('x'): String('x'),
+                  StringVariable('y'): String('y')}),
+                (Text('x', Variable('y')), Text('x', Variable('z')),
+                 {StringVariable('y'): StringVariable('z')}),
             ],
             failure=[
-                (TextTemplate(Variable('x'), Variable('x')),
-                 {StringVariable('x'): Item('x')}),
+                (Text(Variable('x'), 'y'), Text('x', 'z')),
             ])
 
 

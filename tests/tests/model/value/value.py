@@ -16,7 +16,7 @@ from kif_lib import (
     ValueVariable,
     Variable,
 )
-from kif_lib.typing import Any, Iterable, override
+from kif_lib.typing import Any, Iterable, Iterator, override
 
 from ..term import ClosedTermTestCase, TemplateTestCase, VariableTestCase
 
@@ -26,6 +26,20 @@ class ValueTemplateTestCase(TemplateTestCase):
 
 
 class ValueVariableTestCase(VariableTestCase):
+
+    @override
+    def _test_instantiate_and_match_failure_auto_it(
+            self,
+            cls: Any
+    ) -> Iterator[Term]:
+        assert isinstance(cls, type)
+        assert issubclass(cls, ValueVariable)
+        yield from super()._test_instantiate_and_match_failure_auto_it(cls)
+        yield ItemDatatype()
+        yield ValueSnak('x', Variable('y'))
+        yield SomeValueSnak('x')
+        yield NoValueSnak('x')
+        yield Statement(Item('x'), NoValueSnak('y'))
 
     @override
     def _test_instantiate(

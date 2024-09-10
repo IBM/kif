@@ -14,10 +14,11 @@ from kif_lib import (
     TextDatatype,
     TextTemplate,
     TextVariable,
+    Theta,
     Variable,
 )
 from kif_lib.rdflib import Literal, URIRef
-from kif_lib.typing import assert_type, Set
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import ShallowDataValueTestCase
 
@@ -87,11 +88,32 @@ class Test(ShallowDataValueTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(Text('x').instantiate({}), Term)
-        self._test_instantiate(
-            Text, success=[
-                (Text('x', 'y'),
-                 Text('x', 'y'),
-                 {StringVariable('x'): String('y')})
+        self._test_instantiate(Text, success=[
+            (Text('x', 'y'),
+             Text('x', 'y'),
+             {StringVariable('x'): String('y')})
+        ])
+
+    def test_match(self) -> None:
+        assert_type(Text('x').match(Variable('x')), Optional[Theta])
+        self._test_match(
+            Text,
+            success=[
+                (Text('x'), Text(Variable('x'), Variable('y')),
+                 {StringVariable('x'): String('x'),
+                  StringVariable('y'): String('en')}),
+                (Text('x', 'y'), Text('x', Variable('y')),
+                 {StringVariable('y'): String('y')}),
+                (Text('x', 'y'), Text(Variable('y'), Variable('x')),
+                 {StringVariable('x'): String('y'),
+                  StringVariable('y'): String('x')}),
+                (Text('x', 'x'), Text(Variable('x'), Variable('y')),
+                 {StringVariable('x'): String('x'),
+                  StringVariable('y'): String('x')}),
+            ],
+            failure=[
+                (Text('x', 'y'), Text(Variable('x'), Variable('x'))),
+                (Text('x'), StringVariable('y')),
             ])
 
 

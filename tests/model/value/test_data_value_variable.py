@@ -50,7 +50,7 @@ class Test(DataValueVariableTestCase):
         self._test_instantiate_and_match(
             DataValueVariable,
             success=[
-                DataValue.variable_class('x'),
+                DataValueVariable('x'),
                 IRI.template_class(Variable('x')),
                 Quantity(0),
                 Quantity(Variable('x')),

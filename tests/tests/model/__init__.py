@@ -23,11 +23,13 @@ from .value import (
     DataValueVariableTestCase,
     DeepDataValueTemplateTestCase,
     DeepDataValueTestCase,
+    DeepDataValueVariableTestCase,
     EntityTemplateTestCase,
     EntityTestCase,
     EntityVariableTestCase,
     ShallowDataValueTemplateTestCase,
     ShallowDataValueTestCase,
+    ShallowDataValueVariableTestCase,
     ValueTemplateTestCase,
     ValueTestCase,
     ValueVariableTestCase,
@@ -65,10 +67,12 @@ __all__ = (
     # shallow data value
     'ShallowDataValueTemplateTestCase',
     'ShallowDataValueTestCase',
+    'ShallowDataValueVariableTestCase',
 
     # deep data value
     'DeepDataValueTemplateTestCase',
     'DeepDataValueTestCase',
+    'DeepDataValueVariableTestCase',
 
     # snak
     'SnakTemplateTestCase',

@@ -4,16 +4,12 @@
 from __future__ import annotations
 
 from kif_lib import (
-    DataValue,
     DeepDataValue,
     DeepDataValueVariable,
-    IRI,
-    Item,
     Quantity,
-    String,
     Term,
+    Theta,
     Time,
-    Value,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional, Set
@@ -47,25 +43,18 @@ class Test(VariableTestCase):
         assert_type(DeepDataValueVariable('x').variables, Set[Variable])
         self._test_variables(DeepDataValueVariable)
 
-    def test_instantiate(self) -> None:
+    def test_instantiate_and_match(self) -> None:
         assert_type(
             DeepDataValueVariable('x').instantiate({}), Optional[Term])
+        assert_type(
+            DeepDataValueVariable('x').match(Quantity(0)), Optional[Theta])
         self._test_instantiate(
             DeepDataValueVariable,
             success_auto=[
-                DeepDataValue.variable_class('x'),
                 Quantity(0),
                 Quantity(Variable('x')),
-                Time('2024-06-26'),
+                Time('2024-09-09'),
                 Time(Variable('x')),
-            ],
-            failure_auto=[
-                DataValue.variable_class('x'),
-                IRI.template_class(Variable('x')),
-                Item('x'),
-                Item.template_class(Variable('x')),
-                String('x'),
-                Value.variable_class('x'),
             ])
 
 

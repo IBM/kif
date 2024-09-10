@@ -4,23 +4,22 @@
 from __future__ import annotations
 
 from kif_lib import (
-    DataValue,
     ExternalId,
-    Item,
-    Quantity,
+    IRI,
     ShallowDataValue,
     ShallowDataValueVariable,
     String,
     Term,
-    Value,
+    Text,
+    Theta,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional, Set
 
-from ...tests import VariableTestCase
+from ...tests import ShallowDataValueVariableTestCase
 
 
-class Test(VariableTestCase):
+class Test(ShallowDataValueVariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(
@@ -48,25 +47,23 @@ class Test(VariableTestCase):
         assert_type(ShallowDataValueVariable('x').variables, Set[Variable])
         self._test_variables(ShallowDataValueVariable)
 
-    def test_instantiate(self) -> None:
+    def test_instantiate_and_match(self) -> None:
         assert_type(
-            ShallowDataValueVariable('x').instantiate({}),
-            Optional[Term])
+            ShallowDataValueVariable('x').instantiate({}), Optional[Term])
+        assert_type(
+            ShallowDataValueVariable('x').match(String('x')), Optional[Theta])
         self._test_instantiate(
             ShallowDataValueVariable,
             success_auto=[
-                ExternalId('x'),
-                ExternalId.template_class(Variable('y')),
+                IRI('x'),
+                IRI(Variable('x')),
+                Text('x'),
+                Text(Variable('x')),
+                Text('x', Variable('y')),
                 String('x'),
-                String.template_class(Variable('y')),
-            ],
-            failure_auto=[
-                DataValue.variable_class('x'),
-                Item('x'),
-                Item.template_class(Variable('x')),
-                Quantity(0),
-                Quantity.template_class(Variable('x')),
-                Value.variable_class('x'),
+                String(Variable('x')),
+                ExternalId('x'),
+                ExternalId(Variable('x')),
             ])
 
 

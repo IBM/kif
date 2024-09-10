@@ -3,13 +3,13 @@
 
 from __future__ import annotations
 
-from kif_lib import Item, String, Term, Time, TimeVariable, Variable
+from kif_lib import Quantity, Term, Theta, Time, TimeVariable, Variable
 from kif_lib.typing import assert_type, Optional, Set
 
-from ...tests import VariableTestCase
+from ...tests import DeepDataValueVariableTestCase
 
 
-class Test(VariableTestCase):
+class Test(DeepDataValueVariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(TimeVariable.object_class, type[Time])
@@ -29,21 +29,19 @@ class Test(VariableTestCase):
         self._test_variables(TimeVariable)
 
     def test_instantiate(self) -> None:
-        assert_type(
-            TimeVariable('2024-06-26').instantiate({}), Optional[Term])
-        self._test_instantiate(
+        assert_type(TimeVariable('2024-06-26').instantiate({}), Optional[Term])
+        assert_type(TimeVariable('x').match(Variable('x')), Optional[Theta])
+        self._test_instantiate_and_match(
             TimeVariable,
-            success_auto=[
+            success=[
                 Time('2024-06-26'),
                 Time('2024-06-26', None, None, Variable('x')),
                 Time(Variable('x'), None, Variable('y')),
                 Time(Variable('y'), Variable('x')),
             ],
-            failure_auto=[
-                Item('x'),
-                Item.template_class(Variable('x')),
-                String('x'),
-                String.template_class(Variable('x')),
+            failure=[
+                Quantity(0),
+                Quantity(Variable('x')),
             ])
 
 

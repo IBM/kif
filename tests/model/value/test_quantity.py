@@ -9,14 +9,17 @@ from kif_lib import (
     ExternalId,
     IRI,
     Item,
+    ItemVariable,
     Property,
     Quantity,
     QuantityDatatype,
     QuantityTemplate,
     QuantityVariable,
     String,
+    StringVariable,
     Term,
     Text,
+    Theta,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional, Set
@@ -129,7 +132,26 @@ class Test(DeepDataValueTestCase):
         assert_type(Quantity(0).instantiate({}), Term)
         self._test_instantiate(
             Quantity, success=[
-                (Quantity(0), Quantity(0), {Variable('x'): String('y')})
+                (Quantity(0), Quantity(0),
+                 {Variable('x'): String('y')}),
+            ])
+
+    def test_match(self) -> None:
+        assert_type(Quantity(0).match(Variable('x')), Optional[Theta])
+        self._test_match(
+            Quantity, success=[
+                (Quantity(0), QuantityVariable('x'),
+                 {QuantityVariable('x'): Quantity(0)}),
+                (Quantity(0, Item('x')), Quantity(Variable('x'), 'x'),
+                 {QuantityVariable('x'): Quantity(0)}),
+                (Quantity(0, None, 0, 0),
+                 Quantity(Variable('x'), Variable('y'),
+                          Variable('x'), Variable('x')),
+                 {QuantityVariable('x'): Quantity(0),
+                  ItemVariable('y'): None}),
+            ],
+            failure=[
+                (Quantity(0), StringVariable('y'))
             ])
 
 

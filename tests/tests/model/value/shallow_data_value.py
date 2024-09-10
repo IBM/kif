@@ -12,19 +12,34 @@ from kif_lib import (
     ItemVariable,
     itertools,
     KIF_Object,
+    Quantity,
     ShallowDataValue,
     ShallowDataValueTemplate,
+    ShallowDataValueVariable,
     String,
     StringTemplate,
     StringVariable,
     Term,
     Theta,
+    Time,
     Variable,
 )
 from kif_lib.rdflib import Literal, URIRef
-from kif_lib.typing import Any, Callable, Iterable, override, Sequence, Set
+from kif_lib.typing import (
+    Any,
+    Callable,
+    Iterable,
+    Iterator,
+    override,
+    Sequence,
+    Set,
+)
 
-from .data_value import DataValueTemplateTestCase, DataValueTestCase
+from .data_value import (
+    DataValueTemplateTestCase,
+    DataValueTestCase,
+    DataValueVariableTestCase,
+)
 
 
 class ShallowDataValueTemplateTestCase(DataValueTemplateTestCase):
@@ -140,16 +155,35 @@ class ShallowDataValueTemplateTestCase(DataValueTemplateTestCase):
             failure: Iterable[tuple[Term, Term]] = ()
     ) -> None:
         assert isinstance(cls, type)
-        assert issubclass(cls, ShallowDataValue)
+        assert issubclass(cls, ShallowDataValueTemplate)
         super()._test_match(
             cls,
             success=itertools.chain([
-                (cls('x'), cls('x'), {}),
-                (cls('x'), Variable('x', cls), {Variable('x', cls): cls('x')}),
-                (Variable('x', cls), cls('x'), {Variable('x', cls): cls('x')})
+                (cls(Variable('x')), cls('x'),
+                 {StringVariable('x'): String('x')}),
+                (cls(Variable('x')), cls(Variable('y')),
+                 {StringVariable('x'): StringVariable('y')}),
+                (cls(Variable('x')), cls.object_class.variable_class('y'),
+                 {cls.object_class.variable_class('y'): cls(Variable('x'))}),
             ], success),
             failure=itertools.chain(
-                [(cls('x'), Item('y'))], failure))
+                [(cls(Variable('x')), Item('y'))], failure))
+
+
+class ShallowDataValueVariableTestCase(DataValueVariableTestCase):
+
+    @override
+    def _test_instantiate_and_match_failure_auto_it(
+            self,
+            cls: Any
+    ) -> Iterator[Term]:
+        assert isinstance(cls, type)
+        assert issubclass(cls, ShallowDataValueVariable)
+        yield from super()._test_instantiate_and_match_failure_auto_it(cls)
+        yield Quantity(0)
+        yield Quantity(Variable('x'))
+        yield Time('2024-09-09')
+        yield Time(Variable('x'))
 
 
 class ShallowDataValueTestCase(DataValueTestCase):
@@ -249,6 +283,4 @@ class ShallowDataValueTestCase(DataValueTestCase):
                 (cls('x'), cls('x'), {}),
                 (cls('x'), Variable('x', cls), {Variable('x', cls): cls('x')}),
                 (Variable('x', cls), cls('x'), {Variable('x', cls): cls('x')})
-            ], success),
-            failure=itertools.chain(
-                [(cls('x'), StringVariable('y'))], failure))
+            ], success))

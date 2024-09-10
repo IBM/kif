@@ -5,22 +5,20 @@ from __future__ import annotations
 
 from kif_lib import (
     ExternalId,
-    ExternalIdTemplate,
     IRI,
-    Item,
-    Quantity,
     String,
-    StringTemplate,
     StringVariable,
     Term,
+    Text,
+    Theta,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional, Set
 
-from ...tests import VariableTestCase
+from ...tests import ShallowDataValueVariableTestCase
 
 
-class Test(VariableTestCase):
+class Test(ShallowDataValueVariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(StringVariable.object_class, type[String])
@@ -42,23 +40,22 @@ class Test(VariableTestCase):
         assert_type(StringVariable('x').variables, Set[Variable])
         self._test_variables(StringVariable)
 
-    def test_instantiate(self) -> None:
+    def test_instantiate_and_match(self) -> None:
         assert_type(StringVariable('x').instantiate({}), Optional[Term])
-        self._test_instantiate(
+        assert_type(StringVariable('x').match(Variable('x')), Optional[Theta])
+        self._test_instantiate_and_match(
             StringVariable,
-            success_auto=[
+            success=[
                 ExternalId('x'),
-                ExternalIdTemplate(Variable('y')),
+                ExternalId(Variable('x')),
                 String('x'),
-                StringTemplate(Variable('y')),
+                String(Variable('x')),
             ],
-            failure_auto=[
+            failure=[
                 IRI('x'),
-                IRI.template_class(Variable('x')),
-                Item('x'),
-                Item.template_class(Variable('x')),
-                Quantity(0),
-                Quantity.template_class(Variable('x')),
+                IRI(Variable('x')),
+                Text('x'),
+                Text(Variable('x')),
             ])
 
 

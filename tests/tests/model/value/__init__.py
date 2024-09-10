@@ -12,6 +12,7 @@ from .datatype import DatatypeTestCase
 from .deep_data_value import (
     DeepDataValueTemplateTestCase,
     DeepDataValueTestCase,
+    DeepDataValueVariableTestCase,
 )
 from .entity import (
     EntityTemplateTestCase,
@@ -21,6 +22,7 @@ from .entity import (
 from .shallow_data_value import (
     ShallowDataValueTemplateTestCase,
     ShallowDataValueTestCase,
+    ShallowDataValueVariableTestCase,
 )
 from .value import ValueTemplateTestCase, ValueTestCase, ValueVariableTestCase
 
@@ -46,8 +48,10 @@ __all__ = (
     # shallow data value
     'ShallowDataValueTemplateTestCase',
     'ShallowDataValueTestCase',
+    'ShallowDataValueVariableTestCase',
 
     # deep data value
     'DeepDataValueTemplateTestCase',
     'DeepDataValueTestCase',
+    'DeepDataValueVariableTestCase',
 )

@@ -9,9 +9,10 @@ from kif_lib import (
     StringTemplate,
     StringVariable,
     Term,
+    Theta,
     Variable,
 )
-from kif_lib.typing import assert_type, Set
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import ShallowDataValueTemplateTestCase
 
@@ -37,15 +38,21 @@ class Test(ShallowDataValueTemplateTestCase):
         self._test_variables(StringTemplate)
 
     def test_instantiate(self) -> None:
+        assert_type(StringTemplate(Variable('x')).instantiate({}), Term)
+        self._test_instantiate(StringTemplate, failure=[
+            (String(StringVariable('x')),
+             {StringVariable('x'): String(Variable('y'))}),
+        ])
+
+    def test_match(self) -> None:
         assert_type(
-            StringTemplate(Variable('x')).instantiate({}), Term)
-        self._test_instantiate(
-            StringTemplate,
-            success=[
-                (StringTemplate(Variable('x')),
-                 String('y'),
-                 {StringVariable('x'): ExternalId('y')}),
-            ])
+            StringTemplate(Variable('x')).match(String('x')), Optional[Theta])
+        self._test_match(StringTemplate, success=[
+            (String(Variable('x')), StringVariable('y'),
+             {StringVariable('y'): String(StringVariable('x'))}),
+        ], failure=[
+            (String(Variable('x')), ExternalId('y')),
+        ])
 
 
 if __name__ == '__main__':

@@ -20,13 +20,15 @@ from kif_lib import (
     QuantityDatatype,
     String,
     StringDatatype,
+    Term,
     Text,
     TextDatatype,
+    Theta,
     Time,
     TimeDatatype,
     Variable,
 )
-from kif_lib.typing import assert_type, Set
+from kif_lib.typing import assert_type, Iterator, Optional, Set
 
 from ...tests import ValueTestCase
 
@@ -122,6 +124,29 @@ class Test(ValueTestCase):
             (ExternalIdDatatype(), set()),
             (QuantityDatatype(), set()),
             (TimeDatatype(), set()))
+
+    def test_instantiate(self) -> None:
+        assert_type(ItemDatatype().instantiate({}), Term)
+        self._test_instantiate(
+            Datatype, success=[(ItemDatatype(), ItemDatatype(), {})])
+
+    def test_match(self) -> None:
+        assert_type(ItemDatatype().match(Variable('x')), Optional[Theta])
+
+        def it_success() -> Iterator[tuple[Term, Term, Theta]]:
+            for dt in self.ALL_DATATYPE_CLASSES:
+                if dt is not Datatype:
+                    yield (dt(), DatatypeVariable('x'),
+                           {DatatypeVariable('x'): dt()})
+                    yield (dt(), Variable('x'),
+                           {Variable('x'): dt()})
+
+        def it_failure() -> Iterator[tuple[Term, Term]]:
+            for dt in self.ALL_DATATYPE_CLASSES:
+                if dt is not Datatype:
+                    yield (dt(), dt.value_class.variable_class('x'))
+
+        self._test_match(Datatype, success=it_success(), failure=it_failure())
 
     def test__from_rdflib(self) -> None:
         from kif_lib.namespace import WIKIBASE

@@ -6,6 +6,8 @@ from __future__ import annotations
 from kif_lib import (
     DeepDataValue,
     DeepDataValueTemplate,
+    DeepDataValueVariable,
+    ExternalId,
     IRI,
     IRI_Variable,
     Item,
@@ -15,11 +17,24 @@ from kif_lib import (
     KIF_Object,
     String,
     StringTemplate,
+    Term,
+    Text,
     Variable,
 )
-from kif_lib.typing import Any, Callable, Iterable, override, Sequence
+from kif_lib.typing import (
+    Any,
+    Callable,
+    Iterable,
+    Iterator,
+    override,
+    Sequence,
+)
 
-from .data_value import DataValueTemplateTestCase, DataValueTestCase
+from .data_value import (
+    DataValueTemplateTestCase,
+    DataValueTestCase,
+    DataValueVariableTestCase,
+)
 
 
 class DeepDataValueTemplateTestCase(DataValueTemplateTestCase):
@@ -75,6 +90,26 @@ class DeepDataValueTemplateTestCase(DataValueTemplateTestCase):
                 *failure
             ],
             normalize=normalize)
+
+
+class DeepDataValueVariableTestCase(DataValueVariableTestCase):
+
+    @override
+    def _test_instantiate_and_match_failure_auto_it(
+            self,
+            cls: Any
+    ) -> Iterator[Term]:
+        assert isinstance(cls, type)
+        assert issubclass(cls, DeepDataValueVariable)
+        yield from super()._test_instantiate_and_match_failure_auto_it(cls)
+        yield IRI('x')
+        yield IRI(Variable('x'))
+        yield Text('x')
+        yield Text(Variable('x'))
+        yield String('x')
+        yield String(Variable('x'))
+        yield ExternalId('x')
+        yield ExternalId(Variable('x'))
 
 
 class DeepDataValueTestCase(DataValueTestCase):

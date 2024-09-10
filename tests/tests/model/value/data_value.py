@@ -3,17 +3,8 @@
 
 from __future__ import annotations
 
-from kif_lib import (
-    DataValueVariable,
-    Item,
-    itertools,
-    Lexeme,
-    Property,
-    Term,
-    Theta,
-    Variable,
-)
-from kif_lib.typing import Any, Iterable, override
+from kif_lib import DataValueVariable, Item, Lexeme, Property, Term, Variable
+from kif_lib.typing import Any, Iterator, override
 
 from .value import ValueTemplateTestCase, ValueTestCase, ValueVariableTestCase
 
@@ -25,48 +16,19 @@ class DataValueTemplateTestCase(ValueTemplateTestCase):
 class DataValueVariableTestCase(ValueVariableTestCase):
 
     @override
-    def _test_instantiate(
+    def _test_instantiate_and_match_failure_auto_it(
             self,
-            cls: Any,
-            success: Iterable[tuple[Term, Term | None, Theta]] = (),
-            failure: Iterable[tuple[Term, Theta]] = (),
-            success_auto: Iterable[Term] = (),
-            failure_auto: Iterable[Term] = ()
-    ) -> None:
+            cls: Any
+    ) -> Iterator[Term]:
         assert isinstance(cls, type)
         assert issubclass(cls, DataValueVariable)
-        super()._test_instantiate(
-            cls, success=success, failure=failure,
-            success_auto=success_auto, failure_auto=itertools.chain([
-                Item('x'),
-                Item(Variable('x')),
-                Lexeme('x'),
-                Lexeme(Variable('x')),
-                Property('x'),
-                Property(Variable('x')),
-            ], failure_auto))
-
-    @override
-    def _test_match(
-            self,
-            cls,
-            success: Iterable[tuple[Term, Term, Theta]] = (),
-            failure: Iterable[tuple[Term, Term]] = (),
-            success_auto: Iterable[Term] = (),
-            failure_auto: Iterable[Term] = ()
-    ) -> None:
-        assert isinstance(cls, type)
-        assert issubclass(cls, DataValueVariable)
-        super()._test_match(
-            cls, success=success, failure=failure,
-            success_auto=success_auto, failure_auto=itertools.chain([
-                Item('x'),
-                Item(Variable('x')),
-                Lexeme('x'),
-                Lexeme(Variable('x')),
-                Property('x'),
-                Property(Variable('x')),
-            ], failure_auto))
+        yield from super()._test_instantiate_and_match_failure_auto_it(cls)
+        yield Item('x')
+        yield Item(Variable('x'))
+        yield Lexeme('x')
+        yield Lexeme(Variable('x'))
+        yield Property('x')
+        yield Property(Variable('x'))
 
 
 class DataValueTestCase(ValueTestCase):

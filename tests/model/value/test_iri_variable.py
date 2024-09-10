@@ -4,21 +4,21 @@
 from __future__ import annotations
 
 from kif_lib import (
+    ExternalId,
     IRI,
-    IRI_Template,
     IRI_Variable,
-    Quantity,
     String,
     Term,
+    Text,
     Theta,
     Variable,
 )
 from kif_lib.typing import assert_type, Optional, Set
 
-from ...tests import DataValueVariableTestCase
+from ...tests import ShallowDataValueVariableTestCase
 
 
-class Test(DataValueVariableTestCase):
+class Test(ShallowDataValueVariableTestCase):
 
     def test_object_class(self) -> None:
         assert_type(IRI_Variable.object_class, type[IRI])
@@ -44,13 +44,15 @@ class Test(DataValueVariableTestCase):
             IRI_Variable,
             success=[
                 IRI('x'),
-                IRI_Template(Variable('y')),
+                IRI(Variable('x')),
             ],
             failure=[
-                Quantity(0),
-                Quantity(Variable('x')),
+                Text('x'),
+                Text(Variable('x')),
                 String('x'),
                 String(Variable('x')),
+                ExternalId('x'),
+                ExternalId(Variable('x')),
             ])
 
 

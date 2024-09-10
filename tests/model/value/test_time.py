@@ -12,8 +12,10 @@ from kif_lib import (
     Property,
     Quantity,
     String,
+    StringVariable,
     Term,
     Text,
+    Theta,
     Time,
     TimeDatatype,
     TimeTemplate,
@@ -138,9 +140,23 @@ class Test(DeepDataValueTestCase):
         assert_type(Time('2024-09-05').instantiate({}), Term)
         self._test_instantiate(
             Time, success=[
-                (Time('2024-09-05'),
-                 Time('2024-09-05'),
-                 {Variable('x'): String('y')})
+                (Time('2024-09-05'), Time('2024-09-05'),
+                 {Variable('x'): String('y')}),
+            ])
+
+    def test_match(self) -> None:
+        assert_type(Time('2024-09-10').match(Variable('x')), Optional[Theta])
+        self._test_match(
+            Time, success=[
+                (Time('2024-09-10'), Time('2024-09-10'), {}),
+                (Time('2024-09-10'), TimeVariable('x'),
+                 {TimeVariable('x'): Time('2024-09-10')}),
+                (Time('2024-09-10'), Time(Variable('x')),
+                 {TimeVariable('x'): Time('2024-09-10')}),
+            ], failure=[
+                (Time('2024-09-10'), StringVariable('y')),
+                (Time('2024-09-10'), Time(Variable('x'), 0)),
+                (Time('2024-09-10', 0, 0), Time(Variable('x'), 0, 1)),
             ])
 
 

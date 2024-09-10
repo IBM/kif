@@ -8,9 +8,10 @@ from kif_lib import (
     ExternalIdTemplate,
     StringVariable,
     Term,
+    Theta,
     Variable,
 )
-from kif_lib.typing import assert_type, Set
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import ShallowDataValueTemplateTestCase
 
@@ -38,14 +39,26 @@ class Test(ShallowDataValueTemplateTestCase):
         self._test_variables(ExternalIdTemplate)
 
     def test_instantiate(self) -> None:
+        assert_type(ExternalIdTemplate(Variable('x')).instantiate({}), Term)
+        self._test_instantiate(ExternalIdTemplate, success=[
+            (ExternalIdTemplate(Variable('x')), ExternalId('y'),
+             {StringVariable('x'): ExternalId('y')}),
+            (ExternalId(Variable('x')), ExternalId(Variable('y')),
+             {StringVariable('x'): StringVariable('y')}),
+        ], failure=[
+            (ExternalId(StringVariable('x')),
+             {StringVariable('x'): ExternalId(Variable('y'))}),
+        ])
+
+    def test_match(self) -> None:
         assert_type(
-            ExternalIdTemplate(Variable('x')).instantiate({}), Term)
-        self._test_instantiate(
+            ExternalIdTemplate(Variable('x')).match(ExternalId('x')),
+            Optional[Theta])
+        self._test_match(
             ExternalIdTemplate,
             success=[
-                (ExternalIdTemplate(Variable('x')),
-                 ExternalId('y'),
-                 {StringVariable('x'): ExternalId('y')}),
+                (ExternalId(Variable('x')), StringVariable('y'),
+                 {StringVariable('y'): ExternalId(StringVariable('x'))}),
             ])
 
 

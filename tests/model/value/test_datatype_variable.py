@@ -6,17 +6,26 @@ from __future__ import annotations
 from kif_lib import (
     Datatype,
     DatatypeVariable,
+    ExternalId,
+    ExternalIdDatatype,
     IRI,
     IRI_Datatype,
     IRI_Variable,
     Item,
     ItemDatatype,
     ItemVariable,
-    NoValueSnak,
-    SnakVariable,
+    LexemeDatatype,
+    PropertyDatatype,
+    QuantityDatatype,
+    QuantityVariable,
+    StatementVariable,
     String,
+    StringDatatype,
     Term,
+    TextDatatype,
     Theta,
+    TimeDatatype,
+    ValueSnakVariable,
     Variable,
 )
 from kif_lib.typing import assert_type, cast, Optional, Set
@@ -54,45 +63,43 @@ class Test(VariableTestCase):
             })))
         self.assert_string_datatype(cast(
             Datatype, DatatypeVariable('x').instantiate({
+                DatatypeVariable('x'): ExternalId('y')
+            })))
+        self.assert_string_datatype(cast(
+            Datatype, DatatypeVariable('x').instantiate({
                 DatatypeVariable('x'): IRI('y')
             })))
         self.assert_string_datatype(cast(
             Datatype, DatatypeVariable('x').instantiate({
                 DatatypeVariable('x'): 'y'  # type: ignore
             })))
-        self._test_instantiate(
+
+    def test_instantiate_and_match(self) -> None:
+        assert_type(
+            DatatypeVariable('x').instantiate({}), Optional[Term])
+        assert_type(
+            DatatypeVariable('x').match(Variable('x')), Optional[Theta])
+        self._test_instantiate_and_match(
             DatatypeVariable,
-            success_auto=[
-                DatatypeVariable('y'),
-                IRI_Datatype(),
+            success=[
+                DatatypeVariable('x'),
                 ItemDatatype(),
+                PropertyDatatype(),
+                LexemeDatatype(),
+                IRI_Datatype(),
+                TextDatatype(),
+                StringDatatype(),
+                ExternalIdDatatype(),
+                QuantityDatatype(),
+                TimeDatatype(),
             ],
-            failure_auto=[
+            failure=[
                 IRI_Variable('x'),
                 Item('x'),
                 ItemVariable('x'),
-            ])
-
-    def test_match(self) -> None:
-        assert_type(
-            DatatypeVariable('x').match(Variable('x')), Optional[Theta])
-        self._test_match(
-            DatatypeVariable,
-            success=[
-                (DatatypeVariable('x'),
-                 ItemDatatype(),
-                 {DatatypeVariable('x'): ItemDatatype()}),
-                (DatatypeVariable('x'),
-                 DatatypeVariable('y'),
-                 {DatatypeVariable('x'): DatatypeVariable('y')}),
-                (DatatypeVariable('x'),
-                 Variable('y'),
-                 {Variable('y'): DatatypeVariable('x')})
-            ],
-            failure=[
-                (DatatypeVariable('x'), IRI('y')),
-                (DatatypeVariable('x'), SnakVariable('y')),
-                (DatatypeVariable('x'), NoValueSnak(Variable('y'))),
+                QuantityVariable('x'),
+                StatementVariable('x'),
+                ValueSnakVariable('x'),
             ])
 
 

@@ -10,11 +10,13 @@ from kif_lib import (
     ExternalIdVariable,
     IRI,
     Item,
+    StringVariable,
     Term,
     TextTemplate,
+    Theta,
     Variable,
 )
-from kif_lib.typing import assert_type, Set
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import ShallowDataValueTestCase
 
@@ -74,6 +76,12 @@ class Test(ShallowDataValueTestCase):
     def test_instantiate(self) -> None:
         assert_type(ExternalId('x').instantiate({}), Term)
         self._test_instantiate(ExternalId)
+
+    def test_match(self) -> None:
+        assert_type(ExternalId('x').match(Variable('x')), Optional[Theta])
+        self._test_match(ExternalId, success=[
+            (ExternalId('x'), StringVariable('x'),
+             {StringVariable('x'): ExternalId('x')})])
 
 
 if __name__ == '__main__':

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from kif_lib import (
     ExternalId,
+    ExternalIdVariable,
     IRI,
     Item,
     String,
@@ -13,9 +14,10 @@ from kif_lib import (
     StringVariable,
     Term,
     TextTemplate,
+    Theta,
     Variable,
 )
-from kif_lib.typing import assert_type, Set
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import ShallowDataValueTestCase
 
@@ -75,6 +77,11 @@ class Test(ShallowDataValueTestCase):
     def test_instantiate(self) -> None:
         assert_type(String('x').instantiate({}), Term)
         self._test_instantiate(String)
+
+    def test_match(self) -> None:
+        assert_type(String('x').match(Variable('x')), Optional[Theta])
+        self._test_match(String, failure=[
+            (String('x'), ExternalIdVariable('x'))])
 
 
 if __name__ == '__main__':
