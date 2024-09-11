@@ -4,17 +4,13 @@
 from __future__ import annotations
 
 from kif_lib import (
-    DataValue,
     NoValueSnak,
     Property,
-    Quantity,
     Snak,
     SnakVariable,
     SomeValueSnak,
-    String,
     Term,
     Theta,
-    Value,
     ValueSnak,
     Variable,
 )

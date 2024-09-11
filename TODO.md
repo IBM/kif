@@ -33,7 +33,7 @@ Compiler
 
 - Filter compiler (optimization): Aggregate snaks with the same property.
 
-- Use subqueries to implement fingerprints.
+- Use subqueries to implement fingerprints(?).
 
 Codec
 -----
@@ -59,3 +59,5 @@ Store
 
 - RDF: Allow user to construct a store by passing statement objects
   (requires Wikidata RDF encoder).
+
+- Memory: New store that takes a list of (annotated) statements as input.

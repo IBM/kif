@@ -4,12 +4,8 @@
 from __future__ import annotations
 
 from kif_lib import (
-    IRI,
     NoValueSnak,
-    Property,
-    Quantity,
     SomeValueSnak,
-    SomeValueSnakTemplate,
     SomeValueSnakVariable,
     Term,
     Theta,

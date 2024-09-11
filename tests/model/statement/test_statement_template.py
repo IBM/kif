@@ -15,6 +15,7 @@ from kif_lib import (
     LexemeTemplate,
     NoValueSnak,
     NoValueSnakTemplate,
+    NoValueSnakVariable,
     Property,
     PropertyTemplate,
     PropertyVariable,
@@ -27,13 +28,14 @@ from kif_lib import (
     StatementTemplate,
     String,
     Term,
+    Theta,
     ValueSnak,
     ValueSnakTemplate,
     ValueSnakVariable,
     ValueVariable,
     Variable,
 )
-from kif_lib.typing import assert_type, cast, Set
+from kif_lib.typing import assert_type, cast, Optional, Set
 
 from ...tests import StatementTemplateTestCase
 
@@ -209,6 +211,42 @@ class Test(StatementTemplateTestCase):
                     ItemVariable('x'),
                     ValueSnak(Property(Variable('y'), IRI), Variable('z'))),
                  {IRI_Variable('z'): ItemVariable('z')}),
+            ])
+
+    def test_match(self) -> None:
+        assert_type(
+            StatementTemplate(Variable('x'), Variable('y')).match(
+                Statement(Item('x'), ValueSnak('x', 'y'))), Optional[Theta])
+        self._test_match(
+            StatementTemplate,
+            success=[
+                (Statement(Variable('x'), Variable('y')),
+                 Statement(Item('x'), ValueSnak('y', 'z')),
+                 {EntityVariable('x'): Item('x'),
+                  SnakVariable('y'): ValueSnak('y', 'z')}),
+                (Statement(ItemVariable('x'), NoValueSnakVariable('y')),
+                 Statement(Item('x'), SnakVariable('y')),
+                 {ItemVariable('x'): Item('x'),
+                  SnakVariable('y'): NoValueSnakVariable('y')}),
+                ###
+                # TODO: Should we infer that the datatype of property 'y' is
+                # String here? If so, how can we do that?
+                ###
+                (Statement(Item('x'), ValueSnak(Variable('y'), 'z')),
+                 Statement(Item('x'), ValueSnak('y', ValueVariable('z'))),
+                 {PropertyVariable('y'): Property('y'),
+                  ValueVariable('z'): String('z')}),
+                (Statement(Variable('x'),
+                           ValueSnak('y', Quantity(Variable('w')))),
+                 Statement(Item('x'), ValueSnak(Variable('y'), Variable('z'))),
+                 {EntityVariable('x'): Item('x'),
+                  PropertyVariable('y'): Property('y', Quantity),
+                  ValueVariable('z'): Quantity(Variable('w'))}),
+            ], failure=[
+                (Statement(ItemVariable('x'), ValueSnak('y', 'z')),
+                 Statement(Property('x'), ValueSnak('y', 'z'))),
+                (Statement(Variable('x'), ValueSnak('y', 'z')),
+                 Statement(Item('x'), ValueSnak('y', ValueVariable('z')))),
             ])
 
 

@@ -31,8 +31,6 @@ from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import SnakTestCase
 
-from kif_lib import
-
 
 class Test(SnakTestCase):
 
@@ -129,20 +127,21 @@ class Test(SnakTestCase):
         assert_type(
             ValueSnak('x', 'y').match(ValueSnak('x', 'y')), Optional[Theta])
         self._test_match(
-            NoValueSnak, success=[
+            ValueSnak, success=[
                 (ValueSnak('x', 'y'), ValueSnak('x', 'y'), {}),
                 (ValueSnak('x', 'y'), SnakVariable('x'),
                  {SnakVariable('x'): ValueSnak('x', 'y')}),
                 (ValueSnak('x', 'y'), ValueSnak(Variable('x'), Variable('y')),
-                 {PropertyVariable('x'): Property('x'),
+                 {PropertyVariable('x'): Property('x', String),
                   ValueVariable('y'): String('y')}),
-                (ValueSnak('x', 0), ValueSnak('x', Variable('y')),
-                 {ValueVariable('y'): Quantity(0)}),
+                (ValueSnak('x', 0), ValueSnak(Variable('y'), Variable('z')),
+                 {PropertyVariable('y'): Property('x', Quantity),
+                  ValueVariable('z'): Quantity(0)}),
             ],
             failure=[
                 (ValueSnak('x', 'y'), ValueSnak('y', 'x')),
                 (ValueSnak('x', 'y'), SomeValueSnak('x')),
-                (Valuesnak('x', 'y'), SomeValueSnakVariable('x')),
+                (ValueSnak('x', 'y'), SomeValueSnakVariable('x')),
             ])
 
     def test__neg__(self) -> None:

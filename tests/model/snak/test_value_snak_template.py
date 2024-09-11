@@ -23,7 +23,6 @@ from kif_lib import (
     SomeValueSnak,
     SomeValueSnakTemplate,
     String,
-    String,
     StringVariable,
     Term,
     Theta,

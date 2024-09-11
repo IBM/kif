@@ -47,7 +47,7 @@ def _unification(G: set[tuple[Term | None, Term | None]]) -> Theta | None:
         except UnificationFailed:
             return None
     ###
-    # TODO: Check whether the resulting G is a valid substitution.
+    # TODO: Check whether the resulting G is a valid variable instantiation.
     #
     # For instance,
     #
@@ -56,7 +56,7 @@ def _unification(G: set[tuple[Term | None, Term | None]]) -> Theta | None:
     #   B = QuantityTemplate(y, z, x, w)
     #   theta = Term.unification((A, B))
     #
-    # Produces the *invalid* substitution `theta`:
+    # Produces the *invalid* instantiation `theta`:
     #
     #   {
     #       QuantityVariable('x'): None,

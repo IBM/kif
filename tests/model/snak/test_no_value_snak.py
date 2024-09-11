@@ -15,7 +15,6 @@ from kif_lib import (
     PropertyVariable,
     Quantity,
     SnakVariable,
-    SnakVariable,
     SomeValueSnak,
     SomeValueSnakVariable,
     String,

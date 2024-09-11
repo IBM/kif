@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from kif_lib import (
+    EntityVariable,
     ExternalId,
     IRI,
     Item,
@@ -11,6 +12,7 @@ from kif_lib import (
     NoValueSnak,
     Property,
     Quantity,
+    SnakVariable,
     SomeValueSnak,
     Statement,
     StatementTemplate,
@@ -18,10 +20,11 @@ from kif_lib import (
     String,
     Term,
     Text,
+    Theta,
     ValueSnak,
     Variable,
 )
-from kif_lib.typing import assert_type, Set
+from kif_lib.typing import assert_type, Optional, Set
 
 from ...tests import StatementTestCase
 
@@ -105,6 +108,30 @@ class Test(StatementTestCase):
                 (Statement(Item('x'), ValueSnak('y', 'z')),
                  Statement(Item('x'), ValueSnak('y', 'z')),
                  {Variable('x'): String('y')})
+            ])
+
+    def test_match(self) -> None:
+        assert_type(
+            Statement(Item('x'), ValueSnak('y', 'z')).match(
+                Statement(Item('x'), ValueSnak('y', 'z'))), Optional[Theta])
+        self._test_match(
+            Statement, success=[
+                (Statement(Item('x'), ValueSnak('y', 'z')),
+                 Statement(Item('x'), ValueSnak('y', 'z')), {}),
+                (Statement(Item('x'), SomeValueSnak('y')),
+                 StatementVariable('x'),
+                 {StatementVariable('x'):
+                  Statement(Item('x'), SomeValueSnak('y'))}),
+                (Statement(Property('x'), NoValueSnak('y')),
+                 Statement(Variable('x'), Variable('y')),
+                 {EntityVariable('x'): Property('x'),
+                  SnakVariable('y'): NoValueSnak('y')}),
+            ],
+            failure=[
+                (Statement(Item('x'), NoValueSnak('y')),
+                 Statement(Property('x'), NoValueSnak('y'))),
+                (Statement(Item('x'), ValueSnak('y', 'z')),
+                 ValueSnak('y', 'z')),
             ])
 
 

@@ -3,10 +3,30 @@
 
 from __future__ import annotations
 
-from kif_lib import KIF_Object, Statement, StatementTemplate
-from kif_lib.typing import Any, Callable, Iterable, override, Sequence
+from kif_lib import (
+    IRI,
+    Item,
+    ItemDatatype,
+    KIF_Object,
+    NoValueSnak,
+    Quantity,
+    SomeValueSnak,
+    Statement,
+    StatementTemplate,
+    StatementVariable,
+    Term,
+    ValueSnak,
+)
+from kif_lib.typing import (
+    Any,
+    Callable,
+    Iterable,
+    Iterator,
+    override,
+    Sequence,
+)
 
-from .term import ClosedTermTestCase, TemplateTestCase
+from .term import ClosedTermTestCase, TemplateTestCase, VariableTestCase
 
 
 class StatementTemplateTestCase(TemplateTestCase):
@@ -35,6 +55,25 @@ class StatementTemplateTestCase(TemplateTestCase):
         assert isinstance(cls, type)
         assert issubclass(cls, StatementTemplate)
         super()._test__init__(cls, assert_fn, success, failure, normalize)
+
+
+class StatementVariableTestCase(VariableTestCase):
+
+    @override
+    def _test_instantiate_and_match_failure_auto_it(
+            self,
+            cls: Any
+    ) -> Iterator[Term]:
+        assert isinstance(cls, type)
+        assert issubclass(cls, StatementVariable)
+        yield from super()._test_instantiate_and_match_failure_auto_it(cls)
+        yield ItemDatatype()
+        yield Item('x')
+        yield IRI('x')
+        yield Quantity(0)
+        yield ValueSnak('x', 'y')
+        yield SomeValueSnak('x')
+        yield NoValueSnak('x')
 
 
 class StatementTestCase(ClosedTermTestCase):
