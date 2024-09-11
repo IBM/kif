@@ -10,11 +10,14 @@ from ...model import (
     Datatype,
     DatatypeVariable,
     DataValue,
+    DataValueVariable,
     DeepDataValue,
+    DeepDataValueVariable,
     Entity,
     EntityTemplate,
     EntityVariable,
     ExternalId,
+    ExternalIdVariable,
     IRI,
     IRI_Template,
     IRI_Variable,
@@ -33,6 +36,7 @@ from ...model import (
     Quantity,
     QuantityVariable,
     ShallowDataValue,
+    ShallowDataValueVariable,
     Snak,
     SnakTemplate,
     SnakVariable,
@@ -46,6 +50,7 @@ from ...model import (
     TemplatePattern,
     Term,
     Text,
+    TextVariable,
     Time,
     TimeVariable,
     TPattern,
@@ -201,11 +206,29 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _fresh_lexeme_variable(self) -> LexemeVariable:
         return cast(LexemeVariable, self._fresh_variable(LexemeVariable))
 
+    def _fresh_data_value_variable(self) -> DataValueVariable:
+        return cast(DataValueVariable, self._fresh_variable(DataValueVariable))
+
+    def _fresh_shallow_data_value_variable(self) -> ShallowDataValueVariable:
+        return cast(ShallowDataValueVariable, self._fresh_variable(
+            ShallowDataValueVariable))
+
     def _fresh_iri_variable(self) -> IRI_Variable:
         return cast(IRI_Variable, self._fresh_variable(IRI_Variable))
 
+    def _fresh_text_variable(self) -> TextVariable:
+        return cast(TextVariable, self._fresh_variable(TextVariable))
+
     def _fresh_string_variable(self) -> StringVariable:
         return cast(StringVariable, self._fresh_variable(StringVariable))
+
+    def _fresh_external_id_variable(self) -> ExternalIdVariable:
+        return cast(ExternalIdVariable, self._fresh_variable(
+            ExternalIdVariable))
+
+    def _fresh_deep_data_value_variable(self) -> DeepDataValueVariable:
+        return cast(DeepDataValueVariable, self._fresh_variable(
+            DeepDataValueVariable))
 
     def _fresh_quantity_variable(self) -> QuantityVariable:
         return cast(QuantityVariable, self._fresh_variable(QuantityVariable))

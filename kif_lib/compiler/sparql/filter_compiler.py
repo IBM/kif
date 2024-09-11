@@ -103,12 +103,11 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     @override
     def compile(self) -> Self:
         filter = self._filter.normalize()
-        self._push_filter(filter)
+        if not filter.is_empty():
+            self._push_filter(filter)
         return self
 
     def _push_filter(self, filter: Filter) -> None:
-        if filter.is_empty():
-            return              # nothing to do
         assert isinstance(self.pattern, VariablePattern)
         assert isinstance(self.pattern.variable, StatementVariable)
         # Subject variable.

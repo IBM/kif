@@ -4,9 +4,11 @@
 from __future__ import annotations
 
 from .filter_compiler import SPARQL_FilterCompiler
+from .mapping_filter_compiler import SPARQL_MappingFilterCompiler
 from .pattern_compiler import SPARQL_PatternCompiler
 
 __all__ = (
     'SPARQL_FilterCompiler',
+    'SPARQL_MappingFilterCompiler',
     'SPARQL_PatternCompiler',
 )
