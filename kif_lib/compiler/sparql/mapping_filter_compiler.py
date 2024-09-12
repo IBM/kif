@@ -75,9 +75,9 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
     def _push_filter(self, filter: Filter) -> None:
         assert isinstance(self.pattern, VariablePattern)
         assert isinstance(self.pattern.variable, StatementVariable)
-        assert isinstance(filter.subject, (FullFingerprint, ValueFingerprint))
-        assert isinstance(filter.property, (FullFingerprint, ValueFingerprint))
-        assert isinstance(filter.value, (FullFingerprint, ValueFingerprint))
+        # assert isinstance(filter.subject, (FullFingerprint, ValueFingerprint))
+        # assert isinstance(filter.property, (FullFingerprint, ValueFingerprint))
+        # assert isinstance(filter.value, (FullFingerprint, ValueFingerprint))
         with self._q.union():
             for source in self._filter_to_patterns(filter):
                 for i, entry in enumerate(self.mapping):
@@ -86,9 +86,6 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                         continue  # nothing to do
                     saved_subst = self._theta
                     self._theta = Substitution()
-                    if i not in self._entry_subst:
-                        self._entry_subst[i] = []
-                    self._entry_subst[i].append(self._theta)
                     target = source.instantiate(theta)
                     assert isinstance(
                         target, (Statement, StatementTemplate))
@@ -111,7 +108,10 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                         self._q.stash_drop()
                     else:
                         self._q.stash_pop()
-                    self._theta_add(self.pattern.variable, target)
+                        self._theta_add(self.pattern.variable, target)
+                        if i not in self._entry_subst:
+                            self._entry_subst[i] = []
+                        self._entry_subst[i].append(self._theta)
                     self._theta = saved_subst
 
     def _binding_to_thetas(
