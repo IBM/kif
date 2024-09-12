@@ -130,6 +130,11 @@ class SPARQL_Compiler(Compiler):
         self.flags &= ~flags
 
     @property
+    def q(self) -> Query:
+        """The compiled query."""
+        return self.get_query()
+
+    @property
     def query(self) -> Query:
         """The compiled query."""
         return self.get_query()
@@ -143,7 +148,7 @@ class SPARQL_Compiler(Compiler):
         return self._q
 
     def _qvar(self, var: Query.TVariable) -> Query.Variable:
-        return self._q.var(var)
+        return self.q.var(var)
 
     def _qvars(
             self,
@@ -153,7 +158,7 @@ class SPARQL_Compiler(Compiler):
         return map(self._qvar, itertools.chain((var,), vars_))
 
     def _fresh_qvar(self) -> Query.Variable:
-        return self._q.fresh_var()
+        return self.q.fresh_var()
 
     def _fresh_qvars(self, n: int) -> Iterator[Query.Variable]:
-        return self._q.fresh_vars(n)
+        return self.q.fresh_vars(n)

@@ -164,7 +164,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
 
     def _theta_add(self, var: Variable, v: T) -> T:
         if self.has_flags(self.DEBUG):
-            self._q.comments()(f'{var} := {Substitution._dump_value(v)}')
+            self.q.comments()(f'{var} := {Substitution._dump_value(v)}')
         return self._theta.add(var, v)
 
     def _theta_add_as_qvar(self, var: Variable) -> Query.Variable:
@@ -269,17 +269,17 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             value: Value
     ) -> Query.Literal | Query.URI:
         if isinstance(value, Entity):
-            return self._q.uri(value.iri.content)
+            return self.q.uri(value.iri.content)
         elif isinstance(value, IRI):
-            return self._q.uri(value.content)
+            return self.q.uri(value.content)
         elif isinstance(value, Text):
-            return self._q.literal(value.content, value.language)
+            return self.q.literal(value.content, value.language)
         elif isinstance(value, (String, ExternalId)):
-            return self._q.literal(value.content)
+            return self.q.literal(value.content)
         elif isinstance(value, Quantity):
-            return self._q.literal(value.amount)
+            return self.q.literal(value.amount)
         elif isinstance(value, Time):
-            return self._q.literal(value.time)
+            return self.q.literal(value.time)
         else:
             raise self._should_not_get_here()
 
@@ -316,14 +316,14 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             obj: Statement
     ) -> StmtCtx:
         ctx = self._mk_stmtctx(self._fresh_qvar())
-        self._q.stash_begin()
-        self._q.comments()('subject')
+        self.q.stash_begin()
+        self.q.comments()('subject')
         v_subject = self._push_entity(obj.subject)
-        self._q.comments()('snak')
+        self.q.comments()('snak')
         v_property = self._push_snak(obj.snak, ctx)
-        self._q.stash_end()
+        self.q.stash_end()
         self._do_push_statement(ctx['v_wds'], v_subject, v_property)
-        self._q.stash_pop()
+        self.q.stash_pop()
         return ctx
 
     def _push_statement_template(
@@ -331,7 +331,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             tpl: StatementTemplate
     ) -> StmtCtx:
         ctx = self._mk_stmtctx(self._fresh_qvar())
-        self._q.stash_begin()
+        self.q.stash_begin()
         if isinstance(tpl.subject, Entity):
             v_subject = self._push_entity(tpl.subject)
         elif isinstance(tpl.subject, EntityTemplate):
@@ -348,9 +348,9 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             raise NotImplementedError
         else:
             raise self._should_not_get_here()
-        self._q.stash_end()
+        self.q.stash_end()
         self._do_push_statement(ctx['v_wds'], v_subject, v_property)
-        self._q.stash_pop()
+        self.q.stash_pop()
         return ctx
 
     def _push_statement_variable(self, var: StatementVariable) -> StmtCtx:
@@ -368,12 +368,12 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             v_property: V_URI3
     ) -> tuple[V_URI1, V_URI2, V_URI3]:
         p = self._fresh_qvar()
-        self._q.triples()(
+        self.q.triples()(
             (v_subject, p, v_wds),
             (v_property, NS.WIKIBASE.claim, p))
         best_ranked = self.has_flags(self.BEST_RANK)
         if best_ranked:
-            self._q.triples()((v_wds, NS.RDF.type, NS.WIKIBASE.BestRank))
+            self.q.triples()((v_wds, NS.RDF.type, NS.WIKIBASE.BestRank))
         return v_wds, v_subject, v_property
 
     # -- Entity --
@@ -407,14 +407,14 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             return self._push_lexeme_variable(var)
         elif isinstance(var, EntityVariable):
             v_entity = self._as_qvar(var)
-            with self._q.union():
-                with self._q.group():  # item
+            with self.q.union():
+                with self.q.group():  # item
                     item_iri = self._fresh_iri_variable()
                     self._theta_add(
                         ItemVariable.check(var), ItemTemplate(item_iri))
                     self._do_push_item(v_entity)
-                    self._q.bind(v_entity, self._theta_add_as_qvar(item_iri))
-                with self._q.group():  # property
+                    self.q.bind(v_entity, self._theta_add_as_qvar(item_iri))
+                with self.q.group():  # property
                     datatype = self._fresh_datatype_variable()
                     datatype_iri = self._theta_add(
                         datatype, self._fresh_iri_variable())
@@ -424,15 +424,15 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
                         PropertyTemplate(property_iri, datatype))
                     self._do_push_property(
                         v_entity, self._theta_add_as_qvar(datatype_iri))
-                    self._q.bind(
+                    self.q.bind(
                         v_entity, self._theta_add_as_qvar(property_iri))
-                with self._q.group():  # lexeme
+                with self.q.group():  # lexeme
                     lexeme_iri = self._fresh_iri_variable()
                     self._theta_add(
                         LexemeVariable.check(var),
                         LexemeTemplate(lexeme_iri))
                     self._do_push_lexeme(v_entity)
-                    self._q.bind(
+                    self.q.bind(
                         v_entity, self._theta_add_as_qvar(lexeme_iri))
             return v_entity
         else:
@@ -441,7 +441,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     # -- Item --
 
     def _push_item(self, obj: Item) -> Query.V_URI:
-        return self._do_push_item(self._q._mk_uri(obj.iri.content))
+        return self._do_push_item(self.q._mk_uri(obj.iri.content))
 
     def _push_item_template(self, tpl: ItemTemplate) -> Query.V_URI:
         if isinstance(tpl.iri, IRI_Template):
@@ -457,7 +457,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             self._theta_add(var, ItemTemplate(self._fresh_iri_variable())))
 
     def _do_push_item(self, v_item: V_URI1) -> V_URI1:
-        self._q.triples()((v_item, NS.WIKIBASE.sitelinks, self._q.bnode()))
+        self.q.triples()((v_item, NS.WIKIBASE.sitelinks, self.q.bnode()))
         return v_item
 
     # -- Property --
@@ -468,12 +468,12 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
                 PropertyTemplate(obj.iri, self._fresh_datatype_variable()))
         else:
             v_property, _ = self._do_push_property(
-                self._q._mk_uri(obj.iri.content), obj.range._to_rdflib())
+                self.q._mk_uri(obj.iri.content), obj.range._to_rdflib())
             return v_property
 
     def _push_property_template(self, tpl: PropertyTemplate) -> Query.V_URI:
         if isinstance(tpl.iri, IRI):
-            v_property: Query.V_URI = self._q._mk_uri(tpl.iri.content)
+            v_property: Query.V_URI = self.q._mk_uri(tpl.iri.content)
         elif isinstance(tpl.iri, IRI_Template):
             assert isinstance(tpl.iri.content, StringVariable)
             v_property = self._theta_add_as_qvar(tpl.iri.content)
@@ -484,7 +484,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         if tpl.range is None:
             v_datatype: Query.V_URI = self._fresh_qvar()
         elif isinstance(tpl.range, Datatype):
-            v_datatype = self._q._mk_uri(tpl.range._to_rdflib())
+            v_datatype = self.q._mk_uri(tpl.range._to_rdflib())
         elif isinstance(tpl.range, DatatypeVariable):
             v_datatype = self._theta_add_as_qvar(self._theta_add(
                 tpl.range, self._fresh_iri_variable()))
@@ -504,7 +504,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             v_property: V_URI1,
             v_datatype: V_URI2
     ) -> tuple[V_URI1, V_URI2]:
-        self._q.triples()(
+        self.q.triples()(
             (v_property, NS.RDF.type, NS.WIKIBASE.Property),
             (v_property, NS.WIKIBASE.propertyType, v_datatype))
         return v_property, v_datatype
@@ -512,7 +512,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     # -- Lexeme --
 
     def _push_lexeme(self, obj: Lexeme) -> Query.V_URI:
-        return self._do_push_lexeme(self._q._mk_uri(obj.iri.content))
+        return self._do_push_lexeme(self.q._mk_uri(obj.iri.content))
 
     def _push_lexeme_template(self, tpl: LexemeTemplate) -> Query.V_URI:
         if isinstance(tpl.iri, IRI_Template):
@@ -529,7 +529,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             self._theta_add(var, LexemeTemplate(self._fresh_iri_variable())))
 
     def _do_push_lexeme(self, v_lexeme: V_URI1) -> V_URI1:
-        self._q.triples()((v_lexeme, NS.RDF.type, NS.ONTOLEX.LexicalEntry))
+        self.q.triples()((v_lexeme, NS.RDF.type, NS.ONTOLEX.LexicalEntry))
         return v_lexeme
 
     # -- Snak --
@@ -563,8 +563,8 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             v_property: V_URI2,
             v_value: VTerm1
     ) -> tuple[V_URI1, V_URI2, VTerm1]:
-        ps = self._q.fresh_var()
-        self._q.triples()(
+        ps = self.q.fresh_var()
+        self.q.triples()(
             (v_property, NS.WIKIBASE.statementProperty, ps),
             (v_wds, ps, v_value))
         return v_wds, v_property, v_value
@@ -622,6 +622,6 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             obj: IRI,
             ctx: SnakCtx
     ) -> Query.URI:
-        self._q.triples()(
+        self.q.triples()(
             (ctx['v_property'], NS.WIKIBASE.propertyType, NS.WIKIBASE.Url))
-        return self._q.uri(obj.content)
+        return self.q.uri(obj.content)

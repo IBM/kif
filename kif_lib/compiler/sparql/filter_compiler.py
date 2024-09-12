@@ -75,7 +75,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     ) -> None:
         super().__init__(Variable('_', Statement), flags)
         self._filter = filter
-        self._wds = self._q.fresh_var()
+        self._wds = self.q.fresh_var()
 
     @property
     def filter(self) -> Filter:
@@ -133,7 +133,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         else:
             v_property = self._as_qvar(property)
         wds = self.wds
-        p = self._q.fresh_var()
+        p = self.q.fresh_var()
         ###
         # IMPORTANT: Some SPARQL engines are sensitive to the place where a
         # variable is bound.  As a rule of thumb, we should bind variables
@@ -141,33 +141,33 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         # actually used.  This is why we do not bind the `ps`, `wdno`, etc.,
         # here.
         ###
-        self._q.triples()(
+        self.q.triples()(
             (v_subject, p, wds),
             (v_property, NS.WIKIBASE.claim, p))
         # Best-ranked only?
         best_ranked = self.has_flags(self.BEST_RANK)
         if best_ranked:
-            self._q.triples()((wds, NS.RDF.type, NS.WIKIBASE.BestRank))
+            self.q.triples()((wds, NS.RDF.type, NS.WIKIBASE.BestRank))
         # Push subject.
-        with self._q.group():
-            with self._q.union():
+        with self.q.group():
+            with self.q.union():
                 if bool(filter.subject_mask & filter.ITEM):
-                    with self._q.group():
+                    with self.q.group():
                         self._bind_as_item(
                             v_subject, ItemVariable(subject.name))
                 if bool(filter.subject_mask & filter.PROPERTY):
-                    with self._q.group():
+                    with self.q.group():
                         self._bind_as_property(
                             v_subject, PropertyVariable(subject.name))
                 if bool(filter.subject_mask & filter.LEXEME):
-                    with self._q.group():
+                    with self.q.group():
                         self._bind_as_lexeme(
                             v_subject, LexemeVariable(subject.name))
             if isinstance(v_subject, Query.Variable):
                 self._push_fingerprint(
                     filter.subject, v_subject, v_property, wds)
         # Push property.
-        with self._q.group():
+        with self.q.group():
             self._bind_as_property(v_property, property)
             if isinstance(v_property, Query.Variable):
                 self._push_fingerprint(
@@ -183,11 +183,11 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             filter.snak_mask & Filter.NO_VALUE_SNAK
             and self.has_flags(self.NO_VALUE_SNAK))
         assert try_value_snak or try_some_value_snak or try_no_value_snak
-        with self._q.union():
+        with self.q.union():
             if try_value_snak:
                 value_mask = filter.value_mask\
                     & filter.property.range_datatype_mask
-                with self._q.group():
+                with self.q.group():
                     value = self._fresh_value_variable()
                     v_value: Query.VTerm
                     if isinstance(filter.value, ValueFingerprint):
@@ -198,15 +198,15 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                     self._theta_add(
                         ValueSnakVariable(snak.name),
                         ValueSnak(property, value))
-                    ps = self._q.fresh_var()
-                    self._q.triples()(
+                    ps = self.q.fresh_var()
+                    self.q.triples()(
                         (v_property, NS.WIKIBASE.statementProperty, ps),
                         (wds, ps, v_value))
-                    with self._q.group():
-                        with self._q.union():
+                    with self.q.group():
+                        with self.q.union():
                             if value_mask & filter.ITEM:
-                                with self._q.group():  # item?
-                                    self._q.triples()(
+                                with self.q.group():  # item?
+                                    self.q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.WikibaseItem))
@@ -215,8 +215,8 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                     self._bind_as_item(
                                         v_value, ItemVariable(value.name))
                             if value_mask & filter.PROPERTY:
-                                with self._q.group():  # property?
-                                    self._q.triples()(
+                                with self.q.group():  # property?
+                                    self.q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.WikibaseProperty))
@@ -225,8 +225,8 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                     self._bind_as_property(
                                         v_value, PropertyVariable(value.name))
                             if value_mask & filter.LEXEME:
-                                with self._q.group():  # lexeme?
-                                    self._q.triples()(
+                                with self.q.group():  # lexeme?
+                                    self.q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.WikibaseLexeme))
@@ -235,8 +235,8 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                     self._bind_as_lexeme(
                                         v_value, LexemeVariable(value.name))
                             if value_mask & filter.IRI:
-                                with self._q.group():  # iri?
-                                    self._q.triples()(
+                                with self.q.group():  # iri?
+                                    self.q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.Url),
@@ -246,8 +246,8 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                     self._bind_as_iri(
                                         v_value, IRI_Variable(value.name))
                             if value_mask & filter.TEXT:
-                                with self._q.group():  # text?
-                                    self._q.triples()(
+                                with self.q.group():  # text?
+                                    self.q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.Monolingualtext),
@@ -256,8 +256,8 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                     self._bind_as_text(
                                         v_value, TextVariable(value.name))
                             if value_mask & filter.STRING:
-                                with self._q.group():  # string?
-                                    self._q.triples()(
+                                with self.q.group():  # string?
+                                    self.q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.String),
@@ -267,8 +267,8 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                         v_value, StringVariable(value.name))
                             if value_mask & (
                                     filter.STRING | filter.EXTERNAL_ID):
-                                with self._q.group():  # external id?
-                                    self._q.triples()(
+                                with self.q.group():  # external id?
+                                    self.q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.ExternalId),
@@ -278,9 +278,9 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                         v_value,
                                         ExternalIdVariable(value.name))
                             if value_mask & filter.QUANTITY:
-                                with self._q.group():  # quantity?
-                                    psv, wdv = self._q.fresh_vars(2)
-                                    self._q.triples()(
+                                with self.q.group():  # quantity?
+                                    psv, wdv = self.q.fresh_vars(2)
+                                    self.q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.Quantity),
@@ -301,9 +301,9 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                                         v_value, wdv,
                                         QuantityVariable(value.name), qt)
                             if value_mask & filter.TIME:
-                                with self._q.group():  # time?
-                                    psv, wdv = self._q.fresh_vars(2)
-                                    self._q.triples()(
+                                with self.q.group():  # time?
+                                    psv, wdv = self.q.fresh_vars(2)
+                                    self.q.triples()(
                                         (v_property,
                                          NS.WIKIBASE.propertyType,
                                          NS.WIKIBASE.Time),
@@ -327,7 +327,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                             self._push_fingerprint(
                                 filter.value, v_value, v_property, wds)
             if try_some_value_snak:
-                with self._q.group():
+                with self.q.group():
                     prop_some_datatype = self._fresh_datatype_variable()
                     prop_some_datatype_iri = self._fresh_iri_variable()
                     self._theta_add(
@@ -344,16 +344,16 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                     self._theta_add(
                         SomeValueSnakVariable(snak.name),
                         SomeValueSnak(prop_some))
-                    ps, v_some = self._q.fresh_vars(2)
-                    self._q.triples()(
+                    ps, v_some = self.q.fresh_vars(2)
+                    self.q.triples()(
                         (v_property, NS.WIKIBASE.statementProperty, ps),
                         (v_property, NS.WIKIBASE.propertyType,
                          self._as_qvar(prop_some_datatype_iri)),
                         (wds, ps, v_some))
-                    self._q.bind(v_property, self._as_qvar(prop_some_iri))
+                    self.q.bind(v_property, self._as_qvar(prop_some_iri))
                     self._push_some_value_filter(v_some)
             if try_no_value_snak:
-                with self._q.group():
+                with self.q.group():
                     prop_no_datatype = self._fresh_datatype_variable()
                     prop_no_datatype_iri = self._fresh_iri_variable()
                     self._theta_add(
@@ -370,13 +370,13 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
                     self._theta_add(
                         NoValueSnakVariable(snak.name),
                         NoValueSnak(prop_no))
-                    wdno = self._q.fresh_var()
-                    self._q.triples()(
+                    wdno = self.q.fresh_var()
+                    self.q.triples()(
                         (v_property, NS.WIKIBASE.novalue, wdno),
                         (v_property, NS.WIKIBASE.propertyType,
                          self._as_qvar(prop_no_datatype_iri)),
                         (wds, NS.RDF.type, wdno))
-                    self._q.bind(v_property, self._as_qvar(prop_no_iri))
+                    self.q.bind(v_property, self._as_qvar(prop_no_iri))
 
     def _bind_as_item(
             self,
@@ -386,8 +386,8 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         var = var or ItemVariable(str(dest))
         iri = self._fresh_iri_variable()
         self._theta_add(var, Item(iri))
-        self._q.triples()((dest, NS.WIKIBASE.sitelinks, self._q.bnode()))
-        self._q.bind(dest, self._theta_add(iri, self._as_qvar(iri)))
+        self.q.triples()((dest, NS.WIKIBASE.sitelinks, self.q.bnode()))
+        self.q.bind(dest, self._theta_add(iri, self._as_qvar(iri)))
 
     def _bind_as_property(
             self,
@@ -400,11 +400,11 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         iri = self._fresh_iri_variable()
         self._theta_add(datatype, datatype_iri)
         self._theta_add(var, Property(iri, datatype))
-        self._q.triples()(
+        self.q.triples()(
             (dest, NS.RDF.type, NS.WIKIBASE.Property),
             (dest, NS.WIKIBASE.propertyType, self._theta_add(
                 datatype_iri, self._as_qvar(datatype_iri))))
-        self._q.bind(dest, self._theta_add(iri, self._as_qvar(iri)))
+        self.q.bind(dest, self._theta_add(iri, self._as_qvar(iri)))
 
     def _bind_as_lexeme(
             self,
@@ -414,8 +414,8 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         var = var or LexemeVariable(str(dest))
         iri = self._fresh_iri_variable()
         self._theta_add(var, Lexeme(iri))
-        self._q.triples()((dest, NS.RDF.type, NS.ONTOLEX.LexicalEntry))
-        self._q.bind(dest, self._theta_add(iri, self._as_qvar(iri)))
+        self.q.triples()((dest, NS.RDF.type, NS.ONTOLEX.LexicalEntry))
+        self.q.bind(dest, self._theta_add(iri, self._as_qvar(iri)))
 
     def _bind_as_iri(
             self,
@@ -425,7 +425,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         var = var or IRI_Variable(str(dest))
         content = self._fresh_string_variable()
         self._theta_add(var, IRI(content))
-        self._q.bind(dest, self._theta_add(content, self._as_qvar(content)))
+        self.q.bind(dest, self._theta_add(content, self._as_qvar(content)))
 
     def _bind_as_text(
             self,
@@ -436,8 +436,8 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         content = self._fresh_string_variable()
         lang = self._fresh_string_variable()
         self._theta_add(var, Text(content, lang))
-        self._q.bind(dest, self._theta_add(content, self._as_qvar(content)))
-        self._q.bind(self._q.lang(dest), self._theta_add(
+        self.q.bind(dest, self._theta_add(content, self._as_qvar(content)))
+        self.q.bind(self.q.lang(dest), self._theta_add(
             lang, self._as_qvar(lang)))
 
     def _bind_as_string(
@@ -448,7 +448,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         var = var or StringVariable(str(dest))
         content = self._fresh_string_variable()
         self._theta_add(var, String(content))
-        self._q.bind(dest, self._theta_add(content, self._as_qvar(content)))
+        self.q.bind(dest, self._theta_add(content, self._as_qvar(content)))
 
     def _bind_as_external_id(
             self,
@@ -458,7 +458,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         var = var or ExternalIdVariable(str(dest))
         content = self._fresh_string_variable()
         self._theta_add(var, ExternalId(content))
-        self._q.bind(dest, self._theta_add(content, self._as_qvar(content)))
+        self.q.bind(dest, self._theta_add(content, self._as_qvar(content)))
 
     def _bind_as_quantity(
             self,
@@ -477,45 +477,45 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         if qt is not None:
             v_amount: Query.VLiteral = cast(
                 Query.Literal, self._as_simple_value(Quantity(qt.amount)))
-            self._q.bind(
+            self.q.bind(
                 v_amount, self._theta_add(amount, self._as_qvar(amount)))
         else:
             v_amount = self._as_qvar(amount)
             self._theta_add(amount, v_amount)
-        self._q.triples()((wdv, NS.WIKIBASE.quantityAmount, v_amount))
+        self.q.triples()((wdv, NS.WIKIBASE.quantityAmount, v_amount))
         # Push unit.
         if qt is not None and qt.unit is not None:
             v_unit: Query.V_URI = cast(
                 Query.URI, self._as_simple_value(qt.unit))
-            self._q.bind(
+            self.q.bind(
                 v_unit, self._theta_add(unit, self._as_qvar(unit)))
         else:
             v_unit = self._as_qvar(unit)
             self._theta_add(unit, v_unit)
-        with self._q.optional_if(isinstance(v_unit, Query.Variable)):
-            self._q.triples()((wdv, NS.WIKIBASE.quantityUnit, v_unit))
+        with self.q.optional_if(isinstance(v_unit, Query.Variable)):
+            self.q.triples()((wdv, NS.WIKIBASE.quantityUnit, v_unit))
         # Push lower-bound.
         if qt is not None and qt.lower_bound is not None:
             v_lower: Query.VLiteral = cast(
                 Query.Literal, self._as_simple_value(Quantity(qt.lower_bound)))
-            self._q.bind(
+            self.q.bind(
                 v_lower, self._theta_add(lower, self._as_qvar(lower)))
         else:
             v_lower = self._as_qvar(lower)
             self._theta_add(lower, v_lower)
-        with self._q.optional_if(isinstance(v_lower, Query.Variable)):
-            self._q.triples()((wdv, NS.WIKIBASE.quantityLowerBound, v_lower))
+        with self.q.optional_if(isinstance(v_lower, Query.Variable)):
+            self.q.triples()((wdv, NS.WIKIBASE.quantityLowerBound, v_lower))
         # Push upper-bound.
         if qt is not None and qt.upper_bound is not None:
             v_upper: Query.VLiteral = cast(
                 Query.Literal, self._as_simple_value(Quantity(qt.upper_bound)))
-            self._q.bind(
+            self.q.bind(
                 v_upper, self._theta_add(upper, self._as_qvar(upper)))
         else:
             v_upper = self._as_qvar(upper)
             self._theta_add(upper, v_upper)
-        with self._q.optional_if(isinstance(v_upper, Query.Variable)):
-            self._q.triples()((wdv, NS.WIKIBASE.quantityUpperBound, v_upper))
+        with self.q.optional_if(isinstance(v_upper, Query.Variable)):
+            self.q.triples()((wdv, NS.WIKIBASE.quantityUpperBound, v_upper))
 
     def _bind_as_time(
             self,
@@ -534,39 +534,39 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         if tm is not None:
             v_time: Query.VLiteral = cast(
                 Query.Literal, self._as_simple_value(Time(tm.time)))
-            self._q.bind(v_time, self._theta_add(time, self._as_qvar(time)))
+            self.q.bind(v_time, self._theta_add(time, self._as_qvar(time)))
         else:
             v_time = self._as_qvar(time)
             self._theta_add(time, v_time)
-        self._q.triples()((wdv, NS.WIKIBASE.timeValue, v_time))
+        self.q.triples()((wdv, NS.WIKIBASE.timeValue, v_time))
         # Push precision.
         if tm is not None and tm.precision is not None:
             v_prec: Query.VLiteral = Query.Literal(tm.precision.value)
-            self._q.bind(v_prec, self._theta_add(prec, self._as_qvar(prec)))
+            self.q.bind(v_prec, self._theta_add(prec, self._as_qvar(prec)))
         else:
             v_prec = self._as_qvar(prec)
             self._theta_add(prec, v_prec)
-        with self._q.optional_if(isinstance(v_prec, Query.Variable)):
-            self._q.triples()((wdv, NS.WIKIBASE.timePrecision, v_prec))
+        with self.q.optional_if(isinstance(v_prec, Query.Variable)):
+            self.q.triples()((wdv, NS.WIKIBASE.timePrecision, v_prec))
         # Push timezone.
         if tm is not None and tm.timezone is not None:
             v_tz: Query.VLiteral = Query.Literal(tm.timezone)
-            self._q.bind(v_tz, self._theta_add(tz, self._as_qvar(tz)))
+            self.q.bind(v_tz, self._theta_add(tz, self._as_qvar(tz)))
         else:
             v_tz = self._as_qvar(tz)
             self._theta_add(tz, v_tz)
-        with self._q.optional_if(isinstance(v_tz, Query.Variable)):
-            self._q.triples()((wdv, NS.WIKIBASE.timeTimezone, v_tz))
+        with self.q.optional_if(isinstance(v_tz, Query.Variable)):
+            self.q.triples()((wdv, NS.WIKIBASE.timeTimezone, v_tz))
         # Push calendar.
         if tm is not None and tm.calendar is not None:
             v_cal: Query.V_URI = cast(
                 Query.URI, self._as_simple_value(tm.calendar))
-            self._q.bind(v_cal, self._theta_add(cal, self._as_qvar(cal)))
+            self.q.bind(v_cal, self._theta_add(cal, self._as_qvar(cal)))
         else:
             v_cal = self._as_qvar(cal)
             self._theta_add(cal, v_cal)
-        with self._q.optional_if(isinstance(v_cal, Query.Variable)):
-            self._q.triples()((wdv, NS.WIKIBASE.timeCalendarModel, v_cal))
+        with self.q.optional_if(isinstance(v_cal, Query.Variable)):
+            self.q.triples()((wdv, NS.WIKIBASE.timeCalendarModel, v_cal))
 
     def _push_fingerprint(
             self,
@@ -577,16 +577,16 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     ) -> None:
         assert not fp.is_empty()
         if isinstance(fp, CompoundFingerprint):
-            with self._q.group():
-                self._q.comments()(f'{dest} := {type(fp).__qualname__}')
+            with self.q.group():
+                self.q.comments()(f'{dest} := {type(fp).__qualname__}')
                 self._push_compound_fingerprint(fp, dest, property, wds)
         elif isinstance(fp, SnakFingerprint):
-            with self._q.group():
-                self._q.comments()(f'{dest} := {fp}')
+            with self.q.group():
+                self.q.comments()(f'{dest} := {fp}')
                 self._push_snak_fingerprint(fp, dest)
         elif isinstance(fp, ValueFingerprint):
-            with self._q.group():
-                self._q.comments()(f'{dest} := {fp}')
+            with self.q.group():
+                self.q.comments()(f'{dest} := {fp}')
                 self._push_value_fingerprints((fp,), dest, property, wds)
         elif isinstance(fp, FullFingerprint):
             pass                # nothing to do
@@ -613,12 +613,12 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             if values:
                 self._push_value_fingerprints(values, dest, property, wds)
         elif isinstance(fp, OrFingerprint):
-            with self._q.union():
+            with self.q.union():
                 for child in itertools.chain(snaks, comps):
-                    with self._q.group():
+                    with self.q.group():
                         self._push_fingerprint(child, dest, property, wds)
                 if values:
-                    with self._q.group():
+                    with self.q.group():
                         self._push_value_fingerprints(
                             values, dest, property, wds)
         else:
@@ -629,41 +629,41 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             fp: SnakFingerprint,
             dest: Query.Variable,
     ) -> None:
-        prop = self._q.uri(fp.snak.property.iri.content)
+        prop = self.q.uri(fp.snak.property.iri.content)
         if isinstance(fp, ConverseSnakFingerprint):
             assert isinstance(fp.snak, ValueSnak)
             assert isinstance(fp.snak.value, Entity)
-            wdt = self._q.fresh_var()
+            wdt = self.q.fresh_var()
             value = self._as_simple_value(fp.snak.value)
             assert isinstance(value, Query._mk_uri)
-            self._q.triples()(
+            self.q.triples()(
                 (prop, NS.WIKIBASE.directClaim, wdt),
                 (value, wdt, dest))
         elif isinstance(fp.snak, ValueSnak):
-            wdt = self._q.fresh_var()
+            wdt = self.q.fresh_var()
             value = self._as_simple_value(fp.snak.value)
-            self._q.triples()(
+            self.q.triples()(
                 (prop, NS.WIKIBASE.directClaim, wdt),
                 (dest, wdt, value))
             if isinstance(fp.snak.value, DeepDataValue):
-                p, ps, wds = self._q.fresh_vars(3)
-                self._q.triples()(
+                p, ps, wds = self.q.fresh_vars(3)
+                self.q.triples()(
                     (prop, NS.WIKIBASE.claim, p),
                     (prop, NS.WIKIBASE.statementProperty, ps),
                     (dest, p, wds),
                     (wds, ps, value))
                 self._push_value_fingerprints(
-                    (ValueFingerprint(fp.snak.value),), self._q.fresh_var(),
+                    (ValueFingerprint(fp.snak.value),), self.q.fresh_var(),
                     prop, wds)
         elif isinstance(fp.snak, SomeValueSnak):
-            some, wdt = self._q.fresh_vars(2)
-            self._q.triples()(
+            some, wdt = self.q.fresh_vars(2)
+            self.q.triples()(
                 (prop, NS.WIKIBASE.directClaim, wdt),
                 (dest, wdt, some))
             self._push_some_value_filter(some)
         elif isinstance(fp.snak, NoValueSnak):
-            p, wdno, wds, wdt = self._q.fresh_vars(4)
-            self._q.triples()(
+            p, wdno, wds, wdt = self.q.fresh_vars(4)
+            self.q.triples()(
                 (prop, NS.WIKIBASE.directClaim, wdt),
                 (prop, NS.WIKIBASE.claim, p),
                 (prop, NS.WIKIBASE.novalue, wdno),
@@ -684,41 +684,41 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             lambda v: isinstance(v, DeepDataValue), values))
         tms, qts = map(list, itertools.partition(
             lambda v: isinstance(v, Quantity), deep))
-        with self._q.union():
+        with self.q.union():
             if shallow:
-                with self._q.group():
-                    self._q.values(dest)(*map(
+                with self.q.group():
+                    self.q.values(dest)(*map(
                         lambda v: (self._as_simple_value(v),),
                         shallow))
             if qts:
-                with self._q.group():
-                    ps, psv, wdv = self._q.fresh_vars(3)
-                    self._q.triples()(
+                with self.q.group():
+                    ps, psv, wdv = self.q.fresh_vars(3)
+                    self.q.triples()(
                         (property, NS.WIKIBASE.statementProperty, ps),
                         (property, NS.WIKIBASE.statementValue, psv),
                         (wds, psv, wdv),
                         (wdv, NS.RDF.type, NS.WIKIBASE.QuantityValue))
-                    with self._q.union():
+                    with self.q.union():
                         for qt in qts:
                             assert isinstance(qt, Quantity)
-                            with self._q.group():
-                                self._q.triples()(
-                                    (wds, ps, self._q.literal(qt.amount)))
+                            with self.q.group():
+                                self.q.triples()(
+                                    (wds, ps, self.q.literal(qt.amount)))
                                 self._push_quantity_value(qt, dest, wdv)
             if tms:
-                with self._q.group():
-                    ps, psv, wdv = self._q.fresh_vars(3)
-                    self._q.triples()(
+                with self.q.group():
+                    ps, psv, wdv = self.q.fresh_vars(3)
+                    self.q.triples()(
                         (property, NS.WIKIBASE.statementProperty, ps),
                         (property, NS.WIKIBASE.statementValue, psv),
                         (wds, psv, wdv),
                         (wdv, NS.RDF.type, NS.WIKIBASE.TimeValue))
-                    with self._q.union():
+                    with self.q.union():
                         for tm in tms:
                             assert isinstance(tm, Time)
-                            with self._q.group():
-                                self._q.triples()(
-                                    (wds, ps, self._q.literal(tm.time)))
+                            with self.q.group():
+                                self.q.triples()(
+                                    (wds, ps, self.q.literal(tm.time)))
                                 self._push_time_value(tm, dest, wdv)
 
     def _push_quantity_value(
@@ -727,18 +727,18 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             dest: Query.Variable,
             wdv: Query.Variable
     ) -> None:
-        amount = self._q.literal(qt.amount)
-        self._q.triples()((wdv, NS.WIKIBASE.quantityAmount, amount))
+        amount = self.q.literal(qt.amount)
+        self.q.triples()((wdv, NS.WIKIBASE.quantityAmount, amount))
         if qt.unit is not None:
-            unit = self._q.uri(qt.unit.iri.content)
-            self._q.triples()((wdv, NS.WIKIBASE.quantityUnit, unit))
+            unit = self.q.uri(qt.unit.iri.content)
+            self.q.triples()((wdv, NS.WIKIBASE.quantityUnit, unit))
         if qt.lower_bound is not None:
-            lower = self._q.literal(qt.lower_bound)
-            self._q.triples()(
+            lower = self.q.literal(qt.lower_bound)
+            self.q.triples()(
                 (wdv, NS.WIKIBASE.quantityLowerBound, lower))
         if qt.upper_bound is not None:
-            upper = self._q.literal(qt.upper_bound)
-            self._q.triples()(
+            upper = self.q.literal(qt.upper_bound)
+            self.q.triples()(
                 (wdv, NS.WIKIBASE.quantityUpperBound, upper))
 
     def _push_time_value(
@@ -747,19 +747,19 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             dest: Query.Variable,
             wdv: Query.Variable,
     ) -> None:
-        time = self._q.literal(tm.time)
-        self._q.triples()((wdv, NS.WIKIBASE.timeValue, time))
+        time = self.q.literal(tm.time)
+        self.q.triples()((wdv, NS.WIKIBASE.timeValue, time))
         if tm.precision is not None:
-            precision = self._q.literal(tm.precision.value)
-            self._q.triples()(
+            precision = self.q.literal(tm.precision.value)
+            self.q.triples()(
                 (wdv, NS.WIKIBASE.timePrecision, precision))
         if tm.timezone is not None:
-            timezone = self._q.literal(tm.timezone)
-            self._q.triples()(
+            timezone = self.q.literal(tm.timezone)
+            self.q.triples()(
                 (wdv, NS.WIKIBASE.timeTimezone, timezone))
         if tm.calendar is not None:
-            calendar = self._q.uri(tm.calendar.iri.content)
-            self._q.triples()((wdv, NS.WIKIBASE.timeCalendarModel, calendar))
+            calendar = self.q.uri(tm.calendar.iri.content)
+            self.q.triples()((wdv, NS.WIKIBASE.timeCalendarModel, calendar))
 
     def _push_some_value_filter(
             self,
@@ -767,9 +767,9 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             negate: bool = False
     ) -> None:
         if self.has_flags(self.WIKIDATA_EXTENSIONS):
-            cond: Any = self._q.call(NS.WIKIBASE.isSomeValue, dest)
+            cond: Any = self.q.call(NS.WIKIBASE.isSomeValue, dest)
         else:
-            cond = self._q.is_blank(dest) | (
-                self._q.is_uri(dest) & self._q.strstarts(
-                    self._q.str(dest), str(NS.WDGENID)))
-        self._q.filter(cond if not negate else ~cond)
+            cond = self.q.is_blank(dest) | (
+                self.q.is_uri(dest) & self.q.strstarts(
+                    self.q.str(dest), str(NS.WDGENID)))
+        self.q.filter(cond if not negate else ~cond)

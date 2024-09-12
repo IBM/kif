@@ -21,7 +21,7 @@ from ...model import (
     VStatement,
     VValue,
 )
-from ...model.fingerprint import FullFingerprint, ValueFingerprint
+from ...model.fingerprint import ValueFingerprint
 from ...typing import cast, Iterator, Mapping, override
 from .builder import Query
 from .filter_compiler import SPARQL_FilterCompiler
@@ -56,7 +56,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         super().__init__(filter, flags)
         self._mapping = mapping
         self._entry_subst = {}
-        self._entry_qvar = self._q.fresh_var()
+        self._entry_qvar = self.q.fresh_var()
 
     @property
     def mapping(self) -> SPARQL_Mapping:
@@ -75,10 +75,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
     def _push_filter(self, filter: Filter) -> None:
         assert isinstance(self.pattern, VariablePattern)
         assert isinstance(self.pattern.variable, StatementVariable)
-        # assert isinstance(filter.subject, (FullFingerprint, ValueFingerprint))
-        # assert isinstance(filter.property, (FullFingerprint, ValueFingerprint))
-        # assert isinstance(filter.value, (FullFingerprint, ValueFingerprint))
-        with self._q.union():
+        with self.q.union():
             for source in self._filter_to_patterns(filter):
                 for i, entry in enumerate(self.mapping):
                     theta = source.match(entry.pattern)
@@ -92,6 +89,12 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                     # ---
                     args: list[Query.VTerm] = []
                     for var in entry.pattern._iterate_variables():
+                        ###
+                        # TODO: What if var is not of a basic type (String,
+                        # Quantity, etc.)?  Maybe we should skip the
+                        # conversion and pass it unchanged to the entry
+                        # callback.
+                        ###
                         val = var.instantiate(theta)
                         if var == val:
                             args.append(self._theta_add_as_qvar(var))
@@ -99,15 +102,15 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                             self._theta_add(var, val)
                             args.append(self._as_simple_value(val))
                     # ----
-                    self._q.stash_begin()
+                    self.q.stash_begin()
                     try:
-                        with self._q.group():
-                            self._q.bind(i, self._entry_qvar)
+                        with self.q.group():
+                            self.q.bind(i, self._entry_qvar)
                             entry.callback(self, *args)
                     except entry.Skip:
-                        self._q.stash_drop()
+                        self.q.stash_drop()
                     else:
-                        self._q.stash_pop()
+                        self.q.stash_pop()
                         self._theta_add(self.pattern.variable, target)
                         if i not in self._entry_subst:
                             self._entry_subst[i] = []
