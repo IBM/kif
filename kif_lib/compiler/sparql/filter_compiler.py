@@ -62,8 +62,11 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         '_wds',
     )
 
-    # The source filter.
+    #: The source filter.
     _filter: Filter
+
+    #: The query variable holding the wds.
+    _wds: Query.Variable
 
     def __init__(
             self,

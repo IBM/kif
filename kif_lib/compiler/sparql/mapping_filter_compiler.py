@@ -10,7 +10,9 @@ from ...model import (
     Property,
     SomeValueSnak,
     Statement,
+    StatementTemplate,
     StatementVariable,
+    Theta,
     Value,
     ValueSnak,
     VariablePattern,
@@ -20,9 +22,11 @@ from ...model import (
     VValue,
 )
 from ...model.fingerprint import FullFingerprint, ValueFingerprint
-from ...typing import cast, Iterator, override
+from ...typing import cast, Iterator, Mapping, override
+from .builder import Query
 from .filter_compiler import SPARQL_FilterCompiler
 from .mapping import SPARQL_Mapping
+from .substitution import Substitution
 
 
 class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
@@ -30,10 +34,18 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
 
     __slots__ = (
         '_mapping',
+        '_entry_subst',
+        '_entry_qvar',
     )
 
     # The SPARQL mapping.
     _mapping: SPARQL_Mapping
+
+    #: The compiled substitutions for a given entry (identified by index).
+    _entry_subst: dict[int, list[Substitution]]
+
+    #: The query variable holding the index of the matched entry.
+    _entry_qvar: Query.Variable
 
     def __init__(
             self,
@@ -43,6 +55,8 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
     ) -> None:
         super().__init__(filter, flags)
         self._mapping = mapping
+        self._entry_subst = {}
+        self._entry_qvar = self._q.fresh_var()
 
     @property
     def mapping(self) -> SPARQL_Mapping:
@@ -66,18 +80,48 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         assert isinstance(filter.value, (FullFingerprint, ValueFingerprint))
         with self._q.union():
             for source in self._filter_to_patterns(filter):
-                for entry in self.mapping:
+                for i, entry in enumerate(self.mapping):
                     theta = source.match(entry.pattern)
-                    if theta is not None:
-                        target = source.instantiate(theta)
-                        self._q.stash_begin()
-                        try:
-                            with self._q.group():
-                                entry.callback(entry, self, target)
-                        except entry.Skip:
-                            self._q.stash_drop()
+                    if theta is None:
+                        continue  # nothing to do
+                    saved_subst = self._theta
+                    self._theta = Substitution()
+                    if i not in self._entry_subst:
+                        self._entry_subst[i] = []
+                    self._entry_subst[i].append(self._theta)
+                    target = source.instantiate(theta)
+                    assert isinstance(
+                        target, (Statement, StatementTemplate))
+                    # ---
+                    args: list[Query.VTerm] = []
+                    for var in entry.pattern._iterate_variables():
+                        val = var.instantiate(theta)
+                        if var == val:
+                            args.append(self._theta_add_as_qvar(var))
                         else:
-                            self._q.stash_pop()
+                            self._theta_add(var, val)
+                            args.append(self._as_simple_value(val))
+                    # ----
+                    self._q.stash_begin()
+                    try:
+                        with self._q.group():
+                            self._q.bind(i, self._entry_qvar)
+                            entry.callback(self, *args)
+                    except entry.Skip:
+                        self._q.stash_drop()
+                    else:
+                        self._q.stash_pop()
+                    self._theta_add(self.pattern.variable, target)
+                    self._theta = saved_subst
+
+    def _binding_to_thetas(
+            self,
+            binding: Mapping[str, dict[str, str]]
+    ) -> Iterator[Theta]:
+        assert str(self._entry_qvar) in binding
+        i = int(binding[str(self._entry_qvar)]['value'])
+        for subst in self._entry_subst[i]:
+            yield subst.instantiate(binding)
 
     def _filter_to_patterns(self, filter: Filter) -> Iterator[VStatement]:
         if isinstance(filter.subject, ValueFingerprint):
@@ -99,7 +143,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         if filter.snak_mask & filter.VALUE_SNAK:
             assert bool(filter.value_mask)
             if isinstance(filter.value, ValueFingerprint):
-                value: VValue = cast(Value, filter.value)
+                value: VValue = cast(Value, filter.value.value)
             elif filter.value_mask == filter.ITEM:
                 value = self._fresh_item_variable()
             elif filter.value_mask == filter.PROPERTY:

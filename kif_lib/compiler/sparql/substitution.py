@@ -117,8 +117,6 @@ class Substitution(Mapping):
                 lambda x: (x.name, variable.name), value.variables))
         elif isinstance(value, Query.Variable):
             self._G.add_node(variable.name)
-        else:
-            raise RuntimeError('should not get here')
         assert nx.is_directed_acyclic_graph(self._G)
         return cast(T, value)
 

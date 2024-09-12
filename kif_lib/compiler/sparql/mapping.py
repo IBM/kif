@@ -3,23 +3,11 @@
 
 from __future__ import annotations
 
-import abc
 import dataclasses
+import functools
 
-from ...model import (
-    Statement,
-    StatementTemplate,
-    StatementVariable,
-    Template,
-    Variable,
-    VStatement,
-    VTStatement,
-)
-from ...typing import Any, Callable, MutableSequence, Sequence, TypeAlias
-from .builder import Query
-
-Callback: TypeAlias = Callable[
-    ['SPARQL_Mapping', 'SPARQL_Mapping.Entry', Query, VStatement], None]
+from ...model import Statement, StatementTemplate, Template, VTStatement
+from ...typing import Any, Callable, ClassVar, Final, MutableSequence, Sequence
 
 
 class SPARQL_Mapping(Sequence):
@@ -33,49 +21,48 @@ class SPARQL_Mapping(Sequence):
             """Skip the current entry."""
 
         #: The statement pattern of entry.
-        pattern: VStatement
+        pattern: Statement | StatementTemplate
 
         #: The compilation callback of entry.
-        callback: Callback
+        callback: Callable[..., Any]
 
     #: The registered entries.
-    entries: MutableSequence[Entry]
+    _entries: ClassVar[Sequence[Entry]]
+
+    #: Entries to be registered by the next __init_subclass__() call.
+    _scheduled_entries: ClassVar[MutableSequence[
+        tuple[Statement | StatementTemplate, Callable[..., Any]]]] = []
 
     @classmethod
     def __init_subclass__(cls) -> None:
-        cls.entries = []
+        cls._entries = list(map(
+            lambda t: cls.Entry(t[0], functools.partial(t[1], cls)),
+            SPARQL_Mapping._scheduled_entries))
+        SPARQL_Mapping._scheduled_entries = []
 
     @classmethod
     def register(
             cls,
-            pattern: VTStatement,
-            **kwargs: Any
+            pattern: VTStatement
     ) -> Callable[..., Any]:
         """Decorator used to register a new entry into mapping.
 
         Parameters:
            pattern: Statement, statement template, or statement variable.
         """
-        pat: VStatement
+        pat: Statement | StatementTemplate
         if isinstance(pattern, Template):
             pat = StatementTemplate.check(pattern, cls.register, 'pattern', 1)
-        elif isinstance(pattern, Variable):
-            pat = StatementVariable.check(pattern, cls.register, 'pattern', 1)
         else:
             pat = Statement.check(pattern, cls.register, 'statement', 1)
-        return lambda callback: cls._register(
-            cls.Entry(pat, callback, **kwargs))
-
-    @classmethod
-    def _register(cls, entry: Entry) -> None:
-        cls.entries.append(entry)
-
-    @abc.abstractmethod
-    def __init__(self):
-        pass
+        return lambda f: cls._scheduled_entries.append((pat, f))
 
     def __getitem__(self, i: Any) -> Any:
-        return self.entries[i]
+        return self._entries[i]
 
     def __len__(self) -> int:
-        return len(self.entries)
+        return len(self._entries)
+
+
+register: Final[Callable[[VTStatement], Callable[..., Any]]] =\
+    SPARQL_Mapping.register

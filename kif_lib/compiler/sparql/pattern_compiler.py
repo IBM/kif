@@ -267,7 +267,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _as_simple_value(
             self,
             value: Value
-    ) -> Query.URI | Query.Literal:
+    ) -> Query.Literal | Query.URI:
         if isinstance(value, Entity):
             return self._q.uri(value.iri.content)
         elif isinstance(value, IRI):

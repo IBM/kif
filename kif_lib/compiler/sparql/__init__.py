@@ -3,9 +3,23 @@
 
 from __future__ import annotations
 
+from ...typing import TypeAlias
+from .builder import Query
 from .filter_compiler import SPARQL_FilterCompiler
 from .mapping_filter_compiler import SPARQL_MappingFilterCompiler
 from .pattern_compiler import SPARQL_PatternCompiler
+
+BNode: TypeAlias = Query.BNode
+Literal: TypeAlias = Query.Literal
+URI: TypeAlias = Query.URI
+Variable: TypeAlias = Query.Variable
+Term: TypeAlias = Query.Term
+
+V_BNode: TypeAlias = Query.V_BNode
+VLiteral: TypeAlias = Query.VLiteral
+V_URI: TypeAlias = Query.V_URI
+VTerm: TypeAlias = Query.VTerm
+
 
 __all__ = (
     'SPARQL_FilterCompiler',

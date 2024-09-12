@@ -106,6 +106,7 @@ class Symbol:
     SELECT: Final[str] = 'SELECT'
     STAR: Final[str] = '*'
     STR: Final[str] = 'STR'
+    STRDT: Final[str] = 'STRDT'
     STRLANG: Final[str] = 'STRLANG'
     STRSTARTS: Final[str] = 'STRSTARTS'
     UNDEF: Final[str] = 'UNDEF'
@@ -543,6 +544,14 @@ class STR(UnaryBuiltInCall):
     See <https://www.w3.org/TR/sparql11-query/#func-str>.
     """
     operator: str = Symbol.STR
+
+
+class STRDT(BinaryBuiltInCall):
+    """The STRDT built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-strdt>.
+    """
+    operator: str = Symbol.STRDT
 
 
 class STRSTARTS(BinaryBuiltInCall):
@@ -1383,6 +1392,9 @@ class Query(Encodable):
 
     def str(self, arg: TNumExpr) -> STR:
         return STR(arg)
+
+    def strdt(self, arg1: TNumExpr, arg2: TNumExpr) -> STRDT:
+        return STRDT(arg1, arg2)
 
     def strlang(self, arg1: TNumExpr, arg2: TNumExpr) -> STRLANG:
         return STRLANG(arg1, arg2)
