@@ -5,8 +5,9 @@ from __future__ import annotations
 
 import abc
 import enum
-import itertools
 
+from ... import itertools
+from ...model import Variable
 from ...typing import Final, Iterator
 from ..compiler import Compiler
 from .builder import SelectQuery
@@ -147,18 +148,66 @@ class SPARQL_Compiler(Compiler):
         """
         return self._q
 
-    def _qvar(self, var: Query.TVariable) -> Query.Variable:
-        return self.q.var(var)
+    def uri(self, content: Query.T_URI) -> Query.URI:
+        """Alias of :meth:`Query.uri`."""
+        return self.q.uri(content)
 
-    def _qvars(
+    def bnode(self) -> Query.BNode:
+        """Alias of :meth:`Query.BNode`."""
+        return self.q.bnode()
+
+    def literal(
+            self,
+            content: Query.TLiteral,
+            language: str | None = None,
+            datatype: str | None = None
+    ) -> Query.Literal:
+        """Alias of :meth:`Query.literal`."""
+        return self.q.literal(content, language, datatype)
+
+    def qvar(self, name: Query.TVariable) -> Query.Variable:
+        """Alias of :meth:`Query.var`."""
+        return self.q.var(name)
+
+    def qvars(
             self,
             var: Query.TVariable,
-            *vars_: Query.Variable
+            *vars: Query.Variable
     ) -> Iterator[Query.Variable]:
-        return map(self._qvar, itertools.chain((var,), vars_))
+        """Alias of :meth:`Query.vars`."""
+        return self.q.vars(var, *vars)
 
-    def _fresh_qvar(self) -> Query.Variable:
+    def fresh_qvar(self) -> Query.Variable:
+        """Alias of :meth:`Query.fresh_var`."""
         return self.q.fresh_var()
 
-    def _fresh_qvars(self, n: int) -> Iterator[Query.Variable]:
+    def fresh_qvars(self, n: int) -> Iterator[Query.Variable]:
+        """Alias of :meth:`Query.fresh_vars`."""
         return self.q.fresh_vars(n)
+
+    def as_qvar(self, var: Variable) -> Query.Variable:
+        """Constructs query variable from variable.
+
+        Parameter:
+           var: Variable.
+
+        Returns:
+           Variable.
+        """
+        return self.qvar(var.name)
+
+    def as_qvars(
+            self,
+            var: Variable,
+            *vars: Variable
+    ) -> Iterator[Query.Variable]:
+        """Constructs one or more query variables from variables.
+
+        Parameters:
+           var: Variable.
+           vars: Variables.
+
+        Returns:
+           Iterator of variables.
+        """
+        return map(self.as_qvar, itertools.chain((var,), vars))

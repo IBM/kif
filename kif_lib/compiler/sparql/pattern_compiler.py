@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-from ... import itertools
 from ... import namespace as NS
 from ...model import (
     ClosedPattern,
@@ -168,7 +167,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         return self._theta.add(var, v)
 
     def _theta_add_as_qvar(self, var: Variable) -> Query.Variable:
-        return self._theta_add(var, self._as_qvar(var))
+        return self._theta_add(var, self.as_qvar(var))
 
     def _theta_add_default(
             self,
@@ -178,7 +177,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         return self._theta.add_default(var, value)
 
     def _fresh_variable(self, variable_class: type[Variable]) -> Variable:
-        return variable_class(str(self._fresh_qvar()))
+        return variable_class(str(self.fresh_qvar()))
 
     def _fresh_variables(
             self,
@@ -186,7 +185,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             n: int
     ) -> Iterator[Variable]:
         return map(
-            lambda qvar: variable_class(str(qvar)), self._fresh_qvars(n))
+            lambda qvar: variable_class(str(qvar)), self.fresh_qvars(n))
 
     def _fresh_datatype_variable(self) -> DatatypeVariable:
         return cast(DatatypeVariable, self._fresh_variable(DatatypeVariable))
@@ -254,32 +253,22 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     def _fresh_statement_variable(self) -> StatementVariable:
         return cast(StatementVariable, self._fresh_variable(StatementVariable))
 
-    def _as_qvar(self, var: Variable) -> Query.Variable:
-        return self._qvar(var.name)
-
-    def _as_qvars(
-            self,
-            var: Variable,
-            *vars: Variable
-    ) -> Iterator[Query.Variable]:
-        return map(self._as_qvar, itertools.chain((var,), vars))
-
     def _as_simple_value(
             self,
             value: Value
     ) -> Query.Literal | Query.URI:
         if isinstance(value, Entity):
-            return self.q.uri(value.iri.content)
+            return self.uri(value.iri.content)
         elif isinstance(value, IRI):
-            return self.q.uri(value.content)
+            return self.uri(value.content)
         elif isinstance(value, Text):
-            return self.q.literal(value.content, value.language)
+            return self.literal(value.content, value.language)
         elif isinstance(value, (String, ExternalId)):
-            return self.q.literal(value.content)
+            return self.literal(value.content)
         elif isinstance(value, Quantity):
-            return self.q.literal(value.amount)
+            return self.literal(value.amount)
         elif isinstance(value, Time):
-            return self.q.literal(value.time)
+            return self.literal(value.time)
         else:
             raise self._should_not_get_here()
 
@@ -315,7 +304,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             self,
             obj: Statement
     ) -> StmtCtx:
-        ctx = self._mk_stmtctx(self._fresh_qvar())
+        ctx = self._mk_stmtctx(self.fresh_qvar())
         self.q.stash_begin()
         self.q.comments()('subject')
         v_subject = self._push_entity(obj.subject)
@@ -330,7 +319,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             self,
             tpl: StatementTemplate
     ) -> StmtCtx:
-        ctx = self._mk_stmtctx(self._fresh_qvar())
+        ctx = self._mk_stmtctx(self.fresh_qvar())
         self.q.stash_begin()
         if isinstance(tpl.subject, Entity):
             v_subject = self._push_entity(tpl.subject)
@@ -367,7 +356,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             v_subject: V_URI2,
             v_property: V_URI3
     ) -> tuple[V_URI1, V_URI2, V_URI3]:
-        p = self._fresh_qvar()
+        p = self.fresh_qvar()
         self.q.triples()(
             (v_subject, p, v_wds),
             (v_property, NS.WIKIBASE.claim, p))
@@ -406,7 +395,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         elif isinstance(var, LexemeVariable):
             return self._push_lexeme_variable(var)
         elif isinstance(var, EntityVariable):
-            v_entity = self._as_qvar(var)
+            v_entity = self.as_qvar(var)
             with self.q.union():
                 with self.q.group():  # item
                     item_iri = self._fresh_iri_variable()
@@ -457,7 +446,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
             self._theta_add(var, ItemTemplate(self._fresh_iri_variable())))
 
     def _do_push_item(self, v_item: V_URI1) -> V_URI1:
-        self.q.triples()((v_item, NS.WIKIBASE.sitelinks, self.q.bnode()))
+        self.q.triples()((v_item, NS.WIKIBASE.sitelinks, self.bnode()))
         return v_item
 
     # -- Property --
@@ -482,7 +471,7 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
         else:
             raise self._should_not_get_here()
         if tpl.range is None:
-            v_datatype: Query.V_URI = self._fresh_qvar()
+            v_datatype: Query.V_URI = self.fresh_qvar()
         elif isinstance(tpl.range, Datatype):
             v_datatype = self.q._mk_uri(tpl.range._to_rdflib())
         elif isinstance(tpl.range, DatatypeVariable):
@@ -624,4 +613,4 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
     ) -> Query.URI:
         self.q.triples()(
             (ctx['v_property'], NS.WIKIBASE.propertyType, NS.WIKIBASE.Url))
-        return self.q.uri(obj.content)
+        return self.uri(obj.content)

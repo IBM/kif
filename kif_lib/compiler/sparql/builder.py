@@ -144,10 +144,15 @@ class Coerce:
         return cls._check(v, BNode)
 
     @classmethod
-    def literal(cls, v: TLiteral, lang: str | None = None) -> Literal:
+    def literal(
+            cls,
+            v: TLiteral,
+            lang: str | None = None,
+            datatype: str | None = None
+    ) -> Literal:
         return Literal(cls._check(v, (
             Literal, bool, datetime.datetime, decimal.Decimal,
-            float, int, str)), lang=lang)
+            float, int, str)), lang=lang, datatype=datatype)
 
     @classmethod
     def variable(cls, v: TVariable) -> Variable:
@@ -1193,7 +1198,10 @@ class Query(Encodable):
 
     BNode: TypeAlias = BNode
     Literal: TypeAlias = Literal
+    TLiteral: TypeAlias = Union[
+        Literal, bool, datetime.datetime, decimal.Decimal, float, int, _str]
     URI: TypeAlias = URIRef
+    T_URI: TypeAlias = Union[URIRef, str]
     Variable: TypeAlias = Variable
     TVariable: TypeAlias = Union[Variable, _str]
     Term: TypeAlias = Union[BNode, Literal, URI]
@@ -1303,18 +1311,20 @@ class Query(Encodable):
     def literal(
             self,
             content: TLiteral,
-            language: str | None = None
+            language: str | None = None,
+            datatype: str | None = None
     ) -> Literal:
         """Constructs :class:`Literal`.
 
         Parameters:
            content: Literal content.
            language: Literal language.
+           datatype: Literal datatype.
 
         Returns:
            :class:`Literal`.
         """
-        return Coerce.literal(content, language)
+        return Coerce.literal(content, language, datatype)
 
     def var(self, name: TVariable) -> Variable:
         """Constructs :class:`Variable`.
@@ -1340,7 +1350,7 @@ class Query(Encodable):
         return map(self.var, itertools.chain((name,), names))
 
     def fresh_var(self) -> Variable:
-        """Construct fresh variable.
+        """Constructs fresh variable.
 
         Returns:
            :class:`Variable`.
