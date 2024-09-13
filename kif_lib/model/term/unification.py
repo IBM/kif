@@ -47,7 +47,8 @@ def _unification(G: set[tuple[Term | None, Term | None]]) -> Theta | None:
         except UnificationFailed:
             return None
     ###
-    # TODO: Check whether the resulting G is a valid variable instantiation.
+    # TODO: Check whether the resulting `G` is a valid variable
+    # instantiation.
     #
     # For instance,
     #
@@ -64,7 +65,7 @@ def _unification(G: set[tuple[Term | None, Term | None]]) -> Theta | None:
     #       QuantityVariable('y'): None,
     #   }
     #
-    # Notice that variable 'y' occurs twice with incompatible types.
+    # Notice that variable ``y`` occurs twice with incompatible types.
     ###
     return cast(Theta, dict(G))
 
@@ -139,8 +140,8 @@ def _unification_pass(
         try:
             # Attempt strict instantiation.
             s._instantiate_tail({s: t}, True, True)
-        except Term.InstantiationError:
-            raise UnificationFailed  # bad instantiation
+        except Term.InstantiationError as err:
+            raise UnificationFailed from err  # bad instantiation
         else:
             if (t is not None
                 and not isinstance(t, Variable)
@@ -156,8 +157,8 @@ def _unification_pass(
                         sx = cast(Term, sx.instantiate(theta, True, True))
                     if tx is not None:
                         tx = cast(Term, tx.instantiate(theta, True, True))
-                except Term.InstantiationError:
-                    raise UnificationFailed  # bad instantiation
+                except Term.InstantiationError as err:
+                    raise UnificationFailed from err  # bad instantiation
                 if sx != saved_sx or tx != saved_tx:
                     changed = True
                 H.add((sx, tx))

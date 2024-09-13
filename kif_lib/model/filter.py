@@ -137,7 +137,11 @@ class Filter(KIF_Object):
                 _cache: dict[
                     type[Datatype] | type[Value], Filter.DatatypeMask] = {}
         ) -> Filter.DatatypeMask | None:
-            if not _cache:  # functools.cache does not work here
+            ###
+            # IMPORTANT: functools.cache doesn't work with classmethods of
+            # enum.Flags subclasses.
+            ###
+            if not _cache:
                 _cache[Datatype] = cls.ALL
                 _cache[Value] = cls.VALUE
                 _cache[Entity] = cls.ENTITY
@@ -152,7 +156,11 @@ class Filter(KIF_Object):
                 datatype: Datatype,
                 _cache: dict[Datatype, Filter.DatatypeMask] = {}
         ) -> Filter.DatatypeMask:
-            if not _cache:      # functools.cache does not work here
+            ###
+            # IMPORTANT: functools.cache doesn't work with classmethods of
+            # enum.Flags subclasses.
+            ###
+            if not _cache:
                 _cache[ItemDatatype()] = cls.ITEM
                 _cache[PropertyDatatype()] = cls.PROPERTY
                 _cache[LexemeDatatype()] = cls.LEXEME
@@ -258,7 +266,11 @@ class Filter(KIF_Object):
                 snak_class: type[Snak],
                 _cache: dict[type[Snak], Filter.SnakMask] = {}
         ) -> Filter.SnakMask:
-            if not _cache:      # functools.cache does not work here
+            ###
+            # IMPORTANT: functools.cache doesn't work with classmethods of
+            # enum.Flags subclasses.
+            ###
+            if not _cache:
                 _cache[Snak] = Filter.SnakMask.ALL  # type: ignore
                 _cache[ValueSnak] = cls.VALUE_SNAK
                 _cache[SomeValueSnak] = cls.SOME_VALUE_SNAK

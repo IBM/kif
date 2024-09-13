@@ -97,7 +97,7 @@ class Downloader:
     }
 
     __slots__ = (
-        '_options'
+        '_options',
     )
 
     #: The downloader options.

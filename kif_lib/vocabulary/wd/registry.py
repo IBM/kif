@@ -13,20 +13,20 @@ from ...typing import cast, Final, TypedDict
 class WikidataEntityRegistry:
     """Wikidata entity registry."""
 
-    #: Entry in item registry.
     class ItemEntry(TypedDict):
+        """Entry in item registry."""
         item: Item | None
         label: str | None
 
-    #: Entry in property registry.
     class PropertyEntry(TypedDict):
+        """Entry in property registry."""
         property: Property | None
         datatype_uri: str | None
         label: str | None
         inverse_uri: str | None
 
-    #: Entry in lexeme registry.
     class LexemeEntry(TypedDict):
+        """Entry in lexeme registry."""
         lexeme: Lexeme | None
         lemma: str | None
         category: str | None
