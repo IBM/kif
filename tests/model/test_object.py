@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import pathlib
 import tempfile
+from typing import Any
 from unittest import main, TestCase
 
 
@@ -26,7 +27,7 @@ class Test(TestCase):
         global SExpDecoder
         global SExpEncoder
         global ShouldNotGetHere
-        global A, B, C
+        global A, A1, A11, B, C
 
         Decoder = obj.Decoder
         Encoder = obj.Encoder
@@ -39,14 +40,21 @@ class Test(TestCase):
         ShouldNotGetHere = obj.Object.ShouldNotGetHere
 
         class A(Object):
-            def __init__(self, *args):
+            def __init__(self, *args: Any) -> None:
                 super().__init__(*args)
+
+        class A1(A):
+            def _preprocess_arg(self, arg: Any, i: int) -> Any:
+                return arg
+
+        class A11(A1):
+            pass
 
         class B(Object):
-            def __init__(self, *args):
+            def __init__(self, *args: Any) -> None:
                 super().__init__(*args)
 
-            def _preprocess_arg(self, arg, i):
+            def _preprocess_arg(self, arg: Any, i: int) -> None:
                 arg = super()._preprocess_arg(arg, i)
                 if i == 1:              # A
                     return A.check(arg, type(self), None, i)
@@ -56,10 +64,10 @@ class Test(TestCase):
                     return arg
 
         class C(Object):
-            def __init__(self, *args):
+            def __init__(self, *args: Any) -> None:
                 super().__init__(*args)
 
-            def _preprocess_arg(self, arg, i):
+            def _preprocess_arg(self, arg: Any, i: int) -> None:
                 return arg
 
         # reset codecs
@@ -77,10 +85,28 @@ class Test(TestCase):
             self.assertEqual(obj[i], arg)
         self.assertLessEqual(obj, obj)
 
-    def test__eq__(self) -> None:
-        self.assertEqual(A(), A())
-        self.assertNotEqual(A(), A(1))
-        self.assertNotEqual(A(), B())
+    def test__fresh_id(self) -> None:
+        x, y, z = A._fresh_id(), A11._fresh_id(), B._fresh_id()
+        self.assertIsInstance(x, str)
+        self.assertIsInstance(y, str)
+        self.assertIsInstance(z, str)
+        self.assertNotEqual(x, y)
+        self.assertNotEqual(y, z)
+        self.assertNotEqual(x, z)
+
+    def test__get_subclasses(self) -> None:
+        self.assertEqual(set(A._get_subclasses()), {A, A1, A11})
+        self.assertEqual(set(A1._get_subclasses()), {A1, A11})
+        self.assertEqual(set(A11._get_subclasses()), {A11})
+        self.assertEqual(set(B._get_subclasses()), {B})
+        self.assertEqual(set(C._get_subclasses()), {C})
+
+    def test__get_proper_subclasses(self) -> None:
+        self.assertEqual(set(A._get_proper_subclasses()), {A1, A11})
+        self.assertEqual(set(A1._get_proper_subclasses()), {A11})
+        self.assertEqual(set(A11._get_proper_subclasses()), set())
+        self.assertEqual(set(B._get_proper_subclasses()), set())
+        self.assertEqual(set(C._get_proper_subclasses()), set())
 
     def test_check(self) -> None:
         self.assertEqual(Object.check(A()), A())
@@ -93,6 +119,7 @@ class Test(TestCase):
             A.check, B())
 
     def test_check_optional(self) -> None:
+        self.assertIsNone(Object.check_optional(None))
         self.assertEqual(Object.check_optional(A()), A())
         self.assertEqual(Object.check_optional(None, A()), A())
         self.assertEqual(Object.check_optional(B()), B())
@@ -105,6 +132,9 @@ class Test(TestCase):
             r'\(cannot coerce B into A\)$',
             A.check_optional, B())
 
+    def test__check_error(self) -> None:
+        self.assertIsInstance(Object._check_error(int), TypeError)
+
     def test__init__(self) -> None:
         self.assertRaises(TypeError, A, None)
         self.assert_object(A(), ())
@@ -114,13 +144,48 @@ class Test(TestCase):
         self.assertRaises(TypeError, B, 1)
         self.assertRaises(TypeError, B, A(), 1)
 
+    def test__eq__(self) -> None:
+        self.assertEqual(A(), A())
+        self.assertNotEqual(A(), A(1))
+        self.assertNotEqual(A(), B())
+
     def test__hash__(self) -> None:
         self.assertNotEqual(hash(A()), hash(B()))  # unlikely
+
+    def test__le__(self) -> None:
+        self.assertRaises(TypeError, lambda x, y: x <= y, A(), 0)
+        self.assertLessEqual(A(), A())
+        self.assertLessEqual(A(), A(1))
+        self.assertLessEqual(A(), B())
+        self.assertGreaterEqual(B(), A())
 
     def test__lt__(self) -> None:
         self.assertRaises(TypeError, lambda x, y: x < y, A(), 0)
         self.assertLess(A(), A(1))
+        self.assertLess(A(), B())
         self.assertGreater(B(), A())
+
+    def test__ge__(self) -> None:
+        self.assertRaises(TypeError, lambda x, y: x >= y, A(), 0)
+        self.assertGreaterEqual(A(), A())
+        self.assertGreaterEqual(A(1), A())
+        self.assertGreaterEqual(B(), A())
+        self.assertLessEqual(A(), B())
+
+    def test__gt__(self) -> None:
+        self.assertRaises(TypeError, lambda x, y: x > y, A(), 0)
+        self.assertGreater(A(1), A(0))
+        self.assertGreater(B(), A())
+        self.assertLess(A(), B())
+
+    def test_get(self) -> None:
+        self.assertRaises(IndexError, A().get, 0)
+        a = A1(0, None, 2)
+        self.assertEqual(a.get(0), 0)
+        self.assertIsNone(a.get(1))
+        self.assertEqual(a.get(1, 1), 1)
+        self.assertEqual(a.get(2), 2)
+        self.assertEqual(a.get(-1), 2)
 
     def test_digest(self) -> None:
         self.assertEqual(A([1, 2, 3]).digest, A([1, 2, 3]).digest)
@@ -144,6 +209,7 @@ class Test(TestCase):
 
     def test_replace(self) -> None:
         c = C(1, C(2, 3), C(4))
+        self.assertEqual(c.KEEP(), c.KEEP)
         self.assertEqual(c.replace(), c)
         self.assertEqual(c.replace(2), C(2, *c[1:]))
         self.assertEqual(c.replace(c.KEEP), c)
@@ -225,6 +291,11 @@ B(
         )
     )
 )''', indent=4)
+
+    def test_to_repr(self) -> None:
+        self.assertEqual(A().to_repr(), 'A()')
+        self.assertEqual(A().to_repr(indent=2), 'A()')
+        self.assertEqual(A(B()).to_repr(indent=2), 'A(\n  B()\n)')
 
     def test_dump_sexp(self) -> None:
         self.assertRaises(Encoder.Error, A(set()).dumps, format='sexp')

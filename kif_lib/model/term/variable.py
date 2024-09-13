@@ -32,13 +32,13 @@ class Variable(OpenTerm):
     """Base class for variables.
 
     Parameters:
-       name: Name.
+       name: Name or ``None`` (fresh name).
        variable_class: Variable class.
     """
 
     def __new__(
             cls,
-            name: str,
+            name: str | None = None,
             variable_class: TVariableClass | None = None
     ):
         variable_class = cls._check_variable_class(
@@ -86,7 +86,7 @@ class Variable(OpenTerm):
 
     def __init__(
             self,
-            name: str,
+            name: str | None = None,
             object_class: type[Term] | None = None
     ) -> None:
         super().__init__(name)
@@ -95,7 +95,10 @@ class Variable(OpenTerm):
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
         if i == 1:
             from ..value import String
-            return String.check(arg, type(self), None, i).content
+            if arg is None:     # name
+                return self._fresh_id()
+            else:
+                return String.check(arg, type(self), None, i).content
         else:
             raise self._should_not_get_here()
 
@@ -225,22 +228,25 @@ class Variable(OpenTerm):
                     function, name, position, self.InstantiationError)
 
 
-def Variables(name: str, *names: str | TVariableClass) -> Iterator[Variable]:
+def Variables(
+        name: str | None,
+        *names: str | TVariableClass | None
+) -> Iterator[Variable]:
     """Constructs one or more variables.
 
     Parameters:
-       name: Name.
-       names: Names or variable classes.
+       name: Name or ``None`` (fresh name).
+       names: Names or ``None`` values (fresh names) or variable classes.
 
     Returns:
        The resulting variables.
     """
     def it(
-            args: Iterator[str | TVariableClass]
-    ) -> Iterator[tuple[list[str], TVariableClass | None]]:
-        vars: list[str] = []
+            args: Iterator[str | TVariableClass | None]
+    ) -> Iterator[tuple[list[str | None], TVariableClass | None]]:
+        vars: list[str | None] = []
         for x in args:
-            if isinstance(x, str):
+            if x is None or isinstance(x, str):
                 vars.append(x)
             elif vars:
                 yield (vars, x)

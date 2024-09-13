@@ -58,6 +58,16 @@ class Object(Sequence, metaclass=ObjectMeta):
     """Abstract base class for syntactical objects."""
 
     @classmethod
+    def _fresh_id(
+            cls,
+            tr: dict[int, int | None] = str.maketrans('-', '_', '=')
+    ) -> str:
+        import base64
+        import uuid
+        return '_' + base64.urlsafe_b64encode(
+            uuid.uuid4().bytes).decode('utf-8').translate(tr)[:-2]
+
+    @classmethod
     def _get_subclasses(cls) -> Iterator[type[Self]]:
         return filter(lambda x: issubclass(x, cls),  # type: ignore
                       cls._object_subclasses.values())
@@ -161,7 +171,7 @@ class Object(Sequence, metaclass=ObjectMeta):
     #: The integer hash of object.
     _hash: int | None
 
-    #: The digest of object.
+    #: The string digest of object.
     _digest: str | None
 
     @abc.abstractmethod

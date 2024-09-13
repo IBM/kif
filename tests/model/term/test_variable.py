@@ -20,12 +20,14 @@ from kif_lib import (
     Property,
     PropertyVariable,
     Quantity,
+    QuantityVariable,
     ShallowDataValue,
     Snak,
     SnakVariable,
     SomeValueSnak,
     Statement,
     StatementTemplate,
+    StatementVariable,
     String,
     StringVariable,
     Term,
@@ -47,6 +49,12 @@ class Test(VariableTestCase):
 
     def test__init__(self) -> None:
         assert_type(Variable('x'), Variable)
+        self.assert_raises_bad_argument(
+            TypeError, 1, None,
+            'cannot coerce dict into String', Variable, {})
+        self.assert_raises_bad_argument(
+            TypeError, 1, None,
+            'cannot coerce Item into String', Variable, Item)
         self.assert_raises_bad_argument(
             TypeError, 2, 'variable_class',
             'cannot coerce int into Variable', Variable, 'x', 0)
@@ -81,6 +89,28 @@ class Test(VariableTestCase):
             Variable('x', SomeValueSnak), 'x')
         self.assert_no_value_snak_variable(Variable('x', NoValueSnak), 'x')
         self.assert_statement_variable(Variable('x', Statement), 'x')
+        # fresh vars
+        assert_type(Variable(), Variable)
+        x, y, z = Variable(), Variable(), Variable()
+        self.assert_variable(x, x.name)
+        self.assert_variable(y, y.name)
+        self.assert_variable(z, z.name)
+        self.assertIs(type(x), Variable)
+        self.assertIs(type(y), Variable)
+        self.assertIs(type(z), Variable)
+        self.assertNotEqual(x, y)
+        self.assertNotEqual(y, z)
+        self.assertNotEqual(x, z)
+        xi = Variable(None, Item)
+        yp = Variable(None, Property)
+        zq = Variable(None, Quantity)
+        self.assert_item_variable(xi, xi.name)
+        self.assert_property_variable(yp, yp.name)
+        self.assert_quantity_variable(zq, zq.name)
+        self.assertNotEqual(xi, yp)
+        self.assertNotEqual(xi.name, yp.name)
+        self.assertNotEqual(yp, zq)
+        self.assertNotEqual(yp.name, zq.name)
 
     def test__call__(self) -> None:
         assert_type(Variable('p')('x'), ValueSnakTemplate)
@@ -100,6 +130,19 @@ class Test(VariableTestCase):
             ValueVariable('p')(Item('x'), String('s')),
             Statement(Item('x'), ValueSnak(
                 PropertyVariable('p'), String('s'))))
+
+    def test__matmul__(self) -> None:
+        assert_type(Variable()@Variable, Variable)
+        x, y = Variable('x'), ItemVariable('y')
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'variable_class',
+            'cannot coerce ItemVariable into StatementVariable',
+            (y.__matmul__, 'Variable.coerce'), StatementVariable)
+        self.assert_variable(x, 'x')
+        self.assert_variable(x@Variable, 'x')
+        self.assert_item_variable(x@Item, 'x')
+        self.assert_quantity_variable(x@QuantityVariable, 'x')
+        self.assert_entity_variable(y@Entity, 'y')
 
     def test_get_variables(self) -> None:
         assert_type(ItemVariable('x').variables, Set[Variable])
@@ -220,6 +263,22 @@ class Test(VariableTestCase):
         self.assert_string_variable(d, 'd')
         self.assert_variable(e, 'e')
         self.assertIs(e.__class__, Variable)
+        # fresh vars
+        assert_type(Variables(None, None, None), Iterator[Variable])
+        a, b, c = Variables(None, None, None)
+        self.assert_variable(a, a.name)
+        self.assert_variable(b, b.name)
+        self.assert_variable(c, c.name)
+        self.assertNotEqual(a, b)
+        self.assertNotEqual(b, c)
+        self.assertNotEqual(a, c)
+        d, x, f, g = Variables(None, Item, Property, 'x', None, Lexeme, None)
+        self.assert_item_variable(d, d.name)
+        self.assert_lexeme_variable(x, 'x')
+        self.assert_lexeme_variable(f, f.name)
+        self.assert_variable(g, g.name)
+        self.assertIs(type(g), Variable)
+        self.assertEqual(len(set(map(Variable.get_name, [d, x, f, g]))), 4)
 
 
 if __name__ == '__main__':
