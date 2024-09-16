@@ -5,7 +5,9 @@ from __future__ import annotations
 
 from ...typing import TypeAlias
 from .builder import Query
+from .compiler import SPARQL_Compiler
 from .filter_compiler import SPARQL_FilterCompiler
+from .mapping import SPARQL_Mapping
 from .mapping_filter_compiler import SPARQL_MappingFilterCompiler
 from .pattern_compiler import SPARQL_PatternCompiler
 
@@ -22,7 +24,10 @@ VTerm: TypeAlias = Query.VTerm
 
 
 __all__ = (
+    'Query',
+    'SPARQL_Compiler',
     'SPARQL_FilterCompiler',
+    'SPARQL_Mapping',
     'SPARQL_MappingFilterCompiler',
     'SPARQL_PatternCompiler',
 )

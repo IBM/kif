@@ -10,19 +10,19 @@ from ...model import (
     Property,
     SomeValueSnak,
     Statement,
-    StatementTemplate,
     StatementVariable,
+    Term,
     Theta,
     Value,
     ValueSnak,
+    Variable,
     VariablePattern,
     VEntity,
     VProperty,
-    VStatement,
     VValue,
 )
 from ...model.fingerprint import ValueFingerprint
-from ...typing import cast, Iterator, Mapping, override
+from ...typing import cast, Iterator, Mapping, override, Union
 from .builder import Query
 from .filter_compiler import SPARQL_FilterCompiler
 from .mapping import SPARQL_Mapping
@@ -42,7 +42,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
     _mapping: SPARQL_Mapping
 
     #: The compiled substitutions for a given entry (identified by index).
-    _entry_subst: dict[int, list[Substitution]]
+    _entry_subst: dict[SPARQL_Mapping.EntryId, list[Substitution]]
 
     #: The query variable holding the index of the matched entry.
     _entry_qvar: Query.Variable
@@ -77,44 +77,36 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         assert isinstance(self.pattern.variable, StatementVariable)
         with self.q.union():
             for source in self._filter_to_patterns(filter):
-                for i, entry in enumerate(self.mapping):
-                    theta = source.match(entry.pattern)
-                    if theta is None:
-                        continue  # nothing to do
+                for target, bindings, entry in self.mapping.match(source):
                     saved_subst = self._theta
                     self._theta = Substitution()
-                    target = source.instantiate(theta)
-                    assert isinstance(
-                        target, (Statement, StatementTemplate))
-                    # ---
-                    args: list[Query.VTerm] = []
-                    for var in entry.pattern._iterate_variables():
+                    updt_args: list[Union[Term, Query.VTerm]] = []
+                    for (var, val) in bindings.items():
                         ###
                         # TODO: What if var is not of a basic type (String,
                         # Quantity, etc.)?  Maybe we should skip the
                         # conversion and pass it unchanged to the entry
                         # callback.
                         ###
-                        val = var.instantiate(theta)
-                        if var == val:
-                            args.append(self._theta_add_as_qvar(var))
+                        if isinstance(val, Variable):
+                            updt_args.append(self._theta_add_as_qvar(var))
                         else:
                             self._theta_add(var, val)
-                            args.append(self._as_simple_value(val))
-                    # ----
+                            assert isinstance(val, Value)
+                            updt_args.append(self._as_simple_value(val))
                     self.q.stash_begin()
                     try:
                         with self.q.group():
-                            self.q.bind(i, self._entry_qvar)
-                            entry.callback(self, *args)
-                    except entry.Skip:
+                            self.q.bind(entry.id, self._entry_qvar)
+                            entry.callback(self.mapping, self, *updt_args)
+                    except self.mapping.Skip:
                         self.q.stash_drop()
                     else:
                         self.q.stash_pop()
                         self._theta_add(self.pattern.variable, target)
-                        if i not in self._entry_subst:
-                            self._entry_subst[i] = []
-                        self._entry_subst[i].append(self._theta)
+                        if id not in self._entry_subst:
+                            self._entry_subst[entry.id] = []
+                        self._entry_subst[entry.id].append(self._theta)
                     self._theta = saved_subst
 
     def _binding_to_thetas(
@@ -122,11 +114,14 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             binding: Mapping[str, dict[str, str]]
     ) -> Iterator[Theta]:
         assert str(self._entry_qvar) in binding
-        i = int(binding[str(self._entry_qvar)]['value'])
-        for subst in self._entry_subst[i]:
+        id = binding[str(self._entry_qvar)]['value']
+        for subst in self._entry_subst[id]:
             yield subst.instantiate(binding)
 
-    def _filter_to_patterns(self, filter: Filter) -> Iterator[VStatement]:
+    def _filter_to_patterns(
+            self,
+            filter: Filter
+    ) -> Iterator[SPARQL_Mapping.EntryPattern]:
         if isinstance(filter.subject, ValueFingerprint):
             subject: VEntity = cast(Entity, filter.subject.value)
         elif filter.subject_mask & filter.ITEM:
