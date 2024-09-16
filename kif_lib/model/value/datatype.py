@@ -86,7 +86,7 @@ class Datatype(ClosedTerm, variable_class=DatatypeVariable):
                 and hasattr(datatype_class, 'datatype_class')):
             datatype_class = getattr(datatype_class, 'datatype_class')
         if (isinstance(datatype_class, type)
-                and issubclass(datatype_class, cls)
+                and issubclass(datatype_class, cls)  # pyright: ignore
                 and datatype_class is not Datatype):
             return super().__new__(datatype_class)
         else:
