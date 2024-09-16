@@ -33,7 +33,7 @@ class TestStoreSPARQL_SPARQL_StoreDescriptors(WikidataSPARQL_StoreTestCase):
         self.assertIsInstance(desc, ItemDescriptor)
         assert isinstance(desc, ItemDescriptor)
         self.assertEqual(desc.label, Text('IBM'))
-        self.assertIn(Text('I.B.M.'), desc.aliases)
+        self.assertIn(Text('IBM Corp.'), desc.aliases)
         self.assertEqual(
             desc.description,
             Text('American multinational technology corporation'))
@@ -49,7 +49,7 @@ class TestStoreSPARQL_SPARQL_StoreDescriptors(WikidataSPARQL_StoreTestCase):
         self.assertIsInstance(ds[0][1], ItemDescriptor)
         assert isinstance(ds[0][1], ItemDescriptor)
         self.assertEqual(ds[0][1].label, Text('IBM'))
-        self.assertIn(Text('I.B.M.'), ds[0][1].aliases)
+        self.assertIn(Text('IBM Corp.'), ds[0][1].aliases)
         self.assertEqual(ds[0][1].description, Text(
             'American multinational technology corporation'))
         self.assertEqual(ds[1][0], Item('x'))
