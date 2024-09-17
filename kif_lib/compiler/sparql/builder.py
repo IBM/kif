@@ -741,9 +741,8 @@ class GraphPattern(Pattern):
             err_val: BaseException | None,
             err_bt: TracebackType | None
     ) -> None:
-        if err_val is None:
-            self.clause._end()
-        else:
+        self.clause._end()
+        if err_val is not None:
             raise err_val
 
     def _add(self, child: Pattern, dest: MutableSequence[Any]) -> Pattern:

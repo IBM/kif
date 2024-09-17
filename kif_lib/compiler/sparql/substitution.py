@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import networkx as nx
 
-from ...model import OpenTerm, Template, Term, Variable
+from ...model import Template, Term, Variable
 from ...typing import (
     Any,
     cast,
@@ -117,6 +117,8 @@ class Substitution(Mapping):
                 lambda x: (x.name, variable.name), value.variables))
         elif isinstance(value, Query.Variable):
             self._G.add_node(variable.name)
+        else:
+            self._G.add_node(variable.name)
         assert nx.is_directed_acyclic_graph(self._G)
         return cast(T, value)
 
@@ -225,7 +227,6 @@ class Substitution(Mapping):
                     if var not in theta and var in self._defaults:
                         theta._add(var, self._defaults[var])
                     continue  # nothing to do
-                assert isinstance(value, OpenTerm)
                 if isinstance(value, Variable):
                     if value in theta:
                         theta._add(var, var.instantiate({var: theta[value]}))
@@ -235,5 +236,5 @@ class Substitution(Mapping):
                             value.variables)):
                         theta._add(var, value.instantiate(theta))
                 else:
-                    raise RuntimeError('should not get here')
+                    theta._add(var, value)
         return theta._map

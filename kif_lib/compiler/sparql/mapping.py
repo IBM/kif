@@ -190,5 +190,5 @@ class SPARQL_Mapping(Mapping):
 
 
 register: Final[Callable[
-    [SPARQL_Mapping.EntryTPattern], SPARQL_Mapping.EntryCallback]] =\
+    [SPARQL_Mapping.EntryTPattern], Callable[..., Any]]] =\
     SPARQL_Mapping.register

@@ -96,8 +96,7 @@ class SPARQL_Store(
 
     _headers = {
         # See <https://meta.wikimedia.org/wiki/User-Agent_policy>.
-        'User-Agent': f'KIF/{__version__} (https://github.com/IBM/kif/; '
-        'guilherme.lima@ibm.com)',
+        'User-Agent': f'KIF/{__version__} (https://github.com/IBM/kif/)',
         'Content-Type': 'application/sparql-query;charset=utf-8',
         'Accept': 'application/sparql-results+json;charset=utf-8',
     }
@@ -368,6 +367,8 @@ At line {line}, column {column}:
                 limit=page_size, offset=offset, distinct=distinct)
             assert isinstance(compiler.pattern, VariablePattern)
             assert isinstance(compiler.pattern.variable, StatementVariable)
+            if query.where_is_empty():
+                break           # nothing to do
             var = compiler.pattern.variable
             wds = compiler.wds
             res = self._eval_select_query_string(str(query))

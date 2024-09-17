@@ -20,6 +20,7 @@ class SEMSCI(DefinedNamespace):
     CHEMINF_000335: URIRef
     CHEMINF_000338: URIRef
     CHEMINF_000339: URIRef
+    CHEMINF_000372: URIRef
     CHEMINF_000376: URIRef
     CHEMINF_000379: URIRef
     CHEMINF_000382: URIRef
@@ -36,6 +37,7 @@ class SEMSCI(DefinedNamespace):
     CHEMINF_000480: URIRef
     CHEMINF_000482: URIRef
     CHEMINF_000561: URIRef
+
     SIO_000008: URIRef
     SIO_000011: URIRef
     SIO_000300: URIRef
@@ -59,6 +61,7 @@ class CHEMINF:
     InChIKey_generated_by_software_version_1_0_4 = SEMSCI.CHEMINF_000399
     is_stereoisomer_of = SEMSCI.CHEMINF_000461
     isomeric_SMILES_generated_by_OEChem = SEMSCI.CHEMINF_000379
+    isotope_atom_count_generated_by_pubchem_software_library = SEMSCI.CHEMINF_000372
     IUPAC_Name_generated_by_LexiChem = SEMSCI.CHEMINF_000382
     molecular_formula_calculated_by_the_pubchem_software_library = SEMSCI.CHEMINF_000335
     molecular_weight_calculated_by_the_pubchem_software_library = SEMSCI.CHEMINF_000334
