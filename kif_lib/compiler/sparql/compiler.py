@@ -7,7 +7,13 @@ import abc
 import enum
 
 from ... import itertools
-from ...model import Variable
+from ...model import (
+    IRI_Variable,
+    QuantityVariable,
+    StringVariable,
+    TimeVariable,
+    Variable,
+)
 from ...typing import Final, Iterator
 from ..compiler import Compiler
 from .builder import SelectQuery
@@ -192,7 +198,7 @@ class SPARQL_Compiler(Compiler):
            var: Variable.
 
         Returns:
-           Variable.
+           Query variable.
         """
         return self.qvar(var.name)
 
@@ -208,6 +214,45 @@ class SPARQL_Compiler(Compiler):
            vars: Variables.
 
         Returns:
-           Iterator of variables.
+           Iterator of query variables.
         """
         return map(self.as_qvar, itertools.chain((var,), vars))
+
+    #: Classes of variables corresponding to primitive SPARQL types.
+    _primitve_var_classes: Final[tuple[type[Variable], ...]] = (
+        IRI_Variable,
+        QuantityVariable,
+        StringVariable,
+        TimeVariable,
+    )
+
+    def as_safe_qvar(self, var: Variable) -> Query.Variable:
+        """Constructs query variable from variable (safe).
+
+        If variable is not of a primitive type, raises an error.
+
+        Returns:
+           Query variable.
+        """
+        if isinstance(var, self._primitve_var_classes):
+            return self.as_qvar(var)
+        else:
+            raise TypeError
+
+    def as_safe_qvars(
+            self,
+            var: Variable,
+            *vars: Variable
+    ) -> Iterator[Query.Variable]:
+        """Constructs one or more query variables from variables (safe).
+
+        If one of the variables is not of a primitive type, raises an error.
+
+        Parameters:
+           var: Variable.
+           vars: Variables.
+
+        Returns:
+           Iterator of query variables.
+        """
+        return map(self.as_safe_qvar, itertools.chain((var,), vars))

@@ -8,20 +8,16 @@ from ...model import (
     Entity,
     Filter,
     Fingerprint,
-    IRI_Variable,
     NoValueSnak,
     Property,
-    QuantityVariable,
     Snak,
     SnakTemplate,
     SomeValueSnak,
     Statement,
     StatementTemplate,
     StatementVariable,
-    StringVariable,
     Term,
     Theta,
-    TimeVariable,
     Value,
     ValueSnak,
     ValueSnakTemplate,
@@ -96,6 +92,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         with self.q.union():
             for source in self._filter_to_patterns(filter):
                 for target, bindings, entry in self.mapping.match(source):
+                    print('TARGET', target)
                     saved_subst = self._theta
                     self._theta = Substitution()
                     self.q.stash_begin()
@@ -122,12 +119,10 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
     def _push_filter_get_entry_callback_args(
             self,
             bindings: Theta,
-            add_to_subst: bool = True,
-            _var_qvar: tuple[type[Variable], ...] = (
-                IRI_Variable, QuantityVariable, StringVariable, TimeVariable)
+            add_to_subst: bool = True
     ) -> Iterator[Term | Query.VTerm | None]:
         for (var, val) in bindings.items():
-            if isinstance(val, _var_qvar):
+            if isinstance(val, self._primitve_var_classes):
                 qvar = self.as_qvar(cast(Variable, val))
                 if add_to_subst:
                     self._theta_add(var, qvar)
@@ -159,11 +154,12 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         if isinstance(filter.value, (CompoundFingerprint, SnakFingerprint)):
             self._push_fp(filter.value, target.snak.value)
 
-    def _push_fp(self, fp: Fingerprint, v: VValue) -> None:
-        if isinstance(v, Value) and not fp.match(v):
+    def _push_fp(self, fp: Fingerprint, value: VValue) -> None:
+        if isinstance(value, Value) and not fp.match(value):
+            print('*** SKIP ***', fp, value)
             raise SPARQL_Mapping.Skip  # fail
         if isinstance(fp, CompoundFingerprint):
-            self._push_compound_fp(fp, v)
+            self._push_compound_fp(fp, value)
         elif isinstance(fp, SnakFingerprint):
             raise NotImplementedError
         elif isinstance(fp, ValueFingerprint):
@@ -173,7 +169,11 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         else:
             raise self._should_not_get_here()
 
-    def _push_compound_fp(self, fp: CompoundFingerprint, v: VValue) -> None:
+    def _push_compound_fp(
+            self,
+            fp: CompoundFingerprint,
+            value: VValue
+    ) -> None:
         atoms, comps = map(list, itertools.partition(
             lambda x: isinstance(x, CompoundFingerprint), fp.args))
         snaks, values = map(list, itertools.partition(
@@ -182,25 +182,38 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             raise NotImplementedError
         elif isinstance(fp, OrFingerprint):
             if values:
-                self._push_values_fps(values, v)
+                self._push_values_fps(values, value)
         else:
             raise self._should_not_get_here()
 
     def _push_values_fps(
             self,
             fps: Sequence[ValueFingerprint],
-            v: VValue
+            value: VValue
     ) -> None:
         assert bool(fps)
-        if isinstance(v, Value):
+        if isinstance(value, Value):
             return              # nothing to do
-        # thetas = list(filter(lambda t: t is not None, map(v.match, map(
-        #     ValueFingerprint.get_value, fps))))
-        # print(thetas)
-        # for theta in map(v.match, map(ValueFingerprint.get_value, fps)):
-        #     for k, v in theta.items():
-        #         print(k, v)
-        raise NotImplementedError
+        thetas: list[Theta] =\
+            list(filter(lambda t: t is not None, map(  # type: ignore
+                value.match, map(
+                    ValueFingerprint.get_value, fps))))
+        if not thetas:
+            print('*** SKIP ***', fps, value)
+            raise SPARQL_Mapping.Skip  # fail
+        accum: dict[Variable, list[Value]] = {}
+        for theta in thetas:
+            for k, v in theta.items():
+                assert isinstance(v, Value)
+                if k in accum:
+                    accum[k].append(v)
+                else:
+                    accum[k] = [v]
+        for k, vs in accum.items():
+            assert isinstance(k, self._primitve_var_classes)
+            qvar = self.as_qvar(k)
+            self.q.values(qvar)(
+                *map(lambda v: (self._as_simple_value(v),), vs))
 
     def _binding_to_thetas(
             self,
@@ -259,10 +272,8 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 value = self._fresh_quantity_variable()
             elif filter.value_mask == filter.TIME:
                 value = self._fresh_time_variable()
-            elif filter.value_mask == filter.VALUE:
-                value = self._fresh_value_variable()
             else:
-                raise self._should_not_get_here()
+                value = self._fresh_value_variable()
             yield Statement(subject, ValueSnak(property, value))
         if filter.snak_mask & filter.SOME_VALUE_SNAK:
             yield Statement(subject, SomeValueSnak(property))
