@@ -92,7 +92,6 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         with self.q.union():
             for source in self._filter_to_patterns(filter):
                 for target, bindings, entry in self.mapping.match(source):
-                    print('TARGET', target)
                     saved_subst = self._theta
                     self._theta = Substitution()
                     self.q.stash_begin()
@@ -102,8 +101,8 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                             entry.callback(
                                 self.mapping, self,
                                 *self._push_filter_get_entry_callback_args(
-                                    bindings))
-                            self._push_filter_push_fps(filter, target)
+                                    entry, bindings))
+                            self._push_filter_push_fps(entry, filter, target)
                     except self.mapping.Skip:
                         self.q.stash_drop()
                     else:
@@ -118,24 +117,28 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
 
     def _push_filter_get_entry_callback_args(
             self,
+            entry: SPARQL_Mapping.Entry,
             bindings: Theta,
             add_to_subst: bool = True
     ) -> Iterator[Term | Query.VTerm | None]:
         for (var, val) in bindings.items():
+            res: Term | Query.VTerm | None
             if isinstance(val, self._primitve_var_classes):
                 qvar = self.as_qvar(cast(Variable, val))
                 if add_to_subst:
                     self._theta_add(var, qvar)
-                yield qvar
+                res = qvar
             elif isinstance(val, Value):
                 if add_to_subst:
                     self._theta_add(var, val)
-                yield self._as_simple_value(val)
+                res = self._as_simple_value(val)
             else:
-                yield val       # keep it as is
+                res = val       # keep it as is
+            yield entry.preprocess(self.mapping, self, var, res)
 
     def _push_filter_push_fps(
             self,
+            entry: SPARQL_Mapping.Entry,
             filter: Filter,
             target: VStatement
     ) -> None:
@@ -143,23 +146,28 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             return              # nothing to do
         # subject
         if isinstance(filter.subject, (CompoundFingerprint, SnakFingerprint)):
-            self._push_fp(filter.subject, target.subject)
+            self._push_fp(entry, filter.subject, target.subject)
         # snak
         if not isinstance(target.snak, (Snak, SnakTemplate)):
             return              # nothing to do
         if isinstance(filter.property, (CompoundFingerprint, SnakFingerprint)):
-            self._push_fp(filter.property, target.snak.property)
+            self._push_fp(entry, filter.property, target.snak.property)
         if not isinstance(target.snak, (ValueSnak, ValueSnakTemplate)):
             return              # nothing to do
         if isinstance(filter.value, (CompoundFingerprint, SnakFingerprint)):
-            self._push_fp(filter.value, target.snak.value)
+            self._push_fp(entry, filter.value, target.snak.value)
 
-    def _push_fp(self, fp: Fingerprint, value: VValue) -> None:
+    def _push_fp(
+            self,
+            entry: SPARQL_Mapping.Entry,
+            fp: Fingerprint,
+            value: VValue
+    ) -> None:
         if isinstance(value, Value) and not fp.match(value):
             print('*** SKIP ***', fp, value)
             raise SPARQL_Mapping.Skip  # fail
         if isinstance(fp, CompoundFingerprint):
-            self._push_compound_fp(fp, value)
+            self._push_compound_fp(entry, fp, value)
         elif isinstance(fp, SnakFingerprint):
             raise NotImplementedError
         elif isinstance(fp, ValueFingerprint):
@@ -171,6 +179,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
 
     def _push_compound_fp(
             self,
+            entry: SPARQL_Mapping.Entry,
             fp: CompoundFingerprint,
             value: VValue
     ) -> None:
@@ -182,12 +191,13 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             raise NotImplementedError
         elif isinstance(fp, OrFingerprint):
             if values:
-                self._push_values_fps(values, value)
+                self._push_values_fps(entry, values, value)
         else:
             raise self._should_not_get_here()
 
     def _push_values_fps(
             self,
+            entry: SPARQL_Mapping.Entry,
             fps: Sequence[ValueFingerprint],
             value: VValue
     ) -> None:
@@ -209,11 +219,14 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                     accum[k].append(v)
                 else:
                     accum[k] = [v]
-        for k, vs in accum.items():
-            assert isinstance(k, self._primitve_var_classes)
-            qvar = self.as_qvar(k)
+        for var, vs in accum.items():
+            assert isinstance(var, self._primitve_var_classes)
+            qvar = self.as_qvar(var)
             self.q.values(qvar)(
-                *map(lambda v: (self._as_simple_value(v),), vs))
+                *map(lambda v: (cast(
+                    Query.Literal | Query.URI, entry.preprocess(
+                        self.mapping, self, var, self._as_simple_value(v))),),
+                     vs))
 
     def _binding_to_thetas(
             self,
