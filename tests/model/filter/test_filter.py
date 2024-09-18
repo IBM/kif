@@ -23,7 +23,7 @@ from kif_lib import (
     Time,
     Variable,
 )
-from kif_lib.model import ValueFingerprint
+from kif_lib.model import EmptyFingerprint, FullFingerprint, ValueFingerprint
 from kif_lib.typing import assert_type
 
 from ...tests import KIF_ObjectTestCase
@@ -146,67 +146,51 @@ class Test(KIF_ObjectTestCase):
         self.assertTrue(Filter(Item('x')).is_nonfull())
         self.assertFalse(Filter().is_nonfull())
 
-    def test_match(self) -> None:
-        assert_type(Filter().match((Item('x'), 'y', 'z')), bool)
-        self.assert_raises_bad_argument(
-            TypeError, 1, 'stmt',
-            'cannot coerce int into Statement', Filter().match, 0)
-        x, y = Items('x', 'y')
-        p = Property('p')
-        self.assertFalse(
-            Filter(snak_mask=Filter.NO_VALUE_SNAK).match(p(x, 'y')))
-        self.assertFalse(Filter(Item('y')).match(p(x, 'y')))
-        self.assertTrue(Filter(property=p).match(p(x, x)))
-        self.assertTrue(Filter(property=p).match(
-            p.replace(p.KEEP, Item)(x, x)))
-        self.assertTrue(Filter(property=p.replace(p.KEEP, Item)).match(
-            Statement(x, NoValueSnak(p))))
-        self.assertFalse(Filter(property=p.replace(p.KEEP, Property)).match(
-            p.replace(p.KEEP, Item)(x, x)))
-        self.assertFalse(Filter(snak_mask=Filter.SOME_VALUE_SNAK).match(
-            p(x, x)))
-        self.assertFalse(Filter(value=x).match((x, SomeValueSnak(p))))
-        self.assertFalse(Filter(value=x).match((x, p, p)))
-        self.assertFalse(Filter(value=Quantity(0)).match((x, p, x)))
-        self.assertFalse(Filter(value=x).match((x, p, Quantity(0))))
-        self.assertFalse(Filter(subject=x).match((y, p, Quantity(0))))
-        self.assertFalse(Filter(value=x).match((x, p, y)))
-        self.assertTrue(Filter(value=Quantity(0)).match((x, p, Quantity(0))))
-        self.assertTrue(Filter(
-            value=Quantity(0)).match((x, p, Quantity(0, y))))
-        self.assertFalse(Filter(
-            value=Quantity(0, y)).match((x, p, Quantity(0))))
-        self.assertTrue(Filter(
-            value=Quantity(0)).match((x, p, Quantity(0, y, 1))))
-        self.assertFalse(Filter(
-            value=Quantity(0, None, 1)).match((x, p, Quantity(0))))
-        self.assertTrue(Filter(
-            value=Quantity(0)).match((x, p, Quantity(0, y, 1, 2))))
-        self.assertFalse(Filter(
-            value=Quantity(0, None, None, 2)).match((x, p, Quantity(0))))
-        self.assertTrue(Filter(
-            value=Time('2024-07-11')).match((x, p, Time('2024-07-11'))))
-        self.assertTrue(Filter(
-            value=Time('2024-07-11', 0)).match((x, p, Time('2024-07-11', 0))))
-        self.assertFalse(Filter(
-            value=Time('2024-07-11', 0)).match((x, p, Time('2024-07-11', 1))))
-        self.assertTrue(Filter(
-            value=Time(datetime.datetime(2024, 7, 11), None, 1)).match(
-                (x, p, Time('2024-07-11', 0, 1))))
-        self.assertTrue(Filter(
-            value=Time('2024-07-11', None, 1)).match(
-                (x, p, Time('2024-07-11', 0, 1))))
-        self.assertFalse(Filter(
-            value=Time('2024-07-11', None, 0)).match(
-                (x, p, Time('2024-07-11'))))
-        self.assertTrue(Filter(
-            value=Time('2024-07-11', None, 1, Item('x'))).match(
-                (x, p, Time('2024-07-11', 0, 1, x))))
-        self.assertFalse(Filter(
-            value=Time('2024-07-11', None, 0, Item('x'))).match(
-                (x, p, Time('2024-07-11', None, None, y))))
+    def test_normalize(self) -> None:
+        assert_type(Filter().normalize(), Filter)
+        # subject
+        f = Filter(Item('x') & Item('y'))
+        self.assertEqual(f.value_mask, f.DatatypeMask.ALL)
+        self.assertTrue(f.is_empty())
+        f = f.normalize()
+        self.assertEqual(f.subject, EmptyFingerprint())
+        self.assertEqual(f.property, FullFingerprint())
+        self.assertEqual(f.value, FullFingerprint())
+        self.assertEqual(f.subject_mask, f.DatatypeMask(0))
+        self.assertEqual(f.property_mask, f.PROPERTY)
+        self.assertEqual(f.snak_mask, f.SnakMask.ALL)
+        self.assertEqual(f.value_mask, f.DatatypeMask.ALL)
+        self.assertTrue(f.is_empty())
+        # property
+        f = Filter(None, Item('y'))
+        self.assertEqual(f.value_mask, f.DatatypeMask.ALL)
+        self.assertTrue(f.is_empty())
+        f = f.normalize()
+        self.assertEqual(f.subject, FullFingerprint())
+        self.assertEqual(f.property, EmptyFingerprint())
+        self.assertEqual(f.value, FullFingerprint())
+        self.assertEqual(f.subject_mask, f.ENTITY)
+        self.assertEqual(f.property_mask, f.DatatypeMask(0))
+        self.assertEqual(f.value_mask, f.VALUE)
+        self.assertEqual(f.snak_mask, f.SnakMask(0))
+        self.assertEqual(f.value_mask, f.DatatypeMask.ALL)
+        self.assertTrue(f.is_empty())
+        # value
+        f = Filter(None, None, Item('x') & Item('y'))
+        self.assertEqual(f.value_mask, f.DatatypeMask.ALL)
+        self.assertFalse(f.is_empty())
+        f = f.normalize()
+        self.assertEqual(f.subject, FullFingerprint())
+        self.assertEqual(f.property, FullFingerprint())
+        self.assertEqual(f.value, EmptyFingerprint())
+        self.assertEqual(f.subject_mask, f.ENTITY)
+        self.assertEqual(f.property_mask, f.PROPERTY)
+        self.assertEqual(f.value_mask, f.DatatypeMask(0))
+        self.assertEqual(f.snak_mask, f.SOME_VALUE_SNAK | f.NO_VALUE_SNAK)
+        self.assertFalse(f.is_empty())
 
     def test_combine(self) -> None:
+        assert_type(Filter().combine(Filter()), Filter)
         # bad argument
         pat = Filter(Item('x'))
         self.assertRaises(TypeError, pat.combine, 0)
@@ -279,6 +263,66 @@ class Test(KIF_ObjectTestCase):
             Filter(None, None, None, Filter.SnakMask.ALL).combine(
                 Filter(None, None, None, Filter.VALUE_SNAK)),
             Filter(None, None, None, Filter.VALUE_SNAK))
+
+    def test_match(self) -> None:
+        assert_type(Filter().match((Item('x'), 'y', 'z')), bool)
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'stmt',
+            'cannot coerce int into Statement', Filter().match, 0)
+        x, y = Items('x', 'y')
+        p = Property('p')
+        self.assertFalse(
+            Filter(snak_mask=Filter.NO_VALUE_SNAK).match(p(x, 'y')))
+        self.assertFalse(Filter(Item('y')).match(p(x, 'y')))
+        self.assertTrue(Filter(property=p).match(p(x, x)))
+        self.assertTrue(Filter(property=p).match(
+            p.replace(p.KEEP, Item)(x, x)))
+        self.assertTrue(Filter(property=p.replace(p.KEEP, Item)).match(
+            Statement(x, NoValueSnak(p))))
+        self.assertFalse(Filter(property=p.replace(p.KEEP, Property)).match(
+            p.replace(p.KEEP, Item)(x, x)))
+        self.assertFalse(Filter(snak_mask=Filter.SOME_VALUE_SNAK).match(
+            p(x, x)))
+        self.assertFalse(Filter(value=x).match((x, SomeValueSnak(p))))
+        self.assertFalse(Filter(value=x).match((x, p, p)))
+        self.assertFalse(Filter(value=Quantity(0)).match((x, p, x)))
+        self.assertFalse(Filter(value=x).match((x, p, Quantity(0))))
+        self.assertFalse(Filter(subject=x).match((y, p, Quantity(0))))
+        self.assertFalse(Filter(value=x).match((x, p, y)))
+        self.assertTrue(Filter(value=Quantity(0)).match((x, p, Quantity(0))))
+        self.assertTrue(Filter(
+            value=Quantity(0)).match((x, p, Quantity(0, y))))
+        self.assertFalse(Filter(
+            value=Quantity(0, y)).match((x, p, Quantity(0))))
+        self.assertTrue(Filter(
+            value=Quantity(0)).match((x, p, Quantity(0, y, 1))))
+        self.assertFalse(Filter(
+            value=Quantity(0, None, 1)).match((x, p, Quantity(0))))
+        self.assertTrue(Filter(
+            value=Quantity(0)).match((x, p, Quantity(0, y, 1, 2))))
+        self.assertFalse(Filter(
+            value=Quantity(0, None, None, 2)).match((x, p, Quantity(0))))
+        self.assertTrue(Filter(
+            value=Time('2024-07-11')).match((x, p, Time('2024-07-11'))))
+        self.assertTrue(Filter(
+            value=Time('2024-07-11', 0)).match((x, p, Time('2024-07-11', 0))))
+        self.assertFalse(Filter(
+            value=Time('2024-07-11', 0)).match((x, p, Time('2024-07-11', 1))))
+        self.assertTrue(Filter(
+            value=Time(datetime.datetime(2024, 7, 11), None, 1)).match(
+                (x, p, Time('2024-07-11', 0, 1))))
+        self.assertTrue(Filter(
+            value=Time('2024-07-11', None, 1)).match(
+                (x, p, Time('2024-07-11', 0, 1))))
+        self.assertFalse(Filter(
+            value=Time('2024-07-11', None, 0)).match(
+                (x, p, Time('2024-07-11'))))
+        self.assertTrue(Filter(
+            value=Time('2024-07-11', None, 1, Item('x'))).match(
+                (x, p, Time('2024-07-11', 0, 1, x))))
+        self.assertFalse(Filter(
+            value=Time('2024-07-11', None, 0, Item('x'))).match(
+                (x, p, Time('2024-07-11', None, None, y))))
 
 
 if __name__ == '__main__':

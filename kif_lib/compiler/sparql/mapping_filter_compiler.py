@@ -5,12 +5,20 @@ from __future__ import annotations
 
 from ... import itertools
 from ...model import (
+    AndFingerprint,
+    CompoundFingerprint,
+    ConverseSnakFingerprint,
     Entity,
+    EntityTemplate,
+    EntityVariable,
     Filter,
     Fingerprint,
+    FullFingerprint,
     NoValueSnak,
+    OrFingerprint,
     Property,
     Snak,
+    SnakFingerprint,
     SnakTemplate,
     SomeValueSnak,
     Statement,
@@ -19,6 +27,7 @@ from ...model import (
     Term,
     Theta,
     Value,
+    ValueFingerprint,
     ValueSnak,
     ValueSnakTemplate,
     Variable,
@@ -27,14 +36,6 @@ from ...model import (
     VProperty,
     VStatement,
     VValue,
-)
-from ...model.fingerprint import (
-    AndFingerprint,
-    CompoundFingerprint,
-    FullFingerprint,
-    OrFingerprint,
-    SnakFingerprint,
-    ValueFingerprint,
 )
 from ...typing import cast, Iterator, Mapping, override, Sequence
 from .builder import Query
@@ -164,14 +165,21 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             value: VValue
     ) -> None:
         if isinstance(value, Value) and not fp.match(value):
-            print('*** SKIP ***', fp, value)
             raise SPARQL_Mapping.Skip  # fail
         if isinstance(fp, CompoundFingerprint):
-            self._push_compound_fp(entry, fp, value)
+            with self.q.group():
+                self.q.comments()(f'{value} := {type(fp).__qualname__}')
+                self._push_compound_fp(entry, fp, value)
         elif isinstance(fp, SnakFingerprint):
-            raise NotImplementedError
+            with self.q.group():
+                self.q.comments()(f'{value} := {fp}')
+                assert isinstance(value, (
+                    Entity, EntityTemplate, EntityVariable))
+                self._push_snak_fp(entry, fp, value)
         elif isinstance(fp, ValueFingerprint):
-            raise NotImplementedError
+            with self.q.group():
+                self.q.comments()(f'{value} := {fp}')
+                raise NotImplementedError
         elif isinstance(fp, FullFingerprint):
             pass
         else:
@@ -188,18 +196,47 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         snaks, values = map(list, itertools.partition(
             lambda x: isinstance(x, ValueFingerprint), atoms))
         if isinstance(fp, AndFingerprint):
-            raise NotImplementedError
-        elif isinstance(fp, OrFingerprint):
+            assert len(values) <= 1
+            for child in itertools.chain(snaks, comps):
+                self._push_fp(entry, child, value)
             if values:
-                self._push_values_fps(entry, values, value)
+                with self.q.group():
+                    self._push_value_fps(entry, values, value, False)
+        elif isinstance(fp, OrFingerprint):
+            with self.q.union():
+                for child in itertools.chain(snaks, comps):
+                    with self.q.group():
+                        self._push_fp(entry, child, value)
+                if values:
+                    with self.q.group():
+                        self._push_value_fps(entry, values, value, False)
         else:
             raise self._should_not_get_here()
 
-    def _push_values_fps(
+    def _push_snak_fp(
+            self,
+            entry: SPARQL_Mapping.Entry,
+            fp: SnakFingerprint,
+            entity: VEntity
+    ) -> None:
+        source = Statement(self._fresh_entity_variable(), fp.snak)
+        with self.q.union():
+            for _, bindings, target_entry in self.mapping.match(source):
+                args = self._push_filter_get_entry_callback_args(
+                    target_entry, bindings, False)
+                if isinstance(fp, ConverseSnakFingerprint):
+                    xargs = list(args)
+                    assert len(xargs) == 2
+                    args = reversed(xargs)
+                with self.q.group():
+                    target_entry.callback(self.mapping, self, *args)
+
+    def _push_value_fps(
             self,
             entry: SPARQL_Mapping.Entry,
             fps: Sequence[ValueFingerprint],
-            value: VValue
+            value: VValue,
+            use_values_clause: bool = True
     ) -> None:
         assert bool(fps)
         if isinstance(value, Value):
@@ -209,7 +246,6 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 value.match, map(
                     ValueFingerprint.get_value, fps))))
         if not thetas:
-            print('*** SKIP ***', fps, value)
             raise SPARQL_Mapping.Skip  # fail
         accum: dict[Variable, list[Value]] = {}
         for theta in thetas:
@@ -222,11 +258,17 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         for var, vs in accum.items():
             assert isinstance(var, self._primitve_var_classes)
             qvar = self.as_qvar(var)
-            self.q.values(qvar)(
-                *map(lambda v: (cast(
-                    Query.Literal | Query.URI, entry.preprocess(
-                        self.mapping, self, var, self._as_simple_value(v))),),
-                     vs))
+            values = list(map(lambda v: (cast(
+                Query.Literal | Query.URI, entry.preprocess(
+                    self.mapping, self, var, self._as_simple_value(v))),),
+                vs))
+            if len(values) > 1 and use_values_clause:
+                self.q.values(qvar)(*values)
+            else:
+                with self.q.union():
+                    for (val,) in values:
+                        with self.q.group():
+                            self.q.bind(val, qvar)
 
     def _binding_to_thetas(
             self,

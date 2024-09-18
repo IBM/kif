@@ -525,6 +525,29 @@ class Filter(KIF_Object):
         """
         return not self.is_empty()
 
+    def combine(self, *others: Filter) -> Filter:
+        """Combines filter with `others`.
+
+        Parameters:
+           others: Filters.
+
+        Returns:
+           Filter.
+        """
+        return functools.reduce(self._combine, others, self)
+
+    @classmethod
+    def _combine(cls, f1: Filter, f2: Filter) -> Filter:
+        f2 = Filter.check(f2, cls.combine)
+        return f1.__class__(
+            f1.subject & f2.subject,
+            f1.property & f2.property,
+            f1.value & f2.value,
+            f1.snak_mask & f2.snak_mask,
+            f1.subject_mask & f2.subject_mask,
+            f1.property_mask & f2.property_mask,
+            f1.value_mask & f2.value_mask).normalize()
+
     def match(self, stmt: TStatement) -> bool:
         """Tests whether filter shallow-matches statement.
 
@@ -567,34 +590,15 @@ class Filter(KIF_Object):
         value = self.value.normalize(self.VALUE)
         value_mask = self.value_mask & value.datatype_mask
         snak_mask = self.snak_mask
+        if property_mask.value == 0:
+            snak_mask = self.SnakMask(0)
         if 0 < value_mask.value < self.VALUE.value:
             snak_mask &= self.VALUE_SNAK
+        elif value_mask.value == 0:
+            snak_mask &= ~self.VALUE_SNAK
         return Filter(
             subject, property, value, snak_mask,
             subject_mask, property_mask, value_mask)
-
-    def combine(self, *others: Filter) -> Filter:
-        """Combines filter with `others`.
-
-        Parameters:
-           others: Filters.
-
-        Returns:
-           Filter.
-        """
-        return functools.reduce(self._combine, others, self)
-
-    @classmethod
-    def _combine(cls, f1: Filter, f2: Filter) -> Filter:
-        f2 = Filter.check(f2, cls.combine)
-        return f1.__class__(
-            f1.subject & f2.subject,
-            f1.property & f2.property,
-            f1.value & f2.value,
-            f1.snak_mask & f2.snak_mask,
-            f1.subject_mask & f2.subject_mask,
-            f1.property_mask & f2.property_mask,
-            f1.value_mask & f2.value_mask).normalize()
 
     def _unpack_legacy(
             self
