@@ -6,10 +6,10 @@ from __future__ import annotations
 from kif_lib import Quantity, Text
 from kif_lib.vocabulary import wd
 
-from ...tests import WikidataSPARQL_StoreTestCase
+from ...tests import WikidataStoreTestCase
 
 
-class Test(WikidataSPARQL_StoreTestCase):
+class Test(WikidataStoreTestCase):
 
     def test_filter_subject_is_empty_fp(self) -> None:
         kb = self.new_Store()

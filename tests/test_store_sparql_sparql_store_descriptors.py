@@ -14,10 +14,10 @@ from kif_lib import (
 )
 from kif_lib.vocabulary import wd
 
-from .tests import WikidataSPARQL_StoreTestCase
+from .tests import WikidataStoreTestCase
 
 
-class TestStoreSPARQL_SPARQL_StoreDescriptors(WikidataSPARQL_StoreTestCase):
+class TestStoreSPARQL_SPARQL_StoreDescriptors(WikidataStoreTestCase):
 
     def test_get_descriptor_sanity(self) -> None:
         kb = self.new_Store()

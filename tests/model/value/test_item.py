@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import decimal
+
 from kif_lib import (
     ExternalId,
     Item,
@@ -12,6 +14,9 @@ from kif_lib import (
     ItemVariable,
     Lexeme,
     Property,
+    Quantity,
+    QuantityTemplate,
+    QuantityVariable,
     Term,
     Text,
     Theta,
@@ -68,6 +73,27 @@ class Test(EntityTestCase):
                 [Text('x')],
                 [Variable('x', Text)],
             ])
+
+    def test__rmatmul__(self) -> None:
+        assert_type(5@Item('x'), Quantity)
+        assert_type(
+            QuantityTemplate(Variable('x'))@Item('x'), QuantityTemplate)
+        self.assert_raises_bad_argument(
+            TypeError, None, None,
+            'cannot coerce dict into Quantity',
+            (Item('x').__rmatmul__, 'Quantity.check'), {})
+        self.assert_raises_bad_argument(
+            ValueError, None, None,
+            'cannot coerce str into Quantity',
+            (Item('x').__rmatmul__, 'Quantity.check'), 'abc')
+        self.assert_quantity(5@Item('x'), decimal.Decimal(5), Item('x'))
+        self.assert_quantity(
+            Quantity(5, Item('x'), 4, 6)@Item('y'),
+            decimal.Decimal(5), Item('y'),
+            decimal.Decimal(4), decimal.Decimal(6))
+        self.assert_quantity_template(
+            Quantity(Variable('x'), None, 4)@Item('y'),
+            QuantityVariable('x'), Item('y'), 4)
 
     def test_variables(self) -> None:
         assert_type(Item('x').variables, Set[Variable])

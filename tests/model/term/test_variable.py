@@ -145,7 +145,7 @@ class Test(VariableTestCase):
         self.assert_quantity_variable(x@QuantityVariable, 'x')
         self.assert_entity_variable(y@Entity, 'y')
 
-    def test_get_variables(self) -> None:
+    def test_variables(self) -> None:
         assert_type(ItemVariable('x').variables, Set[Variable])
         assert_type(Variable('x').get_variables(), Set[Variable])
         self.assertEqual(

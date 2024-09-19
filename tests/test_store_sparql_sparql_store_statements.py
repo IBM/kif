@@ -19,10 +19,10 @@ from kif_lib import (
 )
 from kif_lib.vocabulary import wd
 
-from .tests import WikidataSPARQL_StoreTestCase
+from .tests import WikidataStoreTestCase
 
 
-class TestStoreSPARQL_SPARQL_StoreStatements(WikidataSPARQL_StoreTestCase):
+class TestStoreSPARQL_SPARQL_StoreStatements(WikidataStoreTestCase):
 
     def test_filter_bad_argument(self) -> None:
         kb = self.new_Store()

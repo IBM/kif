@@ -624,9 +624,9 @@ class TestCase(unittest.TestCase):
             self,
             obj: VQuantity,
             amount: VTQuantityContent,
-            unit: VItem | None,
-            lower_bound: VTQuantityContent | None,
-            upper_bound: VTQuantityContent | None
+            unit: VItem | None = None,
+            lower_bound: VTQuantityContent | None = None,
+            upper_bound: VTQuantityContent | None = None
     ) -> None:
         self.assertIsInstance(obj, QuantityTemplate)
         assert isinstance(obj, QuantityTemplate)

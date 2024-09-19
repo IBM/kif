@@ -23,10 +23,10 @@ from kif_lib import (
 )
 from kif_lib.vocabulary import wd
 
-from .tests import WikidataSPARQL_StoreTestCase
+from .tests import WikidataStoreTestCase
 
 
-class TestStoreSPARQL_SPARQL_Store(WikidataSPARQL_StoreTestCase):
+class TestStoreSPARQL_SPARQL_Store(WikidataStoreTestCase):
 
     def test__contains__(self) -> None:
         kb = self.new_Store()

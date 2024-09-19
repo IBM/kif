@@ -3,11 +3,24 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+from typing_extensions import overload
+
 from ...typing import ClassVar, Iterable, TypeAlias, Union
-from ..term import Variable
+from ..term import Template, Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI_Template, T_IRI
 from .value import Datatype
+
+if TYPE_CHECKING:               # pragma: no cover
+    from .quantity import (  # noqa: F401
+        Quantity,
+        QuantityTemplate,
+        QuantityVariable,
+        TQuantity,
+        VQuantity,
+    )
 
 TItem: TypeAlias = Union['Item', T_IRI]
 VItem: TypeAlias = Union['ItemTemplate', 'ItemVariable', 'Item']
@@ -63,6 +76,26 @@ class Item(
 
     def __init__(self, iri: VTItemContent) -> None:
         super().__init__(iri)
+
+    @overload
+    def __rmatmul__(self, other: QuantityTemplate) -> QuantityTemplate:
+        ...                     # pragma: no cover
+
+    @overload
+    def __rmatmul__(self, other: TQuantity) -> Quantity:
+        ...                     # pragma: no cover
+
+    def __rmatmul__(
+            self,
+            other: QuantityTemplate | TQuantity
+    ) -> QuantityTemplate | Quantity:
+        from .quantity import Quantity, QuantityTemplate
+        if isinstance(other, Template):
+            return QuantityTemplate.check(other).replace(
+                self.KEEP, self, self.KEEP, self.KEEP)
+        else:
+            return Quantity.check(other).replace(
+                self.KEEP, self, self.KEEP, self.KEEP)
 
 
 def Items(iri: VTItemContent, *iris: VTItemContent) -> Iterable[Item]:

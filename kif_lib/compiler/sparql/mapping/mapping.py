@@ -6,7 +6,7 @@ from __future__ import annotations
 import dataclasses
 from typing import TYPE_CHECKING
 
-from ...model import (
+from ....model import (
     KIF_Object,
     Statement,
     StatementTemplate,
@@ -18,7 +18,7 @@ from ...model import (
     VStatement,
     VTStatement,
 )
-from ...typing import (
+from ....typing import (
     Any,
     Callable,
     cast,
@@ -35,7 +35,7 @@ from ...typing import (
 )
 
 if TYPE_CHECKING:  # pragma: no cover
-    from .compiler import SPARQL_Compiler
+    from ..compiler import SPARQL_Compiler
 
 
 class SPARQL_Mapping(Mapping):

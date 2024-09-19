@@ -17,12 +17,12 @@ from kif_lib import (
 from kif_lib.typing import TypeVar
 from kif_lib.vocabulary import wd
 
-from ...tests import WikidataSPARQL_StoreTestCase
+from ...tests import WikidataStoreTestCase
 
 T = TypeVar('T')
 
 
-class Test(WikidataSPARQL_StoreTestCase):
+class Test(WikidataStoreTestCase):
 
     def test_subject_is_var(self) -> None:
         kb = self.new_Store()

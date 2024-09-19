@@ -13,10 +13,10 @@ from kif_lib import (
 )
 from kif_lib.vocabulary import wd
 
-from .tests import WikidataSPARQL_StoreTestCase
+from .tests import WikidataStoreTestCase
 
 
-class TestStoreSPARQL_SPARQL_StoreAnnotations(WikidataSPARQL_StoreTestCase):
+class TestStoreSPARQL_SPARQL_StoreAnnotations(WikidataStoreTestCase):
 
     def test_get_annotations_bad_argument(self) -> None:
         kb = self.new_Store()

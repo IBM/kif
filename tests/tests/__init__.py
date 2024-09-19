@@ -39,10 +39,11 @@ from .model import (
 from .store import (
     EmptyStoreTestCase,
     PubChemSPARQL_StoreTestCase,
+    PubChemStoreTestCase,
     RDF_StoreTestCase,
     SPARQL_MapperStoreTestCase,
     StoreTestCase,
-    WikidataSPARQL_StoreTestCase,
+    WikidataStoreTestCase,
 )
 from .tests import TestCase
 
@@ -65,6 +66,7 @@ __all__ = (
     'KIF_ObjectTestCase',
     'OpenTermTestCase',
     'PubChemSPARQL_StoreTestCase',
+    'PubChemStoreTestCase',
     'RDF_StoreTestCase',
     'ShallowDataValueTemplateTestCase',
     'ShallowDataValueTestCase',
@@ -84,5 +86,5 @@ __all__ = (
     'ValueTestCase',
     'ValueVariableTestCase',
     'VariableTestCase',
-    'WikidataSPARQL_StoreTestCase',
+    'WikidataStoreTestCase',
 )
