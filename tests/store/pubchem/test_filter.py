@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import ExternalId, Filter, Quantity
+from kif_lib import ExternalId, Filter, Quantity, String
 from kif_lib.vocabulary import pc, wd
 
 from ...tests import PubChemStoreTestCase
@@ -41,23 +41,40 @@ class Test(PubChemStoreTestCase):
 
     def test_V_canonical_SMILES_F(self) -> None:
         kb = self.new_Store()
+        # failure
+        self.assert_it_empty(kb.filter(wd.benzene, wd.canonical_SMILES))
+        self.assert_it_empty(
+            kb.filter(pc.Isotope_Atom_Count, wd.canonical_SMILES))
+        # success
         it = kb.filter(pc.CID(241), wd.canonical_SMILES)
         self.assert_it_equal(
             it, wd.canonical_SMILES(pc.CID(241), 'C1=CC=CC=C1'))
 
     def test_V_has_part_F(self) -> None:
         kb = self.new_Store()
+        # failure
+        self.assert_it_empty(kb.filter(wd.benzene, wd.has_part))
+        self.assert_it_empty(kb.filter(pc.Isotope_Atom_Count, wd.has_part))
+        # success
+        it = kb.filter(pc.CID(241), wd.has_part)
+        self.assert_it_empty(it)
         it = kb.filter(pc.CID(340032), wd.has_part)
         self.assert_it_equal(it, wd.has_part(pc.CID(340032), pc.CID(241)))
 
     def test_V_instance_of_F(self) -> None:
         kb = self.new_Store()
+        # success
+        self.assert_it_empty(kb.filter(wd.benzene, wd.instance_of))
+        self.assert_it_empty(kb.filter(pc.CID(421), wd.instance_of))
+        # failure
         it = kb.filter(pc.Isotope_Atom_Count, wd.instance_of)
         self.assert_it_equal(it, wd.instance_of(
             pc.Isotope_Atom_Count, wd.Wikidata_property_related_to_chemistry))
 
     def test_V_Isotope_Atom_Count_F(self) -> None:
         kb = self.new_Store()
+        # failure
+        self.assert_it_empty(kb.filter(wd.benzene, pc.Isotope_Atom_Count))
         # success
         it = kb.filter(pc.CID(241), pc.Isotope_Atom_Count)
         self.assert_it_equal(it, pc.Isotope_Atom_Count(pc.CID(241), 0))
@@ -74,6 +91,10 @@ class Test(PubChemStoreTestCase):
 
     def test_V_mass_F(self) -> None:
         kb = self.new_Store()
+        # failure
+        self.assert_it_empty(kb.filter(wd.benzene, wd.mass))
+        self.assert_it_empty(kb.filter(pc.Isotope_Atom_Count, wd.mass))
+        # success
         it = kb.filter(pc.CID(241), wd.mass)
         self.assert_it_equal(
             it, wd.mass(pc.CID(241), '78.11'@wd.gram_per_mole))
@@ -97,11 +118,20 @@ class Test(PubChemStoreTestCase):
 
     def test_V_PubChem_CID_F(self) -> None:
         kb = self.new_Store()
+        # failure
+        self.assert_it_empty(kb.filter(wd.benzene, wd.PubChem_CID))
+        self.assert_it_empty(kb.filter(pc.Isotope_Atom_Count, wd.PubChem_CID))
+        # success
         it = kb.filter(pc.CID(241), wd.PubChem_CID)
         self.assert_it_equal(it, wd.PubChem_CID(pc.CID(241), '241'))
 
     def test_F_PubChem_CID_V(self) -> None:
         kb = self.new_Store()
+        # failure
+        self.assert_it_empty(kb.filter(None, wd.PubChem_CID, String('241')))
+        self.assert_it_empty(
+            kb.filter(None, wd.PubChem_CID, ExternalId('abc')))
+        # success
         it = kb.filter(None, wd.PubChem_CID, ExternalId('241'))
         self.assert_it_equal(it, wd.PubChem_CID(pc.CID(241), '241'))
 
