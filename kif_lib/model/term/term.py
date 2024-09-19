@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from ... import itertools
 from ...typing import (
     Any,
+    Callable,
     cast,
     ClassVar,
     Iterable,
@@ -167,13 +168,22 @@ class Term(KIF_Object):
         """
         return self.unify((self, Term.check(other, self.match, 'other', 1)))
 
-    def rename(self, exclude: Iterable[Term | str] = ()) -> Self:
-        """Rename all variables occurring in term.
+    def rename(
+            self,
+            exclude: Iterable[Term | str] = (),
+            generate: Callable[[str], Iterator[str]] | None = None
+    ) -> Self:
+        """Renames all variables occurring in term.
 
-        Pick new names that do conflict with those [of variables] in `exclude`.
+        Picks new names that do conflict with those [of variables] in
+        `exclude`.
+
+        If `generate` is given, use it to generate new names from the old
+        names.
 
         Parameters:
            exclude: Exclusion list.
+           generate: Name generator.
 
         Returns:
            Term.
@@ -182,13 +192,17 @@ class Term(KIF_Object):
         xnames, xterms = cast(
             tuple[Iterator[str], Iterator[Term]],
             itertools.partition(lambda x: isinstance(x, Term), exclude))
-        excluded = set(itertools.chain(
+        exclude_set = set(itertools.chain(
             map(Variable.get_name, itertools.chain(
                 *map(Term.get_variables, xterms))), xnames))
-        return self._rename(excluded)
+        return self._rename(exclude_set, generate)
 
-    def _rename(self, excluded: Set[str]) -> Self:
-        theta = {x: x._rename(excluded) for x in self.variables}
+    def _rename(
+            self,
+            exclude: Set[str],
+            generate: Callable[[str], Iterator[str]] | None
+    ) -> Self:
+        theta = {x: x._rename(exclude, generate) for x in self.variables}
         return cast(Self, self.instantiate(theta))
 
 
@@ -241,7 +255,11 @@ class ClosedTerm(Term):
         return self
 
     @override
-    def rename(self, exclude: Iterable[Term | str] = ()) -> Self:
+    def _rename(
+            self,
+            exclude: Set[str],
+            generate: Callable[[str], Iterator[str]] | None
+    ) -> Self:
         return self             # nothing to do
 
 

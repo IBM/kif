@@ -578,15 +578,15 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         assert not fp.is_empty()
         if isinstance(fp, CompoundFingerprint):
             with self.q.group():
-                self.q.comments()(f'{dest} := {type(fp).__qualname__}')
+                self.q.comments()(f'{dest} =~ {type(fp).__qualname__}')
                 self._push_compound_fingerprint(fp, dest, property, wds)
         elif isinstance(fp, SnakFingerprint):
             with self.q.group():
-                self.q.comments()(f'{dest} := {fp}')
+                self.q.comments()(f'{dest} =~ {fp}')
                 self._push_snak_fingerprint(fp, dest)
         elif isinstance(fp, ValueFingerprint):
             with self.q.group():
-                self.q.comments()(f'{dest} := {fp}')
+                self.q.comments()(f'{dest} =~ {fp}')
                 self._push_value_fingerprints((fp,), dest, property, wds)
         elif isinstance(fp, FullFingerprint):
             pass                # nothing to do

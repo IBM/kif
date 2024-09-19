@@ -168,17 +168,17 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             raise SPARQL_Mapping.Skip  # fail
         if isinstance(fp, CompoundFingerprint):
             with self.q.group():
-                self.q.comments()(f'{value} := {type(fp).__qualname__}')
+                self.q.comments()(f'{value} =~ {type(fp).__qualname__}')
                 self._push_compound_fp(entry, fp, value)
         elif isinstance(fp, SnakFingerprint):
             with self.q.group():
-                self.q.comments()(f'{value} := {fp}')
+                self.q.comments()(f'{value} =~ {fp}')
                 assert isinstance(value, (
                     Entity, EntityTemplate, EntityVariable))
                 self._push_snak_fp(entry, fp, value)
         elif isinstance(fp, ValueFingerprint):
             with self.q.group():
-                self.q.comments()(f'{value} := {fp}')
+                self.q.comments()(f'{value} =~ {fp}')
                 raise NotImplementedError
         elif isinstance(fp, FullFingerprint):
             pass
@@ -219,17 +219,39 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             fp: SnakFingerprint,
             entity: VEntity
     ) -> None:
-        source = Statement(self._fresh_entity_variable(), fp.snak)
+        if isinstance(fp, ConverseSnakFingerprint):
+            assert isinstance(fp.snak, ValueSnak)
+            assert isinstance(fp.snak.value, Entity)
+            source = fp.snak.property(fp.snak.value, entity)
+        else:
+            source = Statement(entity, fp.snak)
+        assert isinstance(entity, (EntityTemplate, EntityVariable))
         with self.q.union():
-            for _, bindings, target_entry in self.mapping.match(source):
-                args = self._push_filter_get_entry_callback_args(
-                    target_entry, bindings, False)
+            rename = (lambda _: map(
+                lambda _: self.fresh_qvar(), itertools.repeat(None)))
+            for target, bindings, target_entry in self.mapping.match(
+                    source, rename):
+                assert isinstance(target, (Statement, StatementTemplate))
                 if isinstance(fp, ConverseSnakFingerprint):
-                    xargs = list(args)
-                    assert len(xargs) == 2
-                    args = reversed(xargs)
+                    assert isinstance(
+                        target.snak, (ValueSnak, ValueSnakTemplate))
+                    assert isinstance(target.snak.value, (
+                        Entity, EntityTemplate, EntityVariable))
+                    target_entity = target.snak.value
+                else:
+                    target_entity = target.subject
+                args = list(self._push_filter_get_entry_callback_args(
+                    target_entry, bindings, False))
                 with self.q.group():
                     target_entry.callback(self.mapping, self, *args)
+                    src = self.as_qvar(next(entity._iterate_variables()))
+                    if isinstance(target_entity, Entity):
+                        tgt: Query.VTerm = self._as_simple_value(
+                            target_entity)
+                    else:
+                        tgt = self.as_qvar(next(
+                            target_entity._iterate_variables()))
+                    self.q.bind(tgt, src)
 
     def _push_value_fps(
             self,

@@ -11,6 +11,7 @@ from typing_extensions import overload
 from ... import itertools
 from ...typing import (
     Any,
+    Callable,
     cast,
     Final,
     Iterator,
@@ -230,20 +231,27 @@ class Variable(OpenTerm):
                     f"cannot instantiate {src} '{self.name}' with {dest}",
                     function, name, position, self.InstantiationError)
 
-    #: Regex used by _rename() to split variable names.
-    _rename_re: Final[re.Pattern] = re.compile(r'(.*?)(\d*)$')
-
     @override
-    def _rename(self, excluded: Set[str]) -> Self:
-        m = self._rename_re.match(self.name)
+    def _rename(
+            self,
+            exclude: Set[str],
+            generate: Callable[[str], Iterator[str]] | None
+    ) -> Self:
+        generate = generate or self._rename_default_generate
+        for name in generate(self.name):
+            if name not in exclude:
+                return self.replace(name, self.KEEP)
+        raise self._should_not_get_here()
+
+    _rename_default_generate_re: Final[re.Pattern] =\
+        re.compile(r'(.*?)(\d*)$')
+
+    def _rename_default_generate(self, name: str) -> Iterator[str]:
+        m = self._rename_default_generate_re.match(name)
         assert m is not None
         prefix, suffix = m.groups()
-        n = int(suffix or -1)
-        while True:
-            n += 1
-            name = prefix + str(n)
-            if name not in excluded:
-                return self.replace(name, self.KEEP)
+        return map(lambda n: prefix + str(n),
+                   itertools.count(int(suffix or -1) + 1))
 
 
 def Variables(

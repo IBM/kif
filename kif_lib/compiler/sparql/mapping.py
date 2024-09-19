@@ -23,11 +23,13 @@ from ...typing import (
     Callable,
     cast,
     ClassVar,
+    Iterable,
     Iterator,
     Mapping,
     MutableSequence,
     Optional,
     Protocol,
+    Self,
     TypeAlias,
     Union,
 )
@@ -163,6 +165,19 @@ class SPARQL_Mapping(Mapping):
             else:
                 return self.preprocess_map[var](mapping, compiler, arg)
 
+        def rename(
+                self,
+                exclude: Iterable[Term | str] = (),
+                generator: Callable[[str], Iterator[str]] | None = None
+        ) -> Self:
+            pattern = self.pattern.rename(exclude, generator)
+            tr = dict(zip(
+                self.pattern._iterate_variables(),
+                pattern._iterate_variables()))
+            preproc = {tr[k]: v for k, v in self.preprocess_map.items()}
+            callback = self.callback
+            return self.__class__(pattern, preproc, callback)
+
     class Skip(BaseException):
         """Skip the current entry."""
 
@@ -267,18 +282,25 @@ class SPARQL_Mapping(Mapping):
 
     def match(
             self,
-            pattern: SPARQL_Mapping.EntryPattern
+            pattern: SPARQL_Mapping.EntryPattern,
+            rename: Callable[[str], Iterator[str]] | None = None
     ) -> Iterator[tuple[
             SPARQL_Mapping.EntryPattern, Theta, SPARQL_Mapping.Entry]]:
         """Searches for entries matching `pattern`.
 
+        If `rename` is given, renames entry using `rename` before computing
+        the match.
+
         Parameters:
            pattern: Statement, statement template, or statement variable.
+           rename: Name generator.
 
         Returns:
            An iterator of triples "(pattern, theta, entry)".
         """
         for _, entry in self._entries.items():
+            if rename is not None:
+                entry = entry.rename(generator=rename)
             theta = pattern.match(entry.pattern)
             if theta is None:
                 continue

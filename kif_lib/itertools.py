@@ -10,6 +10,7 @@ from itertools import (
     islice,
     permutations,
     product,
+    repeat,
     starmap,
 )
 
@@ -24,6 +25,7 @@ __all__ = (
     'partition',
     'permutations',
     'product',
+    'repeat',
     'starmap',
     'take',
     'unique_everseen',
