@@ -320,7 +320,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         """
         return self.__class__(*itertools.starmap(
             self._replace, itertools.zip_longest(
-                self.args, args, fillvalue=self.KEEP)))
+                self.args, args[:len(self.args)], fillvalue=self.KEEP)))
 
     def _replace(self, x: T1, y: T2) -> T1 | T2:
         if y is self.KEEP:

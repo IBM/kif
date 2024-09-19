@@ -214,6 +214,7 @@ class Test(TestCase):
         self.assertEqual(c.replace(2), C(2, *c[1:]))
         self.assertEqual(c.replace(c.KEEP), c)
         self.assertEqual(c.replace(c.KEEP, None), C(1, None, C(4)))
+        self.assertEqual(C(1).replace(0, C.KEEP, C.KEEP), C(0))
 
 # -- Conversion ------------------------------------------------------------
 

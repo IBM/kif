@@ -12,6 +12,7 @@ from kif_lib import (
     ExternalId,
     ExternalIdVariable,
     IRI,
+    IRI_Variable,
     Item,
     ItemVariable,
     KIF_Object,
@@ -249,6 +250,19 @@ class Test(VariableTestCase):
             DataValueVariable('x').instantiate(
                 {StringVariable('x'): ExternalId('x')}, False),
             DataValueVariable('x'))
+
+    def test_rename(self) -> None:
+        assert_type(Variable('x').rename(), Variable)
+        self.assertEqual(Variable('x').rename(), Variable('x0'))
+        self.assertEqual(ItemVariable('x').rename(), ItemVariable('x0'))
+        self.assertEqual(
+            IRI_Variable('abc123').rename(), IRI_Variable('abc124'))
+        self.assertEqual(
+            ItemVariable('x').rename(Variable('x0')), ItemVariable('x1'))
+        self.assertEqual(
+            ItemVariable('x').rename(
+                [NoValueSnak(PropertyVariable('x0')), 'x1']),
+            ItemVariable('x2'))
 
     def test_Variables(self) -> None:
         assert_type(Variables('x', 'y', 'z'), Iterator[Variable])

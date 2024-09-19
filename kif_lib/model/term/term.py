@@ -12,6 +12,7 @@ from ...typing import (
     Any,
     cast,
     ClassVar,
+    Iterable,
     Iterator,
     Location,
     Mapping,
@@ -166,6 +167,30 @@ class Term(KIF_Object):
         """
         return self.unify((self, Term.check(other, self.match, 'other', 1)))
 
+    def rename(self, exclude: Iterable[Term | str] = ()) -> Self:
+        """Rename all variables occurring in term.
+
+        Pick new names that do conflict with those [of variables] in `exclude`.
+
+        Parameters:
+           exclude: Exclusion list.
+
+        Returns:
+           Term.
+        """
+        from .variable import Variable
+        xnames, xterms = cast(
+            tuple[Iterator[str], Iterator[Term]],
+            itertools.partition(lambda x: isinstance(x, Term), exclude))
+        excluded = set(itertools.chain(
+            map(Variable.get_name, itertools.chain(
+                *map(Term.get_variables, xterms))), xnames))
+        return self._rename(excluded)
+
+    def _rename(self, excluded: Set[str]) -> Self:
+        theta = {x: x._rename(excluded) for x in self.variables}
+        return cast(Self, self.instantiate(theta))
+
 
 class ClosedTerm(Term):
     """Abstract base class for closed (ground) terms."""
@@ -214,6 +239,10 @@ class ClosedTerm(Term):
             position: int | None = None
     ) -> Term | None:
         return self
+
+    @override
+    def rename(self, exclude: Iterable[Term | str] = ()) -> Self:
+        return self             # nothing to do
 
 
 class OpenTerm(Term):

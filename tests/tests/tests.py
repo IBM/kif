@@ -13,6 +13,7 @@ import unittest
 from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
+    ClosedTerm,
     Datatype,
     DatatypeVariable,
     DataValue,
@@ -41,6 +42,7 @@ from kif_lib import (
     LexemeDescriptor,
     NormalRank,
     NoValueSnak,
+    OpenTerm,
     PlainDescriptor,
     PreferredRank,
     Property,
@@ -60,6 +62,7 @@ from kif_lib import (
     StringDatatype,
     StringTemplate,
     StringVariable,
+    Term,
     Text,
     TextDatatype,
     TextSet,
@@ -239,6 +242,26 @@ class TestCase(unittest.TestCase):
         self.assertIsInstance(obj, Object)
         self.assertIsInstance(obj, KIF_Object)
 
+# -- Term ------------------------------------------------------------------
+
+    def assert_term(self, obj: Term) -> None:
+        self.assert_kif_object(obj)
+        self.assertIsInstance(obj, Term)
+
+    def assert_closed_term(self, obj: ClosedTerm) -> None:
+        self.assert_term(obj)
+        self.assertIsInstance(obj, ClosedTerm)
+        self.assertTrue(Term.is_closed(obj))
+        self.assertFalse(Term.is_open(obj))
+        self.assertFalse(bool(obj.variables))
+
+    def assert_open_term(self, obj: OpenTerm) -> None:
+        self.assert_term(obj)
+        self.assertIsInstance(obj, OpenTerm)
+        self.assertTrue(Term.is_open(obj))
+        self.assertFalse(Term.is_closed(obj))
+        self.assertTrue(obj.variables)
+
 # -- KIF_ObjectSet ---------------------------------------------------------
 
     def assert_kif_object_set(
@@ -298,7 +321,7 @@ class TestCase(unittest.TestCase):
 # -- Datatype --------------------------------------------------------------
 
     def assert_datatype(self, obj: Datatype) -> None:
-        self.assert_kif_object(obj)
+        self.assert_closed_term(obj)
         self.assertIsInstance(obj, Datatype)
 
     def assert_item_datatype(self, obj: Datatype) -> None:
@@ -340,7 +363,7 @@ class TestCase(unittest.TestCase):
 # -- Value -----------------------------------------------------------------
 
     def assert_value(self, obj: Value) -> None:
-        self.assert_kif_object(obj)
+        self.assert_closed_term(obj)
         self.assertIsInstance(obj, Value)
 
     def assert_entity(self, obj: Entity, iri: IRI) -> None:
@@ -490,7 +513,7 @@ class TestCase(unittest.TestCase):
 # -- Template --------------------------------------------------------------
 
     def assert_template(self, obj: Template) -> None:
-        self.assert_kif_object(obj)
+        self.assert_open_term(obj)
         self.assertIsInstance(obj, Template)
 
     def assert_value_template(self, obj: VValue) -> None:
@@ -709,7 +732,7 @@ class TestCase(unittest.TestCase):
 # -- Variable --------------------------------------------------------------
 
     def assert_variable(self, obj: Variable, name: str) -> None:
-        self.assert_kif_object(obj)
+        self.assert_open_term(obj)
         self.assertIsInstance(obj, Variable)
         self.assertEqual(obj.name, name)
         self.assertEqual(obj.get_name(), name)
@@ -897,7 +920,7 @@ class TestCase(unittest.TestCase):
 # -- Snak ------------------------------------------------------------------
 
     def assert_snak(self, obj: Snak, prop: Property) -> None:
-        self.assert_kif_object(obj)
+        self.assert_closed_term(obj)
         self.assertIsInstance(obj, Snak)
         self.assertIsInstance(obj.property, Property)
         self.assertEqual(obj.args[0], prop)
@@ -975,7 +998,7 @@ class TestCase(unittest.TestCase):
             subject: Entity,
             snak: Snak
     ) -> None:
-        self.assert_kif_object(obj)
+        self.assert_closed_term(obj)
         self.assertIsInstance(obj, Statement)
         self.assertIsInstance(obj.args[0], Entity)
         self.assertEqual(obj.args[0], subject)

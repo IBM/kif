@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING
 
 from typing_extensions import overload
@@ -11,10 +12,12 @@ from ... import itertools
 from ...typing import (
     Any,
     cast,
+    Final,
     Iterator,
     Location,
     override,
     Self,
+    Set,
     TypeAlias,
     Union,
 )
@@ -226,6 +229,21 @@ class Variable(OpenTerm):
                 raise self._arg_error(
                     f"cannot instantiate {src} '{self.name}' with {dest}",
                     function, name, position, self.InstantiationError)
+
+    #: Regex used by _rename() to split variable names.
+    _rename_re: Final[re.Pattern] = re.compile(r'(.*?)(\d*)$')
+
+    @override
+    def _rename(self, excluded: Set[str]) -> Self:
+        m = self._rename_re.match(self.name)
+        assert m is not None
+        prefix, suffix = m.groups()
+        n = int(suffix or -1)
+        while True:
+            n += 1
+            name = prefix + str(n)
+            if name not in excluded:
+                return self.replace(name, self.KEEP)
 
 
 def Variables(
