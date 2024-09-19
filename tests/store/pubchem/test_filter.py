@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import Filter, Quantity
+from kif_lib import ExternalId, Filter, Quantity
 from kif_lib.vocabulary import pc, wd
 
 from ...tests import PubChemStoreTestCase
@@ -58,8 +58,19 @@ class Test(PubChemStoreTestCase):
 
     def test_V_Isotope_Atom_Count_F(self) -> None:
         kb = self.new_Store()
+        # success
         it = kb.filter(pc.CID(241), pc.Isotope_Atom_Count)
         self.assert_it_equal(it, pc.Isotope_Atom_Count(pc.CID(241), 0))
+
+    def test_F_Isotope_Atom_Count_V(self) -> None:
+        kb = self.new_Store()
+        # failure
+        self.assert_it_empty(
+            kb.filter(None, pc.Isotope_Atom_Count, 201@wd.kilogram))
+        # success
+        it = kb.filter(snak=pc.Isotope_Atom_Count(201))
+        self.assert_it_contains(
+            it, pc.Isotope_Atom_Count(pc.CID(160456303), 201))
 
     def test_V_mass_F(self) -> None:
         kb = self.new_Store()
@@ -67,9 +78,31 @@ class Test(PubChemStoreTestCase):
         self.assert_it_equal(
             it, wd.mass(pc.CID(241), '78.11'@wd.gram_per_mole))
 
+    def test_F_mass_V(self) -> None:
+        kb = self.new_Store()
+        # failure
+        self.assert_it_empty(
+            kb.filter(None, wd.mass, Quantity('78.11', wd.kilogram)))
+        self.assert_it_empty(
+            kb.filter(None, wd.mass, Quantity('78.11', wd.gram_per_mole, 1)))
+        self.assert_it_empty(
+            kb.filter(None, wd.mass, Quantity(
+                '78.11', wd.gram_per_mole, None, 80)))
+        self.assert_it_empty(
+            kb.filter(None, wd.mass, Quantity(10**8, wd.gram_per_mole)))
+        # success
+        it = kb.filter(None, wd.mass, Quantity('78.11', wd.gram_per_mole))
+        self.assert_it_contains(
+            it, wd.mass(pc.CID(241), '78.11'@wd.gram_per_mole))
+
     def test_V_PubChem_CID_F(self) -> None:
         kb = self.new_Store()
         it = kb.filter(pc.CID(241), wd.PubChem_CID)
+        self.assert_it_equal(it, wd.PubChem_CID(pc.CID(241), '241'))
+
+    def test_F_PubChem_CID_V(self) -> None:
+        kb = self.new_Store()
+        it = kb.filter(None, wd.PubChem_CID, ExternalId('241'))
         self.assert_it_equal(it, wd.PubChem_CID(pc.CID(241), '241'))
 
 
