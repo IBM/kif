@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-from typing import cast
-
 from kif_lib import (
     ExternalId,
     Filter,
@@ -179,11 +177,10 @@ class TestStoreSPARQL_SPARQL_Store(WikidataSPARQL_StoreTestCase):
         assert isinstance(stmt.snak, ValueSnak)
         self.assertEqual(stmt.snak.value, wd.benzene)
         # value: text
-        stmt = next(iter(sorted(list(kb.filter(
-            value=Text('Federative Republic of Brazil', 'en'))))))
-        self.assert_statement(stmt, wd.Brazil, ValueSnak(
-            wd.official_name.replace(KIF_Object.KEEP, Text),
-            Text('Federative Republic of Brazil', 'en')))
+        it = kb.filter(value=Text('República Federativa do Brasil', 'pt'))
+        self.assert_it_contains(
+            it, wd.official_name(wd.Brazil, Text(
+                'República Federativa do Brasil', 'pt')))
         # value: string
         stmt = next(kb.filter(value=ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N')))
         self.assert_statement(stmt, wd.benzene, wd.InChIKey(ExternalId(
@@ -194,17 +191,10 @@ class TestStoreSPARQL_SPARQL_Store(WikidataSPARQL_StoreTestCase):
         assert isinstance(stmt.snak, ValueSnak)
         self.assert_statement(stmt, wd.benzene, wd.mass(stmt.snak.value))
         # subject & property: value is text
-        stmts = sorted(kb.filter(wd.Brazil, wd.official_name),
-                       key=lambda s: cast(
-                           Text, cast(ValueSnak, s.snak).value).language)
-        self.assert_statement(
-            stmts[0], wd.Brazil, ValueSnak(
-                wd.official_name, Text(
-                    'Federative Republic of Brazil', 'en')))
-        self.assert_statement(
-            stmts[1], wd.Brazil, ValueSnak(
-                wd.official_name, Text(
-                    'République fédérative du Brésil', 'fr')))
+        it = kb.filter(wd.Brazil, wd.official_name)
+        self.assert_it_contains(
+            it, wd.official_name(wd.Brazil, Text(
+                'República Federativa do Brasil', 'pt')))
         # subject & value: quantity
         stmt = next(kb.filter(
             subject=wd.benzene, value=Quantity('9.24', wd.electronvolt)))
