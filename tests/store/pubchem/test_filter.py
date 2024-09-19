@@ -61,13 +61,30 @@ class Test(PubChemStoreTestCase):
         it = kb.filter(pc.CID(340032), wd.has_part)
         self.assert_it_equal(it, wd.has_part(pc.CID(340032), pc.CID(241)))
 
+    def test_F_has_part_V(self) -> None:
+        kb = self.new_Store()
+        # failure
+        self.assert_it_empty(kb.filter(None, wd.has_part, wd.benzene))
+        self.assert_it_empty(kb.filter(None, wd.has_part, pc.CID(340032)))
+        # success
+
     def test_V_instance_of_F(self) -> None:
         kb = self.new_Store()
-        # success
+        # failure
         self.assert_it_empty(kb.filter(wd.benzene, wd.instance_of))
         self.assert_it_empty(kb.filter(pc.CID(421), wd.instance_of))
-        # failure
+        # success
         it = kb.filter(pc.Isotope_Atom_Count, wd.instance_of)
+        self.assert_it_equal(it, wd.instance_of(
+            pc.Isotope_Atom_Count, wd.Wikidata_property_related_to_chemistry))
+
+    def test_F_instance_of_V(self) -> None:
+        kb = self.new_Store()
+        # failure
+        self.assert_it_empty(kb.filter(None, wd.instance_of, wd.benzene))
+        # success
+        it = kb.filter(
+            None, wd.instance_of, wd.Wikidata_property_related_to_chemistry)
         self.assert_it_equal(it, wd.instance_of(
             pc.Isotope_Atom_Count, wd.Wikidata_property_related_to_chemistry))
 
@@ -88,6 +105,19 @@ class Test(PubChemStoreTestCase):
         it = kb.filter(snak=pc.Isotope_Atom_Count(201))
         self.assert_it_contains(
             it, pc.Isotope_Atom_Count(pc.CID(160456303), 201))
+
+    def test_V_mass_V(self) -> None:
+        kb = self.new_Store()
+        # failure
+        self.assert_it_empty(kb.filter(
+            wd.benzene, wd.mass, Quantity('78.11', wd.gram_per_mole)))
+        self.assert_it_equal(kb.filter(
+            pc.CID(241), wd.mass, Quantity('78.10', wd.gram_per_mole)))
+        # success
+        it = kb.filter(
+            pc.CID(241), wd.mass, Quantity('78.11', wd.gram_per_mole))
+        self.assert_it_equal(
+            it, wd.mass(pc.CID(241), Quantity('78.11', wd.gram_per_mole)))
 
     def test_V_mass_F(self) -> None:
         kb = self.new_Store()
