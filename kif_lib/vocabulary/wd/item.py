@@ -20,6 +20,7 @@ Bolivia = Q(750, 'Bolivia')
 Brazil = Q(155, 'Brazil')
 Brazilian_Sign_Language = Q(3436689, 'Brazilian Sign Language')
 business = Q(4830453, 'business')
+caffeine = Q(60235, 'caffeine')
 CAS_Common_Chemistry = Q(18907859, 'CAS Common Chemistry')
 characterization = Q(2165586, 'characterization')
 chemical_compound = Q(11173, 'chemical compound')
@@ -151,6 +152,7 @@ __all__ = (
     'Brazil',
     'Brazilian_Sign_Language',
     'business',
+    'caffeine',
     'CAS_Common_Chemistry',
     'characterization',
     'chemical_compound',

@@ -224,10 +224,23 @@ class TestCase(unittest.TestCase):
         self.assertRaisesRegex(
             exception, regex, func, *args, **kwargs)
 
+    def assert_it(
+            self,
+            empty: Iterable[Iterable[T]] = (),
+            equals: Iterable[tuple[Iterable[T], T]] = (),
+            contains: Iterable[tuple[Iterable[T], Iterable[T]]] = ()
+    ) -> None:
+        for it in empty:
+            self.assert_it_empty(it)
+        for it, x in equals:
+            self.assert_it_equals(it, x)
+        for it, xs in contains:
+            self.assert_it_contains(it, *xs)
+
     def assert_it_empty(self, it: Iterable[T]) -> None:
         self.assertFalse(set(it))
 
-    def assert_it_equal(self, it: Iterable[T], *args: T) -> None:
+    def assert_it_equals(self, it: Iterable[T], *args: T) -> None:
         self.assertEqual(set(it), set(args))
 
     def assert_it_contains(self, it: Iterable[T], *args: T) -> None:

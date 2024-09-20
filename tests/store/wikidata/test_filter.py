@@ -43,7 +43,7 @@ class Test(WikidataStoreTestCase):
             kb.filter(wd.Monte_Pascoal & wd.Mount_Everest))
         self.assert_it_empty(
             kb.filter(wd.Monte_Pascoal & wd.instance_of(wd.human)))
-        self.assert_it_equal(
+        self.assert_it_equals(
             kb.filter(
                 wd.instance_of(wd.mountain) & wd.country(wd.Brazil),
                 wd.named_after,
@@ -63,7 +63,7 @@ class Test(WikidataStoreTestCase):
             kb.filter(wd.Monte_Pascoal | wd.Mount_Everest, wd.country),
             wd.country(wd.Mount_Everest, wd.Nepal),
             wd.country(wd.Monte_Pascoal, wd.Brazil))
-        self.assert_it_equal(
+        self.assert_it_equals(
             kb.filter(
                 wd.Monte_Pascoal
                 | wd.El_Capitan
