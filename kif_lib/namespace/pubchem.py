@@ -12,9 +12,13 @@ class PubChem:
 
     PUBCHEM: Final[Namespace] = Namespace(
         'http://rdf.ncbi.nlm.nih.gov/pubchem/')
+
     COMPOUND: Final[Namespace] = Namespace(PUBCHEM['compound/'])
+
+    PATENT: Final[Namespace] = Namespace(PUBCHEM['patent/'])
 
     namespaces: Final[dict[str, Namespace]] = {
         str(PUBCHEM): PUBCHEM,
         str(COMPOUND): COMPOUND,
+        str(PATENT): PATENT,
     }

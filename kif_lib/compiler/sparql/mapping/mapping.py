@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import dataclasses
+import re
 from typing import TYPE_CHECKING
 
 from ....model import (
@@ -18,6 +19,7 @@ from ....model import (
     VStatement,
     VTStatement,
 )
+from ....namespace import Wikidata
 from ....typing import (
     Any,
     Callable,
@@ -25,11 +27,14 @@ from ....typing import (
     ClassVar,
     Iterable,
     Iterator,
+    Literal,
     Mapping,
     MutableSequence,
     Optional,
+    override,
     Protocol,
     Self,
+    Sequence,
     TypeAlias,
     Union,
 )
@@ -54,22 +59,58 @@ class SPARQL_Mapping(Mapping):
     EntryCallbackArg: TypeAlias =\
         Optional[Union[Term, 'SPARQL_Compiler.Query.VTerm']]
 
-    #: The type of entry callback-arg preprocessors.
-    class EntryCallbackArgPreprocessor(Protocol):
+    #: The type of entry callback-arg preprocessor maps.
+    EntryCallbackArgPreprocessorMap: TypeAlias =\
+        Mapping[Variable, 'SPARQL_Mapping.EntryCallbackArgPreprocessor']
+
+    class EntryCallbackArgPreprocessor:
+        """Entry callback-arg preprocessor."""
+
         def __call__(
                 self,
                 m: SPARQL_Mapping,
                 c: SPARQL_Compiler,
                 arg: SPARQL_Mapping.EntryCallbackArg
         ) -> SPARQL_Mapping.EntryCallbackArg:
-            ...
+            return arg
 
-    #: The type of entry callback-arg preprocessor maps.
-    EntryCallbackArgPreprocessorMap: TypeAlias =\
-        Mapping[Variable, 'SPARQL_Mapping.EntryCallbackArgPreprocessor']
+        def __rshift__(
+                self,
+                other: SPARQL_Mapping.EntryCallbackArgPreprocessor
+        ) -> SPARQL_Mapping.EntryCallbackArgPreprocessorChain:
+            return SPARQL_Mapping.EntryCallbackArgPreprocessorChain(
+                self, other)
 
-    #: The type of entry callbacks.
+    class EntryCallbackArgPreprocessorChain(EntryCallbackArgPreprocessor):
+        """Entry callback-arg preprocessor chain."""
+
+        __slots__ = (
+            '_chain',
+        )
+
+        _chain: Sequence[SPARQL_Mapping.EntryCallbackArgPreprocessor]
+
+        def __init__(
+                self,
+                p1: SPARQL_Mapping.EntryCallbackArgPreprocessor,
+                p2: SPARQL_Mapping.EntryCallbackArgPreprocessor,
+                *ps: SPARQL_Mapping.EntryCallbackArgPreprocessor):
+            self._chain = (p1, p2, *ps)
+
+        @override
+        def __call__(
+                self,
+                m: SPARQL_Mapping,
+                c: SPARQL_Compiler,
+                arg: SPARQL_Mapping.EntryCallbackArg
+        ) -> SPARQL_Mapping.EntryCallbackArg:
+            for p in self._chain:
+                arg = p(m, c, arg)
+            return arg
+
     class EntryCallback(Protocol):
+        """The type of entry callbacks."""
+
         def __call__(
                 self,
                 m: SPARQL_Mapping,
@@ -170,6 +211,15 @@ class SPARQL_Mapping(Mapping):
                 exclude: Iterable[Term | str] = (),
                 generator: Callable[[str], Iterator[str]] | None = None
         ) -> Self:
+            """Copies entry and rename its variables.
+
+            Parameters:
+               exclude: Exclusion list.
+               generate: Name generator.
+
+            Returns:
+               A copy of entry with its variables renamed.
+            """
             pattern = self.pattern.rename(exclude, generator)
             tr = dict(zip(
                 self.pattern._iterate_variables(),
@@ -199,37 +249,137 @@ class SPARQL_Mapping(Mapping):
             for pat, preproc, f in SPARQL_Mapping._scheduled_entries}
         SPARQL_Mapping._scheduled_entries = []
 
-    @classmethod
-    def preprocess_language_tag(
-            cls,
-            lang: str
-    ) -> SPARQL_Mapping.EntryCallbackArgPreprocessor:
-        def f(
-                m: SPARQL_Mapping,
-                c: SPARQL_Compiler,
-                arg: SPARQL_Mapping.EntryCallbackArg
-        ) -> SPARQL_Mapping.EntryCallbackArg:
-            if isinstance(arg, c.Query.Literal):
-                return c.literal(str(arg), lang)
-            else:
-                return arg
-        return f
+    class PatchLiteral(EntryCallbackArgPreprocessor):
+        """Patches language tag or datatype of literal argument."""
 
-    @classmethod
-    def preprocess_datatype(
-            cls,
-            datatype: str
-    ) -> SPARQL_Mapping.EntryCallbackArgPreprocessor:
-        def f(
+        __slots__ = (
+            '_language',
+            '_datatype',
+        )
+
+        _language: str | Literal[False] | None
+        _literal: str | Literal[False] | None
+
+        def __init__(
+                self,
+                language: str | Literal[False] | None = None,
+                datatype: str | Literal[False] | None = None
+        ):
+            self._language = language
+            self._datatype = datatype
+
+        @override
+        def __call__(
+                self,
                 m: SPARQL_Mapping,
                 c: SPARQL_Compiler,
                 arg: SPARQL_Mapping.EntryCallbackArg
         ) -> SPARQL_Mapping.EntryCallbackArg:
             if isinstance(arg, c.Query.Literal):
-                return c.literal(str(arg), datatype=datatype)
+                if self._language is False:
+                    language: Optional[str] = None
+                elif self._language is None:
+                    language = arg.language
+                else:
+                    assert isinstance(self._language, str)
+                    language = self._language
+                if self._datatype is False:
+                    datatype: Optional[str] = None
+                elif self._datatype is None:
+                    datatype = arg.datatype
+                else:
+                    assert isinstance(self._datatype, str)
+                    datatype = self._datatype
+                return c.literal(str(arg), language, datatype=datatype)
             else:
                 return arg
-        return f
+
+    class CheckPrefix(EntryCallbackArgPreprocessor):
+        """Checks whether argument has prefix."""
+
+        __slots__ = (
+            '_prefix',
+        )
+
+        _prefix: str
+
+        def __init__(self, prefix: str) -> None:
+            self._prefix = prefix
+
+        @override
+        def __call__(
+                self,
+                m: SPARQL_Mapping,
+                c: SPARQL_Compiler,
+                arg: SPARQL_Mapping.EntryCallbackArg
+        ) -> SPARQL_Mapping.EntryCallbackArg:
+            if (isinstance(arg, (c.Query.Literal, c.Query.URI))
+                    and not arg.startswith(self._prefix)):
+                raise SPARQL_Mapping.Skip
+            else:
+                return arg
+
+    class UpdatePrefix(CheckPrefix):
+        """Updates argument prefix."""
+
+        __slots__ = (
+            '_new',
+        )
+
+        _update: str
+
+        def __init__(self, old: str, new: str):
+            super().__init__(old)
+            self._new = new
+
+        @override
+        def __call__(
+                self,
+                m: SPARQL_Mapping,
+                c: SPARQL_Compiler,
+                arg: SPARQL_Mapping.EntryCallbackArg
+        ) -> SPARQL_Mapping.EntryCallbackArg:
+            if isinstance(arg, (c.Query.Literal, c.Query.URI)):
+                arg = super().__call__(m, c, arg)
+                assert isinstance(arg, str)
+                return type(arg)(self._new + arg.removeprefix(self._prefix))
+            else:
+                return arg
+
+    class CheckRegex(EntryCallbackArgPreprocessor):
+        """Check whether argument matches regex."""
+
+        __slots__ = (
+            '_regex',
+        )
+
+        _regex: re.Pattern
+
+        def __init__(self, regex: str | re.Pattern) -> None:
+            if isinstance(regex, str):
+                self._regex = re.compile(regex)
+            else:
+                self._regex = regex
+
+        @override
+        def __call__(
+                self,
+                m: SPARQL_Mapping,
+                c: SPARQL_Compiler,
+                arg: SPARQL_Mapping.EntryCallbackArg
+        ) -> SPARQL_Mapping.EntryCallbackArg:
+            if (isinstance(arg, (c.Query.Literal, c.Query.URI))
+                    and not self._regex.match(arg)):
+                raise SPARQL_Mapping.Skip
+            else:
+                return arg
+
+    class CheckWikidataItem(CheckRegex):
+        """Checks whether argument matches the URI of a Wikidata item."""
+
+        def __init__(self):
+            super().__init__(
+                f'^{re.escape(Wikidata.WD)}Q[1-9][0-9]+$')
 
     @classmethod
     def register(

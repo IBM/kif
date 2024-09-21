@@ -280,17 +280,33 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         for var, vs in accum.items():
             assert isinstance(var, self._primitve_var_classes)
             qvar = self.as_qvar(var)
-            values = list(map(lambda v: (cast(
-                Query.Literal | Query.URI, entry.preprocess(
-                    self.mapping, self, var, self._as_simple_value(v))),),
-                vs))
+            values = list(self._push_value_fps_preprocess(entry, var, vs))
+            ###
+            # FIXME: Handle the case where len(values) == 0.
+            ###
+            assert len(values) > 0
             if len(values) > 1 and use_values_clause:
-                self.q.values(qvar)(*values)
+                self.q.values(qvar)(*map(lambda x: (x,), values))
             else:
                 with self.q.union():
-                    for (val,) in values:
+                    for val in values:
                         with self.q.group():
                             self.q.bind(val, qvar)
+
+    def _push_value_fps_preprocess(
+            self,
+            entry: SPARQL_Mapping.Entry,
+            variable: Variable,
+            values: list[Value]
+    ) -> Iterator[Query.Literal | Query.URI]:
+        for value in values:
+            try:
+                yield cast(Query.Literal | Query.URI,
+                           entry.preprocess(
+                               self.mapping, self, variable,
+                               self._as_simple_value(value)))
+            except SPARQL_Mapping.Skip:
+                continue
 
     def _binding_to_thetas(
             self,
