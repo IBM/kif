@@ -90,6 +90,11 @@ class SPARQL_MapperStore2(
                 for theta in compiler._binding_to_thetas(binding):
                     stmt = compiler.pattern.variable.instantiate(theta)
                     assert isinstance(stmt, Statement)
+                    ###
+                    # FIXME: Is this really needed?  It drops statements
+                    # when property has ExternalId datatype and value is
+                    # String.
+                    ###
                     if (self.has_flags(self.LATE_FILTER)
                             and not filter.match(stmt)):
                         continue

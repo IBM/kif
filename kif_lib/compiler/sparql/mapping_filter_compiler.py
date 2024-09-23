@@ -314,8 +314,47 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
     ) -> Iterator[Theta]:
         if str(self._entry_qvar) in binding:
             id = binding[str(self._entry_qvar)]['value']
+            entry = self._mapping[id]
+            for var in entry.postprocess_map:
+                if var.name in binding:
+                    try:
+                        term = entry.postprocess(
+                            self.mapping, self, var,
+                            self._dict2term(binding[var.name]))
+                    except SPARQL_Mapping.Skip:
+                        return
+                    else:
+                        assert isinstance(term, (Query.Literal, Query.URI))
+                        assert isinstance(binding, dict)
+                        binding[var.name] = self._term2dict(term)
             for subst in self._entry_subst[id]:
-                yield subst.instantiate(binding)
+                theta = subst.instantiate(binding)
+                yield theta
+
+    def _dict2term(self, t: dict[str, str]) -> Query.Term:
+        assert 'type' in t
+        if t['type'] == 'uri':
+            return Query.URI(t['value'])
+        elif t['type'] == 'literal':
+            ###
+            # TODO: Handle language and datatype.
+            ###
+            return Query.Literal(t['value'])
+        else:
+            raise NotImplementedError
+
+    def _term2dict(self, term: Query.Term) -> dict[str, str]:
+        if isinstance(term, Query.URI):
+            return {'type': 'uri', 'value': str(term)}
+        elif isinstance(term, Query.Literal):
+            ###
+            # TODO: Handle language and datatype.
+            ###
+            assert term.language is None
+            assert term.datatype is None
+            return {'type': 'literal', 'value': str(term)}
+        else:
+            raise NotImplementedError
 
     def _filter_to_patterns(
             self,

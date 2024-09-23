@@ -20,6 +20,10 @@ def patent(name: str, label: str | None = None) -> Item:
     return Item(PubChem.PATENT[name])
 
 
+def source(name: str, label: str | None = None) -> Item:
+    return Item(PubChem.SOURCE[name])
+
+
 Isotope_Atom_Count = Property(
     CHEMINF.isotope_atom_count_generated_by_pubchem_software_library,
     Quantity)

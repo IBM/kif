@@ -560,18 +560,17 @@ class Filter(KIF_Object):
         stmt = Statement.check(stmt, self.match, 'stmt', 1)
         if not bool(self.snak_mask & self.SnakMask.check(stmt.snak)):
             return False        # snak mask mismatch
-        if not Fingerprint.check(self.subject).match(stmt.subject):
+        if not self.subject.match(stmt.subject):
             return False        # subject mismatch
-        if not Fingerprint.check(self.property).match(stmt.snak.property):
+        if not self.property.match(stmt.snak.property):
             return False        # property mismatch
-        fp = Fingerprint.check(self.value)
         if isinstance(stmt.snak, ValueSnak):
-            if fp.is_empty():
+            if self.value.is_empty():
                 return False    # snak mismatch
-            if not fp.match(stmt.snak.value):
+            if not self.value.match(stmt.snak.value):
                 return False    # value mismatch
         else:
-            if not fp.is_empty() and not fp.is_full():
+            if not self.value.is_empty() and not self.value.is_full():
                 return False    # snak mismatch
         return True
 

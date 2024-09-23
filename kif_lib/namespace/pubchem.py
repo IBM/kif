@@ -14,11 +14,16 @@ class PubChem:
         'http://rdf.ncbi.nlm.nih.gov/pubchem/')
 
     COMPOUND: Final[Namespace] = Namespace(PUBCHEM['compound/'])
-
+    CONCEPT: Final[Namespace] = Namespace(str(PUBCHEM) + 'concept/')
     PATENT: Final[Namespace] = Namespace(PUBCHEM['patent/'])
+    SOURCE: Final[Namespace] = Namespace(str(PUBCHEM) + 'source/')
+    VOCABULARY: Final[Namespace] = Namespace(str(PUBCHEM) + 'vocabulary#')
 
     namespaces: Final[dict[str, Namespace]] = {
-        str(PUBCHEM): PUBCHEM,
         str(COMPOUND): COMPOUND,
+        str(CONCEPT): CONCEPT,
         str(PATENT): PATENT,
+        str(PUBCHEM): PUBCHEM,
+        str(SOURCE): SOURCE,
+        str(VOCABULARY): VOCABULARY,
     }
