@@ -8,6 +8,7 @@ import enum
 
 from ... import itertools
 from ...model import (
+    DatatypeVariable,
     IRI_Variable,
     QuantityVariable,
     StringVariable,
@@ -220,6 +221,7 @@ class SPARQL_Compiler(Compiler):
 
     #: Classes of variables corresponding to primitive SPARQL types.
     _primitve_var_classes: Final[tuple[type[Variable], ...]] = (
+        DatatypeVariable,
         IRI_Variable,
         QuantityVariable,
         StringVariable,

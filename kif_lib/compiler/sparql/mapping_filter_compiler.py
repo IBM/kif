@@ -99,10 +99,9 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                     try:
                         with self.q.group():
                             self.q.bind(entry.id, self._entry_qvar)
-                            entry.callback(
-                                self.mapping, self,
-                                *self._push_filter_get_entry_callback_args(
-                                    entry, bindings))
+                            args = self._push_filter_get_entry_callback_args(
+                                entry, bindings)
+                            entry.callback(self.mapping, self, *args)
                             self._push_filter_push_fps(entry, filter, target)
                     except self.mapping.Skip:
                         self.q.stash_drop()

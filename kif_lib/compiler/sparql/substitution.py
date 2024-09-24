@@ -218,8 +218,8 @@ class Substitution(Mapping):
                 for var in self._name_map[name]:
                     value = self._map[var]
                     if isinstance(value, Query.Variable):
-                        theta._add(
-                            var, var.object_class(binding[name]['value']))
+                        theta._add(var, var.object_class.check(
+                            binding[name]['value']))
             for var in self._name_map[name]:
                 assert var in self._map
                 value = self._map[var]

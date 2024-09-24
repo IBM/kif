@@ -373,13 +373,20 @@ class SPARQL_Mapping(Mapping):
 
         __slots__ = (
             'subclass',
+            'coerce',
             'startswith',
             'endswith',
+            'replace_prefix',
+            'replace_suffix',
             'match',
+            'sub',
         )
 
         #: Expected subclass.
         subclass: type[str]
+
+        #: Target type.
+        coerce: type[str] | None
 
         #: Prefix to match.
         startswith: str | None
@@ -402,6 +409,7 @@ class SPARQL_Mapping(Mapping):
         def __init__(
                 self,
                 subclass: type[str] | None = None,
+                coerce: type[str] | None = None,
                 startswith: str | None = None,
                 endswith: str | None = None,
                 replace_prefix: tuple[str, str] | None = None,
@@ -410,6 +418,7 @@ class SPARQL_Mapping(Mapping):
                 sub: tuple[str | re.Pattern, str] | None = None
         ) -> None:
             self.subclass = subclass or str
+            self.coerce = coerce
             self.startswith = startswith
             self.endswith = endswith
             self.replace_prefix = replace_prefix
@@ -437,6 +446,9 @@ class SPARQL_Mapping(Mapping):
             assert isinstance(arg, str)
             if not issubclass(type(arg), self.subclass):
                 raise m.Skip
+            if self.coerce is not None:
+                arg = self.coerce(arg)  # type: ignore
+            assert isinstance(arg, str)
             if self.startswith and not arg.startswith(self.startswith):
                 raise m.Skip
             if self.endswith and not arg.endswith(self.endswith):
