@@ -42,6 +42,7 @@ half_life = P(2114)
 has_effect = P(1542)
 has_part = P(527)
 has_use = P(366)
+head_of_government = P(6)
 highest_point = P(610)
 homograph_lexeme = P(5402)
 HSDB_ID = P(2062)
@@ -152,6 +153,7 @@ __all__ = (
     'has_effect',
     'has_part',
     'has_use',
+    'head_of_government',
     'highest_point',
     'homograph_lexeme',
     'HSDB_ID',

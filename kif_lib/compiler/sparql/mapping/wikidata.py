@@ -285,7 +285,7 @@ class WikidataMapping(M):
             z: VLiteral | None,
             w: V_URI | None
     ):
-        print(x, y, z, w)
+        # print(x, y, z, w)
         _, ps, wds = self._push(c, e, p, WIKIBASE.Time)
         psv, wdv = c.fresh_qvars(2)
         c.q.triples()(
@@ -294,3 +294,15 @@ class WikidataMapping(M):
             (wds, psv, wdv),
             (wdv, RDF.type, WIKIBASE.TimeValue),
             (wdv, WIKIBASE.timeValue, x))
+
+    @M.register(
+        Statement(e, Property(x, y).no_value()),
+        {x: CheckProperty(),
+         y: CheckDatatype()})
+    def p_no_value(self, c: C, e: VEntity, x: V_URI, y: V_URI):
+        _, ps, wds = self._push(c, e, x, y)
+        wdno = c.fresh_qvar()
+        c.q.triples()(
+            (x, WIKIBASE.novalue, wdno),
+            (x, WIKIBASE.propertyType, y),
+            (wds, RDF.type, wdno))
