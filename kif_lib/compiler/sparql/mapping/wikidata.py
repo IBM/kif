@@ -296,6 +296,18 @@ class WikidataMapping(M):
             (wdv, WIKIBASE.timeValue, x))
 
     @M.register(
+        Statement(e, Property(x, y).some_value()),
+        {x: CheckProperty(),
+         y: CheckDatatype()})
+    def p_some(self, c: C, e: VEntity, x: V_URI, y: V_URI):
+        from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler
+        assert isinstance(c, SPARQL_MappingFilterCompiler)
+        _, ps, wds = self._push(c, e, x, y)
+        some = c.fresh_qvar()
+        c.q.triples()((wds, ps, some))
+        c._push_some_value_filter(some)
+
+    @M.register(
         Statement(e, Property(x, y).no_value()),
         {x: CheckProperty(),
          y: CheckDatatype()})
