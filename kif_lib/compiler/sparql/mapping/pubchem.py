@@ -53,7 +53,7 @@ class PubChemMapping(M):
         r'^CHEMBL\d+$')
 
     _re_compound_uri: Final[re.Pattern] = re.compile(
-        f'^{re.escape(PubChem.COMPOUND)}CID[1-9][0-9]+$')
+        f'^{re.escape(PubChem.COMPOUND)}CID[1-9][0-9]*$')
 
     _re_inchikey: Final[re.Pattern] = re.compile(
         r'^[A-Z]{14}-[A-Z]{10}-[A-Z]$')
