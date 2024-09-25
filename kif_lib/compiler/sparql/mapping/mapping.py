@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import dataclasses
-import functools
 import re
 from typing import TYPE_CHECKING
 
@@ -17,17 +16,14 @@ from ....model import (
     Term,
     Theta,
     Variable,
-    Variable,
     VStatement,
     VTStatement,
 )
-from ....namespace import XSD
 from ....typing import (
     Any,
     Callable,
     cast,
     ClassVar,
-    Final,
     Iterable,
     Iterator,
     Mapping,

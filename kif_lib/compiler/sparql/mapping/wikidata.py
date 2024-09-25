@@ -29,13 +29,15 @@ from ....model import (
     VText,
 )
 from ....namespace import ONTOLEX, RDF, WIKIBASE, Wikidata
-from ....typing import Any, cast, Final, TypeAlias
+from ....typing import cast, Final, TypeAlias
 from ..compiler import SPARQL_Compiler as C
 from .mapping import SPARQL_Mapping as M
 
 __all__ = (
     'WikidataMapping',
 )
+
+Arg: TypeAlias = M.EntryCallbackArg
 
 Literal: TypeAlias = C.Query.Literal
 VLiteral: TypeAlias = C.Query.VLiteral
@@ -68,38 +70,40 @@ class WikidataMapping(M):
     class CheckDatatype(M.EntryCallbackArgProcessor):
         """Checks whether argument is a datatype value."""
 
-        def __call__(
-                self,
-                m: M,
-                c: C,
-                arg: M.EntryCallbackArg
-        ) -> M.EntryCallbackArg:
+        def __call__(self, m: M, c: C, arg: Arg) -> Arg:
             if isinstance(arg, Datatype):
                 return arg._to_rdflib()
             else:
                 return arg
 
-    #: Checks whether argument is an item URI.
-    CheckItem: Final[M.EntryCallbackArgProcessorAlias] =\
-        functools.partial(M.CheckURI, match=_re_item_uri)
+    class CheckItem(M.CheckURI):
+        """Checks whether argument is an item URI."""
 
-    #: Checks whether argument is a lexeme URI.
-    CheckLexeme: Final[M.EntryCallbackArgProcessorAlias] =\
-        functools.partial(M.CheckURI, match=_re_lexeme_uri)
+        def __call__(self, m: M, c: C, arg: Arg) -> Arg:
+            assert isinstance(m, WikidataMapping)
+            return m.CheckURI(
+                match=m._re_item_uri if m.strict else None)(m, c, arg)
 
-    #: Checks whether argument is a property URI.
-    CheckProperty: Final[M.EntryCallbackArgProcessorAlias] =\
-        functools.partial(M.CheckURI, match=_re_property_uri)
+    class CheckProperty(M.CheckURI):
+        """Checks whether argument is a property URI."""
+
+        def __call__(self, m: M, c: C, arg: Arg) -> Arg:
+            assert isinstance(m, WikidataMapping)
+            return m.CheckURI(
+                match=m._re_property_uri if m.strict else None)(m, c, arg)
+
+    class CheckLexeme(M.CheckURI):
+        """Checks whether argument is a lexeme URI."""
+
+        def __call__(self, m: M, c: C, arg: Arg) -> Arg:
+            assert isinstance(m, WikidataMapping)
+            return m.CheckURI(
+                match=m._re_lexeme_uri if m.strict else None)(m, c, arg)
 
     class CheckIRI(M.CheckStr):
-        """Checks whether argument is a IRI value."""
+        """Checks whether argument is a IRI content."""
 
-        def __call__(
-                self,
-                m: M,
-                c: C,
-                arg: M.EntryCallbackArg
-        ) -> M.EntryCallbackArg:
+        def __call__(self, m: M, c: C, arg: Arg) -> Arg:
             super().__call__(m, c, arg)
             ###
             # TODO: Validate URI?
@@ -309,8 +313,9 @@ class WikidataMapping(M):
                 (wdv, WIKIBASE.quantityUnit, y))
         elif isinstance(y, ItemVariable):
             with c.q.optional_if(self.relax):
-                from ..mapping_filter_compiler\
-                    import SPARQL_MappingFilterCompiler
+                from ..mapping_filter_compiler import (
+                    SPARQL_MappingFilterCompiler,
+                )
                 assert isinstance(c, SPARQL_MappingFilterCompiler)
                 iri = c._fresh_iri_variable()
                 c._theta_add(y, Item(iri))
@@ -356,8 +361,9 @@ class WikidataMapping(M):
             c.q.triples()((wdv, WIKIBASE.timeCalendarModel, w))
         elif isinstance(w, ItemVariable):
             with c.q.optional_if(self.relax):
-                from ..mapping_filter_compiler\
-                    import SPARQL_MappingFilterCompiler
+                from ..mapping_filter_compiler import (
+                    SPARQL_MappingFilterCompiler,
+                )
                 assert isinstance(c, SPARQL_MappingFilterCompiler)
                 iri = c._fresh_iri_variable()
                 c._theta_add(w, Item(iri))
