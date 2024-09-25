@@ -3,112 +3,18 @@
 
 from __future__ import annotations
 
-from kif_lib import (
-    Entity,
-    ExternalId,
-    Filter,
-    Item,
-    Property,
-    Quantity,
-    Snak,
-    Statement,
-    Store,
-    String,
-    Variables,
-)
-from kif_lib.model import (
-    TEntity,
-    TFingerprint,
-    TValue,
-    VEntity,
-    VStatement,
-    VValue,
-)
-from kif_lib.typing import Iterable, TypeAlias
+from kif_lib import ExternalId, Filter, Item, Quantity, String, Variables
 from kif_lib.vocabulary import pc, wd
 
-from ...tests import PubChemStoreTestCase
+from ....tests import PubChemStoreTestCase
 
-TFingerprintPair: TypeAlias = tuple[TFingerprint, TFingerprint]
-TEntityValue: TypeAlias = tuple[TEntity, TValue]
-VEntityValue: TypeAlias = tuple[VEntity, VValue]
-
-x, y, z = Variables('x', 'y', 'z')
+x, y, z = Variables(*'xyz')
 
 
 class Test(PubChemStoreTestCase):
 
-    def _test_filter(
-            self,
-            empty: Iterable[Filter] = (),
-            equals: Iterable[tuple[Filter, Statement]] = (),
-            contains: Iterable[tuple[Filter, Iterable[Statement]]] = (),
-            kb: Store | None = None,
-            limit: int | None = None
-    ) -> None:
-        kb = kb or self.new_Store()
-        fr = (lambda x: kb.filter(filter=x, limit=limit))
-        self.assert_it(
-            empty=map(fr, empty),
-            equals=map(lambda t: (fr(t[0]), t[1]), equals),
-            contains=map(lambda t: (fr(t[0]), t[1]), contains))
-
-    def _test_filter_matches(
-            self,
-            filter: Filter,
-            pattern: VStatement,
-            kb: Store | None = None,
-            limit: int | None = None
-    ) -> None:
-        kb = kb or self.new_Store()
-        limit = limit if limit is not None else kb.page_size
-        for stmt in kb.filter(filter=filter, limit=limit):
-            self.assertIsNotNone(pattern.match(stmt))
-
-    def _test_filter_with_fixed_subject(
-            self,
-            subject: Entity,
-            empty: Iterable[TFingerprintPair] = (),
-            equals: Iterable[tuple[TFingerprintPair, Snak]] = (),
-            contains: Iterable[tuple[TFingerprintPair, Iterable[Snak]]] = (),
-            kb: Store | None = None,
-            limit: int | None = None
-    ) -> None:
-        fr = (lambda p: Filter(subject, *p))
-        st = (lambda s: Statement(subject, s))
-        self._test_filter(
-            empty=map(fr, empty),
-            equals=map(lambda t: (fr(t[0]), st(t[1])), equals),
-            contains=map(lambda t: (fr(t[0]), map(st, t[1])), contains),
-            kb=kb,
-            limit=limit)
-
-    def _test_filter_with_fixed_property(
-            self,
-            property: Property,
-            empty: Iterable[TFingerprintPair] = (),
-            equals: Iterable[tuple[TFingerprintPair, TEntityValue]] = (),
-            contains: Iterable[
-                tuple[TFingerprintPair, Iterable[TEntityValue]]] = (),
-            kb: Store | None = None,
-            limit: int | None = None
-    ) -> None:
-        fr = (lambda p: Filter(p[0], property, p[1]))
-        st = (lambda t: Statement(t[0], property(t[1])))
-        self._test_filter(
-            empty=map(fr, empty),
-            equals=map(lambda t: (fr(t[0]), st(t[1])), equals),
-            contains=map(lambda t: (fr(t[0]), map(st, t[1])), contains),
-            kb=kb,
-            limit=limit)
-
     def test_empty(self) -> None:
-        self._test_filter(
-            empty=[
-                Filter(0),
-                Filter(None, 0),
-                Filter(None, None, 0, snak_mask=Filter.SOME_VALUE_SNAK),
-            ])
+        self._test_filter_preset_empty()
 
     def test_subject_CID(self) -> None:
         self._test_filter_with_fixed_subject(

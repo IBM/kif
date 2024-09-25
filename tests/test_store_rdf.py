@@ -230,9 +230,9 @@ class TestStoreRDF(StoreTestCase):
 
     def test_filter(self) -> None:
         kb = Store('rdf', ADAM_TTL, BENZENE_TTL, BRAZIL_TTL)
-        self._test_filter(kb)
+        self._test_filter_tail(kb)
 
-    def _test_filter(self, kb) -> None:
+    def _test_filter_tail(self, kb) -> None:
         # subject
         self.store_test_filter(
             kb,

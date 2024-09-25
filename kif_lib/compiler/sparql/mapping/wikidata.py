@@ -303,7 +303,7 @@ class WikidataMapping(M):
             (wds, psv, wdv),
             (wdv, RDF.type, WIKIBASE.QuantityValue),
             (wdv, WIKIBASE.quantityAmount, x))
-        if isinstance(y, Literal):
+        if isinstance(y, URI):
             c.q.triples()(
                 (wdv, WIKIBASE.quantityUnit, y))
         elif isinstance(y, ItemVariable):
@@ -352,7 +352,7 @@ class WikidataMapping(M):
             c.q.triples()((wdv, WIKIBASE.timePrecision, y))
         with c.q.optional_if(isinstance(z, Var) and self.relax):
             c.q.triples()((wdv, WIKIBASE.timeTimezone, z))
-        if isinstance(w, Literal):
+        if isinstance(w, URI):
             c.q.triples()((wdv, WIKIBASE.timeCalendarModel, w))
         elif isinstance(w, ItemVariable):
             with c.q.optional_if(self.relax):

@@ -38,6 +38,7 @@ family_name = P(734)
 father = P(22)
 field_of_work = P(101)
 file_format = P(2701)
+Freebase_ID = P(646)
 half_life = P(2114)
 has_effect = P(1542)
 has_part = P(527)
@@ -72,6 +73,7 @@ official_name = P(1448)
 official_website = P(856)
 parent_peak = P(3137)
 part_of = P(361)
+participant_in = P(1344)
 partition_coefficient_water_octanol = P(2993)
 patent_number = P(1246)
 phase_of_matter = P(515)
@@ -83,6 +85,7 @@ PubChem_CID = P(662)
 publication_date = P(577)
 reference_URL = P(854)
 related_property = P(1659)
+residence = P(551)
 retrieved = P(813)
 route_of_administration = P(636)
 safety_classification_and_labelling = P(4952)
@@ -111,6 +114,7 @@ uses = P(2283)
 valid_in_place = P(3005)
 Wikidata_item_of_this_property = P(1629)
 Wikidata_property = P(1687)
+WordNet_31_Synset_ID = P(8814)
 YouTube_video_ID = P(1651)
 
 __all__ = (
@@ -149,6 +153,7 @@ __all__ = (
     'father',
     'field_of_work',
     'file_format',
+    'Freebase_ID',
     'half_life',
     'has_effect',
     'has_part',
@@ -183,6 +188,7 @@ __all__ = (
     'official_website',
     'parent_peak',
     'part_of',
+    'participant_in',
     'partition_coefficient_water_octanol',
     'patent_number',
     'phase_of_matter',
@@ -194,6 +200,7 @@ __all__ = (
     'publication_date',
     'reference_URL',
     'related_property',
+    'residence',
     'retrieved',
     'route_of_administration',
     'safety_classification_and_labelling',
@@ -222,5 +229,6 @@ __all__ = (
     'valid_in_place',
     'Wikidata_item_of_this_property',
     'Wikidata_property',
+    'WordNet_31_Synset_ID',
     'YouTube_video_ID',
 )

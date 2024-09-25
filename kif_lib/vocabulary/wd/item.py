@@ -10,6 +10,7 @@ from .prelude import Q
 
 acetone = Q(49546, 'acetone')
 Adam = Q(70899, 'Adam')
+Adam_and_Eve = Q(58701, 'Adam and Eve')
 Americas = Q(828, 'Americas')
 Argentina = Q(414, 'Argentina')
 aromatic_hydrocarbon = Q(230731, 'aromatic hydrocarbon')
@@ -47,6 +48,7 @@ English = Q(1860, 'English')
 English_Wikipedia = Q(328, 'English Wikipedia')
 Eve = Q(830183, 'Eve')
 exact_match_ = Q(39893449, 'exact match')
+Fall_of_man = Q(1135949,  'Fall of man')
 FDA_approved = Q(111972129, 'FDA-approved')
 female = Q(6581072, 'female')
 female_human = Q(84048852, 'female human')
@@ -55,6 +57,7 @@ flame_retardant = Q(902863, 'flame retardant')
 France = Q(142, 'France')
 French_Guiana = Q(3769, 'French Guiana')
 frog = Q(3116510, 'frog')
+Garden_of_Eden = Q(19014, 'Garden of Eden')
 Garden_of_Eden = Q(19014, 'Garden of Eden')
 Germany = Q(183, 'Germany')
 Global_Substance_Registration_System = Q(116031405, 'Global Substance Registration System')
@@ -66,6 +69,7 @@ Guinea_pig = Q(79803, 'Guinea pig')
 Guyana = Q(734, 'Guyana')
 Hazardous_Substances_Data_Bank = Q(5687720, 'Hazardous Substances Data Bank')
 human = Q(5, 'human')
+human_biblical_figure = Q(20643955, 'human biblical figure')
 IBM = Q(37156, 'IBM')
 infant = Q(998, 'infant')
 inhalation = Q(840343, 'inhalation')
@@ -96,6 +100,7 @@ minute = Q(7727, 'minute')
 Monte_Pascoal = Q(1499212, 'Monte Pascoal')
 Mount_Everest = Q(513, 'Mount Everest')
 mountain = Q(8502, 'mountain')
+mythical_character = Q(4271324, 'mythical character')
 Nepal = Q(837, 'Nepal')
 New_York_City = Q(60, 'New York City')
 oral_administration = Q(285166, 'oral administration')
@@ -110,6 +115,7 @@ Pico_da_Neblina = Q(739484, 'Pico da Neblina')
 Portuguese = Q(5146, 'Portuguese')
 proleptic_Gregorian_calendar = Q(1985727, 'proleptic Gregorian calendar')
 proleptic_Julian_calendar = Q(1985786, 'proleptic Julian calendar')
+protoplast = Q(4349921, 'protoplast')
 PubChem = Q(278487, 'PubChem')
 rabbit = Q(9394, 'rabbit')
 rectal_administration = Q(419892, 'rectal administration')
@@ -142,6 +148,7 @@ woman = Q(467, 'woman')
 __all__ = (
     'acetone',
     'Adam',
+    'Adam_and_Eve',
     'Americas',
     'Argentina',
     'aromatic_hydrocarbon',
@@ -179,6 +186,7 @@ __all__ = (
     'English_Wikipedia',
     'Eve',
     'exact_match_',
+    'Fall_of_man',
     'FDA_approved',
     'female',
     'female_human',
@@ -187,6 +195,7 @@ __all__ = (
     'France',
     'French_Guiana',
     'frog',
+    'Garden_of_Eden',
     'Garden_of_Eden',
     'Germany',
     'Global_Substance_Registration_System',
@@ -198,6 +207,7 @@ __all__ = (
     'Guyana',
     'Hazardous_Substances_Data_Bank',
     'human',
+    'human_biblical_figure',
     'IBM',
     'infant',
     'inhalation',
@@ -228,6 +238,7 @@ __all__ = (
     'Monte_Pascoal',
     'Mount_Everest',
     'mountain',
+    'mythical_character',
     'Nepal',
     'New_York_City',
     'oral_administration',
@@ -242,6 +253,7 @@ __all__ = (
     'Portuguese',
     'proleptic_Gregorian_calendar',
     'proleptic_Julian_calendar',
+    'protoplast',
     'PubChem',
     'rabbit',
     'rectal_administration',

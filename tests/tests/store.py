@@ -8,6 +8,7 @@ import unittest
 
 from kif_lib import (
     AnnotationRecordSet,
+    Entity,
     Filter,
     Item,
     Items,
@@ -19,13 +20,23 @@ from kif_lib import (
     Property,
     ReferenceRecord,
     ReferenceRecordSet,
+    Snak,
     SomeValueSnak,
+    Statement,
     Store,
     Text,
     Value,
     ValueSnak,
 )
 from kif_lib.error import ShouldNotGetHere
+from kif_lib.model import (
+    TEntity,
+    TFingerprint,
+    TValue,
+    VEntity,
+    VStatement,
+    VValue,
+)
 from kif_lib.store import (
     EmptyStore,
     PubChemStore,
@@ -35,18 +46,96 @@ from kif_lib.store import (
     SPARQL_Store,
     WikidataStore,
 )
-from kif_lib.typing import cast, Final, override
+from kif_lib.typing import cast, Final, Iterable, override, TypeAlias
 from kif_lib.vocabulary import wd
 
 from .tests import TestCase
+
+TFingerprintPair: TypeAlias = tuple[TFingerprint, TFingerprint]
+TEntityValue: TypeAlias = tuple[TEntity, TValue]
+VEntityValue: TypeAlias = tuple[VEntity, VValue]
 
 
 class StoreTestCase(TestCase):
     """Test case of :class:`Store`."""
 
+    def _test_filter(
+            self,
+            empty: Iterable[Filter] = (),
+            equals: Iterable[tuple[Filter, Statement]] = (),
+            contains: Iterable[tuple[Filter, Iterable[Statement]]] = (),
+            kb: Store | None = None,
+            limit: int | None = None
+    ) -> None:
+        kb = kb or self.new_Store()
+        fr = (lambda x: kb.filter(filter=x, limit=limit))
+        self.assert_it(
+            empty=map(fr, empty),
+            equals=map(lambda t: (fr(t[0]), t[1]), equals),
+            contains=map(lambda t: (fr(t[0]), t[1]), contains))
+
+    def _test_filter_matches(
+            self,
+            filter: Filter,
+            pattern: VStatement,
+            kb: Store | None = None,
+            limit: int | None = None
+    ) -> None:
+        kb = kb or self.new_Store()
+        limit = limit if limit is not None else kb.page_size
+        for stmt in kb.filter(filter=filter, limit=limit):
+            self.assertIsNotNone(pattern.match(stmt))
+
+    def _test_filter_with_fixed_subject(
+            self,
+            subject: Entity,
+            empty: Iterable[TFingerprintPair] = (),
+            equals: Iterable[tuple[TFingerprintPair, Snak]] = (),
+            contains: Iterable[tuple[TFingerprintPair, Iterable[Snak]]] = (),
+            kb: Store | None = None,
+            limit: int | None = None
+    ) -> None:
+        fr = (lambda p: Filter(subject, *p))
+        st = (lambda s: Statement(subject, s))
+        self._test_filter(
+            empty=map(fr, empty),
+            equals=map(lambda t: (fr(t[0]), st(t[1])), equals),
+            contains=map(lambda t: (fr(t[0]), map(st, t[1])), contains),
+            kb=kb,
+            limit=limit)
+
+    def _test_filter_with_fixed_property(
+            self,
+            property: Property,
+            empty: Iterable[TFingerprintPair] = (),
+            equals: Iterable[tuple[TFingerprintPair, TEntityValue]] = (),
+            contains: Iterable[
+                tuple[TFingerprintPair, Iterable[TEntityValue]]] = (),
+            kb: Store | None = None,
+            limit: int | None = None
+    ) -> None:
+        fr = (lambda p: Filter(p[0], property, p[1]))
+        st = (lambda t: Statement(t[0], property(t[1])))
+        self._test_filter(
+            empty=map(fr, empty),
+            equals=map(lambda t: (fr(t[0]), st(t[1])), equals),
+            contains=map(lambda t: (fr(t[0]), map(st, t[1])), contains),
+            kb=kb,
+            limit=limit)
+
+    def _test_filter_preset_empty(self) -> None:
+        self._test_filter(
+            empty=[
+                Filter(0),
+                Filter(None, 0),
+                Filter(None, None, 0, snak_mask=Filter.SOME_VALUE_SNAK),
+            ])
+
+# -- Legacy ----------------------------------------------------------------
+
     @classmethod
-    def new_Store(cls, store_name: str, *args, **kwargs):
-        return Store(store_name, *args, **kwargs)
+    def new_Store(cls, *args, **kwargs):
+        return Store('empty', *args, **kwargs)
 
     @classmethod
     def parse(cls, text: str) -> Store:

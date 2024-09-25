@@ -74,7 +74,7 @@ class TestStoreMixer(StoreTestCase):
     def test_filter(self) -> None:
         from .test_store_rdf import TestStoreRDF
         test = TestStoreRDF()
-        test._test_filter(self.mk_adam_benzene_brazil_mixer())
+        test._test_filter_tail(self.mk_adam_benzene_brazil_mixer())
 
     def test_filter_any_rank(self) -> None:
         from .test_store_rdf import TestStoreRDF
