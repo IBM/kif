@@ -103,11 +103,7 @@ class WikidataMapping(M):
         """Checks whether argument is a IRI content."""
 
         def __call__(self, m: M, c: C, arg: Arg) -> Arg:
-            super().__call__(m, c, arg)
-            ###
-            # TODO: Validate URI?
-            ###
-            return URI(arg)
+            return URI(str(super().__call__(m, c, arg)))
 
     __slots__ = (
         '_strict',
@@ -137,7 +133,7 @@ class WikidataMapping(M):
         """
         return self._strict
 
-    def _push(self, c: C, e: VEntity, p: V_URI, dt: URI) -> Var3:
+    def _push(self, c: C, e: VEntity, p: V_URI, dt: V_URI) -> Var3:
         from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler
         assert isinstance(c, SPARQL_MappingFilterCompiler)
         if isinstance(e, Variable):
@@ -185,22 +181,22 @@ class WikidataMapping(M):
         else:
             raise c._should_not_get_here()
 
-    def _push_preamble_Q(self, c: C, x: V_URI, p: V_URI, dt: URI) -> Var3:
+    def _push_preamble_Q(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
         t = self._push_preamble(c, x, p, dt)
         c.q.triples()((x, WIKIBASE.sitelinks, c.q.bnode()))
         return t
 
-    def _push_preamble_L(self, c: C, x: V_URI, p: V_URI, dt: URI) -> Var3:
+    def _push_preamble_L(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
         t = self._push_preamble(c, x, p, dt)
         c.q.triples()((x, RDF.type, ONTOLEX.LexicalEntry))
         return t
 
-    def _push_preamble_P(self, c: C, x: V_URI, p: V_URI, dt: URI) -> Var3:
+    def _push_preamble_P(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
         t = self._push_preamble(c, x, p, dt)
         c.q.triples()((x, RDF.type, WIKIBASE.Property))
         return t
 
-    def _push_preamble(self, c: C, x: V_URI, p: V_URI, dt: URI) -> Var3:
+    def _push_preamble(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
         p_, ps, wds = c.fresh_qvars(3)
         c.q.triples()(
             (x, p_, wds),
