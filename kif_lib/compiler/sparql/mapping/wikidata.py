@@ -29,7 +29,7 @@ from ....model import (
     VText,
 )
 from ....namespace import ONTOLEX, RDF, WIKIBASE, Wikidata
-from ....typing import cast, Final, TypeAlias
+from ....typing import Any, cast, Final, TypeAlias
 from ..compiler import SPARQL_Compiler as C
 from .mapping import SPARQL_Mapping as M
 
@@ -50,6 +50,11 @@ e, p, w, x, y, z = Variables(*'epwxyz')
 
 
 class WikidataMapping(M):
+    """Wikidata SPARQL mapping.
+
+    Parameters:
+       strict: Whether to be strict (assume full Wikidata compatibility).
+    """
 
     _re_item_uri: Final[re.Pattern] = re.compile(
         f'^{re.escape(Wikidata.WD)}Q[1-9][0-9]*$')
@@ -86,7 +91,7 @@ class WikidataMapping(M):
     CheckProperty: Final[M.EntryCallbackArgProcessorAlias] =\
         functools.partial(M.CheckURI, match=_re_property_uri)
 
-    class CheckIRI(M.CheckLiteral):
+    class CheckIRI(M.CheckStr):
         """Checks whether argument is a IRI value."""
 
         def __call__(
@@ -96,11 +101,38 @@ class WikidataMapping(M):
                 arg: M.EntryCallbackArg
         ) -> M.EntryCallbackArg:
             super().__call__(m, c, arg)
-            assert isinstance(arg, Literal)
             ###
             # TODO: Validate URI?
             ###
             return URI(arg)
+
+    __slots__ = (
+        '_strict',
+    )
+
+    #: Whether to be strict (assume full Wikidata compatibility).
+    _strict: bool
+
+    def __init__(self, strict: bool = False):
+        self._strict = bool(strict)
+
+    @property
+    def relax(self) -> bool:
+        """The negation of the value of the strict flag."""
+        return not self.get_strict()
+
+    @property
+    def strict(self) -> bool:
+        """The value of the strict flag."""
+        return self.get_strict()
+
+    def get_strict(self) -> bool:
+        """Gets the value of the strict flag.
+
+        Returns:
+           Strict flag.
+        """
+        return self._strict
 
     def _push(self, c: C, e: VEntity, p: V_URI, dt: URI) -> Var3:
         from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler
@@ -251,17 +283,18 @@ class WikidataMapping(M):
         c.q.triples()((wds, ps, x))
 
     @M.register(
-        Statement(e, Property(p)(Quantity(x, y, z, w))),
-        {p: CheckProperty()})
+        Statement(e, Property(p)(Quantity(x, y@Item, z, w))),
+        {p: CheckProperty()},
+        defaults={y: None, z: None, w: None})
     def p_quantity(
             self,
             c: C,
             e: VEntity,
             p: V_URI,
             x: VLiteral,
-            y: V_URI | None,
-            z: VLiteral | None,
-            w: VLiteral | None
+            y: V_URI,
+            z: VLiteral,
+            w: VLiteral
     ):
         _, ps, wds = self._push(c, e, p, WIKIBASE.Quantity)
         psv, wdv = c.fresh_qvars(2)
@@ -271,21 +304,42 @@ class WikidataMapping(M):
             (wds, psv, wdv),
             (wdv, RDF.type, WIKIBASE.QuantityValue),
             (wdv, WIKIBASE.quantityAmount, x))
+        if isinstance(y, Literal):
+            c.q.triples()(
+                (wdv, WIKIBASE.quantityUnit, y))
+        elif isinstance(y, ItemVariable):
+            with c.q.optional_if(self.relax):
+                from ..mapping_filter_compiler\
+                    import SPARQL_MappingFilterCompiler
+                assert isinstance(c, SPARQL_MappingFilterCompiler)
+                iri = c._fresh_iri_variable()
+                c._theta_add(y, Item(iri))
+                c.q.triples()(
+                    (wdv, WIKIBASE.quantityUnit, c._theta_add_as_qvar(iri)))
+                c.q.bind(c.as_qvar(iri), c.as_qvar(y))
+        else:
+            raise c._should_not_get_here()
+        with c.q.optional_if(isinstance(z, Var)):
+            c.q.triples()((wdv, WIKIBASE.quantityLowerBound, z))
+        with c.q.optional_if(isinstance(z, Var)):
+            c.q.triples()((wdv, WIKIBASE.quantityUpperBound, w))
 
     @M.register(
-        Statement(e, Property(p)(Time(x, y, z, w))),
-        {p: CheckProperty()})
+        Statement(e, Property(p)(Time(x, y, z, w@Item))),
+        {p: CheckProperty(),
+         y: M.CheckInt(),
+         z: M.CheckInt()},
+        defaults={y: None, z: None})
     def p_time(
             self,
             c: C,
             e: VEntity,
             p: V_URI,
             x: VLiteral,
-            y: VLiteral | None,
-            z: VLiteral | None,
-            w: V_URI | None
+            y: VLiteral,
+            z: VLiteral,
+            w: V_URI
     ):
-        # print(x, y, z, w)
         _, ps, wds = self._push(c, e, p, WIKIBASE.Time)
         psv, wdv = c.fresh_qvars(2)
         c.q.triples()(
@@ -294,18 +348,40 @@ class WikidataMapping(M):
             (wds, psv, wdv),
             (wdv, RDF.type, WIKIBASE.TimeValue),
             (wdv, WIKIBASE.timeValue, x))
+        with c.q.optional_if(isinstance(y, Var) and self.relax):
+            c.q.triples()((wdv, WIKIBASE.timePrecision, y))
+        with c.q.optional_if(isinstance(z, Var) and self.relax):
+            c.q.triples()((wdv, WIKIBASE.timeTimezone, z))
+        if isinstance(w, Literal):
+            c.q.triples()((wdv, WIKIBASE.timeCalendarModel, w))
+        elif isinstance(w, ItemVariable):
+            with c.q.optional_if(self.relax):
+                from ..mapping_filter_compiler\
+                    import SPARQL_MappingFilterCompiler
+                assert isinstance(c, SPARQL_MappingFilterCompiler)
+                iri = c._fresh_iri_variable()
+                c._theta_add(w, Item(iri))
+                c.q.triples()(
+                    (wdv, WIKIBASE.timeCalendarModel,
+                     c._theta_add_as_qvar(iri)))
+                c.q.bind(c.as_qvar(iri), c.as_qvar(w))
+        else:
+            raise c._should_not_get_here()
 
     @M.register(
         Statement(e, Property(x, y).some_value()),
         {x: CheckProperty(),
          y: CheckDatatype()})
-    def p_some(self, c: C, e: VEntity, x: V_URI, y: V_URI):
-        from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler
-        assert isinstance(c, SPARQL_MappingFilterCompiler)
+    def p_some_value(self, c: C, e: VEntity, x: V_URI, y: V_URI):
         _, ps, wds = self._push(c, e, x, y)
         some = c.fresh_qvar()
         c.q.triples()((wds, ps, some))
-        c._push_some_value_filter(some)
+        if self.strict:
+            c.q.filter(c.q.call(WIKIBASE.isSomeValue, some))
+        else:
+            c.q.filter(c.q.is_blank(some) | (
+                c.q.is_uri(some) & c.q.strstarts(
+                    c.q.str(some), str(Wikidata.WDGENID))))
 
     @M.register(
         Statement(e, Property(x, y).no_value()),

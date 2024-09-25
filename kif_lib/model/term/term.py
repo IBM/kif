@@ -168,6 +168,37 @@ class Term(KIF_Object):
         """
         return self.unify((self, Term.check(other, self.match, 'other', 1)))
 
+    def generalize(
+            self,
+            exclude: Iterable[Term | str] = (),
+            generate: Callable[[str], Iterator[str]] | None = None
+    ) -> Self:
+        """Replaces ``None`` values occurring in term by fresh variables.
+
+        Picks fresh variable names not occurring in `exclude`.
+
+        Uses `generate` (if given) to generate new names from the old ones.
+
+        Parameters:
+           exclude: Name exclusion list.
+           generate: Name generator.
+
+        Returns:
+           Term.
+        """
+        from .variable import Variable
+
+        def mk_sigma(i: int) -> Callable[[Any], Any]:
+            def sigma(x: Any) -> Any:
+                if x is None:
+                    nonlocal i
+                    i += 1
+                    return Variable('_x' + str(i)).rename(exclude, generate)
+                else:
+                    return x
+            return sigma
+        return self.substitute(mk_sigma(-1))
+
     def rename(
             self,
             exclude: Iterable[Term | str] = (),
@@ -175,14 +206,12 @@ class Term(KIF_Object):
     ) -> Self:
         """Renames all variables occurring in term.
 
-        Picks new names that do conflict with those [of variables] in
-        `exclude`.
+        Picks fresh variable names not occurring in `exclude`.
 
-        If `generate` is given, use it to generate new names from the old
-        names.
+        Uses `generate` (if given) to generate new names from the old ones.
 
         Parameters:
-           exclude: Exclusion list.
+           exclude: Name exclusion list.
            generate: Name generator.
 
         Returns:

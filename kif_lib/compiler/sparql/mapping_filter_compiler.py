@@ -37,7 +37,7 @@ from ...model import (
     VStatement,
     VValue,
 )
-from ...typing import cast, Iterator, Mapping, override, Sequence
+from ...typing import Callable, cast, Iterator, Mapping, override, Sequence
 from .builder import Query
 from .filter_compiler import SPARQL_FilterCompiler
 from .mapping import SPARQL_Mapping
@@ -86,15 +86,23 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         """
         return self._mapping
 
+    def _fresh_name_generator(self) -> Callable[[str], Iterator[str]]:
+        return (lambda _: map(
+            lambda _: self.fresh_qvar(), itertools.repeat(None)))
+
     @override
     def _push_filter(self, filter: Filter) -> None:
         assert isinstance(self.pattern, VariablePattern)
         assert isinstance(self.pattern.variable, StatementVariable)
         with self.q.union():
             for source in self._filter_to_patterns(filter):
+                source = source.generalize(
+                    generate=self._fresh_name_generator())
                 for target, bindings, entry in self.mapping.match(source):
                     saved_subst = self._theta
                     self._theta = Substitution()
+                    for var, val in entry.defaults_map.items():
+                        self._theta_add_default(var, val)
                     self.q.stash_begin()
                     try:
                         with self.q.group():
@@ -226,10 +234,10 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             source = Statement(entity, fp.snak)
         assert isinstance(entity, (EntityTemplate, EntityVariable))
         with self.q.union():
-            rename = (lambda _: map(
-                lambda _: self.fresh_qvar(), itertools.repeat(None)))
+            # rename = (lambda _: map(
+            #     lambda _: self.fresh_qvar(), itertools.repeat(None)))
             for target, bindings, target_entry in self.mapping.match(
-                    source, rename):
+                    source, self._fresh_name_generator()):
                 assert isinstance(target, (Statement, StatementTemplate))
                 if isinstance(fp, ConverseSnakFingerprint):
                     assert isinstance(

@@ -10,7 +10,16 @@ import functools
 import json
 
 from ..context import Context
-from ..typing import Any, Callable, cast, Iterator, override, Self, TypeVar
+from ..typing import (
+    Any,
+    Callable,
+    cast,
+    Iterator,
+    Mapping,
+    override,
+    Self,
+    TypeVar,
+)
 from . import object
 
 Codec = object.Codec
@@ -52,7 +61,7 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
            kwargs: Options to SPARQL decoder.
 
         Returns:
-           Object.
+           KIF object.
 
         Raises:
            `DecoderError`: Decoder error.
@@ -76,13 +85,29 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     def _repr_markdown_(self) -> str:
         return self.to_markdown()  # type: ignore
 
-    @staticmethod
-    def _traverse_default_filter(arg: Any) -> bool:
-        return True
+    def substitute(
+            self,
+            sigma: Mapping[Any, Any] | Callable[[Any], Any]
+    ) -> Self:
+        """Applies substitution `sigma` to KIF object's arguments.
 
-    @staticmethod
-    def _traverse_default_visit(arg: Any) -> bool:
-        return True
+        Parameters:
+           sigma: Substitution.
+
+        Returns:
+           KIF object.
+        """
+        return type(self)(*self._substitute(
+            (lambda k: sigma.get(k, k))
+            if isinstance(sigma, Mapping) else sigma))
+
+    def _substitute(self, sigma: Callable[[Any], Any]) -> Iterator[Any]:
+        for x in self.args:
+            y = sigma(x)
+            if x == y and isinstance(y, KIF_Object):
+                yield type(y)(*y._substitute(sigma))
+            else:
+                yield y
 
     def traverse(
         self,
@@ -107,6 +132,14 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         assert filter is not None
         assert visit is not None
         return self._traverse(filter, visit)
+
+    @staticmethod
+    def _traverse_default_filter(arg: Any) -> bool:
+        return True
+
+    @staticmethod
+    def _traverse_default_visit(arg: Any) -> bool:
+        return True
 
     def _traverse(
             self,

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import dataclasses
+import functools
 import re
 from typing import TYPE_CHECKING
 
@@ -16,15 +17,17 @@ from ....model import (
     Term,
     Theta,
     Variable,
+    Variable,
     VStatement,
     VTStatement,
 )
-from ....namespace import Wikidata
+from ....namespace import XSD
 from ....typing import (
     Any,
     Callable,
     cast,
     ClassVar,
+    Final,
     Iterable,
     Iterator,
     Mapping,
@@ -61,6 +64,10 @@ class SPARQL_Mapping(Mapping):
     #: The type of entry callback-arg processor maps.
     EntryCallbackArgProcessorMap: TypeAlias =\
         Mapping[Variable, 'SPARQL_Mapping.EntryCallbackArgProcessor']
+
+    #: The type of entry callback-arg defaults maps.
+    EntryCallbackArgDefaultsMap: TypeAlias =\
+        Mapping[Variable, Term | None]
 
     class EntryCallbackArgProcessor:
         """Entry callback-arg processor."""
@@ -142,6 +149,9 @@ class SPARQL_Mapping(Mapping):
         #: The callback-arg postprocessor map of entry.
         postprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap
 
+        #: The callback-arg defaults map.
+        defaults_map: SPARQL_Mapping.EntryCallbackArgDefaultsMap
+
         #: The (compilation) callback of entry.
         callback: SPARQL_Mapping.EntryCallback
 
@@ -150,25 +160,30 @@ class SPARQL_Mapping(Mapping):
                 pattern: SPARQL_Mapping.EntryPattern,
                 preprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap,
                 postprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap,
+                defaults_map: SPARQL_Mapping.EntryCallbackArgDefaultsMap,
                 callback: SPARQL_Mapping.EntryCallback
         ) -> None:
             self.pattern = pattern
-            self.preprocess_map, self.postprocess_map =\
-                self._init_processor_maps(preprocess_map, postprocess_map)
+            self.preprocess_map, self.postprocess_map, self.defaults_map =\
+                self._init_entry_callback_arg_maps(
+                    preprocess_map, postprocess_map, defaults_map)
             self.callback = callback
 
-        def _init_processor_maps(
+        def _init_entry_callback_arg_maps(
                 self,
                 pre: SPARQL_Mapping.EntryCallbackArgProcessorMap,
-                post: SPARQL_Mapping.EntryCallbackArgProcessorMap
+                post: SPARQL_Mapping.EntryCallbackArgProcessorMap,
+                defs: SPARQL_Mapping.EntryCallbackArgDefaultsMap
         ) -> tuple[
             SPARQL_Mapping.EntryCallbackArgProcessorMap,
-            SPARQL_Mapping.EntryCallbackArgProcessorMap
+            SPARQL_Mapping.EntryCallbackArgProcessorMap,
+            SPARQL_Mapping.EntryCallbackArgDefaultsMap
         ]:
             vars = {v.name: v for v in self.pattern.variables}
             return (
                 {vars[v.name]: f for v, f in pre.items()},
-                {vars[v.name]: f for v, f in post.items()})
+                {vars[v.name]: f for v, f in post.items()},
+                {vars[v.name]: f for v, f in defs.items()})
 
         @property
         def id(self) -> SPARQL_Mapping.EntryId:
@@ -210,6 +225,16 @@ class SPARQL_Mapping(Mapping):
                Callback-arg processor map.
             """
             return self.postprocess_map
+
+        def get_defaults_map(
+                self
+        ) -> SPARQL_Mapping.EntryCallbackArgDefaultsMap:
+            """Gets the callback-arg defaults map of entry.
+
+            Returns:
+               Callback-arg defaults map.
+            """
+            return self.defaults_map
 
         def get_callback(self) -> SPARQL_Mapping.EntryCallback:
             """Gets the callback of entry.
@@ -281,7 +306,7 @@ class SPARQL_Mapping(Mapping):
             """Copies entry and rename its variables.
 
             Parameters:
-               exclude: Exclusion list.
+               exclude: Name exclusion list.
                generate: Name generator.
 
             Returns:
@@ -293,8 +318,9 @@ class SPARQL_Mapping(Mapping):
                 pattern._iterate_variables()))
             pre = {tr[k]: v for k, v in self.preprocess_map.items()}
             post = {tr[k]: v for k, v in self.postprocess_map.items()}
+            defs = {tr[k]: v for k, v in self.defaults_map.items()}
             callback = self.callback
-            return self.__class__(pattern, pre, post, callback)
+            return self.__class__(pattern, pre, post, defs, callback)
 
     #: The registered entries indexed by id (digest of pattern).
     _entries: ClassVar[Mapping[
@@ -305,14 +331,15 @@ class SPARQL_Mapping(Mapping):
         SPARQL_Mapping.EntryPattern,
         SPARQL_Mapping.EntryCallbackArgProcessorMap,
         SPARQL_Mapping.EntryCallbackArgProcessorMap,
-        SPARQL_Mapping.EntryCallback,
+        SPARQL_Mapping.EntryCallbackArgDefaultsMap,
+        SPARQL_Mapping.EntryCallback
     ]]] = []
 
     @classmethod
     def __init_subclass__(cls) -> None:
         cls._entries = {
-            pat.digest: cls.Entry(pat, pre, post, f)
-            for pat, pre, post, f in SPARQL_Mapping._scheduled_entries}
+            pat.digest: cls.Entry(pat, pre, post, defs, f)
+            for pat, pre, post, defs, f in SPARQL_Mapping._scheduled_entries}
         SPARQL_Mapping._scheduled_entries = []
 
     @classmethod
@@ -322,7 +349,9 @@ class SPARQL_Mapping(Mapping):
             preprocess:
             SPARQL_Mapping.EntryCallbackArgProcessorMap | None = None,
             postprocess:
-            SPARQL_Mapping.EntryCallbackArgProcessorMap | None = None
+            SPARQL_Mapping.EntryCallbackArgProcessorMap | None = None,
+            defaults:
+            SPARQL_Mapping.EntryCallbackArgDefaultsMap | None = None
     ) -> Callable[..., Any]:
         """Decorator used to register a new entry into mapping.
 
@@ -330,6 +359,7 @@ class SPARQL_Mapping(Mapping):
            pattern: Statement, statement template, or statement variable.
            preprocess: Callback-arg processor map.
            postprocess: Callback-arg processor map.
+           defaults: Callback-arg defaults map.
 
         Returns:
            The wrapped callback.
@@ -347,13 +377,16 @@ class SPARQL_Mapping(Mapping):
         post = KIF_Object._check_optional_arg_isinstance(
             postprocess, Mapping, {}, cls.register, 'postprocess', 3)
         assert post is not None
+        defs = KIF_Object._check_optional_arg_isinstance(
+            defaults, Mapping, {}, cls.register, 'defaults', 4)
+        assert defs is not None
         ###
         # TODO: Rename variables in `pat` to avoid conflicts.
         # (The input pattern might contain homonymous variables.)
         ###
 
         def wrapper(f):
-            cls._scheduled_entries.append((pat, pre, post, f))
+            cls._scheduled_entries.append((pat, pre, post, defs, f))
             return f
         return wrapper
 
@@ -373,6 +406,7 @@ class SPARQL_Mapping(Mapping):
 
         __slots__ = (
             'subclass',
+            'optional',
             'coerce',
             'startswith',
             'endswith',
@@ -385,7 +419,10 @@ class SPARQL_Mapping(Mapping):
         #: Expected subclass.
         subclass: type[str]
 
-        #: Target type.
+        #: Whether arg is optional.
+        optional: bool
+
+        #: Target type to coerce arg to.
         coerce: type[str] | None
 
         #: Prefix to match.
@@ -409,6 +446,7 @@ class SPARQL_Mapping(Mapping):
         def __init__(
                 self,
                 subclass: type[str] | None = None,
+                optional: bool | None = None,
                 coerce: type[str] | None = None,
                 startswith: str | None = None,
                 endswith: str | None = None,
@@ -418,6 +456,7 @@ class SPARQL_Mapping(Mapping):
                 sub: tuple[str | re.Pattern, str] | None = None
         ) -> None:
             self.subclass = subclass or str
+            self.optional = optional if optional is not None else False
             self.coerce = coerce
             self.startswith = startswith
             self.endswith = endswith
@@ -439,7 +478,8 @@ class SPARQL_Mapping(Mapping):
                 c: SPARQL_Compiler,
                 arg: SPARQL_Mapping.EntryCallbackArg
         ) -> SPARQL_Mapping.EntryCallbackArg:
-            if isinstance(arg, c.query.Variable):
+            if (isinstance(arg, c.query.Variable)
+                    or (arg is None and self.optional)):
                 raise m.Done(arg)
             elif not isinstance(arg, str):
                 raise m.Skip
@@ -485,6 +525,8 @@ class SPARQL_Mapping(Mapping):
 
         def __init__(
                 self,
+                optional: bool | None = None,
+                coerce: type[str] | None = None,
                 startswith: str | None = None,
                 endswith: str | None = None,
                 replace_prefix: tuple[str, str] | None = None,
@@ -497,6 +539,8 @@ class SPARQL_Mapping(Mapping):
             from ..compiler import SPARQL_Compiler
             super().__init__(
                 subclass=SPARQL_Compiler.Query.Literal,
+                optional=optional,
+                coerce=coerce,
                 startswith=startswith,
                 endswith=endswith,
                 replace_prefix=replace_prefix,
@@ -521,11 +565,30 @@ class SPARQL_Mapping(Mapping):
                 arg = c.Query.Literal(arg, datatype=self.set_datatype)
             return arg
 
+    class CheckInt(CheckLiteral):
+        """Checks int argument."""
+
+        @override
+        def __call__(
+                self,
+                m: SPARQL_Mapping,
+                c: SPARQL_Compiler,
+                arg: SPARQL_Mapping.EntryCallbackArg
+        ) -> SPARQL_Mapping.EntryCallbackArg:
+            arg = super().__call__(m, c, arg)
+            assert isinstance(arg, c.Query.Literal)
+            try:
+                return c.Query.Literal(int(arg))
+            except ValueError:
+                raise m.Skip
+
     class CheckURI(CheckStr):
         """Check URI argument."""
 
         def __init__(
                 self,
+                optional: bool | None = None,
+                coerce: type[str] | None = None,
                 startswith: str | None = None,
                 endswith: str | None = None,
                 replace_prefix: tuple[str, str] | None = None,
@@ -536,99 +599,14 @@ class SPARQL_Mapping(Mapping):
             from ..compiler import SPARQL_Compiler
             super().__init__(
                 subclass=SPARQL_Compiler.Query.URI,
+                optional=optional,
+                coerce=coerce,
                 startswith=startswith,
                 replace_prefix=replace_prefix,
                 replace_suffix=replace_suffix,
                 endswith=endswith,
                 match=match,
                 sub=sub)
-
-    class CheckPrefix(EntryCallbackArgProcessor):
-        """Checks whether argument has prefix."""
-
-        __slots__ = (
-            '_prefix',
-        )
-
-        _prefix: str
-
-        def __init__(self, prefix: str) -> None:
-            self._prefix = prefix
-
-        @override
-        def __call__(
-                self,
-                m: SPARQL_Mapping,
-                c: SPARQL_Compiler,
-                arg: SPARQL_Mapping.EntryCallbackArg
-        ) -> SPARQL_Mapping.EntryCallbackArg:
-            if (isinstance(arg, (c.Query.Literal, c.Query.URI))
-                    and not arg.startswith(self._prefix)):
-                raise SPARQL_Mapping.Skip
-            else:
-                return arg
-
-    class UpdatePrefix(CheckPrefix):
-        """Updates argument prefix."""
-
-        __slots__ = (
-            '_new',
-        )
-
-        _update: str
-
-        def __init__(self, old: str, new: str):
-            super().__init__(old)
-            self._new = new
-
-        @override
-        def __call__(
-                self,
-                m: SPARQL_Mapping,
-                c: SPARQL_Compiler,
-                arg: SPARQL_Mapping.EntryCallbackArg
-        ) -> SPARQL_Mapping.EntryCallbackArg:
-            if isinstance(arg, (c.Query.Literal, c.Query.URI)):
-                arg = super().__call__(m, c, arg)
-                assert isinstance(arg, str)
-                return type(arg)(self._new + arg.removeprefix(self._prefix))
-            else:
-                return arg
-
-    class CheckRegex(EntryCallbackArgProcessor):
-        """Check whether argument matches regex."""
-
-        __slots__ = (
-            '_regex',
-        )
-
-        _regex: re.Pattern
-
-        def __init__(self, regex: str | re.Pattern) -> None:
-            if isinstance(regex, str):
-                self._regex = re.compile(regex)
-            else:
-                self._regex = regex
-
-        @override
-        def __call__(
-                self,
-                m: SPARQL_Mapping,
-                c: SPARQL_Compiler,
-                arg: SPARQL_Mapping.EntryCallbackArg
-        ) -> SPARQL_Mapping.EntryCallbackArg:
-            if (isinstance(arg, (c.Query.Literal, c.Query.URI))
-                    and not self._regex.match(arg)):
-                raise SPARQL_Mapping.Skip
-            else:
-                return arg
-
-    class CheckWikidataItem(CheckRegex):
-        """Checks whether argument matches the URI of a Wikidata item."""
-
-        def __init__(self):
-            super().__init__(
-                f'^{re.escape(Wikidata.WD)}Q[1-9][0-9]+$')
 
 # -- Methods ---------------------------------------------------------------
 
