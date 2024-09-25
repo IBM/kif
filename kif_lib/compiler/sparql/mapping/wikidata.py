@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import functools
 import re
 
 from ....model import (
