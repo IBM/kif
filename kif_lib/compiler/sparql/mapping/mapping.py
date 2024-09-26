@@ -61,8 +61,8 @@ class SPARQL_Mapping(Mapping):
     EntryCallbackArgProcessorMap: TypeAlias =\
         Mapping[Variable, 'SPARQL_Mapping.EntryCallbackArgProcessor']
 
-    #: The type of entry callback-arg defaults maps.
-    EntryCallbackArgDefaultsMap: TypeAlias =\
+    #: The type of entry callback-arg default map.
+    EntryCallbackArgDefaultMap: TypeAlias =\
         Mapping[Variable, Term | None]
 
     class EntryCallbackArgProcessor:
@@ -146,7 +146,7 @@ class SPARQL_Mapping(Mapping):
         postprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap
 
         #: The callback-arg defaults map.
-        defaults_map: SPARQL_Mapping.EntryCallbackArgDefaultsMap
+        default_map: SPARQL_Mapping.EntryCallbackArgDefaultMap
 
         #: The (compilation) callback of entry.
         callback: SPARQL_Mapping.EntryCallback
@@ -156,24 +156,24 @@ class SPARQL_Mapping(Mapping):
                 pattern: SPARQL_Mapping.EntryPattern,
                 preprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap,
                 postprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap,
-                defaults_map: SPARQL_Mapping.EntryCallbackArgDefaultsMap,
+                default_map: SPARQL_Mapping.EntryCallbackArgDefaultMap,
                 callback: SPARQL_Mapping.EntryCallback
         ) -> None:
             self.pattern = pattern
-            self.preprocess_map, self.postprocess_map, self.defaults_map =\
+            self.preprocess_map, self.postprocess_map, self.default_map =\
                 self._init_entry_callback_arg_maps(
-                    preprocess_map, postprocess_map, defaults_map)
+                    preprocess_map, postprocess_map, default_map)
             self.callback = callback
 
         def _init_entry_callback_arg_maps(
                 self,
                 pre: SPARQL_Mapping.EntryCallbackArgProcessorMap,
                 post: SPARQL_Mapping.EntryCallbackArgProcessorMap,
-                defs: SPARQL_Mapping.EntryCallbackArgDefaultsMap
+                defs: SPARQL_Mapping.EntryCallbackArgDefaultMap
         ) -> tuple[
             SPARQL_Mapping.EntryCallbackArgProcessorMap,
             SPARQL_Mapping.EntryCallbackArgProcessorMap,
-            SPARQL_Mapping.EntryCallbackArgDefaultsMap
+            SPARQL_Mapping.EntryCallbackArgDefaultMap
         ]:
             vars = {v.name: v for v in self.pattern.variables}
             return (
@@ -222,15 +222,15 @@ class SPARQL_Mapping(Mapping):
             """
             return self.postprocess_map
 
-        def get_defaults_map(
+        def get_default_map(
                 self
-        ) -> SPARQL_Mapping.EntryCallbackArgDefaultsMap:
+        ) -> SPARQL_Mapping.EntryCallbackArgDefaultMap:
             """Gets the callback-arg defaults map of entry.
 
             Returns:
                Callback-arg defaults map.
             """
-            return self.defaults_map
+            return self.default_map
 
         def get_callback(self) -> SPARQL_Mapping.EntryCallback:
             """Gets the callback of entry.
@@ -318,7 +318,7 @@ class SPARQL_Mapping(Mapping):
                 pattern._iterate_variables()))
             pre = {tr[k]: v for k, v in self.preprocess_map.items()}
             post = {tr[k]: v for k, v in self.postprocess_map.items()}
-            defs = {tr[k]: v for k, v in self.defaults_map.items()}
+            defs = {tr[k]: v for k, v in self.default_map.items()}
             callback = self.callback
             return self.__class__(pattern, pre, post, defs, callback)
 
@@ -331,7 +331,7 @@ class SPARQL_Mapping(Mapping):
         SPARQL_Mapping.EntryPattern,
         SPARQL_Mapping.EntryCallbackArgProcessorMap,
         SPARQL_Mapping.EntryCallbackArgProcessorMap,
-        SPARQL_Mapping.EntryCallbackArgDefaultsMap,
+        SPARQL_Mapping.EntryCallbackArgDefaultMap,
         SPARQL_Mapping.EntryCallback
     ]]] = []
 
@@ -351,7 +351,7 @@ class SPARQL_Mapping(Mapping):
             postprocess:
             SPARQL_Mapping.EntryCallbackArgProcessorMap | None = None,
             defaults:
-            SPARQL_Mapping.EntryCallbackArgDefaultsMap | None = None
+            SPARQL_Mapping.EntryCallbackArgDefaultMap | None = None
     ) -> Callable[..., Any]:
         """Decorator used to register a new entry into mapping.
 
@@ -359,7 +359,7 @@ class SPARQL_Mapping(Mapping):
            pattern: Statement, statement template, or statement variable.
            preprocess: Callback-arg processor map.
            postprocess: Callback-arg processor map.
-           defaults: Callback-arg defaults map.
+           defaults: Callback-arg default map.
 
         Returns:
            The wrapped callback.

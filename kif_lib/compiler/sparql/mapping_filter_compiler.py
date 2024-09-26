@@ -100,7 +100,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 for target, bindings, entry in self.mapping.match(source):
                     saved_subst = self._theta
                     self._theta = Substitution()
-                    for var, val in entry.defaults_map.items():
+                    for var, val in entry.default_map.items():
                         self._theta_add_default(var, val)
                     self.q.stash_begin()
                     try:
