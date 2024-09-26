@@ -171,33 +171,47 @@ class Term(KIF_Object):
     def generalize(
             self,
             exclude: Iterable[Term | str] = (),
-            rename: Callable[[str], Iterator[str]] | None = None
+            rename: Callable[[str], Iterator[str]] | None = None,
+            prefix: str | None = None
     ) -> Self:
         """Replaces ``None`` values occurring in term by fresh variables.
 
-        Picks fresh variable names not occurring in `exclude`.
+        Picks name variants not occurring in `exclude`.
 
         Uses `rename` (if given) to generate name variants.
 
+        Uses `prefix` (if given) as prefix for name variants.
+
         Parameters:
-           exclude: Name exclusion list.
+           exclude: Name variant exclusion list.
            rename: Name variant generator.
+           prefix: Name variant prefix.
 
         Returns:
            Term.
         """
         from .variable import Variable
 
-        def mk_sigma(i: int) -> Callable[[Any], Any]:
-            def sigma(x: Any) -> Any:
-                if x is None:
-                    nonlocal i
-                    i += 1
-                    return Variable('_x' + str(i)).rename(exclude, rename)
+        def it() -> Iterator[str | None]:
+            if prefix is not None:
+                yield prefix
+            for i in itertools.count():
+                if prefix is None:
+                    yield None
                 else:
-                    return x
-            return sigma
-        return self.substitute(mk_sigma(-1))
+                    yield prefix + str(i)
+        names = it()
+        exclude = list(exclude)
+
+        def sigma(x: Any) -> Any:
+            if x is None:
+                nonlocal names
+                var = Variable(next(names)).rename(exclude, rename)
+                exclude.append(var)
+                return var
+            else:
+                return x
+        return self.substitute(sigma)
 
     def rename(
             self,
@@ -206,7 +220,7 @@ class Term(KIF_Object):
     ) -> Self:
         """Renames all variables occurring in term.
 
-        Picks fresh variable names not occurring in `exclude`.
+        Picks name variants not occurring in `exclude`.
 
         Uses `rename` (if given) to generate name variants.
 

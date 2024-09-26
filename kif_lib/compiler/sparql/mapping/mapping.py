@@ -301,6 +301,10 @@ class SPARQL_Mapping(Mapping):
         ) -> Self:
             """Copies entry and rename its variables.
 
+            Picks name variants not occurring in `exclude`.
+
+            Uses `rename` (if given) to generate name variants.
+
             Parameters:
                exclude: Name exclusion list.
                rename: Name variant generator.
