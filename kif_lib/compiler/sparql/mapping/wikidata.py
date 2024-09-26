@@ -353,7 +353,7 @@ class WikidataMapping(M):
             raise c._should_not_get_here()
         with c.q.optional_if(isinstance(z, Var)):
             c.q.triples()((wdv, WIKIBASE.quantityLowerBound, z))
-        with c.q.optional_if(isinstance(z, Var)):
+        with c.q.optional_if(isinstance(w, Var)):
             c.q.triples()((wdv, WIKIBASE.quantityUpperBound, w))
 
     @M.register(

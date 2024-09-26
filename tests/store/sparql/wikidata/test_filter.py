@@ -7,13 +7,18 @@ import os
 import unittest
 
 from kif_lib import (
+    ExternalId,
     Filter,
     IRI,
     Item,
     Lexeme,
     Property,
+    Quantity,
     Statement,
+    String,
     Text,
+    Time,
+    ValueSnak,
     Variables,
 )
 from kif_lib.compiler.sparql.mapping.wikidata import WikidataMapping
@@ -23,7 +28,7 @@ from kif_lib.vocabulary import wd
 
 from ....tests import SPARQL_Store2TestCase
 
-x, y, z = Variables(*'xyz')
+w, x, y, z = Variables(*'wxyz')
 
 
 class Test(SPARQL_Store2TestCase):
@@ -243,6 +248,202 @@ class Test(SPARQL_Store2TestCase):
                     (wd.L(3773), wd.L(3772)),
                 ]),
             ])
+
+    def test_property_iri(self) -> None:
+        self._test_filter_with_fixed_property(
+            property=wd.official_website,
+            empty=[
+                (wd.IBM, IRI('x')),  # VV
+                (wd.part_of, None),  # VF
+                (None, IRI('x')),    # FV
+            ],
+            equals=[
+                ((wd.IBM, IRI('https://www.ibm.com/')),  # VV
+                 (wd.IBM, IRI('https://www.ibm.com/'))),
+                ((wd.IBM, None),  # VF
+                 (wd.IBM, IRI('https://www.ibm.com/'))),
+                ((None, IRI('https://www.ibm.com/')),  # FV
+                 (wd.IBM, IRI('https://www.ibm.com/'))),
+            ])
+
+    def test_property_text(self) -> None:
+        self._test_filter_with_fixed_property(
+            property=wd.official_name,
+            empty=[
+                (wd.Brazil, Text('x')),  # VV
+                (wd.part_of, None),      # VF
+                (None, Text('x')),       # FV
+            ],
+            equals=[            # VV
+                ((wd.Brazil, Text('República Federativa do Brasil', 'pt')),
+                 (wd.Brazil, Text('República Federativa do Brasil', 'pt'))),
+                ((wd.Brazil, None),  # VF
+                 (wd.Brazil, Text('República Federativa do Brasil', 'pt'))),
+                ((None, Text('República Federativa do Brasil', 'pt')),  # FV
+                 (wd.Brazil, Text('República Federativa do Brasil', 'pt'))),
+            ])
+
+    def test_property_string(self) -> None:
+        self._test_filter_with_fixed_property(
+            property=wd.chemical_formula,
+            empty=[
+                (wd.benzene, 'x'),  # VV
+                (wd.part_of, None),  # VF
+                (None, 'x'),         # FV
+            ],
+            equals=[
+                ((wd.benzene, 'C₆H₆'),  # VV
+                 (wd.benzene, 'C₆H₆')),
+                ((wd.benzene, None),  # VF
+                 (wd.benzene, 'C₆H₆')),
+            ])
+
+    def test_property_external_id(self) -> None:
+        self._test_filter_with_fixed_property(
+            property=wd.PubChem_CID,
+            empty=[
+                (wd.benzene, 'x'),  # VV
+                (wd.part_of, None),  # VF
+                (None, 'x'),         # FV
+            ],
+            ###
+            # TODO: Make (wd.benzene, '241') work.
+            ###
+            equals=[
+                ((wd.benzene, ExternalId('241')),  # VV
+                 (wd.benzene, ExternalId('241'))),
+                ((wd.benzene, None),  # VF
+                 (wd.benzene, ExternalId('241'))),
+            ])
+
+    def test_property_quantity(self) -> None:
+        self._test_filter_with_fixed_property(
+            property=wd.mass,
+            empty=[
+                (wd.benzene, 10**10),     # VV
+                (wd.part_of, None),       # VF
+                (None, 10**10@wd.dalton),  # FV
+            ],
+            equals=[
+                ((wd.benzene, '78.046950192'@wd.dalton),  # VV
+                 (wd.benzene, '78.046950192'@wd.dalton)),
+                ((wd.benzene, Quantity('78.046950192')),
+                 (wd.benzene, '78.046950192'@wd.dalton)),
+                ((wd.benzene, Quantity('78.046950192')),
+                 (wd.benzene, '78.046950192'@wd.dalton)),
+            ],
+            contains=[
+                ((wd.lion, None), [  # VF
+                    (wd.lion, '1.65'@wd.kilogram),
+                    (wd.lion, 188@wd.kilogram),
+                    (wd.lion, 126@wd.kilogram),
+                ]),
+            ])
+        self._test_filter_with_fixed_property(
+            property=wd.density,
+            empty=[             # VV
+                (wd.benzene, Quantity('.89')),
+                (wd.benzene, Quantity('.88', wd.kilogram)),
+                (wd.benzene, Quantity('.88', None, '.89')),
+                (wd.benzene, Quantity('.88', None, None, '.87')),
+            ],
+            equals=[            # VV
+                ((wd.benzene, Quantity('.88')),
+                 (wd.benzene, Quantity(
+                     '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))),
+                ((wd.benzene, '.88'@wd.gram_per_cubic_centimetre),
+                 (wd.benzene, Quantity(
+                     '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))),
+                ((wd.benzene, Quantity('.88', None, '.87')),
+                 (wd.benzene, Quantity(
+                     '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))),
+                ((wd.benzene, Quantity('.88', None, None, '.89')),
+                 (wd.benzene, Quantity(
+                     '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))),
+                ((wd.benzene, Quantity('.88', None, '.87', '.89')),
+                 (wd.benzene, Quantity(
+                     '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))),
+            ])
+
+    def test_property_time(self) -> None:
+        self._test_filter_with_fixed_property(
+            property=wd.inception,
+            empty=[
+                (wd.Brazil, Time('2024-09-26')),  # VV
+                (wd.Brazil, Time('1822-09-07', 10)),
+                (wd.Brazil, Time('1822-09-07', None, 1)),
+                (wd.Brazil, Time(
+                    '1822-09-07', None, None, wd.proleptic_Julian_calendar)),
+                (wd.part_of, None),               # VF
+                (None, Time('1322-09-26')),       # FV
+            ],
+            equals=[
+                ((wd.Brazil, Time('1822-09-07')),  # VV
+                 (wd.Brazil, Time(
+                     '1822-09-07', 11, 0, wd.proleptic_Gregorian_calendar))),
+                ((wd.Brazil, Time('1822-09-07', 11)),
+                 (wd.Brazil, Time(
+                     '1822-09-07', 11, 0, wd.proleptic_Gregorian_calendar))),
+                ((wd.Brazil, Time('1822-09-07', None, 0)),
+                 (wd.Brazil, Time(
+                     '1822-09-07', 11, 0, wd.proleptic_Gregorian_calendar))),
+                ((wd.Brazil, Time(
+                    '1822-09-07', None, None,
+                    wd.proleptic_Gregorian_calendar)),
+                 (wd.Brazil, Time(
+                     '1822-09-07', 11, 0, wd.proleptic_Gregorian_calendar))),
+            ])
+
+    def test_property_some_value(self) -> None:
+        pass
+
+    def test_property_no_value(self) -> None:
+        pass
+
+    def test_value_item(self) -> None:
+        self._test_filter_matches(
+            Filter(value_mask=Filter.ITEM, snak_mask=Filter.VALUE_SNAK),
+            Statement(x, ValueSnak(y, Item(z))))
+
+    def test_value_property(self) -> None:
+        self._test_filter_matches(
+            Filter(value_mask=Filter.PROPERTY, snak_mask=Filter.VALUE_SNAK),
+            Statement(x, ValueSnak(y, Property(z).generalize())))
+
+    def test_value_lexeme(self) -> None:
+        self._test_filter_matches(
+            Filter(value_mask=Filter.LEXEME, snak_mask=Filter.VALUE_SNAK),
+            Statement(x, ValueSnak(y, Lexeme(z))))
+
+    def test_value_iri(self) -> None:
+        self._test_filter_matches(
+            Filter(value_mask=Filter.IRI, snak_mask=Filter.VALUE_SNAK),
+            Statement(x, ValueSnak(y, IRI(z))))
+
+    def test_value_text(self) -> None:
+        self._test_filter_matches(
+            Filter(value_mask=Filter.TEXT, snak_mask=Filter.VALUE_SNAK),
+            Statement(x, ValueSnak(y, Text(z, w))))
+
+    def test_value_string(self) -> None:
+        self._test_filter_matches(
+            Filter(value_mask=Filter.STRING, snak_mask=Filter.VALUE_SNAK),
+            Statement(x, ValueSnak(y, String(z))))
+
+    def test_value_external_id(self) -> None:
+        self._test_filter_matches(
+            Filter(value_mask=Filter.EXTERNAL_ID, snak_mask=Filter.VALUE_SNAK),
+            Statement(x, ValueSnak(y, ExternalId(z))))
+
+    def test_value_quantity(self) -> None:
+        self._test_filter_matches(
+            Filter(value_mask=Filter.QUANTITY, snak_mask=Filter.VALUE_SNAK),
+            Statement(x, ValueSnak(y, Quantity(z).generalize())))
+
+    def test_value_time(self) -> None:
+        self._test_filter_matches(
+            Filter(value_mask=Filter.TIME, snak_mask=Filter.VALUE_SNAK),
+            Statement(x, ValueSnak(y, Time(z).generalize())))
 
 
 if __name__ == '__main__':

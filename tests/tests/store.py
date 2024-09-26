@@ -84,7 +84,7 @@ class StoreTestCase(TestCase):
         kb = kb or self.new_Store()
         limit = limit if limit is not None else kb.page_size
         for stmt in kb.filter(filter=filter, limit=limit):
-            self.assertIsNotNone(pattern.match(stmt))
+            self.assertIsNotNone(pattern.match(stmt), str(stmt))
 
     def _test_filter_with_fixed_subject(
             self,
