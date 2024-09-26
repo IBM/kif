@@ -235,19 +235,19 @@ class Variable(OpenTerm):
     def _rename(
             self,
             exclude: Set[str],
-            generate: Callable[[str], Iterator[str]] | None
+            rename: Callable[[str], Iterator[str]] | None
     ) -> Self:
-        generate = generate or self._rename_default_generate
-        for name in generate(self.name):
+        rename = rename or self._rename_default_rename
+        for name in rename(self.name):
             if name not in exclude:
                 return self.replace(name, self.KEEP)
         raise self._should_not_get_here()
 
-    _rename_default_generate_re: Final[re.Pattern] =\
+    _rename_default_rename_re: Final[re.Pattern] =\
         re.compile(r'(.*?)(\d*)$')
 
-    def _rename_default_generate(self, name: str) -> Iterator[str]:
-        m = self._rename_default_generate_re.match(name)
+    def _rename_default_rename(self, name: str) -> Iterator[str]:
+        m = self._rename_default_rename_re.match(name)
         assert m is not None
         prefix, suffix = m.groups()
         return map(lambda n: prefix + str(n),

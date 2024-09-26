@@ -96,8 +96,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         assert isinstance(self.pattern.variable, StatementVariable)
         with self.q.union():
             for source in self._filter_to_patterns(filter):
-                source = source.generalize(
-                    generate=self._fresh_name_generator())
+                source = source.generalize(rename=self._fresh_name_generator())
                 for target, bindings, entry in self.mapping.match(source):
                     saved_subst = self._theta
                     self._theta = Substitution()

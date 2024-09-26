@@ -297,18 +297,18 @@ class SPARQL_Mapping(Mapping):
         def rename(
                 self,
                 exclude: Iterable[Term | str] = (),
-                generator: Callable[[str], Iterator[str]] | None = None
+                rename: Callable[[str], Iterator[str]] | None = None
         ) -> Self:
             """Copies entry and rename its variables.
 
             Parameters:
                exclude: Name exclusion list.
-               generate: Name generator.
+               rename: Name variant generator.
 
             Returns:
                A copy of entry with its variables renamed.
             """
-            pattern = self.pattern.rename(exclude, generator)
+            pattern = self.pattern.rename(exclude, rename)
             tr = dict(zip(
                 self.pattern._iterate_variables(),
                 pattern._iterate_variables()))
@@ -633,14 +633,14 @@ class SPARQL_Mapping(Mapping):
 
         Parameters:
            pattern: Statement, statement template, or statement variable.
-           rename: Name generator.
+           rename: Name variant generator.
 
         Returns:
            An iterator of triples "(pattern, theta, entry)".
         """
         for _, entry in self._entries.items():
             if rename is not None:
-                entry = entry.rename(generator=rename)
+                entry = entry.rename(rename=rename)
             theta = pattern.match(entry.pattern)
             if theta is None:
                 continue

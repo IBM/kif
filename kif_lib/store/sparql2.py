@@ -20,11 +20,11 @@ from .sparql import NS, SPARQL_Store
 LOG = logging.getLogger(__name__)
 
 
-class SPARQL_MapperStore2(
+class SPARQL_Store2(
         SPARQL_Store,
-        store_name='sparql-mapper2',
-        store_description='SPARQL endpoint mapper'):
-    """SPARQL mapper store.
+        store_name='sparql2',
+        store_description='SPARQL endpoint'):
+    """SPARQL store.
 
     Parameters:
        store_name: Store plugin to instantiate.

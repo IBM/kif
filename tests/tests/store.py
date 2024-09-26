@@ -42,8 +42,8 @@ from kif_lib.store import (
     PubChemStore,
     RDF_Store,
     SPARQL_MapperStore,
-    SPARQL_MapperStore2,
     SPARQL_Store,
+    SPARQL_Store2,
     WikidataStore,
 )
 from kif_lib.typing import cast, Final, Iterable, override, TypeAlias
@@ -728,17 +728,16 @@ class PubChemSPARQL_StoreTestCase(SPARQL_MapperStoreTestCase):
             'sparql-mapper', cls.PUBCHEM, PubChemMapping(), *args, **kwargs))
 
 
-class SPARQL_MapperStore2TestCase(SPARQL_StoreTestCase):
-    """Test case of :class:`SPARQL_MapperStore2`."""
+class SPARQL_Store2TestCase(SPARQL_StoreTestCase):
+    """Test case of :class:`SPARQL_Store2`."""
 
     @override
     @classmethod
-    def new_Store(cls, *args, **kwargs) -> SPARQL_MapperStore2:
-        return cast(SPARQL_MapperStore2, Store(
-            'sparql-mapper2', *args, **kwargs))
+    def new_Store(cls, *args, **kwargs) -> SPARQL_Store2:
+        return cast(SPARQL_Store2, Store('sparql2', *args, **kwargs))
 
 
-class PubChemStoreTestCase(SPARQL_MapperStore2TestCase):
+class PubChemStoreTestCase(SPARQL_Store2TestCase):
     """Test case of :class:`PubChemStore`."""
 
     PUBCHEM: Final[str | None] = os.getenv('PUBCHEM')

@@ -6,11 +6,11 @@ from __future__ import annotations
 from ..compiler.sparql import SPARQL_Mapping
 from ..model import T_IRI
 from ..typing import Any
-from .mapper2 import SPARQL_MapperStore2
+from .sparql2 import SPARQL_Store2
 
 
 class PubChemStore(
-        SPARQL_MapperStore2,
+        SPARQL_Store2,
         store_name='pubchem',
         store_description='PubChem store'
 ):

@@ -171,17 +171,17 @@ class Term(KIF_Object):
     def generalize(
             self,
             exclude: Iterable[Term | str] = (),
-            generate: Callable[[str], Iterator[str]] | None = None
+            rename: Callable[[str], Iterator[str]] | None = None
     ) -> Self:
         """Replaces ``None`` values occurring in term by fresh variables.
 
         Picks fresh variable names not occurring in `exclude`.
 
-        Uses `generate` (if given) to generate new names from the old ones.
+        Uses `rename` (if given) to generate name variants.
 
         Parameters:
            exclude: Name exclusion list.
-           generate: Name generator.
+           rename: Name variant generator.
 
         Returns:
            Term.
@@ -193,7 +193,7 @@ class Term(KIF_Object):
                 if x is None:
                     nonlocal i
                     i += 1
-                    return Variable('_x' + str(i)).rename(exclude, generate)
+                    return Variable('_x' + str(i)).rename(exclude, rename)
                 else:
                     return x
             return sigma
@@ -202,17 +202,17 @@ class Term(KIF_Object):
     def rename(
             self,
             exclude: Iterable[Term | str] = (),
-            generate: Callable[[str], Iterator[str]] | None = None
+            rename: Callable[[str], Iterator[str]] | None = None
     ) -> Self:
         """Renames all variables occurring in term.
 
         Picks fresh variable names not occurring in `exclude`.
 
-        Uses `generate` (if given) to generate new names from the old ones.
+        Uses `rename` (if given) to generate name variants.
 
         Parameters:
            exclude: Name exclusion list.
-           generate: Name generator.
+           rename: Name variant generator.
 
         Returns:
            Term.
@@ -224,14 +224,14 @@ class Term(KIF_Object):
         exclude_set = set(itertools.chain(
             map(Variable.get_name, itertools.chain(
                 *map(Term.get_variables, xterms))), xnames))
-        return self._rename(exclude_set, generate)
+        return self._rename(exclude_set, rename)
 
     def _rename(
             self,
             exclude: Set[str],
-            generate: Callable[[str], Iterator[str]] | None
+            rename: Callable[[str], Iterator[str]] | None
     ) -> Self:
-        theta = {x: x._rename(exclude, generate) for x in self.variables}
+        theta = {x: x._rename(exclude, rename) for x in self.variables}
         return cast(Self, self.instantiate(theta))
 
 
@@ -287,7 +287,7 @@ class ClosedTerm(Term):
     def _rename(
             self,
             exclude: Set[str],
-            generate: Callable[[str], Iterator[str]] | None
+            rename: Callable[[str], Iterator[str]] | None
     ) -> Self:
         return self             # nothing to do
 

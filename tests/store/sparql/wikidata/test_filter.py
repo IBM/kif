@@ -8,16 +8,16 @@ import unittest
 
 from kif_lib import Filter, Item, Text, Variables
 from kif_lib.compiler.sparql.mapping.wikidata import WikidataMapping
-from kif_lib.store.mapper2 import SPARQL_MapperStore2
+from kif_lib.store.sparql2 import SPARQL_Store2
 from kif_lib.typing import Any, Final, override
 from kif_lib.vocabulary import wd
 
-from ....tests import SPARQL_MapperStore2TestCase
+from ....tests import SPARQL_Store2TestCase
 
 x, y, z = Variables(*'xyz')
 
 
-class Test(SPARQL_MapperStore2TestCase):
+class Test(SPARQL_Store2TestCase):
 
     WIKIDATA: Final[str | None] = os.getenv('WIKIDATA')
 
@@ -28,10 +28,10 @@ class Test(SPARQL_MapperStore2TestCase):
 
     @override
     @classmethod
-    def new_Store(cls, *args: Any, **kwargs: Any) -> SPARQL_MapperStore2:
+    def new_Store(cls, *args: Any, **kwargs: Any) -> SPARQL_Store2:
         assert cls.WIKIDATA is not None
-        return SPARQL_MapperStore2(
-            'sparql-mapper2', cls.WIKIDATA,
+        return SPARQL_Store2(
+            'sparql2', cls.WIKIDATA,
             WikidataMapping(strict=True), *args, **kwargs)
 
     def test_empty(self) -> None:
