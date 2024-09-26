@@ -71,7 +71,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         super().__init__(filter, flags)
         self._mapping = mapping
         self._entry_subst = {}
-        self._entry_qvar = self.q.fresh_var()
+        self._entry_id_qvar = self.q.fresh_var()
 
     @property
     def mapping(self) -> SPARQL_Mapping:
@@ -94,8 +94,11 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
     def _push_filter(self, filter: Filter) -> None:
         assert isinstance(self.pattern, VariablePattern)
         assert isinstance(self.pattern.variable, StatementVariable)
+        sources = list(self._filter_to_patterns(filter))
+        self.mapping.preamble(self, sources)
+        targets = []
         with self.q.union():
-            for source in self._filter_to_patterns(filter):
+            for source in sources:
                 source = source.generalize(rename=self._fresh_name_generator())
                 for target, bindings, entry in self.mapping.match(source):
                     saved_subst = self._theta
@@ -105,7 +108,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                     self.q.stash_begin()
                     try:
                         with self.q.group():
-                            self.q.bind(entry.id, self._entry_qvar)
+                            self.q.bind(entry.id, self._entry_id_qvar)
                             args = self._push_filter_get_entry_callback_args(
                                 entry, bindings)
                             entry.callback(self.mapping, self, *args)
@@ -118,9 +121,11 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                         if id not in self._entry_subst:
                             self._entry_subst[entry.id] = []
                         self._entry_subst[entry.id].append(self._theta)
+                        targets.append(target)
                     self._theta = saved_subst
         if not self._entry_subst:
             self._q = self.Query()  # empty query
+        self.mapping.postamble(self, targets)
 
     def _push_filter_get_entry_callback_args(
             self,
@@ -318,8 +323,8 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             self,
             binding: Mapping[str, dict[str, str]]
     ) -> Iterator[Theta]:
-        if str(self._entry_qvar) in binding:
-            id = binding[str(self._entry_qvar)]['value']
+        if str(self._entry_id_qvar) in binding:
+            id = binding[str(self._entry_id_qvar)]['value']
             entry = self._mapping[id]
             for var in entry.postprocess_map:
                 if var.name in binding:

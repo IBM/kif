@@ -102,6 +102,7 @@ class Symbol:
     OFFSET: Final[str] = 'OFFSET'
     OPTIONAL: Final[str] = 'OPTIONAL'
     OR: Final[str] = '||'
+    ORDER_BY: Final[str] = 'ORDER BY'
     REDUCED: Final[str] = 'REDUCED'
     SELECT: Final[str] = 'SELECT'
     STAR: Final[str] = '*'
@@ -1184,6 +1185,26 @@ class OffsetClause(Clause):
             yield ' '
             yield str(self.offset)
 
+
+class OrderByClause(Clause):
+    """ORDER BY clause."""
+
+    expression: Expression | None
+
+    def __init__(self, expression: TExpression | None) -> None:
+        super().__init__()
+        self.expression = (
+            Coerce.expression(expression)
+            if expression is not None else expression)
+
+    @override
+    def iterencode(self) -> Iterator[str]:
+        if self.expression is not None:
+            yield Symbol.ORDER_BY
+            yield ' ('
+            yield self.expression.encode()
+            yield ')'
+
 
 # == Query =================================================================
 
@@ -1222,6 +1243,9 @@ class Query(Encodable):
     #: Offset clause.
     _offset: OffsetClause
 
+    #: Order-by clause.
+    _order_by: OrderByClause
+
     #: Default fresh variable prefix.
     _fresh_var_default_prefix: _str = '_v'
 
@@ -1235,6 +1259,7 @@ class Query(Encodable):
             self,
             limit: int | None = None,
             offset: int | None = None,
+            order_by: TExpression | None = None,
             where: WhereClause | None = None,
             fresh_var_prefix: str | None = None,
             fresh_var_counter: int | None = None,
@@ -1243,6 +1268,7 @@ class Query(Encodable):
         self.clause = self.where
         self._limit = LimitClause(limit)
         self._offset = OffsetClause(offset)
+        self._order_by = OrderByClause(order_by)
         self._fresh_var_prefix = (
             fresh_var_prefix if fresh_var_prefix is not None
             else self._fresh_var_default_prefix)
@@ -1253,7 +1279,8 @@ class Query(Encodable):
     def iterencode(self) -> Iterator[str]:
         yield self.where.encode()
         for s in filter(bool, map(
-                Encodable.encode, (self._limit, self._offset))):
+                Encodable.encode,
+                (self._order_by, self._limit, self._offset))):
             yield s
             yield '\n'
 
@@ -1603,21 +1630,80 @@ class Query(Encodable):
 
     @property
     def limit(self) -> int | None:
-        """The LIMIT modifier."""
-        return self._limit.limit
+        """The value of the LIMIT modifier."""
+        return self.get_limit()
 
     @limit.setter
     def limit(self, limit: int | None) -> None:
+        self.set_limit(limit)
+
+    def get_limit(self) -> int | None:
+        """Gets the value of the LIMIT modifier.
+
+        Returns:
+           Limit or ``None``.
+        """
+        return self._limit.limit
+
+    def set_limit(self, limit: int | None):
+        """Sets the value of the LIMIT modifier.
+
+        Parameters:
+           limit: Limit or ``None``.
+        """
         self._limit.limit = limit
 
     @property
     def offset(self) -> int | None:
-        """The OFFSET modifier."""
-        return self._offset.offset
+        """The value of the OFFSET modifier."""
+        return self.get_offset()
 
     @offset.setter
     def offset(self, offset: int | None) -> None:
+        self.set_offset(offset)
+
+    def get_offset(self) -> int | None:
+        """Gets the value of the OFFSET modifier.
+
+        Returns:
+           Offset or ``None``.
+        """
+        return self._offset.offset
+
+    def set_offset(self, offset: int | None) -> None:
+        """Sets the value of the OFFSET modifier.
+
+        Parameters:
+           offset: Offset or ``None``.
+        """
         self._offset.offset = offset
+
+    @property
+    def order_by(self) -> Expression | None:
+        """The value of the ORDER BY modifier."""
+        return self.get_order_by()
+
+    @order_by.setter
+    def order_by(self, expression: TExpression | None) -> None:
+        self.set_order_by(expression)
+
+    def get_order_by(self) -> Expression | None:
+        """Gets the value of the ORDER BY modifier.
+
+        Returns:
+           Order by expression.
+        """
+        return self._order_by.expression
+
+    def set_order_by(self, expression: TExpression | None):
+        """Sets the value of the ORDER BY modifier.
+
+        Parameters:
+           expression: Expression or ``None``.
+        """
+        self._order_by.expression = (
+            Coerce.expression(expression)
+            if expression is not None else expression)
 
 # -- Query conversion ------------------------------------------------------
 
@@ -1658,6 +1744,7 @@ class Query(Encodable):
             reduced: bool | None = None,
             limit: int | None = None,
             offset: int | None = None,
+            order_by: TExpression | None = None,
             fresh_var_prefix: _str | None = None,
             fresh_var_counter: int | None = None,
             deepcopy: bool = True,
@@ -1670,6 +1757,7 @@ class Query(Encodable):
            reduced: Whether to enable reduced modifier.
            limit: Limit.
            offset: Offset.
+           order_by: Order-by expression.
            fresh_var_prefix: Prefix of fresh variables.
            deepcopy: Whether to deep-copy the common clauses.
 
@@ -1687,6 +1775,9 @@ class Query(Encodable):
             reduced=reduced,
             limit=limit if limit is not None else self._limit.limit,
             offset=offset if offset is not None else self._offset.offset,
+            order_by=(
+                order_by
+                if order_by is not None else self._order_by.expression),
             fresh_var_prefix=(
                 fresh_var_prefix if fresh_var_prefix is not None
                 else self._fresh_var_prefix),

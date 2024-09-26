@@ -20,6 +20,7 @@ benzene = Q(2270, 'benzene')
 Bolivia = Q(750, 'Bolivia')
 Brazil = Q(155, 'Brazil')
 Brazilian_Sign_Language = Q(3436689, 'Brazilian Sign Language')
+bridge = Q(12280, 'bridge')
 business = Q(4830453, 'business')
 caffeine = Q(60235, 'caffeine')
 CAS_Common_Chemistry = Q(18907859, 'CAS Common Chemistry')
@@ -91,6 +92,7 @@ male_human = Q(84048850, 'male human')
 mammal = Q(7377, 'mammal')
 man = Q(8441, 'man')
 masculine = Q(499327, 'masculine')
+mass_ = Q(11423, 'mass')
 mathematics = Q(395, 'mathematics')
 methanol = Q(14982, 'methanol')
 metre = Q(11573, 'metre')
@@ -140,6 +142,7 @@ verb = Q(24905, 'verb')
 water = Q(283, 'water')
 Wikidata = Q(2013, 'Wikidata')
 Wikidata_property_for_physical_quantities = Q(21077852, 'Wikidata property for physical quantities')
+Wikidata_property_related_to_animals_and_zoology = Q(57633168, 'Wikidata property related to animals and zoology')
 Wikidata_property_related_to_chemistry = Q(21294996, 'Wikidata property related to chemistry')
 Wikidata_property_related_to_medicine = Q(19887775, 'Wikidata property related to medicine')
 Wikidata_property_to_identify_substances = Q(19833835, 'Wikidata property to identify substances')
@@ -158,6 +161,7 @@ __all__ = (
     'Bolivia',
     'Brazil',
     'Brazilian_Sign_Language',
+    'bridge',
     'business',
     'caffeine',
     'CAS_Common_Chemistry',
@@ -229,6 +233,7 @@ __all__ = (
     'mammal',
     'man',
     'masculine',
+    'mass_',
     'mathematics',
     'methanol',
     'metre',
@@ -278,6 +283,7 @@ __all__ = (
     'water',
     'Wikidata',
     'Wikidata_property_for_physical_quantities',
+    'Wikidata_property_related_to_animals_and_zoology',
     'Wikidata_property_related_to_chemistry',
     'Wikidata_property_related_to_medicine',
     'Wikidata_property_to_identify_substances',

@@ -624,6 +624,30 @@ class SPARQL_Mapping(Mapping):
     def __len__(self) -> int:
         return len(self._entries)
 
+    def preamble(
+            self,
+            c: SPARQL_Compiler,
+            sources: Iterable[SPARQL_Mapping.EntryPattern]
+    ) -> None:
+        """Called before compilation starts.
+
+        Parameters:
+           compiler: Compiler.
+           pattern: Source patterns.
+        """
+
+    def postamble(
+            self,
+            c: SPARQL_Compiler,
+            targets: Iterable[SPARQL_Mapping.EntryPattern]
+    ) -> None:
+        """Called after compilation ends.
+
+        Parameters:
+           compiler: Compiler.
+           targets: Target patterns.
+        """
+
     def match(
             self,
             pattern: SPARQL_Mapping.EntryPattern,

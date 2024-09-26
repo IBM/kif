@@ -10,6 +10,7 @@ applies_to_part = P(518)
 applies_to_taxon = P(2352)
 assessment = P(5021)
 author_name_string = P(2093)
+auxiliary_verb = P(5401)
 based_on_heuristic = P(887)
 canonical_SMILES = P(233)
 CAS_Registry_Number = P(231)
@@ -21,14 +22,18 @@ contains = P(4330)
 continent = P(30)
 country = P(17)
 country_of_citizenship = P(27)
+crosses = P(177)
 date_of_birth = P(569)
 date_of_death = P(570)
 demonym = P(1549)
 density = P(2054)
+derived_from_lexeme = P(5191)
 described_at_URL = P(973)
 described_by_source = P(1343)
+Dictionary_of_American_Regional_English_ID = P(12448)
 download_link = P(4945)
 duration = P(2047)
+educated_at = P(69)
 element_symbol = P(246)
 elevation_above_sea_level = P(2044)
 end_time = P(582)
@@ -57,6 +62,7 @@ isomeric_SMILES = P(2017)
 language_of_work_or_name = P(407)
 legal_status = P(3493)
 lowest_point = P(1589)
+made_from_material = P(186)
 main_subject = P(921)
 manufacturer = P(176)
 mass = P(2067)
@@ -71,6 +77,7 @@ native_label = P(1705)
 official_language = P(37)
 official_name = P(1448)
 official_website = P(856)
+ORCID_iD = P(496)
 parent_peak = P(3137)
 part_of = P(361)
 participant_in = P(1344)
@@ -81,6 +88,7 @@ pKa = P(1117)
 place_of_birth = P(19)
 population = P(1082)
 position_held = P(39)
+properties_for_this_type = P(1963)
 PubChem_CID = P(662)
 publication_date = P(577)
 reference_URL = P(854)
@@ -112,6 +120,7 @@ type_of_unit_for_this_property = P(2876)
 used_by = P(1535)
 uses = P(2283)
 valid_in_place = P(3005)
+width = P(2049)
 Wikidata_item_of_this_property = P(1629)
 Wikidata_property = P(1687)
 WordNet_31_Synset_ID = P(8814)
@@ -123,6 +132,7 @@ __all__ = (
     'applies_to_taxon',
     'assessment',
     'author_name_string',
+    'auxiliary_verb',
     'based_on_heuristic',
     'canonical_SMILES',
     'CAS_Registry_Number',
@@ -135,14 +145,18 @@ __all__ = (
     'continent',
     'country',
     'country_of_citizenship',
+    'crosses',
     'date_of_birth',
     'date_of_death',
     'demonym',
     'density',
+    'derived_from_lexeme',
     'described_at_URL',
     'described_by_source',
+    'Dictionary_of_American_Regional_English_ID',
     'download_link',
     'duration',
+    'educated_at',
     'element_symbol',
     'elevation_above_sea_level',
     'elevation_above_sea_level',
@@ -172,6 +186,7 @@ __all__ = (
     'language_of_work_or_name',
     'legal_status',
     'lowest_point',
+    'made_from_material',
     'main_subject',
     'manufacturer',
     'mass',
@@ -186,6 +201,7 @@ __all__ = (
     'official_language',
     'official_name',
     'official_website',
+    'ORCID_iD',
     'parent_peak',
     'part_of',
     'participant_in',
@@ -196,6 +212,7 @@ __all__ = (
     'place_of_birth',
     'population',
     'position_held',
+    'properties_for_this_type',
     'PubChem_CID',
     'publication_date',
     'reference_URL',
@@ -227,6 +244,7 @@ __all__ = (
     'used_by',
     'uses',
     'valid_in_place',
+    'width',
     'Wikidata_item_of_this_property',
     'Wikidata_property',
     'WordNet_31_Synset_ID',

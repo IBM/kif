@@ -7,6 +7,7 @@ import re
 
 from ....model import (
     Datatype,
+    DatatypeVariable,
     EntityVariable,
     ExternalId,
     IRI,
@@ -15,10 +16,13 @@ from ....model import (
     Lexeme,
     LexemeVariable,
     Property,
+    PropertyTemplate,
     PropertyVariable,
     Quantity,
     Statement,
+    StatementTemplate,
     String,
+    Term,
     Text,
     TextVariable,
     Time,
@@ -28,7 +32,7 @@ from ....model import (
     VText,
 )
 from ....namespace import ONTOLEX, RDF, WIKIBASE, Wikidata
-from ....typing import cast, Final, TypeAlias
+from ....typing import cast, Final, Iterable, override, TypeAlias
 from ..compiler import SPARQL_Compiler as C
 from .mapping import SPARQL_Mapping as M
 
@@ -133,12 +137,27 @@ class WikidataMapping(M):
         """
         return self._strict
 
-    def _push(self, c: C, e: VEntity, p: V_URI, dt: V_URI) -> Var3:
+    @override
+    def postamble(self, c: C, targets: Iterable[M.EntryPattern]) -> None:
+        subject_of_all_targets_is_fixed = all(map(lambda s: (
+            isinstance(s, (Statement, StatementTemplate))
+            and Term.is_closed(s.subject)), targets))
+        if subject_of_all_targets_is_fixed:
+            ###
+            # IMPORTANT: We use ORDER BY(?wds) only if the subject of all
+            # target patterns is fixed.  We do this to ensure that the
+            # expected number of results is not too large.
+            ###
+            from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler
+            assert isinstance(c, SPARQL_MappingFilterCompiler)
+            c.q.set_order_by(c._wds)
+
+    def _start(self, c: C, e: VEntity, p: V_URI, dt: V_URI) -> Var3:
         from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler
         assert isinstance(c, SPARQL_MappingFilterCompiler)
         if isinstance(e, Variable):
             v = c.as_qvar(e)
-            t = self._push_preamble(c, v, p, dt)
+            t = self._start_any(c, v, p, dt)
             with c.q.union():
                 if type(e) is ItemVariable or type(e) is EntityVariable:
                     with c.q.group():
@@ -165,39 +184,52 @@ class WikidataMapping(M):
                              c._theta_add_as_qvar(prop_dt_iri)))
                         c.q.bind(v, c._theta_add_as_qvar(prop_iri))
             return t
+        elif isinstance(e, PropertyTemplate):
+            assert isinstance(e.iri, IRI)
+            assert isinstance(e.range, DatatypeVariable)
+            prop_dt = e.range
+            prop_dt_iri = c._fresh_iri_variable()
+            c._theta_add(prop_dt, prop_dt_iri)
+            s = cast(URI, self.CheckProperty()(self, c, URI(e.iri.content)))
+            t = self._start_P(c, s, p, dt)
+            c.q.triples()(
+                (s, WIKIBASE.propertyType, c._theta_add_as_qvar(prop_dt_iri)))
+            return t
         elif isinstance(e, URI):
             v = c.theta.get(EntityVariable('e'))
             if isinstance(v, Item):
-                return self._push_preamble_Q(
+                return self._start_Q(
                     c, cast(URI, self.CheckItem()(self, c, e)), p, dt)
             elif isinstance(v, Lexeme):
-                return self._push_preamble_L(
+                return self._start_L(
                     c, cast(URI, self.CheckLexeme()(self, c, e)), p, dt)
             elif isinstance(v, Property):
-                return self._push_preamble_P(
+                return self._start_P(
                     c, cast(URI, self.CheckProperty()(self, c, e)), p, dt)
             else:
                 raise c._should_not_get_here()
         else:
             raise c._should_not_get_here()
 
-    def _push_preamble_Q(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
-        t = self._push_preamble(c, x, p, dt)
+    def _start_Q(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
+        t = self._start_any(c, x, p, dt)
         c.q.triples()((x, WIKIBASE.sitelinks, c.q.bnode()))
         return t
 
-    def _push_preamble_L(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
-        t = self._push_preamble(c, x, p, dt)
+    def _start_L(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
+        t = self._start_any(c, x, p, dt)
         c.q.triples()((x, RDF.type, ONTOLEX.LexicalEntry))
         return t
 
-    def _push_preamble_P(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
-        t = self._push_preamble(c, x, p, dt)
+    def _start_P(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
+        t = self._start_any(c, x, p, dt)
         c.q.triples()((x, RDF.type, WIKIBASE.Property))
         return t
 
-    def _push_preamble(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
-        p_, ps, wds = c.fresh_qvars(3)
+    def _start_any(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
+        from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler
+        assert isinstance(c, SPARQL_MappingFilterCompiler)
+        (p_, ps), wds = c.fresh_qvars(2), c._wds
         c.q.triples()(
             (x, p_, wds),
             (p, RDF.type, WIKIBASE.Property),
@@ -213,7 +245,7 @@ class WikidataMapping(M):
         {p: CheckProperty(),
          x: CheckItem()})
     def p_item(self, c: C, e: VEntity, p: V_URI, x: V_URI):
-        _, ps, wds = self._push(c, e, p, WIKIBASE.WikibaseItem)
+        _, ps, wds = self._start(c, e, p, WIKIBASE.WikibaseItem)
         c.q.triples()(
             (wds, ps, x),
             (x, WIKIBASE.sitelinks, c.q.bnode()))
@@ -224,7 +256,7 @@ class WikidataMapping(M):
          x: CheckProperty(),
          y: CheckDatatype()})
     def p_property(self, c: C, e: VEntity, p: V_URI, x: V_URI, y: V_URI):
-        _, ps, wds = self._push(c, e, p, WIKIBASE.WikibaseProperty)
+        _, ps, wds = self._start(c, e, p, WIKIBASE.WikibaseProperty)
         c.q.triples()(
             (wds, ps, x),
             (x, RDF.type, WIKIBASE.Property),
@@ -235,7 +267,7 @@ class WikidataMapping(M):
         {p: CheckProperty(),
          x: CheckLexeme()})
     def p_lexeme(self, c: C, e: VEntity, p: V_URI, x: V_URI):
-        _, ps, wds = self._push(c, e, p, WIKIBASE.WikibaseLexeme)
+        _, ps, wds = self._start(c, e, p, WIKIBASE.WikibaseLexeme)
         c.q.triples()(
             (wds, ps, x),
             (x, RDF.type, ONTOLEX.LexicalEntry))
@@ -245,14 +277,14 @@ class WikidataMapping(M):
         {p: CheckProperty(),
          x: CheckIRI()})
     def p_iri(self, c: C, e: VEntity, p: V_URI, x: V_URI):
-        _, ps, wds = self._push(c, e, p, WIKIBASE.Url)
+        _, ps, wds = self._start(c, e, p, WIKIBASE.Url)
         c.q.triples()((wds, ps, x))
 
     @M.register(
         Statement(e, Property(p)(x@Text)),
         {p: CheckProperty()})
     def p_text(self, c: C, e: VEntity, p: V_URI, x: VLiteral | VText):
-        _, ps, wds = self._push(c, e, p, WIKIBASE.Monolingualtext)
+        _, ps, wds = self._start(c, e, p, WIKIBASE.Monolingualtext)
         if isinstance(x, Literal):
             c.q.triples()((wds, ps, x))
         elif isinstance(x, TextVariable):
@@ -271,14 +303,14 @@ class WikidataMapping(M):
         Statement(e, Property(p)(String(x))),
         {p: CheckProperty()})
     def p_string(self, c: C, e: VEntity, p: V_URI, x: VLiteral):
-        _, ps, wds = self._push(c, e, p, WIKIBASE.String)
+        _, ps, wds = self._start(c, e, p, WIKIBASE.String)
         c.q.triples()((wds, ps, x))
 
     @M.register(
         Statement(e, Property(p)(ExternalId(x))),
         {p: CheckProperty()})
     def p_external_id(self, c: C, e: VEntity, p: V_URI, x: VLiteral):
-        _, ps, wds = self._push(c, e, p, WIKIBASE.ExternalId)
+        _, ps, wds = self._start(c, e, p, WIKIBASE.ExternalId)
         c.q.triples()((wds, ps, x))
 
     @M.register(
@@ -295,7 +327,7 @@ class WikidataMapping(M):
             z: VLiteral,
             w: VLiteral
     ):
-        _, ps, wds = self._push(c, e, p, WIKIBASE.Quantity)
+        _, ps, wds = self._start(c, e, p, WIKIBASE.Quantity)
         psv, wdv = c.fresh_qvars(2)
         c.q.triples()(
             (wds, ps, x),
@@ -340,7 +372,7 @@ class WikidataMapping(M):
             z: VLiteral,
             w: V_URI
     ):
-        _, ps, wds = self._push(c, e, p, WIKIBASE.Time)
+        _, ps, wds = self._start(c, e, p, WIKIBASE.Time)
         psv, wdv = c.fresh_qvars(2)
         c.q.triples()(
             (wds, ps, x),
@@ -374,7 +406,7 @@ class WikidataMapping(M):
         {x: CheckProperty(),
          y: CheckDatatype()})
     def p_some_value(self, c: C, e: VEntity, x: V_URI, y: V_URI):
-        _, ps, wds = self._push(c, e, x, y)
+        _, ps, wds = self._start(c, e, x, y)
         some = c.fresh_qvar()
         c.q.triples()((wds, ps, some))
         if self.strict:
@@ -389,7 +421,7 @@ class WikidataMapping(M):
         {x: CheckProperty(),
          y: CheckDatatype()})
     def p_no_value(self, c: C, e: VEntity, x: V_URI, y: V_URI):
-        _, ps, wds = self._push(c, e, x, y)
+        _, ps, wds = self._start(c, e, x, y)
         wdno = c.fresh_qvar()
         c.q.triples()(
             (x, WIKIBASE.novalue, wdno),
