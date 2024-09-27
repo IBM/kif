@@ -6,10 +6,8 @@ from __future__ import annotations
 from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
-    KIF_Object,
     Quantity,
     Statement,
-    String,
     Text,
     Time,
 )
@@ -48,9 +46,9 @@ class TestStoreMapperMappingPubChem(PubChemSPARQL_StoreTestCase):
                 Text('Improved method for quantifying DNA'
                      ' in a biological sample')),
             # string
-            wd.patent_number.replace(KIF_Object.KEEP, None)(
+            wd.patent_number(
                 wd.Q('_PUBCHEM_PATENT_AP-0102072-A0'),
-                String('AP-0102072-A0')),
+                'AP-0102072-A0'),
             # quantity
             wd.mass(
                 wd.Q('_PUBCHEM_COMPOUND_CID734888'),

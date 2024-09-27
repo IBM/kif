@@ -527,6 +527,22 @@ class ValueFingerprint(AtomicFingerprint):
             raise self._should_not_get_here()
         return True
 
+    @override
+    def _normalize(
+            self,
+            datatype_mask: Filter.DatatypeMask
+    ) -> Fingerprint:
+        if bool(self.datatype_mask & datatype_mask):
+            return self
+        else:
+            try:
+                return self.check(
+                    datatype_mask._to_value_class().check(self.value))
+            except (TypeError, ValueError):
+                return EmptyFingerprint()
+            else:
+                raise self._should_not_get_here()
+
 
 class FullFingerprint(AtomicFingerprint):
     """The full fingerprint (matches anything)."""

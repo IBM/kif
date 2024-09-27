@@ -11,6 +11,7 @@ from .prelude import Q
 acetone = Q(49546, 'acetone')
 Adam = Q(70899, 'Adam')
 Adam_and_Eve = Q(58701, 'Adam and Eve')
+Amazonas = Q(40040, 'Amazonas')
 Americas = Q(828, 'Americas')
 Argentina = Q(414, 'Argentina')
 aromatic_hydrocarbon = Q(230731, 'aromatic hydrocarbon')
@@ -113,6 +114,7 @@ patent = Q(253623, 'patent')
 per_and_polyfluoroalkyl_substances = Q(648037, 'per- and polyfluoroalkyl substances')
 Peru =  Q(419, 'Peru')
 physics = Q(413, 'physics')
+Pico_31_de_Março = Q(1264913, 'Pico 31 de Março')
 Pico_da_Neblina = Q(739484, 'Pico da Neblina')
 Portuguese = Q(5146, 'Portuguese')
 proleptic_Gregorian_calendar = Q(1985727, 'proleptic Gregorian calendar')
@@ -152,6 +154,7 @@ __all__ = (
     'acetone',
     'Adam',
     'Adam_and_Eve',
+    'Amazonas',
     'Americas',
     'Argentina',
     'aromatic_hydrocarbon',
@@ -254,6 +257,7 @@ __all__ = (
     'per_and_polyfluoroalkyl_substances',
     'Peru',
     'physics',
+    'Pico_31_de_Março',
     'Pico_da_Neblina',
     'Portuguese',
     'proleptic_Gregorian_calendar',

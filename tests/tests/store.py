@@ -32,8 +32,10 @@ from kif_lib.error import ShouldNotGetHere
 from kif_lib.model import (
     TEntity,
     TFingerprint,
+    TProperty,
     TValue,
     VEntity,
+    VProperty,
     VStatement,
     VValue,
 )
@@ -52,6 +54,10 @@ from kif_lib.vocabulary import wd
 from .tests import TestCase
 
 TFingerprintPair: TypeAlias = tuple[TFingerprint, TFingerprint]
+
+TEntityProperty: TypeAlias = tuple[TEntity, TProperty]
+VEntityProperty: TypeAlias = tuple[VEntity, VProperty]
+
 TEntityValue: TypeAlias = tuple[TEntity, TValue]
 VEntityValue: TypeAlias = tuple[VEntity, VValue]
 
@@ -116,6 +122,25 @@ class StoreTestCase(TestCase):
     ) -> None:
         fr = (lambda p: Filter(p[0], property, p[1]))
         st = (lambda t: Statement(t[0], property(t[1])))
+        self._test_filter(
+            empty=map(fr, empty),
+            equals=map(lambda t: (fr(t[0]), st(t[1])), equals),
+            contains=map(lambda t: (fr(t[0]), map(st, t[1])), contains),
+            kb=kb,
+            limit=limit)
+
+    def _test_filter_with_fixed_value(
+            self,
+            value: Value,
+            empty: Iterable[TFingerprintPair] = (),
+            equals: Iterable[tuple[TFingerprintPair, TEntityProperty]] = (),
+            contains: Iterable[
+                tuple[TFingerprintPair, Iterable[TEntityProperty]]] = (),
+            kb: Store | None = None,
+            limit: int | None = None
+    ) -> None:
+        fr = (lambda p: Filter(p[0], p[1], value))
+        st = (lambda t: Statement(t[0], t[1](value)))
         self._test_filter(
             empty=map(fr, empty),
             equals=map(lambda t: (fr(t[0]), st(t[1])), equals),

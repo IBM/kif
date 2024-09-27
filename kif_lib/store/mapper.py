@@ -10,6 +10,7 @@ from ..model import (
     AnnotationRecordSet,
     Descriptor,
     Entity,
+    ExternalIdDatatype,
     Filter,
     IRI,
     Item,
@@ -130,6 +131,8 @@ class SPARQL_MapperStore(
             distinct: bool
     ) -> Iterator[Statement]:
         assert limit > 0
+        if filter.value.is_empty():
+            return iter(())
         q = self._make_filter_query(filter)
         if (q.has_variable(q.var('subject'))
                 and q.has_variable(q.var('property'))):
@@ -227,11 +230,16 @@ class SPARQL_MapperStore(
             results: SPARQL_Results,
             filter: Filter
     ) -> Iterator[Statement | None]:
+        _, property, *_ = filter._unpack_legacy()
         for entry in results.bindings:
             stmt = entry.check_statement(
                 'subject', 'property', 'value',
                 'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
                 'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
+            if (isinstance(property, Property)
+                and isinstance(stmt.snak, ValueSnak)
+                    and isinstance(property.range, ExternalIdDatatype)):
+                stmt = stmt.replace(stmt.KEEP, property(stmt.snak.value))
             if self.has_flags(self.LATE_FILTER) and not filter.match(stmt):
                 yield None
                 continue

@@ -173,13 +173,14 @@ class Test(PubChemStoreTestCase):
                 (pc.CID(421), ExternalId('422')),
                 (wd.benzene, None),  # VF
                 (pc.Isotope_Atom_Count, None),
-                (None, String('241')),  # FV
-                (None, ExternalId('abc')),
+                (None, ExternalId('abc')),  # FV
             ],
             equals=[
                 ((pc.CID(241), None),  # VF
                  (pc.CID(241), ExternalId('241'))),
                 ((None, ExternalId('241')),  # FV
+                 (pc.CID(241), ExternalId('241'))),
+                ((None, String('241')),  # FV
                  (pc.CID(241), ExternalId('241'))),
             ],
         )

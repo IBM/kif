@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import functools
 
-from ..typing import Any, Final, Location, override, TypeAlias, Union
+from ..typing import Any, cast, Final, Location, override, TypeAlias, Union
 from .fingerprint import (
     AndFingerprint,
     Fingerprint,
@@ -23,16 +23,25 @@ from .value import (
     DataValue,
     DeepDataValue,
     Entity,
+    ExternalId,
     ExternalIdDatatype,
+    IRI,
     IRI_Datatype,
+    Item,
     ItemDatatype,
+    Lexeme,
     LexemeDatatype,
+    Property,
     PropertyDatatype,
+    Quantity,
     QuantityDatatype,
     ShallowDataValue,
+    String,
     StringDatatype,
     TDatatype,
+    Text,
     TextDatatype,
+    Time,
     TimeDatatype,
     Value,
 )
@@ -166,11 +175,56 @@ class Filter(KIF_Object):
                 _cache[LexemeDatatype()] = cls.LEXEME
                 _cache[IRI_Datatype()] = cls.IRI
                 _cache[TextDatatype()] = cls.TEXT
-                _cache[ExternalIdDatatype()] = cls.EXTERNAL_ID
                 _cache[StringDatatype()] = cls.STRING
+                _cache[ExternalIdDatatype()] = cls.EXTERNAL_ID
                 _cache[QuantityDatatype()] = cls.QUANTITY
                 _cache[TimeDatatype()] = cls.TIME
             return _cache[datatype]
+
+        def _to_datatype(
+                self,
+                _cache: dict[Filter.DatatypeMask, Datatype] = {}
+        ) -> Datatype | None:
+            ###
+            # IMPORTANT: functools.cache doesn't work with classmethods of
+            # enum.Flags subclasses.
+            ###
+            if not _cache:
+                _cache[Filter.ITEM] = ItemDatatype()
+                _cache[Filter.PROPERTY] = PropertyDatatype()
+                _cache[Filter.LEXEME] = LexemeDatatype()
+                _cache[Filter.IRI] = IRI_Datatype()
+                _cache[Filter.TEXT] = TextDatatype()
+                _cache[Filter.STRING] = StringDatatype()
+                _cache[Filter.EXTERNAL_ID] = ExternalIdDatatype()
+                _cache[Filter.QUANTITY] = QuantityDatatype()
+                _cache[Filter.TIME] = TimeDatatype()
+            return _cache.get(self)
+
+        def _to_value_class(
+                self,
+                _cache: dict[Filter.DatatypeMask, Any] = {}
+        ) -> type[Value]:
+            ###
+            # IMPORTANT: functools.cache doesn't work with classmethods of
+            # enum.Flags subclasses.
+            ###
+            if not _cache:
+                _cache[Filter.VALUE] = Value
+                _cache[Filter.ENTITY] = Entity
+                _cache[Filter.ITEM] = Item
+                _cache[Filter.PROPERTY] = Property
+                _cache[Filter.LEXEME] = Lexeme
+                _cache[Filter.DATA_VALUE] = DataValue
+                _cache[Filter.SHALLOW_DATA_VALUE] = ShallowDataValue
+                _cache[Filter.IRI] = IRI
+                _cache[Filter.TEXT] = Text
+                _cache[Filter.STRING] = String
+                _cache[Filter.EXTERNAL_ID] = ExternalId
+                _cache[Filter.DEEP_DATA_VALUE] = ShallowDataValue
+                _cache[Filter.QUANTITY] = Quantity
+                _cache[Filter.TIME] = Time
+            return cast(type[Value], _cache[self])
 
         def match(self, datatype: TDatatype) -> bool:
             """Tests whether datatype mask matches `datatype`.
@@ -586,7 +640,7 @@ class Filter(KIF_Object):
         subject_mask = self.subject_mask & subject.datatype_mask
         property = self.property.normalize(Filter.PROPERTY)
         property_mask = self.property_mask & property.datatype_mask
-        value = self.value.normalize(self.VALUE)
+        value = self.value.normalize(property.range_datatype_mask)
         value_mask = self.value_mask & value.datatype_mask
         snak_mask = self.snak_mask
         if property_mask.value == 0:

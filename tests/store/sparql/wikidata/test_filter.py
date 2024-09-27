@@ -12,8 +12,10 @@ from kif_lib import (
     IRI,
     Item,
     Lexeme,
+    NoValueSnak,
     Property,
     Quantity,
+    SomeValueSnak,
     Statement,
     String,
     Text,
@@ -166,6 +168,16 @@ class Test(SPARQL_Store2TestCase):
         self._test_filter_matches(  # FF
             Filter(subject_mask=Filter.LEXEME), Statement(Lexeme(x), y))
 
+    def test_subject_some_value(self) -> None:
+        self._test_filter_matches(
+            Filter(wd.Adam, snak_mask=Filter.SOME_VALUE_SNAK),
+            Statement(wd.Adam, SomeValueSnak(y)))
+
+    def test_subject_no_value(self) -> None:
+        self._test_filter_matches(
+            Filter(wd.Adam, snak_mask=Filter.NO_VALUE_SNAK),
+            Statement(wd.Adam, NoValueSnak(y)))
+
     def test_property(self) -> None:
         self._test_filter(
             empty=[
@@ -311,9 +323,9 @@ class Test(SPARQL_Store2TestCase):
             ###
             equals=[
                 ((wd.benzene, ExternalId('241')),  # VV
-                 (wd.benzene, ExternalId('241'))),
+                 (wd.benzene, '241')),
                 ((wd.benzene, None),  # VF
-                 (wd.benzene, ExternalId('241'))),
+                 (wd.benzene, '241')),
             ])
 
     def test_property_quantity(self) -> None:
@@ -395,12 +407,38 @@ class Test(SPARQL_Store2TestCase):
             ])
 
     def test_property_some_value(self) -> None:
-        pass
+        self._test_filter_matches(
+            Filter(None, wd.date_of_birth, snak_mask=Filter.SOME_VALUE_SNAK),
+            Statement(x, SomeValueSnak(wd.date_of_birth)))
 
     def test_property_no_value(self) -> None:
-        pass
+        self._test_filter_matches(
+            Filter(None, wd.father, snak_mask=Filter.NO_VALUE_SNAK),
+            Statement(x, NoValueSnak(wd.father)))
 
     def test_value_item(self) -> None:
+        self._test_filter_with_fixed_value(
+            value=wd.Pico_da_Neblina,
+            empty=[
+                (wd.Brazil, wd.country),  # VV
+                (wd.Adam, None),          # VF
+                (None, wd.country),       # FV
+            ],
+            equals=[
+                ((wd.Brazil, wd.highest_point),  # VV
+                 (wd.Brazil, wd.highest_point)),
+                ((wd.Brazil, None),  # VF
+                 (wd.Brazil, wd.highest_point)),
+                ((None, wd.parent_peak),  # FV
+                 (wd.Pico_31_de_Março, wd.parent_peak)),
+            ],
+            contains=[
+                ((None, None), [  # FF
+                    (wd.Amazonas, wd.highest_point),
+                    (wd.Brazil, wd.highest_point),
+                    (wd.Pico_31_de_Março, wd.parent_peak),
+                ]),
+            ])
         self._test_filter_matches(
             Filter(value_mask=Filter.ITEM, snak_mask=Filter.VALUE_SNAK),
             Statement(x, ValueSnak(y, Item(z))))
