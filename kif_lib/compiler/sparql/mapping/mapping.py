@@ -38,7 +38,8 @@ from ....typing import (
 )
 
 if TYPE_CHECKING:  # pragma: no cover
-    from ..compiler import SPARQL_Compiler
+    from ..mapping_filter_compiler import \
+        SPARQL_MappingFilterCompiler as Compiler
 
 
 class SPARQL_Mapping(Mapping):
@@ -55,7 +56,7 @@ class SPARQL_Mapping(Mapping):
 
     #: The type of entry callback argument.
     EntryCallbackArg: TypeAlias =\
-        Optional[Union[Term, 'SPARQL_Compiler.Query.VTerm']]
+        Optional[Union[Term, 'Compiler.Query.VTerm']]
 
     #: The type of entry callback-arg processor maps.
     EntryCallbackArgProcessorMap: TypeAlias =\
@@ -71,7 +72,7 @@ class SPARQL_Mapping(Mapping):
         def __call__(
                 self,
                 m: SPARQL_Mapping,
-                c: SPARQL_Compiler,
+                c: Compiler,
                 arg: SPARQL_Mapping.EntryCallbackArg
         ) -> SPARQL_Mapping.EntryCallbackArg:
             return arg
@@ -112,7 +113,7 @@ class SPARQL_Mapping(Mapping):
         def __call__(
                 self,
                 m: SPARQL_Mapping,
-                c: SPARQL_Compiler,
+                c: Compiler,
                 arg: SPARQL_Mapping.EntryCallbackArg
         ) -> SPARQL_Mapping.EntryCallbackArg:
             for p in self._chain:
@@ -125,7 +126,7 @@ class SPARQL_Mapping(Mapping):
         def __call__(
                 self,
                 m: SPARQL_Mapping,
-                c: SPARQL_Compiler,
+                c: Compiler,
                 *args: SPARQL_Mapping.EntryCallbackArg
         ) -> None:
             ...
@@ -243,7 +244,7 @@ class SPARQL_Mapping(Mapping):
         def preprocess(
                 self,
                 mapping: SPARQL_Mapping,
-                compiler: SPARQL_Compiler,
+                compiler: Compiler,
                 var: Variable,
                 arg: SPARQL_Mapping.EntryCallbackArg
         ) -> SPARQL_Mapping.EntryCallbackArg:
@@ -261,7 +262,7 @@ class SPARQL_Mapping(Mapping):
         def postprocess(
                 self,
                 mapping: SPARQL_Mapping,
-                compiler: SPARQL_Compiler,
+                compiler: Compiler,
                 var: Variable,
                 arg: SPARQL_Mapping.EntryCallbackArg
         ) -> SPARQL_Mapping.EntryCallbackArg:
@@ -279,7 +280,7 @@ class SPARQL_Mapping(Mapping):
         def _process(
                 self,
                 mapping: SPARQL_Mapping,
-                compiler: SPARQL_Compiler,
+                compiler: Compiler,
                 var: Variable,
                 arg: SPARQL_Mapping.EntryCallbackArg,
                 target: SPARQL_Mapping.EntryCallbackArgProcessorMap
@@ -293,6 +294,28 @@ class SPARQL_Mapping(Mapping):
                         SPARQL_Mapping.EntryCallbackArg, done.args[0])
             else:
                 return arg
+
+        def match(
+                self,
+                pattern: SPARQL_Mapping.EntryPattern
+        ) -> tuple[SPARQL_Mapping.EntryPattern, Theta] | None:
+            """Tests whether entry matches `pattern`.
+
+            Parameters:
+               pattern: Statement, statement template, or statement variable.
+
+            Returns:
+               The pair "(pattern, theta)" if successful; ``None`` otherwise.
+            """
+            theta = pattern.match(self.pattern)
+            if theta is None:
+                return None
+            else:
+                target = cast(
+                    SPARQL_Mapping.EntryPattern, pattern.instantiate(theta))
+                assert target is not None
+                return target, {v: v.instantiate(theta)
+                                for v in self.pattern._iterate_variables()}
 
         def rename(
                 self,
@@ -475,7 +498,7 @@ class SPARQL_Mapping(Mapping):
         def __call__(
                 self,
                 m: SPARQL_Mapping,
-                c: SPARQL_Compiler,
+                c: Compiler,
                 arg: SPARQL_Mapping.EntryCallbackArg
         ) -> SPARQL_Mapping.EntryCallbackArg:
             if (isinstance(arg, c.query.Variable)
@@ -536,9 +559,9 @@ class SPARQL_Mapping(Mapping):
                 set_language: str | None = None,
                 set_datatype: str | None = None
         ) -> None:
-            from ..compiler import SPARQL_Compiler
+            from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler
             super().__init__(
-                subclass=SPARQL_Compiler.Query.Literal,
+                subclass=SPARQL_MappingFilterCompiler.Query.Literal,
                 optional=optional,
                 coerce=coerce,
                 startswith=startswith,
@@ -554,7 +577,7 @@ class SPARQL_Mapping(Mapping):
         def __call__(
                 self,
                 m: SPARQL_Mapping,
-                c: SPARQL_Compiler,
+                c: Compiler,
                 arg: SPARQL_Mapping.EntryCallbackArg
         ) -> SPARQL_Mapping.EntryCallbackArg:
             arg = super().__call__(m, c, arg)
@@ -572,7 +595,7 @@ class SPARQL_Mapping(Mapping):
         def __call__(
                 self,
                 m: SPARQL_Mapping,
-                c: SPARQL_Compiler,
+                c: Compiler,
                 arg: SPARQL_Mapping.EntryCallbackArg
         ) -> SPARQL_Mapping.EntryCallbackArg:
             arg = super().__call__(m, c, arg)
@@ -596,9 +619,9 @@ class SPARQL_Mapping(Mapping):
                 match: str | re.Pattern | None = None,
                 sub: tuple[str | re.Pattern, str] | None = None
         ) -> None:
-            from ..compiler import SPARQL_Compiler
+            from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler
             super().__init__(
-                subclass=SPARQL_Compiler.Query.URI,
+                subclass=SPARQL_MappingFilterCompiler.Query.URI,
                 optional=optional,
                 coerce=coerce,
                 startswith=startswith,
@@ -626,7 +649,7 @@ class SPARQL_Mapping(Mapping):
 
     def preamble(
             self,
-            c: SPARQL_Compiler,
+            c: Compiler,
             sources: Iterable[SPARQL_Mapping.EntryPattern]
     ) -> None:
         """Called before compilation starts.
@@ -638,7 +661,7 @@ class SPARQL_Mapping(Mapping):
 
     def postamble(
             self,
-            c: SPARQL_Compiler,
+            c: Compiler,
             targets: Iterable[SPARQL_Mapping.EntryPattern]
     ) -> None:
         """Called after compilation ends.
@@ -647,38 +670,6 @@ class SPARQL_Mapping(Mapping):
            compiler: Compiler.
            targets: Target patterns.
         """
-
-    def match(
-            self,
-            pattern: SPARQL_Mapping.EntryPattern,
-            rename: Callable[[str], Iterator[str]] | None = None
-    ) -> Iterator[tuple[
-            SPARQL_Mapping.EntryPattern, Theta, SPARQL_Mapping.Entry]]:
-        """Searches for entries matching `pattern`.
-
-        If `rename` is given, renames entry using `rename` before computing
-        the match.
-
-        Parameters:
-           pattern: Statement, statement template, or statement variable.
-           rename: Name variant generator.
-
-        Returns:
-           An iterator of triples "(pattern, theta, entry)".
-        """
-        for _, entry in self._entries.items():
-            if rename is not None:
-                entry = entry.rename(rename=rename)
-            theta = pattern.match(entry.pattern)
-            if theta is None:
-                continue
-            target = pattern.instantiate(theta)
-            assert target is not None
-            yield (
-                cast(SPARQL_Mapping.EntryPattern, target),
-                {v: v.instantiate(theta)
-                 for v in entry.pattern._iterate_variables()},
-                entry)
 
 
 register = SPARQL_Mapping.register

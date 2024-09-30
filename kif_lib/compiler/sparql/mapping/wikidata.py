@@ -33,7 +33,7 @@ from ....model import (
 )
 from ....namespace import ONTOLEX, RDF, WIKIBASE, Wikidata
 from ....typing import cast, Final, Iterable, override, TypeAlias
-from ..compiler import SPARQL_Compiler as C
+from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler as C
 from .mapping import SPARQL_Mapping as M
 
 __all__ = (
@@ -148,13 +148,9 @@ class WikidataMapping(M):
             # target patterns is fixed.  We do this to ensure that the
             # expected number of results is not too large.
             ###
-            from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler
-            assert isinstance(c, SPARQL_MappingFilterCompiler)
             c.q.set_order_by(c._wds)
 
     def _start(self, c: C, e: VEntity, p: V_URI, dt: V_URI) -> Var3:
-        from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler
-        assert isinstance(c, SPARQL_MappingFilterCompiler)
         if isinstance(e, Variable):
             v = c.as_qvar(e)
             t = self._start_any(c, v, p, dt)
@@ -171,13 +167,15 @@ class WikidataMapping(M):
                         c._theta_add(e@Lexeme, Lexeme(lex_iri))
                         c.q.triples()((v, RDF.type, ONTOLEX.LexicalEntry))
                         c.q.bind(v, c._theta_add_as_qvar(lex_iri))
-                if type(e) is PropertyVariable or type(e) is EntityVariable:
+                if (type(e) is PropertyVariable
+                        or type(e) is EntityVariable):
                     with c.q.group():
                         prop_dt = c._fresh_datatype_variable()
                         prop_dt_iri = c._fresh_iri_variable()
                         prop_iri = c._fresh_iri_variable()
                         c._theta_add(prop_dt, prop_dt_iri)
-                        c._theta_add(e@Property, Property(prop_iri, prop_dt))
+                        c._theta_add(
+                            e@Property, Property(prop_iri, prop_dt))
                         c.q.triples()(
                             (v, RDF.type, WIKIBASE.Property),
                             (v, WIKIBASE.propertyType,
@@ -196,14 +194,16 @@ class WikidataMapping(M):
                 (s, WIKIBASE.propertyType, c._theta_add_as_qvar(prop_dt_iri)))
             return t
         elif isinstance(e, URI):
-            v = c.theta.get(EntityVariable('e'))
-            if isinstance(v, Item):
+            assert isinstance(c._target, (Statement, StatementTemplate))
+            subject = c._target.subject
+            assert subject is not None
+            if isinstance(subject, (Item, ItemVariable)):
                 return self._start_Q(
                     c, cast(URI, self.CheckItem()(self, c, e)), p, dt)
-            elif isinstance(v, Lexeme):
+            elif isinstance(subject, (Lexeme, LexemeVariable)):
                 return self._start_L(
                     c, cast(URI, self.CheckLexeme()(self, c, e)), p, dt)
-            elif isinstance(v, Property):
+            elif isinstance(subject, (Property, PropertyVariable)):
                 return self._start_P(
                     c, cast(URI, self.CheckProperty()(self, c, e)), p, dt)
             else:
@@ -227,9 +227,11 @@ class WikidataMapping(M):
         return t
 
     def _start_any(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
-        from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler
-        assert isinstance(c, SPARQL_MappingFilterCompiler)
-        (p_, ps), wds = c.fresh_qvars(2), c._wds
+        if c._state == c.COMPILING_FILTER:
+            wds = c._wds
+        else:
+            wds = c.fresh_qvar()
+        p_, ps = c.fresh_qvars(2)
         c.q.triples()(
             (x, p_, wds),
             (p, RDF.type, WIKIBASE.Property),
@@ -288,8 +290,6 @@ class WikidataMapping(M):
         if isinstance(x, Literal):
             c.q.triples()((wds, ps, x))
         elif isinstance(x, TextVariable):
-            from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler
-            assert isinstance(c, SPARQL_MappingFilterCompiler)
             cnt = c._fresh_string_variable()
             tag = c._fresh_string_variable()
             c._theta_add(x, Text(cnt, tag))
@@ -340,10 +340,6 @@ class WikidataMapping(M):
                 (wdv, WIKIBASE.quantityUnit, y))
         elif isinstance(y, ItemVariable):
             with c.q.optional_if(self.relax):
-                from ..mapping_filter_compiler import (
-                    SPARQL_MappingFilterCompiler,
-                )
-                assert isinstance(c, SPARQL_MappingFilterCompiler)
                 iri = c._fresh_iri_variable()
                 c._theta_add(y, Item(iri))
                 c.q.triples()(
@@ -388,10 +384,6 @@ class WikidataMapping(M):
             c.q.triples()((wdv, WIKIBASE.timeCalendarModel, w))
         elif isinstance(w, ItemVariable):
             with c.q.optional_if(self.relax):
-                from ..mapping_filter_compiler import (
-                    SPARQL_MappingFilterCompiler,
-                )
-                assert isinstance(c, SPARQL_MappingFilterCompiler)
                 iri = c._fresh_iri_variable()
                 c._theta_add(w, Item(iri))
                 c.q.triples()(

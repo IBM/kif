@@ -27,6 +27,7 @@ date_of_birth = P(569)
 date_of_death = P(570)
 demonym = P(1549)
 density = P(2054)
+depicts = P(180)
 derived_from_lexeme = P(5191)
 described_at_URL = P(973)
 described_by_source = P(1343)
@@ -150,6 +151,7 @@ __all__ = (
     'date_of_death',
     'demonym',
     'density',
+    'depicts',
     'derived_from_lexeme',
     'described_at_URL',
     'described_by_source',

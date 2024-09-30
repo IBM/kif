@@ -168,6 +168,18 @@ class Test(SPARQL_Store2TestCase):
         self._test_filter_matches(  # FF
             Filter(subject_mask=Filter.LEXEME), Statement(Lexeme(x), y))
 
+    # def test_subject_snak_fp(self) -> None:
+    #     fp = wd.Freebase_ID('/m/09_c5v')
+    #     self._test_filter(
+    #         equals=[
+    #             (Filter(fp, wd.Freebase_ID, '/m/09_c5v'),
+    #              (wd.Freebase_ID(wd.Adam, '/m/09_c5v'))),
+    #             # ((None, '09609728-n'),
+    #             #  (wd.WordNet_31_Synset_ID, '09609728-n')),
+    #             # ((wd.part_of, None),
+    #             #  (wd.part_of, wd.Adam_and_Eve))
+    #         ])
+
     def test_subject_some_value(self) -> None:
         self._test_filter_matches(
             Filter(wd.Adam, snak_mask=Filter.SOME_VALUE_SNAK),

@@ -10,7 +10,6 @@ from kif_lib import (
     Quantity,
     Statement,
     StatementVariable,
-    Theta,
     Variable,
 )
 from kif_lib.compiler.sparql import SPARQL_Compiler, SPARQL_Mapping
@@ -78,12 +77,6 @@ class Test(TestCase):
         assert_type(len(Empty()), int)
         self.assertEqual(len(Empty()), 0)
         self.assertEqual(len(A()), 3)
-
-    def test_match(self) -> None:
-        assert_type(
-            Empty().match(StatementVariable('x')), Iterator[tuple[
-                SPARQL_Mapping.EntryPattern,
-                Theta, SPARQL_Mapping.Entry]])
 
 
 if __name__ == '__main__':
