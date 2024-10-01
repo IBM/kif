@@ -11,6 +11,7 @@ from ....model import (
     EntityVariable,
     ExternalId,
     IRI,
+    IRI_Variable,
     Item,
     ItemVariable,
     Lexeme,
@@ -148,54 +149,68 @@ class WikidataMapping(M):
             # target patterns is fixed.  We do this to ensure that the
             # expected number of results is not too large.
             ###
-            c.q.set_order_by(c._wds)
+            c.q.set_order_by(c.frame['wds'])
 
     def _start(self, c: C, e: VEntity, p: V_URI, dt: V_URI) -> Var3:
         if isinstance(e, Variable):
             v = c.as_qvar(e)
             t = self._start_any(c, v, p, dt)
+            if c.frame['phase'] != c.COMPILING_FILTER:
+                return t        # nothing else to do
             with c.q.union():
                 if type(e) is ItemVariable or type(e) is EntityVariable:
                     with c.q.group():
                         item_iri = c._fresh_iri_variable()
-                        c._theta_add(e@Item, Item(item_iri))
+                        c.theta_add(e@Item, Item(item_iri))
                         c.q.triples()((v, WIKIBASE.sitelinks, c.bnode()))
-                        c.q.bind(v, c._theta_add_as_qvar(item_iri))
+                        c.q.bind(v, c.theta_add_as_qvar(item_iri))
                 if type(e) is LexemeVariable or type(e) is EntityVariable:
                     with c.q.group():
                         lex_iri = c._fresh_iri_variable()
-                        c._theta_add(e@Lexeme, Lexeme(lex_iri))
+                        c.theta_add(e@Lexeme, Lexeme(lex_iri))
                         c.q.triples()((v, RDF.type, ONTOLEX.LexicalEntry))
-                        c.q.bind(v, c._theta_add_as_qvar(lex_iri))
+                        c.q.bind(v, c.theta_add_as_qvar(lex_iri))
                 if (type(e) is PropertyVariable
                         or type(e) is EntityVariable):
                     with c.q.group():
                         prop_dt = c._fresh_datatype_variable()
                         prop_dt_iri = c._fresh_iri_variable()
                         prop_iri = c._fresh_iri_variable()
-                        c._theta_add(prop_dt, prop_dt_iri)
-                        c._theta_add(
+                        c.theta_add(prop_dt, prop_dt_iri)
+                        c.theta_add(
                             e@Property, Property(prop_iri, prop_dt))
                         c.q.triples()(
                             (v, RDF.type, WIKIBASE.Property),
                             (v, WIKIBASE.propertyType,
-                             c._theta_add_as_qvar(prop_dt_iri)))
-                        c.q.bind(v, c._theta_add_as_qvar(prop_iri))
+                             c.theta_add_as_qvar(prop_dt_iri)))
+                        c.q.bind(v, c.theta_add_as_qvar(prop_iri))
             return t
         elif isinstance(e, PropertyTemplate):
-            assert isinstance(e.iri, IRI)
-            assert isinstance(e.range, DatatypeVariable)
-            prop_dt = e.range
-            prop_dt_iri = c._fresh_iri_variable()
-            c._theta_add(prop_dt, prop_dt_iri)
-            s = cast(URI, self.CheckProperty()(self, c, URI(e.iri.content)))
+            if isinstance(e.iri, IRI):
+                s: V_URI = cast(URI, self.CheckProperty()(
+                    self, c, URI(e.iri.content)))
+            elif isinstance(e.iri, IRI_Variable):
+                s = c.as_qvar(e.iri)
+            else:
+                raise c._should_not_get_here()
+            assert e.range is not None
+            prop_tpl_dt = e.range
+            if isinstance(prop_tpl_dt, Datatype):
+                v_prop_tpl_dt_iri: V_URI = prop_tpl_dt._to_rdflib()
+            elif isinstance(prop_tpl_dt, DatatypeVariable):
+                v_prop_tpl_dt_iri = c.theta_add(
+                    prop_tpl_dt, c.fresh_qvar())
+            else:
+                raise c._should_not_get_here()
             t = self._start_P(c, s, p, dt)
-            c.q.triples()(
-                (s, WIKIBASE.propertyType, c._theta_add_as_qvar(prop_dt_iri)))
+            if c.frame['phase'] == c.COMPILING_FILTER:
+                c.q.triples()(
+                    (s, WIKIBASE.propertyType, v_prop_tpl_dt_iri))
             return t
         elif isinstance(e, URI):
-            assert isinstance(c._target, (Statement, StatementTemplate))
-            subject = c._target.subject
+            assert isinstance(
+                c.frame['target'], (Statement, StatementTemplate))
+            subject = c.frame['target'].subject
             assert subject is not None
             if isinstance(subject, (Item, ItemVariable)):
                 return self._start_Q(
@@ -213,24 +228,24 @@ class WikidataMapping(M):
 
     def _start_Q(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
         t = self._start_any(c, x, p, dt)
-        c.q.triples()((x, WIKIBASE.sitelinks, c.q.bnode()))
+        if c.frame['phase'] == c.COMPILING_FILTER:
+            c.q.triples()((x, WIKIBASE.sitelinks, c.q.bnode()))
         return t
 
     def _start_L(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
         t = self._start_any(c, x, p, dt)
-        c.q.triples()((x, RDF.type, ONTOLEX.LexicalEntry))
+        if c.frame['phase'] == c.COMPILING_FILTER:
+            c.q.triples()((x, RDF.type, ONTOLEX.LexicalEntry))
         return t
 
     def _start_P(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
         t = self._start_any(c, x, p, dt)
-        c.q.triples()((x, RDF.type, WIKIBASE.Property))
+        if c.frame['phase'] == c.COMPILING_FILTER:
+            c.q.triples()((x, RDF.type, WIKIBASE.Property))
         return t
 
     def _start_any(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
-        if c._state == c.COMPILING_FILTER:
-            wds = c._wds
-        else:
-            wds = c.fresh_qvar()
+        wds = c.frame['wds']
         p_, ps = c.fresh_qvars(2)
         c.q.triples()(
             (x, p_, wds),
@@ -292,9 +307,9 @@ class WikidataMapping(M):
         elif isinstance(x, TextVariable):
             cnt = c._fresh_string_variable()
             tag = c._fresh_string_variable()
-            c._theta_add(x, Text(cnt, tag))
-            x = c._theta_add_as_qvar(cnt)
-            c.q.bind(c.q.lang(x), c._theta_add_as_qvar(tag))
+            c.theta_add(x, Text(cnt, tag))
+            x = c.theta_add_as_qvar(cnt)
+            c.q.bind(c.q.lang(x), c.theta_add_as_qvar(tag))
             c.q.triples()((wds, ps, x))
         else:
             raise c._should_not_get_here()
@@ -341,9 +356,9 @@ class WikidataMapping(M):
         elif isinstance(y, ItemVariable):
             with c.q.optional_if(self.relax):
                 iri = c._fresh_iri_variable()
-                c._theta_add(y, Item(iri))
+                c.theta_add(y, Item(iri))
                 c.q.triples()(
-                    (wdv, WIKIBASE.quantityUnit, c._theta_add_as_qvar(iri)))
+                    (wdv, WIKIBASE.quantityUnit, c.theta_add_as_qvar(iri)))
                 c.q.bind(c.as_qvar(iri), c.as_qvar(y))
         else:
             raise c._should_not_get_here()
@@ -385,10 +400,10 @@ class WikidataMapping(M):
         elif isinstance(w, ItemVariable):
             with c.q.optional_if(self.relax):
                 iri = c._fresh_iri_variable()
-                c._theta_add(w, Item(iri))
+                c.theta_add(w, Item(iri))
                 c.q.triples()(
                     (wdv, WIKIBASE.timeCalendarModel,
-                     c._theta_add_as_qvar(iri)))
+                     c.theta_add_as_qvar(iri)))
                 c.q.bind(c.as_qvar(iri), c.as_qvar(w))
         else:
             raise c._should_not_get_here()

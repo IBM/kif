@@ -47,19 +47,24 @@ from ...typing import (
     Mapping,
     override,
     Sequence,
+    TypedDict,
+    TypeVar,
 )
 from .builder import Query
 from .filter_compiler import SPARQL_FilterCompiler
 from .mapping import SPARQL_Mapping
 from .substitution import Substitution
 
+T = TypeVar('T')
+
 
 class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
     """SPARQL Mapping - Filter Compiler """
 
-    class State(enum.Enum):
+    class Phase(enum.Enum):
+        """Compilation phases."""
 
-        #: Ready to compile.
+        #: Compiler is ready.
         READY = enum.auto()
 
         #: Compiling filter.
@@ -68,27 +73,44 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         #: Compiling fingerprint.
         COMPILING_FINGERPRINT = enum.auto()
 
-        #: Done.
+        #: Compiler is done.
         DONE = enum.auto()
 
-    #: Alias of :attr:`State.READY`.
-    READY: Final[State] = State.READY
+    #: Alias of :attr:`READY`.
+    READY: Final[Phase] = Phase.READY
 
     #: Alias of :attr:`State.COMPILING_FILTER`.
-    COMPILING_FILTER: Final[State] = State.COMPILING_FILTER
+    COMPILING_FILTER: Final[Phase] = Phase.COMPILING_FILTER
 
     #: Alias of :attr:`State.COMPILING_FINGERPRINT`.
-    COMPILING_FINGERPRINT: Final[State] = State.COMPILING_FINGERPRINT
+    COMPILING_FINGERPRINT: Final[Phase] = Phase.COMPILING_FINGERPRINT
 
-    #: Alias of :attr:`State.DONE'.
-    DONE: Final[State] = State.DONE
+    #: Alias of :attr:`DONE`.
+    DONE: Final[Phase] = Phase.DONE
+
+    class Frame(TypedDict):
+        """Compilation frame (context)."""
+
+        #: The compilation phase of frame.
+        phase: SPARQL_MappingFilterCompiler.Phase
+
+        #: The substitution of frame.
+        substitution: Substitution
+
+        #: The query variable holding the wds of frame.
+        wds: Query.Variable
+
+        #: The entry of frame.
+        entry: SPARQL_Mapping.Entry | None
+
+        #: The target pattern of frame.
+        target: SPARQL_Mapping.EntryPattern | None
 
     __slots__ = (
         '_mapping',
         '_entry_subst',
         '_entry_id_qvar',
-        '_state',
-        '_target',
+        '_frame',
     )
 
     # The SPARQL mapping.
@@ -100,11 +122,8 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
     #: The query variable holding the index of the matched entry.
     _entry_id_qvar: Query.Variable
 
-    #: The current state (accessible by mapping entries).
-    _state: State
-
-    #: The current target pattern (accessible by mapping entries).
-    _target: SPARQL_Mapping.EntryPattern | None
+    #: The frame stack.
+    _frame: list[Frame]
 
     def __init__(
             self,
@@ -116,8 +135,14 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         self._mapping = mapping
         self._entry_subst = {}
         self._entry_id_qvar = self.q.fresh_var()
-        self._state = self.State.READY
-        self._target = None
+        self._frame = []
+        self._push_frame({
+            'phase': self.READY,
+            'substitution': Substitution(),
+            'wds': self._wds,
+            'entry': None,
+            'target': None,
+        })
 
     @property
     def mapping(self) -> SPARQL_Mapping:
@@ -133,31 +158,81 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         return self._mapping
 
     @property
-    def state(self) -> SPARQL_MappingFilterCompiler.State:
-        """The current state."""
-        return self.get_state()
+    def frame(self) -> Frame:
+        """The current frame."""
+        return self.get_frame()
 
-    def get_state(self) -> SPARQL_MappingFilterCompiler.State:
-        """Gets the current state.
+    def get_frame(self) -> Frame:
+        """Gets the current frame.
 
         Returns:
-           State.
+           Frame.
         """
-        return self._state
+        assert self._frame
+        return self._frame[-1]
+
+    def _push_frame(self, frame: Frame) -> Frame:
+        self._frame.append(frame)
+        return frame
+
+    def _pop_frame(self) -> Frame:
+        assert self._frame
+        return self._frame.pop()
 
     @property
-    def target(self) -> SPARQL_Mapping.EntryPattern:
-        """The current target pattern."""
-        return self.get_target()
+    def theta(self) -> Substitution:
+        """The current substitution."""
+        return self.get_theta()
 
-    def get_target(self) -> SPARQL_Mapping.EntryPattern:
-        """Gets the current target pattern.
+    def get_theta(self) -> Substitution:
+        """Gets current substitution.
 
         Returns:
-           Entry pattern.
+           Substitution.
         """
-        assert self._target is not None
-        return self._target
+        return self.frame['substitution']
+
+    def theta_add(self, variable: Variable, value: T) -> T:
+        """Adds variable-value pair to the current substitution.
+
+        Parameters:
+           variable: Variable.
+           value: Value.
+
+        Returns:
+           Value.
+        """
+        if self.has_flags(self.DEBUG):
+            self.q.comments()(
+                f'{variable} := {Substitution._dump_value(value)}')
+        return self.theta.add(variable, value)
+
+    def theta_add_as_qvar(self, variable: Variable) -> Query.Variable:
+        """Adds variable-query variable to the current substitution.
+
+        Parameters:
+           variable: Variable.
+
+        Returns:
+           Query variable.
+        """
+        return self.theta_add(variable, self.as_qvar(variable))
+
+    def theta_add_default(
+            self,
+            variable: Variable,
+            value: Term | None
+    ) -> Variable:
+        """Sets default value for variable in the current substitution.
+
+        Parameters:
+           variable: Variable.
+           value: Value.
+
+        Returns:
+           Variable.
+        """
+        return self.theta.add_default(variable, value)
 
     def _fresh_name_generator(self) -> Callable[[str], Iterator[str]]:
         return (lambda _: map(
@@ -165,8 +240,6 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
 
     @override
     def _push_filter(self, filter: Filter) -> None:
-        assert self._state == self.READY
-        self._state = self.COMPILING_FILTER
         assert isinstance(self.pattern, VariablePattern)
         assert isinstance(self.pattern.variable, StatementVariable)
         sources = list(self._filter_to_patterns(filter))
@@ -174,18 +247,21 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         targets = []
         with self.q.union():
             for source in sources:
-                assert self._state == self.COMPILING_FILTER
                 source = source.generalize(rename=self._fresh_name_generator())
                 for entry in self.mapping.values():
                     m = entry.match(source)
                     if m is None:
                         continue  # nothing to do
                     target, bindings = m
-                    self._target = target
-                    saved_subst = self._theta
-                    self._theta = Substitution()
+                    self._push_frame({
+                        'phase': self.COMPILING_FILTER,
+                        'entry': entry,
+                        'target': target,
+                        'substitution': Substitution(),
+                        'wds': self.frame['wds'],  # same as last wds
+                    })
                     for var, val in entry.default_map.items():
-                        self._theta_add_default(var, val)
+                        self.theta_add_default(var, val)
                     self.q.stash_begin()
                     try:
                         with self.q.group():
@@ -193,24 +269,22 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                             args = self._push_filter_get_entry_callback_args(
                                 entry, bindings)
                             entry.callback(self.mapping, self, *args)
-                            self._state = self.COMPILING_FINGERPRINT
                             self._push_filter_push_fps(entry, filter, target)
                     except self.mapping.Skip:
                         self.q.stash_drop()
                     else:
-                        self._theta_add(self.pattern.variable, target)
+                        self.theta_add(self.pattern.variable, target)
                         self.q.stash_pop()
                         if id not in self._entry_subst:
                             self._entry_subst[entry.id] = []
-                        self._entry_subst[entry.id].append(self._theta)
+                        self._entry_subst[entry.id].append(
+                            self.frame['substitution'])
                         targets.append(target)
-                    self._state = self.COMPILING_FILTER
-                    self._theta = saved_subst
-                    self._target = None
+                    self._pop_frame()
         if not self._entry_subst:
             self._q = self.Query()  # empty query
+        self.frame['phase'] = self.DONE
         self.mapping.postamble(self, targets)
-        self._state = self.DONE
 
     def _push_filter_get_entry_callback_args(
             self,
@@ -223,11 +297,11 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             if isinstance(val, self._primitve_var_classes):
                 qvar = self.as_qvar(cast(Variable, val))
                 if add_to_subst:
-                    self._theta_add(var, qvar)
+                    self.theta_add(var, qvar)
                 res = qvar
             elif isinstance(val, Value):
                 if add_to_subst:
-                    self._theta_add(var, val)
+                    self.theta_add(var, val)
                 res = self._as_simple_value(val)
             else:
                 res = val       # keep it as is
@@ -323,6 +397,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             source = fp.snak.property(fp.snak.value, entity)
         else:
             source = Statement(entity, fp.snak)
+        source = source.generalize(rename=self._fresh_name_generator())
         with self.q.union():
             for target_entry in self.mapping.values():
                 target_entry = target_entry.rename(
@@ -330,46 +405,53 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 m = target_entry.match(source)
                 if m is None:
                     continue
+                # Determine the target entity (subject or value?).
+                if isinstance(fp, ConverseSnakFingerprint):
+                    assert isinstance(
+                        target_entry.pattern.snak,
+                        (ValueSnak, ValueSnakTemplate))
+                    assert isinstance(
+                        target_entry.pattern.snak.value,
+                        (EntityTemplate, EntityVariable))
+                    target_entity = target_entry.pattern.snak.value
+                else:
+                    target_entity = target_entry.pattern.subject
+                assert isinstance(
+                    target_entity, (EntityTemplate, EntityVariable))
+                # Rename the subject/value variable in entry.
+                src = next(entity._iterate_variables()).name
+                tgt = next(target_entity._iterate_variables()).name
+
+                def mk_rename(
+                        src: str,
+                        tgt: str
+                ) -> Callable[[str], Iterator[str]]:
+                    def rename(name: str) -> Iterator[str]:
+                        return itertools.repeat(src if name == tgt else name)
+                    return rename
+                target_entry = target_entry.rename(
+                    rename=mk_rename(src, tgt))
+                m = target_entry.match(source)
+                assert m is not None
+                # Push a new frame and call entry's callback.
                 target, bindings = m
                 assert isinstance(target, (Statement, StatementTemplate))
-                saved_target = self._target
-                self._target = target
+                self._push_frame({
+                    'phase': self.COMPILING_FINGERPRINT,
+                    'entry': target_entry,
+                    'target': target,
+                    'substitution': Substitution(),
+                    'wds': self.fresh_qvar(),
+                })
                 try:
                     args = list(self._push_filter_get_entry_callback_args(
                         target_entry, bindings, False))
                     with self.q.group():
                         target_entry.callback(self.mapping, self, *args)
-                        ###
-                        # Determine the target entity (subject or value?).
-                        ###
-                        if isinstance(fp, ConverseSnakFingerprint):
-                            assert isinstance(
-                                target_entry.pattern.snak,
-                                (ValueSnak, ValueSnakTemplate))
-                            assert isinstance(
-                                target_entry.pattern.snak.value,
-                                (EntityTemplate, EntityVariable))
-                            target_entity = target_entry.pattern.snak.value
-                        else:
-                            target_entity = target_entry.pattern.subject
-                        assert isinstance(
-                            target_entity, (EntityTemplate, EntityVariable))
-                        ###
-                        # Determine and replace ?src by ?tgt in this group.
-                        ###
-                        src = self.as_qvar(next(entity._iterate_variables()))
-                        if isinstance(target_entity, Entity):
-                            tgt: Query.VTerm = self._as_simple_value(
-                                target_entity)
-                            raise NotImplementedError
-                        else:
-                            tgt = self.as_qvar(next(
-                                target_entity._iterate_variables()))
-                        self.q.bind(tgt, src)
                 except self.mapping.Skip as err:
                     raise err
                 finally:
-                    self._target = saved_target
+                    self._pop_frame()
 
     def _push_value_fps(
             self,

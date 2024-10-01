@@ -32,6 +32,7 @@ ChemIDplus = Q(20593, 'ChemIDplus')
 chemistry = Q(2329, 'chemistry')
 ChemSpider = Q(2311683, 'ChemSpider')
 child = Q(7569, 'child')
+coffee = Q(8486, 'coffee')
 Colombia = Q(739, 'Colombia')
 comma_separated_values = Q(935809, 'comma-separated values')
 continent_ = Q(5107, 'continent')
@@ -46,6 +47,7 @@ Easter = Q(21196, 'Easter')
 ECHA_Substance_Infocard_database = Q(59911453, 'ECHA Substance Infocard database')
 El_Capitan = Q(1124852, 'El Capitan')
 electronvolt = Q(83327, 'electronvolt')
+Endicott = Q(3459600, 'Endicott')
 English = Q(1860, 'English')
 English_Wikipedia = Q(328, 'English Wikipedia')
 Eve = Q(830183, 'Eve')
@@ -53,6 +55,7 @@ exact_match_ = Q(39893449, 'exact match')
 Fall_of_man = Q(1135949,  'Fall of man')
 FDA_approved = Q(111972129, 'FDA-approved')
 female = Q(6581072, 'female')
+female_given_name = Q(11879590, 'female given name')
 female_human = Q(84048852, 'female human')
 feminine = Q(1775415, 'feminine')
 flame_retardant = Q(902863, 'flame retardant')
@@ -138,6 +141,7 @@ subcutaneous_injection = Q(2035485, 'subcutaneous injection')
 Supercalifragilisticexpialidocious = Q(103, 'Supercalifragilisticexpialidocious')
 type_of_a_chemical_entity = Q(113145171, 'type of a chemical entity')
 unit_of_mass = Q(3647172, 'unit of mass')
+United_States_of_America = Q(30, 'United States of America')
 Uruguay = Q(77, 'Uruguay')
 Venezuela = Q(717, 'Venezuela')
 verb = Q(24905, 'verb')
@@ -175,6 +179,7 @@ __all__ = (
     'chemistry',
     'ChemSpider',
     'child',
+    'coffee',
     'Colombia',
     'comma_separated_values',
     'continent_',
@@ -189,6 +194,7 @@ __all__ = (
     'ECHA_Substance_Infocard_database',
     'El_Capitan',
     'electronvolt',
+    'Endicott',
     'English',
     'English_Wikipedia',
     'Eve',
@@ -196,6 +202,7 @@ __all__ = (
     'Fall_of_man',
     'FDA_approved',
     'female',
+    'female_given_name',
     'female_human',
     'feminine',
     'flame_retardant',
@@ -281,6 +288,7 @@ __all__ = (
     'Supercalifragilisticexpialidocious',
     'type_of_a_chemical_entity',
     'unit_of_mass',
+    'United_States_of_America',
     'Uruguay',
     'Venezuela',
     'verb',

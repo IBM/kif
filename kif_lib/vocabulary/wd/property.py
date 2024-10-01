@@ -18,6 +18,7 @@ ChEBI_ID = P(683)
 ChEMBL_ID = P(592)
 chemical_formula = P(274)
 chemical_structure = P(117)
+complementary_property = P(8882)
 contains = P(4330)
 continent = P(30)
 country = P(17)
@@ -32,6 +33,7 @@ derived_from_lexeme = P(5191)
 described_at_URL = P(973)
 described_by_source = P(1343)
 Dictionary_of_American_Regional_English_ID = P(12448)
+does_not_have_part = P(3113)
 download_link = P(4945)
 duration = P(2047)
 educated_at = P(69)
@@ -45,6 +47,7 @@ father = P(22)
 field_of_work = P(101)
 file_format = P(2701)
 Freebase_ID = P(646)
+grammatical_gender = P(5185)
 half_life = P(2114)
 has_effect = P(1542)
 has_part = P(527)
@@ -58,10 +61,12 @@ inception = P(571)
 InChI = P(234)
 InChIKey = P(235)
 instance_of = P(31)
+inverse_property = P(1696)
 ionization_energy = P(2260)
 isomeric_SMILES = P(2017)
 language_of_work_or_name = P(407)
 legal_status = P(3493)
+location_of_formation = P(740)
 lowest_point = P(1589)
 made_from_material = P(186)
 main_subject = P(921)
@@ -75,6 +80,7 @@ mother = P(25)
 name_in_native_language = P(1559)
 named_after = P(138)
 native_label = P(1705)
+negates_property = P(11317)
 official_language = P(37)
 official_name = P(1448)
 official_website = P(856)
@@ -92,6 +98,7 @@ position_held = P(39)
 properties_for_this_type = P(1963)
 PubChem_CID = P(662)
 publication_date = P(577)
+quantity_symbol_string = P(416)
 reference_URL = P(854)
 related_property = P(1659)
 residence = P(551)
@@ -101,6 +108,7 @@ safety_classification_and_labelling = P(4952)
 sex_or_gender = P(21)
 shares_border_with = P(47)
 short_name = P(1813)
+significant_person = P(3342)
 solubility = P(2177)
 specific_heat_capacity = P(2056)
 speed_limit = P(3086)
@@ -111,6 +119,7 @@ stated_in = P(248)
 statement_supported_by = P(3680)
 stereoisomer_of = P(3364)
 subclass_of = P(279)
+subject_lexeme = P(6254)
 subproperty_of = P(1647)
 taxon_name = P(225)
 temperature = P(2076)
@@ -124,6 +133,7 @@ valid_in_place = P(3005)
 width = P(2049)
 Wikidata_item_of_this_property = P(1629)
 Wikidata_property = P(1687)
+Wikidata_property_example_for_lexemes = P(5192)
 WordNet_31_Synset_ID = P(8814)
 YouTube_video_ID = P(1651)
 
@@ -142,6 +152,7 @@ __all__ = (
     'ChEMBL_ID',
     'chemical_formula',
     'chemical_structure',
+    'complementary_property',
     'contains',
     'continent',
     'country',
@@ -156,6 +167,7 @@ __all__ = (
     'described_at_URL',
     'described_by_source',
     'Dictionary_of_American_Regional_English_ID',
+    'does_not_have_part',
     'download_link',
     'duration',
     'educated_at',
@@ -170,6 +182,7 @@ __all__ = (
     'field_of_work',
     'file_format',
     'Freebase_ID',
+    'grammatical_gender',
     'half_life',
     'has_effect',
     'has_part',
@@ -183,10 +196,12 @@ __all__ = (
     'InChI',
     'InChIKey',
     'instance_of',
+    'inverse_property',
     'ionization_energy',
     'isomeric_SMILES',
     'language_of_work_or_name',
     'legal_status',
+    'location_of_formation',
     'lowest_point',
     'made_from_material',
     'main_subject',
@@ -200,6 +215,7 @@ __all__ = (
     'name_in_native_language',
     'named_after',
     'native_label',
+    'negates_property',
     'official_language',
     'official_name',
     'official_website',
@@ -217,6 +233,7 @@ __all__ = (
     'properties_for_this_type',
     'PubChem_CID',
     'publication_date',
+    'quantity_symbol_string',
     'reference_URL',
     'related_property',
     'residence',
@@ -226,6 +243,7 @@ __all__ = (
     'sex_or_gender',
     'shares_border_with',
     'short_name',
+    'significant_person',
     'solubility',
     'specific_heat_capacity',
     'speed_limit',
@@ -236,6 +254,7 @@ __all__ = (
     'statement_supported_by',
     'stereoisomer_of',
     'subclass_of',
+    'subject_lexeme',
     'subproperty_of',
     'taxon_name',
     'temperature',
@@ -249,6 +268,7 @@ __all__ = (
     'width',
     'Wikidata_item_of_this_property',
     'Wikidata_property',
+    'Wikidata_property_example_for_lexemes',
     'WordNet_31_Synset_ID',
     'YouTube_video_ID',
 )
