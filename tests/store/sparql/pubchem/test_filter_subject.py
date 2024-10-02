@@ -28,6 +28,14 @@ class Test(PubChemStoreTestCase):
     def test_value_fp_compound(self) -> None:
         self._test_filter_with_fixed_subject(
             subject=pc.CID(241),
+            equals=[
+                ((wd.isomeric_SMILES, 'C1=CC=CC=C1'),  # VV
+                 wd.isomeric_SMILES('C1=CC=CC=C1')),
+                ((wd.isomeric_SMILES, None),  # VF
+                 wd.isomeric_SMILES('C1=CC=CC=C1')),
+                ((None, Quantity('2.1')),  # FV
+                 wd.partition_coefficient_water_octanol('2.1')),
+            ],
             contains=[
                 ((None, None), [  # FF
                     pc.Isotope_Atom_Count(0),
@@ -70,6 +78,14 @@ class Test(PubChemStoreTestCase):
     def test_value_fp_patent(self) -> None:
         self._test_filter_with_fixed_subject(
             subject=pc.patent('BR-PI0506496-B1'),
+            equals=[
+                ((wd.patent_number, 'BR-PI0506496-B1'),
+                 wd.patent_number('BR-PI0506496-B1')),
+                ((wd.publication_date, None),
+                 (wd.publication_date(Time(
+                     '2018-10-09+04:00', 11, 0,
+                     wd.proleptic_Gregorian_calendar)))),
+            ],
             contains=[
                 ((None, None), [
                     wd.author_name_string('JULIA ANN WOOD'),
@@ -126,6 +142,10 @@ class Test(PubChemStoreTestCase):
     def test_value_fp_source(self) -> None:
         self._test_filter_with_fixed_subject(
             subject=pc.source('ChemBlock'),
+            equals=[
+                ((wd.instance_of, wd.business),
+                 wd.instance_of(wd.business)),
+            ],
             contains=[
                 ((None, None), [  # FF
                     wd.instance_of(wd.business),

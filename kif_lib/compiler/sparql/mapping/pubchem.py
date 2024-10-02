@@ -229,7 +229,7 @@ class PubChemMapping(M):
     @M.register(
         pc.Isotope_Atom_Count(Item(x), Quantity(y)),
         {x: CheckCompound(),
-         y: M.CheckLiteral(set_datatype=XSD.int)})
+         y: M.CheckInt()})
     def pc_Isotope_Atom_Count(self, c: Compiler, x: V_URI, y: VLiteral):
         attr = c.bnode()
         c.q.triples()(
