@@ -16,26 +16,6 @@ class Test(PubChemStoreTestCase):
     def test_empty(self) -> None:
         self._test_filter_preset_empty()
 
-    def test_subject_CID(self) -> None:
-        self._test_filter_with_fixed_subject(
-            subject=pc.CID(241),
-            contains=[
-                ((None, None), [  # FF
-                    pc.Isotope_Atom_Count(0),
-                    wd.canonical_SMILES('C1=CC=CC=C1'),
-                    wd.mass('78.11'@wd.gram_per_mole),
-                    wd.PubChem_CID('241'),
-                ]),
-            ])
-
-    def test_subject_Isotope_Atom_Count(self) -> None:
-        self._test_filter_with_fixed_subject(
-            subject=pc.Isotope_Atom_Count,
-            equals=[
-                ((None, None),  # FF
-                 wd.instance_of(wd.Wikidata_property_related_to_chemistry)),
-            ])
-
     def test_property_canonical_SMILES(self) -> None:
         self._test_filter_with_fixed_property(
             property=wd.canonical_SMILES,

@@ -39,6 +39,7 @@ x, y, z = Variables('x', 'y', 'z')
 
 
 class PubChemMapping(M):
+    """PubChem SPARQL mapping."""
 
     _re_canonical_smiles: Final[re.Pattern] = re.compile(
         r'^[A-Za-z0-9+\-\*=#$:()\.>/\\\[\]%]+$')
@@ -59,11 +60,11 @@ class PubChemMapping(M):
         r'^[A-Z]{14}-[A-Z]{10}-[A-Z]$')
 
     _re_patent_number: Final[re.Pattern] = re.compile(
-        r'^[A-Z][A-Z]-[1-9][0-9]*(-[A-Z]+[1-9][0-9]*)?$')
+        r'^[A-Z][A-Z]-\w*(-[A-Z]+[1-9][0-9]*)?$')
 
     _re_patent_uri: Final[re.Pattern] = re.compile(
         f'^{re.escape(PubChem.PATENT)}'
-        r'[A-Z][A-Z]-[1-9][0-9]*(-[A-Z]+[1-9][0-9]*)?$')
+        r'[A-Z][A-Z]-\w*(-[A-Z]+[1-9][0-9]*)?$')
 
     _re_pubchem_cid: Final[re.Pattern] = re.compile(
         r'^[1-9][0-9]*$')
@@ -360,7 +361,7 @@ class PubChemMapping(M):
     @M.register(
         wd.title(Item(x), Text(y, 'en')),
         {x: CheckPatent(),
-         y: M.CheckLiteral(set_language='en')})
+         y: M.CheckLiteral()})
     def wd_title(self, c: Compiler, x: V_URI, y: VLiteral):
         c.q.triples()((x, PATENT.titleOfInvention, y))
 
@@ -369,6 +370,6 @@ class PubChemMapping(M):
     @M.register(
         wd.instance_of(Item(x), wd.business),
         {x: CheckSource()})
-    def wd_instance_of_manufacturer(self, c: Compiler, x: V_URI):
+    def wd_instance_of_business(self, c: Compiler, x: V_URI):
         c.q.triples()(
             (x, DCT.subject, PubChem.CONCEPT.Chemical_Vendors))
