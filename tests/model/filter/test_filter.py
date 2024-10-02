@@ -148,7 +148,6 @@ class Test(KIF_ObjectTestCase):
 
     def test_normalize(self) -> None:
         assert_type(Filter().normalize(), Filter)
-        # subject
         f = Filter(Item('x') & Item('y'))
         self.assertEqual(f.value_mask, f.DatatypeMask.ALL)
         self.assertTrue(f.is_empty())
@@ -175,6 +174,10 @@ class Test(KIF_ObjectTestCase):
         self.assertEqual(f.snak_mask, f.SnakMask(0))
         self.assertTrue(f.is_empty())
         # value
+        f = Filter(None, None, Property('x')(Item('y')))
+        f = f.normalize()
+        self.assertEqual(f.snak_mask, f.VALUE_SNAK)
+        self.assertEqual(f.value_mask, f.ENTITY)
         f = Filter(None, None, Item('x') & Item('y'))
         self.assertEqual(f.value_mask, f.DatatypeMask.ALL)
         self.assertFalse(f.is_empty())

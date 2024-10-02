@@ -645,9 +645,9 @@ class Filter(KIF_Object):
         snak_mask = self.snak_mask
         if property_mask.value == 0:
             snak_mask = self.SnakMask(0)
-        if 0 < value_mask.value < self.VALUE.value:
+        if not value.is_full() and not value.is_empty():
             snak_mask &= self.VALUE_SNAK
-        elif value_mask.value == 0:
+        elif value.is_empty():
             snak_mask &= ~self.VALUE_SNAK
         return Filter(
             subject, property, value, snak_mask,
