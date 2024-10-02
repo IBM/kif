@@ -13,10 +13,8 @@ from kif_lib import (
     IRI,
     Item,
     Lexeme,
-    NoValueSnak,
     Property,
     Quantity,
-    SomeValueSnak,
     Statement,
     Text,
     Time,
@@ -395,7 +393,7 @@ class Test(SPARQL_Store2TestCase):
                     (Filter(fp, wd.equivalent_property, url), [  # VV
                         wd.equivalent_property(wd.grammatical_gender, url),
                     ]),
-                    (Filter(fp, wd.equivalent_property),  [  # VF
+                    (Filter(fp, wd.equivalent_property), [  # VF
                         wd.equivalent_property(wd.grammatical_gender, url),
                     ]),
                     (Filter(fp, None, IRI(url)), [  # FV

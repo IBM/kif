@@ -294,7 +294,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
     ) -> Iterator[Term | Query.VTerm | None]:
         for (var, val) in bindings.items():
             res: Term | Query.VTerm | None
-            if isinstance(val, self._primitve_var_classes):
+            if isinstance(val, self._primitive_var_classes):
                 qvar = self.as_qvar(cast(Variable, val))
                 if add_to_subst:
                     self.theta_add(var, qvar)
@@ -374,7 +374,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 self._push_fp(entry, child, value)
             if values:
                 with self.q.group():
-                    self._push_value_fps(entry, values, value, False)
+                    self._push_value_fps(entry, values, value)
         elif isinstance(fp, OrFingerprint):
             with self.q.union():
                 for child in itertools.chain(snaks, comps):
@@ -382,7 +382,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                         self._push_fp(entry, child, value)
                 if values:
                     with self.q.group():
-                        self._push_value_fps(entry, values, value, False)
+                        self._push_value_fps(entry, values, value)
         else:
             raise self._should_not_get_here()
 
@@ -482,12 +482,16 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 else:
                     accum[k] = [v]
         for var, vs in accum.items():
-            assert isinstance(var, self._primitve_var_classes)
+            ###
+            # FIXME: Is this right?
+            ###
             qvar = self.as_qvar(var)
-            values = list(self._push_value_fps_preprocess(entry, var, vs))
-            ###
-            # FIXME: Handle the case where len(values) == 0.
-            ###
+            if var in entry.pattern.variables:
+                values = list(self._push_value_fps_preprocess(entry, var, vs))
+            else:
+                values = list(map(self._as_simple_value, vs))
+            if not values:
+                raise self.mapping.Skip  # fail
             assert len(values) > 0
             if len(values) > 1 and use_values_clause:
                 self.q.values(qvar)(*map(lambda x: (x,), values))
@@ -572,7 +576,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             subject = self._fresh_property_variable()
         elif filter.subject_mask == filter.LEXEME:
             subject = self._fresh_lexeme_variable()
-        elif filter.subject_mask == filter.ENTITY:
+        elif filter.subject_mask & filter.ENTITY:
             subject = self._fresh_entity_variable()
         else:
             raise self._should_not_get_here()

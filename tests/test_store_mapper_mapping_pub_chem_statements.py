@@ -123,9 +123,9 @@ class TestStoreMapperMappingPubChemStatements(
         self.check_filter_compound_property(
             self.new_Store(), wd.isomeric_SMILES, StringDatatype())
 
-    def test_filter_property_legal_status(self) -> None:
+    def test_filter_property_legal_status_medicine(self) -> None:
         self.check_filter_compound_property(
-            self.new_Store(), wd.legal_status, ItemDatatype())
+            self.new_Store(), wd.legal_status_medicine, ItemDatatype())
 
     def test_filter_property_mass(self) -> None:
         self.check_filter_compound_property(

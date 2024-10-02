@@ -220,7 +220,7 @@ class SPARQL_Compiler(Compiler):
         return map(self.as_qvar, itertools.chain((var,), vars))
 
     #: Classes of variables corresponding to primitive SPARQL types.
-    _primitve_var_classes: Final[tuple[type[Variable], ...]] = (
+    _primitive_var_classes: Final[tuple[type[Variable], ...]] = (
         DatatypeVariable,
         IRI_Variable,
         QuantityVariable,
@@ -236,7 +236,7 @@ class SPARQL_Compiler(Compiler):
         Returns:
            Query variable.
         """
-        if isinstance(var, self._primitve_var_classes):
+        if isinstance(var, self._primitive_var_classes):
             return self.as_qvar(var)
         else:
             raise TypeError

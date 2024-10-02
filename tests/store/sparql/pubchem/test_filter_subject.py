@@ -3,16 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import (
-    ExternalId,
-    Filter,
-    Fingerprint,
-    Item,
-    Quantity,
-    String,
-    Time,
-    Variables,
-)
+from kif_lib import ExternalId, Filter, Fingerprint, Quantity, Time, Variables
 from kif_lib.vocabulary import pc, wd
 
 from ....tests import PubChemStoreTestCase
@@ -70,7 +61,7 @@ class Test(PubChemStoreTestCase):
                      wd.ChEBI_ID(pc.CID(241), '16716')),
                 ],
                 contains=[
-                    (Filter(fp, wd.mass, None),  [  # VF
+                    (Filter(fp, wd.mass, None), [  # VF
                         wd.mass(pc.CID(241), '78.11'@wd.gram_per_mole),
                     ]),
                 ])
@@ -100,7 +91,8 @@ class Test(PubChemStoreTestCase):
                              wd.proleptic_Gregorian_calendar)),
                     wd.title(
                         'Improved injection site tolerance pharmaceutical '
-                        'composition comprising sulfobutylether-ß-cyclodextrin '
+                        'composition comprising '
+                        'sulfobutylether-ß-cyclodextrin '
                         'and its use in the treatment of emesisEmproved '
                         'injection site tolerance pharmaceutical composition '
                         'comprising sulfobutylether-ß-cyclodextrin and its '
