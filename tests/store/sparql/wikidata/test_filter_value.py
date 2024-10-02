@@ -132,7 +132,7 @@ class Test(SPARQL_Store2TestCase):
             Filter(value_mask=Filter.TIME, snak_mask=Filter.VALUE_SNAK),
             Statement(x, ValueSnak(y, Time(z).generalize())))
 
-    def test_snak_fp_item(self) -> None:
+    def test_snak_fp_item_item(self) -> None:
         fps = [
             Fingerprint.check(wd.Freebase_ID('/m/09_c5v')),
             -(wd.father(wd.Q(107626))),
@@ -152,28 +152,63 @@ class Test(SPARQL_Store2TestCase):
                     ]),
                 ])
 
-    def test_snak_fp_property(self) -> None:
+    def test_snak_fp_item_property(self) -> None:
+        fps = [
+            Fingerprint.check(wd.Wikidata_item_of_this_property(wd.mass_)),
+            -(wd.subproperty_of(wd.payload_mass)),
+        ]
+        for fp in fps:
+            self._test_filter(
+                equals=[
+                    (Filter(wd.human, wd.properties_for_this_type, fp),  # VV
+                     wd.properties_for_this_type(wd.human, wd.mass)),
+                    (Filter(wd.human, None, fp),  # VF
+                     wd.properties_for_this_type(wd.human, wd.mass)),
+                ],
+                contains=[
+                    (Filter(None, wd.properties_for_this_type, fp), [  # FV
+                        wd.properties_for_this_type(wd.human, wd.mass),
+                    ]),
+                ])
+
+    def test_snak_fp_item_lexeme(self) -> None:
         pass
+
+    def test_snak_fp_item_iri(self) -> None:
+        pass
+
+    def test_snak_fp_item_text(self) -> None:
+        pass
+
+    def test_snak_fp_item_string(self) -> None:
+        pass
+
+    def test_snak_fp_item_external_id(self) -> None:
+        pass
+
+    def test_snak_fp_item_quantity(self) -> None:
+        pass
+
+    def test_snak_fp_item_time(self) -> None:
+        pass
+
+    def test_snak_fp_property_item(self) -> None:
+        fps = [
+            Fingerprint.check(wd.Wikidata_item_of_this_property(wd.mass_)),
+            -(wd.subproperty_of(wd.payload_mass)),
+        ]
+        for fp in fps:
+            self._test_filter(
+                equals=[        # VV
+                    (Filter(wd.payload_mass, wd.subproperty_of, fp),
+                     (wd.subproperty_of(wd.payload_mass, wd.mass))),
+                    (Filter(wd.payload_mass, None, fp),  # VF
+                     (wd.subproperty_of(wd.payload_mass, wd.mass))),
+                    (Filter(None, wd.subproperty_of, fp),  # FV
+                     (wd.subproperty_of(wd.payload_mass, wd.mass)))
+                ])
 
     def test_snak_fp_lexeme(self) -> None:
-        pass
-
-    def test_snak_fp_uri(self) -> None:
-        pass
-
-    def test_snak_fp_text(self) -> None:
-        pass
-
-    def test_snak_fp_string(self) -> None:
-        pass
-
-    def test_snak_fp_external_id(self) -> None:
-        pass
-
-    def test_snak_fp_quantity(self) -> None:
-        pass
-
-    def test_snak_fp_time(self) -> None:
         pass
 
 

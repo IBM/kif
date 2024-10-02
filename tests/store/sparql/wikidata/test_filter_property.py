@@ -56,7 +56,7 @@ class Test(SPARQL_Store2TestCase):
                 Filter(property=wd.P(10**10)),   # no such property
             ])
 
-    def test_value_fp_property_item(self) -> None:
+    def test_value_fp_property_dt_item(self) -> None:
         self._test_filter_with_fixed_property(
             property=wd.part_of,
             empty=[
@@ -85,7 +85,7 @@ class Test(SPARQL_Store2TestCase):
                 snak_mask=Filter.VALUE_SNAK),
             Statement(Item(x), wd.part_of(y)))
 
-    def test_value_fp_property_property(self) -> None:
+    def test_value_fp_property_dt_property(self) -> None:
         self._test_filter_with_fixed_property(
             property=wd.properties_for_this_type,
             empty=[
@@ -109,7 +109,7 @@ class Test(SPARQL_Store2TestCase):
                 ]),
             ])
 
-    def test_value_fp_property_lexeme(self) -> None:
+    def test_value_fp_property_dt_lexeme(self) -> None:
         self._test_filter_with_fixed_property(
             property=wd.homograph_lexeme,
             empty=[
@@ -131,7 +131,7 @@ class Test(SPARQL_Store2TestCase):
                 ]),
             ])
 
-    def test_value_fp_property_iri(self) -> None:
+    def test_value_fp_property_dt_iri(self) -> None:
         self._test_filter_with_fixed_property(
             property=wd.official_website,
             empty=[
@@ -148,7 +148,7 @@ class Test(SPARQL_Store2TestCase):
                  (wd.IBM, IRI('https://www.ibm.com/'))),
             ])
 
-    def test_value_fp_property_text(self) -> None:
+    def test_value_fp_property_dt_text(self) -> None:
         self._test_filter_with_fixed_property(
             property=wd.official_name,
             empty=[
@@ -165,7 +165,7 @@ class Test(SPARQL_Store2TestCase):
                  (wd.Brazil, Text('República Federativa do Brasil', 'pt'))),
             ])
 
-    def test_value_fp_property_string(self) -> None:
+    def test_value_fp_property_dt_string(self) -> None:
         self._test_filter_with_fixed_property(
             property=wd.chemical_formula,
             empty=[
@@ -180,7 +180,7 @@ class Test(SPARQL_Store2TestCase):
                  (wd.benzene, 'C₆H₆')),
             ])
 
-    def test_value_fp_property_external_id(self) -> None:
+    def test_value_fp_property_dt_external_id(self) -> None:
         self._test_filter_with_fixed_property(
             property=wd.PubChem_CID,
             empty=[
@@ -198,7 +198,7 @@ class Test(SPARQL_Store2TestCase):
                  (wd.benzene, '241')),
             ])
 
-    def test_value_fp_property_quantity(self) -> None:
+    def test_value_fp_property_dt_quantity(self) -> None:
         self._test_filter_with_fixed_property(
             property=wd.mass,
             empty=[
@@ -247,7 +247,7 @@ class Test(SPARQL_Store2TestCase):
                      '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))),
             ])
 
-    def test_value_fp_property_time(self) -> None:
+    def test_value_fp_property_dt_time(self) -> None:
         self._test_filter_with_fixed_property(
             property=wd.inception,
             empty=[
@@ -276,7 +276,7 @@ class Test(SPARQL_Store2TestCase):
                      '1822-09-07', 11, 0, wd.proleptic_Gregorian_calendar))),
             ])
 
-    def test_snak_fp_property_item(self) -> None:
+    def test_snak_fp_property_dt_item(self) -> None:
         fps = [
             Fingerprint.check(wd.inverse_property(wd.has_part)),
             -(wd.subproperty_of(wd.P(16))),
@@ -298,28 +298,46 @@ class Test(SPARQL_Store2TestCase):
                     ]),
                 ])
 
-    def test_snak_fp_property_property(self) -> None:
+    def test_snak_fp_property_dt_property(self) -> None:
+        fps = [
+            Fingerprint.check(wd.Wikidata_item_of_this_property(wd.mass_)),
+            -(wd.subproperty_of(wd.payload_mass)),
+        ]
+        for fp in fps:
+            self._test_filter(
+                equals=[
+                    (Filter(wd.caffeine, fp, '194.08'@wd.dalton),  # VV
+                     wd.mass(wd.caffeine, '194.08'@wd.dalton)),
+                    (Filter(wd.caffeine, fp, Quantity('194.08')),
+                     wd.mass(wd.caffeine, '194.08'@wd.dalton)),
+                    (Filter(wd.caffeine, fp, None),  # VF
+                     wd.mass(wd.caffeine, '194.08'@wd.dalton)),
+                ],
+                contains=[
+                    (Filter(None, fp, '194.08'@wd.dalton), [  # FV
+                        (wd.mass(wd.caffeine, '194.08'@wd.dalton)),
+                    ]),
+                ])
+
+    def test_snak_fp_property_dt_lexeme(self) -> None:
         pass
 
-    def test_snak_fp_property_lexeme(self) -> None:
+    def test_snak_fp_property_dt_iri(self) -> None:
         pass
 
-    def test_snak_fp_property_iri(self) -> None:
+    def test_snak_fp_property_dt_text(self) -> None:
         pass
 
-    def test_snak_fp_property_text(self) -> None:
+    def test_snak_fp_property_dt_string(self) -> None:
         pass
 
-    def test_snak_fp_property_string(self) -> None:
+    def test_snak_fp_property_dt_external_id(self) -> None:
         pass
 
-    def test_snak_fp_property_external_id(self) -> None:
+    def test_snak_fp_property_dt_quantity(self) -> None:
         pass
 
-    def test_snak_fp_property_quantity(self) -> None:
-        pass
-
-    def test_snak_fp_property_time(self) -> None:
+    def test_snak_fp_property_dt_time(self) -> None:
         pass
 
 
