@@ -791,11 +791,11 @@ def wd_isomeric_SMILES(
 
 
 @PubChemMapping.register(
-    property=wd.legal_status,
+    property=wd.legal_status_medicine,
     datatype=ItemDatatype(),
     subject_prefix=PubChemMapping.COMPOUND,
     value=wd.FDA_approved)
-def wd_legal_status(
+def wd_legal_status_medicine(
         spec: Spec,
         q: Builder,
         s: TTrm,

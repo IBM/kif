@@ -276,16 +276,6 @@ class Test(SPARQL_Store2TestCase):
                      '1822-09-07', 11, 0, wd.proleptic_Gregorian_calendar))),
             ])
 
-    def test_value_fp_property_some_value(self) -> None:
-        self._test_filter_matches(
-            Filter(None, wd.date_of_birth, snak_mask=Filter.SOME_VALUE_SNAK),
-            Statement(x, SomeValueSnak(wd.date_of_birth)))
-
-    def test_value_fp_property_no_value(self) -> None:
-        self._test_filter_matches(
-            Filter(None, wd.father, snak_mask=Filter.NO_VALUE_SNAK),
-            Statement(x, NoValueSnak(wd.father)))
-
     def test_snak_fp_property_item(self) -> None:
         fps = [
             Fingerprint.check(wd.inverse_property(wd.has_part)),

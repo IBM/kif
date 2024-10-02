@@ -249,9 +249,9 @@ class PubChemMapping(M):
             (attr, SIO.has_value, y))
 
     @M.register(
-        wd.legal_status(Item(x), wd.FDA_approved),
+        wd.legal_status_medicine(Item(x), wd.FDA_approved),
         {x: CheckCompound()})
-    def wd_legal_status(self, c: Compiler, x: V_URI):
+    def wd_legal_status_medicine(self, c: Compiler, x: V_URI):
         c.q.triples()(
             (x, RO.has_role, PubChem.VOCABULARY.FDAApprovedDrugs))
 

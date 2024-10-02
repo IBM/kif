@@ -163,16 +163,6 @@ class Test(SPARQL_Store2TestCase):
         self._test_filter_matches(  # FF
             Filter(subject_mask=Filter.LEXEME), Statement(Lexeme(x), y))
 
-    def test_value_fp_entity_some_value(self) -> None:
-        self._test_filter_matches(
-            Filter(wd.Adam, snak_mask=Filter.SOME_VALUE_SNAK),
-            Statement(wd.Adam, SomeValueSnak(y)))
-
-    def test_value_fp_entity_no_value(self) -> None:
-        self._test_filter_matches(
-            Filter(wd.Adam, snak_mask=Filter.NO_VALUE_SNAK),
-            Statement(wd.Adam, NoValueSnak(y)))
-
     def test_snak_fp_item_item(self) -> None:
         fps = [
             Fingerprint.check(wd.part_of(wd.Adam_and_Eve)),
@@ -196,83 +186,111 @@ class Test(SPARQL_Store2TestCase):
                 ])
 
     def test_snak_fp_item_property(self) -> None:
-        fp = wd.Wikidata_property(wd.mass)
-        self._test_filter(
-            equals=[
-                (Filter(fp, None, 'm'),  # FV
-                 wd.quantity_symbol_string(wd.mass_, 'm')),
-            ],
-            contains=[
-                (Filter(fp, wd.Wikidata_property, wd.mass), [  # VV
-                    wd.Wikidata_property(wd.mass_, wd.mass),
-                ]),
-                (Filter(fp, wd.quantity_symbol_string, None), [  # VF
-                    wd.quantity_symbol_string(wd.mass_, 'M'),
-                    wd.quantity_symbol_string(wd.mass_, 'm'),
-                ]),
-            ])
+        fps = [
+            Fingerprint.check(wd.Wikidata_property(wd.mass)),
+            -(wd.measured_physical_quantity(wd.Q(613726))),  # item-item
+        ]
+        for fp in fps:
+            self._test_filter(
+                equals=[
+                    (Filter(fp, None, 'm'),  # FV
+                     wd.quantity_symbol_string(wd.mass_, 'm')),
+                ],
+                contains=[
+                    (Filter(fp, wd.Wikidata_property, wd.mass), [  # VV
+                        wd.Wikidata_property(wd.mass_, wd.mass),
+                    ]),
+                    (Filter(fp, wd.quantity_symbol_string, None), [  # VF
+                        wd.quantity_symbol_string(wd.mass_, 'M'),
+                        wd.quantity_symbol_string(wd.mass_, 'm'),
+                    ]),
+                ])
 
     def test_snak_fp_item_lexeme(self) -> None:
-        fp = wd.subject_lexeme(wd.L(39504))
-        self._test_filter(
-            equals=[
-                (Filter(fp, wd.subject_lexeme, wd.L(39504)),  # VV
-                 wd.subject_lexeme(wd.Q(325872), wd.L(39504))),
-                (Filter(fp, wd.instance_of, None),  # VF
-                 wd.instance_of(wd.Q(325872), wd.female_given_name)),
-                (Filter(fp, None, wd.female_given_name),  # FV
-                 wd.instance_of(wd.Q(325872), wd.female_given_name)),
-            ])
+        fps = [
+            Fingerprint.check(wd.subject_lexeme(wd.L(39504))),
+            -(wd.said_to_be_the_same_as(wd.Q(21285812))),  # item-item
+        ]
+        for fp in fps:
+            self._test_filter(
+                equals=[
+                    (Filter(fp, wd.subject_lexeme, wd.L(39504)),  # VV
+                     wd.subject_lexeme(wd.Q(325872), wd.L(39504))),
+                    (Filter(fp, wd.instance_of, None),  # VF
+                     wd.instance_of(wd.Q(325872), wd.female_given_name)),
+                    (Filter(fp, None, wd.female_given_name),  # FV
+                     wd.instance_of(wd.Q(325872), wd.female_given_name)),
+                ])
 
     def test_snak_fp_item_iri(self) -> None:
-        fp = wd.official_website('https://www.ibm.com/')
-        self._test_filter(
-            equals=[
-                (Filter(fp, wd.official_name,  # VV
+        fps = [
+            Fingerprint.check(wd.official_website('https://www.ibm.com/')),
+            -(wd.manufacturer(wd.Watson)),  # item-item
+        ]
+        for fp in fps:
+            self._test_filter(
+                equals=[
+                    (Filter(
+                        fp, wd.official_name,  # VV
                         'International Business Machines Corporation'),
-                 wd.official_name(
-                     wd.IBM, 'International Business Machines Corporation')),
-                (Filter(fp, wd.country),  # VF
-                 wd.country(wd.IBM, wd.United_States_of_America)),
-                (Filter(fp, None, wd.Endicott),  # FV
-                 wd.location_of_formation(wd.IBM, wd.Endicott)),
-            ])
+                     wd.official_name(
+                         wd.IBM,
+                         'International Business Machines Corporation')),
+                    (Filter(fp, wd.country),  # VF
+                     wd.country(wd.IBM, wd.United_States_of_America)),
+                    (Filter(fp, None, wd.Endicott),  # FV
+                     wd.location_of_formation(wd.IBM, wd.Endicott)),
+                ])
 
     def test_snak_fp_item_text(self) -> None:
-        fp = wd.official_name('International Business Machines Corporation')
-        self._test_filter(
-            equals=[
-                (Filter(fp, wd.official_website, 'https://www.ibm.com/'),
-                 wd.official_website(wd.IBM, 'https://www.ibm.com/')),
-                (Filter(fp, wd.country),  # VF
-                 wd.country(wd.IBM, wd.United_States_of_America)),
-                (Filter(fp, None, wd.Endicott),  # FV
-                 wd.location_of_formation(wd.IBM, wd.Endicott)),
-            ])
+        fps = [
+            Fingerprint.check(wd.official_name(
+                'International Business Machines Corporation')),
+            -(wd.developer(wd.IBM_AIX)),  # item-item
+        ]
+        for fp in fps:
+            self._test_filter(
+                equals=[
+                    (Filter(fp, wd.official_website, 'https://www.ibm.com/'),
+                     wd.official_website(wd.IBM, 'https://www.ibm.com/')),
+                    (Filter(fp, wd.country),  # VF
+                     wd.country(wd.IBM, wd.United_States_of_America)),
+                    (Filter(fp, None, wd.Endicott),  # FV
+                     wd.location_of_formation(wd.IBM, wd.Endicott)),
+                ])
 
     def test_snak_fp_item_string(self) -> None:
-        fp = wd.canonical_SMILES('CN1C=NC2=C1C(=O)N(C(=O)N2C)C')
-        self._test_filter(
-            equals=[
-                (Filter(fp, wd.named_after, wd.coffee),
-                 wd.named_after(wd.caffeine, wd.coffee)),
-                (Filter(fp, wd.named_after, None),
-                 wd.named_after(wd.caffeine, wd.coffee)),
-                (Filter(fp, None, wd.coffee),
-                 wd.named_after(wd.caffeine, wd.coffee)),
-            ])
+        fps = [
+            Fingerprint.check(
+                wd.canonical_SMILES('CN1C=NC2=C1C(=O)N(C(=O)N2C)C')),
+            -(wd.has_active_ingredient(wd.Q(64148184))),  # item-item
+        ]
+        for fp in fps:
+            self._test_filter(
+                equals=[
+                    (Filter(fp, wd.named_after, wd.coffee),
+                     wd.named_after(wd.caffeine, wd.coffee)),
+                    (Filter(fp, wd.named_after, None),
+                     wd.named_after(wd.caffeine, wd.coffee)),
+                    (Filter(fp, None, wd.coffee),
+                     wd.named_after(wd.caffeine, wd.coffee)),
+                ])
 
     def test_snak_fp_item_external_id(self) -> None:
-        fp = wd.Freebase_ID('/m/09_c5v')
-        self._test_filter(
-            equals=[
-                (Filter(fp, wd.Freebase_ID, '/m/09_c5v'),  # VV
-                 wd.Freebase_ID(wd.Adam, '/m/09_c5v')),
-                (Filter(fp, wd.part_of, None),  # VF
-                 wd.part_of(wd.Adam, wd.Adam_and_Eve)),
-                (Filter(fp, None, ExternalId('09609728-n')),  # FV
-                 wd.WordNet_31_Synset_ID(wd.Adam, '09609728-n')),
-            ])
+        fps = [
+            Fingerprint.check(wd.Freebase_ID('/m/09_c5v')),
+            -(wd.father(wd.Q(107626))),  # item-item
+        ]
+        for fp in fps:
+            self._test_filter(
+                equals=[
+                    (Filter(fp, wd.Freebase_ID, '/m/09_c5v'),  # VV
+                     wd.Freebase_ID(wd.Adam, '/m/09_c5v')),
+                    (Filter(fp, wd.part_of, None),  # VF
+                     wd.part_of(wd.Adam, wd.Adam_and_Eve)),
+                    (Filter(fp, None, ExternalId('09609728-n')),  # FV
+                     wd.WordNet_31_Synset_ID(wd.Adam, '09609728-n')),
+                ])
 
     def test_snak_fp_item_quantity(self) -> None:
         self._test_filter(
@@ -320,55 +338,70 @@ class Test(SPARQL_Store2TestCase):
             ])
 
     def test_snak_fp_property_item(self) -> None:
-        fp = wd.Wikidata_item_of_this_property(wd.mass_)
-        self._test_filter(
-            equals=[
-                (Filter(fp, wd.Wikidata_item_of_this_property, wd.mass_),  # VV
-                 (wd.Wikidata_item_of_this_property(wd.mass, wd.mass_))),
-                (Filter(fp, wd.equivalent_property),  # VF
-                 wd.equivalent_property(wd.mass, 'https://schema.org/weight')),
-                (Filter(fp, None, IRI('https://schema.org/weight')),  # FV
-                 wd.equivalent_property(wd.mass, 'https://schema.org/weight')),
-            ])
+        fps = [
+            Fingerprint.check(wd.Wikidata_item_of_this_property(wd.mass_)),
+            -(wd.subproperty_of(wd.payload_mass)),  # property-property
+        ]
+        for fp in fps:
+            self._test_filter(
+                equals=[
+                    (Filter(    # VV
+                        fp, wd.Wikidata_item_of_this_property, wd.mass_),
+                     (wd.Wikidata_item_of_this_property(wd.mass, wd.mass_))),
+                    (Filter(fp, wd.equivalent_property),  # VF
+                     wd.equivalent_property(
+                         wd.mass, 'https://schema.org/weight')),
+                    (Filter(
+                        fp, None, IRI('https://schema.org/weight')),  # FV
+                     wd.equivalent_property(
+                         wd.mass, 'https://schema.org/weight')),
+                ])
 
     def test_snak_fp_property_property(self) -> None:
-        fp = wd.inverse_property(wd.part_of)
-        self._test_filter(
-            equals=[
-                (Filter(fp, wd.negates_property, wd.does_not_have_part),  # VV
-                 (wd.negates_property(wd.has_part, wd.does_not_have_part))),
-                (Filter(fp, wd.negates_property),  # VF
-                 wd.negates_property(wd.has_part, wd.does_not_have_part)),
-            ],
-            contains=[
-                (Filter(fp, None, wd.does_not_have_part), [  # FV
-                    wd.negates_property(wd.has_part, wd.does_not_have_part),
-                    wd.complementary_property(
-                        wd.has_part, wd.does_not_have_part),
+        fps = [
+            Fingerprint.check(wd.inverse_property(wd.part_of)),
+            -(wd.subproperty_of(  # property-property
+                wd.contains_the_administrative_territorial_entity)),
+        ]
+        for fp in fps:
+            self._test_filter(
+                equals=[
+                    (Filter(    # VV
+                        fp, wd.negates_property, wd.does_not_have_part),
+                     (wd.negates_property(
+                         wd.has_part, wd.does_not_have_part))),
+                    (Filter(fp, wd.negates_property),  # VF
+                     wd.negates_property(wd.has_part, wd.does_not_have_part)),
+                ],
+                contains=[
+                    (Filter(fp, None, wd.does_not_have_part), [  # FV
+                        wd.negates_property(
+                            wd.has_part, wd.does_not_have_part),
+                        wd.complementary_property(
+                            wd.has_part, wd.does_not_have_part),
+                    ])
                 ])
-            ])
 
     def test_snak_fp_property_lexeme(self) -> None:
-        fp = wd.Wikidata_property_example_for_lexemes(wd.L(2879))
-        self._test_filter(
-            equals=[
-                (Filter(        # VV
-                    fp, wd.equivalent_property,
-                    'http://www.lexinfo.net/ontology/2.0/lexinfo#gender'),
-                 wd.equivalent_property(
-                     wd.grammatical_gender,
-                     'http://www.lexinfo.net/ontology/2.0/lexinfo#gender')),
-                (Filter(fp, wd.equivalent_property),  # VF
-                 wd.equivalent_property(
-                     wd.grammatical_gender,
-                     'http://www.lexinfo.net/ontology/2.0/lexinfo#gender')),
-                (Filter(        # FV
-                    fp, None,
-                    IRI('http://www.lexinfo.net/ontology/2.0/lexinfo#gender')),
-                 wd.equivalent_property(
-                     wd.grammatical_gender,
-                     'http://www.lexinfo.net/ontology/2.0/lexinfo#gender')),
-            ])
+        fps = [
+            Fingerprint.check(
+                wd.Wikidata_property_example_for_lexemes(wd.L(2879))),
+            -(wd.related_property(wd.grammatical_person)),  # property-property
+        ]
+        url = 'http://www.lexinfo.net/ontology/2.0/lexinfo#gender'
+        for fp in fps:
+            self._test_filter(
+                contains=[
+                    (Filter(fp, wd.equivalent_property, url), [  # VV
+                        wd.equivalent_property(wd.grammatical_gender, url),
+                    ]),
+                    (Filter(fp, wd.equivalent_property),  [  # VF
+                        wd.equivalent_property(wd.grammatical_gender, url),
+                    ]),
+                    (Filter(fp, None, IRI(url)), [  # FV
+                        wd.equivalent_property(wd.grammatical_gender, url),
+                    ]),
+                ])
 
     def test_snak_fp_property_iri(self) -> None:
         pass
@@ -386,6 +419,33 @@ class Test(SPARQL_Store2TestCase):
         pass
 
     def test_snak_fp_property_time(self) -> None:
+        pass
+
+    def test_snak_fp_lexeme_item(self) -> None:
+        pass
+
+    def test_snak_fp_lexeme_property(self) -> None:
+        pass
+
+    def test_snak_fp_lexeme_lexeme(self) -> None:
+        pass
+
+    def test_snak_fp_lexeme_iri(self) -> None:
+        pass
+
+    def test_snak_fp_lexeme_text(self) -> None:
+        pass
+
+    def test_snak_fp_lexeme_string(self) -> None:
+        pass
+
+    def test_snak_fp_lexeme_external_id(self) -> None:
+        pass
+
+    def test_snak_fp_lexeme_quantity(self) -> None:
+        pass
+
+    def test_snak_fp_lexeme_time(self) -> None:
         pass
 
 

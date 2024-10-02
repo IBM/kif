@@ -341,11 +341,12 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                     self.q.comments()(f'{value} =~ {type(fp).__qualname__}')
                 self._push_compound_fp(entry, fp, value)
         elif isinstance(fp, SnakFingerprint):
+            if not isinstance(value, (
+                    Entity, EntityTemplate, EntityVariable)):
+                raise SPARQL_Mapping.Skip  # fail
             with self.q.group():
                 if self.has_flags(self.DEBUG):
                     self.q.comments()(f'{value} =~ {fp}')
-                assert isinstance(value, (
-                    Entity, EntityTemplate, EntityVariable))
                 self._push_snak_fp(entry, fp, value)
         elif isinstance(fp, ValueFingerprint):
             with self.q.group():
@@ -394,7 +395,10 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         if isinstance(fp, ConverseSnakFingerprint):
             assert isinstance(fp.snak, ValueSnak)
             assert isinstance(fp.snak.value, Entity)
-            source = fp.snak.property(fp.snak.value, entity)
+            try:
+                source = fp.snak.property(fp.snak.value, entity)
+            except (TypeError, ValueError):
+                raise self.mapping.Skip  # fail
         else:
             source = Statement(entity, fp.snak)
         source = source.generalize(rename=self._fresh_name_generator())

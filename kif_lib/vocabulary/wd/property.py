@@ -20,6 +20,7 @@ chemical_formula = P(274)
 chemical_structure = P(117)
 complementary_property = P(8882)
 contains = P(4330)
+contains_the_administrative_territorial_entity = P(150)
 continent = P(30)
 country = P(17)
 country_of_citizenship = P(27)
@@ -32,6 +33,7 @@ depicts = P(180)
 derived_from_lexeme = P(5191)
 described_at_URL = P(973)
 described_by_source = P(1343)
+developer = P(178)
 Dictionary_of_American_Regional_English_ID = P(12448)
 does_not_have_part = P(3113)
 download_link = P(4945)
@@ -47,8 +49,11 @@ father = P(22)
 field_of_work = P(101)
 file_format = P(2701)
 Freebase_ID = P(646)
+gender_of_a_scientific_name_of_a_genus = P(2433)
 grammatical_gender = P(5185)
+grammatical_person = P(11053)
 half_life = P(2114)
+has_active_ingredient = P(3781)
 has_effect = P(1542)
 has_part = P(527)
 has_use = P(366)
@@ -65,13 +70,14 @@ inverse_property = P(1696)
 ionization_energy = P(2260)
 isomeric_SMILES = P(2017)
 language_of_work_or_name = P(407)
-legal_status = P(3493)
+legal_status_medicine = P(3493)
 location_of_formation = P(740)
 lowest_point = P(1589)
 made_from_material = P(186)
 main_subject = P(921)
 manufacturer = P(176)
 mass = P(2067)
+measured_physical_quantity = P(111)
 median_lethal_dose = P(2240)
 melting_point = P(2101)
 member_of = P(463)
@@ -90,6 +96,7 @@ part_of = P(361)
 participant_in = P(1344)
 partition_coefficient_water_octanol = P(2993)
 patent_number = P(1246)
+payload_mass = P(4519)
 phase_of_matter = P(515)
 pKa = P(1117)
 place_of_birth = P(19)
@@ -105,6 +112,7 @@ residence = P(551)
 retrieved = P(813)
 route_of_administration = P(636)
 safety_classification_and_labelling = P(4952)
+said_to_be_the_same_as = P(460)
 sex_or_gender = P(21)
 shares_border_with = P(47)
 short_name = P(1813)
@@ -154,6 +162,7 @@ __all__ = (
     'chemical_structure',
     'complementary_property',
     'contains',
+    'contains_the_administrative_territorial_entity',
     'continent',
     'country',
     'country_of_citizenship',
@@ -166,6 +175,7 @@ __all__ = (
     'derived_from_lexeme',
     'described_at_URL',
     'described_by_source',
+    'developer',
     'Dictionary_of_American_Regional_English_ID',
     'does_not_have_part',
     'download_link',
@@ -182,8 +192,11 @@ __all__ = (
     'field_of_work',
     'file_format',
     'Freebase_ID',
+    'gender_of_a_scientific_name_of_a_genus',
     'grammatical_gender',
+    'grammatical_person',
     'half_life',
+    'has_active_ingredient',
     'has_effect',
     'has_part',
     'has_use',
@@ -200,13 +213,14 @@ __all__ = (
     'ionization_energy',
     'isomeric_SMILES',
     'language_of_work_or_name',
-    'legal_status',
+    'legal_status_medicine',
     'location_of_formation',
     'lowest_point',
     'made_from_material',
     'main_subject',
     'manufacturer',
     'mass',
+    'measured_physical_quantity',
     'median_lethal_dose',
     'melting_point',
     'member_of',
@@ -225,6 +239,7 @@ __all__ = (
     'participant_in',
     'partition_coefficient_water_octanol',
     'patent_number',
+    'payload_mass',
     'phase_of_matter',
     'pKa',
     'place_of_birth',
@@ -240,6 +255,7 @@ __all__ = (
     'retrieved',
     'route_of_administration',
     'safety_classification_and_labelling',
+    'said_to_be_the_same_as',
     'sex_or_gender',
     'shares_border_with',
     'short_name',

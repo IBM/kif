@@ -13,8 +13,10 @@ from ....model import (
     IRI,
     IRI_Variable,
     Item,
+    ItemTemplate,
     ItemVariable,
     Lexeme,
+    LexemeTemplate,
     LexemeVariable,
     Property,
     PropertyTemplate,
@@ -185,6 +187,12 @@ class WikidataMapping(M):
                              c.theta_add_as_qvar(prop_dt_iri)))
                         c.q.bind(v, c.theta_add_as_qvar(prop_iri))
             return t
+        elif isinstance(e, ItemTemplate):
+            assert isinstance(e.iri, IRI_Variable)
+            return self._start_Q(c, c.as_qvar(e.iri), p, dt)
+        elif isinstance(e, LexemeTemplate):
+            assert isinstance(e.iri, IRI_Variable)
+            return self._start_L(c, c.as_qvar(e.iri), p, dt)
         elif isinstance(e, PropertyTemplate):
             if isinstance(e.iri, IRI):
                 s: V_URI = cast(URI, self.CheckProperty()(

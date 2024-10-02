@@ -76,6 +76,7 @@ Hazardous_Substances_Data_Bank = Q(5687720, 'Hazardous Substances Data Bank')
 human = Q(5, 'human')
 human_biblical_figure = Q(20643955, 'human biblical figure')
 IBM = Q(37156, 'IBM')
+IBM_AIX = Q(269856, 'IBM_AIX')
 infant = Q(998, 'infant')
 inhalation = Q(840343, 'inhalation')
 intraperitoneal_injection = Q(1400536, 'intraperitoneal injection')
@@ -146,6 +147,7 @@ Uruguay = Q(77, 'Uruguay')
 Venezuela = Q(717, 'Venezuela')
 verb = Q(24905, 'verb')
 water = Q(283, 'water')
+Watson = Q(12253, 'Watson')
 Wikidata = Q(2013, 'Wikidata')
 Wikidata_property_for_physical_quantities = Q(21077852, 'Wikidata property for physical quantities')
 Wikidata_property_related_to_animals_and_zoology = Q(57633168, 'Wikidata property related to animals and zoology')
@@ -223,6 +225,7 @@ __all__ = (
     'human',
     'human_biblical_figure',
     'IBM',
+    'IBM_AIX',
     'infant',
     'inhalation',
     'intraperitoneal_injection',
@@ -293,6 +296,7 @@ __all__ = (
     'Venezuela',
     'verb',
     'water',
+    'Watson',
     'Wikidata',
     'Wikidata_property_for_physical_quantities',
     'Wikidata_property_related_to_animals_and_zoology',

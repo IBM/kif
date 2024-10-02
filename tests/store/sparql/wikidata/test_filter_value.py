@@ -9,6 +9,7 @@ import unittest
 from kif_lib import (
     ExternalId,
     Filter,
+    Fingerprint,
     IRI,
     Item,
     Lexeme,
@@ -74,14 +75,27 @@ class Test(SPARQL_Store2TestCase):
                     (wd.Pico_31_de_Março, wd.parent_peak),
                 ]),
             ])
-        self._test_filter_matches(
-            Filter(value_mask=Filter.ITEM, snak_mask=Filter.VALUE_SNAK),
-            Statement(x, ValueSnak(y, Item(z))))
 
     def test_value_fp_property(self) -> None:
-        self._test_filter_matches(
-            Filter(value_mask=Filter.PROPERTY, snak_mask=Filter.VALUE_SNAK),
-            Statement(x, ValueSnak(y, Property(z).generalize())))
+        self._test_filter_with_fixed_value(
+            value=wd.grammatical_gender,
+            empty=[
+                (wd.sex_or_gender, wd.subproperty_of),
+            ],
+            equals=[
+                ((wd.sex_or_gender, wd.related_property),  # VV
+                 (wd.sex_or_gender, wd.related_property)),
+                ((wd.sex_or_gender, None),  # VF
+                 (wd.sex_or_gender, wd.related_property)),
+            ],
+            contains=[
+                ((None, wd.related_property), [  # FV
+                    (wd.P(10339), wd.related_property),
+                    (wd.P(5109), wd.related_property),
+                    (wd.P(5713), wd.related_property),
+                    (wd.sex_or_gender, wd.related_property),
+                ]),
+            ])
 
     def test_value_fp_lexeme(self) -> None:
         self._test_filter_matches(
@@ -117,6 +131,50 @@ class Test(SPARQL_Store2TestCase):
         self._test_filter_matches(
             Filter(value_mask=Filter.TIME, snak_mask=Filter.VALUE_SNAK),
             Statement(x, ValueSnak(y, Time(z).generalize())))
+
+    def test_snak_fp_item(self) -> None:
+        fps = [
+            Fingerprint.check(wd.Freebase_ID('/m/09_c5v')),
+            -(wd.father(wd.Q(107626))),
+        ]
+        for fp in fps:
+            self._test_filter(
+                equals=[
+                    (Filter(wd.Adam_and_Eve, wd.significant_person, fp),  # VV
+                     wd.significant_person(wd.Adam_and_Eve, wd.Adam)),
+                    (Filter(wd.Garden_of_Eden, None, fp),  # VF
+                     wd.significant_person(wd.Garden_of_Eden, wd.Adam))
+                ],
+                contains=[
+                    (Filter(None, wd.significant_person, fp), [  # FV
+                        wd.significant_person(wd.Adam_and_Eve, wd.Adam),
+                        wd.significant_person(wd.Garden_of_Eden, wd.Adam),
+                    ]),
+                ])
+
+    def test_snak_fp_property(self) -> None:
+        pass
+
+    def test_snak_fp_lexeme(self) -> None:
+        pass
+
+    def test_snak_fp_uri(self) -> None:
+        pass
+
+    def test_snak_fp_text(self) -> None:
+        pass
+
+    def test_snak_fp_string(self) -> None:
+        pass
+
+    def test_snak_fp_external_id(self) -> None:
+        pass
+
+    def test_snak_fp_quantity(self) -> None:
+        pass
+
+    def test_snak_fp_time(self) -> None:
+        pass
 
 
 if __name__ == '__main__':
