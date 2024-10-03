@@ -64,7 +64,7 @@ class SPARQL_Mapping(Mapping):
 
     #: The type of entry callback-arg default map.
     EntryCallbackArgDefaultMap: TypeAlias =\
-        Mapping[Variable, Term | None]
+        Mapping[Variable, Optional[Term]]
 
     class EntryCallbackArgProcessor:
         """Entry callback-arg processor."""

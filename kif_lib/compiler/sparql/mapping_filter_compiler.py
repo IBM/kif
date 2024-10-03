@@ -50,6 +50,7 @@ from ...typing import (
     Sequence,
     TypedDict,
     TypeVar,
+    Union,
 )
 from .builder import Query
 from .filter_compiler import SPARQL_FilterCompiler
@@ -525,7 +526,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
     ) -> Iterator[Query.Literal | Query.URI]:
         for value in values:
             try:
-                yield cast(Query.Literal | Query.URI,
+                yield cast(Union[Query.Literal, Query.URI],
                            entry.preprocess(
                                self.mapping, self, variable,
                                self._as_simple_value(value)))
