@@ -10,6 +10,7 @@ from ...model import (
     AndFingerprint,
     CompoundFingerprint,
     ConverseSnakFingerprint,
+    Datatype,
     Entity,
     EntityTemplate,
     EntityVariable,
@@ -369,6 +370,9 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         snaks, values = map(list, itertools.partition(
             lambda x: isinstance(x, ValueFingerprint), atoms))
         if isinstance(fp, AndFingerprint):
+            ###
+            # TODO: Handle failures.
+            ###
             assert len(values) <= 1
             for child in itertools.chain(snaks, comps):
                 self._push_fp(entry, child, value)
@@ -376,6 +380,9 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 with self.q.group():
                     self._push_value_fps(entry, values, value)
         elif isinstance(fp, OrFingerprint):
+            ###
+            # TODO: Handle failures.
+            ###
             with self.q.union():
                 for child in itertools.chain(snaks, comps):
                     with self.q.group():
@@ -467,39 +474,48 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         assert bool(fps)
         if isinstance(value, Value):
             return              # nothing to do
-        thetas: list[Theta] =\
-            list(filter(lambda t: t is not None, map(  # type: ignore
-                value.match, map(
-                    ValueFingerprint.get_value, fps))))
+        thetas: list[Theta] = [
+            x for x in map(lambda v: value.match(
+                ValueFingerprint.get_value(v).generalize(
+                    rename=self._fresh_name_generator())), fps)
+            if x is not None]
         if not thetas:
             raise SPARQL_Mapping.Skip  # fail
-        accum: dict[Variable, list[Value]] = {}
+        lines = []
         for theta in thetas:
-            for k, v in theta.items():
-                assert isinstance(v, Value)
-                if k in accum:
-                    accum[k].append(v)
+            pairs: list[tuple[
+                Query.Variable, Query.Literal | Query.URI | None]] = []
+            for var, val in theta.items():
+                if var not in entry.pattern.variables:
+                    continue    # vacuous variable, skip
+                qvar = self.as_qvar(var)
+                if val is None or isinstance(val, Variable):  # not bound?
+                    val = entry.default_map.get(var)
+                qval: Query.VTerm | None
+                if val is None:
+                    qval = None
+                elif isinstance(val, Datatype):
+                    qval = val._to_rdflib()
+                elif isinstance(val, Value):
+                    qval = self._as_simple_value(val)
                 else:
-                    accum[k] = [v]
-        for var, vs in accum.items():
-            ###
-            # FIXME: Is this right?
-            ###
-            qvar = self.as_qvar(var)
-            if var in entry.pattern.variables:
-                values = list(self._push_value_fps_preprocess(entry, var, vs))
-            else:
-                values = list(map(self._as_simple_value, vs))
-            if not values:
-                raise self.mapping.Skip  # fail
-            assert len(values) > 0
-            if len(values) > 1 and use_values_clause:
-                self.q.values(qvar)(*map(lambda x: (x,), values))
-            else:
-                with self.q.union():
-                    for val in values:
-                        with self.q.group():
-                            self.q.bind(val, qvar)
+                    raise self._should_not_get_here()
+                try:
+                    pp_qval = entry.preprocess(self.mapping, self, var, qval)
+                except SPARQL_Mapping.Skip:
+                    pairs = []
+                    break       # skip line
+                assert (pp_qval is None
+                        or isinstance(pp_qval, (Query.Literal, Query.URI)))
+                pairs.append((qvar, pp_qval))
+            if pairs:
+                lines.append(dict(pairs))
+        if not lines:
+            raise SPARQL_Mapping.Skip  # fail
+        assert lines
+        vars = list(sorted(lines[0].keys()))
+        vals = map(lambda line: tuple(map(lambda k: line[k], vars)), lines)
+        self.q.values(*vars)(*vals)
 
     def _push_value_fps_preprocess(
             self,

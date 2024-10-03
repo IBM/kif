@@ -8,6 +8,7 @@ from .prelude import Q
 # autopep8: off
 # flake8: noqa
 
+_1 = Q(199, '1')
 acetone = Q(49546, 'acetone')
 Adam = Q(70899, 'Adam')
 Adam_and_Eve = Q(58701, 'Adam and Eve')
@@ -32,6 +33,7 @@ ChemIDplus = Q(20593, 'ChemIDplus')
 chemistry = Q(2329, 'chemistry')
 ChemSpider = Q(2311683, 'ChemSpider')
 child = Q(7569, 'child')
+Chile = Q(298, 'Chile')
 coffee = Q(8486, 'coffee')
 Colombia = Q(739, 'Colombia')
 comma_separated_values = Q(935809, 'comma-separated values')
@@ -157,6 +159,7 @@ Wikidata_property_to_identify_substances = Q(19833835, 'Wikidata property to ide
 woman = Q(467, 'woman')
 
 __all__ = (
+    '_1',
     'acetone',
     'Adam',
     'Adam_and_Eve',
@@ -181,6 +184,7 @@ __all__ = (
     'chemistry',
     'ChemSpider',
     'child',
+    'Chile',
     'coffee',
     'Colombia',
     'comma_separated_values',

@@ -10,7 +10,7 @@ from kif_lib.compiler.sparql.mapping.wikidata import WikidataMapping
 from kif_lib.store.sparql2 import SPARQL_Store2
 from kif_lib.typing import Any, Final, override
 
-from ....tests import SPARQL_Store2TestCase
+from .....tests import SPARQL_Store2TestCase
 
 
 class Test(SPARQL_Store2TestCase):

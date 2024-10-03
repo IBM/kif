@@ -6,6 +6,7 @@ from __future__ import annotations
 from .prelude import P
 
 afflicts = P(689)
+anatomical_location = P(927)
 applies_to_part = P(518)
 applies_to_taxon = P(2352)
 assessment = P(5021)
@@ -22,6 +23,7 @@ complementary_property = P(8882)
 contains = P(4330)
 contains_the_administrative_territorial_entity = P(150)
 continent = P(30)
+conversion_to_SI_unit = P(2370)
 country = P(17)
 country_of_citizenship = P(27)
 crosses = P(177)
@@ -46,8 +48,10 @@ equivalent_property = P(1628)
 exact_match = P(2888)
 family_name = P(734)
 father = P(22)
+field_of_this_occupation = P(425)
 field_of_work = P(101)
 file_format = P(2701)
+found_in_taxon = P(703)
 Freebase_ID = P(646)
 gender_of_a_scientific_name_of_a_genus = P(2433)
 grammatical_gender = P(5185)
@@ -65,7 +69,9 @@ imported_from_Wikimedia_project = P(143)
 inception = P(571)
 InChI = P(234)
 InChIKey = P(235)
+industry = P(452)
 instance_of = P(31)
+interested_in = P(2650)
 inverse_property = P(1696)
 ionization_energy = P(2260)
 isomeric_SMILES = P(2017)
@@ -87,6 +93,9 @@ name_in_native_language = P(1559)
 named_after = P(138)
 native_label = P(1705)
 negates_property = P(11317)
+number_of_decimal_digits = P(7316)
+numeric_value = P(1181)
+occupation = P(106)
 official_language = P(37)
 official_name = P(1448)
 official_website = P(856)
@@ -95,6 +104,7 @@ parent_peak = P(3137)
 part_of = P(361)
 participant_in = P(1344)
 partition_coefficient_water_octanol = P(2993)
+partner_in_business_or_sport = P(1327)
 patent_number = P(1246)
 payload_mass = P(4519)
 phase_of_matter = P(515)
@@ -102,6 +112,8 @@ pKa = P(1117)
 place_of_birth = P(19)
 population = P(1082)
 position_held = P(39)
+position_held = P(39)
+practiced_by = P(3095)
 properties_for_this_type = P(1963)
 PubChem_CID = P(662)
 publication_date = P(577)
@@ -113,6 +125,8 @@ retrieved = P(813)
 route_of_administration = P(636)
 safety_classification_and_labelling = P(4952)
 said_to_be_the_same_as = P(460)
+school_district = P(5353)
+season = P(4908)
 sex_or_gender = P(21)
 shares_border_with = P(47)
 short_name = P(1813)
@@ -134,6 +148,7 @@ temperature = P(2076)
 time_index = P(4895)
 title = P(1476)
 trading_name = P(6427)
+transport_network = P(16)
 type_of_unit_for_this_property = P(2876)
 used_by = P(1535)
 uses = P(2283)
@@ -147,6 +162,7 @@ YouTube_video_ID = P(1651)
 
 __all__ = (
     'afflicts',
+    'anatomical_location',
     'applies_to_part',
     'applies_to_taxon',
     'assessment',
@@ -164,6 +180,7 @@ __all__ = (
     'contains',
     'contains_the_administrative_territorial_entity',
     'continent',
+    'conversion_to_SI_unit',
     'country',
     'country_of_citizenship',
     'crosses',
@@ -189,8 +206,10 @@ __all__ = (
     'exact_match',
     'family_name',
     'father',
+    'field_of_this_occupation',
     'field_of_work',
     'file_format',
+    'found_in_taxon',
     'Freebase_ID',
     'gender_of_a_scientific_name_of_a_genus',
     'grammatical_gender',
@@ -208,7 +227,9 @@ __all__ = (
     'inception',
     'InChI',
     'InChIKey',
+    'industry',
     'instance_of',
+    'interested_in',
     'inverse_property',
     'ionization_energy',
     'isomeric_SMILES',
@@ -230,6 +251,9 @@ __all__ = (
     'named_after',
     'native_label',
     'negates_property',
+    'number_of_decimal_digits',
+    'numeric_value',
+    'occupation',
     'official_language',
     'official_name',
     'official_website',
@@ -238,6 +262,7 @@ __all__ = (
     'part_of',
     'participant_in',
     'partition_coefficient_water_octanol',
+    'partner_in_business_or_sport',
     'patent_number',
     'payload_mass',
     'phase_of_matter',
@@ -245,6 +270,8 @@ __all__ = (
     'place_of_birth',
     'population',
     'position_held',
+    'position_held',
+    'practiced_by',
     'properties_for_this_type',
     'PubChem_CID',
     'publication_date',
@@ -256,6 +283,8 @@ __all__ = (
     'route_of_administration',
     'safety_classification_and_labelling',
     'said_to_be_the_same_as',
+    'school_district',
+    'season',
     'sex_or_gender',
     'shares_border_with',
     'short_name',
@@ -277,6 +306,7 @@ __all__ = (
     'time_index',
     'title',
     'trading_name',
+    'transport_network',
     'type_of_unit_for_this_property',
     'used_by',
     'uses',

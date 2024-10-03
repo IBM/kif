@@ -3,20 +3,17 @@
 
 from __future__ import annotations
 
-from kif_lib import ExternalId, Filter, Fingerprint, Quantity, Time, Variables
+from kif_lib import Quantity, Time, Variables
 from kif_lib.vocabulary import pc, wd
 
-from ....tests import PubChemStoreTestCase
+from .....tests import PubChemStoreTestCase
 
 x, y, z = Variables(*'xyz')
 
 
 class Test(PubChemStoreTestCase):
 
-    def test_empty(self) -> None:
-        self._test_filter_preset_empty()
-
-    def test_value_fp_compound(self) -> None:
+    def test_item_compound(self) -> None:
         self._test_filter_with_fixed_subject(
             subject=pc.CID(241),
             equals=[
@@ -47,26 +44,7 @@ class Test(PubChemStoreTestCase):
                 ]),
             ])
 
-    def test_snak_fp_compound(self) -> None:
-        fps = [
-            Fingerprint.check(wd.ChEMBL_ID('CHEMBL277500')),
-            -(wd.has_part(pc.CID(139250634))),
-        ]
-        for fp in fps:
-            self._test_filter(
-                equals=[
-                    (Filter(fp, wd.PubChem_CID, '241'),  # VV
-                     wd.PubChem_CID(pc.CID(241), '241')),
-                    (Filter(fp, None, ExternalId('16716')),  # FV
-                     wd.ChEBI_ID(pc.CID(241), '16716')),
-                ],
-                contains=[
-                    (Filter(fp, wd.mass, None), [  # VF
-                        wd.mass(pc.CID(241), '78.11'@wd.gram_per_mole),
-                    ]),
-                ])
-
-    def test_value_fp_patent(self) -> None:
+    def test_item_patent(self) -> None:
         self._test_filter_with_fixed_subject(
             subject=pc.patent('BR-PI0506496-B1'),
             equals=[
@@ -103,35 +81,7 @@ class Test(PubChemStoreTestCase):
                 ]),
             ])
 
-    def test_snak_fp_patent(self) -> None:
-        fps = [
-            Fingerprint.check(wd.patent_number('BR-PI0506496-B1')),
-            Fingerprint.check(wd.title(
-                'Improved injection site tolerance pharmaceutical '
-                'composition comprising sulfobutylether-ß-cyclodextrin '
-                'and its use in the treatment of emesisEmproved '
-                'injection site tolerance pharmaceutical composition '
-                'comprising sulfobutylether-ß-cyclodextrin and its '
-                'use in the treatment of emesisEmproved tolerance '
-                'pharmaceutical composition injection comprising '
-                'sulfobutylether-ß-cyclodextrin and its use in the '
-                'treatment of emesis')),
-        ]
-        for fp in fps:
-            self._test_filter(
-                equals=[
-                    (Filter(fp, wd.patent_number, 'BR-PI0506496-B1'),  # VV
-                     wd.patent_number(
-                         pc.patent('BR-PI0506496-B1'), 'BR-PI0506496-B1')),
-                    (Filter(fp, wd.patent_number, None),  # VF
-                     wd.patent_number(
-                         pc.patent('BR-PI0506496-B1'), 'BR-PI0506496-B1')),
-                    (Filter(fp, None, ExternalId('BR-PI0506496-B1')),  # FV
-                     wd.patent_number(
-                         pc.patent('BR-PI0506496-B1'), 'BR-PI0506496-B1')),
-                ])
-
-    def test_value_fp_source(self) -> None:
+    def test_item_source(self) -> None:
         self._test_filter_with_fixed_subject(
             subject=pc.source('ChemBlock'),
             equals=[
@@ -144,7 +94,7 @@ class Test(PubChemStoreTestCase):
                 ]),
             ])
 
-    def test_value_fp_property(self) -> None:
+    def test_property_Isotope_Atom_Count(self) -> None:
         self._test_filter_with_fixed_subject(
             subject=pc.Isotope_Atom_Count,
             equals=[

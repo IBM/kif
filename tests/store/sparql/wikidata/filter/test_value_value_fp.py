@@ -9,7 +9,6 @@ import unittest
 from kif_lib import (
     ExternalId,
     Filter,
-    Fingerprint,
     IRI,
     Lexeme,
     Quantity,
@@ -25,7 +24,7 @@ from kif_lib.store.sparql2 import SPARQL_Store2
 from kif_lib.typing import Any, Final, override
 from kif_lib.vocabulary import wd
 
-from ....tests import SPARQL_Store2TestCase
+from .....tests import SPARQL_Store2TestCase
 
 w, x, y, z = Variables(*'wxyz')
 
@@ -47,10 +46,7 @@ class Test(SPARQL_Store2TestCase):
             'sparql2', cls.WIKIDATA,
             WikidataMapping(strict=True), *args, **kwargs)
 
-    def test_empty(self) -> None:
-        self._test_filter_preset_empty()
-
-    def test_value_fp_item(self) -> None:
+    def test_item(self) -> None:
         self._test_filter_with_fixed_value(
             value=wd.Pico_da_Neblina,
             empty=[
@@ -74,7 +70,7 @@ class Test(SPARQL_Store2TestCase):
                 ]),
             ])
 
-    def test_value_fp_property(self) -> None:
+    def test_property(self) -> None:
         self._test_filter_with_fixed_value(
             value=wd.grammatical_gender,
             empty=[
@@ -95,119 +91,67 @@ class Test(SPARQL_Store2TestCase):
                 ]),
             ])
 
-    def test_value_fp_lexeme(self) -> None:
+    def test_lexeme(self) -> None:
         self._test_filter_matches(
             Filter(value_mask=Filter.LEXEME, snak_mask=Filter.VALUE_SNAK),
             Statement(x, ValueSnak(y, Lexeme(z))))
 
-    def test_value_fp_iri(self) -> None:
+    def test_iri(self) -> None:
         self._test_filter_matches(
             Filter(value_mask=Filter.IRI, snak_mask=Filter.VALUE_SNAK),
             Statement(x, ValueSnak(y, IRI(z))))
 
-    def test_value_fp_text(self) -> None:
+    def test_text(self) -> None:
         self._test_filter_matches(
             Filter(value_mask=Filter.TEXT, snak_mask=Filter.VALUE_SNAK),
             Statement(x, ValueSnak(y, Text(z, w))))
 
-    def test_value_fp_string(self) -> None:
+    def test_string(self) -> None:
         self._test_filter_matches(
             Filter(value_mask=Filter.STRING, snak_mask=Filter.VALUE_SNAK),
             Statement(x, ValueSnak(y, String(z))))
 
-    def test_value_fp_external_id(self) -> None:
+    def test_external_id(self) -> None:
         self._test_filter_matches(
             Filter(value_mask=Filter.EXTERNAL_ID, snak_mask=Filter.VALUE_SNAK),
             Statement(x, ValueSnak(y, ExternalId(z))))
 
-    def test_value_fp_quantity(self) -> None:
-        self._test_filter_matches(
-            Filter(value_mask=Filter.QUANTITY, snak_mask=Filter.VALUE_SNAK),
-            Statement(x, ValueSnak(y, Quantity(z).generalize())))
+    def test_quantity(self) -> None:
+        self._test_filter(
+            empty=[
+                Filter(wd.caffeine, wd.mass, Quantity('194.08', None, 1)),
+                Filter(wd._1, wd.numeric_value, Quantity(1, wd._1, None, 1)),
+                Filter(wd.Q(27289566), wd.mass, Quantity(
+                    '194.08', None, '194.07')),
+            ],
+            equals=[
+                (Filter(        # VV
+                    wd.caffeine, wd.mass, '194.08'@wd.dalton),
+                 wd.mass(wd.caffeine, '194.08'@wd.dalton)),
+                (Filter(
+                    wd.caffeine, wd.mass, Quantity('194.08')),
+                 wd.mass(wd.caffeine, '194.08'@wd.dalton))
+            ],
+            contains=[
+                (Filter(        # VF
+                    wd._1, None, 1), [
+                        wd.conversion_to_SI_unit(
+                            wd._1, Quantity(1, wd._1, 1, 1)),
+                        wd.number_of_decimal_digits(wd._1, 1@wd._1),
+                        wd.numeric_value(wd._1, 1@wd._1),
+                ]),
+                (Filter(        # FV
+                    None, wd.mass, '194.08'@wd.dalton), [
+                        wd.mass(wd.caffeine, '194.08'@wd.dalton),
+                        wd.mass(wd.Q(27289566), Quantity(
+                            '194.08', wd.dalton, '194.08', '194.08')),
+                ]),
+            ])
 
-    def test_value_fp_time(self) -> None:
+    def test_time(self) -> None:
         self._test_filter_matches(
             Filter(value_mask=Filter.TIME, snak_mask=Filter.VALUE_SNAK),
             Statement(x, ValueSnak(y, Time(z).generalize())))
-
-    def test_snak_fp_item_item(self) -> None:
-        fps = [
-            Fingerprint.check(wd.Freebase_ID('/m/09_c5v')),
-            -(wd.father(wd.Q(107626))),
-        ]
-        for fp in fps:
-            self._test_filter(
-                equals=[
-                    (Filter(wd.Adam_and_Eve, wd.significant_person, fp),  # VV
-                     wd.significant_person(wd.Adam_and_Eve, wd.Adam)),
-                    (Filter(wd.Garden_of_Eden, None, fp),  # VF
-                     wd.significant_person(wd.Garden_of_Eden, wd.Adam))
-                ],
-                contains=[
-                    (Filter(None, wd.significant_person, fp), [  # FV
-                        wd.significant_person(wd.Adam_and_Eve, wd.Adam),
-                        wd.significant_person(wd.Garden_of_Eden, wd.Adam),
-                    ]),
-                ])
-
-    def test_snak_fp_item_property(self) -> None:
-        fps = [
-            Fingerprint.check(wd.Wikidata_item_of_this_property(wd.mass_)),
-            -(wd.subproperty_of(wd.payload_mass)),
-        ]
-        for fp in fps:
-            self._test_filter(
-                equals=[
-                    (Filter(wd.human, wd.properties_for_this_type, fp),  # VV
-                     wd.properties_for_this_type(wd.human, wd.mass)),
-                    (Filter(wd.human, None, fp),  # VF
-                     wd.properties_for_this_type(wd.human, wd.mass)),
-                ],
-                contains=[
-                    (Filter(None, wd.properties_for_this_type, fp), [  # FV
-                        wd.properties_for_this_type(wd.human, wd.mass),
-                    ]),
-                ])
-
-    def test_snak_fp_item_lexeme(self) -> None:
-        pass
-
-    def test_snak_fp_item_iri(self) -> None:
-        pass
-
-    def test_snak_fp_item_text(self) -> None:
-        pass
-
-    def test_snak_fp_item_string(self) -> None:
-        pass
-
-    def test_snak_fp_item_external_id(self) -> None:
-        pass
-
-    def test_snak_fp_item_quantity(self) -> None:
-        pass
-
-    def test_snak_fp_item_time(self) -> None:
-        pass
-
-    def test_snak_fp_property_item(self) -> None:
-        fps = [
-            Fingerprint.check(wd.Wikidata_item_of_this_property(wd.mass_)),
-            -(wd.subproperty_of(wd.payload_mass)),
-        ]
-        for fp in fps:
-            self._test_filter(
-                equals=[        # VV
-                    (Filter(wd.payload_mass, wd.subproperty_of, fp),
-                     (wd.subproperty_of(wd.payload_mass, wd.mass))),
-                    (Filter(wd.payload_mass, None, fp),  # VF
-                     (wd.subproperty_of(wd.payload_mass, wd.mass))),
-                    (Filter(None, wd.subproperty_of, fp),  # FV
-                     (wd.subproperty_of(wd.payload_mass, wd.mass)))
-                ])
-
-    def test_snak_fp_lexeme(self) -> None:
-        pass
 
 
 if __name__ == '__main__':
