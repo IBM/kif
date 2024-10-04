@@ -7,6 +7,7 @@ import dataclasses
 import re
 from typing import TYPE_CHECKING
 
+from ....context import Context
 from ....model import (
     KIF_Object,
     Statement,
@@ -632,6 +633,21 @@ class SPARQL_Mapping(Mapping):
                 sub=sub)
 
 # -- Methods ---------------------------------------------------------------
+
+    @property
+    def context(self) -> Context:
+        """The current KIF context."""
+        return self.get_context()
+
+    def get_context(self, context: Context | None = None) -> Context:
+        """Gets the current KIF context.
+
+        If `context` is not ``None``, returns `context`.
+
+        Returns:
+           Context.
+        """
+        return Context.top(context)
 
     def __getitem__(
             self,

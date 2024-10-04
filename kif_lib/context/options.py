@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import dataclasses
 
+from ..compiler.options import CompilerOptions
 from ..model.options import ModelOptions
 from ..store.options import StoreOptions
 from .section import Section
@@ -13,6 +14,10 @@ from .section import Section
 @dataclasses.dataclass
 class Options(Section, name='kif'):
     """KIF options."""
+
+    #: Compiler options.
+    compiler: CompilerOptions = dataclasses.field(
+        default_factory=CompilerOptions)
 
     #: Model options.
     model: ModelOptions = dataclasses.field(default_factory=ModelOptions)

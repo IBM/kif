@@ -488,7 +488,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 Query.Variable, Query.Literal | Query.URI | None]] = []
             for var, val in theta.items():
                 if var not in entry.pattern.variables:
-                    continue    # vacuous variable, skip
+                    continue    # unknown variable, skip
                 qvar = self.as_qvar(var)
                 if val is None or isinstance(val, Variable):  # not bound?
                     val = entry.default_map.get(var)
