@@ -258,13 +258,13 @@ class WikidataMapping(M):
             # target patterns is fixed.  We do this to ensure that the
             # expected number of results is not too large.
             ###
-            c.q.set_order_by(c.frame['wds'])
+            c.q.set_order_by(c.wds)
 
     def _start(self, c: C, e: VEntity, p: V_URI, dt: V_URI) -> Var3:
         if isinstance(e, Variable):
             v = c.as_qvar(e)
             t = self._start_any(c, v, p, dt)
-            if c.frame['phase'] != c.COMPILING_FILTER:
+            if not c.is_compiling_filter():
                 return t        # nothing else to do
             with c.q.union():
                 if type(e) is ItemVariable or type(e) is EntityVariable:
@@ -318,14 +318,12 @@ class WikidataMapping(M):
             else:
                 raise c._should_not_get_here()
             t = self._start_P(c, s, p, dt)
-            if c.frame['phase'] == c.COMPILING_FILTER:
-                c.q.triples()(
-                    (s, WIKIBASE.propertyType, v_prop_tpl_dt_iri))
+            if c.is_compiling_filter():
+                c.q.triples()((s, WIKIBASE.propertyType, v_prop_tpl_dt_iri))
             return t
         elif isinstance(e, URI):
-            assert isinstance(
-                c.frame['target'], (Statement, StatementTemplate))
-            subject = c.frame['target'].subject
+            assert isinstance(c.target, (Statement, StatementTemplate))
+            subject = c.target.subject
             assert subject is not None
             if isinstance(subject, (Item, ItemVariable)):
                 return self._start_Q(
@@ -343,24 +341,24 @@ class WikidataMapping(M):
 
     def _start_Q(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
         t = self._start_any(c, x, p, dt)
-        if c.frame['phase'] == c.COMPILING_FILTER:
+        if c.is_compiling_filter():
             c.q.triples()((x, WIKIBASE.sitelinks, c.q.bnode()))
         return t
 
     def _start_L(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
         t = self._start_any(c, x, p, dt)
-        if c.frame['phase'] == c.COMPILING_FILTER:
+        if c.is_compiling_filter():
             c.q.triples()((x, RDF.type, ONTOLEX.LexicalEntry))
         return t
 
     def _start_P(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
         t = self._start_any(c, x, p, dt)
-        if c.frame['phase'] == c.COMPILING_FILTER:
+        if c.is_compiling_filter():
             c.q.triples()((x, RDF.type, WIKIBASE.Property))
         return t
 
     def _start_any(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
-        wds = c.frame['wds']
+        wds = c.wds
         p_, ps = c.fresh_qvars(2)
         c.q.triples()(
             (x, p_, wds),
@@ -482,7 +480,7 @@ class WikidataMapping(M):
             c.q.triples()(
                 (wdv, WIKIBASE.quantityUnit, y))
         elif isinstance(y, ItemVariable):
-            if c.frame['phase'] != c.COMPILING_FINGERPRINT:
+            if not c.is_compiling_fingerprint():
                 with c.q.optional_if(self.options.relax):
                     iri = c._fresh_iri_variable()
                     c.theta_add(y, Item(iri))
@@ -492,12 +490,10 @@ class WikidataMapping(M):
                     c.q.bind(c.as_qvar(iri), c.as_qvar(y))
         else:
             raise c._should_not_get_here()
-        if not (isinstance(z, Var)
-                and c.frame['phase'] == c.COMPILING_FINGERPRINT):
+        if not (isinstance(z, Var) and c.is_compiling_fingerprint()):
             with c.q.optional_if(isinstance(z, Var)):
                 c.q.triples()((wdv, WIKIBASE.quantityLowerBound, z))
-        if not (isinstance(w, Var)
-                and c.frame['phase'] == c.COMPILING_FINGERPRINT):
+        if not (isinstance(w, Var) and c.is_compiling_fingerprint()):
             with c.q.optional_if(isinstance(w, Var)):
                 c.q.triples()((wdv, WIKIBASE.quantityUpperBound, w))
 
@@ -525,20 +521,23 @@ class WikidataMapping(M):
             (wds, psv, wdv),
             (wdv, RDF.type, WIKIBASE.TimeValue),
             (wdv, WIKIBASE.timeValue, x))
-        with c.q.optional_if(isinstance(y, Var) and self.options.relax):
-            c.q.triples()((wdv, WIKIBASE.timePrecision, y))
-        with c.q.optional_if(isinstance(z, Var) and self.options.relax):
-            c.q.triples()((wdv, WIKIBASE.timeTimezone, z))
+        if not (isinstance(y, Var) and c.is_compiling_fingerprint()):
+            with c.q.optional_if(isinstance(y, Var) and self.options.relax):
+                c.q.triples()((wdv, WIKIBASE.timePrecision, y))
+        if not (isinstance(z, Var) and c.is_compiling_fingerprint()):
+            with c.q.optional_if(isinstance(z, Var) and self.options.relax):
+                c.q.triples()((wdv, WIKIBASE.timeTimezone, z))
         if isinstance(w, URI):
             c.q.triples()((wdv, WIKIBASE.timeCalendarModel, w))
         elif isinstance(w, ItemVariable):
-            with c.q.optional_if(self.options.relax):
-                iri = c._fresh_iri_variable()
-                c.theta_add(w, Item(iri))
-                c.q.triples()(
-                    (wdv, WIKIBASE.timeCalendarModel,
-                     c.theta_add_as_qvar(iri)))
-                c.q.bind(c.as_qvar(iri), c.as_qvar(w))
+            if not c.is_compiling_fingerprint():
+                with c.q.optional_if(self.options.relax):
+                    iri = c._fresh_iri_variable()
+                    c.theta_add(w, Item(iri))
+                    c.q.triples()(
+                        (wdv, WIKIBASE.timeCalendarModel,
+                         c.theta_add_as_qvar(iri)))
+                    c.q.bind(c.as_qvar(iri), c.as_qvar(w))
         else:
             raise c._should_not_get_here()
 

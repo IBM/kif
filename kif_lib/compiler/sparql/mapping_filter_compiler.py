@@ -182,12 +182,57 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         return self._frame.pop()
 
     @property
+    def phase(self) -> SPARQL_MappingFilterCompiler.Phase:
+        """The compilation phase associated with the current frame."""
+        return self.get_phase()
+
+    def get_phase(self) -> SPARQL_MappingFilterCompiler.Phase:
+        """Gets the compilation phase associated with the current frame.
+
+        Return:
+           Compilation phase.
+        """
+        return self.frame['phase']
+
+    def is_ready(self) -> bool:
+        """Tests whether compiler is in "ready" phase.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        return self.phase == self.READY
+
+    def is_compiling_filter(self) -> bool:
+        """Tests whether compiler is in "compiling filter" phase.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        return self.phase == self.COMPILING_FILTER
+
+    def is_compiling_fingerprint(self) -> bool:
+        """Tests whether compiler is in "compiling fingerprint" phase.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        return self.phase == self.COMPILING_FINGERPRINT
+
+    def is_done(self) -> bool:
+        """Tests whether compiler is in "done" phase.
+
+        Returns:
+          ``True`` if successful; ``False`` otherwise.
+        """
+        return self.phase == self.DONE
+
+    @property
     def theta(self) -> Substitution:
-        """The current substitution."""
+        """The substitution associated with the current frame."""
         return self.get_theta()
 
     def get_theta(self) -> Substitution:
-        """Gets current substitution.
+        """Gets the substitution associated with the current frame.
 
         Returns:
            Substitution.
@@ -235,6 +280,47 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
            Variable.
         """
         return self.theta.add_default(variable, value)
+
+    @property
+    def wds(self) -> Query.Variable:
+        """The wds associated with the current frame."""
+        return self.get_wds()
+
+    def get_wds(self) -> Query.Variable:
+        """Gets the wds associated with the current.
+
+        Returns:
+           Query variable.
+        """
+        return self.frame['wds']
+
+    @property
+    def entry(self) -> SPARQL_Mapping.Entry:
+        """The entry associated with current frame."""
+        return self.get_entry()
+
+    def get_entry(self) -> SPARQL_Mapping.Entry:
+        """Gets the entry associated with current frame.
+
+        Returns:
+           SPARQL mapping entry.
+        """
+        assert self.frame['entry'] is not None
+        return self.frame['entry']
+
+    @property
+    def target(self) -> SPARQL_Mapping.EntryPattern:
+        """The target pattern associated with current frame."""
+        return self.get_target()
+
+    def get_target(self) -> SPARQL_Mapping.EntryPattern:
+        """Gets the target pattern associated with current frame.
+
+        Returns:
+           SPARQL mapping entry pattern.
+        """
+        assert self.frame['target'] is not None
+        return self.frame['target']
 
     def _fresh_name_generator(self) -> Callable[[str], Iterator[str]]:
         return (lambda _: map(
