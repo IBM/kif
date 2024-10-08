@@ -85,12 +85,12 @@ class Test(PubChemStoreTestCase):
         self._test_filter_with_fixed_subject(
             subject=pc.source('ChemBlock'),
             equals=[
-                ((wd.instance_of, wd.business),
-                 wd.instance_of(wd.business)),
+                ((wd.instance_of, wd.vendor),
+                 wd.instance_of(wd.vendor)),
             ],
             contains=[
                 ((None, None), [  # FF
-                    wd.instance_of(wd.business),
+                    wd.instance_of(wd.vendor),
                 ]),
             ])
 

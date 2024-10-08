@@ -146,6 +146,7 @@ type_of_a_chemical_entity = Q(113145171, 'type of a chemical entity')
 unit_of_mass = Q(3647172, 'unit of mass')
 United_States_of_America = Q(30, 'United States of America')
 Uruguay = Q(77, 'Uruguay')
+vendor = Q(1762621, 'vendor')
 Venezuela = Q(717, 'Venezuela')
 verb = Q(24905, 'verb')
 water = Q(283, 'water')
@@ -297,6 +298,7 @@ __all__ = (
     'unit_of_mass',
     'United_States_of_America',
     'Uruguay',
+    'vendor',
     'Venezuela',
     'verb',
     'water',

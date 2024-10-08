@@ -6,12 +6,12 @@ from __future__ import annotations
 import dataclasses
 
 from ....context import Section
-from .wikidata import WikidataOptions
+# from .wikidata import WikidataOptions
 
 
 @dataclasses.dataclass
 class MappingOptions(Section, name='mapping'):
     """SPARQL mapping options."""
 
-    wikidata: WikidataOptions = dataclasses.field(
-        default_factory=WikidataOptions)
+    # wikidata: WikidataOptions = dataclasses.field(
+    #     default_factory=WikidataOptions)

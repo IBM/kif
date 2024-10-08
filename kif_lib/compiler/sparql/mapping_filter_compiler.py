@@ -44,6 +44,7 @@ from ...typing import (
     Callable,
     cast,
     Final,
+    Iterable,
     Iterator,
     Mapping,
     override,
@@ -105,24 +106,29 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         #: The entry of frame.
         entry: SPARQL_Mapping.Entry | None
 
-        #: The target pattern of frame.
-        target: SPARQL_Mapping.EntryPattern | None
+        #: The target patterns of frame.
+        targets: Sequence[SPARQL_Mapping.EntryPattern] | None
 
     __slots__ = (
         '_mapping',
-        '_entry_subst',
         '_entry_id_qvar',
+        '_entry_subst',
+        '_entry_targets',
         '_frame',
     )
 
     # The SPARQL mapping.
     _mapping: SPARQL_Mapping
 
-    #: The compiled substitutions for a given entry (identified by index).
-    _entry_subst: dict[SPARQL_Mapping.EntryId, list[Substitution]]
-
     #: The query variable holding the index of the matched entry.
     _entry_id_qvar: Query.Variable
+
+    #: The compiled substitutions for a given entry (identified by index).
+    _entry_subst: dict[SPARQL_Mapping.EntryId, Substitution]
+
+    #: The compiled targets for a given entry (identified by index).
+    _entry_targets: dict[SPARQL_Mapping.EntryId, Sequence[
+        SPARQL_Mapping.EntryPattern]]
 
     #: The frame stack.
     _frame: list[Frame]
@@ -135,15 +141,16 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
     ) -> None:
         super().__init__(filter, flags)
         self._mapping = mapping
-        self._entry_subst = {}
         self._entry_id_qvar = self.q.fresh_var()
+        self._entry_subst = {}
+        self._entry_targets = {}
         self._frame = []
         self._push_frame({
             'phase': self.READY,
             'substitution': Substitution(),
             'wds': self._wds,
             'entry': None,
-            'target': None,
+            'targets': None,
         })
 
     @property
@@ -309,18 +316,18 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         return self.frame['entry']
 
     @property
-    def target(self) -> SPARQL_Mapping.EntryPattern:
-        """The target pattern associated with current frame."""
-        return self.get_target()
+    def targets(self) -> Sequence[SPARQL_Mapping.EntryPattern]:
+        """The target patterns associated with current frame."""
+        return self.get_targets()
 
-    def get_target(self) -> SPARQL_Mapping.EntryPattern:
-        """Gets the target pattern associated with current frame.
+    def get_targets(self) -> Sequence[SPARQL_Mapping.EntryPattern]:
+        """Gets the target patterns associated with current frame.
 
         Returns:
-           SPARQL mapping entry pattern.
+           Sequence of SPARQL mapping entry patterns.
         """
-        assert self.frame['target'] is not None
-        return self.frame['target']
+        assert self.frame['targets'] is not None
+        return self.frame['targets']
 
     def _fresh_name_generator(self) -> Callable[[str], Iterator[str]]:
         return (lambda _: map(
@@ -328,25 +335,45 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
 
     @override
     def _push_filter(self, filter: Filter) -> None:
-        assert isinstance(self.pattern, VariablePattern)
-        assert isinstance(self.pattern.variable, StatementVariable)
         sources = list(self._filter_to_patterns(filter))
         self.mapping.preamble(self, sources)
-        targets = []
+        all_targets: list[SPARQL_Mapping.EntryPattern] = []
         with self.q.union():
             for source in sources:
                 source = source.generalize(rename=self._fresh_name_generator())
-                for entry in self.mapping.values():
-                    m = entry.match(source)
-                    if m is None:
+                for entry in self.mapping:
+                    matches = list(entry.match(source))
+                    if not matches:
                         continue  # nothing to do
-                    target, bindings = m
+                    matched_target, matched_theta = zip(*matches)
+                    assert len(matched_target) == len(matched_theta)
+                    targets: list[SPARQL_Mapping.EntryPattern] = []
+                    theta: dict[Variable, Term | None] = {}
+                    kwargs: dict[str, SPARQL_Mapping.EntryCallbackArg] = {}
+                    for i in range(len(matched_target)):
+                        try:
+                            it = list(  # consume, trigger exceptions early
+                                self._push_filter_get_entry_callback_kwargs(
+                                    entry, matched_theta[i]))
+                            for var, val, arg in it:
+                                if var.name in kwargs:
+                                    assert theta[var] == val
+                                    assert kwargs[var.name] == arg
+                                else:
+                                    theta[var] = val
+                                    kwargs[var.name] = arg
+                        except SPARQL_Mapping.Skip:
+                            continue
+                        else:
+                            targets.append(matched_target[i])
+                    if not targets:
+                        continue  # nothing to do
                     self._push_frame({
                         'phase': self.COMPILING_FILTER,
                         'entry': entry,
-                        'target': target,
+                        'targets': targets,
                         'substitution': Substitution(),
-                        'wds': self.frame['wds'],  # same as last wds
+                        'wds': self.wds,  # same as last wds
                     })
                     for var, val in entry.default_map.items():
                         self.theta_add_default(var, val)
@@ -354,66 +381,65 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                     try:
                         with self.q.group():
                             self.q.bind(entry.id, self._entry_id_qvar)
-                            args = self._push_filter_get_entry_callback_args(
-                                entry, bindings)
-                            entry.callback(self.mapping, self, *args)
-                            self._push_filter_push_fps(entry, filter, target)
+                            for var, val in theta.items():
+                                assert var.name in kwargs
+                                arg = kwargs[var.name]
+                                if isinstance(arg, Query.Variable):
+                                    self.theta_add(var, arg)
+                                elif isinstance(
+                                        arg, (Query.URI, Query.Literal)):
+                                    self.theta_add(var, val)
+                            entry.callback(self.mapping, self, **kwargs)
+                            self._push_filter_push_fps(entry, filter, targets)
                     except self.mapping.Skip:
                         self.q.stash_drop()
                     else:
-                        self.theta_add(self.pattern.variable, target)
                         self.q.stash_pop()
-                        if id not in self._entry_subst:
-                            self._entry_subst[entry.id] = []
-                        self._entry_subst[entry.id].append(
-                            self.frame['substitution'])
-                        targets.append(target)
+                        self._entry_subst[entry.id] = self.theta
+                        self._entry_targets[entry.id] = targets
+                        all_targets += targets
                     self._pop_frame()
         if not self._entry_subst:
             self._q = self.Query()  # empty query
         self.frame['phase'] = self.DONE
-        self.mapping.postamble(self, targets)
+        self.mapping.postamble(self, all_targets)
 
-    def _push_filter_get_entry_callback_args(
+    def _push_filter_get_entry_callback_kwargs(
             self,
             entry: SPARQL_Mapping.Entry,
-            bindings: Theta,
-            add_to_subst: bool = True
-    ) -> Iterator[Term | Query.VTerm | None]:
-        for (var, val) in bindings.items():
-            res: Term | Query.VTerm | None
+            theta: Theta
+    ) -> Iterator[tuple[Variable, Term | None, Term | Query.VTerm | None]]:
+        for (var, val) in theta.items():
+            arg: Term | Query.VTerm | None
             if isinstance(val, self._primitive_var_classes):
-                qvar = self.as_qvar(cast(Variable, val))
-                if add_to_subst:
-                    self.theta_add(var, qvar)
-                res = qvar
+                arg = self.as_qvar(cast(Variable, val))
             elif isinstance(val, Value):
-                if add_to_subst:
-                    self.theta_add(var, val)
-                res = self._as_simple_value(val)
+                arg = self._as_simple_value(val)
             else:
-                res = val       # keep it as is
-            yield entry.preprocess(self.mapping, self, var, res)
+                arg = val       # keep it as is
+            res = entry.preprocess(self.mapping, self, var, arg)
+            yield var, val, res
 
     def _push_filter_push_fps(
             self,
             entry: SPARQL_Mapping.Entry,
             filter: Filter,
-            target: VStatement
+            targets: Iterable[VStatement]
     ) -> None:
-        assert isinstance(target, (StatementTemplate, Statement))
         # subject
         if isinstance(filter.subject, (CompoundFingerprint, SnakFingerprint)):
-            self._push_fp(entry, filter.subject, target.subject)
+            for target in targets:
+                assert isinstance(target, (Statement, StatementTemplate))
+                self._push_fp(entry, filter.subject, target.subject)
         # snak
-        assert isinstance(target.snak, (Snak, SnakTemplate))
-        if isinstance(filter.property, (CompoundFingerprint, SnakFingerprint)):
-            self._push_fp(entry, filter.property, target.snak.property)
+        # assert isinstance(target.snak, (Snak, SnakTemplate))
+        # if isinstance(filter.property, (CompoundFingerprint, SnakFingerprint)):
+        #     self._push_fp(entry, filter.property, target.snak.property)
         # value
-        if (isinstance(target.snak, (ValueSnak, ValueSnakTemplate))
-            and isinstance(filter.value, (
-                CompoundFingerprint, SnakFingerprint))):
-            self._push_fp(entry, filter.value, target.snak.value)
+        # if (isinstance(target.snak, (ValueSnak, ValueSnakTemplate))
+        #     and isinstance(filter.value, (
+        #         CompoundFingerprint, SnakFingerprint))):
+        #     self._push_fp(entry, filter.value, target.snak.value)
 
     def _push_fp(
             self,
@@ -496,60 +522,65 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         else:
             source = Statement(entity, fp.snak)
         source = source.generalize(rename=self._fresh_name_generator())
-        with self.q.union():
-            for target_entry in self.mapping.values():
+        with self.q.union() as cup:
+            for target_entry in self.mapping:
                 target_entry = target_entry.rename(
                     rename=self._fresh_name_generator())
-                m = target_entry.match(source)
-                if m is None:
+                matches = list(target_entry.match(source))
+                if not matches:
                     continue
-                # Determine the target entity (subject or value?).
-                if isinstance(fp, ConverseSnakFingerprint):
-                    assert isinstance(
-                        target_entry.pattern.snak,
-                        (ValueSnak, ValueSnakTemplate))
-                    assert isinstance(
-                        target_entry.pattern.snak.value,
-                        (EntityTemplate, EntityVariable))
-                    target_entity = target_entry.pattern.snak.value
-                else:
-                    target_entity = target_entry.pattern.subject
-                assert isinstance(
-                    target_entity, (EntityTemplate, EntityVariable))
-                # Rename the subject/value variable in entry.
-                src = next(entity._iterate_variables()).name
-                tgt = next(target_entity._iterate_variables()).name
-
-                def mk_rename(
-                        src: str,
-                        tgt: str
-                ) -> Callable[[str], Iterator[str]]:
-                    def rename(name: str) -> Iterator[str]:
-                        return itertools.repeat(src if name == tgt else name)
-                    return rename
-                target_entry = target_entry.rename(
-                    rename=mk_rename(src, tgt))
-                m = target_entry.match(source)
-                assert m is not None
-                # Push a new frame and call entry's callback.
-                target, bindings = m
-                assert isinstance(target, (Statement, StatementTemplate))
+                matched_target, matched_theta = zip(*matches)
+                assert len(matched_target) == len(matched_theta)
+                targets: list[SPARQL_Mapping.EntryPattern] = []
+                theta: dict[Variable, Term | None] = {}
+                kwargs: dict[str, SPARQL_Mapping.EntryCallbackArg] = {}
+                for i in range(len(matched_target)):
+                    try:
+                        it = list(  # consume, trigger exceptions early
+                            self._push_filter_get_entry_callback_kwargs(
+                                target_entry, matched_theta[i]))
+                        for var, val, arg in it:
+                            if var.name in kwargs:
+                                assert theta[var] == val
+                                assert kwargs[var.name] == arg
+                            else:
+                                theta[var] = val
+                                kwargs[var.name] = arg
+                    except SPARQL_Mapping.Skip:
+                        continue
+                    else:
+                        targets.append(matched_target[i])
+                assert targets
+                ###
+                # HACK: START
+                ###
+                assert len(targets) == 1
+                src = next(targets[0]._iterate_variables()).name
+                assert isinstance(kwargs[src], Query.Variable)
+                tgt = next(entity._iterate_variables()).name
+                kwargs[src] = Query.Variable(tgt)
+                # print('src:', src)
+                # print('tgt:', tgt)
+                # print('kwargs:', kwargs)
+                ###
+                # HACK: END
+                ###
                 self._push_frame({
                     'phase': self.COMPILING_FINGERPRINT,
                     'entry': target_entry,
-                    'target': target,
+                    'targets': targets,
                     'substitution': Substitution(),
                     'wds': self.fresh_qvar(),
                 })
                 try:
-                    args = list(self._push_filter_get_entry_callback_args(
-                        target_entry, bindings, False))
                     with self.q.group():
-                        target_entry.callback(self.mapping, self, *args)
+                        target_entry.callback(self.mapping, self, **kwargs)
                 except self.mapping.Skip as err:
-                    raise err
+                    raise err   # fail
                 finally:
                     self._pop_frame()
+            if not cup.children:
+                raise self.mapping.Skip  # fail
 
     def _push_value_fps(
             self,
@@ -623,24 +654,26 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             self,
             binding: Mapping[str, dict[str, str]]
     ) -> Iterator[Theta]:
-        if str(self._entry_id_qvar) in binding:
-            id = binding[str(self._entry_id_qvar)]['value']
-            entry = self._mapping[id]
-            for var in entry.postprocess_map:
-                if var.name in binding:
-                    try:
-                        term = entry.postprocess(
-                            self.mapping, self, var,
-                            self._dict2term(binding[var.name]))
-                    except SPARQL_Mapping.Skip:
-                        return
-                    else:
-                        assert isinstance(term, (Query.Literal, Query.URI))
-                        assert isinstance(binding, dict)
-                        binding[var.name] = self._term2dict(term)
-            for subst in self._entry_subst[id]:
-                theta = subst.instantiate(binding)
-                yield theta
+        assert str(self._entry_id_qvar) in binding
+        id = int(binding[str(self._entry_id_qvar)]['value'])
+        entry = self._mapping[id]
+        for var in entry.postprocess_map:
+            if var.name in binding:
+                try:
+                    term = entry.postprocess(
+                        self.mapping, self, var,
+                        self._dict2term(binding[var.name]))
+                except SPARQL_Mapping.Skip:
+                    return
+                else:
+                    assert isinstance(term, (Query.Literal, Query.URI))
+                    assert isinstance(binding, dict)
+                    binding[var.name] = self._term2dict(term)
+        assert isinstance(self.pattern, VariablePattern)
+        assert isinstance(self.pattern.variable, StatementVariable)
+        theta = self._entry_subst[id].instantiate(binding)
+        for target in self._entry_targets[id]:
+            yield {self.pattern.variable: target.instantiate(theta)}
 
     def _dict2term(self, t: dict[str, str]) -> Query.Term:
         assert 'type' in t

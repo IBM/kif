@@ -89,7 +89,7 @@ class SPARQL_Store2(
             for binding in bindings:
                 for theta in compiler._binding_to_thetas(binding):
                     stmt = compiler.pattern.variable.instantiate(theta)
-                    assert isinstance(stmt, Statement)
+                    assert isinstance(stmt, Statement), stmt
                     ###
                     # FIXME: Is this really needed?  It drops statements
                     # when property has ExternalId datatype and value is

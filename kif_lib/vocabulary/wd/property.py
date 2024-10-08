@@ -114,6 +114,7 @@ population = P(1082)
 position_held = P(39)
 position_held = P(39)
 practiced_by = P(3095)
+product_or_material_produced_or_service_provided = P(1056)
 properties_for_this_type = P(1963)
 PubChem_CID = P(662)
 publication_date = P(577)
@@ -272,6 +273,7 @@ __all__ = (
     'position_held',
     'position_held',
     'practiced_by',
+    'product_or_material_produced_or_service_provided',
     'properties_for_this_type',
     'PubChem_CID',
     'publication_date',
