@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import enum
+import functools
 
 from ... import itertools
 from ...model import (
@@ -390,7 +391,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                                         arg, (Query.URI, Query.Literal)):
                                     self.theta_add(var, val)
                             entry.callback(self.mapping, self, **kwargs)
-                            self._push_filter_push_fps(entry, filter, targets)
+                            self._push_fps(entry, filter, targets)
                     except self.mapping.Skip:
                         self.q.stash_drop()
                     else:
@@ -420,26 +421,60 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             res = entry.preprocess(self.mapping, self, var, arg)
             yield var, val, res
 
-    def _push_filter_push_fps(
+    def _push_fps(
             self,
             entry: SPARQL_Mapping.Entry,
             filter: Filter,
             targets: Iterable[VStatement]
     ) -> None:
-        # subject
+        push = functools.partial(self._do_push_fps, entry, targets)
         if isinstance(filter.subject, (CompoundFingerprint, SnakFingerprint)):
-            for target in targets:
-                assert isinstance(target, (Statement, StatementTemplate))
-                self._push_fp(entry, filter.subject, target.subject)
-        # snak
-        # assert isinstance(target.snak, (Snak, SnakTemplate))
-        # if isinstance(filter.property, (CompoundFingerprint, SnakFingerprint)):
-        #     self._push_fp(entry, filter.property, target.snak.property)
-        # value
-        # if (isinstance(target.snak, (ValueSnak, ValueSnakTemplate))
-        #     and isinstance(filter.value, (
-        #         CompoundFingerprint, SnakFingerprint))):
-        #     self._push_fp(entry, filter.value, target.snak.value)
+            push(filter.subject, self._push_fps_extract_subject)
+        if isinstance(filter.property, (CompoundFingerprint, SnakFingerprint)):
+            push(filter.property, self._push_fps_extract_property)
+        if isinstance(filter.value, (CompoundFingerprint, SnakFingerprint)):
+            push(filter.value, self._push_fps_extract_value)
+
+    def _push_fps_extract_subject(
+            self,
+            stmt: Statement | StatementTemplate
+    ) -> VEntity:
+        return stmt.subject
+
+    def _push_fps_extract_property(
+            self,
+            stmt: Statement | StatementTemplate
+    ) -> VProperty:
+        if isinstance(stmt.snak, (Snak, SnakTemplate)):
+            return stmt.snak.property
+        else:
+            raise SPARQL_Mapping.Skip
+
+    def _push_fps_extract_value(
+            self,
+            stmt: Statement | StatementTemplate
+    ) -> VValue:
+        if isinstance(stmt.snak, (ValueSnak, ValueSnakTemplate)):
+            return stmt.snak.value
+        else:
+            raise SPARQL_Mapping.Skip
+
+    def _do_push_fps(
+            self,
+            entry: SPARQL_Mapping.Entry,
+            targets: Iterable[VStatement],
+            fp: CompoundFingerprint | SnakFingerprint,
+            extract: Callable[[Statement | StatementTemplate], VValue]
+    ) -> None:
+        for target in targets:
+            assert isinstance(target, (Statement, StatementTemplate))
+            try:
+                self._push_fp(entry, fp, extract(target))
+            except SPARQL_Mapping.Skip:
+                pass
+            else:
+                return            # success
+        raise SPARQL_Mapping.Skip  # failure
 
     def _push_fp(
             self,
@@ -455,18 +490,13 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                     self.q.comments()(f'{value} =~ {type(fp).__qualname__}')
                 self._push_compound_fp(entry, fp, value)
         elif isinstance(fp, SnakFingerprint):
-            if not isinstance(value, (
-                    Entity, EntityTemplate, EntityVariable)):
+            if isinstance(value, (Entity, EntityTemplate, EntityVariable)):
+                with self.q.group():
+                    if self.has_flags(self.DEBUG):
+                        self.q.comments()(f'{value} =~ {fp}')
+                    self._push_snak_fp(entry, fp, value)
+            else:
                 raise SPARQL_Mapping.Skip  # fail
-            with self.q.group():
-                if self.has_flags(self.DEBUG):
-                    self.q.comments()(f'{value} =~ {fp}')
-                self._push_snak_fp(entry, fp, value)
-        elif isinstance(fp, ValueFingerprint):
-            with self.q.group():
-                if self.has_flags(self.DEBUG):
-                    self.q.comments()(f'{value} =~ {fp}')
-                raise NotImplementedError
         elif isinstance(fp, FullFingerprint):
             pass
         else:
@@ -550,18 +580,21 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                         continue
                     else:
                         targets.append(matched_target[i])
+                if not targets:
+                    raise SPARQL_Mapping.Skip  # fail
                 assert targets
                 ###
                 # HACK: START
                 ###
-                assert len(targets) == 1
-                src = next(targets[0]._iterate_variables()).name
-                assert isinstance(kwargs[src], Query.Variable)
-                tgt = next(entity._iterate_variables()).name
-                kwargs[src] = Query.Variable(tgt)
-                # print('src:', src)
-                # print('tgt:', tgt)
-                # print('kwargs:', kwargs)
+                if kwargs:      # update kwargs if needed
+                    assert len(targets) == 1
+                    src = next(targets[0]._iterate_variables()).name
+                    assert isinstance(kwargs[src], Query.Variable)
+                    tgt = next(entity._iterate_variables()).name
+                    kwargs[src] = Query.Variable(tgt)
+                    # print('src:', src)
+                    # print('tgt:', tgt)
+                    # print('kwargs:', kwargs)
                 ###
                 # HACK: END
                 ###
