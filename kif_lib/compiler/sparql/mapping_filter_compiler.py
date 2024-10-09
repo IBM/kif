@@ -351,34 +351,6 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             for source in sources:
                 source = source.generalize(rename=self._fresh_name_generator())
                 for entry in self.mapping:
-                    ###
-                    # matches = list(entry.match(source))
-                    # if not matches:
-                    #     continue  # nothing to do
-                    # matched_target, matched_theta = zip(*matches)
-                    # assert len(matched_target) == len(matched_theta)
-                    # targets: list[SPARQL_Mapping.EntryPattern] = []
-                    # theta: dict[Variable, Term | None] = {}
-                    # kwargs: dict[str, SPARQL_Mapping.EntryCallbackArg] = {}
-                    # for i in range(len(matched_target)):
-                    #     try:
-                    #         it = list(  # consume, trigger exceptions early
-                    #             self._push_filter_get_entry_callback_kwargs(
-                    #                 entry, matched_theta[i]))
-                    #         for var, val, arg in it:
-                    #             if var.name in kwargs:
-                    #                 assert theta[var] == val
-                    #                 assert kwargs[var.name] == arg
-                    #             else:
-                    #                 theta[var] = val
-                    #                 kwargs[var.name] = arg
-                    #     except SPARQL_Mapping.Skip:
-                    #         continue
-                    #     else:
-                    #         targets.append(matched_target[i])
-                    # if not targets:
-                    #     continue  # nothing to do
-                    ###
                     matches = entry.match_and_preprocess(
                         self.mapping, self, source, self._term2arg)
                     if not matches:
@@ -386,43 +358,61 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                     targets, theta, kwargs = matches
                     if not targets:
                         continue  # nothing to do
-                    self._push_frame({
-                        'phase': self.COMPILING_FILTER,
-                        'entry': entry,
-                        'targets': targets,
-                        'substitution': Substitution(),
-                        'wds': self.wds,  # same as last wds
-                    })
-                    if self.has_flags(self.DEBUG):
-                        self.q.comments()(*map(str, targets))
-                    for var, val in entry.default_map.items():
-                        self.theta_add_default(var, val)
-                    self.q.stash_begin()
-                    try:
-                        with self.q.group():
-                            self.q.bind(entry.id, self._entry_id_qvar)
-                            for var, val in theta.items():
-                                assert var.name in kwargs
-                                arg = kwargs[var.name]
-                                if isinstance(arg, Query.Variable):
-                                    self.theta_add(var, arg)
-                                elif isinstance(
-                                        arg, (Query.URI, Query.Literal)):
-                                    self.theta_add(var, val)
-                            entry.callback(self.mapping, self, **kwargs)
-                            self._push_fps(entry, filter, targets)
-                    except self.mapping.Skip:
-                        self.q.stash_drop()
+                    push = functools.partial(
+                        self._push_filter_push_entry,
+                        filter, entry, theta=theta, kwargs=kwargs)
+                    if False:   # split targets?
+                        for target in targets:
+                            push((target,))
                     else:
-                        self.q.stash_pop()
-                        self._entry_subst[entry.id] = self.theta
-                        self._entry_targets[entry.id] = targets
-                        all_targets += targets
-                    self._pop_frame()
+                        push(targets)
+                    all_targets += targets
         if not self._entry_subst:
             self._q = self.Query()  # empty query
         self.frame['phase'] = self.DONE
         self.mapping.postamble(self, all_targets)
+
+    def _push_filter_push_entry(
+            self,
+            filter: Filter,
+            entry: SPARQL_Mapping.Entry,
+            targets: Sequence[SPARQL_Mapping.EntryPattern],
+            theta: Theta,
+            kwargs: Mapping[str, SPARQL_Mapping.EntryCallbackArg]
+    ) -> None:
+        assert targets
+        self._push_frame({
+            'phase': self.COMPILING_FILTER,
+            'entry': entry,
+            'targets': targets,
+            'substitution': Substitution(),
+            'wds': self.wds,  # same as last wds
+        })
+        if self.has_flags(self.DEBUG):
+            self.q.comments()(*map(str, targets))
+        for var, val in entry.default_map.items():
+            self.theta_add_default(var, val)
+        self.q.stash_begin()
+        try:
+            with self.q.group():
+                self.q.bind(entry.id, self._entry_id_qvar)
+                for var, val in theta.items():
+                    assert var.name in kwargs
+                    arg = kwargs[var.name]
+                    if isinstance(arg, Query.Variable):
+                        self.theta_add(var, arg)
+                    elif isinstance(
+                            arg, (Query.URI, Query.Literal)):
+                        self.theta_add(var, val)
+                entry.callback(self.mapping, self, **kwargs)
+                self._push_fps(entry, filter, targets)
+        except self.mapping.Skip:
+            self.q.stash_drop()
+        else:
+            self.q.stash_pop()
+            self._entry_subst[entry.id] = self.theta
+            self._entry_targets[entry.id] = targets
+        self._pop_frame()
 
     def _push_filter_get_entry_callback_kwargs(
             self,
@@ -575,34 +565,6 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             for target_entry in self.mapping:
                 target_entry = target_entry.rename(
                     rename=self._fresh_name_generator())
-                ###
-                # matches = list(target_entry.match(source))
-                # if not matches:
-                #     continue
-                # matched_target, matched_theta = zip(*matches)
-                # assert len(matched_target) == len(matched_theta)
-                # targets: list[SPARQL_Mapping.EntryPattern] = []
-                # theta: dict[Variable, Term | None] = {}
-                # kwargs: dict[str, SPARQL_Mapping.EntryCallbackArg] = {}
-                # for i in range(len(matched_target)):
-                #     try:
-                #         it = list(  # consume, trigger exceptions early
-                #             self._push_filter_get_entry_callback_kwargs(
-                #                 target_entry, matched_theta[i]))
-                #         for var, val, arg in it:
-                #             if var.name in kwargs:
-                #                 assert theta[var] == val
-                #                 assert kwargs[var.name] == arg
-                #             else:
-                #                 theta[var] = val
-                #                 kwargs[var.name] = arg
-                #     except SPARQL_Mapping.Skip:
-                #         continue
-                #     else:
-                #         targets.append(matched_target[i])
-                # if not targets:
-                #     raise SPARQL_Mapping.Skip  # fail
-                ###
                 matches = target_entry.match_and_preprocess(
                     self.mapping, self, source, self._term2arg)
                 if not matches:
