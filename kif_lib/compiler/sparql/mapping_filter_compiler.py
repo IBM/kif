@@ -414,22 +414,6 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             self._entry_targets[entry.id] = targets
         self._pop_frame()
 
-    def _push_filter_get_entry_callback_kwargs(
-            self,
-            entry: SPARQL_Mapping.Entry,
-            theta: Theta
-    ) -> Iterator[tuple[Variable, Term | None, Term | Query.VTerm | None]]:
-        for (var, val) in theta.items():
-            arg: Term | Query.VTerm | None
-            if isinstance(val, self._primitive_var_classes):
-                arg = self.as_qvar(cast(Variable, val))
-            elif isinstance(val, Value):
-                arg = self._as_simple_value(val)
-            else:
-                arg = val       # keep it as is
-            res = entry.preprocess(self.mapping, self, var, arg)
-            yield var, val, res
-
     def _push_fps(
             self,
             entry: SPARQL_Mapping.Entry,
