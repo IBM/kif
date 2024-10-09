@@ -174,21 +174,18 @@ class PubChemMapping(M):
         c.q.filter(c.q.strstarts(y, 'CHEMBL'))
 
     @M.register(
-        [wd.exact_match(Item(x), IRI(y)),
-         wd.exact_match(Item(IRI(y)), x@IRI),
-         wd.said_to_be_the_same_as(Item(x), Item(IRI(y))),
-         wd.said_to_be_the_same_as(Item(IRI(y)), Item(x))],
+        [wd.said_to_be_the_same_as(Item(x), Item(y)),
+         wd.said_to_be_the_same_as(Item(y), Item(x))],
         {x: M.CheckURI(         # pre
             startswith=Wikidata.WD,
             replace_prefix=(Wikidata.WD, 'https://www.wikidata.org/wiki/')),
-         y: M.CheckLiteral(match=_re_compound_uri)},
+         y: CheckCompound()},
         {x: M.CheckURI(         # post
             startswith='https://www.wikidata.org/wiki/',
             replace_prefix=('https://www.wikidata.org/wiki/', Wikidata.WD))})
-    def wd_exact_match(self, c: Compiler, x: V_URI, y: VLiteral):
+    def wd_said_to_be_the_same_as(self, c: Compiler, x: V_URI, y: V_URI):
         c.q.triples()(
-            (c.query.URI(y) if isinstance(y, c.Query.Literal) else y,
-             SKOS.closeMatch, x))
+            (y, SKOS.closeMatch, x))
         c.q.filter(c.q.strstarts(
             c.q.str(x), 'https://www.wikidata.org/wiki/'))
 

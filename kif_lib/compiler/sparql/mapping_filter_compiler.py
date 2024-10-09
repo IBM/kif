@@ -334,6 +334,14 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         return (lambda _: map(
             lambda _: self.fresh_qvar(), itertools.repeat(None)))
 
+    def _term2arg(self, term: Term) -> Term | Query.VTerm:
+        if isinstance(term, self._primitive_var_classes):
+            return self.as_qvar(cast(Variable, term))
+        elif isinstance(term, Value):
+            return self._as_simple_value(term)
+        else:
+            return term
+
     @override
     def _push_filter(self, filter: Filter) -> None:
         sources = list(self._filter_to_patterns(filter))
@@ -343,30 +351,39 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             for source in sources:
                 source = source.generalize(rename=self._fresh_name_generator())
                 for entry in self.mapping:
-                    matches = list(entry.match(source))
+                    ###
+                    # matches = list(entry.match(source))
+                    # if not matches:
+                    #     continue  # nothing to do
+                    # matched_target, matched_theta = zip(*matches)
+                    # assert len(matched_target) == len(matched_theta)
+                    # targets: list[SPARQL_Mapping.EntryPattern] = []
+                    # theta: dict[Variable, Term | None] = {}
+                    # kwargs: dict[str, SPARQL_Mapping.EntryCallbackArg] = {}
+                    # for i in range(len(matched_target)):
+                    #     try:
+                    #         it = list(  # consume, trigger exceptions early
+                    #             self._push_filter_get_entry_callback_kwargs(
+                    #                 entry, matched_theta[i]))
+                    #         for var, val, arg in it:
+                    #             if var.name in kwargs:
+                    #                 assert theta[var] == val
+                    #                 assert kwargs[var.name] == arg
+                    #             else:
+                    #                 theta[var] = val
+                    #                 kwargs[var.name] = arg
+                    #     except SPARQL_Mapping.Skip:
+                    #         continue
+                    #     else:
+                    #         targets.append(matched_target[i])
+                    # if not targets:
+                    #     continue  # nothing to do
+                    ###
+                    matches = entry.match_and_preprocess(
+                        self.mapping, self, source, self._term2arg)
                     if not matches:
                         continue  # nothing to do
-                    matched_target, matched_theta = zip(*matches)
-                    assert len(matched_target) == len(matched_theta)
-                    targets: list[SPARQL_Mapping.EntryPattern] = []
-                    theta: dict[Variable, Term | None] = {}
-                    kwargs: dict[str, SPARQL_Mapping.EntryCallbackArg] = {}
-                    for i in range(len(matched_target)):
-                        try:
-                            it = list(  # consume, trigger exceptions early
-                                self._push_filter_get_entry_callback_kwargs(
-                                    entry, matched_theta[i]))
-                            for var, val, arg in it:
-                                if var.name in kwargs:
-                                    assert theta[var] == val
-                                    assert kwargs[var.name] == arg
-                                else:
-                                    theta[var] = val
-                                    kwargs[var.name] = arg
-                        except SPARQL_Mapping.Skip:
-                            continue
-                        else:
-                            targets.append(matched_target[i])
+                    targets, theta, kwargs = matches
                     if not targets:
                         continue  # nothing to do
                     self._push_frame({
@@ -376,6 +393,8 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                         'substitution': Substitution(),
                         'wds': self.wds,  # same as last wds
                     })
+                    if self.has_flags(self.DEBUG):
+                        self.q.comments()(*map(str, targets))
                     for var, val in entry.default_map.items():
                         self.theta_add_default(var, val)
                     self.q.stash_begin()
@@ -466,15 +485,15 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             fp: CompoundFingerprint | SnakFingerprint,
             extract: Callable[[Statement | StatementTemplate], VValue]
     ) -> None:
-        for target in targets:
-            assert isinstance(target, (Statement, StatementTemplate))
-            try:
-                self._push_fp(entry, fp, extract(target))
-            except SPARQL_Mapping.Skip:
-                pass
-            else:
-                return            # success
-        raise SPARQL_Mapping.Skip  # failure
+        with self.q.union() as cup:
+            for target in targets:
+                assert isinstance(target, (Statement, StatementTemplate))
+                try:
+                    self._push_fp(entry, fp, extract(target))
+                except SPARQL_Mapping.Skip:
+                    continue
+            if not cup.children:
+                raise SPARQL_Mapping.Skip
 
     def _push_fp(
             self,
@@ -487,7 +506,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         if isinstance(fp, CompoundFingerprint):
             with self.q.group():
                 if self.has_flags(self.DEBUG):
-                    self.q.comments()(f'{value} =~ {type(fp).__qualname__}')
+                    self.q.comments()(f'{value} =~ {fp}')
                 self._push_compound_fp(entry, fp, value)
         elif isinstance(fp, SnakFingerprint):
             if isinstance(value, (Entity, EntityTemplate, EntityVariable)):
@@ -496,7 +515,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                         self.q.comments()(f'{value} =~ {fp}')
                     self._push_snak_fp(entry, fp, value)
             else:
-                raise SPARQL_Mapping.Skip  # fail
+                raise SPARQL_Mapping.Skip
         elif isinstance(fp, FullFingerprint):
             pass
         else:
@@ -556,30 +575,39 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             for target_entry in self.mapping:
                 target_entry = target_entry.rename(
                     rename=self._fresh_name_generator())
-                matches = list(target_entry.match(source))
+                ###
+                # matches = list(target_entry.match(source))
+                # if not matches:
+                #     continue
+                # matched_target, matched_theta = zip(*matches)
+                # assert len(matched_target) == len(matched_theta)
+                # targets: list[SPARQL_Mapping.EntryPattern] = []
+                # theta: dict[Variable, Term | None] = {}
+                # kwargs: dict[str, SPARQL_Mapping.EntryCallbackArg] = {}
+                # for i in range(len(matched_target)):
+                #     try:
+                #         it = list(  # consume, trigger exceptions early
+                #             self._push_filter_get_entry_callback_kwargs(
+                #                 target_entry, matched_theta[i]))
+                #         for var, val, arg in it:
+                #             if var.name in kwargs:
+                #                 assert theta[var] == val
+                #                 assert kwargs[var.name] == arg
+                #             else:
+                #                 theta[var] = val
+                #                 kwargs[var.name] = arg
+                #     except SPARQL_Mapping.Skip:
+                #         continue
+                #     else:
+                #         targets.append(matched_target[i])
+                # if not targets:
+                #     raise SPARQL_Mapping.Skip  # fail
+                ###
+                matches = target_entry.match_and_preprocess(
+                    self.mapping, self, source, self._term2arg)
                 if not matches:
-                    continue
-                matched_target, matched_theta = zip(*matches)
-                assert len(matched_target) == len(matched_theta)
-                targets: list[SPARQL_Mapping.EntryPattern] = []
-                theta: dict[Variable, Term | None] = {}
-                kwargs: dict[str, SPARQL_Mapping.EntryCallbackArg] = {}
-                for i in range(len(matched_target)):
-                    try:
-                        it = list(  # consume, trigger exceptions early
-                            self._push_filter_get_entry_callback_kwargs(
-                                target_entry, matched_theta[i]))
-                        for var, val, arg in it:
-                            if var.name in kwargs:
-                                assert theta[var] == val
-                                assert kwargs[var.name] == arg
-                            else:
-                                theta[var] = val
-                                kwargs[var.name] = arg
-                    except SPARQL_Mapping.Skip:
-                        continue
-                    else:
-                        targets.append(matched_target[i])
+                    continue  # nothing to do
+                targets, _, kwargs = matches
                 if not targets:
                     raise SPARQL_Mapping.Skip  # fail
                 assert targets
@@ -591,7 +619,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                     src = next(targets[0]._iterate_variables()).name
                     assert isinstance(kwargs[src], Query.Variable)
                     tgt = next(entity._iterate_variables()).name
-                    kwargs[src] = Query.Variable(tgt)
+                    kwargs[src] = Query.Variable(tgt)  # type: ignore
                     # print('src:', src)
                     # print('tgt:', tgt)
                     # print('kwargs:', kwargs)
@@ -637,7 +665,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             pairs: list[tuple[
                 Query.Variable, Query.Literal | Query.URI | None]] = []
             for var, val in theta.items():
-                if var not in entry.pattern.variables:
+                if var not in entry.variables:
                     continue    # unknown variable, skip
                 qvar = self.as_qvar(var)
                 if val is None or isinstance(val, Variable):  # not bound?

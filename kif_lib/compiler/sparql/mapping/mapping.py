@@ -290,6 +290,9 @@ class SPARQL_Mapping(Sequence['SPARQL_Mapping.Entry']):
             """Preprocesses entry callback `arg` corresponding to `var`.
 
             Parameters:
+               mapping: SPARQL mapping.
+               compiler: SPARQL compiler.
+               var: Variable.
                arg: Entry callback argument.
 
             Returns:
@@ -308,6 +311,9 @@ class SPARQL_Mapping(Sequence['SPARQL_Mapping.Entry']):
             """Post-processes entry callback `arg` corresponding to `var`.
 
             Parameters:
+               mapping: SPARQL mapping.
+               compiler: SPARQL compiler.
+               var: Variable.
                arg: Entry callback argument.
 
             Returns:
@@ -338,13 +344,15 @@ class SPARQL_Mapping(Sequence['SPARQL_Mapping.Entry']):
                 self,
                 pattern: SPARQL_Mapping.EntryPattern
         ) -> Iterator[tuple[SPARQL_Mapping.EntryPattern, Theta]]:
-            """Tests whether entry matches `pattern`.
+            """Matches `pattern` against entry.
+
+            If no matches are found, returns an empty iterator.
 
             Parameters:
                pattern: Statement, statement template, or statement variable.
 
             Returns:
-               An iterator of pairs "(pattern, theta)".
+               An iterator of pairs "(matched-pattern, theta)".
             """
             for pat in self.patterns:
                 theta = pattern.match(pat)
@@ -356,6 +364,67 @@ class SPARQL_Mapping(Sequence['SPARQL_Mapping.Entry']):
                     yield target, {
                         v: v.instantiate(theta)
                         for v in pat._iterate_variables()}
+
+        def match_and_preprocess(
+                self,
+                mapping: SPARQL_Mapping,
+                compiler: Compiler,
+                pattern: SPARQL_Mapping.EntryPattern,
+                term2arg: Callable[[Term], Term | Compiler.Query.VTerm]
+        ) -> Optional[tuple[
+            Sequence[SPARQL_Mapping.EntryPattern],
+            Theta,
+            Mapping[str, SPARQL_Mapping.EntryCallbackArg]
+        ]]:
+            """Matches `pattern` against entry, then computes and
+            preprocesses the corresponding callback arguments.
+
+            If no matches are found, returns a triple with three empty
+            components.
+
+            Parameters:
+               mapping: SPARQL mapping.
+               compiler: SPARQL compiler.
+               pattern: Statement, statement template, or statement variable.
+               term2arg: Function to convert a term to a callback argument.
+
+            Returns:
+               A triple "(matched-patterns, theta, kwargs)" if successful;
+               ``None`` otherwise.
+            """
+            targets: list[SPARQL_Mapping.EntryPattern] = []
+            theta: dict[Variable, Term | None] = {}
+            kwargs: dict[str, SPARQL_Mapping.EntryCallbackArg] = {}
+            matches = list(self.match(pattern))
+            if not matches:
+                return None
+            matched_target, matched_theta = zip(*matches)
+            assert len(matched_target) == len(matched_theta)
+            for i in range(len(matched_target)):
+                try:
+                    for var, val in matched_theta[i].items():
+                        arg: Optional[Union[Term, Compiler.Query.VTerm]]
+                        if val is None:
+                            arg = val
+                        else:
+                            arg = term2arg(val)
+                        arg = self.preprocess(mapping, compiler, var, arg)
+                        if var.name in kwargs:
+                            ###
+                            # IMPORTANT: An assertion failure here
+                            # usually means the the entry patterns are
+                            # incorrectly specified.
+                            ###
+                            assert theta[var] == val
+                            assert kwargs[var.name] == arg
+                        else:
+                            theta[var] = val
+                            kwargs[var.name] = arg
+                except SPARQL_Mapping.Skip:
+                    continue
+                else:
+                    targets.append(matched_target[i])
+            return targets, theta, kwargs
 
         def rename(
                 self,
@@ -439,16 +508,17 @@ class SPARQL_Mapping(Sequence['SPARQL_Mapping.Entry']):
         pats: list[SPARQL_Mapping.EntryPattern] = []
         seen: dict[str, Variable] = {}
         for pat in patterns:
+            xpat: Union[Statement, StatementTemplate, StatementVariable]
             if isinstance(pat, Template):
-                pats.append(StatementTemplate.check(
-                    pat, cls.register, 'patterns', 1))
+                xpat = StatementTemplate.check(
+                    pat, cls.register, 'patterns', 1)
             elif isinstance(patterns, Variable):
-                pats.append(StatementVariable.check(
-                    pat, cls.register, 'patterns', 1))
+                xpat = StatementVariable.check(
+                    pat, cls.register, 'patterns', 1)
             else:
-                pats.append(Statement.check(
-                    pat, cls.register, 'patterns', 1))
-            for var in pat.variables:
+                xpat = Statement.check(pat, cls.register, 'patterns', 1)
+            pats.append(xpat)
+            for var in xpat.variables:
                 if var.name not in seen:
                     seen[var.name] = var
                 elif seen[var.name] != var:
@@ -710,7 +780,7 @@ class SPARQL_Mapping(Sequence['SPARQL_Mapping.Entry']):
         """
         return Context.top(context)
 
-    def __getitem__(self, k: int) -> SPARQL_Mapping.Entry:
+    def __getitem__(self, k: Any) -> Any:
         return self._entries[k]
 
     def __len__(self) -> int:

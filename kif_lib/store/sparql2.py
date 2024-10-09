@@ -97,6 +97,7 @@ class SPARQL_Store2(
                     ###
                     if (self.has_flags(self.LATE_FILTER)
                             and not filter.match(stmt)):
+                        LOG.debug('SKIPPED (late filter) %s', stmt)
                         continue
                     self._cache_add_wds(stmt, NS.WDS[stmt.digest])
                     yield stmt
