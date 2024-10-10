@@ -734,6 +734,7 @@ class GraphPattern(Pattern):
     """Abstract base class for graph patterns."""
 
     def __enter__(self) -> Self:
+        self.clause.stash_begin()
         return cast(Self, self.clause._begin(self))
 
     def __exit__(
@@ -744,7 +745,10 @@ class GraphPattern(Pattern):
     ) -> None:
         self.clause._end()
         if err_val is not None:
+            self.clause.stash_drop()
             raise err_val
+        else:
+            self.clause.stash_pop()
 
     def _add(self, child: Pattern, dest: MutableSequence[Any]) -> Pattern:
         assert child.clause == self.clause
