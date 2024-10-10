@@ -409,7 +409,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 entry.callback(self.mapping, self, **kwargs)
                 self._push_fps(entry, filter, targets)
         except self.mapping.Skip:
-            pass                # skip
+            pass
         else:
             self._entry_subst[entry.id] = self.theta
             self._entry_targets[entry.id] = targets
@@ -478,7 +478,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             value: VValue
     ) -> None:
         if isinstance(value, Value) and not fp.match(value):
-            raise SPARQL_Mapping.Skip  # fail
+            raise SPARQL_Mapping.Skip
         if isinstance(fp, CompoundFingerprint):
             with self.q.group():
                 if self.has_flags(self.DEBUG):
@@ -508,26 +508,25 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         snaks, values = map(list, itertools.partition(
             lambda x: isinstance(x, ValueFingerprint), atoms))
         if isinstance(fp, AndFingerprint):
-            ###
-            # TODO: Handle failures.
-            ###
-            assert len(values) <= 1
+            assert not values
             for child in itertools.chain(snaks, comps):
                 self._push_fp(entry, child, value)
-            if values:
-                with self.q.group():
-                    self._push_value_fps(entry, values, value)
         elif isinstance(fp, OrFingerprint):
-            ###
-            # TODO: Handle failures.
-            ###
-            with self.q.union():
+            with self.q.union() as cup:
                 for child in itertools.chain(snaks, comps):
-                    with self.q.group():
-                        self._push_fp(entry, child, value)
+                    try:
+                        with self.q.group():
+                            self._push_fp(entry, child, value)
+                    except SPARQL_Mapping.Skip:
+                        continue
                 if values:
-                    with self.q.group():
-                        self._push_value_fps(entry, values, value)
+                    try:
+                        with self.q.group():
+                            self._push_value_fps(entry, values, value)
+                    except SPARQL_Mapping.Skip:
+                        pass
+                if not cup.children:
+                    raise SPARQL_Mapping.Skip
         else:
             raise self._should_not_get_here()
 
@@ -542,8 +541,8 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             assert isinstance(fp.snak.value, Entity)
             try:
                 source = fp.snak.property(fp.snak.value, entity)
-            except (TypeError, ValueError):
-                raise self.mapping.Skip  # fail
+            except (TypeError, ValueError) as err:
+                raise self.mapping.Skip from err
         else:
             source = Statement(entity, fp.snak)
         source = source.generalize(rename=self._fresh_name_generator())
@@ -557,7 +556,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                     continue  # nothing to do
                 targets, _, kwargs = matches
                 if not targets:
-                    raise SPARQL_Mapping.Skip  # fail
+                    raise SPARQL_Mapping.Skip
                 assert targets
                 ###
                 # HACK: START
@@ -584,12 +583,12 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 try:
                     with self.q.group():
                         target_entry.callback(self.mapping, self, **kwargs)
-                except self.mapping.Skip as err:
-                    raise err   # fail
+                except self.mapping.Skip as skip:
+                    raise skip
                 finally:
                     self._pop_frame()
             if not cup.children:
-                raise self.mapping.Skip  # fail
+                raise self.mapping.Skip
 
     def _push_value_fps(
             self,
@@ -607,7 +606,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                     rename=self._fresh_name_generator())), fps)
             if x is not None]
         if not thetas:
-            raise SPARQL_Mapping.Skip  # fail
+            raise SPARQL_Mapping.Skip
         lines = []
         for theta in thetas:
             pairs: list[tuple[
@@ -638,7 +637,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             if pairs:
                 lines.append(dict(pairs))
         if not lines:
-            raise SPARQL_Mapping.Skip  # fail
+            raise SPARQL_Mapping.Skip
         assert lines
         vars = list(sorted(lines[0].keys()))
         vals = map(lambda line: tuple(map(lambda k: line[k], vars)), lines)
