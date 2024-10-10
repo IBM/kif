@@ -558,21 +558,18 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 if not targets:
                     raise SPARQL_Mapping.Skip
                 assert targets
-                ###
-                # HACK: START
-                ###
-                if kwargs:      # update kwargs if needed
+                if kwargs:
+                    ###
+                    # HACK: Here we monkey-patch `kwargs` so that the source
+                    # variable (from snak fingerprint) is replaced by the
+                    # correct target variable (from filter).  Is this the
+                    # best way to do this?
+                    ###
                     assert len(targets) == 1
                     src = next(targets[0]._iterate_variables()).name
                     assert isinstance(kwargs[src], Query.Variable)
                     tgt = next(entity._iterate_variables()).name
                     kwargs[src] = Query.Variable(tgt)  # type: ignore
-                    # print('src:', src)
-                    # print('tgt:', tgt)
-                    # print('kwargs:', kwargs)
-                ###
-                # HACK: END
-                ###
                 self._push_frame({
                     'phase': self.COMPILING_FINGERPRINT,
                     'entry': target_entry,
