@@ -361,7 +361,10 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                     push = functools.partial(
                         self._push_filter_push_entry,
                         filter, entry, theta=theta, kwargs=kwargs)
-                    if False:   # split targets?
+                    if True:
+                        ###
+                        # TODO: Add an option to split targets.
+                        ###
                         for target in targets:
                             push((target,))
                     else:
@@ -388,13 +391,12 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             'substitution': Substitution(),
             'wds': self.wds,  # same as last wds
         })
-        if self.has_flags(self.DEBUG):
-            self.q.comments()(*map(str, targets))
         for var, val in entry.default_map.items():
             self.theta_add_default(var, val)
-        self.q.stash_begin()
         try:
             with self.q.group():
+                if self.has_flags(self.DEBUG):
+                    self.q.comments()(*map(str, targets))
                 self.q.bind(entry.id, self._entry_id_qvar)
                 for var, val in theta.items():
                     assert var.name in kwargs
@@ -407,12 +409,12 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 entry.callback(self.mapping, self, **kwargs)
                 self._push_fps(entry, filter, targets)
         except self.mapping.Skip:
-            self.q.stash_drop()
+            pass                # skip
         else:
-            self.q.stash_pop()
             self._entry_subst[entry.id] = self.theta
             self._entry_targets[entry.id] = targets
-        self._pop_frame()
+        finally:
+            self._pop_frame()
 
     def _push_fps(
             self,
