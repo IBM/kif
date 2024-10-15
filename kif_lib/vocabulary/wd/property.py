@@ -14,11 +14,14 @@ author_name_string = P(2093)
 auxiliary_verb = P(5401)
 based_on_heuristic = P(887)
 canonical_SMILES = P(233)
+capital = P(36)
 CAS_Registry_Number = P(231)
 ChEBI_ID = P(683)
 ChEMBL_ID = P(592)
 chemical_formula = P(274)
 chemical_structure = P(117)
+class_of_non_item_property_value = P(10726)
+combines_lexemes = P(5238)
 complementary_property = P(8882)
 contains = P(4330)
 contains_the_administrative_territorial_entity = P(150)
@@ -45,6 +48,7 @@ element_symbol = P(246)
 elevation_above_sea_level = P(2044)
 end_time = P(582)
 equivalent_property = P(1628)
+EU_Transparency_Register_ID = P(2657)
 exact_match = P(2888)
 family_name = P(734)
 father = P(22)
@@ -58,10 +62,12 @@ grammatical_gender = P(5185)
 grammatical_person = P(11053)
 half_life = P(2114)
 has_active_ingredient = P(3781)
+has_cause = P(828)
 has_effect = P(1542)
 has_part = P(527)
 has_use = P(366)
 head_of_government = P(6)
+height = P(2048)
 highest_point = P(610)
 homograph_lexeme = P(5402)
 HSDB_ID = P(2062)
@@ -94,11 +100,13 @@ named_after = P(138)
 native_label = P(1705)
 negates_property = P(11317)
 number_of_decimal_digits = P(7316)
+number_of_records = P(4876)
 numeric_value = P(1181)
 occupation = P(106)
 official_language = P(37)
 official_name = P(1448)
 official_website = P(856)
+OpenStreetMap_tag_or_key = P(1282)
 ORCID_iD = P(496)
 parent_peak = P(3137)
 part_of = P(361)
@@ -116,11 +124,13 @@ position_held = P(39)
 practiced_by = P(3095)
 product_or_material_produced_or_service_provided = P(1056)
 properties_for_this_type = P(1963)
+property_proposal_discussion = P(3254)
 PubChem_CID = P(662)
 publication_date = P(577)
 quantity_symbol_string = P(416)
 reference_URL = P(854)
 related_property = P(1659)
+Relations_Ontology_ID = P(3590)
 residence = P(551)
 retrieved = P(813)
 route_of_administration = P(636)
@@ -133,6 +143,7 @@ shares_border_with = P(47)
 short_name = P(1813)
 significant_person = P(3342)
 solubility = P(2177)
+source_website_for_the_property = P(1896)
 specific_heat_capacity = P(2056)
 speed_limit = P(3086)
 sponsor = P(859)
@@ -146,11 +157,13 @@ subject_lexeme = P(6254)
 subproperty_of = P(1647)
 taxon_name = P(225)
 temperature = P(2076)
+TheCocktailDB_ingredient_ID = P(9057)
 time_index = P(4895)
 title = P(1476)
 trading_name = P(6427)
 transport_network = P(16)
 type_of_unit_for_this_property = P(2876)
+Unicode_character = P(487)
 used_by = P(1535)
 uses = P(2283)
 valid_in_place = P(3005)
@@ -171,12 +184,15 @@ __all__ = (
     'auxiliary_verb',
     'based_on_heuristic',
     'canonical_SMILES',
+    'capital',
     'CAS_Registry_Number',
     'CAS_Registry_Number',
     'ChEBI_ID',
     'ChEMBL_ID',
     'chemical_formula',
     'chemical_structure',
+    'class_of_non_item_property_value',
+    'combines_lexemes',
     'complementary_property',
     'contains',
     'contains_the_administrative_territorial_entity',
@@ -204,6 +220,7 @@ __all__ = (
     'elevation_above_sea_level',
     'end_time',
     'equivalent_property',
+    'EU_Transparency_Register_ID',
     'exact_match',
     'family_name',
     'father',
@@ -217,10 +234,12 @@ __all__ = (
     'grammatical_person',
     'half_life',
     'has_active_ingredient',
+    'has_cause',
     'has_effect',
     'has_part',
     'has_use',
     'head_of_government',
+    'height',
     'highest_point',
     'homograph_lexeme',
     'HSDB_ID',
@@ -253,11 +272,13 @@ __all__ = (
     'native_label',
     'negates_property',
     'number_of_decimal_digits',
+    'number_of_records',
     'numeric_value',
     'occupation',
     'official_language',
     'official_name',
     'official_website',
+    'OpenStreetMap_tag_or_key',
     'ORCID_iD',
     'parent_peak',
     'part_of',
@@ -275,11 +296,13 @@ __all__ = (
     'practiced_by',
     'product_or_material_produced_or_service_provided',
     'properties_for_this_type',
+    'property_proposal_discussion',
     'PubChem_CID',
     'publication_date',
     'quantity_symbol_string',
     'reference_URL',
     'related_property',
+    'Relations_Ontology_ID',
     'residence',
     'retrieved',
     'route_of_administration',
@@ -292,6 +315,7 @@ __all__ = (
     'short_name',
     'significant_person',
     'solubility',
+    'source_website_for_the_property',
     'specific_heat_capacity',
     'speed_limit',
     'sponsor',
@@ -305,11 +329,13 @@ __all__ = (
     'subproperty_of',
     'taxon_name',
     'temperature',
+    'TheCocktailDB_ingredient_ID',
     'time_index',
     'title',
     'trading_name',
     'transport_network',
     'type_of_unit_for_this_property',
+    'Unicode_character',
     'used_by',
     'uses',
     'valid_in_place',

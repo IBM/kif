@@ -65,7 +65,7 @@ V_URI: TypeAlias = C.Query.V_URI
 Var: TypeAlias = C.Query.Variable
 Var3: TypeAlias = tuple[Var, Var, Var]
 
-e, p, w, x, y, z = Variables(*'epwxyz')
+d, e, p, w, x, y, z = Variables(*'depwxyz')
 
 
 @dataclasses.dataclass
@@ -260,161 +260,238 @@ class WikidataMapping(M):
             ###
             c.q.set_order_by(c.wds)
 
-    def _start(self, c: C, e: VEntity, p: V_URI, dt: V_URI) -> Var3:
-        if isinstance(e, Variable):
-            v = c.as_qvar(e)
-            t = self._start_any(c, v, p, dt)
-            if not c.is_compiling_filter():
-                return t        # nothing else to do
-            with c.q.union():
-                if type(e) is ItemVariable or type(e) is EntityVariable:
-                    with c.q.group():
-                        item_iri = c._fresh_iri_variable()
-                        c.theta_add(e@Item, Item(item_iri))
-                        c.q.triples()((v, WIKIBASE.sitelinks, c.bnode()))
-                        c.q.bind(v, c.theta_add_as_qvar(item_iri))
-                if type(e) is LexemeVariable or type(e) is EntityVariable:
-                    with c.q.group():
-                        lex_iri = c._fresh_iri_variable()
-                        c.theta_add(e@Lexeme, Lexeme(lex_iri))
-                        c.q.triples()((v, RDF.type, ONTOLEX.LexicalEntry))
-                        c.q.bind(v, c.theta_add_as_qvar(lex_iri))
-                if (type(e) is PropertyVariable
-                        or type(e) is EntityVariable):
-                    with c.q.group():
-                        prop_dt = c._fresh_datatype_variable()
-                        prop_dt_iri = c._fresh_iri_variable()
-                        prop_iri = c._fresh_iri_variable()
-                        c.theta_add(prop_dt, prop_dt_iri)
-                        c.theta_add(
-                            e@Property, Property(prop_iri, prop_dt))
-                        c.q.triples()(
-                            (v, RDF.type, WIKIBASE.Property),
-                            (v, WIKIBASE.propertyType,
-                             c.theta_add_as_qvar(prop_dt_iri)))
-                        c.q.bind(v, c.theta_add_as_qvar(prop_iri))
-            return t
-        elif isinstance(e, ItemTemplate):
-            assert isinstance(e.iri, IRI_Variable)
-            return self._start_Q(c, c.as_qvar(e.iri), p, dt)
-        elif isinstance(e, LexemeTemplate):
-            assert isinstance(e.iri, IRI_Variable)
-            return self._start_L(c, c.as_qvar(e.iri), p, dt)
-        elif isinstance(e, PropertyTemplate):
-            if isinstance(e.iri, IRI):
-                s: V_URI = cast(URI, self.CheckProperty()(
-                    self, c, URI(e.iri.content)))
-            elif isinstance(e.iri, IRI_Variable):
-                s = c.as_qvar(e.iri)
-            else:
-                raise c._should_not_get_here()
-            assert e.range is not None
-            prop_tpl_dt = e.range
-            if isinstance(prop_tpl_dt, Datatype):
-                v_prop_tpl_dt_iri: V_URI = prop_tpl_dt._to_rdflib()
-            elif isinstance(prop_tpl_dt, DatatypeVariable):
-                v_prop_tpl_dt_iri = c.theta_add(
-                    prop_tpl_dt, c.fresh_qvar())
-            else:
-                raise c._should_not_get_here()
-            t = self._start_P(c, s, p, dt)
-            if c.is_compiling_filter():
-                c.q.triples()((s, WIKIBASE.propertyType, v_prop_tpl_dt_iri))
-            return t
-        elif isinstance(e, URI):
-            assert isinstance(c.target, (Statement, StatementTemplate))
-            subject = c.target.subject
-            assert subject is not None
-            if isinstance(subject, (Item, ItemVariable)):
-                return self._start_Q(
-                    c, cast(URI, self.CheckItem()(self, c, e)), p, dt)
-            elif isinstance(subject, (Lexeme, LexemeVariable)):
-                return self._start_L(
-                    c, cast(URI, self.CheckLexeme()(self, c, e)), p, dt)
-            elif isinstance(subject, (Property, PropertyVariable)):
-                return self._start_P(
-                    c, cast(URI, self.CheckProperty()(self, c, e)), p, dt)
-            else:
-                raise c._should_not_get_here()
-        else:
-            raise c._should_not_get_here()
-
-    def _start_Q(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
-        t = self._start_any(c, x, p, dt)
+    def _start_Q(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> Var3:
+        t = self._start_any(c, e, p, dt)
         if c.is_compiling_filter():
-            c.q.triples()((x, WIKIBASE.sitelinks, c.q.bnode()))
+            c.q.triples()((e, WIKIBASE.sitelinks, c.q.bnode()))
         return t
 
-    def _start_L(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
-        t = self._start_any(c, x, p, dt)
+    def _start_L(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> Var3:
+        t = self._start_any(c, e, p, dt)
         if c.is_compiling_filter():
-            c.q.triples()((x, RDF.type, ONTOLEX.LexicalEntry))
+            c.q.triples()((e, RDF.type, ONTOLEX.LexicalEntry))
         return t
 
-    def _start_P(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
-        t = self._start_any(c, x, p, dt)
+    def _start_P(
+            self,
+            c: C,
+            e: V_URI,
+            edt: V_URI,
+            p: V_URI,
+            pdt: V_URI
+    ) -> Var3:
+        t = self._start_any(c, e, p, pdt)
         if c.is_compiling_filter():
-            c.q.triples()((x, RDF.type, WIKIBASE.Property))
+            c.q.triples()(
+                (e, RDF.type, WIKIBASE.Property),
+                (e, WIKIBASE.propertyType, edt))
         return t
 
-    def _start_any(self, c: C, x: V_URI, p: V_URI, dt: V_URI) -> Var3:
+    def _start_any(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> Var3:
         wds = c.wds
         p_, ps = c.fresh_qvars(2)
         c.q.triples()(
-            (x, p_, wds),
+            (e, p_, wds),
             (p, RDF.type, WIKIBASE.Property),
             (p, WIKIBASE.claim, p_),
             (p, WIKIBASE.propertyType, dt),
-            (p, WIKIBASE.statementProperty, ps))
+            (p, WIKIBASE.statementProperty, ps),
+            (wds, WIKIBASE.rank, c.bnode()))
         if c.has_flags(c.BEST_RANK):
             c.q.triples()((wds, RDF.type, WIKIBASE.BestRank))
         return p_, ps, wds
 
+    # -- item --
+
     @M.register(
-        Statement(e, Property(p)(Item(x))),
-        {p: CheckProperty(),
+        [Statement(Item(e), Property(p)(Item(x)))],
+        {e: CheckItem(),
+         p: CheckProperty(),
          x: CheckItem()})
-    def p_item(self, c: C, e: VEntity, p: V_URI, x: V_URI):
-        _, ps, wds = self._start(c, e, p, WIKIBASE.WikibaseItem)
+    def p_item_item(self, c: C, e: V_URI, p: V_URI, x: V_URI):
+        self._p_item(c, p, x, self._start_Q(c, e, p, WIKIBASE.WikibaseItem))
+
+    @M.register(
+        [Statement(Lexeme(e), Property(p)(Item(x)))],
+        {e: CheckLexeme(),
+         p: CheckProperty(),
+         x: CheckItem()})
+    def p_lexeme_item(self, c: C, e: V_URI, p: V_URI, x: V_URI):
+        self._p_item(c, p, x, self._start_L(c, e, p, WIKIBASE.WikibaseItem))
+
+    @M.register(
+        [Statement(Property(e, d), Property(p)(Item(x)))],
+        {e: CheckProperty(),
+         d: CheckDatatype(),
+         p: CheckProperty(),
+         x: CheckItem()})
+    def p_property_item(self, c: C, e: V_URI, d: V_URI, p: V_URI, x: V_URI):
+        self._p_item(c, p, x, self._start_P(c, e, d, p, WIKIBASE.WikibaseItem))
+
+    def _p_item(self, c: C, p: V_URI, x: V_URI, var3: Var3):
+        _, ps, wds = var3
         c.q.triples()(
             (wds, ps, x),
             (x, WIKIBASE.sitelinks, c.q.bnode()))
 
+    # -- property --
+
     @M.register(
-        Statement(e, Property(p)(Property(x, y))),
-        {p: CheckProperty(),
+        [Statement(Item(e), Property(p)(Property(x, y)))],
+        {e: CheckItem(),
+         p: CheckProperty(),
          x: CheckProperty(),
          y: CheckDatatype()})
-    def p_property(self, c: C, e: VEntity, p: V_URI, x: V_URI, y: V_URI):
-        _, ps, wds = self._start(c, e, p, WIKIBASE.WikibaseProperty)
+    def p_item_property(self, c: C, e: V_URI, p: V_URI, x: V_URI, y: V_URI):
+        self._p_property(c, p, x, y, self._start_Q(
+            c, e, p, WIKIBASE.WikibaseProperty))
+
+    @M.register(
+        [Statement(Lexeme(e), Property(p)(Property(x, y)))],
+        {e: CheckLexeme(),
+         p: CheckProperty(),
+         x: CheckProperty(),
+         y: CheckDatatype()})
+    def p_lexeme_property(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: V_URI,
+            y: V_URI
+    ):
+        self._p_property(c, p, x, y, self._start_L(
+            c, e, p, WIKIBASE.WikibaseProperty))
+
+    @M.register(
+        [Statement(Property(e, d), Property(p)(Property(x, y)))],
+        {e: CheckProperty(),
+         d: CheckDatatype(),
+         p: CheckProperty(),
+         x: CheckProperty(),
+         y: CheckDatatype()})
+    def p_property_property(
+            self,
+            c: C,
+            e: V_URI,
+            d: V_URI,
+            p: V_URI,
+            x: V_URI,
+            y: V_URI
+    ):
+        self._p_property(c, p, x, y, self._start_P(
+            c, e, d, p, WIKIBASE.WikibaseProperty))
+
+    def _p_property(self, c: C, p: V_URI, x: V_URI, y: V_URI, var3: Var3):
+        _, ps, wds = var3
         c.q.triples()(
             (wds, ps, x),
             (x, RDF.type, WIKIBASE.Property),
             (x, WIKIBASE.propertyType, y))
 
+    # -- lexeme --
+
     @M.register(
-        Statement(e, Property(p)(Lexeme(x))),
-        {p: CheckProperty(),
+        [Statement(Item(e), Property(p)(Lexeme(x)))],
+        {e: CheckItem(),
+         p: CheckProperty(),
          x: CheckLexeme()})
-    def p_lexeme(self, c: C, e: VEntity, p: V_URI, x: V_URI):
-        _, ps, wds = self._start(c, e, p, WIKIBASE.WikibaseLexeme)
+    def p_item_lexeme(self, c: C, e: V_URI, p: V_URI, x: V_URI):
+        self._p_lexeme(c, p, x, self._start_Q(
+            c, e, p, WIKIBASE.WikibaseLexeme))
+
+    @M.register(
+        [Statement(Lexeme(e), Property(p)(Lexeme(x)))],
+        {e: CheckLexeme(),
+         p: CheckProperty(),
+         x: CheckLexeme()})
+    def p_lexeme_lexeme(self, c: C, e: V_URI, p: V_URI, x: V_URI):
+        self._p_lexeme(c, p, x, self._start_L(
+            c, e, p, WIKIBASE.WikibaseLexeme))
+
+    @M.register(
+        [Statement(Property(e, d), Property(p)(Lexeme(x)))],
+        {e: CheckProperty(),
+         d: CheckDatatype(),
+         p: CheckProperty(),
+         x: CheckLexeme()})
+    def p_property_lexeme(self, c: C, e: V_URI, d: V_URI, p: V_URI, x: V_URI):
+        self._p_lexeme(c, p, x, self._start_P(
+            c, e, d, p, WIKIBASE.WikibaseLexeme))
+
+    def _p_lexeme(self, c: C, p: V_URI, x: V_URI, var3: Var3):
+        _, ps, wds = var3
         c.q.triples()(
             (wds, ps, x),
             (x, RDF.type, ONTOLEX.LexicalEntry))
 
-    @M.register(
-        Statement(e, Property(p)(IRI(x))),
-        {p: CheckProperty(),
-         x: CheckIRI()})
-    def p_iri(self, c: C, e: VEntity, p: V_URI, x: V_URI):
-        _, ps, wds = self._start(c, e, p, WIKIBASE.Url)
-        c.q.triples()((wds, ps, x))
+    # -- iri --
 
     @M.register(
-        Statement(e, Property(p)(x@Text)),
-        {p: CheckProperty()})
-    def p_text(self, c: C, e: VEntity, p: V_URI, x: VLiteral | VText):
-        _, ps, wds = self._start(c, e, p, WIKIBASE.Monolingualtext)
+        [Statement(Item(e), Property(p)(IRI(x)))],
+        {e: CheckItem(),
+         p: CheckProperty(),
+         x: CheckIRI()})
+    def p_item_iri(self, c: C, e: V_URI, p: V_URI, x: V_URI):
+        self._p_iri(c, p, x, self._start_Q(c, e, p, WIKIBASE.Url))
+
+    @M.register(
+        [Statement(Lexeme(e), Property(p)(IRI(x)))],
+        {e: CheckItem(),
+         p: CheckProperty(),
+         x: CheckIRI()})
+    def p_lexeme_iri(self, c: C, e: V_URI, p: V_URI, x: V_URI):
+        self._p_iri(c, p, x, self._start_L(c, e, p, WIKIBASE.Url))
+
+    @M.register(
+        [Statement(Property(e, d), Property(p)(IRI(x)))],
+        {e: CheckProperty(),
+         d: CheckDatatype(),
+         p: CheckProperty(),
+         x: CheckIRI()})
+    def p_property_iri(self, c: C, e: V_URI, d: V_URI, p: V_URI, x: V_URI):
+        self._p_iri(c, p, x, self._start_P(c, e, d, p, WIKIBASE.Url))
+
+    def _p_iri(self, c: C, p: V_URI, x: V_URI, var3: Var3):
+        _, ps, wds = var3
+        c.q.triples()((wds, ps, x))
+
+    # -- text --
+
+    @M.register(
+        [Statement(Item(e), Property(p)(x@Text))],
+        {e: CheckItem(),
+         p: CheckProperty()})
+    def p_item_text(self, c: C, e: V_URI, p: V_URI, x: VLiteral | VText):
+        self._p_text(c, p, x, self._start_Q(
+            c, e, p, WIKIBASE.Monolingualtext))
+
+    @M.register(
+        [Statement(Lexeme(e), Property(p)(x@Text))],
+        {e: CheckLexeme(),
+         p: CheckProperty()})
+    def p_lexeme_text(self, c: C, e: V_URI, p: V_URI, x: VLiteral | VText):
+        self._p_text(c, p, x, self._start_L(
+            c, e, p, WIKIBASE.Monolingualtext))
+
+    @M.register(
+        [Statement(Property(e, d), Property(p)(x@Text))],
+        {e: CheckProperty(),
+         d: CheckDatatype(),
+         p: CheckProperty()})
+    def p_property_text(
+            self,
+            c: C,
+            e: V_URI,
+            d: V_URI,
+            p: V_URI,
+            x: VLiteral | VText
+    ):
+        self._p_text(c, p, x, self._start_P(
+            c, e, d, p, WIKIBASE.Monolingualtext))
+
+    def _p_text(self, c: C, p: V_URI, x: VLiteral | VText, var3: Var3):
+        _, ps, wds = var3
         if isinstance(x, Literal):
             c.q.triples()((wds, ps, x))
         elif isinstance(x, TextVariable):
@@ -427,28 +504,84 @@ class WikidataMapping(M):
         else:
             raise c._should_not_get_here()
 
-    @M.register(
-        Statement(e, Property(p)(String(x))),
-        {p: CheckProperty()})
-    def p_string(self, c: C, e: VEntity, p: V_URI, x: VLiteral):
-        _, ps, wds = self._start(c, e, p, WIKIBASE.String)
-        c.q.triples()((wds, ps, x))
+    # -- string --
 
     @M.register(
-        Statement(e, Property(p)(ExternalId(x))),
-        {p: CheckProperty()})
-    def p_external_id(self, c: C, e: VEntity, p: V_URI, x: VLiteral):
-        _, ps, wds = self._start(c, e, p, WIKIBASE.ExternalId)
-        c.q.triples()((wds, ps, x))
+        [Statement(Item(e), Property(p)(String(x)))],
+        {e: CheckItem(),
+         p: CheckProperty()})
+    def p_item_string(self, c: C, e: V_URI, p: V_URI, x: VLiteral):
+        self._p_string(c, p, x, self._start_Q(c, e, p, WIKIBASE.String))
 
     @M.register(
-        Statement(e, Property(p)(Quantity(x, y@Item, z, w))),
-        {p: CheckProperty()},
-        defaults={y: None, z: None, w: None})
-    def p_quantity(
+        [Statement(Lexeme(e), Property(p)(String(x)))],
+        {e: CheckLexeme(),
+         p: CheckProperty()})
+    def p_lexeme_string(self, c: C, e: V_URI, p: V_URI, x: VLiteral):
+        self._p_string(c, p, x, self._start_L(c, e, p, WIKIBASE.String))
+
+    @M.register(
+        [Statement(Property(e, d), Property(p)(String(x)))],
+        {e: CheckProperty(),
+         d: CheckDatatype(),
+         p: CheckProperty()})
+    def p_property_string(
             self,
             c: C,
-            e: VEntity,
+            e: V_URI,
+            d: V_URI,
+            p: V_URI,
+            x: VLiteral
+    ):
+        self._p_string(c, p, x, self._start_P(c, e, d, p, WIKIBASE.String))
+
+    def _p_string(self, c: C, p: V_URI, x: VLiteral, var3: Var3):
+        _, ps, wds = var3
+        c.q.triples()((wds, ps, x))
+
+    # -- external id --
+
+    @M.register(
+        [Statement(Item(e), Property(p)(ExternalId(x)))],
+        {e: CheckItem(),
+         p: CheckProperty()})
+    def p_item_external_id(self, c: C, e: V_URI, p: V_URI, x: VLiteral):
+        self._p_string(c, p, x, self._start_Q(c, e, p, WIKIBASE.ExternalId))
+
+    @M.register(
+        [Statement(Lexeme(e), Property(p)(ExternalId(x)))],
+        {e: CheckLexeme(),
+         p: CheckProperty()})
+    def p_lexeme_external_id(self, c: C, e: V_URI, p: V_URI, x: VLiteral):
+        self._p_string(c, p, x, self._start_L(c, e, p, WIKIBASE.ExternalId))
+
+    @M.register(
+        [Statement(Property(e, d), Property(p)(ExternalId(x)))],
+        {e: CheckProperty(),
+         d: CheckDatatype(),
+         p: CheckProperty()})
+    def p_property_external_id(
+            self,
+            c: C,
+            e: V_URI,
+            d: V_URI,
+            p: V_URI,
+            x: VLiteral
+    ):
+        self._p_string(c, p, x, self._start_P(
+            c, e, d, p, WIKIBASE.ExternalId))
+
+    # -- quantity --
+
+    @M.register(
+        [Statement(Item(e), Property(p)(Quantity(x, y@Item, z, w)))],
+        {e: CheckItem(),
+         p: CheckProperty()},
+        defaults={y: None, z: None, w: None})
+    def p_item_quantity(
+            self,
+            c: C,
+            e: V_URI,
             p: V_URI,
             x: VLiteral,
             y: V_URI,
@@ -456,7 +589,45 @@ class WikidataMapping(M):
             w: VLiteral
     ):
         self._p_quantity(
-            c, p, x, y, z, w, self._start(c, e, p, WIKIBASE.Quantity))
+            c, p, x, y, z, w, self._start_Q(c, e, p, WIKIBASE.Quantity))
+
+    @M.register(
+        [Statement(Lexeme(e), Property(p)(Quantity(x, y@Item, z, w)))],
+        {e: CheckLexeme(),
+         p: CheckProperty()},
+        defaults={y: None, z: None, w: None})
+    def p_lexeme_quantity(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: VLiteral,
+            y: V_URI,
+            z: VLiteral,
+            w: VLiteral
+    ):
+        self._p_quantity(
+            c, p, x, y, z, w, self._start_L(c, e, p, WIKIBASE.Quantity))
+
+    @M.register(
+        [Statement(Property(e, d), Property(p)(Quantity(x, y@Item, z, w)))],
+        {e: CheckProperty(),
+         d: CheckDatatype(),
+         p: CheckProperty()},
+        defaults={y: None, z: None, w: None})
+    def p_property_quantity(
+            self,
+            c: C,
+            e: V_URI,
+            d: V_URI,
+            p: V_URI,
+            x: VLiteral,
+            y: V_URI,
+            z: VLiteral,
+            w: VLiteral
+    ):
+        self._p_quantity(
+            c, p, x, y, z, w, self._start_P(c, e, d, p, WIKIBASE.Quantity))
 
     def _p_quantity(
             self,
@@ -497,23 +668,81 @@ class WikidataMapping(M):
             with c.q.optional_if(isinstance(w, Var)):
                 c.q.triples()((wdv, WIKIBASE.quantityUpperBound, w))
 
+    # -- time --
+
     @M.register(
-        Statement(e, Property(p)(Time(x, y, z, w@Item))),
-        {p: CheckProperty(),
+        [Statement(Item(e), Property(p)(Time(x, y, z, w@Item)))],
+        {e: CheckItem(),
+         p: CheckProperty(),
          y: M.CheckInt(),
          z: M.CheckInt()},
         defaults={y: None, z: None})
-    def p_time(
+    def p_item_time(
             self,
             c: C,
-            e: VEntity,
+            e: V_URI,
             p: V_URI,
             x: VLiteral,
             y: VLiteral,
             z: VLiteral,
             w: V_URI
     ):
-        _, ps, wds = self._start(c, e, p, WIKIBASE.Time)
+        self._p_time(
+            c, p, x, y, z, w, self._start_Q(c, e, p, WIKIBASE.Time))
+
+    @M.register(
+        [Statement(Lexeme(e), Property(p)(Time(x, y, z, w@Item)))],
+        {e: CheckLexeme(),
+         p: CheckProperty(),
+         y: M.CheckInt(),
+         z: M.CheckInt()},
+        defaults={y: None, z: None})
+    def p_lexeme_time(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: VLiteral,
+            y: VLiteral,
+            z: VLiteral,
+            w: V_URI
+    ):
+        self._p_time(
+            c, p, x, y, z, w, self._start_L(c, e, p, WIKIBASE.Time))
+
+    @M.register(
+        [Statement(Property(e, d), Property(p)(Time(x, y, z, w@Item)))],
+        {e: CheckProperty(),
+         d: CheckDatatype(),
+         p: CheckProperty(),
+         y: M.CheckInt(),
+         z: M.CheckInt()},
+        defaults={y: None, z: None})
+    def p_property_time(
+            self,
+            c: C,
+            e: V_URI,
+            d: V_URI,
+            p: V_URI,
+            x: VLiteral,
+            y: VLiteral,
+            z: VLiteral,
+            w: V_URI
+    ):
+        self._p_time(
+            c, p, x, y, z, w, self._start_P(c, e, d, p, WIKIBASE.Time))
+
+    def _p_time(
+            self,
+            c: C,
+            p: V_URI,
+            x: VLiteral,
+            y: VLiteral,
+            z: VLiteral,
+            w: V_URI,
+            var3: Var3
+    ):
+        _, ps, wds = var3
         psv, wdv = c.fresh_qvars(2)
         c.q.triples()(
             (wds, ps, x),
@@ -541,12 +770,42 @@ class WikidataMapping(M):
         else:
             raise c._should_not_get_here()
 
+    # -- some value --
+
     @M.register(
-        Statement(e, Property(x, y).some_value()),
-        {x: CheckProperty(),
+        [Statement(Item(e), Property(x, y).some_value())],
+        {e: CheckItem(),
+         x: CheckProperty(),
          y: CheckDatatype()})
-    def p_some_value(self, c: C, e: VEntity, x: V_URI, y: V_URI):
-        _, ps, wds = self._start(c, e, x, y)
+    def p_item_some_value(self, c: C, e: V_URI, x: V_URI, y: V_URI):
+        self._p_some_value(c, self._start_Q(c, e, x, y))
+
+    @M.register(
+        [Statement(Lexeme(e), Property(x, y).some_value())],
+        {e: CheckLexeme(),
+         x: CheckProperty(),
+         y: CheckDatatype()})
+    def p_lexeme_some_value(self, c: C, e: V_URI, x: V_URI, y: V_URI):
+        self._p_some_value(c, self._start_L(c, e, x, y))
+
+    @M.register(
+        [Statement(Property(e, d), Property(x, y).some_value())],
+        {e: CheckProperty(),
+         d: CheckDatatype(),
+         x: CheckProperty(),
+         y: CheckDatatype()})
+    def p_property_some_value(
+            self,
+            c: C,
+            e: V_URI,
+            d: V_URI,
+            x: V_URI,
+            y: V_URI
+    ):
+        self._p_some_value(c, self._start_P(c, e, d, x, y))
+
+    def _p_some_value(self, c: C, var3: Var3):
+        _, ps, wds = var3
         some = c.fresh_qvar()
         c.q.triples()((wds, ps, some))
         if self.options.strict:
@@ -556,12 +815,42 @@ class WikidataMapping(M):
                 c.q.is_uri(some) & c.q.strstarts(
                     c.q.str(some), str(Wikidata.WDGENID))))
 
+    # -- no value --
+
     @M.register(
-        Statement(e, Property(x, y).no_value()),
-        {x: CheckProperty(),
+        [Statement(Item(e), Property(x, y).no_value())],
+        {e: CheckItem(),
+         x: CheckProperty(),
          y: CheckDatatype()})
-    def p_no_value(self, c: C, e: VEntity, x: V_URI, y: V_URI):
-        _, ps, wds = self._start(c, e, x, y)
+    def p_item_no_value(self, c: C, e: V_URI, x: V_URI, y: V_URI):
+        self._p_no_value(c, x, y, self._start_Q(c, e, x, y))
+
+    @M.register(
+        [Statement(Lexeme(e), Property(x, y).no_value())],
+        {e: CheckLexeme(),
+         x: CheckProperty(),
+         y: CheckDatatype()})
+    def p_lexeme_no_value(self, c: C, e: V_URI, x: V_URI, y: V_URI):
+        self._p_no_value(c, x, y, self._start_L(c, e, x, y))
+
+    @M.register(
+        [Statement(Property(e, d), Property(x, y).no_value())],
+        {e: CheckProperty(),
+         d: CheckDatatype(),
+         x: CheckProperty(),
+         y: CheckDatatype()})
+    def p_property_no_value(
+            self,
+            c: C,
+            e: V_URI,
+            d: V_URI,
+            x: V_URI,
+            y: V_URI
+    ):
+        self._p_no_value(c, x, y, self._start_P(c, e, d, x, y))
+
+    def _p_no_value(self, c: C, x: V_URI, y: V_URI, var3: Var3):
+        _, ps, wds = var3
         wdno = c.fresh_qvar()
         c.q.triples()(
             (x, WIKIBASE.novalue, wdno),

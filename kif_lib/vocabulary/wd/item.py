@@ -75,6 +75,7 @@ gram_per_mole = Q(28924752, 'gram per mole')
 Guinea_pig = Q(79803, 'Guinea pig')
 Guyana = Q(734, 'Guyana')
 Hazardous_Substances_Data_Bank = Q(5687720, 'Hazardous Substances Data Bank')
+height_ = Q(208826, 'height')
 human = Q(5, 'human')
 human_biblical_figure = Q(20643955, 'human biblical figure')
 IBM = Q(37156, 'IBM')
@@ -227,6 +228,7 @@ __all__ = (
     'Guinea_pig',
     'Guyana',
     'Hazardous_Substances_Data_Bank',
+    'height_',
     'human',
     'human_biblical_figure',
     'IBM',

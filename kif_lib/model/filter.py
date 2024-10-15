@@ -636,11 +636,12 @@ class Filter(KIF_Object):
         Returns:
            Filter.
         """
-        subject = self.subject.normalize(Filter.ENTITY)
+        subject = self.subject._normalize(Filter.ENTITY)
         subject_mask = self.subject_mask & subject.datatype_mask
-        property = self.property.normalize(Filter.PROPERTY)
+        property = self.property._normalize(Filter.PROPERTY)
         property_mask = self.property_mask & property.datatype_mask
-        value = self.value.normalize(property.range_datatype_mask)
+        value = self.value._normalize(
+            self.value_mask & property.range_datatype_mask)
         value_mask = self.value_mask & value.datatype_mask
         snak_mask = self.snak_mask
         if property_mask.value == 0:
