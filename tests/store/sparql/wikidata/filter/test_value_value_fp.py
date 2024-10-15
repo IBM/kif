@@ -10,13 +10,10 @@ from kif_lib import (
     ExternalId,
     Filter,
     IRI,
-    Lexeme,
-    Quantity,
     Statement,
     String,
     Text,
     Time,
-    ValueSnak,
     Variables,
 )
 from kif_lib.compiler.sparql.mapping.wikidata import WikidataMapping
@@ -288,7 +285,7 @@ class Test(SPARQL_Store2TestCase):
                  (wd.Brazil, wd.Unicode_character)),
             ],
             contains=[
-                ((None, wd.Unicode_character),  [  # FV
+                ((None, wd.Unicode_character), [  # FV
                     (wd.Brazil, wd.Unicode_character),
                 ]),
             ])
@@ -398,7 +395,7 @@ class Test(SPARQL_Store2TestCase):
                  (wd.Brazil, wd.inception)),
             ],
             contains=[          # FV
-                ((None, wd.inception),  [
+                ((None, wd.inception), [
                     (wd.Brazil, wd.inception),
                     (wd.Q(113474333), wd.inception),
                     (wd.Q(217230), wd.inception),

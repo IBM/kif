@@ -9,21 +9,13 @@ import re
 from ....context import Section
 from ....model import (
     Datatype,
-    DatatypeVariable,
-    EntityVariable,
     ExternalId,
     Filter,
     IRI,
-    IRI_Variable,
     Item,
-    ItemTemplate,
     ItemVariable,
     Lexeme,
-    LexemeTemplate,
-    LexemeVariable,
     Property,
-    PropertyTemplate,
-    PropertyVariable,
     Quantity,
     Statement,
     StatementTemplate,
@@ -32,21 +24,11 @@ from ....model import (
     Text,
     TextVariable,
     Time,
-    Variable,
     Variables,
-    VEntity,
     VText,
 )
 from ....namespace import ONTOLEX, RDF, WIKIBASE, Wikidata
-from ....typing import (
-    Any,
-    cast,
-    ClassVar,
-    Final,
-    Iterable,
-    override,
-    TypeAlias,
-)
+from ....typing import Any, ClassVar, Final, Iterable, override, TypeAlias
 from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler as C
 from .mapping import SPARQL_Mapping as M
 

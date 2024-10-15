@@ -7,17 +7,8 @@ import dataclasses
 import functools
 import re
 
-from ....model import (
-    ExternalId,
-    IRI,
-    Item,
-    Quantity,
-    String,
-    Text,
-    Time,
-    Variables,
-)
 from ....context import Section
+from ....model import ExternalId, Item, Quantity, String, Text, Time, Variables
 from ....namespace import DCT, RDF, SKOS, Wikidata, XSD
 from ....namespace.cito import CITO
 from ....namespace.obo import RO

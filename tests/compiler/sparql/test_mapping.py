@@ -14,7 +14,7 @@ from kif_lib import (
 )
 from kif_lib.compiler.sparql import SPARQL_Compiler, SPARQL_Mapping
 from kif_lib.model import VStatement
-from kif_lib.typing import Any, assert_type, Callable, Iterator
+from kif_lib.typing import Any, assert_type, Callable, Iterator, Sequence
 
 from ...tests import TestCase
 
@@ -25,15 +25,15 @@ class Empty(SPARQL_Mapping):
 
 class A(SPARQL_Mapping):
 
-    @SPARQL_Mapping.register(Property('x')(Item('y'), Item('z')))
+    @SPARQL_Mapping.register([Property('x')(Item('y'), Item('z'))])
     def f1(self, c: SPARQL_Compiler, *args):
         assert len(args) == 0
 
-    @SPARQL_Mapping.register(Property('x')(ItemVariable('y'), Quantity(0)))
+    @SPARQL_Mapping.register([Property('x')(ItemVariable('y'), Quantity(0))])
     def f2(self, c: SPARQL_Compiler, *args):
         pass
 
-    @SPARQL_Mapping.register(Variable('x')@Statement)
+    @SPARQL_Mapping.register([Variable('x')@Statement])
     def f3(self, c: SPARQL_Compiler, x: StatementVariable):
         pass
 
@@ -44,14 +44,14 @@ class Test(TestCase):
             self,
             entry: SPARQL_Mapping.Entry,
             id: str,
-            pattern: VStatement,
+            patterns: Sequence[VStatement],
             callback: Callable[..., Any]
     ) -> None:
         self.assertIsInstance(entry, SPARQL_Mapping.Entry)
         self.assertEqual(entry.id, id)
         self.assertEqual(entry.get_id(), id)
-        self.assertEqual(entry.pattern, pattern)
-        self.assertEqual(entry.get_pattern(), pattern)
+        self.assertEqual(entry.patterns, patterns)
+        self.assertEqual(entry.get_patterns(), patterns)
         self.assertEqual(entry.callback, callback)
         self.assertEqual(entry.get_callback(), callback)
 
@@ -61,17 +61,17 @@ class Test(TestCase):
         self.assertIsInstance(A(), SPARQL_Mapping)
 
     def test__getitem__(self) -> None:
-        assert_type(A()[StatementVariable('x')], A.Entry)
+        assert_type(A()[0], A.Entry)
         a = A()
         pat1 = Property('x')(Item('y'), Item('z'))
         pat2 = Property('x')(ItemVariable('y'), Quantity(0))
         pat3 = StatementVariable('x')
-        self.assert_entry(a[pat1], pat1.digest, pat1, A.f1)
-        self.assert_entry(a[pat2], pat2.digest, pat2, A.f2)
-        self.assert_entry(a[pat3], pat3.digest, pat3, A.f3)
+        self.assert_entry(a[0], pat1.digest, pat1, A.f1)
+        self.assert_entry(a[1], pat2.digest, pat2, A.f2)
+        self.assert_entry(a[2], pat3.digest, pat3, A.f3)
 
     def test__iter__(self) -> None:
-        assert_type(iter(A()), Iterator[VStatement])
+        assert_type(iter(A()), Iterator[A.Entry])
 
     def test__len__(self) -> None:
         assert_type(len(Empty()), int)

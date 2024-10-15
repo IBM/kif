@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import Quantity, Time, Variables
+from kif_lib import Time, Variables
 from kif_lib.vocabulary import pc, wd
 
 from .....tests import PubChemStoreTestCase

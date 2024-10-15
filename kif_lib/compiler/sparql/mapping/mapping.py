@@ -8,6 +8,8 @@ import functools
 import re
 from typing import TYPE_CHECKING
 
+from typing_extensions import overload
+
 from .... import itertools
 from ....context import Context
 from ....model import (
@@ -46,8 +48,331 @@ if TYPE_CHECKING:  # pragma: no cover
         SPARQL_MappingFilterCompiler as Compiler
 
 
-class SPARQL_Mapping(Sequence['SPARQL_Mapping.Entry']):
+@dataclasses.dataclass
+class _Entry:
+    """Entry in SPARQL mapping."""
+
+    #: The id of entry.
+    id: SPARQL_Mapping.EntryId
+
+    #: The patterns of entry.
+    patterns: Sequence[SPARQL_Mapping.EntryPattern]
+
+    #: The callback-arg preprocessor map of entry.
+    preprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap
+
+    #: The callback-arg postprocessor map of entry.
+    postprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap
+
+    #: The callback-arg defaults map.
+    default_map: SPARQL_Mapping.EntryCallbackArgDefaultMap
+
+    #: The (compilation) callback of entry.
+    callback: SPARQL_Mapping.EntryCallback
+
+    def __init__(
+            self,
+            id: SPARQL_Mapping.EntryId,
+            patterns: Iterable[SPARQL_Mapping.EntryPattern],
+            preprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap,
+            postprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap,
+            default_map: SPARQL_Mapping.EntryCallbackArgDefaultMap,
+            callback: SPARQL_Mapping.EntryCallback
+    ) -> None:
+        self.id = id
+        self.patterns = tuple(patterns)
+        self.preprocess_map, self.postprocess_map, self.default_map =\
+            self._init_entry_callback_arg_maps(
+                preprocess_map, postprocess_map, default_map)
+        self.callback = callback
+
+    def _init_entry_callback_arg_maps(
+            self,
+            pre: SPARQL_Mapping.EntryCallbackArgProcessorMap,
+            post: SPARQL_Mapping.EntryCallbackArgProcessorMap,
+            defs: SPARQL_Mapping.EntryCallbackArgDefaultMap
+    ) -> tuple[
+        SPARQL_Mapping.EntryCallbackArgProcessorMap,
+        SPARQL_Mapping.EntryCallbackArgProcessorMap,
+        SPARQL_Mapping.EntryCallbackArgDefaultMap
+    ]:
+        vars = {v.name: v for v in self._get_variables(self)}
+        return (
+            {vars[v.name]: f for v, f in pre.items()},
+            {vars[v.name]: f for v, f in post.items()},
+            {vars[v.name]: f for v, f in defs.items()})
+
+    def __hash__(self) -> int:
+        return hash(self.patterns)
+
+    def get_id(self) -> SPARQL_Mapping.EntryId:
+        """Gets the id of entry.
+
+        Returns:
+           Entry id.
+        """
+        return self.id
+
+    def get_patterns(self) -> Sequence[SPARQL_Mapping.EntryPattern]:
+        """Gets the patterns of entry.
+
+        Returns:
+           Entry patterns.
+        """
+        return self.patterns
+
+    @property
+    def variables(self) -> Set[Variable]:
+        """The set of all variables occurring in entry patterns."""
+        return self.get_variables()
+
+    def get_variables(self) -> Set[Variable]:
+        """Gets the set of all variables occurring in entry patterns.
+
+        Returns:
+           Set of variables.
+        """
+        return self._get_variables_cached(self)
+
+    @classmethod
+    @functools.cache
+    def _get_variables_cached(cls, entry: _Entry) -> Set[Variable]:
+        return cls._get_variables(entry)
+
+    @classmethod
+    def _get_variables(cls, entry: _Entry) -> Set[Variable]:
+        ###
+        # IMPORTANT: Call this version when inside entry's constructor.
+        ###
+        return frozenset(itertools.chain(*map(
+            Term.get_variables, entry.patterns)))
+
+    def get_preprocess_map(
+            self
+    ) -> SPARQL_Mapping.EntryCallbackArgProcessorMap:
+        """Gets the callback-arg preprocessor map of entry.
+
+        Returns:
+           Callback-arg processor map.
+        """
+        return self.preprocess_map
+
+    def get_postprocess_map(
+            self
+    ) -> SPARQL_Mapping.EntryCallbackArgProcessorMap:
+        """Gets the callback-arg postprocessor map of entry.
+
+        Returns:
+           Callback-arg processor map.
+        """
+        return self.postprocess_map
+
+    def get_default_map(
+            self
+    ) -> SPARQL_Mapping.EntryCallbackArgDefaultMap:
+        """Gets the callback-arg defaults map of entry.
+
+        Returns:
+           Callback-arg defaults map.
+        """
+        return self.default_map
+
+    def get_callback(self) -> SPARQL_Mapping.EntryCallback:
+        """Gets the callback of entry.
+
+        Returns:
+           Entry callback.
+        """
+        return self.callback
+
+    def preprocess(
+            self,
+            mapping: SPARQL_Mapping,
+            compiler: Compiler,
+            var: Variable,
+            arg: SPARQL_Mapping.EntryCallbackArg
+    ) -> SPARQL_Mapping.EntryCallbackArg:
+        """Preprocesses entry callback `arg` corresponding to `var`.
+
+        Parameters:
+           mapping: SPARQL mapping.
+           compiler: SPARQL compiler.
+           var: Variable.
+           arg: Entry callback argument.
+
+        Returns:
+           The resulting value.
+        """
+        return self._process(
+            mapping, compiler, var, arg, self.preprocess_map)
+
+    def postprocess(
+            self,
+            mapping: SPARQL_Mapping,
+            compiler: Compiler,
+            var: Variable,
+            arg: SPARQL_Mapping.EntryCallbackArg
+    ) -> SPARQL_Mapping.EntryCallbackArg:
+        """Post-processes entry callback `arg` corresponding to `var`.
+
+        Parameters:
+           mapping: SPARQL mapping.
+           compiler: SPARQL compiler.
+           var: Variable.
+           arg: Entry callback argument.
+
+        Returns:
+           The resulting value.
+        """
+        return self._process(
+            mapping, compiler, var, arg, self.postprocess_map)
+
+    def _process(
+            self,
+            mapping: SPARQL_Mapping,
+            compiler: Compiler,
+            var: Variable,
+            arg: SPARQL_Mapping.EntryCallbackArg,
+            target: SPARQL_Mapping.EntryCallbackArgProcessorMap
+    ) -> SPARQL_Mapping.EntryCallbackArg:
+        assert var in self.variables
+        if var in target:
+            try:
+                return target[var](mapping, compiler, arg)
+            except mapping.Done as done:
+                return cast(
+                    SPARQL_Mapping.EntryCallbackArg, done.args[0])
+        else:
+            return arg
+
+    def match(
+            self,
+            pattern: SPARQL_Mapping.EntryPattern
+    ) -> Iterator[tuple[SPARQL_Mapping.EntryPattern, Theta]]:
+        """Matches `pattern` against entry.
+
+        If no matches are found, returns an empty iterator.
+
+        Parameters:
+           pattern: Statement, statement template, or statement variable.
+
+        Returns:
+           An iterator of pairs "(matched-pattern, theta)".
+        """
+        for pat in self.patterns:
+            theta = pattern.match(pat)
+            if theta is not None:
+                target = cast(
+                    SPARQL_Mapping.EntryPattern,
+                    pattern.instantiate(theta))
+                assert target is not None
+                yield target, {
+                    v: v.instantiate(theta)
+                    for v in pat._iterate_variables()}
+
+    def match_and_preprocess(
+            self,
+            mapping: SPARQL_Mapping,
+            compiler: Compiler,
+            pattern: SPARQL_Mapping.EntryPattern,
+            term2arg: Callable[[Term], Term | Compiler.Query.VTerm]
+    ) -> Optional[tuple[
+        Sequence[SPARQL_Mapping.EntryPattern],
+        Theta,
+        Mapping[str, SPARQL_Mapping.EntryCallbackArg]
+    ]]:
+        """Matches `pattern` against entry, then computes and
+        preprocesses the corresponding callback arguments.
+
+        If no matches are found, returns a triple with three empty
+        components.
+
+        Parameters:
+           mapping: SPARQL mapping.
+           compiler: SPARQL compiler.
+           pattern: Statement, statement template, or statement variable.
+           term2arg: Function to convert a term to a callback argument.
+
+        Returns:
+           A triple "(matched-patterns, theta, kwargs)" if successful;
+           ``None`` otherwise.
+        """
+        targets: list[SPARQL_Mapping.EntryPattern] = []
+        theta: dict[Variable, Term | None] = {}
+        kwargs: dict[str, SPARQL_Mapping.EntryCallbackArg] = {}
+        matches = list(self.match(pattern))
+        if not matches:
+            return None
+        matched_target, matched_theta = zip(*matches)
+        assert len(matched_target) == len(matched_theta)
+        for i in range(len(matched_target)):
+            try:
+                for var, val in matched_theta[i].items():
+                    arg: Optional[Union[Term, Compiler.Query.VTerm]]
+                    if val is None:
+                        arg = val
+                    else:
+                        arg = term2arg(val)
+                    arg = self.preprocess(mapping, compiler, var, arg)
+                    if var.name in kwargs:
+                        ###
+                        # IMPORTANT: An assertion failure here
+                        # usually means the the entry patterns are
+                        # incorrectly specified.
+                        ###
+                        assert theta[var] == val
+                        assert kwargs[var.name] == arg
+                    else:
+                        theta[var] = val
+                        kwargs[var.name] = arg
+            except SPARQL_Mapping.Skip:
+                continue
+            else:
+                targets.append(matched_target[i])
+        return targets, theta, kwargs
+
+    def rename(
+            self,
+            exclude: Iterable[Term | str] = (),
+            rename: Callable[[str], Iterator[str]] | None = None
+    ) -> Self:
+        """Copies entry renaming its variables.
+
+        Picks name variants not occurring in `exclude`.
+
+        Uses `rename` (if given) to generate name variants.
+
+        Parameters:
+           exclude: Name exclusion list.
+           rename: Name variant generator.
+
+        Returns:
+           A copy of entry with its variables renamed.
+        """
+        tr = {v: v.rename(exclude, rename) for v in self.variables}
+        patterns = cast(Iterable[VStatement], list(map(
+            functools.partial(Term.instantiate, theta=tr), self.patterns)))
+        pre = {tr[k]: v for k, v in self.preprocess_map.items()}
+        post = {tr[k]: v for k, v in self.postprocess_map.items()}
+        defs = {tr[k]: v for k, v in self.default_map.items()}
+        ###
+        # IMPORTANT: We need to rename the parameters of the original
+        # callback.
+        ###
+        inv_tr_name = {v.name: u.name for u, v in tr.items()}
+
+        def callback(*args: Any, **kwargs: Any) -> None:
+            return self.callback(*args, **{
+                inv_tr_name[k]: v for k, v in kwargs.items()})
+        return type(self)(self.id, patterns, pre, post, defs, cast(
+            SPARQL_Mapping.EntryCallback, callback))
+
+
+class SPARQL_Mapping(Sequence[_Entry]):
     """SPARQL mapping."""
+
+    #: The type of SPARQL mapping entries.
+    Entry: TypeAlias = _Entry
 
     #: The type of entry ids.
     EntryId: TypeAlias = int
@@ -137,333 +462,8 @@ class SPARQL_Mapping(Sequence['SPARQL_Mapping.Entry']):
 
 # -- Entry -----------------------------------------------------------------
 
-    @dataclasses.dataclass
-    class Entry:
-        """Entry in SPARQL mapping."""
-
-        #: The id of entry.
-        id: SPARQL_Mapping.EntryId
-
-        #: The patterns of entry.
-        patterns: Sequence[SPARQL_Mapping.EntryPattern]
-
-        #: The callback-arg preprocessor map of entry.
-        preprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap
-
-        #: The callback-arg postprocessor map of entry.
-        postprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap
-
-        #: The callback-arg defaults map.
-        default_map: SPARQL_Mapping.EntryCallbackArgDefaultMap
-
-        #: The (compilation) callback of entry.
-        callback: SPARQL_Mapping.EntryCallback
-
-        def __init__(
-                self,
-                id: SPARQL_Mapping.EntryId,
-                patterns: Iterable[SPARQL_Mapping.EntryPattern],
-                preprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap,
-                postprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap,
-                default_map: SPARQL_Mapping.EntryCallbackArgDefaultMap,
-                callback: SPARQL_Mapping.EntryCallback
-        ) -> None:
-            self.id = id
-            self.patterns = tuple(patterns)
-            self.preprocess_map, self.postprocess_map, self.default_map =\
-                self._init_entry_callback_arg_maps(
-                    preprocess_map, postprocess_map, default_map)
-            self.callback = callback
-
-        def _init_entry_callback_arg_maps(
-                self,
-                pre: SPARQL_Mapping.EntryCallbackArgProcessorMap,
-                post: SPARQL_Mapping.EntryCallbackArgProcessorMap,
-                defs: SPARQL_Mapping.EntryCallbackArgDefaultMap
-        ) -> tuple[
-            SPARQL_Mapping.EntryCallbackArgProcessorMap,
-            SPARQL_Mapping.EntryCallbackArgProcessorMap,
-            SPARQL_Mapping.EntryCallbackArgDefaultMap
-        ]:
-            vars = {v.name: v for v in self._get_variables(self)}
-            return (
-                {vars[v.name]: f for v, f in pre.items()},
-                {vars[v.name]: f for v, f in post.items()},
-                {vars[v.name]: f for v, f in defs.items()})
-
-        def __hash__(self) -> int:
-            return hash(self.patterns)
-
-        def get_id(self) -> SPARQL_Mapping.EntryId:
-            """Gets the id of entry.
-
-            Returns:
-               Entry id.
-            """
-            return self.id
-
-        def get_patterns(self) -> Sequence[SPARQL_Mapping.EntryPattern]:
-            """Gets the patterns of entry.
-
-            Returns:
-               Entry patterns.
-            """
-            return self.patterns
-
-        @property
-        def variables(self) -> Set[Variable]:
-            """The set of all variables occurring in entry patterns."""
-            return self.get_variables()
-
-        def get_variables(self) -> Set[Variable]:
-            """Gets the set of all variables occurring in entry patterns.
-
-            Returns:
-               Set of variables.
-            """
-            return self._get_variables_cached(self)
-
-        @classmethod
-        @functools.cache
-        def _get_variables_cached(
-                cls,
-                entry: SPARQL_Mapping.Entry
-        ) -> Set[Variable]:
-            return cls._get_variables(entry)
-
-        @classmethod
-        def _get_variables(
-            cls,
-            entry: SPARQL_Mapping.Entry
-        ) -> Set[Variable]:
-            ###
-            # IMPORTANT: Call this version when inside entry's constructor.
-            ###
-            return frozenset(itertools.chain(*map(
-                Term.get_variables, entry.patterns)))
-
-        def get_preprocess_map(
-                self
-        ) -> SPARQL_Mapping.EntryCallbackArgProcessorMap:
-            """Gets the callback-arg preprocessor map of entry.
-
-            Returns:
-               Callback-arg processor map.
-            """
-            return self.preprocess_map
-
-        def get_postprocess_map(
-                self
-        ) -> SPARQL_Mapping.EntryCallbackArgProcessorMap:
-            """Gets the callback-arg postprocessor map of entry.
-
-            Returns:
-               Callback-arg processor map.
-            """
-            return self.postprocess_map
-
-        def get_default_map(
-                self
-        ) -> SPARQL_Mapping.EntryCallbackArgDefaultMap:
-            """Gets the callback-arg defaults map of entry.
-
-            Returns:
-               Callback-arg defaults map.
-            """
-            return self.default_map
-
-        def get_callback(self) -> SPARQL_Mapping.EntryCallback:
-            """Gets the callback of entry.
-
-            Returns:
-               Entry callback.
-            """
-            return self.callback
-
-        def preprocess(
-                self,
-                mapping: SPARQL_Mapping,
-                compiler: Compiler,
-                var: Variable,
-                arg: SPARQL_Mapping.EntryCallbackArg
-        ) -> SPARQL_Mapping.EntryCallbackArg:
-            """Preprocesses entry callback `arg` corresponding to `var`.
-
-            Parameters:
-               mapping: SPARQL mapping.
-               compiler: SPARQL compiler.
-               var: Variable.
-               arg: Entry callback argument.
-
-            Returns:
-               The resulting value.
-            """
-            return self._process(
-                mapping, compiler, var, arg, self.preprocess_map)
-
-        def postprocess(
-                self,
-                mapping: SPARQL_Mapping,
-                compiler: Compiler,
-                var: Variable,
-                arg: SPARQL_Mapping.EntryCallbackArg
-        ) -> SPARQL_Mapping.EntryCallbackArg:
-            """Post-processes entry callback `arg` corresponding to `var`.
-
-            Parameters:
-               mapping: SPARQL mapping.
-               compiler: SPARQL compiler.
-               var: Variable.
-               arg: Entry callback argument.
-
-            Returns:
-               The resulting value.
-            """
-            return self._process(
-                mapping, compiler, var, arg, self.postprocess_map)
-
-        def _process(
-                self,
-                mapping: SPARQL_Mapping,
-                compiler: Compiler,
-                var: Variable,
-                arg: SPARQL_Mapping.EntryCallbackArg,
-                target: SPARQL_Mapping.EntryCallbackArgProcessorMap
-        ) -> SPARQL_Mapping.EntryCallbackArg:
-            assert var in self.variables
-            if var in target:
-                try:
-                    return target[var](mapping, compiler, arg)
-                except mapping.Done as done:
-                    return cast(
-                        SPARQL_Mapping.EntryCallbackArg, done.args[0])
-            else:
-                return arg
-
-        def match(
-                self,
-                pattern: SPARQL_Mapping.EntryPattern
-        ) -> Iterator[tuple[SPARQL_Mapping.EntryPattern, Theta]]:
-            """Matches `pattern` against entry.
-
-            If no matches are found, returns an empty iterator.
-
-            Parameters:
-               pattern: Statement, statement template, or statement variable.
-
-            Returns:
-               An iterator of pairs "(matched-pattern, theta)".
-            """
-            for pat in self.patterns:
-                theta = pattern.match(pat)
-                if theta is not None:
-                    target = cast(
-                        SPARQL_Mapping.EntryPattern,
-                        pattern.instantiate(theta))
-                    assert target is not None
-                    yield target, {
-                        v: v.instantiate(theta)
-                        for v in pat._iterate_variables()}
-
-        def match_and_preprocess(
-                self,
-                mapping: SPARQL_Mapping,
-                compiler: Compiler,
-                pattern: SPARQL_Mapping.EntryPattern,
-                term2arg: Callable[[Term], Term | Compiler.Query.VTerm]
-        ) -> Optional[tuple[
-            Sequence[SPARQL_Mapping.EntryPattern],
-            Theta,
-            Mapping[str, SPARQL_Mapping.EntryCallbackArg]
-        ]]:
-            """Matches `pattern` against entry, then computes and
-            preprocesses the corresponding callback arguments.
-
-            If no matches are found, returns a triple with three empty
-            components.
-
-            Parameters:
-               mapping: SPARQL mapping.
-               compiler: SPARQL compiler.
-               pattern: Statement, statement template, or statement variable.
-               term2arg: Function to convert a term to a callback argument.
-
-            Returns:
-               A triple "(matched-patterns, theta, kwargs)" if successful;
-               ``None`` otherwise.
-            """
-            targets: list[SPARQL_Mapping.EntryPattern] = []
-            theta: dict[Variable, Term | None] = {}
-            kwargs: dict[str, SPARQL_Mapping.EntryCallbackArg] = {}
-            matches = list(self.match(pattern))
-            if not matches:
-                return None
-            matched_target, matched_theta = zip(*matches)
-            assert len(matched_target) == len(matched_theta)
-            for i in range(len(matched_target)):
-                try:
-                    for var, val in matched_theta[i].items():
-                        arg: Optional[Union[Term, Compiler.Query.VTerm]]
-                        if val is None:
-                            arg = val
-                        else:
-                            arg = term2arg(val)
-                        arg = self.preprocess(mapping, compiler, var, arg)
-                        if var.name in kwargs:
-                            ###
-                            # IMPORTANT: An assertion failure here
-                            # usually means the the entry patterns are
-                            # incorrectly specified.
-                            ###
-                            assert theta[var] == val
-                            assert kwargs[var.name] == arg
-                        else:
-                            theta[var] = val
-                            kwargs[var.name] = arg
-                except SPARQL_Mapping.Skip:
-                    continue
-                else:
-                    targets.append(matched_target[i])
-            return targets, theta, kwargs
-
-        def rename(
-                self,
-                exclude: Iterable[Term | str] = (),
-                rename: Callable[[str], Iterator[str]] | None = None
-        ) -> Self:
-            """Copies entry renaming its variables.
-
-            Picks name variants not occurring in `exclude`.
-
-            Uses `rename` (if given) to generate name variants.
-
-            Parameters:
-               exclude: Name exclusion list.
-               rename: Name variant generator.
-
-            Returns:
-               A copy of entry with its variables renamed.
-            """
-            tr = {v: v.rename(exclude, rename) for v in self.variables}
-            patterns = cast(Iterable[VStatement], list(map(
-                functools.partial(Term.instantiate, theta=tr), self.patterns)))
-            pre = {tr[k]: v for k, v in self.preprocess_map.items()}
-            post = {tr[k]: v for k, v in self.postprocess_map.items()}
-            defs = {tr[k]: v for k, v in self.default_map.items()}
-            ###
-            # IMPORTANT: We need to rename the parameters of the original
-            # callback.
-            ###
-            inv_tr_name = {v.name: u.name for u, v in tr.items()}
-
-            def callback(*args: Any, **kwargs: Any) -> None:
-                return self.callback(*args, **{
-                    inv_tr_name[k]: v for k, v in kwargs.items()})
-            return type(self)(self.id, patterns, pre, post, defs, cast(
-                SPARQL_Mapping.EntryCallback, callback))
-
     #: The registered entries indexed by id.
-    _entries: ClassVar[Sequence[SPARQL_Mapping.Entry]]
+    _entries: ClassVar[Sequence[_Entry]]
 
     #: Entries to be registered by the next __init_subclass__() call.
     _scheduled_entries: ClassVar[MutableSequence[tuple[
@@ -512,7 +512,7 @@ class SPARQL_Mapping(Sequence['SPARQL_Mapping.Entry']):
             if isinstance(pat, Template):
                 xpat = StatementTemplate.check(
                     pat, cls.register, 'patterns', 1)
-            elif isinstance(patterns, Variable):
+            elif isinstance(pat, Variable):
                 xpat = StatementVariable.check(
                     pat, cls.register, 'patterns', 1)
             else:
@@ -554,7 +554,7 @@ class SPARQL_Mapping(Sequence['SPARQL_Mapping.Entry']):
     class Skip(Signal):
         """The "skip" signal."""
 
-# -- Callback-Arg Processors -----------------------------------------------
+# -- Entry callback-arg processors -----------------------------------------
 
     class CheckStr(EntryCallbackArgProcessor):
         """Checks str argument."""
@@ -779,6 +779,14 @@ class SPARQL_Mapping(Sequence['SPARQL_Mapping.Entry']):
            Context.
         """
         return Context.top(context)
+
+    @overload
+    def __getitem__(self, k: int) -> _Entry:
+        ...
+
+    @overload
+    def __getitem__(self, k: slice) -> Sequence[_Entry]:
+        ...
 
     def __getitem__(self, k: Any) -> Any:
         return self._entries[k]
