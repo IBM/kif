@@ -43,15 +43,15 @@ class Test(TestCase):
     def assert_entry(
             self,
             entry: SPARQL_Mapping.Entry,
-            id: str,
+            id: SPARQL_Mapping.EntryId,
             patterns: Sequence[VStatement],
             callback: Callable[..., Any]
     ) -> None:
         self.assertIsInstance(entry, SPARQL_Mapping.Entry)
         self.assertEqual(entry.id, id)
         self.assertEqual(entry.get_id(), id)
-        self.assertEqual(entry.patterns, patterns)
-        self.assertEqual(entry.get_patterns(), patterns)
+        self.assertEqual(entry.patterns, tuple(patterns))
+        self.assertEqual(entry.get_patterns(), tuple(patterns))
         self.assertEqual(entry.callback, callback)
         self.assertEqual(entry.get_callback(), callback)
 
@@ -66,9 +66,9 @@ class Test(TestCase):
         pat1 = Property('x')(Item('y'), Item('z'))
         pat2 = Property('x')(ItemVariable('y'), Quantity(0))
         pat3 = StatementVariable('x')
-        self.assert_entry(a[0], pat1.digest, pat1, A.f1)
-        self.assert_entry(a[1], pat2.digest, pat2, A.f2)
-        self.assert_entry(a[2], pat3.digest, pat3, A.f3)
+        self.assert_entry(a[0], 0, [pat1], A.f1)
+        self.assert_entry(a[1], 1, [pat2], A.f2)
+        self.assert_entry(a[2], 2, [pat3], A.f3)
 
     def test__iter__(self) -> None:
         assert_type(iter(A()), Iterator[A.Entry])
