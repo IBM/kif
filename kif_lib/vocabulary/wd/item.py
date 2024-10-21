@@ -130,6 +130,7 @@ physics = Q(413, 'physics')
 Pico_31_de_Março = Q(1264913, 'Pico 31 de Março')
 Pico_da_Neblina = Q(739484, 'Pico da Neblina')
 Portuguese = Q(5146, 'Portuguese')
+product = Q(2424752, 'product')
 proleptic_Gregorian_calendar = Q(1985727, 'proleptic Gregorian calendar')
 proleptic_Julian_calendar = Q(1985786, 'proleptic Julian calendar')
 protoplast = Q(4349921, 'protoplast')
@@ -289,6 +290,7 @@ __all__ = (
     'Pico_31_de_Março',
     'Pico_da_Neblina',
     'Portuguese',
+    'product',
     'proleptic_Gregorian_calendar',
     'proleptic_Julian_calendar',
     'protoplast',
