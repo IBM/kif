@@ -12,11 +12,14 @@ _1 = Q(199, '1')
 acetone = Q(49546, 'acetone')
 Adam = Q(70899, 'Adam')
 Adam_and_Eve = Q(58701, 'Adam and Eve')
+Africa = Q(15, 'Africa')
 Amazonas = Q(40040, 'Amazonas')
 Americas = Q(828, 'Americas')
 Argentina = Q(414, 'Argentina')
 aromatic_hydrocarbon = Q(230731, 'aromatic hydrocarbon')
+Asia = Q(48, 'Asia')
 Atlantic_Ocean = Q(97, 'Atlantic Ocean')
+Australia = Q(408, 'Australia')
 autobahn_in_Germany = Q(313301, 'autobahn in Germany')
 benzene = Q(2270, 'benzene')
 Bolivia = Q(750, 'Bolivia')
@@ -52,6 +55,7 @@ electronvolt = Q(83327, 'electronvolt')
 Endicott = Q(3459600, 'Endicott')
 English = Q(1860, 'English')
 English_Wikipedia = Q(328, 'English Wikipedia')
+Europe = Q(46, 'Europe')
 Eve = Q(830183, 'Eve')
 exact_match_ = Q(39893449, 'exact match')
 Fall_of_man = Q(1135949,  'Fall of man')
@@ -113,6 +117,8 @@ mountain = Q(8502, 'mountain')
 mythical_character = Q(4271324, 'mythical character')
 Nepal = Q(837, 'Nepal')
 New_York_City = Q(60, 'New York City')
+North_America = Q(49, 'North America')
+Oceania = Q(55643, 'Oceania')
 oral_administration = Q(285166, 'oral administration')
 Paraguay = Q(733, 'Paraguay')
 part = Q(15989253, 'part')
@@ -165,11 +171,14 @@ __all__ = (
     'acetone',
     'Adam',
     'Adam_and_Eve',
+    'Africa',
     'Amazonas',
     'Americas',
     'Argentina',
     'aromatic_hydrocarbon',
+    'Asia',
     'Atlantic_Ocean',
+    'Australia',
     'autobahn_in_Germany',
     'benzene',
     'Bolivia',
@@ -205,6 +214,7 @@ __all__ = (
     'Endicott',
     'English',
     'English_Wikipedia',
+    'Europe',
     'Eve',
     'exact_match_',
     'Fall_of_man',
@@ -266,6 +276,8 @@ __all__ = (
     'mythical_character',
     'Nepal',
     'New_York_City',
+    'North_America',
+    'Oceania',
     'oral_administration',
     'Paraguay',
     'part',

@@ -52,7 +52,6 @@ from ...typing import (
     Sequence,
     TypedDict,
     TypeVar,
-    Union,
 )
 from .builder import Query
 from .filter_compiler import SPARQL_FilterCompiler
@@ -513,7 +512,17 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 self._push_fp(entry, child, value)
         elif isinstance(fp, OrFingerprint):
             with self.q.union() as cup:
-                for child in itertools.chain(snaks, comps):
+                if isinstance(value, (Entity, EntityTemplate, EntityVariable)):
+                    for snak_fp in snaks:
+                        ###
+                        # TODO: Aggregate snaks with the same property.
+                        ###
+                        try:
+                            with self.q.group():
+                                self._push_snak_fp(entry, snak_fp, value)
+                        except SPARQL_Mapping.Skip:
+                            continue
+                for child in comps:
                     try:
                         with self.q.group():
                             self._push_fp(entry, child, value)
@@ -639,21 +648,6 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         vars = list(sorted(lines[0].keys()))
         vals = map(lambda line: tuple(map(lambda k: line[k], vars)), lines)
         self.q.values(*vars)(*vals)
-
-    def _push_value_fps_preprocess(
-            self,
-            entry: SPARQL_Mapping.Entry,
-            variable: Variable,
-            values: list[Value]
-    ) -> Iterator[Query.Literal | Query.URI]:
-        for value in values:
-            try:
-                yield cast(Union[Query.Literal, Query.URI],
-                           entry.preprocess(
-                               self.mapping, self, variable,
-                               self._as_simple_value(value)))
-            except SPARQL_Mapping.Skip:
-                continue
 
     def _binding_to_thetas(
             self,

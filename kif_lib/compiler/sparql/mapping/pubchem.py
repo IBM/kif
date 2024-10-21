@@ -104,7 +104,7 @@ class PubChemMapping(M):
 
     _re_patent_uri: Final[re.Pattern] = re.compile(
         f'^{re.escape(PubChem.PATENT)}'
-        r'[A-Z][A-Z]-\w*(-[A-Z]+[1-9][0-9]*)?$')
+        r'[A-Z][A-Z]-[A-Za-z0-9\-]+$')
 
     _re_pubchem_cid: Final[re.Pattern] = re.compile(
         r'^[1-9][0-9]*$')

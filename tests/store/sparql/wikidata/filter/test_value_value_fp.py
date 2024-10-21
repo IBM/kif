@@ -219,7 +219,7 @@ class Test(SPARQL_Store2TestCase):
 
     def test_lexeme_iri(self) -> None:
         ###
-        # TODO: No example in Wikidata.
+        # TODO: No examples.
         ###
         pass
 
@@ -257,7 +257,7 @@ class Test(SPARQL_Store2TestCase):
 
     def test_lexeme_text(self) -> None:
         ###
-        # TODO: No example in Wikidata.
+        # TODO: No examples.
         ###
         pass
 
@@ -292,7 +292,7 @@ class Test(SPARQL_Store2TestCase):
 
     def test_lexeme_string(self) -> None:
         ###
-        # TODO: No example in Wikidata.
+        # TODO: No examples.
         ###
         pass
 
@@ -328,7 +328,7 @@ class Test(SPARQL_Store2TestCase):
 
     def test_lexeme_external_id(self) -> None:
         ###
-        # TODO: No example in Wikidata.
+        # TODO: No examples.
         ###
         pass
 
@@ -367,7 +367,7 @@ class Test(SPARQL_Store2TestCase):
 
     def test_lexeme_quantity(self) -> None:
         ###
-        # TODO: No example in Wikidata.
+        # TODO: No examples.
         ###
         pass
 
@@ -404,13 +404,13 @@ class Test(SPARQL_Store2TestCase):
 
     def test_lexeme_time(self) -> None:
         ###
-        # TODO: No example in Wikidata.
+        # TODO: No examples.
         ###
         pass
 
     def test_property_time(self) -> None:
         ###
-        # TODO: No example in Wikidata.
+        # TODO: No examples.
         ###
         pass
 
@@ -432,13 +432,13 @@ class Test(SPARQL_Store2TestCase):
 
     def test_lexeme_some_value(self) -> None:
         ###
-        # TODO: No example in Wikidata.
+        # TODO: No examples.
         ###
         pass
 
     def test_property_some_value(self) -> None:
         ###
-        # TODO: No example in Wikidata.
+        # TODO: No examples.
         ###
         pass
 
