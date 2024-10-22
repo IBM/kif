@@ -385,6 +385,16 @@ class Test(PubChemStoreTestCase):
             ])
 
     def test_wd_mass(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.CID(170558098),
+            equals=[
+                ((wd.mass, '397.61'@wd.gram_per_mole),  # VV
+                 wd.mass('397.61'@wd.gram_per_mole)),
+                ((wd.mass, None),  # VF
+                 wd.mass('397.61'@wd.gram_per_mole)),
+                ((None, '397.61'@wd.gram_per_mole),  # FV
+                 wd.mass('397.61'@wd.gram_per_mole)),
+            ])
         self._test_filter_with_fixed_value(
             value='397.61'@wd.gram_per_mole,
             equals=[
@@ -402,6 +412,21 @@ class Test(PubChemStoreTestCase):
             ])
 
     def test_wd_manufacturer(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.CID(421),
+            equals=[
+                ((wd.manufacturer, pc.source('ID24800')),  # VV
+                 wd.manufacturer(pc.source('ID24800'))),
+                ((None, pc.source('ID24800')),  # FV
+                 wd.manufacturer(pc.source('ID24800'))),
+            ],
+            contains=[
+                ((wd.manufacturer, None), [  # VF
+                    wd.manufacturer(pc.source('ID24800')),
+                    wd.manufacturer(pc.source('NovoSeek')),
+                    wd.manufacturer(pc.source('TCI_')),
+                ]),
+            ])
         self._test_filter_with_fixed_value(
             value=pc.source('ID24800'),
             equals=[
@@ -412,6 +437,18 @@ class Test(PubChemStoreTestCase):
             ])
 
     def test_wd_partition_coefficient_water_octanol(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.CID(421),
+            equals=[
+                ((wd.partition_coefficient_water_octanol,  # VV
+                  Quantity('1.8')),
+                 wd.partition_coefficient_water_octanol(Quantity('1.8'))),
+                ((wd.partition_coefficient_water_octanol, None),  # VF
+                 wd.partition_coefficient_water_octanol(Quantity('1.8'))),
+                ((None,  # FV
+                  Quantity('1.8')),
+                 wd.partition_coefficient_water_octanol(Quantity('1.8'))),
+            ])
         self._test_filter_with_fixed_value(
             value=Quantity('1.8'),
             equals=[
@@ -422,6 +459,16 @@ class Test(PubChemStoreTestCase):
             ])
 
     def test_wd_PubChem_CID(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.CID(241),
+            equals=[
+                ((wd.PubChem_CID, ExternalId('241')),  # VV
+                 wd.PubChem_CID('241')),
+                ((wd.PubChem_CID, None),  # VF
+                 wd.PubChem_CID('241')),
+                ((wd.PubChem_CID, None),  # FV
+                 wd.PubChem_CID('241')),
+            ])
         self._test_filter_with_fixed_value(
             value=ExternalId('241'),
             equals=[
@@ -434,6 +481,20 @@ class Test(PubChemStoreTestCase):
             ])
 
     def test_wd_stereoisomer_of(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.CID(421),
+            equals=[
+                ((wd.stereoisomer_of, pc.CID(9834298)),  # VV
+                 wd.stereoisomer_of(pc.CID(9834298))),
+                ((None, pc.CID(9834298)),  # FV
+                 wd.stereoisomer_of(pc.CID(9834298))),
+            ],
+            contains=[
+                ((wd.stereoisomer_of, None), [  # VF
+                    wd.stereoisomer_of(pc.CID(449141)),
+                    wd.stereoisomer_of(pc.CID(9834298)),
+                ]),
+            ])
         self._test_filter_with_fixed_value(
             value=pc.CID(9834298),
             equals=[
@@ -452,6 +513,22 @@ class Test(PubChemStoreTestCase):
     # -- patent --
 
     def test_wd_author_name_string(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.patent('CN-208863666-U'),
+            equals=[
+                ((wd.author_name_string, String('PAN JUNBO')),  # VV
+                 wd.author_name_string(String('PAN JUNBO'))),
+                ((None, String('PAN JUNBO')),  # FV
+                 wd.author_name_string(String('PAN JUNBO'))),
+            ],
+            contains=[
+                ((wd.author_name_string, None), [  # VF
+                    wd.author_name_string(String('PAN JUNBO')),
+                    wd.author_name_string(String('SHI ZENGHUI')),
+                    wd.author_name_string(String('Wang Qingrou')),
+                    wd.author_name_string(String('YU ZHIYUAN')),
+                ]),
+            ])
         self._test_filter_with_fixed_value(
             value=String('PAN JUNBO'),
             equals=[
@@ -469,6 +546,16 @@ class Test(PubChemStoreTestCase):
             ])
 
     def test_wd_instance_of_patent(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.patent('CN-210512710-U'),
+            equals=[
+                ((wd.instance_of, wd.patent),  # VV
+                 wd.instance_of(wd.patent)),
+                ((wd.instance_of, None),  # VF
+                 wd.instance_of(wd.patent)),
+                ((None, wd.patent),  # FV
+                 wd.instance_of(wd.patent)),
+            ])
         self._test_filter_with_fixed_value(
             value=wd.patent,
             equals=[
@@ -479,6 +566,23 @@ class Test(PubChemStoreTestCase):
             ])
 
     def test_wd_main_subject(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.patent('US-2019276396-A1'),
+            equals=[
+                ((wd.main_subject, pc.CID(449141)),  # VV
+                 wd.main_subject(pc.CID(449141))),
+                ((None, pc.CID(449141)),  # FV
+                 wd.main_subject(pc.CID(449141))),
+            ],
+            contains=[
+                ((wd.main_subject, None), [  # VF
+                    wd.main_subject(pc.CID(139465320)),
+                    wd.main_subject(pc.CID(449141)),
+                    wd.main_subject(pc.CID(76963271)),
+                    wd.main_subject(pc.CID(92171210)),
+                    wd.main_subject(pc.CID(92171211)),
+                ]),
+            ])
         self._test_filter_with_fixed_value(
             value=pc.CID(449141),
             equals=[
@@ -496,6 +600,16 @@ class Test(PubChemStoreTestCase):
             ])
 
     def test_wd_patent_number(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.patent('US-2019276396-A1'),
+            equals=[
+                ((wd.patent_number, ExternalId('US-2019276396-A1')),  # VV
+                 wd.patent_number('US-2019276396-A1')),
+                ((wd.patent_number, None),  # VF
+                 wd.patent_number('US-2019276396-A1')),
+                ((None, ExternalId('US-2019276396-A1')),  # FV
+                 wd.patent_number('US-2019276396-A1')),
+            ])
         self._test_filter_with_fixed_value(
             value=ExternalId('US-2019276396-A1'),
             equals=[
@@ -508,6 +622,17 @@ class Test(PubChemStoreTestCase):
             ])
 
     def test_wd_publication_date(self) -> None:
+        dt = Time('2019-09-12+04:00', 11, 0, wd.proleptic_Gregorian_calendar)
+        self._test_filter_with_fixed_subject(
+            subject=pc.patent('US-2019276396-A1'),
+            equals=[
+                ((wd.publication_date, dt),  # VV
+                 wd.publication_date(dt)),
+                ((wd.publication_date, None),  # VF
+                 wd.publication_date(dt)),
+                ((None, dt),  # FV
+                 wd.publication_date(dt)),
+            ])
         self._test_filter_with_fixed_value(
             value=Time('2019-09-12+04:00', 11, 0,
                        wd.proleptic_Gregorian_calendar),
@@ -519,11 +644,22 @@ class Test(PubChemStoreTestCase):
             ])
 
     def test_wd_title(self) -> None:
+        title = Text(
+            'Novel functionalized 5-(phenoxymethyl)-1,3-dioxane '
+            'analogs exhibiting cytochrome p450 inhibition and '
+            'their method of use', 'en')
+        self._test_filter_with_fixed_subject(
+            subject=pc.patent('US-2016244436-A1'),
+            equals=[
+                ((wd.title, title),  # VV
+                 wd.title(title)),
+                ((wd.title, None),  # VF
+                 wd.title(title)),
+                ((None, title),  # FV
+                 wd.title(title)),
+            ])
         self._test_filter_with_fixed_value(
-            value=Text(
-                'Novel functionalized 5-(phenoxymethyl)-1,3-dioxane '
-                'analogs exhibiting cytochrome p450 inhibition and '
-                'their method of use', 'en'),
+            value=title,
             equals=[
                 ((pc.patent('US-2016244436-A1'), wd.title),  # VV
                  (pc.patent('US-2016244436-A1'), wd.title)),
@@ -536,6 +672,16 @@ class Test(PubChemStoreTestCase):
     # -- source --
 
     def test_wd_instance_of_vendor(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.source('ID24800'),
+            equals=[
+                ((wd.instance_of, wd.vendor),  # VV
+                 wd.instance_of(wd.vendor)),
+                ((wd.instance_of, None),  # VF
+                 wd.instance_of(wd.vendor)),
+                ((None, wd.vendor),  # FV
+                 wd.instance_of(wd.vendor)),
+            ])
         self._test_filter_with_fixed_value(
             value=wd.vendor,
             equals=[
