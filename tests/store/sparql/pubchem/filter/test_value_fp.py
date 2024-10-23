@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import ExternalId, Filter, Quantity, String, Text, Time, Variables
+from kif_lib import ExternalId, Quantity, String, Text, Time, Variables
 from kif_lib.vocabulary import pc, wd
 
 from .....tests import PubChemStoreTestCase
@@ -15,7 +15,9 @@ class Test(PubChemStoreTestCase):
 
     # -- pseudo-entries --
 
-    def test_wd_instance_of_Wikidata_property_related_to_chemistry(self):
+    def test_wd_instance_of_Wikidata_property_related_to_chemistry(
+            self
+    ) -> None:
         self._test_filter_with_fixed_subject(
             subject=pc.Isotope_Atom_Count,
             equals=[
