@@ -7,6 +7,7 @@ from . import codec  # noqa: F401
 from .context import Context
 from .error import Error
 from .model import (
+    AliasProperty,
     And,
     AnnotationRecord,
     AnnotationRecordSet,
@@ -23,6 +24,7 @@ from .model import (
     DeepDataValueVariable,
     Deprecated,
     DeprecatedRank,
+    DescriptionProperty,
     Descriptor,
     Entity,
     EntityTemplate,
@@ -45,12 +47,16 @@ from .model import (
     ItemVariable,
     KIF_Object,
     KIF_ObjectSet,
+    LabelProperty,
+    LanguageProperty,
+    LemmaProperty,
     Lexeme,
     LexemeDatatype,
     LexemeDescriptor,
     Lexemes,
     LexemeTemplate,
     LexemeVariable,
+    LexicalCategoryProperty,
     Normal,
     NormalRank,
     NoValueSnak,
@@ -69,6 +75,8 @@ from .model import (
     PropertyDescriptor,
     PropertyTemplate,
     PropertyVariable,
+    PseudoProperty,
+    PseudoPropertyVariable,
     Quantity,
     QuantityDatatype,
     QuantityTemplate,
@@ -162,11 +170,19 @@ __all__ = (
     'ItemVariable',
 
     # model.value.property
+    'AliasProperty',
+    'DescriptionProperty',
+    'LabelProperty',
+    'LanguageProperty',
+    'LemmaProperty',
+    'LexicalCategoryProperty',
     'Properties',
     'Property',
     'PropertyDatatype',
     'PropertyTemplate',
     'PropertyVariable',
+    'PseudoProperty',
+    'PseudoPropertyVariable',
 
     # model.value.lexeme
     'Lexeme',

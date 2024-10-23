@@ -5,7 +5,16 @@ from __future__ import annotations
 
 import functools
 
-from ..typing import Any, cast, Final, Location, override, TypeAlias, Union
+from ..typing import (
+    Any,
+    cast,
+    Final,
+    Location,
+    Optional,
+    override,
+    TypeAlias,
+    Union,
+)
 from .fingerprint import (
     AndFingerprint,
     Fingerprint,
@@ -60,6 +69,7 @@ class Filter(KIF_Object):
        subject_mask: Datatype mask.
        property_mask: Datatype mask.
        value_mask: Datatype mask.
+       language: Language tag.
     """
 
     class DatatypeMask(Flags):
@@ -413,11 +423,12 @@ class Filter(KIF_Object):
             snak_mask: TSnakMask | None = None,
             subject_mask: TDatatypeMask | None = None,
             property_mask: TDatatypeMask | None = None,
-            value_mask: TDatatypeMask | None = None
+            value_mask: TDatatypeMask | None = None,
+            language: str | None = None
     ) -> None:
         super().__init__(
             subject, property, value, snak_mask,
-            subject_mask, property_mask, value_mask)
+            subject_mask, property_mask, value_mask, language)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -435,6 +446,10 @@ class Filter(KIF_Object):
         elif i == 7:            # value mask
             return self.DatatypeMask.check_optional(
                 arg, self.VALUE, type(self), None, i)
+        elif i == 8:
+            arg = String.check_optional(
+                arg, None, type(self), None, i)
+            return arg.content if arg is not None else arg
         else:
             raise self._should_not_get_here()
 
@@ -533,6 +548,19 @@ class Filter(KIF_Object):
         """
         return self.args[6] & self.VALUE
 
+    @at_property
+    def language(self) -> str | None:
+        """The language tag of filter."""
+        return self.get_language()
+
+    def get_language(self) -> str | None:
+        """Gets the language tag of filter.
+
+        Returns:
+           Language tag or ``None``.
+        """
+        return self.args[7]
+
     def is_full(self) -> bool:
         """Tests whether filter is full.
 
@@ -593,6 +621,14 @@ class Filter(KIF_Object):
     @classmethod
     def _combine(cls, f1: Filter, f2: Filter) -> Filter:
         f2 = Filter.check(f2, cls.combine)
+        if f1.language is None:
+            language: Optional[str] = f2.language
+        elif f2.language is None:
+            language = f1.language
+        elif f1.language != f2.language:
+            language = None
+        else:
+            language = f1.language
         return f1.__class__(
             f1.subject & f2.subject,
             f1.property & f2.property,
@@ -600,7 +636,9 @@ class Filter(KIF_Object):
             f1.snak_mask & f2.snak_mask,
             f1.subject_mask & f2.subject_mask,
             f1.property_mask & f2.property_mask,
-            f1.value_mask & f2.value_mask).normalize()
+            f1.value_mask & f2.value_mask,
+            language
+        ).normalize()
 
     def match(self, stmt: TStatement) -> bool:
         """Tests whether filter shallow-matches statement.
@@ -652,7 +690,7 @@ class Filter(KIF_Object):
             snak_mask &= ~self.VALUE_SNAK
         return Filter(
             subject, property, value, snak_mask,
-            subject_mask, property_mask, value_mask)
+            subject_mask, property_mask, value_mask, self.language)
 
     def _unpack_legacy(
             self

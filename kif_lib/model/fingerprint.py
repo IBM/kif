@@ -488,7 +488,10 @@ class ValueFingerprint(AtomicFingerprint):
         if t1 is not t2:
             if not issubclass(t1, t2):
                 return False
-            v2 = t1.check(v2)   # coerce v2 to type(v1)
+            try:
+                v2 = t1.check(v2)   # coerce v2 to type(v1)
+            except (TypeError, ValueError):
+                return False
         if isinstance(v2, Property):
             fr_prop, prop = cast(Property, v1), v2
             if fr_prop.iri != prop.iri:

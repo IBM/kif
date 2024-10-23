@@ -174,6 +174,11 @@ Wikidata_property_example_for_lexemes = P(5192)
 WordNet_31_Synset_ID = P(8814)
 YouTube_video_ID = P(1651)
 
+# Aliases:
+material_produced = product_or_material_produced_or_service_provided
+product_produced = product_or_material_produced_or_service_provided
+service_provided = product_or_material_produced_or_service_provided
+
 __all__ = (
     'afflicts',
     'anatomical_location',
@@ -261,6 +266,7 @@ __all__ = (
     'main_subject',
     'manufacturer',
     'mass',
+    'material_produced',
     'measured_physical_quantity',
     'median_lethal_dose',
     'melting_point',
@@ -295,6 +301,7 @@ __all__ = (
     'position_held',
     'practiced_by',
     'product_or_material_produced_or_service_provided',
+    'product_produced',
     'properties_for_this_type',
     'property_proposal_discussion',
     'PubChem_CID',
@@ -310,6 +317,7 @@ __all__ = (
     'said_to_be_the_same_as',
     'school_district',
     'season',
+    'service_provided',
     'sex_or_gender',
     'shares_border_with',
     'short_name',

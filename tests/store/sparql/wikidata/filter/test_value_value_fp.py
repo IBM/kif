@@ -249,10 +249,13 @@ class Test(SPARQL_Store2TestCase):
             equals=[
                 ((wd.Chile, wd.official_name),  # VV
                  (wd.Chile, wd.official_name)),
-                ((wd.Chile, None),  # VF
-                 (wd.Chile, wd.official_name)),
                 ((None, wd.official_name),  # FV
                  (wd.Chile, wd.official_name)),
+            ],
+            contains=[
+                ((wd.Chile, None), [  # VF
+                    (wd.Chile, wd.official_name),
+                ]),
             ])
 
     def test_lexeme_text(self) -> None:
@@ -267,10 +270,13 @@ class Test(SPARQL_Store2TestCase):
             equals=[
                 ((wd.P(6944), wd.official_name),  # VV
                  (wd.P(6944), wd.official_name)),
-                ((wd.P(6944), None),  # VF
-                 (wd.P(6944), wd.official_name)),
                 ((None, wd.official_name),  # FV
                  (wd.P(6944), wd.official_name)),
+            ],
+            contains=[
+                ((wd.P(6944), None), [  # VF
+                    (wd.P(6944), wd.official_name),
+                ]),
             ])
 
     # -- string --

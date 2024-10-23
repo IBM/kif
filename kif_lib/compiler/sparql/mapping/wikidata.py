@@ -8,13 +8,19 @@ import re
 
 from ....context import Section
 from ....model import (
+    AliasProperty,
     Datatype,
+    DescriptionProperty,
     ExternalId,
     Filter,
     IRI,
     Item,
     ItemVariable,
+    LabelProperty,
+    LanguageProperty,
+    LemmaProperty,
     Lexeme,
+    LexicalCategoryProperty,
     Property,
     Quantity,
     Statement,
@@ -22,12 +28,19 @@ from ....model import (
     String,
     Term,
     Text,
-    TextVariable,
     Time,
     Variables,
-    VText,
 )
-from ....namespace import ONTOLEX, RDF, WIKIBASE, Wikidata
+from ....namespace import (
+    DCT,
+    ONTOLEX,
+    RDF,
+    RDFS,
+    SCHEMA,
+    SKOS,
+    WIKIBASE,
+    Wikidata,
+)
 from ....typing import Any, ClassVar, Final, Iterable, override, TypeAlias
 from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler as C
 from .mapping import SPARQL_Mapping as M
@@ -244,15 +257,21 @@ class WikidataMapping(M):
 
     def _start_Q(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> Var3:
         t = self._start_any(c, e, p, dt)
+        self._start_Q_tail(c, e)
+        return t
+
+    def _start_Q_tail(self, c: C, e: V_URI):
         if c.is_compiling_filter():
             c.q.triples()((e, WIKIBASE.sitelinks, c.q.bnode()))
-        return t
 
     def _start_L(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> Var3:
         t = self._start_any(c, e, p, dt)
+        self._start_L_tail(c, e)
+        return t
+
+    def _start_L_tail(self, c: C, e: V_URI):
         if c.is_compiling_filter():
             c.q.triples()((e, RDF.type, ONTOLEX.LexicalEntry))
-        return t
 
     def _start_P(
             self,
@@ -263,11 +282,14 @@ class WikidataMapping(M):
             pdt: V_URI
     ) -> Var3:
         t = self._start_any(c, e, p, pdt)
+        self._start_P_tail(c, e, edt)
+        return t
+
+    def _start_P_tail(self, c: C, e: V_URI, edt: V_URI):
         if c.is_compiling_filter():
             c.q.triples()(
                 (e, RDF.type, WIKIBASE.Property),
                 (e, WIKIBASE.propertyType, edt))
-        return t
 
     def _start_any(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> Var3:
         wds = c.wds
@@ -282,6 +304,103 @@ class WikidataMapping(M):
         if c.has_flags(c.BEST_RANK):
             c.q.triples()((wds, RDF.type, WIKIBASE.BestRank))
         return p_, ps, wds
+
+    # -- label (pseudo-property) --
+
+    @M.register(
+        [Statement(Item(e), LabelProperty()(Text(x, y)))],
+        {e: CheckItem()})
+    def p_item_label(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
+        self._start_Q_tail(c, e)
+        self._p_text_tail(c, RDFS.label, e, x, y)
+
+    @M.register(
+        [Statement(Property(e, d), LabelProperty()(Text(x, y)))],
+        {e: CheckProperty(),
+         d: CheckDatatype()})
+    def p_property_label(
+            self,
+            c: C,
+            e: V_URI,
+            d: V_URI,
+            x: VLiteral,
+            y: VLiteral
+    ):
+        self._start_P_tail(c, e, d)
+        self._p_text_tail(c, RDFS.label, e, x, y)
+
+    # -- alias (pseudo-property) --
+
+    @M.register(
+        [Statement(Item(e), AliasProperty()(Text(x, y)))],
+        {e: CheckItem()})
+    def p_item_alias(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
+        self._start_Q_tail(c, e)
+        self._p_text_tail(c, SKOS.altLabel, e, x, y)
+
+    @M.register(
+        [Statement(Property(e, d), AliasProperty()(Text(x, y)))],
+        {e: CheckProperty(),
+         d: CheckDatatype()})
+    def p_property_alias(
+            self,
+            c: C,
+            e: V_URI,
+            d: V_URI,
+            x: VLiteral,
+            y: VLiteral
+    ):
+        self._start_P_tail(c, e, d)
+        self._p_text_tail(c, SKOS.altLabel, e, x, y)
+
+    # -- description (pseudo-property) --
+
+    @M.register(
+        [Statement(Item(e), DescriptionProperty()(Text(x, y)))],
+        {e: CheckItem()})
+    def p_item_description(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
+        self._start_Q_tail(c, e)
+        self._p_text_tail(c, SCHEMA.description, e, x, y)
+
+    @M.register(
+        [Statement(Property(e, d), DescriptionProperty()(Text(x, y)))],
+        {e: CheckProperty(),
+         d: CheckDatatype()})
+    def p_property_description(
+            self,
+            c: C,
+            e: V_URI,
+            d: V_URI,
+            x: VLiteral,
+            y: VLiteral
+    ):
+        self._start_P_tail(c, e, d)
+        self._p_text_tail(c, SCHEMA.description, e, x, y)
+
+    # -- lemma, lexical category, language (pseudo-properties) --
+
+    @M.register(
+        [Statement(Lexeme(e), LemmaProperty()(Text(x, y)))],
+        {e: CheckLexeme()})
+    def p_lexeme_lemma(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
+        self._start_L_tail(c, e)
+        self._p_text_tail(c, WIKIBASE.lemma, e, x, y)
+
+    @M.register(
+        [Statement(Lexeme(e), LexicalCategoryProperty()(Item(x)))],
+        {e: CheckLexeme(),
+         x: CheckItem()})
+    def p_lexeme_lexical_category(self, c: C, e: V_URI, x: V_URI):
+        self._start_L_tail(c, e)
+        self._p_item_tail(c, WIKIBASE.lexicalCategory, e, x)
+
+    @M.register(
+        [Statement(Lexeme(e), LanguageProperty()(Item(x)))],
+        {e: CheckLexeme(),
+         x: CheckItem()})
+    def p_lexeme_langauge(self, c: C, e: V_URI, x: V_URI):
+        self._start_L_tail(c, e)
+        self._p_item_tail(c, DCT.language, e, x)
 
     # -- item --
 
@@ -312,6 +431,9 @@ class WikidataMapping(M):
 
     def _p_item(self, c: C, p: V_URI, x: V_URI, var3: Var3):
         _, ps, wds = var3
+        self._p_item_tail(c, ps, wds, x)
+
+    def _p_item_tail(self, c: C, ps: V_URI, wds: V_URI, x: V_URI):
         c.q.triples()(
             (wds, ps, x),
             (x, WIKIBASE.sitelinks, c.q.bnode()))
@@ -441,23 +563,30 @@ class WikidataMapping(M):
     # -- text --
 
     @M.register(
-        [Statement(Item(e), Property(p)(x@Text))],
+        [Statement(Item(e), Property(p)(Text(x, y)))],
         {e: CheckItem(),
          p: CheckProperty()})
-    def p_item_text(self, c: C, e: V_URI, p: V_URI, x: VLiteral | VText):
-        self._p_text(c, p, x, self._start_Q(
+    def p_item_text(self, c: C, e: V_URI, p: V_URI, x: VLiteral, y: VLiteral):
+        self._p_text(c, p, x, y, self._start_Q(
             c, e, p, WIKIBASE.Monolingualtext))
 
     @M.register(
-        [Statement(Lexeme(e), Property(p)(x@Text))],
+        [Statement(Lexeme(e), Property(p)(Text(x, y)))],
         {e: CheckLexeme(),
          p: CheckProperty()})
-    def p_lexeme_text(self, c: C, e: V_URI, p: V_URI, x: VLiteral | VText):
-        self._p_text(c, p, x, self._start_L(
+    def p_lexeme_text(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: VLiteral,
+            y: VLiteral
+    ):
+        self._p_text(c, p, x, y, self._start_L(
             c, e, p, WIKIBASE.Monolingualtext))
 
     @M.register(
-        [Statement(Property(e, d), Property(p)(x@Text))],
+        [Statement(Property(e, d), Property(p)(Text(x, y)))],
         {e: CheckProperty(),
          d: CheckDatatype(),
          p: CheckProperty()})
@@ -467,24 +596,32 @@ class WikidataMapping(M):
             e: V_URI,
             d: V_URI,
             p: V_URI,
-            x: VLiteral | VText
+            x: VLiteral,
+            y: VLiteral
     ):
-        self._p_text(c, p, x, self._start_P(
+        self._p_text(c, p, x, y, self._start_P(
             c, e, d, p, WIKIBASE.Monolingualtext))
 
-    def _p_text(self, c: C, p: V_URI, x: VLiteral | VText, var3: Var3):
+    def _p_text(self, c: C, p: V_URI, x: VLiteral, y: VLiteral, var3: Var3):
         _, ps, wds = var3
-        if isinstance(x, Literal):
+        self._p_text_tail(c, ps, wds, x, y)
+
+    def _p_text_tail(
+            self,
+            c: C,
+            ps: V_URI,
+            wds: V_URI,
+            x: VLiteral,
+            y: VLiteral
+    ):
+        if isinstance(y, Var):
             c.q.triples()((wds, ps, x))
-        elif isinstance(x, TextVariable):
-            cnt = c._fresh_string_variable()
-            tag = c._fresh_string_variable()
-            c.theta_add(x, Text(cnt, tag))
-            x = c.theta_add_as_qvar(cnt)
-            c.q.bind(c.q.lang(x), c.theta_add_as_qvar(tag))
+            c.q.bind(c.q.lang(x), y)
+        elif isinstance(x, Var):
             c.q.triples()((wds, ps, x))
+            c.q.filter(c.q.eq(c.q.lang(x), y))
         else:
-            raise c._should_not_get_here()
+            c.q.triples()((wds, ps, c.q.Literal(x, y)))
 
     # -- string --
 

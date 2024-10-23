@@ -366,6 +366,18 @@ class Test(PubChemStoreTestCase):
                 ]),
             ])
 
+    def test_wd_label_compound(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.CID(241),
+            equals=[
+                ((wd.label, Text('[6]annulene')),  # VV
+                 wd.label('[6]annulene')),
+                ((wd.label, None),  # VF
+                 wd.label('[6]annulene')),
+                ((None, Text('[6]annulene')),  # FV
+                 wd.label('[6]annulene')),
+            ])
+
     def test_wd_legal_status_medicine(self) -> None:
         self._test_filter_with_fixed_subject(
             subject=pc.CID(10111431),
@@ -436,6 +448,34 @@ class Test(PubChemStoreTestCase):
                  (pc.CID(421), wd.manufacturer)),
                 ((pc.CID(421), None),  # VF
                  (pc.CID(421), wd.manufacturer)),
+            ])
+
+    def test_wd_material_produced(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.source('ID17770'),
+            equals=[
+                ((wd.material_produced, pc.CID(5462310)),  # VV
+                 wd.material_produced(pc.CID(5462310))),
+                ((wd.material_produced, None),  # VF
+                 wd.material_produced(pc.CID(5462310))),
+                ((None, pc.CID(5462310)),  # FV
+                 wd.material_produced(pc.CID(5462310))),
+            ])
+        self._test_filter_with_fixed_value(
+            value=pc.CID(5462310),
+            equals=[
+                ((pc.source('ID17770'), wd.material_produced),  # VV
+                 (pc.source('ID17770'), wd.material_produced)),
+                ((pc.source('ID17770'), None),  # VF
+                 (pc.source('ID17770'), wd.material_produced)),
+            ],
+            contains=[
+                ((None, wd.material_produced), [  # FV
+                    (pc.source('ID17770'), wd.material_produced),
+                    (pc.source('ID24221'), wd.material_produced),
+                    (pc.source('ID24800'), wd.material_produced),
+                    (pc.source('TCI_'), wd.material_produced),
+                ])
             ])
 
     def test_wd_partition_coefficient_water_octanol(self) -> None:
@@ -657,18 +697,26 @@ class Test(PubChemStoreTestCase):
                  wd.title(title)),
                 ((wd.title, None),  # VF
                  wd.title(title)),
-                ((None, title),  # FV
-                 wd.title(title)),
+            ],
+            contains=[
+                ((None, title), [  # FV
+                    wd.title(title),
+                    wd.label(title),
+                ]),
             ])
         self._test_filter_with_fixed_value(
             value=title,
             equals=[
                 ((pc.patent('US-2016244436-A1'), wd.title),  # VV
                  (pc.patent('US-2016244436-A1'), wd.title)),
-                ((pc.patent('US-2016244436-A1'), None),  # VF
-                 (pc.patent('US-2016244436-A1'), wd.title)),
                 ((None, wd.title),  # FV
                  (pc.patent('US-2016244436-A1'), wd.title)),
+            ],
+            contains=[
+                ((pc.patent('US-2016244436-A1'), None), [  # VF
+                    (pc.patent('US-2016244436-A1'), wd.label),
+                    (pc.patent('US-2016244436-A1'), wd.title),
+                ]),
             ])
 
     # -- source --

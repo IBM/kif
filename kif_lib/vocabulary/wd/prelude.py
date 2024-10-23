@@ -3,14 +3,29 @@
 
 from __future__ import annotations
 
-from ...model import Entity, Property
+from ...model import (
+    AliasProperty,
+    DescriptionProperty,
+    Entity,
+    LabelProperty,
+    LanguageProperty,
+    LemmaProperty,
+    LexicalCategoryProperty,
+    Property,
+)
 from ...typing import Final
 from .registry import WikidataEntityRegistry
 
 __all__ = (
+    'alias',
+    'description',
     'get_inverse',
     'get_label',
     'L',
+    'label',
+    'language',
+    'lemma',
+    'lexical_category',
     'P',
     'Q',
 )
@@ -19,6 +34,14 @@ _registry: Final[WikidataEntityRegistry] = WikidataEntityRegistry()
 Q = _registry.Q  # type: ignore
 P = _registry.P  # type: ignore
 L = _registry.L  # type: ignore
+
+# Aliases for pseudo-properties.
+label = LabelProperty()
+alias = AliasProperty()
+description = DescriptionProperty()
+lemma = LemmaProperty()
+lexical_category = LexicalCategoryProperty()
+language = LanguageProperty()
 
 
 def get_label(entity: Entity, default: str | None = None) -> str | None:

@@ -8,8 +8,17 @@ import functools
 import re
 
 from ....context import Section
-from ....model import ExternalId, Item, Quantity, String, Text, Time, Variables
-from ....namespace import DCT, RDF, SKOS, Wikidata, XSD
+from ....model import (
+    ExternalId,
+    IRI,
+    Item,
+    Quantity,
+    String,
+    Text,
+    Time,
+    Variables,
+)
+from ....namespace import DCT, FOAF, RDF, SKOS, Wikidata, XSD
 from ....namespace.cito import CITO
 from ....namespace.obo import RO
 from ....namespace.patent import PATENT
@@ -20,6 +29,7 @@ from ....typing import Any, ClassVar, Final, TypeAlias
 from ....vocabulary import pc, wd
 from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler as C
 from .mapping import SPARQL_Mapping as M
+from .wikidata import WikidataMapping
 
 __all__ = (
     'PubChemMapping',
@@ -198,6 +208,16 @@ class PubChemMapping(M):
 # -- Compound --------------------------------------------------------------
 
     @M.register(
+        [wd.label(Item(x), Text(y, 'en'))],
+        {x: CheckCompound()})
+    def wd_label_compound(self, c: C, x: V_URI, y: VLiteral):
+        attr = c.bnode()
+        c.q.triples()(
+            (attr, SIO.is_attribute_of, x),
+            (attr, RDF.type, CHEMINF.IUPAC_Name_generated_by_LexiChem),
+            (attr, SIO.has_value, y))
+
+    @M.register(
         [wd.canonical_SMILES(Item(x), String(y))],
         {x: CheckCompound(),
          y: CheckCanonicalSMILES(set_language='en')})
@@ -353,8 +373,7 @@ class PubChemMapping(M):
 
     @M.register(
         [wd.manufacturer(Item(x), Item(y)),
-         wd.product_or_material_produced_or_service_provided(
-             Item(y), Item(x))],
+         wd.material_produced(Item(y), Item(x))],
         {x: CheckCompound(),
          y: CheckSource()})
     def wd_manufacturer(self, c: C, x: V_URI, y: V_URI):
@@ -362,6 +381,7 @@ class PubChemMapping(M):
         c.q.triples()(
             (subst, CHEMINF.has_PubChem_normalized_counterpart, x),
             (subst, DCT.source, y),
+            (y, RDF.type, DCT._NS['Dataset']),
             (y, DCT.subject, PubChem.CONCEPT.Chemical_Vendors))
 
     @M.register(
@@ -408,8 +428,17 @@ class PubChemMapping(M):
     def wd_author_name_string(self, c: C, x: V_URI, y: VLiteral):
         vcard = c.bnode()
         c.q.triples()(
+            (x, RDF.type, PATENT.Publication),
             (x, PATENT.inventorVC, vcard),
             (vcard, VCARD.fn, y))
+
+    @M.register(
+        [wd.description(Item(x), Text(y, 'en'))],
+        {x: CheckPatent()})
+    def wd_description(self, c: C, x: V_URI, y: VLiteral):
+        c.q.triples()(
+            (x, RDF.type, PATENT.Publication),
+            (x, DCT.abstract, y))
 
     @M.register(
         [wd.instance_of(Item(x), wd.patent)],
@@ -435,21 +464,28 @@ class PubChemMapping(M):
         {x: CheckPatent(),
          y: CheckPatentNumber()})
     def wd_patent_number(self, c: C, x: V_URI, y: V_URI):
-        c.q.triples()((x, PATENT.publicationNumber, y))
+        c.q.triples()(
+            (x, RDF.type, PATENT.Publication),
+            (x, PATENT.publicationNumber, y))
 
     @M.register(
         [wd.publication_date(
             Item(x), Time(y, Time.DAY, 0, wd.proleptic_Gregorian_calendar))],
         {x: CheckPatent()})
     def wd_publication_date(self, c: C, x: V_URI, y: VLiteral):
-        c.q.triples()((x, PATENT.publicationDate, y))
+        c.q.triples()(
+            (x, RDF.type, PATENT.Publication),
+            (x, PATENT.publicationDate, y))
 
     @M.register(
-        [wd.title(Item(x), Text(y, 'en'))],
+        [wd.title(Item(x), Text(y, 'en')),
+         wd.label(Item(x), Text(y, 'en'))],
         {x: CheckPatent(),
          y: M.CheckLiteral()})
     def wd_title(self, c: C, x: V_URI, y: VLiteral):
-        c.q.triples()((x, PATENT.titleOfInvention, y))
+        c.q.triples()(
+            (x, RDF.type, PATENT.Publication),
+            (x, PATENT.titleOfInvention, y))
 
 # -- Source ----------------------------------------------------------------
 
@@ -458,4 +494,33 @@ class PubChemMapping(M):
         {x: CheckSource()})
     def wd_instance_of_business(self, c: C, x: V_URI):
         c.q.triples()(
+            (x, RDF.type, DCT._NS['Dataset']),
             (x, DCT.subject, PubChem.CONCEPT.Chemical_Vendors))
+
+    @M.register(
+        [wd.label(Item(x), Text(y, 'en'))],
+        {x: CheckSource()})
+    def wd_label_source(self, c: C, x: V_URI, y: VLiteral):
+        c.q.triples()(
+            (x, RDF.type, DCT._NS['Dataset']),
+            (x, DCT.subject, PubChem.CONCEPT.Chemical_Vendors),
+            (x, DCT.title, y))
+
+    @M.register(
+        [wd.alias(Item(x), Text(y, 'en'))],
+        {x: CheckSource()})
+    def wd_alias_source(self, c: C, x: V_URI, y: VLiteral):
+        c.q.triples()(
+            (x, RDF.type, DCT._NS['Dataset']),
+            (x, DCT.subject, PubChem.CONCEPT.Chemical_Vendors),
+            (x, DCT.alternative, y))
+
+    @M.register(
+        [wd.official_website(Item(x), IRI(y))],
+        {x: CheckSource(),
+         y: WikidataMapping.CheckIRI()})
+    def wd_official_website(self, c: C, x: V_URI, y: V_URI):
+        c.q.triples()(
+            (x, RDF.type, DCT._NS['Dataset']),
+            (x, DCT.subject, PubChem.CONCEPT.Chemical_Vendors),
+            (x, FOAF.homepage, y))

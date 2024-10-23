@@ -12,6 +12,8 @@ from ..term import OpenTerm, Variable
 from .datatype import Datatype, DatatypeVariable, VDatatype, VTDatatype
 from .entity import Entity, EntityTemplate, EntityVariable, VTEntity
 from .iri import IRI_Template, T_IRI, VT_IRI
+from .item import ItemDatatype
+from .text import TextDatatype
 from .value import VTValue
 
 if TYPE_CHECKING:               # pragma: no cover
@@ -281,3 +283,87 @@ def Properties(
     """
     from ... import itertools
     return map(Property, itertools.chain((iri,), iris))
+
+
+class PseudoPropertyVariable(PropertyVariable):
+    """Base class for pseudo-property variables."""
+
+    object_class: ClassVar[type[PseudoProperty]]  # pyright: ignore
+
+
+class PseudoProperty(
+        Property,
+        variable_class=PseudoPropertyVariable,
+):
+    """Base class for pseudo-properties."""
+
+
+class LabelProperty(PseudoProperty):
+    """The "label" pseudo-property."""
+
+    def __init__(
+            self,
+            iri: VTPropertyContent | None = None,
+            range: VTDatatype | None = None
+    ) -> None:
+        from ...namespace import RDFS
+        super().__init__(RDFS.label, TextDatatype())
+
+
+class AliasProperty(PseudoProperty):
+    """The "alias" pseudo-property."""
+
+    def __init__(
+            self,
+            iri: VTPropertyContent | None = None,
+            range: VTDatatype | None = None
+    ) -> None:
+        from ...namespace import SKOS
+        super().__init__(SKOS.altLabel, TextDatatype())
+
+
+class DescriptionProperty(PseudoProperty):
+    """The "description" pseudo-property."""
+
+    def __init__(
+            self,
+            iri: VTPropertyContent | None = None,
+            range: VTDatatype | None = None
+    ) -> None:
+        from ...namespace import SCHEMA
+        super().__init__(SCHEMA.description, TextDatatype())
+
+
+class LemmaProperty(PseudoProperty):
+    """The "lemma" pseudo-property."""
+
+    def __init__(
+            self,
+            iri: VTPropertyContent | None = None,
+            range: VTDatatype | None = None
+    ) -> None:
+        from ...namespace import WIKIBASE
+        super().__init__(WIKIBASE.lemma, TextDatatype())
+
+
+class LexicalCategoryProperty(PseudoProperty):
+    """The "lexical category" pseudo-property."""
+
+    def __init__(
+            self,
+            iri: VTPropertyContent | None = None,
+            range: VTDatatype | None = None
+    ) -> None:
+        from ...namespace import WIKIBASE
+        super().__init__(WIKIBASE.lexicalCategory, ItemDatatype())
+
+
+class LanguageProperty(PseudoProperty):
+    """The "language" pseudo-property."""
+    def __init__(
+            self,
+            iri: VTPropertyContent | None = None,
+            range: VTDatatype | None = None
+    ) -> None:
+        from ...namespace import DCT
+        super().__init__(DCT.language, ItemDatatype())

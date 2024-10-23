@@ -29,6 +29,7 @@ from ...model import (
     StatementTemplate,
     StatementVariable,
     Term,
+    Text,
     Theta,
     Value,
     ValueFingerprint,
@@ -411,7 +412,9 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             pass
         else:
             self._entry_subst[entry.id] = self.theta
-            self._entry_targets[entry.id] = targets
+            if entry.id not in self._entry_targets:
+                self._entry_targets[entry.id] = []
+            self._entry_targets[entry.id].extend(targets)  # type: ignore
         finally:
             self._pop_frame()
 
@@ -721,35 +724,34 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             property = self._fresh_property_variable()
         if filter.snak_mask & filter.VALUE_SNAK:
             assert bool(filter.value_mask)
+            value_mask = (
+                filter.value_mask & filter.property.range_datatype_mask)
+            mk_pat = (lambda v: Statement(subject, ValueSnak(property, v)))
             if isinstance(filter.value, ValueFingerprint):
-                value: VValue = cast(Value, filter.value.value)
-            elif filter.value_mask == filter.ITEM:
-                value = self._fresh_item_variable()
-            elif filter.value_mask == filter.PROPERTY:
-                value = self._fresh_property_variable()
-            elif filter.value_mask == filter.LEXEME:
-                value = self._fresh_lexeme_variable()
-            elif filter.value_mask == filter.DATA_VALUE:
-                value = self._fresh_data_value_variable()
-            elif filter.value_mask == filter.SHALLOW_DATA_VALUE:
-                value = self._fresh_shallow_data_value_variable()
-            elif filter.value_mask == filter.IRI:
-                value = self._fresh_iri_variable()
-            elif filter.value_mask == filter.TEXT:
-                value = self._fresh_text_variable()
-            elif filter.value_mask == filter.STRING:
-                value = self._fresh_string_variable()
-            elif filter.value_mask == filter.EXTERNAL_ID:
-                value = self._fresh_external_id_variable()
-            elif filter.value_mask == filter.DEEP_DATA_VALUE:
-                value = self._fresh_deep_data_value_variable()
-            elif filter.value_mask == filter.QUANTITY:
-                value = self._fresh_quantity_variable()
-            elif filter.value_mask == filter.TIME:
-                value = self._fresh_time_variable()
+                yield mk_pat(cast(Value, filter.value.value))
             else:
-                value = self._fresh_value_variable()
-            yield Statement(subject, ValueSnak(property, value))
+                if value_mask & filter.ITEM:
+                    yield mk_pat(self._fresh_item_variable())
+                if value_mask & filter.PROPERTY:
+                    yield mk_pat(self._fresh_property_variable())
+                if value_mask & filter.LEXEME:
+                    yield mk_pat(self._fresh_lexeme_variable())
+                if value_mask & filter.IRI:
+                    yield mk_pat(self._fresh_iri_variable())
+                if value_mask & filter.TEXT:
+                    if filter.language is None:
+                        yield mk_pat(self._fresh_text_variable())
+                    else:
+                        yield mk_pat(Text(
+                            self._fresh_string_variable(), filter.language))
+                if value_mask & filter.STRING:
+                    yield mk_pat(self._fresh_string_variable())
+                if value_mask & filter.EXTERNAL_ID:
+                    yield mk_pat(self._fresh_external_id_variable())
+                if value_mask & filter.QUANTITY:
+                    yield mk_pat(self._fresh_quantity_variable())
+                if value_mask & filter.TIME:
+                    yield mk_pat(self._fresh_time_variable())
         if filter.snak_mask & filter.SOME_VALUE_SNAK:
             yield Statement(subject, SomeValueSnak(property))
         if filter.snak_mask & filter.NO_VALUE_SNAK:

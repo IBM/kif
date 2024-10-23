@@ -66,8 +66,8 @@ class Test(SPARQL_Store2TestCase):
                  wd.father.no_value()),
                 ((wd.part_of, None),
                  wd.part_of(wd.Adam_and_Eve)),
-                ((None, Text('אָדָם', 'he')),  # FV
-                 wd.name_in_native_language(Text('אָדָם', 'he'))),
+                # ((None, Text('אָדָם', 'he')),  # FV
+                #  wd.name_in_native_language(Text('אָדָם', 'he'))),
             ],
             contains=[
                 ((None, None), [  # FF

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import ExternalId, Filter, Fingerprint, Variables
+from kif_lib import Filter, Fingerprint, Variables
 from kif_lib.vocabulary import pc, wd
 
 from .....tests import PubChemStoreTestCase
