@@ -230,7 +230,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         """Tests whether compiler is in "done" phase.
 
         Returns:
-          ``True`` if successful; ``False`` otherwise.
+           ``True`` if successful; ``False`` otherwise.
         """
         return self.phase == self.DONE
 

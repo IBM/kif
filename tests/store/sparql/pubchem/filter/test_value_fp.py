@@ -3,7 +3,16 @@
 
 from __future__ import annotations
 
-from kif_lib import ExternalId, Quantity, String, Text, Time, Variables
+from kif_lib import (
+    ExternalId,
+    IRI,
+    Property,
+    Quantity,
+    String,
+    Text,
+    Time,
+    Variables,
+)
 from kif_lib.vocabulary import pc, wd
 
 from .....tests import PubChemStoreTestCase
@@ -41,6 +50,28 @@ class Test(PubChemStoreTestCase):
             ])
 
     # -- compound --
+
+    def test_wd_label_compound(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.CID(241),
+            equals=[
+                ((wd.label, Text('[6]annulene')),  # VV
+                 wd.label('[6]annulene')),
+                ((wd.label, None),  # VF
+                 wd.label('[6]annulene')),
+                ((None, Text('[6]annulene')),  # FV
+                 wd.label('[6]annulene')),
+            ])
+        self._test_filter_with_fixed_value(
+            value=Text('[6]annulene'),
+            equals=[
+                ((pc.CID(241), wd.label),  # VV
+                 (pc.CID(241), wd.label)),
+                ((pc.CID(241), None),  # VF
+                 (pc.CID(241), wd.label)),
+                ((None, wd.label),  # FV
+                 (pc.CID(241), wd.label)),
+            ])
 
     def test_wd_canonical_SMILES(self) -> None:
         smiles = String('C(CCC(=O)O)CC(CCS)S')
@@ -366,18 +397,6 @@ class Test(PubChemStoreTestCase):
                 ]),
             ])
 
-    def test_wd_label_compound(self) -> None:
-        self._test_filter_with_fixed_subject(
-            subject=pc.CID(241),
-            equals=[
-                ((wd.label, Text('[6]annulene')),  # VV
-                 wd.label('[6]annulene')),
-                ((wd.label, None),  # VF
-                 wd.label('[6]annulene')),
-                ((None, Text('[6]annulene')),  # FV
-                 wd.label('[6]annulene')),
-            ])
-
     def test_wd_legal_status_medicine(self) -> None:
         self._test_filter_with_fixed_subject(
             subject=pc.CID(10111431),
@@ -554,6 +573,23 @@ class Test(PubChemStoreTestCase):
 
     # -- patent --
 
+    def test_wd_description_patent(self) -> None:
+        desc = Text(
+            'The present invention relates to a multi-step process for '
+            'the production of dihydrolipoic acid, which can particularly '
+            'be carried out as a one-pot reaction and without isolation of '
+            'intermediates.')
+        self._test_filter_with_fixed_subject(
+            subject=pc.patent('US-2019276396-A1'),
+            equals=[
+                ((wd.description, desc),  # VV
+                 wd.description(desc)),
+                ((wd.description, None),  # VF
+                 wd.description(desc)),
+                ((None, desc),  # FV
+                 wd.description(desc)),
+            ])
+
     def test_wd_author_name_string(self) -> None:
         self._test_filter_with_fixed_subject(
             subject=pc.patent('CN-208863666-U'),
@@ -641,6 +677,33 @@ class Test(PubChemStoreTestCase):
                 ]),
             ])
 
+    def test_wd_described_by_source(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.CID(139465320),
+            equals=[
+                ((wd.described_by_source, pc.patent('US-2019276396-A1')),  # VV
+                 wd.described_by_source(pc.patent('US-2019276396-A1'))),
+                ((wd.described_by_source, None),  # VF
+                 wd.described_by_source(pc.patent('US-2019276396-A1'))),
+                ((None, pc.patent('US-2019276396-A1')),  # FV
+                 wd.described_by_source(pc.patent('US-2019276396-A1'))),
+            ])
+        self._test_filter_with_fixed_value(
+            value=pc.patent('US-2019276396-A1'),
+            equals=[
+                ((pc.CID(139465320), wd.described_by_source),  # VV
+                 (pc.CID(139465320), wd.described_by_source)),
+                ((pc.CID(139465320), None),  # VF
+                 (pc.CID(139465320), wd.described_by_source)),
+            ],
+            contains=[
+                ((None, wd.described_by_source), [  # FV
+                    (pc.CID(139465320), wd.described_by_source),
+                    (pc.CID(92171210), wd.described_by_source),
+                    (pc.CID(92171211), wd.described_by_source),
+                ]),
+            ])
+
     def test_wd_patent_number(self) -> None:
         self._test_filter_with_fixed_subject(
             subject=pc.patent('US-2019276396-A1'),
@@ -686,6 +749,9 @@ class Test(PubChemStoreTestCase):
             ])
 
     def test_wd_title(self) -> None:
+        self._test_wd_title_tail(wd.title)
+
+    def _test_wd_title_tail(self, wd_title: Property) -> None:
         title = Text(
             'Novel functionalized 5-(phenoxymethyl)-1,3-dioxane '
             'analogs exhibiting cytochrome p450 inhibition and '
@@ -693,33 +759,76 @@ class Test(PubChemStoreTestCase):
         self._test_filter_with_fixed_subject(
             subject=pc.patent('US-2016244436-A1'),
             equals=[
-                ((wd.title, title),  # VV
-                 wd.title(title)),
-                ((wd.title, None),  # VF
-                 wd.title(title)),
+                ((wd_title, title),  # VV
+                 wd_title(title)),
+                ((wd_title, None),  # VF
+                 wd_title(title)),
             ],
             contains=[
                 ((None, title), [  # FV
-                    wd.title(title),
+                    wd_title(title),
                     wd.label(title),
                 ]),
             ])
         self._test_filter_with_fixed_value(
             value=title,
             equals=[
-                ((pc.patent('US-2016244436-A1'), wd.title),  # VV
-                 (pc.patent('US-2016244436-A1'), wd.title)),
-                ((None, wd.title),  # FV
-                 (pc.patent('US-2016244436-A1'), wd.title)),
+                ((pc.patent('US-2016244436-A1'), wd_title),  # VV
+                 (pc.patent('US-2016244436-A1'), wd_title)),
+                ((None, wd_title),  # FV
+                 (pc.patent('US-2016244436-A1'), wd_title)),
             ],
             contains=[
                 ((pc.patent('US-2016244436-A1'), None), [  # VF
                     (pc.patent('US-2016244436-A1'), wd.label),
-                    (pc.patent('US-2016244436-A1'), wd.title),
+                    (pc.patent('US-2016244436-A1'), wd_title),
                 ]),
             ])
 
+    def test_wd_label_patent(self) -> None:
+        self._test_wd_title_tail(wd.label)
+
     # -- source --
+
+    def test_wd_label_source(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.source('ChemBlock'),
+            equals=[
+                ((wd.label, Text('ChemBlock')),  # VV
+                 wd.label(Text('ChemBlock'))),
+                ((wd.label, None),  # VF
+                 wd.label(Text('ChemBlock'))),
+                ((None, Text('ChemBlock')),  # FV
+                 wd.label(Text('ChemBlock'))),
+            ])
+        self._test_filter_with_fixed_value(
+            value=Text('ChemBlock'),
+            equals=[
+                ((pc.source('ChemBlock'), wd.label),  # VV
+                 (pc.source('ChemBlock'), wd.label)),
+                ((pc.source('ChemBlock'), None),  # VF
+                 (pc.source('ChemBlock'), wd.label)),
+                ((None, wd.label),  # FV
+                 (pc.source('ChemBlock'), wd.label)),
+            ])
+
+    def test_wd_alias_source(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.source('ID11769'),
+            equals=[
+                ((wd.alias, 'Syntharise Chemical'),  # VV
+                 wd.alias('Syntharise Chemical')),
+                ((wd.alias, None),  # VF
+                 wd.alias('Syntharise Chemical')),
+                ((None, Text('Syntharise Chemical')),  # FV
+                 wd.alias('Syntharise Chemical')),
+            ])
+        self._test_filter_with_fixed_value(
+            value=Text('Syntharise Chemical'),
+            equals=[
+                ((pc.source('ID11769'), wd.alias),
+                 (pc.source('ID11769'), wd.alias)),
+            ])
 
     def test_wd_instance_of_vendor(self) -> None:
         self._test_filter_with_fixed_subject(
@@ -739,6 +848,28 @@ class Test(PubChemStoreTestCase):
                  (pc.source('ID24800'), wd.instance_of)),
                 ((pc.source('ID24800'), None),  # VF
                  (pc.source('ID24800'), wd.instance_of)),
+            ])
+
+    def test_wd_official_website(self) -> None:
+        self._test_filter_with_fixed_subject(
+            subject=pc.source('ID11769'),
+            equals=[
+                ((wd.official_website, 'https://syntharise.com/'),  # VV
+                 wd.official_website('https://syntharise.com/')),
+                ((wd.official_website, None),  # VF
+                 wd.official_website('https://syntharise.com/')),
+                ((None, IRI('https://syntharise.com/')),  # VV
+                 wd.official_website('https://syntharise.com/')),
+            ])
+        self._test_filter_with_fixed_value(
+            value=IRI('https://syntharise.com/'),
+            equals=[
+                ((pc.source('ID11769'), wd.official_website),  # VV
+                 (pc.source('ID11769'), wd.official_website)),
+                ((pc.source('ID11769'), None),  # VF
+                 (pc.source('ID11769'), wd.official_website)),
+                ((None, wd.official_website),  # FV
+                 (pc.source('ID11769'), wd.official_website)),
             ])
 
 

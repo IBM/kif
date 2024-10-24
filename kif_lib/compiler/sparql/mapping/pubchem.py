@@ -423,6 +423,14 @@ class PubChemMapping(M):
 # -- Patent ----------------------------------------------------------------
 
     @M.register(
+        [wd.description(Item(x), Text(y, 'en'))],
+        {x: CheckPatent()})
+    def wd_description_patent(self, c: C, x: V_URI, y: VLiteral):
+        c.q.triples()(
+            (x, RDF.type, PATENT.Publication),
+            (x, DCT.abstract, y))
+
+    @M.register(
         [wd.author_name_string(Item(x), String(y))],
         {x: CheckPatent()})
     def wd_author_name_string(self, c: C, x: V_URI, y: VLiteral):
@@ -431,14 +439,6 @@ class PubChemMapping(M):
             (x, RDF.type, PATENT.Publication),
             (x, PATENT.inventorVC, vcard),
             (vcard, VCARD.fn, y))
-
-    @M.register(
-        [wd.description(Item(x), Text(y, 'en'))],
-        {x: CheckPatent()})
-    def wd_description(self, c: C, x: V_URI, y: VLiteral):
-        c.q.triples()(
-            (x, RDF.type, PATENT.Publication),
-            (x, DCT.abstract, y))
 
     @M.register(
         [wd.instance_of(Item(x), wd.patent)],
@@ -490,20 +490,11 @@ class PubChemMapping(M):
 # -- Source ----------------------------------------------------------------
 
     @M.register(
-        [wd.instance_of(Item(x), wd.vendor)],
-        {x: CheckSource()})
-    def wd_instance_of_business(self, c: C, x: V_URI):
-        c.q.triples()(
-            (x, RDF.type, DCT._NS['Dataset']),
-            (x, DCT.subject, PubChem.CONCEPT.Chemical_Vendors))
-
-    @M.register(
         [wd.label(Item(x), Text(y, 'en'))],
         {x: CheckSource()})
     def wd_label_source(self, c: C, x: V_URI, y: VLiteral):
         c.q.triples()(
             (x, RDF.type, DCT._NS['Dataset']),
-            (x, DCT.subject, PubChem.CONCEPT.Chemical_Vendors),
             (x, DCT.title, y))
 
     @M.register(
@@ -512,8 +503,15 @@ class PubChemMapping(M):
     def wd_alias_source(self, c: C, x: V_URI, y: VLiteral):
         c.q.triples()(
             (x, RDF.type, DCT._NS['Dataset']),
-            (x, DCT.subject, PubChem.CONCEPT.Chemical_Vendors),
             (x, DCT.alternative, y))
+
+    @M.register(
+        [wd.instance_of(Item(x), wd.vendor)],
+        {x: CheckSource()})
+    def wd_instance_of_vendor(self, c: C, x: V_URI):
+        c.q.triples()(
+            (x, RDF.type, DCT._NS['Dataset']),
+            (x, DCT.subject, PubChem.CONCEPT.Chemical_Vendors))
 
     @M.register(
         [wd.official_website(Item(x), IRI(y))],
@@ -522,5 +520,4 @@ class PubChemMapping(M):
     def wd_official_website(self, c: C, x: V_URI, y: V_URI):
         c.q.triples()(
             (x, RDF.type, DCT._NS['Dataset']),
-            (x, DCT.subject, PubChem.CONCEPT.Chemical_Vendors),
             (x, FOAF.homepage, y))
