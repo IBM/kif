@@ -25,13 +25,7 @@ KIF is a knowledge integration framework based on
   Python—its constructs can be created and operated programmatically from
   within Python.
 
-## Installation ##
-
-```shell
-$ pip install kif-lib
-```
-
-## Hello world! ##
+### Hello world! ###
 
 Prints an arbitrary statement from [Wikidata](https://www.wikidata.org/):
 
@@ -39,6 +33,12 @@ Prints an arbitrary statement from [Wikidata](https://www.wikidata.org/):
 from kif_lib import *      # import KIF namespacee
 kb = Store('wikidata')     # create a store pointing to Wikidata
 print(next(kb.filter()))   # obtain and print one arbitrary statement
+```
+
+## Installation ##
+
+```shell
+$ pip install kif-lib
 ```
 
 ## Documentation ##
