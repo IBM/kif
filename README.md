@@ -1,13 +1,18 @@
 # KIF — Knowledge Integration Framework #
 
-KIF is a knowledge integration framework based on
-[Wikidata](https://www.wikidata.org/).
+KIF is a knowledge integration framework from IBM Research.  It is licensed under the [Apache-2.0 license](./LICENSE).
 
-It is written in Python and released as [open-source](./LICENSE).
+First time here? Check out the [quickstart guide](https://ibm.github.io/kif/quickstart.html).
 
-First time here? Check out the [quickstart
-guide](https://ibm.github.io/kif/quickstart.html).
+## What? How?
 
+KIF is a knowledge integration framework based on [Wikidata](https://www.wikidata.org/).
+
+* Using KIF, one can easily combine heterogeneous knowledge sources into a *virtual knowledge base*.  This behaves like a custom or extended Wikidata and can be queried uniformily using a simple but expressive *pattern language*.
+
+* KIF leverages [Wikidata's data model](https://www.wikidata.org/wiki/Wikidata:Data_model) plus user-defined mappings to construct a unified view of the underlying knowledge sources while keeping track of the context and provenance of their statements.
+
+* KIF pattern language is based on Wikidata's data model and is embedded in Python—its constructs can be created and operated programatically from within Python.
 
 ## Installation ##
 
