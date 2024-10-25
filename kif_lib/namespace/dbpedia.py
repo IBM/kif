@@ -20,3 +20,9 @@ class DBpedia:
         str(PROPERTY): PROPERTY,
         str(RESOURCE): RESOURCE,
     }
+
+    prefixes: Final[dict[str, Namespace]] = {
+        'dbo': ONTOLOGY,
+        'dbp': PROPERTY,
+        'dbr': RESOURCE,
+    }
