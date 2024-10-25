@@ -118,6 +118,7 @@ payload_mass = P(4519)
 phase_of_matter = P(515)
 pKa = P(1117)
 place_of_birth = P(19)
+place_of_death = P(20)
 population = P(1082)
 position_held = P(39)
 position_held = P(39)
@@ -177,6 +178,7 @@ YouTube_video_ID = P(1651)
 # Aliases:
 material_produced = product_or_material_produced_or_service_provided
 product_produced = product_or_material_produced_or_service_provided
+same_as = said_to_be_the_same_as
 service_provided = product_or_material_produced_or_service_provided
 
 __all__ = (
@@ -296,6 +298,7 @@ __all__ = (
     'phase_of_matter',
     'pKa',
     'place_of_birth',
+    'place_of_death',
     'population',
     'position_held',
     'position_held',
@@ -315,6 +318,7 @@ __all__ = (
     'route_of_administration',
     'safety_classification_and_labelling',
     'said_to_be_the_same_as',
+    'same_as',
     'school_district',
     'season',
     'service_provided',

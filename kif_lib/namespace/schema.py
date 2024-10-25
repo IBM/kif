@@ -10,4 +10,5 @@ class SCHEMA(DefinedNamespace):
     """Schema.org namespace."""
 
     _NS = Namespace('http://schema.org/')
+
     description: URIRef

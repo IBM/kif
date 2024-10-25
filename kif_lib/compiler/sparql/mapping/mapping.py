@@ -406,12 +406,33 @@ class SPARQL_Mapping(Sequence[_Entry]):
         ) -> SPARQL_Mapping.EntryCallbackArg:
             return arg
 
+        def or_(
+                self,
+                p: SPARQL_Mapping.EntryCallbackArgProcessor,
+                *ps: SPARQL_Mapping.EntryCallbackArgProcessor
+        ) -> SPARQL_Mapping.EntryCallbackArgProcessorChain:
+            return self.chain(p, *ps, disjunctive=True)
+
+        def __or__(
+                self,
+                other: SPARQL_Mapping.EntryCallbackArgProcessor
+        ) -> SPARQL_Mapping.EntryCallbackArgProcessorChain:
+            return self.or_(other)
+
+        def chain(
+                self,
+                p: SPARQL_Mapping.EntryCallbackArgProcessor,
+                *ps: SPARQL_Mapping.EntryCallbackArgProcessor,
+                disjunctive: bool = False
+        ) -> SPARQL_Mapping.EntryCallbackArgProcessorChain:
+            return SPARQL_Mapping.EntryCallbackArgProcessorChain(
+                self, p, *ps, disjunctive=disjunctive)
+
         def __rshift__(
                 self,
                 other: SPARQL_Mapping.EntryCallbackArgProcessor
         ) -> SPARQL_Mapping.EntryCallbackArgProcessorChain:
-            return SPARQL_Mapping.EntryCallbackArgProcessorChain(
-                self, other)
+            return self.chain(other)
 
     class EntryCallbackArgProcessorAlias(Protocol):
         """The type of callback-arg processor aliases."""
@@ -427,16 +448,21 @@ class SPARQL_Mapping(Sequence[_Entry]):
         """Entry callback-arg processor chain."""
 
         __slots__ = (
-            'chain',
+            '_chain',
+            '_disjunctive',
         )
 
-        chain: Sequence[SPARQL_Mapping.EntryCallbackArgProcessor]
+        _chain: Sequence[SPARQL_Mapping.EntryCallbackArgProcessor]
+        _disjunctive: bool
 
         def __init__(
                 self,
-                p1: SPARQL_Mapping.EntryCallbackArgProcessor,
-                *ps: SPARQL_Mapping.EntryCallbackArgProcessor):
-            self._chain = (p1, *ps)
+                p: SPARQL_Mapping.EntryCallbackArgProcessor,
+                *ps: SPARQL_Mapping.EntryCallbackArgProcessor,
+                disjunctive: bool = False
+        ):
+            self._chain = (p, *ps)
+            self._disjunctive = disjunctive
 
         @override
         def __call__(
@@ -445,8 +471,16 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 c: Compiler,
                 arg: SPARQL_Mapping.EntryCallbackArg
         ) -> SPARQL_Mapping.EntryCallbackArg:
+            n = 0
             for p in self._chain:
-                arg = p(m, c, arg)
+                try:
+                    arg = p(m, c, arg)
+                    n += 1
+                except SPARQL_Mapping.Skip as skip:
+                    if not self._disjunctive:
+                        raise skip
+            if n == 0:
+                raise SPARQL_Mapping.Skip
             return arg
 
     class EntryCallback(Protocol):

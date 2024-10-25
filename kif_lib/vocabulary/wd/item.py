@@ -13,6 +13,7 @@ acetone = Q(49546, 'acetone')
 Adam = Q(70899, 'Adam')
 Adam_and_Eve = Q(58701, 'Adam and Eve')
 Africa = Q(15, 'Africa')
+Alan_Turing = Q(7251, 'Alan Turing')
 Amazonas = Q(40040, 'Amazonas')
 Americas = Q(828, 'Americas')
 Argentina = Q(414, 'Argentina')
@@ -165,6 +166,7 @@ Wikidata_property_related_to_animals_and_zoology = Q(57633168, 'Wikidata propert
 Wikidata_property_related_to_chemistry = Q(21294996, 'Wikidata property related to chemistry')
 Wikidata_property_related_to_medicine = Q(19887775, 'Wikidata property related to medicine')
 Wikidata_property_to_identify_substances = Q(19833835, 'Wikidata property to identify substances')
+Wilmslow = Q(2011497, 'Wilmslow')
 woman = Q(467, 'woman')
 
 __all__ = (
@@ -173,6 +175,7 @@ __all__ = (
     'Adam',
     'Adam_and_Eve',
     'Africa',
+    'Alan_Turing',
     'Amazonas',
     'Americas',
     'Argentina',
@@ -325,5 +328,6 @@ __all__ = (
     'Wikidata_property_related_to_chemistry',
     'Wikidata_property_related_to_medicine',
     'Wikidata_property_to_identify_substances',
+    'Wilmslow',
     'woman',
 )

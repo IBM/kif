@@ -568,7 +568,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                     continue  # nothing to do
                 targets, _, kwargs = matches
                 if not targets:
-                    raise SPARQL_Mapping.Skip
+                    continue
                 assert targets
                 if kwargs:
                     ###
@@ -592,8 +592,8 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 try:
                     with self.q.group():
                         target_entry.callback(self.mapping, self, **kwargs)
-                except self.mapping.Skip as skip:
-                    raise skip
+                except self.mapping.Skip:
+                    continue
                 finally:
                     self._pop_frame()
             if not cup.children:

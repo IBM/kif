@@ -40,7 +40,7 @@ URI: TypeAlias = C.Query.URI
 V_URI: TypeAlias = C.Query.V_URI
 Var: TypeAlias = C.Query.Variable
 VLiteral: TypeAlias = C.Query.VLiteral
-x, y, z = Variables('x', 'y', 'z')
+x, y, z = Variables(*'xyz')
 
 
 class PubChemMapping(M):
