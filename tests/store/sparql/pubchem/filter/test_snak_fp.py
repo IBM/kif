@@ -47,28 +47,65 @@ class Test(PubChemStoreTestCase):
             equals=[
                 (Filter(fp, wd.ChEBI_ID, '18047'),
                  wd.ChEBI_ID(pc.CID(421), '18047')),
-            ],
-            contains=[
-                (Filter(None, wd.stereoisomer_of, fp), [
-                    wd.stereoisomer_of(pc.CID(449141), pc.CID(421)),
-                    wd.stereoisomer_of(pc.CID(9834298), pc.CID(421)),
-                ]),
+                (Filter(pc.CID(9834298), wd.stereoisomer_of, fp),
+                 wd.stereoisomer_of(pc.CID(9834298), pc.CID(421)))
             ])
 
     def test_wd_ChEBI_ID(self) -> None:
-        pass
+        fp = wd.ChEBI_ID('18047')
+        self._test_filter(
+            equals=[
+                (Filter(fp, wd.PubChem_CID, '421'),
+                 wd.PubChem_CID(pc.CID(421), '421')),
+                (Filter(pc.CID(449141), wd.stereoisomer_of, fp),
+                 wd.stereoisomer_of(pc.CID(449141), pc.CID(421))),
+            ])
 
     def test_wd_ChEMBL_ID(self) -> None:
-        pass
+        fp = wd.ChEMBL_ID('CHEMBL277500')
+        self._test_filter(
+            equals=[
+                (Filter(fp, wd.PubChem_CID, '241'),
+                 wd.PubChem_CID(pc.CID(241), '241')),
+                (Filter(pc.CID(21297776), wd.has_part, fp),
+                 wd.has_part(pc.CID(21297776), pc.CID(241))),
+            ])
 
     def test_wd_said_to_be_the_same_as(self) -> None:
-        pass
+        fp = wd.said_to_be_the_same_as(wd.benzene)
+        self._test_filter(
+            equals=[
+                (Filter(fp, wd.mass, 78.11@wd.gram_per_mole),
+                 wd.mass(pc.CID(241), 78.11@wd.gram_per_mole)),
+                (Filter(pc.CID(21297776), wd.has_part, fp),
+                 wd.has_part(pc.CID(21297776), pc.CID(241))),
+            ])
 
     def test_wd_has_part(self) -> None:
-        pass
+        fp = wd.has_part(pc.CID(421))
+        self._test_filter(
+            equals=[
+                (Filter(fp, wd.PubChem_CID, '161714267'),
+                 wd.PubChem_CID(pc.CID(161714267), '161714267')),
+                (Filter(pc.patent('US-6897305-B2'), wd.main_subject, fp),
+                 wd.main_subject(
+                     pc.patent('US-6897305-B2'),
+                     pc.CID(160094235))),
+            ])
 
     def test_wd_part_of(self) -> None:
-        pass
+        fp = wd.part_of(pc.CID('161714267'))
+        self._test_filter(
+            equals=[
+                (Filter(fp, wd.PubChem_CID, '421'),
+                 wd.PubChem_CID(pc.CID(421), '421')),
+            ],
+            contains=[
+                (Filter(pc.source('ID25790'), wd.material_produced, fp), [
+                    wd.material_produced(pc.source('ID25790'), pc.CID(10902)),
+                    wd.material_produced(pc.source('ID25790'), pc.CID(297)),
+                ]),
+            ])
 
     def test_wd_InChI(self) -> None:
         pass
