@@ -19,6 +19,7 @@ from ..model import (
     PlainDescriptor,
     Property,
     PropertyDescriptor,
+    PseudoProperty,
     Quantity,
     Rank,
     Snak,
@@ -57,7 +58,7 @@ class MarkdownEncoder(
             yield str(input)      # pragma: no cover
 
     def _iterencode(self, obj: KIF_Object, indent: int) -> Iterator[str]:
-        if isinstance(obj, Datatype):
+        if isinstance(obj, (Datatype, PseudoProperty)):
             yield self._encode_kif_object_name(obj)
         elif isinstance(obj, Entity):
             yield from self._iterencode_kif_object_start(obj)
