@@ -108,10 +108,24 @@ class Test(PubChemStoreTestCase):
             ])
 
     def test_wd_InChI(self) -> None:
-        pass
+        fp = wd.InChI('InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H')
+        self._test_filter(
+            equals=[
+                (Filter(fp, wd.PubChem_CID, '241'),
+                 wd.PubChem_CID(pc.CID(241), '241')),
+                (Filter(pc.CID(21297776), wd.has_part, fp),
+                 wd.has_part(pc.CID(21297776), pc.CID(241))),
+            ])
 
     def test_wd_InChIKey(self) -> None:
-        pass
+        fp = wd.InChIKey('IZFHEQBZOYJLPK-UHFFFAOYSA-N')
+        self._test_filter(
+            equals=[
+                (Filter(fp, wd.PubChem_CID, '421'),
+                 wd.PubChem_CID(pc.CID(421), '421')),
+                (Filter(pc.source('ID15294'), wd.material_produced, fp),
+                 wd.material_produced(pc.source('ID15294'), pc.CID(421))),
+            ])
 
     def test_wd_instance_of_type_of_a_chemical_entity(self) -> None:
         pass
