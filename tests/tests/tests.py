@@ -11,6 +11,7 @@ import re
 import unittest
 
 from kif_lib import (
+    AliasProperty,
     AnnotationRecord,
     AnnotationRecordSet,
     ClosedTerm,
@@ -19,6 +20,7 @@ from kif_lib import (
     DataValue,
     DeepDataValue,
     DeprecatedRank,
+    DescriptionProperty,
     Descriptor,
     Entity,
     ExternalId,
@@ -37,9 +39,13 @@ from kif_lib import (
     itertools,
     KIF_Object,
     KIF_ObjectSet,
+    LabelProperty,
+    LanguageProperty,
+    LemmaProperty,
     Lexeme,
     LexemeDatatype,
     LexemeDescriptor,
+    LexicalCategoryProperty,
     NormalRank,
     NoValueSnak,
     OpenTerm,
@@ -48,6 +54,7 @@ from kif_lib import (
     Property,
     PropertyDatatype,
     PropertyDescriptor,
+    PseudoProperty,
     Quantity,
     QuantityDatatype,
     Rank,
@@ -405,6 +412,42 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.range, range)
         self.assertEqual(obj.get_range(), range)
         self.assertEqual(obj.args[1], range)
+
+    def assert_pseudo_property(
+            self,
+            obj: PseudoProperty,
+            iri: IRI,
+            range: Datatype
+    ) -> None:
+        self.assert_property(obj, iri, range)
+        self.assertIsInstance(obj, PseudoProperty)
+
+    def assert_label_property(self, obj: LabelProperty) -> None:
+        self.assert_pseudo_property(obj, obj.expected_iri, obj.expected_range)
+        self.assertIsInstance(obj, LabelProperty)
+
+    def assert_alias_property(self, obj: AliasProperty) -> None:
+        self.assert_pseudo_property(obj, obj.expected_iri, obj.expected_range)
+        self.assertIsInstance(obj, AliasProperty)
+
+    def assert_description_property(self, obj: DescriptionProperty) -> None:
+        self.assert_pseudo_property(obj, obj.expected_iri, obj.expected_range)
+        self.assertIsInstance(obj, DescriptionProperty)
+
+    def assert_lemma_property(self, obj: LemmaProperty) -> None:
+        self.assert_pseudo_property(obj, obj.expected_iri, obj.expected_range)
+        self.assertIsInstance(obj, LemmaProperty)
+
+    def assert_lexical_category_property(
+            self,
+            obj: LexicalCategoryProperty
+    ) -> None:
+        self.assert_pseudo_property(obj, obj.expected_iri, obj.expected_range)
+        self.assertIsInstance(obj, LexicalCategoryProperty)
+
+    def assert_language_property(self, obj: LanguageProperty) -> None:
+        self.assert_pseudo_property(obj, obj.expected_iri, obj.expected_range)
+        self.assertIsInstance(obj, LanguageProperty)
 
     def assert_lexeme(self, obj: Lexeme, iri: IRI) -> None:
         self.assert_entity(obj, iri)

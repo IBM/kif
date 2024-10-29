@@ -76,7 +76,6 @@ from .model import (
     PropertyTemplate,
     PropertyVariable,
     PseudoProperty,
-    PseudoPropertyVariable,
     Quantity,
     QuantityDatatype,
     QuantityTemplate,
@@ -182,7 +181,6 @@ __all__ = (
     'PropertyTemplate',
     'PropertyVariable',
     'PseudoProperty',
-    'PseudoPropertyVariable',
 
     # model.value.lexeme
     'Lexeme',

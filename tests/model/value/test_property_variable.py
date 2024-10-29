@@ -6,12 +6,18 @@ from __future__ import annotations
 import datetime
 
 from kif_lib import (
+    AliasProperty,
+    DescriptionProperty,
     Entity,
     ExternalId,
     IRI,
     Item,
     itertools,
+    LabelProperty,
+    LanguageProperty,
+    LemmaProperty,
     Lexeme,
+    LexicalCategoryProperty,
     NoValueSnakTemplate,
     Property,
     PropertyTemplate,
@@ -66,6 +72,12 @@ class Test(EntityVariableTestCase):
             success=[
                 Property('x'),
                 PropertyTemplate(Variable('x')),
+                LabelProperty(),
+                AliasProperty(),
+                DescriptionProperty(),
+                LemmaProperty(),
+                LexicalCategoryProperty(),
+                LanguageProperty(),
             ],
             failure=[
                 Item('x'),

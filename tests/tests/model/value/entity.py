@@ -14,6 +14,7 @@ from kif_lib import (
     Item,
     itertools,
     KIF_Object,
+    PseudoProperty,
     Quantity,
     String,
     StringTemplate,
@@ -209,7 +210,7 @@ class EntityTestCase(ValueTestCase):
         assert isinstance(cls, type)
         assert issubclass(cls, Entity)
         failure_prelude = [0, IRI(Variable('x')), Variable('x', Item), {}]
-        if cls is Entity:
+        if cls is Entity or issubclass(cls, PseudoProperty):
             success_prelude = []
         else:
             success_prelude = [

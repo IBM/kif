@@ -61,22 +61,23 @@ from .lexeme import (
     VLexeme,
 )
 from .property import (
+    Properties,
+    Property,
+    PropertyDatatype,
+    PropertyTemplate,
+    PropertyVariable,
+    TProperty,
+    VProperty,
+    VTProperty,
+)
+from .pseudo_property import (
     AliasProperty,
     DescriptionProperty,
     LabelProperty,
     LanguageProperty,
     LemmaProperty,
     LexicalCategoryProperty,
-    Properties,
-    Property,
-    PropertyDatatype,
-    PropertyTemplate,
-    PropertyVariable,
     PseudoProperty,
-    PseudoPropertyVariable,
-    TProperty,
-    VProperty,
-    VTProperty,
 )
 from .quantity import (
     Quantity,
@@ -147,22 +148,23 @@ __all__ = (
     'VTItem',
 
     # property
+    'Properties',
+    'Property',
+    'PropertyDatatype',
+    'PropertyTemplate',
+    'PropertyVariable',
+    'TProperty',
+    'VProperty',
+    'VTProperty',
+
+    # pseudo-property
     'AliasProperty',
     'DescriptionProperty',
     'LabelProperty',
     'LanguageProperty',
     'LemmaProperty',
     'LexicalCategoryProperty',
-    'Properties',
-    'Property',
-    'PropertyDatatype',
-    'PropertyTemplate',
-    'PropertyVariable',
     'PseudoProperty',
-    'PseudoPropertyVariable',
-    'TProperty',
-    'VProperty',
-    'VTProperty',
 
     # lexeme
     'Lexeme',
