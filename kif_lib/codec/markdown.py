@@ -194,7 +194,7 @@ class MarkdownEncoder(
             yield str(obj)      # pragma: no cover
 
     def _encode_kif_object_name(self, obj: KIF_Object) -> str:
-        return f'**{obj.__class__.__qualname__}**'
+        return f'**{type(obj).__qualname__}**'
 
     def _iterencode_kif_object_start(
             self,
@@ -247,10 +247,10 @@ class MarkdownEncoder(
             obj: Variable,
             _re=re.compile(r'([_\w]+[^_])_?Variable$')
     ) -> Iterator[str]:
-        if obj.__class__ is Variable:
+        if type(obj) is Variable:
             yield f'?{obj.name}'
         else:
-            m = _re.match(obj.__class__.__qualname__)
+            m = _re.match(type(obj).__qualname__)
             assert m is not None
             ty = m.group(1)
             yield f'*?{obj.name}: {ty}*'

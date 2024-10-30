@@ -97,7 +97,7 @@ class KIF_ObjectSet(KIF_Object, Generic[_TObj]):
         Returns:
            The resulting KIF object set.
         """
-        return self.__class__(*self._frozenset.union(*map(
+        return type(self)(*self._frozenset.union(*map(
             lambda x: x._frozenset, others)))
 
 

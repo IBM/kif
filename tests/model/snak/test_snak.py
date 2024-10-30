@@ -38,7 +38,7 @@ class Test(SnakTestCase):
 
     def test_check(self) -> None:
         assert_type(Snak.check(NoValueSnak('x')), Snak)
-        super()._test_check(
+        self._test_check(
             Snak,
             success=[
                 (NoValueSnak('x'), NoValueSnak('x')),

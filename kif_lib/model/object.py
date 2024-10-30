@@ -191,7 +191,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         return self._preprocess_arg(*t)
 
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
-        return self._check_arg_not_none(arg, self.__class__, None, i)
+        return self._check_arg_not_none(arg, type(self), None, i)
 
     def __eq__(self, other: Any) -> bool:
         return type(self) is type(other) and self._args == other._args
@@ -201,7 +201,7 @@ class Object(Sequence, metaclass=ObjectMeta):
 
     def __hash__(self) -> int:
         if self._hash is None:
-            self._hash = hash((self.__class__, self._args))
+            self._hash = hash((type(self), self._args))
         return self._hash
 
     def __len__(self) -> int:
@@ -211,8 +211,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         if not isinstance(other, Object):
             return NotImplemented
         elif type(self) is not type(other):
-            return (self.__class__.__qualname__
-                    < other.__class__.__qualname__)
+            return (type(self).__qualname__ < type(other).__qualname__)
         else:
             return self._args < other._args
 
@@ -223,8 +222,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         if not isinstance(other, Object):
             return NotImplemented
         elif type(self) is not type(other):
-            return (self.__class__.__qualname__
-                    > other.__class__.__qualname__)
+            return (type(self).__qualname__ > type(other).__qualname__)
         else:
             return self._args > other._args
 
@@ -318,7 +316,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         Returns:
            A shallow copy of object.
         """
-        return self.__class__(*itertools.starmap(
+        return type(self)(*itertools.starmap(
             self._replace, itertools.zip_longest(
                 self.args, args[:len(self.args)], fillvalue=self.KEEP)))
 
@@ -337,7 +335,7 @@ class Object(Sequence, metaclass=ObjectMeta):
            Dictionary.
         """
         return {
-            'class': self.__class__.__qualname__,
+            'class': type(self).__qualname__,
             'args': tuple(map(Object._to_ast_arg, self.args)),
         }
 
@@ -1018,7 +1016,7 @@ class ReprEncoder(Encoder, format='repr', description='Repr. encoder'):
             obj: Object,
             indent: int
     ) -> Iterator[str]:
-        yield obj.__class__.__qualname__
+        yield type(obj).__qualname__
         yield '('
 
     def _end_object(self, obj: Object) -> Iterator[str]:
@@ -1063,7 +1061,7 @@ class SExpEncoder(
     def _start_object(self, obj: Object, indent: int) -> Iterator[str]:
         if obj:
             yield '('
-        yield obj.__class__.__qualname__
+        yield type(obj).__qualname__
         if obj and indent == 0:
             yield ' '
 
@@ -1097,7 +1095,7 @@ class JSON_Encoder(Encoder, format='json', description='JSON encoder'):
             if isinstance(o, Object):
                 obj = cast(Object, o)
                 return {
-                    'class': obj.__class__.__qualname__,
+                    'class': type(obj).__qualname__,
                     'args': obj.args,
                 }
             else:

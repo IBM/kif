@@ -3,30 +3,21 @@
 
 from __future__ import annotations
 
-from kif_lib import Deprecated, Item, Normal, NormalRank, Preferred, SnakSet
+from kif_lib import NormalRank
 from kif_lib.typing import assert_type
 
-from ....tests import KIF_ObjectTestCase
+from ....tests import RankTestCase
 
 
-class Test(KIF_ObjectTestCase):
+class Test(RankTestCase):
 
     def test_check(self) -> None:
         assert_type(NormalRank.check(NormalRank()), NormalRank)
-        self._test_check(
-            NormalRank,
-            success=[
-                (Normal, NormalRank()),
-                (NormalRank(), Normal),
-            ],
-            failure=[0, {}, Item('x'), SnakSet(), Deprecated, Preferred])
+        self._test_check(NormalRank)
 
     def test__init__(self) -> None:
         assert_type(NormalRank(), NormalRank)
-        self._test__init__(
-            NormalRank,
-            self.assert_normal_rank,
-            success=[([], Normal)])
+        self._test__init__(NormalRank, self.assert_normal_rank)
 
 
 if __name__ == '__main__':

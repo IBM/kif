@@ -629,7 +629,7 @@ class Filter(KIF_Object):
             language = None
         else:
             language = f1.language
-        return f1.__class__(
+        return type(f1)(
             f1.subject & f2.subject,
             f1.property & f2.property,
             f1.value & f2.value,

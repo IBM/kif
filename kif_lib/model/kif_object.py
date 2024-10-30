@@ -124,10 +124,10 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
            An iterator of KIF objects and values.
         """
         filter = self._check_optional_arg_callable(
-            filter, self.__class__._traverse_default_filter,
+            filter, type(self)._traverse_default_filter,
             self.traverse, 'filter', 1)
         visit = self._check_optional_arg_callable(
-            visit, self.__class__._traverse_default_visit,
+            visit, type(self)._traverse_default_visit,
             self.traverse, 'visit', 2)
         assert filter is not None
         assert visit is not None
@@ -171,7 +171,7 @@ class KIF_JSON_Encoder(
             if isinstance(o, Object):
                 obj = cast(Object, o)
                 return {
-                    'class': obj.__class__.__qualname__,
+                    'class': type(obj).__qualname__,
                     'args': obj.args,
                 }
             elif isinstance(o, (datetime.datetime, decimal.Decimal)):

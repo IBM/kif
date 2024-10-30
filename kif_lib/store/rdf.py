@@ -54,8 +54,7 @@ class RDF_Store(SPARQL_Store, store_name='rdf', store_description='RDF file'):
     ) -> None:
         super().__init__(store_name, 'file:///dev/null', **kwargs)
         graph = KIF_Object._check_optional_arg_isinstance(
-            graph, rdflib.Graph, rdflib.Graph(),
-            self.__class__, 'graph', None)
+            graph, rdflib.Graph, rdflib.Graph(), type(self), 'graph', None)
         assert graph is not None
         load = functools.partial(
             graph.parse, format=format, publicID=publicID)

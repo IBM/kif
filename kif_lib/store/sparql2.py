@@ -49,7 +49,7 @@ class SPARQL_Store2(
         assert store_name == self.store_name
         super().__init__(store_name, iri, **kwargs)
         self._mapping = KIF_Object._check_arg_isinstance(
-            mapping, SPARQL_Mapping, self.__class__, 'mapping', 3)
+            mapping, SPARQL_Mapping, type(self), 'mapping', 3)
 
     @property
     def mapping(self) -> SPARQL_Mapping:

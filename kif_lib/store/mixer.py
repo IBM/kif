@@ -64,12 +64,12 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
 
     def _init_sources(self, sources: Iterable[Store]) -> None:
         KIF_Object._check_arg_isinstance(
-            sources, Iterable, self.__class__, 'sources', 2)
+            sources, Iterable, type(self), 'sources', 2)
         self._sources = [
             KIF_Object._check_arg(
                 src, isinstance(src, Store),
                 'expected Iterable[Store]',
-                self.__class__, 'sources', 2, TypeError)
+                type(self), 'sources', 2, TypeError)
             for src in sources]
 
     @property

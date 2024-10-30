@@ -4,6 +4,7 @@
 .idea
 .tox
 /.docs
+/.mypy_cache
 /build
 /dist
 /kif_lib/vocabulary/wd/wikidata_items.tsv

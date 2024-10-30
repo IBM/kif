@@ -79,7 +79,7 @@ class Template(OpenTerm):
             position: int | None = None
     ) -> Term:
         try:
-            return self.__class__(*map(
+            return type(self)(*map(
                 lambda arg: arg._instantiate(
                     theta, coerce, strict, function, name, position)
                 if isinstance(arg, OpenTerm) else arg, self.args))

@@ -13,6 +13,7 @@ from .rank import (
     Preferred,
     PreferredRank,
     Rank,
+    RankVariable,
 )
 
 __all__ = (
@@ -31,4 +32,5 @@ __all__ = (
     'Preferred',
     'PreferredRank',
     'Rank',
+    'RankVariable',
 )

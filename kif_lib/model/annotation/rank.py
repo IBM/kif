@@ -6,12 +6,24 @@ from __future__ import annotations
 import functools
 
 from ...rdflib import URIRef
-from ...typing import Self
-from ..kif_object import KIF_Object
+from ...typing import ClassVar, Self
+from ..term import ClosedTerm, Variable
 
 
-class Rank(KIF_Object):
+class RankVariable(Variable):
+    """Rank variable.
+
+    Parameters:
+       name: Name.
+    """
+
+    object_class: ClassVar[type[Rank]]  # pyright: ignore
+
+
+class Rank(ClosedTerm, variable_class=RankVariable):
     """Abstract base class for statement ranks."""
+
+    variable_class: ClassVar[type[RankVariable]]  # pyright: ignore
 
     @classmethod
     @functools.cache

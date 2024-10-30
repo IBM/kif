@@ -81,6 +81,7 @@ from .model import (
     QuantityTemplate,
     QuantityVariable,
     Rank,
+    RankVariable,
     ReferenceRecord,
     ReferenceRecordSet,
     ShallowDataValue,
@@ -270,6 +271,7 @@ __all__ = (
     'Preferred',
     'PreferredRank',
     'Rank',
+    'RankVariable',
 
     # model.descriptor
     'Descriptor',

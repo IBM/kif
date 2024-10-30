@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from .annotations import RankTestCase
 from .descriptor import DescriptorTestCase
 from .fingerprint import FingerprintTestCase
 from .kif_object import KIF_ObjectTestCase
@@ -87,6 +88,9 @@ __all__ = (
     'StatementTemplateTestCase',
     'StatementTestCase',
     'StatementVariableTestCase',
+
+    # annotations
+    'RankTestCase',
 
     # descriptor
     'DescriptorTestCase',

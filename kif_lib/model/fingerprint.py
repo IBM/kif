@@ -236,7 +236,7 @@ class CompoundFingerprint(Fingerprint):
               and FullFingerprint() in args):
             return FullFingerprint()
         else:
-            return self.__class__(*args)
+            return type(self)(*args)
 
     def _normalize_args(
             self,

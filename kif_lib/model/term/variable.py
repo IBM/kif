@@ -62,7 +62,7 @@ class Variable(OpenTerm):
         if variable_class is None:
             variable_class = cls
         if (isinstance(variable_class, type)
-            and issubclass(variable_class, ClosedTerm)
+            and issubclass(variable_class, ClosedTerm)  # pyright: ignore
             and not issubclass(variable_class, cls)
                 and hasattr(variable_class, 'variable_class')):
             variable_class = getattr(variable_class, 'variable_class')
@@ -82,9 +82,9 @@ class Variable(OpenTerm):
             position: int | None = None
     ) -> Self:
         if isinstance(arg, Variable):
-            if issubclass(arg.__class__, cls):
+            if issubclass(type(arg), cls):
                 return cast(Self, arg)
-            if issubclass(cls, arg.__class__):
+            if issubclass(cls, type(arg)):
                 return cast(Self, cls(arg.name))
         raise cls._check_error(arg, function, name, position)
 

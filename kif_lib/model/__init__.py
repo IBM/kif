@@ -13,6 +13,7 @@ from .annotation import (
     Preferred,
     PreferredRank,
     Rank,
+    RankVariable,
     TAnnotationRecordSet,
 )
 from .constraint import (
@@ -381,6 +382,7 @@ __all__ = (
     'Preferred',
     'PreferredRank',
     'Rank',
+    'RankVariable',
     'TAnnotationRecordSet',
 
     # descriptor

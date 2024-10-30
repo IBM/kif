@@ -58,6 +58,7 @@ from kif_lib import (
     Quantity,
     QuantityDatatype,
     Rank,
+    RankVariable,
     ReferenceRecord,
     ReferenceRecordSet,
     ShallowDataValue,
@@ -179,6 +180,9 @@ class TestCase(unittest.TestCase):
 
     ALL_DATATYPE_CLASSES: ClassVar[Set[type[Datatype]]] =\
         frozenset(Datatype._get_subclasses())
+
+    ALL_RANK_CLASSES: ClassVar[Set[type[Rank]]] =\
+        frozenset(Rank._get_subclasses())
 
     @classmethod
     def _variable_class_can_check_from(
@@ -889,6 +893,10 @@ class TestCase(unittest.TestCase):
     def assert_statement_variable(self, obj: Variable, name: str) -> None:
         self.assert_variable(obj, name)
         self.assertIsInstance(obj, StatementVariable)
+
+    def assert_rank_variable(self, obj: Variable, name: str) -> None:
+        self.assert_variable(obj, name)
+        self.assertIsInstance(obj, RankVariable)
 
 # -- Fingerprint -----------------------------------------------------------
 
