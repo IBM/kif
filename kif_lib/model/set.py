@@ -16,8 +16,8 @@ from ..typing import (
     TypeVar,
     Union,
 )
-from .kif_object import KIF_Object
 from .snak import Snak, TSnak
+from .term import ClosedTerm, Variable
 from .value import Text, TText, TValue, Value
 
 TValueSet: TypeAlias = Union['ValueSet', Iterable[TValue]]
@@ -25,29 +25,40 @@ TValueSet: TypeAlias = Union['ValueSet', Iterable[TValue]]
 TTextSet: TypeAlias = Union['TextSet', Iterable[TText]]
 
 TSnakSet: TypeAlias = Union['SnakSet', Iterable[TSnak]]
+VSnakSet: TypeAlias = Union['SnakSetVariable', 'SnakSet']
+VTSnakSet: TypeAlias = Union[Variable, VSnakSet, TSnakSet]
 
 TReferenceRecord: TypeAlias = Union['ReferenceRecord', TSnakSet]
+VReferenceRecord: TypeAlias =\
+    Union['ReferenceRecordVariable', 'ReferenceRecord']
+VTReferenceRecord: TypeAlias =\
+    Union[Variable, VReferenceRecord, TReferenceRecord]
 
 TReferenceRecordSet: TypeAlias =\
     Union['ReferenceRecordSet', Iterable[TReferenceRecord]]
+VReferenceRecordSet: TypeAlias =\
+    Union['ReferenceRecordSetVariable', 'ReferenceRecordSet']
+VTReferenceRecordSet: TypeAlias =\
+    Union[Variable, VReferenceRecordSet, TReferenceRecordSet]
 
-_TObj = TypeVar('_TObj', bound=KIF_Object)
+_TClosedTerm = TypeVar('_TClosedTerm', bound=ClosedTerm)
 
 
-class KIF_ObjectSet(KIF_Object, Generic[_TObj]):
-    """Set of KIF objects.
+class ClosedTermSet(ClosedTerm, Generic[_TClosedTerm]):
+    """Set of closed terms.
 
     Parameters:
-       objects: KIF objects.
+       child: Closed term.
     """
 
-    children_class: ClassVar[type[KIF_Object]]
+    children_class: ClassVar[type[ClosedTerm]]
 
     @classmethod
     def __init_subclass__(cls, **kwargs: Any) -> None:
         if 'children_class' in kwargs:
             cls.children_class = kwargs['children_class']
-            assert issubclass(cls.children_class, KIF_Object)
+            assert issubclass(cls.children_class, ClosedTerm)
+        super().__init_subclass__(**kwargs)
 
     @classmethod
     @override
@@ -60,9 +71,9 @@ class KIF_ObjectSet(KIF_Object, Generic[_TObj]):
     ) -> Self:
         if isinstance(arg, cls):
             return arg
-        elif not isinstance(arg, KIF_Object) and isinstance(arg, Iterable):
+        elif not isinstance(arg, ClosedTerm) and isinstance(arg, Iterable):
             return cls(*map(
-                lambda x: cast(_TObj, cls.children_class.check(
+                lambda x: cast(_TClosedTerm, cls.children_class.check(
                     x, function or cls.check, name, position)), arg))
         else:
             raise cls._check_error(arg, function, name, position)
@@ -71,7 +82,7 @@ class KIF_ObjectSet(KIF_Object, Generic[_TObj]):
         '_frozenset',
     )
 
-    _frozenset: frozenset[_TObj]
+    _frozenset: frozenset[_TClosedTerm]
 
     @override
     def _set_args(self, args: tuple[Any, ...]) -> None:
@@ -92,16 +103,16 @@ class KIF_ObjectSet(KIF_Object, Generic[_TObj]):
         """Computes the union of self and `others`.
 
         Parameters:
-           others: KIF object sets.
+           others: Closed-term sets.
 
         Returns:
-           The resulting KIF object set.
+           The resulting closed-term set.
         """
         return type(self)(*self._frozenset.union(*map(
             lambda x: x._frozenset, others)))
 
 
-class ValueSet(KIF_ObjectSet[Value], children_class=Value):
+class ValueSet(ClosedTermSet[Value], children_class=Value):
     """Set of values.
 
     Parameters:
@@ -129,26 +140,57 @@ class TextSet(ValueSet, children_class=Text):
         super().__init__(*texts)
 
 
-class SnakSet(KIF_ObjectSet[Snak], children_class=Snak):
+class SnakSetVariable(Variable):
+    """Snak set variable.
+
+    Parameters:
+       name: Name.
+    """
+
+    object_class: ClassVar[type[SnakSet]]  # pyright: ignore
+
+
+class SnakSet(
+        ClosedTermSet[Snak],
+        children_class=Snak,
+        variable_class=SnakSetVariable
+):
     """Set of snaks.
 
     Parameters:
        snaks: Snaks.
     """
 
-    children_class: ClassVar[type[Snak]]  # pyright: ignore
+    children_class: ClassVar[type[Snak]]            # pyright: ignore
+    variable_class: ClassVar[type[SnakSetVariable]]  # pyright: ignore
 
     @override
     def __init__(self, *snaks: Snak) -> None:
         super().__init__(*snaks)
 
 
-class ReferenceRecord(SnakSet, children_class=Snak):
+class ReferenceRecordVariable(SnakSetVariable):
+    """Reference record variable.
+
+    Parameters:
+       name: Name.
+    """
+
+    object_class: ClassVar[type[ReferenceRecord]]  # pyright: ignore
+
+
+class ReferenceRecord(
+        SnakSet,
+        children_class=Snak,
+        variable_class=ReferenceRecordVariable
+):
     """Reference record (set of snaks).
 
     Parameters:
        snaks: Snaks.
     """
+
+    variable_class: ClassVar[type[ReferenceRecordVariable]]  # pyright: ignore
 
     @classmethod
     @override
@@ -167,9 +209,20 @@ class ReferenceRecord(SnakSet, children_class=Snak):
             return super().check(arg, function, name, position)
 
 
+class ReferenceRecordSetVariable(Variable):
+    """Reference record set variable.
+
+    Parameters:
+       name: Name.
+    """
+
+    object_class: ClassVar[type[ReferenceRecordSet]]  # pyright: ignore
+
+
 class ReferenceRecordSet(
-        KIF_ObjectSet[ReferenceRecord],
-        children_class=ReferenceRecord
+        ClosedTermSet[ReferenceRecord],
+        children_class=ReferenceRecord,
+        variable_class=ReferenceRecordSetVariable
 ):
     """Set of reference records.
 
@@ -178,6 +231,8 @@ class ReferenceRecordSet(
     """
 
     children_class: ClassVar[type[ReferenceRecord]]  # pyright: ignore
+    variable_class: ClassVar[type[                   # pyright: ignore
+        ReferenceRecordSetVariable]]
 
     @override
     def __init__(self, *reference_records: TReferenceRecord) -> None:

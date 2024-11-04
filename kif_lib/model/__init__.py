@@ -60,10 +60,13 @@ from .pattern import (
     VariablePattern,
 )
 from .set import (
-    KIF_ObjectSet,
+    ClosedTermSet,
     ReferenceRecord,
     ReferenceRecordSet,
+    ReferenceRecordSetVariable,
+    ReferenceRecordVariable,
     SnakSet,
+    SnakSetVariable,
     TextSet,
     TReferenceRecord,
     TReferenceRecordSet,
@@ -71,6 +74,12 @@ from .set import (
     TTextSet,
     TValueSet,
     ValueSet,
+    VReferenceRecord,
+    VReferenceRecordSet,
+    VSnakSet,
+    VTReferenceRecord,
+    VTReferenceRecordSet,
+    VTSnakSet,
 )
 from .snak import (
     NoValueSnak,
@@ -393,10 +402,13 @@ __all__ = (
     'PropertyDescriptor',
 
     # set
-    'KIF_ObjectSet',
+    'ClosedTermSet',
     'ReferenceRecord',
     'ReferenceRecordSet',
+    'ReferenceRecordSetVariable',
+    'ReferenceRecordVariable',
     'SnakSet',
+    'SnakSetVariable',
     'TextSet',
     'TReferenceRecord',
     'TReferenceRecordSet',
@@ -404,6 +416,12 @@ __all__ = (
     'TTextSet',
     'TValueSet',
     'ValueSet',
+    'VReferenceRecord',
+    'VReferenceRecordSet',
+    'VSnakSet',
+    'VTReferenceRecord',
+    'VTReferenceRecordSet',
+    'VTSnakSet',
 
     # pattern
     'ClosedPattern',

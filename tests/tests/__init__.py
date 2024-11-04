@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from .model import (
+    ClosedTermSetTestCase,
     ClosedTermTestCase,
     DatatypeTestCase,
     DataValueTemplateTestCase,
@@ -17,7 +18,6 @@ from .model import (
     EntityTestCase,
     EntityVariableTestCase,
     FingerprintTestCase,
-    KIF_ObjectSetTestCase,
     KIF_ObjectTestCase,
     OpenTermTestCase,
     RankTestCase,
@@ -50,6 +50,7 @@ from .store import (
 from .tests import TestCase
 
 __all__ = (
+    'ClosedTermSetTestCase',
     'ClosedTermTestCase',
     'DatatypeTestCase',
     'DataValueTemplateTestCase',
@@ -64,7 +65,6 @@ __all__ = (
     'EntityTestCase',
     'EntityVariableTestCase',
     'FingerprintTestCase',
-    'KIF_ObjectSetTestCase',
     'KIF_ObjectTestCase',
     'OpenTermTestCase',
     'PubChemSPARQL_StoreTestCase',

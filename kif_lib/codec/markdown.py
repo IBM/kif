@@ -8,6 +8,7 @@ import re
 
 from ..model import (
     AnnotationRecord,
+    ClosedTermSet,
     CompoundFingerprint,
     Datatype,
     Entity,
@@ -15,7 +16,6 @@ from ..model import (
     Fingerprint,
     IRI,
     KIF_Object,
-    KIF_ObjectSet,
     PlainDescriptor,
     Property,
     PropertyDescriptor,
@@ -183,7 +183,7 @@ class MarkdownEncoder(
             yield f'`{bin(obj.snak_mask.value)}`'
             yield ''
             yield from self._iterencode_kif_object_end(obj)
-        elif isinstance(obj, KIF_ObjectSet):
+        elif isinstance(obj, ClosedTermSet):
             yield from self._iterencode_kif_object_start(obj, '')
             if len(obj) > 0:
                 for s in obj:

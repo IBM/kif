@@ -19,10 +19,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import KIF_ObjectSetTestCase
+from ...tests import ClosedTermSetTestCase
 
 
-class Test(KIF_ObjectSetTestCase):
+class Test(ClosedTermSetTestCase):
 
     def test_children_class(self) -> None:
         assert_type(TextSet.children_class, type[Text])
@@ -51,11 +51,11 @@ class Test(KIF_ObjectSetTestCase):
                 0,
                 [0],
                 [Quantity(0)],
-                IRI('x'),
-                Item(Variable('x')),
-                Property('x'),
-                ValueSet(0, 1, 2),
-                Variable('x'),
+                [IRI('x')],
+                [Item(Variable('x'))],
+                [Property('x')],
+                [ValueSet(0, 1, 2)],
+                [Variable('x')],
             ])
 
     def test__init__(self) -> None:

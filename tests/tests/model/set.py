@@ -3,13 +3,13 @@
 
 from __future__ import annotations
 
-from kif_lib import KIF_Object, KIF_ObjectSet
+from kif_lib import ClosedTerm, ClosedTermSet, KIF_Object
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from .kif_object import KIF_ObjectTestCase
+from .term import ClosedTermTestCase
 
 
-class KIF_ObjectSetTestCase(KIF_ObjectTestCase):
+class ClosedTermSetTestCase(ClosedTermTestCase):
 
     @override
     def _test_check(
@@ -19,7 +19,7 @@ class KIF_ObjectSetTestCase(KIF_ObjectTestCase):
             failure: Iterable[Any] = tuple()
     ) -> None:
         assert isinstance(cls, type)
-        assert issubclass(cls, KIF_ObjectSet)
+        assert issubclass(cls, ClosedTermSet)
         super()._test_check(cls, success, failure)
 
     @override
@@ -31,17 +31,17 @@ class KIF_ObjectSetTestCase(KIF_ObjectTestCase):
             failure: Iterable[Sequence[Any]] = tuple(),
     ) -> None:
         assert isinstance(cls, type)
-        assert issubclass(cls, KIF_ObjectSet)
+        assert issubclass(cls, ClosedTermSet)
         super()._test__init__(cls, assert_fn, success, failure)
         collect = []
         for t, obj in success:
-            assert isinstance(obj, KIF_ObjectSet)
+            assert isinstance(obj, ClosedTermSet)
             for child in t:
                 collect.append(child)
                 self.assertIn(
                     obj.children_class.check(child), obj)  # type: ignore
             for child in t:
-                if not isinstance(child, KIF_Object):
+                if not isinstance(child, ClosedTerm):
                     self.assertNotIn(child, obj)
         self.assertEqual(
             cls(*collect),

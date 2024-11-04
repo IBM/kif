@@ -15,6 +15,7 @@ from kif_lib import (
     AnnotationRecord,
     AnnotationRecordSet,
     ClosedTerm,
+    ClosedTermSet,
     Datatype,
     DatatypeVariable,
     DataValue,
@@ -38,7 +39,6 @@ from kif_lib import (
     ItemDescriptor,
     itertools,
     KIF_Object,
-    KIF_ObjectSet,
     LabelProperty,
     LanguageProperty,
     LemmaProperty,
@@ -164,7 +164,7 @@ from kif_lib.typing import (
 
 TESTS_TESTS_DIR: Final[pathlib.Path] = pathlib.Path(__file__).parent
 T = TypeVar('T')
-TObj = TypeVar('TObj', bound=KIF_Object)
+_TClosedTerm = TypeVar('_TClosedTerm', bound=ClosedTerm)
 
 
 class TestCase(unittest.TestCase):
@@ -286,17 +286,17 @@ class TestCase(unittest.TestCase):
         self.assertFalse(Term.is_closed(obj))
         self.assertTrue(obj.variables)
 
-# -- KIF_ObjectSet ---------------------------------------------------------
+# -- ClosedTermSet ---------------------------------------------------------
 
-    def assert_kif_object_set(
+    def assert_closed_term_set(
             self,
-            obj: KIF_ObjectSet[TObj],
-            *args: TObj
+            obj: ClosedTermSet[_TClosedTerm],
+            *args: _TClosedTerm
     ) -> None:
         self.assert_kif_object(obj)
-        self.assertIsInstance(obj, KIF_ObjectSet)
+        self.assertIsInstance(obj, ClosedTermSet)
         for i, arg in enumerate(obj):
-            self.assertIsInstance(arg, KIF_Object)
+            self.assertIsInstance(arg, ClosedTerm)
             self.assertEqual(arg, args[i])
         self.assertEqual(obj._frozenset, set(args))
         for arg in args:
@@ -308,7 +308,7 @@ class TestCase(unittest.TestCase):
             *values: Value
     ) -> None:
         self.assertIsInstance(obj, ValueSet)
-        self.assert_kif_object_set(obj, *values)
+        self.assert_closed_term_set(obj, *values)
 
     def assert_text_set(self, obj: TextSet, *texts: Text) -> None:
         self.assertIsInstance(obj, TextSet)
@@ -316,7 +316,7 @@ class TestCase(unittest.TestCase):
 
     def assert_snak_set(self, obj: SnakSet, *snaks: Snak) -> None:
         self.assertIsInstance(obj, SnakSet)
-        self.assert_kif_object_set(obj, *snaks)
+        self.assert_closed_term_set(obj, *snaks)
 
     def assert_reference_record(
             self,
@@ -332,7 +332,7 @@ class TestCase(unittest.TestCase):
             *refs: ReferenceRecord
     ) -> None:
         self.assertIsInstance(obj, ReferenceRecordSet)
-        self.assert_kif_object_set(obj, *refs)
+        self.assert_closed_term_set(obj, *refs)
 
     def assert_annotation_record_set(
             self,
@@ -340,7 +340,7 @@ class TestCase(unittest.TestCase):
             *annots: AnnotationRecord
     ) -> None:
         self.assertIsInstance(obj, AnnotationRecordSet)
-        self.assert_kif_object_set(obj, *annots)
+        self.assert_closed_term_set(obj, *annots)
 
 # -- Datatype --------------------------------------------------------------
 

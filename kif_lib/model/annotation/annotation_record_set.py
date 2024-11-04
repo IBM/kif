@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from ...typing import ClassVar, Iterable, override, TypeAlias, Union
-from ..set import KIF_ObjectSet
+from ..set import ClosedTermSet
 from .annotation_record import AnnotationRecord
 
 TAnnotationRecordSet: TypeAlias =\
@@ -12,7 +12,7 @@ TAnnotationRecordSet: TypeAlias =\
 
 
 class AnnotationRecordSet(
-        KIF_ObjectSet[AnnotationRecord],
+        ClosedTermSet[AnnotationRecord],
         children_class=AnnotationRecord
 ):
     """Set of annotation records.

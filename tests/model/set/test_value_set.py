@@ -7,7 +7,6 @@ import datetime
 import decimal
 
 from kif_lib import (
-    IRI,
     Item,
     ItemTemplate,
     NoValueSnak,
@@ -24,10 +23,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import KIF_ObjectSetTestCase
+from ...tests import ClosedTermSetTestCase
 
 
-class Test(KIF_ObjectSetTestCase):
+class Test(ClosedTermSetTestCase):
 
     def test_children_class(self) -> None:
         assert_type(ValueSet.children_class, type[Value])
@@ -56,10 +55,8 @@ class Test(KIF_ObjectSetTestCase):
             ],
             failure=[
                 0,
-                IRI('x'),
-                Item(Variable('x')),
-                Property('x'),
-                Variable('x'),
+                [Item(Variable('x'))],
+                [Variable('x')],
             ])
 
     def test__init__(self) -> None:

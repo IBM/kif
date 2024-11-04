@@ -4,12 +4,12 @@
 from __future__ import annotations
 
 from ...typing import Any, Final, override
-from ..kif_object import KIF_Object
 from ..set import ReferenceRecordSet, SnakSet, TReferenceRecordSet, TSnakSet
+from ..term import ClosedTerm
 from .rank import NormalRank, Rank
 
 
-class AnnotationRecord(KIF_Object):
+class AnnotationRecord(ClosedTerm):
     """Annotation record (qualifiers, references, and rank).
 
     Parameters:

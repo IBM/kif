@@ -42,13 +42,18 @@ class Term(KIF_Object):
     def __new__(cls, *args, **kwargs) -> Self:
         has_tpl_or_var_arg = any(map(
             cls.is_open, itertools.chain(args, kwargs.values())))
-        if cls._is_proper_subclass_of_closed_term(cls) and has_tpl_or_var_arg:
-            return cast(
-                Self, cls.template_class(*args, **kwargs))  # type:ignore
-        elif (cls._is_proper_subclass_of_template(cls)
-              and not has_tpl_or_var_arg):
-            return cast(
-                Self, cls.object_class(*args, **kwargs))  # type: ignore
+        if (
+                has_tpl_or_var_arg
+                and hasattr(cls, 'template_class')
+                and cls._is_proper_subclass_of_closed_term(cls)):
+            return cast(Self, cls.template_class(  # type:ignore
+                *args, **kwargs))
+        elif (
+                not has_tpl_or_var_arg
+                and hasattr(cls, 'object_class')
+                and cls._is_proper_subclass_of_template(cls)):
+            return cast(Self, cls.object_class(  # type: ignore
+                *args, **kwargs))
         else:
             return super().__new__(cls)
 

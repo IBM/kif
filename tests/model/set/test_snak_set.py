@@ -20,10 +20,10 @@ from kif_lib import (
 )
 from kif_lib.typing import assert_type
 
-from ...tests import KIF_ObjectSetTestCase
+from ...tests import ClosedTermSetTestCase
 
 
-class Test(KIF_ObjectSetTestCase):
+class Test(ClosedTermSetTestCase):
 
     def test_children_class(self) -> None:
         assert_type(SnakSet.children_class, type[Snak])
