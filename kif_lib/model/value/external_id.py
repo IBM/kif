@@ -40,6 +40,7 @@ class ExternalIdVariable(StringVariable):
 class ExternalIdDatatype(StringDatatype):
     """External id datatype."""
 
+    instance: ClassVar[ExternalIdDatatype]  # pyright: ignore
     value_class: ClassVar[type[ExternalId]]  # pyright: ignore
 
 

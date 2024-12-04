@@ -160,6 +160,7 @@ class QuantityVariable(DeepDataValueVariable):
 class QuantityDatatype(Datatype):
     """Quantity datatype."""
 
+    instance: ClassVar[QuantityDatatype]  # pyright: ignore
     value_class: ClassVar[type[Quantity]]  # pyright: ignore
 
 

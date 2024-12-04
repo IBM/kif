@@ -6,8 +6,22 @@ from __future__ import annotations
 import functools
 
 from ...rdflib import URIRef
-from ...typing import ClassVar, Self
-from ..term import ClosedTerm, Variable
+from ...typing import (
+    Any,
+    cast,
+    ClassVar,
+    Location,
+    override,
+    Self,
+    TypeAlias,
+    Union,
+)
+from ..term import ClosedTerm, Term, Theta, Variable
+from ..value import IRI, String
+
+TRank: TypeAlias = Union['Rank', type['Rank']]
+VRank: TypeAlias = Union['RankVariable', 'Rank']
+VTRank: TypeAlias = Union[Variable, TRank]
 
 
 class RankVariable(Variable):
@@ -19,11 +33,84 @@ class RankVariable(Variable):
 
     object_class: ClassVar[type[Rank]]  # pyright: ignore
 
+    @override
+    def _instantiate_tail(
+            self,
+            theta: Theta,
+            coerce: bool,
+            strict: bool,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Term | None:
+        obj = theta[self]
+        if not strict and isinstance(obj, (IRI, String, str)):
+            ###
+            # IMPORTANT: We need to be able to use Wikidata datatype IRIs to
+            # instantiate rank variables.
+            ###
+            return Rank.check(obj, function, name, position)
+        else:
+            return super()._instantiate_tail(
+                theta, coerce, strict, function, name, position)
+
 
 class Rank(ClosedTerm, variable_class=RankVariable):
     """Abstract base class for statement ranks."""
 
     variable_class: ClassVar[type[RankVariable]]  # pyright: ignore
+
+    #: Singleton instance of this rank class.
+    instance: ClassVar[Rank]
+
+    def __new__(cls, rank_class: TRank | None = None):
+        if rank_class is None:
+            if cls is Rank:
+                raise cls._check_error(
+                    rank_class, cls, 'rank_class', 1)
+            rank_class = cls
+        elif isinstance(rank_class, Rank):
+            rank_class = type(rank_class)
+        if (isinstance(rank_class, type)
+                and issubclass(rank_class, cls)  # pyright: ignore
+                and rank_class is not Rank):
+            if (hasattr(rank_class, 'instance')
+                    and type(rank_class.instance) is rank_class):
+                return cast(Self, rank_class.instance)
+            else:
+                return super().__new__(rank_class)
+        else:
+            raise cls._check_error(rank_class, cls, 'rank_class', 1)
+
+    @classmethod
+    def __init_subclass__(cls):
+        super().__init_subclass__()
+        cls.instance = cls()
+
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        elif (isinstance(arg, type)
+              and issubclass(arg, cls)
+              and arg is not Rank):
+            return cast(Self, arg.instance)
+        elif isinstance(arg, (IRI, String, str)):
+            iri = IRI.check(arg, function, name, position)
+            try:
+                return cls._from_rdflib(iri.content)
+            except TypeError as err:
+                raise cls._check_error(
+                    arg, function, name, position) from err
+        else:
+            raise cls._check_error(arg, function, name, position)
 
     @classmethod
     @functools.cache
@@ -50,33 +137,34 @@ class Rank(ClosedTerm, variable_class=RankVariable):
         else:
             raise self._should_not_get_here()
 
+    def __init__(self, rank_class: TRank | None = None) -> None:
+        assert not (type(self) is Rank and rank_class is None)
+        super().__init__()
+
 
 class PreferredRank(Rank):
     """Most important information."""
 
-    def __init__(self) -> None:
-        super().__init__()
+    instance: ClassVar[PreferredRank]  # pyright: ignore
 
 
 class NormalRank(Rank):
     """Complementary information."""
 
-    def __init__(self) -> None:
-        super().__init__()
+    instance: ClassVar[NormalRank]  # pyright: ignore
 
 
 class DeprecatedRank(Rank):
     """Unreliable information."""
 
-    def __init__(self) -> None:
-        super().__init__()
+    instance: ClassVar[DeprecatedRank]  # pyright: ignore
 
 
 #: Preferred rank.
-Preferred = PreferredRank()
+Preferred = PreferredRank.instance
 
 #: Normal rank.
-Normal = NormalRank()
+Normal = NormalRank.instance
 
 #: Deprecated rank.
-Deprecated = DeprecatedRank()
+Deprecated = DeprecatedRank.instance

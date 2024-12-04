@@ -35,7 +35,7 @@ class Test(WikidataStoreTestCase):
         kb = self.new_Store()
         self.assert_it_contains(
             kb.filter(-(wd.instance_of(wd.Monte_Pascoal))),
-            wd.has_part(wd.mountain, wd.slope))
+            wd.has_part(wd.mountain, wd.summit))
 
     def test_filter_subject_is_and(self) -> None:
         kb = self.new_Store()

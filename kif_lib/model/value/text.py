@@ -110,6 +110,7 @@ class TextVariable(ShallowDataValueVariable):
 class TextDatatype(Datatype):
     """Text datatype."""
 
+    instance: ClassVar[TextDatatype]  # pyright: ignore
     value_class: ClassVar[type[Text]]  # pyright: ignore
 
 

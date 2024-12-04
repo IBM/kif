@@ -11,6 +11,10 @@ from ....tests import RankTestCase
 
 class Test(RankTestCase):
 
+    def test_instance(self) -> None:
+        assert_type(DeprecatedRank.instance, DeprecatedRank)
+        self.assertIs(DeprecatedRank.instance, DeprecatedRank())
+
     def test_check(self) -> None:
         assert_type(DeprecatedRank.check(DeprecatedRank()), DeprecatedRank)
         self._test_check(DeprecatedRank)

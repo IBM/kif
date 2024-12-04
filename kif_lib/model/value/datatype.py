@@ -69,6 +69,9 @@ class Datatype(ClosedTerm, variable_class=DatatypeVariable):
 
     variable_class: ClassVar[type[DatatypeVariable]]  # pyright: ignore
 
+    #: Singleton instance of this datatype class.
+    instance: ClassVar[Datatype]
+
     #: Value class associated with this datatype class.
     value_class: ClassVar[type[Value]]
 
@@ -88,9 +91,18 @@ class Datatype(ClosedTerm, variable_class=DatatypeVariable):
         if (isinstance(datatype_class, type)
                 and issubclass(datatype_class, cls)  # pyright: ignore
                 and datatype_class is not Datatype):
-            return super().__new__(datatype_class)
+            if (hasattr(datatype_class, 'instance')
+                    and type(datatype_class.instance) is datatype_class):
+                return cast(Self, datatype_class.instance)
+            else:
+                return super().__new__(datatype_class)
         else:
             raise cls._check_error(datatype_class, cls, 'datatype_class', 1)
+
+    @classmethod
+    def __init_subclass__(cls):
+        super().__init_subclass__()
+        cls.instance = cls()
 
     @classmethod
     @override
@@ -107,8 +119,8 @@ class Datatype(ClosedTerm, variable_class=DatatypeVariable):
             return arg
         elif (isinstance(arg, type)
               and issubclass(arg, cls)
-              and hasattr(arg, 'value_class')):
-            return cast(Self, arg.value_class.datatype)
+              and arg is not Datatype):
+            return cast(Self, arg.instance)
         elif isinstance(arg, type) and hasattr(arg, 'datatype'):
             return cls.check(
                 arg.datatype, function, name, position)  # pyright: ignore

@@ -32,6 +32,7 @@ class Test(ClosedTermTestCase):
 
     def test_check(self) -> None:
         assert_type(Rank.check(NormalRank()), Rank)
+        self.assertRaises(TypeError, Rank.check, 'x')
         self._test_check(
             Rank,
             success=[
@@ -42,10 +43,23 @@ class Test(ClosedTermTestCase):
                 (Preferred, PreferredRank()),
                 (PreferredRank(), Preferred),
             ],
-            failure=[0, {}, Item('x'), SnakSet()])
+            failure=[None, 0, {}, Item('x'), SnakSet()])
 
     def test__init__(self) -> None:
-        self.assert_abstract_class(Rank)
+        super()._test__init__(
+            Rank,
+            self.assert_rank,
+            success=[
+                ([PreferredRank], PreferredRank()),
+                ([PreferredRank()], PreferredRank()),
+                ([NormalRank], NormalRank()),
+                ([NormalRank()], NormalRank()),
+                ([DeprecatedRank], DeprecatedRank()),
+                ([DeprecatedRank()], DeprecatedRank()),
+            ],
+            failure=[
+                [None], [0], [{}],
+            ])
 
     def test_variables(self) -> None:
         assert_type(NormalRank().variables, Set[Variable])

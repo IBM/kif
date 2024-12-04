@@ -171,6 +171,7 @@ class TimeVariable(DeepDataValueVariable):
 class TimeDatatype(Datatype):
     """Time datatype."""
 
+    instance: ClassVar[TimeDatatype]  # pyright: ignore
     value_class: ClassVar[type[Time]]  # pyright: ignore
 
 

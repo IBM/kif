@@ -44,6 +44,7 @@ class StringVariable(ShallowDataValueVariable):
 class StringDatatype(Datatype):
     """String datatype."""
 
+    instance: ClassVar[StringDatatype]  # pyright: ignore
     value_class: ClassVar[type[String]]  # pyright: ignore
 
 

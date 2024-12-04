@@ -37,6 +37,7 @@ class Test(ValueTestCase):
 
     def test_variable_class(self) -> None:
         assert_type(Datatype.variable_class, type[DatatypeVariable])
+        self.assertIs(Datatype.variable_class, DatatypeVariable)
 
     def test_check(self) -> None:
         assert_type(Datatype.check(Item), Datatype)

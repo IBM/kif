@@ -21,6 +21,7 @@ from kif_lib import (
     ValueSnakVariable,
     Variable,
 )
+from kif_lib.namespace import WIKIBASE
 from kif_lib.typing import assert_type, cast, Optional, Set
 
 from ....tests import VariableTestCase
@@ -58,6 +59,20 @@ class Test(VariableTestCase):
         self.assert_deprecated_rank(cast(
             DeprecatedRank, RankVariable('x').instantiate({
                 RankVariable('x'): DeprecatedRank()
+            })))
+
+    def test_instantiate_uri(self) -> None:
+        self.assert_preferred_rank(cast(
+            DeprecatedRank, RankVariable('x').instantiate({
+                RankVariable('x'): WIKIBASE.PreferredRank  # type: ignore
+            })))
+        self.assert_normal_rank(cast(
+            DeprecatedRank, RankVariable('x').instantiate({
+                RankVariable('x'): WIKIBASE.NormalRank  # type: ignore
+            })))
+        self.assert_deprecated_rank(cast(
+            DeprecatedRank, RankVariable('x').instantiate({
+                RankVariable('x'): WIKIBASE.DeprecatedRank  # type: ignore
             })))
 
     def test_instantiate_and_match(self) -> None:

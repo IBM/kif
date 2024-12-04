@@ -235,7 +235,7 @@ class TestStoreSPARQL_SPARQL_Store(WikidataStoreTestCase):
         # snak_class: some value
         some = list(sorted(kb.filter(
             wd.Adam, None, None, Filter.SOME_VALUE_SNAK)))
-        self.assertEqual(len(some), 3)
+        self.assertEqual(len(some), 4)
         # snak_class: no value
         wdno = list(sorted(kb.filter(
             wd.Adam, None, None, Filter.NO_VALUE_SNAK)))

@@ -92,6 +92,7 @@ class Symbol:
     IF: Final[str] = 'IF'
     INDENT: Final[str] = '  '
     IS_BLANK: Final[str] = 'isBlank'
+    IS_LITERAL: Final[str] = 'isLiteral'
     IS_URI: Final[str] = 'isURI'
     LANG: Final[str] = 'LANG'
     LESS_THAN: Final[str] = '<'
@@ -526,6 +527,14 @@ class IsBlank(UnaryBuiltInCall):
     See <https://www.w3.org/TR/sparql11-query/#func-isBlank>.
     """
     operator: str = Symbol.IS_BLANK
+
+
+class IsLiteral(UnaryBuiltInCall):
+    """The isLiteral built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-isLiteral>.
+    """
+    operator: str = Symbol.IS_LITERAL
 
 
 class IsURI(UnaryBuiltInCall):
@@ -1235,6 +1244,10 @@ class Query(Encodable):
     V_URI: TypeAlias = Union[URIRef, Variable]
     VTerm: TypeAlias = Union[Term, Variable]
 
+    Clause: TypeAlias = Clause
+    Expression: TypeAlias = Expression
+    BooleanExpression: TypeAlias = BooleanExpression
+
     #: Currently targeted clause.
     clause: Clause
 
@@ -1444,6 +1457,9 @@ class Query(Encodable):
 
     def is_blank(self, arg: TNumExpr) -> IsBlank:
         return IsBlank(arg)
+
+    def is_literal(self, arg: TNumExpr) -> IsLiteral:
+        return IsLiteral(arg)
 
     def is_uri(self, arg: TNumExpr) -> IsURI:
         return IsURI(arg)

@@ -170,6 +170,7 @@ class PropertyVariable(EntityVariable):
 class PropertyDatatype(Datatype):
     """Property datatype."""
 
+    instance: ClassVar[PropertyDatatype]  # pyright: ignore
     value_class: ClassVar[type[Property]]  # pyright: ignore
 
 

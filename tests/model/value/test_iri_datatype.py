@@ -11,6 +11,10 @@ from ...tests import DatatypeTestCase
 
 class Test(DatatypeTestCase):
 
+    def test_instance(self) -> None:
+        assert_type(IRI_Datatype.instance, IRI_Datatype)
+        self.assertIs(IRI_Datatype.instance, IRI_Datatype())
+
     def test_value_class(self) -> None:
         assert_type(IRI_Datatype.value_class, type[IRI])
 

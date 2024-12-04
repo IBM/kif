@@ -11,6 +11,10 @@ from ...tests import DatatypeTestCase
 
 class Test(DatatypeTestCase):
 
+    def test_instance(self) -> None:
+        assert_type(TextDatatype.instance, TextDatatype)
+        self.assertIs(TextDatatype.instance, TextDatatype())
+
     def test_value_class(self) -> None:
         assert_type(TextDatatype.value_class, type[Text])
 

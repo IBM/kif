@@ -41,6 +41,7 @@ class LexemeVariable(EntityVariable):
 class LexemeDatatype(Datatype):
     """Lexeme datatype."""
 
+    instance: ClassVar[LexemeDatatype]  # pyright: ignore
     value_class: ClassVar[type[Lexeme]]  # pyright: ignore
 
 

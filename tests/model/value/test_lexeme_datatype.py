@@ -11,6 +11,10 @@ from ...tests import DatatypeTestCase
 
 class Test(DatatypeTestCase):
 
+    def test_instance(self) -> None:
+        assert_type(LexemeDatatype.instance, LexemeDatatype)
+        self.assertIs(LexemeDatatype.instance, LexemeDatatype())
+
     def test_value_class(self) -> None:
         assert_type(LexemeDatatype.value_class, type[Lexeme])
 

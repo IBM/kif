@@ -11,6 +11,10 @@ from ...tests import DatatypeTestCase
 
 class Test(DatatypeTestCase):
 
+    def test_instance(self) -> None:
+        assert_type(PropertyDatatype.instance, PropertyDatatype)
+        self.assertIs(PropertyDatatype.instance, PropertyDatatype())
+
     def test_value_class(self) -> None:
         assert_type(PropertyDatatype.value_class, type[Property])
 

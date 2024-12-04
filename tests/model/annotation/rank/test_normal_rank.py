@@ -11,6 +11,10 @@ from ....tests import RankTestCase
 
 class Test(RankTestCase):
 
+    def test_instance(self) -> None:
+        assert_type(NormalRank.instance, NormalRank)
+        self.assertIs(NormalRank.instance, NormalRank())
+
     def test_check(self) -> None:
         assert_type(NormalRank.check(NormalRank()), NormalRank)
         self._test_check(NormalRank)

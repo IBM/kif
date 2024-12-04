@@ -15,6 +15,7 @@ from ..typing import (
     TypeAlias,
     Union,
 )
+from .annotation import TRank
 from .fingerprint import (
     AndFingerprint,
     Fingerprint,
@@ -291,6 +292,33 @@ class Filter(KIF_Object):
 
     #: Type alias for DatatypeMask.
     TDatatypeMask: TypeAlias = Union[DatatypeMask, TDatatype, int]
+
+    class RankMask(Flags):
+        """Mask for concrete rank classes."""
+
+        #: Mask for :class:`PreferredRank`.
+        PREFERRED = Flags.auto()
+
+        #: Mask for :class:`NormalRank`.
+        NORMAL = Flags.auto()
+
+        #: Mask for :class:`DeprecatedRank`.
+        DEPRECATED = Flags.auto()
+
+        #: Mask for all rank classes.
+        ALL = PREFERRED | NORMAL | DEPRECATED
+
+    #: Mask for :class:`PreferredRank`.
+    PREFERRED: Final[RankMask] = RankMask.PREFERRED
+
+    #: Mask for :class:`NormalRank`.
+    NORMAL: Final[RankMask] = RankMask.NORMAL
+
+    #: Mask for :class:`DeprecatedRank`.
+    DEPRECATED: Final[RankMask] = RankMask.DEPRECATED
+
+    #: Type alias for RankMask.
+    TRankMask: TypeAlias = Union[RankMask, TRank, int]
 
     class SnakMask(Flags):
         """Mask for concrete snak classes."""

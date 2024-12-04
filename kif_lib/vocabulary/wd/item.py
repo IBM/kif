@@ -150,6 +150,7 @@ sodium_bicarbonate = Q(179731, 'sodium bicarbonate')
 South_America = Q(18, 'South America')
 Spanish = Q(1321, 'Spanish')
 subcutaneous_injection = Q(2035485, 'subcutaneous injection')
+summit = Q(207326, 'summit')
 Supercalifragilisticexpialidocious = Q(103, 'Supercalifragilisticexpialidocious')
 type_of_a_chemical_entity = Q(113145171, 'type of a chemical entity')
 unit_of_mass = Q(3647172, 'unit of mass')
@@ -312,6 +313,7 @@ __all__ = (
     'South_America',
     'Spanish',
     'subcutaneous_injection',
+    'summit',
     'Supercalifragilisticexpialidocious',
     'type_of_a_chemical_entity',
     'unit_of_mass',

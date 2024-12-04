@@ -28,6 +28,7 @@ from kif_lib import (
     ValueSnakVariable,
     Variable,
 )
+from kif_lib.namespace import WIKIBASE
 from kif_lib.typing import assert_type, cast, Optional, Set
 
 from ...tests import VariableTestCase
@@ -72,6 +73,47 @@ class Test(VariableTestCase):
         self.assert_string_datatype(cast(
             Datatype, DatatypeVariable('x').instantiate({
                 DatatypeVariable('x'): 'y'  # type: ignore
+            })))
+
+    def test_instantiate_uri(self) -> None:
+        self.assert_item_datatype(cast(
+            Datatype, DatatypeVariable('x').instantiate({
+                DatatypeVariable('x'): WIKIBASE.WikibaseItem  # type: ignore
+            })))
+        self.assert_property_datatype(cast(
+            Datatype, DatatypeVariable('x').instantiate({
+                DatatypeVariable('x'):
+                WIKIBASE.WikibaseProperty  # type: ignore
+            })))
+        self.assert_lexeme_datatype(cast(
+            Datatype, DatatypeVariable('x').instantiate({
+                DatatypeVariable('x'):
+                WIKIBASE.WikibaseLexeme  # type: ignore
+            })))
+        self.assert_iri_datatype(cast(
+            Datatype, DatatypeVariable('x').instantiate({
+                DatatypeVariable('x'): WIKIBASE.Url  # type: ignore
+            })))
+        self.assert_text_datatype(cast(
+            Datatype, DatatypeVariable('x').instantiate({
+                DatatypeVariable('x'):
+                WIKIBASE.Monolingualtext  # type: ignore
+            })))
+        self.assert_string_datatype(cast(
+            Datatype, DatatypeVariable('x').instantiate({
+                DatatypeVariable('x'): WIKIBASE.String  # type: ignore
+            })))
+        self.assert_external_id_datatype(cast(
+            Datatype, DatatypeVariable('x').instantiate({
+                DatatypeVariable('x'): WIKIBASE.ExternalId  # type: ignore
+            })))
+        self.assert_quantity_datatype(cast(
+            Datatype, DatatypeVariable('x').instantiate({
+                DatatypeVariable('x'): WIKIBASE.Quantity  # type: ignore
+            })))
+        self.assert_time_datatype(cast(
+            Datatype, DatatypeVariable('x').instantiate({
+                DatatypeVariable('x'): WIKIBASE.Time  # type: ignore
             })))
 
     def test_instantiate_and_match(self) -> None:

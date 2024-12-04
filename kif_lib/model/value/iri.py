@@ -45,6 +45,7 @@ class IRI_Variable(ShallowDataValueVariable):
 class IRI_Datatype(Datatype):
     """IRI datatype."""
 
+    instance: ClassVar[IRI_Datatype]  # pyright: ignore
     value_class: ClassVar[type[IRI]]  # pyright: ignore
 
 

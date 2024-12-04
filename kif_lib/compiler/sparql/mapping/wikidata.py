@@ -559,6 +559,8 @@ class WikidataMapping(M):
     def _p_iri(self, c: C, p: V_URI, x: V_URI, var3: Var3):
         _, ps, wds = var3
         c.q.triples()((wds, ps, x))
+        if isinstance(x, Var):
+            c.q.filter(c.q.is_uri(x) & ~self._is_some_value(c, x))
 
     # -- text --
 
@@ -617,9 +619,11 @@ class WikidataMapping(M):
         if isinstance(y, Var):
             c.q.triples()((wds, ps, x))
             c.q.bind(c.q.lang(x), y)
+            c.q.filter(c.q.is_literal(x))
         elif isinstance(x, Var):
             c.q.triples()((wds, ps, x))
             c.q.filter(c.q.eq(c.q.lang(x), y))
+            c.q.filter(c.q.is_literal(x))
         else:
             c.q.triples()((wds, ps, c.q.Literal(x, y)))
 
@@ -657,6 +661,7 @@ class WikidataMapping(M):
     def _p_string(self, c: C, p: V_URI, x: VLiteral, var3: Var3):
         _, ps, wds = var3
         c.q.triples()((wds, ps, x))
+        c.q.filter(c.q.is_literal(x))
 
     # -- external id --
 
@@ -927,12 +932,15 @@ class WikidataMapping(M):
         _, ps, wds = var3
         some = c.fresh_qvar()
         c.q.triples()((wds, ps, some))
+        c.q.filter(self._is_some_value(c, some))
+
+    def _is_some_value(self, c: C, some: Var) -> C.Query.BooleanExpression:
         if self.options.strict:
-            c.q.filter(c.q.call(WIKIBASE.isSomeValue, some))
+            return c.q.call(WIKIBASE.isSomeValue, some)
         else:
-            c.q.filter(c.q.is_blank(some) | (
+            return c.q.is_blank(some) | (
                 c.q.is_uri(some) & c.q.strstarts(
-                    c.q.str(some), str(Wikidata.WDGENID))))
+                    c.q.str(some), str(Wikidata.WDGENID)))
 
     # -- no value --
 

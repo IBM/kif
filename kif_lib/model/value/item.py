@@ -54,6 +54,7 @@ class ItemVariable(EntityVariable):
 class ItemDatatype(Datatype):
     """Item datatype."""
 
+    instance: ClassVar[ItemDatatype]  # pyright: ignore
     value_class: ClassVar[type[Item]]  # pyright: ignore
 
 

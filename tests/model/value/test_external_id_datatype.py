@@ -11,6 +11,10 @@ from ...tests import DatatypeTestCase
 
 class Test(DatatypeTestCase):
 
+    def test_instance(self) -> None:
+        assert_type(ExternalIdDatatype.instance, ExternalIdDatatype)
+        self.assertIs(ExternalIdDatatype.instance, ExternalIdDatatype())
+
     def test_value_class(self) -> None:
         assert_type(ExternalIdDatatype.value_class, type[ExternalId])
 
