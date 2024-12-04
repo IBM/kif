@@ -10,6 +10,7 @@ from kif_lib import (
     NoValueSnak,
     Property,
     QualifierRecord,
+    QualifierRecordVariable,
     Quantity,
     ReferenceRecord,
     Snak,
@@ -28,22 +29,27 @@ from ...tests import ClosedTermSetTestCase
 class Test(ClosedTermSetTestCase):
 
     def test_children_class(self) -> None:
-        assert_type(ReferenceRecord.children_class, type[Snak])
-        self.assertIs(ReferenceRecord.children_class, Snak)
+        assert_type(QualifierRecord.children_class, type[Snak])
+        self.assertIs(QualifierRecord.children_class, Snak)
+
+    def test_variable_class(self) -> None:
+        assert_type(
+            QualifierRecord.variable_class, type[QualifierRecordVariable])
+        self.assertIs(QualifierRecord.variable_class, QualifierRecordVariable)
 
     def test_check(self) -> None:
-        assert_type(ReferenceRecord.check(
-            [ValueSnak('x', 'y')]), ReferenceRecord)
+        assert_type(QualifierRecord.check(
+            [ValueSnak('x', 'y')]), QualifierRecord)
         super()._test_check(
-            ReferenceRecord,
+            QualifierRecord,
             success=[
-                ([], ReferenceRecord()),
-                (QualifierRecord(), ReferenceRecord()),
-                (ReferenceRecord(), ReferenceRecord()),
+                ([], QualifierRecord()),
+                (QualifierRecord(), QualifierRecord()),
+                (ReferenceRecord(), QualifierRecord()),
                 (SnakSet(NoValueSnak('x'), SomeValueSnak('y')),
-                 ReferenceRecord(NoValueSnak('x'), SomeValueSnak('y'))),
+                 QualifierRecord(NoValueSnak('x'), SomeValueSnak('y'))),
                 ((NoValueSnak('x'), ValueSnak('y', 'z')),
-                 ReferenceRecord(NoValueSnak('x'), ValueSnak('y', 'z'))),
+                 QualifierRecord(NoValueSnak('x'), ValueSnak('y', 'z'))),
             ],
             failure=[
                 0,
@@ -57,65 +63,65 @@ class Test(ClosedTermSetTestCase):
             ])
 
     def test__init__(self) -> None:
-        assert_type(ReferenceRecord(NoValueSnak('x')), ReferenceRecord)
+        assert_type(QualifierRecord(NoValueSnak('x')), QualifierRecord)
         self._test__init__(
-            ReferenceRecord,
-            self.assert_reference_record,
+            QualifierRecord,
+            self.assert_qualifier_record,
             success=[
                 ([SomeValueSnak('x'), ValueSnak('y', 'z'), SomeValueSnak('x')],
-                 ReferenceRecord(SomeValueSnak('x'), ValueSnak('y', 'z'))),
+                 QualifierRecord(SomeValueSnak('x'), ValueSnak('y', 'z'))),
             ],
             failure=[
                 [Item('x'), NoValueSnak('x')],
                 [ItemTemplate(Variable('x'))],
                 [Variable('x', Text)],
             ])
-        self.assertNotEqual(ReferenceRecord(), SnakSet())
-        self.assertEqual(ReferenceRecord(), ReferenceRecord())
+        self.assertNotEqual(QualifierRecord(), SnakSet())
+        self.assertEqual(QualifierRecord(), QualifierRecord())
         self.assertEqual(
-            ReferenceRecord(NoValueSnak(Property('p'))),
-            ReferenceRecord(NoValueSnak(Property('p'))))
+            QualifierRecord(NoValueSnak(Property('p'))),
+            QualifierRecord(NoValueSnak(Property('p'))))
         self.assertEqual(
-            ReferenceRecord(
+            QualifierRecord(
                 SomeValueSnak(Property('q')),
                 NoValueSnak(Property('p'))),
-            ReferenceRecord(
+            QualifierRecord(
                 NoValueSnak(Property('p')),
                 SomeValueSnak(Property('q')),
                 NoValueSnak(Property('p'))))
         self.assertNotEqual(
-            ReferenceRecord(NoValueSnak(Property('p'))),
-            ReferenceRecord(NoValueSnak(Property('q'))))
+            QualifierRecord(NoValueSnak(Property('p'))),
+            QualifierRecord(NoValueSnak(Property('q'))))
 
     def test__contains__(self) -> None:
-        self.assertNotIn(0, ReferenceRecord())
+        self.assertNotIn(0, QualifierRecord())
         self.assertIn(
             NoValueSnak(Property('p')),
-            ReferenceRecord(NoValueSnak(Property('p'))))
+            QualifierRecord(NoValueSnak(Property('p'))))
         self.assertNotIn(
             NoValueSnak(Property('p')),
-            ReferenceRecord(NoValueSnak(Property('q'))))
+            QualifierRecord(NoValueSnak(Property('q'))))
 
     def test_union(self) -> None:
-        assert_type(ReferenceRecord().union(), ReferenceRecord)
-        self.assert_snak_set(ReferenceRecord().union(
-            ReferenceRecord(), ReferenceRecord()))
+        assert_type(QualifierRecord().union(), QualifierRecord)
+        self.assert_snak_set(QualifierRecord().union(
+            QualifierRecord(), QualifierRecord()))
         self.assert_snak_set(
-            ReferenceRecord(SomeValueSnak('x')).union(
-                ReferenceRecord(SomeValueSnak('x'), NoValueSnak('y')),
-                ReferenceRecord(ValueSnak('z', 'w'))),
+            QualifierRecord(SomeValueSnak('x')).union(
+                QualifierRecord(SomeValueSnak('x'), NoValueSnak('y')),
+                QualifierRecord(ValueSnak('z', 'w'))),
             NoValueSnak('y'), SomeValueSnak('x'), ValueSnak('z', 'w'))
-        s1 = ReferenceRecord(
+        s1 = QualifierRecord(
             Property('p')(IRI('x')),
             Property('q')(IRI('y')))
-        s2 = ReferenceRecord(NoValueSnak(Property('p')))
-        s3 = ReferenceRecord()
+        s2 = QualifierRecord(NoValueSnak(Property('p')))
+        s3 = QualifierRecord()
         s4 = SnakSet(
             Property('q')(IRI('y')),
             Property('q')(IRI('z')))
         self.assertEqual(
             s1.union(s2, s3, s4),  # type: ignore
-            ReferenceRecord(
+            QualifierRecord(
                 NoValueSnak(Property('p')),
                 Property('p')(IRI('x')),
                 Property('q')(IRI('y')),

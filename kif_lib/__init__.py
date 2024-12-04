@@ -76,6 +76,8 @@ from .model import (
     PropertyTemplate,
     PropertyVariable,
     PseudoProperty,
+    QualifierRecord,
+    QualifierRecordVariable,
     Quantity,
     QuantityDatatype,
     QuantityTemplate,
@@ -285,6 +287,8 @@ __all__ = (
 
     # model.set
     'ClosedTermSet',
+    'QualifierRecord',
+    'QualifierRecordVariable',
     'ReferenceRecord',
     'ReferenceRecordSet',
     'ReferenceRecordSetVariable',

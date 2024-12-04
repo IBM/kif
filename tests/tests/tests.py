@@ -55,15 +55,19 @@ from kif_lib import (
     PropertyDatatype,
     PropertyDescriptor,
     PseudoProperty,
+    QualifierRecord,
+    QualifierRecordVariable,
     Quantity,
     QuantityDatatype,
     Rank,
     RankVariable,
     ReferenceRecord,
     ReferenceRecordSet,
+    ReferenceRecordVariable,
     ShallowDataValue,
     Snak,
     SnakSet,
+    SnakSetVariable,
     SomeValueSnak,
     Statement,
     String,
@@ -317,6 +321,14 @@ class TestCase(unittest.TestCase):
     def assert_snak_set(self, obj: SnakSet, *snaks: Snak) -> None:
         self.assertIsInstance(obj, SnakSet)
         self.assert_closed_term_set(obj, *snaks)
+
+    def assert_qualifier_record(
+            self,
+            obj: QualifierRecord,
+            *snaks: Snak
+    ) -> None:
+        self.assertIsInstance(obj, QualifierRecord)
+        self.assert_snak_set(obj, *snaks)
 
     def assert_reference_record(
             self,
@@ -893,6 +905,30 @@ class TestCase(unittest.TestCase):
     def assert_statement_variable(self, obj: Variable, name: str) -> None:
         self.assert_variable(obj, name)
         self.assertIsInstance(obj, StatementVariable)
+
+    def assert_snak_set_variable(
+            self,
+            obj: Variable,
+            name: str
+    ) -> None:
+        self.assert_variable(obj, name)
+        self.assertIsInstance(obj, SnakSetVariable)
+
+    def assert_qualifier_record_variable(
+            self,
+            obj: Variable,
+            name: str
+    ) -> None:
+        self.assert_snak_set_variable(obj, name)
+        self.assertIsInstance(obj, QualifierRecordVariable)
+
+    def assert_reference_record_variable(
+            self,
+            obj: Variable,
+            name: str
+    ) -> None:
+        self.assert_snak_set_variable(obj, name)
+        self.assertIsInstance(obj, ReferenceRecordVariable)
 
     def assert_rank_variable(self, obj: Variable, name: str) -> None:
         self.assert_variable(obj, name)

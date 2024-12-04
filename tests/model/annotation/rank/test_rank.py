@@ -38,10 +38,13 @@ class Test(ClosedTermTestCase):
             success=[
                 (Deprecated, DeprecatedRank()),
                 (DeprecatedRank(), Deprecated),
+                (DeprecatedRank, DeprecatedRank()),
                 (Normal, NormalRank()),
                 (NormalRank(), Normal),
+                (NormalRank, NormalRank()),
                 (Preferred, PreferredRank()),
                 (PreferredRank(), Preferred),
+                (PreferredRank, PreferredRank()),
             ],
             failure=[None, 0, {}, Item('x'), SnakSet()])
 

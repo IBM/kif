@@ -28,6 +28,12 @@ TSnakSet: TypeAlias = Union['SnakSet', Iterable[TSnak]]
 VSnakSet: TypeAlias = Union['SnakSetVariable', 'SnakSet']
 VTSnakSet: TypeAlias = Union[Variable, VSnakSet, TSnakSet]
 
+TQualifierRecord: TypeAlias = Union['QualifierRecord', TSnakSet]
+VQualifierRecord: TypeAlias =\
+    Union['QualifierRecordVariable', 'QualifierRecord']
+VTQualifierRecord: TypeAlias =\
+    Union[Variable, VQualifierRecord, TQualifierRecord]
+
 TReferenceRecord: TypeAlias = Union['ReferenceRecord', TSnakSet]
 VReferenceRecord: TypeAlias =\
     Union['ReferenceRecordVariable', 'ReferenceRecord']
@@ -167,6 +173,46 @@ class SnakSet(
     @override
     def __init__(self, *snaks: Snak) -> None:
         super().__init__(*snaks)
+
+
+class QualifierRecordVariable(SnakSetVariable):
+    """Qualifier record variable.
+
+    Parameters:
+       name: Name.
+    """
+
+    object_class: ClassVar[type[QualifierRecord]]  # pyright: ignore
+
+
+class QualifierRecord(
+        SnakSet,
+        children_class=Snak,
+        variable_class=QualifierRecordVariable
+):
+    """Qualifier record (set of snaks).
+
+    Parameters:
+       snaks: Snaks.
+    """
+
+    variable_class: ClassVar[type[QualifierRecordVariable]]  # pyright: ignore
+
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, SnakSet):
+            return cls(*arg)
+        else:
+            return super().check(arg, function, name, position)
 
 
 class ReferenceRecordVariable(SnakSetVariable):
