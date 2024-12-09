@@ -107,11 +107,17 @@ from .snak import (
     VValueSnak,
 )
 from .statement import (
+    AnnotatedStatement,
+    AnnotatedStatementTemplate,
+    AnnotatedStatementVariable,
     Statement,
     StatementTemplate,
     StatementVariable,
+    TAnnotatedStatement,
     TStatement,
+    VAnnotatedStatement,
     VStatement,
+    VTAnnotatedStatement,
     VTStatement,
 )
 from .term import (
@@ -379,11 +385,17 @@ __all__ = (
     'VValueSnak',
 
     # statement
+    'AnnotatedStatement',
+    'AnnotatedStatementTemplate',
+    'AnnotatedStatementVariable',
     'Statement',
     'StatementTemplate',
     'StatementVariable',
+    'TAnnotatedStatement',
     'TStatement',
+    'VAnnotatedStatement',
     'VStatement',
+    'VTAnnotatedStatement',
     'VTStatement',
 
     # annotation

@@ -9,6 +9,9 @@ from .error import Error
 from .model import (
     AliasProperty,
     And,
+    AnnotatedStatement,
+    AnnotatedStatementTemplate,
+    AnnotatedStatementVariable,
     AnnotationRecord,
     AnnotationRecordSet,
     ClosedPattern,
@@ -262,6 +265,9 @@ __all__ = (
     'ValueSnakVariable',
 
     # model.statement
+    'AnnotatedStatement',
+    'AnnotatedStatementTemplate',
+    'AnnotatedStatementVariable',
     'Statement',
     'StatementTemplate',
     'StatementVariable',
