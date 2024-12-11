@@ -15,7 +15,7 @@ from ..typing import (
     TypeAlias,
     Union,
 )
-from .annotation import TRank
+from .annotation import DeprecatedRank, NormalRank, PreferredRank, Rank, TRank
 from .fingerprint import (
     AndFingerprint,
     Fingerprint,
@@ -192,26 +192,6 @@ class Filter(KIF_Object):
                 _cache[TimeDatatype()] = cls.TIME
             return _cache[datatype]
 
-        def _to_datatype(
-                self,
-                _cache: dict[Filter.DatatypeMask, Datatype] = {}
-        ) -> Datatype | None:
-            ###
-            # IMPORTANT: functools.cache doesn't work with classmethods of
-            # enum.Flags subclasses.
-            ###
-            if not _cache:
-                _cache[Filter.ITEM] = ItemDatatype()
-                _cache[Filter.PROPERTY] = PropertyDatatype()
-                _cache[Filter.LEXEME] = LexemeDatatype()
-                _cache[Filter.IRI] = IRI_Datatype()
-                _cache[Filter.TEXT] = TextDatatype()
-                _cache[Filter.STRING] = StringDatatype()
-                _cache[Filter.EXTERNAL_ID] = ExternalIdDatatype()
-                _cache[Filter.QUANTITY] = QuantityDatatype()
-                _cache[Filter.TIME] = TimeDatatype()
-            return _cache.get(self)
-
         def _to_value_class(
                 self,
                 _cache: dict[Filter.DatatypeMask, Any] = {}
@@ -307,6 +287,67 @@ class Filter(KIF_Object):
 
         #: Mask for all rank classes.
         ALL = PREFERRED | NORMAL | DEPRECATED
+
+        @classmethod
+        @override
+        def check(
+                cls,
+                arg: Any,
+                function: Location | None = None,
+                name: str | None = None,
+                position: int | None = None
+        ) -> Filter.RankMask:
+            if isinstance(arg, (cls, int)):
+                return super().check(arg, function, name, position)
+            elif isinstance(arg, type) and issubclass(arg, Rank):
+                return cls._from_rank_class(arg)
+            else:
+                return cls._from_rank(Rank.check(
+                    arg, function or cls.check, name, position))
+
+        @classmethod
+        def _from_rank_class(
+                cls,
+                rank_class: type[Rank],
+                _cache: dict[type[Rank], Filter.RankMask] = {}
+        ) -> Filter.RankMask:
+            ###
+            # IMPORTANT: functools.cache doesn't work with classmethods of
+            # enum.Flags subclasses.
+            ###
+            if not _cache:
+                _cache[Rank] = cls.ALL
+                _cache[PreferredRank] = cls.PREFERRED
+                _cache[NormalRank] = cls.NORMAL
+                _cache[DeprecatedRank] = cls.DEPRECATED
+            return _cache[rank_class]
+
+        @classmethod
+        def _from_rank(
+                cls,
+                rank: Rank,
+                _cache: dict[Rank, Filter.RankMask] = {}
+        ) -> Filter.RankMask:
+            ###
+            # IMPORTANT: functools.cache doesn't work with classmethods of
+            # enum.Flags subclasses.
+            ###
+            if not _cache:
+                _cache[PreferredRank()] = cls.PREFERRED
+                _cache[NormalRank()] = cls.NORMAL
+                _cache[DeprecatedRank()] = cls.DEPRECATED
+            return _cache[rank]
+
+        def match(self, rank: TRank) -> bool:
+            """Tests whether rank mask matches `rank`.
+
+            Parameters:
+               rank: Rank.
+
+            Returns:
+               ``True`` if successful; ``False`` otherwise.
+            """
+            return bool(self & self.check(rank))
 
     #: Mask for :class:`PreferredRank`.
     PREFERRED: Final[RankMask] = RankMask.PREFERRED
@@ -452,11 +493,13 @@ class Filter(KIF_Object):
             subject_mask: TDatatypeMask | None = None,
             property_mask: TDatatypeMask | None = None,
             value_mask: TDatatypeMask | None = None,
+            rank_mask: TRankMask | None = None,
             language: str | None = None
     ) -> None:
         super().__init__(
             subject, property, value, snak_mask,
-            subject_mask, property_mask, value_mask, language)
+            subject_mask, property_mask, value_mask,
+            rank_mask, language)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -475,6 +518,9 @@ class Filter(KIF_Object):
             return self.DatatypeMask.check_optional(
                 arg, self.VALUE, type(self), None, i)
         elif i == 8:
+            return self.RankMask.check_optional(
+                arg, self.RankMask.ALL, type(self), None, i)
+        elif i == 9:
             arg = String.check_optional(
                 arg, None, type(self), None, i)
             return arg.content if arg is not None else arg
@@ -577,6 +623,19 @@ class Filter(KIF_Object):
         return self.args[6] & self.VALUE
 
     @at_property
+    def rank_mask(self) -> RankMask:
+        """The rank mask of filter."""
+        return self.get_rank_mask()
+
+    def get_rank_mask(self) -> RankMask:
+        """Gets the rank mask of filter.
+
+        Returns:
+           Rank mask.
+        """
+        return self.args[7]
+
+    @at_property
     def language(self) -> str | None:
         """The language tag of filter."""
         return self.get_language()
@@ -587,7 +646,7 @@ class Filter(KIF_Object):
         Returns:
            Language tag or ``None``.
         """
-        return self.args[7]
+        return self.args[8]
 
     def is_full(self) -> bool:
         """Tests whether filter is full.
@@ -665,6 +724,7 @@ class Filter(KIF_Object):
             f1.subject_mask & f2.subject_mask,
             f1.property_mask & f2.property_mask,
             f1.value_mask & f2.value_mask,
+            f1.rank_mask & f2.rank_mask,
             language
         ).normalize()
 
@@ -695,7 +755,7 @@ class Filter(KIF_Object):
         return True
 
     def normalize(self) -> Filter:
-        """Reduce filter to a normal form.
+        """Reduces filter to a normal form.
 
         Normalizes the fingerprint expressions in filter.
 
@@ -718,7 +778,8 @@ class Filter(KIF_Object):
             snak_mask &= ~self.VALUE_SNAK
         return Filter(
             subject, property, value, snak_mask,
-            subject_mask, property_mask, value_mask, self.language)
+            subject_mask, property_mask, value_mask,
+            self.rank_mask, self.language)
 
     def _unpack_legacy(
             self

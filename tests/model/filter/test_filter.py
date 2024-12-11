@@ -33,32 +33,32 @@ class Test(KIF_ObjectTestCase):
 
     def test_from_snak(self) -> None:
         # snak is none
-        pat = Filter.from_snak(Item('x'), None)
+        f = Filter.from_snak(Item('x'), None)
         self.assert_filter(
-            pat, ValueFingerprint(Item('x')), None, None, Filter.SnakMask.ALL)
+            f, ValueFingerprint(Item('x')), None, None, Filter.SnakMask.ALL)
         # value snak
         snak: Snak = Property('p')(Item('x'))
-        pat = Filter.from_snak(Item('x'), snak)
+        f = Filter.from_snak(Item('x'), snak)
         self.assert_filter(
-            pat,
+            f,
             ValueFingerprint(Item('x')),
             ValueFingerprint(Property('p', Item)),
             ValueFingerprint(Item('x')),
             Filter.VALUE_SNAK)
         # some value snak
         snak = SomeValueSnak(Property('p'))
-        pat = Filter.from_snak(Item('x'), snak)
+        f = Filter.from_snak(Item('x'), snak)
         self.assert_filter(
-            pat,
+            f,
             ValueFingerprint(Item('x')),
             ValueFingerprint(Property('p')),
             None,
             Filter.SOME_VALUE_SNAK)
         # no value snak
         snak = NoValueSnak(Property('p'))
-        pat = Filter.from_snak(Item('x'), snak)
+        f = Filter.from_snak(Item('x'), snak)
         self.assert_filter(
-            pat,
+            f,
             ValueFingerprint(Item('x')),
             ValueFingerprint(Property('p')),
             None,
@@ -67,27 +67,27 @@ class Test(KIF_ObjectTestCase):
     def test_from_statement(self) -> None:
         # value snak
         stmt = Property('p')(Item('x'), IRI('y'))
-        pat = Filter.from_statement(stmt)
+        f = Filter.from_statement(stmt)
         self.assert_filter(
-            pat,
+            f,
             ValueFingerprint(Item('x')),
             ValueFingerprint(Property('p', IRI)),
             ValueFingerprint(IRI('y')),
             Filter.VALUE_SNAK)
         # some value snak
         stmt = Statement(Item('x'), SomeValueSnak(Property('p')))
-        pat = Filter.from_statement(stmt)
+        f = Filter.from_statement(stmt)
         self.assert_filter(
-            pat,
+            f,
             ValueFingerprint(Item('x')),
             ValueFingerprint(Property('p')),
             None,
             Filter.SOME_VALUE_SNAK)
         # no value snak
         stmt = Statement(Item('x'), NoValueSnak(Property('p')))
-        pat = Filter.from_statement(stmt)
+        f = Filter.from_statement(stmt)
         self.assert_filter(
-            pat,
+            f,
             ValueFingerprint(Item('x')),
             ValueFingerprint(Property('p')),
             None,
@@ -123,13 +123,13 @@ class Test(KIF_ObjectTestCase):
         self.assertTrue(Filter().is_full())
         self.assertTrue(Filter(None, None, None, 0).is_empty())
         self.assertFalse(Filter(None, None, None, 0).is_nonempty())
-        pat = Filter(
+        f = Filter(
             None, None, IRI('x'), Filter.SOME_VALUE_SNAK)
-        self.assertTrue(pat.is_empty())
-        self.assertFalse(pat.is_nonempty())
-        pat = Filter(None, None, IRI('x'), Filter.NO_VALUE_SNAK)
-        self.assertTrue(pat.is_empty())
-        self.assertFalse(pat.is_nonempty())
+        self.assertTrue(f.is_empty())
+        self.assertFalse(f.is_nonempty())
+        f = Filter(None, None, IRI('x'), Filter.NO_VALUE_SNAK)
+        self.assertTrue(f.is_empty())
+        self.assertFalse(f.is_nonempty())
 
     def test_is_nonempty(self) -> None:
         assert_type(Filter().is_nonempty(), bool)
@@ -194,8 +194,8 @@ class Test(KIF_ObjectTestCase):
     def test_combine(self) -> None:
         assert_type(Filter().combine(Filter()), Filter)
         # bad argument
-        pat = Filter(Item('x'))
-        self.assertRaises(TypeError, pat.combine, 0)
+        f = Filter(Item('x'))
+        self.assertRaises(TypeError, f.combine, 0)
         # good arguments
         pat1 = Filter(Item('x'))
         pat2 = Filter(SnakSet())
@@ -265,6 +265,19 @@ class Test(KIF_ObjectTestCase):
             Filter(None, None, None, Filter.SnakMask.ALL).combine(
                 Filter(None, None, None, Filter.VALUE_SNAK)),
             Filter(None, None, None, Filter.VALUE_SNAK))
+        # language
+        self.assertEqual(
+            Filter(language='en').combine(Filter(language='en')),
+            Filter(language='en'))
+        self.assertEqual(
+            Filter(language=None).combine(Filter(language='en')),
+            Filter(language='en'))
+        self.assertEqual(
+            Filter(language='en').combine(Filter(language=None)),
+            Filter(language='en'))
+        self.assertEqual(
+            Filter(language='en').combine(Filter(language='fr')),
+            Filter(language=None))
 
     def test_match(self) -> None:
         assert_type(Filter().match((Item('x'), 'y', 'z')), bool)

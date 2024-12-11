@@ -1192,7 +1192,12 @@ class TestCase(unittest.TestCase):
             subject: Fingerprint | None = None,
             property: Fingerprint | None = None,
             value: Fingerprint | None = None,
-            mask: Filter.SnakMask = Filter.SnakMask.ALL
+            snak_mask: Filter.SnakMask = Filter.SnakMask.ALL,
+            subject_mask: Filter.DatatypeMask = Filter.DatatypeMask.ENTITY,
+            property_mask: Filter.DatatypeMask = Filter.DatatypeMask.PROPERTY,
+            value_mask: Filter.DatatypeMask = Filter.DatatypeMask.VALUE,
+            rank_mask: Filter.RankMask = Filter.RankMask.ALL,
+            language: str | None = None
     ) -> None:
         self.assertIsInstance(obj, Filter)
         if subject is None:
@@ -1210,5 +1215,15 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.args[2], value)
         self.assertEqual(obj.value, value)
         self.assertEqual(obj.get_value(), value)
-        self.assertEqual(Filter.SnakMask(obj.args[3]), mask)
-        self.assertEqual(obj.snak_mask, mask)
+        self.assertEqual(Filter.SnakMask(obj.args[3]), snak_mask)
+        self.assertEqual(obj.snak_mask, snak_mask)
+        self.assertEqual(Filter.DatatypeMask(obj.args[4]), subject_mask)
+        self.assertEqual(obj.subject_mask, subject_mask)
+        self.assertEqual(Filter.DatatypeMask(obj.args[5]), property_mask)
+        self.assertEqual(obj.property_mask, property_mask)
+        self.assertEqual(Filter.DatatypeMask(obj.args[6]), value_mask)
+        self.assertEqual(obj.value_mask, value_mask)
+        self.assertEqual(Filter.RankMask(obj.args[7]), rank_mask)
+        self.assertEqual(obj.rank_mask, rank_mask)
+        self.assertEqual(obj.args[8], language)
+        self.assertEqual(obj.language, language)

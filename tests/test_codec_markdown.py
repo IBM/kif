@@ -307,21 +307,21 @@ class TestCodecMarkdown(TestCase):
 - (**FullFingerprint**)
 - (**FullFingerprint**)
 - `0b111`)''')
-        pat = Filter(wd.benzene)
-        self.assert_to_markdown(pat, '''\
+        f = Filter(wd.benzene)
+        self.assert_to_markdown(f, '''\
 (**Filter**
 - (**ValueFingerprint** (**Item** [benzene](http://www.wikidata.org/entity/Q2270)))
 - (**FullFingerprint**)
 - (**FullFingerprint**)
 - `0b111`)''')  # noqa: E501
-        pat = Filter(
+        f = Filter(
             None,
             None,
             [cast(ValueSnak, wd.country(wd.Brazil)),
              NoValueSnak(wd.date_of_birth)],
             Filter.NO_VALUE_SNAK)
         self.assert_to_markdown(
-            pat, '''\
+            f, '''\
 (**Filter**
 - (**FullFingerprint**)
 - (**FullFingerprint**)
