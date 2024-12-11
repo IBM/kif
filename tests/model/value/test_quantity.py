@@ -131,7 +131,8 @@ class Test(DeepDataValueTestCase):
     def test_instantiate(self) -> None:
         assert_type(Quantity(0).instantiate({}), Term)
         self._test_instantiate(
-            Quantity, success=[
+            Quantity,
+            success=[
                 (Quantity(0), Quantity(0),
                  {Variable('x'): String('y')}),
             ])
@@ -139,7 +140,8 @@ class Test(DeepDataValueTestCase):
     def test_match(self) -> None:
         assert_type(Quantity(0).match(Variable('x')), Optional[Theta])
         self._test_match(
-            Quantity, success=[
+            Quantity,
+            success=[
                 (Quantity(0), QuantityVariable('x'),
                  {QuantityVariable('x'): Quantity(0)}),
                 (Quantity(0, Item('x')), Quantity(Variable('x'), 'x'),

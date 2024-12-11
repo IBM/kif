@@ -40,15 +40,18 @@ class Test(ShallowDataValueTemplateTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(ExternalIdTemplate(Variable('x')).instantiate({}), Term)
-        self._test_instantiate(ExternalIdTemplate, success=[
-            (ExternalIdTemplate(Variable('x')), ExternalId('y'),
-             {StringVariable('x'): ExternalId('y')}),
-            (ExternalId(Variable('x')), ExternalId(Variable('y')),
-             {StringVariable('x'): StringVariable('y')}),
-        ], failure=[
-            (ExternalId(StringVariable('x')),
-             {StringVariable('x'): ExternalId(Variable('y'))}),
-        ])
+        self._test_instantiate(
+            ExternalIdTemplate,
+            success=[
+                (ExternalIdTemplate(Variable('x')), ExternalId('y'),
+                 {StringVariable('x'): ExternalId('y')}),
+                (ExternalId(Variable('x')), ExternalId(Variable('y')),
+                 {StringVariable('x'): StringVariable('y')}),
+            ],
+            failure=[
+                (ExternalId(StringVariable('x')),
+                 {StringVariable('x'): ExternalId(Variable('y'))}),
+            ])
 
     def test_match(self) -> None:
         assert_type(

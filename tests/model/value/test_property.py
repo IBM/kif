@@ -192,7 +192,8 @@ class Test(EntityTestCase):
     def test_instantiate(self) -> None:
         assert_type(Item('x').instantiate({}), Term)
         self._test_instantiate(
-            Property, success=[
+            Property,
+            success=[
                 (Property('x', Item),
                  Property('x', Item),
                  {IRI_Variable('x'): IRI('y')})

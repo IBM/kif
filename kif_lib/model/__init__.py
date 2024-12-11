@@ -15,6 +15,9 @@ from .annotation import (
     Rank,
     RankVariable,
     TAnnotationRecordSet,
+    TRank,
+    VRank,
+    VTRank,
 )
 from .constraint import (
     AtomicConstraint,
@@ -410,6 +413,9 @@ __all__ = (
     'Rank',
     'RankVariable',
     'TAnnotationRecordSet',
+    'TRank',
+    'VRank',
+    'VTRank',
 
     # descriptor
     'Descriptor',

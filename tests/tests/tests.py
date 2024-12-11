@@ -12,6 +12,9 @@ import unittest
 
 from kif_lib import (
     AliasProperty,
+    AnnotatedStatement,
+    AnnotatedStatementTemplate,
+    AnnotatedStatementVariable,
     AnnotationRecord,
     AnnotationRecordSet,
     ClosedTerm,
@@ -128,25 +131,27 @@ from kif_lib.model import (
     ValueSnakVariable,
     ValueTemplate,
     ValueVariable,
+    VAnnotatedStatement,
     VEntity,
     VExternalId,
     VItem,
     VLexeme,
     VNoValueSnak,
     VProperty,
+    VQualifierRecord,
     VQuantity,
+    VRank,
+    VReferenceRecordSet,
     VSnak,
     VSomeValueSnak,
     VStatement,
     VString,
     VT_IRI,
     VTDatatype,
-    VTEntity,
     VText,
     VTime,
     VTItem,
     VTProperty,
-    VTSnak,
     VTValue,
     VValue,
     VValueSnak,
@@ -788,8 +793,8 @@ class TestCase(unittest.TestCase):
     def assert_statement_template(
             self,
             obj: VStatement,
-            subject: VTEntity,
-            snak: VTSnak
+            subject: VEntity | Variable,
+            snak: VSnak | Variable
     ) -> None:
         self.assertIsInstance(obj, StatementTemplate)
         assert isinstance(obj, StatementTemplate)
@@ -800,6 +805,28 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.snak, snak)
         self.assertEqual(obj.get_snak(), snak)
         self.assertEqual(obj.args[1], snak)
+
+    def assert_annotated_statement_template(
+            self,
+            obj: VAnnotatedStatement,
+            subject: VEntity | Variable,
+            snak: VSnak | Variable,
+            qualifiers: VQualifierRecord | Variable = QualifierRecord(),
+            references: VReferenceRecordSet | Variable = ReferenceRecordSet(),
+            rank: VRank | Variable = NormalRank()
+    ) -> None:
+        self.assertIsInstance(obj, AnnotatedStatementTemplate)
+        assert isinstance(obj, AnnotatedStatementTemplate)
+        self.assert_statement_template(obj, subject, snak)
+        self.assertEqual(obj.qualifiers, qualifiers)
+        self.assertEqual(obj.get_qualifiers(), qualifiers)
+        self.assertEqual(obj.args[2], qualifiers)
+        self.assertEqual(obj.references, references)
+        self.assertEqual(obj.get_references(), references)
+        self.assertEqual(obj.args[3], references)
+        self.assertEqual(obj.rank, rank)
+        self.assertEqual(obj.get_rank(), rank)
+        self.assertEqual(obj.args[4], rank)
 
 # -- Variable --------------------------------------------------------------
 
@@ -905,6 +932,14 @@ class TestCase(unittest.TestCase):
     def assert_statement_variable(self, obj: Variable, name: str) -> None:
         self.assert_variable(obj, name)
         self.assertIsInstance(obj, StatementVariable)
+
+    def assert_annotated_statement_variable(
+            self,
+            obj: Variable,
+            name: str
+    ) -> None:
+        self.assert_statement_variable(obj, name)
+        self.assertIsInstance(obj, AnnotatedStatementVariable)
 
     def assert_snak_set_variable(
             self,
@@ -1108,6 +1143,30 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.args[1], snak)
         self.assertEqual(obj.snak, obj.args[1])
         self.assertEqual(obj.get_snak(), obj.args[1])
+
+    def assert_annotated_statement(
+            self,
+            obj: AnnotatedStatement,
+            subject: Entity,
+            snak: Snak,
+            qualifiers: QualifierRecord = QualifierRecord(),
+            references: ReferenceRecordSet = ReferenceRecordSet(),
+            rank: Rank = NormalRank()
+    ) -> None:
+        self.assert_statement(obj, subject, snak)
+        self.assertIsInstance(obj, AnnotatedStatement)
+        self.assertIsInstance(obj.args[2], QualifierRecord)
+        self.assertEqual(obj.args[2], qualifiers)
+        self.assertEqual(obj.qualifiers, obj.args[2])
+        self.assertEqual(obj.get_qualifiers(), obj.args[2])
+        self.assertIsInstance(obj.args[3], ReferenceRecordSet)
+        self.assertEqual(obj.args[3], references)
+        self.assertEqual(obj.references, obj.args[3])
+        self.assertEqual(obj.get_references(), obj.args[3])
+        self.assertIsInstance(obj.args[4], Rank)
+        self.assertEqual(obj.args[4], rank)
+        self.assertEqual(obj.rank, obj.args[4])
+        self.assertEqual(obj.get_rank(), obj.args[4])
 
 # -- Descriptor ------------------------------------------------------------
 

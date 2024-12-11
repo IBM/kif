@@ -104,7 +104,8 @@ class Test(StatementTestCase):
         assert_type(
             Statement(Item('x'), NoValueSnak('y')).instantiate({}), Term)
         self._test_instantiate(
-            Statement, success=[
+            Statement,
+            success=[
                 (Statement(Item('x'), ValueSnak('y', 'z')),
                  Statement(Item('x'), ValueSnak('y', 'z')),
                  {Variable('x'): String('y')})
@@ -115,7 +116,8 @@ class Test(StatementTestCase):
             Statement(Item('x'), ValueSnak('y', 'z')).match(
                 Statement(Item('x'), ValueSnak('y', 'z'))), Optional[Theta])
         self._test_match(
-            Statement, success=[
+            Statement,
+            success=[
                 (Statement(Item('x'), ValueSnak('y', 'z')),
                  Statement(Item('x'), ValueSnak('y', 'z')), {}),
                 (Statement(Item('x'), SomeValueSnak('y')),

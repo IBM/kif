@@ -129,7 +129,8 @@ class Test(ValueTestCase):
     def test_instantiate(self) -> None:
         assert_type(ItemDatatype().instantiate({}), Term)
         self._test_instantiate(
-            Datatype, success=[(ItemDatatype(), ItemDatatype(), {})])
+            Datatype,
+            success=[(ItemDatatype(), ItemDatatype(), {})])
 
     def test_match(self) -> None:
         assert_type(ItemDatatype().match(Variable('x')), Optional[Theta])

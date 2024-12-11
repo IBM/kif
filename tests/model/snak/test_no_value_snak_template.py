@@ -129,7 +129,8 @@ class Test(SnakTemplateTestCase):
                  NoValueSnak(Property(Variable('z'), Item)),
                  {IRI_Variable('x'): IRI_Variable('z'),
                   DatatypeVariable('y'): ItemDatatype()}),
-            ], failure=[
+            ],
+            failure=[
                 (NoValueSnak(Variable('x')), SomeValueSnak('x')),
                 (NoValueSnak(Variable('x')), ValueSnak('x', 'y')),
             ])

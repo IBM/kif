@@ -39,20 +39,25 @@ class Test(ShallowDataValueTemplateTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(StringTemplate(Variable('x')).instantiate({}), Term)
-        self._test_instantiate(StringTemplate, failure=[
-            (String(StringVariable('x')),
-             {StringVariable('x'): String(Variable('y'))}),
-        ])
+        self._test_instantiate(
+            StringTemplate,
+            failure=[
+                (String(StringVariable('x')),
+                 {StringVariable('x'): String(Variable('y'))}),
+            ])
 
     def test_match(self) -> None:
         assert_type(
             StringTemplate(Variable('x')).match(String('x')), Optional[Theta])
-        self._test_match(StringTemplate, success=[
-            (String(Variable('x')), StringVariable('y'),
-             {StringVariable('y'): String(StringVariable('x'))}),
-        ], failure=[
-            (String(Variable('x')), ExternalId('y')),
-        ])
+        self._test_match(
+            StringTemplate,
+            success=[
+                (String(Variable('x')), StringVariable('y'),
+                 {StringVariable('y'): String(StringVariable('x'))}),
+            ],
+            failure=[
+                (String(Variable('x')), ExternalId('y')),
+            ])
 
 
 if __name__ == '__main__':

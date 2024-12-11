@@ -88,11 +88,13 @@ class Test(ShallowDataValueTestCase):
 
     def test_instantiate(self) -> None:
         assert_type(Text('x').instantiate({}), Term)
-        self._test_instantiate(Text, success=[
-            (Text('x', 'y'),
-             Text('x', 'y'),
-             {StringVariable('x'): String('y')})
-        ])
+        self._test_instantiate(
+            Text,
+            success=[
+                (Text('x', 'y'),
+                 Text('x', 'y'),
+                 {StringVariable('x'): String('y')})
+            ])
 
     def test_match(self) -> None:
         assert_type(Text('x').match(Variable('x')), Optional[Theta])

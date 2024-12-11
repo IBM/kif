@@ -95,7 +95,8 @@ class Test(SnakTestCase):
     def test_instantiate(self) -> None:
         assert_type(NoValueSnak('x').instantiate({}), Term)
         self._test_instantiate(
-            NoValueSnak, success=[
+            NoValueSnak,
+            success=[
                 (NoValueSnak('x'), NoValueSnak('x'),
                  {Variable('x'): String('y')})
             ])
@@ -104,7 +105,8 @@ class Test(SnakTestCase):
         assert_type(
             NoValueSnak('x').match(NoValueSnak('x')), Optional[Theta])
         self._test_match(
-            NoValueSnak, success=[
+            NoValueSnak,
+            success=[
                 (NoValueSnak('x'), NoValueSnak('x'), {}),
                 (NoValueSnak('x'), SnakVariable('x'),
                  {SnakVariable('x'): NoValueSnak('x')}),

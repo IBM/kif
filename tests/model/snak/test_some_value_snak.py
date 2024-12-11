@@ -95,7 +95,8 @@ class Test(SnakTestCase):
     def test_instantiate(self) -> None:
         assert_type(SomeValueSnak('x').instantiate({}), Term)
         self._test_instantiate(
-            SomeValueSnak, success=[
+            SomeValueSnak,
+            success=[
                 (SomeValueSnak('x'),
                  SomeValueSnak('x'),
                  {Variable('x'): String('y')})
@@ -105,13 +106,15 @@ class Test(SnakTestCase):
         assert_type(
             SomeValueSnak('x').match(SomeValueSnak('x')), Optional[Theta])
         self._test_match(
-            SomeValueSnak, success=[
+            SomeValueSnak,
+            success=[
                 (SomeValueSnak('x'), SomeValueSnak('x'), {}),
                 (SomeValueSnak('x'), SnakVariable('x'),
                  {SnakVariable('x'): SomeValueSnak('x')}),
                 (SomeValueSnak('x'), SomeValueSnak(Variable('x')),
                  {PropertyVariable('x'): Property('x')}),
-            ], failure=[
+            ],
+            failure=[
                 (SomeValueSnak('x'), NoValueSnak('x')),
                 (SomeValueSnak('x'), NoValueSnakVariable('x')),
             ])

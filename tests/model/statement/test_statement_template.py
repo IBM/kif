@@ -242,7 +242,8 @@ class Test(StatementTemplateTestCase):
                  {EntityVariable('x'): Item('x'),
                   PropertyVariable('y'): Property('y', Quantity),
                   ValueVariable('z'): Quantity(Variable('w'))}),
-            ], failure=[
+            ],
+            failure=[
                 (Statement(ItemVariable('x'), ValueSnak('y', 'z')),
                  Statement(Property('x'), ValueSnak('y', 'z'))),
                 (Statement(Variable('x'), ValueSnak('y', 'z')),

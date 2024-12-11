@@ -79,9 +79,11 @@ class Test(ShallowDataValueTestCase):
 
     def test_match(self) -> None:
         assert_type(ExternalId('x').match(Variable('x')), Optional[Theta])
-        self._test_match(ExternalId, success=[
-            (ExternalId('x'), StringVariable('x'),
-             {StringVariable('x'): ExternalId('x')})])
+        self._test_match(
+            ExternalId,
+            success=[
+                (ExternalId('x'), StringVariable('x'),
+                 {StringVariable('x'): ExternalId('x')})])
 
 
 if __name__ == '__main__':

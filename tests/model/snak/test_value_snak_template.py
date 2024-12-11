@@ -220,7 +220,8 @@ class Test(SnakTemplateTestCase):
                  {IRI_Variable('x'): IRI('x'),
                   DatatypeVariable('y'): QuantityDatatype(),
                   QuantityVariable('z'): Quantity(0)}),
-            ], failure=[
+            ],
+            failure=[
                 (ValueSnak(Variable('x'), 'y'), NoValueSnak('x')),
                 (ValueSnak(Variable('x'), Variable('y')), SomeValueSnak('x')),
             ])
