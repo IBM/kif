@@ -48,12 +48,6 @@ from .value import (
     VTEntity,
 )
 
-TAnnotations: TypeAlias =\
-    Union['Annotations',
-          tuple[VTQualifierRecord | None,
-                VTReferenceRecordSet | None,
-                VTRank | None]]
-
 TStatement: TypeAlias =\
     Union['Statement',
           tuple[TEntity, TSnak],
@@ -72,8 +66,8 @@ VTAnnotatedStatement: TypeAlias =\
     Union[Variable, VAnnotatedStatement, TAnnotatedStatement]
 
 
-class Annotations(TypedDict, total=False):
-    """Statement annotations."""
+class Annotation(TypedDict, total=False):
+    """Statement annotation."""
 
     qualifiers: VTQualifierRecord
     references: VTReferenceRecordSet
@@ -94,11 +88,8 @@ class StatementTemplate(Template):
     def __init__(self, subject: VTEntity, snak: VTSnak) -> None:
         super().__init__(subject, snak)
 
-    def __matmul__(self, other: TAnnotations) -> AnnotatedStatementTemplate:
-        if isinstance(other, tuple):
-            return self.annotate(*other)
-        else:
-            return self.annotate(**other)
+    def __matmul__(self, other: Annotation) -> AnnotatedStatementTemplate:
+        return self.annotate(**other)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -219,11 +210,8 @@ class Statement(
     def __init__(self, subject: VTEntity, snak: VTSnak) -> None:
         super().__init__(subject, snak)
 
-    def __matmul__(self, other: TAnnotations) -> AnnotatedStatement:
-        if isinstance(other, tuple):
-            return self.annotate(*other)
-        else:
-            return self.annotate(**other)
+    def __matmul__(self, other: Annotation) -> AnnotatedStatement:
+        return self.annotate(**other)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:

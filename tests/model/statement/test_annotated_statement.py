@@ -183,7 +183,7 @@ class Test(StatementTestCase):
                  AnnotatedStatement(Variable('x'), Variable('y')),
                  {EntityVariable('x'): Property('x'),
                   SnakVariable('y'): NoValueSnak('y')}),
-                (Property('x')(Item('y'), 'z')@(
+                (Property('x')(Item('y'), 'z').annotate(
                     Variable('a'), Variable('b'), Variable('c')),
                  AnnotatedStatement(
                      Item('y'), Property('x')('z'),
