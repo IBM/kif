@@ -368,7 +368,7 @@ class Test(StatementTemplateTestCase):
             stmt[0], stmt[1], references=ReferenceRecordSet(
                 ReferenceRecord(Property('q')(1))))
         self.assert_annotated_statement_template(
-            stmt@{'rank': PreferredRank},
+            stmt@{'rank': PreferredRank},  # pyright: ignore
             stmt[0], stmt[1], rank=PreferredRank())
         self.assert_annotated_statement_template(
             stmt.annotate(rank=PreferredRank)@{  # pyright: ignore

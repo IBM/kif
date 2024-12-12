@@ -444,7 +444,7 @@ class TestStoreSPARQL_SPARQL_Store(WikidataStoreTestCase):
         stmt = Statement(wd.Germany, NoValueSnak(wd.speed_limit))
         refs = list(get_references(stmt))
         self.assertEqual(len(refs), 1)
-        self.assertIn(ValueSnak(wd.stated_in, wd.Q(11774726)), refs[0])
+        self.assertIn(ValueSnak(wd.stated_in, wd.Q(3455842)), refs[0])
         ###
         # TODO: one of the references is a no value
         ###

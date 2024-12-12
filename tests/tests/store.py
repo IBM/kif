@@ -7,7 +7,7 @@ import os
 import unittest
 
 from kif_lib import (
-    AnnotationRecordSet,
+    AnnotatedStatement,
     Entity,
     Filter,
     Item,
@@ -388,16 +388,15 @@ class StoreTestCase(TestCase):
         self.assertEqual(set(stmts), res)
         res_annotated = set(kb.filter_annotated(
             subject, property, value, snak_mask, filter, limit))
-        for i, (stmt, annots) in enumerate(res_annotated):
-            self.assertIn(stmt, set(stmts))
-            self.assertIsInstance(annots, AnnotationRecordSet)
+        for stmt in res_annotated:
+            self.assertIsInstance(stmt, AnnotatedStatement)
+            self.assertIn(Statement(*stmt.claim), set(stmts))
         for stmt in stmts:
             res_annotated_snak = list(kb.filter_annotated(
                 stmt.subject, snak=stmt.snak))
             self.assertEqual(len(res_annotated_snak), 1)
-            self.assertEqual(res_annotated_snak[0][0], stmt)
-            self.assertIsInstance(
-                res_annotated_snak[0][1], AnnotationRecordSet)
+            self.assertEqual(res_annotated_snak[0].claim, stmt.claim)
+            self.assertIsInstance(res_annotated_snak[0], AnnotatedStatement)
             break               # check only the first
         if (filter is None
             and property is not None and value is not None

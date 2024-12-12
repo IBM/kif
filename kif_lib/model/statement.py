@@ -136,6 +136,19 @@ class StatementTemplate(Template):
         """
         return self.args[1]
 
+    @property
+    def claim(self) -> tuple[VEntity, VSnak]:
+        """The claim of statement template."""
+        return self.get_claim()
+
+    def get_claim(self) -> tuple[VEntity, VSnak]:
+        """Gets the claim of statement template.
+
+        Returns:
+           Statement template claim: subject, snak.
+        """
+        return self.subject, self.snak
+
     def annotate(
             self,
             qualifiers: VTQualifierRecord | None = None,
@@ -251,6 +264,19 @@ class Statement(
            Snak.
         """
         return self.args[1]
+
+    @property
+    def claim(self) -> tuple[Entity, Snak]:
+        """The claim of statement."""
+        return self.get_claim()
+
+    def get_claim(self) -> tuple[Entity, Snak]:
+        """Gets the claim of statement.
+
+        Returns:
+           Statement claim: subject, snak.
+        """
+        return self.subject, self.snak
 
     def annotate(
             self,
@@ -372,6 +398,7 @@ class AnnotatedStatementTemplate(StatementTemplate):
         """
         return self.args[4]
 
+    @override
     def annotate(
             self,
             qualifiers: VTQualifierRecord | None = None,

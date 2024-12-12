@@ -9,6 +9,7 @@ from ..context import Context
 from ..error import Error as KIF_Error
 from ..error import ShouldNotGetHere
 from ..model import (
+    AnnotatedStatement,
     AnnotationRecord,
     AnnotationRecordSet,
     ClosedTerm,
@@ -1074,11 +1075,8 @@ class Store(Set):
             snak: Snak | None = None,
             filter: Filter | None = None,
             limit: int | None = None
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet]]:
+    ) -> Iterator[AnnotatedStatement]:
         """:meth:`Store.filter` with annotations.
-
-        Same as :meth:`Store.filter` followed by
-        :meth:`Store.get_annotations`.
 
         Parameters:
            subject: Entity.
@@ -1090,7 +1088,7 @@ class Store(Set):
            limit: Maximum number of statements to return .
 
         Returns:
-           An iterator of pairs "(statement, annotation record set)".
+           An iterator of annotated statements matching filter.
         """
         return self._filter_annotated_tail(self.filter(
             subject, property, value, snak_mask, snak, filter, limit))
@@ -1098,10 +1096,14 @@ class Store(Set):
     def _filter_annotated_tail(
             self,
             it: Iterator[Statement]
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet]]:
+    ) -> Iterator[AnnotatedStatement]:
         for stmt, annots in self.get_annotations(it):
             assert annots is not None
-            yield stmt, annots
+            for annot in annots:
+                yield stmt.annotate(
+                    qualifiers=annot.qualifiers,
+                    references=annot.references,
+                    rank=annot.rank)
 
     def get_annotations(
             self,

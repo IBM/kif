@@ -59,8 +59,7 @@ class TestStoreSPARQL_SPARQL_StoreStatements(WikidataStoreTestCase):
         self.assertEqual(len(res1), 1)
         res2 = list(kb.filter_annotated(
             wd.Q(213611), wd.P(1411), value=wd.Q(22752868)))
-        self.assertEqual(len(res2), 1)
-        self.assertEqual(len(res2[0][1]), 6)
+        self.assertEqual(len(res2), 6)
 
     def test_filter_subject_is_item(self) -> None:
         kb = self.new_Store()
