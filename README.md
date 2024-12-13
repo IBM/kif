@@ -12,8 +12,8 @@ KIF is a knowledge integration framework based on
 [Wikidata](https://www.wikidata.org/).
 
 * Using KIF, one can easily combine heterogeneous knowledge sources into a
-  *virtual knowledge base*.  This behaves like an extended Wikidata and can
-  be queried uniformly using a simple but expressive *pattern language*.
+  *virtual knowledge base* which behaves like an "extended Wikidata" and
+  which can be queried through a simple but expressive *pattern language*.
 
 * KIF leverages [Wikidata's data
   model](https://www.wikidata.org/wiki/Wikidata:Data_model) plus
@@ -21,7 +21,7 @@ KIF is a knowledge integration framework based on
   knowledge sources while keeping track of the context and provenance of
   their statements.
 
-* KIF pattern language is based on Wikidata's data model and is embedded in
+* KIF's pattern language is based on Wikidata's data model and is embedded in
   Python—its constructs can be created and operated programmatically from
   within Python.
 
