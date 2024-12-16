@@ -309,10 +309,10 @@ class SPARQL_MapperStore(
                 assert self._cache_get_wdss(stmt)
                 annots: set[Statement.Annotation] = set()
                 for spec in self.mapping.specs.get(stmt.snak.property, ()):
-                    annots.add(spec.kwargs.get('annotations', (
+                    annots |= set(spec.kwargs.get('annotations', [(
                         QualifierRecord(),
                         ReferenceRecordSet(),
-                        NormalRank())))
+                        NormalRank())]))
                 if not annots:
                     annots.add((
                         QualifierRecord(),
