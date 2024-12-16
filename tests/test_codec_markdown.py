@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from kif_lib import (
-    AnnotationRecord,
     Deprecated,
     ExternalIdDatatype,
     Filter,
@@ -226,38 +225,6 @@ class TestCodecMarkdown(TestCase):
         self.assert_to_markdown(
             wd.mass(wd.benzene, Quantity(0)),
             self.md_sexp('Statement', wd.benzene, wd.mass(Quantity(0))))
-
-    def test_annotation_record_to_markdown(self) -> None:
-        annots = AnnotationRecord([], [], Normal)
-        self.assert_to_markdown(annots, '''\
-(**AnnotationRecord**
-- (**SnakSet**)
-- (**ReferenceRecordSet**)
-- **NormalRank**)''')
-        annots = AnnotationRecord([NoValueSnak(Property('p'))], [], Normal)
-        self.assert_to_markdown(annots, '''\
-(**AnnotationRecord**
-- (**SnakSet**
-  - (**NoValueSnak** (**Property** [p](http://p))))
-- (**ReferenceRecordSet**)
-- **NormalRank**)''')
-        annots = AnnotationRecord(
-            [NoValueSnak(Property('p')),
-             cast(ValueSnak, Property('q')(IRI('x')))],
-            [ReferenceRecord(NoValueSnak(Property('q'))),
-             ReferenceRecord(SomeValueSnak(Property('q')))],
-            Deprecated)
-        self.assert_to_markdown(annots, '''\
-(**AnnotationRecord**
-- (**SnakSet**
-  - (**NoValueSnak** (**Property** [p](http://p)))
-  - (**ValueSnak** (**Property** [q](http://q)) [x](http://x)))
-- (**ReferenceRecordSet**
-  - (**ReferenceRecord**
-    - (**NoValueSnak** (**Property** [q](http://q))))
-  - (**ReferenceRecord**
-    - (**SomeValueSnak** (**Property** [q](http://q)))))
-- **DeprecatedRank**)''')
 
     def test_rank_to_markdown(self) -> None:
         self.assert_to_markdown(Preferred, self.md_sexp('PreferredRank'))

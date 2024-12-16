@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-from .annotation_record import AnnotationRecord
-from .annotation_record_set import AnnotationRecordSet, TAnnotationRecordSet
 from .rank import (
     Deprecated,
     DeprecatedRank,
@@ -20,14 +18,6 @@ from .rank import (
 )
 
 __all__ = (
-    # annotation record
-    'AnnotationRecord',
-
-    # annotation record set
-    'AnnotationRecordSet',
-    'TAnnotationRecordSet',
-
-    # rank
     'Deprecated',
     'DeprecatedRank',
     'Normal',

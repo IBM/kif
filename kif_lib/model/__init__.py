@@ -4,8 +4,6 @@
 from __future__ import annotations
 
 from .annotation import (
-    AnnotationRecord,
-    AnnotationRecordSet,
     Deprecated,
     DeprecatedRank,
     Normal,
@@ -14,7 +12,6 @@ from .annotation import (
     PreferredRank,
     Rank,
     RankVariable,
-    TAnnotationRecordSet,
     TRank,
     VRank,
     VTRank,
@@ -402,8 +399,6 @@ __all__ = (
     'VTStatement',
 
     # annotation
-    'AnnotationRecord',
-    'AnnotationRecordSet',
     'Deprecated',
     'DeprecatedRank',
     'Normal',
@@ -412,7 +407,6 @@ __all__ = (
     'PreferredRank',
     'Rank',
     'RankVariable',
-    'TAnnotationRecordSet',
     'TRank',
     'VRank',
     'VTRank',

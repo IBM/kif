@@ -15,8 +15,6 @@ from kif_lib import (
     AnnotatedStatement,
     AnnotatedStatementTemplate,
     AnnotatedStatementVariable,
-    AnnotationRecord,
-    AnnotationRecordSet,
     ClosedTerm,
     ClosedTermSet,
     Datatype,
@@ -350,14 +348,6 @@ class TestCase(unittest.TestCase):
     ) -> None:
         self.assertIsInstance(obj, ReferenceRecordSet)
         self.assert_closed_term_set(obj, *refs)
-
-    def assert_annotation_record_set(
-            self,
-            obj: AnnotationRecordSet,
-            *annots: AnnotationRecord
-    ) -> None:
-        self.assertIsInstance(obj, AnnotationRecordSet)
-        self.assert_closed_term_set(obj, *annots)
 
 # -- Datatype --------------------------------------------------------------
 
@@ -1087,28 +1077,6 @@ class TestCase(unittest.TestCase):
         self.assert_snak(obj, prop)
 
 # -- Annotations -----------------------------------------------------------
-
-    def assert_annotation_record(
-            self,
-            obj: AnnotationRecord,
-            quals: SnakSet,
-            refs: ReferenceRecordSet,
-            rank: Rank
-    ) -> None:
-        self.assertIsInstance(obj, AnnotationRecord)
-        self.assert_kif_object(obj)
-        self.assertIsInstance(obj.args[0], SnakSet)
-        self.assertEqual(obj.args[0], quals)
-        self.assertEqual(obj.qualifiers, obj.args[0])
-        self.assertEqual(obj.get_qualifiers(), obj.args[0])
-        self.assertIsInstance(obj.args[1], ReferenceRecordSet)
-        self.assertEqual(obj.args[1], refs)
-        self.assertEqual(obj.references, obj.args[1])
-        self.assertEqual(obj.get_references(), obj.args[1])
-        self.assertIsInstance(obj.args[2], Rank)
-        self.assertEqual(obj.args[2], rank)
-        self.assertEqual(obj.rank, obj.args[2])
-        self.assertEqual(obj.get_rank(), obj.args[2])
 
     def assert_rank(self, obj: Rank) -> None:
         self.assertIsInstance(obj, Rank)

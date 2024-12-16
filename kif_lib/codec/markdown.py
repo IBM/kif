@@ -7,7 +7,7 @@ import decimal
 import re
 
 from ..model import (
-    AnnotationRecord,
+    AnnotatedStatement,
     ClosedTermSet,
     CompoundFingerprint,
     Datatype,
@@ -112,6 +112,14 @@ class MarkdownEncoder(
             yield from self._iterencode(obj.subject, indent)
             yield SP
             yield from self._iterencode(obj.snak, indent)
+            if isinstance(obj, AnnotatedStatement):
+                sep = f'{NL}{2 * SP * indent}-{SP}'
+                yield sep
+                yield from self._iterencode(obj.qualifiers, indent + 1)
+                yield sep
+                yield from self._iterencode(obj.references, indent + 1)
+                yield sep
+                yield from self._iterencode(obj.rank, indent + 1)
             yield from self._iterencode_kif_object_end(obj)
         elif isinstance(obj, Template):
             yield from self._iterencode_kif_object_start(obj)
@@ -122,15 +130,6 @@ class MarkdownEncoder(
             yield from self._iterencode_kif_object_end(obj)
         elif isinstance(obj, Variable):
             yield from self._iterencode_variable(obj)
-        elif isinstance(obj, AnnotationRecord):
-            yield from self._iterencode_kif_object_start(obj, '')
-            sep = f'{NL}{2 * SP * indent}-{SP}'
-            for name in ['qualifiers', 'references', 'rank']:
-                yield sep
-                yield from self._iterencode(
-                    getattr(obj, name), indent + 1)
-            yield ''
-            yield from self._iterencode_kif_object_end(obj)
         elif isinstance(obj, Rank):
             yield self._encode_kif_object_name(obj)
         elif isinstance(obj, PlainDescriptor):

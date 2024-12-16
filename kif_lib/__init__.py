@@ -12,8 +12,6 @@ from .model import (
     AnnotatedStatement,
     AnnotatedStatementTemplate,
     AnnotatedStatementVariable,
-    AnnotationRecord,
-    AnnotationRecordSet,
     ClosedPattern,
     ClosedTerm,
     ClosedTermSet,
@@ -273,8 +271,6 @@ __all__ = (
     'StatementVariable',
 
     # model.annotation
-    'AnnotationRecord',
-    'AnnotationRecordSet',
     'Deprecated',
     'DeprecatedRank',
     'Normal',
