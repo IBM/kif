@@ -14,8 +14,6 @@ from .. import itertools
 from .. import namespace as NS
 from ..compiler.sparql import SPARQL_FilterCompiler, SPARQL_PatternCompiler
 from ..model import (
-    AnnotationRecord,
-    AnnotationRecordSet,
     ClosedPattern,
     ClosedTerm,
     Datatype,
@@ -34,9 +32,11 @@ from ..model import (
     Pattern,
     Property,
     PropertyDescriptor,
+    QualifierRecord,
     Quantity,
     Rank,
     ReferenceRecord,
+    ReferenceRecordSet,
     Snak,
     SomeValueSnak,
     Statement,
@@ -769,7 +769,7 @@ At line {line}, column {column}:
     def _get_annotations(
             self,
             stmts: Iterable[Statement]
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
+    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
         for batch in self._batched(stmts):
             wds_batch: list[T_WDS] = []
             stmt2wdss: dict[Statement, Set[T_WDS]] = {}
@@ -830,9 +830,11 @@ At line {line}, column {column}:
                                 ReferenceRecord, wds2refs[wds].values()))
                         else:
                             refs = set()
-                        annots.append(AnnotationRecord(
-                            quals, refs, wds2rank[wds]))
-                    yield stmt, AnnotationRecordSet(*annots)
+                        annots.append((
+                            QualifierRecord(*quals),
+                            ReferenceRecordSet(*refs),
+                            wds2rank[wds]))
+                    yield stmt, set(annots)
                 else:
                     yield stmt, None
 

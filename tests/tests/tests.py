@@ -1113,15 +1113,15 @@ class TestCase(unittest.TestCase):
     def assert_rank(self, obj: Rank) -> None:
         self.assertIsInstance(obj, Rank)
 
-    def assert_preferred_rank(self, obj: PreferredRank) -> None:
+    def assert_preferred_rank(self, obj: Rank) -> None:
         self.assertIsInstance(obj, PreferredRank)
         self.assert_rank(obj)
 
-    def assert_normal_rank(self, obj: NormalRank) -> None:
+    def assert_normal_rank(self, obj: Rank) -> None:
         self.assertIsInstance(obj, NormalRank)
         self.assert_rank(obj)
 
-    def assert_deprecated_rank(self, obj: DeprecatedRank) -> None:
+    def assert_deprecated_rank(self, obj: Rank) -> None:
         self.assertIsInstance(obj, DeprecatedRank)
         self.assert_rank(obj)
 

@@ -7,8 +7,6 @@ import re
 
 from ... import itertools
 from ...model import (
-    AnnotationRecord,
-    AnnotationRecordSet,
     ExternalIdDatatype,
     Filter,
     IRI,
@@ -16,10 +14,13 @@ from ...model import (
     Item,
     ItemDatatype,
     KIF_Object,
+    NormalRank,
     Property,
+    QualifierRecord,
     Quantity,
     QuantityDatatype,
     ReferenceRecord,
+    ReferenceRecordSet,
     Statement,
     String,
     StringDatatype,
@@ -274,7 +275,7 @@ class PubChemMapping(SPARQL_Mapping):
     def _get_toxicity(
             cls,
             cids: Iterable[str]
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet]]:
+    ) -> Iterator[tuple[Statement, set[Statement.Annotation]]]:
         import json
 
         import httpx
@@ -300,7 +301,7 @@ class PubChemMapping(SPARQL_Mapping):
     def _parse_toxicity(
             cls,
             response: Iterable[dict[str, Any]]
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet]]:
+    ) -> Iterator[tuple[Statement, set[Statement.Annotation]]]:
         for entry in response:
             assert isinstance(entry, dict)
             try:
@@ -365,7 +366,7 @@ class PubChemMapping(SPARQL_Mapping):
                 'skin': wd.skin_absorption,
                 'subcutaneous': wd.subcutaneous_injection,
             }
-    ) -> AnnotationRecordSet:
+    ) -> set[Statement.Annotation]:
         try:
             quals = []
             if 'effect' in entry:
@@ -382,12 +383,12 @@ class PubChemMapping(SPARQL_Mapping):
             ref = []
             if 'reference' in entry:
                 ref.append(wd.stated_in(Text(entry['reference'])))
-            return AnnotationRecordSet(
-                AnnotationRecord(
-                    quals,
-                    ReferenceRecord(*ref)))
+            return {(
+                QualifierRecord(*quals),
+                ReferenceRecordSet(ReferenceRecord(*ref)),
+                NormalRank())}
         except (KeyError, ValueError):
-            return AnnotationRecordSet(AnnotationRecord())  # skip
+            return {(QualifierRecord(), ReferenceRecordSet(), NormalRank())}
 
     @classmethod
     def get_annotations_post_hook(
@@ -395,13 +396,12 @@ class PubChemMapping(SPARQL_Mapping):
             store: Store,
             stmts: Iterable[Statement],
             data: Any,
-            it: Iterator[tuple[Statement, AnnotationRecordSet | None]]
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
+            it: Iterator[tuple[Statement, set[Statement.Annotation] | None]]
+    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
         for stmt, annots in it:
             if stmt.snak.property in cls._toxicity_properties_inv:
                 saved_annots = store._cache.get(stmt, 'annotations')
                 if saved_annots is not None:
-                    assert isinstance(saved_annots, AnnotationRecordSet)
                     annots = saved_annots
             yield stmt, annots
 
@@ -857,9 +857,10 @@ def wd_manufacturer(
     subject_prefix=PubChemMapping.COMPOUND,
     value_datatype=XSD.decimal,
     value_datatype_encoded=XSD.float,
-    annotations=[
-        AnnotationRecord([ValueSnak(
-            wd.based_on_heuristic, wd.machine_learning)])])
+    annotations=[(
+        QualifierRecord(ValueSnak(wd.based_on_heuristic, wd.machine_learning)),
+        ReferenceRecordSet(),
+        NormalRank())])
 def wd_partition_coefficient_water_octanol(
         spec: Spec,
         q: Builder,

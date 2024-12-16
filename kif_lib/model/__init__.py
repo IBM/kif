@@ -113,7 +113,6 @@ from .statement import (
     AnnotatedStatement,
     AnnotatedStatementTemplate,
     AnnotatedStatementVariable,
-    Annotation,
     Statement,
     StatementTemplate,
     StatementVariable,
@@ -403,7 +402,6 @@ __all__ = (
     'VTStatement',
 
     # annotation
-    'Annotation',
     'AnnotationRecord',
     'AnnotationRecordSet',
     'Deprecated',

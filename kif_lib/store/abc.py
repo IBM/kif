@@ -10,8 +10,6 @@ from ..error import Error as KIF_Error
 from ..error import ShouldNotGetHere
 from ..model import (
     AnnotatedStatement,
-    AnnotationRecord,
-    AnnotationRecordSet,
     ClosedTerm,
     Descriptor,
     Entity,
@@ -1101,14 +1099,14 @@ class Store(Set):
             assert annots is not None
             for annot in annots:
                 yield stmt.annotate(
-                    qualifiers=annot.qualifiers,
-                    references=annot.references,
-                    rank=annot.rank)
+                    qualifiers=annot[0],
+                    references=annot[1],
+                    rank=annot[2])
 
     def get_annotations(
             self,
             stmts: Statement | Iterable[Statement]
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
+    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
         """Gets annotation records of statements.
 
         Parameters:
@@ -1124,7 +1122,7 @@ class Store(Set):
     def _get_annotations_tail(
             self,
             stmts: Statement | Iterable[Statement]
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
+    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
         if isinstance(stmts, Statement):
             it = self._get_annotations_with_hooks((stmts,))
         else:
@@ -1138,23 +1136,20 @@ class Store(Set):
 
     def _get_annotations_attach_extra_references(
             self,
-            it: Iterator[tuple[Statement, AnnotationRecordSet | None]]
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
+            it: Iterator[tuple[Statement, set[Statement.Annotation] | None]]
+    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
         for stmt, annots in it:
             if annots is None:
                 yield stmt, annots
             else:
-                def patch(a: AnnotationRecord):
-                    return AnnotationRecord(
-                        a.qualifiers,
-                        a.references.union(self.extra_references),
-                        a.rank)
-                yield stmt, AnnotationRecordSet(*map(patch, annots))
+                def patch(a: Statement.Annotation):
+                    return (a[0], a[1].union(self.extra_references), a[2])
+                yield stmt, set(map(patch, annots))
 
     def _get_annotations_with_hooks(
             self,
             stmts: Iterable[Statement]
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
+    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
         return self._get_annotations_post_hook(
             *self._get_annotations_pre_hook(stmts),
             self._get_annotations(stmts))
@@ -1169,14 +1164,14 @@ class Store(Set):
             self,
             stmts: Iterable[Statement],
             data: Any,
-            it: Iterator[tuple[Statement, AnnotationRecordSet | None]]
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
+            it: Iterator[tuple[Statement, set[Statement.Annotation] | None]]
+    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
         return it
 
     def _get_annotations(
             self,
             stmts: Iterable[Statement]
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
+    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
         return map(lambda stmt: (stmt, None), stmts)
 
 # -- Descriptors -----------------------------------------------------------

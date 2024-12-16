@@ -4,17 +4,17 @@
 from __future__ import annotations
 
 from kif_lib import (
-    AnnotationRecord,
-    AnnotationRecordSet,
     ExternalId,
     Filter,
     Item,
     KIF_Object,
-    Normal,
+    NormalRank,
     NoValueSnak,
-    Preferred,
+    PreferredRank,
+    QualifierRecord,
     Quantity,
     ReferenceRecord,
+    ReferenceRecordSet,
     SomeValueSnak,
     Statement,
     Store,
@@ -460,51 +460,47 @@ class TestStoreRDF(StoreTestCase):
         self.store_test_get_annotations(
             kb,
             [(wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),  # 0
-              AnnotationRecordSet(
-                  AnnotationRecord(
-                      [],
-                      [ReferenceRecord(
+              {(
+                  QualifierRecord(),
+                  ReferenceRecordSet(
+                      ReferenceRecord(
                           wd.stated_in(wd.PubChem),
                           wd.language_of_work_or_name(wd.English),
                           wd.PubChem_CID.replace(KIF_Object.KEEP, None)('241'),
                           wd.title(Text('benzene', 'en')),
                           wd.retrieved(Time(
                               '2016-10-19', 11, 0,
-                              wd.proleptic_Gregorian_calendar)))],
-                      Normal))),
+                              wd.proleptic_Gregorian_calendar)))),
+                  NormalRank())}),
              # 1
              (wd.mass(wd.benzene, Quantity('78.046950192')), None),
              # 2
              (wd.density(wd.benzene, Quantity(
                  '.88', wd.gram_per_cubic_centimetre, '.87', '.89')),
-              AnnotationRecordSet(
-                  AnnotationRecord(
-                      [wd.phase_of_matter(wd.liquid),
-                       wd.temperature(Quantity(
-                           20, wd.degree_Celsius, 19, 21))],
-                      [ReferenceRecord(
-                          wd.stated_in(wd.Hazardous_Substances_Data_Bank),
-                          wd.HSDB_ID.replace(KIF_Object.KEEP, None)(
-                              '35#section=TSCA-Test-Submissions'))],
-                      Normal))),
+              {(QualifierRecord(
+                  wd.phase_of_matter(wd.liquid),
+                  wd.temperature(Quantity(20, wd.degree_Celsius, 19, 21))),
+                ReferenceRecordSet(
+                    ReferenceRecord(
+                        wd.stated_in(wd.Hazardous_Substances_Data_Bank),
+                        wd.HSDB_ID.replace(KIF_Object.KEEP, None)(
+                            '35#section=TSCA-Test-Submissions'))),
+                NormalRank())}),
              # 3
              (Statement(wd.Adam, NoValueSnak(wd.date_of_birth)),
-              AnnotationRecordSet(
-                  AnnotationRecord(
-                      [],
-                      [ReferenceRecord(
-                          wd.reference_URL.replace(KIF_Object.KEEP, None)(
-                              'http://islamqa.info/ar/20907'))],
-                      Preferred))),
+              {(QualifierRecord(),
+                ReferenceRecordSet(
+                    ReferenceRecord(
+                        wd.reference_URL.replace(KIF_Object.KEEP, None)(
+                            'http://islamqa.info/ar/20907'))),
+                PreferredRank())}),
              # 4
              (wd.date_of_birth(wd.Adam, Time(
                  '4003-01-01', 9, 0, wd.proleptic_Julian_calendar)), None),
              # 5
              (wd.demonym(wd.Latin_America, Text('Latinoamericana', 'es')),
-              AnnotationRecordSet(
-                  AnnotationRecord(
-                      [wd.applies_to_part(wd.feminine)],
-                      [], Normal))),
+              {(QualifierRecord(wd.applies_to_part(wd.feminine)),
+                ReferenceRecordSet(), NormalRank())})
              ],
             wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),
             wd.mass(wd.benzene, Quantity('78.046950192')),
@@ -530,41 +526,39 @@ class TestStoreRDF(StoreTestCase):
         self.store_test_get_annotations(
             kb,
             [(wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),  # 0
-              AnnotationRecordSet(
-                  AnnotationRecord(
-                      [],
-                      [ReferenceRecord(
-                          wd.stated_in(wd.PubChem),
-                          wd.language_of_work_or_name(wd.English),
-                          wd.PubChem_CID.replace(KIF_Object.KEEP, None)('241'),
-                          wd.title(Text('benzene', 'en')),
-                          wd.retrieved(Time(
-                              '2016-10-19', 11, 0,
-                              wd.proleptic_Gregorian_calendar))),
-                       ReferenceRecord(
-                           wd.stated_in(wd.Wikidata),
-                           wd.reference_URL('http://www.wikidata.org/')),
-                       ReferenceRecord(
-                           wd.stated_in(wd.PubChem))],
-                      Normal))),
+              {(QualifierRecord(),
+                ReferenceRecordSet(
+                    ReferenceRecord(
+                        wd.stated_in(wd.PubChem),
+                        wd.language_of_work_or_name(wd.English),
+                        wd.PubChem_CID.replace(KIF_Object.KEEP, None)('241'),
+                        wd.title(Text('benzene', 'en')),
+                        wd.retrieved(Time(
+                            '2016-10-19', 11, 0,
+                            wd.proleptic_Gregorian_calendar))),
+                    ReferenceRecord(
+                        wd.stated_in(wd.Wikidata),
+                        wd.reference_URL('http://www.wikidata.org/')),
+                    ReferenceRecord(
+                        wd.stated_in(wd.PubChem))),
+                NormalRank())}),
              # 1
              (wd.density(wd.benzene, Quantity(
                  '.88', wd.gram_per_cubic_centimetre, '.87', '.89')),
-              AnnotationRecordSet(
-                  AnnotationRecord(
-                      [wd.phase_of_matter(wd.liquid),
-                       wd.temperature(Quantity(
-                           20, wd.degree_Celsius, 19, 21))],
-                      [ReferenceRecord(
-                          wd.stated_in(wd.Hazardous_Substances_Data_Bank),
-                          wd.HSDB_ID.replace(KIF_Object.KEEP, None)(
-                              '35#section=TSCA-Test-Submissions')),
-                       ReferenceRecord(
-                           wd.stated_in(wd.Wikidata),
-                           wd.reference_URL('http://www.wikidata.org/')),
-                       ReferenceRecord(
-                           wd.stated_in(wd.PubChem))],
-                      Normal))),
+              {(QualifierRecord(
+                  wd.phase_of_matter(wd.liquid),
+                  wd.temperature(Quantity(20, wd.degree_Celsius, 19, 21))),
+                ReferenceRecordSet(
+                    ReferenceRecord(
+                        wd.stated_in(wd.Hazardous_Substances_Data_Bank),
+                        wd.HSDB_ID.replace(KIF_Object.KEEP, None)(
+                            '35#section=TSCA-Test-Submissions')),
+                    ReferenceRecord(
+                        wd.stated_in(wd.Wikidata),
+                        wd.reference_URL('http://www.wikidata.org/')),
+                    ReferenceRecord(
+                        wd.stated_in(wd.PubChem))),
+                NormalRank())}),
              ],
             wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)),
             wd.density(wd.benzene, Quantity(
@@ -577,23 +571,22 @@ class TestStoreRDF(StoreTestCase):
         self.store_test_get_annotations(
             kb,
             [(Statement(wd.Adam, NoValueSnak(wd.date_of_birth)),
-              AnnotationRecordSet(
-                  AnnotationRecord(
-                      [],
-                      [ReferenceRecord(wd.reference_URL.replace(
-                          KIF_Object.KEEP, None)(
-                          'http://islamqa.info/ar/20907'))],
-                      Preferred))),
+              {(QualifierRecord(),
+                ReferenceRecordSet(
+                    ReferenceRecord(wd.reference_URL.replace(
+                        KIF_Object.KEEP, None)(
+                            'http://islamqa.info/ar/20907'))),
+                PreferredRank())}),
              (wd.date_of_birth(wd.Adam, Time(
                  '4003-01-01', 9, 0, wd.proleptic_Julian_calendar)),
-              AnnotationRecordSet(
-                  AnnotationRecord(
-                      [wd.statement_supported_by(wd.Q(746069))],
-                      [ReferenceRecord(wd.reference_URL.replace(
-                          KIF_Object.KEEP, None)(
-                              'https://amazingbibletimeline.com/'
-                              'timeline_online/'))],
-                      Normal))),
+              {(QualifierRecord(
+                  wd.statement_supported_by(wd.Q(746069))),
+                ReferenceRecordSet(
+                    ReferenceRecord(wd.reference_URL.replace(
+                        KIF_Object.KEEP, None)(
+                            'https://amazingbibletimeline.com/'
+                            'timeline_online/'))),
+                NormalRank())})
              ],
             Statement(wd.Adam, NoValueSnak(wd.date_of_birth)),
             wd.date_of_birth(wd.Adam, Time(

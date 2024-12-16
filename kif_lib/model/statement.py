@@ -66,7 +66,7 @@ VTAnnotatedStatement: TypeAlias =\
     Union[Variable, VAnnotatedStatement, TAnnotatedStatement]
 
 
-class Annotation(TypedDict, total=False):
+class _Annotation(TypedDict, total=False):
     """Statement annotation."""
 
     qualifiers: VTQualifierRecord
@@ -88,7 +88,7 @@ class StatementTemplate(Template):
     def __init__(self, subject: VTEntity, snak: VTSnak) -> None:
         super().__init__(subject, snak)
 
-    def __matmul__(self, other: Annotation) -> AnnotatedStatementTemplate:
+    def __matmul__(self, other: _Annotation) -> AnnotatedStatementTemplate:
         return self.annotate(**other)
 
     @override
@@ -196,6 +196,9 @@ class Statement(
     template_class: ClassVar[type[StatementTemplate]]  # pyright: ignore
     variable_class: ClassVar[type[StatementVariable]]  # pyright: ignore
 
+    # Type alias for an "annotation".
+    Annotation: TypeAlias = tuple[QualifierRecord, ReferenceRecordSet, Rank]
+
     @classmethod
     @override
     def check(
@@ -223,7 +226,7 @@ class Statement(
     def __init__(self, subject: VTEntity, snak: VTSnak) -> None:
         super().__init__(subject, snak)
 
-    def __matmul__(self, other: Annotation) -> AnnotatedStatement:
+    def __matmul__(self, other: _Annotation) -> AnnotatedStatement:
         return self.annotate(**other)
 
     @override

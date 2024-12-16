@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from .. import itertools
 from ..model import (
-    AnnotationRecordSet,
     Descriptor,
     Filter,
     Item,
@@ -182,15 +181,15 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
     def _get_annotations(
             self,
             stmts: Iterable[Statement]
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
+    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
         return self._mix_get_x(
             stmts, None, lambda kb, b: kb._get_annotations_tail(b),
             self._get_annotations_mixed)
 
     def _get_annotations_mixed(
             self,
-            it: Iterator[tuple[Statement, AnnotationRecordSet | None]],
-    ) -> tuple[Statement, AnnotationRecordSet | None]:
+            it: Iterator[tuple[Statement, set[Statement.Annotation] | None]],
+    ) -> tuple[Statement, set[Statement.Annotation] | None]:
         stmt, annots = next(it)
         for stmti, annotsi in it:
             assert stmt == stmti

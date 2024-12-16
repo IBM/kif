@@ -6,8 +6,6 @@ from __future__ import annotations
 import logging
 
 from ..model import (
-    AnnotationRecord,
-    AnnotationRecordSet,
     Descriptor,
     Entity,
     ExternalIdDatatype,
@@ -16,7 +14,10 @@ from ..model import (
     Item,
     KIF_Object,
     Lexeme,
+    NormalRank,
     Property,
+    QualifierRecord,
+    ReferenceRecordSet,
     SnakSet,
     Statement,
     T_IRI,
@@ -294,25 +295,29 @@ class SPARQL_MapperStore(
             self,
             stmts: Iterable[Statement],
             data: Any,
-            it: Iterator[tuple[Statement, AnnotationRecordSet | None]]
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
+            it: Iterator[tuple[Statement, set[Statement.Annotation] | None]]
+    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
         return self.mapping.get_annotations_post_hook(self, stmts, data, it)
 
     @override
     def _get_annotations(
             self,
             stmts: Iterable[Statement],
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
+    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
         for stmt in stmts:
             if self._cache_get_wdss(stmt) or stmt in self:
                 assert self._cache_get_wdss(stmt)
-
-                def it(property: Property) -> Iterable[AnnotationRecord]:
-                    for spec in self.mapping.specs.get(property, ()):
-                        yield from spec.kwargs.get('annotations', ())
-                annots = AnnotationRecordSet(*it(stmt.snak.property))
+                annots: set[Statement.Annotation] = set()
+                for spec in self.mapping.specs.get(stmt.snak.property, ()):
+                    annots.add(spec.kwargs.get('annotations', (
+                        QualifierRecord(),
+                        ReferenceRecordSet(),
+                        NormalRank())))
                 if not annots:
-                    annots = AnnotationRecordSet(AnnotationRecord())
+                    annots.add((
+                        QualifierRecord(),
+                        ReferenceRecordSet(),
+                        NormalRank()))
                 yield stmt, annots
             else:
                 yield stmt, None

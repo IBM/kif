@@ -4,9 +4,10 @@
 from __future__ import annotations
 
 from kif_lib import (
-    AnnotationRecord,
-    AnnotationRecordSet,
+    NormalRank,
+    QualifierRecord,
     Quantity,
+    ReferenceRecordSet,
     Statement,
     Text,
     Time,
@@ -121,7 +122,8 @@ class TestStoreMapperMappingPubChem(PubChemSPARQL_StoreTestCase):
         stmt2 = stmt1.replace(wd.Q('_PUBCHEM_PATENT_AU-2010262786-A2'))
         self.store_test_get_annotations(
             kb,
-            [(stmt1, AnnotationRecordSet(AnnotationRecord())),
+            [(stmt1,
+              {(QualifierRecord(), ReferenceRecordSet(), NormalRank())}),
              (stmt2, None)],
             stmt1,
             stmt2)

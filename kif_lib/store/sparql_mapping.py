@@ -8,7 +8,6 @@ from abc import ABC
 from .. import namespace as NS
 from ..error import ShouldNotGetHere
 from ..model import (
-    AnnotationRecordSet,
     Datatype,
     DataValue,
     Entity,
@@ -596,6 +595,6 @@ class SPARQL_Mapping(ABC):
             store: Store,
             stmts: Iterable[Statement],
             data: Any,
-            it: Iterator[tuple[Statement, AnnotationRecordSet | None]]
-    ) -> Iterator[tuple[Statement, AnnotationRecordSet | None]]:
+            it: Iterator[tuple[Statement, set[Statement.Annotation] | None]]
+    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
         return it

@@ -288,7 +288,7 @@ class TestStoreSPARQL_SPARQL_Store(WikidataStoreTestCase):
             if annots is None:
                 raise ValueError
             else:
-                return annots[0].qualifiers
+                return next(iter(annots))[0]
         # good arguments
         qt = Quantity('16.157', wd.joule_per_mole_kelvin_difference)
         stmt = wd.specific_heat_capacity(wd.benzene, qt)
@@ -383,10 +383,8 @@ class TestStoreSPARQL_SPARQL_Store(WikidataStoreTestCase):
             if annots is None:
                 raise ValueError
             else:
-                if annots:
-                    return annots[0].references
-                else:
-                    return annots
+                self.assertTrue(bool(annots))
+                return next(iter(annots))[1]
         # good arguments
         stmt = wd.inception(
             wd.Brazil,
@@ -457,7 +455,7 @@ class TestStoreSPARQL_SPARQL_Store(WikidataStoreTestCase):
             if annots is None:
                 raise ValueError
             else:
-                return annots[0].rank
+                return next(iter(annots))[2]
         # preferred
         stmt = Statement(wd.Adam, SomeValueSnak(wd.date_of_birth))
         self.assertEqual(get_rank(stmt), Preferred)
