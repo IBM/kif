@@ -4,12 +4,9 @@
 from __future__ import annotations
 
 from kif_lib import (
-    Deprecated,
     DeprecatedRank,
     Item,
-    Normal,
     NormalRank,
-    Preferred,
     PreferredRank,
     Rank,
     RankVariable,
@@ -21,7 +18,7 @@ from kif_lib import (
 from kif_lib.namespace import WIKIBASE
 from kif_lib.typing import assert_type, cast, Iterator, Optional, Set
 
-from ....tests import ClosedTermTestCase
+from ...tests import ClosedTermTestCase
 
 
 class Test(ClosedTermTestCase):
@@ -36,14 +33,11 @@ class Test(ClosedTermTestCase):
         self._test_check(
             Rank,
             success=[
-                (Deprecated, DeprecatedRank()),
-                (DeprecatedRank(), Deprecated),
+                (DeprecatedRank(), DeprecatedRank()),
                 (DeprecatedRank, DeprecatedRank()),
-                (Normal, NormalRank()),
-                (NormalRank(), Normal),
+                (NormalRank(), NormalRank()),
                 (NormalRank, NormalRank()),
-                (Preferred, PreferredRank()),
-                (PreferredRank(), Preferred),
+                (PreferredRank(), PreferredRank()),
                 (PreferredRank, PreferredRank()),
             ],
             failure=[None, 0, {}, Item('x'), SnakSet()])
@@ -118,9 +112,12 @@ class Test(ClosedTermTestCase):
                 WIKIBASE.PreferredRank)))
 
     def test__to_rdflib(self) -> None:
-        self.assertEqual(Deprecated._to_rdflib(), WIKIBASE.DeprecatedRank)
-        self.assertEqual(Normal._to_rdflib(), WIKIBASE.NormalRank)
-        self.assertEqual(Preferred._to_rdflib(), WIKIBASE.PreferredRank)
+        self.assertEqual(
+            DeprecatedRank()._to_rdflib(), WIKIBASE.DeprecatedRank)
+        self.assertEqual(
+            NormalRank()._to_rdflib(), WIKIBASE.NormalRank)
+        self.assertEqual(
+            PreferredRank()._to_rdflib(), WIKIBASE.PreferredRank)
 
 
 if __name__ == '__main__':

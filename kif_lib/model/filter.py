@@ -15,7 +15,6 @@ from ..typing import (
     TypeAlias,
     Union,
 )
-from .annotation import DeprecatedRank, NormalRank, PreferredRank, Rank, TRank
 from .fingerprint import (
     AndFingerprint,
     Fingerprint,
@@ -25,6 +24,7 @@ from .fingerprint import (
 )
 from .flags import Flags
 from .kif_object import KIF_Object
+from .rank import DeprecatedRank, NormalRank, PreferredRank, Rank, TRank
 from .set import SnakSet
 from .snak import NoValueSnak, Snak, SomeValueSnak, TSnak, ValueSnak
 from .statement import Statement, TStatement

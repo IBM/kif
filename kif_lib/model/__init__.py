@@ -3,19 +3,6 @@
 
 from __future__ import annotations
 
-from .annotation import (
-    Deprecated,
-    DeprecatedRank,
-    Normal,
-    NormalRank,
-    Preferred,
-    PreferredRank,
-    Rank,
-    RankVariable,
-    TRank,
-    VRank,
-    VTRank,
-)
 from .constraint import (
     AtomicConstraint,
     Constraint,
@@ -58,6 +45,16 @@ from .pattern import (
     TTemplatePattern,
     TVariablePattern,
     VariablePattern,
+)
+from .rank import (
+    DeprecatedRank,
+    NormalRank,
+    PreferredRank,
+    Rank,
+    RankVariable,
+    TRank,
+    VRank,
+    VTRank,
 )
 from .set import (
     ClosedTermSet,
@@ -398,12 +395,9 @@ __all__ = (
     'VTAnnotatedStatement',
     'VTStatement',
 
-    # annotation
-    'Deprecated',
+    # rank
     'DeprecatedRank',
-    'Normal',
     'NormalRank',
-    'Preferred',
     'PreferredRank',
     'Rank',
     'RankVariable',

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from kif_lib import (
-    Deprecated,
+    DeprecatedRank,
     ExternalIdDatatype,
     Filter,
     IRI,
@@ -14,9 +14,9 @@ from kif_lib import (
     ItemDescriptor,
     KIF_Object,
     LexemeDatatype,
-    Normal,
+    NormalRank,
     NoValueSnak,
-    Preferred,
+    PreferredRank,
     Property,
     PropertyDatatype,
     Quantity,
@@ -227,9 +227,12 @@ class TestCodecMarkdown(TestCase):
             self.md_sexp('Statement', wd.benzene, wd.mass(Quantity(0))))
 
     def test_rank_to_markdown(self) -> None:
-        self.assert_to_markdown(Preferred, self.md_sexp('PreferredRank'))
-        self.assert_to_markdown(Normal, self.md_sexp('NormalRank'))
-        self.assert_to_markdown(Deprecated, self.md_sexp('DeprecatedRank'))
+        self.assert_to_markdown(
+            PreferredRank(), self.md_sexp('PreferredRank'))
+        self.assert_to_markdown(
+            NormalRank(), self.md_sexp('NormalRank'))
+        self.assert_to_markdown(
+            DeprecatedRank(), self.md_sexp('DeprecatedRank'))
 
     def test_reference_record_to_markdown(self) -> None:
         ref = ReferenceRecord()

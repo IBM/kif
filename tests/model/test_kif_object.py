@@ -14,7 +14,7 @@ from kif_lib import (
     Item,
     ItemTemplate,
     KIF_Object,
-    Preferred,
+    PreferredRank,
     PropertyVariable,
     Quantity,
     ValueSnak,
@@ -134,7 +134,7 @@ class Test(TestCase):
     def test_sexp_encoder_extensions(self) -> None:
         from kif_lib.model.kif_object import KIF_SExpEncoder
         enc = KIF_SExpEncoder()
-        self.assertEqual(enc.encode(Preferred), 'PreferredRank')
+        self.assertEqual(enc.encode(PreferredRank()), 'PreferredRank')
         self.assertEqual(
             enc.encode(datetime.datetime(2024, 2, 6)),     # type: ignore
             '2024-02-06 00:00:00')                         # type: ignore

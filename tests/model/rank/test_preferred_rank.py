@@ -6,7 +6,7 @@ from __future__ import annotations
 from kif_lib import PreferredRank
 from kif_lib.typing import assert_type
 
-from ....tests import RankTestCase
+from ...tests import RankTestCase
 
 
 class Test(RankTestCase):

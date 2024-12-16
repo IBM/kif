@@ -8,9 +8,9 @@ from kif_lib import (
     Filter,
     Item,
     KIF_Object,
-    Normal,
+    NormalRank,
     NoValueSnak,
-    Preferred,
+    PreferredRank,
     Property,
     Quantity,
     ReferenceRecord,
@@ -458,11 +458,11 @@ class TestStoreSPARQL_SPARQL_Store(WikidataStoreTestCase):
                 return next(iter(annots))[2]
         # preferred
         stmt = Statement(wd.Adam, SomeValueSnak(wd.date_of_birth))
-        self.assertEqual(get_rank(stmt), Preferred)
+        self.assertEqual(get_rank(stmt), PreferredRank())
         # normal
         stmt = Statement(
             wd.Adam, ValueSnak(wd.place_of_birth, wd.Garden_of_Eden))
-        self.assertEqual(get_rank(stmt), Normal)
+        self.assertEqual(get_rank(stmt), NormalRank())
         ###
         # TODO: deprecated
         ###

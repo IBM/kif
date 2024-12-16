@@ -24,7 +24,7 @@ from kif_lib import (
 from kif_lib.namespace import WIKIBASE
 from kif_lib.typing import assert_type, cast, Optional, Set
 
-from ....tests import VariableTestCase
+from ...tests import VariableTestCase
 
 
 class Test(VariableTestCase):

@@ -3,10 +3,10 @@
 
 from __future__ import annotations
 
-from .annotations import RankTestCase
 from .descriptor import DescriptorTestCase
 from .fingerprint import FingerprintTestCase
 from .kif_object import KIF_ObjectTestCase
+from .rank import RankTestCase
 from .set import ClosedTermSetTestCase
 from .snak import SnakTemplateTestCase, SnakTestCase, SnakVariableTestCase
 from .statement import (

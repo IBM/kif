@@ -1,12 +1,12 @@
-# Copyright (C) 2024 IBM Corp.
+# Copyright (C) 2023-2024 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
 import functools
 
-from ...rdflib import URIRef
-from ...typing import (
+from ..rdflib import URIRef
+from ..typing import (
     Any,
     cast,
     ClassVar,
@@ -16,8 +16,8 @@ from ...typing import (
     TypeAlias,
     Union,
 )
-from ..term import ClosedTerm, Term, Theta, Variable
-from ..value import IRI, String
+from .term import ClosedTerm, Term, Theta, Variable
+from .value import IRI, String
 
 TRank: TypeAlias = Union['Rank', type['Rank']]
 VRank: TypeAlias = Union['RankVariable', 'Rank']
@@ -115,19 +115,19 @@ class Rank(ClosedTerm, variable_class=RankVariable):
     @classmethod
     @functools.cache
     def _from_rdflib(cls, uri: URIRef | str) -> Self:
-        from ...namespace import Wikidata
+        from ..namespace import Wikidata
         if Wikidata.is_wikibase_preferred_rank(uri):
-            res: Rank = Preferred
+            res: Rank = PreferredRank()
         elif Wikidata.is_wikibase_normal_rank(uri):
-            res = Normal
+            res = NormalRank()
         elif Wikidata.is_wikibase_deprecated_rank(uri):
-            res = Deprecated
+            res = DeprecatedRank()
         else:
             raise cls._check_error(uri, cls._from_rdflib, 'uri', 1)
         return cls.check(res, cls._from_rdflib, 'uri', 1)
 
     def _to_rdflib(self) -> URIRef:
-        from ...namespace import Wikidata
+        from ..namespace import Wikidata
         if isinstance(self, PreferredRank):
             return Wikidata.PREFERRED
         elif isinstance(self, NormalRank):
@@ -158,13 +158,3 @@ class DeprecatedRank(Rank):
     """Unreliable information."""
 
     instance: ClassVar[DeprecatedRank]  # pyright: ignore
-
-
-#: Preferred rank.
-Preferred = PreferredRank.instance
-
-#: Normal rank.
-Normal = NormalRank.instance
-
-#: Deprecated rank.
-Deprecated = DeprecatedRank.instance

@@ -14,7 +14,7 @@ from ..typing import (
     TypedDict,
     Union,
 )
-from .annotation import NormalRank, Rank, RankVariable, TRank, VRank, VTRank
+from .rank import NormalRank, Rank, RankVariable, TRank, VRank, VTRank
 from .set import (
     QualifierRecord,
     QualifierRecordVariable,

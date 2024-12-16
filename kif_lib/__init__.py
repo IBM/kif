@@ -24,7 +24,6 @@ from .model import (
     DeepDataValue,
     DeepDataValueTemplate,
     DeepDataValueVariable,
-    Deprecated,
     DeprecatedRank,
     DescriptionProperty,
     Descriptor,
@@ -58,7 +57,6 @@ from .model import (
     LexemeTemplate,
     LexemeVariable,
     LexicalCategoryProperty,
-    Normal,
     NormalRank,
     NoValueSnak,
     NoValueSnakTemplate,
@@ -68,7 +66,6 @@ from .model import (
     Or,
     Pattern,
     PlainDescriptor,
-    Preferred,
     PreferredRank,
     Properties,
     Property,
@@ -270,12 +267,9 @@ __all__ = (
     'StatementTemplate',
     'StatementVariable',
 
-    # model.annotation
-    'Deprecated',
+    # model.rank
     'DeprecatedRank',
-    'Normal',
     'NormalRank',
-    'Preferred',
     'PreferredRank',
     'Rank',
     'RankVariable',

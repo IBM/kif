@@ -6,7 +6,7 @@ from __future__ import annotations
 from kif_lib import Entity, Item, itertools, KIF_Object, Rank, SnakSet, Value
 from kif_lib.typing import Any, Callable, Iterable, override, Sequence
 
-from ..term import ClosedTermTestCase
+from .term import ClosedTermTestCase
 
 
 class RankTestCase(ClosedTermTestCase):
