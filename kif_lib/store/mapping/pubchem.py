@@ -209,26 +209,26 @@ class PubChemMapping(SPARQL_Mapping):
             store: Store,
             filter: Filter,
             limit: int,
-            distinct: bool
-    ) -> tuple[Filter, int, bool, Any]:
+            distinct: bool,
+            annotated: bool
+    ) -> tuple[Filter, int, bool, bool, Any]:
         from ..sparql import SPARQL_Store
         assert isinstance(store, SPARQL_Store)
         if filter.value.is_empty():
-            return filter, limit, distinct, None
+            return filter, limit, distinct, annotated, None
         subject, property, value, snak_mask = filter._unpack_legacy()
         if (property is None
                 or property
                 not in cls._toxicity_properties_inv):
-            return filter, limit, distinct, None
+            return filter, limit, distinct, annotated, None
         else:
             new_filter = Filter(
                 subject,
                 wd.instance_of,
                 wd.type_of_a_chemical_entity,
                 snak_mask)
-            return new_filter, store.max_page_size, distinct, dict(
-                original_filter=filter,
-                original_limit=limit)
+            return (new_filter, store.max_page_size, distinct, annotated,
+                    {'original_filter': filter, 'original_limit': limit})
 
     @classmethod
     @override
@@ -238,6 +238,7 @@ class PubChemMapping(SPARQL_Mapping):
             filter: Filter,
             limit: int,
             distinct: bool,
+            annotated: bool,
             data: Any,
             it: Iterator[Statement]
     ) -> Iterator[Statement]:

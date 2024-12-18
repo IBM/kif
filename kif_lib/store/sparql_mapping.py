@@ -565,9 +565,10 @@ class SPARQL_Mapping(ABC):
             store: Store,
             filter: Filter,
             limit: int,
-            distinct: bool
-    ) -> tuple[Filter, int, bool, Any]:
-        return filter, limit, distinct, None
+            distinct: bool,
+            annotated: bool
+    ) -> tuple[Filter, int, bool, bool, Any]:
+        return filter, limit, distinct, annotated, None
 
     @classmethod
     def filter_post_hook(
@@ -576,6 +577,7 @@ class SPARQL_Mapping(ABC):
             filter: Filter,
             limit: int,
             distinct: bool,
+            annotated: bool,
             data: Any,
             it: Iterator[Statement]
     ) -> Iterator[Statement]:

@@ -356,7 +356,8 @@ At line {line}, column {column}:
             self,
             filter: Filter,
             limit: int,
-            distinct: bool
+            distinct: bool,
+            annotated: bool
     ) -> Iterator[Statement]:
         compiler = self._compile_filter(filter)
         assert limit >= 0
