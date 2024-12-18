@@ -27,6 +27,7 @@ from ..model import (
     ReferenceRecordSet,
     Snak,
     Statement,
+    String,
     TFingerprint,
     TPattern,
     TReferenceRecordSet,
@@ -914,6 +915,11 @@ class Store(Set):
             property: TFingerprint | None = None,
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None
     ) -> int:
@@ -924,6 +930,10 @@ class Store(Set):
            property: Property.
            value: Value.
            snak_mask: Snak mask.
+           subject_mask: Datatype mask.
+           property_mask: Datatype mask.
+           value_mask: Datatype mask.
+           language: Language tag.
            snak: Snak.
            filter: Filter.
 
@@ -931,7 +941,9 @@ class Store(Set):
            The number of statements matching filter.
         """
         return self._count_tail(self._check_filter(
-            subject, property, value, snak_mask, snak, filter, self.count))
+            subject, property, value, snak_mask,
+            subject_mask, property_mask, value_mask, rank_mask, language,
+            snak, filter, self.count))
 
     def _count_tail(self, filter: Filter) -> int:
         if filter.is_nonempty():
@@ -948,26 +960,48 @@ class Store(Set):
             property: TFingerprint | None = None,
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             function: Location | None = None
     ) -> Filter:
-        subj = Fingerprint.check_optional(
+        subject = Fingerprint.check_optional(
             subject, None, function, 'subject', 1)
-        prop = Fingerprint.check_optional(
+        property = Fingerprint.check_optional(
             property, None, function, 'property', 2)
-        val = Fingerprint.check_optional(
+        value = Fingerprint.check_optional(
             value, None, function, 'value', 3)
-        mask = Filter.SnakMask.check_optional(
+        snak_mask = Filter.SnakMask.check_optional(
             snak_mask, Filter.SnakMask.ALL, function, 'snak_mask', 4)
+        subject_mask = Filter.DatatypeMask.check_optional(
+            subject_mask, Filter.ENTITY, function, 'subject_mask', 5)
+        property_mask = Filter.DatatypeMask.check_optional(
+            property_mask, Filter.PROPERTY, function, 'property_mask', 6)
+        value_mask = Filter.DatatypeMask.check_optional(
+            value_mask, Filter.VALUE, function, 'value_mask', 7)
+        rank_mask = Filter.RankMask.check_optional(
+            rank_mask, Filter.RankMask.ALL, function, 'rank_mask', 8)
+        language = String.check(
+            language, function, 'language', 9).content\
+            if language is not None else None
         if filter is None:
-            filter = Filter(subj, prop, val, mask)
+            filter = Filter(
+                subject, property, value, snak_mask,
+                subject_mask, property_mask, value_mask,
+                rank_mask, language)
         else:
-            filter = Filter.check(filter, function, 'filter', 6).combine(
-                Filter(subj, prop, val, mask))
+            filter = Filter.check(
+                filter, function, 'filter', 11).combine(Filter(
+                    subject, property, value, snak_mask,
+                    subject_mask, property_mask, value_mask,
+                    rank_mask, language))
         if snak is not None:
             filter = filter.combine(Filter.from_snak(None, Snak.check(
-                snak, function, 'snak', 5)))
+                snak, function, 'snak', 10)))
         return self._normalize_filter(filter)
 
     def _normalize_filter(
@@ -991,6 +1025,11 @@ class Store(Set):
             property: TFingerprint | None = None,
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             limit: int | None = None,
@@ -1003,6 +1042,10 @@ class Store(Set):
            property: Property.
            value: Value.
            snak_mask: Snak mask.
+           subject_mask: Datatype mask.
+           property_mask: Datatype mask.
+           value_mask: Datatype mask.
+           language: Language tag.
            snak: Snak.
            filter: Filter filter.
            limit: Limit (maximum number) of statements to return.
@@ -1012,9 +1055,11 @@ class Store(Set):
            An iterator of statements matching filter.
         """
         filter = self._check_filter(
-            subject, property, value, snak_mask, snak, filter, self.filter)
-        limit = self._as_limit(limit, self.filter, 'limit', 7)
-        distinct = self._as_distinct(distinct, self.filter, 'distinct', 8)
+            subject, property, value, snak_mask,
+            subject_mask, property_mask, value_mask, rank_mask,
+            language, snak, filter, self.filter)
+        limit = self._as_limit(limit, self.filter, 'limit', 12)
+        distinct = self._as_distinct(distinct, self.filter, 'distinct', 13)
         return self._filter_with_hooks(filter, limit, distinct)
 
     def _filter_with_hooks(
@@ -1070,9 +1115,15 @@ class Store(Set):
             property: TFingerprint | None = None,
             value: TFingerprint | None = None,
             snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
-            limit: int | None = None
+            limit: int | None = None,
+            distinct: bool | None = None
     ) -> Iterator[AnnotatedStatement]:
         """:meth:`Store.filter` with annotations.
 
@@ -1081,15 +1132,22 @@ class Store(Set):
            property: Property.
            value: Value.
            snak_mask: Snak mask.
+           subject_mask: Datatype mask.
+           property_mask: Datatype mask.
+           value_mask: Datatype mask.
+           language: Language tag.
            snak: Snak.
            filter: Filter.
-           limit: Maximum number of statements to return .
+           limit: Limit (maximum number) of statements to return.
+           distinct: Whether to skip duplicated matches.
 
         Returns:
            An iterator of annotated statements matching filter.
         """
         return self._filter_annotated_tail(self.filter(
-            subject, property, value, snak_mask, snak, filter, limit))
+            subject, property, value, snak_mask,
+            subject_mask, property_mask, value_mask, rank_mask, language,
+            snak, filter, limit, distinct))
 
     def _filter_annotated_tail(
             self,

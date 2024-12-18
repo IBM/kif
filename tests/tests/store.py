@@ -298,10 +298,28 @@ class StoreTestCase(TestCase):
             TypeError, 4, 'snak_mask', None,
             kb.count, None, None, Item('x'), Item)
         self.assert_raises_bad_argument(
-            TypeError, 5, 'snak', None,
-            kb.count, None, None, Item('x'), Filter.NO_VALUE_SNAK, Item('x'))
+            TypeError, 5, 'subject_mask', None,
+            kb.count, None, None, None, None, {})
         self.assert_raises_bad_argument(
-            TypeError, 6, 'filter', None, kb.count, filter=Item('x'))
+            TypeError, 6, 'property_mask', None,
+            kb.count, None, None, None, None, None, {})
+        self.assert_raises_bad_argument(
+            TypeError, 7, 'value_mask', None,
+            kb.count, None, None, None, None, None, None, {})
+        self.assert_raises_bad_argument(
+            TypeError, 8, 'rank_mask', None,
+            kb.count, None, None, None, None, None, None, None, {})
+        self.assert_raises_bad_argument(
+            TypeError, 9, 'language', None,
+            kb.count, None, None, None, None, None, None, None, None, 0)
+        self.assert_raises_bad_argument(
+            TypeError, 10, 'snak', None,
+            kb.count, None, None, None, None, None, None, None, None, None,
+            Item('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 11, 'filter', None,
+            kb.count, None, None, None, None, None, None, None, None, None,
+            None, Item('x'))
 
     def store_test_count_empty(self, kb):
         saved_flags = kb.flags
@@ -360,15 +378,32 @@ class StoreTestCase(TestCase):
             TypeError, 4, 'snak_mask', None,
             kb.filter, None, None, Item('x'), Item)
         self.assert_raises_bad_argument(
-            TypeError, 5, 'snak', None,
-            kb.filter, None, None, Item('x'),
-            Filter.NO_VALUE_SNAK, Item('x'))
+            TypeError, 5, 'subject_mask', None,
+            kb.filter, None, None, None, None, {})
         self.assert_raises_bad_argument(
-            TypeError, 6, 'filter', None, kb.filter, filter=Item('x'))
+            TypeError, 6, 'property_mask', None,
+            kb.filter, None, None, None, None, None, {})
         self.assert_raises_bad_argument(
-            TypeError, 7, 'limit', None, kb.filter, limit=Item('x'))
+            TypeError, 7, 'value_mask', None,
+            kb.filter, None, None, None, None, None, None, {})
         self.assert_raises_bad_argument(
-            TypeError, 8, 'distinct', None, kb.filter, distinct=Item('x'))
+            TypeError, 8, 'rank_mask', None,
+            kb.filter, None, None, None, None, None, None, None, {})
+        self.assert_raises_bad_argument(
+            TypeError, 9, 'language', None,
+            kb.filter, None, None, None, None, None, None, None, None, 0)
+        self.assert_raises_bad_argument(
+            TypeError, 10, 'snak', None,
+            kb.filter, None, None, None, None, None, None, None, None, None,
+            Item('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 11, 'filter', None,
+            kb.filter, None, None, None, None, None, None, None, None, None,
+            None, Item('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 12, 'limit', None, kb.filter, limit=Item('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 13, 'distinct', None, kb.filter, distinct=Item('x'))
 
     def store_test_filter_empty(self, kb):
         saved_flags = kb.flags
