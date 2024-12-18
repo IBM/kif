@@ -138,9 +138,10 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             self,
             filter: Filter,
             mapping: SPARQL_Mapping,
-            flags: SPARQL_FilterCompiler.Flags | None = None,
+            annotated: bool | None = None,
+            flags: SPARQL_FilterCompiler.Flags | None = None
     ) -> None:
-        super().__init__(filter, flags)
+        super().__init__(filter, annotated, flags)
         self._mapping = mapping
         self._entry_id_qvar = self.q.fresh_var()
         self._entry_subst = {}
@@ -726,7 +727,8 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             assert bool(filter.value_mask)
             value_mask = (
                 filter.value_mask & filter.property.range_datatype_mask)
-            mk_pat = (lambda v: Statement(subject, ValueSnak(property, v)))
+            mk_pat = (lambda v: self._filter_to_patterns_tail(
+                Statement(subject, ValueSnak(property, v))))
             if isinstance(filter.value, ValueFingerprint):
                 yield mk_pat(cast(Value, filter.value.value))
             else:
@@ -753,6 +755,20 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 if value_mask & filter.TIME:
                     yield mk_pat(self._fresh_time_variable())
         if filter.snak_mask & filter.SOME_VALUE_SNAK:
-            yield Statement(subject, SomeValueSnak(property))
+            yield self._filter_to_patterns_tail(
+                Statement(subject, SomeValueSnak(property)))
         if filter.snak_mask & filter.NO_VALUE_SNAK:
-            yield Statement(subject, NoValueSnak(property))
+            yield self._filter_to_patterns_tail(
+                Statement(subject, NoValueSnak(property)))
+
+    def _filter_to_patterns_tail(
+            self,
+            stmt: StatementTemplate | Statement
+    ) -> SPARQL_Mapping.EntryPattern:
+        if self.annotated:
+            return stmt.annotate(
+                qualifiers=self._fresh_qualifier_record_variable(),
+                references=self._fresh_reference_record_set_variable(),
+                rank=self._fresh_rank_variable())
+        else:
+            return stmt

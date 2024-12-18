@@ -328,7 +328,7 @@ At line {line}, column {column}:
 
     @override
     def _contains(self, filter: Filter) -> bool:
-        compiler = self._compile_filter(filter)
+        compiler = self._compile_filter(filter, False)
         res = self._eval_select_query_string(
             str(compiler.query.ask()), fake_results=True)
         return res['boolean']
@@ -336,7 +336,7 @@ At line {line}, column {column}:
     @override
     def _count(self, filter: Filter) -> int:
         if not filter.is_full():
-            compiler = self._compile_filter(filter)
+            compiler = self._compile_filter(filter, False)
             q = compiler.query
         else:
             q = SPARQL_FilterCompiler.Query()
@@ -359,7 +359,7 @@ At line {line}, column {column}:
             distinct: bool,
             annotated: bool
     ) -> Iterator[Statement]:
-        compiler = self._compile_filter(filter)
+        compiler = self._compile_filter(filter, annotated)
         assert limit >= 0
         page_size = min(self.page_size, limit)
         offset, count = 0, 0
@@ -397,9 +397,11 @@ At line {line}, column {column}:
 
     def _compile_filter(
             self,
-            filter: Filter
+            filter: Filter,
+            annotated: bool
     ) -> SPARQL_FilterCompiler:
-        compiler = SPARQL_FilterCompiler(filter, self._compile_filter_flags)
+        compiler = SPARQL_FilterCompiler(
+            filter, annotated, self._compile_filter_flags)
         if self.has_flags(self.DEBUG):
             compiler.set_flags(compiler.DEBUG)
         else:

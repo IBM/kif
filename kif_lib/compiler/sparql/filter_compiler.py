@@ -59,11 +59,15 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
 
     __slots__ = (
         '_filter',
+        '_annotated',
         '_wds',
     )
 
     #: The source filter.
     _filter: Filter
+
+    #: The annotated flag (whether to generate annotated statements).
+    _annotated: bool
 
     #: The query variable holding the wds.
     _wds: Query.Variable
@@ -71,10 +75,12 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     def __init__(
             self,
             filter: Filter,
+            annotated: bool | None = None,
             flags: SPARQL_FilterCompiler.Flags | None = None
     ) -> None:
         super().__init__(Variable('_', Statement), flags)
         self._filter = filter
+        self._annotated = bool(annotated)
         self._wds = self.q.fresh_var()
 
     @property
@@ -89,6 +95,19 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
            Filter.
         """
         return self._filter
+
+    @property
+    def annotated(self) -> bool:
+        """The annotated flag (whether to generate annotated statements)."""
+        return self.get_annotated()
+
+    def get_annotated(self) -> bool:
+        """Gets the annotated flag.
+
+        Returns:
+           Annotated flag.
+        """
+        return self._annotated
 
     @property
     def wds(self) -> Query.Variable:
