@@ -15,6 +15,8 @@ from .iri import IRI_Template, T_IRI, VT_IRI
 from .value import VTValue
 
 if TYPE_CHECKING:               # pragma: no cover
+    from ..rank import VTRank
+    from ..set import VTQualifierRecord, VTReferenceRecordSet
     from ..snak import (
         NoValueSnak,
         NoValueSnakTemplate,
@@ -61,7 +63,14 @@ class PropertyTemplate(EntityTemplate):
             raise self._should_not_get_here()
 
     @overload
-    def __call__(self, v1: VTEntity, v2: VTValue) -> StatementTemplate:
+    def __call__(
+            self,
+            v1: VTEntity,
+            v2: VTValue,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
+    ) -> StatementTemplate:
         ...                     # pragma: no cover
 
     @overload
@@ -71,12 +80,19 @@ class PropertyTemplate(EntityTemplate):
     def __call__(
             self,
             v1: VTEntity | VTValue,
-            v2: VTValue | None = None
+            v2: VTValue | None = None,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
     ) -> StatementTemplate | ValueSnakTemplate:
         if v2 is not None:
             from ..snak import ValueSnak
             from ..statement import StatementTemplate
-            return StatementTemplate(v1, ValueSnak(self, v2))  # type: ignore
+            stmt = StatementTemplate(v1, ValueSnak(self, v2))  # type: ignore
+            if qualifiers is None and references is None and rank is None:
+                return stmt
+            else:
+                return stmt.annotate(qualifiers, references, rank)
         else:
             from ..snak import ValueSnakTemplate
             return ValueSnakTemplate(self, v1)
@@ -128,7 +144,14 @@ class PropertyVariable(EntityVariable):
     object_class: ClassVar[type[Property]]  # pyright: ignore
 
     @overload
-    def __call__(self, v1: VTEntity, v2: VTValue) -> StatementTemplate:
+    def __call__(
+            self,
+            v1: VTEntity,
+            v2: VTValue,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
+    ) -> StatementTemplate:
         ...                     # pragma: no cover
 
     @overload
@@ -138,12 +161,19 @@ class PropertyVariable(EntityVariable):
     def __call__(
             self,
             v1: VTEntity | VTValue,
-            v2: VTValue | None = None
+            v2: VTValue | None = None,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
     ) -> StatementTemplate | ValueSnakTemplate:
         if v2 is not None:
             from ..snak import ValueSnak
             from ..statement import StatementTemplate
-            return StatementTemplate(v1, ValueSnak(self, v2))  # type: ignore
+            stmt = StatementTemplate(v1, ValueSnak(self, v2))  # type: ignore
+            if qualifiers is None and references is None and rank is None:
+                return stmt
+            else:
+                return stmt.annotate(qualifiers, references, rank)
         else:
             from ..snak import ValueSnakTemplate
             return ValueSnakTemplate(self, v1)
@@ -210,7 +240,14 @@ class Property(
             raise self_._should_not_get_here()
 
     @overload
-    def __call__(self, v1: VTEntity, v2: VTValue) -> Statement:
+    def __call__(
+            self,
+            v1: VTEntity,
+            v2: VTValue,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
+    ) -> Statement:
         ...                     # pragma: no cover
 
     @overload
@@ -220,12 +257,19 @@ class Property(
     def __call__(
             self,
             v1: VTEntity | VTValue,
-            v2: VTValue | None = None
+            v2: VTValue | None = None,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
     ) -> Statement | ValueSnak:
         if v2 is not None:
             from ..snak import ValueSnak
             from ..statement import Statement
-            return Statement(v1, ValueSnak(self, v2))  # type: ignore
+            stmt = Statement(v1, ValueSnak(self, v2))  # type: ignore
+            if qualifiers is None and references is None and rank is None:
+                return stmt
+            else:
+                return stmt.annotate(qualifiers, references, rank)
         else:
             from ..snak import ValueSnak
             return ValueSnak(self, v1)

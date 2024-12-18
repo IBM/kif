@@ -17,8 +17,12 @@ from kif_lib import (
     NoValueSnakTemplate,
     Property,
     PropertyTemplate,
+    QualifierRecord,
     Quantity,
     QuantityDatatype,
+    RankVariable,
+    ReferenceRecord,
+    ReferenceRecordSet,
     SomeValueSnakTemplate,
     Statement,
     StatementTemplate,
@@ -202,6 +206,21 @@ class Test(EntityTemplateTestCase):
             self.assert_statement_template(
                 Property('p', Variable('q'))(e, v), e,
                 ValueSnak(Property('p', Variable('q')), v))
+            self.assert_annotated_statement_template(
+                Property('p', Variable('q'))(
+                    e, v, [Property('p')(0)]), e,
+                ValueSnak(Property('p', Variable('q')), v),
+                qualifiers=QualifierRecord(Property('p')(0)))
+            self.assert_annotated_statement_template(
+                Property('p', Variable('q'))(
+                    e, v, None, [[Property('p')(0)]]), e,
+                ValueSnak(Property('p', Variable('q')), v),
+                references=ReferenceRecordSet(
+                    ReferenceRecord(Property('p')(0))))
+            self.assert_annotated_statement_template(
+                cast(Statement, PropertyTemplate('p')(
+                    e, v, rank=RankVariable('r'))),
+                e, ValueSnak(Property('p'), v), rank=RankVariable('r'))
             self.assert_statement(
                 cast(Statement, PropertyTemplate('p')(e, v)),
                 e, ValueSnak(Property('p'), v))

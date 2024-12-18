@@ -129,7 +129,6 @@ from kif_lib.model import (
     ValueSnakVariable,
     ValueTemplate,
     ValueVariable,
-    VAnnotatedStatement,
     VEntity,
     VExternalId,
     VItem,
@@ -798,7 +797,7 @@ class TestCase(unittest.TestCase):
 
     def assert_annotated_statement_template(
             self,
-            obj: VAnnotatedStatement,
+            obj: VStatement,
             subject: VEntity | Variable,
             snak: VSnak | Variable,
             qualifiers: VQualifierRecord | Variable = QualifierRecord(),
@@ -1114,7 +1113,7 @@ class TestCase(unittest.TestCase):
 
     def assert_annotated_statement(
             self,
-            obj: AnnotatedStatement,
+            obj: Statement,
             subject: Entity,
             snak: Snak,
             qualifiers: QualifierRecord = QualifierRecord(),
@@ -1123,6 +1122,7 @@ class TestCase(unittest.TestCase):
     ) -> None:
         self.assert_statement(obj, subject, snak)
         self.assertIsInstance(obj, AnnotatedStatement)
+        assert isinstance(obj, AnnotatedStatement)
         self.assertIsInstance(obj.args[2], QualifierRecord)
         self.assertEqual(obj.args[2], qualifiers)
         self.assertEqual(obj.qualifiers, obj.args[2])

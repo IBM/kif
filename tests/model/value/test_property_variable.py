@@ -19,10 +19,14 @@ from kif_lib import (
     Lexeme,
     LexicalCategoryProperty,
     NoValueSnakTemplate,
+    PreferredRank,
     Property,
     PropertyTemplate,
     PropertyVariable,
+    QualifierRecord,
     Quantity,
+    ReferenceRecord,
+    ReferenceRecordSet,
     SomeValueSnakTemplate,
     StatementTemplate,
     String,
@@ -148,6 +152,19 @@ class Test(EntityVariableTestCase):
             self.assert_statement_template(
                 PropertyVariable('p')(e, v),
                 e, ValueSnak(PropertyVariable('p'), v))
+            self.assert_annotated_statement_template(
+                PropertyVariable('p')(e, v, [Property('p')(0)]),
+                e, ValueSnak(PropertyVariable('p'), v),
+                qualifiers=QualifierRecord(Property('p')(0)))
+            self.assert_annotated_statement_template(
+                PropertyVariable('p')(e, v, None, [[Property('p')(0)]]),
+                e, ValueSnak(PropertyVariable('p'), v),
+                references=ReferenceRecordSet(
+                    ReferenceRecord(Property('p')(0))))
+            self.assert_annotated_statement_template(
+                PropertyVariable('p')(e, v, None, None, rank=PreferredRank()),
+                e, ValueSnak(PropertyVariable('p'), v),
+                rank=PreferredRank())
 
     def test_no_value(self) -> None:
         assert_type(PropertyVariable('x').no_value(), NoValueSnakTemplate)

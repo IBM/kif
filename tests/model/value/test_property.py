@@ -15,13 +15,17 @@ from kif_lib import (
     itertools,
     Lexeme,
     NoValueSnak,
+    PreferredRank,
     Properties,
     Property,
     PropertyDatatype,
     PropertyTemplate,
     PropertyVariable,
+    QualifierRecord,
     Quantity,
     QuantityDatatype,
+    ReferenceRecord,
+    ReferenceRecordSet,
     SomeValueSnak,
     Statement,
     String,
@@ -168,6 +172,19 @@ class Test(EntityTestCase):
             self.assert_statement(
                 cast(Statement, PropertyTemplate('p')(e, v)),
                 e, ValueSnak(Property('p'), v))
+            self.assert_annotated_statement(
+                Property('p')(e, v, [Property('p')(0)]),
+                e, ValueSnak(Property('p'), v),
+                QualifierRecord(Property('p')(0)))
+            self.assert_annotated_statement(
+                Property('p')(e, v, None, [[Property('p')(0)]]),
+                e, ValueSnak(Property('p'), v),
+                references=ReferenceRecordSet(
+                    ReferenceRecord(Property('p')(0))))
+            self.assert_annotated_statement(
+                Property('p')(e, v, None, None, PreferredRank()),
+                e, ValueSnak(Property('p'), v),
+                rank=PreferredRank())
 
     def test_no_value(self) -> None:
         assert_type(Property('x').no_value(), NoValueSnak)
