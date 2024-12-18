@@ -32,8 +32,11 @@ from ...model import (
     Property,
     PropertyTemplate,
     PropertyVariable,
+    QualifierRecordVariable,
     Quantity,
     QuantityVariable,
+    RankVariable,
+    ReferenceRecordSetVariable,
     ShallowDataValue,
     ShallowDataValueVariable,
     Snak,
@@ -252,6 +255,21 @@ class SPARQL_PatternCompiler(SPARQL_Compiler):
 
     def _fresh_statement_variable(self) -> StatementVariable:
         return cast(StatementVariable, self._fresh_variable(StatementVariable))
+
+    def _fresh_qualifier_record_variable(self) -> QualifierRecordVariable:
+        return cast(
+            QualifierRecordVariable,
+            self._fresh_variable(QualifierRecordVariable))
+
+    def _fresh_reference_record_set_variable(
+            self
+    ) -> ReferenceRecordSetVariable:
+        return cast(
+            ReferenceRecordSetVariable,
+            self._fresh_variable(ReferenceRecordSetVariable))
+
+    def _fresh_rank_variable(self) -> RankVariable:
+        return cast(RankVariable, self._fresh_variable(RankVariable))
 
     def _as_simple_value(
             self,
