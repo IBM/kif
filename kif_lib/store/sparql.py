@@ -492,7 +492,7 @@ At line {line}, column {column}:
                 ps = NS.PS[name]
                 psv = NS.PSV[name]
                 wdno = NS.WDNO[name]
-            except Exception as e:
+            except ValueError as e:
                 LOG.error(e)
             finally:
                 prop = prop_
