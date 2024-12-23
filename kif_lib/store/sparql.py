@@ -485,13 +485,17 @@ At line {line}, column {column}:
         # Property:
         if property is not None and isinstance(property, Property):
             prop_ = property
-            name = NS.Wikidata.get_wikidata_name(prop_.iri.content)
-            prop = prop_
-            pname = String(name)
-            p = NS.P[name]
-            ps = NS.PS[name]
-            psv = NS.PSV[name]
-            wdno = NS.WDNO[name]
+            try:
+                name = NS.Wikidata.get_wikidata_name(prop_.iri.content)
+                pname = String(name)
+                p = NS.P[name]
+                ps = NS.PS[name]
+                psv = NS.PSV[name]
+                wdno = NS.WDNO[name]
+            except ValueError as e:
+                LOG.error(e)
+            finally:
+                prop = prop_
         # Value:
         if value is not None and isinstance(value, Value):
             val = value
