@@ -33,6 +33,7 @@ from .fingerprint import (
     TFingerprint,
     ValueFingerprint,
 )
+from .graph import Graph, GraphVariable, TGraph, VGraph, VTGraph
 from .kif_object import KIF_Object
 from .pattern import (
     ClosedPattern,
@@ -438,6 +439,13 @@ __all__ = (
     'VTReferenceRecord',
     'VTReferenceRecordSet',
     'VTSnakSet',
+
+    # graph
+    'Graph',
+    'GraphVariable',
+    'TGraph',
+    'VGraph',
+    'VTGraph',
 
     # pattern
     'ClosedPattern',

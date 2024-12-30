@@ -31,6 +31,8 @@ from kif_lib import (
     ExternalIdVariable,
     Filter,
     Fingerprint,
+    Graph,
+    GraphVariable,
     IRI,
     IRI_Datatype,
     IRI_Template,
@@ -323,6 +325,10 @@ class TestCase(unittest.TestCase):
     def assert_snak_set(self, obj: SnakSet, *snaks: Snak) -> None:
         self.assertIsInstance(obj, SnakSet)
         self.assert_closed_term_set(obj, *snaks)
+
+    def assert_graph(self, obj: Graph, *statements: Statement) -> None:
+        self.assertIsInstance(obj, Graph)
+        self.assert_closed_term_set(obj, *statements)
 
     def assert_qualifier_record(
             self,
@@ -937,6 +943,14 @@ class TestCase(unittest.TestCase):
     ) -> None:
         self.assert_variable(obj, name)
         self.assertIsInstance(obj, SnakSetVariable)
+
+    def assert_graph_variable(
+            self,
+            obj: Variable,
+            name: str
+    ) -> None:
+        self.assert_variable(obj, name)
+        self.assertIsInstance(obj, GraphVariable)
 
     def assert_qualifier_record_variable(
             self,

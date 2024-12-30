@@ -36,6 +36,8 @@ from .model import (
     ExternalIdVariable,
     Filter,
     Fingerprint,
+    Graph,
+    GraphVariable,
     IRI,
     IRI_Datatype,
     IRI_Template,
@@ -293,6 +295,10 @@ __all__ = (
     'SnakSetVariable',
     'TextSet',
     'ValueSet',
+
+    # model.graph,
+    'Graph',
+    'GraphVariable',
 
     # model.pattern
     'ClosedPattern',
