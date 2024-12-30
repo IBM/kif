@@ -274,7 +274,8 @@ class Object(Sequence, metaclass=ObjectMeta):
             self._digest = self._hexdigest(self.dumps())
         return self._digest
 
-    def _hexdigest(self, s: str) -> str:
+    @classmethod
+    def _hexdigest(cls, s: str) -> str:
         import hashlib
         return hashlib.sha256(s.encode('utf-8')).hexdigest()
 

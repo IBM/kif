@@ -14,6 +14,7 @@ from .. import itertools
 from .. import namespace as NS
 from ..compiler.sparql import SPARQL_FilterCompiler, SPARQL_PatternCompiler
 from ..model import (
+    AnnotatedStatement,
     ClosedPattern,
     ClosedTerm,
     Datatype,
@@ -353,6 +354,28 @@ At line {line}, column {column}:
 
     @override
     def _filter(
+            self,
+            filter: Filter,
+            limit: int,
+            distinct: bool,
+            annotated: bool
+    ) -> Iterator[Statement]:
+        it = self._do_filter(filter, limit, distinct, annotated)
+        return self._do_get_annotations(it) if annotated else it
+
+    def _do_get_annotations(
+            self,
+            it: Iterator[Statement]
+    ) -> Iterator[AnnotatedStatement]:
+        for stmt, annots in self._get_annotations(it):
+            assert annots is not None
+            for annot in annots:
+                yield stmt.annotate(
+                    qualifiers=annot[0],
+                    references=annot[1],
+                    rank=annot[2])
+
+    def _do_filter(
             self,
             filter: Filter,
             limit: int,

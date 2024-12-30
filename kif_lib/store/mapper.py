@@ -125,7 +125,7 @@ class SPARQL_MapperStore(
     )
 
     @override
-    def _filter(
+    def _do_filter(
             self,
             filter: Filter,
             limit: int,

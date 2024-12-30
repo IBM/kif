@@ -1165,22 +1165,10 @@ class Store(Set):
         Returns:
            An iterator of annotated statements matching filter.
         """
-        return self._filter_annotated_tail(self.filter(
+        return cast(Iterator[AnnotatedStatement], self.filter(
             subject, property, value, snak_mask,
             subject_mask, property_mask, value_mask, rank_mask, language,
-            snak, filter, limit, distinct))
-
-    def _filter_annotated_tail(
-            self,
-            it: Iterator[Statement]
-    ) -> Iterator[AnnotatedStatement]:
-        for stmt, annots in self.get_annotations(it):
-            assert annots is not None
-            for annot in annots:
-                yield stmt.annotate(
-                    qualifiers=annot[0],
-                    references=annot[1],
-                    rank=annot[2])
+            snak, filter, limit, distinct, True))
 
     def get_annotations(
             self,
