@@ -85,6 +85,20 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
     def _repr_markdown_(self) -> str:
         return self.to_markdown()  # type: ignore
 
+    def to_rdf(self, **kwargs: Any) -> str:
+        """Encodes object using RDF encoder.
+
+        Parameters:
+           kwargs: Options to RDF encoder.
+
+        Returns:
+           String.
+
+        Raises:
+           `EncoderError`: Encoder error.
+        """
+        return self.dumps('rdf', **kwargs)
+
     def substitute(
             self,
             sigma: Mapping[Any, Any] | Callable[[Any], Any]

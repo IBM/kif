@@ -33,11 +33,15 @@ class WIKIBASE(DefinedNamespace):
     lexicalCategory: URIRef
     novalue: URIRef
     propertyType: URIRef
+    qualifier: URIRef
+    qualifierValue: URIRef
     quantityAmount: URIRef
     quantityLowerBound: URIRef
     quantityUnit: URIRef
     quantityUpperBound: URIRef
     rank: URIRef
+    reference: URIRef
+    referenceValue: URIRef
     sitelinks: URIRef
     statementProperty: URIRef
     statementValue: URIRef

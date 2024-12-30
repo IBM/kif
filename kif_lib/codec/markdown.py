@@ -42,7 +42,10 @@ NL = '\n'                       # newline
 
 
 class MarkdownEncoder(
-        Encoder, format='markdown', description='Markdown encoder'):
+        Encoder,
+        format='markdown',
+        description='Markdown encoder'
+):
     """Markdown encoder."""
 
     @property
