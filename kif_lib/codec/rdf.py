@@ -73,7 +73,7 @@ class RDF_Encoder(
         for prop, t in (schema or {}).items():
             self._property_schema_table[prop] = cast(
                 RDF_Encoder.PropertySchema,
-                {k: URIRef(v) for k, v in t.items()})
+                {k: URIRef(v) for k, v in t.items()})  # type: ignore
         self._seen_deep_data_value = {}
         self._seen_entity = {}
         self._seen_reference_record = {}
