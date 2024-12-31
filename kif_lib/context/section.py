@@ -21,7 +21,7 @@ class Section:
 
     @classmethod
     def getenv(cls, name: str, default: Any | None = None) -> Any:
-        """Alias for :func:`os.getenv`."""
+        """Alias of :func:`os.getenv`."""
         return os.getenv(name, default)
 
     @classmethod

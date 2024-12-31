@@ -127,25 +127,7 @@ class Test(EntityTestCase):
     ]
 
     def test__call__(self) -> None:
-        # variant 1
-        self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'cannot coerce dict into Value',
-            (Property('x'), 'ValueSnak'), {})
-        self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'cannot coerce ValueSnak into Value',
-            (Property('x'), 'ValueSnak'),
-            ValueSnak(Property('p'), Item('x')))
-        # success
-        assert_type(Property('p')(String('x')), ValueSnak)
-        for v, dt in self._test__call__values:
-            self.assert_value_snak(
-                Property('p')(v), Property('p', dt), Value.check(v))
-            self.assert_value_snak(
-                cast(ValueSnak, PropertyTemplate('p')(v)),
-                Property('p', dt), Value.check(v))
-        # variant 2
+        # statement
         self.assert_raises_bad_argument(
             TypeError, 1, None,
             'cannot coerce int into Entity',
@@ -185,8 +167,40 @@ class Test(EntityTestCase):
                 Property('p')(e, v, None, None, PreferredRank()),
                 e, ValueSnak(Property('p'), v),
                 rank=PreferredRank())
+        # value snak
+        self.assert_raises_bad_argument(
+            TypeError, 2, None,
+            'cannot coerce dict into Value',
+            (Property('x'), 'ValueSnak'), {})
+        self.assert_raises_bad_argument(
+            TypeError, 2, None,
+            'cannot coerce ValueSnak into Value',
+            (Property('x'), 'ValueSnak'),
+            ValueSnak(Property('p'), Item('x')))
+        # success
+        assert_type(Property('p')(String('x')), ValueSnak)
+        for v, dt in self._test__call__values:
+            self.assert_value_snak(
+                Property('p')(v), Property('p', dt), Value.check(v))
+            self.assert_value_snak(
+                cast(ValueSnak, PropertyTemplate('p')(v)),
+                Property('p', dt), Value.check(v))
 
     def test_no_value(self) -> None:
+        # statement
+        assert_type(Property('x').no_value(Item('y')), Statement)
+        self.assert_raises_bad_argument(
+            TypeError, 1, None,
+            'cannot coerce dict into Entity',
+            (Property('x').no_value, 'Statement'), {})
+        self.assert_statement(
+            Property('x').no_value(Item('y')),
+            Item('y'), NoValueSnak(Property('x', None)))
+        self.assert_annotated_statement(
+            Property('x').no_value(Item('y'), rank=PreferredRank()),
+            Item('y'), NoValueSnak(Property('x', None)),
+            rank=PreferredRank())
+        # no value snak
         assert_type(Property('x').no_value(), NoValueSnak)
         self.assert_no_value_snak(Property('x').no_value(), Property('x'))
         self.assert_no_value_snak(
@@ -195,6 +209,20 @@ class Test(EntityTestCase):
             Property('x', Quantity).no_value(), Property('x', Quantity))
 
     def test_some_value(self) -> None:
+        # statement
+        assert_type(Property('x').some_value(Item('y')), Statement)
+        self.assert_raises_bad_argument(
+            TypeError, 1, None,
+            'cannot coerce dict into Entity',
+            (Property('x').some_value, 'Statement'), {})
+        self.assert_statement(
+            Property('x').some_value(Item('y')),
+            Item('y'), SomeValueSnak(Property('x', None)))
+        self.assert_annotated_statement(
+            Property('x').some_value(Item('y'), rank=PreferredRank()),
+            Item('y'), SomeValueSnak(Property('x', None)),
+            rank=PreferredRank())
+        # some value snak
         assert_type(Property('x').some_value(), SomeValueSnak)
         self.assert_some_value_snak(Property('x').some_value(), Property('x'))
         self.assert_some_value_snak(

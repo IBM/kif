@@ -48,8 +48,11 @@ from .pattern import (
     VariablePattern,
 )
 from .rank import (
+    Deprecated,
     DeprecatedRank,
+    Normal,
     NormalRank,
+    Preferred,
     PreferredRank,
     Rank,
     RankVariable,
@@ -397,8 +400,11 @@ __all__ = (
     'VTStatement',
 
     # rank
+    'Deprecated',
     'DeprecatedRank',
+    'Normal',
     'NormalRank',
+    'Preferred',
     'PreferredRank',
     'Rank',
     'RankVariable',

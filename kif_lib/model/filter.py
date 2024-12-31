@@ -270,7 +270,7 @@ class Filter(KIF_Object):
     #: Mask for :class:`TimeDatatype`.
     TIME: Final[DatatypeMask] = DatatypeMask.TIME
 
-    #: Type alias for DatatypeMask.
+    #: Type alias of DatatypeMask.
     TDatatypeMask: TypeAlias = Union[DatatypeMask, TDatatype, int]
 
     class RankMask(Flags):
@@ -358,7 +358,7 @@ class Filter(KIF_Object):
     #: Mask for :class:`DeprecatedRank`.
     DEPRECATED: Final[RankMask] = RankMask.DEPRECATED
 
-    #: Type alias for RankMask.
+    #: Type alias of RankMask.
     TRankMask: TypeAlias = Union[RankMask, TRank, int]
 
     class SnakMask(Flags):
@@ -441,7 +441,7 @@ class Filter(KIF_Object):
     #: Mask for :class:`NoValueSnak`.
     NO_VALUE_SNAK: Final[SnakMask] = SnakMask.NO_VALUE_SNAK
 
-    #: Type alias for SnakMask.
+    #: Type alias of SnakMask.
     TSnakMask: TypeAlias = Union[SnakMask, type['Snak'], TSnak, int]
 
     @classmethod

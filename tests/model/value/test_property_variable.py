@@ -25,6 +25,7 @@ from kif_lib import (
     PropertyVariable,
     QualifierRecord,
     Quantity,
+    RankVariable,
     ReferenceRecord,
     ReferenceRecordSet,
     SomeValueSnakTemplate,
@@ -111,23 +112,7 @@ class Test(EntityVariableTestCase):
     ]
 
     def test__call__(self) -> None:
-        # variant 1
-        self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'cannot coerce dict into Value',
-            (PropertyVariable('x'), 'ValueSnakTemplate'), {})
-        self.assert_raises_bad_argument(
-            TypeError, 2, None,
-            'cannot coerce ValueSnak into Value',
-            (PropertyVariable('x'), 'ValueSnakTemplate'),
-            ValueSnakTemplate(Property('p'), Item('x')))
-        # success
-        assert_type(PropertyVariable('x')('y'), ValueSnakTemplate)
-        for v in self._test__call__values:
-            self.assert_value_snak_template(
-                PropertyVariable('p')(v),
-                PropertyVariable('p'), Value.check(v))
-        # variant 2
+        # statement template
         self.assert_raises_bad_argument(
             TypeError, 1, None,
             'cannot coerce int into Entity',
@@ -165,14 +150,62 @@ class Test(EntityVariableTestCase):
                 PropertyVariable('p')(e, v, None, None, rank=PreferredRank()),
                 e, ValueSnak(PropertyVariable('p'), v),
                 rank=PreferredRank())
+        # value snak template
+        self.assert_raises_bad_argument(
+            TypeError, 2, None,
+            'cannot coerce dict into Value',
+            (PropertyVariable('x'), 'ValueSnakTemplate'), {})
+        self.assert_raises_bad_argument(
+            TypeError, 2, None,
+            'cannot coerce ValueSnak into Value',
+            (PropertyVariable('x'), 'ValueSnakTemplate'),
+            ValueSnakTemplate(Property('p'), Item('x')))
+        # success
+        assert_type(PropertyVariable('x')('y'), ValueSnakTemplate)
+        for v in self._test__call__values:
+            self.assert_value_snak_template(
+                PropertyVariable('p')(v),
+                PropertyVariable('p'), Value.check(v))
 
     def test_no_value(self) -> None:
+        # statement template
+        assert_type(
+            PropertyVariable('x').no_value(Item('y')), StatementTemplate)
+        self.assert_raises_bad_argument(
+            TypeError, 1, None,
+            'cannot coerce dict into Entity',
+            (PropertyVariable('x').no_value, 'StatementTemplate'), {})
+        self.assert_statement_template(
+            PropertyVariable('x').no_value(Item('y')),
+            Item('y'), NoValueSnakTemplate(PropertyVariable('x')))
+        self.assert_annotated_statement_template(
+            PropertyVariable('x').no_value(Item('y'), rank=RankVariable('r')),
+            Item('y'), NoValueSnakTemplate(PropertyVariable('x')),
+            rank=RankVariable('r'))
+        # no value snak template
         assert_type(PropertyVariable('x').no_value(), NoValueSnakTemplate)
         self.assert_no_value_snak_template(
             PropertyVariable('x').no_value(), PropertyVariable('x'))
 
     def test_some_value(self) -> None:
-        assert_type(PropertyVariable('x').some_value(), SomeValueSnakTemplate)
+        # statement template
+        assert_type(
+            PropertyVariable('x').some_value(Item('y')), StatementTemplate)
+        self.assert_raises_bad_argument(
+            TypeError, 1, None,
+            'cannot coerce dict into Entity',
+            (PropertyVariable('x').some_value, 'StatementTemplate'), {})
+        self.assert_statement_template(
+            PropertyVariable('x').some_value(Item('y')),
+            Item('y'), SomeValueSnakTemplate(PropertyVariable('x')))
+        self.assert_annotated_statement_template(
+            PropertyVariable('x').some_value(
+                Item('y'), rank=RankVariable('r')),
+            Item('y'), SomeValueSnakTemplate(PropertyVariable('x')),
+            rank=RankVariable('r'))
+        # some value snak template
+        assert_type(
+            PropertyVariable('x').some_value(), SomeValueSnakTemplate)
         self.assert_some_value_snak_template(
             PropertyVariable('x').some_value(), PropertyVariable('x'))
 

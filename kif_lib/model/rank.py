@@ -10,6 +10,7 @@ from ..typing import (
     Any,
     cast,
     ClassVar,
+    Final,
     Location,
     override,
     Self,
@@ -158,3 +159,13 @@ class DeprecatedRank(Rank):
     """Unreliable information."""
 
     instance: ClassVar[DeprecatedRank]  # pyright: ignore
+
+
+#: Alias of singleton instance of :class:`PreferredRank`.
+Preferred: Final[PreferredRank] = PreferredRank()
+
+#: Alias of singleton instance of :class:`NormalRank`.
+Normal: Final[NormalRank] = NormalRank()
+
+#: Alias of singleton instance of :class:`DeprecatedRank`.
+Deprecated: Final[DeprecatedRank] = DeprecatedRank()

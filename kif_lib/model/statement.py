@@ -196,7 +196,7 @@ class Statement(
     template_class: ClassVar[type[StatementTemplate]]  # pyright: ignore
     variable_class: ClassVar[type[StatementVariable]]  # pyright: ignore
 
-    # Type alias for an "annotation".
+    # Type alias of "annotation".
     Annotation: TypeAlias = tuple[QualifierRecord, ReferenceRecordSet, Rank]
 
     @classmethod

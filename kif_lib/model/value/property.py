@@ -65,37 +65,58 @@ class PropertyTemplate(EntityTemplate):
     @overload
     def __call__(
             self,
-            v1: VTEntity,
-            v2: VTValue,
+            arg1: VTEntity,
+            arg2: VTValue,
             qualifiers: VTQualifierRecord | None = None,
             references: VTReferenceRecordSet | None = None,
             rank: VTRank | None = None
     ) -> StatementTemplate:
+        """Constructs statement template from property template.
+
+        Parameters:
+           arg1: Subject.
+           arg2: Value.
+           qualifiers: Qualifier record.
+           references: Reference record set.
+           rank: Rank.
+
+        Returns:
+           Statement template.
+        """
         ...                     # pragma: no cover
 
     @overload
-    def __call__(self, v1: VTValue) -> ValueSnakTemplate:
+    def __call__(self, arg1: VTValue) -> ValueSnakTemplate:
+        """Constructs value snak template from property template.
+
+        Parameters:
+           arg1: Value.
+
+        Returns:
+           Value snak template.
+        """
         ...                     # pragma: no cover
 
     def __call__(
             self,
-            v1: VTEntity | VTValue,
-            v2: VTValue | None = None,
+            arg1: VTEntity | VTValue,
+            arg2: VTValue | None = None,
             qualifiers: VTQualifierRecord | None = None,
             references: VTReferenceRecordSet | None = None,
             rank: VTRank | None = None
     ) -> StatementTemplate | ValueSnakTemplate:
-        if v2 is not None:
+        if arg2 is not None:
             from ..snak import ValueSnak
             from ..statement import StatementTemplate
-            stmt = StatementTemplate(v1, ValueSnak(self, v2))  # type: ignore
+            stmt = StatementTemplate(
+                arg1, ValueSnak(self, arg2))  # type: ignore
             if qualifiers is None and references is None and rank is None:
                 return stmt
             else:
                 return stmt.annotate(qualifiers, references, rank)
         else:
             from ..snak import ValueSnakTemplate
-            return ValueSnakTemplate(self, v1)
+            return ValueSnakTemplate(self, arg1)
 
     @property
     def range(self) -> VDatatype | None:
@@ -115,23 +136,103 @@ class PropertyTemplate(EntityTemplate):
         """
         return self.get(1, default)
 
+    @overload
+    def no_value(
+            self,
+            subject: VTEntity,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
+    ) -> StatementTemplate:
+        """Constructs no-value statement template from property template.
+
+        Parameters:
+           subject: Entity.
+           qualifiers: Qualifier record.
+           references: Reference record set.
+           rank: Rank.
+
+        Returns:
+           Statement template.
+        """
+        ...                     # pragma: no cover
+
+    @overload
     def no_value(self) -> NoValueSnakTemplate:
-        """Constructs a no-value snak template from property template.
+        """Constructs no-value snak template from property template.
 
         Returns:
            No-value snak template.
         """
-        from ..snak import NoValueSnakTemplate
-        return NoValueSnakTemplate(self)
+        ...                     # pragma: no cover
 
+    def no_value(
+            self,
+            subject: VTEntity | None = None,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
+    ) -> StatementTemplate | NoValueSnakTemplate:
+        from ..snak import NoValueSnakTemplate
+        snak = NoValueSnakTemplate(self)
+        if subject is None:
+            return snak
+        else:
+            from ..statement import StatementTemplate
+            stmt = StatementTemplate(subject, snak)
+            if qualifiers is None and references is None and rank is None:
+                return stmt
+            else:
+                return stmt.annotate(qualifiers, references, rank)
+
+    @overload
+    def some_value(
+            self,
+            subject: VTEntity,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
+    ) -> StatementTemplate:
+        """Constructs some-value statement template from property template.
+
+        Parameters:
+           subject: Entity.
+           qualifiers: Qualifier record.
+           references: Reference record set.
+           rank: Rank.
+
+        Returns:
+           Statement template.
+        """
+        ...                     # pragma: no cover
+
+    @overload
     def some_value(self) -> SomeValueSnakTemplate:
-        """Constructs a some-value snak template from property template.
+        """Constructs some-value snak template from property template.
 
         Returns:
            Some-value snak template.
         """
+        ...                     # pragma: no cover
+
+    def some_value(
+            self,
+            subject: VTEntity | None = None,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
+    ) -> StatementTemplate | SomeValueSnakTemplate:
         from ..snak import SomeValueSnakTemplate
-        return SomeValueSnakTemplate(self)
+        snak = SomeValueSnakTemplate(self)
+        if subject is None:
+            return snak
+        else:
+            from ..statement import StatementTemplate
+            stmt = StatementTemplate(subject, snak)
+            if qualifiers is None and references is None and rank is None:
+                return stmt
+            else:
+                return stmt.annotate(qualifiers, references, rank)
 
 
 class PropertyVariable(EntityVariable):
@@ -146,55 +247,156 @@ class PropertyVariable(EntityVariable):
     @overload
     def __call__(
             self,
-            v1: VTEntity,
-            v2: VTValue,
+            arg1: VTEntity,
+            arg2: VTValue,
             qualifiers: VTQualifierRecord | None = None,
             references: VTReferenceRecordSet | None = None,
             rank: VTRank | None = None
     ) -> StatementTemplate:
+        """Constructs statement template from property variable.
+
+        Parameters:
+           arg1: Subject.
+           arg2: Value.
+           qualifiers: Qualifier record.
+           references: Reference record set.
+           rank: Rank.
+
+        Returns:
+           Statement template.
+        """
         ...                     # pragma: no cover
 
     @overload
-    def __call__(self, v1: VTValue) -> ValueSnakTemplate:
+    def __call__(self, arg1: VTValue) -> ValueSnakTemplate:
+        """Constructs value snak template from property variable.
+
+        Parameters:
+           arg1: Value.
+
+        Returns:
+           Value snak template.
+        """
         ...                     # pragma: no cover
 
     def __call__(
             self,
-            v1: VTEntity | VTValue,
-            v2: VTValue | None = None,
+            arg1: VTEntity | VTValue,
+            arg2: VTValue | None = None,
             qualifiers: VTQualifierRecord | None = None,
             references: VTReferenceRecordSet | None = None,
             rank: VTRank | None = None
     ) -> StatementTemplate | ValueSnakTemplate:
-        if v2 is not None:
+        if arg2 is not None:
             from ..snak import ValueSnak
             from ..statement import StatementTemplate
-            stmt = StatementTemplate(v1, ValueSnak(self, v2))  # type: ignore
+            stmt = StatementTemplate(
+                arg1, ValueSnak(self, arg2))  # type: ignore
             if qualifiers is None and references is None and rank is None:
                 return stmt
             else:
                 return stmt.annotate(qualifiers, references, rank)
         else:
             from ..snak import ValueSnakTemplate
-            return ValueSnakTemplate(self, v1)
+            return ValueSnakTemplate(self, arg1)
 
+    @overload
+    def no_value(
+            self,
+            subject: VTEntity,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
+    ) -> StatementTemplate:
+        """Constructs no-value statement template from property variable.
+
+        Parameters:
+           subject: Entity.
+           qualifiers: Qualifier record.
+           references: Reference record set.
+           rank: Rank.
+
+        Returns:
+           Statement template.
+        """
+        ...                     # pragma: no cover
+
+    @overload
     def no_value(self) -> NoValueSnakTemplate:
-        """Constructs a no-value snak template from property variable.
+        """Constructs no-value snak template from property variable.
 
         Returns:
            No-value snak template.
         """
-        from ..snak import NoValueSnakTemplate
-        return NoValueSnakTemplate(self)
+        ...                     # pragma: no cover
 
+    def no_value(
+            self,
+            subject: VTEntity | None = None,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
+    ) -> StatementTemplate | NoValueSnakTemplate:
+        from ..snak import NoValueSnakTemplate
+        snak = NoValueSnakTemplate(self)
+        if subject is None:
+            return snak
+        else:
+            from ..statement import StatementTemplate
+            stmt = StatementTemplate(subject, snak)
+            if qualifiers is None and references is None and rank is None:
+                return stmt
+            else:
+                return stmt.annotate(qualifiers, references, rank)
+
+    @overload
+    def some_value(
+            self,
+            subject: VTEntity,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
+    ) -> StatementTemplate:
+        """Constructs some-value statement template from property variable.
+
+        Parameters:
+           subject: Entity.
+           qualifiers: Qualifier record.
+           references: Reference record set.
+           rank: Rank.
+
+        Returns:
+           Statement template.
+        """
+        ...                     # pragma: no cover
+
+    @overload
     def some_value(self) -> SomeValueSnakTemplate:
-        """Constructs a some-value snak template from property variable.
+        """Constructs some-value snak template from property variable.
 
         Returns:
            Some-value snak template.
         """
+        ...                     # pragma: no cover
+
+    def some_value(
+            self,
+            subject: VTEntity | None = None,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
+    ) -> StatementTemplate | SomeValueSnakTemplate:
         from ..snak import SomeValueSnakTemplate
-        return SomeValueSnakTemplate(self)
+        snak = SomeValueSnakTemplate(self)
+        if subject is None:
+            return snak
+        else:
+            from ..statement import StatementTemplate
+            stmt = StatementTemplate(subject, snak)
+            if qualifiers is None and references is None and rank is None:
+                return stmt
+            else:
+                return stmt.annotate(qualifiers, references, rank)
 
 
 class PropertyDatatype(Datatype):
@@ -242,37 +444,57 @@ class Property(
     @overload
     def __call__(
             self,
-            v1: VTEntity,
-            v2: VTValue,
+            arg1: VTEntity,
+            arg2: VTValue,
             qualifiers: VTQualifierRecord | None = None,
             references: VTReferenceRecordSet | None = None,
             rank: VTRank | None = None
     ) -> Statement:
+        """Constructs statement from property.
+
+        Parameters:
+           arg1: Subject.
+           arg2: Value.
+           qualifiers: Qualifier record.
+           references: Reference record set.
+           rank: Rank.
+
+        Returns:
+           Statement.
+        """
         ...                     # pragma: no cover
 
     @overload
-    def __call__(self, v1: VTValue) -> ValueSnak:
+    def __call__(self, arg1: VTValue) -> ValueSnak:
+        """Constructs value snak from property.
+
+        Parameters:
+           arg1: Value.
+
+        Returns:
+           Value snak.
+        """
         ...                     # pragma: no cover
 
     def __call__(
             self,
-            v1: VTEntity | VTValue,
-            v2: VTValue | None = None,
+            arg1: VTEntity | VTValue,
+            arg2: VTValue | None = None,
             qualifiers: VTQualifierRecord | None = None,
             references: VTReferenceRecordSet | None = None,
             rank: VTRank | None = None
     ) -> Statement | ValueSnak:
-        if v2 is not None:
+        if arg2 is not None:
             from ..snak import ValueSnak
             from ..statement import Statement
-            stmt = Statement(v1, ValueSnak(self, v2))  # type: ignore
+            stmt = Statement(arg1, ValueSnak(self, arg2))  # type: ignore
             if qualifiers is None and references is None and rank is None:
                 return stmt
             else:
                 return stmt.annotate(qualifiers, references, rank)
         else:
             from ..snak import ValueSnak
-            return ValueSnak(self, v1)
+            return ValueSnak(self, arg1)
 
     @property
     def range(self) -> Datatype | None:
@@ -292,23 +514,103 @@ class Property(
         """
         return self.get(1, default)
 
+    @overload
+    def no_value(
+            self,
+            subject: VTEntity,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
+    ) -> Statement:
+        """Constructs no-value statement from property.
+
+        Parameters:
+           subject: Entity.
+           qualifiers: Qualifier record.
+           references: Reference record set.
+           rank: Rank.
+
+        Returns:
+           Statement.
+        """
+        ...                     # pragma: no cover
+
+    @overload
     def no_value(self) -> NoValueSnak:
-        """Constructs a no-value snak from property.
+        """Constructs no-value snak from property.
 
         Returns:
            No-value snak.
         """
-        from ..snak import NoValueSnak
-        return NoValueSnak(self)
+        ...                     # pragma: no cover
 
+    def no_value(
+            self,
+            subject: VTEntity | None = None,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
+    ) -> Statement | NoValueSnak:
+        from ..snak import NoValueSnak
+        snak = NoValueSnak(self)
+        if subject is None:
+            return snak
+        else:
+            from ..statement import Statement
+            stmt = Statement(subject, snak)
+            if qualifiers is None and references is None and rank is None:
+                return stmt
+            else:
+                return stmt.annotate(qualifiers, references, rank)
+
+    @overload
+    def some_value(
+            self,
+            subject: VTEntity,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
+    ) -> Statement:
+        """Constructs some-value statement from property.
+
+        Parameters:
+           subject: Entity.
+           qualifiers: Qualifier record.
+           references: Reference record set.
+           rank: Rank.
+
+        Returns:
+           Statement.
+        """
+        ...                     # pragma: no cover
+
+    @overload
     def some_value(self) -> SomeValueSnak:
-        """Constructs a some-value snak from property.
+        """Constructs some-value snak from property.
 
         Returns:
            Some-value snak.
         """
+        ...                     # pragma: no cover
+
+    def some_value(
+            self,
+            subject: VTEntity | None = None,
+            qualifiers: VTQualifierRecord | None = None,
+            references: VTReferenceRecordSet | None = None,
+            rank: VTRank | None = None
+    ) -> Statement | SomeValueSnak:
         from ..snak import SomeValueSnak
-        return SomeValueSnak(self)
+        snak = SomeValueSnak(self)
+        if subject is None:
+            return snak
+        else:
+            from ..statement import Statement
+            stmt = Statement(subject, snak)
+            if qualifiers is None and references is None and rank is None:
+                return stmt
+            else:
+                return stmt.annotate(qualifiers, references, rank)
 
 
 def Properties(
