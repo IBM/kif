@@ -8,6 +8,7 @@ from ..model import (
     AnnotatedStatement,
     DeepDataValue,
     Entity,
+    Graph,
     Item,
     KIF_Object,
     Lexeme,
@@ -66,10 +67,13 @@ class RDF_Encoder(
 
     def __init__(
             self,
-            properties: dict[
-                Property, RDF_Encoder.PropertySchema] | None = None
+            schema: dict[Property, RDF_Encoder.PropertySchema] | None = None
     ) -> None:
-        self._property_schema_table = properties or {}
+        self._property_schema_table = {}
+        for prop, t in (schema or {}).items():
+            self._property_schema_table[prop] = cast(
+                RDF_Encoder.PropertySchema,
+                {k: URIRef(v) for k, v in t.items()})
         self._seen_deep_data_value = {}
         self._seen_entity = {}
         self._seen_reference_record = {}
@@ -104,7 +108,10 @@ class RDF_Encoder(
 
     @override
     def iterencode(self, input: Object) -> Iterator[str]:
-        if isinstance(input, Statement):
+        if isinstance(input, Graph):
+            for s in input:
+                yield from self.iterencode(s)
+        elif isinstance(input, Statement):
             if isinstance(input, AnnotatedStatement):
                 stmt: AnnotatedStatement = input
             else:
