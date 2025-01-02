@@ -3,40 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import (
-    DeprecatedRank,
-    ExternalIdDatatype,
-    Filter,
-    Graph,
-    IRI,
-    IRI_Datatype,
-    Item,
-    ItemDatatype,
-    ItemDescriptor,
-    KIF_Object,
-    LexemeDatatype,
-    Normal,
-    NormalRank,
-    NoValueSnak,
-    Preferred,
-    PreferredRank,
-    Property,
-    PropertyDatatype,
-    Quantity,
-    QuantityDatatype,
-    ReferenceRecord,
-    SnakSet,
-    SomeValueSnak,
-    Store,
-    String,
-    StringDatatype,
-    Text,
-    TextDatatype,
-    Time,
-    TimeDatatype,
-    ValueSnak,
-)
-from kif_lib.typing import cast
+from kif_lib import Graph, Normal, Preferred, Store, Text
 from kif_lib.vocabulary import wd
 
 from ..tests import TestCase
