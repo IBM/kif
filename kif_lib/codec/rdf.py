@@ -14,6 +14,7 @@ from ..model import (
     Lexeme,
     NoValueSnak,
     Property,
+    PseudoProperty,
     Quantity,
     ReferenceRecord,
     ShallowDataValue,
@@ -82,6 +83,7 @@ class RDF_Encoder(
             self,
             property: Property
     ) -> RDF_Encoder.PropertySchema:
+        assert not isinstance(property, PseudoProperty)
         if property in self._property_schema_table:
             return self._property_schema_table[property]
         if property.range is None:
@@ -124,38 +126,52 @@ class RDF_Encoder(
             self,
             stmt: AnnotatedStatement
     ) -> Iterator[str]:
-        schema = self._get_property_schema(stmt.snak.property)
-        wds = Wikidata.WDS[stmt.digest]
-        # property definition
-        yield from self._do_iterencode_property(stmt.snak.property, True)
-        # subject
-        yield from self._do_iterencode_entity(stmt.subject)
-        subject = self._seen_entity[stmt.subject]
-        assert subject
-        yield from self._tr((subject, schema['p'], wds))
-        # main snak
-        if not isinstance(stmt.snak, NoValueSnak):
-            if isinstance(stmt.snak, ValueSnak):
-                truthy_value = stmt.snak.value._to_rdflib()
-            else:
-                truthy_value = Wikidata.WDGENID[stmt.snak.property.digest]
-            yield from self._tr((subject, schema['wdt'], truthy_value))
-        yield from self._do_iterencode_snak(
-            stmt.snak, wds, schema['ps'], schema['psv'], schema['wdno'])
-        # qualifiers
-        for qsnak in stmt.qualifiers:
-            qschema = self._get_property_schema(qsnak.property)
+        if isinstance(stmt.snak.property, PseudoProperty):
+            if not isinstance(stmt.snak, ValueSnak):
+                return          # nothing to do
+            yield from self._do_iterencode_entity(stmt.subject)
+            subject = self._seen_entity[stmt.subject]
+            value = stmt.snak.value
+            if isinstance(value, Entity):
+                self._do_iterencode_entity(value)
+            yield from self._tr(
+                (subject, cast(URIRef, stmt.snak.property._to_rdflib()),
+                 stmt.snak.value._to_rdflib()))
+        else:
+            schema = self._get_property_schema(stmt.snak.property)
+            wds = Wikidata.WDS[stmt.digest]
+            # property definition
+            yield from self._do_iterencode_property(stmt.snak.property, True)
+            # subject
+            yield from self._do_iterencode_entity(stmt.subject)
+            subject = self._seen_entity[stmt.subject]
+            assert subject
+            yield from self._tr((subject, schema['p'], wds))
+            # main snak
+            if not isinstance(stmt.snak, NoValueSnak):
+                if isinstance(stmt.snak, ValueSnak):
+                    truthy_value = stmt.snak.value._to_rdflib()
+                else:
+                    truthy_value = Wikidata.WDGENID[stmt.snak.property.digest]
+                yield from self._tr((subject, schema['wdt'], truthy_value))
             yield from self._do_iterencode_snak(
-                qsnak, wds, qschema['pq'], qschema['pqv'], qschema['wdno'])
-        # references
-        for ref in stmt.references:
-            yield from self._do_iterencode_reference_record(ref)
-            wdref = self._seen_reference_record[ref]
-            yield from self._tr((wds, PROV.wasDerivedFrom, wdref))
-        # rank
-        yield from self._tr(
-            (wds, RDF.type, WIKIBASE.BestRank),
-            (wds, WIKIBASE.rank, stmt.rank._to_rdflib()))
+                stmt.snak, wds, schema['ps'], schema['psv'], schema['wdno'])
+            # qualifiers
+            for qsnak in stmt.qualifiers:
+                if isinstance(qsnak.property, PseudoProperty):
+                    continue    # skip
+                qschema = self._get_property_schema(qsnak.property)
+                yield from self._do_iterencode_snak(
+                    qsnak, wds, qschema['pq'], qschema['pqv'], qschema['wdno'])
+            # references
+            for ref in stmt.references:
+                yield from self._do_iterencode_reference_record(ref)
+                wdref = self._seen_reference_record[ref]
+                yield from self._tr((wds, PROV.wasDerivedFrom, wdref))
+            # rank
+            yield from self._tr(
+                (wds, RDF.type, WIKIBASE.BestRank),
+                (wds, WIKIBASE.rank, stmt.rank._to_rdflib()))
 
     def _do_iterencode_snak(
             self,
@@ -188,11 +204,10 @@ class RDF_Encoder(
 
     def _do_iterencode_item(self, item: Item) -> Iterator[str]:
         if item in self._seen_entity:
-            yield ''
-        else:
-            uri = cast(URIRef, item._to_rdflib())
-            self._seen_entity[item] = uri
-            yield from self._tr((uri, WIKIBASE.sitelinks, Literal(0)))
+            return              # nothing do do
+        uri = cast(URIRef, item._to_rdflib())
+        self._seen_entity[item] = uri
+        yield from self._tr((uri, WIKIBASE.sitelinks, Literal(0)))
 
     def _do_iterencode_property(
             self,
@@ -200,34 +215,32 @@ class RDF_Encoder(
             define: bool = False
     ) -> Iterator[str]:
         if property in self._seen_entity:
-            yield ''
-        else:
-            uri = cast(URIRef, property._to_rdflib())
-            self._seen_entity[property] = uri
-            yield from self._tr((uri, RDF.type, WIKIBASE.Property))
-            if define:
-                schema = self._get_property_schema(property)
-                assert property.range is not None
-                dt_uri = property.range._to_rdflib()
-                yield from self._tr(
-                    (uri, WIKIBASE.propertyType, dt_uri),
-                    (uri, WIKIBASE.claim, schema['p']),
-                    (uri, WIKIBASE.qualifier, schema['pq']),
-                    (uri, WIKIBASE.qualifierValue, schema['pqv']),
-                    (uri, WIKIBASE.reference, schema['pr']),
-                    (uri, WIKIBASE.referenceValue, schema['prv']),
-                    (uri, WIKIBASE.statementProperty, schema['ps']),
-                    (uri, WIKIBASE.statementValue, schema['psv']),
-                    (uri, WIKIBASE.novalue, schema['wdno']),
-                    (uri, WIKIBASE.directClaim, schema['wdt']))
+            return              # nothing to do
+        uri = cast(URIRef, property._to_rdflib())
+        self._seen_entity[property] = uri
+        yield from self._tr((uri, RDF.type, WIKIBASE.Property))
+        if define:
+            schema = self._get_property_schema(property)
+            assert property.range is not None
+            dt_uri = property.range._to_rdflib()
+            yield from self._tr(
+                (uri, WIKIBASE.propertyType, dt_uri),
+                (uri, WIKIBASE.claim, schema['p']),
+                (uri, WIKIBASE.qualifier, schema['pq']),
+                (uri, WIKIBASE.qualifierValue, schema['pqv']),
+                (uri, WIKIBASE.reference, schema['pr']),
+                (uri, WIKIBASE.referenceValue, schema['prv']),
+                (uri, WIKIBASE.statementProperty, schema['ps']),
+                (uri, WIKIBASE.statementValue, schema['psv']),
+                (uri, WIKIBASE.novalue, schema['wdno']),
+                (uri, WIKIBASE.directClaim, schema['wdt']))
 
     def _do_iterencode_lexeme(self, lexeme: Lexeme) -> Iterator[str]:
         if lexeme in self._seen_entity:
-            yield ''
-        else:
-            uri = cast(URIRef, lexeme._to_rdflib())
-            self._seen_entity[lexeme] = uri
-            yield from self._tr((uri, RDF.type, ONTOLEX.LexicalEntry))
+            return              # nothing to do
+        uri = cast(URIRef, lexeme._to_rdflib())
+        self._seen_entity[lexeme] = uri
+        yield from self._tr((uri, RDF.type, ONTOLEX.LexicalEntry))
 
     def _do_iterencode_value(
             self,
@@ -254,60 +267,60 @@ class RDF_Encoder(
             value: DeepDataValue
     ) -> Iterator[str]:
         if value in self._seen_deep_data_value:
-            yield ''
+            return              # nothing to do
+        wdv = Wikidata.WDV[value.digest]
+        self._seen_deep_data_value[value] = wdv
+        if isinstance(value, Quantity):
+            yield from self._tr(
+                (wdv, RDF.type, WIKIBASE.QuantityValue),
+                (wdv, WIKIBASE.quantityAmount, value._to_rdflib()))
+            if value.unit is not None:
+                yield from self._do_iterencode_item(value.unit)
+                yield from self._tr(
+                    (wdv, WIKIBASE.quantityUnit,
+                     self._seen_entity[value.unit]))
+            if value.lower_bound is not None:
+                yield from self._tr(
+                    (wdv, WIKIBASE.quantityLowerBound,
+                     Literal(value.lower_bound)))
+            if value.upper_bound is not None:
+                yield from self._tr(
+                    (wdv, WIKIBASE.quantityUpperBound,
+                     Literal(value.upper_bound)))
+        elif isinstance(value, Time):
+            yield from self._tr(
+                (wdv, RDF.type, WIKIBASE.TimeValue),
+                (wdv, WIKIBASE.timeValue, value._to_rdflib()))
+            if value.precision is not None:
+                yield from self._tr(
+                    (wdv, WIKIBASE.timePrecision,
+                     Literal(value.precision.value)))
+            if value.timezone is not None:
+                yield from self._tr(
+                    (wdv, WIKIBASE.timeTimezone,
+                     Literal(value.timezone)))
+            if value.calendar is not None:
+                yield from self._do_iterencode_item(value.calendar)
+                yield from self._tr(
+                    (wdv, WIKIBASE.timeCalendarModel,
+                     self._seen_entity[value.calendar]))
         else:
-            wdv = Wikidata.WDV[value.digest]
-            self._seen_deep_data_value[value] = wdv
-            if isinstance(value, Quantity):
-                yield from self._tr(
-                    (wdv, RDF.type, WIKIBASE.QuantityValue),
-                    (wdv, WIKIBASE.quantityAmount, value._to_rdflib()))
-                if value.unit is not None:
-                    yield from self._do_iterencode_item(value.unit)
-                    yield from self._tr(
-                        (wdv, WIKIBASE.quantityUnit,
-                         self._seen_entity[value.unit]))
-                if value.lower_bound is not None:
-                    yield from self._tr(
-                        (wdv, WIKIBASE.quantityLowerBound,
-                         Literal(value.lower_bound)))
-                if value.upper_bound is not None:
-                    yield from self._tr(
-                        (wdv, WIKIBASE.quantityUpperBound,
-                         Literal(value.upper_bound)))
-            elif isinstance(value, Time):
-                yield from self._tr(
-                    (wdv, RDF.type, WIKIBASE.TimeValue),
-                    (wdv, WIKIBASE.timeValue, value._to_rdflib()))
-                if value.precision is not None:
-                    yield from self._tr(
-                        (wdv, WIKIBASE.timePrecision,
-                         Literal(value.precision.value)))
-                if value.timezone is not None:
-                    yield from self._tr(
-                        (wdv, WIKIBASE.timeTimezone,
-                         Literal(value.timezone)))
-                if value.calendar is not None:
-                    yield from self._do_iterencode_item(value.calendar)
-                    yield from self._tr(
-                        (wdv, WIKIBASE.timeCalendarModel,
-                         self._seen_entity[value.calendar]))
-            else:
-                raise KIF_Object._should_not_get_here()
+            raise KIF_Object._should_not_get_here()
 
     def _do_iterencode_reference_record(
             self,
             ref: ReferenceRecord
     ) -> Iterator[str]:
         if ref in self._seen_reference_record:
-            yield ''
-        else:
-            wdref = Wikidata.WDREF[ref.digest]
-            self._seen_reference_record[ref] = wdref
-            for snak in ref:
-                schema = self._get_property_schema(snak.property)
-                yield from self._do_iterencode_snak(
-                    snak, wdref, schema['pr'], schema['prv'], schema['wdno'])
+            return              # nothing to do
+        wdref = Wikidata.WDREF[ref.digest]
+        self._seen_reference_record[ref] = wdref
+        for snak in ref:
+            if isinstance(snak.property, PseudoProperty):
+                continue        # skip
+            schema = self._get_property_schema(snak.property)
+            yield from self._do_iterencode_snak(
+                snak, wdref, schema['pr'], schema['prv'], schema['wdno'])
 
     def _tr(self, tr: TTriple, *trs: TTriple) -> Iterator[str]:
         for (s, p, o) in itertools.chain((tr,), trs):

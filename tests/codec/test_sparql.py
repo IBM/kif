@@ -8,10 +8,10 @@ from kif_lib.error import DecoderError
 from kif_lib.model import AndFingerprint, ValueFingerprint
 from kif_lib.vocabulary import wd
 
-from .tests import TestCase
+from ..tests import TestCase
 
 
-class TestCodecSPARQL(TestCase):
+class Test(TestCase):
 
     def test_from_sparql(self) -> None:
         # bad query
@@ -126,4 +126,4 @@ SELECT ?report WHERE {
 
 
 if __name__ == '__main__':
-    TestCodecSPARQL.main()
+    Test.main()

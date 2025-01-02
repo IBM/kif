@@ -35,10 +35,10 @@ from kif_lib import (
 from kif_lib.typing import cast
 from kif_lib.vocabulary import wd
 
-from .tests import TestCase
+from ..tests import TestCase
 
 
-class TestCodecMarkdown(TestCase):
+class Test(TestCase):
 
     def md_link(self, label, url=None):
         return f'[{label}]({url or label})'
@@ -310,4 +310,4 @@ class TestCodecMarkdown(TestCase):
 
 
 if __name__ == '__main__':
-    TestCodecMarkdown.main()
+    Test.main()
