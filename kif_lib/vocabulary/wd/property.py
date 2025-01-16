@@ -14,6 +14,7 @@ author_name_string = P(2093)
 auxiliary_verb = P(5401)
 based_on_heuristic = P(887)
 canonical_SMILES = P(233)
+IUPAC_Name = P(2561)
 capital = P(36)
 CAS_Registry_Number = P(231)
 ChEBI_ID = P(683)
@@ -190,6 +191,7 @@ __all__ = (
     'author_name_string',
     'auxiliary_verb',
     'based_on_heuristic',
+    'IUPAC_Name',
     'canonical_SMILES',
     'capital',
     'CAS_Registry_Number',

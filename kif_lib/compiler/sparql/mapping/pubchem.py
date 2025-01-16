@@ -93,6 +93,9 @@ class PubChemMapping(M):
 
     _re_canonical_smiles: Final[re.Pattern] = re.compile(
         r'^[A-Za-z0-9+\-\*=#$:()\.>/\\\[\]%]+$')
+    
+    _re_iupac_name: Final[re.Pattern] = re.compile(
+        r'^[A-Za-z0-9+\-\*=#$:()\.>/\\\[\]%]+$')
 
     _re_cas_registry_number: Final[re.Pattern] = re.compile(
         r'^\d+-\d+-\d+$')
@@ -125,6 +128,10 @@ class PubChemMapping(M):
     #: Checks whether argument is a canonical SMILES value.
     CheckCanonicalSMILES: Final[M.EntryCallbackArgProcessorAlias] =\
         functools.partial(M.CheckLiteral, match=_re_canonical_smiles)
+    
+    #: Checks whether argument is a IUPAC Name value.
+    CheckIUPACName: Final[M.EntryCallbackArgProcessorAlias] =\
+        functools.partial(M.CheckLiteral, match=_re_iupac_name)
 
     #: Checks whether argument is a CAS Registry Number.
     CheckCAS_RegistryNumber: Final[M.EntryCallbackArgProcessorAlias] =\
@@ -214,6 +221,17 @@ class PubChemMapping(M):
         attr = c.bnode()
         c.q.triples()(
             (attr, SIO.is_attribute_of, x),
+            (attr, RDF.type, CHEMINF.IUPAC_Name_generated_by_LexiChem),
+            (attr, SIO.has_value, y))
+
+    @M.register(
+        [wd.IUPAC_Name(Item(x), Text(y, 'en'))],
+        {x: CheckCompound(),
+         y: CheckIUPACName(set_language='en')})
+    def wd_IUPAC_Name(self, c: C, x: V_URI, y: VLiteral):
+        attr = c.bnode()
+        c.q.triples()(
+            (x, SIO.has_attribute, attr),
             (attr, RDF.type, CHEMINF.IUPAC_Name_generated_by_LexiChem),
             (attr, SIO.has_value, y))
 

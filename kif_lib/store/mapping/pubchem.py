@@ -125,6 +125,18 @@ class PubChemMapping(SPARQL_Mapping):
                Spec.Skip: `v` is not a canonical SMILES.
             """
             return cls.check_string(v).content
+        
+        @classmethod
+        def check_IUPAC_Name(cls, v: Value) -> str:
+            """Checks whether `v` is a IUPAC Name.
+
+            Returns:
+               The string value of `v`.
+
+            Raises:
+               Spec.Skip: `v` is not a IUPAC Name.
+            """
+            return cls.check_string(v).content
 
         @classmethod
         def check_chemical_formula(cls, v: Value) -> str:
@@ -571,6 +583,27 @@ def wd_COMPOUND_description(
         (s, RDF.type, chebi_class),
         (chebi_class, IAO.definition, v))
 
+
+@PubChemMapping.register(
+    property=wd.IUPAC_Name,
+    datatype=TextDatatype(),
+    subject_prefix=PubChemMapping.COMPOUND)
+def wd_IUPAC_Name(
+        spec: Spec,
+        q: Builder,
+        s: TTrm,
+        p: TTrm,
+        v: TTrm
+) -> None:
+    if isinstance(v, Value):
+        ###
+        # IMPORTANT: IUPAC values in PubChem are tagged with @en.
+        ###
+        v = Text(spec.check_IUPAC_Name(cast(Value, v)), 'en')
+    with q.sp(s, SIO.has_attribute) as sp:
+        sp.pairs(
+            (RDF.type, CHEMINF.IUPAC_Name_generated_by_LexiChem),
+            (SIO.has_value, v))
 
 @PubChemMapping.register(
     property=wd.canonical_SMILES,
