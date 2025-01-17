@@ -136,7 +136,7 @@ class PubChemMapping(SPARQL_Mapping):
             Raises:
                Spec.Skip: `v` is not a IUPAC Name.
             """
-            return cls.check_string(v).content
+            return cls.check_text(v).content
 
         @classmethod
         def check_chemical_formula(cls, v: Value) -> str:
