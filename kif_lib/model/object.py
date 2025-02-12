@@ -57,6 +57,19 @@ class ObjectMeta(abc.ABCMeta):
 class Object(Sequence, metaclass=ObjectMeta):
     """Abstract base class for syntactical objects."""
 
+    class NilType:
+        """Type for absence of value distinct from ``NoneType``."""
+
+        Nil: ClassVar[Object.NilType | None] = None
+
+        def __new__(cls):
+            if cls.Nil is None:
+                cls.Nil = super().__new__(cls)
+            return cls.Nil
+
+    #: Absence of value distinct from ``None``.
+    Nil: ClassVar[NilType] = NilType()
+
     @classmethod
     def _fresh_id(
             cls,

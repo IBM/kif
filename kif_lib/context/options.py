@@ -8,6 +8,7 @@ import dataclasses
 from ..compiler.options import CompilerOptions
 from ..model.options import ModelOptions
 from ..store.options import StoreOptions
+from ..vocabulary.options import VocabularyOptions
 from .section import Section
 
 
@@ -24,6 +25,10 @@ class Options(Section, name='kif'):
 
     #: Store options.
     store: StoreOptions = dataclasses.field(default_factory=StoreOptions)
+
+    #: Vocabulary options.
+    vocabulary: VocabularyOptions = dataclasses.field(
+        default_factory=VocabularyOptions)
 
     @property
     def language(self) -> str:

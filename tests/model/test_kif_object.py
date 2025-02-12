@@ -44,7 +44,7 @@ class Test(TestCase):
 
     def test__repr_markdown_(self) -> None:
         self.assertEqual(
-            Item('x')._repr_markdown_(), '(**Item** [x](http://x))')
+            Item('x')._repr_markdown_(), '(**Item** [x](x))')
 
     def test_traverse(self) -> None:
         obj = Variable('p')(Item('x'), Quantity(5, Item('u')))

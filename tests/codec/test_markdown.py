@@ -87,7 +87,7 @@ class Test(TestCase):
                 'wd:Q_', wd.Q('_').iri.content)))
         # unknown prefix
         self.assert_to_markdown(
-            Item('x'), self.md_sexp('Item', self.md_link('x', 'http://x')))
+            Item('x'), self.md_sexp('Item', self.md_link('x', 'x')))
 
     def test_property_to_markdown(self) -> None:
         # known prefix: know label
@@ -100,8 +100,7 @@ class Test(TestCase):
                 'wd:P_', wd.P('_').iri.content)))
         # unknown prefix
         self.assert_to_markdown(
-            Property('x'), self.md_sexp('Property', self.md_link(
-                'x', 'http://x')))
+            Property('x'), self.md_sexp('Property', self.md_link('x', 'x')))
 
     def test_iri_to_markdown(self) -> None:
         # known prefix

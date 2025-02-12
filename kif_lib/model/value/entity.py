@@ -6,6 +6,7 @@ from __future__ import annotations
 from ...typing import Any, ClassVar, Location, override, Self, TypeAlias, Union
 from ..term import Template, Variable
 from .iri import IRI, IRI_Template, IRI_Variable, T_IRI, V_IRI
+from .string import TString
 from .value import Value, ValueTemplate, ValueVariable
 
 TEntity: TypeAlias = Union['Entity', T_IRI]
@@ -105,3 +106,16 @@ class Entity(
            IRI.
         """
         return self.args[0]
+
+    def display(self, default: TString | None = None) -> str:
+        """Gets a human-readable name for `entity` in KIF context.
+
+        Parameters:
+           default: Default human-readable name.
+
+        Returns:
+           Human-readable name.
+        """
+        name = self.context.registry.display(self, default or self.Nil)
+        assert name is not None
+        return name

@@ -14,7 +14,6 @@ from ..rdflib import (
     SKOS,
     XSD,
 )
-from .dbpedia import DBpedia
 from .ontolex import ONTOLEX
 from .prov import PROV
 from .schema import SCHEMA
@@ -76,7 +75,7 @@ WDS = Wikidata.WDS
 WDT = Wikidata.WDT
 WDV = Wikidata.WDV
 
-PREFIXES = {
+PREFIXES: dict[str, object] = {
     'dct': DCT,
     'owl': OWL,
     'prov': PROV,
@@ -86,7 +85,6 @@ PREFIXES = {
     'skos': SKOS,
     'wikibase': WIKIBASE,
     'xsd': XSD,
-    **DBpedia.prefixes,
     **Wikidata.prefixes
 }
 

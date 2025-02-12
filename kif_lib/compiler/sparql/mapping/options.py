@@ -6,7 +6,7 @@ from __future__ import annotations
 import dataclasses
 
 from ....context import Section
-from .pubchem import PubChemMapping
+from .pubchem_options import PubChemMappingOptions
 from .wikidata import WikidataOptions
 
 
@@ -14,8 +14,8 @@ from .wikidata import WikidataOptions
 class MappingOptions(Section, name='mapping'):
     """SPARQL mapping options."""
 
-    pubchem: PubChemMapping.Options = dataclasses.field(
-        default_factory=PubChemMapping.Options)
+    pubchem: PubChemMappingOptions = dataclasses.field(
+        default_factory=PubChemMappingOptions)
 
     wikidata: WikidataOptions = dataclasses.field(
         default_factory=WikidataOptions)

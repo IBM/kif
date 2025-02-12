@@ -31,15 +31,24 @@ from ...typing import (
     TypedDict,
     TypeVar,
 )
-from .prelude import _registry as Registry
-from .registry import WikidataEntityRegistry
+from .prelude import _get_item_cache, _get_property_cache
 
 LOG = logging.getLogger(__name__)
 
-ItemEntry: TypeAlias = WikidataEntityRegistry.ItemEntry
-PropertyEntry: TypeAlias = WikidataEntityRegistry.PropertyEntry
 QueryResults: TypeAlias = dict[str, Any]
 T = TypeVar('T')
+
+
+class ItemEntry(TypedDict):
+    item: Item | None
+    label: str | None
+
+
+class PropertyEntry(TypedDict):
+    property: Property | None
+    datatype_uri: str | None
+    label: str | None
+    inverse_uri: str | None
 
 
 class Downloader:
@@ -138,12 +147,12 @@ class Downloader:
             datatype_uri = str(prop.range._to_rdflib())
             inverse_uri = entry['inverse_uri'] or ''
             label = entry['label'] or ''
-            if not append or uri not in Registry._property_registry:
+            if not append:
                 print(
                     pid, uri, datatype_uri, label, inverse_uri,
                     sep='\t', file=fp)
         if path is None:
-            path = pathlib.Path(Registry.WIKIDATA_PROPERTIES_TSV)
+            path = _get_property_cache()
         assert path is not None
         self._download_helper(
             path, write, self._eval_query(
@@ -206,10 +215,10 @@ class Downloader:
             uri = entry['item'].iri.content
             qid = int(NS.Wikidata.get_wikidata_name(uri)[1:])
             label = entry['label'] or ''
-            if not append or uri not in Registry._item_registry:
+            if not append:
                 print(qid, uri, label, sep='\t', file=fp)
         if path is None:
-            path = pathlib.Path(Registry.WIKIDATA_ITEMS_TSV)
+            path = _get_item_cache()
         assert path is not None
         self._download_helper(
             path, write, self._eval_query(

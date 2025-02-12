@@ -11,6 +11,8 @@ from ...typing import ClassVar, Iterable, TypeAlias, Union
 from ..term import Template, Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI_Template, T_IRI
+from .string import TString
+from .text import Text
 from .value import Datatype
 
 if TYPE_CHECKING:               # pragma: no cover
@@ -97,6 +99,22 @@ class Item(
         else:
             return Quantity.check(other).replace(
                 self.KEEP, self, self.KEEP, self.KEEP)
+
+    @property
+    def label(self) -> Text | None:
+        """The label of item in KIF context."""
+        return self.get_label()
+
+    def get_label(self, language: TString | None = None) -> Text | None:
+        """Gets the label of item in KIF context.
+
+        Parameters:
+           language: Language.
+
+        Returns:
+           Label or ``None`` (no label for item in KIF context).
+        """
+        return self.context.registry.get_label(self, language)
 
 
 def Items(iri: VTItemContent, *iris: VTItemContent) -> Iterable[Item]:

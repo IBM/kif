@@ -9,6 +9,7 @@ from ..typing import ClassVar, TracebackType
 
 if TYPE_CHECKING:  # pragma: no cover
     from .options import Options
+    from .registry import Registry
 
 
 class Context:
@@ -34,13 +35,18 @@ class Context:
 
     __slots__ = (
         '_options',
+        '_registry',
     )
 
     #: Context options.
     _options: Options | None
 
+    #: Context registry.
+    _registry: Registry | None
+
     def __init__(self) -> None:
         self._options = None
+        self._registry = None
 
     def __enter__(self) -> Context:
         self._stack.append(self)
@@ -69,3 +75,20 @@ class Context:
             from .options import Options
             self._options = Options()
         return self._options
+
+    @property
+    def registry(self) -> Registry:
+        """The registry of context."""
+        return self.get_registry()
+
+    def get_registry(self) -> Registry:
+        """Gets the registry of context.
+
+        Returns:
+           Registry.
+        """
+        if self._registry is None:
+            from ..namespace import PREFIXES
+            from .registry import Registry
+            self._registry = Registry(self, PREFIXES)
+        return self._registry
