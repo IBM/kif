@@ -44,6 +44,7 @@ __all__ = (
 
 def _get_vocabulary_wd_dir() -> pathlib.Path:
     from importlib import util
+
     spec = util.find_spec(__name__)
     assert spec is not None
     assert spec.origin is not None
