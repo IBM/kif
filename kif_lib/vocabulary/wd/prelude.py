@@ -25,7 +25,7 @@ from ...model import (
     TProperty,
     TText,
 )
-from ...typing import cast, Final
+from ...typing import cast
 
 __all__ = (
     'alias',
@@ -38,9 +38,8 @@ __all__ = (
     'lexical_category',
     'P',
     'Q',
+    'reload',
 )
-
-_CTX: Final[Context] = Context.top()
 
 
 def _get_vocabulary_wd_dir() -> pathlib.Path:
@@ -51,8 +50,9 @@ def _get_vocabulary_wd_dir() -> pathlib.Path:
     return pathlib.Path(cast(str, spec.origin)).parent
 
 
-def _get_item_cache() -> pathlib.Path | None:
-    path = _CTX.options.vocabulary.wd.item_cache
+def _get_item_cache(context: Context | None = None) -> pathlib.Path | None:
+    ctx = Context.top(context)
+    path = ctx.options.vocabulary.wd.item_cache
     if path is not None:
         assert isinstance(path, pathlib.Path)
         if path.is_absolute():
@@ -63,8 +63,11 @@ def _get_item_cache() -> pathlib.Path | None:
         return None
 
 
-def _get_property_cache() -> pathlib.Path | None:
-    path = _CTX.options.vocabulary.wd.property_cache
+def _get_property_cache(
+        context: Context | None = None
+) -> pathlib.Path | None:
+    ctx = Context.top(context)
+    path = ctx.options.vocabulary.wd.property_cache
     if path is not None:
         assert isinstance(path, pathlib.Path)
         if path.is_absolute():
@@ -75,7 +78,11 @@ def _get_property_cache() -> pathlib.Path | None:
         return None
 
 
-def _reload_property_cache(path: pathlib.Path | None = None) -> None:
+def _reload_property_cache(
+        path: pathlib.Path | None = None,
+        context: Context | None = None
+) -> None:
+    ctx = Context.top(context)
     try:
         path = path or _get_property_cache()
         if path is None:
@@ -87,11 +94,11 @@ def _reload_property_cache(path: pathlib.Path | None = None) -> None:
                     line[:-1].split('\t'))
                 dt = Datatype.check(datatype_uri)
                 prop = Property(uri, dt)
-                _CTX.registry.set_datatype(prop, dt)
-                _CTX.registry.set_label(prop, label_en)
+                ctx.registry.set_datatype(prop, dt)
+                ctx.registry.set_label(prop, label_en)
                 if inverse_uri:
                     iprop = Property(inverse_uri, dt)
-                    _CTX.registry.set_inverse(prop, iprop)
+                    ctx.registry.set_inverse(prop, iprop)
     except FileNotFoundError:
         pass
 
@@ -100,37 +107,43 @@ def P(
         name: int | str,
         label: TText | None = None,
         datatype: TDatatype | None = None,
-        inverse: TProperty | None = None
+        inverse: TProperty | None = None,
+        context: Context | None = None
 ) -> Property:
+    ctx = Context.top(context)
     if isinstance(name, str) and name[0] == 'P':
         name = str(NS.WD[name])
     else:
         name = str(NS.WD[f'P{name}'])
-    return _CTX.registry.make_property(name, label, datatype, inverse)
+    return ctx.registry.make_property(name, label, datatype, inverse)
 
 
 def Q(
         name: int | str,
-        label: TText | None = None
+        label: TText | None = None,
+        context: Context | None = None
 ) -> Item:
+    ctx = Context.top(context)
     if isinstance(name, str) and name[0] == 'Q':
         name = str(NS.WD[name])
     else:
         name = str(NS.WD[f'Q{name}'])
-    return _CTX.registry.make_item(name, label)
+    return ctx.registry.make_item(name, label)
 
 
 def L(
         name: int | str,
         lemma: TText | None = None,
         category: TItem | None = None,
-        language: TItem | None = None
+        language: TItem | None = None,
+        context: Context | None = None
 ) -> Lexeme:
+    ctx = Context.top(context)
     if isinstance(name, str) and name[0] == 'L':
         name = str(NS.WD[name])
     else:
         name = str(NS.WD[f'L{name}'])
-    return _CTX.registry.make_lexeme(name, lemma, category, language)
+    return ctx.registry.make_lexeme(name, lemma, category, language)
 
 
 # Aliases for pseudo-properties.
@@ -141,17 +154,26 @@ lemma = LemmaProperty()
 lexical_category = LexicalCategoryProperty()
 language = LanguageProperty()
 
-# Load property cache.
-_reload_property_cache()
-
 
 @deprecated('get_label() is deprecated; use ENTITY.label instead')
 def get_label(
         entity: Item | Property,
         default: str | None = None
 ) -> str | None:
-    label = _CTX.registry.get_label(entity, default)
+    label = Context.top().registry.get_label(entity, default)
     if label is not None:
         return label.content
     else:
         return default
+
+
+# Reload the wd module.
+def reload() -> None:
+    import importlib
+    from . import item, property
+    _reload_property_cache()
+    importlib.reload(item)
+    importlib.reload(property)
+
+
+_reload_property_cache()
