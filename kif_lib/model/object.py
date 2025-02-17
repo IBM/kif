@@ -40,7 +40,7 @@ class ObjectMeta(abc.ABCMeta):
 
     def __new__(mcs, name, bases, namespace, **kwargs):
         cls = super().__new__(mcs, name, bases, namespace, **kwargs)
-        mcs._object_subclasses[name] = cls
+        mcs._object_subclasses[name] = cast(type['Object'], cls)
         return cls
 
     @classmethod

@@ -1311,6 +1311,7 @@ class Store(Set):
             self._get_lexeme_descriptor(lexemes, mask)
             if lexemes else iter(())))
         for entity in entities:
+            assert isinstance(entity, (Item, Property, Lexeme))
             assert entity in desc
             yield entity, desc[entity]
 
