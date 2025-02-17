@@ -39,14 +39,17 @@ class Context:
     )
 
     #: Context options.
-    _options: Options | None
+    _options: Options
 
     #: Context registry.
-    _registry: Registry | None
+    _registry: Registry
 
     def __init__(self) -> None:
-        self._options = None
-        self._registry = None
+        from ..namespace import PREFIXES
+        from .options import Options
+        from .registry import Registry
+        self._options = Options()
+        self._registry = Registry(self, PREFIXES)
 
     def __enter__(self) -> Context:
         self._stack.append(self)
@@ -71,9 +74,6 @@ class Context:
         Returns:
            Options.
         """
-        if self._options is None:
-            from .options import Options
-            self._options = Options()
         return self._options
 
     @property
@@ -87,8 +87,4 @@ class Context:
         Returns:
            Registry.
         """
-        if self._registry is None:
-            from ..namespace import PREFIXES
-            from .registry import Registry
-            self._registry = Registry(self, PREFIXES)
         return self._registry

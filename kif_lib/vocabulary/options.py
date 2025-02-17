@@ -16,6 +16,7 @@ class WD_Options(Section, name='wd'):
     """Wikidata vocabulary options."""
 
     def __init__(self, **kwargs: Any) -> None:
+        self._init_item_cache(kwargs)
         self._init_property_cache(kwargs)
 
     # -- item_cache --
