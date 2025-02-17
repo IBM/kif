@@ -7,7 +7,15 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import overload
 
-from ...typing import ClassVar, Iterable, TypeAlias, Union
+from ...typing import (
+    ClassVar,
+    Iterable,
+    Mapping,
+    Set,
+    TypeAlias,
+    TypedDict,
+    Union,
+)
 from ..term import Template, Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI_Template, T_IRI
@@ -77,15 +85,43 @@ class Item(
     template_class: ClassVar[type[ItemTemplate]]  # pyright: ignore
     variable_class: ClassVar[type[ItemVariable]]  # pyright: ignore
 
+    class Descriptor(TypedDict, total=False):
+        """Item descriptor."""
+
+        #: Label indexed by language.
+        labels: Mapping[str, Text]
+
+        #: Aliases indexed by language.
+        aliases: Mapping[str, Set[Text]]
+
+        #: Description indexed by language.
+        descriptions: Mapping[str, Text]
+
     def __init__(self, iri: VTItemContent) -> None:
         super().__init__(iri)
 
     @overload
     def __rmatmul__(self, other: QuantityTemplate) -> QuantityTemplate:
+        """Constructs quantity template using item as the unit.
+
+        Parameters:
+           other: Quantity template.
+
+        Returns:
+           Quantity template.
+        """
         ...                     # pragma: no cover
 
     @overload
     def __rmatmul__(self, other: TQuantity) -> Quantity:
+        """Constructs quantity using item as the unit.
+
+        Parameters:
+           other: Quantity.
+
+        Returns:
+           Quantity template.
+        """
         ...                     # pragma: no cover
 
     def __rmatmul__(

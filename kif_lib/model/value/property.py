@@ -7,11 +7,22 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import overload
 
-from ...typing import Any, ClassVar, Iterable, override, TypeAlias, Union
+from ...typing import (
+    Any,
+    ClassVar,
+    Iterable,
+    Mapping,
+    override,
+    Set,
+    TypeAlias,
+    TypedDict,
+    Union,
+)
 from ..term import OpenTerm, Variable
 from .datatype import Datatype, DatatypeVariable, VDatatype, VTDatatype
 from .entity import Entity, EntityTemplate, EntityVariable, VTEntity
 from .iri import IRI_Template, T_IRI, VT_IRI
+from .text import Text
 from .value import VTValue
 
 if TYPE_CHECKING:               # pragma: no cover
@@ -423,6 +434,24 @@ class Property(
     datatype: ClassVar[PropertyDatatype]              # pyright: ignore
     template_class: ClassVar[type[PropertyTemplate]]  # pyright: ignore
     variable_class: ClassVar[type[PropertyVariable]]  # pyright: ignore
+
+    class Descriptor(TypedDict, total=False):
+        """Property descriptor."""
+
+        #: Label indexed by language.
+        labels: Mapping[str, Text]
+
+        #: Aliases indexed by language.
+        aliases: Mapping[str, Set[Text]]
+
+        #: Description indexed by language.
+        descriptions: Mapping[str, Text]
+
+        #: Range datatype.
+        range: Datatype
+
+        #: Inverse property.
+        inverse: Property
 
     def __init__(
             self,

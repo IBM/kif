@@ -3,10 +3,12 @@
 
 from __future__ import annotations
 
-from ...typing import ClassVar, Iterable, TypeAlias, Union
+from ...typing import ClassVar, Iterable, TypeAlias, TypedDict, Union
 from ..term import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI_Template, T_IRI
+from .item import Item
+from .text import Text
 from .value import Datatype
 
 TLexeme: TypeAlias = Union['Lexeme', T_IRI]
@@ -61,6 +63,18 @@ class Lexeme(
     datatype: ClassVar[LexemeDatatype]              # pyright: ignore
     template_class: ClassVar[type[LexemeTemplate]]  # pyright: ignore
     variable_class: ClassVar[type[LexemeVariable]]  # pyright: ignore
+
+    class Descriptor(TypedDict, total=False):
+        """Lexeme descriptor."""
+
+        #: Lemma.
+        lemma: Text
+
+        #: Lexical category.
+        category: Item
+
+        #: Language.
+        language: Item
 
     def __init__(self, iri: VTLexemeContent) -> None:
         super().__init__(iri)
