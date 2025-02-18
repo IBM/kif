@@ -3,19 +3,45 @@
 
 from __future__ import annotations
 
+import abc
+
+from typing_extensions import overload
+
+from .. import itertools
 from ..cache import Cache
-from ..model import Datatype, Entity, Item, KIF_Object, Lexeme, Property, Text
-from ..typing import Any, Callable, cast, Optional, TypeAlias, TypeVar, Union
+from ..model import (
+    Datatype,
+    Entity,
+    Item,
+    KIF_Object,
+    Lexeme,
+    Property,
+    TDatatype,
+    Text,
+    TItem,
+    TProperty,
+    TText,
+)
+from ..typing import (
+    Any,
+    Callable,
+    cast,
+    Iterable,
+    Location,
+    TypeAlias,
+    TypeVar,
+    Union,
+)
 from .context import Context
 
-S = TypeVar('S')
 T = TypeVar('T')
+E = TypeVar('E', bound=Union[Item, Property, Lexeme])
 TextMap: TypeAlias = dict[str, Text]
 TextSetMap: TypeAlias = dict[str, set[Text]]
 
 
-class EntityRegistry(Cache):
-    """KIF entity registry.
+class Registry(Cache):
+    """Abstract base class for registries.
 
     Parameters:
        context: Context.
@@ -25,16 +51,229 @@ class EntityRegistry(Cache):
         '_context',
     )
 
-    def __init__(self, context: Context) -> None:
-        self._context = context
-        super().__init__()
+    #: Parent context.
+    _context: Context
 
-    def _describe(
-            self, entity: Entity
+    @abc.abstractmethod
+    def __init__(self, context: Context) -> None:
+        super().__init__()
+        self._context = context
+
+
+class EntityRegistry(Registry):
+    """Entity registry.
+
+    Parameters:
+       context: Context.
+    """
+
+    def __init__(self, context: Context) -> None:
+        super().__init__(context)
+
+    @overload
+    def describe(
+            self,
+            entity: Item,
+            function: Location | None = None
+    ) -> Item.Descriptor | None:
+        """Describes item.
+
+        Parameters:
+           entity: Item.
+           function: Function or function name.
+
+        Returns:
+           Item descriptor or ``None`` (no descriptor for item).
+        """
+        ...                     # pragma: no cover
+
+    @overload
+    def describe(
+            self,
+            entity: Property,
+            function: Location | None = None
+    ) -> Property.Descriptor | None:
+        """Describes property.
+
+        Parameters:
+           entity: property.
+           function: Function or function name.
+
+        Returns:
+           Property descriptor or ``None`` (no descriptor for property).
+        """
+        ...                     # pragma: no cover
+
+    @overload
+    def describe(
+            self,
+            entity: Lexeme,
+            function: Location | None = None
+    ) -> Lexeme.Descriptor | None:
+        """Describes lexeme.
+
+        Parameters:
+           entity: lexeme.
+           function: Function or function name.
+
+        Returns:
+           Lexeme descriptor or ``None`` (no descriptor for lexeme).
+        """
+        ...                     # pragma: no cover
+
+    def describe(
+            self,
+            entity: E,
+            function: Location | None = None
     ) -> Item.Descriptor | Property.Descriptor | Lexeme.Descriptor | None:
-        return cast(Optional[Union[
-            Item.Descriptor, Property.Descriptor, Lexeme.Descriptor]],
-            self._cache.get(entity.iri.content))
+        function = function or self.describe
+        obj = Entity.check(entity, function, 'entity')
+        desc = self._describe(entity)
+        if obj is not None:
+            if isinstance(obj, Item):
+                return cast(Item.Descriptor, desc)
+            elif isinstance(obj, Property):
+                return cast(Property.Descriptor, desc)
+            elif isinstance(obj, Lexeme):
+                return cast(Lexeme.Descriptor, desc)
+            else:
+                raise KIF_Object._should_not_get_here()
+        else:
+            return None
+
+    def _describe(self, entity: Entity) -> dict[str, Any] | None:
+        return self._cache.get(entity.iri.content)
+
+    @overload
+    def register(self, entity: Item, **kwargs: Any) -> Item:
+        """Add or update item descriptor.
+
+        Parameters:
+           entity: Item.
+           label: Label.
+           labels: Labels.
+           alias: Alias.
+           aliases: Aliases.
+           description: Description.
+           descriptions: Descriptions.
+           function: Function or function name.
+
+        Returns:
+           Item.
+        """
+        ...                     # pragma: no cover
+
+    @overload
+    def register(self, entity: Property, **kwargs: Any) -> Property:
+        """Add or update property descriptor.
+
+        Parameters:
+           entity: Property.
+           label: Label.
+           labels: Labels.
+           alias: Alias.
+           aliases: Aliases.
+           description: Description.
+           descriptions: Descriptions.
+           range: Range datatype.
+           inverse: Inverse property.
+           function: Function or function name.
+
+        Returns:
+           Property.
+        """
+        ...                     # pragma: no cover
+
+    @overload
+    def register(self, entity: Lexeme, **kwargs: Any) -> Lexeme:
+        """Add or update lemma descriptor.
+
+        Parameters:
+           entity: Property.
+           lemma: Lemma.
+           category: Lexical category.
+           language: Language.
+
+        Returns:
+           Lemma.
+        """
+        ...                     # pragma: no cover
+
+    def register(
+            self,
+            entity: E,
+            label: TText | None = None,
+            labels: Iterable[TText] = (),
+            alias: TText | None = None,
+            aliases: Iterable[TText] = (),
+            description: TText | None = None,
+            descriptions: Iterable[TText] = (),
+            range: TDatatype | None = None,
+            inverse: TProperty | None = None,
+            lemma: TText | None = None,
+            category: TItem | None = None,
+            language: TItem | None = None,
+            function: Location | None = None,
+            **kwargs: Any
+    ) -> E:
+        function = function or self.register
+        return self._do_register(
+            entity,
+            labels=map(
+                lambda t: Text.check(t, function, 'labels'),
+                itertools.chain((label,), labels) if label else labels),
+            aliases=map(
+                lambda t: Text.check(t, function, 'aliases'),
+                itertools.chain((alias,), aliases) if alias else aliases),
+            descriptions=map(
+                lambda t: Text.check(t, function, 'descriptions'),
+                itertools.chain((description,), descriptions)
+                if description else descriptions),
+            range=Datatype.check_optional(range, None, function, 'range'),
+            inverse=Property.check_optional(
+                inverse, None, function, 'inverse'),
+            lemma=Text.check_optional(lemma, None, function, 'lemma'),
+            category=Item.check_optional(
+                category, None, function, 'category'),
+            language=Item.check_optional(
+                language, None, function, 'language'))
+
+    def _do_register(
+            self,
+            entity: T,
+            labels: Iterable[Text],
+            aliases: Iterable[Text],
+            descriptions: Iterable[Text],
+            range: Datatype | None,
+            inverse: Property | None,
+            lemma: Text | None = None,
+            category: Item | None = None,
+            language: Item | None = None
+    ) -> T:
+        ret: T = entity
+        if isinstance(entity, (Item, Property)):
+            for label in labels:
+                self._add_label(entity, label)
+            for alias in aliases:
+                self._add_alias(entity, alias)
+            for description in descriptions:
+                self._add_description(entity, description)
+            if isinstance(entity, Property):
+                if range is not None:
+                    ret = cast(T, entity.replace(  # update ret's range
+                        entity.KEEP, self._add_range(entity, range)))
+                if inverse is not None:
+                    self._add_inverse(entity, inverse)
+        elif isinstance(entity, Lexeme):
+            if lemma is not None:
+                self._add_lemma(entity, lemma)
+            if category is not None:
+                self._add_category(entity, category)
+            if language is not None:
+                self._add_language(entity, language)
+        else:
+            raise KIF_Object._should_not_get_here()
+        return ret
 
     def _add_label(self, entity: Entity, label: Text) -> Text:
         return self._do_add_into_text_map(
@@ -108,7 +347,7 @@ class EntityRegistry(Cache):
             entity: Entity,
             text: Text | None,
             language: str | None,
-            tail: Callable[[T, Text | None, str | None], S]
+            tail: Callable[[T, Text | None, str | None], Any]
     ) -> Any:
         assert text is None or language is None
         k = entity.iri.content
@@ -193,13 +432,13 @@ class EntityRegistry(Cache):
         return self.unset(lexeme.iri.content, 'lemma')
 
     def _add_category(self, lexeme: Lexeme, category: Item) -> Item | None:
-        return self.set(lexeme, 'category', category)
+        return self.set(lexeme.iri.content, 'category', category)
 
     def _remove_category(self, lexeme: Lexeme) -> Item | None:
         return self.unset(lexeme.iri.content, 'category')
 
     def _add_language(self, lexeme: Lexeme, language: Item) -> Item | None:
-        return self.set(lexeme, 'language', language)
+        return self.set(lexeme.iri.content, 'language', language)
 
     def _remove_language(self, lexeme: Lexeme) -> Item | None:
         return self.unset(lexeme.iri.content, 'language')
