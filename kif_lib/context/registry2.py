@@ -605,11 +605,7 @@ class EntityRegistry(Registry):
     def _remove_range(self, property: Property) -> Datatype | None:
         return self.unset(property, 'range')
 
-    def _add_inverse(
-            self,
-            property: Property,
-            inverse: Property
-    ) -> Property:
+    def _add_inverse(self, property: Property, inverse: Property) -> Property:
         return self.set(property, 'inverse', inverse)
 
     def _remove_inverse(self, property: Property) -> Property | None:
@@ -668,6 +664,27 @@ class PrefixRegistry(Registry):
     def unset(self, obj: Hashable, key: str | None = None) -> Any:
         assert isinstance(obj, IRI)
         return super().unset(obj.content, key)
+
+    def describe(
+            self,
+            iri: T_IRI,
+            function: Location | None = None
+    ) -> IRI.Descriptor | None:
+        """Describes IRI.
+
+        Parameters:
+           iri: IRI.
+           function: Function or function name.
+
+        Returns:
+           IRI descriptor or ``None`` (no descriptor for IRI).
+        """
+        function = function or self.describe
+        iri = IRI.check(iri, function, 'iri')
+        return cast(IRI.Descriptor | None, self._cache.get(iri.content))
+
+    def _describe(self, entity: Entity) -> dict[str, Any] | None:
+        return self._cache.get(entity.iri.content)
 
     def register(
             self,

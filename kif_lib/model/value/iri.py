@@ -3,7 +3,15 @@
 
 from __future__ import annotations
 
-from ...typing import Any, ClassVar, override, TypeAlias, Union
+from ...typing import (
+    Any,
+    ClassVar,
+    override,
+    Set,
+    TypeAlias,
+    TypedDict,
+    Union,
+)
 from ..term import Variable
 from .shallow_data_value import (
     ShallowDataValue,
@@ -65,6 +73,12 @@ class IRI(
     datatype: ClassVar[IRI_Datatype]              # pyright: ignore
     template_class: ClassVar[type[IRI_Template]]  # pyright: ignore
     variable_class: ClassVar[type[IRI_Variable]]  # pyright: ignore
+
+    class Descriptor(TypedDict, total=False):
+        """IRI descriptor."""
+
+        #: Prefixes.
+        prefixes: Set[str]
 
     def __init__(self, content: VT_IRI_Content) -> None:
         super().__init__(content)
