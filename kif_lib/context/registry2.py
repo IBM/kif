@@ -12,11 +12,13 @@ from ..cache import Cache
 from ..model import (
     Datatype,
     Entity,
+    IRI,
     Item,
     KIF_Object,
     Lexeme,
     Property,
     String,
+    T_IRI,
     TDatatype,
     Text,
     TItem,
@@ -24,6 +26,7 @@ from ..model import (
     TString,
     TText,
 )
+from ..rdflib import Graph, NamespaceManager
 from ..typing import (
     Any,
     Callable,
@@ -37,7 +40,6 @@ from ..typing import (
     TypeVar,
     Union,
 )
-from .context import Context
 
 E = TypeVar('E', bound=Union[Item, Property, Lexeme])
 T = TypeVar('T')
@@ -48,34 +50,18 @@ set_ = set
 
 
 class Registry(Cache):
-    """Abstract base class for registries.
-
-    Parameters:
-       context: Context.
-    """
-
-    __slots__ = (
-        '_context',
-    )
-
-    #: Parent context.
-    _context: Context
+    """Abstract base class for registries."""
 
     @abc.abstractmethod
-    def __init__(self, context: Context) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self._context = context
 
 
 class EntityRegistry(Registry):
-    """Entity registry.
+    """Entity registry."""
 
-    Parameters:
-       context: Context.
-    """
-
-    def __init__(self, context: Context) -> None:
-        super().__init__(context)
+    def __init__(self) -> None:
+        super().__init__()
 
     @override
     def get(self, obj: Hashable, key: str) -> Any:
@@ -646,3 +632,125 @@ class EntityRegistry(Registry):
 
     def _remove_language(self, lexeme: Lexeme) -> Item | None:
         return self.unset(lexeme, 'language')
+
+
+class PrefixRegistry(Registry):
+    """Prefix registry."""
+
+    __slots__ = (
+        '_nsm',
+    )
+
+    #: Namespace manager.
+    _nsm: NamespaceManager
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._reset_nsm()
+
+    def _reset_nsm(self) -> None:
+        self._nsm = NamespaceManager(Graph(), bind_namespaces='none')
+        for iri_content, prefixes in self._cache.items():
+            for prefix in prefixes:
+                self._nsm.bind(prefix, iri_content)
+
+    @override
+    def get(self, obj: Hashable, key: str) -> Any:
+        assert isinstance(obj, IRI)
+        return super().get(obj.content, key)
+
+    @override
+    def set(self, obj: Hashable, key: str, value: T) -> T:
+        assert isinstance(obj, IRI)
+        return super().set(obj.content, key, value)
+
+    @override
+    def unset(self, obj: Hashable, key: str | None = None) -> Any:
+        assert isinstance(obj, IRI)
+        return super().unset(obj.content, key)
+
+    def register(
+            self,
+            iri: T_IRI,
+            prefix: TString | None = None,
+            prefixes: Iterable[TString] = (),
+            function: Location | None = None
+    ) -> IRI:
+        """Add or update IRI prefixes.
+
+        Parameters:
+           iri: IRI.
+           prefix: Prefix.
+           prefixes: Prefixes.
+           function: Function or function name.
+
+        Returns:
+           IRI.
+        """
+        function = function or self.register
+        return self._do_register(
+            iri=IRI.check(iri, function, 'iri'),
+            prefixes=map(
+                lambda t: String.check(t, function, 'prefixes').content,
+                itertools.chain((prefix,), prefixes) if prefix else prefixes))
+
+    def unregister(
+            self,
+            iri: T_IRI,
+            prefix: T_IRI | None = None,
+            prefixes: Iterable[TString] = (),
+            all: bool = False,
+            function: Location | None = None
+    ) -> bool:
+        """Remove IRI prefixes.
+
+        Parameters:
+           iri: IRI.
+           prefix: Prefixes.
+           prefixes: Prefixes.
+           all: Whether to remove all prefixes.
+           function: Function or function name.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        function = function or self.unregister
+        return self._do_unregister(
+            iri=IRI.check(iri, function, 'iri'),
+            prefixes=map(
+                lambda t: String.check(t, function, 'prefixes').content,
+                itertools.chain((prefix,), prefixes) if prefix else prefixes),
+            all=bool(all))
+
+    def _do_register(self, iri: IRI, prefixes: Iterable[str]) -> IRI:
+        for prefix in prefixes:
+            self._add_prefix(iri, prefix)
+        return iri
+
+    def _do_unregister(
+            self,
+            iri: IRI,
+            prefixes: Iterable[str],
+            all: bool = False
+    ) -> bool:
+        status: bool = False
+        for prefix in prefixes:
+            status |= bool(self._remove_prefix(iri, prefix))
+        if all:
+            status |= bool(self.unset(iri))
+        return status
+
+    def _add_prefix(self, iri: IRI, prefix: str) -> str:
+        prefixes: set_[str] = (
+            self.get(iri, 'prefixes') or self.set(iri, 'prefixes', set()))
+        prefixes.add(prefix)
+        return prefix
+
+    def _remove_prefix(self, iri: IRI, prefix: str) -> str | None:
+        prefixes: Union[set_[str], None] = self.get(iri, 'prefixes')
+        if prefixes is None or prefix not in prefixes:
+            return None
+        prefixes.remove(prefix)
+        if not prefixes:
+            self.unset(iri, 'prefixes')
+        return prefix
