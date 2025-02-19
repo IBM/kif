@@ -37,13 +37,13 @@ class Registry:
 
     class ItemEntry(TypedDict):
         """Item entry in registry."""
-        labels: Mapping[str, Text]  # indexed by language tag
+        labels: Mapping[str, Text]  # indexed by language
 
     class PropertyEntry(TypedDict):
         """Property entry in registry."""
         datatype: Datatype
         inverse: Property | None
-        labels: Mapping[str, Text]  # indexed by language tag
+        labels: Mapping[str, Text]  # indexed by language
 
     class LexemeEntry(TypedDict):
         """Lexeme entry in registry."""

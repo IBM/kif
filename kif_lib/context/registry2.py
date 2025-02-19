@@ -34,6 +34,7 @@ from ..typing import (
     Hashable,
     Iterable,
     Location,
+    Mapping,
     Optional,
     override,
     TypeAlias,
@@ -151,6 +152,57 @@ class EntityRegistry(Registry):
 
     def _describe(self, entity: Entity) -> dict[str, Any] | None:
         return self._cache.get(entity.iri.content)
+
+    def get_label(
+            self,
+            entity: Item | Property,
+            language: TString | None = None,
+            function: Location | None = None
+    ) -> Text | None:
+        """Gets entity label.
+
+        Parameters:
+           entity: Item or property.
+           language: Language.
+           function: Function or function name.
+
+        Returns:
+           Label or ``None``.
+        """
+        t = self.describe(entity, function or self.get_label)
+        if not t:
+            return None
+        else:
+            language = String.check_optional(
+                language, None, function or self.get_label, 'language')
+            if language is not None:
+                lang: str = language.content
+            else:
+                lang = entity.context.options.language
+            if 'labels' in t:
+                return t['labels'].get(lang)
+            else:
+                return None
+
+    def get_range(
+            self,
+            entity: Property,
+            function: Location | None = None
+    ) -> Datatype | None:
+        """Gets property range datatype.
+
+        Parameters:
+           entity: Property.
+           function: Function or function name.
+
+        Returns:
+           Datatype or ``None``.
+        """
+        t = self.describe(entity, function or self.get_range)
+        if t and 'range' in t:
+            return t['range']
+        else:
+            return None
 
     @overload
     def register(self, entity: Item, **kwargs: Any) -> Item:
@@ -270,6 +322,11 @@ class EntityRegistry(Registry):
                 if range is not None:
                     ret = cast(T, entity.replace(  # update ret's range
                         entity.KEEP, self._add_range(entity, range)))
+                elif entity.range is None:
+                    t = self._describe(entity)
+                    if t is not None and 'range' in t:
+                        ret = cast(T, entity.replace(  # update ret's range
+                            entity.KEEP, t['range']))
                 if inverse is not None:
                     self._add_inverse(entity, inverse)
         elif isinstance(entity, Lexeme):
@@ -630,8 +687,8 @@ class EntityRegistry(Registry):
         return self.unset(lexeme, 'language')
 
 
-class PrefixRegistry(Registry):
-    """Prefix registry."""
+class IRI_Registry(Registry):
+    """IRI registry."""
 
     __slots__ = (
         '_nsm',
@@ -640,12 +697,19 @@ class PrefixRegistry(Registry):
     #: Namespace manager.
     _nsm: NamespaceManager
 
-    def __init__(self) -> None:
+    def __init__(self, prefixes: Mapping[str, Any] | None = None) -> None:
         super().__init__()
-        self._reset_nsm()
+        self._init_nsm()
+        for k, v in (prefixes or {}).items():
+            prefix = String.check(k, type(self), 'prefixes', 1)
+            iri = IRI.check(v, type(self), 'prefixes', 1)
+            self._add_prefix(iri, prefix.content)
+
+    def _init_nsm(self) -> None:
+        self._nsm = NamespaceManager(Graph(), bind_namespaces='none')
 
     def _reset_nsm(self) -> None:
-        self._nsm = NamespaceManager(Graph(), bind_namespaces='none')
+        self._init_nsm()
         for iri_content, prefixes in self._cache.items():
             for prefix in prefixes:
                 self._nsm.bind(prefix, iri_content)
@@ -670,7 +734,7 @@ class PrefixRegistry(Registry):
             iri: T_IRI,
             function: Location | None = None
     ) -> str | None:
-        """Generates CURIE from IRI.
+        """Contracts IRI into CURIE string.
 
         See <https://en.wikipedia.org/wiki/CURIE>.
 
@@ -679,7 +743,7 @@ class PrefixRegistry(Registry):
            function: Function or function name.
 
         Returns:
-           CURIE (compact IRI) string or ``None``.
+           CURIE string or ``None``.
         """
         iri = IRI.check(iri, function or self.curie, 'iri')
         try:
@@ -692,7 +756,7 @@ class PrefixRegistry(Registry):
             curie: TString,
             function: Location | None = None
     ) -> IRI | None:
-        """Expands CURIE into IRI.
+        """Expands CURIE string into IRI.
 
         Parameters:
            curie: String.
@@ -734,7 +798,7 @@ class PrefixRegistry(Registry):
             prefixes: Iterable[TString] = (),
             function: Location | None = None
     ) -> IRI:
-        """Add or update IRI prefixes.
+        """Add or update IRI data.
 
         Parameters:
            iri: IRI.
@@ -760,7 +824,7 @@ class PrefixRegistry(Registry):
             all: bool = False,
             function: Location | None = None
     ) -> bool:
-        """Remove IRI prefixes.
+        """Remove IRI data.
 
         Parameters:
            iri: IRI.

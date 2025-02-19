@@ -32,13 +32,13 @@ class Options(Section, name='kif'):
 
     @property
     def language(self) -> str:
-        """The default language tag."""
+        """The default language."""
         return self.get_language()
 
     def get_language(self) -> str:
-        """Gets the default language tag.
+        """Gets the default language.
 
         Returns:
-           Language tag.
+           Language.
         """
         return self.model.value.text.language

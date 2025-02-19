@@ -9,12 +9,13 @@ from ..typing import ClassVar, TracebackType
 
 if TYPE_CHECKING:  # pragma: no cover
     from .options import Options
-    from .registry import Registry
+    from .registry2 import EntityRegistry, IRI_Registry
 
 
 class Context:
     """KIF context."""
 
+    #: Context stack.
     _stack: ClassVar[list[Context]] = []
 
     @classmethod
@@ -34,22 +35,27 @@ class Context:
         return cls._stack[-1]
 
     __slots__ = (
+        '_entities',
+        '_iris',
         '_options',
-        '_registry',
     )
 
-    #: Context options.
-    _options: Options
+    #: Entity registry.
+    _entities: EntityRegistry
 
-    #: Context registry.
-    _registry: Registry
+    #: IRI registry.
+    _iris: IRI_Registry
+
+    #: Options.
+    _options: Options
 
     def __init__(self) -> None:
         from ..namespace import PREFIXES
         from .options import Options
-        from .registry import Registry
+        from .registry2 import EntityRegistry, IRI_Registry
+        self._entities = EntityRegistry()
+        self._iris = IRI_Registry({k: str(v) for k, v in PREFIXES.items()})
         self._options = Options()
-        self._registry = Registry(self, PREFIXES)
 
     def __enter__(self) -> Context:
         self._stack.append(self)
@@ -64,6 +70,32 @@ class Context:
         self._stack.pop()
 
     @property
+    def entities(self) -> EntityRegistry:
+        """The entity registry."""
+        return self.get_entities()
+
+    def get_entities(self) -> EntityRegistry:
+        """Gets the entity registry.
+
+        Returns:
+           Entity registry.
+        """
+        return self._entities
+
+    @property
+    def iris(self) -> IRI_Registry:
+        """The IRI registry."""
+        return self.get_iris()
+
+    def get_iris(self) -> IRI_Registry:
+        """Gets the IRI registry.
+
+        Returns:
+           IRI registry.
+        """
+        return self._iris
+
+    @property
     def options(self) -> Options:
         """The options of context."""
         return self.get_options()
@@ -75,16 +107,3 @@ class Context:
            Options.
         """
         return self._options
-
-    @property
-    def registry(self) -> Registry:
-        """The registry of context."""
-        return self.get_registry()
-
-    def get_registry(self) -> Registry:
-        """Gets the registry of context.
-
-        Returns:
-           Registry.
-        """
-        return self._registry

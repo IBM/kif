@@ -12,6 +12,7 @@ from rdflib.term import Identifier as Id
 from rdflib.term import Literal, URIRef, Variable
 
 from ... import namespace as NS
+from ...context import Context
 from ...error import ShouldNotGetHere
 from ...model import (
     AndFingerprint,
@@ -69,7 +70,7 @@ At line {line}, column {column}:
     _namespace: Mapping[str, Any] | None
 
     def __init__(self) -> None:
-        self._namespace = dict(NS._DEFAULT_NSM.namespaces())
+        self._namespace = dict(Context.top().iris._nsm.namespaces())
 
     @override
     def decode(self, input: str) -> Object:

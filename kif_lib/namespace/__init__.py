@@ -3,17 +3,7 @@
 
 from __future__ import annotations
 
-from ..rdflib import (
-    DCT,
-    FOAF,
-    Graph,
-    NamespaceManager,
-    OWL,
-    RDF,
-    RDFS,
-    SKOS,
-    XSD,
-)
+from ..rdflib import DCT, FOAF, OWL, RDF, RDFS, SKOS, XSD
 from .ontolex import ONTOLEX
 from .prov import PROV
 from .schema import SCHEMA
@@ -87,7 +77,3 @@ PREFIXES: dict[str, object] = {
     'xsd': XSD,
     **Wikidata.prefixes
 }
-
-_DEFAULT_NSM = NamespaceManager(Graph(), bind_namespaces='none')
-for k, v in PREFIXES.items():
-    _DEFAULT_NSM.bind(k, v)

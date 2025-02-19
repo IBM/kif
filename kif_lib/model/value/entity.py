@@ -107,15 +107,15 @@ class Entity(
         """
         return self.args[0]
 
-    def display(self, default: TString | None = None) -> str:
-        """Gets a human-readable name for `entity` in KIF context.
+    def display(self, language: TString | None = None) -> str:
+        """Gets entity display-name in KIF context.
 
         Parameters:
-           default: Default human-readable name.
+           language: Language.
 
         Returns:
-           Human-readable name.
+           Display name.
         """
-        name = self.context.registry.display(self, default or self.Nil)
-        assert name is not None
-        return name
+        return (
+            self.context.iris.curie(self.iri, self.display)
+            or self.iri.content)

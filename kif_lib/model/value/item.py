@@ -11,6 +11,7 @@ from ...typing import (
     ClassVar,
     Iterable,
     Mapping,
+    override,
     Set,
     TypeAlias,
     TypedDict,
@@ -136,6 +137,14 @@ class Item(
             return Quantity.check(other).replace(
                 self.KEEP, self, self.KEEP, self.KEEP)
 
+    @override
+    def display(self, language: TString | None = None) -> str:
+        label = self.context.entities.get_label(self, language, self.display)
+        if label:
+            return label.content
+        else:
+            return super().display(language)
+
     @property
     def label(self) -> Text | None:
         """The label of item in KIF context."""
@@ -150,7 +159,8 @@ class Item(
         Returns:
            Label or ``None`` (no label for item in KIF context).
         """
-        return self.context.registry.get_label(self, language)
+        return self.context.entities.get_label(
+            self, language, self.get_label)
 
 
 def Items(iri: VTItemContent, *iris: VTItemContent) -> Iterable[Item]:

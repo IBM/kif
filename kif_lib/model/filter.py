@@ -70,7 +70,7 @@ class Filter(KIF_Object):
        subject_mask: Datatype mask.
        property_mask: Datatype mask.
        value_mask: Datatype mask.
-       language: Language tag.
+       language: Language.
     """
 
     class DatatypeMask(Flags):
@@ -637,14 +637,14 @@ class Filter(KIF_Object):
 
     @at_property
     def language(self) -> str | None:
-        """The language tag of filter."""
+        """The language of filter."""
         return self.get_language()
 
     def get_language(self) -> str | None:
-        """Gets the language tag of filter.
+        """Gets the language of filter.
 
         Returns:
-           Language tag or ``None``.
+           Language or ``None``.
         """
         return self.args[8]
 

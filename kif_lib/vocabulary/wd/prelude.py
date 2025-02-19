@@ -13,6 +13,7 @@ from ...model import (
     AliasProperty,
     Datatype,
     DescriptionProperty,
+    IRI,
     Item,
     LabelProperty,
     LanguageProperty,
@@ -93,12 +94,10 @@ def _reload_property_cache(
                 _, uri, datatype_uri, label_en, inverse_uri = (
                     line[:-1].split('\t'))
                 dt = Datatype.check(datatype_uri)
+                iprop = Property(inverse_uri, dt) if inverse_uri else None
                 prop = Property(uri, dt)
-                ctx.registry.set_datatype(prop, dt)
-                ctx.registry.set_label(prop, label_en)
-                if inverse_uri:
-                    iprop = Property(inverse_uri, dt)
-                    ctx.registry.set_inverse(prop, iprop)
+                assert ctx.entities.register(
+                    prop, range=dt, label=label_en, inverse=iprop) == prop
     except FileNotFoundError:
         pass
 
@@ -112,10 +111,11 @@ def P(
 ) -> Property:
     ctx = Context.top(context)
     if isinstance(name, str) and name[0] == 'P':
-        name = str(NS.WD[name])
+        iri = IRI(str(NS.WD[name]))
     else:
-        name = str(NS.WD[f'P{name}'])
-    return ctx.registry.make_property(name, label, datatype, inverse)
+        iri = IRI(str(NS.WD[f'P{name}']))
+    return ctx.entities.register(
+        Property(iri), label=label, range=datatype, inverse=inverse)
 
 
 def Q(
@@ -125,10 +125,10 @@ def Q(
 ) -> Item:
     ctx = Context.top(context)
     if isinstance(name, str) and name[0] == 'Q':
-        name = str(NS.WD[name])
+        iri = IRI(str(NS.WD[name]))
     else:
-        name = str(NS.WD[f'Q{name}'])
-    return ctx.registry.make_item(name, label)
+        iri = IRI(str(NS.WD[f'Q{name}']))
+    return ctx.entities.register(Item(iri), label=label)
 
 
 def L(
@@ -140,10 +140,11 @@ def L(
 ) -> Lexeme:
     ctx = Context.top(context)
     if isinstance(name, str) and name[0] == 'L':
-        name = str(NS.WD[name])
+        iri = IRI(str(NS.WD[name]))
     else:
-        name = str(NS.WD[f'L{name}'])
-    return ctx.registry.make_lexeme(name, lemma, category, language)
+        iri = IRI(str(NS.WD[f'L{name}']))
+    return ctx.entities.register(
+        Lexeme(iri), lemma=lemma, category=category, language=language)
 
 
 # Aliases for pseudo-properties.
@@ -160,7 +161,7 @@ def get_label(
         entity: Item | Property,
         default: str | None = None
 ) -> str | None:
-    label = Context.top().registry.get_label(entity, default)
+    label = entity.context.entities.get_label(entity)
     if label is not None:
         return label.content
     else:

@@ -42,7 +42,7 @@ class TextOptions(Section, name='text'):
 
     @property
     def language(self) -> str:
-        """The default language tag."""
+        """The default language."""
         return self._language
 
     @language.setter
@@ -56,7 +56,7 @@ class TextTemplate(ShallowDataValueTemplate):
 
     Parameters:
        content: Text content or string variable.
-       language: Language tag or string variable.
+       language: Language or string variable.
     """
 
     object_class: ClassVar[type[Text]]  # pyright: ignore
@@ -85,14 +85,14 @@ class TextTemplate(ShallowDataValueTemplate):
 
     @property
     def language(self) -> VStringContent:
-        """The language tag of text template."""
+        """The language of text template."""
         return self.get_language()
 
     def get_language(self) -> VStringContent:
-        """Gets the language tag of text template.
+        """Gets the language of text template.
 
         Returns:
-           Language tag or string variable.
+           Language or string variable.
         """
         return self.args[1]
 
@@ -124,7 +124,7 @@ class Text(
 
     Parameters:
        content: Text content.
-       language: Language tag.
+       language: Language.
     """
 
     datatype_class: ClassVar[type[TextDatatype]]  # pyright: ignore
@@ -163,13 +163,13 @@ class Text(
 
     @property
     def language(self) -> str:
-        """The language tag of text."""
+        """The language of text."""
         return self.get_language()
 
     def get_language(self) -> str:
-        """Gets the language tag of text.
+        """Gets the language of text.
 
         Returns:
-           Language tag.
+           Language.
         """
         return self.args[1]

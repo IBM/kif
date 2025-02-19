@@ -22,6 +22,7 @@ from ..term import OpenTerm, Variable
 from .datatype import Datatype, DatatypeVariable, VDatatype, VTDatatype
 from .entity import Entity, EntityTemplate, EntityVariable, VTEntity
 from .iri import IRI_Template, T_IRI, VT_IRI
+from .string import TString
 from .text import Text
 from .value import VTValue
 
@@ -542,6 +543,31 @@ class Property(
            Datatype.
         """
         return self.get(1, default)
+
+    @override
+    def display(self, language: TString | None = None) -> str:
+        label = self.context.entities.get_label(self, language, self.display)
+        if label:
+            return label.content
+        else:
+            return super().display(language)
+
+    @property
+    def label(self) -> Text | None:
+        """The label of property in KIF context."""
+        return self.get_label()
+
+    def get_label(self, language: TString | None = None) -> Text | None:
+        """Gets the label of property in KIF context.
+
+        Parameters:
+           language: Language.
+
+        Returns:
+           Label or ``None`` (no label for property in KIF context).
+        """
+        return self.context.entities.get_label(
+            self, language, self.get_label)
 
     @overload
     def no_value(

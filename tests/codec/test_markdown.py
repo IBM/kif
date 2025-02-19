@@ -114,10 +114,10 @@ class Test(TestCase):
         # unknown prefix: relative iri
         self.assert_to_markdown(
             IRI('prefix/x'),
-            self.md_link('prefix/x', 'http://prefix/x'))
+            self.md_link('prefix/x', 'prefix/x'))
         self.assert_to_markdown(
             IRI('x'),
-            self.md_link('x', 'http://x'))
+            self.md_link('x', 'x'))
 
     def test_text_to_markdown(self) -> None:
         self.assert_to_markdown(Text('abc'), '"abc"@en')

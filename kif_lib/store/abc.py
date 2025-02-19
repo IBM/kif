@@ -945,7 +945,7 @@ class Store(Set):
            subject_mask: Datatype mask.
            property_mask: Datatype mask.
            value_mask: Datatype mask.
-           language: Language tag.
+           language: Language.
            snak: Snak.
            filter: Filter.
 
@@ -1058,7 +1058,7 @@ class Store(Set):
            subject_mask: Datatype mask.
            property_mask: Datatype mask.
            value_mask: Datatype mask.
-           language: Language tag.
+           language: Language.
            snak: Snak.
            filter: Filter filter.
            limit: Limit (maximum number) of statements to return.
@@ -1156,7 +1156,7 @@ class Store(Set):
            subject_mask: Datatype mask.
            property_mask: Datatype mask.
            value_mask: Datatype mask.
-           language: Language tag.
+           language: Language.
            snak: Snak.
            filter: Filter.
            limit: Limit (maximum number) of statements to return.
@@ -1253,7 +1253,7 @@ class Store(Set):
 
         Parameters:
            entities: Entities.
-           language: Language tag.
+           language: Language.
            mask: Descriptor mask.
 
         Returns:
@@ -1325,7 +1325,7 @@ class Store(Set):
 
         Parameters:
            items: Items.
-           language: Language tag.
+           language: Language.
            mask: Descriptor mask.
 
         Returns:
@@ -1376,7 +1376,7 @@ class Store(Set):
 
         Parameters:
            properties: Properties.
-           language: Language tag.
+           language: Language.
            mask: Descriptor mask.
 
         Returns:

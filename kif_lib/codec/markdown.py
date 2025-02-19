@@ -34,7 +34,6 @@ from ..model import (
     Variable,
 )
 from ..model.kif_object import Encoder, Object
-from ..namespace import _DEFAULT_NSM
 from ..typing import Iterator, override
 
 SP = ' '                        # space
@@ -65,15 +64,11 @@ class MarkdownEncoder(
             ###
             if isinstance(obj, Property):
                 obj = obj.replace(obj.iri, None)
-            display_name = obj.display()
-            if display_name:
-                yield f'[{display_name}]({obj.iri.content})'
-            else:
-                yield from self._iterencode(obj.iri, indent)
+            yield f'[{obj.display()}]({obj.iri.content})'
             yield from self._iterencode_kif_object_end(obj)
         elif isinstance(obj, IRI):
             try:
-                curie = _DEFAULT_NSM.curie(obj.content, False)
+                curie = obj.context.iris.curie(obj) or obj.content
                 yield f'[{curie}]({obj.content})'
             except KeyError:
                 yield from self._iterencode_iri_fallback(obj)
