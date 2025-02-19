@@ -755,12 +755,15 @@ class PrefixRegistry(Registry):
             status |= bool(self._remove_prefix(iri, prefix))
         if all:
             status |= bool(self.unset(iri))
+        if status:
+            self._reset_nsm()
         return status
 
     def _add_prefix(self, iri: IRI, prefix: str) -> str:
         prefixes: set_[str] = (
             self.get(iri, 'prefixes') or self.set(iri, 'prefixes', set()))
         prefixes.add(prefix)
+        self._nsm.bind(prefix, iri.content, replace=True)
         return prefix
 
     def _remove_prefix(self, iri: IRI, prefix: str) -> str | None:
