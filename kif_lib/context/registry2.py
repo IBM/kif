@@ -665,6 +665,47 @@ class PrefixRegistry(Registry):
         assert isinstance(obj, IRI)
         return super().unset(obj.content, key)
 
+    def curie(
+            self,
+            iri: T_IRI,
+            function: Location | None = None
+    ) -> str | None:
+        """Generates CURIE from IRI.
+
+        See <https://en.wikipedia.org/wiki/CURIE>.
+
+        Parameters:
+           iri: IRI.
+           function: Function or function name.
+
+        Returns:
+           CURIE (compact IRI) string or ``None``.
+        """
+        iri = IRI.check(iri, function or self.curie, 'iri')
+        try:
+            return self._nsm.curie(iri.content, False)
+        except BaseException:
+            return None
+
+    def decurie(
+            self,
+            curie: TString,
+            function: Location | None = None
+    ) -> IRI | None:
+        """Expands CURIE into IRI.
+
+        Parameters:
+           curie: String.
+
+        Returns:
+           IRI or ``None``.
+        """
+        curie = String.check(curie, function or self.decurie, 'curie')
+        try:
+            return IRI.check(self._nsm.expand_curie(curie.content))
+        except BaseException:
+            return None
+
     def describe(
             self,
             iri: T_IRI,
