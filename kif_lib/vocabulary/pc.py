@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from ..context import Context
 from ..model import Item, Property, Quantity
 from ..namespace.pubchem import PubChem
 from ..namespace.semsci import CHEMINF
@@ -27,3 +28,6 @@ def source(name: str, label: str | None = None) -> Item:
 Isotope_Atom_Count = Property(
     CHEMINF.isotope_atom_count_generated_by_pubchem_software_library,
     Quantity)
+
+
+Context.top().iris.register(PubChem.COMPOUND, 'pc')
