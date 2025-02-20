@@ -9,7 +9,7 @@ from ..typing import ClassVar, TracebackType
 
 if TYPE_CHECKING:  # pragma: no cover
     from .options import Options
-    from .registry2 import EntityRegistry, IRI_Registry
+    from .registry import EntityRegistry, IRI_Registry
 
 
 class Context:
@@ -52,7 +52,7 @@ class Context:
     def __init__(self) -> None:
         from ..namespace import PREFIXES
         from .options import Options
-        from .registry2 import EntityRegistry, IRI_Registry
+        from .registry import EntityRegistry, IRI_Registry
         self._entities = EntityRegistry()
         self._iris = IRI_Registry({k: str(v) for k, v in PREFIXES.items()})
         self._options = Options()

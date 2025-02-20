@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from ...typing import Any, ClassVar, override, Set, TypeAlias, TypedDict, Union
 from ..term import Variable
 from .shallow_data_value import (
@@ -12,6 +14,9 @@ from .shallow_data_value import (
 )
 from .string import String, TString
 from .value import Datatype
+
+if TYPE_CHECKING:               # pragma: no cover
+    from ...store import Store
 
 T_IRI: TypeAlias = Union['IRI', TString]
 V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'IRI']
@@ -71,6 +76,9 @@ class IRI(
 
         #: Prefixes.
         prefixes: Set[str]
+
+        #: Entity resolver.
+        resolver: Store
 
     def __init__(self, content: VT_IRI_Content) -> None:
         super().__init__(content)

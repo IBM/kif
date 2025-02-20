@@ -3,8 +3,11 @@
 
 from __future__ import annotations
 
+import abc
+
 from typing_extensions import overload
 
+from .. import itertools
 from ..cache import Cache
 from ..model import (
     Datatype,
@@ -19,569 +22,959 @@ from ..model import (
     TDatatype,
     Text,
     TItem,
-    TLexeme,
     TProperty,
     TString,
     TText,
 )
 from ..rdflib import Graph, NamespaceManager
-from ..typing import Any, cast, Mapping, TypeAlias, TypedDict
-from .context import Context
+from ..store import Store
+from ..typing import (
+    Any,
+    Callable,
+    cast,
+    Hashable,
+    Iterable,
+    Location,
+    Mapping,
+    Optional,
+    override,
+    Set,
+    TypeAlias,
+    TypeVar,
+    Union,
+)
 
-NilType: TypeAlias = KIF_Object.NilType
-Nil = KIF_Object.Nil
+E = TypeVar('E', bound=Union[Item, Property, Lexeme])
+T = TypeVar('T')
+set_ = set
+
+Prefix: TypeAlias = str
+TextMap: TypeAlias = dict[str, Text]
+TextSet: TypeAlias = set_[Text]
+TextSetMap: TypeAlias = dict[str, set[Text]]
 
 
-class Registry:
-    """KIF registry."""
+class Registry(Cache):
+    """Abstract base class for registries."""
 
-    class ItemEntry(TypedDict):
-        """Item entry in registry."""
-        labels: Mapping[str, Text]  # indexed by language
+    @abc.abstractmethod
+    def __init__(self) -> None:
+        super().__init__()
 
-    class PropertyEntry(TypedDict):
-        """Property entry in registry."""
-        datatype: Datatype
-        inverse: Property | None
-        labels: Mapping[str, Text]  # indexed by language
 
-    class LexemeEntry(TypedDict):
-        """Lexeme entry in registry."""
-        lemma: Text
-        category: Item
-        language: Item
+class EntityRegistry(Registry):
+    """Entity registry."""
 
-    __slots__ = (
-        '_context',
-        '_entity_cache',
-        '_ns_manager',
-        '_ns_prefix_table',
-    )
+    def __init__(self) -> None:
+        super().__init__()
 
-    #: Parent context.
-    _context: Context
+    @override
+    def get(self, obj: Hashable, key: str) -> Any:
+        assert isinstance(obj, Entity)
+        return super().get(obj.iri.content, key)
 
-    #: Entity cache.
-    _entity_cache: Cache
+    @override
+    def set(self, obj: Hashable, key: str, value: T) -> T:
+        assert isinstance(obj, Entity)
+        return super().set(obj.iri.content, key, value)
 
-    #: Namespace manager.
-    _ns_manager: NamespaceManager
-
-    #: Namespace prefix table.
-    _ns_prefix_table: dict[str, IRI]
-
-    def __init__(
-            self,
-            context: Context,
-            prefixes: Mapping[str, Any] | None = None
-    ) -> None:
-        self._context = context
-        self._entity_cache = Cache()
-        self._ns_prefix_table = {
-            str(k): IRI.check(str(v), type(self), 'prefixes', 2)
-            for k, v in (prefixes or {}).items()
-        }
-        self._reset_ns_manager()
-
-    def _reset_ns_manager(self) -> None:
-        self._ns_manager = NamespaceManager(Graph(), bind_namespaces='none')
-        for prefix, iri in self._ns_prefix_table.items():
-            self._ns_manager.bind(prefix, iri.content)
-
-    @property
-    def context(self) -> Context:
-        """The parent context."""
-        return self.get_context()
-
-    def get_context(self) -> Context:
-        """Gets the parent context.
-
-        Returns:
-           Context.
-        """
-        return self._context
-
-    def display(
-            self,
-            entity: Entity,
-            default: TString | NilType | None = Nil
-    ) -> str | None:
-        """Gets a human-readable name for `entity`.
-
-        Parameters:
-           entity: Entity.
-           default: Default human-readable name.
-
-        Returns:
-           Human-readable name.
-        """
-        entity = Entity.check(entity, self.display, 'entity', 1)
-        name = None
-        if isinstance(entity, (Item, Property)):
-            label = self.get_label(entity)
-            if label:
-                name = label.content
-        if name:
-            return name
-        else:
-            try:
-                return self._ns_manager.curie(entity.iri.content, False)
-            except BaseException:
-                if default is Nil:
-                    return entity.iri.content
-                elif default is None:
-                    return None
-                else:
-                    return String.check(
-                        default, self.display, 'default', 2).content
-
-    def get_prefix(self, prefix: str) -> IRI | None:
-        """Gets the namespace of `prefix` in registry.
-
-        Parameters:
-           prefix: Prefix.
-
-        Returns:
-           Namespace or ``None`` (no namespace for prefix).
-        """
-        return self._ns_prefix_table.get(prefix)
-
-    def set_prefix(self, prefix: str, namespace: T_IRI) -> IRI:
-        """Sets the namespace of `prefix` in registry.
-
-        Parameters:
-           prefix: Prefix.
-           namespace: IRI.
-
-        Returns:
-           Namespace.
-        """
-        iri = IRI.check(namespace, self.set_prefix, 'namespace', 2)
-        self._ns_prefix_table[prefix] = iri
-        self._ns_manager.bind(prefix, iri.content, replace=True)
-        return iri
-
-    def unset_prefix(self, prefix: str) -> IRI | None:
-        """Unsets the namespace of `prefix` in registry.
-
-        Parameters:
-           prefix: Prefix.
-
-        Returns:
-           Namespace or ``None`` (no namespace for prefix).
-        """
-        iri = self._ns_prefix_table.pop(prefix)
-        if iri is not None:
-            self._reset_ns_manager()
-        return iri
+    @override
+    def unset(self, obj: Hashable, key: str | None = None) -> Any:
+        assert isinstance(obj, Entity)
+        return super().unset(obj.iri.content, key)
 
     @overload
-    def describe(self, entity: Item) -> ItemEntry | None:
+    def describe(
+            self,
+            entity: Item,
+            function: Location | None = None
+    ) -> Item.Descriptor | None:
         """Describes item.
 
         Parameters:
            entity: Item.
+           function: Function or function name.
 
         Returns:
-           Item entry in registry or ``None`` (no entry for item).
+           Item descriptor or ``None`` (no descriptor for item).
         """
         ...                     # pragma: no cover
 
     @overload
-    def describe(self, entity: Property) -> PropertyEntry | None:
+    def describe(
+            self,
+            entity: Property,
+            function: Location | None = None
+    ) -> Property.Descriptor | None:
         """Describes property.
 
         Parameters:
-           entity: Property.
+           entity: property.
+           function: Function or function name.
 
         Returns:
-           Property entry in registry or ``None`` (no entry for property).
+           Property descriptor or ``None`` (no descriptor for property).
         """
         ...                     # pragma: no cover
 
     @overload
-    def describe(self, entity: Lexeme) -> LexemeEntry | None:
+    def describe(
+            self,
+            entity: Lexeme,
+            function: Location | None = None
+    ) -> Lexeme.Descriptor | None:
         """Describes lexeme.
 
         Parameters:
-           entity: Lexeme.
+           entity: lexeme.
+           function: Function or function name.
 
         Returns:
-           Lexeme entry in registry or ``None`` (no entry for lexeme).
+           Lexeme descriptor or ``None`` (no descriptor for lexeme).
         """
         ...                     # pragma: no cover
 
     def describe(
             self,
-            entity: Item | Property | Lexeme
-    ) -> ItemEntry | PropertyEntry | LexemeEntry | None:
-        entry = self._entity_cache._cache.get(entity.iri.content, None)
-        if entry is not None:
-            if isinstance(entity, Item):
-                return cast(Registry.ItemEntry, entry)
-            elif isinstance(entity, Property):
-                return cast(Registry.PropertyEntry, entry)
-            elif isinstance(entity, Lexeme):
-                return cast(Registry.LexemeEntry, entry)
+            entity: Item | Property | Lexeme,
+            function: Location | None = None
+    ) -> Item.Descriptor | Property.Descriptor | Lexeme.Descriptor | None:
+        function = function or self.describe
+        obj = Entity.check(entity, function, 'entity')
+        desc = self._describe(entity)
+        if obj is not None:
+            if isinstance(obj, Item):
+                return cast(Item.Descriptor, desc)
+            elif isinstance(obj, Property):
+                return cast(Property.Descriptor, desc)
+            elif isinstance(obj, Lexeme):
+                return cast(Lexeme.Descriptor, desc)
             else:
                 raise KIF_Object._should_not_get_here()
         else:
             return None
 
+    def _describe(self, entity: Entity) -> dict[str, Any] | None:
+        return self._cache.get(entity.iri.content)
+
     def get_label(
             self,
             entity: Item | Property,
-            language: TString | None = None
+            language: TString | None = None,
+            function: Location | None = None
     ) -> Text | None:
-        """Gets the label of `entity` in registry.
+        """Gets entity label.
 
         Parameters:
            entity: Item or property.
            language: Language.
+           function: Function or function name.
 
         Returns:
-           Label or ``None`` (no label for language).
+           Label or ``None``.
         """
-        if isinstance(entity, (Item, Property)):
-            key = entity.iri.content
-        else:
-            key = IRI.check(entity, self.get_label, 'entity', 1).content
-        language = String.check_optional(
-            language, self.context.options.language,
-            self.get_label, 'language', 2)
-        assert language is not None
-        language = language.content
-        labels = self._entity_cache.get(key, 'labels')
-        if labels and language in labels:
-            return labels[language]
-        else:
+        t = self.describe(entity, function or self.get_label)
+        if not t:
             return None
+        else:
+            language = String.check_optional(
+                language, None, function or self.get_label, 'language')
+            if language is not None:
+                lang: str = language.content
+            else:
+                lang = entity.context.options.language
+            if 'labels' in t:
+                return t['labels'].get(lang)
+            else:
+                return None
 
-    def set_label(self, entity: Item | Property, label: TText) -> Text:
-        """Sets the label of `entity` in registry.
+    def get_range(
+            self,
+            entity: Property,
+            function: Location | None = None
+    ) -> Datatype | None:
+        """Gets property range datatype.
 
         Parameters:
-           entity: Item or property.
+           entity: Property.
+           function: Function or function name.
+
+        Returns:
+           Datatype or ``None``.
+        """
+        t = self.describe(entity, function or self.get_range)
+        return t['range'] if t and 'range' in t else None
+
+    @overload
+    def register(self, entity: Item, **kwargs: Any) -> Item:
+        """Add or update entity data.
+
+        Parameters:
+           entity: Item.
            label: Label.
+           labels: Labels.
+           alias: Alias.
+           aliases: Aliases.
+           description: Description.
+           descriptions: Descriptions.
+           function: Function or function name.
 
         Returns:
-           Label.
+           Item.
         """
-        if isinstance(entity, (Item, Property)):
-            key = entity.iri.content
-        else:
-            key = IRI.check(entity, self.set_label, 'entity', 1).content
-        label = Text.check(label, self.set_label, 'label', 2)
-        labels: dict[str, Text] = (
-            self._entity_cache.get(key, 'labels')
-            or self._entity_cache.set(key, 'labels', {}))
-        labels[label.language] = label
-        return label
+        ...                     # pragma: no cover
 
-    def unset_label(
-            self,
-            entity: Item | Property,
-            language: TString | None = None
-    ) -> Text | None:
-        """Unsets the label of `entity` in registry.
+    @overload
+    def register(self, entity: Property, **kwargs: Any) -> Property:
+        """Add or update property data.
 
         Parameters:
-           language: Language.
+           entity: Property.
+           label: Label.
+           labels: Labels.
+           alias: Alias.
+           aliases: Aliases.
+           description: Description.
+           descriptions: Descriptions.
+           range: Range datatype.
+           inverse: Inverse property.
+           function: Function or function name.
 
         Returns:
-           The unset label or ``None`` (no label for language).
+           Property.
         """
-        if isinstance(entity, (Item, Property)):
-            key = entity.iri.content
-        else:
-            key = IRI.check(entity, self.set_label, 'entity', 1).content
-        language = String.check_optional(
-            language, self.context.options.language,
-            self.get_label, 'language', 2)
-        assert language is not None
-        language = language.content
-        labels = self._entity_cache.get(key, 'labels')
-        if labels:
-            if language in labels:
-                return labels.pop(language)
-            elif language is None:
-                self._entity_cache.unset(key, 'labels')
-        return None
+        ...                     # pragma: no cover
 
-    def get_datatype(self, property: TProperty) -> Datatype | None:
-        """Gets the datatype of `property` in registry.
+    @overload
+    def register(self, entity: Lexeme, **kwargs: Any) -> Lexeme:
+        """Add or update lexeme data.
 
         Parameters:
-           property: Property.
-
-        Returns:
-           Datatype or ``None`` (no datatype for property).
-        """
-        prop = Property.check(property, self.get_datatype, 'property', 1)
-        return self._entity_cache.get(prop.iri.content, 'datatype')
-
-    def set_datatype(
-            self,
-            property: TProperty,
-            datatype: TDatatype
-    ) -> Datatype:
-        """Sets the datatype of `property` in registry.
-
-        Parameters:
-           property: Property.
-           datatype: Datatype.
-
-        Returns:
-           Datatype.
-        """
-        prop = Property.check(property, self.set_datatype, 'property', 1)
-        dt = Datatype.check(datatype, self.set_datatype, 'datatype', 2)
-        return self._entity_cache.set(prop.iri.content, 'datatype', dt)
-
-    def unset_datatype(self, property: TProperty) -> Datatype | None:
-        """Unsets the datatype of `property` in registry.
-
-        Parameters:
-           property: Property.
-
-        Returns:
-           The unset datatype or ``None`` (no datatype for property).
-        """
-        prop = Property.check(property, self.unset_datatype, 'property', 1)
-        return self._entity_cache.unset(prop.iri.content, 'datatype')
-
-    def get_inverse(self, property: TProperty) -> Property | None:
-        """Gets the inverse of `property` in registry.
-
-        Parameters:
-           property: Property.
-
-        Returns:
-           Inverse property or ``None`` (no inverse for property).
-        """
-        prop = Property.check(property, self.get_inverse, 'property', 1)
-        return self._entity_cache.get(prop.iri.content, 'inverse')
-
-    def set_inverse(self, property: Property, inverse: TProperty) -> Property:
-        """Sets the inverse of `property` in registry.
-
-        Parameters:
-           property: Property.
-           inverse: Property.
-
-        Returns:
-           Inverse property.
-        """
-        prop = Property.check(property, self.set_inverse, 'property', 1)
-        iprop = Property.check(inverse, self.set_inverse, 'inverse', 2)
-        return self._entity_cache.set(prop.iri.content, 'inverse', iprop)
-
-    def unset_inverse(self, property: Property) -> Property | None:
-        """Unsets the inverse of `property` in registry.
-
-        Parameters:
-           property: Property.
-
-        Returns:
-           The unset property or ``None`` (no inverse for property).
-        """
-        prop = Property.check(property, self.unset_inverse, 'property', 1)
-        return self._entity_cache.unset(prop.iri.content, 'inverse')
-
-    def get_lemma(self, lexeme: TLexeme) -> Text | None:
-        """Gets the lemma of `lexeme` in registry.
-
-        Parameters:
-           lexeme: Lexeme.
-
-        Returns:
-           Lemma or ``None`` (no lemma for language).
-        """
-        lex = Lexeme.check(lexeme, self.get_lemma, 'lexeme', 1)
-        return self._entity_cache.get(lex.iri.content, 'lemma')
-
-    def set_lemma(self, lexeme: TLexeme, lemma: TText) -> Text:
-        """Sets the lemma of `lexeme` in registry.
-
-        Parameters:
-           lexeme: Lexeme.
+           entity: Lexeme.
            lemma: Lemma.
+           category: Lexical category.
+           language: Language.
 
         Returns:
            Lemma.
         """
-        lex = Lexeme.check(lexeme, self.set_lemma, 'lexeme', 1)
-        lemma = Text.check(lemma, self.set_lemma, 'lemma', 2)
-        return self._entity_cache.set(lex.iri.content, 'lemma', lemma)
+        ...                     # pragma: no cover
 
-    def unset_lemma(self, lexeme: TLexeme) -> Text | None:
-        """Unsets the lemma of `lexeme` in registry.
-
-        Parameters:
-           lexeme: Lexeme.
-
-        Returns:
-           The unset lemma or ``None`` (no lemma for lexeme).
-        """
-        lex = Lexeme.check(lexeme, self.unset_lemma, 'lexeme', 1)
-        return self._entity_cache.unset(lex.iri.content, 'lemma')
-
-    def get_category(self, lexeme: TLexeme) -> Item | None:
-        """Gets the lexical category of `lexeme` in registry.
-
-        Parameters:
-           lexeme: Lexeme.
-
-        Returns:
-           Lexical category or ``None`` (no category for lexeme).
-        """
-        lex = Lexeme.check(lexeme, self.get_category, 'lexeme', 1)
-        return self._entity_cache.get(lex.iri.content, 'category')
-
-    def set_category(self, lexeme: TLexeme, category: TItem) -> Item:
-        """Sets the category of `lexeme` in registry.
-
-        Parameters:
-           lexeme: Lexeme.
-           category: Lexical category.
-
-        Returns:
-           Lexical category.
-        """
-        lex = Lexeme.check(lexeme, self.set_category, 'lexeme', 1)
-        cat = Item.check(category, self.set_category, 'category', 2)
-        return self._entity_cache.set(lex.iri.content, 'category', cat)
-
-    def unset_category(self, lexeme: TLexeme) -> Item | None:
-        """Unsets the lexical category of `lexeme` in registry.
-
-        Parameters:
-           lexeme: Lexeme.
-
-        Returns:
-           The unset lexical category or ``None`` (no category for lexeme).
-        """
-        lex = Lexeme.check(lexeme, self.unset_category, 'lexeme', 1)
-        return self._entity_cache.unset(lex.iri.content, 'category')
-
-    def get_language(self, lexeme: TLexeme) -> Item | None:
-        """Gets the language of `lexeme` in registry.
-
-        Parameters:
-           lexeme: Lexeme.
-
-        Returns:
-           Language or ``None`` (no language for lexeme).
-        """
-        lex = Lexeme.check(lexeme, self.get_language, 'lexeme', 1)
-        return self._entity_cache.get(lex.iri.content, 'language')
-
-    def set_language(self, lexeme: TLexeme, language: TItem) -> Item:
-        """Sets the language of `lexeme` in registry.
-
-        Parameters:
-           lexeme: Lexeme.
-           language: Language.
-
-        Returns:
-           Language.
-        """
-        lex = Lexeme.check(lexeme, self.set_language, 'lexeme', 1)
-        lang = Item.check(language, self.set_language, 'language', 2)
-        return self._entity_cache.set(lex.iri.content, 'language', lang)
-
-    def unset_language(self, lexeme: TLexeme) -> Item | None:
-        """Unsets the language of `lexeme` in registry.
-
-        Parameters:
-           lexeme: Lexeme.
-
-        Returns:
-           The unset language or ``None`` (no language for lexeme).
-        """
-        lex = Lexeme.check(lexeme, self.unset_category, 'lexeme', 1)
-        return self._entity_cache.unset(lex.iri.content, 'language')
-
-    def make_item(self, item: TItem, label: TText | None = None) -> Item:
-        """Creates item and update its entry in registry.
-
-        If `label` is given, update item's label in registry.
-
-        Parameters:
-           item: Item.
-           label: Label.
-
-        Returns:
-           The resulting item.
-        """
-        item = Item.check(item, self.make_item, 'item', 1)
-        if label:
-            self.set_label(item, label)
-        return item
-
-    def make_property(
+    def register(
             self,
-            property: TProperty,
+            entity: E,
             label: TText | None = None,
-            datatype: TDatatype | None = None,
-            inverse: TProperty | None = None
-    ) -> Property:
-        """Creates property and updates its entry in registry.
-
-        If `label` is given, updates property's label in registry.
-        If `datatype` is given, updates property's datatype in registry.
-        If `inverse` is given, updates property's inverse in registry.
-
-        Parameters:
-           property: Property.
-           label: Label.
-           datatype: Datatype.
-           inverse: Inverse property.
-
-        Returns:
-           The resulting property.
-        """
-        prop = Property.check(property, self.make_property, 'property', 1)
-        if label:
-            self.set_label(prop, label)
-        if datatype:
-            prop = Property(prop.iri, self.set_datatype(prop, datatype))
-        else:
-            if prop.range is not None:
-                self.set_datatype(prop, prop.range)
-            else:
-                prop = Property(prop.iri, self.get_datatype(prop))
-        if inverse:
-            self.set_inverse(prop, inverse)
-        return prop
-
-    def make_lexeme(
-            self,
-            lexeme: TLexeme,
+            labels: Iterable[TText] | None = None,
+            alias: TText | None = None,
+            aliases: Iterable[TText] | None = None,
+            description: TText | None = None,
+            descriptions: Iterable[TText] | None = None,
+            range: TDatatype | None = None,
+            inverse: TProperty | None = None,
             lemma: TText | None = None,
             category: TItem | None = None,
-            language: TItem | None = None
-    ) -> Lexeme:
-        """Creates lexeme and updates its entry in registry.
+            language: TItem | None = None,
+            function: Location | None = None,
+            **kwargs: Any
+    ) -> E:
+        function = function or self.register
+        labels = labels or ()
+        aliases = aliases or ()
+        descriptions = descriptions or ()
+        return self._do_register(
+            entity,
+            labels=map(
+                lambda t: Text.check(t, function, 'labels'),
+                itertools.chain((label,), labels) if label else labels),
+            aliases=map(
+                lambda t: Text.check(t, function, 'aliases'),
+                itertools.chain((alias,), aliases) if alias else aliases),
+            descriptions=map(
+                lambda t: Text.check(t, function, 'descriptions'),
+                itertools.chain((description,), descriptions)
+                if description else descriptions),
+            range=Datatype.check_optional(range, None, function, 'range'),
+            inverse=Property.check_optional(
+                inverse, None, function, 'inverse'),
+            lemma=Text.check_optional(lemma, None, function, 'lemma'),
+            category=Item.check_optional(
+                category, None, function, 'category'),
+            language=Item.check_optional(
+                language, None, function, 'language'))
 
-        If `lemma` is given, updates lexeme's lemma in registry.
-        If `category` is given, updates lexeme's category in registry.
-        If `language` is given, updates lexeme's language in registry.
+    def _do_register(
+            self,
+            entity: T,
+            labels: Iterable[Text],
+            aliases: Iterable[Text],
+            descriptions: Iterable[Text],
+            range: Datatype | None,
+            inverse: Property | None,
+            lemma: Text | None,
+            category: Item | None,
+            language: Item | None
+    ) -> T:
+        ret: T = entity
+        if isinstance(entity, (Item, Property)):
+            for label in labels:
+                self._add_label(entity, label)
+            for alias in aliases:
+                self._add_alias(entity, alias)
+            for description in descriptions:
+                self._add_description(entity, description)
+            if isinstance(entity, Property):
+                if range is not None:
+                    ret = cast(T, entity.replace(  # update ret's range
+                        entity.KEEP, self._add_range(entity, range)))
+                elif entity.range is None:
+                    t = self._describe(entity)
+                    if t is not None and 'range' in t:
+                        ret = cast(T, entity.replace(  # update ret's range
+                            entity.KEEP, t['range']))
+                if inverse is not None:
+                    self._add_inverse(entity, inverse)
+        elif isinstance(entity, Lexeme):
+            if lemma is not None:
+                self._add_lemma(entity, lemma)
+            if category is not None:
+                self._add_category(entity, category)
+            if language is not None:
+                self._add_language(entity, language)
+        else:
+            raise KIF_Object._should_not_get_here()
+        return ret
+
+    @overload
+    def unregister(self, entity: Item, **kwargs: Any) -> bool:
+        """Remove item data.
 
         Parameters:
-           lexeme: Lexeme.
-           lemma: Lemma.
-           category: Lexical category.
-           language: Language.
+           entity: Item.
+           label: Label.
+           labels: Labels.
+           alias: Alias.
+           aliases: Aliases.
+           description: Description.
+           descriptions: Descriptions.
+           label_language: Language.
+           alias_language: Language.
+           description_language: Language.
+           all_labels: Whether to remove all labels.
+           all_aliases: Whether to remove all aliases.
+           all_descriptions: Whether to remove all descriptions.
+           all: Whether to remove all data.
+           function: Function or function name.
 
         Returns:
-           The resulting lexeme.
+           ``True`` if successful; ``False`` otherwise.
         """
-        lexeme = Lexeme.check(lexeme, self.make_lexeme, 'lexeme', 1)
-        if lemma:
-            self.set_lemma(lexeme, lemma)
-        if category:
-            self.set_category(lexeme, category)
-        if language:
-            self.set_language(lexeme, language)
-        return lexeme
+        ...                     # pragma: no cover
+
+    @overload
+    def unregister(self, entity: Property, **kwargs: Any) -> bool:
+        """Remove property data.
+
+        Parameters:
+           entity: Property.
+           label: Label.
+           labels: Labels.
+           alias: Alias.
+           aliases: Aliases.
+           description: Description.
+           descriptions: Descriptions.
+           label_language: Language.
+           alias_language: Language.
+           description_language: Language.
+           all_labels: Whether to remove all labels.
+           all_aliases: Whether to remove all aliases.
+           all_descriptions: Whether to remove all descriptions.
+           range: Whether to remove range.
+           inverse: Whether to remove inverse.
+           all: Whether to remove all data.
+           function: Function or function name.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        ...                     # pragma: no cover
+
+    @overload
+    def unregister(self, entity: Lexeme, **kwargs: Any) -> bool:
+        """Remove lexeme data.
+
+        Parameters:
+           entity: Lexeme.
+           lemma: Whether to remove lemma.
+           category: Whether to remove category.
+           language: Whether to remove language.
+           all: Whether to remove all data.
+           function: Function or function name.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        ...                     # pragma: no cover
+
+    def unregister(
+            self,
+            entity: Item | Property | Lexeme,
+            label: TText | None = None,
+            labels: Iterable[TText] = (),
+            alias: TText | None = None,
+            aliases: Iterable[TText] = (),
+            description: TText | None = None,
+            descriptions: Iterable[TText] = (),
+            label_language: TString | None = None,
+            alias_language: TString | None = None,
+            description_language: TString | None = None,
+            all_labels: bool = False,
+            all_aliases: bool = False,
+            all_descriptions: bool = False,
+            range: bool = False,
+            inverse: bool = False,
+            lemma: bool = False,
+            category: bool = False,
+            language: bool = False,
+            all: bool = False,
+            function: Location | None = None,
+            **kwargs: Any
+    ) -> bool:
+        function = function or self.unregister
+        return self._do_unregister(
+            entity,
+            labels=map(
+                lambda t: Text.check(t, function, 'labels'),
+                itertools.chain((label,), labels) if label else labels),
+            aliases=map(
+                lambda t: Text.check(t, function, 'aliases'),
+                itertools.chain((alias,), aliases) if alias else aliases),
+            descriptions=map(
+                lambda t: Text.check(t, function, 'descriptions'),
+                itertools.chain((description,), descriptions)
+                if description else descriptions),
+            label_language=String.check_optional(
+                label_language, None, function, 'label_language'),
+            alias_language=String.check_optional(
+                alias_language, None, function, 'alias_language'),
+            description_language=String.check_optional(
+                description_language, None, function, 'description_language'),
+            all_labels=bool(all_labels),
+            all_aliases=bool(all_aliases),
+            all_descriptions=bool(all_descriptions),
+            range=bool(range),
+            inverse=bool(inverse),
+            lemma=bool(lemma),
+            category=bool(category),
+            language=bool(language),
+            all=bool(all))
+
+    def _do_unregister(
+            self,
+            entity: Entity,
+            labels: Iterable[Text],
+            aliases: Iterable[Text],
+            descriptions: Iterable[Text],
+            label_language: String | None = None,
+            alias_language: String | None = None,
+            description_language: String | None = None,
+            all_labels: bool = False,
+            all_aliases: bool = False,
+            all_descriptions: bool = False,
+            range: bool = False,
+            inverse: bool = False,
+            lemma: bool = False,
+            category: bool = False,
+            language: bool = False,
+            all: bool = False
+    ) -> bool:
+        status: bool = False
+        if isinstance(entity, (Item, Property)):
+            for label in labels:
+                status |= bool(self._remove_label(entity, label))
+            for alias in aliases:
+                status |= bool(self._remove_alias(entity, alias))
+            for description in descriptions:
+                status |= bool(self._remove_description(entity, description))
+            if label_language:
+                status |= bool(self._remove_label(
+                    entity, language=label_language.content))
+            if alias_language:
+                status |= bool(self._remove_alias(
+                    entity, language=alias_language.content))
+            if description_language:
+                status |= bool(self._remove_description(
+                    entity, language=description_language.content))
+            if all_labels:
+                status |= bool(self._remove_all_labels(entity))
+            if all_aliases:
+                status |= bool(self._remove_all_aliases(entity))
+            if all_descriptions:
+                status |= bool(self._remove_all_descriptions(entity))
+            if isinstance(entity, Property):
+                if range:
+                    status |= bool(self._remove_range(entity))
+                if inverse:
+                    status |= bool(self._remove_inverse(entity))
+        elif isinstance(entity, Lexeme):
+            if lemma:
+                status |= bool(self._remove_lemma(entity))
+            if category:
+                status |= bool(self._remove_category(entity))
+            if language:
+                status |= bool(self._remove_language(entity))
+        if all:
+            status |= bool(self.unset(entity))
+        return status
+
+    def _add_label(self, entity: Entity, label: Text) -> Text:
+        return self._do_add_into_text_map(
+            'labels', entity, label, self._do_add_into_text_map_tail)
+
+    def _remove_label(
+            self,
+            entity: Entity,
+            label: Text | None = None,
+            language: str | None = None
+    ) -> TextMap | Text | None:
+        return self._do_remove_from_text_map(
+            'labels', entity, label, language,
+            self._do_remove_from_text_map_tail)
+
+    def _remove_all_labels(self, entity: Entity) -> TextMap | None:
+        return self.unset(entity, 'labels')
+
+    def _add_alias(self, entity: Entity, alias: Text) -> Text:
+        return self._do_add_into_text_map(
+            'aliases', entity, alias, self._do_add_into_text_set_map_tail)
+
+    def _remove_alias(
+            self,
+            entity: Entity,
+            alias: Text | None = None,
+            language: str | None = None
+    ) -> TextSetMap | TextSet | None:
+        return self._do_remove_from_text_map(
+            'aliases', entity, alias, language,
+            self._do_remove_from_text_set_map_tail)
+
+    def _remove_all_aliases(self, entity: Entity) -> TextSetMap | None:
+        return self.unset(entity, 'aliases')
+
+    def _add_description(self, entity: Entity, description: Text) -> Text:
+        return self._do_add_into_text_map(
+            'descriptions', entity, description,
+            self._do_add_into_text_map_tail)
+
+    def _remove_description(
+            self,
+            entity: Entity,
+            description: Text | None = None,
+            language: str | None = None
+    ) -> TextMap | Text | None:
+        return self._do_remove_from_text_map(
+            'descriptions', entity, description, language,
+            self._do_remove_from_text_map_tail)
+
+    def _remove_all_descriptions(self, entity: Entity) -> TextMap | None:
+        return self.unset(entity, 'labels')
+
+    def _do_add_into_text_map(
+            self,
+            field: str,
+            entity: Entity,
+            text: Text,
+            tail: Callable[[T, Text], Text]
+    ) -> Text:
+        t = cast(T, self.get(entity, field) or self.set(entity, field, {}))
+        return tail(t, text)
+
+    @staticmethod
+    def _do_add_into_text_map_tail(t: TextMap, text: Text) -> Text:
+        t[text.language] = text
+        return text
+
+    @staticmethod
+    def _do_add_into_text_set_map_tail(t: TextSetMap, text: Text) -> Text:
+        if text.language not in t:
+            t[text.language] = set()
+        t[text.language].add(text)
+        return text
+
+    def _do_remove_from_text_map(
+            self,
+            field: str,
+            entity: Entity,
+            text: Text | None,
+            language: str | None,
+            tail: Callable[[T, Text | None, str | None], Any]
+    ) -> Any:
+        assert text is None or language is None
+        t = cast(Optional[T], self.get(entity, field))
+        if t is None:                           # nothing to do
+            return None
+        elif text is None and language is None:  # remove all
+            return cast(T, self.unset(entity, field))
+        else:
+            ret = tail(t, text, language)
+            if not t:
+                self.unset(entity, field)
+            return ret
+
+    @staticmethod
+    def _do_remove_from_text_map_tail(
+            t: TextMap,
+            text: Text | None,
+            language: str | None
+    ) -> Text | None:
+        if language is not None:  # remove by language
+            assert text is None
+            return cast(Text, t.pop(language))
+        elif text is not None:  # remove by content and language
+            assert language is None
+            if text == t[text.language]:
+                return cast(Text, t.pop(text.language))
+            else:
+                return None
+        else:
+            raise KIF_Object._should_not_get_here()
+
+    @staticmethod
+    def _do_remove_from_text_set_map_tail(
+            t: TextSetMap,
+            text: Text | None,
+            language: str | None
+    ) -> TextSetMap | TextSet | Text | None:
+        if language is not None and language in t:  # remove by language
+            assert text is None
+            return cast(TextSet, t.pop(language))
+        elif text is not None and text.language in t:  # remove by text
+            assert language is None
+            ts = t[text.language]
+            if text in ts:
+                ts.remove(text)
+                if not ts:
+                    del t[text.language]
+                return text
+            else:
+                return None
+        else:
+            return None
+
+    def _add_range(self, property: Property, range: Datatype) -> Datatype:
+        return self.set(property, 'range', range)
+
+    def _remove_range(self, property: Property) -> Datatype | None:
+        return self.unset(property, 'range')
+
+    def _add_inverse(self, property: Property, inverse: Property) -> Property:
+        return self.set(property, 'inverse', inverse)
+
+    def _remove_inverse(self, property: Property) -> Property | None:
+        return self.unset(property, 'inverse')
+
+    def _add_lemma(self, lexeme: Lexeme, lemma: Text) -> Text:
+        return self.set(lexeme, 'lemma', lemma)
+
+    def _remove_lemma(self, lexeme: Lexeme) -> Text | None:
+        return self.unset(lexeme, 'lemma')
+
+    def _add_category(self, lexeme: Lexeme, category: Item) -> Item | None:
+        return self.set(lexeme, 'category', category)
+
+    def _remove_category(self, lexeme: Lexeme) -> Item | None:
+        return self.unset(lexeme, 'category')
+
+    def _add_language(self, lexeme: Lexeme, language: Item) -> Item | None:
+        return self.set(lexeme, 'language', language)
+
+    def _remove_language(self, lexeme: Lexeme) -> Item | None:
+        return self.unset(lexeme, 'language')
+
+
+class IRI_Registry(Registry):
+    """IRI registry."""
+
+    __slots__ = (
+        '_nsm',
+    )
+
+    #: Namespace manager.
+    _nsm: NamespaceManager
+
+    def __init__(self, prefixes: Mapping[Prefix, Any] | None = None) -> None:
+        super().__init__()
+        self._init_nsm()
+        for k, v in (prefixes or {}).items():
+            prefix = String.check(k, type(self), 'prefixes', 1)
+            iri = IRI.check(v, type(self), 'prefixes', 1)
+            self._add_prefix(iri, prefix.content)
+
+    def _init_nsm(self) -> None:
+        self._nsm = NamespaceManager(Graph(), bind_namespaces='none')
+
+    def _reset_nsm(self) -> None:
+        self._init_nsm()
+        for iri_content, prefixes in self._cache.items():
+            for prefix in prefixes:
+                self._nsm.bind(prefix, iri_content)
+
+    @override
+    def get(self, obj: Hashable, key: str) -> Any:
+        assert isinstance(obj, IRI)
+        return super().get(obj.content, key)
+
+    @override
+    def set(self, obj: Hashable, key: str, value: T) -> T:
+        assert isinstance(obj, IRI)
+        return super().set(obj.content, key, value)
+
+    @override
+    def unset(self, obj: Hashable, key: str | None = None) -> Any:
+        assert isinstance(obj, IRI)
+        return super().unset(obj.content, key)
+
+    def curie(
+            self,
+            iri: T_IRI,
+            function: Location | None = None
+    ) -> str | None:
+        """Contracts IRI into CURIE string.
+
+        See <https://en.wikipedia.org/wiki/CURIE>.
+
+        Parameters:
+           iri: IRI.
+           function: Function or function name.
+
+        Returns:
+           CURIE string or ``None``.
+        """
+        iri = IRI.check(iri, function or self.curie, 'iri')
+        try:
+            return self._nsm.curie(iri.content, False)
+        except BaseException:
+            return None
+
+    def uncurie(
+            self,
+            curie: TString,
+            function: Location | None = None
+    ) -> IRI | None:
+        """Expands CURIE string into IRI.
+
+        Parameters:
+           curie: String.
+
+        Returns:
+           IRI or ``None``.
+        """
+        curie = String.check(curie, function or self.uncurie, 'curie')
+        try:
+            return IRI.check(self._nsm.expand_curie(curie.content))
+        except BaseException:
+            return None
+
+    def lookup_resolver(
+            self,
+            iri: T_IRI | Entity,
+            function: Location | None = None
+    ) -> Store | None:
+        """Searches for resolver for IRI.
+
+        Parameters:
+           iri: IRI.
+           function: Function or function name.
+
+        Returns:
+           Store or ``None``.
+        """
+        if isinstance(iri, Entity):
+            iri = iri.iri
+        else:
+            iri = IRI.check(iri, function, 'iri')
+        resolver = self.get_resolver(iri)
+        if resolver is None:
+            from ..rdflib import split_uri
+            try:
+                ns, _ = split_uri(iri.content)
+                resolver = self.get_resolver(ns)
+            except BaseException:
+                pass
+        return resolver
+
+    def describe(
+            self,
+            iri: T_IRI,
+            function: Location | None = None
+    ) -> IRI.Descriptor | None:
+        """Describes IRI.
+
+        Parameters:
+           iri: IRI.
+           function: Function or function name.
+
+        Returns:
+           IRI descriptor or ``None`` (no descriptor for IRI).
+        """
+        function = function or self.describe
+        iri = IRI.check(iri, function, 'iri')
+        return cast(IRI.Descriptor | None, self._cache.get(iri.content))
+
+    def _describe(self, entity: Entity) -> dict[str, Any] | None:
+        return self._cache.get(entity.iri.content)
+
+    def get_prefixes(
+            self,
+            iri: T_IRI,
+            function: Location | None = None
+    ) -> Set[Prefix] | None:
+        """Gets IRI prefixes.
+
+        Parameters:
+           iri: IRI.
+           function: Function or function name.
+
+        Returns:
+           Prefix set or ``None``.
+        """
+        t = self.describe(iri, function or self.get_prefixes)
+        return t['prefixes'] if t and 'prefixes' in t else None
+
+    def get_resolver(
+            self,
+            iri: T_IRI,
+            function: Location | None = None
+    ) -> Store | None:
+        """Gets IRI entity resolver.
+
+        Parameters:
+           iri: IRI.
+           function: Function or function name.
+
+        Returns:
+           Store or ``None``.
+        """
+        t = self.describe(iri, function or self.get_resolver)
+        return t['resolver'] if t and 'resolver' in t else None
+
+    def register(
+            self,
+            iri: T_IRI,
+            prefix: TString | None = None,
+            prefixes: Iterable[TString] | None = None,
+            resolver: Store | None = None,
+            function: Location | None = None
+    ) -> IRI:
+        """Add or update IRI data.
+
+        Parameters:
+           iri: IRI.
+           prefix: Prefix.
+           prefixes: Prefixes.
+           resolver: Store.
+           function: Function or function name.
+
+        Returns:
+           IRI.
+        """
+        function = function or self.register
+        prefixes = prefixes or ()
+        return self._do_register(
+            iri=IRI.check(iri, function, 'iri'),
+            prefixes=map(
+                lambda t: String.check(t, function, 'prefixes').content,
+                itertools.chain((prefix,), prefixes) if prefix else prefixes),
+            resolver=KIF_Object._check_optional_arg_isinstance(
+                resolver, Store, None, function, 'resolver'))
+
+    def unregister(
+            self,
+            iri: T_IRI,
+            prefix: TString | None = None,
+            prefixes: Iterable[TString] = (),
+            all_prefixes: bool = False,
+            resolver: bool = False,
+            all: bool = False,
+            function: Location | None = None
+    ) -> bool:
+        """Remove IRI data.
+
+        Parameters:
+           iri: IRI.
+           prefix: Prefix.
+           prefixes: Prefixes.
+           all_prefixes: Whether to remove all prefixes.
+           resolver: Whether to remove resolver.
+           all: Whether to remove all data.
+           function: Function or function name.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        function = function or self.unregister
+        return self._do_unregister(
+            iri=IRI.check(iri, function, 'iri'),
+            prefixes=map(
+                lambda t: String.check(t, function, 'prefixes').content,
+                itertools.chain((prefix,), prefixes) if prefix else prefixes),
+            all_prefixes=bool(all_prefixes),
+            resolver=bool(resolver),
+            all=bool(all))
+
+    def _do_register(
+            self,
+            iri: IRI,
+            prefixes: Iterable[Prefix],
+            resolver: Store | None
+    ) -> IRI:
+        for prefix in prefixes:
+            self._add_prefix(iri, prefix)
+        if resolver is not None:
+            self._add_resolver(iri, resolver)
+        return iri
+
+    def _do_unregister(
+            self,
+            iri: IRI,
+            prefixes: Iterable[Prefix],
+            all_prefixes: bool = False,
+            resolver: bool = False,
+            all: bool = False
+    ) -> bool:
+        status: bool = False
+        for prefix in prefixes:
+            status |= bool(self._remove_prefix(iri, prefix))
+        if all_prefixes:
+            status |= bool(self._remove_all_prefixes(iri))
+        if resolver:
+            status |= bool(self._remove_resolver(iri))
+        if all:
+            status |= bool(self.unset(iri))
+        if status:
+            self._reset_nsm()
+        return status
+
+    def _add_prefix(self, iri: IRI, prefix: Prefix) -> Prefix:
+        prefixes: set_[Prefix] = (
+            self.get(iri, 'prefixes') or self.set(iri, 'prefixes', set()))
+        prefixes.add(prefix)
+        self._nsm.bind(prefix, iri.content, replace=True)
+        return prefix
+
+    def _remove_prefix(self, iri: IRI, prefix: Prefix) -> Prefix | None:
+        prefixes: Union[set_[Prefix], None] = self.get(iri, 'prefixes')
+        if prefixes is None or prefix not in prefixes:
+            return None
+        prefixes.remove(prefix)
+        if not prefixes:
+            self.unset(iri, 'prefixes')
+        return prefix
+
+    def _remove_all_prefixes(self, iri: IRI) -> set_[Prefix] | None:
+        return self.unset(iri, 'labels')
+
+    def _add_resolver(self, iri: IRI, resolver: Store) -> Store:
+        return self.set(iri, 'resolver', resolver)
+
+    def _remove_resolver(self, iri: IRI) -> Store | None:
+        return self.unset(iri, 'resolver')

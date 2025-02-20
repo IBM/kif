@@ -168,8 +168,8 @@ def get_label(
         return default
 
 
-# Reload the wd module.
 def reload() -> None:
+    """Reloads the whole wd module."""
     import importlib
 
     from . import item, property

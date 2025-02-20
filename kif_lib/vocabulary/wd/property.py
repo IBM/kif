@@ -42,6 +42,7 @@ developer = P(178)
 Dictionary_of_American_Regional_English_ID = P(12448)
 does_not_have_part = P(3113)
 download_link = P(4945)
+DSSTox_substance_ID = P(3117)
 duration = P(2047)
 educated_at = P(69)
 element_symbol = P(246)
@@ -220,6 +221,7 @@ __all__ = (
     'Dictionary_of_American_Regional_English_ID',
     'does_not_have_part',
     'download_link',
+    'DSSTox_substance_ID',
     'duration',
     'educated_at',
     'element_symbol',
