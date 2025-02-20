@@ -176,17 +176,64 @@ class EntityRegistry(Registry):
         t = self.describe(entity, function or self.get_label)
         if not t:
             return None
+        language = String.check_optional(
+            language, None, function or self.get_label, 'language')
+        if language is not None:
+            lang: str = language.content
         else:
-            language = String.check_optional(
-                language, None, function or self.get_label, 'language')
-            if language is not None:
-                lang: str = language.content
-            else:
-                lang = entity.context.options.language
-            if 'labels' in t:
-                return t['labels'].get(lang)
-            else:
-                return None
+            lang = entity.context.options.language
+        if 'labels' in t:
+            return t['labels'].get(lang)
+        else:
+            return None
+
+    def get_aliases(
+            self,
+            entity: Item | Property,
+            language: TString | None = None,
+            function: Location | None = None
+    ) -> TextSet | None:
+        """Gets entity aliases.
+
+        Parameters:
+           entity: Item or property.
+           language: Language.
+           function: Function or function name.
+
+        Returns:
+           Aliases or ``None``.
+        """
+        t = self.describe(entity, function or self.get_aliases)
+        if not t:
+            return None
+        language = String.check_optional(
+            language, None, function or self.get_aliases, 'language')
+        if language is not None:
+            lang: str = language.content
+        else:
+            lang = entity.context.options.language
+        if 'aliases' in t:
+            return cast(TextSet | None, t['aliases'].get(lang))
+        else:
+            return None
+
+    def get_description(
+            self,
+            entity: Item | Property,
+            language: TString | None = None,
+            function: Location | None = None
+    ) -> Text | None:
+        """Gets entity description.
+
+        Parameters:
+           entity: Item or property.
+           language: Language.
+           function: Function or function name.
+
+        Returns:
+           Description or ``None``.
+        """
+        raise NotImplementedError
 
     def get_range(
             self,
