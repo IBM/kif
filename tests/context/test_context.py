@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from kif_lib import Context
 from kif_lib.context.options import Options
+from kif_lib.context.registry import EntityRegistry, IRI_Registry
 from kif_lib.typing import assert_type
 
 from ..tests import TestCase
@@ -33,8 +34,17 @@ class Test(TestCase):
         self.assertEqual(ctx, Context.top(ctx))
         self.assertNotEqual(ctx, Context.top())
 
+    def test_get_entities(self) -> None:
+        assert_type(Context.top().entities, EntityRegistry)
+        self.assertIsInstance(Context.top().entities, EntityRegistry)
+
+    def test_get_iris(self) -> None:
+        assert_type(Context.top().iris, IRI_Registry)
+        self.assertIsInstance(Context.top().iris, IRI_Registry)
+
     def test_get_options(self) -> None:
         assert_type(Context.top().options, Options)
+        self.assertIsInstance(Context.top().options, Options)
 
 
 if __name__ == '__main__':

@@ -201,8 +201,10 @@ from .value import (
     TQuantity,
     TString,
     TText,
+    TTextLanguage,
     TTime,
     TTimePrecision,
+    TTimeTimezone,
     TValue,
     V_IRI,
     Value,
@@ -325,6 +327,7 @@ __all__ = (
     'TextTemplate',
     'TextVariable',
     'TText',
+    'TTextLanguage',
     'VText',
 
     # value.string
@@ -363,6 +366,7 @@ __all__ = (
     'TimeVariable',
     'TTime',
     'TTimePrecision',
+    'TTimeTimezone',
     'VTime',
 
     # snak

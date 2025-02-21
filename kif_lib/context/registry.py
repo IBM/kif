@@ -25,6 +25,7 @@ from ..model import (
     TProperty,
     TString,
     TText,
+    TTextLanguage,
 )
 from ..rdflib import Graph, NamespaceManager
 from ..store import Store
@@ -44,7 +45,7 @@ from ..typing import (
     Union,
 )
 
-E = TypeVar('E', bound=Union[Item, Property, Lexeme])
+E = TypeVar('E', bound=Entity)
 T = TypeVar('T')
 set_ = set
 
@@ -142,17 +143,16 @@ class EntityRegistry(Registry):
         function = function or self.describe
         obj = Entity.check(entity, function, 'entity')
         desc = self._describe(entity)
-        if obj is not None:
-            if isinstance(obj, Item):
-                return cast(Item.Descriptor, desc)
-            elif isinstance(obj, Property):
-                return cast(Property.Descriptor, desc)
-            elif isinstance(obj, Lexeme):
-                return cast(Lexeme.Descriptor, desc)
-            else:
-                raise KIF_Object._should_not_get_here()
-        else:
+        if desc is None:
             return None
+        elif isinstance(obj, Item):
+            return cast(Item.Descriptor, desc)
+        elif isinstance(obj, Property):
+            return cast(Property.Descriptor, desc)
+        elif isinstance(obj, Lexeme):
+            return cast(Lexeme.Descriptor, desc)
+        else:
+            raise KIF_Object._should_not_get_here()
 
     def _describe(self, entity: Entity) -> dict[str, Any] | None:
         return self._cache.get(entity.iri.content)
@@ -160,10 +160,10 @@ class EntityRegistry(Registry):
     def get_label(
             self,
             entity: Item | Property,
-            language: TString | None = None,
+            language: TTextLanguage | None = None,
             function: Location | None = None
     ) -> Text | None:
-        """Gets entity label.
+        """Gets label of item or property.
 
         Parameters:
            entity: Item or property.
@@ -173,15 +173,11 @@ class EntityRegistry(Registry):
         Returns:
            Label or ``None``.
         """
-        t = self.describe(entity, function or self.get_label)
+        function = function or self.get_label
+        t = self.describe(entity, function)
         if not t:
             return None
-        language = String.check_optional(
-            language, None, function or self.get_label, 'language')
-        if language is not None:
-            lang: str = language.content
-        else:
-            lang = entity.context.options.language
+        lang = self._check_optional_language(entity, language, function)
         if 'labels' in t:
             return t['labels'].get(lang)
         else:
@@ -190,10 +186,10 @@ class EntityRegistry(Registry):
     def get_aliases(
             self,
             entity: Item | Property,
-            language: TString | None = None,
+            language: TTextLanguage | None = None,
             function: Location | None = None
     ) -> TextSet | None:
-        """Gets entity aliases.
+        """Gets aliases of item or property.
 
         Parameters:
            entity: Item or property.
@@ -203,15 +199,11 @@ class EntityRegistry(Registry):
         Returns:
            Aliases or ``None``.
         """
-        t = self.describe(entity, function or self.get_aliases)
+        function = function or self.get_aliases
+        t = self.describe(entity, function)
         if not t:
             return None
-        language = String.check_optional(
-            language, None, function or self.get_aliases, 'language')
-        if language is not None:
-            lang: str = language.content
-        else:
-            lang = entity.context.options.language
+        lang = self._check_optional_language(entity, language, function)
         if 'aliases' in t:
             return cast(TextSet | None, t['aliases'].get(lang))
         else:
@@ -220,10 +212,10 @@ class EntityRegistry(Registry):
     def get_description(
             self,
             entity: Item | Property,
-            language: TString | None = None,
+            language: TTextLanguage | None = None,
             function: Location | None = None
     ) -> Text | None:
-        """Gets entity description.
+        """Gets description of item or property.
 
         Parameters:
            entity: Item or property.
@@ -233,14 +225,35 @@ class EntityRegistry(Registry):
         Returns:
            Description or ``None``.
         """
-        raise NotImplementedError
+        function = function or self.get_description
+        t = self.describe(entity, function)
+        if not t:
+            return None
+        lang = self._check_optional_language(entity, language, function)
+        if 'descriptions' in t:
+            return t['descriptions'].get(lang)
+        else:
+            return None
+
+    def _check_optional_language(
+            self,
+            entity: Item | Property,
+            language: TTextLanguage | None,
+            function: Location | None
+    ) -> str:
+        language = String.check_optional(
+            language, None, function, 'language')
+        if language:
+            return language.content
+        else:
+            return entity.context.options.language
 
     def get_range(
             self,
             entity: Property,
             function: Location | None = None
     ) -> Datatype | None:
-        """Gets property range datatype.
+        """Gets range of property.
 
         Parameters:
            entity: Property.
@@ -251,6 +264,74 @@ class EntityRegistry(Registry):
         """
         t = self.describe(entity, function or self.get_range)
         return t['range'] if t and 'range' in t else None
+
+    def get_inverse(
+            self,
+            property: Property,
+            function: Location | None = None
+    ) -> Property | None:
+        """Gets inverse of property.
+
+        Parameters:
+           entity: Property.
+           function: Function or function name.
+
+        Returns:
+           Property or ``None``.
+        """
+        t = self.describe(property, function or self.get_inverse)
+        return t['inverse'] if t and 'inverse' in t else None
+
+    def get_lemma(
+            self,
+            lexeme: Lexeme,
+            function: Location | None = None
+    ) -> Text | None:
+        """Gets lemma of lexeme.
+
+        Parameters:
+           entity: Lexeme.
+           function: Function or function name.
+
+        Returns:
+           Lemma or ``None``.
+        """
+        t = self.describe(lexeme, function or self.get_lemma)
+        return t['lemma'] if t and 'lemma' in t else None
+
+    def get_category(
+            self,
+            lexeme: Lexeme,
+            function: Location | None = None
+    ) -> Item | None:
+        """Gets lexical category of lexeme.
+
+        Parameters:
+           entity: Lexeme.
+           function: Function or function name.
+
+        Returns:
+           Lexical category or ``None``.
+        """
+        t = self.describe(lexeme, function or self.get_category)
+        return t['category'] if t and 'category' in t else None
+
+    def get_language(
+            self,
+            lexeme: Lexeme,
+            function: Location | None = None
+    ) -> Item | None:
+        """Gets language of lexeme.
+
+        Parameters:
+           entity: Lexeme.
+           function: Function or function name.
+
+        Returns:
+           Language or ``None``.
+        """
+        t = self.describe(lexeme, function or self.get_language)
+        return t['language'] if t and 'language' in t else None
 
     @overload
     def register(self, entity: Item, **kwargs: Any) -> Item:
@@ -283,7 +364,7 @@ class EntityRegistry(Registry):
            aliases: Aliases.
            description: Description.
            descriptions: Descriptions.
-           range: Range datatype.
+           range: Range.
            inverse: Inverse property.
            function: Function or function name.
 
@@ -328,18 +409,20 @@ class EntityRegistry(Registry):
         labels = labels or ()
         aliases = aliases or ()
         descriptions = descriptions or ()
-        return self._do_register(
-            entity,
-            labels=map(
+        return cast(E, self._do_register(
+            entity=Entity.check(entity, function, 'entity'),
+            labels=list(map(
                 lambda t: Text.check(t, function, 'labels'),
-                itertools.chain((label,), labels) if label else labels),
-            aliases=map(
+                itertools.chain((label,), labels)
+                if label is not None else labels)),
+            aliases=list(map(
                 lambda t: Text.check(t, function, 'aliases'),
-                itertools.chain((alias,), aliases) if alias else aliases),
-            descriptions=map(
+                itertools.chain((alias,), aliases)
+                if alias is not None else aliases)),
+            descriptions=list(map(
                 lambda t: Text.check(t, function, 'descriptions'),
                 itertools.chain((description,), descriptions)
-                if description else descriptions),
+                if description is not None else descriptions)),
             range=Datatype.check_optional(range, None, function, 'range'),
             inverse=Property.check_optional(
                 inverse, None, function, 'inverse'),
@@ -347,11 +430,11 @@ class EntityRegistry(Registry):
             category=Item.check_optional(
                 category, None, function, 'category'),
             language=Item.check_optional(
-                language, None, function, 'language'))
+                language, None, function, 'language')))
 
     def _do_register(
             self,
-            entity: T,
+            entity: E,
             labels: Iterable[Text],
             aliases: Iterable[Text],
             descriptions: Iterable[Text],
@@ -360,8 +443,8 @@ class EntityRegistry(Registry):
             lemma: Text | None,
             category: Item | None,
             language: Item | None
-    ) -> T:
-        ret: T = entity
+    ) -> E:
+        ret: E = entity
         if isinstance(entity, (Item, Property)):
             for label in labels:
                 self._add_label(entity, label)
@@ -371,12 +454,12 @@ class EntityRegistry(Registry):
                 self._add_description(entity, description)
             if isinstance(entity, Property):
                 if range is not None:
-                    ret = cast(T, entity.replace(  # update ret's range
+                    ret = cast(E, entity.replace(  # update ret's range
                         entity.KEEP, self._add_range(entity, range)))
                 elif entity.range is None:
                     t = self._describe(entity)
                     if t is not None and 'range' in t:
-                        ret = cast(T, entity.replace(  # update ret's range
+                        ret = cast(E, entity.replace(  # update ret's range
                             entity.KEEP, t['range']))
                 if inverse is not None:
                     self._add_inverse(entity, inverse)
@@ -471,9 +554,9 @@ class EntityRegistry(Registry):
             aliases: Iterable[TText] = (),
             description: TText | None = None,
             descriptions: Iterable[TText] = (),
-            label_language: TString | None = None,
-            alias_language: TString | None = None,
-            description_language: TString | None = None,
+            label_language: TTextLanguage | None = None,
+            alias_language: TTextLanguage | None = None,
+            description_language: TTextLanguage | None = None,
             all_labels: bool = False,
             all_aliases: bool = False,
             all_descriptions: bool = False,
@@ -489,16 +572,18 @@ class EntityRegistry(Registry):
         function = function or self.unregister
         return self._do_unregister(
             entity,
-            labels=map(
+            labels=list(map(
                 lambda t: Text.check(t, function, 'labels'),
-                itertools.chain((label,), labels) if label else labels),
-            aliases=map(
+                itertools.chain((label,), labels)
+                if label is not None else labels)),
+            aliases=list(map(
                 lambda t: Text.check(t, function, 'aliases'),
-                itertools.chain((alias,), aliases) if alias else aliases),
-            descriptions=map(
+                itertools.chain((alias,), aliases)
+                if alias is not None else aliases)),
+            descriptions=list(map(
                 lambda t: Text.check(t, function, 'descriptions'),
                 itertools.chain((description,), descriptions)
-                if description else descriptions),
+                if description is not None else descriptions)),
             label_language=String.check_optional(
                 label_language, None, function, 'label_language'),
             alias_language=String.check_optional(

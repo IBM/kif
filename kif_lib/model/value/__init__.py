@@ -100,7 +100,15 @@ from .string import (
     TString,
     VString,
 )
-from .text import Text, TextDatatype, TextTemplate, TextVariable, TText, VText
+from .text import (
+    Text,
+    TextDatatype,
+    TextTemplate,
+    TextVariable,
+    TText,
+    TTextLanguage,
+    VText,
+)
 from .time import (
     Time,
     TimeDatatype,
@@ -108,6 +116,7 @@ from .time import (
     TimeVariable,
     TTime,
     TTimePrecision,
+    TTimeTimezone,
     VTime,
 )
 from .value import TValue, Value, ValueTemplate, ValueVariable, VTValue, VValue
@@ -200,6 +209,7 @@ __all__ = (
     'TextTemplate',
     'TextVariable',
     'TText',
+    'TTextLanguage',
     'VText',
 
     # string
@@ -238,5 +248,6 @@ __all__ = (
     'TimeVariable',
     'TTime',
     'TTimePrecision',
+    'TTimeTimezone',
     'VTime',
 )

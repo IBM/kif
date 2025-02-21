@@ -26,6 +26,10 @@ TText: TypeAlias = Union['Text', TString]
 VText: TypeAlias = Union['TextTemplate', 'TextVariable', 'Text']
 VTTextContent: TypeAlias = Union[Variable, TText]
 
+TTextLanguage: TypeAlias = TString
+VTextLanguageContent: TypeAlias = VStringContent
+VTTextLanguageContent: TypeAlias = VTStringContent
+
 
 @dataclasses.dataclass
 class TextOptions(Section, name='text'):
@@ -64,7 +68,7 @@ class TextTemplate(ShallowDataValueTemplate):
     def __init__(
             self,
             content: VTTextContent,
-            language: VTStringContent | None = None
+            language: VTTextLanguageContent | None = None
     ) -> None:
         super().__init__(content, language)
 
@@ -84,11 +88,11 @@ class TextTemplate(ShallowDataValueTemplate):
             raise self._should_not_get_here()
 
     @property
-    def language(self) -> VStringContent:
+    def language(self) -> VTextLanguageContent:
         """The language of text template."""
         return self.get_language()
 
-    def get_language(self) -> VStringContent:
+    def get_language(self) -> VTextLanguageContent:
         """Gets the language of text template.
 
         Returns:
@@ -135,7 +139,7 @@ class Text(
     def __init__(
             self,
             content: VTTextContent,
-            language: VTStringContent | None = None
+            language: VTTextContent | None = None
     ) -> None:
         if language is None and isinstance(content, Text):
             super().__init__(content.content, content.language)
