@@ -431,7 +431,7 @@ class Time(
         return self.get_calendar()
 
     def get_calendar(self, default: Item | None = None) -> Item | None:
-        """Gets calendar model of time.
+        """Gets the calendar model of time.
 
         If the calendar model is ``None``, returns `default`.
 

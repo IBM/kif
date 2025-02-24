@@ -267,7 +267,7 @@ class Item(
            description_language: Language.
            all_labels: Whether to remove all labels.
            all_aliases: Whether to remove all aliases.
-           descriptions: Whether to remove all descriptions.
+           all_descriptions: Whether to remove all descriptions.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.

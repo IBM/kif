@@ -9,26 +9,34 @@ from typing_extensions import overload
 
 from ...typing import (
     Any,
+    cast,
     ClassVar,
     Iterable,
     Mapping,
     override,
+    Self,
     Set,
     TypeAlias,
     TypedDict,
     Union,
 )
 from ..term import OpenTerm, Variable
-from .datatype import Datatype, DatatypeVariable, VDatatype, VTDatatype
+from .datatype import (
+    Datatype,
+    DatatypeVariable,
+    TDatatype,
+    VDatatype,
+    VTDatatype,
+)
 from .entity import Entity, EntityTemplate, EntityVariable, VTEntity
 from .iri import IRI_Template, T_IRI, VT_IRI
 from .string import TString
-from .text import Text
+from .text import Text, TText, TTextLanguage
 from .value import VTValue
 
 if TYPE_CHECKING:               # pragma: no cover
     from ..rank import VTRank
-    from ..set import VTQualifierRecord, VTReferenceRecordSet
+    from ..set import TTextSet, VTQualifierRecord, VTReferenceRecordSet
     from ..snak import (
         NoValueSnak,
         NoValueSnakTemplate,
@@ -544,31 +552,6 @@ class Property(
         """
         return self.get(1, default)
 
-    @override
-    def display(self, language: TString | None = None) -> str:
-        label = self.context.entities.get_label(self, language, self.display)
-        if label:
-            return label.content
-        else:
-            return super().display(language)
-
-    @property
-    def label(self) -> Text | None:
-        """The label of property in KIF context."""
-        return self.get_label()
-
-    def get_label(self, language: TString | None = None) -> Text | None:
-        """Gets the label of property in KIF context.
-
-        Parameters:
-           language: Language.
-
-        Returns:
-           Label or ``None`` (no label for property in KIF context).
-        """
-        return self.context.entities.get_label(
-            self, language, self.get_label)
-
     @overload
     def no_value(
             self,
@@ -666,6 +649,197 @@ class Property(
                 return stmt
             else:
                 return stmt.annotate(qualifiers, references, rank)
+
+    @override
+    def display(self, language: TString | None = None) -> str:
+        label = self.get_label(language)
+        if label:
+            return label.content
+        else:
+            return super().display(language)  # fallback
+
+    def describe(self) -> Property.Descriptor | None:
+        """Gets the descriptor of property in KIF context.
+
+        Returns:
+           Property descriptor or ``None``.
+        """
+        return self.context.entities.describe(self)
+
+    @property
+    def label(self) -> Text | None:
+        """The label of property in KIF context."""
+        return self.get_label()
+
+    def get_label(self, language: TString | None = None) -> Text | None:
+        """Gets the label of property in KIF context.
+
+        Parameters:
+           language: Language.
+
+        Returns:
+           Label or ``None``.
+        """
+        return self.context.entities.get_label(self, language, self.get_label)
+
+    @property
+    def aliases(self) -> Set[Text] | None:
+        """The aliases of property in KIF context."""
+        return self.get_aliases()
+
+    def get_aliases(
+            self,
+            language: TString | None = None
+    ) -> Set[Text] | None:
+        """Gets the aliases of property in KIF context.
+
+        Parameters:
+           language: Language.
+
+        Returns:
+           Aliases or ``None``.
+        """
+        return self.context.entities.get_aliases(
+            self, language, self.get_aliases)
+
+    @property
+    def description(self) -> Text | None:
+        """The description of property in KIF context."""
+        return self.get_description()
+
+    def get_description(self, language: TString | None = None) -> Text | None:
+        """Gets the description of property in KIF context.
+
+        Parameters:
+           language: Language.
+
+        Returns:
+           Description or ``None``.
+        """
+        return self.context.entities.get_description(
+            self, language, self.get_description)
+
+    @property
+    def registered_range(self) -> Datatype | None:
+        """The range of property in KIF context."""
+        return self.get_registered_range()
+
+    def get_registered_range(self) -> Datatype | None:
+        """Gets the range of property in KIF context.
+
+        Returns:
+           Range or ``None``.
+        """
+        return self.context.entities.get_range(
+            self, self.get_registered_range)
+
+    @property
+    def inverse(self) -> Property | None:
+        """The inverse of property in KIF context."""
+        return self.get_inverse()
+
+    def get_inverse(self) -> Property | None:
+        """Gets the inverse of property in KIF context.
+
+        Returns:
+           Property or ``None``.
+        """
+        return self.context.entities.get_inverse(self, self.get_inverse)
+
+    def register(
+            self,
+            label: TText | None = None,
+            labels: TTextSet | None = None,
+            alias: TText | None = None,
+            aliases: TTextSet | None = None,
+            description: TText | None = None,
+            descriptions: TTextSet | None = None,
+            range: TDatatype | None = None,
+            inverse: TProperty | None = None
+    ) -> Self:
+        """Adds or updates property data in KIF context.
+
+        Parameters:
+           label: Label.
+           labels: Labels.
+           alias: Alias.
+           aliases: Aliases.
+           description: Description.
+           descriptions: Descriptions.
+           range: Range.
+           inverse: Inverse property.
+
+        Returns:
+           Property.
+        """
+        return cast(Self, self.context.entities.register(
+            self, label=label, labels=labels, alias=alias, aliases=aliases,
+            description=description, descriptions=descriptions,
+            range=range, inverse=inverse, function=self.register))
+
+    def unregister(
+            self,
+            label: TText | None = None,
+            labels: TTextSet | None = None,
+            alias: TText | None = None,
+            aliases: TTextSet | None = None,
+            description: TText | None = None,
+            descriptions: TTextSet | None = None,
+            label_language: TTextLanguage | None = None,
+            alias_language: TTextLanguage | None = None,
+            description_language: TTextLanguage | None = None,
+            all_labels: bool = False,
+            all_aliases: bool = False,
+            all_descriptions: bool = False,
+            range: bool = False,
+            inverse: bool = False
+    ) -> bool:
+        """Removes property data from KIF context.
+
+        If called with no arguments, removes all property data.
+
+        Parameters:
+           label: Label.
+           labels: Labels.
+           alias: Alias.
+           aliases: Aliases.
+           description: Description.
+           descriptions: Descriptions.
+           label_language: Language.
+           alias_language: Language.
+           description_language: Language.
+           all_labels: Whether to remove all labels.
+           all_aliases: Whether to remove all aliases.
+           all_descriptions: Whether to remove all descriptions.
+           range: Whether to remove range.
+           inverse: Whether to remove inverse.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        if (label is None and labels is None
+                and alias is None and aliases is None
+                and description is None and descriptions is None
+                and label_language is None
+                and alias_language is None
+                and description_language is None
+                and all_labels is False
+                and all_aliases is False
+                and all_descriptions is False
+                and range is False
+                and inverse is False):
+            return self.context.entities.unregister(
+                self, all=True, function=self.unregister)
+        else:
+            return self.context.entities.unregister(
+                self, label=label, labels=labels,
+                alias=alias, aliases=aliases,
+                description=description, descriptions=descriptions,
+                label_language=label_language, alias_language=alias_language,
+                description_language=description_language,
+                all_labels=all_labels, all_aliases=all_aliases,
+                all_descriptions=all_descriptions,
+                range=range, inverse=inverse, function=self.unregister)
 
 
 def Properties(

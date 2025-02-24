@@ -161,7 +161,7 @@ class EntityRegistry(Registry):
             language: TTextLanguage | None = None,
             function: Location | None = None
     ) -> Text | None:
-        """Gets label of item or property.
+        """Gets the label of item or property.
 
         Parameters:
            entity: Item or property.
@@ -185,7 +185,7 @@ class EntityRegistry(Registry):
             language: TTextLanguage | None = None,
             function: Location | None = None
     ) -> TextSet | None:
-        """Gets aliases of item or property.
+        """Gets the aliases of item or property.
 
         Parameters:
            entity: Item or property.
@@ -209,7 +209,7 @@ class EntityRegistry(Registry):
             language: TTextLanguage | None = None,
             function: Location | None = None
     ) -> Text | None:
-        """Gets description of item or property.
+        """Gets the description of item or property.
 
         Parameters:
            entity: Item or property.
@@ -245,7 +245,7 @@ class EntityRegistry(Registry):
             property: Property,
             function: Location | None = None
     ) -> Datatype | None:
-        """Gets range of property.
+        """Gets the range of property.
 
         Parameters:
            property: Property.
@@ -263,7 +263,7 @@ class EntityRegistry(Registry):
             property: Property,
             function: Location | None = None
     ) -> Property | None:
-        """Gets inverse of property.
+        """Gets the inverse of property.
 
         Parameters:
            property: Property.
@@ -298,7 +298,7 @@ class EntityRegistry(Registry):
             lexeme: Lexeme,
             function: Location | None = None
     ) -> Item | None:
-        """Gets lexical category of lexeme.
+        """Gets the lexical category of lexeme.
 
         Parameters:
            lexeme: Lexeme.
@@ -315,7 +315,7 @@ class EntityRegistry(Registry):
             lexeme: Lexeme,
             function: Location | None = None
     ) -> Item | None:
-        """Gets language of lexeme.
+        """Gets the language of lexeme.
 
         Parameters:
            lexeme: Lexeme.
@@ -963,7 +963,7 @@ class IRI_Registry(Registry):
             iri: T_IRI,
             function: Location | None = None
     ) -> Prefix | None:
-        """Gets IRI prefix.
+        """Gets the IRI prefix.
 
         Parameters:
            iri: IRI.
@@ -980,7 +980,7 @@ class IRI_Registry(Registry):
             iri: T_IRI,
             function: Location | None = None
     ) -> Store | None:
-        """Gets IRI entity resolver.
+        """Gets the IRI entity resolver.
 
         Parameters:
            iri: IRI.

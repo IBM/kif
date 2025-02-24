@@ -6,12 +6,14 @@ from __future__ import annotations
 import datetime
 
 from kif_lib import (
+    Context,
     DatatypeVariable,
     Entity,
     ExternalId,
     IRI,
     IRI_Variable,
     Item,
+    ItemDatatype,
     itertools,
     Lexeme,
     NoValueSnak,
@@ -38,12 +40,28 @@ from kif_lib import (
     Variable,
 )
 from kif_lib.model import TDatatype, TValue
-from kif_lib.typing import assert_type, cast, ClassVar, Iterable, Optional, Set
+from kif_lib.typing import (
+    Any,
+    assert_type,
+    cast,
+    ClassVar,
+    Iterable,
+    Optional,
+    Set,
+)
 
 from ...tests import EntityTestCase
 
 
 class Test(EntityTestCase):
+
+    def assert_register(self, prop: Property, **kwargs: Any) -> None:
+        res = prop.register(**kwargs)
+        dt = prop.context.entities.get_range(prop)
+        self.assertEqual(res, Property(prop.iri, dt))
+
+    def assert_unregister(self, prop: Property, **kwargs: Any) -> None:
+        self.assertTrue(prop.unregister(**kwargs))
 
     def test_datatype_class(self) -> None:
         assert_type(Property.datatype_class, type[PropertyDatatype])
@@ -261,6 +279,100 @@ class Test(EntityTestCase):
                 (Property('x'), Property('x', Item)),
                 (Property('x', Quantity), Property(Variable('x'), Item)),
             ])
+
+    def test_display(self) -> None:
+        self.assert_raises_bad_argument(
+            TypeError, None, 'language', 'cannot coerce int into String',
+            (Property('x').display, 'Property.get_label'), 0)
+        with Context():
+            assert_type(Property('x').display(), str)
+            self.assertEqual(Property('x').display(), 'x')
+            self.assertEqual(Property('x').display('pt'), 'x')
+            self.assert_register(
+                Property('x'), labels=['abc@en', Text('abc@pt', 'pt')])
+            self.assertEqual(Property('x').display(), 'abc@en')
+            self.assertEqual(Property('x').display('en'), 'abc@en')
+            self.assertEqual(Property('x').display('pt'), 'abc@pt')
+            self.assertEqual(Property('x').display('fr'), 'x')
+
+    def test_describe(self) -> None:
+        with Context():
+            assert_type(
+                Property('x').describe(), Optional[Property.Descriptor])
+            self.assertIsNone(Property('x').describe())
+            self.assert_register(
+                Property('x'), label='abc', alias=Text('abc', 'pt'),
+                descriptions=[Text('def', 'fr'), Text('def', 'jp')],
+                range=Item, inverse=Property('y'))
+            self.assertEqual(
+                Property('x').describe(),
+                {'labels': {'en': Text('abc')},
+                 'aliases': {'pt': {Text('abc', 'pt')}},
+                 'descriptions': {
+                     'fr': Text('def', 'fr'), 'jp': Text('def', 'jp')},
+                 'range': ItemDatatype(),
+                 'inverse': Property('y')})
+        self.assertIsNone(Property('x').describe())
+
+    def test_get_label(self) -> None:
+        self.assert_raises_bad_argument(
+            TypeError, None, 'language', 'cannot coerce int into String',
+            Property('x').get_label, 0)
+        with Context():
+            assert_type(Property('x').get_label(), Optional[Text])
+            self.assertIsNone(Property('x').get_label())
+            self.assert_register(Property('x'), label='abc')
+            self.assertEqual(Property('x').get_label('en'), Text('abc'))
+            self.assertEqual(Property('x').get_label(), Text('abc'))
+            self.assertEqual(Property('x').label, Text('abc'))
+            self.assertEqual(Property('x', Item).label, Text('abc'))
+        self.assertIsNone(Property('x').label)
+
+    def test_get_aliases(self) -> None:
+        self.assert_raises_bad_argument(
+            TypeError, None, 'language', 'cannot coerce int into String',
+            Property('x').get_aliases, 0)
+        with Context():
+            assert_type(Property('x').get_aliases(), Optional[Set[Text]])
+            self.assertIsNone(Property('x').get_aliases())
+            self.assert_register(Property('x'), alias='abc')
+            self.assert_register(Property('x'), aliases=[
+                'def', Text('abc', 'pt'), Text('def', 'fr')])
+            self.assertEqual(Property('x').get_aliases('en'), {
+                Text('abc'), Text('def')})
+            self.assertEqual(
+                Property('x').get_aliases('pt'), {Text('abc', 'pt')})
+            self.assertEqual(
+                Property('x').aliases, {Text('abc'), Text('def')})
+            self.assertEqual(
+                Property('x', Item).aliases, {Text('abc'), Text('def')})
+            self.assertIsNone(Property('x').get_label('jp'))
+        self.assertIsNone(Property('x').label)
+
+    def test_get_description(self) -> None:
+        self.assert_raises_bad_argument(
+            TypeError, None, 'language', 'cannot coerce int into String',
+            Property('x').get_description, 0)
+        with Context():
+            assert_type(Property('x').get_description(), Optional[Text])
+            self.assertIsNone(Property('x').get_description())
+            self.assert_register(Property('x'), description='abc')
+            self.assertEqual(
+                Property('x').get_description('en'), Text('abc'))
+            self.assertEqual(Property('x').get_description(), Text('abc'))
+            self.assertEqual(Property('x').description, Text('abc'))
+            self.assertEqual(Property('x', Item).description, Text('abc'))
+        self.assertIsNone(Property('x').description)
+
+    def test_get_inverse(self) -> None:
+        with Context():
+            assert_type(Property('x').get_inverse(), Optional[Property])
+            self.assertIsNone(Property('x').get_inverse())
+            self.assert_register(Property('x'), inverse=Property('y'))
+            self.assertEqual(Property('x').get_inverse(), Property('y'))
+            self.assert_register(Property('x'), inverse=Property('z'))
+            self.assertEqual(Property('x').get_inverse(), Property('z'))
+        self.assertIsNone(Property('x').inverse)
 
     def test_Properties(self) -> None:
         assert_type(Properties('a', 'b', 'c'), Iterable[Property])
