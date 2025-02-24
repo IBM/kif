@@ -175,10 +175,8 @@ class EntityRegistry(Registry):
         """
         function = function or self.get_label
         t = self.describe(entity, function)
-        if not t:
-            return None
         lang = self._check_optional_language(entity, language, function)
-        if 'labels' in t:
+        if t and 'labels' in t:
             return t['labels'].get(lang)
         else:
             return None
@@ -201,10 +199,8 @@ class EntityRegistry(Registry):
         """
         function = function or self.get_aliases
         t = self.describe(entity, function)
-        if not t:
-            return None
         lang = self._check_optional_language(entity, language, function)
-        if 'aliases' in t:
+        if t and 'aliases' in t:
             return cast(TextSet | None, t['aliases'].get(lang))
         else:
             return None
@@ -227,10 +223,8 @@ class EntityRegistry(Registry):
         """
         function = function or self.get_description
         t = self.describe(entity, function)
-        if not t:
-            return None
         lang = self._check_optional_language(entity, language, function)
-        if 'descriptions' in t:
+        if t and 'descriptions' in t:
             return t['descriptions'].get(lang)
         else:
             return None
@@ -335,7 +329,7 @@ class EntityRegistry(Registry):
 
     @overload
     def register(self, entity: Item, **kwargs: Any) -> Item:
-        """Add or update entity data.
+        """Add or update item data.
 
         Parameters:
            entity: Item.
@@ -571,7 +565,7 @@ class EntityRegistry(Registry):
     ) -> bool:
         function = function or self.unregister
         return self._do_unregister(
-            entity,
+            entity=Entity.check(entity, function, 'entity'),
             labels=list(map(
                 lambda t: Text.check(t, function, 'labels'),
                 itertools.chain((label,), labels)
@@ -644,18 +638,18 @@ class EntityRegistry(Registry):
                 status |= bool(self._remove_all_descriptions(entity))
             if isinstance(entity, Property):
                 if range:
-                    status |= bool(self._remove_range(entity))
+                    status |= self._remove_range(entity) is not None
                 if inverse:
-                    status |= bool(self._remove_inverse(entity))
+                    status |= self._remove_inverse(entity) is not None
         elif isinstance(entity, Lexeme):
             if lemma:
-                status |= bool(self._remove_lemma(entity))
+                status |= self._remove_lemma(entity) is not None
             if category:
-                status |= bool(self._remove_category(entity))
+                status |= self._remove_category(entity) is not None
             if language:
-                status |= bool(self._remove_language(entity))
+                status |= self._remove_language(entity) is not None
         if all:
-            status |= bool(self.unset(entity))
+            status |= self.unset(entity) is not None
         return status
 
     def _add_label(self, entity: Entity, label: Text) -> Text:
@@ -708,7 +702,7 @@ class EntityRegistry(Registry):
             self._do_remove_from_text_map_tail)
 
     def _remove_all_descriptions(self, entity: Entity) -> TextMap | None:
-        return self.unset(entity, 'labels')
+        return self.unset(entity, 'descriptions')
 
     def _do_add_into_text_map(
             self,
@@ -744,13 +738,10 @@ class EntityRegistry(Registry):
         t = cast(Optional[T], self.get(entity, field))
         if t is None:                           # nothing to do
             return None
-        elif text is None and language is None:  # remove all
-            return cast(T, self.unset(entity, field))
-        else:
-            ret = tail(t, text, language)
-            if not t:
-                self.unset(entity, field)
-            return ret
+        ret = tail(t, text, language)
+        if not t:
+            self.unset(entity, field)
+        return ret
 
     @staticmethod
     def _do_remove_from_text_map_tail(
@@ -760,10 +751,13 @@ class EntityRegistry(Registry):
     ) -> Text | None:
         if language is not None:  # remove by language
             assert text is None
-            return cast(Text, t.pop(language))
+            if language in t:
+                return cast(Text, t.pop(language))
+            else:
+                return None
         elif text is not None:  # remove by content and language
             assert language is None
-            if text == t[text.language]:
+            if text.language in t and text == t[text.language]:
                 return cast(Text, t.pop(text.language))
             else:
                 return None
@@ -779,7 +773,7 @@ class EntityRegistry(Registry):
         if language is not None and language in t:  # remove by language
             assert text is None
             return cast(TextSet, t.pop(language))
-        elif text is not None and text.language in t:  # remove by text
+        elif text is not None and text.language in t:  # remove by content
             assert language is None
             ts = t[text.language]
             if text in ts:
@@ -1019,6 +1013,18 @@ class IRI_Registry(Registry):
             resolver=KIF_Object._check_optional_arg_isinstance(
                 resolver, Store, None, function, 'resolver'))
 
+    def _do_register(
+            self,
+            iri: IRI,
+            prefixes: Iterable[Prefix],
+            resolver: Store | None
+    ) -> IRI:
+        for prefix in prefixes:
+            self._add_prefix(iri, prefix)
+        if resolver is not None:
+            self._add_resolver(iri, resolver)
+        return iri
+
     def unregister(
             self,
             iri: T_IRI,
@@ -1053,18 +1059,6 @@ class IRI_Registry(Registry):
             resolver=bool(resolver),
             all=bool(all))
 
-    def _do_register(
-            self,
-            iri: IRI,
-            prefixes: Iterable[Prefix],
-            resolver: Store | None
-    ) -> IRI:
-        for prefix in prefixes:
-            self._add_prefix(iri, prefix)
-        if resolver is not None:
-            self._add_resolver(iri, resolver)
-        return iri
-
     def _do_unregister(
             self,
             iri: IRI,
@@ -1075,13 +1069,13 @@ class IRI_Registry(Registry):
     ) -> bool:
         status: bool = False
         for prefix in prefixes:
-            status |= bool(self._remove_prefix(iri, prefix))
+            status |= self._remove_prefix(iri, prefix) is not None
         if all_prefixes:
             status |= bool(self._remove_all_prefixes(iri))
         if resolver:
-            status |= bool(self._remove_resolver(iri))
+            status |= self._remove_resolver(iri) is not None
         if all:
-            status |= bool(self.unset(iri))
+            status |= self.unset(iri) is not None
         if status:
             self._reset_nsm()
         return status
