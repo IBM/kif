@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import abc
+
 from ...typing import Any, ClassVar, Location, override, Self, TypeAlias, Union
 from ..term import Template, Variable
 from .iri import IRI, IRI_Template, IRI_Variable, T_IRI, V_IRI
@@ -107,8 +109,9 @@ class Entity(
         """
         return self.args[0]
 
+    @abc.abstractmethod
     def display(self, language: TString | None = None) -> str:
-        """Gets entity display-name in KIF context.
+        """Gets the display-name of entity in KIF context.
 
         Parameters:
            language: Language.

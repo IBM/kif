@@ -3,11 +3,12 @@
 
 from __future__ import annotations
 
-from ...typing import ClassVar, Iterable, TypeAlias, TypedDict, Union
+from ...typing import ClassVar, Iterable, override, TypeAlias, TypedDict, Union
 from ..term import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI_Template, T_IRI
 from .item import Item
+from .string import TString
 from .text import Text
 from .value import Datatype
 
@@ -78,6 +79,10 @@ class Lexeme(
 
     def __init__(self, iri: VTLexemeContent) -> None:
         super().__init__(iri)
+
+    @override
+    def display(self, language: TString | None = None) -> str:
+        return super().display(language)  # fallback
 
 
 def Lexemes(iri: VTLexemeContent, *iris: VTLexemeContent) -> Iterable[Lexeme]:

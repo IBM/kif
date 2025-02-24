@@ -8,10 +8,12 @@ from typing import TYPE_CHECKING
 from typing_extensions import overload
 
 from ...typing import (
+    cast,
     ClassVar,
     Iterable,
     Mapping,
     override,
+    Self,
     Set,
     TypeAlias,
     TypedDict,
@@ -21,10 +23,11 @@ from ..term import Template, Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI_Template, T_IRI
 from .string import TString
-from .text import Text
+from .text import Text, TText, TTextLanguage
 from .value import Datatype
 
 if TYPE_CHECKING:               # pragma: no cover
+    from ..set import TTextSet  # noqa: F401
     from .quantity import (  # noqa: F401
         Quantity,
         QuantityTemplate,
@@ -87,7 +90,7 @@ class Item(
     variable_class: ClassVar[type[ItemVariable]]  # pyright: ignore
 
     class Descriptor(TypedDict, total=False):
-        """Item descriptor."""
+        """Item descriptor in KIF context."""
 
         #: Label indexed by language.
         labels: Mapping[str, Text]
@@ -139,11 +142,19 @@ class Item(
 
     @override
     def display(self, language: TString | None = None) -> str:
-        label = self.context.entities.get_label(self, language, self.display)
+        label = self.get_label(language)
         if label:
             return label.content
         else:
-            return super().display(language)
+            return super().display(language)  # fallback
+
+    def describe(self) -> Item.Descriptor | None:
+        """Gets the descriptor of item in KIF context.
+
+        Returns:
+           Item descriptor or ``None``.
+        """
+        return self.context.entities.describe(self)
 
     @property
     def label(self) -> Text | None:
@@ -157,10 +168,130 @@ class Item(
            language: Language.
 
         Returns:
-           Label or ``None`` (no label for item in KIF context).
+           Label or ``None``.
         """
-        return self.context.entities.get_label(
-            self, language, self.get_label)
+        return self.context.entities.get_label(self, language, self.get_label)
+
+    @property
+    def aliases(self) -> Set[Text] | None:
+        """The aliases of item in KIF context."""
+        return self.get_aliases()
+
+    def get_aliases(
+            self,
+            language: TString | None = None
+    ) -> Set[Text] | None:
+        """Gets the aliases of item in KIF context.
+
+        Parameters:
+           language: Language.
+
+        Returns:
+           Aliases or ``None``.
+        """
+        return self.context.entities.get_aliases(
+            self, language, self.get_aliases)
+
+    @property
+    def description(self) -> Text | None:
+        """The description of item in KIF context."""
+        return self.get_description()
+
+    def get_description(self, language: TString | None = None) -> Text | None:
+        """Gets the description of item in KIF context.
+
+        Parameters:
+           language: Language.
+
+        Returns:
+           Description or ``None``.
+        """
+        return self.context.entities.get_description(
+            self, language, self.get_description)
+
+    def register(
+            self,
+            label: TText | None = None,
+            labels: TTextSet | None = None,
+            alias: TText | None = None,
+            aliases: TTextSet | None = None,
+            description: TText | None = None,
+            descriptions: TTextSet | None = None
+    ) -> Self:
+        """Adds or updates item data in KIF context.
+
+        Parameters:
+           label: Label.
+           labels: Labels.
+           alias: Alias.
+           aliases: Aliases.
+           description: Description.
+           descriptions: Descriptions.
+
+        Returns:
+           Item.
+        """
+        return cast(Self, self.context.entities.register(
+            self, label=label, labels=labels, alias=alias, aliases=aliases,
+            description=description, descriptions=descriptions,
+            function=self.register))
+
+    def unregister(
+            self,
+            label: TText | None = None,
+            labels: TTextSet | None = None,
+            alias: TText | None = None,
+            aliases: TTextSet | None = None,
+            description: TText | None = None,
+            descriptions: TTextSet | None = None,
+            label_language: TTextLanguage | None = None,
+            alias_language: TTextLanguage | None = None,
+            description_language: TTextLanguage | None = None,
+            all_labels: bool = False,
+            all_aliases: bool = False,
+            all_descriptions: bool = False
+    ) -> bool:
+        """Removes item data from KIF context.
+
+        If called with no arguments, removes all item data.
+
+        Parameters:
+           label: Label.
+           labels: Labels.
+           alias: Alias.
+           aliases: Aliases.
+           description: Description.
+           descriptions: Descriptions.
+           label_language: Language.
+           alias_language: Language.
+           description_language: Language.
+           all_labels: Whether to remove all labels.
+           all_aliases: Whether to remove all aliases.
+           descriptions: Whether to remove all descriptions.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        if (label is None and labels is None
+                and alias is None and aliases is None
+                and description is None and descriptions is None
+                and label_language is None
+                and alias_language is None
+                and description_language is None
+                and all_labels is False
+                and all_aliases is False
+                and all_descriptions is False):
+            return self.context.entities.unregister(
+                self, all=True, function=self.unregister)
+        else:
+            return self.context.entities.unregister(
+                self, label=label, labels=labels,
+                alias=alias, aliases=aliases,
+                description=description, descriptions=descriptions,
+                label_language=label_language, alias_language=alias_language,
+                description_language=description_language,
+                all_labels=all_labels, all_aliases=all_aliases,
+                all_descriptions=all_descriptions, function=self.unregister)
 
 
 def Items(iri: VTItemContent, *iris: VTItemContent) -> Iterable[Item]:

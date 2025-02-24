@@ -543,11 +543,11 @@ class EntityRegistry(Registry):
             self,
             entity: Item | Property | Lexeme,
             label: TText | None = None,
-            labels: Iterable[TText] = (),
+            labels: Iterable[TText] | None = None,
             alias: TText | None = None,
-            aliases: Iterable[TText] = (),
+            aliases: Iterable[TText] | None = None,
             description: TText | None = None,
-            descriptions: Iterable[TText] = (),
+            descriptions: Iterable[TText] | None = None,
             label_language: TTextLanguage | None = None,
             alias_language: TTextLanguage | None = None,
             description_language: TTextLanguage | None = None,
@@ -564,6 +564,9 @@ class EntityRegistry(Registry):
             **kwargs: Any
     ) -> bool:
         function = function or self.unregister
+        labels = labels or ()
+        aliases = aliases or ()
+        descriptions = descriptions or ()
         return self._do_unregister(
             entity=Entity.check(entity, function, 'entity'),
             labels=list(map(
