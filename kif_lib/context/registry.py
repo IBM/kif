@@ -818,7 +818,11 @@ class EntityRegistry(Registry):
 
 
 class IRI_Registry(Registry):
-    """IRI registry."""
+    """IRI registry.
+
+    Parameters:
+       prefixes: Initial prefixes to add.
+    """
 
     __slots__ = (
         '_nsm',
@@ -828,9 +832,13 @@ class IRI_Registry(Registry):
     _nsm: NamespaceManager
 
     def __init__(self, prefixes: Mapping[Prefix, Any] | None = None) -> None:
+        prefixes = cast(
+            Mapping[Prefix, Any], KIF_Object._check_optional_arg_isinstance(
+                prefixes, Mapping, {}, type(self), 'prefixes', 1))
+        assert prefixes is not None
         super().__init__()
         self._init_nsm()
-        for k, v in (prefixes or {}).items():
+        for k, v in prefixes.items():
             prefix = String.check(k, type(self), 'prefixes', 1)
             iri = IRI.check(v, type(self), 'prefixes', 1)
             self._add_prefix(iri, prefix.content)
