@@ -74,8 +74,8 @@ class IRI(
     class Descriptor(TypedDict, total=False):
         """IRI descriptor."""
 
-        #: Prefixes.
-        prefixes: Set[str]
+        #: Prefix.
+        prefix: str
 
         #: Entity resolver.
         resolver: Store

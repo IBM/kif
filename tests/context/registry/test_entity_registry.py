@@ -122,8 +122,8 @@ class Test(TestCase):
     def test_get_range(self) -> None:
         r = EntityRegistry()
         self.assert_raises_bad_argument(
-            TypeError, None, 'entity', 'cannot coerce IRI into Entity',
-            r.get_range, IRI('x'))
+            TypeError, None, 'property', 'cannot coerce int into IRI',
+            r.get_range, 0)
         self.assertIsNone(r.get_range(Property('x')))
         self.assert_register(r, Property('x', Item), range=Item)
         self.assertEqual(r.get_range(Property('x')), ItemDatatype())
@@ -131,8 +131,8 @@ class Test(TestCase):
     def test_get_inverse(self) -> None:
         r = EntityRegistry()
         self.assert_raises_bad_argument(
-            TypeError, None, 'entity', 'cannot coerce IRI into Entity',
-            r.get_inverse, IRI('x'))
+            TypeError, None, 'property', 'cannot coerce int into IRI',
+            r.get_inverse, 0)
         self.assertIsNone(r.get_inverse(Property('x')))
         self.assert_register(r, Property('x'), inverse=Property('y'))
         self.assertEqual(r.get_inverse(Property('x')), Property('y'))
@@ -140,8 +140,8 @@ class Test(TestCase):
     def test_get_lemma(self) -> None:
         r = EntityRegistry()
         self.assert_raises_bad_argument(
-            TypeError, None, 'entity', 'cannot coerce IRI into Entity',
-            r.get_lemma, IRI('x'))
+            TypeError, None, 'lexeme', 'cannot coerce int into IRI',
+            r.get_lemma, 0)
         self.assertIsNone(r.get_lemma(Lexeme('x')))
         self.assert_register(r, Lexeme('x'), lemma='abc')
         self.assertEqual(r.get_lemma(Lexeme('x')), Text('abc'))
@@ -149,8 +149,8 @@ class Test(TestCase):
     def test_get_category(self) -> None:
         r = EntityRegistry()
         self.assert_raises_bad_argument(
-            TypeError, None, 'entity', 'cannot coerce IRI into Entity',
-            r.get_category, IRI('x'))
+            TypeError, None, 'lexeme', 'cannot coerce int into IRI',
+            r.get_category, 0)
         self.assertIsNone(r.get_category(Lexeme('x')))
         self.assert_register(r, Lexeme('x'), category=Item('y'))
         self.assertEqual(r.get_category(Lexeme('x')), Item('y'))
@@ -158,8 +158,8 @@ class Test(TestCase):
     def test_get_language(self) -> None:
         r = EntityRegistry()
         self.assert_raises_bad_argument(
-            TypeError, None, 'entity', 'cannot coerce IRI into Entity',
-            r.get_language, IRI('x'))
+            TypeError, None, 'lexeme', 'cannot coerce int into IRI',
+            r.get_language, 0)
         self.assertIsNone(r.get_language(Lexeme('x')))
         self.assert_register(r, Lexeme('x'), language=Item('y'))
         self.assertEqual(r.get_language(Lexeme('x')), Item('y'))

@@ -244,20 +244,21 @@ class EntityRegistry(Registry):
 
     def get_range(
             self,
-            entity: Property,
+            property: Property,
             function: Location | None = None
     ) -> Datatype | None:
         """Gets range of property.
 
         Parameters:
-           entity: Property.
+           property: Property.
            function: Function or function name.
 
         Returns:
            Datatype or ``None``.
         """
-        t = self.describe(entity, function or self.get_range)
-        return t['range'] if t and 'range' in t else None
+        property = Property.check(
+            property, function or self.get_range, 'property')
+        return self.get(property, 'range')
 
     def get_inverse(
             self,
@@ -267,14 +268,15 @@ class EntityRegistry(Registry):
         """Gets inverse of property.
 
         Parameters:
-           entity: Property.
+           property: Property.
            function: Function or function name.
 
         Returns:
            Property or ``None``.
         """
-        t = self.describe(property, function or self.get_inverse)
-        return t['inverse'] if t and 'inverse' in t else None
+        property = Property.check(
+            property, function or self.get_inverse, 'property')
+        return self.get(property, 'inverse')
 
     def get_lemma(
             self,
@@ -284,14 +286,14 @@ class EntityRegistry(Registry):
         """Gets lemma of lexeme.
 
         Parameters:
-           entity: Lexeme.
+           lexeme: Lexeme.
            function: Function or function name.
 
         Returns:
            Lemma or ``None``.
         """
-        t = self.describe(lexeme, function or self.get_lemma)
-        return t['lemma'] if t and 'lemma' in t else None
+        lexeme = Lexeme.check(lexeme, function or self.get_lemma, 'lexeme')
+        return self.get(lexeme, 'lemma')
 
     def get_category(
             self,
@@ -301,14 +303,14 @@ class EntityRegistry(Registry):
         """Gets lexical category of lexeme.
 
         Parameters:
-           entity: Lexeme.
+           lexeme: Lexeme.
            function: Function or function name.
 
         Returns:
            Lexical category or ``None``.
         """
-        t = self.describe(lexeme, function or self.get_category)
-        return t['category'] if t and 'category' in t else None
+        lexeme = Lexeme.check(lexeme, function or self.get_category, 'lexeme')
+        return self.get(lexeme, 'category')
 
     def get_language(
             self,
@@ -318,18 +320,18 @@ class EntityRegistry(Registry):
         """Gets language of lexeme.
 
         Parameters:
-           entity: Lexeme.
+           lexeme: Lexeme.
            function: Function or function name.
 
         Returns:
            Language or ``None``.
         """
-        t = self.describe(lexeme, function or self.get_language)
-        return t['language'] if t and 'language' in t else None
+        lexeme = Lexeme.check(lexeme, function or self.get_language, 'lexeme')
+        return self.get(lexeme, 'language')
 
     @overload
     def register(self, entity: Item, **kwargs: Any) -> Item:
-        """Add or update item data.
+        """Adds or updates item data.
 
         Parameters:
            entity: Item.
@@ -348,7 +350,7 @@ class EntityRegistry(Registry):
 
     @overload
     def register(self, entity: Property, **kwargs: Any) -> Property:
-        """Add or update property data.
+        """Adds or updates property data.
 
         Parameters:
            entity: Property.
@@ -369,7 +371,7 @@ class EntityRegistry(Registry):
 
     @overload
     def register(self, entity: Lexeme, **kwargs: Any) -> Lexeme:
-        """Add or update lexeme data.
+        """Adds or updates lexeme data.
 
         Parameters:
            entity: Lexeme.
@@ -821,7 +823,7 @@ class IRI_Registry(Registry):
     """IRI registry.
 
     Parameters:
-       prefixes: Initial prefixes to add.
+       prefixes: Initial prefixes.
     """
 
     __slots__ = (
@@ -831,9 +833,9 @@ class IRI_Registry(Registry):
     #: Namespace manager.
     _nsm: NamespaceManager
 
-    def __init__(self, prefixes: Mapping[Prefix, Any] | None = None) -> None:
+    def __init__(self, prefixes: Mapping[Prefix, str] | None = None) -> None:
         prefixes = cast(
-            Mapping[Prefix, Any], KIF_Object._check_optional_arg_isinstance(
+            Mapping[Prefix, str], KIF_Object._check_optional_arg_isinstance(
                 prefixes, Mapping, {}, type(self), 'prefixes', 1))
         assert prefixes is not None
         super().__init__()
@@ -848,9 +850,9 @@ class IRI_Registry(Registry):
 
     def _reset_nsm(self) -> None:
         self._init_nsm()
-        for iri_content, prefixes in self._cache.items():
-            for prefix in prefixes:
-                self._nsm.bind(prefix, iri_content)
+        for iri_content, t in self._cache.items():
+            if 'prefix' in t:
+                self._nsm.bind(t['prefix'], iri_content)
 
     @override
     def get(self, obj: Hashable, key: str) -> Any:
@@ -922,6 +924,7 @@ class IRI_Registry(Registry):
         Returns:
            Store or ``None``.
         """
+        function = function or self.lookup_resolver
         if isinstance(iri, Entity):
             iri = iri.iri
         else:
@@ -954,25 +957,22 @@ class IRI_Registry(Registry):
         iri = IRI.check(iri, function, 'iri')
         return cast(IRI.Descriptor | None, self._cache.get(iri.content))
 
-    def _describe(self, entity: Entity) -> dict[str, Any] | None:
-        return self._cache.get(entity.iri.content)
-
-    def get_prefixes(
+    def get_prefix(
             self,
             iri: T_IRI,
             function: Location | None = None
-    ) -> Set[Prefix] | None:
-        """Gets IRI prefixes.
+    ) -> Prefix | None:
+        """Gets IRI prefix.
 
         Parameters:
            iri: IRI.
            function: Function or function name.
 
         Returns:
-           Prefix set or ``None``.
+           Prefix or ``None.
         """
-        t = self.describe(iri, function or self.get_prefixes)
-        return t['prefixes'] if t and 'prefixes' in t else None
+        iri = IRI.check(iri, function or self.get_prefix, 'iri')
+        return self.get(iri, 'prefix')
 
     def get_resolver(
             self,
@@ -988,23 +988,21 @@ class IRI_Registry(Registry):
         Returns:
            Store or ``None``.
         """
-        t = self.describe(iri, function or self.get_resolver)
-        return t['resolver'] if t and 'resolver' in t else None
+        iri = IRI.check(iri, function or self.get_resolver, 'iri')
+        return self.get(iri, 'resolver')
 
     def register(
             self,
             iri: T_IRI,
             prefix: TString | None = None,
-            prefixes: Iterable[TString] | None = None,
             resolver: Store | None = None,
             function: Location | None = None
     ) -> IRI:
-        """Add or update IRI data.
+        """Adds or updates IRI data.
 
         Parameters:
            iri: IRI.
            prefix: Prefix.
-           prefixes: Prefixes.
            resolver: Store.
            function: Function or function name.
 
@@ -1012,22 +1010,20 @@ class IRI_Registry(Registry):
            IRI.
         """
         function = function or self.register
-        prefixes = prefixes or ()
         return self._do_register(
             iri=IRI.check(iri, function, 'iri'),
-            prefixes=map(
-                lambda t: String.check(t, function, 'prefixes').content,
-                itertools.chain((prefix,), prefixes) if prefix else prefixes),
+            prefix=(String.check(prefix, function, 'prefix').content
+                    if prefix is not None else None),
             resolver=KIF_Object._check_optional_arg_isinstance(
                 resolver, Store, None, function, 'resolver'))
 
     def _do_register(
             self,
             iri: IRI,
-            prefixes: Iterable[Prefix],
+            prefix: Prefix | None,
             resolver: Store | None
     ) -> IRI:
-        for prefix in prefixes:
+        if prefix is not None:
             self._add_prefix(iri, prefix)
         if resolver is not None:
             self._add_resolver(iri, resolver)
@@ -1036,9 +1032,7 @@ class IRI_Registry(Registry):
     def unregister(
             self,
             iri: T_IRI,
-            prefix: TString | None = None,
-            prefixes: Iterable[TString] = (),
-            all_prefixes: bool = False,
+            prefix: bool = False,
             resolver: bool = False,
             all: bool = False,
             function: Location | None = None
@@ -1047,9 +1041,7 @@ class IRI_Registry(Registry):
 
         Parameters:
            iri: IRI.
-           prefix: Prefix.
-           prefixes: Prefixes.
-           all_prefixes: Whether to remove all prefixes.
+           prefix: whether to remove prefix.
            resolver: Whether to remove resolver.
            all: Whether to remove all data.
            function: Function or function name.
@@ -1060,26 +1052,20 @@ class IRI_Registry(Registry):
         function = function or self.unregister
         return self._do_unregister(
             iri=IRI.check(iri, function, 'iri'),
-            prefixes=map(
-                lambda t: String.check(t, function, 'prefixes').content,
-                itertools.chain((prefix,), prefixes) if prefix else prefixes),
-            all_prefixes=bool(all_prefixes),
+            prefix=bool(prefix),
             resolver=bool(resolver),
             all=bool(all))
 
     def _do_unregister(
             self,
             iri: IRI,
-            prefixes: Iterable[Prefix],
-            all_prefixes: bool = False,
+            prefix: bool = False,
             resolver: bool = False,
             all: bool = False
     ) -> bool:
         status: bool = False
-        for prefix in prefixes:
-            status |= self._remove_prefix(iri, prefix) is not None
-        if all_prefixes:
-            status |= bool(self._remove_all_prefixes(iri))
+        if prefix:
+            status |= self._remove_prefix(iri) is not None
         if resolver:
             status |= self._remove_resolver(iri) is not None
         if all:
@@ -1089,23 +1075,11 @@ class IRI_Registry(Registry):
         return status
 
     def _add_prefix(self, iri: IRI, prefix: Prefix) -> Prefix:
-        prefixes: set_[Prefix] = (
-            self.get(iri, 'prefixes') or self.set(iri, 'prefixes', set()))
-        prefixes.add(prefix)
         self._nsm.bind(prefix, iri.content, replace=True)
-        return prefix
+        return self.set(iri, 'prefix', prefix)
 
-    def _remove_prefix(self, iri: IRI, prefix: Prefix) -> Prefix | None:
-        prefixes: Union[set_[Prefix], None] = self.get(iri, 'prefixes')
-        if prefixes is None or prefix not in prefixes:
-            return None
-        prefixes.remove(prefix)
-        if not prefixes:
-            self.unset(iri, 'prefixes')
-        return prefix
-
-    def _remove_all_prefixes(self, iri: IRI) -> set_[Prefix] | None:
-        return self.unset(iri, 'labels')
+    def _remove_prefix(self, iri: IRI) -> Prefix | None:
+        return self.unset(iri, 'prefix')
 
     def _add_resolver(self, iri: IRI, resolver: Store) -> Store:
         return self.set(iri, 'resolver', resolver)
