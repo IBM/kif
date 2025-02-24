@@ -198,5 +198,6 @@ class Test(TestCase):
         self.assert_unregister(r, IRI('x'), all=True)
         self.assertIsNone(r.describe(IRI('x')))
 
+
 if __name__ == '__main__':
     Test.main()

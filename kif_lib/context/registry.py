@@ -39,10 +39,8 @@ from ..typing import (
     Mapping,
     Optional,
     override,
-    Set,
     TypeAlias,
     TypeVar,
-    Union,
 )
 
 E = TypeVar('E', bound=Entity)

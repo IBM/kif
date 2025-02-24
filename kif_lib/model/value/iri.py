@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ...typing import Any, ClassVar, override, Set, TypeAlias, TypedDict, Union
+from ...typing import Any, ClassVar, override, TypeAlias, TypedDict, Union
 from ..term import Variable
 from .shallow_data_value import (
     ShallowDataValue,
