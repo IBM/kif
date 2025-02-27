@@ -856,7 +856,7 @@ class EntityRegistry(Registry):
         registry.
 
         Parameters:
-           entities: Item-store pairs.
+           entities: Entity-store pairs.
            label: Whether to load labels.
            aliases: Whether to load aliases.
            description: Whether to load descriptions.
@@ -873,6 +873,7 @@ class EntityRegistry(Registry):
         Returns:
            ``True`` if any data was loaded; ``False`` otherwise.
         """
+        function = function or self.load
         return self._load(
             entities=map(lambda t: (
                 Entity.check(t[0], function, 'entities'), t[1]), entities),
