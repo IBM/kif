@@ -8,24 +8,35 @@ import abc
 from typing_extensions import overload
 
 from .. import itertools
+from .. import namespace as NS
 from ..cache import Cache
 from ..model import (
+    AliasProperty,
     Datatype,
+    DescriptionProperty,
     Entity,
+    Filter,
     IRI,
     Item,
     KIF_Object,
+    LabelProperty,
+    LanguageProperty,
+    LemmaProperty,
     Lexeme,
+    LexicalCategoryProperty,
+    OrFingerprint,
     Property,
     String,
     T_IRI,
     TDatatype,
+    TEntity,
     Text,
     TItem,
     TProperty,
     TString,
     TText,
     TTextLanguage,
+    ValueSnak,
 )
 from ..rdflib import Graph, NamespaceManager
 from ..store import Store
@@ -35,6 +46,7 @@ from ..typing import (
     cast,
     Hashable,
     Iterable,
+    Iterator,
     Location,
     Mapping,
     Optional,
@@ -403,7 +415,7 @@ class EntityRegistry(Registry):
         labels = labels or ()
         aliases = aliases or ()
         descriptions = descriptions or ()
-        return cast(E, self._do_register(
+        return cast(E, self._register(
             entity=Entity.check(entity, function, 'entity'),
             labels=list(map(
                 lambda t: Text.check(t, function, 'labels'),
@@ -426,7 +438,7 @@ class EntityRegistry(Registry):
             language=Item.check_optional(
                 language, None, function, 'language')))
 
-    def _do_register(
+    def _register(
             self,
             entity: E,
             labels: Iterable[Text],
@@ -567,7 +579,7 @@ class EntityRegistry(Registry):
         labels = labels or ()
         aliases = aliases or ()
         descriptions = descriptions or ()
-        return self._do_unregister(
+        return self._unregister(
             entity=Entity.check(entity, function, 'entity'),
             labels=list(map(
                 lambda t: Text.check(t, function, 'labels'),
@@ -597,7 +609,7 @@ class EntityRegistry(Registry):
             language=bool(language),
             all=bool(all))
 
-    def _do_unregister(
+    def _unregister(
             self,
             entity: Entity,
             labels: Iterable[Text],
@@ -656,8 +668,8 @@ class EntityRegistry(Registry):
         return status
 
     def _add_label(self, entity: Entity, label: Text) -> Text:
-        return self._do_add_into_text_map(
-            'labels', entity, label, self._do_add_into_text_map_tail)
+        return self._add_into_text_map(
+            'labels', entity, label, self._add_into_text_map_tail)
 
     def _remove_label(
             self,
@@ -665,16 +677,16 @@ class EntityRegistry(Registry):
             label: Text | None = None,
             language: str | None = None
     ) -> TextMap | Text | None:
-        return self._do_remove_from_text_map(
+        return self._remove_from_text_map(
             'labels', entity, label, language,
-            self._do_remove_from_text_map_tail)
+            self._remove_from_text_map_tail)
 
     def _remove_all_labels(self, entity: Entity) -> TextMap | None:
         return self.unset(entity, 'labels')
 
     def _add_alias(self, entity: Entity, alias: Text) -> Text:
-        return self._do_add_into_text_map(
-            'aliases', entity, alias, self._do_add_into_text_set_map_tail)
+        return self._add_into_text_map(
+            'aliases', entity, alias, self._add_into_text_set_map_tail)
 
     def _remove_alias(
             self,
@@ -682,17 +694,17 @@ class EntityRegistry(Registry):
             alias: Text | None = None,
             language: str | None = None
     ) -> TextSetMap | TextSet | None:
-        return self._do_remove_from_text_map(
+        return self._remove_from_text_map(
             'aliases', entity, alias, language,
-            self._do_remove_from_text_set_map_tail)
+            self._remove_from_text_set_map_tail)
 
     def _remove_all_aliases(self, entity: Entity) -> TextSetMap | None:
         return self.unset(entity, 'aliases')
 
     def _add_description(self, entity: Entity, description: Text) -> Text:
-        return self._do_add_into_text_map(
+        return self._add_into_text_map(
             'descriptions', entity, description,
-            self._do_add_into_text_map_tail)
+            self._add_into_text_map_tail)
 
     def _remove_description(
             self,
@@ -700,14 +712,14 @@ class EntityRegistry(Registry):
             description: Text | None = None,
             language: str | None = None
     ) -> TextMap | Text | None:
-        return self._do_remove_from_text_map(
+        return self._remove_from_text_map(
             'descriptions', entity, description, language,
-            self._do_remove_from_text_map_tail)
+            self._remove_from_text_map_tail)
 
     def _remove_all_descriptions(self, entity: Entity) -> TextMap | None:
         return self.unset(entity, 'descriptions')
 
-    def _do_add_into_text_map(
+    def _add_into_text_map(
             self,
             field: str,
             entity: Entity,
@@ -718,18 +730,18 @@ class EntityRegistry(Registry):
         return tail(t, text)
 
     @staticmethod
-    def _do_add_into_text_map_tail(t: TextMap, text: Text) -> Text:
+    def _add_into_text_map_tail(t: TextMap, text: Text) -> Text:
         t[text.language] = text
         return text
 
     @staticmethod
-    def _do_add_into_text_set_map_tail(t: TextSetMap, text: Text) -> Text:
+    def _add_into_text_set_map_tail(t: TextSetMap, text: Text) -> Text:
         if text.language not in t:
             t[text.language] = set()
         t[text.language].add(text)
         return text
 
-    def _do_remove_from_text_map(
+    def _remove_from_text_map(
             self,
             field: str,
             entity: Entity,
@@ -747,7 +759,7 @@ class EntityRegistry(Registry):
         return ret
 
     @staticmethod
-    def _do_remove_from_text_map_tail(
+    def _remove_from_text_map_tail(
             t: TextMap,
             text: Text | None,
             language: str | None
@@ -768,7 +780,7 @@ class EntityRegistry(Registry):
             raise KIF_Object._should_not_get_here()
 
     @staticmethod
-    def _do_remove_from_text_set_map_tail(
+    def _remove_from_text_set_map_tail(
             t: TextSetMap,
             text: Text | None,
             language: str | None
@@ -818,6 +830,191 @@ class EntityRegistry(Registry):
 
     def _remove_language(self, lexeme: Lexeme) -> Item | None:
         return self.unset(lexeme, 'language')
+
+    def load(
+            self,
+            entities: Iterable[tuple[TEntity, Store]],
+            label: bool = False,
+            aliases: bool = False,
+            description: bool = False,
+            language: str | None = None,
+            range: bool = False,
+            inverse: bool = False,
+            lemma: bool = False,
+            category: bool = False,
+            lexeme_language: bool = False,
+            all: bool = False,
+            force: bool = False,
+            function: Location | None = None
+    ) -> bool:
+        """Loads entity data using the given stores.
+
+        If `language` is given, loads only text in `language`.  Otherwise,
+        loads text in `language`.
+
+        If `force` is given, loads data even if it already exists in
+        registry.
+
+        Parameters:
+           entities: Item-store pairs.
+           label: Whether to load labels.
+           aliases: Whether to load aliases.
+           description: Whether to load descriptions.
+           language: Language.
+           range: Whether to load ranges.
+           inverse: Whether to load inverses.
+           lemma: Whether to load lemmas.
+           category: Whether to load lexical categories.
+           lexeme_language: Whether to load lexeme languages.
+           all: Whether to load all data.
+           force: Whether to force load.
+           function: Function or function name.
+
+        Returns:
+           ``True`` if any data was loaded; ``False`` otherwise.
+        """
+        return self._load(
+            entities=map(lambda t: (
+                Entity.check(t[0], function, 'entities'), t[1]), entities),
+            label=label, aliases=aliases, description=description,
+            language=language, range=range, inverse=inverse,
+            lemma=lemma, category=category, lexeme_language=lexeme_language,
+            all=all, force=force)
+
+    def _load(
+            self,
+            entities: Iterable[tuple[Entity, Store]],
+            label: bool = False,
+            aliases: bool = False,
+            description: bool = False,
+            language: str | None = None,
+            range: bool = False,
+            inverse: bool = False,
+            lemma: bool = False,
+            category: bool = False,
+            lexeme_language: bool = False,
+            all: bool = False,
+            force: bool = False,
+            _wd_label: Property = LabelProperty(),
+            _wd_alias: Property = AliasProperty(),
+            _wd_description: Property = DescriptionProperty(),
+            _wd_inverse: Property = Property(NS.WD['P1696'], Property),
+            _wd_lemma: Property = LemmaProperty(),
+            _wd_lexical_category: Property = LexicalCategoryProperty(),
+            _wd_language: Property = LanguageProperty(),
+    ) -> bool:
+        status = False
+        if all:
+            label = True
+            aliases = True
+            description = True
+            range = True
+            inverse = True
+            lemma = True
+            category = True
+            lexeme_language = True
+        if not (label or aliases or description
+                or range or inverse
+                or lemma or category or lexeme_language):
+            return status       # nothing to do
+        key: Callable[[tuple[Entity, Store]], int] = lambda t: id(t[1])
+        pairs = list(self._load_preprocess_entities(
+            entities, label, aliases, description, language,
+            range, inverse, lemma, category, lexeme_language, force))
+        id_map = {key(t): t[1] for t in pairs}
+        for id_, group in itertools.groupby(sorted(pairs, key=key), key=key):
+            store = id_map[id_]
+            subject_fp = OrFingerprint(*map(lambda t: t[0], group))
+            property_fp = OrFingerprint(
+                _wd_label if label else False,
+                _wd_alias if aliases else False,
+                _wd_description if description else False,
+                _wd_inverse if inverse else False,
+                _wd_lemma if lemma else False,
+                _wd_lexical_category if category else False,
+                _wd_language if lexeme_language else False)
+            f = Filter(
+                subject=subject_fp,
+                property=property_fp,
+                language=language,
+                snak_mask=Filter.VALUE_SNAK)
+            for stmt in store.filter(filter=f):
+                ###
+                # Parse the resulting statements, ignoring inconsistencies.
+                ###
+                if not isinstance(stmt.snak, ValueSnak):
+                    continue
+                s, p, v = stmt.subject, stmt.snak.property, stmt.snak.value
+                if isinstance(s, (Item, Property)):
+                    if p == _wd_label and isinstance(v, Text):
+                        status |= bool(self._add_label(s, v))
+                    elif p == _wd_alias and isinstance(v, Text):
+                        status |= bool(self._add_alias(s, v))
+                    elif p == _wd_description and isinstance(v, Text):
+                        status |= bool(self._add_description(s, v))
+                    if isinstance(s, Property):
+                        if range and s.range is not None:
+                            status |= bool(self._add_range(s, s.range))
+                        if p == _wd_inverse and isinstance(v, Property):
+                            status |= bool(self._add_inverse(s, v))
+                elif isinstance(s, Lexeme):
+                    if p == _wd_lemma and isinstance(v, Text):
+                        status |= bool(self._add_lemma(s, v))
+                    elif p == _wd_lexical_category and isinstance(v, Item):
+                        status |= bool(self._add_category(s, v))
+                    elif p == _wd_language and isinstance(v, Item):
+                        status |= bool(self._add_language(s, v))
+                else:
+                    raise KIF_Object._should_not_get_here()
+        return status
+
+    def _load_preprocess_entities(
+            self,
+            entities: Iterable[tuple[Entity, Store]],
+            label: bool = False,
+            aliases: bool = False,
+            description: bool = False,
+            language: str | None = None,
+            range: bool = False,
+            inverse: bool = False,
+            lemma: bool = False,
+            category: bool = False,
+            lexeme_language: bool = False,
+            force: bool = False
+    ) -> Iterator[tuple[Entity, Store]]:
+        for t in entities:
+            if force:
+                yield t
+                continue
+            entity, _ = t
+            desc = self._describe(entity)
+            if not desc:
+                yield t
+                continue
+            if isinstance(entity, (Item, Property)):
+                if not language:
+                    yield t
+                    continue
+                if ((label and ('labels' not in desc
+                     or language not in desc['labels']))
+                    or (aliases and ('aliases' not in desc
+                        or language not in desc['aliases']))
+                    or (description and ('descriptions' not in desc
+                        or language not in desc['descriptions']))):
+                    yield t
+                    continue
+                if isinstance(entity, Property):
+                    if (range and 'range' not in desc
+                            or inverse and 'inverse' not in desc):
+                        yield t
+            elif isinstance(entity, Lexeme):
+                if ((lemma and 'lemma' not in desc)
+                    or (category and 'category' not in desc)
+                        or (lexeme_language and 'language' not in desc)):
+                    yield t
+                    continue
+            else:
+                raise KIF_Object._should_not_get_here()
 
 
 class IRI_Registry(Registry):
@@ -1011,14 +1208,14 @@ class IRI_Registry(Registry):
            IRI.
         """
         function = function or self.register
-        return self._do_register(
+        return self._register(
             iri=IRI.check(iri, function, 'iri'),
             prefix=(String.check(prefix, function, 'prefix').content
                     if prefix is not None else None),
             resolver=KIF_Object._check_optional_arg_isinstance(
                 resolver, Store, None, function, 'resolver'))
 
-    def _do_register(
+    def _register(
             self,
             iri: IRI,
             prefix: Prefix | None,
@@ -1051,13 +1248,13 @@ class IRI_Registry(Registry):
            ``True`` if successful; ``False`` otherwise.
         """
         function = function or self.unregister
-        return self._do_unregister(
+        return self._unregister(
             iri=IRI.check(iri, function, 'iri'),
             prefix=bool(prefix),
             resolver=bool(resolver),
             all=bool(all))
 
-    def _do_unregister(
+    def _unregister(
             self,
             iri: IRI,
             prefix: bool = False,
