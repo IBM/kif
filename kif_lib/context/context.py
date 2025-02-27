@@ -277,16 +277,16 @@ class Context:
         """Loads entity data into context.
 
         Traverses `objects` recursively and loads the data of every entity
-        found.
+        found into context's entity registry.
 
         If `resolver` is given, uses it to resolve entity data.  Otherwise,
-        uses the registered resolver stores (if any).
+        uses the associated resolver store registered in context (if any).
 
         If `language` is given, loads only text in `language`.  Otherwise,
-        loads text in `language`.
+        loads text in all languages.
 
-        If `force` is given, loads data even if it already exists in
-        registry.
+        If `force` is given, force resolution even if the desired data
+        exists in registry.
 
         Parameters:
            objects: KIF objects.
