@@ -51,6 +51,7 @@ from ..typing import (
     Mapping,
     Optional,
     override,
+    Set,
     TypeAlias,
     TypeVar,
 )
@@ -196,7 +197,7 @@ class EntityRegistry(Registry):
             entity: Item | Property,
             language: TTextLanguage | None = None,
             function: Location | None = None
-    ) -> TextSet | None:
+    ) -> Set[Text] | None:
         """Gets the aliases of item or property.
 
         Parameters:
@@ -211,7 +212,7 @@ class EntityRegistry(Registry):
         t = self.describe(entity, function)
         lang = self._check_optional_language(entity, language, function)
         if t and 'aliases' in t:
-            return cast(TextSet | None, t['aliases'].get(lang))
+            return cast(Set[Text] | None, t['aliases'].get(lang))
         else:
             return None
 
@@ -837,7 +838,7 @@ class EntityRegistry(Registry):
             label: bool = False,
             aliases: bool = False,
             description: bool = False,
-            language: str | None = None,
+            language: TTextLanguage | None = None,
             range: bool = False,
             inverse: bool = False,
             lemma: bool = False,
@@ -878,7 +879,10 @@ class EntityRegistry(Registry):
             entities=map(lambda t: (
                 Entity.check(t[0], function, 'entities'), t[1]), entities),
             label=label, aliases=aliases, description=description,
-            language=language, range=range, inverse=inverse,
+            language=(
+                String.check(language, function, 'language').content
+                if language is not None else None),
+            range=range, inverse=inverse,
             lemma=lemma, category=category, lexeme_language=lexeme_language,
             all=all, force=force)
 
@@ -1202,7 +1206,7 @@ class IRI_Registry(Registry):
         Parameters:
            iri: IRI.
            prefix: Prefix.
-           resolver: Store.
+           resolver: Resolver store.
            function: Function or function name.
 
         Returns:

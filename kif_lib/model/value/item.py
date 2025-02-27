@@ -22,11 +22,11 @@ from ...typing import (
 from ..term import Template, Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI_Template, T_IRI
-from .string import TString
 from .text import Text, TText, TTextLanguage
 from .value import Datatype
 
 if TYPE_CHECKING:               # pragma: no cover
+    from ...store import Store  # noqa: F401
     from ..set import TTextSet  # noqa: F401
     from .quantity import (  # noqa: F401
         Quantity,
@@ -141,7 +141,7 @@ class Item(
                 self.KEEP, self, self.KEEP, self.KEEP)
 
     @override
-    def display(self, language: TString | None = None) -> str:
+    def display(self, language: TTextLanguage | None = None) -> str:
         label = self.get_label(language)
         if label:
             return label.content
@@ -161,16 +161,27 @@ class Item(
         """The label of item in KIF context."""
         return self.get_label()
 
-    def get_label(self, language: TString | None = None) -> Text | None:
+    def get_label(
+            self,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool = False
+    ) -> Text | None:
         """Gets the label of item in KIF context.
 
         Parameters:
            language: Language.
+           resolve: Whether to resolve label.
+           resolver: Resolver store.
+           force: Whether to force resolution.
 
         Returns:
            Label or ``None``.
         """
-        return self.context.entities.get_label(self, language, self.get_label)
+        return self.context.get_entity_label(
+            self, language=language, resolve=resolve, resolver=resolver,
+            force=force, function=self.get_label)
 
     @property
     def aliases(self) -> Set[Text] | None:
@@ -179,35 +190,52 @@ class Item(
 
     def get_aliases(
             self,
-            language: TString | None = None
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool = False
     ) -> Set[Text] | None:
         """Gets the aliases of item in KIF context.
 
         Parameters:
            language: Language.
+           resolve: Whether to resolve aliases.
+           resolver: Resolver store.
+           force: Whether to force resolution.
 
         Returns:
            Aliases or ``None``.
         """
-        return self.context.entities.get_aliases(
-            self, language, self.get_aliases)
+        return self.context.get_entity_aliases(
+            self, language=language, resolve=resolve, resolver=resolver,
+            force=force, function=self.get_aliases)
 
     @property
     def description(self) -> Text | None:
         """The description of item in KIF context."""
         return self.get_description()
 
-    def get_description(self, language: TString | None = None) -> Text | None:
+    def get_description(
+            self,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool = False
+    ) -> Text | None:
         """Gets the description of item in KIF context.
 
         Parameters:
            language: Language.
+           resolve: Whether to resolve description.
+           resolver: Resolver store.
+           force: Whether to force resolution.
 
         Returns:
            Description or ``None``.
         """
-        return self.context.entities.get_description(
-            self, language, self.get_description)
+        return self.context.get_entity_description(
+            self, language=language, resolve=resolve, resolver=resolver,
+            force=force, function=self.get_description)
 
     def register(
             self,

@@ -3,15 +3,28 @@
 
 from __future__ import annotations
 
+import functools
 from typing import TYPE_CHECKING
 
-from ..typing import cast, ClassVar, Iterable, Location, TracebackType
+from ..typing import (
+    Callable,
+    cast,
+    ClassVar,
+    Iterable,
+    Location,
+    Set,
+    TracebackType,
+    TypeVar,
+)
 
 if TYPE_CHECKING:  # pragma: no cover
-    from ..model import KIF_Object
+    from ..model import Item, KIF_Object, Property, Text, TTextLanguage
     from ..store import Store
     from .options import Options
     from .registry import EntityRegistry, IRI_Registry
+
+E = TypeVar('E')
+V = TypeVar('V')
 
 
 class Context:
@@ -110,6 +123,140 @@ class Context:
         """
         return self._options
 
+    def get_entity_label(
+            self,
+            entity: Item | Property,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool = False,
+            function: Location | None = None
+    ) -> Text | None:
+        """Gets the label of item or property in registry.
+
+        Parameters:
+           entity: Item or property.
+           language: Language.
+           resolve: Whether to resolve label.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           function: Function or function name.
+
+        Returns:
+           Label or ``None``.
+        """
+        function = function or self.get_entity_label
+        return self._get_entity_x_helper(
+            entity, resolve, resolver, force,
+            functools.partial(
+                self.entities.get_label,
+                language=language, function=function),
+            functools.partial(
+                self.load_entities,
+                label=True,
+                language=self._check_optional_language(language, function),
+                resolver=resolver, force=force))
+
+    def get_entity_aliases(
+            self,
+            entity: Item | Property,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool = False,
+            function: Location | None = None
+    ) -> Set[Text] | None:
+        """Gets the aliases of item or property in registry.
+
+        Parameters:
+           entity: Item or property.
+           language: Language.
+           resolve: Whether to resolve aliases.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           function: Function or function name.
+
+        Returns:
+           Aliases or ``None``.
+        """
+        function = function or self.get_entity_aliases
+        return self._get_entity_x_helper(
+            entity, resolve, resolver, force,
+            functools.partial(
+                self.entities.get_aliases,
+                language=language, function=function),
+            functools.partial(
+                self.load_entities,
+                aliases=True,
+                language=self._check_optional_language(language, function),
+                resolver=resolver, force=force))
+
+    def get_entity_description(
+            self,
+            entity: Item | Property,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool = False,
+            function: Location | None = None
+    ) -> Text | None:
+        """Gets the description of item or property in registry.
+
+        Parameters:
+           entity: Item or property.
+           language: Language.
+           resolve: Whether to resolve description.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           function: Function or function name.
+
+        Returns:
+           Description or ``None``.
+        """
+        function = function or self.get_entity_description
+        return self._get_entity_x_helper(
+            entity, resolve, resolver, force,
+            functools.partial(
+                self.entities.get_description,
+                language=language, function=function),
+            functools.partial(
+                self.load_entities,
+                description=True,
+                language=self._check_optional_language(language, function),
+                resolver=resolver, force=force))
+
+    def _get_entity_x_helper(
+            self,
+            entity: E,
+            resolve: bool | None,
+            resolver: Store | None,
+            force: bool,
+            get_value: Callable[[E], V | None],
+            load_entity: Callable[[tuple[E]], bool]
+    ) -> V | None:
+        value = get_value(entity)
+        if force:
+            value = None        # force
+        if value is None:
+            if resolve is None:
+                resolve = self.options.entities.resolve
+            if load_entity((entity,)):
+                value = get_value(entity)  # update
+        return value
+
+    def _check_optional_language(
+            self,
+            language: TTextLanguage | None,
+            function: Location | None
+    ) -> str:
+        from ..model import String
+        language = String.check_optional(
+            language, None, function, 'language')
+        if language:
+            return language.content
+        else:
+            return self.options.language
+
     def load_entities(
             self,
             objects: Iterable[KIF_Object],
@@ -117,7 +264,7 @@ class Context:
             label: bool = False,
             aliases: bool = False,
             description: bool = False,
-            language: str | None = None,
+            language: TTextLanguage | None = None,
             range: bool = False,
             inverse: bool = False,
             lemma: bool = False,
@@ -143,7 +290,7 @@ class Context:
 
         Parameters:
            objects: KIF objects.
-           resolver: Store.
+           resolver: Resolver store.
            label: Whether to load labels.
            aliases: Whether to load aliases.
            description: Whether to load descriptions.
