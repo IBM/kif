@@ -6,7 +6,9 @@ from __future__ import annotations
 import functools
 from typing import TYPE_CHECKING
 
+from .. import itertools
 from ..typing import (
+    Any,
     Callable,
     cast,
     ClassVar,
@@ -18,12 +20,13 @@ from ..typing import (
 )
 
 if TYPE_CHECKING:  # pragma: no cover
-    from ..model import Item, KIF_Object, Property, Text, TTextLanguage
+    from ..model import Item, Property, Text, TTextLanguage
     from ..store import Store
     from .options import Options
     from .registry import EntityRegistry, IRI_Registry
 
 E = TypeVar('E')
+T = TypeVar('T')
 V = TypeVar('V')
 
 
@@ -232,7 +235,7 @@ class Context:
             resolver: Store | None,
             force: bool,
             get_value: Callable[[E], V | None],
-            load_entity: Callable[[tuple[E]], bool]
+            load_entity: Callable[[tuple[E]], Any]
     ) -> V | None:
         value = get_value(entity)
         if force:
@@ -259,7 +262,7 @@ class Context:
 
     def load_entities(
             self,
-            objects: Iterable[KIF_Object],
+            objects: Iterable[T],
             resolver: Store | None = None,
             label: bool = False,
             aliases: bool = False,
@@ -273,7 +276,7 @@ class Context:
             all: bool = False,
             force: bool = False,
             function: Location | None = None
-    ) -> bool:
+    ) -> Iterable[T]:
         """Loads entity data into context.
 
         Traverses `objects` recursively and loads the data of every entity
@@ -289,7 +292,7 @@ class Context:
         exists in registry.
 
         Parameters:
-           objects: KIF objects.
+           objects: Objects.
            resolver: Resolver store.
            label: Whether to load labels.
            aliases: Whether to load aliases.
@@ -305,26 +308,27 @@ class Context:
            function: Function or function name.
 
         Returns:
-           ``True`` if any data was loaded; ``False`` otherwise.
+           `objects`.
         """
-        from .. import itertools
         from ..model import Entity, KIF_Object
         from ..store import Store
         function = function or self.load_entities
         resolver = KIF_Object._check_optional_arg_isinstance(
             resolver, Store, None, function, 'resolver')
+        it1, it2 = itertools.tee(objects, 2)
         is_entity = (lambda o: isinstance(o, Entity))
-        entities: Iterable[Entity] = itertools.chain(
-            *map(lambda o: KIF_Object.check(o, function, 'objects').traverse(
-                is_entity), objects))
+        entities: Iterable[Entity] = itertools.chain(*map(
+            lambda o: cast(KIF_Object, o).traverse(is_entity), filter(
+                lambda o: isinstance(o, KIF_Object), it1)))
         pairs = cast(Iterable[tuple[Entity, Store]], filter(
             lambda t: t[1] is not None, map(
                 lambda e: (
                     e, resolver
                     if resolver is not None else self.iris.lookup_resolver(e)),
                 entities)))
-        return self.entities.load(
+        self.entities.load(
             pairs, label=label, aliases=aliases, description=description,
             language=language, range=range, inverse=inverse,
             lemma=lemma, category=category, lexeme_language=lexeme_language,
             all=all, force=force)
+        return it2

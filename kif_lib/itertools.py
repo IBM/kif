@@ -13,6 +13,7 @@ from itertools import (
     product,
     repeat,
     starmap,
+    tee,
 )
 
 from more_itertools import batched, partition, take, unique_everseen
@@ -30,5 +31,6 @@ __all__ = (
     'repeat',
     'starmap',
     'take',
+    'tee',
     'unique_everseen',
 )
