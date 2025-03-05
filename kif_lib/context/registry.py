@@ -832,7 +832,7 @@ class EntityRegistry(Registry):
     def _remove_language(self, lexeme: Lexeme) -> Item | None:
         return self.unset(lexeme, 'language')
 
-    def load(
+    def resolve(
             self,
             entities: Iterable[tuple[TEntity, Store]],
             label: bool = False,
@@ -848,34 +848,34 @@ class EntityRegistry(Registry):
             force: bool = False,
             function: Location | None = None
     ) -> bool:
-        """Loads entity data using the given stores.
+        """Resolves entity data using the given stores.
 
-        If `language` is given, loads only text in `language`.  Otherwise,
-        loads text in `language`.
+        If `language` is given, resolves only text in `language`.
+        Otherwise, resolves text in `language`.
 
-        If `force` is given, loads data even if it already exists in
+        If `force` is given, resolve data even if it already exists in
         registry.
 
         Parameters:
            entities: Entity-store pairs.
-           label: Whether to load labels.
-           aliases: Whether to load aliases.
-           description: Whether to load descriptions.
+           label: Whether to resolve labels.
+           aliases: Whether to resolve aliases.
+           description: Whether to resolve descriptions.
            language: Language.
-           range: Whether to load ranges.
-           inverse: Whether to load inverses.
-           lemma: Whether to load lemmas.
-           category: Whether to load lexical categories.
-           lexeme_language: Whether to load lexeme languages.
-           all: Whether to load all data.
-           force: Whether to force load.
+           range: Whether to resolve ranges.
+           inverse: Whether to resolve inverses.
+           lemma: Whether to resolve lemmas.
+           category: Whether to resolve lexical categories.
+           lexeme_language: Whether to resolve lexeme languages.
+           all: Whether to resolve all data.
+           force: Whether to force resolve.
            function: Function or function name.
 
         Returns:
-           ``True`` if any data was loaded; ``False`` otherwise.
+           ``True`` if any entity data was resolved; ``False`` otherwise.
         """
-        function = function or self.load
-        return self._load(
+        function = function or self.resolve
+        return self._resolve(
             entities=map(lambda t: (
                 Entity.check(t[0], function, 'entities'), t[1]), entities),
             label=label, aliases=aliases, description=description,
@@ -886,7 +886,7 @@ class EntityRegistry(Registry):
             lemma=lemma, category=category, lexeme_language=lexeme_language,
             all=all, force=force)
 
-    def _load(
+    def _resolve(
             self,
             entities: Iterable[tuple[Entity, Store]],
             label: bool = False,
@@ -923,7 +923,7 @@ class EntityRegistry(Registry):
                 or lemma or category or lexeme_language):
             return status       # nothing to do
         key: Callable[[tuple[Entity, Store]], int] = lambda t: id(t[1])
-        pairs = list(self._load_preprocess_entities(
+        pairs = list(self._resolve_preprocess_entities(
             entities, label, aliases, description, language,
             range, inverse, lemma, category, lexeme_language, force))
         id_map = {key(t): t[1] for t in pairs}
@@ -973,7 +973,7 @@ class EntityRegistry(Registry):
                     raise KIF_Object._should_not_get_here()
         return status
 
-    def _load_preprocess_entities(
+    def _resolve_preprocess_entities(
             self,
             entities: Iterable[tuple[Entity, Store]],
             label: bool = False,

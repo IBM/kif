@@ -35,17 +35,18 @@ VTTextLanguageContent: TypeAlias = VTStringContent
 class TextOptions(Section, name='text'):
     """Text options."""
 
+    def __init__(self, **kwargs: Any) -> None:
+        self._init_language(kwargs)
+
+    # -- language --
+
     _v_language: ClassVar[tuple[Iterable[str], str]] =\
         (('KIF_MODEL_VALUE_TEXT_LANGUAGE', 'KIF_LANGUAGE'), 'en')
 
     _language: str
 
-    def __init__(self, **kwargs: Any) -> None:
-        self._init_language(kwargs)
-
-    def _init_language(self, kwargs: dict[str, Any]) -> None:
-        self.language = kwargs.get(
-            '_language', self.getenv(*self._v_language))
+    def _init_language(self, kwargs: dict[str, Any] = {}) -> None:
+        self.language = kwargs.get('_language', self.getenv(*self._v_language))
 
     @property
     def language(self) -> str:
@@ -73,7 +74,7 @@ class TextOptions(Section, name='text'):
            language: Language.
         """
         if language is None:
-            self._init_language({})  # reset
+            self._init_language()  # reset
         else:
             self._language = String.check(
                 language, self.set_language, 'language', 1).content

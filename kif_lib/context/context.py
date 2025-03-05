@@ -155,7 +155,7 @@ class Context:
                 self.entities.get_label,
                 language=language, function=function),
             functools.partial(
-                self.load_entities,
+                self.resolve_entities,
                 label=True,
                 language=self._check_optional_language(language, function),
                 resolver=resolver, force=force))
@@ -189,7 +189,7 @@ class Context:
                 self.entities.get_aliases,
                 language=language, function=function),
             functools.partial(
-                self.load_entities,
+                self.resolve_entities,
                 aliases=True,
                 language=self._check_optional_language(language, function),
                 resolver=resolver, force=force))
@@ -223,7 +223,7 @@ class Context:
                 self.entities.get_description,
                 language=language, function=function),
             functools.partial(
-                self.load_entities,
+                self.resolve_entities,
                 description=True,
                 language=self._check_optional_language(language, function),
                 resolver=resolver, force=force))
@@ -235,7 +235,7 @@ class Context:
             resolver: Store | None,
             force: bool,
             get_value: Callable[[E], V | None],
-            load_entity: Callable[[tuple[E]], Any]
+            resolve_entity: Callable[[tuple[E]], Any]
     ) -> V | None:
         value = get_value(entity)
         if force:
@@ -243,7 +243,7 @@ class Context:
         if value is None:
             if resolve is None:
                 resolve = self.options.entities.resolve
-            if load_entity((entity,)):
+            if resolve_entity((entity,)):
                 value = get_value(entity)  # update
         return value
 
@@ -260,7 +260,7 @@ class Context:
         else:
             return self.options.language
 
-    def load_entities(
+    def resolve_entities(
             self,
             objects: Iterable[T],
             resolver: Store | None = None,
@@ -277,16 +277,16 @@ class Context:
             force: bool = False,
             function: Location | None = None
     ) -> Iterable[T]:
-        """Loads entity data into context.
+        """Resolves entity data into context.
 
-        Traverses `objects` recursively and loads the data of every entity
-        found into context's entity registry.
+        Traverses `objects` recursively and resolves the data of every
+        entity found into context's entity registry.
 
         If `resolver` is given, uses it to resolve entity data.  Otherwise,
         uses the associated resolver store registered in context (if any).
 
-        If `language` is given, loads only text in `language`.  Otherwise,
-        loads text in all languages.
+        If `language` is given, resolves only text in `language`.
+        Otherwise, resolves text in all languages.
 
         If `force` is given, force resolution even if the desired data
         exists in registry.
@@ -294,25 +294,26 @@ class Context:
         Parameters:
            objects: Objects.
            resolver: Resolver store.
-           label: Whether to load labels.
-           aliases: Whether to load aliases.
-           description: Whether to load descriptions.
+           label: Whether to resolve labels.
+           aliases: Whether to resolve aliases.
+           description: Whether to resolve descriptions.
            language: Language.
-           range: Whether to load ranges.
-           inverse: Whether to load inverses.
-           lemma: Whether to load lemmas.
-           category: Whether to load lexical categories.
-           lexeme_language: Whether to load lexeme languages.
-           all: Whether to load all data.
-           force: Whether to force load.
+           range: Whether to resolve ranges.
+           inverse: Whether to resolve inverses.
+           lemma: Whether to resolve lemmas.
+           category: Whether to resolve lexical categories.
+           lexeme_language: Whether to resolve lexeme languages.
+           all: Whether to resolve all data.
+           force: Whether to force resolve.
            function: Function or function name.
 
         Returns:
            `objects`.
+
         """
         from ..model import Entity, KIF_Object
         from ..store import Store
-        function = function or self.load_entities
+        function = function or self.resolve_entities
         resolver = KIF_Object._check_optional_arg_isinstance(
             resolver, Store, None, function, 'resolver')
         it1, it2 = itertools.tee(objects, 2)
@@ -326,7 +327,7 @@ class Context:
                     e, resolver
                     if resolver is not None else self.iris.lookup_resolver(e)),
                 entities)))
-        self.entities.load(
+        self.entities.resolve(
             pairs, label=label, aliases=aliases, description=description,
             language=language, range=range, inverse=inverse,
             lemma=lemma, category=category, lexeme_language=lexeme_language,

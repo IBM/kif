@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from ..compiler.options import CompilerOptions
 from ..model.options import ModelOptions
 from ..store.options import StoreOptions
-from ..typing import Any, ClassVar
+from ..typing import Any, ClassVar, Iterable
 from ..vocabulary.options import VocabularyOptions
 from .section import Section
 
@@ -26,13 +26,14 @@ class EntityRegistryOptions(Section, name='entities'):
 
     # -- resolve --
 
-    _v_resolve: ClassVar[tuple[str, bool | None]] =\
-        ('KIF_ENTITIES_RESOLVE', None)
+    _v_resolve: ClassVar[tuple[Iterable[str], bool]] =\
+        (('KIF_ENTITIES_RESOLVE', 'KIF_RESOLVE_ENTITIES'), False)
 
-    _resolve: bool | None
+    _resolve: bool
 
-    def _init_resolve(self, kwargs: dict[str, Any]) -> None:
-        self.resolve = kwargs.get('_resolve', self.getenv(*self._v_resolve))
+    def _init_resolve(self, kwargs: dict[str, Any] = {}) -> None:
+        self.resolve = bool(kwargs.get(
+            '_resolve', self.getenv(*self._v_resolve)))
 
     @property
     def resolve(self) -> bool:
@@ -40,7 +41,7 @@ class EntityRegistryOptions(Section, name='entities'):
         return self.get_resolve()
 
     @resolve.setter
-    def resolve(self, resolve: bool | None) -> None:
+    def resolve(self, resolve: bool) -> None:
         self.set_resolve(resolve)
 
     def get_resolve(self) -> bool:
@@ -49,7 +50,7 @@ class EntityRegistryOptions(Section, name='entities'):
         Returns:
            Resolve flag value.
         """
-        return bool(self._resolve)
+        return self._resolve
 
     def set_resolve(self, resolve: bool | None) -> None:
         """Sets the value of the resolve flag.
@@ -57,7 +58,10 @@ class EntityRegistryOptions(Section, name='entities'):
         Parameters:
            resolve: Resolve flag value or ``None``.
         """
-        self._resolve = bool(resolve)
+        if resolve is None:
+            self._init_resolve()
+        else:
+            self._resolve = bool(resolve)
 
 
 @dataclasses.dataclass
