@@ -6,7 +6,7 @@ from __future__ import annotations
 import dataclasses
 import os
 
-from ..typing import Any, ClassVar, Iterator, Self
+from ..typing import Any, ClassVar, Iterable, Iterator, Self
 
 
 @dataclasses.dataclass
@@ -20,9 +20,28 @@ class Section:
         cls.name = kwargs.get('name', cls.__qualname__)
 
     @classmethod
-    def getenv(cls, name: str, default: Any | None = None) -> Any:
-        """Alias of :func:`os.getenv`."""
-        return os.getenv(name, default)
+    def getenv(
+            cls,
+            vars: str | Iterable[str],
+            default: Any | None = None
+    ) -> Any:
+        """Gets the value of the first non-empty variable in `vars`.
+
+        Parameters:
+           vars: Variable or variables.
+           default: Default value.
+
+        Returns:
+           Value or `default`.
+        """
+        if isinstance(vars, str):
+            return os.getenv(vars, default)
+        else:
+            for var in vars:
+                value = os.getenv(var)
+                if value is not None:
+                    return value
+            return default
 
     @classmethod
     def from_ast(cls, ast: dict[str, Any]) -> Self:

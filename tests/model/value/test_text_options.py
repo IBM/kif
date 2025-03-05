@@ -24,18 +24,20 @@ class Test(TestCase):
     def test_language(self) -> None:
         with Context() as ctx:
             opts = ctx.options.model.value.text
-            os.environ[opts._v_language[0]] = 'pt'
+            vars = tuple(opts._v_language[0])
+            os.environ[vars[0]] = 'pt'
             opts = TextOptions()
             self.assertEqual(opts.language, 'pt')
-            del os.environ[opts._v_language[0]]
+            del os.environ[vars[0]]
         with Context() as ctx:
             opts = ctx.options.model.value.text
             opts.language = 'abc'
             self.assertEqual(opts.language, 'abc')
             self.assert_raises_bad_argument(
                 TypeError, 1, 'language', 'cannot coerce int into String',
-                (lambda x: setattr(opts, 'language', x),
-                 'language'), 0)
+                opts.set_language, 0)
+            opts.set_language()
+            self.assertEqual(opts.language, opts._v_language[1])
 
 
 if __name__ == '__main__':

@@ -6,7 +6,7 @@ from __future__ import annotations
 import dataclasses
 
 from ...context import Section
-from ...typing import Any, ClassVar, override, TypeAlias, Union
+from ...typing import Any, ClassVar, Iterable, override, TypeAlias, Union
 from ..term import OpenTerm, Variable
 from .shallow_data_value import (
     ShallowDataValue,
@@ -35,24 +35,48 @@ VTTextLanguageContent: TypeAlias = VTStringContent
 class TextOptions(Section, name='text'):
     """Text options."""
 
-    _v_language: ClassVar[tuple[str, str]] =\
-        ('KIF_MODEL_VALUE_TEXT_LANGUAGE', 'en')
+    _v_language: ClassVar[tuple[Iterable[str], str]] =\
+        (('KIF_MODEL_VALUE_TEXT_LANGUAGE', 'KIF_LANGUAGE'), 'en')
 
     _language: str
 
     def __init__(self, **kwargs: Any) -> None:
+        self._init_language(kwargs)
+
+    def _init_language(self, kwargs: dict[str, Any]) -> None:
         self.language = kwargs.get(
             '_language', self.getenv(*self._v_language))
 
     @property
     def language(self) -> str:
         """The default language."""
-        return self._language
+        return self.get_language()
 
     @language.setter
-    def language(self, language: TString) -> None:
-        self._language = String.check(
-            language, 'language', 'language', 1).content
+    def language(self, language: TTextLanguage) -> None:
+        self.set_language(language)
+
+    def get_language(self) -> str:
+        """Gets the default language.
+
+        Returns:
+           Language.
+        """
+        return self._language
+
+    def set_language(self, language: TTextLanguage | None = None) -> None:
+        """Sets the default language.
+
+        If `language` is None, resets it to the global default.
+
+        Parameters:
+           language: Language.
+        """
+        if language is None:
+            self._init_language({})  # reset
+        else:
+            self._language = String.check(
+                language, self.set_language, 'language', 1).content
 
 
 class TextTemplate(ShallowDataValueTemplate):

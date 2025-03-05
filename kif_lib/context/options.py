@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import dataclasses
+from typing import TYPE_CHECKING
 
 from ..compiler.options import CompilerOptions
 from ..model.options import ModelOptions
@@ -11,6 +12,9 @@ from ..store.options import StoreOptions
 from ..typing import Any, ClassVar
 from ..vocabulary.options import VocabularyOptions
 from .section import Section
+
+if TYPE_CHECKING:                     # pragma: no cover
+    from ..model import TTextLanguage  # noqa: F401
 
 
 @dataclasses.dataclass
@@ -78,10 +82,16 @@ class Options(Section, name='kif'):
     vocabulary: VocabularyOptions = dataclasses.field(
         default_factory=VocabularyOptions)
 
+    # -- language --
+
     @property
     def language(self) -> str:
         """The default language."""
         return self.get_language()
+
+    @language.setter
+    def language(self, language: TTextLanguage) -> None:
+        self.set_language(language)
 
     def get_language(self) -> str:
         """Gets the default language.
@@ -90,3 +100,11 @@ class Options(Section, name='kif'):
            Language.
         """
         return self.model.value.text.language
+
+    def set_language(self, language: TTextLanguage) -> None:
+        """Sets the default language.
+
+        Parameters:
+           language: Language.
+        """
+        self.model.value.text.language = language  # type: ignore
