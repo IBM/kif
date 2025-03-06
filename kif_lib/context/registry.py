@@ -1137,12 +1137,9 @@ class IRI_Registry(Registry):
             iri = IRI.check(iri, function, 'iri')
         resolver = self.get_resolver(iri)
         if resolver is None:
-            from ..rdflib import split_uri
-            try:
-                ns, _ = split_uri(iri.content)
-                resolver = self.get_resolver(ns)
-            except BaseException:
-                pass
+            for k, v in self._cache.items():
+                if 'resolver' in v and iri.content.startswith(cast(str, k)):
+                    return v['resolver']
         return resolver
 
     def describe(

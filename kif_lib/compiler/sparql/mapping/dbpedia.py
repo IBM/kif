@@ -79,6 +79,13 @@ class DBpediaMapping(M):
         self._p_text(c, e, RDFS.label, x, y)
 
     @M.register(
+        [wd.label(Property(e), Text(x, y))],
+        {e: CheckOntology()})
+    def wd_label_op(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
+        self._start_op(c, e)
+        self._p_text(c, e, RDFS.label, x, y)
+
+    @M.register(
         [wd.description(Item(e), Text(x, y))],
         {e: CheckResource()})
     def wd_description(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
