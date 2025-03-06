@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import os
+
 from . import codec  # noqa: F401
 from .context import Context
 from .error import Error
@@ -329,3 +331,7 @@ __all__ = (
     # store
     'Store',
 )
+
+if os.getenv('KIF_DEBUG'):
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
