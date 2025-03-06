@@ -14,7 +14,7 @@ from ..vocabulary.options import VocabularyOptions
 from .section import Section
 
 if TYPE_CHECKING:                     # pragma: no cover
-    from ..model import TTextLanguage  # noqa: F401
+    from ..model import TTextLanguage
 
 
 @dataclasses.dataclass

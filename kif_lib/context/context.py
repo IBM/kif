@@ -150,7 +150,7 @@ class Context:
 
         Parameters:
            language: Language.
-           resolve: Whether to resolve label.
+           resolve: Whether to resolve descriptor.
            resolver: Resolver store.
            force: Whether to force resolution.
            function: Function or function name.
@@ -182,7 +182,7 @@ class Context:
 
         Parameters:
            language: Language.
-           resolve: Whether to resolve label.
+           resolve: Whether to resolve descriptor.
            resolver: Resolver store.
            force: Whether to force resolution.
            function: Function or function name.
@@ -214,7 +214,7 @@ class Context:
 
         Parameters:
            language: Language.
-           resolve: Whether to resolve label.
+           resolve: Whether to resolve descriptor.
            resolver: Resolver store.
            force: Whether to force resolution.
            function: Function or function name.
@@ -388,12 +388,94 @@ class Context:
         Returns:
            Property or ``None``.
         """
-        function = function or self.get_range
+        function = function or self.get_inverse
         return self._get_entity_x_helper(
             property, resolve, resolver, force,
             functools.partial(self.entities.get_inverse, function=function),
             functools.partial(
                 self.resolve, inverse=True, resolver=resolver, force=force))
+
+    def get_lemma(
+            self,
+            lexeme: Lexeme,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None,
+            function: Location | None = None
+    ) -> Text | None:
+        """Gets the lemma of lexeme in registry.
+
+        Parameters:
+           lexeme: Lexeme.
+           resolve: Whether to resolve lemma.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           function: Function or function name.
+
+        Returns:
+           Text or ``None``.
+        """
+        function = function or self.get_lemma
+        return self._get_entity_x_helper(
+            lexeme, resolve, resolver, force,
+            functools.partial(self.entities.get_lemma, function=function),
+            functools.partial(
+                self.resolve, lemma=True, resolver=resolver, force=force))
+
+    def get_category(
+            self,
+            lexeme: Lexeme,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None,
+            function: Location | None = None
+    ) -> Item | None:
+        """Gets the lexical category of lexeme in registry.
+
+        Parameters:
+           lexeme: Lexeme.
+           resolve: Whether to resolve lexical category.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           function: Function or function name.
+
+        Returns:
+           Item or ``None``.
+        """
+        function = function or self.get_category
+        return self._get_entity_x_helper(
+            lexeme, resolve, resolver, force,
+            functools.partial(self.entities.get_category, function=function),
+            functools.partial(
+                self.resolve, category=True, resolver=resolver, force=force))
+
+    def get_language(
+            self,
+            lexeme: Lexeme,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None,
+            function: Location | None = None
+    ) -> Item | None:
+        """Gets the language of lexeme in registry.
+
+        Parameters:
+           lexeme: Lexeme.
+           resolve: Whether to resolve language.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           function: Function or function name.
+
+        Returns:
+           Item or ``None``.
+        """
+        function = function or self.get_category
+        return self._get_entity_x_helper(
+            lexeme, resolve, resolver, force,
+            functools.partial(self.entities.get_language, function=function),
+            functools.partial(
+                self.resolve, lexeme_language=True,
+                resolver=resolver, force=force))
 
     def _get_entity_x_helper(
             self,

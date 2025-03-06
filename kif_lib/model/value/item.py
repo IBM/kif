@@ -161,7 +161,7 @@ class Item(
 
         Parameters:
            language: Language.
-           resolve: Whether to resolve label.
+           resolve: Whether to resolve descriptor.
            resolver: Resolver store.
            force: Whether to force resolution.
 

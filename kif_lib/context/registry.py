@@ -294,7 +294,7 @@ class EntityRegistry(Registry):
             lexeme: Lexeme,
             function: Location | None = None
     ) -> Text | None:
-        """Gets lemma of lexeme.
+        """Gets the lemma of lexeme.
 
         Parameters:
            lexeme: Lexeme.

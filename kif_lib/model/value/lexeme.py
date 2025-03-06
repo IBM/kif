@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from ...typing import (
     cast,
     ClassVar,
@@ -20,6 +22,9 @@ from .item import Item, TItem
 from .string import TString
 from .text import Text, TText
 from .value import Datatype
+
+if TYPE_CHECKING:               # pragma: no cover
+    from ...store import Store
 
 TLexeme: TypeAlias = Union['Lexeme', T_IRI]
 VLexeme: TypeAlias = Union['LexemeTemplate', 'LexemeVariable', 'Lexeme']
@@ -93,52 +98,106 @@ class Lexeme(
     def display(self, language: TString | None = None) -> str:
         return super().display(language)  # fallback
 
-    def describe(self) -> Lexeme.Descriptor | None:
+    def describe(
+            self,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None
+    ) -> Lexeme.Descriptor | None:
         """Gets the descriptor of lexeme in KIF context.
+
+        If `resolver` is given, uses it to resolve lexeme data.
+        Otherwise, uses the resolver registered in context (if any).
+
+        If `force` is given, forces resolution.
+
+        Parameters:
+           language: Language.
+           resolve: Whether to resolve descriptor.
+           resolver: Resolver store.
+           force: Whether to force resolution.
 
         Returns:
            Lexeme descriptor or ``None``.
         """
-        return self.context.entities.describe(self)
+        return self.context.describe(
+            self, resolve=resolve, resolver=resolver,
+            force=force, function=self.describe)
 
     @property
     def lemma(self) -> Text | None:
         """The lemma of lexeme in KIF context."""
         return self.get_lemma()
 
-    def get_lemma(self) -> Text | None:
+    def get_lemma(
+            self,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None
+    ) -> Text | None:
         """Gets the lemma of lexeme in KIF context.
+
+        Parameters:
+           resolve: Whether to resolve lemma.
+           resolver: Resolver store.
+           force: Whether to force resolution.
 
         Returns:
            Lemma or ``None``.
         """
-        return self.context.entities.get_lemma(self, self.get_lemma)
+        return self.context.get_lemma(
+            self, resolve=resolve, resolver=resolver,
+            force=force, function=self.get_lemma)
 
     @property
     def category(self) -> Item | None:
         """The category of lexeme in KIF context."""
         return self.get_category()
 
-    def get_category(self) -> Item | None:
+    def get_category(
+            self,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None
+    ) -> Item | None:
         """Gets the lexical category of lexeme in KIF context.
+
+        Parameters:
+           resolve: Whether to resolve lexical category.
+           resolver: Resolver store.
+           force: Whether to force resolution.
 
         Returns:
            Lexical category or ``None``.
         """
-        return self.context.entities.get_category(self, self.get_category)
+        return self.context.get_category(
+            self, resolve=resolve, resolver=resolver,
+            force=force, function=self.get_category)
 
     @property
     def language(self) -> Item | None:
         """The language of lexeme in KIF context."""
         return self.get_language()
 
-    def get_language(self) -> Item | None:
+    def get_language(
+            self,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None
+    ) -> Item | None:
         """Gets the language of lexeme in KIF context.
+
+        Parameters:
+           resolve: Whether to resolve language.
+           resolver: Resolver store.
+           force: Whether to force resolution.
 
         Returns:
            Language or ``None``.
         """
-        return self.context.entities.get_language(self, self.get_language)
+        return self.context.get_language(
+            self, resolve=resolve, resolver=resolver,
+            force=force, function=self.get_language)
 
     def register(
             self,
