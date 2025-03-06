@@ -26,15 +26,9 @@ from .text import Text, TText, TTextLanguage
 from .value import Datatype
 
 if TYPE_CHECKING:               # pragma: no cover
-    from ...store import Store  # noqa: F401
-    from ..set import TTextSet  # noqa: F401
-    from .quantity import (  # noqa: F401
-        Quantity,
-        QuantityTemplate,
-        QuantityVariable,
-        TQuantity,
-        VQuantity,
-    )
+    from ...store import Store
+    from ..set import TTextSet
+    from .quantity import Quantity, QuantityTemplate, TQuantity
 
 TItem: TypeAlias = Union['Item', T_IRI]
 VItem: TypeAlias = Union['ItemTemplate', 'ItemVariable', 'Item']
@@ -148,13 +142,35 @@ class Item(
         else:
             return super().display(language)  # fallback
 
-    def describe(self) -> Item.Descriptor | None:
+    def describe(
+            self,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None
+    ) -> Item.Descriptor | None:
         """Gets the descriptor of item in KIF context.
+
+        If `resolver` is given, uses it to resolve item data.
+        Otherwise, uses the resolver registered in context (if any).
+
+        If `language` is given, resolves only text in `language`.
+        Otherwise, resolves text in all languages.
+
+        If `force` is given, forces resolution.
+
+        Parameters:
+           language: Language.
+           resolve: Whether to resolve label.
+           resolver: Resolver store.
+           force: Whether to force resolution.
 
         Returns:
            Item descriptor or ``None``.
         """
-        return self.context.entities.describe(self)
+        return self.context.describe(
+            self, language=language, resolve=resolve, resolver=resolver,
+            force=force, function=self.describe)
 
     @property
     def label(self) -> Text | None:
@@ -166,7 +182,7 @@ class Item(
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool = False
+            force: bool | None = None
     ) -> Text | None:
         """Gets the label of item in KIF context.
 
@@ -179,7 +195,7 @@ class Item(
         Returns:
            Label or ``None``.
         """
-        return self.context.get_entity_label(
+        return self.context.get_label(
             self, language=language, resolve=resolve, resolver=resolver,
             force=force, function=self.get_label)
 
@@ -193,7 +209,7 @@ class Item(
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool = False
+            force: bool | None = None
     ) -> Set[Text] | None:
         """Gets the aliases of item in KIF context.
 
@@ -206,7 +222,7 @@ class Item(
         Returns:
            Aliases or ``None``.
         """
-        return self.context.get_entity_aliases(
+        return self.context.get_aliases(
             self, language=language, resolve=resolve, resolver=resolver,
             force=force, function=self.get_aliases)
 
@@ -220,7 +236,7 @@ class Item(
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool = False
+            force: bool | None = None
     ) -> Text | None:
         """Gets the description of item in KIF context.
 
@@ -233,7 +249,7 @@ class Item(
         Returns:
            Description or ``None``.
         """
-        return self.context.get_entity_description(
+        return self.context.get_description(
             self, language=language, resolve=resolve, resolver=resolver,
             force=force, function=self.get_description)
 

@@ -958,7 +958,10 @@ class EntityRegistry(Registry):
                     elif p == _wd_description and isinstance(v, Text):
                         status |= bool(self._add_description(s, v))
                     if isinstance(s, Property):
-                        if range and s.range is not None:
+                        ###
+                        # FIXME: Currently, we always resolve range.
+                        ###
+                        if s.range is not None:
                             status |= bool(self._add_range(s, s.range))
                         if p == _wd_inverse and isinstance(v, Property):
                             status |= bool(self._add_inverse(s, v))

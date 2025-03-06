@@ -35,6 +35,7 @@ from .text import Text, TText, TTextLanguage
 from .value import VTValue
 
 if TYPE_CHECKING:               # pragma: no cover
+    from ...store import Store
     from ..rank import VTRank
     from ..set import TTextSet, VTQualifierRecord, VTReferenceRecordSet
     from ..snak import (
@@ -658,29 +659,62 @@ class Property(
         else:
             return super().display(language)  # fallback
 
-    def describe(self) -> Property.Descriptor | None:
+    def describe(
+            self,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None
+    ) -> Property.Descriptor | None:
         """Gets the descriptor of property in KIF context.
+
+        If `resolver` is given, uses it to resolve property data.
+        Otherwise, uses the resolver registered in context (if any).
+
+        If `language` is given, resolves only text in `language`.
+        Otherwise, resolves text in all languages.
+
+        If `force` is given, forces resolution.
+
+        Parameters:
+           language: Language.
+           resolve: Whether to resolve label.
+           resolver: Resolver store.
+           force: Whether to force resolution.
 
         Returns:
            Property descriptor or ``None``.
         """
-        return self.context.entities.describe(self)
+        return self.context.describe(
+            self, language=language, resolve=resolve, resolver=resolver,
+            force=force, function=self.describe)
 
     @property
     def label(self) -> Text | None:
         """The label of property in KIF context."""
         return self.get_label()
 
-    def get_label(self, language: TString | None = None) -> Text | None:
+    def get_label(
+            self,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None
+    ) -> Text | None:
         """Gets the label of property in KIF context.
 
         Parameters:
            language: Language.
+           resolve: Whether to resolve label.
+           resolver: Resolver store.
+           force: Whether to force resolution.
 
         Returns:
            Label or ``None``.
         """
-        return self.context.entities.get_label(self, language, self.get_label)
+        return self.context.get_label(
+            self, language=language, resolve=resolve, resolver=resolver,
+            force=force, function=self.get_label)
 
     @property
     def aliases(self) -> Set[Text] | None:
@@ -689,62 +723,102 @@ class Property(
 
     def get_aliases(
             self,
-            language: TString | None = None
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None
     ) -> Set[Text] | None:
         """Gets the aliases of property in KIF context.
 
         Parameters:
            language: Language.
+           resolve: Whether to resolve aliases.
+           resolver: Resolver store.
+           force: Whether to force resolution.
 
         Returns:
            Aliases or ``None``.
         """
-        return self.context.entities.get_aliases(
-            self, language, self.get_aliases)
+        return self.context.get_aliases(
+            self, language=language, resolve=resolve, resolver=resolver,
+            force=force, function=self.get_aliases)
 
     @property
     def description(self) -> Text | None:
         """The description of property in KIF context."""
         return self.get_description()
 
-    def get_description(self, language: TString | None = None) -> Text | None:
+    def get_description(
+            self,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None
+    ) -> Text | None:
         """Gets the description of property in KIF context.
 
         Parameters:
            language: Language.
+           resolve: Whether to resolve description.
+           resolver: Resolver store.
+           force: Whether to force resolution.
 
         Returns:
            Description or ``None``.
         """
-        return self.context.entities.get_description(
-            self, language, self.get_description)
+        return self.context.get_description(
+            self, language=language, resolve=resolve, resolver=resolver,
+            force=force, function=self.get_description)
 
     @property
     def registered_range(self) -> Datatype | None:
         """The range of property in KIF context."""
         return self.get_registered_range()
 
-    def get_registered_range(self) -> Datatype | None:
+    def get_registered_range(
+            self,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None
+    ) -> Datatype | None:
         """Gets the range of property in KIF context.
+
+        Parameters:
+           resolve: Whether to resolve range.
+           resolver: Resolver store.
+           force: Whether to force resolution.
 
         Returns:
            Range or ``None``.
         """
-        return self.context.entities.get_range(
-            self, self.get_registered_range)
+        return self.context.get_range(
+            self, resolve=resolve, resolver=resolver,
+            force=force, function=self.get_range)
 
     @property
     def inverse(self) -> Property | None:
         """The inverse of property in KIF context."""
         return self.get_inverse()
 
-    def get_inverse(self) -> Property | None:
+    def get_inverse(
+            self,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None
+    ) -> Property | None:
         """Gets the inverse of property in KIF context.
+
+        Parameters:
+           resolve: Whether to resolve inverse.
+           resolver: Resolver store.
+           force: Whether to force resolution.
 
         Returns:
            Property or ``None``.
         """
-        return self.context.entities.get_inverse(self, self.get_inverse)
+        return self.context.get_inverse(
+            self, resolve=resolve, resolver=resolver,
+            force=force, function=self.get_inverse)
 
     def register(
             self,

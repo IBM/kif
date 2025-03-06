@@ -4,30 +4,40 @@
 from __future__ import annotations
 
 from ..context import Context
-from ..model import Item, Property, Quantity
 from ..namespace.pubchem import PubChem
-from ..namespace.semsci import CHEMINF
+from .pc_ import CID, Isotope_Atom_Count, patent, source
+
+__all__ = (
+    'CID',
+    'Isotope_Atom_Count',
+    'patent',
+    'reload',
+    'source',
+)
 
 
-def CID(name: int | str, label: str | None = None) -> Item:
-    if isinstance(name, str) and name.startswith('CID'):
-        name = PubChem.COMPOUND[name]
-    else:
-        name = PubChem.COMPOUND[f'CID{name}']
-    return Item(name)
+def reload(force: bool = True, context: Context | None = None) -> None:
+    """Reloads the `pc` module.
+
+    Parameters:
+       force: Force reload.
+       context: KIF context.
+    """
+    ctx = Context.top(context)
+    ctx.iris.register(PubChem.COMPOUND, prefix='pc')
+    resolver_iri = ctx.options.vocabulary.pc.resolver
+    if resolver_iri is not None:
+        from ..compiler.sparql.mapping.pubchem import PubChemMapping
+        from ..store import Store
+        kb = Store('sparql2', resolver_iri, PubChemMapping())
+        ctx.iris.register(PubChem.COMPOUND, resolver=kb)
+        ctx.iris.register(PubChem.PATENT, resolver=kb)
+        ctx.iris.register(PubChem.SOURCE, resolver=kb)
+    if force:
+        import importlib
+
+        from . import pc
+        importlib.reload(pc)
 
 
-def patent(name: str, label: str | None = None) -> Item:
-    return Item(PubChem.PATENT[name])
-
-
-def source(name: str, label: str | None = None) -> Item:
-    return Item(PubChem.SOURCE[name])
-
-
-Isotope_Atom_Count = Property(
-    CHEMINF.isotope_atom_count_generated_by_pubchem_software_library,
-    Quantity)
-
-
-Context.top().iris.register(PubChem.COMPOUND, 'pc')
+reload(force=False)

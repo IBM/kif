@@ -6,6 +6,8 @@ from __future__ import annotations
 import functools
 from typing import TYPE_CHECKING
 
+from typing_extensions import overload
+
 from .. import itertools
 from ..typing import (
     Any,
@@ -20,7 +22,7 @@ from ..typing import (
 )
 
 if TYPE_CHECKING:  # pragma: no cover
-    from ..model import Item, Property, Text, TTextLanguage
+    from ..model import Datatype, Item, Lexeme, Property, Text, TTextLanguage
     from ..store import Store
     from .options import Options
     from .registry import EntityRegistry, IRI_Registry
@@ -126,13 +128,127 @@ class Context:
         """
         return self._options
 
-    def get_entity_label(
+    @overload
+    def describe(
+            self,
+            entity: Item,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None,
+            function: Location | None = None
+    ) -> Item.Descriptor | None:
+        """Gets the descriptor of item in registry.
+
+        If `resolver` is given, uses it to resolve item data.
+        Otherwise, uses the resolver registered in context (if any).
+
+        If `language` is given, resolves only text in `language`.
+        Otherwise, resolves text in all languages.
+
+        If `force` is given, forces resolution.
+
+        Parameters:
+           language: Language.
+           resolve: Whether to resolve label.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           function: Function or function name.
+
+        Returns:
+           Item descriptor or ``None``.
+        """
+        ...                     # pragma: no cover
+
+    @overload
+    def describe(
+            self,
+            entity: Property,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None,
+            function: Location | None = None
+    ) -> Property.Descriptor | None:
+        """Gets the descriptor of property in registry.
+
+        If `resolver` is given, uses it to resolve property data.
+        Otherwise, uses the resolver registered in context (if any).
+
+        If `language` is given, resolves only text in `language`.
+        Otherwise, resolves text in all languages.
+
+        If `force` is given, forces resolution.
+
+        Parameters:
+           language: Language.
+           resolve: Whether to resolve label.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           function: Function or function name.
+
+        Returns:
+           Property descriptor or ``None``.
+        """
+        ...                     # pragma: no cover
+
+    @overload
+    def describe(
+            self,
+            entity: Lexeme,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None,
+            function: Location | None = None
+    ) -> Lexeme.Descriptor | None:
+        """Gets the descriptor of lexeme in registry.
+
+        If `resolver` is given, uses it to resolve lexeme data.
+        Otherwise, uses resolver registered in context (if any).
+
+        If `language` is given, resolves only text in `language`.
+        Otherwise, resolves text in all languages.
+
+        If `force` is given, forces resolution.
+
+        Parameters:
+           language: Language.
+           resolve: Whether to resolve label.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           function: Function or function name.
+
+        Returns:
+           Lexeme descriptor or ``None``.
+        """
+        ...                     # pragma: no cover
+
+    def describe(
+            self,
+            entity: Item | Property | Lexeme,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None,
+            function: Location | None = None
+    ) -> Item.Descriptor | Property.Descriptor | Lexeme.Descriptor | None:
+        function = function or self.describe
+        return self._get_entity_x_helper(
+            entity, resolve, resolver, force,
+            functools.partial(
+                self.entities.describe, function=function),  # type: ignore
+            functools.partial(
+                self.resolve, all=True,
+                language=language, resolver=resolver, force=force))
+
+    def get_label(
             self,
             entity: Item | Property,
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool = False,
+            force: bool | None = None,
             function: Location | None = None
     ) -> Text | None:
         """Gets the label of item or property in registry.
@@ -148,25 +264,24 @@ class Context:
         Returns:
            Label or ``None``.
         """
-        function = function or self.get_entity_label
+        function = function or self.get_label
         return self._get_entity_x_helper(
             entity, resolve, resolver, force,
             functools.partial(
                 self.entities.get_label,
                 language=language, function=function),
             functools.partial(
-                self.resolve_entities,
-                label=True,
+                self.resolve, label=True,
                 language=self._check_optional_language(language, function),
                 resolver=resolver, force=force))
 
-    def get_entity_aliases(
+    def get_aliases(
             self,
             entity: Item | Property,
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool = False,
+            force: bool | None = None,
             function: Location | None = None
     ) -> Set[Text] | None:
         """Gets the aliases of item or property in registry.
@@ -182,25 +297,24 @@ class Context:
         Returns:
            Aliases or ``None``.
         """
-        function = function or self.get_entity_aliases
+        function = function or self.get_aliases
         return self._get_entity_x_helper(
             entity, resolve, resolver, force,
             functools.partial(
                 self.entities.get_aliases,
                 language=language, function=function),
             functools.partial(
-                self.resolve_entities,
-                aliases=True,
+                self.resolve, aliases=True,
                 language=self._check_optional_language(language, function),
                 resolver=resolver, force=force))
 
-    def get_entity_description(
+    def get_description(
             self,
             entity: Item | Property,
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool = False,
+            force: bool | None = None,
             function: Location | None = None
     ) -> Text | None:
         """Gets the description of item or property in registry.
@@ -216,24 +330,77 @@ class Context:
         Returns:
            Description or ``None``.
         """
-        function = function or self.get_entity_description
+        function = function or self.get_description
         return self._get_entity_x_helper(
             entity, resolve, resolver, force,
             functools.partial(
                 self.entities.get_description,
                 language=language, function=function),
             functools.partial(
-                self.resolve_entities,
-                description=True,
+                self.resolve, description=True,
                 language=self._check_optional_language(language, function),
                 resolver=resolver, force=force))
+
+    def get_range(
+            self,
+            property: Property,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None,
+            function: Location | None = None
+    ) -> Datatype | None:
+        """Gets the range of property in registry.
+
+        Parameters:
+           property: Property.
+           resolve: Whether to resolve range.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           function: Function or function name.
+
+        Returns:
+           Range or ``None``.
+        """
+        function = function or self.get_range
+        return self._get_entity_x_helper(
+            property, resolve, resolver, force,
+            functools.partial(self.entities.get_range, function=function),
+            functools.partial(
+                self.resolve, range=True, resolver=resolver, force=force))
+
+    def get_inverse(
+            self,
+            property: Property,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None,
+            function: Location | None = None
+    ) -> Property | None:
+        """Gets the inverse of property in registry.
+
+        Parameters:
+           property: Property.
+           resolve: Whether to resolve inverse.
+           resolver: Resolver store.
+           force: Whether to force resolution.
+           function: Function or function name.
+
+        Returns:
+           Property or ``None``.
+        """
+        function = function or self.get_range
+        return self._get_entity_x_helper(
+            property, resolve, resolver, force,
+            functools.partial(self.entities.get_inverse, function=function),
+            functools.partial(
+                self.resolve, inverse=True, resolver=resolver, force=force))
 
     def _get_entity_x_helper(
             self,
             entity: E,
             resolve: bool | None,
             resolver: Store | None,
-            force: bool,
+            force: bool | None,
             get_value: Callable[[E], V | None],
             resolve_entity: Callable[[tuple[E]], Any]
     ) -> V | None:
@@ -243,7 +410,7 @@ class Context:
         if value is None:
             if resolve is None:
                 resolve = self.options.entities.resolve
-            if resolve_entity((entity,)):
+            if resolve and resolve_entity((entity,)):
                 value = get_value(entity)  # update
         return value
 
@@ -260,7 +427,7 @@ class Context:
         else:
             return self.options.language
 
-    def resolve_entities(
+    def resolve(
             self,
             objects: Iterable[T],
             resolver: Store | None = None,
@@ -274,22 +441,21 @@ class Context:
             category: bool = False,
             lexeme_language: bool = False,
             all: bool = False,
-            force: bool = False,
+            force: bool | None = None,
             function: Location | None = None
     ) -> Iterable[T]:
-        """Resolves entity data into context.
+        """Resolves entity data.
 
         Traverses `objects` recursively and resolves the data of every
         entity found into context's entity registry.
 
-        If `resolver` is given, uses it to resolve entity data.  Otherwise,
-        uses the associated resolver store registered in context (if any).
+        If `resolver` is given, uses it to resolve entity data.
+        Otherwise, uses the resolver registered in context (if any).
 
         If `language` is given, resolves only text in `language`.
         Otherwise, resolves text in all languages.
 
-        If `force` is given, force resolution even if the desired data
-        exists in registry.
+        If `force` is given, forces resolution.
 
         Parameters:
            objects: Objects.
@@ -309,11 +475,10 @@ class Context:
 
         Returns:
            `objects`.
-
         """
         from ..model import Entity, KIF_Object
         from ..store import Store
-        function = function or self.resolve_entities
+        function = function or self.resolve
         resolver = KIF_Object._check_optional_arg_isinstance(
             resolver, Store, None, function, 'resolver')
         it1, it2 = itertools.tee(objects, 2)
@@ -331,5 +496,5 @@ class Context:
             pairs, label=label, aliases=aliases, description=description,
             language=language, range=range, inverse=inverse,
             lemma=lemma, category=category, lexeme_language=lexeme_language,
-            all=all, force=force)
+            all=all, force=bool(force))
         return it2

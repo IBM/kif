@@ -5,8 +5,6 @@ from __future__ import annotations
 
 import pathlib
 
-from typing_extensions import deprecated
-
 from ... import namespace as NS
 from ...context import Context
 from ...model import (
@@ -25,13 +23,13 @@ from ...model import (
     TItem,
     TProperty,
     TText,
+    TTextSet,
 )
 from ...typing import cast
 
 __all__ = (
     'alias',
     'description',
-    'get_label',                # deprecated
     'L',
     'label',
     'language',
@@ -79,7 +77,7 @@ def _get_property_cache(
         return None
 
 
-def _reload_property_cache(
+def _load_property_cache(
         path: pathlib.Path | None = None,
         context: Context | None = None
 ) -> None:
@@ -102,33 +100,74 @@ def _reload_property_cache(
         pass
 
 
+def _install_resolver(context: Context | None = None) -> None:
+    ctx = Context.top(context)
+    resolver_iri = ctx.options.vocabulary.wd.resolver
+    if resolver_iri is not None:
+        from ...compiler.sparql.mapping.wikidata import WikidataMapping
+        from ...store import Store
+        ctx.iris.register(IRI(NS.WD), resolver=Store(
+            'sparql2', resolver_iri, WikidataMapping()))
+
+
 def P(
         name: int | str,
         label: TText | None = None,
-        datatype: TDatatype | None = None,
+        aliases: TTextSet | None = None,
+        description: TText | None = None,
+        range: TDatatype | None = None,
         inverse: TProperty | None = None,
         context: Context | None = None
 ) -> Property:
-    ctx = Context.top(context)
+    """Creates a Wikidata property with the given descriptors.
+
+    Parameters:
+       name: Name.
+       label: Label.
+       aliases: Aliases.
+       description: Description.
+       range: Datatype.
+       inverse: Inverse property.
+       context: KIF context.
+
+    Returns:
+       Property.
+    """
     if isinstance(name, str) and name[0] == 'P':
         iri = IRI(str(NS.WD[name]))
     else:
         iri = IRI(str(NS.WD[f'P{name}']))
-    return ctx.entities.register(
-        Property(iri), label=label, range=datatype, inverse=inverse)
+    return Context.top(context).entities.register(
+        Property(iri),
+        label=label, aliases=aliases, description=description,
+        range=range, inverse=inverse)
 
 
 def Q(
         name: int | str,
         label: TText | None = None,
+        aliases: TTextSet | None = None,
+        description: TText | None = None,
         context: Context | None = None
 ) -> Item:
-    ctx = Context.top(context)
+    """Creates a Wikidata item with the given descriptors.
+
+    Parameters:
+       name: Name.
+       label: Label.
+       aliases: Aliases.
+       description: Description.
+       context: KIF context.
+
+    Returns:
+       Item.
+    """
     if isinstance(name, str) and name[0] == 'Q':
         iri = IRI(str(NS.WD[name]))
     else:
         iri = IRI(str(NS.WD[f'Q{name}']))
-    return ctx.entities.register(Item(iri), label=label)
+    return Context.top(context).entities.register(
+        Item(iri), label=label, aliases=aliases, description=description)
 
 
 def L(
@@ -138,12 +177,22 @@ def L(
         language: TItem | None = None,
         context: Context | None = None
 ) -> Lexeme:
-    ctx = Context.top(context)
+    """Creates a Wikidata lexeme with the given descriptors.
+
+    Parameters:
+       lemma: Lemma.
+       category: Lexical category.
+       language: Language.
+       context: KIF context.
+
+    Returns:
+       Lexeme.
+    """
     if isinstance(name, str) and name[0] == 'L':
         iri = IRI(str(NS.WD[name]))
     else:
         iri = IRI(str(NS.WD[f'L{name}']))
-    return ctx.entities.register(
+    return Context.top(context).entities.register(
         Lexeme(iri), lemma=lemma, category=category, language=language)
 
 
@@ -156,26 +205,28 @@ lexical_category = LexicalCategoryProperty()
 language = LanguageProperty()
 
 
-@deprecated('get_label() is deprecated; use ENTITY.label instead')
-def get_label(
-        entity: Item | Property,
-        default: str | None = None
-) -> str | None:
-    label = entity.context.entities.get_label(entity)
-    if label is not None:
-        return label.content
-    else:
-        return default
+def reload(
+        load_property_cache: bool = True,
+        install_resolver: bool = True,
+        force: bool = True,
+        context: Context | None = None
+) -> None:
+    """Reloads the `wd` module.
+
+    Parameters:
+       force: Force reload.
+       context: KIF context.
+    """
+    if load_property_cache:
+        _load_property_cache(context=context)
+    if install_resolver:
+        _install_resolver(context=context)
+    if force:
+        import importlib
+
+        from . import item, property
+        importlib.reload(item)
+        importlib.reload(property)
 
 
-def reload() -> None:
-    """Reloads the whole wd module."""
-    import importlib
-
-    from . import item, property
-    _reload_property_cache()
-    importlib.reload(item)
-    importlib.reload(property)
-
-
-_reload_property_cache()
+reload(force=False)
