@@ -66,6 +66,7 @@ def op(
         label=label, aliases=aliases, description=description,
         range=range, inverse=inverse)
 
+
 def r(
         name: str,
         label: TText | None = None,
