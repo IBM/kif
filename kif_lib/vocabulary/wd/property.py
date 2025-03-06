@@ -59,9 +59,14 @@ file_format = P(2701)
 found_in_taxon = P(703)
 Freebase_ID = P(646)
 gender_of_a_scientific_name_of_a_genus = P(2433)
+GHS_hazard_pictogram = P(5040)
+GHS_hazard_statement = P(5041)
+GHS_precautionary_statement = P(5042)
+GHS_signal_word = P(1033)
 grammatical_gender = P(5185)
 grammatical_person = P(11053)
 half_life = P(2114)
+half_maximal_effective_concentration = P(4269)
 has_active_ingredient = P(3781)
 has_cause = P(828)
 has_effect = P(1542)
@@ -91,6 +96,7 @@ main_subject = P(921)
 manufacturer = P(176)
 mass = P(2067)
 measured_physical_quantity = P(111)
+median_lethal_concentration = P(2712)
 median_lethal_dose = P(2240)
 melting_point = P(2101)
 member_of = P(463)
@@ -177,6 +183,9 @@ WordNet_31_Synset_ID = P(8814)
 YouTube_video_ID = P(1651)
 
 # Aliases:
+EC50 = half_maximal_effective_concentration
+LC50 = median_lethal_concentration
+LD50 = median_lethal_dose
 material_produced = product_or_material_produced_or_service_provided
 product_produced = product_or_material_produced_or_service_provided
 same_as = said_to_be_the_same_as
@@ -223,6 +232,7 @@ __all__ = (
     'download_link',
     'DSSTox_substance_ID',
     'duration',
+    'EC50',
     'educated_at',
     'element_symbol',
     'elevation_above_sea_level',
@@ -239,9 +249,14 @@ __all__ = (
     'found_in_taxon',
     'Freebase_ID',
     'gender_of_a_scientific_name_of_a_genus',
+    'GHS_hazard_pictogram',
+    'GHS_hazard_statement',
+    'GHS_precautionary_statement',
+    'GHS_signal_word',
     'grammatical_gender',
     'grammatical_person',
     'half_life',
+    'half_maximal_effective_concentration',
     'has_active_ingredient',
     'has_cause',
     'has_effect',
@@ -263,6 +278,8 @@ __all__ = (
     'ionization_energy',
     'isomeric_SMILES',
     'language_of_work_or_name',
+    'LC50',
+    'LD50',
     'legal_status_medicine',
     'location_of_formation',
     'lowest_point',
@@ -272,6 +289,7 @@ __all__ = (
     'mass',
     'material_produced',
     'measured_physical_quantity',
+    'median_lethal_concentration',
     'median_lethal_dose',
     'melting_point',
     'member_of',

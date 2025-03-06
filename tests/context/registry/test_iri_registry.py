@@ -86,7 +86,7 @@ class Test(TestCase):
         self.assert_register(r, IRI('a/'), resolver=s1)
         self.assertEqual(r.lookup_resolver(IRI('a/')), s1)
         self.assertEqual(r.lookup_resolver(IRI('a/b')), s1)
-        self.assertIsNone(r.lookup_resolver(IRI('a/b/c')))
+        self.assertEqual(r.lookup_resolver(IRI('a/b/c')), s1)
         self.assert_register(r, IRI('b#'), resolver=s2)
         self.assertEqual(r.lookup_resolver(IRI('b#')), s2)
         self.assertEqual(r.lookup_resolver(IRI('b#c')), s2)
