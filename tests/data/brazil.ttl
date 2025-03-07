@@ -58,15 +58,17 @@ wd:P361
     wikibase:statementProperty ps:P361 ;
     wikibase:statementValue psv:P361 .
 
-# official name
-wd:P1448
+# applies to part
+wd:P518
     a wikibase:Property ;
-    wikibase:claim p:P1448 ;
-    wikibase:directClaim wdt:P1448 ;
-    wikibase:novalue wdno:P1448 ;
-    wikibase:propertyType wikibase:Monolingualtext ;
-    wikibase:statementProperty ps:P1448 ;
-    wikibase:statementValue psv:P1448 .
+    wikibase:claim p:P518 ;
+    wikibase:directClaim wdt:P518 ;
+    wikibase:novalue wdno:P518 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:qualifier pq:P518 ;
+    wikibase:qualifierValue pqv:P518 ;
+    wikibase:statementProperty ps:P518 ;
+    wikibase:statementValue psv:P518 .
 
 # inception
 wd:P571
@@ -77,6 +79,17 @@ wd:P571
     wikibase:propertyType wikibase:Time ;
     wikibase:statementProperty ps:P571 ;
     wikibase:statementValue psv:P571 .
+
+# official name
+wd:P1448
+    a wikibase:Property ;
+    wikibase:claim p:P1448 ;
+    wikibase:directClaim wdt:P1448 ;
+    wikibase:novalue wdno:P1448 ;
+    wikibase:propertyType wikibase:Monolingualtext ;
+    wikibase:statementProperty ps:P1448 ;
+    wikibase:statementValue psv:P1448 .
+
 
 # Latin America
 wd:Q12585

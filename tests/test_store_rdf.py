@@ -262,20 +262,20 @@ class TestStoreRDF(StoreTestCase):
             stmts=[wd.InChIKey(
                 wd.benzene, ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N'))],
             subject=wd.benzene,
-            property=wd.InChIKey.replace(KIF_Object.KEEP, ExternalId)
+            property=wd.InChIKey
         )
         self.store_test_filter(
             kb,
             stmts=[wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
             subject=wd.benzene,
-            property=wd.mass.replace(KIF_Object.KEEP, Quantity)
+            property=wd.mass
         )
         self.store_test_filter(
             kb,
             stmts=[wd.InChIKey(
                 wd.benzene, ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N'))],
             subject=wd.instance_of(wd.type_of_a_chemical_entity),
-            property=wd.InChIKey.replace(KIF_Object.KEEP, ExternalId)
+            property=wd.InChIKey
         )
         self.store_test_filter(
             kb,
@@ -289,14 +289,14 @@ class TestStoreRDF(StoreTestCase):
             kb,
             stmts=[wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
             subject=wd.benzene,
-            property=wd.mass.replace(KIF_Object.KEEP, Quantity),
+            property=wd.mass,
             value=Quantity('78.046950192', wd.dalton)
         )
         self.store_test_filter(
             kb,
             stmts=[],
             subject=wd.benzene,
-            property=wd.mass.replace(KIF_Object.KEEP, Quantity),
+            property=wd.mass,
             value=Quantity('78.12', wd.dalton)
         )
         # property
@@ -304,7 +304,7 @@ class TestStoreRDF(StoreTestCase):
             kb,
             stmts=[wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))],
             subject=None,
-            property=wd.mass.replace(KIF_Object.KEEP, Quantity)
+            property=wd.mass
         )
         self.store_test_filter(
             kb,
@@ -313,7 +313,7 @@ class TestStoreRDF(StoreTestCase):
                     '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))
             ],
             subject=None,
-            property=wd.density.replace(KIF_Object.KEEP, Quantity)
+            property=wd.density
         )
         self.store_test_filter(
             kb,
@@ -332,14 +332,14 @@ class TestStoreRDF(StoreTestCase):
                     '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))
             ],
             subject=None,
-            property=wd.density.replace(KIF_Object.KEEP, Quantity),
+            property=wd.density,
             value=Quantity('.88')
         )
         self.store_test_filter(
             kb,
             stmts=[],
             subject=None,
-            property=wd.density.replace(KIF_Object.KEEP, Quantity),
+            property=wd.density,
             value=Quantity('.88', wd.kilogram)
         )
         # value
@@ -385,8 +385,7 @@ class TestStoreRDF(StoreTestCase):
         # some value
         self.store_test_filter(
             kb,
-            stmts=[Statement(wd.Adam, SomeValueSnak(
-                wd.family_name.replace(KIF_Object.KEEP, Item)))],
+            stmts=[Statement(wd.Adam, SomeValueSnak(wd.family_name))],
             subject=None,
             property=wd.family_name,
             value=None,
@@ -394,8 +393,7 @@ class TestStoreRDF(StoreTestCase):
         )
         self.store_test_filter(
             kb,
-            stmts=[Statement(wd.Adam, SomeValueSnak(
-                wd.family_name.replace(KIF_Object.KEEP, Item)))],
+            stmts=[Statement(wd.Adam, SomeValueSnak(wd.family_name))],
             subject=None,
             property=None,
             value=None,
@@ -404,8 +402,7 @@ class TestStoreRDF(StoreTestCase):
         # no value
         self.store_test_filter(
             kb,
-            stmts=[Statement(wd.Adam, NoValueSnak(
-                wd.date_of_birth.replace(KIF_Object.KEEP, Time)))],
+            stmts=[Statement(wd.Adam, NoValueSnak(wd.date_of_birth))],
             subject=None,
             property=wd.date_of_birth,
             value=None,
@@ -414,10 +411,8 @@ class TestStoreRDF(StoreTestCase):
         self.store_test_filter(
             kb,
             stmts=[
-                Statement(wd.Adam, NoValueSnak(
-                    wd.father.replace(KIF_Object.KEEP, Item))),
-                Statement(wd.Adam, NoValueSnak(
-                    wd.date_of_birth.replace(KIF_Object.KEEP, Time)))
+                Statement(wd.Adam, NoValueSnak(wd.father)),
+                Statement(wd.Adam, NoValueSnak(wd.date_of_birth))
             ],
             subject=None,
             property=None,
@@ -432,8 +427,7 @@ class TestStoreRDF(StoreTestCase):
     def _test_filter_any_rank(self, kb) -> None:
         self.store_test_filter(
             kb,
-            stmts=[Statement(wd.Adam, NoValueSnak(
-                wd.date_of_birth.replace(KIF_Object.KEEP, Time)))],
+            stmts=[Statement(wd.Adam, NoValueSnak(wd.date_of_birth))],
             subject=wd.Adam,
             property=wd.date_of_birth
         )
@@ -442,13 +436,12 @@ class TestStoreRDF(StoreTestCase):
         self.store_test_filter(
             kb,
             stmts=[
-                Statement(wd.Adam, NoValueSnak(
-                    wd.date_of_birth.replace(KIF_Object.KEEP, Time))),
+                Statement(wd.Adam, NoValueSnak(wd.date_of_birth)),
                 wd.date_of_birth(wd.Adam, Time(
                     '4003-01-01', 9, 0, wd.proleptic_Julian_calendar))
             ],
             subject=wd.Adam,
-            property=wd.date_of_birth.replace(KIF_Object.KEEP, Time)
+            property=wd.date_of_birth
         )
         kb.set_flags(kb.LATE_FILTER)
 
@@ -466,7 +459,7 @@ class TestStoreRDF(StoreTestCase):
                       ReferenceRecord(
                           wd.stated_in(wd.PubChem),
                           wd.language_of_work_or_name(wd.English),
-                          wd.PubChem_CID.replace(KIF_Object.KEEP, None)('241'),
+                          wd.PubChem_CID('241'),
                           wd.title(Text('benzene', 'en')),
                           wd.retrieved(Time(
                               '2016-10-19', 11, 0,
@@ -483,16 +476,14 @@ class TestStoreRDF(StoreTestCase):
                 ReferenceRecordSet(
                     ReferenceRecord(
                         wd.stated_in(wd.Hazardous_Substances_Data_Bank),
-                        wd.HSDB_ID.replace(KIF_Object.KEEP, None)(
-                            '35#section=TSCA-Test-Submissions'))),
+                        wd.HSDB_ID('35#section=TSCA-Test-Submissions'))),
                 NormalRank())}),
              # 3
              (Statement(wd.Adam, NoValueSnak(wd.date_of_birth)),
               {(QualifierRecord(),
                 ReferenceRecordSet(
                     ReferenceRecord(
-                        wd.reference_URL.replace(KIF_Object.KEEP, None)(
-                            'http://islamqa.info/ar/20907'))),
+                        wd.reference_URL('http://islamqa.info/ar/20907'))),
                 PreferredRank())}),
              # 4
              (wd.date_of_birth(wd.Adam, Time(
@@ -531,7 +522,7 @@ class TestStoreRDF(StoreTestCase):
                     ReferenceRecord(
                         wd.stated_in(wd.PubChem),
                         wd.language_of_work_or_name(wd.English),
-                        wd.PubChem_CID.replace(KIF_Object.KEEP, None)('241'),
+                        wd.PubChem_CID('241'),
                         wd.title(Text('benzene', 'en')),
                         wd.retrieved(Time(
                             '2016-10-19', 11, 0,
@@ -551,8 +542,7 @@ class TestStoreRDF(StoreTestCase):
                 ReferenceRecordSet(
                     ReferenceRecord(
                         wd.stated_in(wd.Hazardous_Substances_Data_Bank),
-                        wd.HSDB_ID.replace(KIF_Object.KEEP, None)(
-                            '35#section=TSCA-Test-Submissions')),
+                        wd.HSDB_ID('35#section=TSCA-Test-Submissions')),
                     ReferenceRecord(
                         wd.stated_in(wd.Wikidata),
                         wd.reference_URL('http://www.wikidata.org/')),
@@ -573,19 +563,17 @@ class TestStoreRDF(StoreTestCase):
             [(Statement(wd.Adam, NoValueSnak(wd.date_of_birth)),
               {(QualifierRecord(),
                 ReferenceRecordSet(
-                    ReferenceRecord(wd.reference_URL.replace(
-                        KIF_Object.KEEP, None)(
-                            'http://islamqa.info/ar/20907'))),
+                    ReferenceRecord(
+                        wd.reference_URL('http://islamqa.info/ar/20907'))),
                 PreferredRank())}),
              (wd.date_of_birth(wd.Adam, Time(
                  '4003-01-01', 9, 0, wd.proleptic_Julian_calendar)),
               {(QualifierRecord(
                   wd.statement_supported_by(wd.Q(746069))),
                 ReferenceRecordSet(
-                    ReferenceRecord(wd.reference_URL.replace(
-                        KIF_Object.KEEP, None)(
-                            'https://amazingbibletimeline.com/'
-                            'timeline_online/'))),
+                    ReferenceRecord(wd.reference_URL(
+                        'https://amazingbibletimeline.com/'
+                        'timeline_online/'))),
                 NormalRank())})
              ],
             Statement(wd.Adam, NoValueSnak(wd.date_of_birth)),

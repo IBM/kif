@@ -29,16 +29,6 @@
 @prefix wikibase: <http://wikiba.se/ontology#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-# family name
-wd:P734
-    a wikibase:Property ;
-    wikibase:claim p:P734 ;
-    wikibase:directClaim wdt:P734 ;
-    wikibase:novalue wdno:P734 ;
-    wikibase:propertyType wikibase:WikibaseItem ;
-    wikibase:statementProperty ps:P734 ;
-    wikibase:statementValue psv:P734 .
-
 # father
 wd:P22
     a wikibase:Property ;
@@ -58,6 +48,40 @@ wd:P569
     wikibase:propertyType wikibase:Time ;
     wikibase:statementProperty ps:P569 ;
     wikibase:statementValue psv:P569 .
+
+# family name
+wd:P734
+    a wikibase:Property ;
+    wikibase:claim p:P734 ;
+    wikibase:directClaim wdt:P734 ;
+    wikibase:novalue wdno:P734 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:statementProperty ps:P734 ;
+    wikibase:statementValue psv:P734 .
+
+# reference URL
+wd:P854
+    a wikibase:Property ;
+    wikibase:claim p:P854 ;
+    wikibase:directClaim wdt:P854 ;
+    wikibase:novalue wdno:P854 ;
+    wikibase:propertyType wikibase:Url ;
+    wikibase:reference pr:P854 ;
+    wikibase:referenceValue prv:P854 ;
+    wikibase:statementProperty ps:P854 ;
+    wikibase:statementValue psv:P854 .
+
+# statement supported by
+wd:P3680
+    a wikibase:Property ;
+    wikibase:claim p:P3680 ;
+    wikibase:directClaim wdt:P3680 ;
+    wikibase:novalue wdno:P3680 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:qualifier pq:P3680 ;
+    wikibase:qualifierValue pqv:P3680 ;
+    wikibase:statementProperty ps:P3680 ;
+    wikibase:statementValue psv:P3680 .
 
 wd:Q1985786
     wikibase:sitelinks [] .
