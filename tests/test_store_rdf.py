@@ -6,8 +6,6 @@ from __future__ import annotations
 from kif_lib import (
     ExternalId,
     Filter,
-    Item,
-    KIF_Object,
     NormalRank,
     NoValueSnak,
     PreferredRank,
