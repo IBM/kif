@@ -12,16 +12,15 @@ guide](https://ibm.github.io/kif/quickstart.html).
 
 * KIF can be seen as a Python interface to query Wikidata (RDF).
 
-* KIF queries are written in the KIF pattern language, a high-level query
-  language based on [Wikidata's data
-  model](https://www.wikidata.org/wiki/Wikidata:Data_model).
+* KIF queries are written in the KIF pattern language, which is based on
+  [Wikidata's data model](https://www.wikidata.org/wiki/Wikidata:Data_model).
 
 * KIF can be used to query knowledge sources other than Wikidata,
   provided proper SPARQL mappings are given.
 
 * KIF comes with built-in mappings for [DBpedia](https://www.dbpedia.org/)
-  and [PubChem RDF](https://pubchem.ncbi.nlm.nih.gov/docs/rdf), but other
-  mappings can be added programmatically as needed.
+  and [PubChem RDF](https://pubchem.ncbi.nlm.nih.gov/docs/rdf).  Other
+  mappings can be added programmatically.
 
 ### Hello world! ###
 
