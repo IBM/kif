@@ -96,3 +96,54 @@ class IRI(
                 return String.check(arg, type(self_), None, i).content
         else:
             raise self_._should_not_get_here()
+
+    def describe(self) -> IRI.Descriptor | None:
+        """Gets the descriptor of IRI in KIF context.
+
+        Returns:
+           IRI descriptor or ``None``.
+        """
+        return self.context.describe(self, function=self.describe)
+
+    def register(
+            self,
+            prefix: TString | None = None,
+            resolver: Store | None = None,
+    ) -> IRI:
+        """Adds or updates IRI data in KIF context.
+
+        Parameters:
+           prefix: Prefix.
+           resolver: Resolver store.
+
+        Returns:
+           IRI.
+        """
+        return self.context.iris.register(
+            self, prefix=prefix, resolver=resolver, function=self.register)
+
+    def unregister(
+            self,
+            prefix: bool = False,
+            resolver: bool = False,
+            all: bool = False,
+    ) -> bool:
+        """Remove IRI data from KIF context.
+
+        If called with no arguments, removes all IRI data.
+
+        Parameters:
+           prefix: Whether to remove prefix.
+           resolver: Whether to remove resolver.
+           all: Whether to remove all data.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        if prefix is False and resolver is False:
+            return self.context.iris.unregister(
+                self, all=True, function=self.unregister)
+        else:
+            return self.context.iris.unregister(
+                self, prefix=prefix, resolver=resolver,
+                function=self.unregister)

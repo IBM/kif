@@ -106,6 +106,8 @@ class Lexeme(
     ) -> Lexeme.Descriptor | None:
         """Gets the descriptor of lexeme in KIF context.
 
+        If `resolve` is ``True``, resolves property data.
+
         If `resolver` is given, uses it to resolve lexeme data.
         Otherwise, uses the resolver registered in context (if any).
 

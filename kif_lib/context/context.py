@@ -16,13 +16,24 @@ from ..typing import (
     ClassVar,
     Iterable,
     Location,
+    Optional,
     Set,
     TracebackType,
     TypeVar,
+    Union,
 )
 
 if TYPE_CHECKING:  # pragma: no cover
-    from ..model import Datatype, Item, Lexeme, Property, Text, TTextLanguage
+    from ..model import (
+        Datatype,
+        IRI,
+        Item,
+        Lexeme,
+        Property,
+        T_IRI,
+        Text,
+        TTextLanguage,
+    )
     from ..store import Store
     from .options import Options
     from .registry import EntityRegistry, IRI_Registry
@@ -131,7 +142,7 @@ class Context:
     @overload
     def describe(
             self,
-            entity: Item,
+            value: Item,
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
@@ -140,15 +151,18 @@ class Context:
     ) -> Item.Descriptor | None:
         """Gets the descriptor of item in registry.
 
-        If `resolver` is given, uses it to resolve item data.
-        Otherwise, uses the resolver registered in context (if any).
-
         If `language` is given, resolves only text in `language`.
         Otherwise, resolves text in all languages.
+
+        If `resolve` is ``True``, resolves item data.
+
+        If `resolver` is given, uses it to resolve item data.
+        Otherwise, uses the resolver registered in context (if any).
 
         If `force` is given, forces resolution.
 
         Parameters:
+           value: Item.
            language: Language.
            resolve: Whether to resolve descriptor.
            resolver: Resolver store.
@@ -163,7 +177,7 @@ class Context:
     @overload
     def describe(
             self,
-            entity: Property,
+            value: Property,
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
@@ -172,15 +186,18 @@ class Context:
     ) -> Property.Descriptor | None:
         """Gets the descriptor of property in registry.
 
-        If `resolver` is given, uses it to resolve property data.
-        Otherwise, uses the resolver registered in context (if any).
-
         If `language` is given, resolves only text in `language`.
         Otherwise, resolves text in all languages.
+
+        If `resolve` is ``True``, resolves property data.
+
+        If `resolver` is given, uses it to resolve property data.
+        Otherwise, uses the resolver registered in context (if any).
 
         If `force` is given, forces resolution.
 
         Parameters:
+           value: Property.
            language: Language.
            resolve: Whether to resolve descriptor.
            resolver: Resolver store.
@@ -195,7 +212,7 @@ class Context:
     @overload
     def describe(
             self,
-            entity: Lexeme,
+            value: Lexeme,
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
@@ -204,15 +221,15 @@ class Context:
     ) -> Lexeme.Descriptor | None:
         """Gets the descriptor of lexeme in registry.
 
+        If `resolve` is ``True``, resolves lexeme data.
+
         If `resolver` is given, uses it to resolve lexeme data.
         Otherwise, uses resolver registered in context (if any).
-
-        If `language` is given, resolves only text in `language`.
-        Otherwise, resolves text in all languages.
 
         If `force` is given, forces resolution.
 
         Parameters:
+           value: Lexeme.
            language: Language.
            resolve: Whether to resolve descriptor.
            resolver: Resolver store.
@@ -224,23 +241,52 @@ class Context:
         """
         ...                     # pragma: no cover
 
+    @overload
     def describe(
             self,
-            entity: Item | Property | Lexeme,
+            value: IRI,
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
             force: bool | None = None,
             function: Location | None = None
-    ) -> Item.Descriptor | Property.Descriptor | Lexeme.Descriptor | None:
+    ) -> IRI.Descriptor | None:
+        """Gets the descriptor of IRI in registry.
+
+        Parameters:
+           value: IRI.
+           function: Function or function name.
+
+        Returns:
+           IRI descriptor or ``None``.
+        """
+        ...                     # pragma: no cover
+
+    def describe(
+            self,
+            value: Item | Property | Lexeme | T_IRI,
+            language: TTextLanguage | None = None,
+            resolve: bool | None = None,
+            resolver: Store | None = None,
+            force: bool | None = None,
+            function: Location | None = None
+    ) -> Optional[Union[
+        Item.Descriptor, Property.Descriptor,
+            Lexeme.Descriptor, IRI.Descriptor]]:
+        from ..model import Entity, IRI
         function = function or self.describe
-        return self._get_entity_x_helper(
-            entity, resolve, resolver, force,
-            functools.partial(
-                self.entities.describe, function=function),  # type: ignore
-            functools.partial(
-                self.resolve, all=True,
-                language=language, resolver=resolver, force=force))
+        if isinstance(value, Entity):
+            return self._get_entity_x_helper(
+                value, resolve, resolver, force,
+                functools.partial(
+                    self.entities.describe, function=function),  # type: ignore
+                functools.partial(
+                    self.resolve, all=True,
+                    language=language, resolver=resolver, force=force))
+        else:
+            return self.iris.describe(
+                IRI.check(value, function, 'value'),
+                function=function)
 
     def get_label(
             self,

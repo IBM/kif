@@ -543,7 +543,7 @@ class Store(Set):
 
         If `limit` is negative, assumes zero.
 
-        If `limit` is ``None``, assumes: attr: `Store.default_limit`.
+        If `limit` is ``None``, assumes :attr:`Store.default_limit`.
 
         Parameters:
            limit: Limit.
@@ -653,7 +653,7 @@ class Store(Set):
 
         If `page_size` is negative, assumes zero.
 
-        If `page_size` is ``None``, assumes: attr: `Store.default_page_size`.
+        If `page_size` is ``None``, assumes :attr:`Store.default_page_size`.
 
         Parameters:
            page_size: Page size.

@@ -668,11 +668,13 @@ class Property(
     ) -> Property.Descriptor | None:
         """Gets the descriptor of property in KIF context.
 
-        If `resolver` is given, uses it to resolve property data.
-        Otherwise, uses the resolver registered in context (if any).
-
         If `language` is given, resolves only text in `language`.
         Otherwise, resolves text in all languages.
+
+        If `resolve` is ``True``, resolves property data.
+
+        If `resolver` is given, uses it to resolve property data.
+        Otherwise, uses the resolver registered in context (if any).
 
         If `force` is given, forces resolution.
 

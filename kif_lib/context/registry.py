@@ -853,8 +853,7 @@ class EntityRegistry(Registry):
         If `language` is given, resolves only text in `language`.
         Otherwise, resolves text in `language`.
 
-        If `force` is given, resolve data even if it already exists in
-        registry.
+        If `force` is given, forces resolution.
 
         Parameters:
            entities: Entity-store pairs.
@@ -1244,7 +1243,7 @@ class IRI_Registry(Registry):
 
         Parameters:
            iri: IRI.
-           prefix: whether to remove prefix.
+           prefix: Whether to remove prefix.
            resolver: Whether to remove resolver.
            all: Whether to remove all data.
            function: Function or function name.

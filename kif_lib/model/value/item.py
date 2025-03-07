@@ -151,11 +151,13 @@ class Item(
     ) -> Item.Descriptor | None:
         """Gets the descriptor of item in KIF context.
 
-        If `resolver` is given, uses it to resolve item data.
-        Otherwise, uses the resolver registered in context (if any).
-
         If `language` is given, resolves only text in `language`.
         Otherwise, resolves text in all languages.
+
+        If `resolve` is ``True``, resolves item data.
+
+        If `resolver` is given, uses it to resolve item data.
+        Otherwise, uses the resolver registered in context (if any).
 
         If `force` is given, forces resolution.
 
