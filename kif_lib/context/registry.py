@@ -212,7 +212,7 @@ class EntityRegistry(Registry):
         t = self.describe(entity, function)
         lang = self._check_optional_language(entity, language, function)
         if t and 'aliases' in t:
-            return cast(Set[Text] | None, t['aliases'].get(lang))
+            return cast(Optional[Set[Text]], t['aliases'].get(lang))
         else:
             return None
 
@@ -1157,7 +1157,7 @@ class IRI_Registry(Registry):
         """
         function = function or self.describe
         iri = IRI.check(iri, function, 'iri')
-        return cast(IRI.Descriptor | None, self._cache.get(iri.content))
+        return cast(Optional[IRI.Descriptor], self._cache.get(iri.content))
 
     def get_prefix(
             self,

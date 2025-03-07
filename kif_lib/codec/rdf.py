@@ -28,11 +28,11 @@ from ..model import (
 from ..model.kif_object import Encoder, Object
 from ..namespace import ONTOLEX, PROV, RDF, WIKIBASE, Wikidata
 from ..rdflib import BNode, Literal, URIRef
-from ..typing import cast, Iterator, override, TypeAlias, TypedDict
+from ..typing import cast, Iterator, override, TypeAlias, TypedDict, Union
 
-TSubject: TypeAlias = URIRef | BNode
+TSubject: TypeAlias = Union[URIRef, BNode]
 TPredicate: TypeAlias = URIRef
-TObject: TypeAlias = URIRef | BNode | Literal
+TObject: TypeAlias = Union[URIRef, BNode, Literal]
 TTriple: TypeAlias = tuple[TSubject, TPredicate, TObject]
 
 
