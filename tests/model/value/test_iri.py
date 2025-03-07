@@ -4,24 +4,33 @@
 from __future__ import annotations
 
 from kif_lib import (
+    Context,
     ExternalId,
     IRI,
     IRI_Datatype,
     IRI_Template,
     IRI_Variable,
     Item,
+    Store,
+    String,
     StringVariable,
     Term,
     Text,
     Theta,
     Variable,
 )
-from kif_lib.typing import assert_type, Optional, Set
+from kif_lib.typing import Any, assert_type, Optional, Set
 
 from ...tests import ShallowDataValueTestCase
 
 
 class Test(ShallowDataValueTestCase):
+
+    def assert_register(self, iri: IRI, **kwargs: Any) -> None:
+        self.assertEqual(iri.register(**kwargs), iri)
+
+    def assert_unregister(self, iri: IRI, **kwargs: Any) -> None:
+        self.assertTrue(iri.unregister(**kwargs))
 
     def test_datatype_class(self) -> None:
         assert_type(IRI.datatype_class, type[IRI_Datatype])
@@ -80,6 +89,81 @@ class Test(ShallowDataValueTestCase):
     def test_match(self) -> None:
         assert_type(IRI('x').match(Variable('x')), Optional[Theta])
         self._test_match(IRI, failure=[(IRI('x'), StringVariable('y'))])
+
+    def test_describe(self) -> None:
+        with Context():
+            assert_type(IRI('x').describe(), Optional[IRI.Descriptor])
+            self.assertIsNone(IRI('x').describe())
+            kb = Store('empty')
+            self.assert_register(IRI('x'), prefix='y', resolver=kb)
+            self.assertEqual(
+                IRI('x').describe(), {'prefix': 'y', 'resolver': kb})
+        self.assertIsNone(IRI('x').describe())
+
+    def test_get_prefix(self) -> None:
+        with Context():
+            assert_type(IRI('x').get_prefix(), Optional[str])
+            self.assertIsNone(IRI('x').get_prefix())
+            self.assert_register(IRI('x'), prefix='y')
+            self.assertEqual(IRI('x').get_prefix(), 'y')
+            self.assertEqual(IRI('x').prefix, 'y')
+            self.assert_unregister(IRI('x'))
+            self.assertIsNone(IRI('x').prefix)
+            self.assert_register(IRI('x'), prefix='z')
+            self.assertEqual(IRI('x').prefix, 'z')
+        self.assertIsNone(IRI('x').prefix)
+
+    def test_get_resolver(self) -> None:
+        with Context():
+            kb1, kb2 = Store('empty'), Store('empty')
+            assert_type(IRI('x').get_resolver(), Optional[Store])
+            self.assertIsNone(IRI('x').get_resolver())
+            self.assert_register(IRI('x'), resolver=kb1)
+            self.assertEqual(IRI('x').get_resolver(), kb1)
+            self.assertEqual(IRI('x').resolver, kb1)
+            self.assert_unregister(IRI('x'))
+            self.assertIsNone(IRI('x').resolver)
+            self.assert_register(IRI('x'), resolver=kb2)
+            self.assertEqual(IRI('x').resolver, kb2)
+        self.assertIsNone(IRI('x').resolver)
+
+    def test_register(self) -> None:
+        self.assert_raises_bad_argument(
+            TypeError, None, 'prefix', 'cannot coerce int into String',
+            IRI('x').register, prefix=0)
+        self.assert_raises_bad_argument(
+            TypeError, None, 'resolver', 'expected Store, got int',
+            IRI('x').register, resolver=0)
+        with Context():
+            assert_type(IRI('x').register(), IRI)
+            self.assertEqual(IRI('x').register(), IRI('x'))
+            self.assertIsNone(IRI('x').describe())
+            kb = Store('empty')
+            self.assert_register(IRI('x'), prefix=String('y'), resolver=kb)
+            self.assertEqual(
+                IRI('x').describe(), {'prefix': 'y', 'resolver': kb})
+            self.assert_register(IRI('x'), prefix='z')
+            self.assertEqual(
+                IRI('x').describe(), {'prefix': 'z', 'resolver': kb})
+        self.assertIsNone(IRI('x').describe())
+
+    def test_unregister(self) -> None:
+        with Context():
+            assert_type(IRI('x').unregister(), bool)
+            self.assertIsNone(IRI('x').describe())
+            kb = Store('empty')
+            self.assert_register(IRI('x'), prefix='y', resolver=kb)
+            self.assert_unregister(IRI('x'), prefix=True)
+            self.assertEqual(IRI('x').describe(), {'resolver': kb})
+            self.assertTrue(IRI('x').unregister())
+            self.assertIsNone(IRI('x').describe())
+            self.assert_register(IRI('x'), prefix='y', resolver=kb)
+            self.assertEqual(
+                IRI('x').describe(), {'prefix': 'y', 'resolver': kb})
+            self.assert_unregister(IRI('x'), resolver=True)
+            self.assertFalse(IRI('x').unregister(resolver=True))
+            self.assertEqual(IRI('x').describe(), {'prefix': 'y'})
+        self.assertIsNone(IRI('x').describe())
 
 
 if __name__ == '__main__':

@@ -105,10 +105,36 @@ class IRI(
         """
         return self.context.describe(self, function=self.describe)
 
+    @property
+    def prefix(self) -> str | None:
+        """The prefix of IRI in KIF context."""
+        return self.get_prefix()
+
+    def get_prefix(self) -> str | None:
+        """Gets the prefix of IRI in KIF context.
+
+        Returns:
+           Prefix or ``None``.
+        """
+        return self.context.get_prefix(self, function=self.get_prefix)
+
+    @property
+    def resolver(self) -> Store | None:
+        """The entity resolver of IRI in KIF context."""
+        return self.get_resolver()
+
+    def get_resolver(self) -> Store | None:
+        """Gets the entity resolver of IRI in KIF context.
+
+        Returns:
+           Store or ``None``.
+        """
+        return self.context.get_resolver(self, function=self.get_resolver)
+
     def register(
             self,
             prefix: TString | None = None,
-            resolver: Store | None = None,
+            resolver: Store | None = None
     ) -> IRI:
         """Adds or updates IRI data in KIF context.
 
@@ -125,8 +151,7 @@ class IRI(
     def unregister(
             self,
             prefix: bool = False,
-            resolver: bool = False,
-            all: bool = False,
+            resolver: bool = False
     ) -> bool:
         """Remove IRI data from KIF context.
 
@@ -140,10 +165,7 @@ class IRI(
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
-        if prefix is False and resolver is False:
-            return self.context.iris.unregister(
-                self, all=True, function=self.unregister)
-        else:
-            return self.context.iris.unregister(
-                self, prefix=prefix, resolver=resolver,
-                function=self.unregister)
+        return self.context.iris.unregister(
+            self, prefix=prefix, resolver=resolver,
+            all=(not (prefix or resolver)),
+            function=self.unregister)

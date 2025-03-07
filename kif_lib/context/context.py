@@ -555,6 +555,38 @@ class Context:
         else:
             return self.options.language
 
+    def get_prefix(
+            self,
+            iri: IRI,
+            function: Location | None = None
+    ) -> str | None:
+        """Gets the prefix of IRI in registry.
+
+        Parameters:
+           iri: IRI.
+           function: Function or function name.
+
+        Returns:
+           Prefix or ``None``.
+        """
+        return self.iris.get_prefix(iri, function)
+
+    def get_resolver(
+            self,
+            iri: IRI,
+            function: Location | None = None
+    ) -> Store | None:
+        """Gets the entity resolver of IRI in registry.
+
+        Parameters:
+           iri: IRI.
+           function: Function or function name.
+
+        Returns:
+           Store or ``None``.
+        """
+        return self.iris.get_resolver(iri, function)
+
     def resolve(
             self,
             objects: Iterable[T],
