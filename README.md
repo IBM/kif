@@ -10,30 +10,31 @@ guide](https://ibm.github.io/kif/quickstart.html).
 
 ## Highlights
 
-* KIF can be seen as a Python interface to query Wikidata.
+* KIF can be seen as a Python interface to query Wikidata (RDF).
 
 * KIF queries are written in the KIF pattern language, a high-level query
   language based on [Wikidata's data
   model](https://www.wikidata.org/wiki/Wikidata:Data_model).
 
-* KIF can also be used to query other knowledge sources as if they were
-  Wikidata—provided proper mappings are given.
+* KIF can be used to query knowledge sources other than Wikidata,
+  provided proper SPARQL mappings are given.
 
 * KIF comes with built-in mappings for [DBpedia](https://www.dbpedia.org/)
-  and [PubChem RDF](https://pubchem.ncbi.nlm.nih.gov/docs/rdf).  Other
-  mappings can be added as needed.
+  and [PubChem RDF](https://pubchem.ncbi.nlm.nih.gov/docs/rdf), but other
+  mappings can be added programmatically as needed.
 
 ### Hello world! ###
 
 Prints an arbitrary statement from [Wikidata](https://www.wikidata.org/):
 
 ```python
-from kif_lib import *      # import KIF namespacee
-kb = Store('wikidata')     # create a store pointing to Wikidata
-print(next(kb.filter()))   # obtain and print one arbitrary statement
+from kif_lib import *
+from kif_lib.compiler.sparql.mapping.wikidata import WikidataMapping
+kb = Store('sparql2', 'https://query.wikidata.org/sparql', WikidataMapping())
+print(next(kb.filter()))
 ```
 
-Prints an arbitrary (Wikidata-like) statement from
+Prints an arbitrary Wikidata-like statement from
 [DBpedia](https://www.dbpedia.org/):
 
 ```python
