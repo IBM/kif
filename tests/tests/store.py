@@ -313,13 +313,13 @@ class StoreTestCase(TestCase):
             TypeError, 9, 'language', None,
             kb.count, None, None, None, None, None, None, None, None, 0)
         self.assert_raises_bad_argument(
-            TypeError, 10, 'snak', None,
-            kb.count, None, None, None, None, None, None, None, None, None,
-            Item('x'))
-        self.assert_raises_bad_argument(
-            TypeError, 11, 'filter', None,
+            TypeError, 11, 'snak', None,
             kb.count, None, None, None, None, None, None, None, None, None,
             None, Item('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 12, 'filter', None,
+            kb.count, None, None, None, None, None, None, None, None, None,
+            None, None, Item('x'))
 
     def store_test_count_empty(self, kb):
         saved_flags = kb.flags
@@ -393,17 +393,17 @@ class StoreTestCase(TestCase):
             TypeError, 9, 'language', None,
             kb.filter, None, None, None, None, None, None, None, None, 0)
         self.assert_raises_bad_argument(
-            TypeError, 10, 'snak', None,
-            kb.filter, None, None, None, None, None, None, None, None, None,
-            Item('x'))
-        self.assert_raises_bad_argument(
-            TypeError, 11, 'filter', None,
+            TypeError, 11, 'snak', None,
             kb.filter, None, None, None, None, None, None, None, None, None,
             None, Item('x'))
         self.assert_raises_bad_argument(
-            TypeError, 12, 'limit', None, kb.filter, limit=Item('x'))
+            TypeError, 12, 'filter', None,
+            kb.filter, None, None, None, None, None, None, None, None, None,
+            None, None, Item('x'))
         self.assert_raises_bad_argument(
-            TypeError, 13, 'distinct', None, kb.filter, distinct=Item('x'))
+            TypeError, 13, 'limit', None, kb.filter, limit=Item('x'))
+        self.assert_raises_bad_argument(
+            TypeError, 14, 'distinct', None, kb.filter, distinct=Item('x'))
 
     def store_test_filter_empty(self, kb):
         saved_flags = kb.flags

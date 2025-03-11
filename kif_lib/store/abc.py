@@ -867,18 +867,6 @@ class Store(Set):
             arg, self.has_flags(self.DISTINCT), function, name, position)
         assert isinstance(distinct, bool)
         return distinct
-
-    def _as_annotated(
-            self,
-            arg: Any,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> bool:
-        annotated = KIF_Object._check_optional_arg_bool(
-            arg, False, function, name, position)
-        assert isinstance(annotated, bool)
-        return annotated
 
 # -- Set interface ---------------------------------------------------------
 
@@ -932,6 +920,7 @@ class Store(Set):
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             language: str | None = None,
+            annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None
     ) -> int:
@@ -946,6 +935,7 @@ class Store(Set):
            property_mask: Datatype mask.
            value_mask: Datatype mask.
            language: Language.
+           annotated: Annotated flag.
            snak: Snak.
            filter: Filter.
 
@@ -953,9 +943,19 @@ class Store(Set):
            The number of statements matching filter.
         """
         return self._count_tail(self._check_filter(
-            subject, property, value, snak_mask,
-            subject_mask, property_mask, value_mask, rank_mask, language,
-            snak, filter, self.count))
+            subject=subject,
+            property=property,
+            value=value,
+            snak_mask=snak_mask,
+            subject_mask=subject_mask,
+            property_mask=property_mask,
+            value_mask=value_mask,
+            rank_mask=rank_mask,
+            language=language,
+            annotated=annotated,
+            snak=snak,
+            filter=filter,
+            function=self.count))
 
     def _count_tail(self, filter: Filter) -> int:
         if filter.is_nonempty():
@@ -977,6 +977,7 @@ class Store(Set):
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             language: str | None = None,
+            annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             function: Location | None = None
@@ -1000,20 +1001,35 @@ class Store(Set):
         language = String.check(
             language, function, 'language', 9).content\
             if language is not None else None
+        annotated = bool(annotated)
         if filter is None:
             filter = Filter(
-                subject, property, value, snak_mask,
-                subject_mask, property_mask, value_mask,
-                rank_mask, language)
+                subject=subject,
+                property=property,
+                value=value,
+                snak_mask=snak_mask,
+                subject_mask=subject_mask,
+                property_mask=property_mask,
+                value_mask=value_mask,
+                rank_mask=rank_mask,
+                language=language,
+                annotated=annotated)
         else:
             filter = Filter.check(
-                filter, function, 'filter', 11).combine(Filter(
-                    subject, property, value, snak_mask,
-                    subject_mask, property_mask, value_mask,
-                    rank_mask, language))
+                filter, function, 'filter', 12).combine(Filter(
+                    subject=subject,
+                    property=property,
+                    value=value,
+                    snak_mask=snak_mask,
+                    subject_mask=subject_mask,
+                    property_mask=property_mask,
+                    value_mask=value_mask,
+                    rank_mask=rank_mask,
+                    language=language,
+                    annotated=annotated))
         if snak is not None:
             filter = filter.combine(Filter.from_snak(None, Snak.check(
-                snak, function, 'snak', 10)))
+                snak, function, 'snak', 11)))
         return self._normalize_filter(filter)
 
     def _normalize_filter(
@@ -1042,11 +1058,11 @@ class Store(Set):
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             language: str | None = None,
+            annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             limit: int | None = None,
-            distinct: bool | None = None,
-            annotated: bool | None = None
+            distinct: bool | None = None
     ) -> Iterator[Statement]:
         """Searches for statements matching filter.
 
@@ -1059,42 +1075,48 @@ class Store(Set):
            property_mask: Datatype mask.
            value_mask: Datatype mask.
            language: Language.
+           annotated: Annotated flag.
            snak: Snak.
            filter: Filter filter.
            limit: Limit (maximum number) of statements to return.
            distinct: Whether to skip duplicated matches.
-           annotated: Whether to fetch statement annotations.
 
         Returns:
            An iterator of statements matching filter.
         """
         filter = self._check_filter(
-            subject, property, value, snak_mask,
-            subject_mask, property_mask, value_mask, rank_mask,
-            language, snak, filter, self.filter)
-        limit = self._as_limit(limit, self.filter, 'limit', 12)
-        distinct = self._as_distinct(distinct, self.filter, 'distinct', 13)
-        annotated = self._as_annotated(
-            annotated, self.filter, 'annotated', 14)
-        return self._filter_with_hooks(filter, limit, distinct, annotated)
+            subject=subject,
+            property=property,
+            value=value,
+            snak_mask=snak_mask,
+            subject_mask=subject_mask,
+            property_mask=property_mask,
+            value_mask=value_mask,
+            rank_mask=rank_mask,
+            language=language,
+            annotated=annotated,
+            snak=snak,
+            filter=filter,
+            function=self.filter)
+        limit = self._as_limit(limit, self.filter, 'limit', 13)
+        distinct = self._as_distinct(distinct, self.filter, 'distinct', 14)
+        return self._filter_with_hooks(filter, limit, distinct)
 
     def _filter_with_hooks(
             self,
             filter: Filter,
             limit: int,
-            distinct: bool,
-            annotated: bool
+            distinct: bool
     ) -> Iterator[Statement]:
-        filter, limit, distinct, annotated, data = self._filter_pre_hook(
-            filter, limit, distinct, annotated)
+        filter, limit, distinct, data = self._filter_pre_hook(
+            filter, limit, distinct)
         it_in: Iterator[Statement]
         it_out: Iterator[Statement]
         if limit > 0 and filter.is_nonempty():
-            it_in = self._filter(filter, limit, distinct, annotated)
+            it_in = self._filter(filter, limit, distinct)
         else:
             it_in = iter(())
-        it_out = self._filter_post_hook(
-            filter, limit, distinct, annotated, data, it_in)
+        it_out = self._filter_post_hook(filter, limit, distinct, data, it_in)
         if distinct:
             it_out = itertools.unique_everseen(it_out)
         return itertools.islice(it_out, limit)
@@ -1103,17 +1125,15 @@ class Store(Set):
             self,
             filter: Filter,
             limit: int,
-            distinct: bool,
-            annotated: bool
-    ) -> tuple[Filter, int, bool, bool, Any]:
-        return filter, limit, distinct, annotated, None
+            distinct: bool
+    ) -> tuple[Filter, int, bool, Any]:
+        return filter, limit, distinct, None
 
     def _filter_post_hook(
             self,
             filter: Filter,
             limit: int,
             distinct: bool,
-            annotated: bool,
             data: Any,
             it: Iterator[Statement]
     ) -> Iterator[Statement]:
@@ -1123,8 +1143,7 @@ class Store(Set):
             self,
             filter: Filter,
             limit: int,
-            distinct: bool,
-            annotated: bool
+            distinct: bool
     ) -> Iterator[Statement]:
         return iter(())
 
@@ -1141,6 +1160,7 @@ class Store(Set):
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
             language: str | None = None,
+            annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             limit: int | None = None,
@@ -1157,6 +1177,7 @@ class Store(Set):
            property_mask: Datatype mask.
            value_mask: Datatype mask.
            language: Language.
+           annotated: Annotated flag (ignored).
            snak: Snak.
            filter: Filter.
            limit: Limit (maximum number) of statements to return.
@@ -1166,9 +1187,20 @@ class Store(Set):
            An iterator of annotated statements matching filter.
         """
         return cast(Iterator[AnnotatedStatement], self.filter(
-            subject, property, value, snak_mask,
-            subject_mask, property_mask, value_mask, rank_mask, language,
-            snak, filter, limit, distinct, True))
+            subject=subject,
+            property=property,
+            value=value,
+            snak_mask=snak_mask,
+            subject_mask=subject_mask,
+            property_mask=property_mask,
+            value_mask=value_mask,
+            rank_mask=rank_mask,
+            language=language,
+            annotated=True,     # force
+            snak=snak,
+            filter=filter,
+            limit=limit,
+            distinct=distinct))
 
     def get_annotations(
             self,

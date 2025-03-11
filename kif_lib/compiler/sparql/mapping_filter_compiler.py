@@ -138,10 +138,9 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             self,
             filter: Filter,
             mapping: SPARQL_Mapping,
-            annotated: bool | None = None,
             flags: SPARQL_FilterCompiler.Flags | None = None
     ) -> None:
-        super().__init__(filter, annotated, flags)
+        super().__init__(filter, flags)
         self._mapping = mapping
         self._entry_id_qvar = self.q.fresh_var()
         self._entry_subst = {}
@@ -765,7 +764,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             self,
             stmt: StatementTemplate | Statement
     ) -> SPARQL_Mapping.EntryPattern:
-        if self.annotated:
+        if self.filter.annotated:
             return stmt.annotate(
                 qualifiers=self._fresh_qualifier_record_variable(),
                 references=self._fresh_reference_record_set_variable(),

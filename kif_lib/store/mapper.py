@@ -91,7 +91,7 @@ class SPARQL_MapperStore(
 
     @override
     def _contains(self, filter: Filter) -> bool:
-        it = self._filter_with_hooks(filter, 1, False, False)
+        it = self._filter_with_hooks(filter, 1, False)
         try:
             next(it)
             return True
@@ -129,8 +129,7 @@ class SPARQL_MapperStore(
             self,
             filter: Filter,
             limit: int,
-            distinct: bool,
-            annotated: bool
+            distinct: bool
     ) -> Iterator[Statement]:
         assert limit > 0
         if filter.value.is_empty():
@@ -154,11 +153,9 @@ class SPARQL_MapperStore(
             self,
             filter: Filter,
             limit: int,
-            distinct: bool,
-            annotated: bool
-    ) -> tuple[Filter, int, bool, bool, Any]:
-        return self.mapping.filter_pre_hook(
-            self, filter, limit, distinct, annotated)
+            distinct: bool
+    ) -> tuple[Filter, int, bool, Any]:
+        return self.mapping.filter_pre_hook(self, filter, limit, distinct)
 
     @override
     def _filter_post_hook(
@@ -166,12 +163,11 @@ class SPARQL_MapperStore(
             filter: Filter,
             limit: int,
             distinct: bool,
-            annotated: bool,
             data: Any,
             it: Iterator[Statement]
     ) -> Iterator[Statement]:
         return self.mapping.filter_post_hook(
-            self, filter, limit, distinct, annotated, data, it)
+            self, filter, limit, distinct, data, it)
 
     def _make_filter_query(
             self,

@@ -19,6 +19,7 @@ from kif_lib import (
     SnakSet,
     SomeValueSnak,
     Statement,
+    String,
     Text,
     Time,
     Variable,
@@ -115,6 +116,29 @@ class Test(KIF_ObjectTestCase):
     def test__init__(self) -> None:
         self.assertRaises(TypeError, Filter, {})
         self.assert_filter(Filter())
+        self.assert_filter(
+            Filter(
+                subject=Item('x'),
+                property=Property('y'),
+                value='z',
+                snak_mask=Filter.VALUE_SNAK,
+                subject_mask=Filter.ITEM,
+                property_mask=Filter.PROPERTY,
+                value_mask=Filter.STRING,
+                rank_mask=Filter.DEPRECATED,
+                language='fr',
+                annotated=True,
+            ),
+            subject=ValueFingerprint(Item('x')),
+            property=ValueFingerprint(Property('y')),
+            value=ValueFingerprint(String('z')),
+            snak_mask=Filter.VALUE_SNAK,
+            subject_mask=Filter.ITEM,
+            property_mask=Filter.PROPERTY,
+            value_mask=Filter.STRING,
+            rank_mask=Filter.DEPRECATED,
+            language='fr',
+            annotated=True)
 
     def test_is_empty(self) -> None:
         assert_type(Filter().is_empty(), bool)
@@ -298,6 +322,7 @@ class Test(KIF_ObjectTestCase):
             p.replace(p.KEEP, Item)(x, x)))
         self.assertFalse(Filter(snak_mask=Filter.SOME_VALUE_SNAK).match(
             p(x, x)))
+        self.assertFalse(Filter(value=EmptyFingerprint()).match((x, p, p)))
         self.assertFalse(Filter(value=x).match((x, SomeValueSnak(p))))
         self.assertFalse(Filter(value=x).match((x, p, p)))
         self.assertFalse(Filter(value=Quantity(0)).match((x, p, x)))

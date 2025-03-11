@@ -69,10 +69,9 @@ class SPARQL_Store2(
             self,
             filter: Filter,
             limit: int,
-            distinct: bool,
-            annotated: bool
+            distinct: bool
     ) -> Iterator[Statement]:
-        compiler = self._compile_filter(filter, annotated)
+        compiler = self._compile_filter(filter)
         assert limit >= 0
         page_size = min(self.page_size, limit)
         offset, count = 0, 0
@@ -113,13 +112,9 @@ class SPARQL_Store2(
     _compile_filter_flags: ClassVar[SPARQL_MappingFilterCompiler.Flags] =\
         SPARQL_MappingFilterCompiler.default_flags
 
-    def _compile_filter(
-            self,
-            filter: Filter,
-            annotated: bool
-    ) -> SPARQL_MappingFilterCompiler:
+    def _compile_filter(self, filter: Filter) -> SPARQL_MappingFilterCompiler:
         compiler = SPARQL_MappingFilterCompiler(
-            filter, self._mapping, annotated, self._compile_filter_flags)
+            filter, self._mapping, self._compile_filter_flags)
         if self.has_flags(self.DEBUG):
             compiler.set_flags(compiler.DEBUG)
         else:

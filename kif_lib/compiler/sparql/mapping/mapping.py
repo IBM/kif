@@ -316,9 +316,8 @@ class _Entry:
                     arg = self.preprocess(mapping, compiler, var, arg)
                     if var.name in kwargs:
                         ###
-                        # IMPORTANT: An assertion failure here
-                        # usually means the the entry patterns are
-                        # incorrectly specified.
+                        # IMPORTANT: An assertion failure here usually means
+                        # the entry patterns are incorrectly specified.
                         ###
                         assert theta[var] == val
                         assert kwargs[var.name] == arg

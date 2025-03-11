@@ -142,20 +142,18 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
             self,
             filter: Filter,
             limit: int,
-            distinct: bool,
-            annotated: bool
+            distinct: bool
     ) -> Iterator[Statement]:
         its = map(
             lambda kb: kb._filter_with_hooks(
-                filter, limit, distinct, annotated), self._sources)
-        return self._filter_mixed(list(its), limit, distinct, annotated)
+                filter, limit, distinct), self._sources)
+        return self._filter_mixed(list(its), limit, distinct)
 
     def _filter_mixed(
             self,
             its: Collection[Iterator[Statement]],
             limit: int,
-            distinct: bool,
-            annotated: bool
+            distinct: bool
     ) -> Iterator[Statement]:
         cyc = itertools.cycle(its)
         exausted: set[Iterator[Statement]] = set()

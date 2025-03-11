@@ -329,7 +329,7 @@ At line {line}, column {column}:
 
     @override
     def _contains(self, filter: Filter) -> bool:
-        compiler = self._compile_filter(filter, False)
+        compiler = self._compile_filter(filter)
         res = self._eval_select_query_string(
             str(compiler.query.ask()), fake_results=True)
         return res['boolean']
@@ -337,7 +337,7 @@ At line {line}, column {column}:
     @override
     def _count(self, filter: Filter) -> int:
         if not filter.is_full():
-            compiler = self._compile_filter(filter, False)
+            compiler = self._compile_filter(filter)
             q = compiler.query
         else:
             q = SPARQL_FilterCompiler.Query()
@@ -357,11 +357,10 @@ At line {line}, column {column}:
             self,
             filter: Filter,
             limit: int,
-            distinct: bool,
-            annotated: bool
+            distinct: bool
     ) -> Iterator[Statement]:
-        it = self._do_filter(filter, limit, distinct, annotated)
-        return self._do_get_annotations(it) if annotated else it
+        it = self._do_filter(filter, limit, distinct)
+        return self._do_get_annotations(it) if filter.annotated else it
 
     def _do_get_annotations(
             self,
@@ -379,10 +378,9 @@ At line {line}, column {column}:
             self,
             filter: Filter,
             limit: int,
-            distinct: bool,
-            annotated: bool
+            distinct: bool
     ) -> Iterator[Statement]:
-        compiler = self._compile_filter(filter, annotated)
+        compiler = self._compile_filter(filter)
         assert limit >= 0
         page_size = min(self.page_size, limit)
         offset, count = 0, 0
@@ -418,13 +416,8 @@ At line {line}, column {column}:
     _compile_filter_flags: ClassVar[SPARQL_FilterCompiler.Flags] =\
         SPARQL_FilterCompiler.default_flags
 
-    def _compile_filter(
-            self,
-            filter: Filter,
-            annotated: bool
-    ) -> SPARQL_FilterCompiler:
-        compiler = SPARQL_FilterCompiler(
-            filter, annotated, self._compile_filter_flags)
+    def _compile_filter(self, filter: Filter) -> SPARQL_FilterCompiler:
+        compiler = SPARQL_FilterCompiler(filter, self._compile_filter_flags)
         if self.has_flags(self.DEBUG):
             compiler.set_flags(compiler.DEBUG)
         else:

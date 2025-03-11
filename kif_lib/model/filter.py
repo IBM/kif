@@ -53,6 +53,7 @@ from .value import (
     TextDatatype,
     Time,
     TimeDatatype,
+    TTextLanguage,
     Value,
 )
 
@@ -63,14 +64,16 @@ class Filter(KIF_Object):
     """Filter specification.
 
     Parameters:
-       subject: Fingerprint.
-       property: Fingerprint.
-       value: Fingerprint.
+       subject: Subject fingerprint.
+       property: Property fingerprint.
+       value: Value fingerprint.
        snak_mask: Snak mask.
        subject_mask: Datatype mask.
        property_mask: Datatype mask.
        value_mask: Datatype mask.
+       rank_mask: Rank mask.
        language: Language.
+       annotated: Annotated flag.
     """
 
     class DatatypeMask(Flags):
@@ -494,12 +497,13 @@ class Filter(KIF_Object):
             property_mask: TDatatypeMask | None = None,
             value_mask: TDatatypeMask | None = None,
             rank_mask: TRankMask | None = None,
-            language: str | None = None
+            language: TTextLanguage | None = None,
+            annotated: bool | None = None
     ) -> None:
         super().__init__(
             subject, property, value, snak_mask,
             subject_mask, property_mask, value_mask,
-            rank_mask, language)
+            rank_mask, language, annotated)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -517,13 +521,15 @@ class Filter(KIF_Object):
         elif i == 7:            # value mask
             return self.DatatypeMask.check_optional(
                 arg, self.VALUE, type(self), None, i)
-        elif i == 8:
+        elif i == 8:            # rank mask
             return self.RankMask.check_optional(
                 arg, self.RankMask.ALL, type(self), None, i)
-        elif i == 9:
+        elif i == 9:            # language
             arg = String.check_optional(
                 arg, None, type(self), None, i)
             return arg.content if arg is not None else arg
+        elif i == 10:           # annotated
+            return bool(arg)
         else:
             raise self._should_not_get_here()
 
@@ -648,6 +654,21 @@ class Filter(KIF_Object):
         """
         return self.args[8]
 
+    @at_property
+    def annotated(self) -> bool:
+        """The annotated flag of filter."""
+        return self.get_annotated()
+
+    def get_annotated(self) -> bool:
+        """Gets the annotated flag of filter.
+
+        This flag determines whether to fetch statement annotations.
+
+        Returns:
+           Annotated flag.
+        """
+        return self.args[9]
+
     def is_full(self) -> bool:
         """Tests whether filter is full.
 
@@ -725,7 +746,8 @@ class Filter(KIF_Object):
             f1.property_mask & f2.property_mask,
             f1.value_mask & f2.value_mask,
             f1.rank_mask & f2.rank_mask,
-            language
+            language,
+            f1.annotated or f2.annotated
         ).normalize()
 
     def match(self, stmt: TStatement) -> bool:
@@ -779,7 +801,7 @@ class Filter(KIF_Object):
         return Filter(
             subject, property, value, snak_mask,
             subject_mask, property_mask, value_mask,
-            self.rank_mask, self.language)
+            self.rank_mask, self.language, self.annotated)
 
     def _unpack_legacy(
             self
