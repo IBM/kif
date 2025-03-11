@@ -875,61 +875,33 @@ At line {line}, column {column}:
         for entry in results.bindings:
             wds = entry.check_bnode_or_uriref('wds')
             rank = entry.check_rank('rank')
-            if 'pq' in entry and 'qvalue' in entry:
-                pq = entry.check_uriref('pq')
-                if not NS.Wikidata.is_wikidata_uri(pq):
-                    yield None
-                    continue    # ignore unexpected prefix
-                ns, name = NS.Wikidata.split_wikidata_uri(pq)
-                if ns == NS.PQN:
-                    yield None
-                    continue    # ignore normalized value
-                if ns != NS.PQ and ns != NS.PQV:
-                    yield None
-                    continue    # ignore unexpected prefix
-                if 'datatype' in entry['qvalue']:
-                    dt = entry['qvalue']['datatype']
-                    if (dt == str(NS.XSD.dateTime)
-                            or dt == str(NS.XSD.decimal)):
-                        yield None
-                        continue  # ignore simple value
-                prop = Property(NS.WD[name])
-                snak = entry.check_snak(
-                    prop, 'qvalue',
-                    'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
-                    'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
-                yield wds, rank, None, snak
-            elif 'pq' not in entry and 'qvalue' in entry:
-                qvalue = entry.check_uriref('qvalue')
-                if not NS.Wikidata.is_wikidata_uri(qvalue):
-                    yield None
-                    continue    # ignore unexpected prefix
-                ns, name = NS.Wikidata.split_wikidata_uri(qvalue)
-                if ns != NS.WDNO:
-                    yield None
-                    continue    # ignore unexpected prefix
-                prop = Property(NS.WD[name])
-                yield wds, rank, None, NoValueSnak(prop)
-            elif 'pr' in entry and 'rvalue' in entry and 'wdref' in entry:
-                wdref = entry.check_uriref('wdref')
-                pr = entry.check_uriref('pr')
-                ns, name = NS.Wikidata.split_wikidata_uri(pr)
-                if ns == NS.PRN:
-                    yield None
-                    continue    # ignore normalized value
-                if 'datatype' in entry['rvalue']:
-                    dt = entry['rvalue']['datatype']
-                    if (dt == str(NS.XSD.dateTime)
-                            or dt == str(NS.XSD.decimal)):
-                        yield None
-                        continue  # ignore simple value
-                prop = Property(NS.WD[name])
-                snak = entry.check_snak(
-                    prop, 'rvalue',
-                    'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
-                    'tm_value', 'tm_precision', 'tm_timezone', 'tm_calendar')
-                yield wds, rank, wdref, snak
-            else:
+            if 'prop' in entry and 'datatype' in entry:
+                prop = Property(
+                    entry['prop']['value'], entry['datatype']['value'])
+                if 'novalue' in entry:
+                    yield wds, rank, None, prop.no_value()
+                elif 'pq' in entry and 'qvalue' in entry:
+                    try:
+                        snak = entry.check_snak(
+                            prop, 'qvalue',
+                            'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
+                            'tm_value', 'tm_precision',
+                            'tm_timezone', 'tm_calendar')
+                        yield wds, rank, None, snak
+                    except TypeError:
+                        continue  # bad value
+                elif 'pr' in entry and 'rvalue' in entry and 'wdref' in entry:
+                    wdref = entry.check_uriref('wdref')
+                    try:
+                        snak = entry.check_snak(
+                            prop, 'rvalue',
+                            'qt_amount', 'qt_unit', 'qt_lower', 'qt_upper',
+                            'tm_value', 'tm_precision',
+                            'tm_timezone', 'tm_calendar')
+                        yield wds, rank, wdref, snak
+                    except TypeError:
+                        continue  # bad value
+            elif 'rank' in entry:
                 yield wds, rank, None, None
 
     def _make_get_annotations_query(
@@ -938,16 +910,23 @@ At line {line}, column {column}:
     ) -> SPARQL_Builder:
         q = SPARQL_Builder()
         t = q.vars_dict(
+            'datatype',
+            'novalue',
             'pq',
+            'pqv',
             'pr',
+            'prop',
+            'prv',
             'psv',
             'qt_amount',
             'qt_lower',
             'qt_unit',
             'qt_upper',
             'qvalue',
+            'qvalue_deep',
             'rank',
             'rvalue',
+            'rvalue_deep',
             'tm_calendar',
             'tm_precision',
             'tm_timezone',
@@ -963,31 +942,33 @@ At line {line}, column {column}:
                 values.push(cast(TTrm, wds))
         if self.has_flags(self.BEST_RANK):
             q.triple(t['wds'], NS.RDF.type, NS.WIKIBASE.BestRank)
-        q.optional_start()
         with q.union() as cup:
+            # Rank:
+            cup.branch()
+            q.triple(t['wds'], NS.WIKIBASE.rank, t['rank'])
             # Qualifiers:
             cup.branch()
             q.triple(t['wds'], t['pq'], t['qvalue'])
-            if self.has_flags(self.EARLY_FILTER):
-                q.filter(q.strstarts(q.str_(t['pq']), String(str(NS.PQ))))
+            q.triple(t['prop'], NS.WIKIBASE.qualifier, t['pq'])
+            q.triple(t['prop'], NS.WIKIBASE.qualifierValue, t['pqv'])
+            q.triple(t['prop'], NS.WIKIBASE.propertyType, t['datatype'])
             with q.optional():
                 self._push_deep_data_value(
-                    q, t, None, 'wds', 'pq', 'qvalue')
+                    q, t, None, 'wds', 'pqv', 'qvalue_deep')
             cup.branch()
-            q.triple(t['wds'], NS.RDF.type, t['qvalue'])
-            if self.has_flags(self.EARLY_FILTER):
-                q.filter(q.strstarts(
-                    q.str_(t['qvalue']), String(str(NS.WDNO))))
+            q.triple(t['wds'], NS.RDF.type, t['novalue'])
+            q.triple(t['prop'], NS.WIKIBASE.novalue, t['novalue'])
+            q.triple(t['prop'], NS.WIKIBASE.propertyType, t['datatype'])
             # References:
             cup.branch()
             q.triple(t['wds'], NS.PROV.wasDerivedFrom, t['wdref'])
             q.triple(t['wdref'], t['pr'], t['rvalue'])
-            if self.has_flags(self.EARLY_FILTER):
-                q.filter(q.strstarts(q.str_(t['pr']), String(str(NS.PR))))
+            q.triple(t['prop'], NS.WIKIBASE.reference, t['pr'])
+            q.triple(t['prop'], NS.WIKIBASE.referenceValue, t['prv'])
+            q.triple(t['prop'], NS.WIKIBASE.propertyType, t['datatype'])
             with q.optional():
                 self._push_deep_data_value(
-                    q, t, None, 'wdref', 'pr', 'rvalue')
-        q.optional_end()
+                    q, t, None, 'wdref', 'prv', 'rvalue_deep')
         q.where_end()
         return q
 

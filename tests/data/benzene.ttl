@@ -38,6 +38,88 @@ wd:P31
     wikibase:statementProperty ps:P31 ;
     wikibase:statementValue psv:P31 .
 
+# stated in
+wd:P248
+    a wikibase:Property ;
+    wikibase:claim p:P248 ;
+    wikibase:directClaim wdt:P248 ;
+    wikibase:novalue wdno:P248 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:qualifier pq:P248 ;
+    wikibase:qualifierValue pq:P248 ;
+    wikibase:reference pr:P248 ;
+    wikibase:referenceValue prv:P248 ;
+    wikibase:statementProperty ps:P248 ;
+    wikibase:statementValue psv:P248 .
+
+# language of work or name
+wd:P407
+    a wikibase:Property ;
+    wikibase:claim p:P407 ;
+    wikibase:directClaim wdt:P407 ;
+    wikibase:novalue wdno:P407 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:qualifier pq:P407 ;
+    wikibase:qualifierValue pq:P407 ;
+    wikibase:reference pr:P407 ;
+    wikibase:referenceValue prv:P407 ;
+    wikibase:statementProperty ps:P407 ;
+    wikibase:statementValue psv:P407 .
+
+# phase of matter
+wd:P515
+    a wikibase:Property ;
+    wikibase:claim p:P515 ;
+    wikibase:directClaim wdt:P515 ;
+    wikibase:novalue wdno:P515 ;
+    wikibase:propertyType wikibase:WikibaseItem ;
+    wikibase:qualifier pq:P515 ;
+    wikibase:qualifierValue pq:P515 ;
+    wikibase:statementProperty ps:P515 ;
+    wikibase:statementValue psv:P515 .
+
+# PubChem CID
+wd:P662
+    a wikibase:Property ;
+    wikibase:claim p:P662 ;
+    wikibase:directClaim wdt:P662 ;
+    wikibase:novalue wdno:P662 ;
+    wikibase:propertyType wikibase:ExternalId ;
+    wikibase:qualifier pq:P662 ;
+    wikibase:qualifierValue pq:P662 ;
+    wikibase:reference pr:P662 ;
+    wikibase:referenceValue prv:P662 ;
+    wikibase:statementProperty ps:P662 ;
+    wikibase:statementValue psv:P662 .
+
+# stated in
+wd:P813
+    a wikibase:Property ;
+    wikibase:claim p:P813 ;
+    wikibase:directClaim wdt:P813 ;
+    wikibase:novalue wdno:P813 ;
+    wikibase:propertyType wikibase:Time ;
+    wikibase:qualifier pq:P813 ;
+    wikibase:qualifierValue pq:P813 ;
+    wikibase:reference pr:P813 ;
+    wikibase:referenceValue prv:P813 ;
+    wikibase:statementProperty ps:P813 ;
+    wikibase:statementValue psv:P813 .
+
+# title
+wd:P1476
+    a wikibase:Property ;
+    wikibase:claim p:P1476 ;
+    wikibase:directClaim wdt:P1476 ;
+    wikibase:novalue wdno:P1476 ;
+    wikibase:propertyType wikibase:Monolingualtext ;
+    wikibase:qualifier pq:P1476 ;
+    wikibase:qualifierValue pq:P1476 ;
+    wikibase:reference pr:P1476 ;
+    wikibase:referenceValue prv:P1476 ;
+    wikibase:statementProperty ps:P1476 ;
+    wikibase:statementValue psv:P1476 .
+
 # related property
 wd:P1659
     a wikibase:Property ;
@@ -48,6 +130,20 @@ wd:P1659
     wikibase:statementProperty ps:P1659 ;
     wikibase:statementValue psv:P1659 .
 
+# HSDB ID
+wd:P2062
+    a wikibase:Property ;
+    wikibase:claim p:P2062 ;
+    wikibase:directClaim wdt:P2062 ;
+    wikibase:novalue wdno:P2062 ;
+    wikibase:propertyType wikibase:ExternalId ;
+    wikibase:qualifier pq:P2062 ;
+    wikibase:qualifierValue pq:P2062 ;
+    wikibase:reference pr:P2062 ;
+    wikibase:referenceValue prv:P2062 ;
+    wikibase:statementProperty ps:P2062 ;
+    wikibase:statementValue psv:P2062 .
+
 # mass
 wd:P2067
     a wikibase:Property ;
@@ -57,6 +153,18 @@ wd:P2067
     wikibase:propertyType wikibase:Quantity ;
     wikibase:statementProperty ps:P2067 ;
     wikibase:statementValue psv:P2067 .
+
+# temperature
+wd:P2076
+    a wikibase:Property ;
+    wikibase:claim p:P2076 ;
+    wikibase:directClaim wdt:P2076 ;
+    wikibase:novalue wdno:P2076 ;
+    wikibase:propertyType wikibase:Quantity ;
+    wikibase:qualifier pq:P2076 ;
+    wikibase:qualifierValue pqv:P2076 ;
+    wikibase:statementProperty ps:P2076 ;
+    wikibase:statementValue psv:P2076 .
 
 # density
 wd:P2054
@@ -154,6 +262,7 @@ wd:Q2270
             pr:P407 wd:Q1860 ;      # language of work or name - English
             pr:P662 "241" ;         # PubChem CID
             pr:P1476 "benzene"@en ; # title
+            pr:P813 "2016-10-19T00:00:00+00:00"^^xsd:dateTime ;
             prv:P813 [              # retrieved
                 a wikibase:TimeValue ;
                 wikibase:timeValue "2016-10-19T00:00:00+00:00"^^xsd:dateTime ;

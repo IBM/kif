@@ -350,13 +350,11 @@ class TestStoreSPARQL_SPARQL_Store(WikidataStoreTestCase):
             wd.Supercalifragilisticexpialidocious, String('tRFHXMQP-QU'))
         quals = list(get_qualifiers(stmt))
         self.assertEqual(len(quals), 1)
-        self.assert_some_value_snak(quals[0], wd.end_time.replace(
-            KIF_Object.KEEP, None))
+        self.assert_some_value_snak(quals[0], wd.end_time)
         # same thing with newer Wikidata
         quals = get_qualifiers(stmt)
         self.assertEqual(len(quals), 1)
-        self.assert_some_value_snak(quals[0], wd.end_time.replace(
-            KIF_Object.KEEP, None))
+        self.assert_some_value_snak(quals[0], wd.end_time)
         # statement is a no value
         stmt = Statement(wd.Germany, NoValueSnak(wd.speed_limit))
         quals = list(get_qualifiers(stmt))
@@ -372,8 +370,7 @@ class TestStoreSPARQL_SPARQL_Store(WikidataStoreTestCase):
         quals = list(filter(
             lambda q: isinstance(q, NoValueSnak), get_qualifiers(next(it))))
         self.assertEqual(len(quals), 1)
-        self.assert_no_value_snak(
-            quals[0], wd.P(1365).replace(KIF_Object.KEEP, None))
+        self.assert_no_value_snak(quals[0], wd.P(1365))
 
     def test_get_references(self) -> None:
         kb = self.new_Store()
@@ -415,8 +412,7 @@ class TestStoreSPARQL_SPARQL_Store(WikidataStoreTestCase):
         refs = sorted(list(get_references(stmt)))
         self.assertEqual(len(refs), 1)
         self.assertEqual(refs[0], ReferenceRecord(
-            wd.HSDB_ID.replace(KIF_Object.KEEP, String)(
-                '35#section=TSCA-Test-Submissions'),
+            wd.HSDB_ID('35#section=TSCA-Test-Submissions'),
             wd.stated_in(wd.Hazardous_Substances_Data_Bank)))
         ###
         # TODO: statement is a some value

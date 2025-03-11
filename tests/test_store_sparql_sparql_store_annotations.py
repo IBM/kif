@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import IRI, KIF_Object, Quantity, ReferenceRecord
+from kif_lib import IRI, Quantity, ReferenceRecord
 from kif_lib.vocabulary import wd
 
 from .tests import WikidataStoreTestCase
@@ -32,8 +32,7 @@ class TestStoreSPARQL_SPARQL_StoreAnnotations(WikidataStoreTestCase):
             wd.phase_of_matter(wd.liquid))
         self.assert_reference_record_set(
             annot[1], ReferenceRecord(
-                wd.HSDB_ID.replace(KIF_Object.KEEP, None)(
-                    '35#section=TSCA-Test-Submissions'),
+                wd.HSDB_ID('35#section=TSCA-Test-Submissions'),
                 wd.stated_in(wd.Hazardous_Substances_Data_Bank)))
         self.assert_normal_rank(annot[2])
 
