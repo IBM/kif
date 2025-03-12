@@ -1205,7 +1205,7 @@ class Store(Set):
     def get_annotations(
             self,
             stmts: Statement | Iterable[Statement]
-    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
+    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
         """Gets annotation records of statements.
 
         Parameters:
@@ -1221,7 +1221,7 @@ class Store(Set):
     def _get_annotations_tail(
             self,
             stmts: Statement | Iterable[Statement]
-    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
+    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
         if isinstance(stmts, Statement):
             it = self._get_annotations_with_hooks((stmts,))
         else:
@@ -1235,20 +1235,21 @@ class Store(Set):
 
     def _get_annotations_attach_extra_references(
             self,
-            it: Iterator[tuple[Statement, set[Statement.Annotation] | None]]
-    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
+            it: Iterator[tuple[
+                Statement, set[Statement.AnnotationTriple] | None]]
+    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
         for stmt, annots in it:
             if annots is None:
                 yield stmt, annots
             else:
-                def patch(a: Statement.Annotation):
+                def patch(a: Statement.AnnotationTriple):
                     return (a[0], a[1].union(self.extra_references), a[2])
                 yield stmt, set(map(patch, annots))
 
     def _get_annotations_with_hooks(
             self,
             stmts: Iterable[Statement]
-    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
+    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
         return self._get_annotations_post_hook(
             *self._get_annotations_pre_hook(stmts),
             self._get_annotations(stmts))
@@ -1263,14 +1264,15 @@ class Store(Set):
             self,
             stmts: Iterable[Statement],
             data: Any,
-            it: Iterator[tuple[Statement, set[Statement.Annotation] | None]]
-    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
+            it: Iterator[tuple[
+                Statement, set[Statement.AnnotationTriple] | None]]
+    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
         return it
 
     def _get_annotations(
             self,
             stmts: Iterable[Statement]
-    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
+    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
         return map(lambda stmt: (stmt, None), stmts)
 
 # -- Descriptors -----------------------------------------------------------

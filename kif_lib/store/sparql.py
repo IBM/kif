@@ -792,7 +792,7 @@ At line {line}, column {column}:
     def _get_annotations(
             self,
             stmts: Iterable[Statement]
-    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
+    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
         for batch in self._batched(stmts):
             wds_batch: list[T_WDS] = []
             stmt2wdss: dict[Statement, Set[T_WDS]] = {}

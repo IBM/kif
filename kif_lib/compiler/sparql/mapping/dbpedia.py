@@ -7,7 +7,7 @@ import functools
 import re
 
 from .... import itertools
-from ....model import Item, Property, Text, Variables
+from ....model import Item, Normal, Property, Text, Variables
 from ....namespace import OWL, RDF, RDFS, Wikidata
 from ....namespace.dbpedia import DBpedia
 from ....typing import Final, TypeAlias
@@ -73,21 +73,24 @@ class DBpediaMapping(M):
 
     @M.register(
         [wd.label(Item(e), Text(x, y))],
-        {e: CheckResource()})
+        {e: CheckResource()},
+        rank=Normal)
     def wd_label(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
         self._start_r(c, e)
         self._p_text(c, e, RDFS.label, x, y)
 
     @M.register(
         [wd.label(Property(e), Text(x, y))],
-        {e: CheckOntology()})
+        {e: CheckOntology()},
+        rank=Normal)
     def wd_label_op(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
         self._start_op(c, e)
         self._p_text(c, e, RDFS.label, x, y)
 
     @M.register(
         [wd.description(Item(e), Text(x, y))],
-        {e: CheckResource()})
+        {e: CheckResource()},
+        rank=Normal)
     def wd_description(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
         self._start_r(c, e)
         self._p_text(c, e, RDFS.comment, x, y)
@@ -96,7 +99,8 @@ class DBpediaMapping(M):
         [Property(p)(Item(x), Item(y))],
         {p: CheckOntology(),
          x: CheckResource(),
-         y: CheckResource()})
+         y: CheckResource()},
+        rank=Normal)
     def op_r_r(self, c: C, p: V_URI, x: V_URI, y: V_URI):
         self._start_r(c, x, y)
         self._start_op(c, p)
@@ -110,7 +114,8 @@ class DBpediaMapping(M):
         [Property(p)(Item(x), Item(y))],
         {p: CheckWikidataProperty(),
          x: CheckResource(),
-         y: CheckResource()})
+         y: CheckResource()},
+        rank=Normal)
     def p_r_r(self, c: C, p: V_URI, x: V_URI, y: V_URI):
         dbp = c.fresh_qvar()
         c.q.triples()((dbp, OWL.equivalentProperty, p))
@@ -123,7 +128,8 @@ class DBpediaMapping(M):
     @M.register(
         [wd.said_to_be_the_same_as(Item(x), Item(y))],
         {x: CheckResource(),
-         y: CheckWikidataItem()})
+         y: CheckWikidataItem()},
+        rank=Normal)
     def wd_said_to_be_the_same_as(self, c: C, x: V_URI, y: V_URI):
         self._start_r(c, x)
         c.q.triples()((x, OWL.sameAs, y))

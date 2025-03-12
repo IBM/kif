@@ -12,6 +12,7 @@ from ....model import (
     ExternalId,
     IRI,
     Item,
+    Normal,
     Quantity,
     String,
     Text,
@@ -162,7 +163,8 @@ class PubChemMapping(M):
 
     @M.register(
         [wd.instance_of(
-            pc.Isotope_Atom_Count, wd.Wikidata_property_related_to_chemistry)])
+            pc.Isotope_Atom_Count, wd.Wikidata_property_related_to_chemistry)],
+        rank=Normal)
     def collect(self, c: C):
         pass
 
@@ -170,7 +172,8 @@ class PubChemMapping(M):
 
     @M.register(
         [wd.label(Item(x), Text(y, 'en'))],
-        {x: CheckCompound()})
+        {x: CheckCompound()},
+        rank=Normal)
     def wd_label_compound(self, c: C, x: V_URI, y: VLiteral):
         attr = c.bnode()
         c.q.triples()(
@@ -181,7 +184,8 @@ class PubChemMapping(M):
     @M.register(
         [wd.canonical_SMILES(Item(x), String(y))],
         {x: CheckCompound(),
-         y: CheckCanonicalSMILES(set_language='en')})
+         y: CheckCanonicalSMILES(set_language='en')},
+        rank=Normal)
     def wd_canonical_SMILES(self, c: C, x: V_URI, y: VLiteral):
         attr = c.bnode()
         c.q.triples()(
@@ -191,8 +195,9 @@ class PubChemMapping(M):
 
     @M.register(
         [wd.CAS_Registry_Number(Item(x), ExternalId(y))],
-        {x: CheckCompound(),    # pre
-         y: CheckCAS_RegistryNumber()})
+        {x: CheckCompound(),
+         y: CheckCAS_RegistryNumber()},
+        rank=Normal)
     def wd_CAS_Registry_Number(self, c: C, x: V_URI, y: VLiteral):
         attr = c.bnode()
         c.q.triples()(
@@ -206,7 +211,8 @@ class PubChemMapping(M):
         [wd.ChEBI_ID(Item(x), ExternalId(y))],
         {x: CheckCompound(),    # pre
          y: CheckChEBI_ID() >> M.CheckStr(replace_prefix=('', 'CHEBI:'))},
-        {y: M.CheckLiteral(sub=(r'^(chebi|CHEBI):(\d+)$', r'\2'))})  # post
+        {y: M.CheckLiteral(sub=(r'^(chebi|CHEBI):(\d+)$', r'\2'))},  # post
+        rank=Normal)
     def wd_ChEBI_ID(self, c: C, x: V_URI, y: VLiteral):
         attr = c.bnode()
         c.q.triples()(
@@ -218,7 +224,8 @@ class PubChemMapping(M):
     @M.register(
         [wd.ChEMBL_ID(Item(x), ExternalId(y))],
         {x: CheckCompound(),
-         y: CheckChEMBL_ID()})
+         y: CheckChEMBL_ID()},
+        rank=Normal)
     def wd_ChEMBL_ID(self, c: C, x: V_URI, y: VLiteral):
         attr = c.bnode()
         c.q.triples()(
@@ -235,7 +242,8 @@ class PubChemMapping(M):
             replace_prefix=(Wikidata.WD, 'https://www.wikidata.org/wiki/'))},
         {y: M.CheckURI(         # post
             startswith='https://www.wikidata.org/wiki/',
-            replace_prefix=('https://www.wikidata.org/wiki/', Wikidata.WD))})
+            replace_prefix=('https://www.wikidata.org/wiki/', Wikidata.WD))},
+        rank=Normal)
     def wd_said_to_be_the_same_as(self, c: C, x: V_URI, y: V_URI):
         c.q.triples()(
             (x, SKOS.closeMatch, y))
@@ -245,7 +253,8 @@ class PubChemMapping(M):
     @M.register(
         [wd.has_part(Item(x), Item(y))],
         {x: CheckCompound(),
-         y: CheckCompound()})
+         y: CheckCompound()},
+        rank=Normal)
     def wd_has_part(self, c: C, x: V_URI, y: V_URI):
         c.q.triples()(
             (x, CHEMINF.has_component_with_uncharged_counterpart, y))
@@ -253,14 +262,16 @@ class PubChemMapping(M):
     @M.register(
         [wd.part_of(Item(x), Item(y))],
         {x: CheckCompound(),
-         y: CheckCompound()})
+         y: CheckCompound()},
+        rank=Normal)
     def wd_part_of(self, c: C, x: V_URI, y: V_URI):
         self.wd_has_part(c, y, x)
 
     @M.register(
         [wd.InChI(Item(x), ExternalId(y))],
         {x: CheckCompound(),
-         y: CheckInChI(set_language='en')})
+         y: CheckInChI(set_language='en')},
+        rank=Normal)
     def wd_InChI(self, c: C, x: V_URI, y: VLiteral):
         attr = c.bnode()
         c.q.triples()(
@@ -272,7 +283,8 @@ class PubChemMapping(M):
     @M.register(
         [wd.InChIKey(Item(x), ExternalId(y))],
         {x: CheckCompound(),
-         y: CheckInChIKey(set_language='en')})
+         y: CheckInChIKey(set_language='en')},
+        rank=Normal)
     def wd_InChIKey(self, c: C, x: V_URI, y: VLiteral):
         attr = c.bnode()
         c.q.triples()(
@@ -283,7 +295,8 @@ class PubChemMapping(M):
 
     @M.register(
         [wd.instance_of(Item(x), wd.type_of_a_chemical_entity)],
-        {x: CheckCompound()})
+        {x: CheckCompound()},
+        rank=Normal)
     def wd_instance_of_type_of_a_chemical_entity(self, c: C, x: V_URI):
         attr = c.bnode()
         c.q.triples()(
@@ -293,7 +306,8 @@ class PubChemMapping(M):
     @M.register(
         [pc.Isotope_Atom_Count(Item(x), Quantity(y))],
         {x: CheckCompound(),
-         y: M.CheckInt()})
+         y: M.CheckInt()},
+        rank=Normal)
     def pc_Isotope_Atom_Count(self, c: C, x: V_URI, y: VLiteral):
         attr = c.bnode()
         c.q.triples()(
@@ -305,7 +319,8 @@ class PubChemMapping(M):
     @M.register(
         [wd.isomeric_SMILES(Item(x), String(y))],
         {x: CheckCompound(),
-         y: M.CheckLiteral(set_language='en')})
+         y: M.CheckLiteral(set_language='en')},
+        rank=Normal)
     def wd_isomeric_SMILES(self, c: C, x: V_URI, y: VLiteral):
         attr = c.bnode()
         c.q.triples()(
@@ -315,7 +330,8 @@ class PubChemMapping(M):
 
     @M.register(
         [wd.legal_status_medicine(Item(x), wd.FDA_approved)],
-        {x: CheckCompound()})
+        {x: CheckCompound()},
+        rank=Normal)
     def wd_legal_status_medicine(self, c: C, x: V_URI):
         c.q.triples()(
             (x, RO.has_role, PubChem.VOCABULARY.FDAApprovedDrugs))
@@ -323,7 +339,8 @@ class PubChemMapping(M):
     @M.register(
         [wd.mass(Item(x), Quantity(y, wd.gram_per_mole))],
         {x: CheckCompound(),
-         y: M.CheckLiteral(set_datatype=XSD.float)})
+         y: M.CheckLiteral(set_datatype=XSD.float)},
+        rank=Normal)
     def wd_mass(self, c: C, x: V_URI, y: VLiteral):
         attr = c.bnode()
         c.q.triples()(
@@ -336,7 +353,8 @@ class PubChemMapping(M):
         [wd.manufacturer(Item(x), Item(y)),
          wd.material_produced(Item(y), Item(x))],
         {x: CheckCompound(),
-         y: CheckSource()})
+         y: CheckSource()},
+        rank=Normal)
     def wd_manufacturer(self, c: C, x: V_URI, y: V_URI):
         subst = c.bnode()
         c.q.triples()(
@@ -348,7 +366,8 @@ class PubChemMapping(M):
     @M.register(
         [wd.partition_coefficient_water_octanol(Item(x), Quantity(y))],
         {x: CheckCompound(),
-         y: M.CheckLiteral(set_datatype=XSD.float)})
+         y: M.CheckLiteral(set_datatype=XSD.float)},
+        rank=Normal)
     def wd_partition_coefficient_water_octanol(
             self,
             c: C,
@@ -365,7 +384,8 @@ class PubChemMapping(M):
     @M.register(
         [wd.PubChem_CID(Item(x), ExternalId(y))],
         {x: CheckCompound(),
-         y: CheckPubChemCID(set_language='en')})
+         y: CheckPubChemCID(set_language='en')},
+        rank=Normal)
     def wd_PubChem_CID(self, c: C, x: V_URI, y: VLiteral):
         attr = c.bnode()
         c.q.triples()(
@@ -376,7 +396,8 @@ class PubChemMapping(M):
     @M.register(
         [wd.stereoisomer_of(Item(x), Item(y))],
         {x: CheckCompound(),
-         y: CheckCompound()})
+         y: CheckCompound()},
+        rank=Normal)
     def wd_stereoisomer_of(self, c: C, x: V_URI, y: VLiteral):
         c.q.triples()(
             (x, CHEMINF.is_stereoisomer_of, y))
@@ -385,7 +406,8 @@ class PubChemMapping(M):
 
     @M.register(
         [wd.description(Item(x), Text(y, 'en'))],
-        {x: CheckPatent()})
+        {x: CheckPatent()},
+        rank=Normal)
     def wd_description_patent(self, c: C, x: V_URI, y: VLiteral):
         c.q.triples()(
             (x, RDF.type, PATENT.Publication),
@@ -393,7 +415,8 @@ class PubChemMapping(M):
 
     @M.register(
         [wd.author_name_string(Item(x), String(y))],
-        {x: CheckPatent()})
+        {x: CheckPatent()},
+        rank=Normal)
     def wd_author_name_string(self, c: C, x: V_URI, y: VLiteral):
         vcard = c.bnode()
         c.q.triples()(
@@ -403,7 +426,8 @@ class PubChemMapping(M):
 
     @M.register(
         [wd.instance_of(Item(x), wd.patent)],
-        {x: CheckPatent()})
+        {x: CheckPatent()},
+        rank=Normal)
     def wd_instance_of_patent(self, c: C, x: V_URI):
         c.q.triples()((x, RDF.type, PATENT.Publication))
 
@@ -411,7 +435,8 @@ class PubChemMapping(M):
         [wd.main_subject(Item(x), Item(y)),
          wd.described_by_source(Item(y), Item(x))],
         {x: CheckPatent(),
-         y: CheckCompound()})
+         y: CheckCompound()},
+        rank=Normal)
     def wd_main_subject(self, c: C, x: V_URI, y: V_URI):
         attr = c.bnode()
         c.q.triples()(
@@ -423,7 +448,8 @@ class PubChemMapping(M):
     @M.register(
         [wd.patent_number(Item(x), ExternalId(y))],
         {x: CheckPatent(),
-         y: CheckPatentNumber()})
+         y: CheckPatentNumber()},
+        rank=Normal)
     def wd_patent_number(self, c: C, x: V_URI, y: V_URI):
         c.q.triples()(
             (x, RDF.type, PATENT.Publication),
@@ -432,7 +458,8 @@ class PubChemMapping(M):
     @M.register(
         [wd.publication_date(
             Item(x), Time(y, Time.DAY, 0, wd.proleptic_Gregorian_calendar))],
-        {x: CheckPatent()})
+        {x: CheckPatent()},
+        rank=Normal)
     def wd_publication_date(self, c: C, x: V_URI, y: VLiteral):
         c.q.triples()(
             (x, RDF.type, PATENT.Publication),
@@ -442,7 +469,8 @@ class PubChemMapping(M):
         [wd.title(Item(x), Text(y, 'en')),
          wd.label(Item(x), Text(y, 'en'))],
         {x: CheckPatent(),
-         y: M.CheckLiteral()})
+         y: M.CheckLiteral()},
+        rank=Normal)
     def wd_title(self, c: C, x: V_URI, y: VLiteral):
         c.q.triples()(
             (x, RDF.type, PATENT.Publication),
@@ -452,7 +480,8 @@ class PubChemMapping(M):
 
     @M.register(
         [wd.label(Item(x), Text(y, 'en'))],
-        {x: CheckSource()})
+        {x: CheckSource()},
+        rank=Normal)
     def wd_label_source(self, c: C, x: V_URI, y: VLiteral):
         c.q.triples()(
             (x, RDF.type, DCT._NS['Dataset']),
@@ -460,7 +489,8 @@ class PubChemMapping(M):
 
     @M.register(
         [wd.alias(Item(x), Text(y, 'en'))],
-        {x: CheckSource()})
+        {x: CheckSource()},
+        rank=Normal)
     def wd_alias_source(self, c: C, x: V_URI, y: VLiteral):
         c.q.triples()(
             (x, RDF.type, DCT._NS['Dataset']),
@@ -468,7 +498,8 @@ class PubChemMapping(M):
 
     @M.register(
         [wd.instance_of(Item(x), wd.vendor)],
-        {x: CheckSource()})
+        {x: CheckSource()},
+        rank=Normal)
     def wd_instance_of_vendor(self, c: C, x: V_URI):
         c.q.triples()(
             (x, RDF.type, DCT._NS['Dataset']),
@@ -477,7 +508,8 @@ class PubChemMapping(M):
     @M.register(
         [wd.official_website(Item(x), IRI(y))],
         {x: CheckSource(),
-         y: WikidataMapping.CheckIRI()})
+         y: WikidataMapping.CheckIRI()},
+        rank=Normal)
     def wd_official_website(self, c: C, x: V_URI, y: V_URI):
         c.q.triples()(
             (x, RDF.type, DCT._NS['Dataset']),

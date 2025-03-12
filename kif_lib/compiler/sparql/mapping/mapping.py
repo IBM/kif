@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import copy
 import dataclasses
 import functools
 import re
@@ -14,12 +15,18 @@ from .... import itertools
 from ....context import Context
 from ....model import (
     KIF_Object,
+    QualifierRecord,
+    Rank,
+    ReferenceRecordSet,
     Statement,
     StatementTemplate,
     StatementVariable,
     Template,
     Term,
     Theta,
+    TQualifierRecord,
+    TRank,
+    TReferenceRecordSet,
     Variable,
     VStatement,
     VTStatement,
@@ -67,6 +74,9 @@ class _Entry:
     #: The callback-arg defaults map.
     default_map: SPARQL_Mapping.EntryCallbackArgDefaultMap
 
+    #: Annotations to be added to statement patterns.
+    annotations: Statement.Annotation | None
+
     #: The (compilation) callback of entry.
     callback: SPARQL_Mapping.EntryCallback
 
@@ -77,14 +87,37 @@ class _Entry:
             preprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap,
             postprocess_map: SPARQL_Mapping.EntryCallbackArgProcessorMap,
             default_map: SPARQL_Mapping.EntryCallbackArgDefaultMap,
+            annotations: Statement.Annotation | None,
             callback: SPARQL_Mapping.EntryCallback
     ) -> None:
         self.id = id
-        self.patterns = tuple(patterns)
+        self.patterns = self._init_patterns(patterns, annotations)
         self.preprocess_map, self.postprocess_map, self.default_map =\
             self._init_entry_callback_arg_maps(
                 preprocess_map, postprocess_map, default_map)
+        self.annotations = annotations
         self.callback = callback
+
+    def _init_patterns(
+            self,
+            patterns: Iterable[SPARQL_Mapping.EntryPattern],
+            annotations: Statement.Annotation | None
+    ) -> Sequence[SPARQL_Mapping.EntryPattern]:
+        if annotations is None:
+            return tuple(patterns)
+        else:
+            return tuple(self._init_patterns_with_annotations(
+                patterns, annotations))
+
+    def _init_patterns_with_annotations(
+            self,
+            patterns: Iterable[SPARQL_Mapping.EntryPattern],
+            annotations: Statement.Annotation
+    ) -> Iterable[SPARQL_Mapping.EntryPattern]:
+        for pat in patterns:
+            yield pat
+            if isinstance(pat, (Statement, StatementTemplate)):
+                yield pat.annotate(**annotations)
 
     def _init_entry_callback_arg_maps(
             self,
@@ -349,11 +382,12 @@ class _Entry:
            A copy of entry with its variables renamed.
         """
         tr = {v: v.rename(exclude, rename) for v in self.variables}
-        patterns = cast(Iterable[VStatement], list(map(
+        patterns = cast(Iterable[SPARQL_Mapping.EntryPattern], list(map(
             functools.partial(Term.instantiate, theta=tr), self.patterns)))
         pre = {tr[k]: v for k, v in self.preprocess_map.items()}
         post = {tr[k]: v for k, v in self.postprocess_map.items()}
         defs = {tr[k]: v for k, v in self.default_map.items()}
+        annots = copy.copy(self.annotations)
         ###
         # IMPORTANT: We need to rename the parameters of the original
         # callback.
@@ -363,7 +397,7 @@ class _Entry:
         def callback(*args: Any, **kwargs: Any) -> None:
             return self.callback(*args, **{
                 inv_tr_name[k]: v for k, v in kwargs.items()})
-        return type(self)(self.id, patterns, pre, post, defs, cast(
+        return type(self)(self.id, patterns, pre, post, defs, annots, cast(
             SPARQL_Mapping.EntryCallback, callback))
 
 
@@ -505,14 +539,15 @@ class SPARQL_Mapping(Sequence[_Entry]):
         SPARQL_Mapping.EntryCallbackArgProcessorMap,
         SPARQL_Mapping.EntryCallbackArgProcessorMap,
         SPARQL_Mapping.EntryCallbackArgDefaultMap,
+        Statement.Annotation | None,
         SPARQL_Mapping.EntryCallback
     ]]] = []
 
     @classmethod
     def __init_subclass__(cls) -> None:
         cls._entries = [
-            cls.Entry(id, pats, pre, post, defs, f)
-            for id, pats, pre, post, defs, f
+            cls.Entry(id, pats, pre, post, defs, annots, f)
+            for id, pats, pre, post, defs, annots, f
             in SPARQL_Mapping._scheduled_entries]
         SPARQL_Mapping._scheduled_entries = []
 
@@ -525,15 +560,21 @@ class SPARQL_Mapping(Sequence[_Entry]):
             postprocess:
             SPARQL_Mapping.EntryCallbackArgProcessorMap | None = None,
             defaults:
-            SPARQL_Mapping.EntryCallbackArgDefaultMap | None = None
+            SPARQL_Mapping.EntryCallbackArgDefaultMap | None = None,
+            qualifiers: TQualifierRecord | None = None,
+            references: TReferenceRecordSet | None = None,
+            rank: TRank | None = None
     ) -> Callable[..., Any]:
         """Decorator used to register a new entry into mapping.
 
         Parameters:
            patterns: Statements, statement templates, or statement variables.
-           preprocess: Callback-arg processor map.
-           postprocess: Callback-arg processor map.
+           preprocess: Callback-arg pre-processor map.
+           postprocess: Callback-arg post-processor map.
            defaults: Callback-arg default map.
+           qualifiers: Qualifiers to be added to statement patterns.
+           references: References to be added to statement patterns.
+           rank: Rank to be added to statement patterns.
 
         Returns:
            The wrapped callback.
@@ -567,6 +608,20 @@ class SPARQL_Mapping(Sequence[_Entry]):
         defs = KIF_Object._check_optional_arg_isinstance(
             defaults, Mapping, {}, cls.register, 'defaults', 4)
         assert defs is not None
+        qualifiers = QualifierRecord.check_optional(
+            qualifiers, None, cls.register, 'qualifiers', 5)
+        references = ReferenceRecordSet.check_optional(
+            references, None, cls.register, 'references', 6)
+        rank = Rank.check_optional(
+            rank, None, cls.register, 'rank', 7)
+        if qualifiers is None and references is None and rank is None:
+            annots: Optional[Statement.Annotation] = None
+        else:
+            annots = {
+                'qualifiers': qualifiers,
+                'references': references,
+                'rank': rank,
+            }
         ###
         # TODO: Rename variables in `patterns` to avoid conflicts.
         # (The input pattern might contain homonymous variables.)
@@ -574,7 +629,8 @@ class SPARQL_Mapping(Sequence[_Entry]):
 
         def wrapper(f):
             cls._scheduled_entries.append(
-                (len(cls._scheduled_entries), pats, pre, post, defs, f))
+                (len(cls._scheduled_entries),
+                 pats, pre, post, defs, annots, f))
             return f
         return wrapper
 

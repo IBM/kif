@@ -69,9 +69,9 @@ VTAnnotatedStatement: TypeAlias =\
 class _Annotation(TypedDict, total=False):
     """Statement annotation."""
 
-    qualifiers: VTQualifierRecord
-    references: VTReferenceRecordSet
-    rank: VTRank
+    qualifiers: VTQualifierRecord | None
+    references: VTReferenceRecordSet | None
+    rank: VTRank | None
     replace: bool
 
 
@@ -196,8 +196,12 @@ class Statement(
     template_class: ClassVar[type[StatementTemplate]]  # pyright: ignore
     variable_class: ClassVar[type[StatementVariable]]  # pyright: ignore
 
-    # Type alias of "annotation".
-    Annotation: TypeAlias = tuple[QualifierRecord, ReferenceRecordSet, Rank]
+    # Type alias for "annotation dictionary".
+    Annotation: TypeAlias = _Annotation
+
+    # Type alias for "annotation triple".
+    AnnotationTriple: TypeAlias =\
+        tuple[QualifierRecord, ReferenceRecordSet, Rank]
 
     @classmethod
     @override

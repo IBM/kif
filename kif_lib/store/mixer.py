@@ -181,15 +181,16 @@ class MixerStore(Store, store_name='mixer', store_description='Mixer store'):
     def _get_annotations(
             self,
             stmts: Iterable[Statement]
-    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
+    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
         return self._mix_get_x(
             stmts, None, lambda kb, b: kb._get_annotations_tail(b),
             self._get_annotations_mixed)
 
     def _get_annotations_mixed(
             self,
-            it: Iterator[tuple[Statement, set[Statement.Annotation] | None]],
-    ) -> tuple[Statement, set[Statement.Annotation] | None]:
+            it: Iterator[tuple[
+                Statement, set[Statement.AnnotationTriple] | None]],
+    ) -> tuple[Statement, set[Statement.AnnotationTriple] | None]:
         stmt, annots = next(it)
         for stmti, annotsi in it:
             assert stmt == stmti

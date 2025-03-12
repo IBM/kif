@@ -595,6 +595,7 @@ class SPARQL_Mapping(ABC):
             store: Store,
             stmts: Iterable[Statement],
             data: Any,
-            it: Iterator[tuple[Statement, set[Statement.Annotation] | None]]
-    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
+            it: Iterator[tuple[
+                Statement, set[Statement.AnnotationTriple] | None]]
+    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
         return it

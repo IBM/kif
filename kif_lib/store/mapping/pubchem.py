@@ -274,7 +274,7 @@ class PubChemMapping(SPARQL_Mapping):
     def _get_toxicity(
             cls,
             cids: Iterable[str]
-    ) -> Iterator[tuple[Statement, set[Statement.Annotation]]]:
+    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple]]]:
         import json
 
         import httpx
@@ -300,7 +300,7 @@ class PubChemMapping(SPARQL_Mapping):
     def _parse_toxicity(
             cls,
             response: Iterable[dict[str, Any]]
-    ) -> Iterator[tuple[Statement, set[Statement.Annotation]]]:
+    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple]]]:
         for entry in response:
             assert isinstance(entry, dict)
             try:
@@ -365,7 +365,7 @@ class PubChemMapping(SPARQL_Mapping):
                 'skin': wd.skin_absorption,
                 'subcutaneous': wd.subcutaneous_injection,
             }
-    ) -> set[Statement.Annotation]:
+    ) -> set[Statement.AnnotationTriple]:
         try:
             quals = []
             if 'effect' in entry:
@@ -395,8 +395,9 @@ class PubChemMapping(SPARQL_Mapping):
             store: Store,
             stmts: Iterable[Statement],
             data: Any,
-            it: Iterator[tuple[Statement, set[Statement.Annotation] | None]]
-    ) -> Iterator[tuple[Statement, set[Statement.Annotation] | None]]:
+            it: Iterator[tuple[
+                Statement, set[Statement.AnnotationTriple] | None]]
+    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
         for stmt, annots in it:
             if stmt.snak.property in cls._toxicity_properties_inv:
                 saved_annots = store._cache.get(stmt, 'annotations')
