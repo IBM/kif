@@ -90,6 +90,7 @@ class Symbol:
     GREATER_THAN: Final[str] = '>'
     GREATER_THAN_OR_EQUAL: Final[str] = '>='
     IF: Final[str] = 'IF'
+    INCLUDE: Final[str] = 'INCLUDE'
     INDENT: Final[str] = '  '
     IS_BLANK: Final[str] = 'isBlank'
     IS_LITERAL: Final[str] = 'isLiteral'
@@ -115,6 +116,7 @@ class Symbol:
     UNION: Final[str] = 'UNION'
     VALUES: Final[str] = 'VALUES'
     WHERE: Final[str] = 'WHERE'
+    WITH: Final[str] = 'WITH'
 
 
 class Coerce:
@@ -781,7 +783,8 @@ class GraphPattern(Pattern):
     def _iterencode(self, n: int) -> Iterator[str]:
         raise NotImplementedError
 
-    def _indent(self, n: int) -> str:
+    @classmethod
+    def _indent(cls, n: int) -> str:
         return Symbol.INDENT * n
 
 
@@ -817,6 +820,7 @@ class CommentsBlock(AtomicGraphPattern):
     def add_comment(self, comment: Comment) -> Comment:
         return cast(Comment, self._add(comment, self.comments))
 
+    @override
     def _push(self, pattern: Pattern) -> CommentsBlock:
         self.add_comment(cast(Comment, pattern))
         return self
@@ -855,6 +859,7 @@ class TriplesBlock(AtomicGraphPattern):
     def add_triple(self, triple: Triple) -> Triple:
         return cast(Triple, self._add(triple, self.triples))
 
+    @override
     def _push(self, pattern: Pattern) -> TriplesBlock:
         self.add_triple(cast(Triple, pattern))
         return self
@@ -871,9 +876,9 @@ class TriplesBlock(AtomicGraphPattern):
             yield '\n'
 
 
-# -- Values pattern --------------------------------------------------------
+# -- Values block ----------------------------------------------------------
 
-class ValuesBlock(GraphPattern):
+class ValuesBlock(AtomicGraphPattern):
     """VALUES block."""
 
     variables: Sequence[Variable]
@@ -902,8 +907,9 @@ class ValuesBlock(GraphPattern):
             raise ValueError('bad values line (not enough values)')
         return cast(ValuesLine, self._add(line, self.lines))
 
-    def _push(self, line: Pattern) -> ValuesBlock:
-        self.add_line(cast(ValuesLine, line))
+    @override
+    def _push(self, pattern: Pattern) -> ValuesBlock:
+        self.add_line(cast(ValuesLine, pattern))
         return self
 
     def push(self, *lines: TValuesLine) -> ValuesBlock:
@@ -924,6 +930,76 @@ class ValuesBlock(GraphPattern):
             yield '\n'
         yield self._indent(n)
         yield '}\n'
+
+
+# -- Sub-select block ------------------------------------------------------
+
+class SubSelectBlock(GraphPattern):
+    """Sub-select block."""
+
+    query: SelectQuery
+
+    def __init__(
+            self,
+            query: SelectQuery,
+            clause: Clause,
+            parent: GraphPattern | None = None
+    ) -> None:
+        super().__init__(clause, parent)
+        self.query = Coerce._check(query, SelectQuery)
+
+    def __call__(self) -> SubSelectBlock:
+        with self:
+            pass
+        return self
+
+    @override
+    def _iterencode(self, n: int) -> Iterator[str]:
+        yield from self._do_iterencode(self.query, n)
+
+    @classmethod
+    def _do_iterencode(cls, query: SelectQuery, n: int) -> Iterator[str]:
+        yield cls._indent(n)
+        yield '{\n'
+        for line in query.encode().splitlines():
+            yield cls._indent(n + 1)
+            yield line
+            yield '\n'
+        yield cls._indent(n)
+        yield '}\n'
+
+
+# -- Named sub-select block ------------------------------------------------
+
+class NamedSubSelectBlock(SubSelectBlock):
+    """Named sub-select block.
+
+    This is an extension supported by Blazegraph.
+
+    See <https://github.com/blazegraph/database/wiki/NamedSubquery>.
+    """
+
+    name: str
+
+    def __init__(
+            self,
+            name: str,
+            query: SelectQuery,
+            clause: Clause,
+            parent: GraphPattern | None = None
+    ) -> None:
+        super().__init__(query, clause, parent)
+        self.name = name
+        assert isinstance(clause, WhereClause)
+        clause.named_subselect_blocks.append(self)
+
+    @override
+    def _iterencode(self, n: int) -> Iterator[str]:
+        yield self._indent(n)
+        yield Symbol.INCLUDE
+        yield ' %'
+        yield str(self.name)
+        yield '\n'
 
 
 # -- Compound graph pattern ------------------------------------------------
@@ -1065,7 +1141,10 @@ class UnionGraphPattern(CompoundGraphPattern):
 class Clause(Encodable):
     """Abstract base class for clauses."""
 
+    #: Root graph pattern.
     root: GraphPattern
+
+    #: Current graph pattern.
     current: GraphPattern
 
     def __init__(self) -> None:
@@ -1158,8 +1237,23 @@ class SelectClause(Clause):
 class WhereClause(Clause):
     """WHERE clause."""
 
+    #: Named sub-select blocks.
+    named_subselect_blocks: list[NamedSubSelectBlock]
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.named_subselect_blocks = []
+
     @override
     def iterencode(self) -> Iterator[str]:
+        for nsb in self.named_subselect_blocks:
+            yield Symbol.WITH
+            yield ' '
+            yield from nsb._do_iterencode(nsb.query, 0)
+            yield Symbol.AS
+            yield ' %'
+            yield nsb.name
+            yield '\n'
         yield Symbol.WHERE
         yield ' '
         yield self.root.encode()
@@ -1527,6 +1621,26 @@ class Query(Encodable):
            :class:`ValuesBlock` owned by clause.
         """
         return ValuesBlock(*variables, clause=self.clause)
+
+    def subquery(self, query: SelectQuery) -> SubSelectBlock:
+        """Constructs a sub-select block.
+
+        Returns:
+           :class:`SubSelectBlock` owned by clause.
+        """
+        return SubSelectBlock(query, self.clause)
+
+    def named_subquery(
+            self,
+            name: _str,
+            query: SelectQuery
+    ) -> NamedSubSelectBlock:
+        """Constructs a named sub-select block.
+
+        Returns:
+           :class:`NamedSubSelectBlock` owned by clause.
+        """
+        return NamedSubSelectBlock(name, query, self.clause)
 
 # -- Compound graph patterns -----------------------------------------------
 
@@ -1665,7 +1779,7 @@ class Query(Encodable):
         """
         return self._limit.limit
 
-    def set_limit(self, limit: int | None):
+    def set_limit(self, limit: int | None) -> None:
         """Sets the value of the LIMIT modifier.
 
         Parameters:
@@ -1715,7 +1829,7 @@ class Query(Encodable):
         """
         return self._order_by.expression
 
-    def set_order_by(self, expression: TExpression | None):
+    def set_order_by(self, expression: TExpression | None) -> None:
         """Sets the value of the ORDER BY modifier.
 
         Parameters:
