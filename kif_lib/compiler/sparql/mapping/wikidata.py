@@ -300,23 +300,8 @@ class WikidataMapping(M):
         """
         return self._options
 
-    # @override
-    # def preamble(
-    #         self,
-    #         c: C,
-    #         sources: Iterable[M.EntryPattern]
-    # ) -> Iterable[M.EntryPattern]:
-    #     if c.filter.annotated:
-    #         return map(lambda s: Statement(s.subject, s.snak)
-    #                    if isinstance(s, (
-    #                            AnnotatedStatement,
-    #                            AnnotatedStatementTemplate)) else s, sources)
-    #     else:
-    #         return sources
-
     @override
     def postamble(self, c: C, targets: Iterable[M.EntryPattern]) -> None:
-        print('-- POSTAMBLE --')
         if not c.q.where_is_empty():
             subject_of_all_targets_is_fixed = all(map(lambda s: (
                 isinstance(s, (Statement, StatementTemplate))
