@@ -518,8 +518,7 @@ class SPARQL_Results(Mapping):
     def __str__(self) -> str:
         res = Result.parse(io.StringIO(json.dumps(dict(self))), format='json')
         out = res.serialize(
-            format='txt',
-            namespace_manager=Context.top().iris._nsm.namespaces())
+            format='txt', namespace_manager=Context.top().iris._nsm)
         assert out is not None
         return out.decode('utf-8')
 
