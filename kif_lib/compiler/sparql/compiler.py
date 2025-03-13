@@ -7,6 +7,7 @@ import abc
 import enum
 
 from ... import itertools
+from ...model.flags import Flags as KIF_Flags
 from ...model import (
     DatatypeVariable,
     IRI_Variable,
@@ -26,29 +27,29 @@ class SPARQL_Compiler(Compiler):
     class Query(SelectQuery):
         """Compiled SPARQL query."""
 
-    class Flags(enum.Flag):
+    class Flags(KIF_Flags):
         """Compilation flags."""
 
         #: Whether to generate debugging information.
-        DEBUG = enum.auto()
+        DEBUG = KIF_Flags.auto()
 
         #: Whether to match only the best ranked statements.
-        BEST_RANK = enum.auto()
+        BEST_RANK = KIF_Flags.auto()
 
         #: Whether to match value snaks.
-        VALUE_SNAK = enum.auto()
+        VALUE_SNAK = KIF_Flags.auto()
 
         #: Whether to match some-value snaks.
-        SOME_VALUE_SNAK = enum.auto()
+        SOME_VALUE_SNAK = KIF_Flags.auto()
 
         #: Whether to match no-value snaks.
-        NO_VALUE_SNAK = enum.auto()
+        NO_VALUE_SNAK = KIF_Flags.auto()
 
         #: Whether to push early filters.
-        EARLY_FILTER = enum.auto()
+        EARLY_FILTER = KIF_Flags.auto()
 
         #: Whether to use Wikidata RDF extensions.
-        WIKIDATA_EXTENSIONS = enum.auto()
+        WIKIDATA_EXTENSIONS = KIF_Flags.auto()
 
         #: All flags.
         ALL = (
@@ -62,7 +63,9 @@ class SPARQL_Compiler(Compiler):
 
     #: The default flags.
     default_flags: Final[Flags] = (
-        Flags.ALL & ~(Flags.DEBUG | Flags.WIKIDATA_EXTENSIONS))
+        Flags.ALL & ~(
+            Flags.DEBUG
+            | Flags.WIKIDATA_EXTENSIONS))
 
     DEBUG = Flags.DEBUG
     BEST_RANK = Flags.BEST_RANK

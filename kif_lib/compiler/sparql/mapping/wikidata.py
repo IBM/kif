@@ -9,6 +9,8 @@ import re
 from ....context import Section
 from ....model import (
     AliasProperty,
+    AnnotatedStatement,
+    AnnotatedStatementTemplate,
     Datatype,
     DescriptionProperty,
     ExternalId,
@@ -21,14 +23,19 @@ from ....model import (
     LemmaProperty,
     Lexeme,
     LexicalCategoryProperty,
+    NormalRank,
     Property,
+    QualifierRecord,
     Quantity,
+    ReferenceRecordSet,
     Statement,
     StatementTemplate,
     String,
     Term,
     Text,
+    Theta,
     Time,
+    Variable,
     Variables,
 )
 from ....namespace import (
@@ -41,7 +48,16 @@ from ....namespace import (
     WIKIBASE,
     Wikidata,
 )
-from ....typing import Any, ClassVar, Final, Iterable, override, TypeAlias
+from ....typing import (
+    Any,
+    ClassVar,
+    Final,
+    Iterable,
+    Iterator,
+    Mapping,
+    override,
+    TypeAlias,
+)
 from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler as C
 from .mapping import SPARQL_Mapping as M
 
@@ -60,7 +76,8 @@ V_URI: TypeAlias = C.Query.V_URI
 Var: TypeAlias = C.Query.Variable
 Var3: TypeAlias = tuple[Var, Var, Var]
 
-d, e, p, w, x, y, z = Variables(*'depwxyz')
+d, e, p, r, w, x, y, z = Variables(*'deprwxyz')
+As, Rs = Variables('As', 'Rs')
 
 
 @dataclasses.dataclass
@@ -68,8 +85,45 @@ class WikidataOptions(Section, name='wikidata'):
     """Wikidata SPARQL mapping options."""
 
     def __init__(self, **kwargs: Any) -> None:
+        self._init_blazegraph(kwargs)
         self._init_strict(kwargs)
         self._init_truthy(kwargs)
+
+    # -- blazegraph --
+
+    _v_blazegraph: ClassVar[tuple[str, bool | None]] =\
+        ('KIF_COMPILER_SPARQL_MAPPING_WIKIDATA_BLAZEGRAPH', None)
+
+    _blazegraph: bool | None
+
+    def _init_blazegraph(self, kwargs: dict[str, Any]) -> None:
+        self.blazegraph = kwargs.get(
+            '_blazegraph', self.getenv(*self._v_blazegraph))
+
+    @property
+    def blazegraph(self) -> bool:
+        """Whether to target Blazegraph (use named subqueries)."""
+        return self.get_blazegraph()
+
+    @blazegraph.setter
+    def blazegraph(self, blazegraph: bool | None) -> None:
+        self.set_blazegraph(blazegraph)
+
+    def get_blazegraph(self) -> bool:
+        """Gets the value of the blazegraph flag.
+
+        Returns:
+           Blazegraph flag value.
+        """
+        return bool(self._blazegraph)
+
+    def set_blazegraph(self, blazegraph: bool | None) -> None:
+        """Sets the value of the blazegraph flag.
+
+        Parameters:
+           blazegraph: Blazegraph flag value or ``None``.
+        """
+        self._blazegraph = bool(blazegraph)
 
     # -- strict --
 
@@ -155,6 +209,7 @@ class WikidataMapping(M):
     """Wikidata SPARQL mapping.
 
     Parameters:
+       blazegraph: Whether to target Blazegraph (use named subqueries).
        strict: Whether to be strict (assume full Wikidata compatibility).
        truthy: Truthy mask to be used in the filter compilation phase.
     """
@@ -219,11 +274,14 @@ class WikidataMapping(M):
 
     def __init__(
             self,
+            blazegraph: bool | None = None,
             strict: bool | None = None,
             truthy: Filter.TDatatypeMask | None = None
     ) -> None:
         self._options = dataclasses.replace(
             self.context.options.compiler.sparql.mapping.wikidata)
+        if blazegraph is not None:
+            self.options.set_blazegraph(blazegraph)
         if strict is not None:
             self.options.set_strict(strict)
         if truthy is not None:
@@ -242,18 +300,70 @@ class WikidataMapping(M):
         """
         return self._options
 
+    # @override
+    # def preamble(
+    #         self,
+    #         c: C,
+    #         sources: Iterable[M.EntryPattern]
+    # ) -> Iterable[M.EntryPattern]:
+    #     if c.filter.annotated:
+    #         return map(lambda s: Statement(s.subject, s.snak)
+    #                    if isinstance(s, (
+    #                            AnnotatedStatement,
+    #                            AnnotatedStatementTemplate)) else s, sources)
+    #     else:
+    #         return sources
+
     @override
     def postamble(self, c: C, targets: Iterable[M.EntryPattern]) -> None:
-        subject_of_all_targets_is_fixed = all(map(lambda s: (
-            isinstance(s, (Statement, StatementTemplate))
-            and Term.is_closed(s.subject)), targets))
-        if subject_of_all_targets_is_fixed:
-            ###
-            # IMPORTANT: We use ORDER BY(?wds) only if the subject of all
-            # target patterns is fixed.  We do this to ensure that the
-            # expected number of results is not too large.
-            ###
-            c.q.set_order_by(c.wds)
+        print('-- POSTAMBLE --')
+        if not c.q.where_is_empty():
+            subject_of_all_targets_is_fixed = all(map(lambda s: (
+                isinstance(s, (Statement, StatementTemplate))
+                and Term.is_closed(s.subject)), targets))
+            if subject_of_all_targets_is_fixed:
+                ###
+                # IMPORTANT: We use ORDER BY(?wds) only if the subject of all
+                # target patterns is fixed.  We do this to ensure that the
+                # expected number of results is not too large.
+                ###
+                c.q.set_order_by(c.wds)
+            if c.filter.annotated:
+                ###
+                # FIXME: Currently, we monkey-patch the compiler to wrap the
+                # un-annotated query into a subquery.  It's not pretty but
+                # works.
+                ###
+                subquery = c._q
+                c._q = c.Query()
+                c._q._fresh_var_counter = subquery._fresh_var_counter
+                if self.options.blazegraph:
+                    c.q.named_subquery('Q', subquery)()
+                else:
+                    c.q.subquery(subquery)()
+                c.q.triples()(
+                    (c.wds, WIKIBASE.rank, c.qvar('_rank')))
+
+    @override
+    def binding_to_theta(
+            self,
+            compiler: C,
+            binding: Mapping[str, dict[str, str]],
+            targets: Iterable[M.EntryPattern],
+            theta: Theta
+    ) -> Iterator[tuple[M.EntryPattern, Theta]]:
+        wds = compiler.wds
+        for target in targets:
+            if isinstance(target, AnnotatedStatementTemplate):
+                if isinstance(target.qualifiers, Variable):
+                    theta[target.qualifiers] = QualifierRecord()
+                if isinstance(target.references, Variable):
+                    theta[target.references] = ReferenceRecordSet()
+                if isinstance(target.rank, Variable):
+                    theta[target.rank] = NormalRank()
+                yield target, theta
+            else:
+                yield target, theta
 
     def _start_Q(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> Var3:
         t = self._start_any(c, e, p, dt)
@@ -698,7 +808,9 @@ class WikidataMapping(M):
     # -- quantity --
 
     @M.register(
-        [Statement(Item(e), Property(p)(Quantity(x, y@Item, z, w)))],
+        [Statement(Item(e), Property(p)(Quantity(x, y@Item, z, w))),
+         Statement(Item(e), Property(p)(Quantity(x, y@Item, z, w))).annotate(
+             As, Rs, r)],
         {e: CheckItem(),
          p: CheckProperty()},
         defaults={y: None, z: None, w: None})
@@ -710,7 +822,8 @@ class WikidataMapping(M):
             x: VLiteral,
             y: V_URI,
             z: VLiteral,
-            w: VLiteral
+            w: VLiteral,
+            **kwargs
     ):
         self._p_quantity(
             c, p, x, y, z, w, self._start_Q(c, e, p, WIKIBASE.Quantity))

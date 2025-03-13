@@ -344,8 +344,8 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
 
     @override
     def _push_filter(self, filter: Filter) -> None:
-        sources = list(self._filter_to_patterns(filter))
-        self.mapping.preamble(self, sources)
+        sources = list(self.mapping.preamble(
+            self, self._filter_to_patterns(filter)))
         all_targets: list[SPARQL_Mapping.EntryPattern] = []
         with self.q.union():
             for source in sources:
@@ -674,8 +674,13 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         assert isinstance(self.pattern, VariablePattern)
         assert isinstance(self.pattern.variable, StatementVariable)
         theta = self._entry_subst[id].instantiate(binding)
-        for target in self._entry_targets[id]:
+        it = self.mapping.binding_to_theta(
+            self, binding, self._entry_targets[id],
+            self._entry_subst[id].instantiate(binding))
+        for target, theta in it:
             yield {self.pattern.variable: target.instantiate(theta)}
+        # for target in self._entry_targets[id]:
+        #     yield {self.pattern.variable: target.instantiate(theta)}
 
     def _dict2term(self, t: dict[str, str]) -> Query.Term:
         assert 'type' in t

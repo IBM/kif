@@ -885,19 +885,23 @@ class SPARQL_Mapping(Sequence[_Entry]):
 
     def preamble(
             self,
-            c: Compiler,
+            compiler: Compiler,
             sources: Iterable[SPARQL_Mapping.EntryPattern]
-    ) -> None:
+    ) -> Iterable[SPARQL_Mapping.EntryPattern]:
         """Called before compilation starts.
 
         Parameters:
            compiler: Compiler.
            pattern: Source patterns.
+
+        Returns:
+           Source patterns.
         """
+        return sources
 
     def postamble(
             self,
-            c: Compiler,
+            compiler: Compiler,
             targets: Iterable[SPARQL_Mapping.EntryPattern]
     ) -> None:
         """Called after compilation ends.
@@ -906,6 +910,27 @@ class SPARQL_Mapping(Sequence[_Entry]):
            compiler: Compiler.
            targets: Target patterns.
         """
+
+    def binding_to_theta(
+            self,
+            compiler: Compiler,
+            binding: Mapping[str, dict[str, str]],
+            targets: Iterable[SPARQL_Mapping.EntryPattern],
+            theta: Theta
+    ) -> Iterator[tuple[SPARQL_Mapping.EntryPattern, Theta]]:
+        """Called to patch the theta generated from bindings for targets.
+
+        Parameters:
+           compiler: Compiler.
+           binding: SPARQL binding.
+           targets: Target patterns.
+           theta: Input theta.
+
+        Returns:
+           An iterator of (target,theta) pairs.
+        """
+        for target in targets:
+            yield target, theta
 
 
 register = SPARQL_Mapping.register
