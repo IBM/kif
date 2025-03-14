@@ -367,7 +367,7 @@ At line {line}, column {column}:
             self,
             it: Iterator[Statement]
     ) -> Iterator[AnnotatedStatement]:
-        for stmt, annots in self._get_annotations(it):
+        for stmt, annots in self._get_annotations_tail(it):
             assert annots is not None
             for annot in annots:
                 yield stmt.annotate(
