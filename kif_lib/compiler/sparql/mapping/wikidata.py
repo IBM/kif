@@ -9,8 +9,6 @@ import re
 from ....context import Section
 from ....model import (
     AliasProperty,
-    AnnotatedStatement,
-    AnnotatedStatementTemplate,
     Datatype,
     DescriptionProperty,
     ExternalId,
@@ -23,19 +21,14 @@ from ....model import (
     LemmaProperty,
     Lexeme,
     LexicalCategoryProperty,
-    NormalRank,
     Property,
-    QualifierRecord,
     Quantity,
-    ReferenceRecordSet,
     Statement,
     StatementTemplate,
     String,
     Term,
     Text,
-    Theta,
     Time,
-    Variable,
     Variables,
 )
 from ....namespace import (
@@ -48,16 +41,7 @@ from ....namespace import (
     WIKIBASE,
     Wikidata,
 )
-from ....typing import (
-    Any,
-    ClassVar,
-    Final,
-    Iterable,
-    Iterator,
-    Mapping,
-    override,
-    TypeAlias,
-)
+from ....typing import Any, ClassVar, Final, Iterable, override, TypeAlias
 from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler as C
 from .mapping import SPARQL_Mapping as M
 
@@ -301,7 +285,12 @@ class WikidataMapping(M):
         return self._options
 
     @override
-    def postamble(self, c: C, targets: Iterable[M.EntryPattern]) -> None:
+    def postamble(
+            self,
+            compiler: C,
+            targets: Iterable[M.EntryPattern]
+    ) -> None:
+        c = compiler
         if not c.q.where_is_empty():
             subject_of_all_targets_is_fixed = all(map(lambda s: (
                 isinstance(s, (Statement, StatementTemplate))
@@ -328,27 +317,6 @@ class WikidataMapping(M):
                     c.q.subquery(subquery)()
                 c.q.triples()(
                     (c.wds, WIKIBASE.rank, c.qvar('_rank')))
-
-    @override
-    def binding_to_theta(
-            self,
-            compiler: C,
-            binding: Mapping[str, dict[str, str]],
-            targets: Iterable[M.EntryPattern],
-            theta: Theta
-    ) -> Iterator[tuple[M.EntryPattern, Theta]]:
-        wds = compiler.wds
-        for target in targets:
-            if isinstance(target, AnnotatedStatementTemplate):
-                if isinstance(target.qualifiers, Variable):
-                    theta[target.qualifiers] = QualifierRecord()
-                if isinstance(target.references, Variable):
-                    theta[target.references] = ReferenceRecordSet()
-                if isinstance(target.rank, Variable):
-                    theta[target.rank] = NormalRank()
-                yield target, theta
-            else:
-                yield target, theta
 
     def _start_Q(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> Var3:
         t = self._start_any(c, e, p, dt)

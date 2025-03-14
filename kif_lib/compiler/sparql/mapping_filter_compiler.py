@@ -652,6 +652,35 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         vals = map(lambda line: tuple(map(lambda k: line[k], vars)), lines)
         self.q.values(*vars)(*vals)
 
+    class ResultBuilder:
+        compiler: SPARQL_MappingFilterCompiler
+        binding_counter: int
+        wds_counter: int
+        wds: str | None
+
+        def __init__(self, compiler: SPARQL_MappingFilterCompiler) -> None:
+            self.c = compiler
+            self.binding_counter = 0
+            self.wds_counter = 0
+            self.wds = None
+            self.wds_var = str(compiler.wds)
+
+        def push(
+                self,
+                binding: Mapping[str, dict[str, str]]
+        ) -> Iterable[Statement] | None:
+            if not binding:
+                return None
+            else:
+                it = self.c._binding_to_thetas(binding)
+                assert isinstance(self.c.pattern, VariablePattern)
+                assert isinstance(self.c.pattern.variable, StatementVariable)
+                return map(
+                    self.c.pattern.variable.instantiate, it)  # type: ignore
+
+    def _build_result(self) -> ResultBuilder:
+        return self.ResultBuilder(self)
+
     def _binding_to_thetas(
             self,
             binding: Mapping[str, dict[str, str]]
@@ -674,13 +703,8 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         assert isinstance(self.pattern, VariablePattern)
         assert isinstance(self.pattern.variable, StatementVariable)
         theta = self._entry_subst[id].instantiate(binding)
-        it = self.mapping.binding_to_theta(
-            self, binding, self._entry_targets[id],
-            self._entry_subst[id].instantiate(binding))
-        for target, theta in it:
+        for target in self._entry_targets[id]:
             yield {self.pattern.variable: target.instantiate(theta)}
-        # for target in self._entry_targets[id]:
-        #     yield {self.pattern.variable: target.instantiate(theta)}
 
     def _dict2term(self, t: dict[str, str]) -> Query.Term:
         assert 'type' in t

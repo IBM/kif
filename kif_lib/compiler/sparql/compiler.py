@@ -4,10 +4,8 @@
 from __future__ import annotations
 
 import abc
-import enum
 
 from ... import itertools
-from ...model.flags import Flags as KIF_Flags
 from ...model import (
     DatatypeVariable,
     IRI_Variable,
@@ -16,6 +14,7 @@ from ...model import (
     TimeVariable,
     Variable,
 )
+from ...model.flags import Flags as KIF_Flags
 from ...typing import Final, Iterator
 from ..compiler import Compiler
 from .builder import SelectQuery

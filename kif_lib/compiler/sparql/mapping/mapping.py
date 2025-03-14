@@ -911,26 +911,5 @@ class SPARQL_Mapping(Sequence[_Entry]):
            targets: Target patterns.
         """
 
-    def binding_to_theta(
-            self,
-            compiler: Compiler,
-            binding: Mapping[str, dict[str, str]],
-            targets: Iterable[SPARQL_Mapping.EntryPattern],
-            theta: Theta
-    ) -> Iterator[tuple[SPARQL_Mapping.EntryPattern, Theta]]:
-        """Called to patch the theta generated from bindings for targets.
-
-        Parameters:
-           compiler: Compiler.
-           binding: SPARQL binding.
-           targets: Target patterns.
-           theta: Input theta.
-
-        Returns:
-           An iterator of (target,theta) pairs.
-        """
-        for target in targets:
-            yield target, theta
-
 
 register = SPARQL_Mapping.register

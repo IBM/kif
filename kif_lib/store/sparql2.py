@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import logging
 
+from .. import itertools
 from ..compiler.sparql import SPARQL_Mapping, SPARQL_MappingFilterCompiler
 from ..model import (
     Filter,
@@ -86,19 +87,25 @@ class SPARQL_Store2(
             bindings = res['results']['bindings']
             if not bindings:
                 break           # done
-            for binding in bindings:
-                for theta in compiler._binding_to_thetas(binding):
-                    stmt = compiler.pattern.variable.instantiate(theta)
-                    assert isinstance(stmt, Statement), stmt
+            builder = compiler._build_result()
+            for binding in itertools.chain(bindings, {}):
+                ret = builder.push(binding)
+                if ret is None:
+                    continue    # push more results
+                for stmt in ret:
+                    # for theta in compiler._binding_to_thetas(binding):
+                    ###
+                    # stmt = compiler.pattern.variable.instantiate(theta)
+                    # assert isinstance(stmt, Statement), stmt
                     ###
                     # FIXME: Is this really needed?  It drops statements
                     # when property has ExternalId datatype and value is
                     # String.
                     ###
-                    if (self.has_flags(self.LATE_FILTER)
-                            and not filter.match(stmt)):
-                        LOG.debug('SKIPPED (late filter) %s', stmt)
-                        continue
+                    # if (self.has_flags(self.LATE_FILTER)
+                    #         and not filter.match(stmt)):
+                    #     LOG.debug('SKIPPED (late filter) %s', stmt)
+                    #     continue
                     self._cache_add_wds(stmt, NS.WDS[stmt.digest])
                     yield stmt
                     count += 1
