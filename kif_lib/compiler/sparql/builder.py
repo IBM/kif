@@ -947,6 +947,8 @@ class SubSelectBlock(GraphPattern):
     ) -> None:
         super().__init__(clause, parent)
         self.query = Coerce._check(query, SelectQuery)
+        assert isinstance(clause, WhereClause)
+        clause.subselect_blocks.append(self)
 
     def __call__(self) -> SubSelectBlock:
         with self:
@@ -990,8 +992,6 @@ class NamedSubSelectBlock(SubSelectBlock):
     ) -> None:
         super().__init__(query, clause, parent)
         self.name = name
-        assert isinstance(clause, WhereClause)
-        clause.named_subselect_blocks.append(self)
 
     @override
     def _iterencode(self, n: int) -> Iterator[str]:
@@ -1237,23 +1237,24 @@ class SelectClause(Clause):
 class WhereClause(Clause):
     """WHERE clause."""
 
-    #: Named sub-select blocks.
-    named_subselect_blocks: list[NamedSubSelectBlock]
+    #: Sub-select blocks.
+    subselect_blocks: list[SubSelectBlock]
 
     def __init__(self) -> None:
         super().__init__()
-        self.named_subselect_blocks = []
+        self.subselect_blocks = []
 
     @override
     def iterencode(self) -> Iterator[str]:
-        for nsb in self.named_subselect_blocks:
-            yield Symbol.WITH
-            yield ' '
-            yield from nsb._do_iterencode(nsb.query, 0)
-            yield Symbol.AS
-            yield ' %'
-            yield nsb.name
-            yield '\n'
+        for sb in self.subselect_blocks:
+            if isinstance(sb, NamedSubSelectBlock):
+                yield Symbol.WITH
+                yield ' '
+                yield from sb._do_iterencode(sb.query, 0)
+                yield Symbol.AS
+                yield ' %'
+                yield sb.name
+                yield '\n'
         yield Symbol.WHERE
         yield ' '
         yield self.root.encode()

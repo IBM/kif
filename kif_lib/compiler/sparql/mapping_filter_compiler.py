@@ -652,34 +652,37 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         vals = map(lambda line: tuple(map(lambda k: line[k], vars)), lines)
         self.q.values(*vars)(*vals)
 
-    class ResultBuilder:
-        compiler: SPARQL_MappingFilterCompiler
-        binding_counter: int
-        wds_counter: int
-        wds: str | None
+    def build_query(
+            self,
+            distinct: bool | None = None,
+            limit: int | None = None,
+            offset: int | None = None
+    ) -> Query:
+        """Constructs a filter query.
 
-        def __init__(self, compiler: SPARQL_MappingFilterCompiler) -> None:
-            self.c = compiler
-            self.binding_counter = 0
-            self.wds_counter = 0
-            self.wds = None
-            self.wds_var = str(compiler.wds)
+        Parameters:
+           distinct: Whether to enable the distinct modifier.
+           limit: Limit.
+           offset: Offset.
 
-        def push(
-                self,
-                binding: Mapping[str, dict[str, str]]
-        ) -> Iterable[Statement] | None:
-            if not binding:
-                return None
-            else:
-                it = self.c._binding_to_thetas(binding)
-                assert isinstance(self.c.pattern, VariablePattern)
-                assert isinstance(self.c.pattern.variable, StatementVariable)
-                return map(
-                    self.c.pattern.variable.instantiate, it)  # type: ignore
+        Returns:
+           Filter query.
+        """
+        assert self.frame['phase'] == self.DONE
+        return self.mapping.build_query(
+            self, distinct, limit, offset)
 
-    def _build_result(self) -> ResultBuilder:
-        return self.ResultBuilder(self)
+    def build_results(
+            self
+    ) -> Callable[[Mapping[str, dict[str, str]]],
+                  Iterable[Theta] | None]:
+        """Constructs a compilation result builder.
+
+        Returns:
+           A function to convert SPARQL bindings into variable
+           instantiations (thetas).
+        """
+        return self.mapping.build_results(self).push
 
     def _binding_to_thetas(
             self,

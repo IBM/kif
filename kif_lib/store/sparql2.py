@@ -73,11 +73,13 @@ class SPARQL_Store2(
             distinct: bool
     ) -> Iterator[Statement]:
         compiler = self._compile_filter(filter)
+        assert isinstance(compiler.pattern, VariablePattern)
+        assert isinstance(compiler.pattern.variable, StatementVariable)
         assert limit >= 0
         page_size = min(self.page_size, limit)
         offset, count = 0, 0
         while count <= limit:
-            query = compiler.query.select(
+            query = compiler.build_query(
                 limit=page_size, offset=offset, distinct=distinct)
             assert isinstance(compiler.pattern, VariablePattern)
             assert isinstance(compiler.pattern.variable, StatementVariable)
@@ -87,16 +89,14 @@ class SPARQL_Store2(
             bindings = res['results']['bindings']
             if not bindings:
                 break           # done
-            builder = compiler._build_result()
-            for binding in itertools.chain(bindings, {}):
-                ret = builder.push(binding)
+            push = compiler.build_results()
+            for binding in itertools.chain(bindings, ({},)):
+                ret = push(binding)
                 if ret is None:
                     continue    # push more results
-                for stmt in ret:
-                    # for theta in compiler._binding_to_thetas(binding):
-                    ###
-                    # stmt = compiler.pattern.variable.instantiate(theta)
-                    # assert isinstance(stmt, Statement), stmt
+                for theta in ret:
+                    stmt = compiler.pattern.variable.instantiate(theta)
+                    assert isinstance(stmt, Statement), stmt
                     ###
                     # FIXME: Is this really needed?  It drops statements
                     # when property has ExternalId datatype and value is
@@ -109,9 +109,8 @@ class SPARQL_Store2(
                     self._cache_add_wds(stmt, NS.WDS[stmt.digest])
                     yield stmt
                     count += 1
-            if len(bindings) < page_size:
-                break           # done
-            if count == limit:
+            assert count <= limit, (count, limit)
+            if count < page_size or count == limit:
                 break           # done
             offset += page_size
 

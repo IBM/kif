@@ -9,26 +9,45 @@ import re
 from ....context import Section
 from ....model import (
     AliasProperty,
+    AnnotatedStatement,
+    AnnotatedStatementTemplate,
     Datatype,
     DescriptionProperty,
     ExternalId,
     Filter,
     IRI,
+    IRI_Datatype,
     Item,
+    ItemDatatype,
     ItemVariable,
     LabelProperty,
     LanguageProperty,
     LemmaProperty,
     Lexeme,
+    LexemeDatatype,
     LexicalCategoryProperty,
     Property,
+    PropertyDatatype,
+    QualifierRecord,
     Quantity,
+    QuantityDatatype,
+    Rank,
+    ReferenceRecord,
+    ReferenceRecordSet,
+    Snak,
     Statement,
     StatementTemplate,
+    StatementVariable,
     String,
+    StringDatatype,
     Term,
     Text,
+    TextDatatype,
+    Theta,
     Time,
+    TimeDatatype,
+    Variable,
+    VariablePattern,
     Variables,
 )
 from ....namespace import (
@@ -41,7 +60,18 @@ from ....namespace import (
     WIKIBASE,
     Wikidata,
 )
-from ....typing import Any, ClassVar, Final, Iterable, override, TypeAlias
+from ....typing import (
+    Any,
+    cast,
+    ClassVar,
+    Final,
+    Iterable,
+    Iterator,
+    Mapping,
+    Optional,
+    override,
+    TypeAlias,
+)
 from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler as C
 from .mapping import SPARQL_Mapping as M
 
@@ -304,10 +334,10 @@ class WikidataMapping(M):
                 c.q.set_order_by(c.wds)
             if c.filter.annotated:
                 ###
-                # FIXME: Currently, we monkey-patch the compiler to wrap the
-                # un-annotated query into a subquery.  It's not pretty but
-                # works.
+                # FIXME: Monkey-patch the compiler to wrap the un-annotated
+                # query into a subquery.  It's not pretty but works.
                 ###
+                v = c.qvar
                 subquery = c._q
                 c._q = c.Query()
                 c._q._fresh_var_counter = subquery._fresh_var_counter
@@ -315,15 +345,261 @@ class WikidataMapping(M):
                     c.q.named_subquery('Q', subquery)()
                 else:
                     c.q.subquery(subquery)()
-                c.q.triples()(
-                    (c.wds, WIKIBASE.rank, c.qvar('_rank')))
+                with c.q.union():
+                    with c.q.group():
+                        c.q.triples()(
+                            (c.wds, WIKIBASE.rank, v('_rank')),
+                            (c.wds, v('_pq'), v('_qvalue')),
+                            (v('_qprop'), WIKIBASE.qualifier, v('_pq')),
+                            (v('_qprop'), WIKIBASE.qualifierValue, v('_pqv')),
+                            (v('_qprop'), WIKIBASE.propertyType,
+                             v('_qprop_dt')))
+                        with c.q.optional():  # value is a property
+                            c.q.triples()(
+                                (v('_qvalue'), WIKIBASE.propertyType,
+                                 v('_qvalue_dt')))
+                        with c.q.optional():  # value is deep
+                            wdv = v('_wdv')
+                            with c.q.union():
+                                with c.q.group():  # quantity
+                                    c.q.triples()(
+                                        (c.wds, v('_pqv'), wdv),
+                                        (wdv, RDF.type,
+                                         WIKIBASE.QuantityValue),
+                                        (wdv, WIKIBASE.quantityAmount,
+                                         v('_qvalue')))
+                                    with c.q.optional():
+                                        c.q.triples()(
+                                            (wdv, WIKIBASE.quantityUnit,
+                                             v('_qt_unit')))
+                                    with c.q.optional():
+                                        c.q.triples()(
+                                            (wdv, WIKIBASE.quantityLowerBound,
+                                             v('_qt_lower_bound')))
+                                    with c.q.optional():
+                                        c.q.triples()(
+                                            (wdv, WIKIBASE.quantityUpperBound,
+                                             v('_qt_upper_bound')))
+                                with c.q.group():  # time
+                                    c.q.triples()(
+                                        (c.wds, v('_pqv'), wdv),
+                                        (wdv, RDF.type, WIKIBASE.TimeValue),
+                                        (wdv, WIKIBASE.timeValue,
+                                         v('_qvalue')))
+                                    with c.q.optional():
+                                        c.q.triples()(
+                                            (wdv, WIKIBASE.timePrecision,
+                                             v('_tm_precision')))
+                                    with c.q.optional():
+                                        c.q.triples()(
+                                            (wdv, WIKIBASE.timeTimezone,
+                                             v('_tm_timezone')))
+                                    with c.q.optional():
+                                        c.q.triples()(
+                                            (wdv, WIKIBASE.timeCalendarModel,
+                                             v('_tm_calendar')))
+                    with c.q.group():
+                        c.q.triples()(
+                            (c.wds, WIKIBASE.rank, v('_rank')))
+
+    @override
+    def build_query(
+            self,
+            compiler: C,
+            distinct: bool | None = None,
+            limit: int | None = None,
+            offset: int | None = None
+    ) -> C.Query:
+        if not compiler.q.where.subselect_blocks:
+            return super().build_query(compiler, distinct, limit, offset)
+        else:
+            assert len(compiler.q.where.subselect_blocks) == 1
+            sb = compiler.q.where.subselect_blocks[0]
+            sb.query = sb.query.select(
+                distinct=distinct, limit=limit, offset=offset)
+            return compiler.q.select(  # type: ignore
+                distinct=True, limit=None, offset=None,
+                order_by=compiler.wds)
+
+    class ResultBuilder(M.ResultBuilder):
+
+        #: The current thetas.
+        cur_thetas: list[Theta] | None
+
+        #: The current wds.
+        cur_wds: str | None
+
+        #: The current qualifiers.
+        cur_qualifiers: list[Snak] | None
+
+        #: The current references indexed by wdref.
+        cur_references: dict[str, list[Snak]] | None
+
+        #: The current rank.
+        cur_rank: str | None
+
+        def __init__(self, mapping: M, compiler: C) -> None:
+            super().__init__(mapping, compiler)
+            self.cur_qualifiers = None
+            self.cur_references = None
+            self.cur_rank = None
+            self.cur_thetas = None
+            self.cur_wds = None
+
+        @override
+        def push(
+                self,
+                binding: Mapping[str, dict[str, str]]
+        ) -> Iterator[Theta]:
+            if self.cur_wds is None:
+                pat = self.c.pattern
+                assert isinstance(pat, VariablePattern)
+                assert isinstance(pat.variable, StatementVariable)
+                thetas = list(super().push(binding))
+                if all(map(Term.is_closed, map(
+                        lambda t: t[pat.variable], thetas))):
+                    yield from thetas
+                else:
+                    self._push_new_cur(binding, thetas)
+            else:
+                yield from self._push_annotated(binding)
+
+        def _push_new_cur(
+                self,
+                binding: Mapping[str, dict[str, str]],
+                thetas: list[Theta]
+        ) -> None:
+            self.cur_thetas = thetas
+            self.cur_wds = binding[str(self.c.wds)]['value']
+            self.cur_qualifiers = []
+            self.cur_references = {}
+            self.cur_rank = binding['_rank']['value']
+
+        def _push_annotated(
+                self,
+                binding: Mapping[str, dict[str, str]],
+                _q_spec: dict[str, str] = {
+                    'xprop': '_qprop',
+                    'xprop_dt': '_qprop_dt',
+                    'xvalue': '_qvalue',
+                    'xvalue_dt': '_qvalue_dt',
+                },
+                _r_spec: dict[str, str] = {
+                    'xprop': '_rprop',
+                    'xprop_dt': '_rprop_dt',
+                    'xvalue': 'rvalue',
+                    'xvalue_dt': '_rvalue_dt'
+                }
+        ) -> Iterator[Theta]:
+            if not binding:     # finished
+                # print('-- done:', self.cur_wds)
+                yield from self._push_annotated_emit()
+            else:
+                wds = binding[str(self.c.wds)]['value']
+                if wds != self.cur_wds:  # emit
+                    yield from self._push_annotated_emit()
+                    thetas = list(super().push(binding))
+                    self._push_new_cur(binding, thetas)
+                # print('-- collect:', self.cur_wds)
+                if '_qprop' in binding:  # qualifier
+                    assert self.cur_qualifiers is not None
+                    self.cur_qualifiers.append(
+                        self._push_annotated_check_snak(binding, _q_spec))
+
+        def _push_annotated_check_snak(
+                self,
+                binding: Mapping[str, dict[str, str]],
+                v: dict[str, str]
+        ) -> Snak:
+            dt = Datatype.check(binding[v['xprop_dt']]['value'])
+            prop = Property(binding[v['xprop']]['value'], dt)
+            value = binding[v['xvalue']]['value']
+            if isinstance(dt, ItemDatatype):
+                return prop(Item(value))
+            elif isinstance(dt, PropertyDatatype):
+                if v['xvalue_dt'] in binding:
+                    value_dt = Datatype.check(
+                        binding[v['xvalue_dt']]['value'])
+                else:
+                    value_dt = None
+                return prop(Property(value, value_dt))
+            elif isinstance(dt, LexemeDatatype):
+                return prop(Lexeme(value))
+            elif isinstance(dt, (IRI_Datatype, StringDatatype)):
+                return prop(value)
+            elif isinstance(dt, TextDatatype):
+                language = binding[v['xvalue']].get('xml:lang', None)
+                return prop(Text(value, language))
+            elif isinstance(dt, QuantityDatatype):
+                if '_qt_unit' in binding:
+                    unit = binding['_qt_unit']['value']
+                else:
+                    unit = None
+                if '_qt_lower_bound' in binding:
+                    lower_bound = binding['_qt_lower_bound']['value']
+                else:
+                    lower_bound = None
+                if '_qt_upper_bound' in binding:
+                    upper_bound = binding['_qt_upper_bound']['value']
+                else:
+                    upper_bound = None
+                return prop(Quantity(value, unit, lower_bound, upper_bound))
+            elif isinstance(dt, TimeDatatype):
+                if '_tm_precision' in binding:
+                    precision = binding['_tm_precision']['value']
+                else:
+                    precision = None
+                if '_tm_timezone' in binding:
+                    timezone = binding['_tm_timezone']['value']
+                else:
+                    timezone = None
+                if '_tm_calendar' in binding:
+                    calendar = binding['_tm_calendar']['value']
+                else:
+                    calendar = None
+                return prop(Time(value, precision, timezone, calendar))
+            else:
+                raise self.c._should_not_get_here()
+
+        def _push_annotated_emit(self) -> Iterator[Theta]:
+            assert self.cur_thetas is not None
+            # print('-- emit:', self.cur_wds)
+            return map(self._push_annotated_emit_helper, cast(
+                list[dict[Variable, Optional[Term]]], self.cur_thetas))
+
+        def _push_annotated_emit_helper(
+                self,
+                theta: dict[Variable, Term | None]
+        ) -> Theta:
+            pat = self.c.pattern
+            assert isinstance(pat, VariablePattern)
+            assert isinstance(pat.variable, StatementVariable)
+            assert self.cur_thetas is not None
+            target = theta[pat.variable]
+            assert isinstance(target, (
+                AnnotatedStatement, AnnotatedStatementTemplate))
+            quals = target.qualifiers
+            refs = target.references
+            rank = target.rank
+            if isinstance(quals, Variable):
+                assert self.cur_qualifiers is not None
+                theta[quals] = QualifierRecord.check(self.cur_qualifiers)
+            if isinstance(refs, Variable):
+                assert self.cur_references is not None
+                theta[refs] = ReferenceRecordSet.check(map(
+                    ReferenceRecord.check, self.cur_references.values()))
+            if isinstance(rank, Variable):
+                assert self.cur_rank is not None
+                theta[rank] = Rank.check(self.cur_rank)
+            theta[pat.variable] = target.instantiate(theta)
+            return theta
 
     def _start_Q(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> Var3:
         t = self._start_any(c, e, p, dt)
         self._start_Q_tail(c, e)
         return t
 
-    def _start_Q_tail(self, c: C, e: V_URI):
+    def _start_Q_tail(self, c: C, e: V_URI) -> None:
         if c.is_compiling_filter():
             c.q.triples()((e, WIKIBASE.sitelinks, c.q.bnode()))
 
@@ -332,7 +608,7 @@ class WikidataMapping(M):
         self._start_L_tail(c, e)
         return t
 
-    def _start_L_tail(self, c: C, e: V_URI):
+    def _start_L_tail(self, c: C, e: V_URI) -> None:
         if c.is_compiling_filter():
             c.q.triples()((e, RDF.type, ONTOLEX.LexicalEntry))
 
@@ -348,7 +624,7 @@ class WikidataMapping(M):
         self._start_P_tail(c, e, edt)
         return t
 
-    def _start_P_tail(self, c: C, e: V_URI, edt: V_URI):
+    def _start_P_tail(self, c: C, e: V_URI, edt: V_URI) -> None:
         if c.is_compiling_filter():
             c.q.triples()(
                 (e, RDF.type, WIKIBASE.Property),
@@ -373,7 +649,14 @@ class WikidataMapping(M):
     @M.register(
         [Statement(Item(e), LabelProperty()(Text(x, y)))],
         {e: CheckItem()})
-    def p_item_label(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
+    def p_item_label(
+            self,
+            c: C,
+            e: V_URI,
+            x: VLiteral,
+            y: VLiteral,
+            **kwargs
+    ) -> None:
         self._start_Q_tail(c, e)
         self._p_text_tail(c, RDFS.label, e, x, y)
 
@@ -387,8 +670,9 @@ class WikidataMapping(M):
             e: V_URI,
             d: V_URI,
             x: VLiteral,
-            y: VLiteral
-    ):
+            y: VLiteral,
+            **kwargs
+    ) -> None:
         self._start_P_tail(c, e, d)
         self._p_text_tail(c, RDFS.label, e, x, y)
 
@@ -397,7 +681,14 @@ class WikidataMapping(M):
     @M.register(
         [Statement(Item(e), AliasProperty()(Text(x, y)))],
         {e: CheckItem()})
-    def p_item_alias(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
+    def p_item_alias(
+            self,
+            c: C,
+            e: V_URI,
+            x: VLiteral,
+            y: VLiteral,
+            **kwargs
+    ) -> None:
         self._start_Q_tail(c, e)
         self._p_text_tail(c, SKOS.altLabel, e, x, y)
 
@@ -411,8 +702,9 @@ class WikidataMapping(M):
             e: V_URI,
             d: V_URI,
             x: VLiteral,
-            y: VLiteral
-    ):
+            y: VLiteral,
+            **kwargs
+    ) -> None:
         self._start_P_tail(c, e, d)
         self._p_text_tail(c, SKOS.altLabel, e, x, y)
 
@@ -421,7 +713,14 @@ class WikidataMapping(M):
     @M.register(
         [Statement(Item(e), DescriptionProperty()(Text(x, y)))],
         {e: CheckItem()})
-    def p_item_description(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
+    def p_item_description(
+            self,
+            c: C,
+            e: V_URI,
+            x: VLiteral,
+            y: VLiteral,
+            **kwargs
+    ) -> None:
         self._start_Q_tail(c, e)
         self._p_text_tail(c, SCHEMA.description, e, x, y)
 
@@ -435,8 +734,9 @@ class WikidataMapping(M):
             e: V_URI,
             d: V_URI,
             x: VLiteral,
-            y: VLiteral
-    ):
+            y: VLiteral,
+            **kwargs
+    ) -> None:
         self._start_P_tail(c, e, d)
         self._p_text_tail(c, SCHEMA.description, e, x, y)
 
@@ -445,7 +745,14 @@ class WikidataMapping(M):
     @M.register(
         [Statement(Lexeme(e), LemmaProperty()(Text(x, y)))],
         {e: CheckLexeme()})
-    def p_lexeme_lemma(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
+    def p_lexeme_lemma(
+            self,
+            c: C,
+            e: V_URI,
+            x: VLiteral,
+            y: VLiteral,
+            **kwargs
+    ) -> None:
         self._start_L_tail(c, e)
         self._p_text_tail(c, WIKIBASE.lemma, e, x, y)
 
@@ -453,7 +760,13 @@ class WikidataMapping(M):
         [Statement(Lexeme(e), LexicalCategoryProperty()(Item(x)))],
         {e: CheckLexeme(),
          x: CheckItem()})
-    def p_lexeme_lexical_category(self, c: C, e: V_URI, x: V_URI):
+    def p_lexeme_lexical_category(
+            self,
+            c: C,
+            e: V_URI,
+            x: V_URI,
+            **kwargs
+    ) -> None:
         self._start_L_tail(c, e)
         self._p_item_tail(c, WIKIBASE.lexicalCategory, e, x)
 
@@ -461,42 +774,76 @@ class WikidataMapping(M):
         [Statement(Lexeme(e), LanguageProperty()(Item(x)))],
         {e: CheckLexeme(),
          x: CheckItem()})
-    def p_lexeme_langauge(self, c: C, e: V_URI, x: V_URI):
+    def p_lexeme_langauge(
+            self,
+            c: C,
+            e: V_URI,
+            x: V_URI,
+            **kwargs
+    ) -> None:
         self._start_L_tail(c, e)
         self._p_item_tail(c, DCT.language, e, x)
 
     # -- item --
 
     @M.register(
-        [Statement(Item(e), Property(p)(Item(x)))],
+        [Statement(Item(e), Property(p)(Item(x))),
+         Statement(Item(e), Property(p)(Item(x))).annotate(
+             As, Rs, r)],
         {e: CheckItem(),
          p: CheckProperty(),
          x: CheckItem()})
-    def p_item_item(self, c: C, e: V_URI, p: V_URI, x: V_URI):
+    def p_item_item(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: V_URI,
+            **kwargs
+    ) -> None:
         self._p_item(c, p, x, self._start_Q(c, e, p, WIKIBASE.WikibaseItem))
 
     @M.register(
-        [Statement(Lexeme(e), Property(p)(Item(x)))],
+        [Statement(Lexeme(e), Property(p)(Item(x))),
+         Statement(Lexeme(e), Property(p)(Item(x))).annotate(
+             As, Rs, r)],
         {e: CheckLexeme(),
          p: CheckProperty(),
          x: CheckItem()})
-    def p_lexeme_item(self, c: C, e: V_URI, p: V_URI, x: V_URI):
+    def p_lexeme_item(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: V_URI,
+            **kwargs
+    ) -> None:
         self._p_item(c, p, x, self._start_L(c, e, p, WIKIBASE.WikibaseItem))
 
     @M.register(
-        [Statement(Property(e, d), Property(p)(Item(x)))],
+        [Statement(Property(e, d), Property(p)(Item(x))),
+         Statement(Property(e, d), Property(p)(Item(x))).annotate(
+             As, Rs, r)],
         {e: CheckProperty(),
          d: CheckDatatype(),
          p: CheckProperty(),
          x: CheckItem()})
-    def p_property_item(self, c: C, e: V_URI, d: V_URI, p: V_URI, x: V_URI):
+    def p_property_item(
+            self,
+            c: C,
+            e: V_URI,
+            d: V_URI,
+            p: V_URI,
+            x: V_URI,
+            **kwargs
+    ) -> None:
         self._p_item(c, p, x, self._start_P(c, e, d, p, WIKIBASE.WikibaseItem))
 
-    def _p_item(self, c: C, p: V_URI, x: V_URI, var3: Var3):
+    def _p_item(self, c: C, p: V_URI, x: V_URI, var3: Var3) -> None:
         _, ps, wds = var3
         self._p_item_tail(c, ps, wds, x)
 
-    def _p_item_tail(self, c: C, ps: V_URI, wds: V_URI, x: V_URI):
+    def _p_item_tail(self, c: C, ps: V_URI, wds: V_URI, x: V_URI) -> None:
         c.q.triples()(
             (wds, ps, x),
             (x, WIKIBASE.sitelinks, c.q.bnode()))
@@ -504,17 +851,28 @@ class WikidataMapping(M):
     # -- property --
 
     @M.register(
-        [Statement(Item(e), Property(p)(Property(x, y)))],
+        [Statement(Item(e), Property(p)(Property(x, y))),
+         Statement(Item(e), Property(p)(Property(x, y))).annotate(As, Rs, r)],
         {e: CheckItem(),
          p: CheckProperty(),
          x: CheckProperty(),
          y: CheckDatatype()})
-    def p_item_property(self, c: C, e: V_URI, p: V_URI, x: V_URI, y: V_URI):
+    def p_item_property(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: V_URI,
+            y: V_URI,
+            **kwargs
+    ) -> None:
         self._p_property(c, p, x, y, self._start_Q(
             c, e, p, WIKIBASE.WikibaseProperty))
 
     @M.register(
-        [Statement(Lexeme(e), Property(p)(Property(x, y)))],
+        [Statement(Lexeme(e), Property(p)(Property(x, y))),
+         Statement(Lexeme(e), Property(p)(Property(x, y))).annotate(
+             As, Rs, r)],
         {e: CheckLexeme(),
          p: CheckProperty(),
          x: CheckProperty(),
@@ -525,13 +883,16 @@ class WikidataMapping(M):
             e: V_URI,
             p: V_URI,
             x: V_URI,
-            y: V_URI
-    ):
+            y: V_URI,
+            **kwargs
+    ) -> None:
         self._p_property(c, p, x, y, self._start_L(
             c, e, p, WIKIBASE.WikibaseProperty))
 
     @M.register(
-        [Statement(Property(e, d), Property(p)(Property(x, y)))],
+        [Statement(Property(e, d), Property(p)(Property(x, y))),
+         Statement(Property(e, d), Property(p)(Property(x, y))).annotate(
+             As, Rs, r)],
         {e: CheckProperty(),
          d: CheckDatatype(),
          p: CheckProperty(),
@@ -544,12 +905,20 @@ class WikidataMapping(M):
             d: V_URI,
             p: V_URI,
             x: V_URI,
-            y: V_URI
-    ):
+            y: V_URI,
+            **kwargs
+    ) -> None:
         self._p_property(c, p, x, y, self._start_P(
             c, e, d, p, WIKIBASE.WikibaseProperty))
 
-    def _p_property(self, c: C, p: V_URI, x: V_URI, y: V_URI, var3: Var3):
+    def _p_property(
+            self,
+            c: C,
+            p: V_URI,
+            x: V_URI,
+            y: V_URI,
+            var3: Var3
+    ) -> None:
         _, ps, wds = var3
         c.q.triples()(
             (wds, ps, x),
@@ -559,34 +928,68 @@ class WikidataMapping(M):
     # -- lexeme --
 
     @M.register(
-        [Statement(Item(e), Property(p)(Lexeme(x)))],
+        [Statement(Item(e), Property(p)(Lexeme(x))),
+         Statement(Item(e), Property(p)(Lexeme(x))).annotate(
+             As, Rs, r)],
         {e: CheckItem(),
          p: CheckProperty(),
          x: CheckLexeme()})
-    def p_item_lexeme(self, c: C, e: V_URI, p: V_URI, x: V_URI):
+    def p_item_lexeme(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: V_URI,
+            **kwargs
+    ) -> None:
         self._p_lexeme(c, p, x, self._start_Q(
             c, e, p, WIKIBASE.WikibaseLexeme))
 
     @M.register(
-        [Statement(Lexeme(e), Property(p)(Lexeme(x)))],
+        [Statement(Lexeme(e), Property(p)(Lexeme(x))),
+         Statement(Lexeme(e), Property(p)(Lexeme(x))).annotate(
+             As, Rs, r)],
         {e: CheckLexeme(),
          p: CheckProperty(),
          x: CheckLexeme()})
-    def p_lexeme_lexeme(self, c: C, e: V_URI, p: V_URI, x: V_URI):
+    def p_lexeme_lexeme(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: V_URI,
+            **kwargs
+    ) -> None:
         self._p_lexeme(c, p, x, self._start_L(
             c, e, p, WIKIBASE.WikibaseLexeme))
 
     @M.register(
-        [Statement(Property(e, d), Property(p)(Lexeme(x)))],
+        [Statement(Property(e, d), Property(p)(Lexeme(x))),
+         Statement(Property(e, d), Property(p)(Lexeme(x))).annotate(
+             As, Rs, r)],
         {e: CheckProperty(),
          d: CheckDatatype(),
          p: CheckProperty(),
          x: CheckLexeme()})
-    def p_property_lexeme(self, c: C, e: V_URI, d: V_URI, p: V_URI, x: V_URI):
+    def p_property_lexeme(
+            self,
+            c: C,
+            e: V_URI,
+            d: V_URI,
+            p: V_URI,
+            x: V_URI,
+            **kwargs
+    ) -> None:
         self._p_lexeme(c, p, x, self._start_P(
             c, e, d, p, WIKIBASE.WikibaseLexeme))
 
-    def _p_lexeme(self, c: C, p: V_URI, x: V_URI, var3: Var3):
+    def _p_lexeme(
+            self,
+            c: C,
+            p: V_URI,
+            x: V_URI,
+            var3: Var3
+    ) -> None:
         _, ps, wds = var3
         c.q.triples()(
             (wds, ps, x),
@@ -595,31 +998,56 @@ class WikidataMapping(M):
     # -- iri --
 
     @M.register(
-        [Statement(Item(e), Property(p)(IRI(x)))],
+        [Statement(Item(e), Property(p)(IRI(x))),
+         Statement(Item(e), Property(p)(IRI(x))).annotate(As, Rs, r)],
         {e: CheckItem(),
          p: CheckProperty(),
          x: CheckIRI()})
-    def p_item_iri(self, c: C, e: V_URI, p: V_URI, x: V_URI):
+    def p_item_iri(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: V_URI,
+            **kwargs
+    ) -> None:
         self._p_iri(c, p, x, self._start_Q(c, e, p, WIKIBASE.Url))
 
     @M.register(
-        [Statement(Lexeme(e), Property(p)(IRI(x)))],
+        [Statement(Lexeme(e), Property(p)(IRI(x))),
+         Statement(Lexeme(e), Property(p)(IRI(x))).annotate(As, Rs, r)],
         {e: CheckItem(),
          p: CheckProperty(),
          x: CheckIRI()})
-    def p_lexeme_iri(self, c: C, e: V_URI, p: V_URI, x: V_URI):
+    def p_lexeme_iri(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: V_URI,
+            **kwargs
+    ) -> None:
         self._p_iri(c, p, x, self._start_L(c, e, p, WIKIBASE.Url))
 
     @M.register(
-        [Statement(Property(e, d), Property(p)(IRI(x)))],
+        [Statement(Property(e, d), Property(p)(IRI(x))),
+         Statement(Property(e, d), Property(p)(IRI(x))).annotate(As, Rs, r)],
         {e: CheckProperty(),
          d: CheckDatatype(),
          p: CheckProperty(),
          x: CheckIRI()})
-    def p_property_iri(self, c: C, e: V_URI, d: V_URI, p: V_URI, x: V_URI):
+    def p_property_iri(
+            self,
+            c: C,
+            e: V_URI,
+            d: V_URI,
+            p: V_URI,
+            x: V_URI,
+            **kwargs
+    ) -> None:
         self._p_iri(c, p, x, self._start_P(c, e, d, p, WIKIBASE.Url))
 
-    def _p_iri(self, c: C, p: V_URI, x: V_URI, var3: Var3):
+    def _p_iri(self, c: C, p: V_URI, x: V_URI, var3: Var3) -> None:
         _, ps, wds = var3
         c.q.triples()((wds, ps, x))
         if isinstance(x, Var):
@@ -628,15 +1056,27 @@ class WikidataMapping(M):
     # -- text --
 
     @M.register(
-        [Statement(Item(e), Property(p)(Text(x, y)))],
+        [Statement(Item(e), Property(p)(Text(x, y))),
+         Statement(Item(e), Property(p)(Text(x, y))).annotate(
+             As, Rs, r)],
         {e: CheckItem(),
          p: CheckProperty()})
-    def p_item_text(self, c: C, e: V_URI, p: V_URI, x: VLiteral, y: VLiteral):
+    def p_item_text(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: VLiteral,
+            y: VLiteral,
+            **kwargs
+    ) -> None:
         self._p_text(c, p, x, y, self._start_Q(
             c, e, p, WIKIBASE.Monolingualtext))
 
     @M.register(
-        [Statement(Lexeme(e), Property(p)(Text(x, y)))],
+        [Statement(Lexeme(e), Property(p)(Text(x, y))),
+         Statement(Lexeme(e), Property(p)(Text(x, y))).annotate(
+             As, Rs, r)],
         {e: CheckLexeme(),
          p: CheckProperty()})
     def p_lexeme_text(
@@ -645,13 +1085,16 @@ class WikidataMapping(M):
             e: V_URI,
             p: V_URI,
             x: VLiteral,
-            y: VLiteral
-    ):
+            y: VLiteral,
+            **kwargs
+    ) -> None:
         self._p_text(c, p, x, y, self._start_L(
             c, e, p, WIKIBASE.Monolingualtext))
 
     @M.register(
-        [Statement(Property(e, d), Property(p)(Text(x, y)))],
+        [Statement(Property(e, d), Property(p)(Text(x, y))),
+         Statement(Property(e, d), Property(p)(Text(x, y))).annotate(
+             As, Rs, r)],
         {e: CheckProperty(),
          d: CheckDatatype(),
          p: CheckProperty()})
@@ -662,12 +1105,20 @@ class WikidataMapping(M):
             d: V_URI,
             p: V_URI,
             x: VLiteral,
-            y: VLiteral
-    ):
+            y: VLiteral,
+            **kwargs
+    ) -> None:
         self._p_text(c, p, x, y, self._start_P(
             c, e, d, p, WIKIBASE.Monolingualtext))
 
-    def _p_text(self, c: C, p: V_URI, x: VLiteral, y: VLiteral, var3: Var3):
+    def _p_text(
+            self,
+            c: C,
+            p: V_URI,
+            x: VLiteral,
+            y: VLiteral,
+            var3: Var3
+    ) -> None:
         _, ps, wds = var3
         self._p_text_tail(c, ps, wds, x, y)
 
@@ -678,7 +1129,7 @@ class WikidataMapping(M):
             wds: V_URI,
             x: VLiteral,
             y: VLiteral
-    ):
+    ) -> None:
         if isinstance(y, Var):
             c.q.triples()((wds, ps, x))
             c.q.bind(c.q.lang(x), y)
@@ -693,21 +1144,41 @@ class WikidataMapping(M):
     # -- string --
 
     @M.register(
-        [Statement(Item(e), Property(p)(String(x)))],
+        [Statement(Item(e), Property(p)(String(x))),
+         Statement(Item(e), Property(p)(String(x))).annotate(
+             As, Rs, r)],
         {e: CheckItem(),
          p: CheckProperty()})
-    def p_item_string(self, c: C, e: V_URI, p: V_URI, x: VLiteral):
+    def p_item_string(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: VLiteral,
+            **kwargs
+    ) -> None:
         self._p_string(c, p, x, self._start_Q(c, e, p, WIKIBASE.String))
 
     @M.register(
-        [Statement(Lexeme(e), Property(p)(String(x)))],
+        [Statement(Lexeme(e), Property(p)(String(x))),
+         Statement(Lexeme(e), Property(p)(String(x))).annotate(
+             As, Rs, r)],
         {e: CheckLexeme(),
          p: CheckProperty()})
-    def p_lexeme_string(self, c: C, e: V_URI, p: V_URI, x: VLiteral):
+    def p_lexeme_string(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: VLiteral,
+            **kwargs
+    ) -> None:
         self._p_string(c, p, x, self._start_L(c, e, p, WIKIBASE.String))
 
     @M.register(
-        [Statement(Property(e, d), Property(p)(String(x)))],
+        [Statement(Property(e, d), Property(p)(String(x))),
+         Statement(Property(e, d), Property(p)(String(x))).annotate(
+             As, Rs, r)],
         {e: CheckProperty(),
          d: CheckDatatype(),
          p: CheckProperty()})
@@ -717,11 +1188,12 @@ class WikidataMapping(M):
             e: V_URI,
             d: V_URI,
             p: V_URI,
-            x: VLiteral
-    ):
+            x: VLiteral,
+            **kwargs
+    ) -> None:
         self._p_string(c, p, x, self._start_P(c, e, d, p, WIKIBASE.String))
 
-    def _p_string(self, c: C, p: V_URI, x: VLiteral, var3: Var3):
+    def _p_string(self, c: C, p: V_URI, x: VLiteral, var3: Var3) -> None:
         _, ps, wds = var3
         c.q.triples()((wds, ps, x))
         c.q.filter(c.q.is_literal(x))
@@ -729,21 +1201,41 @@ class WikidataMapping(M):
     # -- external id --
 
     @M.register(
-        [Statement(Item(e), Property(p)(ExternalId(x)))],
+        [Statement(Item(e), Property(p)(ExternalId(x))),
+         Statement(Item(e), Property(p)(ExternalId(x))).annotate(
+             As, Rs, r)],
         {e: CheckItem(),
          p: CheckProperty()})
-    def p_item_external_id(self, c: C, e: V_URI, p: V_URI, x: VLiteral):
+    def p_item_external_id(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: VLiteral,
+            **kwargs
+    ) -> None:
         self._p_string(c, p, x, self._start_Q(c, e, p, WIKIBASE.ExternalId))
 
     @M.register(
-        [Statement(Lexeme(e), Property(p)(ExternalId(x)))],
+        [Statement(Lexeme(e), Property(p)(ExternalId(x))),
+         Statement(Lexeme(e), Property(p)(ExternalId(x))).annotate(
+             As, Rs, r)],
         {e: CheckLexeme(),
          p: CheckProperty()})
-    def p_lexeme_external_id(self, c: C, e: V_URI, p: V_URI, x: VLiteral):
+    def p_lexeme_external_id(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: VLiteral,
+            **kwargs
+    ) -> None:
         self._p_string(c, p, x, self._start_L(c, e, p, WIKIBASE.ExternalId))
 
     @M.register(
-        [Statement(Property(e, d), Property(p)(ExternalId(x)))],
+        [Statement(Property(e, d), Property(p)(ExternalId(x))),
+         Statement(Property(e, d), Property(p)(ExternalId(x))).annotate(
+             As, Rs, r)],
         {e: CheckProperty(),
          d: CheckDatatype(),
          p: CheckProperty()})
@@ -753,8 +1245,9 @@ class WikidataMapping(M):
             e: V_URI,
             d: V_URI,
             p: V_URI,
-            x: VLiteral
-    ):
+            x: VLiteral,
+            **kwargs
+    ) -> None:
         self._p_string(c, p, x, self._start_P(
             c, e, d, p, WIKIBASE.ExternalId))
 
@@ -777,12 +1270,14 @@ class WikidataMapping(M):
             z: VLiteral,
             w: VLiteral,
             **kwargs
-    ):
+    ) -> None:
         self._p_quantity(
             c, p, x, y, z, w, self._start_Q(c, e, p, WIKIBASE.Quantity))
 
     @M.register(
-        [Statement(Lexeme(e), Property(p)(Quantity(x, y@Item, z, w)))],
+        [Statement(Lexeme(e), Property(p)(Quantity(x, y@Item, z, w))),
+         Statement(Lexeme(e), Property(p)(Quantity(
+             x, y@Item, z, w))).annotate(As, Rs, r)],
         {e: CheckLexeme(),
          p: CheckProperty()},
         defaults={y: None, z: None, w: None})
@@ -795,12 +1290,14 @@ class WikidataMapping(M):
             y: V_URI,
             z: VLiteral,
             w: VLiteral
-    ):
+    ) -> None:
         self._p_quantity(
             c, p, x, y, z, w, self._start_L(c, e, p, WIKIBASE.Quantity))
 
     @M.register(
-        [Statement(Property(e, d), Property(p)(Quantity(x, y@Item, z, w)))],
+        [Statement(Property(e, d), Property(p)(Quantity(x, y@Item, z, w))),
+         Statement(Property(e, d), Property(p)(Quantity(
+             x, y@Item, z, w))).annotate(As, Rs, r)],
         {e: CheckProperty(),
          d: CheckDatatype(),
          p: CheckProperty()},
@@ -814,8 +1311,9 @@ class WikidataMapping(M):
             x: VLiteral,
             y: V_URI,
             z: VLiteral,
-            w: VLiteral
-    ):
+            w: VLiteral,
+            **kwargs
+    ) -> None:
         self._p_quantity(
             c, p, x, y, z, w, self._start_P(c, e, d, p, WIKIBASE.Quantity))
 
@@ -861,7 +1359,9 @@ class WikidataMapping(M):
     # -- time --
 
     @M.register(
-        [Statement(Item(e), Property(p)(Time(x, y, z, w@Item)))],
+        [Statement(Item(e), Property(p)(Time(x, y, z, w@Item))),
+         Statement(Item(e), Property(p)(Time(x, y, z, w@Item))).annotate(
+             As, Rs, r)],
         {e: CheckItem(),
          p: CheckProperty(),
          y: M.CheckInt(),
@@ -875,13 +1375,16 @@ class WikidataMapping(M):
             x: VLiteral,
             y: VLiteral,
             z: VLiteral,
-            w: V_URI
-    ):
+            w: V_URI,
+            **kwargs
+    ) -> None:
         self._p_time(
             c, p, x, y, z, w, self._start_Q(c, e, p, WIKIBASE.Time))
 
     @M.register(
-        [Statement(Lexeme(e), Property(p)(Time(x, y, z, w@Item)))],
+        [Statement(Lexeme(e), Property(p)(Time(x, y, z, w@Item))),
+         Statement(Lexeme(e), Property(p)(Time(x, y, z, w@Item))).annotate(
+             As, Rs, r)],
         {e: CheckLexeme(),
          p: CheckProperty(),
          y: M.CheckInt(),
@@ -895,13 +1398,16 @@ class WikidataMapping(M):
             x: VLiteral,
             y: VLiteral,
             z: VLiteral,
-            w: V_URI
-    ):
+            w: V_URI,
+            **kwargs
+    ) -> None:
         self._p_time(
             c, p, x, y, z, w, self._start_L(c, e, p, WIKIBASE.Time))
 
     @M.register(
-        [Statement(Property(e, d), Property(p)(Time(x, y, z, w@Item)))],
+        [Statement(Property(e, d), Property(p)(Time(x, y, z, w@Item))),
+         Statement(Property(e, d), Property(p)(Time(
+             x, y, z, w@Item))).annotate(As, Rs, r)],
         {e: CheckProperty(),
          d: CheckDatatype(),
          p: CheckProperty(),
@@ -917,8 +1423,9 @@ class WikidataMapping(M):
             x: VLiteral,
             y: VLiteral,
             z: VLiteral,
-            w: V_URI
-    ):
+            w: V_URI,
+            **kwargs
+    ) -> None:
         self._p_time(
             c, p, x, y, z, w, self._start_P(c, e, d, p, WIKIBASE.Time))
 
@@ -931,7 +1438,7 @@ class WikidataMapping(M):
             z: VLiteral,
             w: V_URI,
             var3: Var3
-    ):
+    ) -> None:
         _, ps, wds = var3
         psv, wdv = c.fresh_qvars(2)
         c.q.triples()(

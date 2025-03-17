@@ -891,7 +891,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
         """Called before compilation starts.
 
         Parameters:
-           compiler: Compiler.
+           compiler: SPARQL compiler.
            pattern: Source patterns.
 
         Returns:
@@ -907,9 +907,87 @@ class SPARQL_Mapping(Sequence[_Entry]):
         """Called after compilation ends.
 
         Parameters:
-           compiler: Compiler.
+           compiler: SPARQL compiler.
            targets: Target patterns.
         """
+
+    def build_query(
+            self,
+            compiler: Compiler,
+            distinct: bool | None = None,
+            limit: int | None = None,
+            offset: int | None = None
+    ) -> Compiler.Query:
+        """Constructs a filter query.
+
+        Parameters:
+           compiler: SPARQL compiler.
+           distinct: Whether to enable the distinct modifier.
+           limit: Limit.
+           offset: Offset.
+
+        Returns:
+           Filter query.
+        """
+        return compiler.q.select(    # type: ignore
+            distinct=distinct, limit=limit, offset=offset)
+
+    def build_results(
+            self,
+            compiler: Compiler
+    ) -> SPARQL_Mapping.ResultBuilder:
+        """Constructs a compilation result builder.
+
+        Parameters:
+           compiler: SPARQL compiler.
+
+        Returns:
+           Result builder.
+        """
+        return self.ResultBuilder(self, compiler)
+
+    class ResultBuilder:
+        """Result builder for SPARQL mapping.
+
+        Parameters:
+           mapping: SPARQL mapping.
+           compiler: SPARQL compiler.
+        """
+
+        #: The parent mapping.
+        mapping: SPARQL_Mapping
+
+        #: The SPARQL compiler.
+        compiler: Compiler
+
+        def __init__(
+                self,
+                mapping: SPARQL_Mapping,
+                compiler: Compiler
+        ) -> None:
+            self.mapping = mapping
+            self.compiler = compiler
+
+        @property
+        def c(self) -> Compiler:
+            return self.compiler
+
+        def push(
+                self,
+                binding: Mapping[str, dict[str, str]]
+        ) -> Iterator[Theta]:
+            """Pushes SPARQL binding into result builder.
+
+            Parameters:
+               binding: SPARQL binding.
+
+            Returns:
+               An iterator of thetas.
+            """
+            if binding:
+                return self.c._binding_to_thetas(binding)
+            else:
+                return iter(())
 
 
 register = SPARQL_Mapping.register
