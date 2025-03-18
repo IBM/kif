@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import dataclasses
+import functools
 import re
 
 from ....context import Section
@@ -26,6 +27,7 @@ from ....model import (
     Lexeme,
     LexemeDatatype,
     LexicalCategoryProperty,
+    NoValueSnak,
     Property,
     PropertyDatatype,
     QualifierRecord,
@@ -346,7 +348,7 @@ class WikidataMapping(M):
                 else:
                     c.q.subquery(subquery)()
                 with c.q.union():
-                    with c.q.group():
+                    with c.q.group():  # qualifiers
                         c.q.triples()(
                             (c.wds, WIKIBASE.rank, v('_rank')),
                             (c.wds, v('_pq'), v('_qvalue')),
@@ -398,7 +400,13 @@ class WikidataMapping(M):
                                         c.q.triples()(
                                             (wdv, WIKIBASE.timeCalendarModel,
                                              v('_tm_calendar')))
-                    with c.q.group():
+                    with c.q.group():  # qualifiers - no value
+                        c.q.triples()(
+                            (c.wds, RDF.type, v('_qnovalue')),
+                            (v('_qprop'), WIKIBASE.novalue, v('_qnovalue')),
+                            (v('_qprop'), WIKIBASE.propertyType,
+                             v('_qprop_dt')))
+                    with c.q.group():  # rank
                         c.q.triples()(
                             (c.wds, WIKIBASE.rank, v('_rank')))
 
@@ -483,12 +491,14 @@ class WikidataMapping(M):
                     'xprop_dt': '_qprop_dt',
                     'xvalue': '_qvalue',
                     'xvalue_dt': '_qvalue_dt',
+                    'xnovalue': '_qnovalue',
                 },
                 _r_spec: dict[str, str] = {
                     'xprop': '_rprop',
                     'xprop_dt': '_rprop_dt',
                     'xvalue': 'rvalue',
-                    'xvalue_dt': '_rvalue_dt'
+                    'xvalue_dt': '_rvalue_dt',
+                    'xnovalue': '_rnovalue',
                 }
         ) -> Iterator[Theta]:
             if not binding:     # finished
@@ -513,8 +523,12 @@ class WikidataMapping(M):
         ) -> Snak:
             dt = Datatype.check(binding[v['xprop_dt']]['value'])
             prop = Property(binding[v['xprop']]['value'], dt)
+            if v['xnovalue'] in binding:
+                return prop.no_value()
             value = binding[v['xvalue']]['value']
-            if isinstance(dt, ItemDatatype):
+            if Wikidata.is_wd_some_value(value):
+                return prop.some_value()
+            elif isinstance(dt, ItemDatatype):
                 return prop(Item(value))
             elif isinstance(dt, PropertyDatatype):
                 if v['xvalue_dt'] in binding:
@@ -575,23 +589,29 @@ class WikidataMapping(M):
             assert isinstance(pat, VariablePattern)
             assert isinstance(pat.variable, StatementVariable)
             assert self.cur_thetas is not None
-            target = theta[pat.variable]
-            assert isinstance(target, (
-                AnnotatedStatement, AnnotatedStatementTemplate))
-            quals = target.qualifiers
-            refs = target.references
-            rank = target.rank
-            if isinstance(quals, Variable):
+            stmt = theta[pat.variable]
+            assert isinstance(
+                stmt, (AnnotatedStatement, AnnotatedStatementTemplate))
+            if isinstance(stmt.qualifiers, Variable):
                 assert self.cur_qualifiers is not None
-                theta[quals] = QualifierRecord.check(self.cur_qualifiers)
-            if isinstance(refs, Variable):
+                quals = self.cur_qualifiers
+                if isinstance(stmt.snak, NoValueSnak):
+                    # Remove ambiguous no-value qualifier snak.
+                    quals = filter(lambda s: s != stmt.snak, quals)
+                theta[stmt.qualifiers] = QualifierRecord.check(quals)
+            if isinstance(stmt.references, Variable):
                 assert self.cur_references is not None
-                theta[refs] = ReferenceRecordSet.check(map(
-                    ReferenceRecord.check, self.cur_references.values()))
-            if isinstance(rank, Variable):
+                refs = self.cur_references.values()
+                if isinstance(stmt.snak, NoValueSnak):
+                    # Remove ambiguous no-value reference snak.
+                    refs = map(functools.partial(
+                        filter, lambda s: s != stmt.snak), refs)
+                theta[stmt.references] = ReferenceRecordSet.check(map(
+                    ReferenceRecord.check, refs))
+            if isinstance(stmt.rank, Variable):
                 assert self.cur_rank is not None
-                theta[rank] = Rank.check(self.cur_rank)
-            theta[pat.variable] = target.instantiate(theta)
+                theta[stmt.rank] = Rank.check(self.cur_rank)
+            theta[pat.variable] = stmt.instantiate(theta)
             return theta
 
     def _start_Q(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> Var3:
@@ -1470,23 +1490,42 @@ class WikidataMapping(M):
     # -- some value --
 
     @M.register(
-        [Statement(Item(e), Property(x, y).some_value())],
+        [Statement(Item(e), Property(x, y).some_value()),
+         Statement(Item(e), Property(x, y).some_value()).annotate(As, Rs, r)],
         {e: CheckItem(),
          x: CheckProperty(),
          y: CheckDatatype()})
-    def p_item_some_value(self, c: C, e: V_URI, x: V_URI, y: V_URI):
+    def p_item_some_value(
+            self,
+            c: C,
+            e: V_URI,
+            x: V_URI,
+            y: V_URI,
+            **kwargs
+    ) -> None:
         self._p_some_value(c, self._start_Q(c, e, x, y))
 
     @M.register(
-        [Statement(Lexeme(e), Property(x, y).some_value())],
+        [Statement(Lexeme(e), Property(x, y).some_value()),
+         Statement(Lexeme(e), Property(x, y).some_value()).annotate(
+             As, Rs, r)],
         {e: CheckLexeme(),
          x: CheckProperty(),
          y: CheckDatatype()})
-    def p_lexeme_some_value(self, c: C, e: V_URI, x: V_URI, y: V_URI):
+    def p_lexeme_some_value(
+            self,
+            c: C,
+            e: V_URI,
+            x: V_URI,
+            y: V_URI,
+            **kwargs
+    ) -> None:
         self._p_some_value(c, self._start_L(c, e, x, y))
 
     @M.register(
-        [Statement(Property(e, d), Property(x, y).some_value())],
+        [Statement(Property(e, d), Property(x, y).some_value()),
+         Statement(Property(e, d), Property(x, y).some_value()).annotate(
+             As, Rs, r)],
         {e: CheckProperty(),
          d: CheckDatatype(),
          x: CheckProperty(),
@@ -1497,11 +1536,12 @@ class WikidataMapping(M):
             e: V_URI,
             d: V_URI,
             x: V_URI,
-            y: V_URI
-    ):
+            y: V_URI,
+            **kwargs
+    ) -> None:
         self._p_some_value(c, self._start_P(c, e, d, x, y))
 
-    def _p_some_value(self, c: C, var3: Var3):
+    def _p_some_value(self, c: C, var3: Var3) -> None:
         _, ps, wds = var3
         some = c.fresh_qvar()
         c.q.triples()((wds, ps, some))
@@ -1518,23 +1558,43 @@ class WikidataMapping(M):
     # -- no value --
 
     @M.register(
-        [Statement(Item(e), Property(x, y).no_value())],
+        [Statement(Item(e), Property(x, y).no_value()),
+         Statement(Item(e), Property(x, y).no_value()).annotate(
+             As, Rs, r)],
         {e: CheckItem(),
          x: CheckProperty(),
          y: CheckDatatype()})
-    def p_item_no_value(self, c: C, e: V_URI, x: V_URI, y: V_URI):
+    def p_item_no_value(
+            self,
+            c: C,
+            e: V_URI,
+            x: V_URI,
+            y: V_URI,
+            **kwargs
+    ) -> None:
         self._p_no_value(c, x, y, self._start_Q(c, e, x, y))
 
     @M.register(
-        [Statement(Lexeme(e), Property(x, y).no_value())],
+        [Statement(Lexeme(e), Property(x, y).no_value()),
+         Statement(Lexeme(e), Property(x, y).no_value()).annotate(
+             As, Rs, r)],
         {e: CheckLexeme(),
          x: CheckProperty(),
          y: CheckDatatype()})
-    def p_lexeme_no_value(self, c: C, e: V_URI, x: V_URI, y: V_URI):
+    def p_lexeme_no_value(
+            self,
+            c: C,
+            e: V_URI,
+            x: V_URI,
+            y: V_URI,
+            **kwargs
+    ) -> None:
         self._p_no_value(c, x, y, self._start_L(c, e, x, y))
 
     @M.register(
-        [Statement(Property(e, d), Property(x, y).no_value())],
+        [Statement(Property(e, d), Property(x, y).no_value()),
+         Statement(Property(e, d), Property(x, y).no_value()).annotate(
+             As, Rs, r)],
         {e: CheckProperty(),
          d: CheckDatatype(),
          x: CheckProperty(),
@@ -1545,11 +1605,12 @@ class WikidataMapping(M):
             e: V_URI,
             d: V_URI,
             x: V_URI,
-            y: V_URI
-    ):
+            y: V_URI,
+            **kwargs
+    ) -> None:
         self._p_no_value(c, x, y, self._start_P(c, e, d, x, y))
 
-    def _p_no_value(self, c: C, x: V_URI, y: V_URI, var3: Var3):
+    def _p_no_value(self, c: C, x: V_URI, y: V_URI, var3: Var3) -> None:
         _, ps, wds = var3
         wdno = c.fresh_qvar()
         c.q.triples()(

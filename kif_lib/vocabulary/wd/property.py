@@ -89,6 +89,7 @@ ionization_energy = P(2260)
 isomeric_SMILES = P(2017)
 language_of_work_or_name = P(407)
 legal_status_medicine = P(3493)
+location = P(276)
 location_of_formation = P(740)
 lowest_point = P(1589)
 made_from_material = P(186)
@@ -281,6 +282,7 @@ __all__ = (
     'LC50',
     'LD50',
     'legal_status_medicine',
+    'location',
     'location_of_formation',
     'lowest_point',
     'made_from_material',
