@@ -350,6 +350,8 @@ class WikidataMapping(M):
                     c.q.subquery(subquery)()
                 with c.q.union():
                     self._postamble_push_annotations(c)  # qualifiers
+                    self._postamble_push_annotations(    # references
+                        c, references=True)
                     with c.q.group():  # rank
                         c.q.triples()(
                             (c.wds, WIKIBASE.rank, v('_rank')))
@@ -421,7 +423,10 @@ class WikidataMapping(M):
                                  v('_tm_calendar')))
         with c.q.group():  # qualifiers - no value
             c.q.triples()(
-                (c.wds, WIKIBASE.rank, v('_rank')),
+                (c.wds, WIKIBASE.rank, v('_rank')))
+            if references:
+                c.q.triples()((c.wds, PROV.wasDerivedFrom, wds))
+            c.q.triples()(
                 (wds, RDF.type, v('_xnovalue')),
                 (v('_xprop'), WIKIBASE.novalue, v('_xnovalue')),
                 (v('_xprop'), WIKIBASE.propertyType, v('_xprop_dt')))
@@ -519,7 +524,12 @@ class WikidataMapping(M):
                         self.cur_qualifiers.append(
                             self._push_annotated_check_snak(binding))
                     else:
-                        raise NotImplementedError
+                        wdref = binding['_wdref']['value']
+                        assert self.cur_references is not None
+                        if wdref not in self.cur_references:
+                            self.cur_references[wdref] = []
+                        self.cur_references[wdref].append(
+                            self._push_annotated_check_snak(binding))
 
         def _push_annotated_check_snak(
                 self,
