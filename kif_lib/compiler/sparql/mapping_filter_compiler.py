@@ -779,7 +779,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                             self._fresh_string_variable(), filter.language))
                 if value_mask & filter.STRING:
                     yield mk_pat(self._fresh_string_variable())
-                if value_mask & filter.EXTERNAL_ID:
+                elif value_mask & filter.EXTERNAL_ID:
                     yield mk_pat(self._fresh_external_id_variable())
                 if value_mask & filter.QUANTITY:
                     yield mk_pat(self._fresh_quantity_variable())
