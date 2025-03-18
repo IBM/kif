@@ -351,25 +351,25 @@ class WikidataMapping(M):
                     with c.q.group():  # qualifiers
                         c.q.triples()(
                             (c.wds, WIKIBASE.rank, v('_rank')),
-                            (c.wds, v('_pq'), v('_qvalue')),
-                            (v('_qprop'), WIKIBASE.qualifier, v('_pq')),
-                            (v('_qprop'), WIKIBASE.qualifierValue, v('_pqv')),
-                            (v('_qprop'), WIKIBASE.propertyType,
-                             v('_qprop_dt')))
+                            (c.wds, v('_px'), v('_xvalue')),
+                            (v('_xprop'), WIKIBASE.qualifier, v('_px')),
+                            (v('_xprop'), WIKIBASE.qualifierValue, v('_pxv')),
+                            (v('_xprop'), WIKIBASE.propertyType,
+                             v('_xprop_dt')))
                         with c.q.optional():  # value is a property
                             c.q.triples()(
-                                (v('_qvalue'), WIKIBASE.propertyType,
-                                 v('_qvalue_dt')))
+                                (v('_xvalue'), WIKIBASE.propertyType,
+                                 v('_xvalue_dt')))
                         with c.q.optional():  # value is deep
                             wdv = v('_wdv')
                             with c.q.union():
                                 with c.q.group():  # quantity
                                     c.q.triples()(
-                                        (c.wds, v('_pqv'), wdv),
+                                        (c.wds, v('_pxv'), wdv),
                                         (wdv, RDF.type,
                                          WIKIBASE.QuantityValue),
                                         (wdv, WIKIBASE.quantityAmount,
-                                         v('_qvalue')))
+                                         v('_xvalue')))
                                     with c.q.optional():
                                         c.q.triples()(
                                             (wdv, WIKIBASE.quantityUnit,
@@ -384,10 +384,10 @@ class WikidataMapping(M):
                                              v('_qt_upper_bound')))
                                 with c.q.group():  # time
                                     c.q.triples()(
-                                        (c.wds, v('_pqv'), wdv),
+                                        (c.wds, v('_pxv'), wdv),
                                         (wdv, RDF.type, WIKIBASE.TimeValue),
                                         (wdv, WIKIBASE.timeValue,
-                                         v('_qvalue')))
+                                         v('_xvalue')))
                                     with c.q.optional():
                                         c.q.triples()(
                                             (wdv, WIKIBASE.timePrecision,
@@ -402,14 +402,14 @@ class WikidataMapping(M):
                                              v('_tm_calendar')))
                     with c.q.group():  # qualifiers - no value
                         c.q.triples()(
-                            (c.wds, RDF.type, v('_qnovalue')),
-                            (v('_qprop'), WIKIBASE.novalue, v('_qnovalue')),
-                            (v('_qprop'), WIKIBASE.propertyType,
-                             v('_qprop_dt')))
+                            (c.wds, WIKIBASE.rank, v('_rank')),
+                            (c.wds, RDF.type, v('_xnovalue')),
+                            (v('_xprop'), WIKIBASE.novalue, v('_xnovalue')),
+                            (v('_xprop'), WIKIBASE.propertyType,
+                             v('_xprop_dt')))
                     with c.q.group():  # rank
                         c.q.triples()(
                             (c.wds, WIKIBASE.rank, v('_rank')))
-
     @override
     def build_query(
             self,
@@ -485,21 +485,7 @@ class WikidataMapping(M):
 
         def _push_annotated(
                 self,
-                binding: Mapping[str, dict[str, str]],
-                _q_spec: dict[str, str] = {
-                    'xprop': '_qprop',
-                    'xprop_dt': '_qprop_dt',
-                    'xvalue': '_qvalue',
-                    'xvalue_dt': '_qvalue_dt',
-                    'xnovalue': '_qnovalue',
-                },
-                _r_spec: dict[str, str] = {
-                    'xprop': '_rprop',
-                    'xprop_dt': '_rprop_dt',
-                    'xvalue': 'rvalue',
-                    'xvalue_dt': '_rvalue_dt',
-                    'xnovalue': '_rnovalue',
-                }
+                binding: Mapping[str, dict[str, str]]
         ) -> Iterator[Theta]:
             if not binding:     # finished
                 # print('-- done:', self.cur_wds)
@@ -511,29 +497,30 @@ class WikidataMapping(M):
                     thetas = list(super().push(binding))
                     self._push_new_cur(binding, thetas)
                 # print('-- collect:', self.cur_wds)
-                if '_qprop' in binding:  # qualifier
-                    assert self.cur_qualifiers is not None
-                    self.cur_qualifiers.append(
-                        self._push_annotated_check_snak(binding, _q_spec))
+                if '_xprop' in binding:
+                    if '_wdref' not in binding:  # qualifier
+                        assert self.cur_qualifiers is not None
+                        self.cur_qualifiers.append(
+                            self._push_annotated_check_snak(binding))
+                    else:
+                        raise NotImplementedError
 
         def _push_annotated_check_snak(
                 self,
-                binding: Mapping[str, dict[str, str]],
-                v: dict[str, str]
+                binding: Mapping[str, dict[str, str]]
         ) -> Snak:
-            dt = Datatype.check(binding[v['xprop_dt']]['value'])
-            prop = Property(binding[v['xprop']]['value'], dt)
-            if v['xnovalue'] in binding:
+            dt = Datatype.check(binding['_xprop_dt']['value'])
+            prop = Property(binding['_xprop']['value'], dt)
+            if '_xnovalue' in binding:
                 return prop.no_value()
-            value = binding[v['xvalue']]['value']
+            value = binding['_xvalue']['value']
             if Wikidata.is_wd_some_value(value):
                 return prop.some_value()
             elif isinstance(dt, ItemDatatype):
                 return prop(Item(value))
             elif isinstance(dt, PropertyDatatype):
-                if v['xvalue_dt'] in binding:
-                    value_dt = Datatype.check(
-                        binding[v['xvalue_dt']]['value'])
+                if '_xvalue_dt' in binding:
+                    value_dt = Datatype.check(binding['_xvalue_dt']['value'])
                 else:
                     value_dt = None
                 return prop(Property(value, value_dt))
@@ -542,7 +529,7 @@ class WikidataMapping(M):
             elif isinstance(dt, (IRI_Datatype, StringDatatype)):
                 return prop(value)
             elif isinstance(dt, TextDatatype):
-                language = binding[v['xvalue']].get('xml:lang', None)
+                language = binding['_xvalue'].get('xml:lang', None)
                 return prop(Text(value, language))
             elif isinstance(dt, QuantityDatatype):
                 if '_qt_unit' in binding:
