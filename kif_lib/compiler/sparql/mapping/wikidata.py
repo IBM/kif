@@ -55,6 +55,7 @@ from ....model import (
 from ....namespace import (
     DCT,
     ONTOLEX,
+    PROV,
     RDF,
     RDFS,
     SCHEMA,
@@ -348,68 +349,83 @@ class WikidataMapping(M):
                 else:
                     c.q.subquery(subquery)()
                 with c.q.union():
-                    with c.q.group():  # qualifiers
-                        c.q.triples()(
-                            (c.wds, WIKIBASE.rank, v('_rank')),
-                            (c.wds, v('_px'), v('_xvalue')),
-                            (v('_xprop'), WIKIBASE.qualifier, v('_px')),
-                            (v('_xprop'), WIKIBASE.qualifierValue, v('_pxv')),
-                            (v('_xprop'), WIKIBASE.propertyType,
-                             v('_xprop_dt')))
-                        with c.q.optional():  # value is a property
-                            c.q.triples()(
-                                (v('_xvalue'), WIKIBASE.propertyType,
-                                 v('_xvalue_dt')))
-                        with c.q.optional():  # value is deep
-                            wdv = v('_wdv')
-                            with c.q.union():
-                                with c.q.group():  # quantity
-                                    c.q.triples()(
-                                        (c.wds, v('_pxv'), wdv),
-                                        (wdv, RDF.type,
-                                         WIKIBASE.QuantityValue),
-                                        (wdv, WIKIBASE.quantityAmount,
-                                         v('_xvalue')))
-                                    with c.q.optional():
-                                        c.q.triples()(
-                                            (wdv, WIKIBASE.quantityUnit,
-                                             v('_qt_unit')))
-                                    with c.q.optional():
-                                        c.q.triples()(
-                                            (wdv, WIKIBASE.quantityLowerBound,
-                                             v('_qt_lower_bound')))
-                                    with c.q.optional():
-                                        c.q.triples()(
-                                            (wdv, WIKIBASE.quantityUpperBound,
-                                             v('_qt_upper_bound')))
-                                with c.q.group():  # time
-                                    c.q.triples()(
-                                        (c.wds, v('_pxv'), wdv),
-                                        (wdv, RDF.type, WIKIBASE.TimeValue),
-                                        (wdv, WIKIBASE.timeValue,
-                                         v('_xvalue')))
-                                    with c.q.optional():
-                                        c.q.triples()(
-                                            (wdv, WIKIBASE.timePrecision,
-                                             v('_tm_precision')))
-                                    with c.q.optional():
-                                        c.q.triples()(
-                                            (wdv, WIKIBASE.timeTimezone,
-                                             v('_tm_timezone')))
-                                    with c.q.optional():
-                                        c.q.triples()(
-                                            (wdv, WIKIBASE.timeCalendarModel,
-                                             v('_tm_calendar')))
-                    with c.q.group():  # qualifiers - no value
-                        c.q.triples()(
-                            (c.wds, WIKIBASE.rank, v('_rank')),
-                            (c.wds, RDF.type, v('_xnovalue')),
-                            (v('_xprop'), WIKIBASE.novalue, v('_xnovalue')),
-                            (v('_xprop'), WIKIBASE.propertyType,
-                             v('_xprop_dt')))
+                    self._postamble_push_annotations(c)  # qualifiers
                     with c.q.group():  # rank
                         c.q.triples()(
                             (c.wds, WIKIBASE.rank, v('_rank')))
+
+    def _postamble_push_annotations(
+            self,
+            c: C,
+            references: bool = False
+    ) -> None:
+        v = c.qvar
+        if references:
+            px = WIKIBASE.reference
+            pxv = WIKIBASE.qualifierValue
+            wds = v('_wdref')
+        else:
+            px = WIKIBASE.qualifier
+            pxv = WIKIBASE.qualifierValue
+            wds = c.wds
+        with c.q.group():
+            c.q.triples()(
+                (c.wds, WIKIBASE.rank, v('_rank')))
+            if references:
+                c.q.triples()((c.wds, PROV.wasDerivedFrom, wds))
+            c.q.triples()(
+                (wds, v('_px'), v('_xvalue')),
+                (v('_xprop'), px, v('_px')),
+                (v('_xprop'), pxv, v('_pxv')),
+                (v('_xprop'), WIKIBASE.propertyType, v('_xprop_dt')))
+            with c.q.optional():  # value is a property
+                c.q.triples()(
+                    (v('_xvalue'), WIKIBASE.propertyType, v('_xvalue_dt')))
+            with c.q.optional():  # value is deep
+                wdv = v('_wdv')
+                with c.q.union():
+                    with c.q.group():  # quantity
+                        c.q.triples()(
+                            (wds, v('_pxv'), wdv),
+                            (wdv, RDF.type, WIKIBASE.QuantityValue),
+                            (wdv, WIKIBASE.quantityAmount, v('_xvalue')))
+                        with c.q.optional():
+                            c.q.triples()(
+                                (wdv, WIKIBASE.quantityUnit,
+                                 v('_qt_unit')))
+                        with c.q.optional():
+                            c.q.triples()(
+                                (wdv, WIKIBASE.quantityLowerBound,
+                                 v('_qt_lower_bound')))
+                        with c.q.optional():
+                            c.q.triples()(
+                                (wdv, WIKIBASE.quantityUpperBound,
+                                 v('_qt_upper_bound')))
+                    with c.q.group():  # time
+                        c.q.triples()(
+                            (wds, v('_pxv'), wdv),
+                            (wdv, RDF.type, WIKIBASE.TimeValue),
+                            (wdv, WIKIBASE.timeValue,
+                             v('_xvalue')))
+                        with c.q.optional():
+                            c.q.triples()(
+                                (wdv, WIKIBASE.timePrecision,
+                                 v('_tm_precision')))
+                        with c.q.optional():
+                            c.q.triples()(
+                                (wdv, WIKIBASE.timeTimezone,
+                                 v('_tm_timezone')))
+                        with c.q.optional():
+                            c.q.triples()(
+                                (wdv, WIKIBASE.timeCalendarModel,
+                                 v('_tm_calendar')))
+        with c.q.group():  # qualifiers - no value
+            c.q.triples()(
+                (c.wds, WIKIBASE.rank, v('_rank')),
+                (wds, RDF.type, v('_xnovalue')),
+                (v('_xprop'), WIKIBASE.novalue, v('_xnovalue')),
+                (v('_xprop'), WIKIBASE.propertyType, v('_xprop_dt')))
+
     @override
     def build_query(
             self,
@@ -581,14 +597,14 @@ class WikidataMapping(M):
                 stmt, (AnnotatedStatement, AnnotatedStatementTemplate))
             if isinstance(stmt.qualifiers, Variable):
                 assert self.cur_qualifiers is not None
-                quals = self.cur_qualifiers
+                quals: Iterable[Snak] = self.cur_qualifiers
                 if isinstance(stmt.snak, NoValueSnak):
                     # Remove ambiguous no-value qualifier snak.
                     quals = filter(lambda s: s != stmt.snak, quals)
                 theta[stmt.qualifiers] = QualifierRecord.check(quals)
             if isinstance(stmt.references, Variable):
                 assert self.cur_references is not None
-                refs = self.cur_references.values()
+                refs: Iterable[Iterable[Snak]] = self.cur_references.values()
                 if isinstance(stmt.snak, NoValueSnak):
                     # Remove ambiguous no-value reference snak.
                     refs = map(functools.partial(
