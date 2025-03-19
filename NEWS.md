@@ -1,3 +1,9 @@
+Release v0.6.3
+==============
+
+- Bug-fix release.  Fixed bug (regression) that was causing
+  `Store.extra_references` to not be honored.
+
 Release v0.6.2
 ==============
 
