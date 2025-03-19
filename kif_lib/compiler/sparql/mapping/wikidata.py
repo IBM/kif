@@ -27,6 +27,7 @@ from ....model import (
     Lexeme,
     LexemeDatatype,
     LexicalCategoryProperty,
+    Normal,
     NoValueSnak,
     Property,
     PropertyDatatype,
@@ -335,7 +336,12 @@ class WikidataMapping(M):
                 # expected number of results is not too large.
                 ###
                 c.q.set_order_by(c.wds)
-            if c.filter.annotated:
+            annotation_of_all_targets_is_fixed = all(map(lambda s: (
+                isinstance(s, (
+                    AnnotatedStatement, AnnotatedStatementTemplate))
+                and any(map(Term.is_closed, (
+                    s.qualifiers, s.references, s.rank)))), targets))
+            if not annotation_of_all_targets_is_fixed:
                 ###
                 # FIXME: Monkey-patch the compiler to wrap the un-annotated
                 # query into a subquery.  It's not pretty but works.
@@ -681,7 +687,8 @@ class WikidataMapping(M):
 
     @M.register(
         [Statement(Item(e), LabelProperty()(Text(x, y)))],
-        {e: CheckItem()})
+        {e: CheckItem()},
+        rank=Normal)
     def p_item_label(
             self,
             c: C,
@@ -696,7 +703,8 @@ class WikidataMapping(M):
     @M.register(
         [Statement(Property(e, d), LabelProperty()(Text(x, y)))],
         {e: CheckProperty(),
-         d: CheckDatatype()})
+         d: CheckDatatype()},
+        rank=Normal)
     def p_property_label(
             self,
             c: C,
@@ -713,7 +721,8 @@ class WikidataMapping(M):
 
     @M.register(
         [Statement(Item(e), AliasProperty()(Text(x, y)))],
-        {e: CheckItem()})
+        {e: CheckItem()},
+        rank=Normal)
     def p_item_alias(
             self,
             c: C,
@@ -728,7 +737,8 @@ class WikidataMapping(M):
     @M.register(
         [Statement(Property(e, d), AliasProperty()(Text(x, y)))],
         {e: CheckProperty(),
-         d: CheckDatatype()})
+         d: CheckDatatype()},
+        rank=Normal)
     def p_property_alias(
             self,
             c: C,
@@ -745,7 +755,8 @@ class WikidataMapping(M):
 
     @M.register(
         [Statement(Item(e), DescriptionProperty()(Text(x, y)))],
-        {e: CheckItem()})
+        {e: CheckItem()},
+        rank=Normal)
     def p_item_description(
             self,
             c: C,
@@ -760,7 +771,8 @@ class WikidataMapping(M):
     @M.register(
         [Statement(Property(e, d), DescriptionProperty()(Text(x, y)))],
         {e: CheckProperty(),
-         d: CheckDatatype()})
+         d: CheckDatatype()},
+        rank=Normal)
     def p_property_description(
             self,
             c: C,
@@ -777,7 +789,8 @@ class WikidataMapping(M):
 
     @M.register(
         [Statement(Lexeme(e), LemmaProperty()(Text(x, y)))],
-        {e: CheckLexeme()})
+        {e: CheckLexeme()},
+        rank=Normal)
     def p_lexeme_lemma(
             self,
             c: C,
@@ -792,7 +805,8 @@ class WikidataMapping(M):
     @M.register(
         [Statement(Lexeme(e), LexicalCategoryProperty()(Item(x)))],
         {e: CheckLexeme(),
-         x: CheckItem()})
+         x: CheckItem()},
+        rank=Normal)
     def p_lexeme_lexical_category(
             self,
             c: C,
@@ -806,7 +820,8 @@ class WikidataMapping(M):
     @M.register(
         [Statement(Lexeme(e), LanguageProperty()(Item(x)))],
         {e: CheckLexeme(),
-         x: CheckItem()})
+         x: CheckItem()},
+        rank=Normal)
     def p_lexeme_langauge(
             self,
             c: C,
