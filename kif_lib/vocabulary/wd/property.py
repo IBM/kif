@@ -48,6 +48,7 @@ educated_at = P(69)
 element_symbol = P(246)
 elevation_above_sea_level = P(2044)
 end_time = P(582)
+endemic_to = P(183)
 equivalent_property = P(1628)
 EU_Transparency_Register_ID = P(2657)
 exact_match = P(2888)
@@ -101,6 +102,7 @@ median_lethal_concentration = P(2712)
 median_lethal_dose = P(2240)
 melting_point = P(2101)
 member_of = P(463)
+member_of_political_party = P(102)
 minimal_lethal_dose = P(2300)
 mother = P(25)
 name_in_native_language = P(1559)
@@ -111,6 +113,7 @@ number_of_decimal_digits = P(7316)
 number_of_records = P(4876)
 numeric_value = P(1181)
 occupation = P(106)
+office_held_by_head_of_government = P(1313)
 official_language = P(37)
 official_name = P(1448)
 official_website = P(856)
@@ -172,6 +175,7 @@ title = P(1476)
 trading_name = P(6427)
 transport_network = P(16)
 type_of_unit_for_this_property = P(2876)
+typically_sells = P(7163)
 Unicode_character = P(487)
 used_by = P(1535)
 uses = P(2283)
@@ -239,6 +243,7 @@ __all__ = (
     'elevation_above_sea_level',
     'elevation_above_sea_level',
     'end_time',
+    'endemic_to',
     'equivalent_property',
     'EU_Transparency_Register_ID',
     'exact_match',
@@ -295,6 +300,7 @@ __all__ = (
     'median_lethal_dose',
     'melting_point',
     'member_of',
+    'member_of_political_party',
     'minimal_lethal_dose',
     'mother',
     'name_in_native_language',
@@ -305,6 +311,7 @@ __all__ = (
     'number_of_records',
     'numeric_value',
     'occupation',
+    'office_held_by_head_of_government',
     'official_language',
     'official_name',
     'official_website',
@@ -369,6 +376,7 @@ __all__ = (
     'trading_name',
     'transport_network',
     'type_of_unit_for_this_property',
+    'typically_sells',
     'Unicode_character',
     'used_by',
     'uses',
