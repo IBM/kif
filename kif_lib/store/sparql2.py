@@ -3,10 +3,14 @@
 
 from __future__ import annotations
 
+import json
 import logging
 
-from .. import itertools
+import httpx
+
+from .. import itertools, rdflib
 from ..compiler.sparql import SPARQL_Mapping, SPARQL_MappingFilterCompiler
+from ..compiler.sparql.results import SPARQL_Results
 from ..model import (
     Filter,
     KIF_Object,
@@ -15,7 +19,7 @@ from ..model import (
     T_IRI,
     VariablePattern,
 )
-from ..typing import Any, ClassVar, Iterator, override
+from ..typing import Any, cast, ClassVar, Iterator, override
 from .sparql import NS, SPARQL_Store
 
 LOG = logging.getLogger(__name__)
@@ -35,22 +39,36 @@ class SPARQL_Store2(
 
     __slots__ = (
         '_mapping',
+        '_rdflib_graph',
     )
 
     #: SPARQL mapping.
     _mapping: SPARQL_Mapping
 
+    #: RDFlib graph.
+    _rdflib_graph: rdflib.Graph | None
+
     def __init__(
             self,
             store_name: str,
-            iri: T_IRI,
-            mapping: SPARQL_Mapping,
+            iri: T_IRI | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            rdflib_graph: rdflib.Graph | None = None,
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
-        super().__init__(store_name, iri, **kwargs)
-        self._mapping = KIF_Object._check_arg_isinstance(
-            mapping, SPARQL_Mapping, type(self), 'mapping', 3)
+        super().__init__(store_name, iri or '', **kwargs)
+        mapping = KIF_Object._check_optional_arg_isinstance(
+            mapping, SPARQL_Mapping, None, type(self), 'mapping', 3)
+        if mapping is None:
+            from ..compiler.sparql.mapping.wikidata import WikidataMapping
+            mapping = WikidataMapping()
+        self._mapping = mapping
+        rdflib_graph = KIF_Object._check_optional_arg_isinstance(
+            rdflib_graph, rdflib.Graph, None, type(self), 'rdflib_graph')
+        if rdflib_graph is not None:
+            rdflib_graph = rdflib_graph.skolemize()
+        self._rdflib_graph = rdflib_graph
 
     @property
     def mapping(self) -> SPARQL_Mapping:
@@ -64,6 +82,25 @@ class SPARQL_Store2(
            SPARQL mapping.
         """
         return self._mapping
+
+    def _eval(self, text: str) -> SelectResults:
+        if self._rdflib_graph is not None:
+            LOG.debug('%s()\n%s', self._eval_query_string.__qualname__, text)
+            res = self._rdflib_graph.query(self._prepare_query_string(text))
+            data = cast(bytes, res.serialize(format='json'))
+            assert data is not None
+            return json.loads(data)
+        else:
+            return self._http_post(self.iri.content, text).json()
+
+    def _http_post(self, iri: str, text: str) -> httpx.Response:
+        LOG.debug('%s():\n%s', self._http_post.__qualname__, text)
+        try:
+            res = self._client.post(iri, content=text.encode('utf-8'))
+            res.raise_for_status()
+            return res
+        except httpx.RequestError as err:
+            raise err
 
     @override
     def _filter(
@@ -85,7 +122,7 @@ class SPARQL_Store2(
             assert isinstance(compiler.pattern.variable, StatementVariable)
             if query.where_is_empty():
                 break           # nothing to do
-            res = self._eval_select_query_string(str(query))
+            res = self._eval(str(query))
             bindings = res['results']['bindings']
             if not bindings:
                 break           # done

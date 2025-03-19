@@ -57,6 +57,7 @@ from ...typing import (
 from .builder import Query
 from .filter_compiler import SPARQL_FilterCompiler
 from .mapping import SPARQL_Mapping
+from .results import SPARQL_ResultsBinding
 from .substitution import Substitution
 
 T = TypeVar('T')
@@ -674,19 +675,18 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
 
     def build_results(
             self
-    ) -> Callable[[Mapping[str, dict[str, str]]],
-                  Iterable[Theta] | None]:
+    ) -> Callable[[SPARQL_ResultsBinding], Iterable[Theta] | None]:
         """Constructs a compilation result builder.
 
         Returns:
-           A function to convert SPARQL bindings into variable
+           A function to convert a binding in SPARQL results into variable
            instantiations (thetas).
         """
         return self.mapping.build_results(self).push
 
     def _binding_to_thetas(
             self,
-            binding: Mapping[str, dict[str, str]]
+            binding: SPARQL_ResultsBinding
     ) -> Iterator[Theta]:
         assert str(self._entry_id_qvar) in binding
         id = int(binding[str(self._entry_id_qvar)]['value'])

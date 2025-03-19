@@ -4,6 +4,7 @@
 # $Id$
 #
 # RDFLib-based SPARQL query builder.
+# See <https://www.w3.org/TR/sparql11-query>.
 #
 # ** KEEP THIS FILE SELF-CONTAINED! **
 

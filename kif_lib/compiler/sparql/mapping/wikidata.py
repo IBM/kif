@@ -1337,7 +1337,8 @@ class WikidataMapping(M):
             x: VLiteral,
             y: V_URI,
             z: VLiteral,
-            w: VLiteral
+            w: VLiteral,
+            **kwargs
     ) -> None:
         self._p_quantity(
             c, p, x, y, z, w, self._start_L(c, e, p, WIKIBASE.Quantity))

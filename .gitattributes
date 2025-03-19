@@ -1,3 +1,4 @@
 kif_lib/compiler/sparql/builder.py ident
+kif_lib/compiler/sparql/results.py ident
 kif_lib/model/object.py ident
 Makefile ident
