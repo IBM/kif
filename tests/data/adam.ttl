@@ -118,7 +118,7 @@ wd:Q70899
         a wdno:P22 ;
         ] ;
 
-    # # date of birth
+    # date of birth
     p:P569 [
         a wikibase:BestRank ;
         wikibase:rank wikibase:PreferredRank ;

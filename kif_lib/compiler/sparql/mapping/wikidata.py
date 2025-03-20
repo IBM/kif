@@ -371,7 +371,7 @@ class WikidataMapping(M):
         v = c.qvar
         if references:
             px = WIKIBASE.reference
-            pxv = WIKIBASE.qualifierValue
+            pxv = WIKIBASE.referenceValue
             wds = v('_wdref')
         else:
             px = WIKIBASE.qualifier
@@ -494,6 +494,7 @@ class WikidataMapping(M):
                     yield from thetas
                 else:
                     self._push_new_cur(binding, thetas)
+                    yield from self._push_annotated(binding)
             else:
                 yield from self._push_annotated(binding)
 

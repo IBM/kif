@@ -3,8 +3,10 @@
 
 from __future__ import annotations
 
+import functools
 import json
 import logging
+import pathlib
 
 import httpx
 
@@ -13,10 +15,12 @@ from ..compiler.sparql import SPARQL_Mapping, SPARQL_MappingFilterCompiler
 from ..compiler.sparql.results import SPARQL_Results, SPARQL_ResultsBinding
 from ..model import (
     Filter,
+    Graph,
     KIF_Object,
     Statement,
     StatementVariable,
     T_IRI,
+    TGraph,
     VariablePattern,
 )
 from ..typing import Any, cast, ClassVar, Iterator, override
@@ -53,19 +57,52 @@ class SPARQL_Store2(
             store_name: str,
             iri: T_IRI | None = None,
             mapping: SPARQL_Mapping | None = None,
+            publicID: str | None = None,
+            format: str | None = None,
+            path: pathlib.PurePath | None = None,
+            graph: TGraph | None = None,
             rdflib_graph: rdflib.Graph | None = None,
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
         super().__init__(store_name, iri or '', **kwargs)
-        mapping = KIF_Object._check_optional_arg_isinstance(
-            mapping, SPARQL_Mapping, None, type(self), 'mapping', 3)
-        if mapping is None:
+        self._init_mapping(
+            mapping=KIF_Object._check_optional_arg_isinstance(
+                mapping, SPARQL_Mapping, None, type(self), 'mapping'))
+        self._init_rdflib_graph(
+            rdflib_graph=KIF_Object._check_optional_arg_isinstance(
+                rdflib_graph, rdflib.Graph, None, type(self), 'rdflib_graph'),
+            publicID=publicID,
+            format=format,
+            path=path,
+            graph=Graph.check_optional(graph, None, type(self), 'graph'))
+
+    def _init_mapping(self, mapping: SPARQL_Mapping | None) -> None:
+        if mapping is not None:
+            self._mapping = mapping
+        else:
             from ..compiler.sparql.mapping.wikidata import WikidataMapping
-            mapping = WikidataMapping()
-        self._mapping = mapping
-        rdflib_graph = KIF_Object._check_optional_arg_isinstance(
-            rdflib_graph, rdflib.Graph, None, type(self), 'rdflib_graph')
+            self._mapping = WikidataMapping()
+
+    def _init_rdflib_graph(
+            self,
+            rdflib_graph: rdflib.Graph | None,
+            publicID: str | None = None,
+            format: str | None = None,
+            path: pathlib.PurePath | None = None,
+            graph: Graph | None = None
+    ) -> None:
+        if path is not None or graph is not None:
+            if rdflib_graph is None:
+                rdflib_graph = rdflib.Graph()
+            load = functools.partial(
+                rdflib_graph.parse, format=format, publicID=publicID)
+            if path is not None:
+                load(path)
+            if graph is not None:
+                graph = Graph.check(graph, type(self), 'graph')
+                assert graph is not None
+                load(data=graph.to_rdf())
         if rdflib_graph is not None:
             rdflib_graph = rdflib_graph.skolemize()
         self._rdflib_graph = rdflib_graph
