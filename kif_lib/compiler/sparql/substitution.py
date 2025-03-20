@@ -238,4 +238,7 @@ class Substitution(Mapping):
                         theta._add(var, value.instantiate(theta))
                 else:
                     theta._add(var, value)
+        for var in self._defaults:
+            if var not in theta:
+                theta._add(var, self._defaults[var])
         return theta._map
