@@ -337,12 +337,11 @@ class WikidataMapping(M):
                 # expected number of results is not too large.
                 ###
                 c.q.set_order_by(c.wds)
-            annotation_of_all_targets_is_fixed = all(map(lambda s: (
-                not isinstance(s, (
-                    AnnotatedStatement, AnnotatedStatementTemplate))
-                or any(map(Term.is_closed, (
+            annotation_of_some_target_is_open = any(map(lambda s: (
+                isinstance(s, AnnotatedStatementTemplate)
+                and any(map(Term.is_open, (
                     s.qualifiers, s.references, s.rank)))), targets))
-            if not annotation_of_all_targets_is_fixed:
+            if annotation_of_some_target_is_open:
                 ###
                 # FIXME: Monkey-patch the compiler to wrap the un-annotated
                 # query into a subquery.  It's not pretty but works.

@@ -23,7 +23,7 @@ from ..model import (
     TGraph,
     VariablePattern,
 )
-from ..typing import Any, cast, ClassVar, Iterator, override
+from ..typing import Any, BinaryIO, cast, ClassVar, Iterator, override, TextIO
 from .sparql import NS, SPARQL_Store
 
 LOG = logging.getLogger(__name__)
@@ -60,24 +60,29 @@ class SPARQL_Store2(
             publicID: str | None = None,
             format: str | None = None,
             path: pathlib.PurePath | None = None,
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: str | bytes | None = None,
             graph: TGraph | None = None,
             rdflib_graph: rdflib.Graph | None = None,
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
         super().__init__(store_name, iri or '', **kwargs)
-        self._init_mapping(
-            mapping=KIF_Object._check_optional_arg_isinstance(
-                mapping, SPARQL_Mapping, None, type(self), 'mapping'))
+        self._init_mapping(mapping)
         self._init_rdflib_graph(
-            rdflib_graph=KIF_Object._check_optional_arg_isinstance(
-                rdflib_graph, rdflib.Graph, None, type(self), 'rdflib_graph'),
+            rdflib_graph=rdflib_graph,
             publicID=publicID,
             format=format,
             path=path,
-            graph=Graph.check_optional(graph, None, type(self), 'graph'))
+            location=location,
+            file=file,
+            data=data,
+            graph=graph)
 
     def _init_mapping(self, mapping: SPARQL_Mapping | None) -> None:
+        KIF_Object._check_optional_arg_isinstance(
+            mapping, SPARQL_Mapping, None, type(self), 'mapping')
         if mapping is not None:
             self._mapping = mapping
         else:
@@ -90,22 +95,39 @@ class SPARQL_Store2(
             publicID: str | None = None,
             format: str | None = None,
             path: pathlib.PurePath | None = None,
-            graph: Graph | None = None
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: str | bytes | None = None,
+            graph: TGraph | None = None
     ) -> None:
-        if path is not None or graph is not None:
-            if rdflib_graph is None:
-                rdflib_graph = rdflib.Graph()
-            load = functools.partial(
-                rdflib_graph.parse, format=format, publicID=publicID)
-            if path is not None:
-                load(path)
-            if graph is not None:
-                graph = Graph.check(graph, type(self), 'graph')
-                assert graph is not None
-                load(data=graph.to_rdf())
-        if rdflib_graph is not None:
-            rdflib_graph = rdflib_graph.skolemize()
-        self._rdflib_graph = rdflib_graph
+        rdflib_graph = KIF_Object._check_optional_arg_isinstance(
+            rdflib_graph, rdflib.Graph, None, type(self), 'rdflib_graph')
+        try:
+            if (path is not None
+                    or location is not None
+                    or file is not None
+                    or data is not None
+                    or graph is not None):
+                if rdflib_graph is None:
+                    rdflib_graph = rdflib.Graph()
+                load = functools.partial(
+                    rdflib_graph.parse, format=format, publicID=publicID)
+                if path is not None:
+                    load(path)
+                if location is not None:
+                    load(location=location)
+                if file is not None:
+                    load(file=file)
+                if data is not None:
+                    load(data=data)
+                if graph is not None:
+                    graph = Graph.check(graph, type(self), 'graph')
+                    load(data=graph.to_rdf())
+            if rdflib_graph is not None:
+                rdflib_graph = rdflib_graph.skolemize()
+            self._rdflib_graph = rdflib_graph
+        except Exception as err:
+            raise self._error(str(err)) from err
 
     @property
     def mapping(self) -> SPARQL_Mapping:
