@@ -71,12 +71,12 @@ from ....typing import (
     Final,
     Iterable,
     Iterator,
-    Mapping,
     Optional,
     override,
     TypeAlias,
 )
 from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler as C
+from ..results import SPARQL_ResultsBinding
 from .mapping import SPARQL_Mapping as M
 
 __all__ = (
@@ -94,6 +94,7 @@ V_URI: TypeAlias = C.Query.V_URI
 Var: TypeAlias = C.Query.Variable
 Var3: TypeAlias = tuple[Var, Var, Var]
 
+#: Variables used in register patterns.
 d, e, p, r, w, x, y, z = Variables(*'deprwxyz')
 As, Rs = Variables('As', 'Rs')
 
@@ -482,10 +483,7 @@ class WikidataMapping(M):
             self.cur_wds = None
 
         @override
-        def push(
-                self,
-                binding: Mapping[str, dict[str, str]]
-        ) -> Iterator[Theta]:
+        def push(self, binding: SPARQL_ResultsBinding) -> Iterator[Theta]:
             if self.cur_wds is None:
                 pat = self.c.pattern
                 assert isinstance(pat, VariablePattern)
@@ -501,7 +499,7 @@ class WikidataMapping(M):
 
         def _push_new_cur(
                 self,
-                binding: Mapping[str, dict[str, str]],
+                binding: SPARQL_ResultsBinding,
                 thetas: list[Theta]
         ) -> None:
             self.cur_thetas = thetas
@@ -512,7 +510,7 @@ class WikidataMapping(M):
 
         def _push_annotated(
                 self,
-                binding: Mapping[str, dict[str, str]]
+                binding: SPARQL_ResultsBinding
         ) -> Iterator[Theta]:
             if not binding:     # finished
                 # print('-- done:', self.cur_wds)
@@ -539,7 +537,7 @@ class WikidataMapping(M):
 
         def _push_annotated_check_snak(
                 self,
-                binding: Mapping[str, dict[str, str]]
+                binding: SPARQL_ResultsBinding
         ) -> Snak:
             dt = Datatype.check(binding['_xprop_dt']['value'])
             prop = Property(binding['_xprop']['value'], dt)
@@ -561,7 +559,8 @@ class WikidataMapping(M):
             elif isinstance(dt, (IRI_Datatype, StringDatatype)):
                 return prop(value)
             elif isinstance(dt, TextDatatype):
-                language = binding['_xvalue'].get('xml:lang', None)
+                language = cast(
+                    Optional[str], binding['_xvalue'].get('xml:lang'))
                 return prop(Text(value, language))
             elif isinstance(dt, QuantityDatatype):
                 if '_qt_unit' in binding:

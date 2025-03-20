@@ -16,6 +16,7 @@ from ...typing import (
     TypeVar,
 )
 from .builder import Query
+from .results import SPARQL_ResultsBinding
 
 T = TypeVar('T')
 
@@ -201,7 +202,7 @@ class Substitution(Mapping):
 
     def instantiate(
             self,
-            binding: Mapping[str, dict[str, str]]
+            binding: SPARQL_ResultsBinding
     ) -> Mapping[Variable, Term | None]:
         """Computes variable instantiation (theta) from `binding`.
 

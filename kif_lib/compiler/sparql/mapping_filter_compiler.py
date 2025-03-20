@@ -57,7 +57,7 @@ from ...typing import (
 from .builder import Query
 from .filter_compiler import SPARQL_FilterCompiler
 from .mapping import SPARQL_Mapping
-from .results import SPARQL_ResultsBinding
+from .results import SPARQL_ResultsBinding, SPARQL_ResultsTerm
 from .substitution import Substitution
 
 T = TypeVar('T')
@@ -696,43 +696,72 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
                 try:
                     term = entry.postprocess(
                         self.mapping, self, var,
-                        self._dict2term(binding[var.name]))
+                        self._sparql_results_term_to_query_term(
+                            binding[var.name]))
                 except SPARQL_Mapping.Skip:
                     return
                 else:
                     assert isinstance(term, (Query.Literal, Query.URI))
                     assert isinstance(binding, dict)
-                    binding[var.name] = self._term2dict(term)
+                    binding[var.name] =\
+                        self._query_term_to_sparql_results_term(term)
         assert isinstance(self.pattern, VariablePattern)
         assert isinstance(self.pattern.variable, StatementVariable)
         theta = self._entry_subst[id].instantiate(binding)
         for target in self._entry_targets[id]:
             yield {self.pattern.variable: target.instantiate(theta)}
 
-    def _dict2term(self, t: dict[str, str]) -> Query.Term:
+    def _sparql_results_term_to_query_term(
+            self,
+            t: SPARQL_ResultsTerm
+    ) -> Query.Term:
         assert 'type' in t
         if t['type'] == 'uri':
             return Query.URI(t['value'])
         elif t['type'] == 'literal':
-            ###
-            # TODO: Handle language and datatype.
-            ###
-            return Query.Literal(t['value'])
+            return Query.Literal(
+                t['value'],
+                datatype=t.get('datatype'), lang=t.get('xml:lang'))
+        elif t['type'] == 'bnode':
+            return Query.BNode(t['value'])
         else:
-            raise NotImplementedError
+            raise self._should_not_get_here()
 
-    def _term2dict(self, term: Query.Term) -> dict[str, str]:
+    def _query_term_to_sparql_results_term(
+            self,
+            term: Query.Term
+    ) -> SPARQL_ResultsTerm:
         if isinstance(term, Query.URI):
             return {'type': 'uri', 'value': str(term)}
         elif isinstance(term, Query.Literal):
-            ###
-            # TODO: Handle language and datatype.
-            ###
-            assert term.language is None
-            assert term.datatype is None
-            return {'type': 'literal', 'value': str(term)}
+            if term.datatype is not None and term.language is not None:
+                return {
+                    'type': 'literal',
+                    'value': str(term),
+                    'datatype': term.datatype,
+                    'xml:lang': term.language,
+                }
+            elif term.datatype is not None:
+                return {
+                    'type': 'literal',
+                    'value': str(term),
+                    'datatype': term.datatype,
+                }
+            elif term.language is not None:
+                return {
+                    'type': 'literal',
+                    'value': str(term),
+                    'xml:lang': term.language,
+                }
+            else:
+                return {
+                    'type': 'literal',
+                    'value': str(term)
+                }
+        elif isinstance(term, Query.BNode):
+            return {'type': 'bnode', 'value': str(term)}
         else:
-            raise NotImplementedError
+            raise self._should_not_get_here()
 
     def _filter_to_patterns(
             self,

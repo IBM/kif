@@ -49,6 +49,8 @@ TValuesLine: TypeAlias = Union['ValuesLine', Sequence[TValuesValue]]
 
 TInlineBind: TypeAlias = tuple[TExpression, TVariable]
 
+SHOULD_NOT_GET_HERE: Final[Exception] = RuntimeError('should not get here')
+
 
 # == Prelude ===============================================================
 
@@ -1059,7 +1061,7 @@ class CompoundGraphPattern(GraphPattern):
             elif isinstance(pat, Pattern):
                 yield from self._iterencode_pattern(pat, n + 1)
             else:
-                raise RuntimeError('should not get here')
+                raise SHOULD_NOT_GET_HERE
         yield from self._iterencode_end(n)
 
     def _iterencode_begin(self, n: int) -> Iterator[str]:
@@ -1232,7 +1234,7 @@ class SelectClause(Clause):
                 elif isinstance(var, Bind):
                     yield from var._iterencode(omit_bind_symbol=True)
                 else:
-                    raise RuntimeError('should not get here')
+                    raise SHOULD_NOT_GET_HERE
 
 
 class WhereClause(Clause):

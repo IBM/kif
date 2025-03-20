@@ -10,7 +10,7 @@ import httpx
 
 from .. import itertools, rdflib
 from ..compiler.sparql import SPARQL_Mapping, SPARQL_MappingFilterCompiler
-from ..compiler.sparql.results import SPARQL_Results
+from ..compiler.sparql.results import SPARQL_Results, SPARQL_ResultsBinding
 from ..model import (
     Filter,
     KIF_Object,
@@ -83,7 +83,7 @@ class SPARQL_Store2(
         """
         return self._mapping
 
-    def _eval(self, text: str) -> SelectResults:
+    def _eval(self, text: str) -> SPARQL_Results:
         if self._rdflib_graph is not None:
             LOG.debug('%s()\n%s', self._eval_query_string.__qualname__, text)
             res = self._rdflib_graph.query(self._prepare_query_string(text))
@@ -123,11 +123,15 @@ class SPARQL_Store2(
             if query.where_is_empty():
                 break           # nothing to do
             res = self._eval(str(query))
+            if 'results' not in res:
+                break           # nothing to do
             bindings = res['results']['bindings']
             if not bindings:
                 break           # done
             push = compiler.build_results()
-            for binding in itertools.chain(bindings, ({},)):
+            bindings_it: Iterator[SPARQL_ResultsBinding] =\
+                itertools.chain(bindings, ({},))  # {} is the sentinel
+            for binding in bindings_it:
                 ret = push(binding)
                 if ret is None:
                     continue    # push more results

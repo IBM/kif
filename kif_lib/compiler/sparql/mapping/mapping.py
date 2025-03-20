@@ -53,6 +53,7 @@ from ....typing import (
 if TYPE_CHECKING:  # pragma: no cover
     from ..mapping_filter_compiler import \
         SPARQL_MappingFilterCompiler as Compiler
+    from ..results import SPARQL_ResultsBinding
 
 
 @dataclasses.dataclass
@@ -972,10 +973,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
         def c(self) -> Compiler:
             return self.compiler
 
-        def push(
-                self,
-                binding: Mapping[str, dict[str, str]]
-        ) -> Iterator[Theta]:
+        def push(self, binding: SPARQL_ResultsBinding) -> Iterator[Theta]:
             """Pushes SPARQL binding into result builder.
 
             Parameters:

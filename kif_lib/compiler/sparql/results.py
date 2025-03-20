@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from typing import Union
+
 from typing_extensions import Literal, NotRequired, TypeAlias, TypedDict
 
 
@@ -48,7 +49,7 @@ SPARQL_ResultsBinding: TypeAlias = dict[str, SPARQL_ResultsTerm]
 
 
 class SPARQL_ResultsBindings(TypedDict):
-    bindings: SPARQL_ResultsBinding
+    bindings: Sequence[SPARQL_ResultsBinding]
 
 
 class SPARQL_Results(TypedDict):
