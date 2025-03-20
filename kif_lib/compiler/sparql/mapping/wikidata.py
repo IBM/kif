@@ -338,9 +338,9 @@ class WikidataMapping(M):
                 ###
                 c.q.set_order_by(c.wds)
             annotation_of_all_targets_is_fixed = all(map(lambda s: (
-                isinstance(s, (
+                not isinstance(s, (
                     AnnotatedStatement, AnnotatedStatementTemplate))
-                and any(map(Term.is_closed, (
+                or any(map(Term.is_closed, (
                     s.qualifiers, s.references, s.rank)))), targets))
             if not annotation_of_all_targets_is_fixed:
                 ###

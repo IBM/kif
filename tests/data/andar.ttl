@@ -35,3 +35,7 @@ wd:L46803
     wikibase:lemma "andar"@pt ;
     wikibase:lexicalCategory wd:Q24905 ;
     dct:language wd:Q5146 .
+
+wd:Q24905 wikibase:sitelinks [] .
+
+wd:Q5146 wikibase:sitelinks [] .
