@@ -23,8 +23,21 @@ from ..model import (
     TGraph,
     VariablePattern,
 )
-from ..typing import Any, BinaryIO, cast, ClassVar, Iterator, override, TextIO
+from ..typing import (
+    Any,
+    BinaryIO,
+    ClassVar,
+    Iterator,
+    Location,
+    TextIO,
+    TypeAlias,
+    cast,
+    override,
+)
 from .sparql import NS, SPARQL_Store
+
+
+HTTP_Headers: TypeAlias = httpx._types.HeaderTypes
 
 LOG = logging.getLogger(__name__)
 
@@ -32,7 +45,8 @@ LOG = logging.getLogger(__name__)
 class SPARQL_Store2(
         SPARQL_Store,
         store_name='sparql2',
-        store_description='SPARQL endpoint'):
+        store_description='SPARQL endpoint'
+):
     """SPARQL store.
 
     Parameters:
@@ -42,15 +56,10 @@ class SPARQL_Store2(
     """
 
     __slots__ = (
+        '_http_headers',
         '_mapping',
         '_rdflib_graph',
     )
-
-    #: SPARQL mapping.
-    _mapping: SPARQL_Mapping
-
-    #: RDFlib graph.
-    _rdflib_graph: rdflib.Graph | None
 
     def __init__(
             self,
@@ -68,26 +77,130 @@ class SPARQL_Store2(
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
-        super().__init__(store_name, iri or '', **kwargs)
-        self._init_mapping(mapping)
+        super().__init__(store_name, iri or 'file:///dev/null', **kwargs)
+        self._init_mapping(mapping, type(self), 'mapping')
         self._init_rdflib_graph(
-            rdflib_graph=rdflib_graph,
-            publicID=publicID,
-            format=format,
-            path=path,
-            location=location,
-            file=file,
-            data=data,
-            graph=graph)
+            rdflib_graph=rdflib_graph, publicID=publicID,
+            format=format, path=path, location=location, file=file,
+            data=data, graph=graph)
+
+# -- HTTP client -----------------------------------------------------------
 
-    def _init_mapping(self, mapping: SPARQL_Mapping | None) -> None:
-        KIF_Object._check_optional_arg_isinstance(
-            mapping, SPARQL_Mapping, None, type(self), 'mapping')
-        if mapping is not None:
-            self._mapping = mapping
+
+# -- HTTP headers ----------------------------------------------------------
+
+    #: HTTP headers.
+    _http_headers: HTTP_Headers
+
+
+# -- SPARQL mapping --------------------------------------------------------
+
+    @classmethod
+    def _check_mapping(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> SPARQL_Mapping:
+        return KIF_Object._check_arg_isinstance(
+            arg, SPARQL_Mapping, function, name, position)
+
+    @classmethod
+    def _check_optional_mapping(
+            cls,
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> SPARQL_Mapping | None:
+        return cls._do_check_optional(  # pragma: no cover
+            cls._check_mapping, arg, default, function, name, position)
+
+    @property
+    def default_mapping(self) -> SPARQL_Mapping:
+        """The default value for :attr:`SPARQL_Store2.mapping`."""
+        return self.get_default_mapping()
+
+    def get_default_mapping(self) -> SPARQL_Mapping:
+        """Gets the default value for :attr:`SPARQL_Store2.mapping`.
+
+        Returns:
+           Default mapping.
+        """
+        from ..compiler.sparql.mapping.wikidata import WikidataMapping
+        return WikidataMapping()
+
+    #: SPARQL mapping.
+    _mapping: SPARQL_Mapping
+
+    def _init_mapping(
+            self,
+            mapping: SPARQL_Mapping | None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        if mapping is None:
+            self._mapping = self.default_mapping
         else:
-            from ..compiler.sparql.mapping.wikidata import WikidataMapping
-            self._mapping = WikidataMapping()
+            self._mapping = self._check_mapping(
+                mapping, function, name, position)
+
+    @property
+    def mapping(self) -> SPARQL_Mapping:
+        """The mapping of SPARQL store."""
+        return self.get_mapping()
+
+    def get_mapping(self) -> SPARQL_Mapping:
+        """Gets the mapping of SPARQL store.
+
+        Returns:
+           SPARQL mapping.
+        """
+        return self._mapping
+
+# -- RDFlib graph ----------------------------------------------------------
+
+    @classmethod
+    def _check_rdflib_graph(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> rdflib.Graph:
+        return KIF_Object._check_arg_isinstance(
+            arg, rdflib.Graph, function, name, position)
+
+    @classmethod
+    def _check_optional_rdflib_graph(
+            cls,
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> rdflib.Graph | None:
+        return cls._do_check_optional(
+            cls._check_rdflib_graph, arg, default, function, name, position)
+
+    @property
+    def default_rdflib_graph(self) -> rdflib.Graph | None:
+        """The default value for :attr:`SPARQL_Store2.rdflib_graph`."""
+        return self.get_default_rdflib_graph()
+
+    def get_default_rdflib_graph(self) -> rdflib.Graph | None:
+        """Gets the default value for :attr:`SPARQL_Store2.rdflib_graph`.
+
+        Returns:
+           RDFlib graph or ``None``.
+        """
+        return None
+
+    #: RDFlib graph.
+    _rdflib_graph: rdflib.Graph | None
 
     def _init_rdflib_graph(
             self,
@@ -100,8 +213,9 @@ class SPARQL_Store2(
             data: str | bytes | None = None,
             graph: TGraph | None = None
     ) -> None:
-        rdflib_graph = KIF_Object._check_optional_arg_isinstance(
-            rdflib_graph, rdflib.Graph, None, type(self), 'rdflib_graph')
+        rdflib_graph = self._check_optional_rdflib_graph(
+            rdflib_graph, None, type(self), 'rdflib_graph')
+        graph = Graph.check_optional(graph, None, type(self), 'graph')
         try:
             if (path is not None
                     or location is not None
@@ -121,7 +235,6 @@ class SPARQL_Store2(
                 if data is not None:
                     load(data=data)
                 if graph is not None:
-                    graph = Graph.check(graph, type(self), 'graph')
                     load(data=graph.to_rdf())
             if rdflib_graph is not None:
                 rdflib_graph = rdflib_graph.skolemize()
@@ -130,17 +243,19 @@ class SPARQL_Store2(
             raise self._error(str(err)) from err
 
     @property
-    def mapping(self) -> SPARQL_Mapping:
-        """SPARQL mapping."""
-        return self.get_mapping()
+    def rdflib_graph(self) -> rdflib.Graph | None:
+        """The RDFLib graph of SPARQL store (if any)."""
+        return self.get_rdflib_graph()
 
-    def get_mapping(self) -> SPARQL_Mapping:
-        """Gets SPARQL mapping.
+    def get_rdflib_graph(self) -> rdflib.Graph | None:
+        """Gets RDFLib graph of SPARQL store.
 
         Returns:
-           SPARQL mapping.
+           RDFLib graph or ``None``.
         """
-        return self._mapping
+        return self._rdflib_graph
+
+# -- Statements ------------------------------------------------------------
 
     def _eval(self, text: str) -> SPARQL_Results:
         if self._rdflib_graph is not None:
