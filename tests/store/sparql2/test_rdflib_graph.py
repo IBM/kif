@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pathlib
 
-from kif_lib import Item, Property, rdflib
+from kif_lib import rdflib
 from kif_lib.vocabulary import wd
 
 from ...data import BENZENE_TTL

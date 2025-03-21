@@ -31,5 +31,6 @@ class Test(SPARQL_Store2TestCase):
         self.assertEqual(kb.get_mapping(), mapping)
         self.assertEqual(kb.mapping, mapping)
 
+
 if __name__ == '__main__':
     Test.main()

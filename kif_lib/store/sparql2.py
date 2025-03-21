@@ -26,16 +26,15 @@ from ..model import (
 from ..typing import (
     Any,
     BinaryIO,
+    cast,
     ClassVar,
     Iterator,
     Location,
+    override,
     TextIO,
     TypeAlias,
-    cast,
-    override,
 )
 from .sparql import NS, SPARQL_Store
-
 
 HTTP_Headers: TypeAlias = httpx._types.HeaderTypes
 
@@ -84,14 +83,10 @@ class SPARQL_Store2(
             format=format, path=path, location=location, file=file,
             data=data, graph=graph)
 
-# -- HTTP client -----------------------------------------------------------
-
-
 # -- HTTP headers ----------------------------------------------------------
 
     #: HTTP headers.
     _http_headers: HTTP_Headers
-
 
 # -- SPARQL mapping --------------------------------------------------------
 
