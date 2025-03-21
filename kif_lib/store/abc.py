@@ -452,6 +452,24 @@ class Store(Set):
             arg, function, name, position).amount), 0)
 
     @classmethod
+    def _do_check_optional(
+            cls,
+            check: Callable[
+                [Any, Location | None, str | None, int | None], T],
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> T | None:
+        if arg is None:
+            arg = default
+        if arg is None:
+            return default
+        else:
+            return check(arg, function, name, position)
+
+    @classmethod
     def _check_optional_limit(
             cls,
             arg: Any | None,
@@ -460,12 +478,8 @@ class Store(Set):
             name: str | None = None,
             position: int | None = None
     ) -> int | None:
-        if arg is None:
-            arg = default
-        if arg is None:
-            return default
-        else:
-            return cls._check_limit(arg, function, name, position)
+        return cls._do_check_optional(
+            cls._check_limit, arg, default, function, name, position)
 
     @property
     def max_limit(self) -> int:
@@ -573,12 +587,8 @@ class Store(Set):
             name: str | None = None,
             position: int | None = None
     ) -> int | None:
-        if arg is None:
-            arg = default
-        if arg is None:
-            return default
-        else:
-            return cls._check_page_size(arg, function, name, position)
+        return cls._do_check_optional(
+            cls._check_page_size, arg, default, function, name, position)
 
     @property
     def max_page_size(self) -> int:
@@ -723,12 +733,9 @@ class Store(Set):
             name: str | None = None,
             position: int | None = None
     ) -> float | None:
-        if arg is None:
-            arg = default
-        if arg is None:
-            return default
-        else:
-            return cls._check_timeout(arg, function, name, position)
+        return cls._do_check_optional(
+            cls._check_timeout,
+            arg, default, function, name, position)
 
     @property
     def max_timeout(self) -> float:
