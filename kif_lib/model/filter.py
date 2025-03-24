@@ -12,6 +12,7 @@ from ..typing import (
     Location,
     Optional,
     override,
+    Self,
     TypeAlias,
     Union,
 )
@@ -714,6 +715,27 @@ class Filter(KIF_Object):
            ``True`` if successful; ``False`` otherwise.
         """
         return not self.is_empty()
+
+    def unannotated(self) -> Self:
+        """Get the unannotated version of filter.
+
+        Returns:
+           Filter.
+        """
+        if self.annotated is False:
+            return self
+        else:
+            return cast(Self, self.replace(
+                self.KEEP,      # subject
+                self.KEEP,      # property
+                self.KEEP,      # value
+                self.KEEP,      # snak_mask
+                self.KEEP,      # subject_mask
+                self.KEEP,      # property_mask
+                self.KEEP,      # value_mask
+                self.KEEP,      # rank_mask
+                self.KEEP,      # language
+                False))         # annotated
 
     def combine(self, *others: Filter) -> Filter:
         """Combines filter with `others`.

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from ._sparql import _SPARQL_Store
 from .abc import Store
 from .empty import EmptyStore
 from .mapper import SPARQL_MapperStore
@@ -14,6 +15,7 @@ from .sparql2 import SPARQL_Store2
 from .wikidata import WikidataStore
 
 __all__ = (
+    '_SPARQL_Store',
     'EmptyStore',
     'MixerStore',
     'PubChemStore',
