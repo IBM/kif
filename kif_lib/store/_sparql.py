@@ -20,11 +20,13 @@ from ..compiler.sparql.results import (
 )
 from ..model import (
     Filter,
+    Graph,
     IRI,
     KIF_Object,
     Statement,
     StatementVariable,
     T_IRI,
+    TGraph,
     VariablePattern,
 )
 from ..typing import (
@@ -33,6 +35,7 @@ from ..typing import (
     cast,
     Final,
     IO,
+    Iterable,
     Iterator,
     Location,
     Mapping,
@@ -40,6 +43,7 @@ from ..typing import (
     Sequence,
     TextIO,
     TypeAlias,
+    Union,
 )
 from ..version import __version__
 from .abc import Store
@@ -134,7 +138,7 @@ class _SPARQL_Store(
         )
 
         #: HTTP client.
-        _client: httpx.Client
+        _client: httpx.Client | None
 
         #: HTTP headers.
         _headers: HTTP_Headers
@@ -146,22 +150,24 @@ class _SPARQL_Store(
                 self,
                 store: _SPARQL_Store,
                 iri: T_IRI,
-                headers: HTTP_Headers = {}
+                headers: HTTP_Headers | None = None
         ) -> None:
             super().__init__(store)
+            self._client = None
             self._iri = IRI.check(iri, type(store), 'iri')
             try:
                 self._headers = cast(_SPARQL_Store.HttpxBackend.HTTP_Headers, {
                     **dict(self._default_headers),
                     **dict(headers or {})
                 })
-            except TypeError as err:
+            except Exception as err:
                 raise KIF_Object._arg_error(
-                    str(err), type(store), 'headers')
+                    str(err), type(store), 'headers', exception=store.Error)
             self._client = httpx.Client(headers=self._headers)
 
         def __del__(self) -> None:
-            self._client.close()
+            if self._client is not None:
+                self._client.close()
 
         @override
         def _ask(self, query: str) -> SPARQL_ResultsAsk:
@@ -172,6 +178,7 @@ class _SPARQL_Store(
             return self._http_post(query).json()
 
         def _http_post(self, text: str) -> httpx.Response:
+            assert self._client is not None
             try:
                 res = self._client.post(
                     self._iri.content, content=text.encode('utf-8'))
@@ -182,40 +189,45 @@ class _SPARQL_Store(
 
         @override
         def _set_timeout(self, timeout: float | None = None) -> None:
-            self._client.timeout = httpx.Timeout(timeout)
+            if self._client is not None:
+                self._client.timeout = httpx.Timeout(timeout)
 
     class RDFLibBackend(Backend):
         """RDFLib backend."""
 
+        Args: TypeAlias = Union[
+            IO[bytes], TextIO, rdflib.InputSource,
+            str, bytes, pathlib.PurePath, Statement]
+
         __slots__ = (
-            '_graph',
+            '_rdflib_graph',
         )
 
         #: RDFLib graph.
-        _graph: rdflib.Graph
+        _rdflib_graph: rdflib.Graph
 
         def __init__(
                 self,
                 store: _SPARQL_Store,
-                *args: IO[bytes] | TextIO | rdflib.InputSource
-                | str | bytes | pathlib.PurePath | None,
+                *args: Args,
                 publicID: str | None = None,
                 format: str | None = None,
                 location: str | None = None,
                 file: BinaryIO | TextIO | None = None,
                 data: str | bytes | None = None,
-                graph: rdflib.Graph | None = None,
-                skolemize: bool = True
+                graph: TGraph | None = None,
+                rdflib_graph: rdflib.Graph | None = None,
+                skolemize: bool | None = None
         ) -> None:
             super().__init__(store)
-            if graph is None:
-                graph = rdflib.Graph()
+            if rdflib_graph is None:
+                rdflib_graph = rdflib.Graph()
             else:
-                graph = KIF_Object._check_arg_isinstance(
-                    graph, rdflib.Graph, type(store), 'graph')
-            assert graph is not None
+                rdflib_graph = KIF_Object._check_arg_isinstance(
+                    rdflib_graph, rdflib.Graph, type(store), 'rdflib_graph')
+            assert rdflib_graph is not None
             _load = functools.partial(
-                graph.parse, format=format, publicID=publicID)
+                rdflib_graph.parse, format=format, publicID=publicID)
 
             def load(name: str | None, *args, **kwargs) -> None:
                 try:
@@ -230,15 +242,25 @@ class _SPARQL_Store(
                 load('file', file=file)
             if data is not None:
                 load('data', data=data)
-            for src in args:
+            if graph is not None:
+                graph = Graph.check(graph, type(store), 'graph')
+                load('graph', data=graph.to_rdf())
+            other, stmts = map(list, itertools.partition(
+                lambda s: isinstance(s, Statement), args))
+            if stmts:
+                load(None, data=Graph(*cast(
+                    Iterable[Statement], stmts)).to_rdf())
+            for src in other:
                 load(None, src)
-            self._graph = graph.skolemize() if skolemize else graph
+            skolemize = skolemize if skolemize is not None else True
+            self._rdflib_graph = (
+                rdflib_graph.skolemize() if skolemize else rdflib_graph)
 
         def _ask(self, query: str) -> SPARQL_ResultsAsk:
             return cast(SPARQL_ResultsAsk, self._select(query))
 
         def _select(self, query: str) -> SPARQL_Results:
-            return json.loads(cast(bytes, self._graph.query(
+            return json.loads(cast(bytes, self._rdflib_graph.query(
                 query).serialize(format='json')))
 
     __slots__ = (
@@ -320,6 +342,20 @@ class _SPARQL_Store(
         return cls._do_check_optional(  # pragma: no cover
             cls._check_mapping, arg, default, function, name, position)
 
+    @property
+    def default_mapping(self) -> SPARQL_Mapping:
+        """The default value for :attr:`_SPARQL_Store.mapping`."""
+        return self.get_default_mapping()
+
+    def get_default_mapping(self) -> SPARQL_Mapping:
+        """Gets the default value for :attr:`_SPARQL_Store.mapping`.
+
+        Returns:
+           Default mapping.
+        """
+        from ..compiler.sparql.mapping.wikidata import WikidataMapping
+        return WikidataMapping()
+
     #: SPARQL mapping.
     _mapping: SPARQL_Mapping
 
@@ -368,6 +404,7 @@ class _SPARQL_Store(
                 q.triples()((wds, NS.RDF.type, NS.WIKIBASE.BestRank))
             else:
                 q.triples()((wds, NS.WIKIBASE.rank, q.var('rank')))
+        q.order_by = None
         count = q.fresh_var()
         res = self.backend.select(str(q.select((q.count(), count))))
         assert 'results' in res
@@ -431,3 +468,81 @@ class _SPARQL_Store(
             compiler.unset_flags(compiler.BEST_RANK)
         compiler.compile()
         return compiler
+
+
+# == Httpx SPARQL store ====================================================
+
+class HttpxSPARQL_Store(
+        _SPARQL_Store,
+        store_name='sparql-httpx',
+        store_description='SPARQL store with httpx backend'
+):
+    """SPARQL store with httpx backend.
+
+    Parameters:
+       store_name: Name of the store plugin to instantiate.
+       iri: IRI of the target SPARQL endpoint.
+       headers: HTTP headers.
+       mapping: SPARQL mapping.
+    """
+
+    def __init__(
+            self,
+            store_name: str,
+            iri: T_IRI,
+            headers: _SPARQL_Store.HttpxBackend.HTTP_Headers | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            **kwargs: Any
+    ) -> None:
+        assert store_name == self.store_name
+        super().__init__(
+            store_name,
+            mapping if mapping is not None else self.default_mapping,
+            self.HttpxBackend, iri=iri, headers=headers, **kwargs)
+
+
+# == RDFLib SPARQL store ===================================================
+
+class RDFLibSPARQL_Store(
+        _SPARQL_Store,
+        store_name='sparql-rdflib',
+        store_description='SPARQL store with RDFLib backend'
+):
+    """SPARQL store with RDFLib backend.
+
+    Parameters:
+       store_name: Name of the store plugin to instantiate.
+       args: Input sources, files, paths, strings, or statements.
+       publicID: Logical URI to use as the document base.
+       format: Input source format (file extension or media type).
+       location: Relative or absolute URL of the input source.
+       file: File-like object to be used as input source.
+       data: Data to be used as input source.
+       graph: KIF graph to used as input source.
+       rdflib_graph: RDFLib graph to be used as input source.
+       skolemize: Whether to skolemize the resulting graph.
+       mapping: SPARQL mapping.
+    """
+
+    def __init__(
+            self,
+            store_name: str,
+            *args: _SPARQL_Store.RDFLibBackend.Args,
+            publicID: str | None = None,
+            format: str | None = None,
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: str | bytes | None = None,
+            graph: TGraph | None = None,
+            rdflib_graph: rdflib.Graph | None = None,
+            skolemize: bool | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            **kwargs: Any
+    ) -> None:
+        assert store_name == self.store_name
+        super().__init__(
+            store_name,
+            mapping if mapping is not None else self.default_mapping,
+            self.RDFLibBackend, *args, publicID=publicID, format=format,
+            file=file, data=data, graph=graph, rdflib_graph=rdflib_graph,
+            skolemize=skolemize, **kwargs)

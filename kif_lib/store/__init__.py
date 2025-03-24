@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from ._sparql import _SPARQL_Store
+from ._sparql import _SPARQL_Store, HttpxSPARQL_Store, RDFLibSPARQL_Store
 from .abc import Store
 from .empty import EmptyStore
 from .mapper import SPARQL_MapperStore
@@ -17,9 +17,11 @@ from .wikidata import WikidataStore
 __all__ = (
     '_SPARQL_Store',
     'EmptyStore',
+    'HttpxSPARQL_Store',
     'MixerStore',
     'PubChemStore',
     'RDF_Store',
+    'RDFLibSPARQL_Store',
     'SPARQL_MapperStore',
     'SPARQL_Store',
     'SPARQL_Store2',
