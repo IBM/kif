@@ -146,7 +146,7 @@ class _SPARQL_Store(
                 self,
                 store: _SPARQL_Store,
                 iri: T_IRI,
-                headers: _SPARQL_Store.HttpxBackend.HTTP_Headers = {}
+                headers: HTTP_Headers = {}
         ) -> None:
             super().__init__(store)
             self._iri = IRI.check(iri, type(store), 'iri')
