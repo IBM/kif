@@ -513,9 +513,7 @@ class COUNT_STAR(COUNT):
     @override
     def iterencode(self) -> Iterator[str]:
         yield self.operator
-        yield '('
-        yield '*'
-        yield ')'
+        yield '(*)'
 
 
 class IF(TernaryBuiltInCall):
