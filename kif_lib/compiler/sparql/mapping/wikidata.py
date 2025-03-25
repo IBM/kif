@@ -354,13 +354,14 @@ class WikidataMapping(M):
                     c.q.named_subquery('Q', subquery)()
                 else:
                     c.q.subquery(subquery)()
-                with c.q.union():
-                    self._postamble_push_annotations(c)  # qualifiers
-                    self._postamble_push_annotations(    # references
-                        c, references=True)
-                    with c.q.group():  # rank
-                        c.q.triples()(
-                            (c.wds, WIKIBASE.rank, v('_rank')))
+                with c.q.optional():
+                    with c.q.union():
+                        self._postamble_push_annotations(c)  # qualifiers
+                        self._postamble_push_annotations(    # references
+                            c, references=True)
+                        with c.q.group():  # rank
+                            c.q.triples()(
+                                (c.wds, WIKIBASE.rank, v('_rank')))
 
     def _postamble_push_annotations(
             self,

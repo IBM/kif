@@ -150,7 +150,9 @@ class _SPARQL_Store(
                 self,
                 store: _SPARQL_Store,
                 iri: T_IRI,
-                headers: HTTP_Headers | None = None
+                *,
+                headers: HTTP_Headers | None = None,
+                **kwargs
         ) -> None:
             super().__init__(store)
             self._client = None
@@ -217,7 +219,8 @@ class _SPARQL_Store(
                 data: str | bytes | None = None,
                 graph: TGraph | None = None,
                 rdflib_graph: rdflib.Graph | None = None,
-                skolemize: bool | None = None
+                skolemize: bool | None = None,
+                **kwargs
         ) -> None:
             super().__init__(store)
             if rdflib_graph is None:
@@ -393,17 +396,8 @@ class _SPARQL_Store(
 
     @override
     def _count(self, filter: Filter) -> int:
-        if not filter.is_full():
-            compiler = self._compile_filter(filter.unannotated())
-            q = compiler.query
-        else:                   # filter is full: make a custom query
-            from .. import namespace as NS
-            q = SPARQL_MappingFilterCompiler.Query()
-            wds = q.fresh_var()
-            if self.has_flags(self.BEST_RANK):
-                q.triples()((wds, NS.RDF.type, NS.WIKIBASE.BestRank))
-            else:
-                q.triples()((wds, NS.WIKIBASE.rank, q.var('rank')))
+        compiler = self._compile_filter(filter.unannotated())
+        q = compiler.query
         q.order_by = None
         count = q.fresh_var()
         res = self.backend.select(str(q.select((q.count(), count))))
@@ -546,3 +540,25 @@ class RDFLibSPARQL_Store(
             self.RDFLibBackend, *args, publicID=publicID, format=format,
             file=file, data=data, graph=graph, rdflib_graph=rdflib_graph,
             skolemize=skolemize, **kwargs)
+
+
+class RDF_Store(
+        RDFLibSPARQL_Store,
+        store_name='rdf',
+        store_description='RDF file'
+):
+    """RDF store.
+
+    Parameters:
+       store_name: Name of the store plugin to instantiate.
+       args: Input sources, files, paths, strings, or statements.
+       publicID: Logical URI to use as the document base.
+       format: Input source format (file extension or media type).
+       location: Relative or absolute URL of the input source.
+       file: File-like object to be used as input source.
+       data: Data to be used as input source.
+       graph: KIF graph to used as input source.
+       rdflib_graph: RDFLib graph to be used as input source.
+       skolemize: Whether to skolemize the resulting graph.
+       mapping: SPARQL mapping.
+    """

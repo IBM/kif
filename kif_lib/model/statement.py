@@ -170,6 +170,14 @@ class StatementTemplate(Template):
         return AnnotatedStatementTemplate(
             self.subject, self.snak, qualifiers, references, rank)
 
+    def unannotate(self) -> Statement | StatementTemplate:
+        """Unannotates statement template.
+
+        Returns:
+           Unannotated statement or template.
+        """
+        return Statement(*self.claim)
+
 
 class StatementVariable(Variable):
     """Statement variable.
@@ -305,6 +313,14 @@ class Statement(
         """
         return AnnotatedStatement(
             self.subject, self.snak, qualifiers, references, rank)
+
+    def unannotate(self) -> Statement:
+        """Unannotates statement.
+
+        Returns:
+           Unannotated statement.
+        """
+        return Statement(*self.claim)
 
 
 class AnnotatedStatementTemplate(StatementTemplate):
