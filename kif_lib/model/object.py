@@ -207,7 +207,10 @@ class Object(Sequence, metaclass=ObjectMeta):
         return self._check_arg_not_none(arg, type(self), None, i)
 
     def __eq__(self, other: Any) -> bool:
-        return type(self) is type(other) and self._args == other._args
+        if isinstance(other, Object):
+            return type(self) is type(other) and self._args == other._args
+        else:
+            return NotImplemented
 
     def __getitem__(self, i: Any) -> Any:
         return self._args[i]

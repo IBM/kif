@@ -80,7 +80,7 @@ class Test(TestCase):
         self.assert_raises_bad_argument(
             TypeError, None, 'iri', 'cannot coerce int into IRI',
             r.lookup_resolver, 0)
-        s1, s2 = Store('rdf', data=''), Store('rdf', data='')
+        s1, s2 = Store('rdf'), Store('rdf')
         # iri
         self.assertIsNone(r.lookup_resolver(IRI('a/')))
         self.assert_register(r, IRI('a/'), resolver=s1)
@@ -128,7 +128,7 @@ class Test(TestCase):
             TypeError, None, 'iri', 'cannot coerce Item into IRI',
             r.get_resolver, Item('x'))
         self.assertIsNone(r.get_resolver(IRI('x')))
-        s = Store('rdf', data='')
+        s = Store('rdf')
         self.assert_register(r, IRI('x'), resolver=s)
         self.assertEqual(r.get_resolver(IRI('x')), s)
 
@@ -153,7 +153,7 @@ class Test(TestCase):
         self.assert_raises_bad_argument(
             TypeError, None, 'resolver', 'expected Store, got int',
             r.register, IRI('x'), resolver=0)
-        s1, s2 = Store('rdf', data=''), Store('rdf', data='')
+        s1, s2 = Store('rdf'), Store('rdf')
         self.assert_register(r, IRI('x'), resolver=s1)
         self.assert_register(r, IRI('y'), resolver=s2)
         self.assertEqual(r.get_resolver(IRI('x')), s1)
@@ -187,7 +187,7 @@ class Test(TestCase):
         self.assertIsNone(r.curie(IRI('y/1')))
         # resolver
         self.assertFalse(r.unregister(IRI('x'), prefix=True))
-        s = Store('rdf', data='')
+        s = Store('rdf')
         self.assert_register(r, IRI('x'), resolver=s)
         self.assertEqual(r.get_resolver(IRI('x')), s)
         self.assert_unregister(r, IRI('x'), resolver=True)

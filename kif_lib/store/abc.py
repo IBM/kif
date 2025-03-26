@@ -10,26 +10,16 @@ from ..error import Error as KIF_Error
 from ..error import ShouldNotGetHere
 from ..model import (
     AnnotatedStatement,
-    ClosedTerm,
-    Descriptor,
     Entity,
     Filter,
     Fingerprint,
-    Item,
-    ItemDescriptor,
     KIF_Object,
-    Lexeme,
-    LexemeDescriptor,
-    Pattern,
-    Property,
-    PropertyDescriptor,
     Quantity,
     ReferenceRecordSet,
     Snak,
     Statement,
     String,
     TFingerprint,
-    TPattern,
     TReferenceRecordSet,
 )
 from ..model.flags import Flags as KIF_Flags
@@ -44,6 +34,7 @@ from ..typing import (
     Location,
     Sequence,
     Set,
+    TypeAlias,
     TypeVar,
 )
 
@@ -133,10 +124,10 @@ class Store(Set):
             self,
             *args: Any,
             extra_references: TReferenceRecordSet | None = None,
-            flags: Flags | None = None,
+            flags: TFlags | None = None,
             limit: int | None = None,
             page_size: int | None = None,
-            timeout: int | None = None,
+            timeout: float | None = None,
             **kwargs: Any
     ) -> None:
         """
@@ -367,6 +358,9 @@ class Store(Set):
     #: Whether to enable late filtering.
     LATE_FILTER: Final[Flags] = Flags.LATE_FILTER
 
+    #: Type alias for store flags.
+    TFlags: TypeAlias = Flags | int
+
     @property
     def default_flags(self) -> Flags:
         """The default value for :attr:`Store.flags`."""
@@ -383,7 +377,7 @@ class Store(Set):
     #: Store flags.
     _flags: Flags
 
-    def _init_flags(self, flags: Flags | None = None) -> None:
+    def _init_flags(self, flags: TFlags | None = None) -> None:
         flags = self.Flags.check_optional(
             flags, self.default_flags, type(self), 'flags')
         assert flags is not None
@@ -395,9 +389,10 @@ class Store(Set):
         return self.get_flags()
 
     @flags.setter
-    def flags(self, flags: Flags) -> None:
+    def flags(self, flags: TFlags) -> None:
+        flags = self.Flags.check(flags, self.set_flags, 'flags', 1)
         if flags != self._flags and self._do_set_flags(self._flags, flags):
-            self._flags = self.Flags(flags)
+            self._flags = flags
 
     def _do_set_flags(self, old: Flags, new: Flags) -> bool:
         self._cache.clear()
@@ -411,7 +406,7 @@ class Store(Set):
         """
         return self._flags
 
-    def has_flags(self, flags: Flags) -> bool:
+    def has_flags(self, flags: TFlags) -> bool:
         """Tests whether `flags` are set in store.
 
         Parameters:
@@ -420,22 +415,25 @@ class Store(Set):
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
+        flags = self.Flags.check(flags, self.has_flags, 'flags', 1)
         return bool(self.flags & flags)
 
-    def set_flags(self, flags: Flags) -> None:
+    def set_flags(self, flags: TFlags) -> None:
         """Sets `flags` in store.
 
         Parameters:
            flags: Store flags.
         """
+        flags = self.Flags.check(flags, self.set_flags, 'flags', 1)
         self.flags |= flags
 
-    def unset_flags(self, flags: Flags) -> None:
+    def unset_flags(self, flags: TFlags) -> None:
         """Unsets `flags` in store.
 
         Parameters:
            flags: Store flags.
         """
+        flags = self.Flags.check(flags, self.unset_flags, 'flags', 1)
         self.flags &= ~flags
 
 # -- Limit -----------------------------------------------------------------
@@ -821,61 +819,16 @@ class Store(Set):
         self._timeout = self._check_optional_timeout(
             timeout, None, self.set_timeout, 'timeout', 1)
 
-# -- Match -----------------------------------------------------------------
-
-    def match(
-            self,
-            pattern: TPattern,
-            limit: int | None = None,
-            distinct: bool | None = None
-    ) -> Iterator[ClosedTerm]:
-        """Searches for terms matching `pattern`.
-
-        Parameters:
-           pattern: Pattern.
-           limit: Limit (maximum number) of matches to return.
-           distinct: Whether to skip duplicated matches.
-
-        Returns:
-           An iterator of closed-terms matching pattern.
-        """
-        pattern = Pattern.check(pattern, self.match, 'pattern', 1)
-        limit = self._as_limit(limit, self.match, 'limit', 2)
-        distinct = self._as_distinct(distinct, self.match, 'distinct', 3)
-        return self._match(pattern, limit, distinct)
-
-    def _match(
-            self,
-            pattern: Pattern,
-            limit: int,
-            distinct: bool
-    ) -> Iterator[ClosedTerm]:
-        return iter(())
-
-    def _as_limit(
-            self,
-            arg: Any,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> int:
-        limit = self._check_optional_limit(
-            arg, self.default_limit, function, name, position)
-        return self.max_limit if limit is None else limit
-
-    def _as_distinct(
-            self,
-            arg: Any,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> bool:
-        distinct = KIF_Object._check_optional_arg_bool(
-            arg, self.has_flags(self.DISTINCT), function, name, position)
-        assert isinstance(distinct, bool)
-        return distinct
-
 # -- Set interface ---------------------------------------------------------
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, Store):
+            ###
+            # Prevent __eq__ from triggering content equality.
+            ###
+            return id(self) == id(other)
+        else:
+            return NotImplemented
 
     def __contains__(self, v: Any) -> bool:
         return self.contains(v) if isinstance(v, Statement) else False
@@ -1109,6 +1062,29 @@ class Store(Set):
         distinct = self._as_distinct(distinct, self.filter, 'distinct', 14)
         return self._filter_with_hooks(filter, limit, distinct)
 
+    def _as_limit(
+            self,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int:
+        limit = self._check_optional_limit(
+            arg, self.default_limit, function, name, position)
+        return self.max_limit if limit is None else limit
+
+    def _as_distinct(
+            self,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> bool:
+        distinct = KIF_Object._check_optional_arg_bool(
+            arg, self.has_flags(self.DISTINCT), function, name, position)
+        assert isinstance(distinct, bool)
+        return distinct
+
     def _filter_with_hooks(
             self,
             filter: Filter,
@@ -1153,8 +1129,6 @@ class Store(Set):
             distinct: bool
     ) -> Iterator[Statement]:
         return iter(())
-
-# -- Annotations -----------------------------------------------------------
 
     def filter_annotated(
             self,
@@ -1208,295 +1182,3 @@ class Store(Set):
             filter=filter,
             limit=limit,
             distinct=distinct))
-
-    def get_annotations(
-            self,
-            stmts: Statement | Iterable[Statement]
-    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
-        """Gets annotation records of statements.
-
-        Parameters:
-           stmts: Statements.
-
-        Returns:
-           An iterator of pairs "(statement, annotation record set)".
-        """
-        KIF_Object._check_arg_isinstance(
-            stmts, (Statement, Iterable), self.get_annotations, 'stmts', 1)
-        return self._get_annotations_tail(stmts)
-
-    def _get_annotations_tail(
-            self,
-            stmts: Statement | Iterable[Statement]
-    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
-        if isinstance(stmts, Statement):
-            it = self._get_annotations_with_hooks((stmts,))
-        else:
-            it = self._get_annotations_with_hooks(map(
-                lambda s: cast(Statement, Statement.check(
-                    s, self.get_annotations)), stmts))
-        if self.extra_references:
-            return self._get_annotations_attach_extra_references(it)
-        else:
-            return it
-
-    def _get_annotations_attach_extra_references(
-            self,
-            it: Iterator[tuple[
-                Statement, set[Statement.AnnotationTriple] | None]]
-    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
-        for stmt, annots in it:
-            if annots is None:
-                yield stmt, annots
-            else:
-                def patch(a: Statement.AnnotationTriple):
-                    return (a[0], a[1].union(self.extra_references), a[2])
-                yield stmt, set(map(patch, annots))
-
-    def _get_annotations_with_hooks(
-            self,
-            stmts: Iterable[Statement]
-    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
-        return self._get_annotations_post_hook(
-            *self._get_annotations_pre_hook(stmts),
-            self._get_annotations(stmts))
-
-    def _get_annotations_pre_hook(
-            self,
-            stmts: Iterable[Statement]
-    ) -> tuple[Iterable[Statement], Any]:
-        return stmts, None
-
-    def _get_annotations_post_hook(
-            self,
-            stmts: Iterable[Statement],
-            data: Any,
-            it: Iterator[tuple[
-                Statement, set[Statement.AnnotationTriple] | None]]
-    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
-        return it
-
-    def _get_annotations(
-            self,
-            stmts: Iterable[Statement]
-    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
-        return map(lambda stmt: (stmt, None), stmts)
-
-# -- Descriptors -----------------------------------------------------------
-
-    def get_descriptor(
-            self,
-            entities: Entity | Iterable[Entity],
-            language: str | None = None,
-            mask: Descriptor.TAttributeMask | None = None
-    ) -> Iterator[tuple[Entity, Descriptor | None]]:
-        """Gets the descriptor of `entities`.
-
-        Parameters:
-           entities: Entities.
-           language: Language.
-           mask: Descriptor mask.
-
-        Returns:
-           An iterator of pairs "(entity, descriptor)".
-        """
-        KIF_Object._check_arg_isinstance(
-            entities, (Entity, Iterable), self.get_descriptor, 'entities', 1)
-        language = KIF_Object._check_optional_arg_str(
-            language, self.context.options.language,
-            self.get_descriptor, 'language', 2)
-        assert language is not None
-        mask = Descriptor.AttributeMask.check_optional(
-            mask, Descriptor.ALL, self.get_descriptor, 'mask', 3)
-        assert mask is not None
-        if isinstance(entities, Entity):
-            return self._get_descriptor_tail((entities,), language, mask)
-        else:
-            return self._get_descriptor_tail(map(
-                lambda e: cast(Entity, Entity.check(
-                    e, self.get_descriptor)), entities), language, mask)
-
-    def _get_descriptor_tail(
-            self,
-            entities: Iterable[Entity],
-            language: str,
-            mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Entity, Descriptor | None]]:
-        return self._chain_map_batched(
-            lambda batch: self._get_descriptor(batch, language, mask),
-            entities, min(3 * self.page_size, self.max_page_size))
-
-    def _get_descriptor(
-            self,
-            entities: Iterable[Entity],
-            language: str,
-            mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Entity, Descriptor | None]]:
-        items: list[Item] = []
-        properties: list[Property] = []
-        lexemes: list[Lexeme] = []
-        for entity in entities:
-            if isinstance(entity, Item):
-                items.append(entity)
-            elif isinstance(entity, Property):
-                properties.append(entity)
-            elif isinstance(entity, Lexeme):
-                lexemes.append(entity)
-            else:
-                raise self._should_not_get_here()
-        desc = dict(itertools.chain(
-            self._get_item_descriptor(items, language, mask)
-            if items else iter(()),
-            self._get_property_descriptor(properties, language, mask)
-            if properties else iter(()),
-            self._get_lexeme_descriptor(lexemes, mask)
-            if lexemes else iter(())))
-        for entity in entities:
-            assert isinstance(entity, (Item, Property, Lexeme))
-            assert entity in desc
-            yield entity, desc[entity]
-
-    def get_item_descriptor(
-            self,
-            items: Item | Iterable[Item],
-            language: str | None = None,
-            mask: Descriptor.TAttributeMask | None = None
-    ) -> Iterator[tuple[Item, ItemDescriptor | None]]:
-        """Gets the descriptor of `items`.
-
-        Parameters:
-           items: Items.
-           language: Language.
-           mask: Descriptor mask.
-
-        Returns:
-           An iterator of pairs "(item, descriptor)".
-        """
-        KIF_Object._check_arg_isinstance(
-            items, (Item, Iterable),
-            self.get_item_descriptor, 'items', 1)
-        language = KIF_Object._check_optional_arg_str(
-            language, self.context.options.language,
-            self.get_item_descriptor, 'language', 2)
-        assert language is not None
-        mask = Descriptor.AttributeMask.check_optional(
-            mask, Descriptor.ALL, self.get_item_descriptor, 'mask', 3)
-        assert mask is not None
-        if isinstance(items, Item):
-            return self._get_item_descriptor_tail((items,), language, mask)
-        else:
-            return self._get_item_descriptor_tail(map(
-                lambda e: cast(Item, Item.check(
-                    e, self.get_item_descriptor)), items), language, mask)
-
-    def _get_item_descriptor_tail(
-            self,
-            items: Iterable[Item],
-            language: str,
-            mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Item, ItemDescriptor | None]]:
-        return self._chain_map_batched(
-            lambda batch: self._get_item_descriptor(batch, language, mask),
-            items)
-
-    def _get_item_descriptor(
-            self,
-            items: Iterable[Item],
-            language: str,
-            mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Item, ItemDescriptor | None]]:
-        return map(lambda item: (item, None), items)
-
-    def get_property_descriptor(
-            self,
-            properties: Property | Iterable[Property],
-            language: str | None = None,
-            mask: Descriptor.TAttributeMask | None = None
-    ) -> Iterator[tuple[Property, PropertyDescriptor | None]]:
-        """Gets the descriptor of `properties`.
-
-        Parameters:
-           properties: Properties.
-           language: Language.
-           mask: Descriptor mask.
-
-        Returns:
-           An iterator of pairs "(property, descriptor)".
-        """
-        KIF_Object._check_arg_isinstance(
-            properties, (Property, Iterable),
-            self.get_property_descriptor, 'properties', 1)
-        language = KIF_Object._check_optional_arg_str(
-            language, self.context.options.language,
-            self.get_property_descriptor, 'language', 2)
-        assert language is not None
-        mask = Descriptor.AttributeMask.check_optional(
-            mask, Descriptor.ALL, self.get_property_descriptor, 'mask', 3)
-        assert mask is not None
-        if isinstance(properties, Property):
-            return self._get_property_descriptor_tail(
-                (properties,), language, mask)
-        else:
-            return self._get_property_descriptor_tail(map(
-                lambda e: cast(Property, Property.check(
-                    e, self.get_property_descriptor)),
-                properties), language, mask)
-
-    def _get_property_descriptor_tail(
-            self,
-            properties: Iterable[Property],
-            language: str,
-            mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Property, PropertyDescriptor | None]]:
-        return self._chain_map_batched(
-            lambda batch: self._get_property_descriptor(batch, language, mask),
-            properties)
-
-    def _get_property_descriptor(
-            self,
-            properties: Iterable[Property],
-            language: str,
-            mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Property, PropertyDescriptor | None]]:
-        return map(lambda property: (property, None), properties)
-
-    def get_lexeme_descriptor(
-            self,
-            lexemes: Lexeme | Iterable[Lexeme],
-            mask: Descriptor.TAttributeMask | None = None
-    ) -> Iterator[tuple[Lexeme, LexemeDescriptor | None]]:
-        """Gets the descriptor of `lexemes`.
-
-        Parameters:
-           lexemes: Lexemes.
-
-        Returns:
-           An iterator of pairs "(lexeme, descriptor)".
-        """
-        KIF_Object._check_arg_isinstance(
-            lexemes, (Lexeme, Iterable),
-            self.get_lexeme_descriptor, 'lexemes', 1)
-        mask = Descriptor.AttributeMask.check_optional(
-            mask, Descriptor.ALL, self.get_lexeme_descriptor, 'mask', 3)
-        assert mask is not None
-        if isinstance(lexemes, Lexeme):
-            return self._get_lexeme_descriptor_tail((lexemes,), mask)
-        else:
-            return self._get_lexeme_descriptor_tail(map(
-                lambda e: cast(Lexeme, Lexeme.check(
-                    e, self.get_lexeme_descriptor)), lexemes), mask)
-
-    def _get_lexeme_descriptor_tail(
-            self,
-            lexemes: Iterable[Lexeme],
-            mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Lexeme, LexemeDescriptor | None]]:
-        return self._chain_map_batched(
-            lambda batch: self._get_lexeme_descriptor(batch, mask), lexemes)
-
-    def _get_lexeme_descriptor(
-            self,
-            lexemes: Iterable[Lexeme],
-            mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Lexeme, LexemeDescriptor | None]]:
-        return map(lambda lexeme: (lexeme, None), lexemes)

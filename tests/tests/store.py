@@ -3,9 +3,6 @@
 
 from __future__ import annotations
 
-import os
-import unittest
-
 from kif_lib import (
     AnnotatedStatement,
     Entity,
@@ -39,16 +36,8 @@ from kif_lib.model import (
     VStatement,
     VValue,
 )
-from kif_lib.store import (
-    EmptyStore,
-    PubChemStore,
-    RDF_Store,
-    SPARQL_MapperStore,
-    SPARQL_Store,
-    SPARQL_Store2,
-    WikidataStore,
-)
-from kif_lib.typing import cast, Final, Iterable, override, TypeAlias
+from kif_lib.store import EmptyStore
+from kif_lib.typing import cast, Iterable, override, TypeAlias
 from kif_lib.vocabulary import wd
 
 from .tests import TestCase
@@ -720,95 +709,3 @@ class EmptyStoreTestCase(StoreTestCase):
     @classmethod
     def new_Store(cls, *args, **kwargs) -> EmptyStore:
         return cast(EmptyStore, Store('empty', *args, **kwargs))
-
-
-class SPARQL_StoreTestCase(StoreTestCase):
-    """Test case of :class:`SPARQL_Store`."""
-
-    @override
-    @classmethod
-    def new_Store(cls, *args, **kwargs) -> SPARQL_Store:
-        return cast(SPARQL_Store, Store('sparql', *args, **kwargs))
-
-
-class RDF_StoreTestCase(StoreTestCase):
-    """Test case of :class:`RDF_Store`."""
-
-    @override
-    @classmethod
-    def new_Store(cls, *args, **kwargs) -> RDF_Store:
-        return cast(RDF_Store, Store('rdf', *args, **kwargs))
-
-
-class WikidataStoreTestCase(SPARQL_StoreTestCase):
-    """Test case of :class:`WikidataStore`."""
-
-    WIKIDATA: Final[str | None] = os.getenv('WIKIDATA')
-
-    @classmethod
-    def setUpClass(cls):
-        if not cls.WIKIDATA:
-            raise unittest.SkipTest('WIKIDATA is not set')
-
-    @override
-    @classmethod
-    def new_Store(cls, *args, **kwargs) -> WikidataStore:
-        assert cls.WIKIDATA is not None
-        return cast(WikidataStore, Store(
-            'wikidata', cls.WIKIDATA, *args, **kwargs))
-
-
-class SPARQL_MapperStoreTestCase(SPARQL_StoreTestCase):
-    """Test case of :class:`SPARQL_MapperStore`."""
-
-    @override
-    @classmethod
-    def new_Store(cls, *args, **kwargs) -> SPARQL_MapperStore:
-        return cast(SPARQL_MapperStore, Store(
-            'sparql-mapper', *args, **kwargs))
-
-
-class PubChemSPARQL_StoreTestCase(SPARQL_MapperStoreTestCase):
-    """Test case of :class:`SPARQL_MapperStore` loaded with PubChem mapping."""
-
-    PUBCHEM: Final[str | None] = os.getenv('PUBCHEM')
-
-    @classmethod
-    def setUpClass(cls):
-        if not cls.PUBCHEM:
-            raise unittest.SkipTest('PUBCHEM is not set')
-
-    @override
-    @classmethod
-    def new_Store(cls, *args, **kwargs) -> SPARQL_MapperStore:
-        from kif_lib.store.mapping import PubChemMapping
-        assert cls.PUBCHEM is not None
-        return cast(SPARQL_MapperStore, Store(
-            'sparql-mapper', cls.PUBCHEM, PubChemMapping(), *args, **kwargs))
-
-
-class SPARQL_Store2TestCase(SPARQL_StoreTestCase):
-    """Test case of :class:`SPARQL_Store2`."""
-
-    @override
-    @classmethod
-    def new_Store(cls, *args, **kwargs) -> SPARQL_Store2:
-        return cast(SPARQL_Store2, Store('sparql2', *args, **kwargs))
-
-
-class PubChemStoreTestCase(SPARQL_Store2TestCase):
-    """Test case of :class:`PubChemStore`."""
-
-    PUBCHEM: Final[str | None] = os.getenv('PUBCHEM')
-
-    @classmethod
-    def setUpClass(cls):
-        if not cls.PUBCHEM:
-            raise unittest.SkipTest('PUBCHEM is not set')
-
-    @override
-    @classmethod
-    def new_Store(cls, *args, **kwargs) -> PubChemStore:
-        assert cls.PUBCHEM is not None
-        return cast(PubChemStore, Store(
-            'pubchem', cls.PUBCHEM, *args, **kwargs))

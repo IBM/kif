@@ -3,26 +3,26 @@
 
 from __future__ import annotations
 
-from kif_lib import Item, Items, Property
+from kif_lib import Item, Items, Property, Store
 
-from ...tests import EmptyStoreTestCase
+from ...tests import TestCase
 
 
-class Test(EmptyStoreTestCase):
+class Test(TestCase):
 
     def test__init_cache(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assertTrue(kb._cache.enabled)
-        kb = self.new_Store(flags=0)
+        kb = Store('empty', flags=0)
         self.assertFalse(kb._cache.enabled)
         self.assertEqual(kb._cache.size, 0)
 
     def test__cache_get_presence(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assertIsNone(kb._cache_get_presence(Item('x')))
 
     def test__cache_set_presence(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         x, y = Items('x', 'y')
         stmt = Property('p')(x, y)
         self.assertIsNone(kb._cache_get_presence(x))

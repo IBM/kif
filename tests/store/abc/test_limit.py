@@ -3,13 +3,15 @@
 
 from __future__ import annotations
 
-from ...tests import EmptyStoreTestCase
+from kif_lib import Store
+
+from ...tests import TestCase
 
 
-class Test(EmptyStoreTestCase):
+class Test(TestCase):
 
     def test_default_limit(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assertEqual(
             kb.default_limit,
             kb.context.options.store.limit)
@@ -18,33 +20,33 @@ class Test(EmptyStoreTestCase):
             kb.context.options.store.max_limit)
 
     def test__init_limit(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assertEqual(kb.limit, kb.default_limit)
-        kb = self.new_Store(limit=33)
+        kb = Store('empty', limit=33)
         self.assertEqual(kb.limit, 33)
-        kb = self.new_Store(limit=-1)
+        kb = Store('empty', limit=-1)
         self.assertEqual(kb.limit, 0)
-        kb = self.new_Store(limit=None)
+        kb = Store('empty', limit=None)
         self.assertEqual(kb.limit, kb.default_limit)
-        kb = self.new_Store(limit=kb.max_limit + 10)
+        kb = Store('empty', limit=kb.max_limit + 10)
         self.assertEqual(kb.limit, kb.max_limit)
 
     def test_get_limit(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assertEqual(kb.get_limit(), kb.default_limit)
         self.assertEqual(kb.get_limit(5), 5)
-        kb = self.new_Store(limit=0)
+        kb = Store('empty', limit=0)
         self.assertEqual(kb.get_limit(5), 0)
-        kb = self.new_Store(limit=-8)
+        kb = Store('empty', limit=-8)
         self.assertEqual(kb.get_limit(5), 0)
-        kb = self.new_Store(limit=None)
+        kb = Store('empty', limit=None)
         self.assertEqual(kb.get_limit(), kb.default_limit)
-        kb = self.new_Store(limit=None)
+        kb = Store('empty', limit=None)
         self.assertEqual(
             kb.get_limit(kb.max_limit + 10), kb.max_limit)
 
     def test_set_limit(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assert_raises_bad_argument(
             TypeError, 1, 'limit', 'cannot coerce dict into Quantity',
             kb.set_limit, {})

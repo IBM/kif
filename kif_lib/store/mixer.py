@@ -4,18 +4,7 @@
 from __future__ import annotations
 
 from .. import itertools
-from ..model import (
-    Descriptor,
-    Filter,
-    Item,
-    ItemDescriptor,
-    KIF_Object,
-    Lexeme,
-    LexemeDescriptor,
-    Property,
-    PropertyDescriptor,
-    Statement,
-)
+from ..model import Filter, KIF_Object, Statement
 from ..typing import (
     Any,
     Callable,
@@ -130,8 +119,6 @@ class MixerStore(
                     except StopIteration:
                         break
                 assert len(batch) == n
-
-# -- Statements ------------------------------------------------------------
 
     @override
     def _contains(self, filter: Filter) -> bool:
@@ -178,125 +165,3 @@ class MixerStore(
             except StopIteration:
                 assert src is not None
                 exausted.add(src)
-
-# -- Annotations -----------------------------------------------------------
-
-    @override
-    def _get_annotations(
-            self,
-            stmts: Iterable[Statement]
-    ) -> Iterator[tuple[Statement, set[Statement.AnnotationTriple] | None]]:
-        return self._mix_get_x(
-            stmts, None, lambda kb, b: kb._get_annotations_tail(b),
-            self._get_annotations_mixed)
-
-    def _get_annotations_mixed(
-            self,
-            it: Iterator[tuple[
-                Statement, set[Statement.AnnotationTriple] | None]],
-    ) -> tuple[Statement, set[Statement.AnnotationTriple] | None]:
-        stmt, annots = next(it)
-        for stmti, annotsi in it:
-            assert stmt == stmti
-            if annots is not None and annotsi is not None:
-                annots = annots.union(annotsi)
-            elif annots is None:
-                annots = annotsi
-        return stmt, annots
-
-# -- Descriptors -----------------------------------------------------------
-
-    @override
-    def _get_item_descriptor(
-            self,
-            items: Iterable[Item],
-            language: str,
-            mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Item, ItemDescriptor | None]]:
-        return self._get_x_descriptor(
-            items,
-            lambda kb, batch: kb._get_item_descriptor(batch, language, mask),
-            self._merge_item_descriptors)
-
-    def _merge_item_descriptors(
-            self,
-            d1: ItemDescriptor | None,
-            d2: ItemDescriptor | None
-    ) -> ItemDescriptor:
-        assert d1 is not None
-        assert d2 is not None
-        return ItemDescriptor(
-            d1.label if d1.label is not None else d2.label,
-            d1.aliases.union(d2.aliases),
-            d1.description if d1.description is not None else d2.description)
-
-    @override
-    def _get_property_descriptor(
-            self,
-            properties: Iterable[Property],
-            language: str,
-            mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Property, PropertyDescriptor | None]]:
-        return self._get_x_descriptor(
-            properties,
-            lambda kb, batch:
-            kb._get_property_descriptor(batch, language, mask),
-            self._merge_property_descriptors)
-
-    def _merge_property_descriptors(
-            self,
-            d1: PropertyDescriptor | None,
-            d2: PropertyDescriptor | None
-    ) -> PropertyDescriptor:
-        assert d1 is not None
-        assert d2 is not None
-        return PropertyDescriptor(
-            d1.label if d1.label is not None else d2.label,
-            d1.aliases.union(d2.aliases),
-            d1.description if d1.description is not None else d2.description,
-            d1.datatype if d1.datatype is not None else d2.datatype)
-
-    @override
-    def _get_lexeme_descriptor(
-            self,
-            lexemes: Iterable[Lexeme],
-            mask: Descriptor.AttributeMask
-    ) -> Iterator[tuple[Lexeme, LexemeDescriptor | None]]:
-        return self._get_x_descriptor(
-            lexemes,
-            lambda kb, batch: kb._get_lexeme_descriptor(batch, mask),
-            self._merge_lexeme_descriptors)
-
-    def _merge_lexeme_descriptors(
-            self,
-            d1: LexemeDescriptor | None,
-            d2: LexemeDescriptor | None
-    ) -> LexemeDescriptor:
-        assert d1 is not None
-        assert d2 is not None
-        return LexemeDescriptor(
-            d1.lemma if d1.lemma is not None else d2.lemma,
-            d1.category if d1.category is not None else d2.category,
-            d1.language if d1.language is not None else d2.language)
-
-    def _get_x_descriptor(
-            self,
-            entities: Iterable[T],
-            get: Callable[[Store, Iterable[T]],
-                          Iterator[tuple[T, S | None]]],
-            merge: Callable[[S, S], S]
-    ) -> Iterator[tuple[T, S | None]]:
-        desc: dict[T, S] = {}
-        for kb in self._sources:
-            for entity, entity_desc in get(kb, entities):
-                if entity_desc is None:
-                    continue
-                if entity not in desc:
-                    desc[entity] = entity_desc
-                else:
-                    desc[entity] = merge(desc[entity], entity_desc)
-        for entity in entities:
-            if entity in desc:
-                yield entity, desc[entity]
-            else:
-                yield entity, None

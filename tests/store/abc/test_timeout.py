@@ -3,51 +3,55 @@
 
 from __future__ import annotations
 
-from ...tests import EmptyStoreTestCase
+from kif_lib import Store
+from kif_lib.typing import Final
+
+from ...tests import TestCase
 
 
-class Test(EmptyStoreTestCase):
+class Test(TestCase):
+
+    KB: Final[Store] = Store('empty')
 
     def test_default_timeout(self) -> None:
-        kb = self.new_Store()
         self.assertEqual(
-            kb.default_timeout,
-            kb.context.options.store.timeout)
+            self.KB.default_timeout,
+            self.KB.context.options.store.timeout)
         self.assertEqual(
-            kb.max_timeout,
-            kb.context.options.store.max_timeout)
+            self.KB.max_timeout,
+            self.KB.context.options.store.max_timeout)
 
     def test__init_timeout(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assertEqual(kb.timeout, kb.default_timeout)
-        kb = self.new_Store(timeout=33)
+        kb = Store('empty', timeout=33)
         self.assertEqual(kb.timeout, 33)
-        kb = self.new_Store(timeout=0)
+        kb = Store('empty', timeout=0)
         self.assertEqual(kb.timeout, 0.)
-        kb = self.new_Store(timeout=-1)
+        kb = Store('empty', timeout=-1)
         self.assertEqual(kb.timeout, 0.)
-        kb = self.new_Store(timeout=None)
+        kb = Store('empty', timeout=None)
         self.assertEqual(kb.timeout, kb.default_timeout)
-        kb = self.new_Store(timeout=kb.max_timeout + 10)
+        kb = Store('empty', timeout=kb.max_timeout + 10)
         self.assertEqual(kb.timeout, kb.max_timeout)
 
     def test_get_timeout(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assertEqual(kb.get_timeout(), kb.default_timeout)
         self.assertEqual(kb.get_timeout(44.), 44.)
-        kb = self.new_Store(timeout=0)
+        kb = Store('empty', timeout=0)
         self.assertEqual(kb.get_timeout(44), 0)
-        kb = self.new_Store(timeout=-8)
+        kb = Store('empty', timeout=-8)
         self.assertEqual(kb.get_timeout(5), 0.0)
-        kb = self.new_Store(timeout=None)
+        kb = Store('empty', timeout=None)
         self.assertEqual(kb.get_timeout(), kb.default_timeout)
-        kb = self.new_Store(timeout=33.)
+        kb = Store('empty', timeout=33.)
         self.assertEqual(kb.get_timeout(5), 33.)
-        kb = self.new_Store(timeout=None)
+        kb = Store('empty', timeout=None)
         self.assertEqual(kb.get_timeout(kb.max_timeout + 10), kb.max_timeout)
 
     def test_set_timeout(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assert_raises_bad_argument(
             TypeError, 1, 'timeout', 'cannot coerce dict into Quantity',
             kb.set_timeout, {})

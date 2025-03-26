@@ -3,15 +3,18 @@
 
 from __future__ import annotations
 
-from kif_lib import Items
+from kif_lib import Items, Store
+from kif_lib.typing import Final
 
-from ...tests import EmptyStoreTestCase
+from ...tests import TestCase
 
 
-class Test(EmptyStoreTestCase):
+class Test(TestCase):
+
+    KB: Final[Store] = Store('empty')
 
     def test_default_page_size(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assertEqual(
             kb.default_page_size,
             kb.context.options.store.page_size)
@@ -20,33 +23,33 @@ class Test(EmptyStoreTestCase):
             kb.context.options.store.max_page_size)
 
     def test__init_page_size(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assertEqual(kb.page_size, kb.default_page_size)
-        kb = self.new_Store(page_size=33)
+        kb = Store('empty', page_size=33)
         self.assertEqual(kb.page_size, 33)
-        kb = self.new_Store(page_size=-1)
+        kb = Store('empty', page_size=-1)
         self.assertEqual(kb.page_size, 0)
-        kb = self.new_Store(page_size=None)
+        kb = Store('empty', page_size=None)
         self.assertEqual(kb.page_size, kb.default_page_size)
-        kb = self.new_Store(page_size=kb.max_page_size + 10)
+        kb = Store('empty', page_size=kb.max_page_size + 10)
         self.assertEqual(kb.page_size, kb.max_page_size)
 
     def test_get_page_size(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assertEqual(kb.get_page_size(), kb.default_page_size)
         self.assertEqual(kb.get_page_size(5), 5)
-        kb = self.new_Store(page_size=0)
+        kb = Store('empty', page_size=0)
         self.assertEqual(kb.get_page_size(5), 0)
-        kb = self.new_Store(page_size=-8)
+        kb = Store('empty', page_size=-8)
         self.assertEqual(kb.get_page_size(5), 0)
-        kb = self.new_Store(page_size=None)
+        kb = Store('empty', page_size=None)
         self.assertEqual(kb.get_page_size(), kb.default_page_size)
-        kb = self.new_Store(page_size=None)
+        kb = Store('empty', page_size=None)
         self.assertEqual(
             kb.get_page_size(kb.max_page_size + 10), kb.max_page_size)
 
     def test_set_page_size(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assert_raises_bad_argument(
             TypeError, 1, 'page_size', 'cannot coerce dict into Quantity',
             kb.set_page_size, {})
@@ -72,7 +75,7 @@ class Test(EmptyStoreTestCase):
         self.assertEqual(kb.page_size, kb.max_page_size)
 
     def test__batched(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         kb.page_size = 2
         it = kb._batched(Items('v', 'w', 'x', 'y', 'z'))
         self.assertEqual(next(it), tuple(Items('v', 'w')))

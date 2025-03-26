@@ -3,13 +3,13 @@
 
 from __future__ import annotations
 
-from kif_lib import Property, ReferenceRecord, ReferenceRecordSet
+from kif_lib import Property, ReferenceRecord, ReferenceRecordSet, Store
 from kif_lib.typing import Final
 
-from ...tests import EmptyStoreTestCase
+from ...tests import TestCase
 
 
-class Test(EmptyStoreTestCase):
+class Test(TestCase):
 
     ref1: Final[ReferenceRecord] = ReferenceRecord(
         Property('p')('abc'),
@@ -22,37 +22,37 @@ class Test(EmptyStoreTestCase):
     refs: Final[ReferenceRecordSet] = ReferenceRecordSet(ref1, ref2, ref3)
 
     def test_default_extra_references(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assertEqual(
             kb.default_extra_references,
             ReferenceRecordSet())
 
     def test__init_extra_references(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assertEqual(kb.extra_references, kb.default_extra_references)
-        kb = self.new_Store(extra_references=list(self.refs))
+        kb = Store('empty', extra_references=list(self.refs))
         self.assertEqual(kb.extra_references, self.refs)
-        kb = self.new_Store(extra_references=[self.ref3])
+        kb = Store('empty', extra_references=[self.ref3])
         self.assertEqual(kb.extra_references, ReferenceRecordSet(self.ref3))
-        kb = self.new_Store(extra_references=None)
+        kb = Store('empty', extra_references=None)
         self.assertEqual(kb.extra_references, kb.default_extra_references)
 
     def test_get_extra_references(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assertEqual(
             kb.get_extra_references(), kb.default_extra_references)
         self.assertEqual(kb.get_extra_references(self.refs), self.refs)
-        kb = self.new_Store(extra_references=ReferenceRecordSet())
+        kb = Store('empty', extra_references=ReferenceRecordSet())
         self.assertEqual(
             kb.get_extra_references(self.refs), ReferenceRecordSet())
-        kb = self.new_Store(extra_references=None)
+        kb = Store('empty', extra_references=None)
         self.assertEqual(kb.get_extra_references(self.refs), self.refs)
-        kb = self.new_Store(extra_references=self.refs)
+        kb = Store('empty', extra_references=self.refs)
         self.assertEqual(
             kb.get_extra_references(ReferenceRecordSet()), self.refs)
 
     def test_set_extra_references(self) -> None:
-        kb = self.new_Store()
+        kb = Store('empty')
         self.assert_raises_bad_argument(
             TypeError, 1, 'extra_references',
             'cannot coerce int into ReferenceRecordSet',

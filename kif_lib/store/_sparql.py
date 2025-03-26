@@ -8,6 +8,7 @@ import functools
 import json
 import logging
 import pathlib
+import re
 
 import httpx
 
@@ -47,6 +48,7 @@ from ..typing import (
 )
 from ..version import __version__
 from .abc import Store
+from .mixer import MixerStore
 
 LOG = logging.getLogger(__name__)
 
@@ -197,6 +199,7 @@ class _SPARQL_Store(
     class RDFLibBackend(Backend):
         """RDFLib backend."""
 
+        #: Type alias for RDFLib backend arguments.
         Args: TypeAlias = Union[
             IO[bytes], TextIO, rdflib.InputSource,
             str, bytes, pathlib.PurePath, Statement]
@@ -562,3 +565,88 @@ class RDF_Store(
        skolemize: Whether to skolemize the resulting graph.
        mapping: SPARQL mapping.
     """
+
+
+# == SPARQL Store ==========================================================
+
+class SPARQL_Store(
+        MixerStore,
+        store_name='sparql',
+        store_description='SPARQL store',
+):
+    """SPARQL store.
+
+    Parameters:
+       store_name: Name of the store plugin to instantiate.
+       args: IRIs, input sources, files, paths, strings, or statements.
+       publicID: Logical URI to use as the document base.
+       format: Input source format (file extension or media type).
+       location: Relative or absolute URL of the input source.
+       file: File-like object to be used as input source.
+       data: Data to be used as input source.
+       graph: KIF graph to used as input source.
+       rdflib_graph: RDFLib graph to be used as input source.
+       skolemize: Whether to skolemize the resulting graph.
+       mapping: SPARQL mapping.
+    """
+
+    #: Type alias for SPARQL Store arguments.
+    Args: TypeAlias = T_IRI | _SPARQL_Store.RDFLibBackend.Args
+
+    @classmethod
+    def _is_http_or_https_iri(
+            cls,
+            arg: Args,
+            _re: re.Pattern = re.compile(r'^http[s]?://')
+    ) -> bool:
+        content: str
+        if isinstance(arg, IRI):
+            content = arg.content
+        elif isinstance(arg, rdflib.URIRef):
+            content = str(arg)
+        elif isinstance(arg, str):
+            content = arg
+        else:
+            return False
+        return bool(_re.match(content))
+
+    def __init__(
+            self,
+            store_name: str,
+            *args: SPARQL_Store.Args,
+            publicID: str | None = None,
+            format: str | None = None,
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: str | bytes | None = None,
+            graph: TGraph | None = None,
+            rdflib_graph: rdflib.Graph | None = None,
+            skolemize: bool | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            **kwargs: Any
+    ) -> None:
+        assert store_name == self.store_name
+        other, iris = map(list, itertools.partition(
+            self._is_http_or_https_iri, args))
+
+        def it() -> Iterator[Store]:
+            for iri in iris:
+                yield Store('sparql-httpx', iri, mapping=mapping, **kwargs)
+            if (other
+                    or location is not None
+                    or file is not None
+                    or data is not None
+                    or graph is not None
+                    or rdflib_graph is not None):
+                yield Store(
+                    'rdf', *other,
+                    publicID=publicID, format=format,
+                    location=location,
+                    file=file,
+                    data=data,
+                    graph=graph,
+                    rdflib_graph=rdflib_graph,
+                    skolemize=skolemize,
+                    mapping=mapping,
+                    **kwargs)
+        super().__init__(store_name, list(it()), **kwargs)

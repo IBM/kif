@@ -107,7 +107,7 @@ def _install_resolver(context: Context | None = None) -> None:
         from ...compiler.sparql.mapping.wikidata import WikidataMapping
         from ...store import Store
         ctx.iris.register(IRI(NS.WD), resolver=Store(
-            'sparql2', resolver_iri, WikidataMapping()))
+            'sparql', resolver_iri, mapping=WikidataMapping()))
 
 
 def P(
