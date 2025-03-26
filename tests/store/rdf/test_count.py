@@ -36,7 +36,7 @@ class Test(TestCase):
         self.assertEqual(self.KB.count(subject_mask=Filter.PROPERTY), 6)
 
     def test_property_mask(self) -> None:
-        pass
+        raise self.TODO()
 
     def test_value_mask(self) -> None:
         self.assertEqual(self.KB.count(value_mask=Filter.TEXT), 32)
@@ -50,7 +50,7 @@ class Test(TestCase):
             language='pt',
             snak_mask=Filter.VALUE_SNAK), 2)
 
-    # -- fingerprints --
+    # -- value fp --
 
     def test_value_fp_subject(self) -> None:
         self.assertEqual(self.KB.count(subject=wd.Brazil), 10)
@@ -63,11 +63,20 @@ class Test(TestCase):
         self.assertEqual(self.KB.count(
             subject=wd.benzene, property=wd.mass), 1)
 
-    def test_value_fp_value_text(self) -> None:
+    def test_value_fp_iri(self) -> None:
+        raise self.TODO()
+
+    def test_value_fp_text(self) -> None:
         self.assertEqual(self.KB.count(
             value=Text('Brazil', 'en')), 1)
 
-    def test_value_fp_value_quantity(self) -> None:
+    def test_value_fp_string(self) -> None:
+        raise self.TODO()
+
+    def test_value_fp_external_id(self) -> None:
+        raise self.TODO()
+
+    def test_value_fp_quantity(self) -> None:
         self.assertEqual(self.KB.count(
             subject=wd.benzene,
             property=wd.mass,
@@ -98,7 +107,7 @@ class Test(TestCase):
             value=Quantity(
                 '.88', wd.gram_per_cubic_centimetre, '.87', '.89')), 1)
 
-    def test_value_fp_value_time(self) -> None:
+    def test_value_fp_time(self) -> None:
         self.assertEqual(self.KB.count(value=Time('1822-09-07')), 1)
         self.assertEqual(self.KB.count(value=Time('1822-09-08')), 0)
         self.assertEqual(self.KB.count(
@@ -124,6 +133,8 @@ class Test(TestCase):
                 '1822-09-07', Time.DAY, 0,
                 wd.proleptic_Gregorian_calendar)), 1)
 
+    # -- snak fp --
+
     def test_snak_fp_subject(self) -> None:
         self.assertEqual(self.KB.count(
             subject=wd.instance_of(wd.type_of_a_chemical_entity),
@@ -139,9 +150,27 @@ class Test(TestCase):
             subject=wd.Brazil,
             value=wd.demonym(Text('Latinoamericana', 'es'))), 1)
 
+    def test_and_fp_subject(self) -> None:
+        raise self.TODO()
+
+    def test_and_fp_property(self) -> None:
+        raise self.TODO()
+
+    def test_and_fp_value(self) -> None:
+        raise self.TODO()
+
+    def test_or_fp_subject(self) -> None:
+        raise self.TODO()
+
     def test_or_fp_subject_property(self) -> None:
         self.assertEqual(self.KB.count(
             subject=wd.Brazil | wd.benzene, property=wd.label | wd.mass), 4)
+
+    def test_or_fp_property(self) -> None:
+        raise self.TODO()
+
+    def test_or_fp_value(self) -> None:
+        raise self.TODO()
 
 
 if __name__ == '__main__':

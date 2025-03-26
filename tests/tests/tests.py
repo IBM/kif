@@ -215,6 +215,14 @@ class TestCase(unittest.TestCase):
     def main(cls) -> unittest.main:
         return unittest.main()
 
+    @classmethod
+    def skip(cls, message: str) -> unittest.SkipTest:
+        return unittest.SkipTest(message)
+
+    @classmethod
+    def TODO(cls) -> unittest.SkipTest:
+        return cls.skip('to-do')
+
     @property
     def logger(self) -> logging.Logger:
         return logging.getLogger(__name__)

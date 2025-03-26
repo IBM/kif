@@ -79,7 +79,7 @@ class Test(TestCase):
              wd.related_property(wd.InChIKey, wd.InChI)})
 
     def test_property_mask(self) -> None:
-        pass
+        raise self.TODO()
 
     def test_value_mask(self) -> None:
         self.assertEqual(
@@ -101,7 +101,7 @@ class Test(TestCase):
              wd.official_name(wd.Brazil, Text(
                  'República Federativa do Brasil', 'pt'))})
 
-    # -- fingerprints --
+    # -- value fp --
 
     def test_value_fp_subject(self) -> None:
         self.assertEqual(
@@ -119,7 +119,10 @@ class Test(TestCase):
             set(self.KB.filter(property=wd.mass)),
             {wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))})
 
-    def test_value_fp_value_text(self) -> None:
+    def test_value_fp_iri(self) -> None:
+        raise self.TODO()
+
+    def test_value_fp_text(self) -> None:
         self.assertEqual(
             set(self.KB.filter(value=Text('Brazil', 'en'))),
             {wd.label(wd.Brazil, 'Brazil')})
@@ -127,7 +130,13 @@ class Test(TestCase):
             set(self.KB.filter(value=Text('Brazil', 'es'))),
             set())
 
-    def test_value_fp_value_quantity(self) -> None:
+    def test_value_fp_string(self) -> None:
+        raise self.TODO()
+
+    def test_value_fp_external_id(self) -> None:
+        raise self.TODO()
+
+    def test_value_fp_quantity(self) -> None:
         stmt = wd.density(wd.benzene, Quantity(
             '.88', wd.gram_per_cubic_centimetre, '.87', '.89'))
         self.assertEqual(
@@ -155,7 +164,7 @@ class Test(TestCase):
             set(self.KB.filter(value=Quantity('.88', None, None, '.88'))),
             set())
 
-    def test_value_fp_value_time(self):
+    def test_value_fp_time(self):
         stmt = wd.inception(wd.Brazil, Time(
             '1822-09-07', Time.DAY, 0, wd.proleptic_Gregorian_calendar))
         self.assertEqual(
@@ -181,6 +190,8 @@ class Test(TestCase):
             set(self.KB.filter(value=Time(
                 '1822-09-07', None, None, wd.proleptic_Julian_calendar))),
             set())
+
+    # -- snak fp --
 
     def test_snak_fp_subject(self) -> None:
         self.assertEqual(
@@ -220,6 +231,24 @@ class Test(TestCase):
              wd.label(wd.Brazil, 'Brazil'),
              wd.label(wd.Brazil, Text('Brasil', 'pt-br')),
              wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))})
+
+    def test_and_fp_subject(self) -> None:
+        raise self.TODO()
+
+    def test_and_fp_property(self) -> None:
+        raise self.TODO()
+
+    def test_and_fp_value(self) -> None:
+        raise self.TODO()
+
+    def test_or_fp_subject(self) -> None:
+        raise self.TODO()
+
+    def test_or_fp_property(self) -> None:
+        raise self.TODO()
+
+    def test_or_fp_value(self) -> None:
+        raise self.TODO()
 
 
 if __name__ == '__main__':
