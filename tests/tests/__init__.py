@@ -37,7 +37,6 @@ from .model import (
     ValueVariableTestCase,
     VariableTestCase,
 )
-from .store import StoreTestCase
 from .tests import TestCase
 
 __all__ = (
@@ -67,7 +66,6 @@ __all__ = (
     'StatementTemplateTestCase',
     'StatementTestCase',
     'StatementVariableTestCase',
-    'StoreTestCase',
     'TemplateTestCase',
     'TermTestCase',
     'TestCase',
