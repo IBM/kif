@@ -12,7 +12,7 @@ from ...tests import TestCase
 class Test(TestCase):
 
     KB = Store(
-        'rdf',
+        'wikidata-rdf',
         'tests/data/adam.ttl',
         'tests/data/andar.ttl',
         'tests/data/benzene.ttl',

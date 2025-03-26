@@ -348,6 +348,33 @@ class _SPARQL_Store(
         return cls._do_check_optional(  # pragma: no cover
             cls._check_mapping, arg, default, function, name, position)
 
+    @classmethod
+    def _get_dbpedia_mapping(
+            cls,
+            *args: Any,
+            **kwargs: Any
+    ) -> SPARQL_Mapping:
+        from ..compiler.sparql.mapping.dbpedia import DBpediaMapping
+        return DBpediaMapping(*args, **kwargs)
+
+    @classmethod
+    def _get_pubchem_mapping(
+            cls,
+            *args: Any,
+            **kwargs: Any
+    ) -> SPARQL_Mapping:
+        from ..compiler.sparql.mapping.pubchem import PubChemMapping
+        return PubChemMapping(*args, **kwargs)
+
+    @classmethod
+    def _get_wikidata_mapping(
+            cls,
+            *args: Any,
+            **kwargs: Any
+    ) -> SPARQL_Mapping:
+        from ..compiler.sparql.mapping.wikidata import WikidataMapping
+        return WikidataMapping(*args, **kwargs)
+
     @property
     def default_mapping(self) -> SPARQL_Mapping:
         """The default value for :attr:`_SPARQL_Store.mapping`."""
@@ -359,8 +386,7 @@ class _SPARQL_Store(
         Returns:
            Default mapping.
         """
-        from ..compiler.sparql.mapping.wikidata import WikidataMapping
-        return WikidataMapping()
+        return self._get_wikidata_mapping()
 
     #: SPARQL mapping.
     _mapping: SPARQL_Mapping
@@ -548,7 +574,7 @@ class RDFLibSPARQL_Store(
 class RDF_Store(
         RDFLibSPARQL_Store,
         store_name='rdf',
-        store_description='RDF file'
+        store_description='RDF store'
 ):
     """RDF store.
 
@@ -565,6 +591,38 @@ class RDF_Store(
        skolemize: Whether to skolemize the resulting graph.
        mapping: SPARQL mapping.
     """
+
+
+class DBpediaRDF_Store(
+        RDF_Store,
+        store_name='dbpedia-rdf',
+        store_description='DBpedia RDF store'
+):
+    """Alias for :class:`RDF_Store` with DBpedia mappings."""
+
+    @override
+    def get_default_mapping(self) -> SPARQL_Mapping:
+        return self._get_dbpedia_mapping()
+
+
+class PubChemRDF_Store(
+        RDF_Store,
+        store_name='pubchem-rdf',
+        store_description='PubChem RDF store'
+):
+    """Alias for :class:`RDF_Store` with PubChem mappings."""
+
+    @override
+    def get_default_mapping(self) -> SPARQL_Mapping:
+        return self._get_pubchem_mapping()
+
+
+class WikidataRDF_Store(
+        RDF_Store,
+        store_name='wikidata-rdf',
+        store_description='Wikidata RDF store'
+):
+    """Alias for :class:`RDF_Store` with Wikidata mappings."""
 
 
 # == SPARQL Store ==========================================================

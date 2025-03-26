@@ -29,7 +29,7 @@ def reload(force: bool = True, context: Context | None = None) -> None:
     if resolver_iri is not None:
         from ..compiler.sparql.mapping.pubchem import PubChemMapping
         from ..store import Store
-        kb = Store('sparql2', resolver_iri, PubChemMapping())
+        kb = Store('sparql', resolver_iri, mapping=PubChemMapping())
         ctx.iris.register(PubChem.COMPOUND, resolver=kb)
         ctx.iris.register(PubChem.PATENT, resolver=kb)
         ctx.iris.register(PubChem.SOURCE, resolver=kb)
