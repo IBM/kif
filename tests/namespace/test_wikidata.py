@@ -7,7 +7,7 @@ from rdflib.namespace import Namespace
 
 from kif_lib.namespace import WIKIBASE, Wikidata
 
-from .tests import TestCase
+from ..tests import TestCase
 
 
 class TestNamespaceWikidata(TestCase):
