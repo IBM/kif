@@ -3,15 +3,15 @@
 
 from __future__ import annotations
 
-from ._sparql import (
+from .abc import Store
+from .empty import EmptyStore
+from .mixer import MixerStore
+from .sparql import (
     HttpxSPARQL_Store,
     RDF_Store,
     RDFLibSPARQL_Store,
     SPARQL_Store,
 )
-from .abc import Store
-from .empty import EmptyStore
-from .mixer import MixerStore
 
 __all__ = (
     'EmptyStore',
