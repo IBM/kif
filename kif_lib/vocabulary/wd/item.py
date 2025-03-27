@@ -81,6 +81,7 @@ Guinea_pig = Q(79803, 'Guinea pig')
 Guyana = Q(734, 'Guyana')
 Hazardous_Substances_Data_Bank = Q(5687720, 'Hazardous Substances Data Bank')
 height_ = Q(208826, 'height')
+house_cat = Q(146, 'house cat')
 human = Q(5, 'human')
 human_biblical_figure = Q(20643955, 'human biblical figure')
 IBM = Q(37156, 'IBM')
@@ -244,6 +245,7 @@ __all__ = (
     'Guyana',
     'Hazardous_Substances_Data_Bank',
     'height_',
+    'house_cat',
     'human',
     'human_biblical_figure',
     'IBM',
