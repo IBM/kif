@@ -618,7 +618,8 @@ class Store(Set):
     _page_size: int | None
 
     def _init_page_size(self, page_size: int | None = None) -> None:
-        self.page_size = page_size  # type: ignore
+        self._page_size = self._check_optional_page_size(
+            page_size, None, type(self), 'page_size')
 
     @property
     def page_size(self) -> int:
@@ -666,8 +667,14 @@ class Store(Set):
         Parameters:
            page_size: Page size.
         """
-        self._page_size = self._check_optional_page_size(
+        page_size = self._check_optional_page_size(
             page_size, None, self.set_page_size, 'page_size', 1)
+        if (page_size != self._page_size and self._do_set_page_size(
+                self._page_size, page_size)):
+            self._page_size = page_size
+
+    def _do_set_page_size(self, old: int | None, new: int | None) -> bool:
+        return True
 
     def _batched(
             self,

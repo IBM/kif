@@ -25,6 +25,7 @@ autobahn_in_Germany = Q(313301, 'autobahn in Germany')
 benzene = Q(2270, 'benzene')
 Bolivia = Q(750, 'Bolivia')
 Brazil = Q(155, 'Brazil')
+Brazilian_Portuguese = Q(750553, 'Brazilian Portuguese')
 Brazilian_Sign_Language = Q(3436689, 'Brazilian Sign Language')
 bridge = Q(12280, 'bridge')
 business = Q(4830453, 'business')
@@ -42,6 +43,7 @@ coffee = Q(8486, 'coffee')
 Colombia = Q(739, 'Colombia')
 comma_separated_values = Q(935809, 'comma-separated values')
 continent_ = Q(5107, 'continent')
+copyrighted = Q(50423863, 'copyrighted')
 country_ = Q(6256, 'country')
 dalton = Q(483261, 'dalton')
 data_set = Q(1172284, 'data set')
@@ -72,7 +74,9 @@ frog = Q(3116510, 'frog')
 Garden_of_Eden = Q(19014, 'Garden of Eden')
 Garden_of_Eden = Q(19014, 'Garden of Eden')
 Germany = Q(183, 'Germany')
+Ginga = Q(5563000, 'Ginga')
 Global_Substance_Registration_System = Q(116031405, 'Global Substance Registration System')
+GNU_General_Public_License = Q(7603, 'GNU General Public License')
 gram_per_100_gram_of_solvent = Q(21127659, 'gram per 100 gram of solvent')
 gram_per_cubic_centimetre = Q(13147228, 'gram per cubic centimetre')
 gram_per_kilogram = Q(21061369, 'gram per kilogram')
@@ -111,6 +115,7 @@ mathematics = Q(395, 'mathematics')
 methanol = Q(14982, 'methanol')
 metre = Q(11573, 'metre')
 microgram_per_kilogram = Q(107313731, 'microgram per kilogram')
+middleware = Q(146768, 'middleware')
 milligram_per_kilogram = Q(21091747, 'milligram per kilogram')
 minute = Q(7727, 'minute')
 Monte_Pascoal = Q(1499212, 'Monte Pascoal')
@@ -153,6 +158,7 @@ Spanish = Q(1321, 'Spanish')
 subcutaneous_injection = Q(2035485, 'subcutaneous injection')
 summit = Q(207326, 'summit')
 Supercalifragilisticexpialidocious = Q(103, 'Supercalifragilisticexpialidocious')
+system_software = Q(676202, 'system software')
 type_of_a_chemical_entity = Q(113145171, 'type of a chemical entity')
 unit_of_mass = Q(3647172, 'unit of mass')
 United_States_of_America = Q(30, 'United States of America')
@@ -189,6 +195,7 @@ __all__ = (
     'benzene',
     'Bolivia',
     'Brazil',
+    'Brazilian_Portuguese',
     'Brazilian_Sign_Language',
     'bridge',
     'business',
@@ -206,6 +213,7 @@ __all__ = (
     'Colombia',
     'comma_separated_values',
     'continent_',
+    'copyrighted',
     'country_',
     'dalton',
     'data_set',
@@ -236,7 +244,9 @@ __all__ = (
     'Garden_of_Eden',
     'Garden_of_Eden',
     'Germany',
+    'Ginga',
     'Global_Substance_Registration_System',
+    'GNU_General_Public_License',
     'gram_per_100_gram_of_solvent',
     'gram_per_cubic_centimetre',
     'gram_per_kilogram',
@@ -275,6 +285,7 @@ __all__ = (
     'methanol',
     'metre',
     'microgram_per_kilogram',
+    'middleware',
     'milligram_per_kilogram',
     'minute',
     'Monte_Pascoal',
@@ -317,6 +328,7 @@ __all__ = (
     'subcutaneous_injection',
     'summit',
     'Supercalifragilisticexpialidocious',
+    'system_software',
     'type_of_a_chemical_entity',
     'unit_of_mass',
     'United_States_of_America',

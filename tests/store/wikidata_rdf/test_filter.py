@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import ExternalId, Preferred, Quantity, Statement, Text, Time
+from kif_lib import ExternalId, Preferred, Quantity, Text, Time
 from kif_lib.vocabulary import wd
 
 from ...tests import StoreTestCase
@@ -60,13 +60,13 @@ class Test(StoreTestCase):
             wd.label(wd.Adam, 'Adam'),
             wd.label(wd.Adam, Text('Adán', 'es')),
             wd.label(wd.Adam, Text('Adão', 'pt-br'))})
-        xf(F(snak_mask=F.SOME_VALUE_SNAK | F.NO_VALUE_SNAK), {
-            Statement(wd.Adam, wd.date_of_birth.no_value()).annotate(
-                references=[[
-                    wd.reference_URL('http://islamqa.info/ar/20907')]],
-                rank=Preferred),
-            Statement(wd.Adam, wd.family_name.some_value()),
-            Statement(wd.Adam, wd.father.no_value())})
+        xf(F(snak_mask=F.SOME_VALUE_SNAK | F.NO_VALUE_SNAK),
+           {wd.date_of_birth.no_value(
+               wd.Adam, references=[[
+                   wd.reference_URL('http://islamqa.info/ar/20907')]],
+               rank=Preferred),
+            wd.family_name.some_value(wd.Adam),
+            wd.father.no_value(wd.Adam)})
 
     def test_subject_mask(self) -> None:
         xf, F = self.xfilter_assertion(self.KB())
@@ -91,12 +91,12 @@ class Test(StoreTestCase):
     def test_value_mask(self) -> None:
         xf, F = self.xfilter_assertion(self.KB())
         xf(F(value_mask=F.TIME),
-           {Statement(wd.Adam, wd.date_of_birth.no_value()).annotate(
-               references=[[
+           {wd.date_of_birth.no_value(
+               wd.Adam, references=[[
                    wd.reference_URL('http://islamqa.info/ar/20907')]],
                rank=Preferred),
-            Statement(wd.Adam, wd.family_name.some_value()),
-            Statement(wd.Adam, wd.father.no_value()),
+            wd.family_name.some_value(wd.Adam),
+            wd.father.no_value(wd.Adam),
             wd.inception(wd.Brazil, Time(
                 '1822-09-07', Time.DAY, 0,
                 wd.proleptic_Gregorian_calendar))})

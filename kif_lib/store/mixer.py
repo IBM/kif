@@ -32,27 +32,32 @@ class MixerStore(
        store_name: Name of the store plugin to instantiate.
        sources: Sources to mix.
        sync_flags: Whether to sync store flags.
+       sync_page_size: Whether to sync page size.
     """
 
     __slots__ = (
         '_sources',
         '_sync_flags',
+        '_sync_page_size',
     )
 
     _sources: Sequence[Store]
     _sync_flags: bool
+    _sync_page_size: bool
 
     def __init__(
             self,
             store_name: str,
             sources: Iterable[Store] = tuple(),
             sync_flags: bool = True,
+            sync_page_size: bool = True,
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
         super().__init__(**kwargs)
         self._init_sources(sources)
         self._sync_flags = sync_flags
+        self._sync_page_size = sync_page_size
 
     def _init_sources(self, sources: Iterable[Store]) -> None:
         KIF_Object._check_arg_isinstance(
@@ -90,12 +95,35 @@ class MixerStore(
         """
         return self._sync_flags
 
+    @override
     def _do_set_flags(self, old: Store.Flags, new: Store.Flags) -> bool:
         if not super()._do_set_flags(old, new):
             return False
         if self.sync_flags:
             for src in self.sources:
                 src.flags = new
+        return True
+
+    @property
+    def sync_page_size(self) -> bool:
+        """Whether to sync store page size."""
+        return self.get_sync_flags()
+
+    def get_sync_page_size(self) -> bool:
+        """Tests whether to sync store page size.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        return self._sync_page_size
+
+    @override
+    def _do_set_page_size(self, old: int | None, new: int | None) -> bool:
+        if not super()._do_set_page_size(old, new):
+            return False
+        if self.sync_page_size:
+            for src in self.sources:
+                src.set_page_size(new)
         return True
 
     def _mix_get_x(

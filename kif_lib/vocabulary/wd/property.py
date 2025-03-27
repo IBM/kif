@@ -27,8 +27,11 @@ contains = P(4330)
 contains_the_administrative_territorial_entity = P(150)
 continent = P(30)
 conversion_to_SI_unit = P(2370)
+copyright_license = P(275)
+copyright_status = P(6216)
 country = P(17)
 country_of_citizenship = P(27)
+country_of_origin = P(495)
 crosses = P(177)
 date_of_birth = P(569)
 date_of_death = P(570)
@@ -40,6 +43,7 @@ described_at_URL = P(973)
 described_by_source = P(1343)
 developer = P(178)
 Dictionary_of_American_Regional_English_ID = P(12448)
+different_from = P(1889)
 does_not_have_part = P(3113)
 download_link = P(4945)
 DSSTox_substance_ID = P(3117)
@@ -52,12 +56,14 @@ endemic_to = P(183)
 equivalent_property = P(1628)
 EU_Transparency_Register_ID = P(2657)
 exact_match = P(2888)
+external_data_available_at_URL = P(1325)
 family_name = P(734)
 father = P(22)
 field_of_this_occupation = P(425)
 field_of_work = P(101)
 file_format = P(2701)
 found_in_taxon = P(703)
+Free_Software_Directory_entry = P(2537)
 Freebase_ID = P(646)
 gender_of_a_scientific_name_of_a_genus = P(2433)
 GHS_hazard_pictogram = P(5040)
@@ -97,6 +103,7 @@ made_from_material = P(186)
 main_subject = P(921)
 manufacturer = P(176)
 mass = P(2067)
+Mastodon_instance_URL = P(11810)
 measured_physical_quantity = P(111)
 median_lethal_concentration = P(2712)
 median_lethal_dose = P(2240)
@@ -162,6 +169,7 @@ sponsor = P(859)
 spouse = P(26)
 start_time = P(580)
 stated_in = P(248)
+statement_is_subject_of = P(805)
 statement_supported_by = P(3680)
 stereoisomer_of = P(3364)
 subclass_of = P(279)
@@ -220,8 +228,11 @@ __all__ = (
     'contains_the_administrative_territorial_entity',
     'continent',
     'conversion_to_SI_unit',
+    'copyright_license',
+    'copyright_status',
     'country',
     'country_of_citizenship',
+    'country_of_origin',
     'crosses',
     'date_of_birth',
     'date_of_death',
@@ -233,6 +244,7 @@ __all__ = (
     'described_by_source',
     'developer',
     'Dictionary_of_American_Regional_English_ID',
+    'different_from',
     'does_not_have_part',
     'download_link',
     'DSSTox_substance_ID',
@@ -247,12 +259,14 @@ __all__ = (
     'equivalent_property',
     'EU_Transparency_Register_ID',
     'exact_match',
+    'external_data_available_at_URL',
     'family_name',
     'father',
     'field_of_this_occupation',
     'field_of_work',
     'file_format',
     'found_in_taxon',
+    'Free_Software_Directory_entry',
     'Freebase_ID',
     'gender_of_a_scientific_name_of_a_genus',
     'GHS_hazard_pictogram',
@@ -294,6 +308,7 @@ __all__ = (
     'main_subject',
     'manufacturer',
     'mass',
+    'Mastodon_instance_URL',
     'material_produced',
     'measured_physical_quantity',
     'median_lethal_concentration',
@@ -363,6 +378,7 @@ __all__ = (
     'spouse',
     'start_time',
     'stated_in',
+    'statement_is_subject_of',
     'statement_supported_by',
     'stereoisomer_of',
     'subclass_of',
