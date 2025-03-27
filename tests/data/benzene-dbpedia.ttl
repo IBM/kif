@@ -1,0 +1,6 @@
+@prefix dbr: <http://dbpedia.org/resource/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+dbr:Benzene a owl:Thing.
+dbr:Benzene rdfs:label "Benzene"@en .
