@@ -1074,8 +1074,10 @@ class Store(Set):
             current_limit = self.default_limit
         if current_limit is None:
             current_limit = self.max_limit
-        return self._check_optional_limit(
+        limit = self._check_optional_limit(
             arg, current_limit, function, name, position)
+        assert limit is not None
+        return limit
 
     def _as_distinct(
             self,
