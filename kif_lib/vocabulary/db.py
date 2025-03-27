@@ -104,9 +104,8 @@ def reload(force: bool = True, context: Context | None = None) -> None:
     ctx.iris.register(DBpedia.RESOURCE, prefix='dbr')
     resolver_iri = ctx.options.vocabulary.db.resolver
     if resolver_iri is not None:
-        from ..compiler.sparql.mapping.dbpedia import DBpediaMapping
         from ..store import Store
-        kb = Store('sparql2', resolver_iri, DBpediaMapping())
+        kb = Store('dbpedia-sparql', resolver_iri)
         ctx.iris.register(DBpedia.ONTOLOGY, resolver=kb)
         ctx.iris.register(DBpedia.PROPERTY, resolver=kb)
         ctx.iris.register(DBpedia.RESOURCE, resolver=kb)

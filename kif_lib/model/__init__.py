@@ -10,13 +10,6 @@ from .constraint import (
     TConstraint,
     TrueConstraint,
 )
-from .descriptor import (
-    Descriptor,
-    ItemDescriptor,
-    LexemeDescriptor,
-    PlainDescriptor,
-    PropertyDescriptor,
-)
 from .filter import Filter
 from .fingerprint import (
     And,
@@ -415,13 +408,6 @@ __all__ = (
     'TRank',
     'VRank',
     'VTRank',
-
-    # descriptor
-    'Descriptor',
-    'ItemDescriptor',
-    'LexemeDescriptor',
-    'PlainDescriptor',
-    'PropertyDescriptor',
 
     # set
     'ClosedTermSet',

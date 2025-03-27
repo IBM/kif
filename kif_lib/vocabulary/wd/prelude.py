@@ -104,10 +104,8 @@ def _install_resolver(context: Context | None = None) -> None:
     ctx = Context.top(context)
     resolver_iri = ctx.options.vocabulary.wd.resolver
     if resolver_iri is not None:
-        from ...compiler.sparql.mapping.wikidata import WikidataMapping
         from ...store import Store
-        ctx.iris.register(IRI(NS.WD), resolver=Store(
-            'sparql', resolver_iri, mapping=WikidataMapping()))
+        ctx.iris.register(IRI(NS.WD), resolver=Store('wdqs', resolver_iri))
 
 
 def P(

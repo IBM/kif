@@ -11,7 +11,6 @@ from kif_lib import (
     IRI_Datatype,
     Item,
     ItemDatatype,
-    ItemDescriptor,
     KIF_Object,
     LexemeDatatype,
     NormalRank,
@@ -249,25 +248,6 @@ class Test(TestCase):
 - (**ValueSnak** (**Property** [country](http://www.wikidata.org/entity/P17)) (**Item** [Brazil](http://www.wikidata.org/entity/Q155)))
 - (**ValueSnak** (**Property** [mass](http://www.wikidata.org/entity/P2067)) (**Quantity** 0))
 - (**ValueSnak** (**Property** [canonical SMILES](http://www.wikidata.org/entity/P233)) "ABC"))''')  # noqa: E501
-
-    def test_item_descriptor_to_markdown(self) -> None:
-        desc = ItemDescriptor()
-        self.assert_to_markdown(desc, '''\
-(**ItemDescriptor**
-- *no label*
-- *no aliases*
-- *no description*)''')
-        desc = ItemDescriptor(
-            Text("rótulo", 'pt'),
-            [Text('outro nome', 'pt'), Text('sinônimo', 'pt')],
-            Text('descrição', 'pt'))
-        self.assert_to_markdown(desc, '''\
-(**ItemDescriptor**
-- "rótulo"@pt
-- (**TextSet**
-  - "outro nome"@pt
-  - "sinônimo"@pt)
-- "descrição"@pt)''')
 
     def test_filter_to_markdown(self) -> None:
         self.assert_to_markdown(Filter(), '''\

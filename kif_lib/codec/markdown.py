@@ -16,9 +16,7 @@ from ..model import (
     Fingerprint,
     IRI,
     KIF_Object,
-    PlainDescriptor,
     Property,
-    PropertyDescriptor,
     PseudoProperty,
     Quantity,
     Rank,
@@ -125,32 +123,6 @@ class MarkdownEncoder(
             yield from self._iterencode_variable(obj)
         elif isinstance(obj, Rank):
             yield self._encode_kif_object_name(obj)
-        elif isinstance(obj, PlainDescriptor):
-            yield from self._iterencode_kif_object_start(obj, '')
-            sep = f'{NL}{2 * SP * indent}-{SP}'
-            yield sep
-            if obj.label is not None:
-                yield from self._iterencode(obj.label, indent + 1)
-            else:
-                yield '*no label*'
-            yield sep
-            if obj.aliases is not None and obj.aliases:
-                yield from self._iterencode(obj.aliases, indent + 1)
-            else:
-                yield '*no aliases*'
-            yield sep
-            if obj.description is not None:
-                yield from self._iterencode(obj.description, indent + 1)
-            else:
-                yield '*no description*'
-            if isinstance(obj, PropertyDescriptor):
-                yield sep
-                if obj.datatype is not None:
-                    yield from self._iterencode(obj.datatype, indent + 1)
-                else:
-                    yield '*no datatype*'
-            yield ''
-            yield from self._iterencode_kif_object_end(obj)
         elif isinstance(obj, Fingerprint):
             yield from self._iterencode_kif_object_start(obj, '')
             if isinstance(obj, ValueFingerprint):

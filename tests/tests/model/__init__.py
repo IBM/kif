@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-from .descriptor import DescriptorTestCase
 from .fingerprint import FingerprintTestCase
 from .kif_object import KIF_ObjectTestCase
 from .rank import RankTestCase
@@ -91,9 +90,6 @@ __all__ = (
 
     # annotations
     'RankTestCase',
-
-    # descriptor
-    'DescriptorTestCase',
 
     # fingerprint
     'FingerprintTestCase',
