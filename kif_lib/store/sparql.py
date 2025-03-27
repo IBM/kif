@@ -921,6 +921,10 @@ class WDQS_Store(
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
+        if not args:
+            resolver_iri = self.context.options.vocabulary.wd.resolver
+            if resolver_iri is not None:
+                args = (resolver_iri,)
         if mapping is None:
             mapping = _SPARQL_Store._wikidata_mapping_constructor(
                 blazegraph=True,  # force
