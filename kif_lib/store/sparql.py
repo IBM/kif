@@ -64,10 +64,16 @@ class _SPARQL_Store(
        store_name: Name of the store plugin to instantiate.
        backend: SPARQL store backend.
        mapping: SPARQL mapping.
+       args: Backend arguments.
+       kwargs: Backend keyword arguments.
     """
 
     class Backend(abc.ABC):
-        """SPARQL store back-end."""
+        """SPARQL store back-end.
+
+        Parameters:
+           store: Parent SPARQL store.
+        """
 
         __slots__ = (
             '_store',
@@ -118,8 +124,10 @@ class _SPARQL_Store(
         """Httpx backend.
 
         Parameters:
+           store: Parent SPARQL store.
            iri: IRI of the target SPARQL endpoint.
            headers: HTTP headers.
+           kwargs: Other keyword arguments (ignored).
         """
 
         HTTP_Headers: TypeAlias = Mapping[str, str]
@@ -154,7 +162,7 @@ class _SPARQL_Store(
                 iri: T_IRI,
                 *,
                 headers: HTTP_Headers | None = None,
-                **kwargs
+                **kwargs: Any
         ) -> None:
             super().__init__(store)
             self._client = None
@@ -197,7 +205,21 @@ class _SPARQL_Store(
                 self._client.timeout = httpx.Timeout(timeout)
 
     class RDFLibBackend(Backend):
-        """RDFLib backend."""
+        """RDFLib backend.
+
+        Parameters:
+           store: Parent SPARQL store.
+           args: Input sources, files, paths, strings, or statements.
+           publicID: Logical URI to use as the document base.
+           format: Input source format (file extension or media type).
+           location: Relative or absolute URL of the input source.
+           file: File-like object to be used as input source.
+           data: Data to be used as input source.
+           graph: KIF graph to used as input source.
+           rdflib_graph: RDFLib graph to be used as input source.
+           skolemize: Whether to skolemize the resulting graph.
+           kwargs: Other keyword arguments (ignored).
+        """
 
         #: Type alias for RDFLib backend arguments.
         Args: TypeAlias = Union[
@@ -319,7 +341,7 @@ class _SPARQL_Store(
         """Gets the backend of SPARQL store.
 
         Returns:
-           SPARQL backend.
+           SPARQL store backend.
         """
         return self._backend
 
@@ -349,7 +371,7 @@ class _SPARQL_Store(
             cls._check_mapping, arg, default, function, name, position)
 
     @classmethod
-    def _get_dbpedia_mapping(
+    def _dbpedia_mapping_constructor(
             cls,
             *args: Any,
             **kwargs: Any
@@ -358,7 +380,7 @@ class _SPARQL_Store(
         return DBpediaMapping(*args, **kwargs)
 
     @classmethod
-    def _get_pubchem_mapping(
+    def _pubchem_mapping_constructor(
             cls,
             *args: Any,
             **kwargs: Any
@@ -367,26 +389,13 @@ class _SPARQL_Store(
         return PubChemMapping(*args, **kwargs)
 
     @classmethod
-    def _get_wikidata_mapping(
+    def _wikidata_mapping_constructor(
             cls,
             *args: Any,
             **kwargs: Any
     ) -> SPARQL_Mapping:
         from ..compiler.sparql.mapping.wikidata import WikidataMapping
         return WikidataMapping(*args, **kwargs)
-
-    @property
-    def default_mapping(self) -> SPARQL_Mapping:
-        """The default value for :attr:`_SPARQL_Store.mapping`."""
-        return self.get_default_mapping()
-
-    def get_default_mapping(self) -> SPARQL_Mapping:
-        """Gets the default value for :attr:`_SPARQL_Store.mapping`.
-
-        Returns:
-           Default mapping.
-        """
-        return self._get_wikidata_mapping()
 
     #: SPARQL mapping.
     _mapping: SPARQL_Mapping
@@ -507,6 +516,7 @@ class HttpxSPARQL_Store(
        iri: IRI of the target SPARQL endpoint.
        headers: HTTP headers.
        mapping: SPARQL mapping.
+       kwargs: Extra keyword arguments.
     """
 
     def __init__(
@@ -520,7 +530,8 @@ class HttpxSPARQL_Store(
         assert store_name == self.store_name
         super().__init__(
             store_name,
-            mapping if mapping is not None else self.default_mapping,
+            (mapping if mapping is not None
+             else self._wikidata_mapping_constructor()),
             self.HttpxBackend, iri=iri, headers=headers, **kwargs)
 
 
@@ -545,12 +556,16 @@ class RDFLibSPARQL_Store(
        rdflib_graph: RDFLib graph to be used as input source.
        skolemize: Whether to skolemize the resulting graph.
        mapping: SPARQL mapping.
+       kwargs: Extra keyword arguments.
     """
+
+    #: Type alias for RDFLib SPARQL store arguments.
+    Args: TypeAlias = _SPARQL_Store.RDFLibBackend.Args
 
     def __init__(
             self,
             store_name: str,
-            *args: _SPARQL_Store.RDFLibBackend.Args,
+            *args: Args,
             publicID: str | None = None,
             format: str | None = None,
             location: str | None = None,
@@ -565,7 +580,8 @@ class RDFLibSPARQL_Store(
         assert store_name == self.store_name
         super().__init__(
             store_name,
-            mapping if mapping is not None else self.default_mapping,
+            (mapping if mapping is not None
+             else self._wikidata_mapping_constructor()),
             self.RDFLibBackend, *args, publicID=publicID, format=format,
             file=file, data=data, graph=graph, rdflib_graph=rdflib_graph,
             skolemize=skolemize, **kwargs)
@@ -590,6 +606,7 @@ class RDF_Store(
        rdflib_graph: RDFLib graph to be used as input source.
        skolemize: Whether to skolemize the resulting graph.
        mapping: SPARQL mapping.
+       kwargs: Extra keyword arguments.
     """
 
 
@@ -600,9 +617,29 @@ class DBpediaRDF_Store(
 ):
     """Alias for :class:`RDF_Store` with DBpedia mappings."""
 
-    @override
-    def get_default_mapping(self) -> SPARQL_Mapping:
-        return self._get_dbpedia_mapping()
+    def __init__(
+            self,
+            store_name: str,
+            *args: RDF_Store.Args,
+            publicID: str | None = None,
+            format: str | None = None,
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: str | bytes | None = None,
+            graph: TGraph | None = None,
+            rdflib_graph: rdflib.Graph | None = None,
+            skolemize: bool | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            **kwargs: Any
+    ) -> None:
+        assert store_name == self.store_name
+        if mapping is None:
+            mapping = _SPARQL_Store._dbpedia_mapping_constructor()
+        super().__init__(
+            store_name, *args, publicID=publicID, format=format,
+            location=location, file=file, data=data, graph=graph,
+            rdflib_graph=rdflib_graph, skolemize=skolemize,
+            mapping=mapping, **kwargs)
 
 
 class PubChemRDF_Store(
@@ -612,9 +649,31 @@ class PubChemRDF_Store(
 ):
     """Alias for :class:`RDF_Store` with PubChem mappings."""
 
-    @override
-    def get_default_mapping(self) -> SPARQL_Mapping:
-        return self._get_pubchem_mapping()
+    def __init__(
+            self,
+            store_name: str,
+            *args: RDF_Store.Args,
+            publicID: str | None = None,
+            format: str | None = None,
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: str | bytes | None = None,
+            graph: TGraph | None = None,
+            rdflib_graph: rdflib.Graph | None = None,
+            skolemize: bool | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            normalize_casrn: bool | None = None,
+            **kwargs: Any
+    ) -> None:
+        assert store_name == self.store_name
+        if mapping is None:
+            mapping = _SPARQL_Store._pubchem_mapping_constructor(
+                normalize_casrn=normalize_casrn)
+        super().__init__(
+            store_name, *args, publicID=publicID, format=format,
+            location=location, file=file, data=data, graph=graph,
+            rdflib_graph=rdflib_graph, skolemize=skolemize,
+            mapping=mapping, **kwargs)
 
 
 class WikidataRDF_Store(
@@ -624,13 +683,42 @@ class WikidataRDF_Store(
 ):
     """Alias for :class:`RDF_Store` with Wikidata mappings."""
 
+    def __init__(
+            self,
+            store_name: str,
+            *args: RDF_Store.Args,
+            publicID: str | None = None,
+            format: str | None = None,
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: str | bytes | None = None,
+            graph: TGraph | None = None,
+            rdflib_graph: rdflib.Graph | None = None,
+            skolemize: bool | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            strict: bool | None = None,
+            truthy: Filter.TDatatypeMask | None = None,
+            **kwargs: Any
+    ) -> None:
+        assert store_name == self.store_name
+        if mapping is None:
+            mapping = _SPARQL_Store._wikidata_mapping_constructor(
+                blazegraph=False,  # force
+                strict=strict,
+                truthy=truthy)
+        super().__init__(
+            store_name, *args, publicID=publicID, format=format,
+            location=location, file=file, data=data, graph=graph,
+            rdflib_graph=rdflib_graph, skolemize=skolemize,
+            mapping=mapping, **kwargs)
+
 
 # == SPARQL Store ==========================================================
 
 class SPARQL_Store(
         MixerStore,
         store_name='sparql',
-        store_description='SPARQL store',
+        store_description='SPARQL store'
 ):
     """SPARQL store.
 
@@ -646,6 +734,7 @@ class SPARQL_Store(
        rdflib_graph: RDFLib graph to be used as input source.
        skolemize: Whether to skolemize the resulting graph.
        mapping: SPARQL mapping.
+       kwargs: Extra keyword arguments.
     """
 
     #: Type alias for SPARQL Store arguments.
@@ -697,14 +786,148 @@ class SPARQL_Store(
                     or graph is not None
                     or rdflib_graph is not None):
                 yield Store(
-                    'rdf', *other,
-                    publicID=publicID, format=format,
-                    location=location,
-                    file=file,
-                    data=data,
-                    graph=graph,
-                    rdflib_graph=rdflib_graph,
-                    skolemize=skolemize,
-                    mapping=mapping,
-                    **kwargs)
+                    'rdf', *other, publicID=publicID, format=format,
+                    location=location, file=file, data=data, graph=graph,
+                    rdflib_graph=rdflib_graph, skolemize=skolemize,
+                    mapping=mapping, **kwargs)
         super().__init__(store_name, list(it()), **kwargs)
+
+
+class DBpediaSPARQL_Store(
+        SPARQL_Store,
+        store_name='dbpedia-sparql',
+        store_description='DBpedia SPARQL store'
+):
+    """Alias for :class:`SPARQL_Store` with DBpedia mappings."""
+
+    def __init__(
+            self,
+            store_name: str,
+            *args: SPARQL_Store.Args,
+            publicID: str | None = None,
+            format: str | None = None,
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: str | bytes | None = None,
+            graph: TGraph | None = None,
+            rdflib_graph: rdflib.Graph | None = None,
+            skolemize: bool | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            **kwargs: Any
+    ) -> None:
+        assert store_name == self.store_name
+        if mapping is None:
+            mapping = _SPARQL_Store._dbpedia_mapping_constructor()
+        super().__init__(
+            store_name, *args, publicID=publicID, format=format,
+            location=location, file=file, data=data, graph=graph,
+            rdflib_graph=rdflib_graph, skolemize=skolemize,
+            mapping=mapping, **kwargs)
+
+
+class PubChemSPARQL_Store(
+        SPARQL_Store,
+        store_name='pubchem-sparql',
+        store_description='PubChem SPARQL store'
+):
+    """Alias for :class:`SPARQL_Store` with PubChem mappings."""
+
+    def __init__(
+            self,
+            store_name: str,
+            *args: SPARQL_Store.Args,
+            publicID: str | None = None,
+            format: str | None = None,
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: str | bytes | None = None,
+            graph: TGraph | None = None,
+            rdflib_graph: rdflib.Graph | None = None,
+            skolemize: bool | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            normalize_casrn: bool | None = None,
+            **kwargs: Any
+    ) -> None:
+        assert store_name == self.store_name
+        if mapping is None:
+            mapping = _SPARQL_Store._pubchem_mapping_constructor(
+                normalize_casrn=normalize_casrn)
+        super().__init__(
+            store_name, *args, publicID=publicID, format=format,
+            location=location, file=file, data=data, graph=graph,
+            rdflib_graph=rdflib_graph, skolemize=skolemize,
+            mapping=mapping, **kwargs)
+
+
+class WikidataSPARQL_Store(
+        SPARQL_Store,
+        store_name='wikidata-sparql',
+        store_description='Wikidata SPARQL store'
+):
+    """Alias for :class:`SPARQL_Store` with Wikidata mappings."""
+
+    def __init__(
+            self,
+            store_name: str,
+            *args: SPARQL_Store.Args,
+            publicID: str | None = None,
+            format: str | None = None,
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: str | bytes | None = None,
+            graph: TGraph | None = None,
+            rdflib_graph: rdflib.Graph | None = None,
+            skolemize: bool | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            blazegraph: bool | None = None,
+            strict: bool | None = None,
+            truthy: Filter.TDatatypeMask | None = None,
+            **kwargs: Any
+    ) -> None:
+        assert store_name == self.store_name
+        if mapping is None:
+            mapping = _SPARQL_Store._wikidata_mapping_constructor(
+                blazegraph=blazegraph,
+                strict=strict,
+                truthy=truthy)
+        super().__init__(
+            store_name, *args, publicID=publicID, format=format,
+            location=location, file=file, data=data, graph=graph,
+            rdflib_graph=rdflib_graph, skolemize=skolemize,
+            mapping=mapping, **kwargs)
+
+
+class WDQS_Store(
+        WikidataSPARQL_Store,
+        store_name='wdqs',
+        store_description='Wikidata query service store'
+):
+    """Alias for :class:`WikidataSPARQL_Store` with stricter mappings."""
+
+    def __init__(
+            self,
+            store_name: str,
+            *args: SPARQL_Store.Args,
+            publicID: str | None = None,
+            format: str | None = None,
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: str | bytes | None = None,
+            graph: TGraph | None = None,
+            rdflib_graph: rdflib.Graph | None = None,
+            skolemize: bool | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            truthy: Filter.TDatatypeMask | None = None,
+            **kwargs: Any
+    ) -> None:
+        assert store_name == self.store_name
+        if mapping is None:
+            mapping = _SPARQL_Store._wikidata_mapping_constructor(
+                blazegraph=True,  # force
+                strict=True,      # force
+                truthy=truthy)
+        super().__init__(
+            store_name, *args, publicID=publicID, format=format,
+            location=location, file=file, data=data, graph=graph,
+            rdflib_graph=rdflib_graph, skolemize=skolemize,
+            mapping=mapping, **kwargs)

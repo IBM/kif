@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import datetime
 import decimal
+import functools
 import logging
 import pathlib
 import re
@@ -23,7 +24,6 @@ from kif_lib import (
     DeepDataValue,
     DeprecatedRank,
     DescriptionProperty,
-    Descriptor,
     Entity,
     ExternalId,
     ExternalIdDatatype,
@@ -39,7 +39,6 @@ from kif_lib import (
     IRI_Variable,
     Item,
     ItemDatatype,
-    ItemDescriptor,
     itertools,
     KIF_Object,
     LabelProperty,
@@ -47,16 +46,13 @@ from kif_lib import (
     LemmaProperty,
     Lexeme,
     LexemeDatatype,
-    LexemeDescriptor,
     LexicalCategoryProperty,
     NormalRank,
     NoValueSnak,
     OpenTerm,
-    PlainDescriptor,
     PreferredRank,
     Property,
     PropertyDatatype,
-    PropertyDescriptor,
     PseudoProperty,
     QualifierRecord,
     QualifierRecordVariable,
@@ -73,6 +69,7 @@ from kif_lib import (
     SnakSetVariable,
     SomeValueSnak,
     Statement,
+    Store,
     String,
     StringDatatype,
     StringTemplate,
@@ -166,6 +163,7 @@ from kif_lib.typing import (
     ClassVar,
     Final,
     Iterable,
+    Iterator,
     Set,
     TypeVar,
 )
@@ -174,8 +172,11 @@ TESTS_TESTS_DIR: Final[pathlib.Path] = pathlib.Path(__file__).parent
 T = TypeVar('T')
 _TClosedTerm = TypeVar('_TClosedTerm', bound=ClosedTerm)
 
+
+# == Test case =============================================================
 
 class TestCase(unittest.TestCase):
+    """Base class for KIF test cases."""
 
     ALL_KIF_OBJECT_CLASSES: ClassVar[Set[type[KIF_Object]]] =\
         frozenset(KIF_Object._get_subclasses())
@@ -216,12 +217,12 @@ class TestCase(unittest.TestCase):
         return unittest.main()
 
     @classmethod
-    def skip(cls, message: str) -> unittest.SkipTest:
+    def SKIP(cls, message: str) -> unittest.SkipTest:
         return unittest.SkipTest(message)
 
     @classmethod
-    def TODO(cls) -> unittest.SkipTest:
-        return cls.skip('to-do')
+    def TODO(cls, message: str | None = None) -> unittest.SkipTest:
+        return cls.SKIP(message or 'to-do')
 
     @property
     def logger(self) -> logging.Logger:
@@ -1158,81 +1159,6 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.rank, obj.args[4])
         self.assertEqual(obj.get_rank(), obj.args[4])
 
-# -- Descriptor ------------------------------------------------------------
-
-    def assert_descriptor(self, obj: Descriptor) -> None:
-        self.assert_kif_object(obj)
-        self.assertIsInstance(obj, Descriptor)
-
-    def assert_plain_descriptor(
-            self,
-            obj: PlainDescriptor,
-            label: Text | None = None,
-            aliases: TextSet = TextSet(),
-            description: Text | None = None
-    ) -> None:
-        self.assert_descriptor(obj)
-        self.assertIsInstance(obj, PlainDescriptor)
-        label = Text(*label) if label is not None else label
-        aliases = TextSet(*aliases) if aliases is not None else aliases
-        description = (
-            Text(*description) if description is not None else description)
-        self.assertEqual(obj.args[0], label)
-        self.assertEqual(obj.label, label)
-        self.assertEqual(obj.get_label(), label)
-        self.assertEqual(obj.args[1], aliases)
-        self.assertEqual(obj.aliases, aliases)
-        self.assertEqual(obj.get_aliases(), aliases)
-        self.assertEqual(obj.args[2], description)
-        self.assertEqual(obj.description, description)
-        self.assertEqual(obj.get_description(), description)
-
-    def assert_item_descriptor(
-            self,
-            obj: Descriptor,
-            label: Text | None = None,
-            aliases: TextSet = TextSet(),
-            description: Text | None = None
-    ) -> None:
-        self.assertIsInstance(obj, ItemDescriptor)
-        assert isinstance(obj, ItemDescriptor)
-        self.assert_plain_descriptor(obj, label, aliases, description)
-
-    def assert_property_descriptor(
-            self,
-            obj: Descriptor,
-            label: Text | None = None,
-            aliases: TextSet = TextSet(),
-            desc: Text | None = None,
-            dt: Datatype | None = None
-    ) -> None:
-        self.assertIsInstance(obj, PropertyDescriptor)
-        assert isinstance(obj, PropertyDescriptor)
-        self.assert_plain_descriptor(obj, label, aliases, desc)
-        self.assertEqual(obj.args[3], dt)
-        self.assertEqual(obj.datatype, dt)
-        self.assertEqual(obj.get_datatype(), dt)
-
-    def assert_lexeme_descriptor(
-            self,
-            obj: Descriptor,
-            lemma: Text | None,
-            category: Item | None,
-            language: Item | None
-    ) -> None:
-        self.assertIsInstance(obj, LexemeDescriptor)
-        assert isinstance(obj, LexemeDescriptor)
-        self.assert_descriptor(obj)
-        self.assertEqual(obj.args[0], lemma)
-        self.assertEqual(obj.lemma, lemma)
-        self.assertEqual(obj.get_lemma(), lemma)
-        self.assertEqual(obj.args[1], category)
-        self.assertEqual(obj.category, category)
-        self.assertEqual(obj.get_category(), category)
-        self.assertEqual(obj.args[2], language)
-        self.assertEqual(obj.language, language)
-        self.assertEqual(obj.get_language(), language)
-
 # -- Filter ----------------------------------------------------------------
 
     def assert_filter(
@@ -1286,3 +1212,121 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj.args[9], bool(annotated))
         self.assertEqual(obj.annotated, bool(annotated))
         self.assertEqual(obj.get_annotated(), bool(annotated))
+
+
+# == Store test case =======================================================
+
+class StoreTestCase(TestCase):
+    """Base class for KIF store test cases."""
+
+    #: Alias for the store constructor.
+    S: ClassVar[type[Store]] = Store
+
+    def count_assertion(
+            self,
+            store: Store
+    ) -> tuple[Callable[[int, Filter], None], type[Filter]]:
+        """Constructs a count assertion callback for store.
+
+        Parameters:
+           store: Store.
+
+        Returns:
+           Count assertion callback.
+        """
+        return functools.partial(self.assert_store_count, store), Filter
+
+    def assert_store_count(
+            self,
+            store: Store,
+            expected: int,
+            filter: Filter
+    ) -> None:
+        """Asserts that store count produces the expected statement count.
+
+        Parameters:
+           store: Store.
+           expected: Expected count.
+           filter: Filter.
+        """
+        assert isinstance(expected, int) and expected >= 0
+        self.assertEqual(expected, store.count(filter=filter))
+
+    def filter_assertion(
+            self,
+            store: Store
+    ) -> tuple[Callable[[Filter, Iterable[Statement]], None], type[Filter]]:
+        """Constructs a filter assertion callback for store.
+
+        Parameters:
+           store: Store.
+
+        Returns:
+           Filter assertion callback.
+        """
+        return functools.partial(self.assert_store_filter, store), Filter
+
+    def assert_store_filter(
+            self,
+            store: Store,
+            filter: Filter,
+            expected: Iterable[Statement]
+    ) -> None:
+        """Asserts that store filter produces the expected statements.
+
+        Parameters:
+           store: Store.
+           filter: Filter.
+           expected: Expected statements.
+        """
+        self.assertEqual(set(store.filter(filter=filter)), set(expected))
+
+    def xfilter_assertion(
+            self,
+            store: Store
+    ) -> tuple[Callable[[Filter, Iterable[Statement]], None], type[Filter]]:
+        """Constructs a extended filter assertion callback for store.
+
+        Parameters:
+           store: Store.
+
+        Returns:
+           Extended filter assertion callback.
+        """
+        return functools.partial(self.assert_store_xfilter, store), Filter
+
+    def assert_store_xfilter(
+            self,
+            store: Store,
+            filter: Filter,
+            expected: Iterable[Statement]
+    ) -> None:
+        """Asserts that store filter produces the expected statements.
+
+        This function applies filter with and without annotations and checks
+        the results of both calls against the annotated and unannotated
+        version of the given statements.
+
+        Parameters:
+           store: Store.
+           filter: Filter.
+           expected: Expected annotated statements.
+        """
+        self.assertEqual(
+            set(store.filter(filter=filter.unannotated())),
+            set(map(Statement.unannotate, expected)),
+            '*** XFILTER: PLAIN FILTER FAILED ***')
+        self.assertEqual(
+            set(store.filter_annotated(filter=filter)),
+            set(self._assert_store_xfilter_annotate(expected)),
+            '*** XFILTER: ANNOTATED FILTER FAILED ***')
+
+    def _assert_store_xfilter_annotate(
+            self,
+            stmts: Iterable[Statement]
+    ) -> Iterator[AnnotatedStatement]:
+        for stmt in stmts:
+            if isinstance(stmt, AnnotatedStatement):
+                yield stmt
+            else:
+                yield stmt.annotate()
