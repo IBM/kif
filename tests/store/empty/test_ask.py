@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-from kif_lib.vocabulary import wd
-
 from ...tests import StoreTestCase
 
 
@@ -14,10 +12,9 @@ class Test(StoreTestCase):
     def KB(cls):
         return cls.S('empty')
 
-    def test_contains(self) -> None:
-        c = self.contains_assertion(self.KB())
-        c(False, wd.mass(wd.benzene, '78.11'))
-        c(False, wd.mass(wd.benzene, '78.11').annotate())
+    def test_ask(self) -> None:
+        c, F = self.ask_assertion(self.KB())
+        c(False, F())
 
 
 if __name__ == '__main__':

@@ -454,7 +454,7 @@ class WikidataMapping(M):
             sb.query = sb.query.select(
                 distinct=distinct, limit=limit, offset=offset)
             return compiler.q.select(  # type: ignore
-                distinct=True, limit=None, offset=None,
+                distinct=distinct, limit=None, offset=None,
                 order_by=compiler.wds)
 
     class ResultBuilder(M.ResultBuilder):

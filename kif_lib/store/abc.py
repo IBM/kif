@@ -761,7 +761,7 @@ class Store(Set):
             return NotImplemented
 
     def __contains__(self, v: Any) -> bool:
-        return self.contains(v) if isinstance(v, Statement) else False
+        return self._contains(v) if isinstance(v, Statement) else False
 
     def __iter__(self) -> Iterator[Statement]:
         return self.filter()
@@ -828,7 +828,7 @@ class Store(Set):
             return False
 
     def _ask(self, filter: Filter) -> bool:
-        return bool(next(self._filter(filter, 1, True), False))
+        return bool(next(self._filter(filter, 1, False), False))
 
     def contains(self, stmt: Statement) -> bool:
         """Tests whether statement occurs in store.
@@ -849,7 +849,8 @@ class Store(Set):
                 ###
                 # Make sure we compare annotations.
                 ###
-                return stmt in set(self._filter(filter, 1, True))
+                return stmt in self.filter_annotated(
+                    filter=filter, distinct=False)
             else:
                 return self._ask(filter)
         else:

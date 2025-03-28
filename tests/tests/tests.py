@@ -1222,17 +1222,79 @@ class StoreTestCase(TestCase):
     #: Alias for the store constructor.
     S: ClassVar[type[Store]] = Store
 
-    def count_assertion(
+    def ask_assertion(
             self,
             store: Store
-    ) -> tuple[Callable[[int, Filter], None], type[Filter]]:
-        """Constructs a count assertion callback for store.
+    ) -> tuple[Callable[[bool, Filter], None], type[Filter]]:
+        """Constructs a :meth:`Store.ask` assertion callback.
 
         Parameters:
            store: Store.
 
         Returns:
-           Count assertion callback.
+           Assertion callback plus alias for filter class.
+        """
+        return functools.partial(self.assert_store_ask, store), Filter
+
+    def assert_store_ask(
+            self,
+            store: Store,
+            expected: bool,
+            filter: Filter
+    ) -> None:
+        """:meth:`Store.ask` assertion.
+
+        Parameters:
+           store: Store.
+           expected: Expected result.
+           filter: Filter.
+        """
+        assert isinstance(expected, bool)
+        self.assertEqual(expected, store.ask(filter=filter))
+
+    def contains_assertion(
+            self,
+            store: Store
+    ) -> Callable[[bool, Statement], None]:
+        """Constructs a :meth:`Store.contains` assertion callback.
+
+        Parameters:
+           store: Store.
+
+        Returns:
+           Assertion callback.
+        """
+        return functools.partial(self.assert_store_contains, store)
+
+    def assert_store_contains(
+            self,
+            store: Store,
+            expected: bool,
+            statement: Statement
+    ) -> None:
+        """:meth:`Store.contains` assertion.
+
+        Parameters:
+           store: Store.
+           expected: Expected result.
+           statement: Statement.
+        """
+        assert isinstance(expected, bool)
+        (self.assertTrue if expected else self.assertFalse)(
+            store.contains(statement),
+            f'*** CONTAINS FAILED FOR STATEMENT ***\n{statement}')
+
+    def count_assertion(
+            self,
+            store: Store
+    ) -> tuple[Callable[[int, Filter], None], type[Filter]]:
+        """Constructs a :meth:`Store.count` assertion callback.
+
+        Parameters:
+           store: Store.
+
+        Returns:
+           Assertion callback plus alias for filter class.
         """
         return functools.partial(self.assert_store_count, store), Filter
 
@@ -1242,7 +1304,7 @@ class StoreTestCase(TestCase):
             expected: int,
             filter: Filter
     ) -> None:
-        """Asserts that store count produces the expected statement count.
+        """:meth:`Store.count` assertion.
 
         Parameters:
            store: Store.
@@ -1256,13 +1318,13 @@ class StoreTestCase(TestCase):
             self,
             store: Store
     ) -> tuple[Callable[[Filter, Iterable[Statement]], None], type[Filter]]:
-        """Constructs a filter assertion callback for store.
+        """Constructs a :meth:`Store.filter` assertion callback.
 
         Parameters:
            store: Store.
 
         Returns:
-           Filter assertion callback.
+           Assertion callback plus alias for filter class.
         """
         return functools.partial(self.assert_store_filter, store), Filter
 
@@ -1272,7 +1334,7 @@ class StoreTestCase(TestCase):
             filter: Filter,
             expected: Iterable[Statement]
     ) -> None:
-        """Asserts that store filter produces the expected statements.
+        """:meth:`Store.filter` assertion.
 
         Parameters:
            store: Store.
@@ -1285,13 +1347,13 @@ class StoreTestCase(TestCase):
             self,
             store: Store
     ) -> tuple[Callable[[Filter, Iterable[Statement]], None], type[Filter]]:
-        """Constructs a extended filter assertion callback for store.
+        """Constructs an extended :meth:`Store.filter` assertion callback.
 
         Parameters:
            store: Store.
 
         Returns:
-           Extended filter assertion callback.
+           Extended assertion callback plus alias for filter class.
         """
         return functools.partial(self.assert_store_xfilter, store), Filter
 
@@ -1301,16 +1363,16 @@ class StoreTestCase(TestCase):
             filter: Filter,
             expected: Iterable[Statement]
     ) -> None:
-        """Asserts that store filter produces the expected statements.
+        """Extended :meth:`Store.filter` assertion.
 
-        This function applies filter with and without annotations and checks
-        the results of both calls against the annotated and unannotated
-        version of the given statements.
+        This function applies :meth:`Store.filter` with and without
+        annotations and checks the results of both calls against the
+        annotated and unannotated version of the `expected` statements.
 
         Parameters:
            store: Store.
            filter: Filter.
-           expected: Expected annotated statements.
+           expected: Expected (annotated) statements.
         """
         self.assertEqual(
             set(store.filter(filter=filter.unannotated())),
