@@ -717,7 +717,7 @@ class Filter(KIF_Object):
         return not self.is_empty()
 
     def unannotated(self) -> Self:
-        """Get the unannotated version of filter.
+        """Gets the unannotated version of filter.
 
         Returns:
            Filter.
