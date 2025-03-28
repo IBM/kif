@@ -20,11 +20,17 @@ if TYPE_CHECKING:               # pragma: no cover
 class _CommonOptions(Section):
     """PubChem vocabulary options."""
 
+    _v_resolver: ClassVar[tuple[Iterable[str], str | None]]
+
     _resolver: IRI | None
 
     @abc.abstractmethod
+    def __init__(self, **kwargs: Any) -> None:
+        self._init_resolver(kwargs)
+
     def _init_resolver(self, kwargs: dict[str, Any]) -> None:
-        raise NotImplementedError
+        resolver = kwargs.get('_resolver', self.getenv(*self._v_resolver))
+        self.resolver = resolver if bool(resolver) else None
 
     @property
     def resolver(self) -> IRI | None:
@@ -58,48 +64,38 @@ class _CommonOptions(Section):
 class DBpediaOptions(_CommonOptions, name='db'):
     """PubChem vocabulary options."""
 
-    def __init__(self, **kwargs: Any) -> None:
-        self._init_resolver(kwargs)
-
-    # -- resolver --
-
     _v_resolver: ClassVar[tuple[Iterable[str], str | None]] =\
         (('KIF_VOCABULARY_DB_RESOLVER', 'DBPEDIA'),
          'https://dbpedia.org/sparql')
 
-    @override
-    def _init_resolver(self, kwargs: dict[str, Any]) -> None:
-        self.resolver = kwargs.get(
-            '_resolver', self.getenv(*self._v_resolver))
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
 
 
 @dataclasses.dataclass
 class PubChemOptions(_CommonOptions, name='pc'):
     """PubChem vocabulary options."""
 
-    def __init__(self, **kwargs: Any) -> None:
-        self._init_resolver(kwargs)
-
-    # -- resolver --
-
     _v_resolver: ClassVar[tuple[Iterable[str], str | None]] =\
         (('KIF_VOCABULARY_PC_RESOLVER', 'PUBCHEM'),
          'https://qlever.cs.uni-freiburg.de/api/pubchem')
 
-    @override
-    def _init_resolver(self, kwargs: dict[str, Any]) -> None:
-        self.resolver = kwargs.get(
-            '_resolver', self.getenv(*self._v_resolver))
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
 
 
 @dataclasses.dataclass
 class WD_Options(_CommonOptions, name='wd'):
     """Wikidata vocabulary options."""
 
+    _v_resolver: ClassVar[tuple[Iterable[str], str | None]] =\
+        (('KIF_VOCABULARY_WD_RESOLVER', 'WIKIDATA'),
+         'https://query.wikidata.org/sparql')
+
     def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
         self._init_item_cache(kwargs)
         self._init_property_cache(kwargs)
-        self._init_resolver(kwargs)
 
     # -- item_cache --
 
@@ -182,17 +178,6 @@ class WD_Options(_CommonOptions, name='wd'):
         else:
             self._property_cache = pathlib.Path(String.check(
                 path, self.set_property_cache, 'path', 1).content)
-
-    # -- resolver --
-
-    _v_resolver: ClassVar[tuple[Iterable[str], str | None]] =\
-        (('KIF_VOCABULARY_WD_RESOLVER', 'WIKIDATA'),
-         'https://query.wikidata.org/sparql')
-
-    @override
-    def _init_resolver(self, kwargs: dict[str, Any]) -> None:
-        self.resolver = kwargs.get(
-            '_resolver', self.getenv(*self._v_resolver))
 
 
 @dataclasses.dataclass
