@@ -16,17 +16,10 @@ from ..typing import (
     TypeAlias,
     Union,
 )
-from .fingerprint import (
-    AndFingerprint,
-    Fingerprint,
-    SnakFingerprint,
-    TFingerprint,
-    ValueFingerprint,
-)
+from .fingerprint import Fingerprint, TFingerprint
 from .flags import Flags
 from .kif_object import KIF_Object
 from .rank import DeprecatedRank, NormalRank, PreferredRank, Rank, TRank
-from .set import SnakSet
 from .snak import NoValueSnak, Snak, SomeValueSnak, TSnak, ValueSnak
 from .statement import Statement, TStatement
 from .value import (
