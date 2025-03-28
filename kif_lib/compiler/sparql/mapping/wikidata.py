@@ -332,9 +332,9 @@ class WikidataMapping(M):
                 and Term.is_closed(s.subject)), targets))
             if subject_of_all_targets_is_fixed:
                 ###
-                # IMPORTANT: We use ORDER BY(?wds) only if the subject of all
-                # target patterns is fixed.  We do this to ensure that the
-                # expected number of results is not too large.
+                # IMPORTANT: We use ORDER BY(?wds) only if the subject of
+                # all target patterns is fixed.  We do this to ensure that
+                # the expected number of results is not too large.
                 ###
                 c.q.set_order_by(c.wds)
             annotation_of_some_target_is_open = any(map(lambda s: (

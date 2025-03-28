@@ -149,8 +149,8 @@ class MixerStore(
                 assert len(batch) == n
 
     @override
-    def _contains(self, filter: Filter) -> bool:
-        return any(map(lambda kb: kb._contains(filter), self._sources))
+    def _ask(self, filter: Filter) -> bool:
+        return any(map(lambda kb: kb._ask(filter), self._sources))
 
     @override
     def _count(self, filter: Filter) -> int:
@@ -164,8 +164,7 @@ class MixerStore(
             distinct: bool
     ) -> Iterator[Statement]:
         its = map(
-            lambda kb: kb._filter_with_hooks(
-                filter, limit, distinct), self._sources)
+            lambda kb: kb._filter(filter, limit, distinct), self._sources)
         return self._filter_mixed(list(its), limit, distinct)
 
     def _filter_mixed(

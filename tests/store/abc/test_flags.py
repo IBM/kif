@@ -36,18 +36,18 @@ class Test(TestCase):
     def test_set_flags(self) -> None:
         kb = Store('empty', flags=Store.Flags(0))
         self.assertEqual(kb.flags, kb.Flags(0))
-        kb.set_flags(kb.CACHE)
-        self.assertEqual(kb.flags, kb.CACHE)
+        kb.set_flags(kb.DEBUG)
+        self.assertEqual(kb.flags, kb.DEBUG)
         kb.flags |= kb.BEST_RANK
-        self.assertEqual(kb.flags, kb.CACHE | kb.BEST_RANK)
+        self.assertEqual(kb.flags, kb.DEBUG | kb.BEST_RANK)
 
     def test_has_flags(self) -> None:
         kb = Store('empty', flags=Store.Flags(0))
         self.assertEqual(kb.flags, kb.Flags(0))
-        self.assertFalse(kb.has_flags(kb.CACHE))
-        kb.set_flags(kb.CACHE | kb.BEST_RANK)
-        self.assertTrue(kb.has_flags(kb.CACHE | kb.BEST_RANK))
-        self.assertTrue(kb.has_flags(kb.CACHE))
+        self.assertFalse(kb.has_flags(kb.DEBUG))
+        kb.set_flags(kb.DEBUG | kb.BEST_RANK)
+        self.assertTrue(kb.has_flags(kb.DEBUG | kb.BEST_RANK))
+        self.assertTrue(kb.has_flags(kb.DEBUG))
         self.assertTrue(kb.has_flags(kb.BEST_RANK))
 
     def test_unset_flags(self) -> None:

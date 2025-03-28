@@ -4,13 +4,11 @@
 from __future__ import annotations
 
 from .. import itertools
-from ..cache import Cache
 from ..context import Context
 from ..error import Error as KIF_Error
 from ..error import ShouldNotGetHere
 from ..model import (
     AnnotatedStatement,
-    Entity,
     Filter,
     Fingerprint,
     KIF_Object,
@@ -111,7 +109,6 @@ class Store(Set):
         return KIF_Object._should_not_get_here(details)
 
     __slots__ = (
-        '_cache',
         '_context',
         '_extra_references',
         '_flags',
@@ -144,7 +141,6 @@ class Store(Set):
            kwargs: Keyword arguments to store plugin.
         """
         self._init_flags(flags)
-        self._init_cache(self.has_flags(self.CACHE))
         self._init_extra_references(extra_references)
         self._init_limit(limit)
         self._init_page_size(page_size)
@@ -164,43 +160,6 @@ class Store(Set):
            Context.
         """
         return Context.top(context)
-
-# -- Caching ---------------------------------------------------------------
-
-    #: The store cache.
-    _cache: Cache
-
-    def _init_cache(self, enabled: bool) -> None:
-        self._cache = Cache(enabled)
-
-    def _cache_get_presence(self, obj: Entity | Statement) -> bool | None:
-        """Gets the status of `obj` presence in cache.
-
-        Returns:
-           ``True`` if `obj` is present;
-           ``False`` if `obj` is not present;
-           ``None`` otherwise (`obj` presence is unknown).
-        """
-        return self._cache.get(obj, 'presence')
-
-    def _cache_set_presence(
-            self,
-            obj: Entity | Statement,
-            status: bool | None = None
-    ) -> bool | None:
-        """Sets the status of `obj` presence in cache.
-
-        Parameter:
-           status: Presence status.
-
-        Returns:
-           Status.
-        """
-        if status is None:
-            self._cache.unset(obj, 'presence')
-            return None
-        else:
-            return self._cache.set(obj, 'presence', status)
 
 # -- Extra references ------------------------------------------------------
 
@@ -285,17 +244,8 @@ class Store(Set):
     class Flags(KIF_Flags):
         """Store flags."""
 
-        #: Whether to enable cache.
-        CACHE = KIF_Flags.auto()
-
         #: Whether to enable debugging.
         DEBUG = KIF_Flags.auto()
-
-        #: Whether to remove duplicates.
-        DISTINCT = KIF_Flags.auto()
-
-        #: Whether to force some ordering.
-        ORDER = KIF_Flags.auto()
 
         #: Whether to fetch only the best ranked statements.
         BEST_RANK = KIF_Flags.auto()
@@ -309,36 +259,16 @@ class Store(Set):
         #: Whether to fetch no-value snaks.
         NO_VALUE_SNAK = KIF_Flags.auto()
 
-        #: Whether to enable early filtering.
-        EARLY_FILTER = KIF_Flags.auto()
-
-        #: Whether to enable late filtering.
-        LATE_FILTER = KIF_Flags.auto()
-
         #: All flags.
         ALL = (
-            CACHE
-            | DEBUG
-            | DISTINCT
-            | ORDER
+            DEBUG
             | BEST_RANK
             | VALUE_SNAK
             | SOME_VALUE_SNAK
-            | NO_VALUE_SNAK
-            | EARLY_FILTER
-            | LATE_FILTER)
-
-    #: Whether to enable cache.
-    CACHE: Final[Flags] = Flags.CACHE
+            | NO_VALUE_SNAK)
 
     #: Whether to enable debugging.
     DEBUG: Final[Flags] = Flags.DEBUG
-
-    #: Whether to remove duplicates.
-    DISTINCT: Final[Flags] = Flags.DISTINCT
-
-    #: Whether to force some ordering.
-    ORDER: Final[Flags] = Flags.ORDER
 
     #: Whether to fetch only the best ranked statements.
     BEST_RANK: Final[Flags] = Flags.BEST_RANK
@@ -351,12 +281,6 @@ class Store(Set):
 
     #: Whether to fetch no-value snaks.
     NO_VALUE_SNAK: Final[Flags] = Flags.NO_VALUE_SNAK
-
-    #: Whether to enable early filtering.
-    EARLY_FILTER: Final[Flags] = Flags.EARLY_FILTER
-
-    #: Whether to enable late filtering.
-    LATE_FILTER: Final[Flags] = Flags.LATE_FILTER
 
     #: Type alias for store flags.
     TFlags: TypeAlias = Flags | int
@@ -395,7 +319,6 @@ class Store(Set):
             self._flags = flags
 
     def _do_set_flags(self, old: Flags, new: Flags) -> bool:
-        self._cache.clear()
         return True
 
     def get_flags(self) -> Flags:
@@ -848,8 +771,67 @@ class Store(Set):
 
 # -- Statements ------------------------------------------------------------
 
+    def ask(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None
+    ) -> bool:
+        """Tests whether some statement matches filter.
+
+        Parameters:
+           subject: Entity.
+           property: Property.
+           value: Value.
+           snak_mask: Snak mask.
+           subject_mask: Datatype mask.
+           property_mask: Datatype mask.
+           value_mask: Datatype mask.
+           rank_mask: Rank mask.
+           language: Language.
+           annotated: Annotated flag.
+           snak: Snak.
+           filter: Filter.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        return self._ask_tail(
+            self._check_filter(
+                subject=subject,
+                property=property,
+                value=value,
+                snak_mask=snak_mask,
+                subject_mask=subject_mask,
+                property_mask=property_mask,
+                value_mask=value_mask,
+                rank_mask=rank_mask,
+                language=language,
+                annotated=annotated,
+                snak=snak,
+                filter=filter,
+                function=self.ask))
+
+    def _ask_tail(self, filter: Filter) -> bool:
+        if filter.is_nonempty():
+            return self._ask(filter)
+        else:
+            return False
+
+    def _ask(self, filter: Filter) -> bool:
+        return bool(next(self._filter(filter, 1, True), False))
+
     def contains(self, stmt: Statement) -> bool:
-        """Tests whether statement is in store.
+        """Tests whether statement occurs in store.
 
         Parameters:
            stmt: Statement.
@@ -858,23 +840,20 @@ class Store(Set):
            ``True`` if successful; ``False`` otherwise.
         """
         Statement.check(stmt, self.contains, 'stmt', 1)
-        status = self._cache_get_presence(stmt)
-        if status is None:
-            filter = self._normalize_filter(
-                Filter.from_statement(stmt))
-            status = self._contains_tail(filter)
-            status = self._cache_set_presence(stmt, status)
-        assert status is not None
-        return status
+        return self._contains(stmt)
 
-    def _contains_tail(self, filter: Filter) -> bool:
+    def _contains(self, stmt: Statement) -> bool:
+        filter = self._normalize_filter(Filter.from_statement(stmt))
         if filter.is_nonempty():
-            return self._contains(filter)
+            if isinstance(stmt, AnnotatedStatement):
+                ###
+                # Make sure we compare annotations.
+                ###
+                return stmt in set(self._filter(filter, 1, True))
+            else:
+                return self._ask(filter)
         else:
             return False
-
-    def _contains(self, filter: Filter) -> bool:
-        return False
 
     def count(
             self,
@@ -901,6 +880,7 @@ class Store(Set):
            subject_mask: Datatype mask.
            property_mask: Datatype mask.
            value_mask: Datatype mask.
+           rank_mask: Rank mask.
            language: Language.
            annotated: Annotated flag.
            snak: Snak.
@@ -909,7 +889,158 @@ class Store(Set):
         Returns:
            The number of statements matching filter.
         """
-        return self._count_tail(self._check_filter(
+        return self._count_tail(
+            self._check_filter(
+                subject=subject,
+                property=property,
+                value=value,
+                snak_mask=snak_mask,
+                subject_mask=subject_mask,
+                property_mask=property_mask,
+                value_mask=value_mask,
+                rank_mask=rank_mask,
+                language=language,
+                annotated=annotated,
+                snak=snak,
+                filter=filter,
+                function=self.count))
+
+    def _count_tail(self, filter: Filter) -> int:
+        if filter.is_nonempty():
+            return self._count(filter)
+        else:
+            return 0
+
+    def _count(self, filter: Filter) -> int:
+        return sum(1 for _ in self._filter(filter, self.max_limit, True))
+
+    def filter(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            limit: int | None = None,
+            distinct: bool | None = None
+    ) -> Iterator[Statement]:
+        """Searches for statements matching filter.
+
+        Parameters:
+           subject: Entity.
+           property: Property.
+           value: Value.
+           snak_mask: Snak mask.
+           subject_mask: Datatype mask.
+           property_mask: Datatype mask.
+           value_mask: Datatype mask.
+           rank_mask: Rank mask.
+           language: Language.
+           annotated: Annotated flag.
+           snak: Snak.
+           filter: Filter filter.
+           limit: Limit (maximum number) of statements to return.
+           distinct: Whether to skip duplicated matches.
+
+        Returns:
+           An iterator of statements matching filter.
+        """
+        limit = self._check_optional_limit(
+            limit, self.limit, self.filter, 'limit', 13)
+        if limit is None:
+            limit = self.default_limit
+        if limit is None:
+            limit = self.max_limit
+        distinct = bool(distinct)
+        assert limit is not None
+        assert distinct is not None
+        return self._filter_tail(
+            self._check_filter(
+                subject=subject,
+                property=property,
+                value=value,
+                snak_mask=snak_mask,
+                subject_mask=subject_mask,
+                property_mask=property_mask,
+                value_mask=value_mask,
+                rank_mask=rank_mask,
+                language=language,
+                annotated=annotated,
+                snak=snak,
+                filter=filter,
+                function=self.filter),
+            limit, distinct)
+
+    def _filter_tail(
+            self,
+            filter: Filter,
+            limit: int,
+            distinct: bool
+    ) -> Iterator[Statement]:
+        if limit > 0 and filter.is_nonempty():
+            stmts = self._filter(filter, limit, distinct)
+            if filter.annotated and self.extra_references:
+                return map(lambda s: s.annotate(
+                    references=self.extra_references), stmts)
+            else:
+                return stmts
+        else:
+            return iter(())
+
+    def _filter(
+            self,
+            filter: Filter,
+            limit: int,
+            distinct: bool
+    ) -> Iterator[Statement]:
+        return iter(())
+
+    def filter_annotated(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            limit: int | None = None,
+            distinct: bool | None = None
+    ) -> Iterator[AnnotatedStatement]:
+        """:meth:`Store.filter` with annotations.
+
+        Parameters:
+           subject: Entity.
+           property: Property.
+           value: Value.
+           snak_mask: Snak mask.
+           subject_mask: Datatype mask.
+           property_mask: Datatype mask.
+           value_mask: Datatype mask.
+           rank_mask: Rank mask.
+           language: Language.
+           annotated: Annotated flag (ignored).
+           snak: Snak.
+           filter: Filter.
+           limit: Limit (maximum number) of statements to return.
+           distinct: Whether to skip duplicated matches.
+
+        Returns:
+           An iterator of annotated statements matching filter.
+        """
+        return cast(Iterator[AnnotatedStatement], self.filter(
             subject=subject,
             property=property,
             value=value,
@@ -919,19 +1050,11 @@ class Store(Set):
             value_mask=value_mask,
             rank_mask=rank_mask,
             language=language,
-            annotated=annotated,
+            annotated=True,     # force
             snak=snak,
             filter=filter,
-            function=self.count))
-
-    def _count_tail(self, filter: Filter) -> int:
-        if filter.is_nonempty():
-            return self._count(filter)
-        else:
-            return 0
-
-    def _count(self, filter: Filter) -> int:
-        return 0
+            limit=limit,
+            distinct=distinct))
 
     def _check_filter(
             self,
@@ -1013,185 +1136,3 @@ class Store(Set):
         return filter.normalize().replace(
             filter.KEEP, filter.KEEP, filter.KEEP,
             filter.snak_mask & store_snak_mask)
-
-    def filter(
-            self,
-            subject: TFingerprint | None = None,
-            property: TFingerprint | None = None,
-            value: TFingerprint | None = None,
-            snak_mask: Filter.TSnakMask | None = None,
-            subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
-            value_mask: Filter.TDatatypeMask | None = None,
-            rank_mask: Filter.TRankMask | None = None,
-            language: str | None = None,
-            annotated: bool | None = None,
-            snak: Snak | None = None,
-            filter: Filter | None = None,
-            limit: int | None = None,
-            distinct: bool | None = None
-    ) -> Iterator[Statement]:
-        """Searches for statements matching filter.
-
-        Parameters:
-           subject: Entity.
-           property: Property.
-           value: Value.
-           snak_mask: Snak mask.
-           subject_mask: Datatype mask.
-           property_mask: Datatype mask.
-           value_mask: Datatype mask.
-           language: Language.
-           annotated: Annotated flag.
-           snak: Snak.
-           filter: Filter filter.
-           limit: Limit (maximum number) of statements to return.
-           distinct: Whether to skip duplicated matches.
-
-        Returns:
-           An iterator of statements matching filter.
-        """
-        filter = self._check_filter(
-            subject=subject,
-            property=property,
-            value=value,
-            snak_mask=snak_mask,
-            subject_mask=subject_mask,
-            property_mask=property_mask,
-            value_mask=value_mask,
-            rank_mask=rank_mask,
-            language=language,
-            annotated=annotated,
-            snak=snak,
-            filter=filter,
-            function=self.filter)
-        limit = self._as_limit(limit, self.filter, 'limit', 13)
-        distinct = self._as_distinct(distinct, self.filter, 'distinct', 14)
-        return self._filter_with_hooks(filter, limit, distinct)
-
-    def _as_limit(
-            self,
-            arg: Any,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> int:
-        current_limit = self.limit
-        if current_limit is None:
-            current_limit = self.default_limit
-        if current_limit is None:
-            current_limit = self.max_limit
-        limit = self._check_optional_limit(
-            arg, current_limit, function, name, position)
-        assert limit is not None
-        return limit
-
-    def _as_distinct(
-            self,
-            arg: Any,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> bool:
-        distinct = KIF_Object._check_optional_arg_bool(
-            arg, self.has_flags(self.DISTINCT), function, name, position)
-        assert isinstance(distinct, bool)
-        return distinct
-
-    def _filter_with_hooks(
-            self,
-            filter: Filter,
-            limit: int,
-            distinct: bool
-    ) -> Iterator[Statement]:
-        filter, limit, distinct, data = self._filter_pre_hook(
-            filter, limit, distinct)
-        it_in: Iterator[Statement]
-        it_out: Iterator[Statement]
-        if limit > 0 and filter.is_nonempty():
-            it_in = self._filter(filter, limit, distinct)
-        else:
-            it_in = iter(())
-        it_out = self._filter_post_hook(filter, limit, distinct, data, it_in)
-        if distinct:
-            it_out = itertools.unique_everseen(it_out)
-        return itertools.islice(it_out, limit)
-
-    def _filter_pre_hook(
-            self,
-            filter: Filter,
-            limit: int,
-            distinct: bool
-    ) -> tuple[Filter, int, bool, Any]:
-        return filter, limit, distinct, None
-
-    def _filter_post_hook(
-            self,
-            filter: Filter,
-            limit: int,
-            distinct: bool,
-            data: Any,
-            it: Iterator[Statement]
-    ) -> Iterator[Statement]:
-        return it
-
-    def _filter(
-            self,
-            filter: Filter,
-            limit: int,
-            distinct: bool
-    ) -> Iterator[Statement]:
-        return iter(())
-
-    def filter_annotated(
-            self,
-            subject: TFingerprint | None = None,
-            property: TFingerprint | None = None,
-            value: TFingerprint | None = None,
-            snak_mask: Filter.TSnakMask | None = None,
-            subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
-            value_mask: Filter.TDatatypeMask | None = None,
-            rank_mask: Filter.TRankMask | None = None,
-            language: str | None = None,
-            annotated: bool | None = None,
-            snak: Snak | None = None,
-            filter: Filter | None = None,
-            limit: int | None = None,
-            distinct: bool | None = None
-    ) -> Iterator[AnnotatedStatement]:
-        """:meth:`Store.filter` with annotations.
-
-        Parameters:
-           subject: Entity.
-           property: Property.
-           value: Value.
-           snak_mask: Snak mask.
-           subject_mask: Datatype mask.
-           property_mask: Datatype mask.
-           value_mask: Datatype mask.
-           language: Language.
-           annotated: Annotated flag (ignored).
-           snak: Snak.
-           filter: Filter.
-           limit: Limit (maximum number) of statements to return.
-           distinct: Whether to skip duplicated matches.
-
-        Returns:
-           An iterator of annotated statements matching filter.
-        """
-        return cast(Iterator[AnnotatedStatement], self.filter(
-            subject=subject,
-            property=property,
-            value=value,
-            snak_mask=snak_mask,
-            subject_mask=subject_mask,
-            property_mask=property_mask,
-            value_mask=value_mask,
-            rank_mask=rank_mask,
-            language=language,
-            annotated=True,     # force
-            snak=snak,
-            filter=filter,
-            limit=limit,
-            distinct=distinct))

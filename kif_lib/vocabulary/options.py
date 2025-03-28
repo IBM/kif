@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 from ..context import Section
 from ..model import String, TString
-from ..typing import Any, ClassVar, Iterable, override
+from ..typing import Any, ClassVar, Iterable
 
 if TYPE_CHECKING:               # pragma: no cover
     from ..model import IRI, T_IRI

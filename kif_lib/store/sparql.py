@@ -426,7 +426,7 @@ class _SPARQL_Store(
 # -- Statements ------------------------------------------------------------
 
     @override
-    def _contains(self, filter: Filter) -> bool:
+    def _ask(self, filter: Filter) -> bool:
         compiler = self._compile_filter(filter)
         res = self.backend.ask(str(compiler.query.ask()))
         assert 'boolean' in res

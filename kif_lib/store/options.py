@@ -67,8 +67,7 @@ class StoreOptions(Section, name='store'):
     # -- flags --
 
     _v_flags: ClassVar[tuple[str, Store.Flags]] =\
-        ('KIF_STORE_FLAGS', (
-            Store.Flags.ALL & ~(Store.Flags.DEBUG | Store.Flags.ORDER)))
+        ('KIF_STORE_FLAGS', (Store.Flags.ALL & ~(Store.Flags.DEBUG)))
 
     _flags: Store.Flags
 
