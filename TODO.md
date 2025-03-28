@@ -1,16 +1,14 @@
-TODO
-====
+# TODO
 
-Model
------
+## Model
 
-- BUG: Fix the internal representation of dates and times.  Find an
-  alternative to Python's datetime or add a new field to the time values to
-  store the `+` or `-` sign of Wikidata datetime strings.
+### Filter
 
-- Filter (new feature): Add support for "negation".  We can compile the
-  negation of an atomic `v`, i.e., `~v`, as `FILTER(?x != v)`.  And we can
-  compile the negation of a snak `S`, i.e., `~S`, as a `FILTER NOT EXISTS`.
+- Add support for "negation".  We can compile the negation of an atomic `v`,
+  i.e., `~v`, as `FILTER(?x != v)`.  And we can compile the negation of a
+  snak `S`, i.e., `~S`, as a `FILTER NOT EXISTS`.
+
+### Fingerprint
 
 - Fingerprint (normalization): We can use the distributive laws to decompose
   complex fingerprints.  E.g., `𝜂[A∧(B∨(C∧(D∨E)))]` ⤳
@@ -23,19 +21,24 @@ Model
   introduce a new kind of fingerprint ValuesFingerprint/OneOfFingepprint
   which behaves as `|` but aggregates only or-ed value fingerprints.
 
-Compiler
---------
+### Time
+
+- BUG: Fix the internal representation of dates and times.  Find an
+  alternative to Python's datetime or add a new field to the time values to
+  store the `+` or `-` sign of Wikidata datetime strings.
+
+## Compiler
 
 - Filter compiler (optimization): Aggregate snaks with the same property.
 
 - Use subqueries to implement fingerprints(?).
 
-Codec
------
+## Codec
 
-- Repr: Replace `eval()` by a proper parser (via lark).
+### Repr
 
-Store
------
+- Replace `eval()` by a proper parser (via lark).
+
+## Store
 
 - Add async API for Store.
