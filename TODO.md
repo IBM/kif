@@ -4,14 +4,9 @@ TODO
 Model
 -----
 
-- Statement patterns: We could start introducing patterns via a statement
-  pattern, i.e., a statement template together with a variable constraint.
-
-- Add `AnnotatedStatement` object to carry statement together with its set
-  of annotation records.
-
-- BUG: Fix the internal representation of dates and times.  Maybe we
-  shouldn't use Python's datetime.
+- BUG: Fix the internal representation of dates and times.  Find an
+  alternative to Python's datetime or add a new field to the time values to
+  store the `+` or `-` sign of Wikidata datetime strings.
 
 - Filter (new feature): Add support for "negation".  We can compile the
   negation of an atomic `v`, i.e., `~v`, as `FILTER(?x != v)`.  And we can
@@ -38,26 +33,9 @@ Compiler
 Codec
 -----
 
-- Wikidata RDF: Write a new Wikidata RDF encoder for model classes.  The
-  proposed `AnnotatedStatement` object (see above) can help us here.
-
 - Repr: Replace `eval()` by a proper parser (via lark).
 
 Store
 -----
 
-- Add async API for Store.  See the technique used in
-  `kif_lib.vocabulary.wd.downloader`.
-
-- Mapper: We could use statement templates as the unity of mappings.  That
-  is, an entry in the mapping could be a pair `(p,push)` where `p` is a
-  statement pattern and `push()` is a function that takes a query builder as
-  argument and pushes the SPARQL fragment that matches `p` in the target
-  graph.  The `push()` function should also update the substitution with
-  variables that occur in `p`, so that the final substitution will
-  automatically translate from the target graph to KIF model objects.
-
-- RDF: Allow user to construct a store by passing statement objects
-  (requires Wikidata RDF encoder).
-
-- Memory: New store that takes a list of (annotated) statements as input.
+- Add async API for Store.
