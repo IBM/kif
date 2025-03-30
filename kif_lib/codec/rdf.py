@@ -219,12 +219,13 @@ class RDF_Encoder(
         uri = cast(URIRef, property._to_rdflib())
         self._seen_entity[property] = uri
         yield from self._tr((uri, RDF.type, WIKIBASE.Property))
+        if property.range is not None:
+            dt_uri = property.range._to_rdflib()
+            yield from self._tr((uri, WIKIBASE.propertyType, dt_uri))
         if define:
             schema = self._get_property_schema(property)
             assert property.range is not None
-            dt_uri = property.range._to_rdflib()
             yield from self._tr(
-                (uri, WIKIBASE.propertyType, dt_uri),
                 (uri, WIKIBASE.claim, schema['p']),
                 (uri, WIKIBASE.qualifier, schema['pq']),
                 (uri, WIKIBASE.qualifierValue, schema['pqv']),

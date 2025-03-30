@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import Items, Store
+from kif_lib import Store
 from kif_lib.typing import Final
 
 from ...tests import TestCase
@@ -73,15 +73,6 @@ class Test(TestCase):
         self.assertEqual(kb.page_size, 8)
         kb.set_page_size(kb.max_page_size + 10)
         self.assertEqual(kb.page_size, kb.max_page_size)
-
-    def test__batched(self) -> None:
-        kb = Store('empty')
-        kb.page_size = 2
-        it = kb._batched(Items('v', 'w', 'x', 'y', 'z'))
-        self.assertEqual(next(it), tuple(Items('v', 'w')))
-        self.assertEqual(next(it), tuple(Items('x', 'y')))
-        self.assertEqual(next(it), tuple(Items('z')))
-        self.assertRaises(StopIteration, next, it)
 
 
 if __name__ == '__main__':

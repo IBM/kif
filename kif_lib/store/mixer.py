@@ -7,7 +7,6 @@ from .. import itertools
 from ..model import Filter, KIF_Object, Statement
 from ..typing import (
     Any,
-    Callable,
     Collection,
     Iterable,
     Iterator,
@@ -126,28 +125,6 @@ class MixerStore(
                 src.set_page_size(new)
         return True
 
-    def _mix_get_x(
-            self,
-            it: Iterable[T],
-            empty: S,
-            get: Callable[[Store, Iterable[T]], Iterator[tuple[T, S]]],
-            mix: Callable[[Iterator[tuple[T, S]]], tuple[T, S]]
-    ) -> Iterator[tuple[T, S]]:
-        if not self._sources:
-            for t in it:
-                yield t, empty
-        else:
-            for batch in self._batched(it):
-                its = list(map(lambda kb: get(kb, batch), self._sources))
-                n = 0
-                while True:
-                    try:
-                        yield mix(map(next, its))
-                        n += 1
-                    except StopIteration:
-                        break
-                assert len(batch) == n
-
     @override
     def _ask(self, filter: Filter) -> bool:
         return any(map(lambda kb: kb._ask(filter), self._sources))
@@ -163,16 +140,8 @@ class MixerStore(
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
-        its = map(
-            lambda kb: kb._filter(filter, limit, distinct), self._sources)
-        return self._filter_mixed(list(its), limit, distinct)
-
-    def _filter_mixed(
-            self,
-            its: Collection[Iterator[Statement]],
-            limit: int,
-            distinct: bool
-    ) -> Iterator[Statement]:
+        its: list[Iterator[Statement]] = list(map(
+            lambda kb: kb._filter(filter, limit, distinct), self._sources))
         cyc = itertools.cycle(its)
         exausted: set[Iterator[Statement]] = set()
         seen: set[Statement] = set()

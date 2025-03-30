@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-from .. import itertools
 from ..context import Context
 from ..error import Error as KIF_Error
 from ..error import ShouldNotGetHere
@@ -27,10 +26,8 @@ from ..typing import (
     cast,
     ClassVar,
     Final,
-    Iterable,
     Iterator,
     Location,
-    Sequence,
     Set,
     TypeAlias,
     TypeVar,
@@ -598,46 +595,6 @@ class Store(Set):
 
     def _do_set_page_size(self, old: int | None, new: int | None) -> bool:
         return True
-
-    def _batched(
-            self,
-            it: Iterable[T],
-            page_size: int | None = None
-    ) -> Iterator[Sequence[T]]:
-        """Batches `it` into tuples of at most page-size length.
-
-        If `page_size` is ``None``, assumes :attr:`Store.page_size`.
-
-        Parameters:
-           it: Iterable.
-           page_size: Page size.
-
-        Returns:
-           The resulting tuples.
-        """
-        return itertools.batched(
-            it, page_size if page_size is not None else self.page_size)
-
-    def _chain_map_batched(
-            self,
-            op: Callable[[Iterable[T]], Iterator[S]],
-            it: Iterable[T],
-            page_size: int | None = None
-    ) -> Iterator[S]:
-        """Batches `it`, applies `op` to the batches, and chain them.
-
-        If `page_size` is ``None``, assumes :attr:`Store.page_size`.
-
-        Parameters:
-           op: Callable.
-           it: Iterable.
-           page_size: Page size.
-
-        Returns:
-           The resulting iterator.
-        """
-        return itertools.chain.from_iterable(
-            map(op, self._batched(it, page_size)))
 
 # -- Timeout ---------------------------------------------------------------
 
