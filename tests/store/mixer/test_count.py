@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-from kif_lib import Deprecated, ExternalId, Preferred, Quantity, Text, Time
 from kif_lib.vocabulary import wd
 
 from ...tests import StoreTestCase

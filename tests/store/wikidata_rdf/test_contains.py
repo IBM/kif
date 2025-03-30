@@ -13,12 +13,8 @@ class Test(StoreTestCase):
 
     @classmethod
     def KB(cls):
-        return cls.S(
-            'wikidata-rdf',
-            'tests/data/adam.ttl',
-            'tests/data/andar.ttl',
-            'tests/data/benzene.ttl',
-            'tests/data/brazil.ttl')
+        from .test_filter import Test as TestFilter
+        return TestFilter.KB()
 
     def test_unannotated(self) -> None:
         c = self.store_contains_assertion(self.KB())

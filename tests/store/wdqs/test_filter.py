@@ -15,7 +15,7 @@ class Test(StoreTestCase):
     def KB(cls):
         import os
         wdqs = os.getenv('WIKIDATA', os.getenv('WDQS'))
-        if wdqs is None:
+        if not wdqs:
             raise cls.SKIP('WIKIDATA is not set')
         else:
             return cls.S('wdqs', wdqs)
