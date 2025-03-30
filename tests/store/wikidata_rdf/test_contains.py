@@ -39,14 +39,10 @@ class Test(StoreTestCase):
             wd.InChIKey, wd.Wikidata_property_to_identify_substances))
         c(False, wd.instance_of(wd.InChIKey, wd.type_of_a_chemical_entity))
         c(True, wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton)))
+        c(False, wd.mass(wd.benzene, Quantity('78.046950192')))
         c(True, wd.density(wd.benzene, Quantity(
             '.88', wd.gram_per_cubic_centimetre, '.87', '.89')))
-        ###
-        # FIXME: The next two should return ``False`` but currently we
-        # ignore missing optional components (e.g., unit).
-        ###
-        c(True, wd.mass(wd.benzene, Quantity('78.046950192')))
-        c(True, wd.density(wd.benzene, Quantity(
+        c(False, wd.density(wd.benzene, Quantity(
             '.88', wd.gram_per_cubic_centimetre)))
         c(False, wd.density(wd.benzene, Quantity(
             '.88', wd.gram_per_cubic_centimetre, '.88', '.89')))

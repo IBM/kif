@@ -132,13 +132,13 @@ class Store(Set):
 
         Parameters:
            store_name: Name of the store plugin to instantiate.
-           args: Arguments to store plugin.
+           args: Arguments.
            extra_references: Extra references to attach to statements.
            flags: Store flags.
            limit: Limit (maximum number) of responses.
            page_size: Page size of paginated responses.
            timeout: Timeout of responses (in seconds).
-           kwargs: Keyword arguments to store plugin.
+           kwargs: Extra keyword arguments.
         """
         self._init_flags(flags)
         self._init_extra_references(extra_references)
@@ -845,14 +845,8 @@ class Store(Set):
     def _contains(self, stmt: Statement) -> bool:
         filter = self._normalize_filter(Filter.from_statement(stmt))
         if filter.is_nonempty():
-            if isinstance(stmt, AnnotatedStatement):
-                ###
-                # Make sure we compare annotations.
-                ###
-                return stmt in self.filter_annotated(
-                    filter=filter, distinct=False)
-            else:
-                return self._ask(filter)
+            annotated = isinstance(stmt, AnnotatedStatement)
+            return stmt in self.filter(filter=filter, annotated=annotated)
         else:
             return False
 
