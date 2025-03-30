@@ -18,11 +18,10 @@ class Test(StoreTestCase):
             'tests/data/adam.ttl',
             'tests/data/andar.ttl',
             'tests/data/benzene.ttl',
-            'tests/data/brazil.ttl'
-        )
+            'tests/data/brazil.ttl')
 
     def test_unannotated(self) -> None:
-        c = self.contains_assertion(self.KB())
+        c = self.store_contains_assertion(self.KB())
         c(True, wd.label(wd.Adam, 'Adam'))
         c(False, wd.label(wd.Adam, 'Adamx'))
         c(True, wd.alias(wd.Adam, Text('Adánico', 'es')))
@@ -54,7 +53,7 @@ class Test(StoreTestCase):
         c(False, wd.related_property(wd.InChI, wd.InChIKey))
 
     def test_annotated(self) -> None:
-        c = self.contains_assertion(self.KB())
+        c = self.store_contains_assertion(self.KB())
         c(True, wd.label(wd.Adam, 'Adam').annotate())
         c(False, wd.label(wd.Adam, 'Adamx').annotate())
         c(True, wd.alias(wd.Adam, Text('Adánico', 'es')).annotate())

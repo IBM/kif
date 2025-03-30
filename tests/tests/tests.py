@@ -1222,7 +1222,7 @@ class StoreTestCase(TestCase):
     #: Alias for the store constructor.
     S: ClassVar[type[Store]] = Store
 
-    def ask_assertion(
+    def store_ask_assertion(
             self,
             store: Store
     ) -> tuple[Callable[[bool, Filter], None], type[Filter]]:
@@ -1252,7 +1252,7 @@ class StoreTestCase(TestCase):
         assert isinstance(expected, bool)
         self.assertEqual(expected, store.ask(filter=filter))
 
-    def contains_assertion(
+    def store_contains_assertion(
             self,
             store: Store
     ) -> Callable[[bool, Statement], None]:
@@ -1284,7 +1284,7 @@ class StoreTestCase(TestCase):
             store.contains(statement),
             f'*** CONTAINS FAILED FOR STATEMENT ***\n{statement}')
 
-    def count_assertion(
+    def store_count_assertion(
             self,
             store: Store
     ) -> tuple[Callable[[int, Filter], None], type[Filter]]:
@@ -1314,7 +1314,36 @@ class StoreTestCase(TestCase):
         assert isinstance(expected, int) and expected >= 0
         self.assertEqual(expected, store.count(filter=filter))
 
-    def filter_assertion(
+    def store_xcount_assertion(
+            self,
+            store: Store
+    ) -> tuple[Callable[[int, Filter], None], type[Filter]]:
+        """Constructs an extended :meth:`Store.count` assertion callback.
+
+        Parameters:
+           store: Store.
+
+        Returns:
+           Assertion callback plus alias for filter class.
+        """
+        return functools.partial(self.assert_store_xcount, store), Filter
+
+    def assert_store_xcount(
+            self,
+            store: Store,
+            expected: int,
+            filter: Filter
+    ) -> None:
+        """Extended :meth:`Store.count` assertion.
+
+        This function applies :meth:`Store.count` followed by
+        :meth:`Store.ask` and checks the results of both calls against the
+        `exepected` results.
+        """
+        self.assert_store_count(store, expected, filter)
+        self.assert_store_ask(store, expected > 0, filter)
+
+    def store_filter_assertion(
             self,
             store: Store
     ) -> tuple[Callable[[Filter, Iterable[Statement]], None], type[Filter]]:
@@ -1343,7 +1372,7 @@ class StoreTestCase(TestCase):
         """
         self.assertEqual(set(store.filter(filter=filter)), set(expected))
 
-    def xfilter_assertion(
+    def store_xfilter_assertion(
             self,
             store: Store
     ) -> tuple[Callable[[Filter, Iterable[Statement]], None], type[Filter]]:

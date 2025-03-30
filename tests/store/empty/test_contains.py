@@ -15,7 +15,7 @@ class Test(StoreTestCase):
         return cls.S('empty')
 
     def test_contains(self) -> None:
-        c = self.contains_assertion(self.KB())
+        c = self.store_contains_assertion(self.KB())
         c(False, wd.mass(wd.benzene, '78.11'))
         c(False, wd.mass(wd.benzene, '78.11').annotate())
 

@@ -18,15 +18,15 @@ class Test(StoreTestCase):
             'tests/data/adam.ttl',
             'tests/data/andar.ttl',
             'tests/data/benzene.ttl',
-            'tests/data/brazil.ttl',
-        )
+            'tests/data/brazil.ttl')
 
     def test_empty(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(snak_mask=F.SnakMask(0)), ())
 
     def test_full(self) -> None:
-        xf, F = self.xfilter_assertion(self.S('rdf', 'tests/data/andar.ttl'))
+        xf, F = self.store_xfilter_assertion(
+            self.S('rdf', 'tests/data/andar.ttl'))
         xf(F(),
            {wd.lemma(wd.L(46803), Text('andar', 'pt')),
             wd.language(wd.L(46803), wd.Portuguese),
@@ -37,7 +37,7 @@ class Test(StoreTestCase):
     def test_snak_mask(self) -> None:
         kb = self.S('rdf', 'tests/data/adam.ttl')
         kb.unset_flags(kb.BEST_RANK)
-        xf, F = self.xfilter_assertion(kb)
+        xf, F = self.store_xfilter_assertion(kb)
         xf(F(snak_mask=F.VALUE_SNAK),
            {wd.alias(wd.Adam, Text('Adam', 'es')),
             wd.alias(wd.Adam, Text('Adan', 'es')),
@@ -69,7 +69,7 @@ class Test(StoreTestCase):
             wd.father.no_value(wd.Adam)})
 
     def test_subject_mask(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(subject_mask=F.PROPERTY),
            {wd.description(wd.InChIKey, 'A hashed version of the full '
                            'standard InChI - designed to create an '
@@ -89,7 +89,7 @@ class Test(StoreTestCase):
         raise self.TODO()
 
     def test_value_mask(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(value_mask=F.TIME),
            {wd.date_of_birth.no_value(
                wd.Adam, references=[[
@@ -102,7 +102,7 @@ class Test(StoreTestCase):
                 wd.proleptic_Gregorian_calendar))})
 
     def test_language(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(snak_mask=F.VALUE_SNAK, value_mask=F.TEXT, language='pt'),
            {wd.lemma(wd.L(46803), Text('andar', 'pt')),
             wd.official_name(wd.Brazil, Text(
@@ -111,7 +111,7 @@ class Test(StoreTestCase):
     # -- value fp --
 
     def test_value_fp_subject(self) -> None:
-        f, F = self.filter_assertion(self.KB())
+        f, F = self.store_filter_assertion(self.KB())
         f(F(subject=wd.benzene),
           {wd.alias(wd.benzene, 'benzol'),
            wd.density(
@@ -138,7 +138,7 @@ class Test(StoreTestCase):
            wd.label(wd.benzene, 'benzene').annotate()})
 
     def test_value_fp_property(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(property=wd.mass),
            {wd.mass(
                wd.benzene, Quantity('78.046950192', wd.dalton),
@@ -154,7 +154,7 @@ class Test(StoreTestCase):
         raise self.TODO()
 
     def test_value_fp_text(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(value=Text('Brazil', 'en')),
            {wd.label(wd.Brazil, 'Brazil')})
         xf(F(value=Text('Brazil', 'es')), ())
@@ -163,12 +163,12 @@ class Test(StoreTestCase):
         raise self.TODO()
 
     def test_value_fp_external_id(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(value=ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N')),
            {wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')})
 
     def test_value_fp_quantity(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         stmt = wd.density(
             wd.benzene, Quantity(
                 '.88', wd.gram_per_cubic_centimetre, '.87', '.89'),
@@ -189,7 +189,7 @@ class Test(StoreTestCase):
         xf(F(value=Quantity('.88', None, None, '.88')), ())
 
     def test_value_fp_time(self):
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         stmt = wd.inception(wd.Brazil, Time(
             '1822-09-07', Time.DAY, 0, wd.proleptic_Gregorian_calendar))
         xf(F(value=Time('1822-09-07')), {stmt})
@@ -205,7 +205,7 @@ class Test(StoreTestCase):
     # -- snak fp --
 
     def test_snak_fp_subject(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(subject=wd.instance_of(wd.type_of_a_chemical_entity),
              property=wd.mass),
            {wd.mass(
@@ -224,20 +224,20 @@ class Test(StoreTestCase):
             wd.label(wd.InChIKey, Text('InChIKey', 'es'))})
 
     def test_snak_fp_property(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(subject=wd.benzene,
              property=wd.instance_of(
                  wd.Wikidata_property_to_identify_substances)),
            {wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N')})
 
     def test_snak_fp_value(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(subject=wd.Brazil,
              value=wd.demonym(Text('Latinoamericana', 'es'))),
            {wd.part_of(wd.Brazil, wd.Latin_America)})
 
     def test_or_fp_subject_property(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(subject=wd.Brazil | wd.benzene,
              property=wd.label | wd.mass),
            {wd.label(wd.benzene, 'benzene'),

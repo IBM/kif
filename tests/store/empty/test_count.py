@@ -13,8 +13,8 @@ class Test(StoreTestCase):
         return cls.S('empty')
 
     def test_count(self) -> None:
-        c, F = self.count_assertion(self.KB())
-        c(0, F())
+        xc, F = self.store_xcount_assertion(self.KB())
+        xc(0, F())
 
 
 if __name__ == '__main__':

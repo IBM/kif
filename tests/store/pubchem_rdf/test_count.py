@@ -12,16 +12,15 @@ class Test(StoreTestCase):
     def KB(cls):
         return cls.S(
             'pubchem-rdf',
-            'tests/data/benzene-pubchem.ttl',
-        )
+            'tests/data/benzene-pubchem.ttl')
 
     def test_empty(self) -> None:
-        c, F = self.count_assertion(self.KB())
-        c(0, F(snak_mask=F.SnakMask(0)))
+        xc, F = self.store_xcount_assertion(self.KB())
+        xc(0, F(snak_mask=F.SnakMask(0)))
 
     def test_full(self) -> None:
-        c, F = self.count_assertion(self.KB())
-        c(3, F())
+        xc, F = self.store_xcount_assertion(self.KB())
+        xc(3, F())
 
 
 if __name__ == '__main__':

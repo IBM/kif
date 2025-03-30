@@ -14,15 +14,14 @@ class Test(StoreTestCase):
     def KB(cls):
         return cls.S(
             'pubchem-rdf',
-            'tests/data/benzene-pubchem.ttl',
-        )
+            'tests/data/benzene-pubchem.ttl')
 
     def test_empty(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(snak_mask=F.SnakMask(0)), ())
 
     def test_full(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(),
             {wd.instance_of(pc.CID(241), wd.type_of_a_chemical_entity),
              wd.instance_of(pc.Isotope_Atom_Count,

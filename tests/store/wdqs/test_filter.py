@@ -21,7 +21,7 @@ class Test(StoreTestCase):
             return cls.S('wdqs', wdqs)
 
     def test_empty(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(snak_mask=F.SnakMask(0)), ())
 
     # -- masks --
@@ -29,7 +29,7 @@ class Test(StoreTestCase):
     def test_snak_mask(self) -> None:
         kb = self.KB()
         kb.unset_flags(kb.BEST_RANK)
-        xf, F = self.xfilter_assertion(kb)
+        xf, F = self.store_xfilter_assertion(kb)
         xf(F(subject=wd.Adam,
              property=wd.date_of_birth,
              snak_mask=F.VALUE_SNAK),
@@ -57,7 +57,7 @@ class Test(StoreTestCase):
                     wd.statement_is_subject_of(wd.Q(351633))])})
 
     def test_subject_mask(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(value=wd.InChIKey, subject_mask=F.PROPERTY),
            {wd.related_property(wd.InChI, wd.InChIKey)})
 
@@ -65,7 +65,7 @@ class Test(StoreTestCase):
         raise self.TODO()
 
     def test_value_mask(self) -> None:
-        xf, F = self.xfilter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(subject=wd.Brazil, value_mask=F.IRI, snak_mask=F.VALUE_SNAK),
            {wd.Mastodon_instance_URL(
                wd.Brazil, 'https://masto.donte.com.br'),
@@ -94,7 +94,7 @@ class Test(StoreTestCase):
     def test_language(self) -> None:
         kb = self.KB()
         kb.unset_flags(kb.BEST_RANK)
-        xf, F = self.xfilter_assertion(kb)
+        xf, F = self.store_xfilter_assertion(kb)
         xf(F(subject=wd.Brazil, property=wd.official_name,
            snak_mask=F.VALUE_SNAK, value_mask=F.TEXT, language='fr'),
            {wd.official_name(
@@ -109,7 +109,7 @@ class Test(StoreTestCase):
     def test_value_fp_subject(self) -> None:
         kb = self.KB()
         kb.page_size = 2
-        xf, F = self.xfilter_assertion(kb)
+        xf, F = self.store_xfilter_assertion(kb)
         xf(F(subject=wd.Ginga, snak_mask=F.VALUE_SNAK, value_mask=F.ITEM),
            {wd.copyright_license(wd.Ginga, wd.GNU_General_Public_License),
             wd.copyright_status(wd.Ginga, wd.copyrighted),
