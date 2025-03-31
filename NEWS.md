@@ -1,5 +1,10 @@
-Release v0.7
-============
+Release v0.7.1
+==============
+
+- `docs`: Updated quickstart and API reference.  Removed legacy stuff.
+
+Release v0.7.0
+==============
 
 - All SPARQL-based stores suffered a major refactoring.  Now they all derive
   from a base SPARQL store which supports multiple back-ends (currently,
