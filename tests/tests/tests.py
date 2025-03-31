@@ -1370,6 +1370,9 @@ class StoreTestCase(TestCase):
            filter: Filter.
            expected: Expected statements.
         """
+        if filter.annotated:
+            expected = map(lambda s: s if isinstance(
+                expected, AnnotatedStatement) else s.annotate(), expected)
         self.assertEqual(set(store.filter(filter=filter)), set(expected))
 
     def store_xfilter_assertion(

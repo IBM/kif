@@ -910,8 +910,11 @@ class Store(Set):
             limit = self.default_limit
         if limit is None:
             limit = self.max_limit
-        distinct = bool(distinct)
         assert limit is not None
+        ###
+        # FIXME: Move this to an option.
+        ###
+        distinct = distinct if distinct is not None else True
         assert distinct is not None
         return self._filter_tail(
             self._check_filter(

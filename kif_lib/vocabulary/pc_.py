@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from ..context import Context
-from ..model import Item, Property, Quantity, TText, TTextSet
+from ..model import Item, Property, Quantity, Text, TText, TTextSet
 from ..namespace.pubchem import PubChem
 from ..namespace.semsci import CHEMINF
 
@@ -84,6 +84,10 @@ def source(
         label=label, aliases=aliases, description=description)
 
 
-Isotope_Atom_Count = Property(
+isotope_atom_count = Property(
     CHEMINF.isotope_atom_count_generated_by_pubchem_software_library,
     Quantity)
+
+preferred_IUPAC_name = Property(
+    CHEMINF.IUPAC_Name_generated_by_LexiChem,
+    Text)

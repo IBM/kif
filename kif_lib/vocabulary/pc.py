@@ -5,12 +5,13 @@ from __future__ import annotations
 
 from ..context import Context
 from ..namespace.pubchem import PubChem
-from .pc_ import CID, Isotope_Atom_Count, patent, source
+from .pc_ import CID, isotope_atom_count, patent, preferred_IUPAC_name, source
 
 __all__ = (
     'CID',
-    'Isotope_Atom_Count',
+    'isotope_atom_count',
     'patent',
+    'preferred_IUPAC_name',
     'reload',
     'source',
 )

@@ -20,7 +20,7 @@ class Test(StoreTestCase):
 
     def test_full(self) -> None:
         xc, F = self.store_xcount_assertion(self.KB())
-        xc(3, F())
+        xc(6, F())
 
 
 if __name__ == '__main__':

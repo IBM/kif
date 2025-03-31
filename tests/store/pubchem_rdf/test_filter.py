@@ -24,8 +24,12 @@ class Test(StoreTestCase):
         xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(),
             {wd.instance_of(pc.CID(241), wd.type_of_a_chemical_entity),
-             wd.instance_of(pc.Isotope_Atom_Count,
+             wd.instance_of(pc.isotope_atom_count,
                             wd.Wikidata_property_related_to_chemistry),
+             wd.label(pc.isotope_atom_count, 'isotope atom count'),
+             wd.instance_of(pc.preferred_IUPAC_name,
+                            wd.Wikidata_property_related_to_chemistry),
+             wd.label(pc.preferred_IUPAC_name, 'preferred IUPAC name'),
              wd.mass(pc.CID(241), '78.11'@wd.gram_per_mole)})
 
 
