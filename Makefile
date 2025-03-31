@@ -47,6 +47,7 @@ CHECK_SYNTAX_IGNORE?=
 COVERAGERC?= .coveragerc
 COVERAGERC_EXCLUDE_LINES?=
 COVERAGERC_OMIT?=
+DOCS_SETENV?=
 DOCS_SRC?= docs
 DOCS_TGT?= .docs
 DOCS_TGT_BRANCH?= gh-pages
@@ -67,8 +68,6 @@ ISORT_OPTIONS?= --check --diff
 MYPY?= ${PYTHON} -m mypy
 MYPY_OPERANDS?= ${PACKAGE} ${TESTS}
 MYPY_OPTIONS?= --show-error-context --show-error-codes
-PYUPGRADE?= ${PYTHON} -m pyupgrade
-PYUPGRADE_OPTIONS?= --exit-zero-even-if-changed --py39-plus
 PERL?= perl
 PIP?= ${PYTHON} -m pip
 PYLINT?= pylint
@@ -86,10 +85,12 @@ PYRIGHTCONFIG_REPORT_MISSING_IMPORTS?= true
 PYRIGHTCONFIG_REPORT_MISSING_TYPE_STUBS?= true
 PYTEST?= ${PYTHON} -m pytest
 PYTEST_COV_OPTIONS?= --cov=${PACKAGE} --cov-report=html
-PYTEST_ENV?=
 PYTEST_INI?= pytest.ini
 PYTEST_OPTIONS?= -ra
+PYTEST_SETENV?=
 PYTHON?= python
+PYUPGRADE?= ${PYTHON} -m pyupgrade
+PYUPGRADE_OPTIONS?= --exit-zero-even-if-changed --py39-plus
 SETUP_PY?= setup.py
 SETUP_PY_EXTRAS_REQUIRE_DOCS?= []
 SETUP_PY_EXTRAS_REQUIRE_TESTS?= ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox']
@@ -140,7 +141,7 @@ checkfast:
 # run testsuite
 .PHONY: check-pytest
 check-pytest:
-	${PYTEST_ENV} ${PYTEST} -c ${PYTEST_INI} --strict-config ${TESTS}
+	${PYTEST_SETENV} ${PYTEST} -c ${PYTEST_INI} --strict-config ${TESTS}
 
 # check sources using flake8
 .PHONY: check-flake8
@@ -301,7 +302,7 @@ htmlcov-clean:
 # build docs
 .PHONY: docs
 docs:
-	${MAKE} -C ./${DOCS_SRC} html\
+	${DOCS_SETENV} ${MAKE} -C ./${DOCS_SRC} html\
 	 NAME='${NAME}'\
 	 PACKAGE='${PACKAGE}'\
 	 VERSION='${VERSION}'\

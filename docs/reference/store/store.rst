@@ -12,17 +12,38 @@ Store
 .. autoclass:: EmptyStore
    :members:
 
-.. autoclass:: SPARQL_Store
+.. autoclass:: MixerStore
    :members:
 
-.. autoclass:: WikidataStore
+.. autoclass:: HttpxSPARQL_Store
+   :members:
+
+.. autoclass:: RDFLibSPARQL_Store
    :members:
 
 .. autoclass:: RDF_Store
    :members:
 
-.. autoclass:: SPARQL_MapperStore
+.. autoclass:: DBpediaRDF_Store
    :members:
 
-.. autoclass:: MixerStore
+.. autoclass:: PubChemRDF_Store
+   :members:
+
+.. autoclass:: WikidataRDF_Store
+   :members:
+
+.. autoclass:: SPARQL_Store
+   :members:
+
+.. autoclass:: DBpediaSPARQL_Store
+   :members:
+
+.. autoclass:: PubChemSPARQL_Store
+   :members:
+
+.. autoclass:: WikidataSPARQL_Store
+   :members:
+
+.. autoclass:: WDQS_Store
    :members:

@@ -7,11 +7,18 @@ Store
 .. inheritance-diagram::
    Store
    store.EmptyStore
-   store.SPARQL_Store
-   store.WikidataStore
-   store.RDF_Store
-   store.SPARQL_MapperStore
    store.MixerStore
+   store.HttpxSPARQL_Store
+   store.RDFLibSPARQL_Store
+   store.RDF_Store
+   store.DBpediaRDF_Store
+   store.PubChemRDF_Store
+   store.WikidataRDF_Store
+   store.SPARQL_Store
+   store.DBpediaSPARQL_Store
+   store.PubChemSPARQL_Store
+   store.WikidataSPARQL_Store
+   store.WDQS_Store
    :top-classes: kif_lib.store.abc.Store
    :parts: 1
    :caption: Store classes.
@@ -26,11 +33,18 @@ Store
 
    Store
    store.EmptyStore
-   store.SPARQL_Store
-   store.WikidataStore
-   store.RDF_Store
-   store.SPARQL_MapperStore
    store.MixerStore
+   store.HttpxSPARQL_Store
+   store.RDFLibSPARQL_Store
+   store.RDF_Store
+   store.DBpediaRDF_Store
+   store.PubChemRDF_Store
+   store.WikidataRDF_Store
+   store.SPARQL_Store
+   store.DBpediaSPARQL_Store
+   store.PubChemSPARQL_Store
+   store.WikidataSPARQL_Store
+   store.WDQS_Store
 
 Properties
 ==========
@@ -87,6 +101,8 @@ Methods
 .. autosummary::
    :nosignatures:
 
-   Store.match
+   Store.ask
+   Store.contains
+   Store.count
    Store.filter
    Store.filter_annotated
