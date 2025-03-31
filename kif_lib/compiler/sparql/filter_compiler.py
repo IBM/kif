@@ -64,7 +64,7 @@ from .substitution import Substitution
 T = TypeVar('T')
 
 
-class SPARQL_MappingFilterCompiler(SPARQL_PatternCompiler):
+class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     """SPARQL filter compiler """
 
     class Phase(enum.Enum):
@@ -98,7 +98,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_PatternCompiler):
         """Compilation frame (context)."""
 
         #: The compilation phase of frame.
-        phase: SPARQL_MappingFilterCompiler.Phase
+        phase: SPARQL_FilterCompiler.Phase
 
         #: The substitution of frame.
         substitution: Substitution
@@ -144,7 +144,7 @@ class SPARQL_MappingFilterCompiler(SPARQL_PatternCompiler):
             self,
             filter: Filter,
             mapping: SPARQL_Mapping,
-            flags: SPARQL_MappingFilterCompiler.Flags | None = None
+            flags: SPARQL_FilterCompiler.Flags | None = None
     ) -> None:
         super().__init__(Variable('_', Statement), flags)
         wds = self.q.fresh_var()
@@ -211,11 +211,11 @@ class SPARQL_MappingFilterCompiler(SPARQL_PatternCompiler):
         return self._frame.pop()
 
     @property
-    def phase(self) -> SPARQL_MappingFilterCompiler.Phase:
+    def phase(self) -> SPARQL_FilterCompiler.Phase:
         """The compilation phase associated with the current frame."""
         return self.get_phase()
 
-    def get_phase(self) -> SPARQL_MappingFilterCompiler.Phase:
+    def get_phase(self) -> SPARQL_FilterCompiler.Phase:
         """Gets the compilation phase associated with the current frame.
 
         Return:

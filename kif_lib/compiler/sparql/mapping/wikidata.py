@@ -75,7 +75,7 @@ from ....typing import (
     override,
     TypeAlias,
 )
-from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler as C
+from ..filter_compiler import SPARQL_FilterCompiler as C
 from ..results import SPARQL_ResultsBinding
 from .mapping import SPARQL_Mapping as M
 

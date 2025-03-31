@@ -29,7 +29,7 @@ from ....namespace.vcard import VCARD
 from ....typing import Final, TypeAlias
 from ....vocabulary import pc_ as pc
 from ....vocabulary import wd
-from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler as C
+from ..filter_compiler import SPARQL_FilterCompiler as C
 from .mapping import SPARQL_Mapping as M
 from .wikidata import WikidataMapping
 

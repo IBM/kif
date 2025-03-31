@@ -51,8 +51,7 @@ from ....typing import (
 )
 
 if TYPE_CHECKING:  # pragma: no cover
-    from ..mapping_filter_compiler import \
-        SPARQL_MappingFilterCompiler as Compiler
+    from ..filter_compiler import SPARQL_FilterCompiler as Compiler
     from ..results import SPARQL_ResultsBinding
 
 
@@ -781,9 +780,9 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 set_language: str | None = None,
                 set_datatype: str | None = None
         ) -> None:
-            from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler
+            from ..filter_compiler import SPARQL_FilterCompiler
             super().__init__(
-                subclass=SPARQL_MappingFilterCompiler.Query.Literal,
+                subclass=SPARQL_FilterCompiler.Query.Literal,
                 optional=optional,
                 coerce=coerce,
                 startswith=startswith,
@@ -841,9 +840,9 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 match: str | re.Pattern | None = None,
                 sub: tuple[str | re.Pattern, str] | None = None
         ) -> None:
-            from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler
+            from ..filter_compiler import SPARQL_FilterCompiler
             super().__init__(
-                subclass=SPARQL_MappingFilterCompiler.Query.URI,
+                subclass=SPARQL_FilterCompiler.Query.URI,
                 optional=optional,
                 coerce=coerce,
                 startswith=startswith,

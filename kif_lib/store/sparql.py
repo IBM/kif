@@ -13,7 +13,7 @@ import re
 import httpx
 
 from .. import itertools, rdflib
-from ..compiler.sparql import SPARQL_Mapping, SPARQL_MappingFilterCompiler
+from ..compiler.sparql import SPARQL_FilterCompiler, SPARQL_Mapping
 from ..compiler.sparql.results import (
     SPARQL_Results,
     SPARQL_ResultsAsk,
@@ -487,9 +487,9 @@ class _SPARQL_Store(
                 break           # done
             offset += page_size
 
-    def _compile_filter(self, filter: Filter) -> SPARQL_MappingFilterCompiler:
-        compiler = SPARQL_MappingFilterCompiler(
-            filter, self.mapping, SPARQL_MappingFilterCompiler.default_flags)
+    def _compile_filter(self, filter: Filter) -> SPARQL_FilterCompiler:
+        compiler = SPARQL_FilterCompiler(
+            filter, self.mapping, SPARQL_FilterCompiler.default_flags)
         if self.has_flags(self.DEBUG):
             compiler.set_flags(compiler.DEBUG)
         else:

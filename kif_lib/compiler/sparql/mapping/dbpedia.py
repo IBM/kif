@@ -12,7 +12,7 @@ from ....namespace import OWL, RDF, RDFS, Wikidata
 from ....namespace.dbpedia import DBpedia
 from ....typing import Final, TypeAlias
 from ....vocabulary import wd
-from ..mapping_filter_compiler import SPARQL_MappingFilterCompiler as C
+from ..filter_compiler import SPARQL_FilterCompiler as C
 from .mapping import SPARQL_Mapping as M
 from .wikidata import WikidataMapping
 
