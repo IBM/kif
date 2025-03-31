@@ -85,7 +85,7 @@ class PubChemOptions(_CommonOptions, name='pc'):
 
 
 @dataclasses.dataclass
-class WD_Options(_CommonOptions, name='wd'):
+class WikidataOptions(_CommonOptions, name='wd'):
     """Wikidata vocabulary options."""
 
     _v_resolver: ClassVar[tuple[Iterable[str], str | None]] =\
@@ -186,4 +186,4 @@ class VocabularyOptions(Section, name='vocabulary'):
 
     db: DBpediaOptions = dataclasses.field(default_factory=DBpediaOptions)
     pc: PubChemOptions = dataclasses.field(default_factory=PubChemOptions)
-    wd: WD_Options = dataclasses.field(default_factory=WD_Options)
+    wd: WikidataOptions = dataclasses.field(default_factory=WikidataOptions)

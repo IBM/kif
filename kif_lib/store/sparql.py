@@ -816,6 +816,10 @@ class DBpediaSPARQL_Store(
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
+        if not args:
+            resolver_iri = self.context.options.vocabulary.db.resolver
+            if resolver_iri is not None:
+                args = (resolver_iri,)
         if mapping is None:
             mapping = _SPARQL_Store._dbpedia_mapping_constructor()
         super().__init__(
@@ -849,6 +853,10 @@ class PubChemSPARQL_Store(
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
+        if not args:
+            resolver_iri = self.context.options.vocabulary.pc.resolver
+            if resolver_iri is not None:
+                args = (resolver_iri,)
         if mapping is None:
             mapping = _SPARQL_Store._pubchem_mapping_constructor(
                 normalize_casrn=normalize_casrn)
@@ -885,6 +893,10 @@ class WikidataSPARQL_Store(
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
+        if not args:
+            resolver_iri = self.context.options.vocabulary.wd.resolver
+            if resolver_iri is not None:
+                args = (resolver_iri,)
         if mapping is None:
             mapping = _SPARQL_Store._wikidata_mapping_constructor(
                 blazegraph=blazegraph,
@@ -921,10 +933,6 @@ class WDQS_Store(
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
-        if not args:
-            resolver_iri = self.context.options.vocabulary.wd.resolver
-            if resolver_iri is not None:
-                args = (resolver_iri,)
         if mapping is None:
             mapping = _SPARQL_Store._wikidata_mapping_constructor(
                 blazegraph=True,  # force
