@@ -50,21 +50,22 @@ from ...typing import (
     Iterator,
     Mapping,
     override,
+    Self,
     Sequence,
     TypedDict,
     TypeVar,
 )
 from .builder import Query
-from .filter_compiler import SPARQL_FilterCompiler
 from .mapping import SPARQL_Mapping
+from .pattern_compiler import SPARQL_PatternCompiler
 from .results import SPARQL_ResultsBinding, SPARQL_ResultsTerm
 from .substitution import Substitution
 
 T = TypeVar('T')
 
 
-class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
-    """SPARQL Mapping - Filter Compiler """
+class SPARQL_MappingFilterCompiler(SPARQL_PatternCompiler):
+    """SPARQL filter compiler """
 
     class Phase(enum.Enum):
         """Compilation phases."""
@@ -112,12 +113,16 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         targets: Sequence[SPARQL_Mapping.EntryPattern] | None
 
     __slots__ = (
+        '_filter',
         '_mapping',
         '_entry_id_qvar',
         '_entry_subst',
         '_entry_targets',
         '_frame',
     )
+
+    #: The source filter.
+    _filter: Filter
 
     # The SPARQL mapping.
     _mapping: SPARQL_Mapping
@@ -139,9 +144,11 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             self,
             filter: Filter,
             mapping: SPARQL_Mapping,
-            flags: SPARQL_FilterCompiler.Flags | None = None
+            flags: SPARQL_MappingFilterCompiler.Flags | None = None
     ) -> None:
-        super().__init__(filter, flags)
+        super().__init__(Variable('_', Statement), flags)
+        wds = self.q.fresh_var()
+        self._filter = filter
         self._mapping = mapping
         self._entry_id_qvar = self.q.fresh_var()
         self._entry_subst = {}
@@ -150,10 +157,23 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         self._push_frame({
             'phase': self.READY,
             'substitution': Substitution(),
-            'wds': self._wds,
+            'wds': wds,
             'entry': None,
             'targets': None,
         })
+
+    @property
+    def filter(self) -> Filter:
+        """The source filter."""
+        return self.get_filter()
+
+    def get_filter(self) -> Filter:
+        """Gets the source filter.
+
+        Returns:
+           Filter.
+        """
+        return self._filter
 
     @property
     def mapping(self) -> SPARQL_Mapping:
@@ -331,19 +351,13 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
         assert self.frame['targets'] is not None
         return self.frame['targets']
 
-    def _fresh_name_generator(self) -> Callable[[str], Iterator[str]]:
-        return (lambda _: map(
-            lambda _: self.fresh_qvar(), itertools.repeat(None)))
-
-    def _term2arg(self, term: Term) -> Term | Query.VTerm:
-        if isinstance(term, self._primitive_var_classes):
-            return self.as_qvar(cast(Variable, term))
-        elif isinstance(term, Value):
-            return self._as_simple_value(term)
-        else:
-            return term
-
     @override
+    def compile(self) -> Self:
+        filter = self._filter.normalize()
+        if not filter.is_empty():
+            self._push_filter(filter)
+        return self
+
     def _push_filter(self, filter: Filter) -> None:
         sources = list(self.mapping.preamble(
             self, self._filter_to_patterns(filter)))
@@ -375,6 +389,18 @@ class SPARQL_MappingFilterCompiler(SPARQL_FilterCompiler):
             self._q = self.Query()  # empty query
         self.frame['phase'] = self.DONE
         self.mapping.postamble(self, all_targets)
+
+    def _fresh_name_generator(self) -> Callable[[str], Iterator[str]]:
+        return (lambda _: map(
+            lambda _: self.fresh_qvar(), itertools.repeat(None)))
+
+    def _term2arg(self, term: Term) -> Term | Query.VTerm:
+        if isinstance(term, self._primitive_var_classes):
+            return self.as_qvar(cast(Variable, term))
+        elif isinstance(term, Value):
+            return self._as_simple_value(term)
+        else:
+            return term
 
     def _push_filter_push_entry(
             self,

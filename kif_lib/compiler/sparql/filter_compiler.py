@@ -78,19 +78,6 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         self._wds = self.q.fresh_var()
 
     @property
-    def filter(self) -> Filter:
-        """The source filter."""
-        return self.get_filter()
-
-    def get_filter(self) -> Filter:
-        """Gets the source filter.
-
-        Returns:
-           Filter.
-        """
-        return self._filter
-
-    @property
     def wds(self) -> Query.Variable:
         """The variable storing the statement id."""
         return self.get_wds()
