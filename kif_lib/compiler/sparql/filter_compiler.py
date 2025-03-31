@@ -12,15 +12,31 @@ from ...model import (
     CompoundFingerprint,
     ConverseSnakFingerprint,
     Datatype,
+    DataValueVariable,
+    DeepDataValueVariable,
     Entity,
     EntityTemplate,
     EntityVariable,
+    ExternalId,
+    ExternalIdVariable,
     Filter,
     Fingerprint,
     FullFingerprint,
+    IRI,
+    IRI_Variable,
+    ItemVariable,
+    LexemeVariable,
     NoValueSnak,
     OrFingerprint,
+    Pattern,
     Property,
+    PropertyVariable,
+    QualifierRecordVariable,
+    Quantity,
+    QuantityVariable,
+    RankVariable,
+    ReferenceRecordSetVariable,
+    ShallowDataValueVariable,
     Snak,
     SnakFingerprint,
     SnakTemplate,
@@ -28,9 +44,14 @@ from ...model import (
     Statement,
     StatementTemplate,
     StatementVariable,
+    String,
+    StringVariable,
     Term,
     Text,
+    TextVariable,
     Theta,
+    Time,
+    TimeVariable,
     Value,
     ValueFingerprint,
     ValueSnak,
@@ -56,15 +77,15 @@ from ...typing import (
     TypeVar,
 )
 from .builder import Query
+from .compiler import SPARQL_Compiler
 from .mapping import SPARQL_Mapping
-from .pattern_compiler import SPARQL_PatternCompiler
 from .results import SPARQL_ResultsBinding, SPARQL_ResultsTerm
 from .substitution import Substitution
 
 T = TypeVar('T')
 
 
-class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
+class SPARQL_FilterCompiler(SPARQL_Compiler):
     """SPARQL filter compiler """
 
     class Phase(enum.Enum):
@@ -115,6 +136,7 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
     __slots__ = (
         '_filter',
         '_mapping',
+        '_pattern',
         '_entry_id_qvar',
         '_entry_subst',
         '_entry_targets',
@@ -126,6 +148,9 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
 
     # The SPARQL mapping.
     _mapping: SPARQL_Mapping
+
+    #: The source pattern.
+    _pattern: Pattern
 
     #: The query variable holding the index of the matched entry.
     _entry_id_qvar: Query.Variable
@@ -146,11 +171,12 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             mapping: SPARQL_Mapping,
             flags: SPARQL_FilterCompiler.Flags | None = None
     ) -> None:
-        super().__init__(Variable('_', Statement), flags)
-        wds = self.q.fresh_var()
+        super().__init__(flags)
+        wds, entry_id_qvar = self.q.fresh_vars(2)
         self._filter = filter
         self._mapping = mapping
-        self._entry_id_qvar = self.q.fresh_var()
+        self._pattern = Pattern.check(Variable('_', Statement))
+        self._entry_id_qvar = entry_id_qvar
         self._entry_subst = {}
         self._entry_targets = {}
         self._frame = []
@@ -187,6 +213,21 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
            SPARQL mapping.
         """
         return self._mapping
+
+    @property
+    def pattern(self) -> Pattern:
+        """The source pattern."""
+        return self.get_pattern()
+
+    def get_pattern(self) -> Pattern:
+        """Gets the source pattern.
+
+        Returns:
+           Pattern.
+        """
+        return self._pattern
+
+# -- Frame -----------------------------------------------------------------
 
     @property
     def frame(self) -> Frame:
@@ -350,6 +391,76 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
         """
         assert self.frame['targets'] is not None
         return self.frame['targets']
+
+# -- Fresh variables -------------------------------------------------------
+
+    def _fresh_variable(self, variable_class: type[Variable]) -> Variable:
+        return variable_class(str(self.fresh_qvar()))
+
+    def _fresh_variables(
+            self,
+            variable_class: type[Variable],
+            n: int
+    ) -> Iterator[Variable]:
+        return map(
+            lambda qvar: variable_class(str(qvar)), self.fresh_qvars(n))
+
+    def _fresh_entity_variable(self) -> EntityVariable:
+        return cast(EntityVariable, self._fresh_variable(EntityVariable))
+
+    def _fresh_item_variable(self) -> ItemVariable:
+        return cast(ItemVariable, self._fresh_variable(ItemVariable))
+
+    def _fresh_property_variable(self) -> PropertyVariable:
+        return cast(PropertyVariable, self._fresh_variable(PropertyVariable))
+
+    def _fresh_lexeme_variable(self) -> LexemeVariable:
+        return cast(LexemeVariable, self._fresh_variable(LexemeVariable))
+
+    def _fresh_data_value_variable(self) -> DataValueVariable:
+        return cast(DataValueVariable, self._fresh_variable(DataValueVariable))
+
+    def _fresh_shallow_data_value_variable(self) -> ShallowDataValueVariable:
+        return cast(ShallowDataValueVariable, self._fresh_variable(
+            ShallowDataValueVariable))
+
+    def _fresh_iri_variable(self) -> IRI_Variable:
+        return cast(IRI_Variable, self._fresh_variable(IRI_Variable))
+
+    def _fresh_text_variable(self) -> TextVariable:
+        return cast(TextVariable, self._fresh_variable(TextVariable))
+
+    def _fresh_string_variable(self) -> StringVariable:
+        return cast(StringVariable, self._fresh_variable(StringVariable))
+
+    def _fresh_external_id_variable(self) -> ExternalIdVariable:
+        return cast(ExternalIdVariable, self._fresh_variable(
+            ExternalIdVariable))
+
+    def _fresh_deep_data_value_variable(self) -> DeepDataValueVariable:
+        return cast(DeepDataValueVariable, self._fresh_variable(
+            DeepDataValueVariable))
+
+    def _fresh_quantity_variable(self) -> QuantityVariable:
+        return cast(QuantityVariable, self._fresh_variable(QuantityVariable))
+
+    def _fresh_time_variable(self) -> TimeVariable:
+        return cast(TimeVariable, self._fresh_variable(TimeVariable))
+
+    def _fresh_qualifier_record_variable(self) -> QualifierRecordVariable:
+        return cast(QualifierRecordVariable, self._fresh_variable(
+            QualifierRecordVariable))
+
+    def _fresh_reference_record_set_variable(
+            self
+    ) -> ReferenceRecordSetVariable:
+        return cast(ReferenceRecordSetVariable, self._fresh_variable(
+            ReferenceRecordSetVariable))
+
+    def _fresh_rank_variable(self) -> RankVariable:
+        return cast(RankVariable, self._fresh_variable(RankVariable))
+
+# -- Compilation -----------------------------------------------------------
 
     @override
     def compile(self) -> Self:
@@ -401,6 +512,25 @@ class SPARQL_FilterCompiler(SPARQL_PatternCompiler):
             return self._as_simple_value(term)
         else:
             return term
+
+    def _as_simple_value(
+            self,
+            value: Value
+    ) -> Query.Literal | Query.URI:
+        if isinstance(value, Entity):
+            return self.uri(value.iri.content)
+        elif isinstance(value, IRI):
+            return self.uri(value.content)
+        elif isinstance(value, Text):
+            return self.literal(value.content, value.language)
+        elif isinstance(value, (String, ExternalId)):
+            return self.literal(value.content)
+        elif isinstance(value, Quantity):
+            return self.literal(value.amount)
+        elif isinstance(value, Time):
+            return self.literal(value.time)
+        else:
+            raise self._should_not_get_here()
 
     def _push_filter_push_entry(
             self,

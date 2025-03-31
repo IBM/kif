@@ -44,35 +44,22 @@ class SPARQL_Compiler(Compiler):
         #: Whether to match no-value snaks.
         NO_VALUE_SNAK = KIF_Flags.auto()
 
-        #: Whether to push early filters.
-        EARLY_FILTER = KIF_Flags.auto()
-
-        #: Whether to use Wikidata RDF extensions.
-        WIKIDATA_EXTENSIONS = KIF_Flags.auto()
-
         #: All flags.
         ALL = (
             DEBUG
             | BEST_RANK
             | VALUE_SNAK
             | SOME_VALUE_SNAK
-            | NO_VALUE_SNAK
-            | EARLY_FILTER
-            | WIKIDATA_EXTENSIONS)
+            | NO_VALUE_SNAK)
 
     #: The default flags.
-    default_flags: Final[Flags] = (
-        Flags.ALL & ~(
-            Flags.DEBUG
-            | Flags.WIKIDATA_EXTENSIONS))
+    default_flags: Final[Flags] = (Flags.ALL & ~Flags.DEBUG)
 
     DEBUG = Flags.DEBUG
     BEST_RANK = Flags.BEST_RANK
     VALUE_SNAK = Flags.VALUE_SNAK
     SOME_VALUE_SNAK = Flags.SOME_VALUE_SNAK
     NO_VALUE_SNAK = Flags.NO_VALUE_SNAK
-    EARLY_FILTER = Flags.EARLY_FILTER
-    WIKIDATA_EXTENSIONS = Flags.WIKIDATA_EXTENSIONS
 
     __slots__ = (
         '_q',

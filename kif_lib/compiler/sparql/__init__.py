@@ -8,7 +8,6 @@ from .builder import Query
 from .compiler import SPARQL_Compiler
 from .filter_compiler import SPARQL_FilterCompiler
 from .mapping import SPARQL_Mapping
-from .pattern_compiler import SPARQL_PatternCompiler
 
 BNode: TypeAlias = Query.BNode
 Literal: TypeAlias = Query.Literal
@@ -27,5 +26,4 @@ __all__ = (
     'SPARQL_Compiler',
     'SPARQL_FilterCompiler',
     'SPARQL_Mapping',
-    'SPARQL_PatternCompiler',
 )

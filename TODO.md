@@ -24,6 +24,8 @@
 
 - Per-class, more convenient version of `KIF_Object.replace()`.
 
+- Add `context` argument to model classes.
+
 ### Filter
 
 - BUG: pseudo-properties should not match snak fingerprints.
@@ -80,6 +82,9 @@
   is, they should be skipped with a warning.
 
 - Add async API for Store.
+
+- Add `Store.multifilter(subject, p1, p2, ...pn)` which returns a table
+  whose lines are matching subjects and columns are the desired properties.
 
 ### Mixer
 
