@@ -34,7 +34,7 @@ Prints an arbitrary statement from `Wikidata <https://www.wikidata.org/>`_:
 .. code-block:: python
 
    from kif_lib import *      # import KIF namespacee
-   kb = Store('wikidata')     # create a store pointing to Wikidata
+   kb = Store('wdqs')         # create a store pointing to Wikidata
    print(next(kb.filter()))   # obtain and print one arbitrary statement
 
 

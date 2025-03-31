@@ -28,8 +28,7 @@ Prints an arbitrary statement from [Wikidata](https://www.wikidata.org/):
 
 ```python
 from kif_lib import *
-from kif_lib.compiler.sparql.mapping.wikidata import WikidataMapping
-kb = Store('sparql2', 'https://query.wikidata.org/sparql', WikidataMapping())
+kb = Store('wdqs')
 print(next(kb.filter()))
 ```
 
@@ -37,9 +36,7 @@ Prints an arbitrary Wikidata-like statement from
 [DBpedia](https://www.dbpedia.org/):
 
 ```python
-from kif_lib import *
-from kif_lib.compiler.sparql.mapping.dbpedia import DBpediaMapping
-kb = Store('sparql2', 'https://dbpedia.org/sparql', DBpediaMapping())
+kb = Store('dbpedia-sparql')
 print(next(kb.filter()))
 ```
 

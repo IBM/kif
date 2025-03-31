@@ -35,7 +35,7 @@ Let us no we create a SPARQL store pointing to the official Wikidata query
 service:
 
 ```{code-cell}
-kb = Store('sparql', 'https://query.wikidata.org/sparql')
+kb = Store('wdqs')
 ```
 
 A KIF store is an inteface to a knowledge source.  It allows us to view the
