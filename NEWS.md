@@ -1,3 +1,21 @@
+Release v0.7
+============
+
+- All SPARQL-based stores suffered a major refactoring.  Now they all derive
+  from a base SPARQL store which supports multiple back-ends (currently,
+  Httpx and RDFLib).  Also, the SPARQL-based stores now use the new SPARQL
+  compilation pipeline, which is completely parameterized by SPARQL
+  mappings.  The old SPARQL compilation code was removed.
+
+- The code of other stores, including the common code in `abc`, was
+  simplified.
+
+- The Wikidata mappings now generate a single query to resolve
+  `Store.filter_annotated()`.
+
+- Legacy descriptor classes were removed, as these were superseded by
+  pseudo-properties.
+
 Release v0.6.3
 ==============
 
