@@ -39,7 +39,6 @@ from ....model import (
     ReferenceRecordSet,
     Snak,
     Statement,
-    StatementTemplate,
     StatementVariable,
     String,
     StringDatatype,
@@ -320,6 +319,17 @@ class WikidataMapping(M):
         return self._options
 
     @override
+    def preamble_entry(self, compiler: C, entry: M.Entry) -> M.Entry:
+        if not compiler.filter.annotated:
+            ###
+            # FIXME: If we're not collecting annotations, use a blank node
+            # for wds instead of a variable.  This way statements with the
+            # same (s,p,v) will *not* be counted as distinct.
+            ###
+            compiler.frame['wds'] = compiler.bnode()  # type: ignore
+        return entry
+
+    @override
     def postamble(
             self,
             compiler: C,
@@ -327,16 +337,6 @@ class WikidataMapping(M):
     ) -> None:
         c = compiler
         if not c.q.where_is_empty():
-            subject_of_all_targets_is_fixed = all(map(lambda s: (
-                isinstance(s, (Statement, StatementTemplate))
-                and Term.is_closed(s.subject)), targets))
-            if subject_of_all_targets_is_fixed:
-                ###
-                # IMPORTANT: We use ORDER BY(?wds) only if the subject of
-                # all target patterns is fixed.  We do this to ensure that
-                # the expected number of results is not too large.
-                ###
-                c.q.set_order_by(c.wds)
             annotation_of_some_target_is_open = any(map(lambda s: (
                 isinstance(s, AnnotatedStatementTemplate)
                 and any(map(Term.is_open, (

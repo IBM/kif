@@ -899,6 +899,21 @@ class SPARQL_Mapping(Sequence[_Entry]):
         """
         return sources
 
+    def preamble_entry(
+            self,
+            compiler: Compiler,
+            entry: SPARQL_Mapping.Entry
+    ) -> SPARQL_Mapping.Entry:
+        """Called before entry compilation starts.
+
+        Parameters:
+           entry: Entry.
+
+        Returns:
+           Entry.
+        """
+        return entry
+
     def postamble(
             self,
             compiler: Compiler,

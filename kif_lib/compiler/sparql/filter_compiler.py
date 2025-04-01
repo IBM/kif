@@ -550,6 +550,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         })
         for var, val in entry.default_map.items():
             self.theta_add_default(var, val)
+        entry = self.mapping.preamble_entry(self, entry)
         try:
             with self.q.group():
                 if self.has_flags(self.DEBUG):

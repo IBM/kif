@@ -126,6 +126,7 @@ class Test(StoreTestCase):
         ###
         f(F(subject=wd.benzene, annotated=True),
           {wd.alias(wd.benzene, 'benzol').annotate(),
+           wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),
            wd.density(
                wd.benzene, Quantity(
                    '.88', wd.gram_per_cubic_centimetre, '.87', '.89'),
