@@ -1,3 +1,10 @@
+Release v0.7.3
+==============
+
+- Fixed wds when compiling Wikidata filters.  If we're not collecting
+  annotations, we now use a blank node for wds instead of a variable.  This
+  way statements with the same (s,p,v) will *not* be counted as distinct.
+
 Release v0.7.2
 ==============
 
