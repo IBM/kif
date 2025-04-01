@@ -5,13 +5,14 @@ from __future__ import annotations
 
 from ..context import Context
 from ..namespace.pubchem import PubChem
-from .pc_ import CID, isotope_atom_count, patent, preferred_IUPAC_name, source
+from ..namespace.semsci import SEMSCI
+from .pc_ import CID, isotope_atom_count, IUPAC_name, patent, source
 
 __all__ = (
     'CID',
     'isotope_atom_count',
+    'IUPAC_name',
     'patent',
-    'preferred_IUPAC_name',
     'reload',
     'source',
 )
@@ -33,6 +34,7 @@ def reload(force: bool = True, context: Context | None = None) -> None:
         ctx.iris.register(PubChem.COMPOUND, resolver=kb)
         ctx.iris.register(PubChem.PATENT, resolver=kb)
         ctx.iris.register(PubChem.SOURCE, resolver=kb)
+        ctx.iris.register(str(SEMSCI), resolver=kb)
     if force:
         import importlib
 

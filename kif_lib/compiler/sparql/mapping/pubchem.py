@@ -168,9 +168,9 @@ class PubChemMapping(M):
             wd.Wikidata_property_related_to_chemistry),
          wd.label(pc.isotope_atom_count, 'isotope atom count'),
          wd.instance_of(
-             pc.preferred_IUPAC_name,
+             pc.IUPAC_name,
              wd.Wikidata_property_related_to_chemistry),
-         wd.label(pc.preferred_IUPAC_name, 'preferred IUPAC name')],
+         wd.label(pc.IUPAC_name, 'IUPAC name')],
         rank=Normal)
     def collect(self, c: C) -> None:
         pass
@@ -282,22 +282,6 @@ class PubChemMapping(M):
             (attr, SIO.has_value, y))
 
     @M.register(
-        [wd.said_to_be_the_same_as(Item(x), Item(y))],
-        {x: CheckCompound(),    # post
-         y: M.CheckURI(
-            startswith=Wikidata.WD,
-            replace_prefix=(Wikidata.WD, 'https://www.wikidata.org/wiki/'))},
-        {y: M.CheckURI(         # post
-            startswith='https://www.wikidata.org/wiki/',
-            replace_prefix=('https://www.wikidata.org/wiki/', Wikidata.WD))},
-        rank=Normal)
-    def wd_said_to_be_the_same_as(self, c: C, x: V_URI, y: V_URI) -> None:
-        c.q.triples()(
-            (x, SKOS.closeMatch, y))
-        c.q.filter(
-            c.q.strstarts(c.q.str(y), 'https://www.wikidata.org/wiki/'))
-
-    @M.register(
         [wd.has_part(Item(x), Item(y))],
         {x: CheckCompound(),
          y: CheckCompound()},
@@ -355,6 +339,18 @@ class PubChemMapping(M):
             (attr, RDF.type, CHEMINF.PubChem_compound_identifier_CID))
 
     @M.register(
+        [wd.isomeric_SMILES(Item(x), String(y))],
+        {x: CheckCompound(),
+         y: M.CheckLiteral(set_language='en')},
+        rank=Normal)
+    def wd_isomeric_SMILES(self, c: C, x: V_URI, y: VLiteral) -> None:
+        attr = c.bnode()
+        c.q.triples()(
+            (x, SIO.has_attribute, attr),
+            (attr, RDF.type, CHEMINF.isomeric_SMILES_generated_by_OEChem),
+            (attr, SIO.has_value, y))
+
+    @M.register(
         [pc.isotope_atom_count(Item(x), Quantity(y))],
         {x: CheckCompound(),
          y: M.CheckInt()},
@@ -368,15 +364,14 @@ class PubChemMapping(M):
             (attr, SIO.has_value, y))
 
     @M.register(
-        [wd.isomeric_SMILES(Item(x), String(y))],
-        {x: CheckCompound(),
-         y: M.CheckLiteral(set_language='en')},
+        [pc.IUPAC_name(Item(x), Text(y, 'en'))],
+        {x: CheckCompound()},
         rank=Normal)
-    def wd_isomeric_SMILES(self, c: C, x: V_URI, y: VLiteral) -> None:
+    def wd_IUPAC_name(self, c: C, x: V_URI, y: VLiteral) -> None:
         attr = c.bnode()
         c.q.triples()(
-            (x, SIO.has_attribute, attr),
-            (attr, RDF.type, CHEMINF.isomeric_SMILES_generated_by_OEChem),
+            (attr, SIO.is_attribute_of, x),
+            (attr, RDF.type, CHEMINF.IUPAC_Name_generated_by_LexiChem),
             (attr, SIO.has_value, y))
 
     @M.register(
@@ -433,17 +428,6 @@ class PubChemMapping(M):
             (attr, SIO.has_value, y))
 
     @M.register(
-        [pc.preferred_IUPAC_name(Item(x), Text(y, 'en'))],
-        {x: CheckCompound()},
-        rank=Normal)
-    def wd_preferred_IUPAC_name(self, c: C, x: V_URI, y: VLiteral) -> None:
-        attr = c.bnode()
-        c.q.triples()(
-            (attr, SIO.is_attribute_of, x),
-            (attr, RDF.type, CHEMINF.IUPAC_Name_generated_by_LexiChem),
-            (attr, SIO.has_value, y))
-
-    @M.register(
         [wd.PubChem_CID(Item(x), ExternalId(y))],
         {x: CheckCompound(),
          y: CheckPubChemCID(set_language='en')},
@@ -454,6 +438,22 @@ class PubChemMapping(M):
             (x, SIO.has_attribute, attr),
             (attr, RDF.type, CHEMINF.PubChem_compound_identifier_CID),
             (attr, SIO.has_value, y))
+
+    @M.register(
+        [wd.said_to_be_the_same_as(Item(x), Item(y))],
+        {x: CheckCompound(),    # post
+         y: M.CheckURI(
+            startswith=Wikidata.WD,
+            replace_prefix=(Wikidata.WD, 'https://www.wikidata.org/wiki/'))},
+        {y: M.CheckURI(         # post
+            startswith='https://www.wikidata.org/wiki/',
+            replace_prefix=('https://www.wikidata.org/wiki/', Wikidata.WD))},
+        rank=Normal)
+    def wd_said_to_be_the_same_as(self, c: C, x: V_URI, y: V_URI) -> None:
+        c.q.triples()(
+            (x, SKOS.closeMatch, y))
+        c.q.filter(
+            c.q.strstarts(c.q.str(y), 'https://www.wikidata.org/wiki/'))
 
     @M.register(
         [wd.stereoisomer_of(Item(x), Item(y))],
