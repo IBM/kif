@@ -54,7 +54,7 @@ class Test(StoreTestCase):
         s = pc.IUPAC_name
         f(F(subject=s, annotated=True),
           {wd.instance_of(s, wd.Wikidata_property_related_to_chemistry),
-           wd.label(s, 'preferred IUPAC name')})
+           wd.label(s, 'IUPAC name')})
         # compound
         s = pc.CID(12196274)
         f(F(subject=s, annotated=True),

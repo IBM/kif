@@ -1,3 +1,8 @@
+Release v0.7.2
+==============
+
+- `codec`: Added a new encoder: Dot.  This is useful for displaying graphs.
+
 Release v0.7.1
 ==============
 
