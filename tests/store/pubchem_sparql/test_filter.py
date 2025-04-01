@@ -50,8 +50,8 @@ class Test(StoreTestCase):
         f(F(subject=s, annotated=True),
           {wd.instance_of(s, wd.Wikidata_property_related_to_chemistry),
            wd.label(s, 'isotope atom count')})
-        # pc.preferred_IUPAC_name
-        s = pc.preferred_IUPAC_name
+        # pc.IUPAC_name
+        s = pc.IUPAC_name
         f(F(subject=s, annotated=True),
           {wd.instance_of(s, wd.Wikidata_property_related_to_chemistry),
            wd.label(s, 'preferred IUPAC name')})

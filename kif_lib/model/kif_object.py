@@ -68,6 +68,20 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
         """
         return cls.loads(s, 'sparql', **kwargs)
 
+    def to_dot(self, **kwargs: Any) -> str:
+        """Encodes object using Dot encoder.
+
+        Parameters:
+           kwargs: Options to Dot encoder.
+
+        Returns:
+           String.
+
+        Raises:
+           `EncoderError`: Encoder error.
+        """
+        return self.dumps('dot', **kwargs)
+
     def to_markdown(self, **kwargs: Any) -> str:
         """Encodes object using Markdown encoder.
 

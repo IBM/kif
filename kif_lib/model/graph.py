@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from ..typing import ClassVar, Iterable, override, TypeAlias, Union
+from ..typing import Any, ClassVar, Iterable, override, TypeAlias, Union
 from .set import ClosedTermSet
 from .statement import Statement, TStatement
 from .term import Variable
@@ -40,3 +40,12 @@ class Graph(
     @override
     def __init__(self, *statements: Statement) -> None:
         super().__init__(*statements)
+
+    def to_graphviz(self) -> Any:
+        """Converts graph to a Graphviz's graph.
+
+        Returns:
+           Graphviz graph.
+        """
+        from ..codec.dot import DotEncoder
+        return DotEncoder()._to_graphviz(self)

@@ -27,9 +27,9 @@ class Test(StoreTestCase):
              wd.instance_of(pc.isotope_atom_count,
                             wd.Wikidata_property_related_to_chemistry),
              wd.label(pc.isotope_atom_count, 'isotope atom count'),
-             wd.instance_of(pc.preferred_IUPAC_name,
+             wd.instance_of(pc.IUPAC_name,
                             wd.Wikidata_property_related_to_chemistry),
-             wd.label(pc.preferred_IUPAC_name, 'preferred IUPAC name'),
+             wd.label(pc.IUPAC_name, 'IUPAC name'),
              wd.mass(pc.CID(241), '78.11'@wd.gram_per_mole)})
 
 
