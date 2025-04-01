@@ -745,7 +745,10 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                     'entry': target_entry,
                     'targets': targets,
                     'substitution': Substitution(),
-                    'wds': self.fresh_qvar(),
+                    ###
+                    # FIXME: This should be moved to the mapping.
+                    ###
+                    'wds': self.bnode(),  # type: ignore
                 })
                 try:
                     with self.q.group():
