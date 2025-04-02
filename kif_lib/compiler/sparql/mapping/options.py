@@ -7,7 +7,7 @@ import dataclasses
 
 from ....context import Section
 from .pubchem_options import PubChemMappingOptions
-from .wikidata import WikidataOptions
+from .wikidata_options import WikidataMappingOptions
 
 
 @dataclasses.dataclass
@@ -17,5 +17,5 @@ class MappingOptions(Section, name='mapping'):
     pubchem: PubChemMappingOptions = dataclasses.field(
         default_factory=PubChemMappingOptions)
 
-    wikidata: WikidataOptions = dataclasses.field(
-        default_factory=WikidataOptions)
+    wikidata: WikidataMappingOptions = dataclasses.field(
+        default_factory=WikidataMappingOptions)

@@ -7,7 +7,6 @@ import dataclasses
 import functools
 import re
 
-from ....context import Section
 from ....model import (
     AliasProperty,
     AnnotatedStatement,
@@ -64,9 +63,7 @@ from ....namespace import (
     Wikidata,
 )
 from ....typing import (
-    Any,
     cast,
-    ClassVar,
     Final,
     Iterable,
     Iterator,
@@ -77,6 +74,7 @@ from ....typing import (
 from ..filter_compiler import SPARQL_FilterCompiler as C
 from ..results import SPARQL_ResultsBinding
 from .mapping import SPARQL_Mapping as M
+from .options import WikidataMappingOptions
 
 __all__ = (
     'WikidataMapping',
@@ -96,131 +94,6 @@ Var3: TypeAlias = tuple[Var, Var, Var]
 #: Variables used in register patterns.
 d, e, p, r, w, x, y, z = Variables(*'deprwxyz')
 As, Rs = Variables('As', 'Rs')
-
-
-@dataclasses.dataclass
-class WikidataOptions(Section, name='wikidata'):
-    """Wikidata SPARQL mapping options."""
-
-    def __init__(self, **kwargs: Any) -> None:
-        self._init_blazegraph(kwargs)
-        self._init_strict(kwargs)
-        self._init_truthy(kwargs)
-
-    # -- blazegraph --
-
-    _v_blazegraph: ClassVar[tuple[str, bool | None]] =\
-        ('KIF_COMPILER_SPARQL_MAPPING_WIKIDATA_BLAZEGRAPH', None)
-
-    _blazegraph: bool | None
-
-    def _init_blazegraph(self, kwargs: dict[str, Any]) -> None:
-        self.blazegraph = kwargs.get(
-            '_blazegraph', self.getenv(*self._v_blazegraph))
-
-    @property
-    def blazegraph(self) -> bool:
-        """Whether to target Blazegraph (use named subqueries)."""
-        return self.get_blazegraph()
-
-    @blazegraph.setter
-    def blazegraph(self, blazegraph: bool | None) -> None:
-        self.set_blazegraph(blazegraph)
-
-    def get_blazegraph(self) -> bool:
-        """Gets the value of the blazegraph flag.
-
-        Returns:
-           Blazegraph flag value.
-        """
-        return bool(self._blazegraph)
-
-    def set_blazegraph(self, blazegraph: bool | None) -> None:
-        """Sets the value of the blazegraph flag.
-
-        Parameters:
-           blazegraph: Blazegraph flag value or ``None``.
-        """
-        self._blazegraph = bool(blazegraph)
-
-    # -- strict --
-
-    _v_strict: ClassVar[tuple[str, bool | None]] =\
-        ('KIF_COMPILER_SPARQL_MAPPING_WIKIDATA_STRICT', None)
-
-    _strict: bool | None
-
-    def _init_strict(self, kwargs: dict[str, Any]) -> None:
-        self.strict = kwargs.get('_strict', self.getenv(*self._v_strict))
-
-    @property
-    def strict(self) -> bool:
-        """Whether to assume full Wikidata SPARQL compatibility."""
-        return self.get_strict()
-
-    @strict.setter
-    def strict(self, strict: bool | None) -> None:
-        self.set_strict(strict)
-
-    @property
-    def relax(self) -> bool:
-        """Whether to assume only standard SPARQL compatibility."""
-        return not self.strict
-
-    def get_strict(self) -> bool:
-        """Gets the value of the strict flag.
-
-        Returns:
-           Strict flag value.
-        """
-        return bool(self._strict)
-
-    def set_strict(self, strict: bool | None) -> None:
-        """Sets the value of the strict flag.
-
-        Parameters:
-           strict: Strict flag value or ``None``.
-        """
-        self._strict = bool(strict)
-
-    # -- truthy --
-
-    _v_truthy: ClassVar[tuple[str, Filter.DatatypeMask]] =\
-        ('KIF_COMPILER_SPARQL_MAPPING_WIKIDATA_TRUTHY',
-         Filter.DatatypeMask(0))
-
-    _truthy: Filter.DatatypeMask
-
-    def _init_truthy(self, kwargs: dict[str, Any]) -> None:
-        self.truthy = kwargs.get(
-            '_truthy', int(self.getenv(
-                self._v_truthy[0], self._v_truthy[1].value)))
-
-    @property
-    def truthy(self) -> Filter.DatatypeMask:
-        """The truthy mask for filter compilation phase."""
-        return self.get_truthy()
-
-    @truthy.setter
-    def truthy(self, truthy: Filter.TDatatypeMask) -> None:
-        self.set_truthy(truthy)
-
-    def get_truthy(self) -> Filter.DatatypeMask:
-        """Gets the truthy mask for the filter compilation phase.
-
-        Returns:
-           Datatype mask.
-        """
-        return self._truthy
-
-    def set_truthy(self, truthy: Filter.TDatatypeMask) -> None:
-        """Sets the truthy mask for the filter compilation phase.
-
-        Parameters:
-           truthy: Datatype mask.
-        """
-        self._truthy = Filter.DatatypeMask.check(
-            truthy, self.set_truthy, 'truthy', 1)
 
 
 class WikidataMapping(M):
@@ -288,7 +161,7 @@ class WikidataMapping(M):
     )
 
     #: Wikidata SPARQL mapping options.
-    _options: WikidataOptions
+    _options: WikidataMappingOptions
 
     def __init__(
             self,
@@ -296,6 +169,7 @@ class WikidataMapping(M):
             strict: bool | None = None,
             truthy: Filter.TDatatypeMask | None = None
     ) -> None:
+        super().__init__()
         self._options = dataclasses.replace(
             self.context.options.compiler.sparql.mapping.wikidata)
         if blazegraph is not None:
@@ -306,11 +180,11 @@ class WikidataMapping(M):
             self.options.set_truthy(truthy)
 
     @property
-    def options(self) -> WikidataOptions:
+    def options(self) -> WikidataMappingOptions:
         """The Wikidata SPARQL mapping options."""
         return self.get_options()
 
-    def get_options(self) -> WikidataOptions:
+    def get_options(self) -> WikidataMappingOptions:
         """Gets the Wikidata SPARQL mapping options.
 
         Returns:
