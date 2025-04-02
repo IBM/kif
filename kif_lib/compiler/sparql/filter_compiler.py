@@ -745,11 +745,10 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                     'entry': target_entry,
                     'targets': targets,
                     'substitution': Substitution(),
-                    ###
-                    # FIXME: This should be moved to the mapping.
-                    ###
-                    'wds': self.bnode(),  # type: ignore
+                    'wds': self.fresh_qvar(),
                 })
+                target_entry = self.mapping.preamble_entry(
+                    self, target_entry)
                 try:
                     with self.q.group():
                         target_entry.callback(self.mapping, self, **kwargs)

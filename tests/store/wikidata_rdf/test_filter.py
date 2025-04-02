@@ -272,6 +272,44 @@ class Test(StoreTestCase):
     def test_or_fp_value(self) -> None:
         raise self.TODO()
 
+    # -- corner cases --
+
+    def test_distinct(self) -> None:
+        ###
+        # Store.filter(limit=N, distinct=True) should only consider the
+        # statements' (s,p,v) when applying the distinct modifier.  In the
+        # example below, it should return exactly two "distinct" statements.
+        #
+        # - wd.mass(wd.benzene, 0)
+        # - wd.density(wd.benzene, 0)
+        #
+        # Although there are multiple density statements, all of them
+        # have the same (s,p,v).
+        ###
+        kb = self.S(
+            'wikidata-rdf',
+            wd.mass(wd.benzene, 0),
+            *(wd.density(wd.benzene, 0, qualifiers=[wd.temperature(i)])
+              for i in range(10)))
+        res = list(kb.filter(wd.benzene, distinct=True))
+        self.assertEqual(len(res), 2)
+        self.assertEqual(
+            set(res), {wd.mass(wd.benzene, 0), wd.density(wd.benzene, 0)})
+        self.assertEqual(
+            set(kb.filter_annotated(wd.benzene, distinct=True)),
+            {wd.mass(wd.benzene, 0).annotate(),
+             *(wd.density(wd.benzene, 0, qualifiers=[wd.temperature(i)])
+               for i in range(10))})
+        ###
+        # FIXME: Store.count() is still returning the wrong number of
+        # statements.  The quick fix of using a blank node for wds does not
+        # work for count queries even when COUNT(DISTINCT *) is used - at
+        # least in RDFLib.  The correct approach is to replace "*" by an
+        # explicit list of variables, derived from the variables occurring
+        # in the target patterns.
+        ###
+        self.assertEqual(kb.count(wd.benzene, wd.density), 10)
+
 
 if __name__ == '__main__':
     Test.main()
