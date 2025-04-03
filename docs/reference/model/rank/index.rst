@@ -17,6 +17,7 @@ Rank
 .. toctree::
    :hidden:
 
+   rank
    deprecated_rank
    normal_rank
    preferred_rank

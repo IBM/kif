@@ -12,3 +12,6 @@ ExternalId
 
 .. autoclass:: ExternalIdVariable
    :members:
+
+.. autoclass:: ExternalIdDatatype
+   :members:

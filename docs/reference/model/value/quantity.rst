@@ -12,3 +12,6 @@ Quantity
 
 .. autoclass:: QuantityVariable
    :members:
+
+.. autoclass:: QuantityDatatype
+   :members:

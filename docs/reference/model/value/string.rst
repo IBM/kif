@@ -12,3 +12,6 @@ String
 
 .. autoclass:: StringVariable
    :members:
+
+.. autoclass:: StringDatatype
+   :members:

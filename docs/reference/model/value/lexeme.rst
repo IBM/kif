@@ -12,3 +12,6 @@ Lexeme
 
 .. autoclass:: LexemeVariable
    :members:
+
+.. autoclass:: LexemeDatatype
+   :members:

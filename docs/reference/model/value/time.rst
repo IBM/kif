@@ -12,3 +12,6 @@ Time
 
 .. autoclass:: TimeVariable
    :members:
+
+.. autoclass:: TimeDatatype
+   :members:

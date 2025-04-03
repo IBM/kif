@@ -55,7 +55,19 @@ at_property = property
 
 
 class Filter(KIF_Object):
-    """Filter specification.
+    """Criterion for matching statements.
+
+    A statement matches a filter if:
+
+    * Its subject matches the filter `subject`.
+    * Its property matches the filter `property`.
+    * Its value (if any) matches the filter `value`.
+    * Its snak type matches the filter `snak_mask`.
+    * Its subject type matches the filter `subject_mask`.
+    * Its property type matches the filter `property_mask`
+    * Its value type (if any) matches the filter `value_mask`.
+    * Its rank (if any) matches the filter `rank_mask`.
+    * Its value language (if any) matches the filter `language`.
 
     Parameters:
        subject: Subject fingerprint.

@@ -12,3 +12,6 @@ IRI
 
 .. autoclass:: IRI_Variable
    :members:
+
+.. autoclass:: IRI_Datatype
+   :members:

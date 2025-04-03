@@ -20,4 +20,4 @@ Filter
 .. autosummary::
    :nosignatures:
 
-   Fitler
+   Filter

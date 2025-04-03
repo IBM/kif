@@ -27,6 +27,7 @@ Value
 .. toctree::
    :hidden:
 
+   datatype
    value
    entity
    item
