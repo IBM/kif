@@ -18,7 +18,7 @@ from ..typing import (
 )
 from .fingerprint import Fingerprint, TFingerprint
 from .flags import Flags
-from .kif_object import KIF_Object
+from .kif_object import KIF_Object as KObj
 from .rank import DeprecatedRank, NormalRank, PreferredRank, Rank, TRank
 from .snak import NoValueSnak, Snak, SomeValueSnak, TSnak, ValueSnak
 from .statement import Statement, TStatement
@@ -54,7 +54,7 @@ from .value import (
 at_property = property
 
 
-class Filter(KIF_Object):
+class Filter(KObj):
     """Criterion for matching statements.
 
     A statement matches a filter if:
@@ -543,6 +543,25 @@ class Filter(KIF_Object):
     def _set_args(self, args: tuple[Any, ...]) -> None:
         super()._set_args(args)
 
+    @override
+    def replace(
+            self,
+            subject: TFingerprint | KObj.TKEEP | None = KObj.KEEP,
+            property: TFingerprint | KObj.TKEEP | None = KObj.KEEP,
+            value: TFingerprint | KObj.TKEEP | None = KObj.KEEP,
+            snak_mask: TSnakMask | KObj.TKEEP | None = KObj.KEEP,
+            subject_mask: TDatatypeMask | KObj.TKEEP | None = KObj.KEEP,
+            property_mask: TDatatypeMask | KObj.TKEEP | None = KObj.KEEP,
+            value_mask: TDatatypeMask | KObj.TKEEP | None = KObj.KEEP,
+            rank_mask: TRankMask | KObj.TKEEP | None = KObj.KEEP,
+            language: TTextLanguage | KObj.TKEEP | None = KObj.KEEP,
+            annotated: bool | KObj.TKEEP | None = KObj.KEEP
+    ) -> Self:
+        return super().replace(
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated)
+
     @at_property
     def subject(self) -> Fingerprint:
         """The subject criterion of filter."""
@@ -720,27 +739,6 @@ class Filter(KIF_Object):
            ``True`` if successful; ``False`` otherwise.
         """
         return not self.is_empty()
-
-    def unannotated(self) -> Self:
-        """Gets the unannotated version of filter.
-
-        Returns:
-           Filter.
-        """
-        if self.annotated is False:
-            return self
-        else:
-            return cast(Self, self.replace(
-                self.KEEP,      # subject
-                self.KEEP,      # property
-                self.KEEP,      # value
-                self.KEEP,      # snak_mask
-                self.KEEP,      # subject_mask
-                self.KEEP,      # property_mask
-                self.KEEP,      # value_mask
-                self.KEEP,      # rank_mask
-                self.KEEP,      # language
-                False))         # annotated
 
     def combine(self, *others: Filter) -> Filter:
         """Combines filter with `others`.

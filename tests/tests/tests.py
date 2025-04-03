@@ -1393,7 +1393,7 @@ class StoreTestCase(TestCase):
            expected: Expected (annotated) statements.
         """
         self.assertEqual(
-            set(store.filter(filter=filter.unannotated())),
+            set(store.filter(filter=filter.replace(annotated=False))),
             set(map(Statement.unannotate, expected)),
             '*** XFILTER: PLAIN FILTER FAILED ***')
         self.assertEqual(

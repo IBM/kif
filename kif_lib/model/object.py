@@ -338,7 +338,7 @@ class Object(Sequence, metaclass=ObjectMeta):
     #: Sentinel for :meth:`Object.replace`.
     KEEP: ClassVar[KeepType] = KeepType()
 
-    def replace(self, *args: Any) -> Self:
+    def replace(self, *args: Any, **kwargs: Any) -> Self:
         """Shallow-copies object overwriting its arguments.
 
         If argument is :class:`Object.KEEP` in `args`, keeps the value of
@@ -346,6 +346,7 @@ class Object(Sequence, metaclass=ObjectMeta):
 
         Parameters:
            args: Arguments.
+           kwargs: Keyword arguments (ignored).
 
         Returns:
            A shallow copy of object.

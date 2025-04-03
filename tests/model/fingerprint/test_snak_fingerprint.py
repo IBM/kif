@@ -11,7 +11,6 @@ from kif_lib import (
     Item,
     LabelProperty,
     LanguageProperty,
-    LanguageProperty,
     LemmaProperty,
     Lexeme,
     LexicalCategoryProperty,

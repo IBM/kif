@@ -434,7 +434,7 @@ class _SPARQL_Store(
 
     @override
     def _count(self, filter: Filter) -> int:
-        compiler = self._compile_filter(filter.unannotated())
+        compiler = self._compile_filter(filter.replace(annotated=False))
         q = compiler.query
         q.order_by = None
         count = q.fresh_var()
