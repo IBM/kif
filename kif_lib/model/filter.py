@@ -9,6 +9,7 @@ from ..typing import (
     Any,
     cast,
     Final,
+    Literal,
     Location,
     Optional,
     override,
@@ -16,7 +17,7 @@ from ..typing import (
     TypeAlias,
     Union,
 )
-from .fingerprint import Fingerprint, TFingerprint
+from .fingerprint import EmptyFingerprint, Fingerprint, TFingerprint
 from .flags import Flags
 from .kif_object import KIF_Object as KObj
 from .rank import DeprecatedRank, NormalRank, PreferredRank, Rank, TRank
@@ -543,6 +544,12 @@ class Filter(KObj):
     def _set_args(self, args: tuple[Any, ...]) -> None:
         super()._set_args(args)
 
+    def __and__(self, other: Filter) -> Filter:
+        return self.combine(other, operator='and')
+
+    def __or__(self, other: Filter) -> Filter:
+        return self.combine(other, operator='or')
+
     @override
     def replace(
             self,
@@ -740,40 +747,73 @@ class Filter(KObj):
         """
         return not self.is_empty()
 
-    def combine(self, *others: Filter) -> Filter:
+    def combine(
+            self,
+            *others: Filter,
+            operator: Literal['and'] | Literal['or'] = 'and'
+    ) -> Filter:
         """Combines filter with `others`.
+
+        The `operator` ("and" or "or") determines the logical operator to be
+        used to combine the filters.
 
         Parameters:
            others: Filters.
+           operator: Logical operator.
 
         Returns:
            Filter.
         """
-        return functools.reduce(self._combine, others, self)
+        if operator == 'and':
+            return functools.reduce(self._combine_and, others, self)
+        elif operator == 'or':
+            return functools.reduce(self._combine_or, others, self)
+        else:
+            raise KObj._arg_error(
+                "expected 'and' or 'or'", self.combine, 'operator')
 
     @classmethod
-    def _combine(cls, f1: Filter, f2: Filter) -> Filter:
+    def _combine_or(cls, f1: Filter, f2: Filter) -> Filter:
         f2 = Filter.check(f2, cls.combine)
+        return type(f1)(
+            f1.subject | f2.subject,
+            f1.property | f2.property,
+            f1.value | f2.value,
+            f1.snak_mask | f2.snak_mask,
+            f1.subject_mask | f2.subject_mask,
+            f1.property_mask | f2.property_mask,
+            f1.value_mask | f2.value_mask,
+            f1.rank_mask | f2.rank_mask,
+            f1.language if f1.language == f2.language else None,
+            f1.annotated or f2.annotated).normalize()
+
+    @classmethod
+    def _combine_and(cls, f1: Filter, f2: Filter) -> Filter:
+        f2 = Filter.check(f2, cls.combine)
+        subject = f1.subject & f2.subject
+        property = f1.property & f2.property
+        value = f1.value & f2.value
+        snak_mask = f1.snak_mask & f2.snak_mask
+        subject_mask = f1.subject_mask & f2.subject_mask
+        property_mask = f1.property_mask & f2.property_mask
+        value_mask = f1.value_mask & f2.value_mask
+        rank_mask = f1.rank_mask & f2.rank_mask
         if f1.language is None:
             language: Optional[str] = f2.language
         elif f2.language is None:
             language = f1.language
-        elif f1.language != f2.language:
-            language = None
-        else:
+        elif f1.language == f2.language:
             language = f1.language
+        else:
+            language = None
+            value &= EmptyFingerprint()
+            snak_mask &= ~Filter.VALUE_SNAK
+            value_mask &= Filter.DatatypeMask(0)
+        annotated = f1.annotated and f2.annotated
         return type(f1)(
-            f1.subject & f2.subject,
-            f1.property & f2.property,
-            f1.value & f2.value,
-            f1.snak_mask & f2.snak_mask,
-            f1.subject_mask & f2.subject_mask,
-            f1.property_mask & f2.property_mask,
-            f1.value_mask & f2.value_mask,
-            f1.rank_mask & f2.rank_mask,
-            language,
-            f1.annotated or f2.annotated
-        ).normalize()
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated).normalize()
 
     def match(self, stmt: TStatement) -> bool:
         """Tests whether filter shallow-matches statement.

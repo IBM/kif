@@ -301,7 +301,15 @@ class Test(KIF_ObjectTestCase):
             Filter(language='en'))
         self.assertEqual(
             Filter(language='en').combine(Filter(language='fr')),
-            Filter(language=None))
+            Filter(value=EmptyFingerprint(),
+                   snak_mask=Filter.SOME_VALUE_SNAK | Filter.NO_VALUE_SNAK,
+                   value_mask=0, language=None))
+
+    def test__and__(self) -> None:
+        raise self.TODO()
+
+    def test__or__(self) -> None:
+        raise self.TODO()
 
     def test_match(self) -> None:
         assert_type(Filter().match((Item('x'), 'y', 'z')), bool)

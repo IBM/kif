@@ -1060,21 +1060,22 @@ class Store(Set):
                 language=language,
                 annotated=annotated)
         else:
-            filter = Filter.check(
-                filter, function, 'filter', 12).combine(Filter(
-                    subject=subject,
-                    property=property,
-                    value=value,
-                    snak_mask=snak_mask,
-                    subject_mask=subject_mask,
-                    property_mask=property_mask,
-                    value_mask=value_mask,
-                    rank_mask=rank_mask,
-                    language=language,
-                    annotated=annotated))
+            filter = Filter.check(filter, function, 'filter', 12)
+            filter = filter.combine(Filter(
+                subject=subject,
+                property=property,
+                value=value,
+                snak_mask=snak_mask,
+                subject_mask=subject_mask,
+                property_mask=property_mask,
+                value_mask=value_mask,
+                rank_mask=rank_mask,
+                language=language)).replace(
+                    annotated=filter.annotated or annotated)
         if snak is not None:
             filter = filter.combine(Filter.from_snak(None, Snak.check(
-                snak, function, 'snak', 11)))
+                snak, function, 'snak', 11))).replace(
+                    annotated=filter.annotated or annotated)
         return self._normalize_filter(filter)
 
     def _normalize_filter(
