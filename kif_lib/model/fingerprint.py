@@ -27,6 +27,7 @@ from .value import (
     DeepDataValue,
     Entity,
     Property,
+    PseudoProperty,
     Quantity,
     Time,
     TValue,
@@ -414,7 +415,15 @@ class SnakFingerprint(AtomicFingerprint):
 
     @override
     def _match(self, value: Value) -> bool:
-        return self.datatype_mask.match(type(value))
+        if isinstance(value, PseudoProperty):
+            ###
+            # IMPORTANT: Snak fingerprints should not match
+            # pseudo-properties because the latter do not exist as entities
+            # in the graph, and so cannot occur as subjects of statements.
+            ###
+            return False
+        else:
+            return self.datatype_mask.match(type(value))
 
 
 class ConverseSnakFingerprint(SnakFingerprint):

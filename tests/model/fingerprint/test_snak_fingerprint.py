@@ -4,10 +4,17 @@
 from __future__ import annotations
 
 from kif_lib import (
+    AliasProperty,
+    DescriptionProperty,
     Filter,
     IRI,
     Item,
+    LabelProperty,
+    LanguageProperty,
+    LanguageProperty,
+    LemmaProperty,
     Lexeme,
+    LexicalCategoryProperty,
     NoValueSnak,
     Property,
     Quantity,
@@ -102,7 +109,11 @@ class Test(FingerprintTestCase):
             self.assert_match(fp, Item('z'), Property('z'), Lexeme('z'))
             self.assert_not_match(
                 fp, IRI('z'), Text('z'), String('z'), Text('z'),
-                Quantity(0), Time('2024-07-27'))
+                Quantity(0), Time('2024-07-27'),
+                # Snak fingerprints should not match pseudo properties.
+                LabelProperty(), AliasProperty(), DescriptionProperty(),
+                LemmaProperty(), LexicalCategoryProperty(),
+                LanguageProperty())
 
     def test_normalize(self) -> None:
         assert_type(SnakFingerprint(('x', 'y')).normalize(), Fingerprint)
