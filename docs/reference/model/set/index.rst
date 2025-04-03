@@ -11,6 +11,7 @@ Set
    QualifierRecord
    ReferenceRecord
    ReferenceRecordSet
+   Graph
    :top-classes: kif_lib.model.kif_object.KIF_Object
    :parts: 1
    :caption: Set classes.
@@ -23,6 +24,7 @@ Set
    reference_record
    reference_record_set
    snak_set
+   graph
 
 .. autosummary::
    :nosignatures:
@@ -32,3 +34,4 @@ Set
    QualifierRecord
    ReferenceRecord
    ReferenceRecordSet
+   Graph

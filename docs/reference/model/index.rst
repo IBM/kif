@@ -11,7 +11,6 @@ Model
    Value
    Snak
    Statement
-   Rank
    :top-classes: kif_lib.model.kif_object.KIF_Object
    :parts: 1
    :caption: Model classes.
