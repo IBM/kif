@@ -67,6 +67,9 @@ class Object(Sequence, metaclass=ObjectMeta):
                 cls.Nil = super().__new__(cls)
             return cls.Nil
 
+        def __call__(self) -> Object.NilType:
+            return self
+
     #: Absence of value distinct from ``None``.
     Nil: ClassVar[NilType] = NilType()
 
@@ -316,10 +319,24 @@ class Object(Sequence, metaclass=ObjectMeta):
         """
         return copy.deepcopy(self, memo=memo)
 
-    class KEEP:
-        """See :meth:`Object.replace`."""
+    class KeepType:
+        """Type for the sentinel of :meth:`Object.replace`."""
+
+        Keep: ClassVar[Object.KeepType | None] = None
+
         def __new__(cls):
-            return cls
+            if cls.Keep is None:
+                cls.Keep = super().__new__(cls)
+            return cls.Keep
+
+        def __call__(self) -> Object.KeepType:
+            return self
+
+    #: Type alias for :class:`KeepType`.
+    TKEEP: TypeAlias = KeepType
+
+    #: Sentinel for :meth:`Object.replace`.
+    KEEP: ClassVar[KeepType] = KeepType()
 
     def replace(self, *args: Any) -> Self:
         """Shallow-copies object overwriting its arguments.
