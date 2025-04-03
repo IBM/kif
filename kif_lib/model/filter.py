@@ -545,11 +545,11 @@ class Filter(KIF_Object):
 
     @at_property
     def subject(self) -> Fingerprint:
-        """The subject of filter."""
+        """The subject criterion of filter."""
         return self.get_subject()
 
     def get_subject(self) -> Fingerprint:
-        """Gets the subject of filter.
+        """Gets the subject criterion of filter.
 
         Returns:
            Fingerprint.
@@ -558,11 +558,11 @@ class Filter(KIF_Object):
 
     @at_property
     def property(self) -> Fingerprint:
-        """The property of filter."""
+        """The property criterion of filter."""
         return self.get_property()
 
     def get_property(self) -> Fingerprint:
-        """Gets the property of filter.
+        """Gets the property criterion of filter.
 
         Returns:
            Fingerprint.
@@ -571,11 +571,11 @@ class Filter(KIF_Object):
 
     @at_property
     def value(self) -> Fingerprint:
-        """Filter value."""
+        """The value criterion of filter."""
         return self.get_value()
 
     def get_value(self) -> Fingerprint:
-        """Gets the value of filter.
+        """Gets the value criterion of filter.
 
         Returns:
            Fingerprint.
@@ -597,40 +597,40 @@ class Filter(KIF_Object):
 
     @at_property
     def subject_mask(self) -> DatatypeMask:
-        """The subject datatype mask of filter."""
+        """The subject mask of filter."""
         return self.get_subject_mask()
 
     def get_subject_mask(self) -> DatatypeMask:
-        """Gets the subject datatype mask of filter.
+        """Gets the subject mask of filter.
 
         Returns:
-           Subject datatype mask.
+           Datatype mask.
         """
         return self.args[4] & self.ENTITY
 
     @at_property
     def property_mask(self) -> DatatypeMask:
-        """The property datatype mask of filter."""
+        """The property mask of filter."""
         return self.get_property_mask()
 
     def get_property_mask(self) -> DatatypeMask:
-        """Gets the property datatype mask of filter.
+        """Gets the property mask of filter.
 
         Returns:
-           Property datatype mask.
+           Property mask.
         """
         return self.args[5] & self.PROPERTY
 
     @at_property
     def value_mask(self) -> DatatypeMask:
-        """The value datatype mask of filter."""
+        """The value mask of filter."""
         return self.get_value_mask()
 
     def get_value_mask(self) -> DatatypeMask:
-        """Gets the value datatype mask of filter.
+        """Gets the value mask of filter.
 
         Returns:
-           Value datatype mask.
+           Value mask.
         """
         return self.args[6] & self.VALUE
 
@@ -649,14 +649,14 @@ class Filter(KIF_Object):
 
     @at_property
     def language(self) -> str | None:
-        """The language of filter."""
+        """The language criterion of filter."""
         return self.get_language()
 
     def get_language(self) -> str | None:
-        """Gets the language of filter.
+        """Gets the language criterion of filter.
 
         Returns:
-           Language or ``None``.
+           Language.
         """
         return self.args[8]
 
