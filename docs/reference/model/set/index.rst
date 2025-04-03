@@ -1,0 +1,40 @@
+.. currentmodule:: kif_lib
+
+===
+Set
+===
+
+.. inheritance-diagram::
+   KIF_Object
+   ClosedTermSet
+   ValueSet
+   TextSet
+   SnakSet
+   QualifierRecord
+   ReferenceRecord
+   ReferenceRecordSet
+   :top-classes: kif_lib.model.kif_object.KIF_Object
+   :parts: 1
+   :caption: Set classes.
+
+.. toctree::
+   :hidden:
+
+   closed_term_set
+   qualifier_record
+   reference_record
+   reference_record_set
+   snak_set
+   text_set
+   value_set
+
+.. autosummary::
+   :nosignatures:
+
+   ClosedTermSet
+   ValueSet
+   TextSet
+   SnakSet
+   QualifierRecord
+   ReferenceRecord
+   ReferenceRecordSet

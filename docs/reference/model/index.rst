@@ -11,6 +11,7 @@ Model
    Value
    Snak
    Statement
+   Rank
    :top-classes: kif_lib.model.kif_object.KIF_Object
    :parts: 1
    :caption: Model classes.
@@ -22,4 +23,6 @@ Model
    term/index
    value/index
    snak/index
+   set/index
    statement/index
+   rank/index
