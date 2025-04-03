@@ -3,11 +3,12 @@
 
 def property_table(ps):
     from IPython.display import display_markdown
+
     def it():
-        yield 'property', 'description'
-        yield '-', '-'
-        for p in ps:
-            yield (f'[{p.label.content}]({p.iri.content})',
+        yield '#', 'property', 'description'
+        yield '-', '-', '-'
+        for i, p in enumerate(ps, 1):
+            yield (str(i), f'[{p.label.content}]({p.iri.content})',
                    p.description.content)
     display_markdown('\n'.join(map(
-        lambda t: f'|{t[0]}|{t[1]}|', it())), raw=True)
+        lambda t: f'|{"|".join(t)}|', it())), raw=True)
