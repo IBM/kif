@@ -22,12 +22,11 @@ from ...typing import (
 from ..term import Template, Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI_Template, T_IRI
-from .text import Text, TText, TTextLanguage
+from .text import Text, TText, TTextLanguage, TTextSet
 from .value import Datatype
 
 if TYPE_CHECKING:               # pragma: no cover
     from ...store import Store
-    from ..set import TTextSet
     from .quantity import Quantity, QuantityTemplate, TQuantity
 
 TItem: TypeAlias = Union['Item', T_IRI]

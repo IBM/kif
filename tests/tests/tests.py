@@ -77,11 +77,9 @@ from kif_lib import (
     Term,
     Text,
     TextDatatype,
-    TextSet,
     Time,
     TimeDatatype,
     Value,
-    ValueSet,
     ValueSnak,
     Variable,
 )
@@ -318,18 +316,6 @@ class TestCase(unittest.TestCase):
         self.assertEqual(obj._frozenset, set(args))
         for arg in args:
             self.assertIn(arg, obj)
-
-    def assert_value_set(
-            self,
-            obj: ValueSet,
-            *values: Value
-    ) -> None:
-        self.assertIsInstance(obj, ValueSet)
-        self.assert_closed_term_set(obj, *values)
-
-    def assert_text_set(self, obj: TextSet, *texts: Text) -> None:
-        self.assertIsInstance(obj, TextSet)
-        self.assert_value_set(obj, *texts)
 
     def assert_snak_set(self, obj: SnakSet, *snaks: Snak) -> None:
         self.assertIsInstance(obj, SnakSet)

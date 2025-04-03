@@ -107,6 +107,7 @@ from .text import (
     TextVariable,
     TText,
     TTextLanguage,
+    TTextSet,
     VText,
 )
 from .time import (
@@ -210,6 +211,7 @@ __all__ = (
     'TextVariable',
     'TText',
     'TTextLanguage',
+    'TTextSet',
     'VText',
 
     # string

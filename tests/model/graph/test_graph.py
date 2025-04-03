@@ -19,7 +19,6 @@ from kif_lib import (
     Statement,
     StatementVariable,
     Text,
-    ValueSet,
     ValueSnak,
     Variable,
 )
@@ -55,7 +54,6 @@ class Test(ClosedTermSetTestCase):
                 Item(Variable('x')),
                 Property('x'),
                 SnakSet(Property('x')(0)),
-                ValueSet(0, 1, 2),
                 ValueSnak(Property('x'), 'y'),
                 Variable('x'),
             ])

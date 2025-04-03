@@ -7,8 +7,6 @@ Set
 .. inheritance-diagram::
    KIF_Object
    ClosedTermSet
-   ValueSet
-   TextSet
    SnakSet
    QualifierRecord
    ReferenceRecord
@@ -25,15 +23,11 @@ Set
    reference_record
    reference_record_set
    snak_set
-   text_set
-   value_set
 
 .. autosummary::
    :nosignatures:
 
    ClosedTermSet
-   ValueSet
-   TextSet
    SnakSet
    QualifierRecord
    ReferenceRecord

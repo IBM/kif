@@ -26,6 +26,8 @@ TText: TypeAlias = Union['Text', TString]
 VText: TypeAlias = Union['TextTemplate', 'TextVariable', 'Text']
 VTTextContent: TypeAlias = Union[Variable, TText]
 
+TTextSet: TypeAlias = Iterable[TText]
+
 TTextLanguage: TypeAlias = TString
 VTextLanguageContent: TypeAlias = VStringContent
 VTTextLanguageContent: TypeAlias = VTStringContent

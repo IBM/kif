@@ -31,13 +31,13 @@ from .datatype import (
 from .entity import Entity, EntityTemplate, EntityVariable, VTEntity
 from .iri import IRI_Template, T_IRI, VT_IRI
 from .string import TString
-from .text import Text, TText, TTextLanguage
+from .text import Text, TText, TTextLanguage, TTextSet
 from .value import VTValue
 
 if TYPE_CHECKING:               # pragma: no cover
     from ...store import Store
     from ..rank import VTRank
-    from ..set import TTextSet, VTQualifierRecord, VTReferenceRecordSet
+    from ..set import VTQualifierRecord, VTReferenceRecordSet
     from ..snak import (
         NoValueSnak,
         NoValueSnakTemplate,

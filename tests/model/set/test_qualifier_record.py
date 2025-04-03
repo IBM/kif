@@ -17,7 +17,6 @@ from kif_lib import (
     SnakSet,
     SomeValueSnak,
     Text,
-    ValueSet,
     ValueSnak,
     Variable,
 )
@@ -58,7 +57,6 @@ class Test(ClosedTermSetTestCase):
                 IRI('x'),
                 Item(Variable('x')),
                 Property('x'),
-                ValueSet(0, 1, 2),
                 Variable('x'),
             ])
 

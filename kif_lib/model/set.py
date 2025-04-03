@@ -18,11 +18,6 @@ from ..typing import (
 )
 from .snak import Snak, TSnak
 from .term import ClosedTerm, Variable
-from .value import Text, TText, TValue, Value
-
-TValueSet: TypeAlias = Union['ValueSet', Iterable[TValue]]
-
-TTextSet: TypeAlias = Union['TextSet', Iterable[TText]]
 
 TSnakSet: TypeAlias = Union['SnakSet', Iterable[TSnak]]
 VSnakSet: TypeAlias = Union['SnakSetVariable', 'SnakSet']
@@ -116,34 +111,6 @@ class ClosedTermSet(ClosedTerm, Generic[_TClosedTerm]):
         """
         return type(self)(*self._frozenset.union(*map(
             lambda x: x._frozenset, others)))
-
-
-class ValueSet(ClosedTermSet[Value], children_class=Value):
-    """Set of values.
-
-    Parameters:
-       values: Values.
-    """
-
-    children_class: ClassVar[type[Value]]  # pyright: ignore
-
-    @override
-    def __init__(self, *values: TValue) -> None:
-        super().__init__(*values)
-
-
-class TextSet(ValueSet, children_class=Text):
-    """Set of texts.
-
-    Parameters:
-       texts: Texts.
-    """
-
-    children_class: ClassVar[type[Text]]  # pyright: ignore
-
-    @override
-    def __init__(self, *texts: TText) -> None:
-        super().__init__(*texts)
 
 
 class SnakSetVariable(Variable):

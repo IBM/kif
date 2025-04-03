@@ -111,7 +111,6 @@ from .model import (
     Term,
     Text,
     TextDatatype,
-    TextSet,
     TextTemplate,
     TextVariable,
     Theta,
@@ -120,7 +119,6 @@ from .model import (
     TimeTemplate,
     TimeVariable,
     Value,
-    ValueSet,
     ValueSnak,
     ValueSnakTemplate,
     ValueSnakVariable,
@@ -214,7 +212,6 @@ __all__ = (
     # model.value.text
     'Text',
     'TextDatatype',
-    'TextSet',
     'TextTemplate',
     'TextVariable',
 
@@ -289,8 +286,6 @@ __all__ = (
     'ReferenceRecordVariable',
     'SnakSet',
     'SnakSetVariable',
-    'TextSet',
-    'ValueSet',
 
     # model.graph,
     'Graph',

@@ -15,7 +15,6 @@ from kif_lib import (
     SnakSet,
     SomeValueSnak,
     Text,
-    ValueSet,
     ValueSnak,
     Variable,
 )
@@ -57,7 +56,6 @@ class Test(ClosedTermSetTestCase):
                 Property('x'),
                 ReferenceRecord(NoValueSnak('x')),
                 SnakSet(),
-                ValueSet(0, 1, 2),
                 Variable('x'),
             ])
 
