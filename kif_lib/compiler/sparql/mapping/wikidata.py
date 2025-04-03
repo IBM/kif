@@ -82,6 +82,8 @@ __all__ = (
 
 Arg: TypeAlias = M.EntryCallbackArg
 
+BNode: TypeAlias = C.Query.BNode
+
 Literal: TypeAlias = C.Query.Literal
 VLiteral: TypeAlias = C.Query.VLiteral
 
@@ -90,6 +92,8 @@ V_URI: TypeAlias = C.Query.V_URI
 
 Var: TypeAlias = C.Query.Variable
 Var3: TypeAlias = tuple[Var, Var, Var]
+
+T_WDS: TypeAlias = BNode | Var
 
 #: Variables used in register patterns.
 d, e, p, r, w, x, y, z = Variables(*'deprwxyz')
@@ -158,10 +162,14 @@ class WikidataMapping(M):
 
     __slots__ = (
         '_options',
+        '_wds',
     )
 
     #: Wikidata SPARQL mapping options.
     _options: WikidataMappingOptions
+
+    #: Current wds.
+    _wds: list[T_WDS]
 
     def __init__(
             self,
@@ -178,6 +186,7 @@ class WikidataMapping(M):
             self.options.set_strict(strict)
         if truthy is not None:
             self.options.set_truthy(truthy)
+        self._wds = []
 
     @property
     def options(self) -> WikidataMappingOptions:
@@ -192,16 +201,52 @@ class WikidataMapping(M):
         """
         return self._options
 
+    @property
+    def wds(self) -> T_WDS:
+        """The current wds variable."""
+        return self.get_wds()
+
+    def get_wds(self) -> T_WDS:
+        """Gets the current wds variable.
+
+        Returns:
+           Query variable or blank note.
+        """
+        assert len(self._wds) > 0
+        return self._wds[-1]
+
     @override
-    def preamble_entry(self, compiler: C, entry: M.Entry) -> M.Entry:
-        if not compiler.filter.annotated:
-            ###
-            # FIXME: If we're not collecting annotations, use a blank node
-            # for wds instead of a variable.  This way statements with the
-            # same (s,p,v) will *not* be counted as distinct.
-            ###
-            compiler.frame['wds'] = compiler.bnode()  # type: ignore
-        return entry
+    def frame_pushed(self, compiler: C, frame: C.Frame) -> C.Frame:
+        frame = super().frame_pushed(compiler, frame)
+        phase = frame['phase']
+        if phase == C.READY:
+            self._wds.append(compiler.fresh_qvar())
+        elif phase == C.COMPILING_FILTER:
+            if not compiler.filter.annotated:
+                ###
+                # FIXME: If we're not collecting annotations, use a blank
+                # node for wds instead of a variable.  This way statements
+                # with the same (s,p,v) will *not* be counted as distinct.
+                ###
+                self._wds.append(compiler.bnode())
+        elif phase == C.COMPILING_FINGERPRINT:
+            self._wds.append(compiler.bnode())
+        return frame
+
+    @override
+    def frame_popped(self, compiler: C, frame: C.Frame) -> C.Frame:
+        phase = frame['phase']
+        if phase == C.DONE:
+            self._wds.pop()
+        elif phase == C.COMPILING_FILTER:
+            if not compiler.filter.annotated:
+                ###
+                # FIXME: Now we do the converse of what we did above.
+                ###
+                self._wds.pop()
+        elif phase == C.COMPILING_FINGERPRINT:
+            self._wds.pop()
+        return super().frame_popped(compiler, frame)
 
     @override
     def postamble(
@@ -235,7 +280,7 @@ class WikidataMapping(M):
                             c, references=True)
                         with c.q.group():  # rank
                             c.q.triples()(
-                                (c.wds, WIKIBASE.rank, v('_rank')))
+                                (self.wds, WIKIBASE.rank, v('_rank')))
 
     def _postamble_push_annotations(
             self,
@@ -246,16 +291,16 @@ class WikidataMapping(M):
         if references:
             px = WIKIBASE.reference
             pxv = WIKIBASE.referenceValue
-            wds = v('_wdref')
+            wds: T_WDS = v('_wdref')
         else:
             px = WIKIBASE.qualifier
             pxv = WIKIBASE.qualifierValue
-            wds = c.wds
+            wds = self.wds
         with c.q.group():
             c.q.triples()(
-                (c.wds, WIKIBASE.rank, v('_rank')))
+                (self.wds, WIKIBASE.rank, v('_rank')))
             if references:
-                c.q.triples()((c.wds, PROV.wasDerivedFrom, wds))
+                c.q.triples()((self.wds, PROV.wasDerivedFrom, wds))
             c.q.triples()(
                 (wds, v('_px'), v('_xvalue')),
                 (v('_xprop'), px, v('_px')),
@@ -304,9 +349,9 @@ class WikidataMapping(M):
                                  v('_tm_calendar')))
         with c.q.group():  # qualifiers - no value
             c.q.triples()(
-                (c.wds, WIKIBASE.rank, v('_rank')))
+                (self.wds, WIKIBASE.rank, v('_rank')))
             if references:
-                c.q.triples()((c.wds, PROV.wasDerivedFrom, wds))
+                c.q.triples()((self.wds, PROV.wasDerivedFrom, wds))
             c.q.triples()(
                 (wds, RDF.type, v('_xnovalue')),
                 (v('_xprop'), WIKIBASE.novalue, v('_xnovalue')),
@@ -329,7 +374,7 @@ class WikidataMapping(M):
                 distinct=distinct, limit=limit, offset=offset)
             return compiler.q.select(  # type: ignore
                 distinct=distinct, limit=None, offset=None,
-                order_by=compiler.wds)
+                order_by=self.wds)
 
     class ResultBuilder(M.ResultBuilder):
 
@@ -377,8 +422,9 @@ class WikidataMapping(M):
                 binding: SPARQL_ResultsBinding,
                 thetas: list[Theta]
         ) -> None:
+            mapping = cast(WikidataMapping, self.mapping)
             self.cur_thetas = thetas
-            self.cur_wds = binding[str(self.c.wds)]['value']
+            self.cur_wds = binding[str(mapping.wds)]['value']
             self.cur_qualifiers = []
             self.cur_references = {}
             self.cur_rank = binding['_rank']['value']
@@ -391,7 +437,8 @@ class WikidataMapping(M):
                 # print('-- done:', self.cur_wds)
                 yield from self._push_annotated_emit()
             else:
-                wds = binding[str(self.c.wds)]['value']
+                mapping = cast(WikidataMapping, self.mapping)
+                wds = binding[str(mapping.wds)]['value']
                 if wds != self.cur_wds:  # emit
                     yield from self._push_annotated_emit()
                     thetas = list(super().push(binding))
@@ -544,7 +591,7 @@ class WikidataMapping(M):
                 (e, WIKIBASE.propertyType, edt))
 
     def _start_any(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> Var3:
-        wds = c.wds
+        wds = self.wds
         p_, ps = c.fresh_qvars(2)
         c.q.triples()(
             (e, p_, wds),
@@ -555,7 +602,7 @@ class WikidataMapping(M):
             (wds, WIKIBASE.rank, c.bnode()))
         if c.has_flags(c.BEST_RANK):
             c.q.triples()((wds, RDF.type, WIKIBASE.BestRank))
-        return p_, ps, wds
+        return p_, ps, wds      # type: ignore
 
     # -- label (pseudo-property) --
 
@@ -710,8 +757,7 @@ class WikidataMapping(M):
 
     @M.register(
         [Statement(Item(e), Property(p)(Item(x))),
-         Statement(Item(e), Property(p)(Item(x))).annotate(
-             As, Rs, r)],
+         Statement(Item(e), Property(p)(Item(x))).annotate(As, Rs, r)],
         {e: CheckItem(),
          p: CheckProperty(),
          x: CheckItem()})
@@ -727,8 +773,7 @@ class WikidataMapping(M):
 
     @M.register(
         [Statement(Lexeme(e), Property(p)(Item(x))),
-         Statement(Lexeme(e), Property(p)(Item(x))).annotate(
-             As, Rs, r)],
+         Statement(Lexeme(e), Property(p)(Item(x))).annotate(As, Rs, r)],
         {e: CheckLexeme(),
          p: CheckProperty(),
          x: CheckItem()})
@@ -744,8 +789,7 @@ class WikidataMapping(M):
 
     @M.register(
         [Statement(Property(e, d), Property(p)(Item(x))),
-         Statement(Property(e, d), Property(p)(Item(x))).annotate(
-             As, Rs, r)],
+         Statement(Property(e, d), Property(p)(Item(x))).annotate(As, Rs, r)],
         {e: CheckProperty(),
          d: CheckDatatype(),
          p: CheckProperty(),
@@ -851,8 +895,7 @@ class WikidataMapping(M):
 
     @M.register(
         [Statement(Item(e), Property(p)(Lexeme(x))),
-         Statement(Item(e), Property(p)(Lexeme(x))).annotate(
-             As, Rs, r)],
+         Statement(Item(e), Property(p)(Lexeme(x))).annotate(As, Rs, r)],
         {e: CheckItem(),
          p: CheckProperty(),
          x: CheckLexeme()})
@@ -869,8 +912,7 @@ class WikidataMapping(M):
 
     @M.register(
         [Statement(Lexeme(e), Property(p)(Lexeme(x))),
-         Statement(Lexeme(e), Property(p)(Lexeme(x))).annotate(
-             As, Rs, r)],
+         Statement(Lexeme(e), Property(p)(Lexeme(x))).annotate(As, Rs, r)],
         {e: CheckLexeme(),
          p: CheckProperty(),
          x: CheckLexeme()})
@@ -979,8 +1021,7 @@ class WikidataMapping(M):
 
     @M.register(
         [Statement(Item(e), Property(p)(Text(x, y))),
-         Statement(Item(e), Property(p)(Text(x, y))).annotate(
-             As, Rs, r)],
+         Statement(Item(e), Property(p)(Text(x, y))).annotate(As, Rs, r)],
         {e: CheckItem(),
          p: CheckProperty()})
     def p_item_text(
@@ -997,8 +1038,7 @@ class WikidataMapping(M):
 
     @M.register(
         [Statement(Lexeme(e), Property(p)(Text(x, y))),
-         Statement(Lexeme(e), Property(p)(Text(x, y))).annotate(
-             As, Rs, r)],
+         Statement(Lexeme(e), Property(p)(Text(x, y))).annotate(As, Rs, r)],
         {e: CheckLexeme(),
          p: CheckProperty()})
     def p_lexeme_text(
@@ -1067,8 +1107,7 @@ class WikidataMapping(M):
 
     @M.register(
         [Statement(Item(e), Property(p)(String(x))),
-         Statement(Item(e), Property(p)(String(x))).annotate(
-             As, Rs, r)],
+         Statement(Item(e), Property(p)(String(x))).annotate(As, Rs, r)],
         {e: CheckItem(),
          p: CheckProperty()})
     def p_item_string(
@@ -1083,8 +1122,7 @@ class WikidataMapping(M):
 
     @M.register(
         [Statement(Lexeme(e), Property(p)(String(x))),
-         Statement(Lexeme(e), Property(p)(String(x))).annotate(
-             As, Rs, r)],
+         Statement(Lexeme(e), Property(p)(String(x))).annotate(As, Rs, r)],
         {e: CheckLexeme(),
          p: CheckProperty()})
     def p_lexeme_string(
@@ -1124,8 +1162,7 @@ class WikidataMapping(M):
 
     @M.register(
         [Statement(Item(e), Property(p)(ExternalId(x))),
-         Statement(Item(e), Property(p)(ExternalId(x))).annotate(
-             As, Rs, r)],
+         Statement(Item(e), Property(p)(ExternalId(x))).annotate(As, Rs, r)],
         {e: CheckItem(),
          p: CheckProperty()})
     def p_item_external_id(
@@ -1140,8 +1177,7 @@ class WikidataMapping(M):
 
     @M.register(
         [Statement(Lexeme(e), Property(p)(ExternalId(x))),
-         Statement(Lexeme(e), Property(p)(ExternalId(x))).annotate(
-             As, Rs, r)],
+         Statement(Lexeme(e), Property(p)(ExternalId(x))).annotate(As, Rs, r)],
         {e: CheckLexeme(),
          p: CheckProperty()})
     def p_lexeme_external_id(

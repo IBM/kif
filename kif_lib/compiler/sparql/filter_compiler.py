@@ -121,14 +121,11 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         #: The compilation phase of frame.
         phase: SPARQL_FilterCompiler.Phase
 
-        #: The substitution of frame.
-        substitution: Substitution
-
-        #: The query variable holding the wds of frame.
-        wds: Query.Variable
-
         #: The entry of frame.
         entry: SPARQL_Mapping.Entry | None
+
+        #: The substitution of frame.
+        substitution: Substitution | None
 
         #: The target patterns of frame.
         targets: Sequence[SPARQL_Mapping.EntryPattern] | None
@@ -172,21 +169,14 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             flags: SPARQL_FilterCompiler.Flags | None = None
     ) -> None:
         super().__init__(flags)
-        wds, entry_id_qvar = self.q.fresh_vars(2)
         self._filter = filter
         self._mapping = mapping
         self._pattern = Pattern.check(Variable('_', Statement))
-        self._entry_id_qvar = entry_id_qvar
+        self._frame = []
+        self.push_frame(self.READY)
+        self._entry_id_qvar = self.q.fresh_var()
         self._entry_subst = {}
         self._entry_targets = {}
-        self._frame = []
-        self._push_frame({
-            'phase': self.READY,
-            'substitution': Substitution(),
-            'wds': wds,
-            'entry': None,
-            'targets': None,
-        })
 
     @property
     def filter(self) -> Filter:
@@ -243,9 +233,41 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         assert self._frame
         return self._frame[-1]
 
+    def push_frame(
+            self,
+            phase: SPARQL_FilterCompiler.Phase,
+            entry: SPARQL_Mapping.Entry | None = None,
+            theta: Substitution | None = None,
+            targets: Sequence[SPARQL_Mapping.EntryPattern] | None = None
+    ) -> Frame:
+        """Pushes a new compilation frame making it the current frame.
+
+        phase: Compilation phase.
+        entry: Mapping entry.
+        theta: Substitution.
+        targets: Mapping entry patterns.
+
+        Returns:
+           The pushed frame.
+        """
+        return self._push_frame(self.mapping.frame_pushed(self, {
+            'phase': phase,
+            'entry': entry,
+            'substitution': theta,
+            'targets': targets,
+        }))
+
     def _push_frame(self, frame: Frame) -> Frame:
         self._frame.append(frame)
         return frame
+
+    def pop_frame(self) -> Frame:
+        """Pops the current compilation frame.
+
+        Returns:
+           The popped frame.
+        """
+        return self.mapping.frame_popped(self, self._pop_frame())
 
     def _pop_frame(self) -> Frame:
         assert self._frame
@@ -297,6 +319,20 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         return self.phase == self.DONE
 
     @property
+    def entry(self) -> SPARQL_Mapping.Entry:
+        """The entry associated with current frame."""
+        return self.get_entry()
+
+    def get_entry(self) -> SPARQL_Mapping.Entry:
+        """Gets the entry associated with current frame.
+
+        Returns:
+           SPARQL mapping entry.
+        """
+        assert self.frame['entry'] is not None
+        return self.frame['entry']
+
+    @property
     def theta(self) -> Substitution:
         """The substitution associated with the current frame."""
         return self.get_theta()
@@ -307,6 +343,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         Returns:
            Substitution.
         """
+        assert self.frame['substitution'] is not None
         return self.frame['substitution']
 
     def theta_add(self, variable: Variable, value: T) -> T:
@@ -350,33 +387,6 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
            Variable.
         """
         return self.theta.add_default(variable, value)
-
-    @property
-    def wds(self) -> Query.Variable:
-        """The wds associated with the current frame."""
-        return self.get_wds()
-
-    def get_wds(self) -> Query.Variable:
-        """Gets the wds associated with the current.
-
-        Returns:
-           Query variable.
-        """
-        return self.frame['wds']
-
-    @property
-    def entry(self) -> SPARQL_Mapping.Entry:
-        """The entry associated with current frame."""
-        return self.get_entry()
-
-    def get_entry(self) -> SPARQL_Mapping.Entry:
-        """Gets the entry associated with current frame.
-
-        Returns:
-           SPARQL mapping entry.
-        """
-        assert self.frame['entry'] is not None
-        return self.frame['entry']
 
     @property
     def targets(self) -> Sequence[SPARQL_Mapping.EntryPattern]:
@@ -541,16 +551,13 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             kwargs: Mapping[str, SPARQL_Mapping.EntryCallbackArg]
     ) -> None:
         assert targets
-        self._push_frame({
-            'phase': self.COMPILING_FILTER,
-            'entry': entry,
-            'targets': targets,
-            'substitution': Substitution(),
-            'wds': self.wds,  # same as last wds
-        })
+        self.push_frame(
+            phase=self.COMPILING_FILTER,
+            entry=entry,
+            theta=Substitution(),
+            targets=targets)
         for var, val in entry.default_map.items():
             self.theta_add_default(var, val)
-        entry = self.mapping.preamble_entry(self, entry)
         try:
             with self.q.group():
                 if self.has_flags(self.DEBUG):
@@ -574,7 +581,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                 self._entry_targets[entry.id] = []
             self._entry_targets[entry.id].extend(targets)  # type: ignore
         finally:
-            self._pop_frame()
+            self.pop_frame()
 
     def _push_fps(
             self,
@@ -740,22 +747,18 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                     assert isinstance(kwargs[src], Query.Variable)
                     tgt = next(entity._iterate_variables()).name
                     kwargs[src] = Query.Variable(tgt)  # type: ignore
-                self._push_frame({
-                    'phase': self.COMPILING_FINGERPRINT,
-                    'entry': target_entry,
-                    'targets': targets,
-                    'substitution': Substitution(),
-                    'wds': self.fresh_qvar(),
-                })
-                target_entry = self.mapping.preamble_entry(
-                    self, target_entry)
+                self.push_frame(
+                    phase=self.COMPILING_FINGERPRINT,
+                    entry=target_entry,
+                    theta=Substitution(),
+                    targets=targets)
                 try:
                     with self.q.group():
                         target_entry.callback(self.mapping, self, **kwargs)
                 except self.mapping.Skip:
                     continue
                 finally:
-                    self._pop_frame()
+                    self.pop_frame()
             if not cup.children:
                 raise self.mapping.Skip
 

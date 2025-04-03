@@ -883,6 +883,30 @@ class SPARQL_Mapping(Sequence[_Entry]):
     def __len__(self) -> int:
         return len(self._entries)
 
+    def frame_pushed(
+            self,
+            compiler: Compiler,
+            frame: Compiler.Frame
+    ) -> Compiler.Frame:
+        """Called before a new compilation frame is pushed.
+
+        Returns:
+           The frame to be pushed.
+        """
+        return frame
+
+    def frame_popped(
+            self,
+            compiler: Compiler,
+            frame: Compiler.Frame
+    ) -> Compiler.Frame:
+        """Called the current compilation frame is popped.
+
+        Returns:
+           The popped frame.
+        """
+        return frame
+
     def preamble(
             self,
             compiler: Compiler,
