@@ -62,6 +62,7 @@ autodoc_default_options = {
 html_theme = 'sphinx_rtd_theme'
 # html_theme = 'pydata_sphinx_theme'
 # html_theme = 'sphinx_immaterial'
+html_static_path = ['_static']
 
 graphviz_output_format = 'svg'
 inheritance_graph_attrs = {
