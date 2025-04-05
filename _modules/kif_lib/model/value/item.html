@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
@@ -5,20 +7,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kif_lib.model.value.item &mdash; kif-lib  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=dd9f1d9b" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="shortcut icon" href="../../../../_static/kif-boxed.svg"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -28,16 +28,14 @@
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #009d9aff" >
 
           
           
           <a href="../../../../index.html" class="icon icon-home">
             kif-lib
+              <img src="../../../../_static/kif-boxed.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.4
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -56,13 +54,13 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #009d9aff" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../../index.html">kif-lib</a>
       </nav>
 
       <div class="wy-nav-content">
-        <div class="rst-content">
+        <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
@@ -77,16 +75,36 @@
            <div itemprop="articleBody">
              
   <h1>Source code for kif_lib.model.value.item</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2024 IBM Corp.</span>
+<span></span><span class="c1"># Copyright (C) 2024-2025 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">..term</span> <span class="kn">import</span> <span class="n">Variable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">overload</span>
+
+<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">cast</span><span class="p">,</span>
+    <span class="n">ClassVar</span><span class="p">,</span>
+    <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">Mapping</span><span class="p">,</span>
+    <span class="n">override</span><span class="p">,</span>
+    <span class="n">Self</span><span class="p">,</span>
+    <span class="n">Set</span><span class="p">,</span>
+    <span class="n">TypeAlias</span><span class="p">,</span>
+    <span class="n">TypedDict</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..term</span> <span class="kn">import</span> <span class="n">Template</span><span class="p">,</span> <span class="n">Variable</span>
 <span class="kn">from</span> <span class="nn">.entity</span> <span class="kn">import</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">EntityTemplate</span><span class="p">,</span> <span class="n">EntityVariable</span>
 <span class="kn">from</span> <span class="nn">.iri</span> <span class="kn">import</span> <span class="n">IRI_Template</span><span class="p">,</span> <span class="n">T_IRI</span>
+<span class="kn">from</span> <span class="nn">.text</span> <span class="kn">import</span> <span class="n">Text</span><span class="p">,</span> <span class="n">TText</span><span class="p">,</span> <span class="n">TTextLanguage</span><span class="p">,</span> <span class="n">TTextSet</span>
 <span class="kn">from</span> <span class="nn">.value</span> <span class="kn">import</span> <span class="n">Datatype</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>               <span class="c1"># pragma: no cover</span>
+    <span class="kn">from</span> <span class="nn">...store</span> <span class="kn">import</span> <span class="n">Store</span>
+    <span class="kn">from</span> <span class="nn">.quantity</span> <span class="kn">import</span> <span class="n">Quantity</span><span class="p">,</span> <span class="n">QuantityTemplate</span><span class="p">,</span> <span class="n">TQuantity</span>
 
 <span class="n">TItem</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Item&#39;</span><span class="p">,</span> <span class="n">T_IRI</span><span class="p">]</span>
 <span class="n">VItem</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;ItemTemplate&#39;</span><span class="p">,</span> <span class="s1">&#39;ItemVariable&#39;</span><span class="p">,</span> <span class="s1">&#39;Item&#39;</span><span class="p">]</span>
@@ -126,10 +144,14 @@
 
 
 
+<div class="viewcode-block" id="ItemDatatype">
+<a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.ItemDatatype">[docs]</a>
 <span class="k">class</span> <span class="nc">ItemDatatype</span><span class="p">(</span><span class="n">Datatype</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Item datatype.&quot;&quot;&quot;</span>
 
-    <span class="n">value_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Item</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">instance</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">ItemDatatype</span><span class="p">]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">value_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Item</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
+
 
 
 <div class="viewcode-block" id="Item">
@@ -151,10 +173,287 @@
     <span class="n">template_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">ItemTemplate</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
     <span class="n">variable_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">ItemVariable</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
+<div class="viewcode-block" id="Item.Descriptor">
+<a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.Descriptor">[docs]</a>
+    <span class="k">class</span> <span class="nc">Descriptor</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Item descriptor in KIF context.&quot;&quot;&quot;</span>
+
+        <span class="c1">#: Label indexed by language.</span>
+        <span class="n">labels</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Text</span><span class="p">]</span>
+
+        <span class="c1">#: Aliases indexed by language.</span>
+        <span class="n">aliases</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Set</span><span class="p">[</span><span class="n">Text</span><span class="p">]]</span>
+
+        <span class="c1">#: Description indexed by language.</span>
+        <span class="n">descriptions</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Text</span><span class="p">]</span></div>
+
+
 <div class="viewcode-block" id="Item.__init__">
 <a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iri</span><span class="p">:</span> <span class="n">VTItemContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">iri</span><span class="p">)</span></div>
+
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span> <span class="fm">__rmatmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">QuantityTemplate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantityTemplate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs quantity template using item as the unit.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           other: Quantity template.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Quantity template.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>                     <span class="c1"># pragma: no cover</span>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span> <span class="fm">__rmatmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TQuantity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs quantity using item as the unit.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           other: Quantity.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Quantity template.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>                     <span class="c1"># pragma: no cover</span>
+
+    <span class="k">def</span> <span class="fm">__rmatmul__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">other</span><span class="p">:</span> <span class="n">QuantityTemplate</span> <span class="o">|</span> <span class="n">TQuantity</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantityTemplate</span> <span class="o">|</span> <span class="n">Quantity</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">.quantity</span> <span class="kn">import</span> <span class="n">Quantity</span><span class="p">,</span> <span class="n">QuantityTemplate</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Template</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">QuantityTemplate</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">KEEP</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">KEEP</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">KEEP</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Quantity</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">KEEP</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">KEEP</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">KEEP</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Item.display">
+<a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.display">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span> <span class="nf">display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="n">TTextLanguage</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_label</span><span class="p">(</span><span class="n">language</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">label</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">label</span><span class="o">.</span><span class="n">content</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">display</span><span class="p">(</span><span class="n">language</span><span class="p">)</span>  <span class="c1"># fallback</span></div>
+
+
+<div class="viewcode-block" id="Item.describe">
+<a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.describe">[docs]</a>
+    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">language</span><span class="p">:</span> <span class="n">TTextLanguage</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">resolver</span><span class="p">:</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span><span class="o">.</span><span class="n">Descriptor</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the descriptor of item in KIF context.</span>
+
+<span class="sd">        If `language` is given, resolves only text in `language`.</span>
+<span class="sd">        Otherwise, resolves text in all languages.</span>
+
+<span class="sd">        If `resolve` is ``True``, resolves item data.</span>
+
+<span class="sd">        If `resolver` is given, uses it to resolve item data.</span>
+<span class="sd">        Otherwise, uses the resolver registered in context (if any).</span>
+
+<span class="sd">        If `force` is given, forces resolution.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           language: Language.</span>
+<span class="sd">           resolve: Whether to resolve descriptor.</span>
+<span class="sd">           resolver: Resolver store.</span>
+<span class="sd">           force: Whether to force resolution.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Item descriptor or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">language</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="n">resolve</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">resolver</span><span class="p">,</span>
+            <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">describe</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The label of item in KIF context.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Item.get_label">
+<a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.get_label">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">language</span><span class="p">:</span> <span class="n">TTextLanguage</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">resolver</span><span class="p">:</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the label of item in KIF context.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           language: Language.</span>
+<span class="sd">           resolve: Whether to resolve label.</span>
+<span class="sd">           resolver: Resolver store.</span>
+<span class="sd">           force: Whether to force resolution.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Label or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_label</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">language</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="n">resolve</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">resolver</span><span class="p">,</span>
+            <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_label</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">Text</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The aliases of item in KIF context.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_aliases</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Item.get_aliases">
+<a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.get_aliases">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_aliases</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">language</span><span class="p">:</span> <span class="n">TTextLanguage</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">resolver</span><span class="p">:</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">Text</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the aliases of item in KIF context.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           language: Language.</span>
+<span class="sd">           resolve: Whether to resolve aliases.</span>
+<span class="sd">           resolver: Resolver store.</span>
+<span class="sd">           force: Whether to force resolution.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Aliases or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_aliases</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">language</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="n">resolve</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">resolver</span><span class="p">,</span>
+            <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_aliases</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The description of item in KIF context.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_description</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Item.get_description">
+<a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.get_description">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">language</span><span class="p">:</span> <span class="n">TTextLanguage</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">resolver</span><span class="p">:</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the description of item in KIF context.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           language: Language.</span>
+<span class="sd">           resolve: Whether to resolve description.</span>
+<span class="sd">           resolver: Resolver store.</span>
+<span class="sd">           force: Whether to force resolution.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Description or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_description</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">language</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="n">resolve</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">resolver</span><span class="p">,</span>
+            <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_description</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Item.register">
+<a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.register">[docs]</a>
+    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">label</span><span class="p">:</span> <span class="n">TText</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">labels</span><span class="p">:</span> <span class="n">TTextSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">alias</span><span class="p">:</span> <span class="n">TText</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">aliases</span><span class="p">:</span> <span class="n">TTextSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">description</span><span class="p">:</span> <span class="n">TText</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">descriptions</span><span class="p">:</span> <span class="n">TTextSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds or updates item data in KIF context.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           label: Label.</span>
+<span class="sd">           labels: Labels.</span>
+<span class="sd">           alias: Alias.</span>
+<span class="sd">           aliases: Aliases.</span>
+<span class="sd">           description: Description.</span>
+<span class="sd">           descriptions: Descriptions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Item.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="n">alias</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="n">aliases</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">descriptions</span><span class="o">=</span><span class="n">descriptions</span><span class="p">,</span>
+            <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">register</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Item.unregister">
+<a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.unregister">[docs]</a>
+    <span class="k">def</span> <span class="nf">unregister</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">label</span><span class="p">:</span> <span class="n">TText</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">labels</span><span class="p">:</span> <span class="n">TTextSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">alias</span><span class="p">:</span> <span class="n">TText</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">aliases</span><span class="p">:</span> <span class="n">TTextSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">description</span><span class="p">:</span> <span class="n">TText</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">descriptions</span><span class="p">:</span> <span class="n">TTextSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">label_language</span><span class="p">:</span> <span class="n">TTextLanguage</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">alias_language</span><span class="p">:</span> <span class="n">TTextLanguage</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">description_language</span><span class="p">:</span> <span class="n">TTextLanguage</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">all_labels</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">all_aliases</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">all_descriptions</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes item data from KIF context.</span>
+
+<span class="sd">        If called with no arguments, removes all item data.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           label: Label.</span>
+<span class="sd">           labels: Labels.</span>
+<span class="sd">           alias: Alias.</span>
+<span class="sd">           aliases: Aliases.</span>
+<span class="sd">           description: Description.</span>
+<span class="sd">           descriptions: Descriptions.</span>
+<span class="sd">           label_language: Language.</span>
+<span class="sd">           alias_language: Language.</span>
+<span class="sd">           description_language: Language.</span>
+<span class="sd">           all_labels: Whether to remove all labels.</span>
+<span class="sd">           all_aliases: Whether to remove all aliases.</span>
+<span class="sd">           all_descriptions: Whether to remove all descriptions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           ``True`` if successful; ``False`` otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">alias</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">aliases</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">description</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">descriptions</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">label_language</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">alias_language</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">description_language</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">all_labels</span> <span class="ow">is</span> <span class="kc">False</span>
+                <span class="ow">and</span> <span class="n">all_aliases</span> <span class="ow">is</span> <span class="kc">False</span>
+                <span class="ow">and</span> <span class="n">all_descriptions</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">unregister</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">unregister</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">unregister</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+                <span class="n">alias</span><span class="o">=</span><span class="n">alias</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="n">aliases</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">descriptions</span><span class="o">=</span><span class="n">descriptions</span><span class="p">,</span>
+                <span class="n">label_language</span><span class="o">=</span><span class="n">label_language</span><span class="p">,</span> <span class="n">alias_language</span><span class="o">=</span><span class="n">alias_language</span><span class="p">,</span>
+                <span class="n">description_language</span><span class="o">=</span><span class="n">description_language</span><span class="p">,</span>
+                <span class="n">all_labels</span><span class="o">=</span><span class="n">all_labels</span><span class="p">,</span> <span class="n">all_aliases</span><span class="o">=</span><span class="n">all_aliases</span><span class="p">,</span>
+                <span class="n">all_descriptions</span><span class="o">=</span><span class="n">all_descriptions</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">unregister</span><span class="p">)</span></div>
 </div>
 
 
@@ -180,7 +479,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023-2024, IBM Corp.</p>
+    <p>&#169; Copyright 2023-2025, IBM Corp.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

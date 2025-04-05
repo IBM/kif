@@ -35,7 +35,7 @@ Let us no we create a SPARQL store pointing to the official Wikidata query
 service:
 
 ```{code-cell}
-kb = Store('sparql', 'https://query.wikidata.org/sparql')
+kb = Store('wdqs')
 ```
 
 A KIF store is an inteface to a knowledge source.  It allows us to view the
@@ -77,31 +77,26 @@ We can filter statements by any combination of *subject*, *property*, and
 
 For example:
 
+*match any statement*
+
 ```{code-cell}
-###
-# match any statement
-###
 next(kb.filter())
 ```
 
+*match statements with subject "Brazil" and property "official website"*
+
 ```{code-cell}
-###
-# match statements with subject "Brazil" and property "official website"
-###
 next(kb.filter(subject=wd.Brazil, property=wd.official_website))
 ```
 
+*match statements with property "official website" and value "https://www.ibm.com/"*
+
 ```{code-cell}
-###
-# match statements with property "official website" and value "https://www.ibm.com/"
-###
 next(kb.filter(property=wd.official_website, value=IRI('https://www.ibm.com/')))
 ```
 
+*match statements with value "78.046950192 dalton"*
 ```{code-cell}
-###
-# match statements with value "78.046950192 dalton"
-###
 next(kb.filter(value=Quantity('78.046950192', unit=wd.dalton)))
 ```
 
@@ -129,10 +124,9 @@ display(wd.continent)
 
 Alternatively, we can use their numeric Wikidata ids:
 
+*match statements with subject Q155 (Brazil) and property P30 (continent)*
+
 ```{code-cell}
-###
-# match statements with subject Q155 (Brazil) and property P30 (continent)
-###
 next(kb.filter(subject=wd.Q(155), property=wd.P(30)))
 ```
 
@@ -141,29 +135,26 @@ indirectly by giving not its id but a property it satisfies.
 
 In cases like this, we can use a *fingerprint*:
 
+*match statemets whose subject "is a dog" and value "is a human"*
+
 ```{code-cell}
-###
-# match statemets whose subject "is a dog" and value "is a human"
-###
 next(kb.filter(subject=wd.instance_of(wd.dog), value=wd.instance_of(wd.human)))
 ```
 
 Properties themselves can also be specified using fingerprints:
 
+*match statements whose property is "equivalent to Schema.org's 'weight'"*
+
 ```{code-cell}
-###
-# match statements whose property is "equivalent to Schema.org's 'weight'"
-###
 next(kb.filter(property=wd.equivalent_property('https://schema.org/weight')))
 ```
 
 The `-` (unary minus) operator can be used to invert the direction of the
 property used in the fingerprint:
 
+*match statements whose subject is "the continent of Brazil"*
+
 ```{code-cell}
-###
-# match statements whose subject is "the continent of Brazil"
-###
 next(kb.filter(subject=-(wd.continent(wd.Brazil))))
 ```
 
@@ -174,12 +165,11 @@ Entity ids and fingerpints can be combined using the operators `&` (and) and
 
 For example:
 
+*match three statements such that:*
+- *subject is "Brazil" or "Argentina"*
+- *property is "continent" or "highest point"*
+
 ```{code-cell}
-###
-# match three statements such that:
-# - subject is "Brazil" or "Argentina"
-# - property is "continent" or "highest point"
-###
 it = kb.filter(
         subject=wd.Brazil | wd.Argentina,
         property=wd.continent | wd.highest_point,
@@ -188,12 +178,11 @@ for stmt in it:
     display(stmt)
 ```
 
+*match three statements such that:*
+- *subject "has continent South America" and "official language is Portuguese"*
+- *value "is a river" or "is a mountain"*
+
 ```{code-cell}
-###
-# match three statements such that:
-# - subject "has continent South America" and "official language is Portuguese"
-# - value "is a river" or "is a mountain"
-###
 it = kb.filter(
         subject=wd.continent(wd.South_America) & wd.official_language(wd.Portuguese),
         value=wd.instance_of(wd.river) | wd.instance_of(wd.mountain),
@@ -202,12 +191,11 @@ for stmt in it:
     display(stmt)
 ```
 
+*match three statements such that:*
+- *subject "is a female" and ("was born in NYC" or "was born in Rio")*
+- *property is "field of work" or "is equivalent to Schema.org's 'hasOccupation'"*
+
 ```{code-cell}
-###
-# match three statements such that:
-# - subject "is a female" and ("was born in NYC" or "was born in Rio")
-# - property is "field of work" or "is equivalent to Schema.org's 'hasOccupation'"
-###
 it = kb.filter(
         subject=wd.sex_or_gender(wd.female)\
         & (wd.place_of_birth(wd.New_York_City) | wd.place_of_birth(wd.Rio_de_Janeiro)),

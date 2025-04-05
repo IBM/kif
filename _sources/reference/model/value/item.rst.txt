@@ -12,3 +12,6 @@ Item
 
 .. autoclass:: ItemVariable
    :members:
+
+.. autoclass:: ItemDatatype
+   :members:

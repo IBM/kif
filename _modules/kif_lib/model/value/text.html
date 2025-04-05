@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
@@ -5,20 +7,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kif_lib.model.value.text &mdash; kif-lib  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=dd9f1d9b" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="shortcut icon" href="../../../../_static/kif-boxed.svg"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -28,16 +28,14 @@
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #009d9aff" >
 
           
           
           <a href="../../../../index.html" class="icon icon-home">
             kif-lib
+              <img src="../../../../_static/kif-boxed.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.4
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -56,13 +54,13 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #009d9aff" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../../index.html">kif-lib</a>
       </nav>
 
       <div class="wy-nav-content">
-        <div class="rst-content">
+        <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
@@ -77,7 +75,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for kif_lib.model.value.text</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2024 IBM Corp.</span>
+<span></span><span class="c1"># Copyright (C) 2024-2025 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
@@ -85,7 +83,7 @@
 <span class="kn">import</span> <span class="nn">dataclasses</span>
 
 <span class="kn">from</span> <span class="nn">...context</span> <span class="kn">import</span> <span class="n">Section</span>
-<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">override</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">override</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">..term</span> <span class="kn">import</span> <span class="n">OpenTerm</span><span class="p">,</span> <span class="n">Variable</span>
 <span class="kn">from</span> <span class="nn">.shallow_data_value</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ShallowDataValue</span><span class="p">,</span>
@@ -105,29 +103,60 @@
 <span class="n">VText</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;TextTemplate&#39;</span><span class="p">,</span> <span class="s1">&#39;TextVariable&#39;</span><span class="p">,</span> <span class="s1">&#39;Text&#39;</span><span class="p">]</span>
 <span class="n">VTTextContent</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Variable</span><span class="p">,</span> <span class="n">TText</span><span class="p">]</span>
 
+<span class="n">TTextSet</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">TText</span><span class="p">]</span>
+
+<span class="n">TTextLanguage</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">TString</span>
+<span class="n">VTextLanguageContent</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">VStringContent</span>
+<span class="n">VTTextLanguageContent</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">VTStringContent</span>
+
 
 <span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
 <span class="k">class</span> <span class="nc">TextOptions</span><span class="p">(</span><span class="n">Section</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;text&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Text options.&quot;&quot;&quot;</span>
 
-    <span class="n">_v_language</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span>\
-        <span class="p">(</span><span class="s1">&#39;KIF_MODEL_VALUE_TEXT_LANGUAGE&#39;</span><span class="p">,</span> <span class="s1">&#39;en&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_language</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="c1"># -- language --</span>
+
+    <span class="n">_v_language</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span>\
+        <span class="p">((</span><span class="s1">&#39;KIF_MODEL_VALUE_TEXT_LANGUAGE&#39;</span><span class="p">,</span> <span class="s1">&#39;KIF_LANGUAGE&#39;</span><span class="p">),</span> <span class="s1">&#39;en&#39;</span><span class="p">)</span>
 
     <span class="n">_language</span><span class="p">:</span> <span class="nb">str</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">language</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s1">&#39;_language&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_v_language</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">_init_language</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{})</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">language</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_language&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_v_language</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The default language tag.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_language</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The default language.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_language</span><span class="p">()</span>
 
     <span class="nd">@language</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="n">TString</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_language</span> <span class="o">=</span> <span class="n">String</span><span class="o">.</span><span class="n">check</span><span class="p">(</span>
-            <span class="n">language</span><span class="p">,</span> <span class="s1">&#39;language&#39;</span><span class="p">,</span> <span class="s1">&#39;language&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">content</span>
+    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="n">TTextLanguage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_language</span><span class="p">(</span><span class="n">language</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the default language.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Language.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_language</span>
+
+    <span class="k">def</span> <span class="nf">set_language</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="n">TTextLanguage</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the default language.</span>
+
+<span class="sd">        If `language` is None, resets it to the global default.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           language: Language.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">language</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_language</span><span class="p">()</span>  <span class="c1"># reset</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_language</span> <span class="o">=</span> <span class="n">String</span><span class="o">.</span><span class="n">check</span><span class="p">(</span>
+                <span class="n">language</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_language</span><span class="p">,</span> <span class="s1">&#39;language&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">content</span>
 
 
 <div class="viewcode-block" id="TextTemplate">
@@ -137,7 +166,7 @@
 
 <span class="sd">    Parameters:</span>
 <span class="sd">       content: Text content or string variable.</span>
-<span class="sd">       language: Language tag or string variable.</span>
+<span class="sd">       language: Language or string variable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Text</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
@@ -147,7 +176,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">content</span><span class="p">:</span> <span class="n">VTTextContent</span><span class="p">,</span>
-            <span class="n">language</span><span class="p">:</span> <span class="n">VTStringContent</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">language</span><span class="p">:</span> <span class="n">VTTextLanguageContent</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">language</span><span class="p">)</span></div>
 
@@ -168,17 +197,17 @@
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VStringContent</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The language tag of text template.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VTextLanguageContent</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The language of text template.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_language</span><span class="p">()</span>
 
 <div class="viewcode-block" id="TextTemplate.get_language">
 <a class="viewcode-back" href="../../../../reference/model/value/text.html#kif_lib.TextTemplate.get_language">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VStringContent</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the language tag of text template.</span>
+    <span class="k">def</span> <span class="nf">get_language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VTextLanguageContent</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the language of text template.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">           Language tag or string variable.</span>
+<span class="sd">           Language or string variable.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
 </div>
@@ -198,10 +227,14 @@
 
 
 
+<div class="viewcode-block" id="TextDatatype">
+<a class="viewcode-back" href="../../../../reference/model/value/text.html#kif_lib.TextDatatype">[docs]</a>
 <span class="k">class</span> <span class="nc">TextDatatype</span><span class="p">(</span><span class="n">Datatype</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Text datatype.&quot;&quot;&quot;</span>
 
-    <span class="n">value_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Text</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">instance</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">TextDatatype</span><span class="p">]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">value_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Text</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
+
 
 
 <div class="viewcode-block" id="Text">
@@ -216,7 +249,7 @@
 
 <span class="sd">    Parameters:</span>
 <span class="sd">       content: Text content.</span>
-<span class="sd">       language: Language tag.</span>
+<span class="sd">       language: Language.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">datatype_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">TextDatatype</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
@@ -229,7 +262,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">content</span><span class="p">:</span> <span class="n">VTTextContent</span><span class="p">,</span>
-            <span class="n">language</span><span class="p">:</span> <span class="n">VTStringContent</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">language</span><span class="p">:</span> <span class="n">VTTextContent</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">language</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">Text</span><span class="p">):</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">content</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">content</span><span class="o">.</span><span class="n">language</span><span class="p">)</span>
@@ -258,16 +291,16 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The language tag of text.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The language of text.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_language</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Text.get_language">
 <a class="viewcode-back" href="../../../../reference/model/value/text.html#kif_lib.Text.get_language">[docs]</a>
     <span class="k">def</span> <span class="nf">get_language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the language tag of text.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the language of text.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">           Language tag.</span>
+<span class="sd">           Language.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
 </div>
@@ -281,7 +314,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023-2024, IBM Corp.</p>
+    <p>&#169; Copyright 2023-2025, IBM Corp.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

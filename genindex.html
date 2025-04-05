@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
@@ -5,20 +7,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Index &mdash; kif-lib  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
-      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=dd9f1d9b" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="shortcut icon" href="_static/kif-boxed.svg"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -28,16 +28,14 @@
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #009d9aff" >
 
           
           
           <a href="index.html" class="icon icon-home">
             kif-lib
+              <img src="_static/kif-boxed.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.4
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -56,13 +54,13 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #009d9aff" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">kif-lib</a>
       </nav>
 
       <div class="wy-nav-content">
-        <div class="rst-content">
+        <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
@@ -108,14 +106,24 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/model/annotation/annotation_record.html#kif_lib.AnnotationRecord.__init__">__init__() (AnnotationRecord method)</a>
+      <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.__init__">__init__() (AnnotatedStatement method)</a>
 
       <ul>
-        <li><a href="reference/model/set/kif_object_set.html#kif_lib.AnnotationRecordSet.__init__">(AnnotationRecordSet method)</a>
+        <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate.__init__">(AnnotatedStatementTemplate method)</a>
 </li>
-        <li><a href="reference/model/annotation/rank.html#kif_lib.DeprecatedRank.__init__">(DeprecatedRank method)</a>
+        <li><a href="reference/model/value/datatype.html#kif_lib.Datatype.__init__">(Datatype method)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.DBpediaRDF_Store.__init__">(DBpediaRDF_Store method)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.DBpediaSPARQL_Store.__init__">(DBpediaSPARQL_Store method)</a>
 </li>
         <li><a href="reference/store/store.html#kif_lib.store.EmptyStore.__init__">(EmptyStore method)</a>
+</li>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.__init__">(Filter method)</a>
+</li>
+        <li><a href="reference/model/set/graph.html#kif_lib.Graph.__init__">(Graph method)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.HttpxSPARQL_Store.__init__">(HttpxSPARQL_Store method)</a>
 </li>
         <li><a href="reference/model/value/iri.html#kif_lib.IRI.__init__">(IRI method)</a>
 </li>
@@ -123,19 +131,13 @@
 </li>
         <li><a href="reference/model/value/item.html#kif_lib.Item.__init__">(Item method)</a>
 </li>
-        <li><a href="reference/model/descriptor/descriptor.html#kif_lib.ItemDescriptor.__init__">(ItemDescriptor method)</a>
-</li>
         <li><a href="reference/model/value/item.html#kif_lib.ItemTemplate.__init__">(ItemTemplate method)</a>
 </li>
         <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.__init__">(Lexeme method)</a>
 </li>
-        <li><a href="reference/model/descriptor/descriptor.html#kif_lib.LexemeDescriptor.__init__">(LexemeDescriptor method)</a>
-</li>
         <li><a href="reference/model/value/lexeme.html#kif_lib.LexemeTemplate.__init__">(LexemeTemplate method)</a>
 </li>
         <li><a href="reference/store/store.html#kif_lib.store.MixerStore.__init__">(MixerStore method)</a>
-</li>
-        <li><a href="reference/model/annotation/rank.html#kif_lib.NormalRank.__init__">(NormalRank method)</a>
 </li>
         <li><a href="reference/model/snak/no_value_snak.html#kif_lib.NoValueSnak.__init__">(NoValueSnak method)</a>
 </li>
@@ -143,33 +145,35 @@
 </li>
         <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.__init__">(Object method)</a>
 </li>
-        <li><a href="reference/model/annotation/rank.html#kif_lib.PreferredRank.__init__">(PreferredRank method)</a>
-</li>
         <li><a href="reference/model/value/property.html#kif_lib.Property.__init__">(Property method)</a>
 </li>
-        <li><a href="reference/model/descriptor/descriptor.html#kif_lib.PropertyDescriptor.__init__">(PropertyDescriptor method)</a>
-</li>
         <li><a href="reference/model/value/property.html#kif_lib.PropertyTemplate.__init__">(PropertyTemplate method)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.PubChemRDF_Store.__init__">(PubChemRDF_Store method)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.PubChemSPARQL_Store.__init__">(PubChemSPARQL_Store method)</a>
 </li>
         <li><a href="reference/model/value/quantity.html#kif_lib.Quantity.__init__">(Quantity method)</a>
 </li>
         <li><a href="reference/model/value/quantity.html#kif_lib.QuantityTemplate.__init__">(QuantityTemplate method)</a>
 </li>
-        <li><a href="reference/store/store.html#kif_lib.store.RDF_Store.__init__">(RDF_Store method)</a>
+        <li><a href="reference/model/rank/rank.html#kif_lib.Rank.__init__">(Rank method)</a>
 </li>
-        <li><a href="reference/model/set/kif_object_set.html#kif_lib.ReferenceRecordSet.__init__">(ReferenceRecordSet method)</a>
+        <li><a href="reference/store/store.html#kif_lib.store.RDFLibSPARQL_Store.__init__">(RDFLibSPARQL_Store method)</a>
 </li>
-        <li><a href="reference/model/set/kif_object_set.html#kif_lib.SnakSet.__init__">(SnakSet method)</a>
+        <li><a href="reference/model/set/reference_record_set.html#kif_lib.ReferenceRecordSet.__init__">(ReferenceRecordSet method)</a>
+</li>
+        <li><a href="reference/model/set/snak_set.html#kif_lib.SnakSet.__init__">(SnakSet method)</a>
 </li>
         <li><a href="reference/model/snak/some_value_snak.html#kif_lib.SomeValueSnak.__init__">(SomeValueSnak method)</a>
 </li>
         <li><a href="reference/model/snak/some_value_snak.html#kif_lib.SomeValueSnakTemplate.__init__">(SomeValueSnakTemplate method)</a>
 </li>
-        <li><a href="reference/store/store.html#kif_lib.store.SPARQL_MapperStore.__init__">(SPARQL_MapperStore method)</a>
-</li>
         <li><a href="reference/store/store.html#kif_lib.store.SPARQL_Store.__init__">(SPARQL_Store method)</a>
 </li>
         <li><a href="reference/model/statement/statement.html#kif_lib.Statement.__init__">(Statement method)</a>
+</li>
+        <li><a href="reference/model/statement/statement.html#kif_lib.StatementTemplate.__init__">(StatementTemplate method)</a>
 </li>
         <li><a href="reference/store/store.html#kif_lib.Store.__init__">(Store method)</a>
 </li>
@@ -179,15 +183,11 @@
 </li>
         <li><a href="reference/model/value/text.html#kif_lib.Text.__init__">(Text method)</a>
 </li>
-        <li><a href="reference/model/set/kif_object_set.html#kif_lib.TextSet.__init__">(TextSet method)</a>
-</li>
         <li><a href="reference/model/value/text.html#kif_lib.TextTemplate.__init__">(TextTemplate method)</a>
 </li>
         <li><a href="reference/model/value/time.html#kif_lib.Time.__init__">(Time method)</a>
 </li>
         <li><a href="reference/model/value/time.html#kif_lib.TimeTemplate.__init__">(TimeTemplate method)</a>
-</li>
-        <li><a href="reference/model/set/kif_object_set.html#kif_lib.ValueSet.__init__">(ValueSet method)</a>
 </li>
         <li><a href="reference/model/snak/value_snak.html#kif_lib.ValueSnak.__init__">(ValueSnak method)</a>
 </li>
@@ -195,7 +195,11 @@
 </li>
         <li><a href="reference/model/term/term.html#kif_lib.Variable.__init__">(Variable method)</a>
 </li>
-        <li><a href="reference/store/store.html#kif_lib.store.WikidataStore.__init__">(WikidataStore method)</a>
+        <li><a href="reference/store/store.html#kif_lib.store.WDQS_Store.__init__">(WDQS_Store method)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.WikidataRDF_Store.__init__">(WikidataRDF_Store method)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.WikidataSPARQL_Store.__init__">(WikidataSPARQL_Store method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -204,35 +208,65 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.ALIASES">ALIASES (Descriptor attribute)</a>
+      <li><a href="reference/model/value/item.html#kif_lib.Item.aliases">aliases (Item property)</a>
 
       <ul>
-        <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.AttributeMask.ALIASES">(Descriptor.AttributeMask attribute)</a>
+        <li><a href="reference/model/value/item.html#kif_lib.Item.Descriptor.aliases">(Item.Descriptor attribute)</a>
+</li>
+        <li><a href="reference/model/value/property.html#kif_lib.Property.aliases">(Property property)</a>
+</li>
+        <li><a href="reference/model/value/property.html#kif_lib.Property.Descriptor.aliases">(Property.Descriptor attribute)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.PlainDescriptor.aliases">aliases (PlainDescriptor property)</a>
-</li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.ALL">ALL (Descriptor attribute)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.ALL">ALL (Filter.DatatypeMask attribute)</a>
 
       <ul>
-        <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.AttributeMask.ALL">(Descriptor.AttributeMask attribute)</a>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.RankMask.ALL">(Filter.RankMask attribute)</a>
+</li>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.SnakMask.ALL">(Filter.SnakMask attribute)</a>
 </li>
         <li><a href="reference/store/store.html#kif_lib.Store.Flags.ALL">(Store.Flags attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/model/value/quantity.html#kif_lib.Quantity.amount">amount (Quantity property)</a>
 
       <ul>
         <li><a href="reference/model/value/quantity.html#kif_lib.QuantityTemplate.amount">(QuantityTemplate property)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/annotation/annotation_record.html#kif_lib.AnnotationRecord">AnnotationRecord (class in kif_lib)</a>
+      <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.annotate">annotate() (AnnotatedStatement method)</a>
+
+      <ul>
+        <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate.annotate">(AnnotatedStatementTemplate method)</a>
 </li>
-      <li><a href="reference/model/set/kif_object_set.html#kif_lib.AnnotationRecordSet">AnnotationRecordSet (class in kif_lib)</a>
+        <li><a href="reference/model/statement/statement.html#kif_lib.Statement.annotate">(Statement method)</a>
+</li>
+        <li><a href="reference/model/statement/statement.html#kif_lib.StatementTemplate.annotate">(StatementTemplate method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.annotated">annotated (Filter property)</a>
+</li>
+      <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement">AnnotatedStatement (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate">AnnotatedStatementTemplate (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementVariable">AnnotatedStatementVariable (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/statement/statement.html#kif_lib.Statement.Annotation">Annotation (Statement attribute)</a>
+</li>
+      <li><a href="reference/model/statement/statement.html#kif_lib.Statement.AnnotationTriple">AnnotationTriple (Statement attribute)</a>
 </li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.args">args (Object property)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.store.RDFLibSPARQL_Store.Args">Args (RDFLibSPARQL_Store attribute)</a>
+
+      <ul>
+        <li><a href="reference/store/store.html#kif_lib.store.SPARQL_Store.Args">(SPARQL_Store attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/store/store.html#kif_lib.Store.ask">ask() (Store method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -240,14 +274,24 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/store/store.html#kif_lib.Store.base_filter">base_filter (Store property)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.Store.base_filter_property">base_filter_property (Store property)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.Store.base_filter_snak_mask">base_filter_snak_mask (Store property)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.Store.base_filter_subject">base_filter_subject (Store property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/store/store.html#kif_lib.Store.base_filter_value">base_filter_value (Store property)</a>
+</li>
       <li><a href="reference/store/store.html#kif_lib.Store.BEST_RANK">BEST_RANK (Store attribute)</a>
 
       <ul>
         <li><a href="reference/store/store.html#kif_lib.Store.Flags.BEST_RANK">(Store.Flags attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/model/value/time.html#kif_lib.Time.BILLION_YEARS">BILLION_YEARS (Time attribute)</a>
 
       <ul>
@@ -260,44 +304,50 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/store/store.html#kif_lib.Store.CACHE">CACHE (Store attribute)</a>
-
-      <ul>
-        <li><a href="reference/store/store.html#kif_lib.Store.Flags.CACHE">(Store.Flags attribute)</a>
-</li>
-      </ul></li>
       <li><a href="reference/model/value/time.html#kif_lib.Time.calendar">calendar (Time property)</a>
 
       <ul>
         <li><a href="reference/model/value/time.html#kif_lib.TimeTemplate.calendar">(TimeTemplate property)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.CATEGORY">CATEGORY (Descriptor attribute)</a>
+      <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.category">category (Lexeme property)</a>
 
       <ul>
-        <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.AttributeMask.CATEGORY">(Descriptor.AttributeMask attribute)</a>
+        <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.Descriptor.category">(Lexeme.Descriptor attribute)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.LexemeDescriptor.category">category (LexemeDescriptor property)</a>
-</li>
       <li><a href="reference/model/value/time.html#kif_lib.Time.CENTURY">CENTURY (Time attribute)</a>
 
       <ul>
         <li><a href="reference/model/value/time.html#kif_lib.Time.Precision.CENTURY">(Time.Precision attribute)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/value/entity.html#kif_lib.Entity.check">check() (Entity class method)</a>
+      <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.check">check() (AnnotatedStatement class method)</a>
 
       <ul>
-        <li><a href="reference/model/set/kif_object_set.html#kif_lib.KIF_ObjectSet.check">(KIF_ObjectSet class method)</a>
+        <li><a href="reference/model/set/closed_term_set.html#kif_lib.ClosedTermSet.check">(ClosedTermSet class method)</a>
+</li>
+        <li><a href="reference/model/value/datatype.html#kif_lib.Datatype.check">(Datatype class method)</a>
+</li>
+        <li><a href="reference/model/value/entity.html#kif_lib.Entity.check">(Entity class method)</a>
+</li>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.check">(Filter.DatatypeMask class method)</a>
+</li>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.RankMask.check">(Filter.RankMask class method)</a>
+</li>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.SnakMask.check">(Filter.SnakMask class method)</a>
 </li>
         <li><a href="reference/model/snak/no_value_snak.html#kif_lib.NoValueSnak.check">(NoValueSnak class method)</a>
 </li>
         <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.check">(Object class method)</a>
 </li>
+        <li><a href="reference/model/set/qualifier_record.html#kif_lib.QualifierRecord.check">(QualifierRecord class method)</a>
+</li>
         <li><a href="reference/model/value/quantity.html#kif_lib.Quantity.check">(Quantity class method)</a>
 </li>
-        <li><a href="reference/model/annotation/reference_record.html#kif_lib.ReferenceRecord.check">(ReferenceRecord class method)</a>
+        <li><a href="reference/model/rank/rank.html#kif_lib.Rank.check">(Rank class method)</a>
+</li>
+        <li><a href="reference/model/set/reference_record.html#kif_lib.ReferenceRecord.check">(ReferenceRecord class method)</a>
 </li>
         <li><a href="reference/model/value/shallow_data_value.html#kif_lib.ShallowDataValue.check">(ShallowDataValue class method)</a>
 </li>
@@ -320,21 +370,31 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.check_optional">check_optional() (Object class method)</a>
 </li>
-      <li><a href="reference/model/set/kif_object_set.html#kif_lib.AnnotationRecordSet.children_class">children_class (AnnotationRecordSet attribute)</a>
+      <li><a href="reference/model/set/graph.html#kif_lib.Graph.children_class">children_class (Graph attribute)</a>
 
       <ul>
-        <li><a href="reference/model/annotation/reference_record.html#kif_lib.ReferenceRecord.children_class">(ReferenceRecord attribute)</a>
+        <li><a href="reference/model/set/qualifier_record.html#kif_lib.QualifierRecord.children_class">(QualifierRecord attribute)</a>
 </li>
-        <li><a href="reference/model/set/kif_object_set.html#kif_lib.ReferenceRecordSet.children_class">(ReferenceRecordSet attribute)</a>
+        <li><a href="reference/model/set/reference_record.html#kif_lib.ReferenceRecord.children_class">(ReferenceRecord attribute)</a>
 </li>
-        <li><a href="reference/model/set/kif_object_set.html#kif_lib.SnakSet.children_class">(SnakSet attribute)</a>
+        <li><a href="reference/model/set/reference_record_set.html#kif_lib.ReferenceRecordSet.children_class">(ReferenceRecordSet attribute)</a>
 </li>
-        <li><a href="reference/model/set/kif_object_set.html#kif_lib.TextSet.children_class">(TextSet attribute)</a>
+        <li><a href="reference/model/set/snak_set.html#kif_lib.SnakSet.children_class">(SnakSet attribute)</a>
 </li>
-        <li><a href="reference/model/set/kif_object_set.html#kif_lib.ValueSet.children_class">(ValueSet attribute)</a>
+      </ul></li>
+      <li><a href="reference/model/statement/statement.html#kif_lib.Statement.claim">claim (Statement property)</a>
+
+      <ul>
+        <li><a href="reference/model/statement/statement.html#kif_lib.StatementTemplate.claim">(StatementTemplate property)</a>
 </li>
       </ul></li>
       <li><a href="reference/model/term/term.html#kif_lib.ClosedTerm">ClosedTerm (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/set/closed_term_set.html#kif_lib.ClosedTermSet">ClosedTermSet (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/term/term.html#kif_lib.Variable.coerce">coerce() (Variable method)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.combine">combine() (Filter method)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.contains">contains() (Store method)</a>
 </li>
@@ -360,12 +420,14 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.DATATYPE">DATATYPE (Descriptor attribute)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DATA_VALUE">DATA_VALUE (Filter attribute)</a>
 
       <ul>
-        <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.AttributeMask.DATATYPE">(Descriptor.AttributeMask attribute)</a>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.DATA_VALUE">(Filter.DatatypeMask attribute)</a>
 </li>
       </ul></li>
+      <li><a href="reference/model/value/datatype.html#kif_lib.Datatype">Datatype (class in kif_lib)</a>
+</li>
       <li><a href="reference/model/value/external_id.html#kif_lib.ExternalId.datatype">datatype (ExternalId attribute)</a>
 
       <ul>
@@ -376,8 +438,6 @@
         <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.datatype">(Lexeme attribute)</a>
 </li>
         <li><a href="reference/model/value/property.html#kif_lib.Property.datatype">(Property attribute)</a>
-</li>
-        <li><a href="reference/model/descriptor/descriptor.html#kif_lib.PropertyDescriptor.datatype">(PropertyDescriptor property)</a>
 </li>
         <li><a href="reference/model/value/quantity.html#kif_lib.Quantity.datatype">(Quantity attribute)</a>
 </li>
@@ -412,6 +472,8 @@
         <li><a href="reference/model/value/value.html#kif_lib.Value.datatype_class">(Value attribute)</a>
 </li>
       </ul></li>
+      <li><a href="reference/model/value/datatype.html#kif_lib.DatatypeVariable">DatatypeVariable (class in kif_lib)</a>
+</li>
       <li><a href="reference/model/value/data_value.html#kif_lib.DataValue">DataValue (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/value/data_value.html#kif_lib.DataValueTemplate">DataValueTemplate (class in kif_lib)</a>
@@ -424,18 +486,28 @@
         <li><a href="reference/model/value/time.html#kif_lib.Time.Precision.DAY">(Time.Precision attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/store/store.html#kif_lib.store.DBpediaRDF_Store">DBpediaRDF_Store (class in kif_lib.store)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.store.DBpediaSPARQL_Store">DBpediaSPARQL_Store (class in kif_lib.store)</a>
+</li>
       <li><a href="reference/store/store.html#kif_lib.Store.DEBUG">DEBUG (Store attribute)</a>
 
       <ul>
         <li><a href="reference/store/store.html#kif_lib.Store.Flags.DEBUG">(Store.Flags attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/model/value/time.html#kif_lib.Time.DECADE">DECADE (Time attribute)</a>
 
       <ul>
         <li><a href="reference/model/value/time.html#kif_lib.Time.Precision.DECADE">(Time.Precision attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DEEP_DATA_VALUE">DEEP_DATA_VALUE (Filter attribute)</a>
+
+      <ul>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.DEEP_DATA_VALUE">(Filter.DatatypeMask attribute)</a>
 </li>
       </ul></li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.deepcopy">deepcopy() (Object method)</a>
@@ -446,8 +518,6 @@
 </li>
       <li><a href="reference/model/value/deep_data_value.html#kif_lib.DeepDataValueVariable">DeepDataValueVariable (class in kif_lib)</a>
 </li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.PlainDescriptor.default_aliases">default_aliases (PlainDescriptor attribute)</a>
-</li>
       <li><a href="reference/store/store.html#kif_lib.Store.default_extra_references">default_extra_references (Store property)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.default_flags">default_flags (Store property)</a>
@@ -456,34 +526,48 @@
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.default_page_size">default_page_size (Store property)</a>
 </li>
-      <li><a href="reference/model/annotation/annotation_record.html#kif_lib.AnnotationRecord.default_qualifiers">default_qualifiers (AnnotationRecord attribute)</a>
-</li>
-      <li><a href="reference/model/annotation/annotation_record.html#kif_lib.AnnotationRecord.default_rank">default_rank (AnnotationRecord attribute)</a>
-</li>
-      <li><a href="reference/model/annotation/annotation_record.html#kif_lib.AnnotationRecord.default_references">default_references (AnnotationRecord attribute)</a>
-</li>
       <li><a href="reference/store/store.html#kif_lib.Store.default_timeout">default_timeout (Store property)</a>
 </li>
-      <li><a href="reference/model/annotation/rank.html#kif_lib.DeprecatedRank">DeprecatedRank (class in kif_lib)</a>
-</li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.DESCRIPTION">DESCRIPTION (Descriptor attribute)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DEPRECATED">DEPRECATED (Filter attribute)</a>
 
       <ul>
-        <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.AttributeMask.DESCRIPTION">(Descriptor.AttributeMask attribute)</a>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.RankMask.DEPRECATED">(Filter.RankMask attribute)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.PlainDescriptor.description">description (PlainDescriptor property)</a>
+      <li><a href="reference/model/rank/deprecated_rank.html#kif_lib.DeprecatedRank">DeprecatedRank (class in kif_lib)</a>
 </li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor">Descriptor (class in kif_lib)</a>
-</li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.AttributeMask">Descriptor.AttributeMask (class in kif_lib)</a>
-</li>
-      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.digest">digest (Object property)</a>
-</li>
-      <li><a href="reference/store/store.html#kif_lib.Store.DISTINCT">DISTINCT (Store attribute)</a>
+      <li><a href="reference/model/value/iri.html#kif_lib.IRI.describe">describe() (IRI method)</a>
 
       <ul>
-        <li><a href="reference/store/store.html#kif_lib.Store.Flags.DISTINCT">(Store.Flags attribute)</a>
+        <li><a href="reference/model/value/item.html#kif_lib.Item.describe">(Item method)</a>
+</li>
+        <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.describe">(Lexeme method)</a>
+</li>
+        <li><a href="reference/model/value/property.html#kif_lib.Property.describe">(Property method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/value/item.html#kif_lib.Item.description">description (Item property)</a>
+
+      <ul>
+        <li><a href="reference/model/value/property.html#kif_lib.Property.description">(Property property)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/value/item.html#kif_lib.Item.Descriptor.descriptions">descriptions (Item.Descriptor attribute)</a>
+
+      <ul>
+        <li><a href="reference/model/value/property.html#kif_lib.Property.Descriptor.descriptions">(Property.Descriptor attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.digest">digest (Object property)</a>
+</li>
+      <li><a href="reference/model/value/entity.html#kif_lib.Entity.display">display() (Entity method)</a>
+
+      <ul>
+        <li><a href="reference/model/value/item.html#kif_lib.Item.display">(Item method)</a>
+</li>
+        <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.display">(Lexeme method)</a>
+</li>
+        <li><a href="reference/model/value/property.html#kif_lib.Property.display">(Property method)</a>
 </li>
       </ul></li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.dump">dump() (Object method)</a>
@@ -496,23 +580,31 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/store/store.html#kif_lib.Store.EARLY_FILTER">EARLY_FILTER (Store attribute)</a>
-
-      <ul>
-        <li><a href="reference/store/store.html#kif_lib.Store.Flags.EARLY_FILTER">(Store.Flags attribute)</a>
-</li>
-      </ul></li>
       <li><a href="reference/store/store.html#kif_lib.store.EmptyStore">EmptyStore (class in kif_lib.store)</a>
 </li>
       <li><a href="reference/model/value/entity.html#kif_lib.Entity">Entity (class in kif_lib)</a>
 </li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.ENTITY">ENTITY (Filter attribute)</a>
+
+      <ul>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.ENTITY">(Filter.DatatypeMask attribute)</a>
+</li>
+      </ul></li>
       <li><a href="reference/model/value/entity.html#kif_lib.EntityTemplate">EntityTemplate (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/value/entity.html#kif_lib.EntityVariable">EntityVariable (class in kif_lib)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/model/value/entity.html#kif_lib.EntityVariable">EntityVariable (class in kif_lib)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.EXTERNAL_ID">EXTERNAL_ID (Filter attribute)</a>
+
+      <ul>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.EXTERNAL_ID">(Filter.DatatypeMask attribute)</a>
 </li>
+      </ul></li>
       <li><a href="reference/model/value/external_id.html#kif_lib.ExternalId">ExternalId (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/value/external_id.html#kif_lib.ExternalIdDatatype">ExternalIdDatatype (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/value/external_id.html#kif_lib.ExternalIdTemplate">ExternalIdTemplate (class in kif_lib)</a>
 </li>
@@ -526,23 +618,35 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter">Filter (class in kif_lib)</a>
+</li>
       <li><a href="reference/store/store.html#kif_lib.Store.filter">filter() (Store method)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask">Filter.DatatypeMask (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.RankMask">Filter.RankMask (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.SnakMask">Filter.SnakMask (class in kif_lib)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.filter_annotated">filter_annotated() (Store method)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.flags">flags (Store property)</a>
 </li>
-      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.from_ast">from_ast() (Object class method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.from_ast">from_ast() (Object class method)</a>
+</li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.from_json">from_json() (Object class method)</a>
 </li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.from_repr">from_repr() (Object class method)</a>
 </li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.from_sexp">from_sexp() (Object class method)</a>
 </li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.from_snak">from_snak() (Filter class method)</a>
+</li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.KIF_Object.from_sparql">from_sparql() (KIF_Object class method)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.from_statement">from_statement() (Filter class method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -550,19 +654,35 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/model/term/term.html#kif_lib.Term.generalize">generalize() (Term method)</a>
+</li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.get">get() (Object method)</a>
 </li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.PlainDescriptor.get_aliases">get_aliases() (PlainDescriptor method)</a>
+      <li><a href="reference/model/value/item.html#kif_lib.Item.get_aliases">get_aliases() (Item method)</a>
+
+      <ul>
+        <li><a href="reference/model/value/property.html#kif_lib.Property.get_aliases">(Property method)</a>
 </li>
+      </ul></li>
       <li><a href="reference/model/value/quantity.html#kif_lib.Quantity.get_amount">get_amount() (Quantity method)</a>
 
       <ul>
         <li><a href="reference/model/value/quantity.html#kif_lib.QuantityTemplate.get_amount">(QuantityTemplate method)</a>
 </li>
       </ul></li>
-      <li><a href="reference/store/store.html#kif_lib.Store.get_annotations">get_annotations() (Store method)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.get_annotated">get_annotated() (Filter method)</a>
 </li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.get_args">get_args() (Object method)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.Store.get_base_filter">get_base_filter() (Store method)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.Store.get_base_filter_property">get_base_filter_property() (Store method)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.Store.get_base_filter_snak_mask">get_base_filter_snak_mask() (Store method)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.Store.get_base_filter_subject">get_base_filter_subject() (Store method)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.Store.get_base_filter_value">get_base_filter_value() (Store method)</a>
 </li>
       <li><a href="reference/model/value/time.html#kif_lib.Time.get_calendar">get_calendar() (Time method)</a>
 
@@ -570,8 +690,14 @@
         <li><a href="reference/model/value/time.html#kif_lib.TimeTemplate.get_calendar">(TimeTemplate method)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.LexemeDescriptor.get_category">get_category() (LexemeDescriptor method)</a>
+      <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.get_category">get_category() (Lexeme method)</a>
 </li>
+      <li><a href="reference/model/statement/statement.html#kif_lib.Statement.get_claim">get_claim() (Statement method)</a>
+
+      <ul>
+        <li><a href="reference/model/statement/statement.html#kif_lib.StatementTemplate.get_claim">(StatementTemplate method)</a>
+</li>
+      </ul></li>
       <li><a href="reference/model/value/shallow_data_value.html#kif_lib.ShallowDataValue.get_content">get_content() (ShallowDataValue method)</a>
 
       <ul>
@@ -584,8 +710,6 @@
         <li><a href="reference/store/store.html#kif_lib.Store.get_context">(Store method)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.PropertyDescriptor.get_datatype">get_datatype() (PropertyDescriptor method)</a>
-</li>
       <li><a href="reference/store/store.html#kif_lib.Store.get_default_extra_references">get_default_extra_references() (Store method)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.get_default_flags">get_default_flags() (Store method)</a>
@@ -596,42 +720,44 @@
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.get_default_timeout">get_default_timeout() (Store method)</a>
 </li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.PlainDescriptor.get_description">get_description() (PlainDescriptor method)</a>
+      <li><a href="reference/model/value/item.html#kif_lib.Item.get_description">get_description() (Item method)</a>
+
+      <ul>
+        <li><a href="reference/model/value/property.html#kif_lib.Property.get_description">(Property method)</a>
 </li>
-      <li><a href="reference/store/store.html#kif_lib.Store.get_descriptor">get_descriptor() (Store method)</a>
-</li>
+      </ul></li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.get_digest">get_digest() (Object method)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.get_extra_references">get_extra_references() (Store method)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.get_flags">get_flags() (Store method)</a>
 </li>
+      <li><a href="reference/model/value/property.html#kif_lib.Property.get_inverse">get_inverse() (Property method)</a>
+</li>
       <li><a href="reference/model/value/entity.html#kif_lib.Entity.get_iri">get_iri() (Entity method)</a>
 
       <ul>
         <li><a href="reference/model/value/entity.html#kif_lib.EntityTemplate.get_iri">(EntityTemplate method)</a>
 </li>
-        <li><a href="reference/store/store.html#kif_lib.store.SPARQL_Store.get_iri">(SPARQL_Store method)</a>
-</li>
       </ul></li>
-      <li><a href="reference/store/store.html#kif_lib.Store.get_item_descriptor">get_item_descriptor() (Store method)</a>
-</li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.PlainDescriptor.get_label">get_label() (PlainDescriptor method)</a>
-</li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.LexemeDescriptor.get_language">get_language() (LexemeDescriptor method)</a>
+      <li><a href="reference/model/value/item.html#kif_lib.Item.get_label">get_label() (Item method)</a>
 
       <ul>
+        <li><a href="reference/model/value/property.html#kif_lib.Property.get_label">(Property method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.get_language">get_language() (Filter method)</a>
+
+      <ul>
+        <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.get_language">(Lexeme method)</a>
+</li>
         <li><a href="reference/model/value/text.html#kif_lib.Text.get_language">(Text method)</a>
 </li>
         <li><a href="reference/model/value/text.html#kif_lib.TextTemplate.get_language">(TextTemplate method)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.LexemeDescriptor.get_lemma">get_lemma() (LexemeDescriptor method)</a>
+      <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.get_lemma">get_lemma() (Lexeme method)</a>
 </li>
-      <li><a href="reference/store/store.html#kif_lib.Store.get_lexeme_descriptor">get_lexeme_descriptor() (Store method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/store/store.html#kif_lib.Store.get_limit">get_limit() (Store method)</a>
 </li>
       <li><a href="reference/model/value/quantity.html#kif_lib.Quantity.get_lower_bound">get_lower_bound() (Quantity method)</a>
@@ -640,12 +766,12 @@
         <li><a href="reference/model/value/quantity.html#kif_lib.QuantityTemplate.get_lower_bound">(QuantityTemplate method)</a>
 </li>
       </ul></li>
-      <li><a href="reference/store/store.html#kif_lib.store.SPARQL_MapperStore.get_mapping">get_mapping() (SPARQL_MapperStore method)</a>
-</li>
       <li><a href="reference/store/store.html#kif_lib.Store.get_max_limit">get_max_limit() (Store method)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.get_max_page_size">get_max_page_size() (Store method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/store/store.html#kif_lib.Store.get_max_timeout">get_max_timeout() (Store method)</a>
 </li>
       <li><a href="reference/model/term/term.html#kif_lib.Variable.get_name">get_name() (Variable method)</a>
@@ -658,33 +784,71 @@
         <li><a href="reference/model/value/time.html#kif_lib.TimeTemplate.get_precision">(TimeTemplate method)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/snak/snak.html#kif_lib.Snak.get_property">get_property() (Snak method)</a>
+      <li><a href="reference/model/value/iri.html#kif_lib.IRI.get_prefix">get_prefix() (IRI method)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.get_property">get_property() (Filter method)</a>
 
       <ul>
+        <li><a href="reference/model/snak/snak.html#kif_lib.Snak.get_property">(Snak method)</a>
+</li>
         <li><a href="reference/model/snak/snak.html#kif_lib.SnakTemplate.get_property">(SnakTemplate method)</a>
 </li>
       </ul></li>
-      <li><a href="reference/store/store.html#kif_lib.Store.get_property_descriptor">get_property_descriptor() (Store method)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.get_property_mask">get_property_mask() (Filter method)</a>
 </li>
-      <li><a href="reference/model/annotation/annotation_record.html#kif_lib.AnnotationRecord.get_qualifiers">get_qualifiers() (AnnotationRecord method)</a>
+      <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.get_qualifiers">get_qualifiers() (AnnotatedStatement method)</a>
+
+      <ul>
+        <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate.get_qualifiers">(AnnotatedStatementTemplate method)</a>
 </li>
+      </ul></li>
       <li><a href="reference/model/value/property.html#kif_lib.Property.get_range">get_range() (Property method)</a>
 
       <ul>
         <li><a href="reference/model/value/property.html#kif_lib.PropertyTemplate.get_range">(PropertyTemplate method)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/annotation/annotation_record.html#kif_lib.AnnotationRecord.get_rank">get_rank() (AnnotationRecord method)</a>
+      <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.get_rank">get_rank() (AnnotatedStatement method)</a>
+
+      <ul>
+        <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate.get_rank">(AnnotatedStatementTemplate method)</a>
 </li>
-      <li><a href="reference/model/annotation/annotation_record.html#kif_lib.AnnotationRecord.get_references">get_references() (AnnotationRecord method)</a>
+      </ul></li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.get_rank_mask">get_rank_mask() (Filter method)</a>
+</li>
+      <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.get_references">get_references() (AnnotatedStatement method)</a>
+
+      <ul>
+        <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate.get_references">(AnnotatedStatementTemplate method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/value/property.html#kif_lib.Property.get_registered_range">get_registered_range() (Property method)</a>
+</li>
+      <li><a href="reference/model/value/iri.html#kif_lib.IRI.get_resolver">get_resolver() (IRI method)</a>
 </li>
       <li><a href="reference/model/statement/statement.html#kif_lib.Statement.get_snak">get_snak() (Statement method)</a>
+
+      <ul>
+        <li><a href="reference/model/statement/statement.html#kif_lib.StatementTemplate.get_snak">(StatementTemplate method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.get_snak_mask">get_snak_mask() (Filter method)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.store.MixerStore.get_sources">get_sources() (MixerStore method)</a>
 </li>
-      <li><a href="reference/model/statement/statement.html#kif_lib.Statement.get_subject">get_subject() (Statement method)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.get_subject">get_subject() (Filter method)</a>
+
+      <ul>
+        <li><a href="reference/model/statement/statement.html#kif_lib.Statement.get_subject">(Statement method)</a>
+</li>
+        <li><a href="reference/model/statement/statement.html#kif_lib.StatementTemplate.get_subject">(StatementTemplate method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.get_subject_mask">get_subject_mask() (Filter method)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.store.MixerStore.get_sync_flags">get_sync_flags() (MixerStore method)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.store.MixerStore.get_sync_page_size">get_sync_page_size() (MixerStore method)</a>
 </li>
       <li><a href="reference/model/value/time.html#kif_lib.Time.get_time">get_time() (Time method)</a>
 
@@ -712,13 +876,21 @@
         <li><a href="reference/model/value/quantity.html#kif_lib.QuantityTemplate.get_upper_bound">(QuantityTemplate method)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/snak/value_snak.html#kif_lib.ValueSnak.get_value">get_value() (ValueSnak method)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.get_value">get_value() (Filter method)</a>
 
       <ul>
+        <li><a href="reference/model/snak/value_snak.html#kif_lib.ValueSnak.get_value">(ValueSnak method)</a>
+</li>
         <li><a href="reference/model/snak/value_snak.html#kif_lib.ValueSnakTemplate.get_value">(ValueSnakTemplate method)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/term/term.html#kif_lib.OpenTerm.get_variables">get_variables() (OpenTerm method)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.get_value_mask">get_value_mask() (Filter method)</a>
+</li>
+      <li><a href="reference/model/term/term.html#kif_lib.Term.get_variables">get_variables() (Term method)</a>
+</li>
+      <li><a href="reference/model/set/graph.html#kif_lib.Graph">Graph (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/set/graph.html#kif_lib.GraphVariable">GraphVariable (class in kif_lib)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -734,6 +906,8 @@
         <li><a href="reference/model/value/time.html#kif_lib.Time.Precision.HOUR">(Time.Precision attribute)</a>
 </li>
       </ul></li>
+      <li><a href="reference/store/store.html#kif_lib.store.HttpxSPARQL_Store">HttpxSPARQL_Store (class in kif_lib.store)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/model/value/time.html#kif_lib.Time.HUNDRED_MILLION_YEARS">HUNDRED_MILLION_YEARS (Time attribute)</a>
@@ -754,41 +928,97 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/model/term/term.html#kif_lib.OpenTerm.instantiate">instantiate() (OpenTerm method)</a>
+      <li><a href="reference/model/value/datatype.html#kif_lib.Datatype.instance">instance (Datatype attribute)</a>
+
+      <ul>
+        <li><a href="reference/model/rank/deprecated_rank.html#kif_lib.DeprecatedRank.instance">(DeprecatedRank attribute)</a>
+</li>
+        <li><a href="reference/model/value/external_id.html#kif_lib.ExternalIdDatatype.instance">(ExternalIdDatatype attribute)</a>
+</li>
+        <li><a href="reference/model/value/iri.html#kif_lib.IRI_Datatype.instance">(IRI_Datatype attribute)</a>
+</li>
+        <li><a href="reference/model/value/item.html#kif_lib.ItemDatatype.instance">(ItemDatatype attribute)</a>
+</li>
+        <li><a href="reference/model/value/lexeme.html#kif_lib.LexemeDatatype.instance">(LexemeDatatype attribute)</a>
+</li>
+        <li><a href="reference/model/rank/normal_rank.html#kif_lib.NormalRank.instance">(NormalRank attribute)</a>
+</li>
+        <li><a href="reference/model/rank/preferred_rank.html#kif_lib.PreferredRank.instance">(PreferredRank attribute)</a>
+</li>
+        <li><a href="reference/model/value/property.html#kif_lib.PropertyDatatype.instance">(PropertyDatatype attribute)</a>
+</li>
+        <li><a href="reference/model/value/quantity.html#kif_lib.QuantityDatatype.instance">(QuantityDatatype attribute)</a>
+</li>
+        <li><a href="reference/model/rank/rank.html#kif_lib.Rank.instance">(Rank attribute)</a>
+</li>
+        <li><a href="reference/model/value/string.html#kif_lib.StringDatatype.instance">(StringDatatype attribute)</a>
+</li>
+        <li><a href="reference/model/value/text.html#kif_lib.TextDatatype.instance">(TextDatatype attribute)</a>
+</li>
+        <li><a href="reference/model/value/time.html#kif_lib.TimeDatatype.instance">(TimeDatatype attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/term/term.html#kif_lib.ClosedTerm.instantiate">instantiate() (ClosedTerm method)</a>
 
       <ul>
         <li><a href="reference/model/term/term.html#kif_lib.Template.instantiate">(Template method)</a>
 </li>
+        <li><a href="reference/model/term/term.html#kif_lib.Term.instantiate">(Term method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/value/property.html#kif_lib.Property.inverse">inverse (Property property)</a>
+
+      <ul>
+        <li><a href="reference/model/value/property.html#kif_lib.Property.Descriptor.inverse">(Property.Descriptor attribute)</a>
+</li>
       </ul></li>
       <li><a href="reference/model/value/iri.html#kif_lib.IRI">IRI (class in kif_lib)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/model/value/entity.html#kif_lib.Entity.iri">iri (Entity property)</a>
 
       <ul>
         <li><a href="reference/model/value/entity.html#kif_lib.EntityTemplate.iri">(EntityTemplate property)</a>
 </li>
-        <li><a href="reference/store/store.html#kif_lib.store.SPARQL_Store.iri">(SPARQL_Store property)</a>
+      </ul></li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.IRI">IRI (Filter attribute)</a>
+
+      <ul>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.IRI">(Filter.DatatypeMask attribute)</a>
 </li>
       </ul></li>
+      <li><a href="reference/model/value/iri.html#kif_lib.IRI.Descriptor">IRI.Descriptor (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/value/iri.html#kif_lib.IRI_Datatype">IRI_Datatype (class in kif_lib)</a>
+</li>
       <li><a href="reference/model/value/iri.html#kif_lib.IRI_Template">IRI_Template (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/value/iri.html#kif_lib.IRI_Variable">IRI_Variable (class in kif_lib)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/model/term/term.html#kif_lib.Term.is_closed">is_closed() (Term class method)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.is_empty">is_empty() (Filter method)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.is_full">is_full() (Filter method)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.is_nonempty">is_nonempty() (Filter method)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.is_nonfull">is_nonfull() (Filter method)</a>
 </li>
       <li><a href="reference/model/term/term.html#kif_lib.Term.is_open">is_open() (Term class method)</a>
 </li>
       <li><a href="reference/model/value/item.html#kif_lib.Item">Item (class in kif_lib)</a>
 </li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.ITEM_DESCRIPTOR_ATTRIBUTES">ITEM_DESCRIPTOR_ATTRIBUTES (Descriptor attribute)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.ITEM">ITEM (Filter attribute)</a>
 
       <ul>
-        <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.AttributeMask.ITEM_DESCRIPTOR_ATTRIBUTES">(Descriptor.AttributeMask attribute)</a>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.ITEM">(Filter.DatatypeMask attribute)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.ItemDescriptor">ItemDescriptor (class in kif_lib)</a>
+      <li><a href="reference/model/value/item.html#kif_lib.Item.Descriptor">Item.Descriptor (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/value/item.html#kif_lib.ItemDatatype">ItemDatatype (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/value/item.html#kif_lib.ItemTemplate">ItemTemplate (class in kif_lib)</a>
 </li>
@@ -800,11 +1030,11 @@
 <h2 id="K">K</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.KIF_Object">KIF_Object (class in kif_lib)</a>
+      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.KEEP">KEEP (Object attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/model/set/kif_object_set.html#kif_lib.KIF_ObjectSet">KIF_ObjectSet (class in kif_lib)</a>
+      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.KIF_Object">KIF_Object (class in kif_lib)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -812,53 +1042,49 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.LABEL">LABEL (Descriptor attribute)</a>
+      <li><a href="reference/model/value/item.html#kif_lib.Item.label">label (Item property)</a>
 
       <ul>
-        <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.AttributeMask.LABEL">(Descriptor.AttributeMask attribute)</a>
+        <li><a href="reference/model/value/property.html#kif_lib.Property.label">(Property property)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.PlainDescriptor.label">label (PlainDescriptor property)</a>
-</li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.LANGUAGE">LANGUAGE (Descriptor attribute)</a>
+      <li><a href="reference/model/value/item.html#kif_lib.Item.Descriptor.labels">labels (Item.Descriptor attribute)</a>
 
       <ul>
-        <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.AttributeMask.LANGUAGE">(Descriptor.AttributeMask attribute)</a>
+        <li><a href="reference/model/value/property.html#kif_lib.Property.Descriptor.labels">(Property.Descriptor attribute)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.LexemeDescriptor.language">language (LexemeDescriptor property)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.language">language (Filter property)</a>
 
       <ul>
+        <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.language">(Lexeme property)</a>
+</li>
+        <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.Descriptor.language">(Lexeme.Descriptor attribute)</a>
+</li>
         <li><a href="reference/model/value/text.html#kif_lib.Text.language">(Text property)</a>
 </li>
         <li><a href="reference/model/value/text.html#kif_lib.TextTemplate.language">(TextTemplate property)</a>
 </li>
       </ul></li>
-      <li><a href="reference/store/store.html#kif_lib.Store.LATE_FILTER">LATE_FILTER (Store attribute)</a>
+      <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.lemma">lemma (Lexeme property)</a>
 
       <ul>
-        <li><a href="reference/store/store.html#kif_lib.Store.Flags.LATE_FILTER">(Store.Flags attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.LEMMA">LEMMA (Descriptor attribute)</a>
-
-      <ul>
-        <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.AttributeMask.LEMMA">(Descriptor.AttributeMask attribute)</a>
+        <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.Descriptor.lemma">(Lexeme.Descriptor attribute)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.LexemeDescriptor.lemma">lemma (LexemeDescriptor property)</a>
-</li>
       <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme">Lexeme (class in kif_lib)</a>
 </li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.LEXEME_DESCRIPTOR_ATTRIBUTES">LEXEME_DESCRIPTOR_ATTRIBUTES (Descriptor attribute)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.LEXEME">LEXEME (Filter attribute)</a>
 
       <ul>
-        <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.AttributeMask.LEXEME_DESCRIPTOR_ATTRIBUTES">(Descriptor.AttributeMask attribute)</a>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.LEXEME">(Filter.DatatypeMask attribute)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.LexemeDescriptor">LexemeDescriptor (class in kif_lib)</a>
+      <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.Descriptor">Lexeme.Descriptor (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/value/lexeme.html#kif_lib.LexemeDatatype">LexemeDatatype (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/value/lexeme.html#kif_lib.LexemeTemplate">LexemeTemplate (class in kif_lib)</a>
 </li>
@@ -882,24 +1108,32 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/store/store.html#kif_lib.store.SPARQL_MapperStore.mapping">mapping (SPARQL_MapperStore property)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.match">match() (Filter method)</a>
+
+      <ul>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.match">(Filter.DatatypeMask method)</a>
 </li>
-      <li><a href="reference/store/store.html#kif_lib.Store.match">match() (Store method)</a>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.RankMask.match">(Filter.RankMask method)</a>
 </li>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.SnakMask.match">(Filter.SnakMask method)</a>
+</li>
+        <li><a href="reference/model/term/term.html#kif_lib.Term.match">(Term method)</a>
+</li>
+      </ul></li>
       <li><a href="reference/store/store.html#kif_lib.Store.max_limit">max_limit (Store property)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.max_page_size">max_page_size (Store property)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.max_timeout">max_timeout (Store property)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/model/value/time.html#kif_lib.Time.MILLENNIA">MILLENNIA (Time attribute)</a>
 
       <ul>
         <li><a href="reference/model/value/time.html#kif_lib.Time.Precision.MILLENNIA">(Time.Precision attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/model/value/time.html#kif_lib.Time.MILLION_YEARS">MILLION_YEARS (Time attribute)</a>
 
       <ul>
@@ -930,23 +1164,29 @@
 </li>
       <li><a href="reference/model/term/term.html#kif_lib.Variable.name">name (Variable property)</a>
 </li>
-      <li><a href="reference/model/value/property.html#kif_lib.Property.no_value">no_value() (Property method)</a>
+      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.Nil">Nil (Object attribute)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.NO_VALUE_SNAK">NO_VALUE_SNAK (Filter attribute)</a>
 
       <ul>
-        <li><a href="reference/model/value/property.html#kif_lib.PropertyTemplate.no_value">(PropertyTemplate method)</a>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.SnakMask.NO_VALUE_SNAK">(Filter.SnakMask attribute)</a>
 </li>
-        <li><a href="reference/model/value/property.html#kif_lib.PropertyVariable.no_value">(PropertyVariable method)</a>
+        <li><a href="reference/store/store.html#kif_lib.Store.NO_VALUE_SNAK">(Store attribute)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.Store.Flags.NO_VALUE_SNAK">(Store.Flags attribute)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/store/store.html#kif_lib.Store.NO_VALUE_SNAK">NO_VALUE_SNAK (Store attribute)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.NORMAL">NORMAL (Filter attribute)</a>
 
       <ul>
-        <li><a href="reference/store/store.html#kif_lib.Store.Flags.NO_VALUE_SNAK">(Store.Flags attribute)</a>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.RankMask.NORMAL">(Filter.RankMask attribute)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/annotation/rank.html#kif_lib.NormalRank">NormalRank (class in kif_lib)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.normalize">normalize() (Filter method)</a>
+</li>
+      <li><a href="reference/model/rank/normal_rank.html#kif_lib.NormalRank">NormalRank (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/snak/no_value_snak.html#kif_lib.NoValueSnak">NoValueSnak (class in kif_lib)</a>
 </li>
@@ -964,13 +1204,21 @@
 </li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.Error">Object.Error</a>
 </li>
-      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.KEEP">Object.KEEP (class in kif_lib.model.object)</a>
+      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.KeepType">Object.KeepType (class in kif_lib.model.object)</a>
+</li>
+      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.NilType">Object.NilType (class in kif_lib.model.object)</a>
 </li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.ShouldNotGetHere">Object.ShouldNotGetHere</a>
 </li>
-      <li><a href="reference/model/value/data_value.html#kif_lib.DataValueTemplate.object_class">object_class (DataValueTemplate attribute)</a>
+      <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate.object_class">object_class (AnnotatedStatementTemplate attribute)</a>
 
       <ul>
+        <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementVariable.object_class">(AnnotatedStatementVariable attribute)</a>
+</li>
+        <li><a href="reference/model/value/datatype.html#kif_lib.DatatypeVariable.object_class">(DatatypeVariable attribute)</a>
+</li>
+        <li><a href="reference/model/value/data_value.html#kif_lib.DataValueTemplate.object_class">(DataValueTemplate attribute)</a>
+</li>
         <li><a href="reference/model/value/data_value.html#kif_lib.DataValueVariable.object_class">(DataValueVariable attribute)</a>
 </li>
         <li><a href="reference/model/value/deep_data_value.html#kif_lib.DeepDataValueTemplate.object_class">(DeepDataValueTemplate attribute)</a>
@@ -984,6 +1232,8 @@
         <li><a href="reference/model/value/external_id.html#kif_lib.ExternalIdTemplate.object_class">(ExternalIdTemplate attribute)</a>
 </li>
         <li><a href="reference/model/value/external_id.html#kif_lib.ExternalIdVariable.object_class">(ExternalIdVariable attribute)</a>
+</li>
+        <li><a href="reference/model/set/graph.html#kif_lib.GraphVariable.object_class">(GraphVariable attribute)</a>
 </li>
         <li><a href="reference/model/value/iri.html#kif_lib.IRI_Template.object_class">(IRI_Template attribute)</a>
 </li>
@@ -1007,13 +1257,21 @@
 </li>
         <li><a href="reference/model/value/property.html#kif_lib.PropertyVariable.object_class">(PropertyVariable attribute)</a>
 </li>
+        <li><a href="reference/model/set/qualifier_record.html#kif_lib.QualifierRecordVariable.object_class">(QualifierRecordVariable attribute)</a>
+</li>
         <li><a href="reference/model/value/quantity.html#kif_lib.QuantityTemplate.object_class">(QuantityTemplate attribute)</a>
 </li>
         <li><a href="reference/model/value/quantity.html#kif_lib.QuantityVariable.object_class">(QuantityVariable attribute)</a>
 </li>
+        <li><a href="reference/model/rank/rank.html#kif_lib.RankVariable.object_class">(RankVariable attribute)</a>
+</li>
+        <li><a href="reference/model/set/reference_record.html#kif_lib.ReferenceRecordVariable.object_class">(ReferenceRecordVariable attribute)</a>
+</li>
         <li><a href="reference/model/value/shallow_data_value.html#kif_lib.ShallowDataValueTemplate.object_class">(ShallowDataValueTemplate attribute)</a>
 </li>
         <li><a href="reference/model/value/shallow_data_value.html#kif_lib.ShallowDataValueVariable.object_class">(ShallowDataValueVariable attribute)</a>
+</li>
+        <li><a href="reference/model/set/snak_set.html#kif_lib.SnakSetVariable.object_class">(SnakSetVariable attribute)</a>
 </li>
         <li><a href="reference/model/snak/snak.html#kif_lib.SnakTemplate.object_class">(SnakTemplate attribute)</a>
 </li>
@@ -1022,6 +1280,10 @@
         <li><a href="reference/model/snak/some_value_snak.html#kif_lib.SomeValueSnakTemplate.object_class">(SomeValueSnakTemplate attribute)</a>
 </li>
         <li><a href="reference/model/snak/some_value_snak.html#kif_lib.SomeValueSnakVariable.object_class">(SomeValueSnakVariable attribute)</a>
+</li>
+        <li><a href="reference/model/statement/statement.html#kif_lib.StatementTemplate.object_class">(StatementTemplate attribute)</a>
+</li>
+        <li><a href="reference/model/statement/statement.html#kif_lib.StatementVariable.object_class">(StatementVariable attribute)</a>
 </li>
         <li><a href="reference/model/value/string.html#kif_lib.StringTemplate.object_class">(StringTemplate attribute)</a>
 </li>
@@ -1045,21 +1307,11 @@
 </li>
         <li><a href="reference/model/value/value.html#kif_lib.ValueVariable.object_class">(ValueVariable attribute)</a>
 </li>
-        <li><a href="reference/model/term/term.html#kif_lib.Variable.object_class">(Variable attribute)</a>
-</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/model/term/term.html#kif_lib.OpenTerm">OpenTerm (class in kif_lib)</a>
 </li>
-      <li><a href="reference/model/term/term.html#kif_lib.OpenTerm.InstantiationError">OpenTerm.InstantiationError</a>
-</li>
-      <li><a href="reference/store/store.html#kif_lib.Store.ORDER">ORDER (Store attribute)</a>
-
-      <ul>
-        <li><a href="reference/store/store.html#kif_lib.Store.Flags.ORDER">(Store.Flags attribute)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -1068,37 +1320,55 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/store/store.html#kif_lib.Store.page_size">page_size (Store property)</a>
 </li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.PlainDescriptor">PlainDescriptor (class in kif_lib)</a>
-</li>
       <li><a href="reference/model/value/time.html#kif_lib.Time.precision">precision (Time property)</a>
 
       <ul>
         <li><a href="reference/model/value/time.html#kif_lib.TimeTemplate.precision">(TimeTemplate property)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/annotation/rank.html#kif_lib.PreferredRank">PreferredRank (class in kif_lib)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.PREFERRED">PREFERRED (Filter attribute)</a>
+
+      <ul>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.RankMask.PREFERRED">(Filter.RankMask attribute)</a>
 </li>
+      </ul></li>
+      <li><a href="reference/model/rank/preferred_rank.html#kif_lib.PreferredRank">PreferredRank (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/value/iri.html#kif_lib.IRI.prefix">prefix (IRI property)</a>
+
+      <ul>
+        <li><a href="reference/model/value/iri.html#kif_lib.IRI.Descriptor.prefix">(IRI.Descriptor attribute)</a>
+</li>
+      </ul></li>
       <li><a href="reference/model/value/property.html#kif_lib.Property">Property (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.PROPERTY">PROPERTY (Filter attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.property">property (Filter property)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.PROPERTY">PROPERTY (Filter.DatatypeMask attribute)</a>
+</li>
       <li><a href="reference/model/snak/snak.html#kif_lib.Snak.property">property (Snak property)</a>
 
       <ul>
         <li><a href="reference/model/snak/snak.html#kif_lib.SnakTemplate.property">(SnakTemplate property)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.PROPERTY_DESCRIPTOR_ATTRIBUTES">PROPERTY_DESCRIPTOR_ATTRIBUTES (Descriptor attribute)</a>
-
-      <ul>
-        <li><a href="reference/model/descriptor/descriptor.html#kif_lib.Descriptor.AttributeMask.PROPERTY_DESCRIPTOR_ATTRIBUTES">(Descriptor.AttributeMask attribute)</a>
+      <li><a href="reference/model/value/property.html#kif_lib.Property.Descriptor">Property.Descriptor (class in kif_lib)</a>
 </li>
-      </ul></li>
-      <li><a href="reference/model/descriptor/descriptor.html#kif_lib.PropertyDescriptor">PropertyDescriptor (class in kif_lib)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.property_mask">property_mask (Filter property)</a>
+</li>
+      <li><a href="reference/model/value/property.html#kif_lib.PropertyDatatype">PropertyDatatype (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/value/property.html#kif_lib.PropertyTemplate">PropertyTemplate (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/value/property.html#kif_lib.PropertyVariable">PropertyVariable (class in kif_lib)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.store.PubChemRDF_Store">PubChemRDF_Store (class in kif_lib.store)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.store.PubChemSPARQL_Store">PubChemSPARQL_Store (class in kif_lib.store)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1106,12 +1376,28 @@
 <h2 id="Q">Q</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/model/annotation/annotation_record.html#kif_lib.AnnotationRecord.qualifiers">qualifiers (AnnotationRecord property)</a>
+      <li><a href="reference/model/set/qualifier_record.html#kif_lib.QualifierRecord">QualifierRecord (class in kif_lib)</a>
 </li>
+      <li><a href="reference/model/set/qualifier_record.html#kif_lib.QualifierRecordVariable">QualifierRecordVariable (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.qualifiers">qualifiers (AnnotatedStatement property)</a>
+
+      <ul>
+        <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate.qualifiers">(AnnotatedStatementTemplate property)</a>
+</li>
+      </ul></li>
       <li><a href="reference/model/value/quantity.html#kif_lib.Quantity">Quantity (class in kif_lib)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.QUANTITY">QUANTITY (Filter attribute)</a>
+
+      <ul>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.QUANTITY">(Filter.DatatypeMask attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/value/quantity.html#kif_lib.QuantityDatatype">QuantityDatatype (class in kif_lib)</a>
+</li>
       <li><a href="reference/model/value/quantity.html#kif_lib.QuantityTemplate">QuantityTemplate (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/value/quantity.html#kif_lib.QuantityVariable">QuantityVariable (class in kif_lib)</a>
@@ -1125,27 +1411,69 @@
       <li><a href="reference/model/value/property.html#kif_lib.Property.range">range (Property property)</a>
 
       <ul>
+        <li><a href="reference/model/value/property.html#kif_lib.Property.Descriptor.range">(Property.Descriptor attribute)</a>
+</li>
         <li><a href="reference/model/value/property.html#kif_lib.PropertyTemplate.range">(PropertyTemplate property)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/annotation/annotation_record.html#kif_lib.AnnotationRecord.rank">rank (AnnotationRecord property)</a>
+      <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.rank">rank (AnnotatedStatement property)</a>
+
+      <ul>
+        <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate.rank">(AnnotatedStatementTemplate property)</a>
 </li>
-      <li><a href="reference/model/annotation/rank.html#kif_lib.Rank">Rank (class in kif_lib)</a>
+      </ul></li>
+      <li><a href="reference/model/rank/rank.html#kif_lib.Rank">Rank (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.rank_mask">rank_mask (Filter property)</a>
+</li>
+      <li><a href="reference/model/rank/rank.html#kif_lib.RankVariable">RankVariable (class in kif_lib)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.store.RDF_Store">RDF_Store (class in kif_lib.store)</a>
 </li>
+      <li><a href="reference/store/store.html#kif_lib.store.RDFLibSPARQL_Store">RDFLibSPARQL_Store (class in kif_lib.store)</a>
+</li>
+      <li><a href="reference/model/set/reference_record.html#kif_lib.ReferenceRecord">ReferenceRecord (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/set/reference_record_set.html#kif_lib.ReferenceRecordSet">ReferenceRecordSet (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/set/reference_record.html#kif_lib.ReferenceRecordVariable">ReferenceRecordVariable (class in kif_lib)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/model/annotation/reference_record.html#kif_lib.ReferenceRecord">ReferenceRecord (class in kif_lib)</a>
+      <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.references">references (AnnotatedStatement property)</a>
+
+      <ul>
+        <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate.references">(AnnotatedStatementTemplate property)</a>
 </li>
-      <li><a href="reference/model/set/kif_object_set.html#kif_lib.ReferenceRecordSet">ReferenceRecordSet (class in kif_lib)</a>
+      </ul></li>
+      <li><a href="reference/model/value/iri.html#kif_lib.IRI.register">register() (IRI method)</a>
+
+      <ul>
+        <li><a href="reference/model/value/item.html#kif_lib.Item.register">(Item method)</a>
 </li>
-      <li><a href="reference/model/annotation/annotation_record.html#kif_lib.AnnotationRecord.references">references (AnnotationRecord property)</a>
+        <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.register">(Lexeme method)</a>
+</li>
+        <li><a href="reference/model/value/property.html#kif_lib.Property.register">(Property method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/value/property.html#kif_lib.Property.registered_range">registered_range (Property property)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.registry">registry (Store attribute)</a>
 </li>
-      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.replace">replace() (Object method)</a>
+      <li><a href="reference/model/term/term.html#kif_lib.Term.rename">rename() (Term method)</a>
 </li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.replace">replace() (Filter method)</a>
+
+      <ul>
+        <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.replace">(Object method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/value/iri.html#kif_lib.IRI.resolver">resolver (IRI property)</a>
+
+      <ul>
+        <li><a href="reference/model/value/iri.html#kif_lib.IRI.Descriptor.resolver">(IRI.Descriptor attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -1158,6 +1486,16 @@
         <li><a href="reference/model/value/time.html#kif_lib.Time.Precision.SECOND">(Time.Precision attribute)</a>
 </li>
       </ul></li>
+      <li><a href="reference/store/store.html#kif_lib.Store.set_base_filter">set_base_filter() (Store method)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.Store.set_base_filter_property">set_base_filter_property() (Store method)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.Store.set_base_filter_snak_mask">set_base_filter_snak_mask() (Store method)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.Store.set_base_filter_subject">set_base_filter_subject() (Store method)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.Store.set_base_filter_value">set_base_filter_value() (Store method)</a>
+</li>
       <li><a href="reference/store/store.html#kif_lib.Store.set_extra_references">set_extra_references() (Store method)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.set_flags">set_flags() (Store method)</a>
@@ -1166,10 +1504,12 @@
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.set_page_size">set_page_size() (Store method)</a>
 </li>
-      <li><a href="reference/store/store.html#kif_lib.store.SPARQL_Store.set_timeout">set_timeout() (SPARQL_Store method)</a>
+      <li><a href="reference/store/store.html#kif_lib.Store.set_timeout">set_timeout() (Store method)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.SHALLOW_DATA_VALUE">SHALLOW_DATA_VALUE (Filter attribute)</a>
 
       <ul>
-        <li><a href="reference/store/store.html#kif_lib.Store.set_timeout">(Store method)</a>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.SHALLOW_DATA_VALUE">(Filter.DatatypeMask attribute)</a>
 </li>
       </ul></li>
       <li><a href="reference/model/value/shallow_data_value.html#kif_lib.ShallowDataValue">ShallowDataValue (class in kif_lib)</a>
@@ -1181,24 +1521,28 @@
       <li><a href="reference/model/snak/snak.html#kif_lib.Snak">Snak (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/statement/statement.html#kif_lib.Statement.snak">snak (Statement property)</a>
+
+      <ul>
+        <li><a href="reference/model/statement/statement.html#kif_lib.StatementTemplate.snak">(StatementTemplate property)</a>
 </li>
-      <li><a href="reference/model/set/kif_object_set.html#kif_lib.SnakSet">SnakSet (class in kif_lib)</a>
+      </ul></li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.snak_mask">snak_mask (Filter property)</a>
+</li>
+      <li><a href="reference/model/set/snak_set.html#kif_lib.SnakSet">SnakSet (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/set/snak_set.html#kif_lib.SnakSetVariable">SnakSetVariable (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/snak/snak.html#kif_lib.SnakTemplate">SnakTemplate (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/snak/snak.html#kif_lib.SnakVariable">SnakVariable (class in kif_lib)</a>
 </li>
-      <li><a href="reference/model/value/property.html#kif_lib.Property.some_value">some_value() (Property method)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.SOME_VALUE_SNAK">SOME_VALUE_SNAK (Filter attribute)</a>
 
       <ul>
-        <li><a href="reference/model/value/property.html#kif_lib.PropertyTemplate.some_value">(PropertyTemplate method)</a>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.SnakMask.SOME_VALUE_SNAK">(Filter.SnakMask attribute)</a>
 </li>
-        <li><a href="reference/model/value/property.html#kif_lib.PropertyVariable.some_value">(PropertyVariable method)</a>
+        <li><a href="reference/store/store.html#kif_lib.Store.SOME_VALUE_SNAK">(Store attribute)</a>
 </li>
-      </ul></li>
-      <li><a href="reference/store/store.html#kif_lib.Store.SOME_VALUE_SNAK">SOME_VALUE_SNAK (Store attribute)</a>
-
-      <ul>
         <li><a href="reference/store/store.html#kif_lib.Store.Flags.SOME_VALUE_SNAK">(Store.Flags attribute)</a>
 </li>
       </ul></li>
@@ -1210,13 +1554,13 @@
 </li>
       <li><a href="reference/store/store.html#kif_lib.store.MixerStore.sources">sources (MixerStore property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/store/store.html#kif_lib.store.SPARQL_MapperStore">SPARQL_MapperStore (class in kif_lib.store)</a>
-</li>
       <li><a href="reference/store/store.html#kif_lib.store.SPARQL_Store">SPARQL_Store (class in kif_lib.store)</a>
 </li>
       <li><a href="reference/model/statement/statement.html#kif_lib.Statement">Statement (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/statement/statement.html#kif_lib.StatementTemplate">StatementTemplate (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/statement/statement.html#kif_lib.StatementVariable">StatementVariable (class in kif_lib)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store">Store (class in kif_lib)</a>
 </li>
@@ -1224,47 +1568,97 @@
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.Flags">Store.Flags (class in kif_lib)</a>
 </li>
-      <li><a href="reference/store/store.html#kif_lib.store.EmptyStore.store_description">store_description (EmptyStore attribute)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/store/store.html#kif_lib.store.DBpediaRDF_Store.store_description">store_description (DBpediaRDF_Store attribute)</a>
 
       <ul>
+        <li><a href="reference/store/store.html#kif_lib.store.DBpediaSPARQL_Store.store_description">(DBpediaSPARQL_Store attribute)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.EmptyStore.store_description">(EmptyStore attribute)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.HttpxSPARQL_Store.store_description">(HttpxSPARQL_Store attribute)</a>
+</li>
         <li><a href="reference/store/store.html#kif_lib.store.MixerStore.store_description">(MixerStore attribute)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.PubChemRDF_Store.store_description">(PubChemRDF_Store attribute)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.PubChemSPARQL_Store.store_description">(PubChemSPARQL_Store attribute)</a>
 </li>
         <li><a href="reference/store/store.html#kif_lib.store.RDF_Store.store_description">(RDF_Store attribute)</a>
 </li>
-        <li><a href="reference/store/store.html#kif_lib.store.SPARQL_MapperStore.store_description">(SPARQL_MapperStore attribute)</a>
+        <li><a href="reference/store/store.html#kif_lib.store.RDFLibSPARQL_Store.store_description">(RDFLibSPARQL_Store attribute)</a>
 </li>
         <li><a href="reference/store/store.html#kif_lib.store.SPARQL_Store.store_description">(SPARQL_Store attribute)</a>
 </li>
         <li><a href="reference/store/store.html#kif_lib.Store.store_description">(Store attribute)</a>
 </li>
-        <li><a href="reference/store/store.html#kif_lib.store.WikidataStore.store_description">(WikidataStore attribute)</a>
+        <li><a href="reference/store/store.html#kif_lib.store.WDQS_Store.store_description">(WDQS_Store attribute)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.WikidataRDF_Store.store_description">(WikidataRDF_Store attribute)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.WikidataSPARQL_Store.store_description">(WikidataSPARQL_Store attribute)</a>
 </li>
       </ul></li>
-      <li><a href="reference/store/store.html#kif_lib.store.EmptyStore.store_name">store_name (EmptyStore attribute)</a>
+      <li><a href="reference/store/store.html#kif_lib.store.DBpediaRDF_Store.store_name">store_name (DBpediaRDF_Store attribute)</a>
 
       <ul>
+        <li><a href="reference/store/store.html#kif_lib.store.DBpediaSPARQL_Store.store_name">(DBpediaSPARQL_Store attribute)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.EmptyStore.store_name">(EmptyStore attribute)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.HttpxSPARQL_Store.store_name">(HttpxSPARQL_Store attribute)</a>
+</li>
         <li><a href="reference/store/store.html#kif_lib.store.MixerStore.store_name">(MixerStore attribute)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.PubChemRDF_Store.store_name">(PubChemRDF_Store attribute)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.PubChemSPARQL_Store.store_name">(PubChemSPARQL_Store attribute)</a>
 </li>
         <li><a href="reference/store/store.html#kif_lib.store.RDF_Store.store_name">(RDF_Store attribute)</a>
 </li>
-        <li><a href="reference/store/store.html#kif_lib.store.SPARQL_MapperStore.store_name">(SPARQL_MapperStore attribute)</a>
+        <li><a href="reference/store/store.html#kif_lib.store.RDFLibSPARQL_Store.store_name">(RDFLibSPARQL_Store attribute)</a>
 </li>
         <li><a href="reference/store/store.html#kif_lib.store.SPARQL_Store.store_name">(SPARQL_Store attribute)</a>
 </li>
         <li><a href="reference/store/store.html#kif_lib.Store.store_name">(Store attribute)</a>
 </li>
-        <li><a href="reference/store/store.html#kif_lib.store.WikidataStore.store_name">(WikidataStore attribute)</a>
+        <li><a href="reference/store/store.html#kif_lib.store.WDQS_Store.store_name">(WDQS_Store attribute)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.WikidataRDF_Store.store_name">(WikidataRDF_Store attribute)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.store.WikidataSPARQL_Store.store_name">(WikidataSPARQL_Store attribute)</a>
 </li>
       </ul></li>
       <li><a href="reference/model/value/string.html#kif_lib.String">String (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.STRING">STRING (Filter attribute)</a>
+
+      <ul>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.STRING">(Filter.DatatypeMask attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/value/string.html#kif_lib.StringDatatype">StringDatatype (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/value/string.html#kif_lib.StringTemplate">StringTemplate (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/value/string.html#kif_lib.StringVariable">StringVariable (class in kif_lib)</a>
 </li>
-      <li><a href="reference/model/statement/statement.html#kif_lib.Statement.subject">subject (Statement property)</a>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.subject">subject (Filter property)</a>
+
+      <ul>
+        <li><a href="reference/model/statement/statement.html#kif_lib.Statement.subject">(Statement property)</a>
+</li>
+        <li><a href="reference/model/statement/statement.html#kif_lib.StatementTemplate.subject">(StatementTemplate property)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.subject_mask">subject_mask (Filter property)</a>
+</li>
+      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.KIF_Object.substitute">substitute() (KIF_Object method)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.store.MixerStore.sync_flags">sync_flags (MixerStore property)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.store.MixerStore.sync_page_size">sync_page_size (MixerStore property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1272,11 +1666,15 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.TDatatypeMask">TDatatypeMask (Filter attribute)</a>
+</li>
       <li><a href="reference/model/term/term.html#kif_lib.Template">Template (class in kif_lib)</a>
 </li>
-      <li><a href="reference/model/term/term.html#kif_lib.ClosedTerm.template_class">template_class (ClosedTerm attribute)</a>
+      <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.template_class">template_class (AnnotatedStatement attribute)</a>
 
       <ul>
+        <li><a href="reference/model/term/term.html#kif_lib.ClosedTerm.template_class">(ClosedTerm attribute)</a>
+</li>
         <li><a href="reference/model/value/data_value.html#kif_lib.DataValue.template_class">(DataValue attribute)</a>
 </li>
         <li><a href="reference/model/value/deep_data_value.html#kif_lib.DeepDataValue.template_class">(DeepDataValue attribute)</a>
@@ -1322,8 +1720,6 @@
         <li><a href="reference/model/value/time.html#kif_lib.Time.Precision.TEN_MILLION_YEARS">(Time.Precision attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/model/value/time.html#kif_lib.Time.TEN_THOUSAND_YEARS">TEN_THOUSAND_YEARS (Time attribute)</a>
 
       <ul>
@@ -1332,16 +1728,34 @@
       </ul></li>
       <li><a href="reference/model/term/term.html#kif_lib.Term">Term (class in kif_lib)</a>
 </li>
+      <li><a href="reference/model/term/term.html#kif_lib.Term.InstantiationError">Term.InstantiationError</a>
+</li>
       <li><a href="reference/model/value/text.html#kif_lib.Text">Text (class in kif_lib)</a>
 </li>
-      <li><a href="reference/model/set/kif_object_set.html#kif_lib.TextSet">TextSet (class in kif_lib)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.TEXT">TEXT (Filter attribute)</a>
+
+      <ul>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.TEXT">(Filter.DatatypeMask attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/value/text.html#kif_lib.TextDatatype">TextDatatype (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/value/text.html#kif_lib.TextTemplate">TextTemplate (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/value/text.html#kif_lib.TextVariable">TextVariable (class in kif_lib)</a>
 </li>
+      <li><a href="reference/store/store.html#kif_lib.Store.TFlags">TFlags (Store attribute)</a>
+</li>
       <li><a href="reference/model/value/time.html#kif_lib.Time">Time (class in kif_lib)</a>
 </li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.TIME">TIME (Filter attribute)</a>
+
+      <ul>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.TIME">(Filter.DatatypeMask attribute)</a>
+</li>
+      </ul></li>
       <li><a href="reference/model/value/time.html#kif_lib.Time.time">time (Time property)</a>
 
       <ul>
@@ -1349,6 +1763,8 @@
 </li>
       </ul></li>
       <li><a href="reference/model/value/time.html#kif_lib.Time.Precision">Time.Precision (class in kif_lib)</a>
+</li>
+      <li><a href="reference/model/value/time.html#kif_lib.TimeDatatype">TimeDatatype (class in kif_lib)</a>
 </li>
       <li><a href="reference/store/store.html#kif_lib.Store.timeout">timeout (Store property)</a>
 </li>
@@ -1362,17 +1778,29 @@
         <li><a href="reference/model/value/time.html#kif_lib.TimeTemplate.timezone">(TimeTemplate property)</a>
 </li>
       </ul></li>
+      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.TKEEP">TKEEP (Object attribute)</a>
+</li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.to_ast">to_ast() (Object method)</a>
+</li>
+      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.KIF_Object.to_dot">to_dot() (KIF_Object method)</a>
+</li>
+      <li><a href="reference/model/set/graph.html#kif_lib.Graph.to_graphviz">to_graphviz() (Graph method)</a>
 </li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.to_json">to_json() (Object method)</a>
 </li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.KIF_Object.to_markdown">to_markdown() (KIF_Object method)</a>
 </li>
+      <li><a href="reference/model/kif_object/kif_object.html#kif_lib.KIF_Object.to_rdf">to_rdf() (KIF_Object method)</a>
+</li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.to_repr">to_repr() (Object method)</a>
 </li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.to_sexp">to_sexp() (Object method)</a>
 </li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.TRankMask">TRankMask (Filter attribute)</a>
+</li>
       <li><a href="reference/model/kif_object/kif_object.html#kif_lib.KIF_Object.traverse">traverse() (KIF_Object method)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.TSnakMask">TSnakMask (Filter attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1380,7 +1808,15 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/model/set/kif_object_set.html#kif_lib.KIF_ObjectSet.union">union() (KIF_ObjectSet method)</a>
+      <li><a href="reference/model/statement/statement.html#kif_lib.Statement.unannotate">unannotate() (Statement method)</a>
+
+      <ul>
+        <li><a href="reference/model/statement/statement.html#kif_lib.StatementTemplate.unannotate">(StatementTemplate method)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/term/term.html#kif_lib.Term.unify">unify() (Term class method)</a>
+</li>
+      <li><a href="reference/model/set/closed_term_set.html#kif_lib.ClosedTermSet.union">union() (ClosedTermSet method)</a>
 </li>
       <li><a href="reference/model/value/quantity.html#kif_lib.Quantity.unit">unit (Quantity property)</a>
 
@@ -1390,6 +1826,16 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/model/value/iri.html#kif_lib.IRI.unregister">unregister() (IRI method)</a>
+
+      <ul>
+        <li><a href="reference/model/value/item.html#kif_lib.Item.unregister">(Item method)</a>
+</li>
+        <li><a href="reference/model/value/lexeme.html#kif_lib.Lexeme.unregister">(Lexeme method)</a>
+</li>
+        <li><a href="reference/model/value/property.html#kif_lib.Property.unregister">(Property method)</a>
+</li>
+      </ul></li>
       <li><a href="reference/store/store.html#kif_lib.Store.unset_flags">unset_flags() (Store method)</a>
 </li>
       <li><a href="reference/model/value/quantity.html#kif_lib.Quantity.upper_bound">upper_bound (Quantity property)</a>
@@ -1406,20 +1852,52 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/model/value/value.html#kif_lib.Value">Value (class in kif_lib)</a>
 </li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.VALUE">VALUE (Filter attribute)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.value">value (Filter property)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.DatatypeMask.VALUE">VALUE (Filter.DatatypeMask attribute)</a>
+</li>
       <li><a href="reference/model/snak/value_snak.html#kif_lib.ValueSnak.value">value (ValueSnak property)</a>
 
       <ul>
         <li><a href="reference/model/snak/value_snak.html#kif_lib.ValueSnakTemplate.value">(ValueSnakTemplate property)</a>
 </li>
       </ul></li>
-      <li><a href="reference/store/store.html#kif_lib.Store.VALUE_SNAK">VALUE_SNAK (Store attribute)</a>
+      <li><a href="reference/model/value/datatype.html#kif_lib.Datatype.value_class">value_class (Datatype attribute)</a>
 
       <ul>
+        <li><a href="reference/model/value/external_id.html#kif_lib.ExternalIdDatatype.value_class">(ExternalIdDatatype attribute)</a>
+</li>
+        <li><a href="reference/model/value/iri.html#kif_lib.IRI_Datatype.value_class">(IRI_Datatype attribute)</a>
+</li>
+        <li><a href="reference/model/value/item.html#kif_lib.ItemDatatype.value_class">(ItemDatatype attribute)</a>
+</li>
+        <li><a href="reference/model/value/lexeme.html#kif_lib.LexemeDatatype.value_class">(LexemeDatatype attribute)</a>
+</li>
+        <li><a href="reference/model/value/property.html#kif_lib.PropertyDatatype.value_class">(PropertyDatatype attribute)</a>
+</li>
+        <li><a href="reference/model/value/quantity.html#kif_lib.QuantityDatatype.value_class">(QuantityDatatype attribute)</a>
+</li>
+        <li><a href="reference/model/value/string.html#kif_lib.StringDatatype.value_class">(StringDatatype attribute)</a>
+</li>
+        <li><a href="reference/model/value/text.html#kif_lib.TextDatatype.value_class">(TextDatatype attribute)</a>
+</li>
+        <li><a href="reference/model/value/time.html#kif_lib.TimeDatatype.value_class">(TimeDatatype attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.value_mask">value_mask (Filter property)</a>
+</li>
+      <li><a href="reference/model/filter/filter.html#kif_lib.Filter.VALUE_SNAK">VALUE_SNAK (Filter attribute)</a>
+
+      <ul>
+        <li><a href="reference/model/filter/filter.html#kif_lib.Filter.SnakMask.VALUE_SNAK">(Filter.SnakMask attribute)</a>
+</li>
+        <li><a href="reference/store/store.html#kif_lib.Store.VALUE_SNAK">(Store attribute)</a>
+</li>
         <li><a href="reference/store/store.html#kif_lib.Store.Flags.VALUE_SNAK">(Store.Flags attribute)</a>
 </li>
       </ul></li>
-      <li><a href="reference/model/set/kif_object_set.html#kif_lib.ValueSet">ValueSet (class in kif_lib)</a>
-</li>
       <li><a href="reference/model/snak/value_snak.html#kif_lib.ValueSnak">ValueSnak (class in kif_lib)</a>
 </li>
       <li><a href="reference/model/snak/value_snak.html#kif_lib.ValueSnakTemplate">ValueSnakTemplate (class in kif_lib)</a>
@@ -1432,9 +1910,13 @@
 </li>
       <li><a href="reference/model/term/term.html#kif_lib.Variable">Variable (class in kif_lib)</a>
 </li>
-      <li><a href="reference/model/term/term.html#kif_lib.ClosedTerm.variable_class">variable_class (ClosedTerm attribute)</a>
+      <li><a href="reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.variable_class">variable_class (AnnotatedStatement attribute)</a>
 
       <ul>
+        <li><a href="reference/model/term/term.html#kif_lib.ClosedTerm.variable_class">(ClosedTerm attribute)</a>
+</li>
+        <li><a href="reference/model/value/datatype.html#kif_lib.Datatype.variable_class">(Datatype attribute)</a>
+</li>
         <li><a href="reference/model/value/data_value.html#kif_lib.DataValue.variable_class">(DataValue attribute)</a>
 </li>
         <li><a href="reference/model/value/deep_data_value.html#kif_lib.DeepDataValue.variable_class">(DeepDataValue attribute)</a>
@@ -1442,6 +1924,8 @@
         <li><a href="reference/model/value/entity.html#kif_lib.Entity.variable_class">(Entity attribute)</a>
 </li>
         <li><a href="reference/model/value/external_id.html#kif_lib.ExternalId.variable_class">(ExternalId attribute)</a>
+</li>
+        <li><a href="reference/model/set/graph.html#kif_lib.Graph.variable_class">(Graph attribute)</a>
 </li>
         <li><a href="reference/model/value/iri.html#kif_lib.IRI.variable_class">(IRI attribute)</a>
 </li>
@@ -1453,11 +1937,21 @@
 </li>
         <li><a href="reference/model/value/property.html#kif_lib.Property.variable_class">(Property attribute)</a>
 </li>
+        <li><a href="reference/model/set/qualifier_record.html#kif_lib.QualifierRecord.variable_class">(QualifierRecord attribute)</a>
+</li>
         <li><a href="reference/model/value/quantity.html#kif_lib.Quantity.variable_class">(Quantity attribute)</a>
+</li>
+        <li><a href="reference/model/rank/rank.html#kif_lib.Rank.variable_class">(Rank attribute)</a>
+</li>
+        <li><a href="reference/model/set/reference_record.html#kif_lib.ReferenceRecord.variable_class">(ReferenceRecord attribute)</a>
+</li>
+        <li><a href="reference/model/set/reference_record_set.html#kif_lib.ReferenceRecordSet.variable_class">(ReferenceRecordSet attribute)</a>
 </li>
         <li><a href="reference/model/value/shallow_data_value.html#kif_lib.ShallowDataValue.variable_class">(ShallowDataValue attribute)</a>
 </li>
         <li><a href="reference/model/snak/snak.html#kif_lib.Snak.variable_class">(Snak attribute)</a>
+</li>
+        <li><a href="reference/model/set/snak_set.html#kif_lib.SnakSet.variable_class">(SnakSet attribute)</a>
 </li>
         <li><a href="reference/model/snak/some_value_snak.html#kif_lib.SomeValueSnak.variable_class">(SomeValueSnak attribute)</a>
 </li>
@@ -1476,7 +1970,7 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/model/term/term.html#kif_lib.OpenTerm.variables">variables (OpenTerm property)</a>
+      <li><a href="reference/model/term/term.html#kif_lib.Term.variables">variables (Term property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1484,7 +1978,13 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/store/store.html#kif_lib.store.WikidataStore">WikidataStore (class in kif_lib.store)</a>
+      <li><a href="reference/store/store.html#kif_lib.store.WDQS_Store">WDQS_Store (class in kif_lib.store)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/store/store.html#kif_lib.store.WikidataRDF_Store">WikidataRDF_Store (class in kif_lib.store)</a>
+</li>
+      <li><a href="reference/store/store.html#kif_lib.store.WikidataSPARQL_Store">WikidataSPARQL_Store (class in kif_lib.store)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1510,7 +2010,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023-2024, IBM Corp.</p>
+    <p>&#169; Copyright 2023-2025, IBM Corp.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

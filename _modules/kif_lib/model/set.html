@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
@@ -5,20 +7,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kif_lib.model.set &mdash; kif-lib  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=dd9f1d9b" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="shortcut icon" href="../../../_static/kif-boxed.svg"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -28,16 +28,14 @@
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #009d9aff" >
 
           
           
           <a href="../../../index.html" class="icon icon-home">
             kif-lib
+              <img src="../../../_static/kif-boxed.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.4
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -56,13 +54,13 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #009d9aff" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">kif-lib</a>
       </nav>
 
       <div class="wy-nav-content">
-        <div class="rst-content">
+        <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
@@ -77,7 +75,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for kif_lib.model.set</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2024 IBM Corp.</span>
+<span></span><span class="c1"># Copyright (C) 2024-2025 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
@@ -95,43 +93,55 @@
     <span class="n">TypeVar</span><span class="p">,</span>
     <span class="n">Union</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.kif_object</span> <span class="kn">import</span> <span class="n">KIF_Object</span>
 <span class="kn">from</span> <span class="nn">.snak</span> <span class="kn">import</span> <span class="n">Snak</span><span class="p">,</span> <span class="n">TSnak</span>
-<span class="kn">from</span> <span class="nn">.value</span> <span class="kn">import</span> <span class="n">Text</span><span class="p">,</span> <span class="n">TText</span><span class="p">,</span> <span class="n">TValue</span><span class="p">,</span> <span class="n">Value</span>
-
-<span class="n">TValueSet</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;ValueSet&#39;</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">TValue</span><span class="p">]]</span>
-
-<span class="n">TTextSet</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;TextSet&#39;</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">TText</span><span class="p">]]</span>
+<span class="kn">from</span> <span class="nn">.term</span> <span class="kn">import</span> <span class="n">ClosedTerm</span><span class="p">,</span> <span class="n">Variable</span>
 
 <span class="n">TSnakSet</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;SnakSet&#39;</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">TSnak</span><span class="p">]]</span>
+<span class="n">VSnakSet</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;SnakSetVariable&#39;</span><span class="p">,</span> <span class="s1">&#39;SnakSet&#39;</span><span class="p">]</span>
+<span class="n">VTSnakSet</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Variable</span><span class="p">,</span> <span class="n">VSnakSet</span><span class="p">,</span> <span class="n">TSnakSet</span><span class="p">]</span>
+
+<span class="n">TQualifierRecord</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;QualifierRecord&#39;</span><span class="p">,</span> <span class="n">TSnakSet</span><span class="p">]</span>
+<span class="n">VQualifierRecord</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span>\
+    <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;QualifierRecordVariable&#39;</span><span class="p">,</span> <span class="s1">&#39;QualifierRecord&#39;</span><span class="p">]</span>
+<span class="n">VTQualifierRecord</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span>\
+    <span class="n">Union</span><span class="p">[</span><span class="n">Variable</span><span class="p">,</span> <span class="n">VQualifierRecord</span><span class="p">,</span> <span class="n">TQualifierRecord</span><span class="p">]</span>
 
 <span class="n">TReferenceRecord</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;ReferenceRecord&#39;</span><span class="p">,</span> <span class="n">TSnakSet</span><span class="p">]</span>
+<span class="n">VReferenceRecord</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span>\
+    <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;ReferenceRecordVariable&#39;</span><span class="p">,</span> <span class="s1">&#39;ReferenceRecord&#39;</span><span class="p">]</span>
+<span class="n">VTReferenceRecord</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span>\
+    <span class="n">Union</span><span class="p">[</span><span class="n">Variable</span><span class="p">,</span> <span class="n">VReferenceRecord</span><span class="p">,</span> <span class="n">TReferenceRecord</span><span class="p">]</span>
 
 <span class="n">TReferenceRecordSet</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span>\
     <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;ReferenceRecordSet&#39;</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">TReferenceRecord</span><span class="p">]]</span>
+<span class="n">VReferenceRecordSet</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span>\
+    <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;ReferenceRecordSetVariable&#39;</span><span class="p">,</span> <span class="s1">&#39;ReferenceRecordSet&#39;</span><span class="p">]</span>
+<span class="n">VTReferenceRecordSet</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span>\
+    <span class="n">Union</span><span class="p">[</span><span class="n">Variable</span><span class="p">,</span> <span class="n">VReferenceRecordSet</span><span class="p">,</span> <span class="n">TReferenceRecordSet</span><span class="p">]</span>
 
-<span class="n">_TObj</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;_TObj&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">KIF_Object</span><span class="p">)</span>
+<span class="n">_TClosedTerm</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;_TClosedTerm&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">ClosedTerm</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="KIF_ObjectSet">
-<a class="viewcode-back" href="../../../reference/model/set/kif_object_set.html#kif_lib.KIF_ObjectSet">[docs]</a>
-<span class="k">class</span> <span class="nc">KIF_ObjectSet</span><span class="p">(</span><span class="n">KIF_Object</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">_TObj</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set of KIF objects.</span>
+<div class="viewcode-block" id="ClosedTermSet">
+<a class="viewcode-back" href="../../../reference/model/set/closed_term_set.html#kif_lib.ClosedTermSet">[docs]</a>
+<span class="k">class</span> <span class="nc">ClosedTermSet</span><span class="p">(</span><span class="n">ClosedTerm</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">_TClosedTerm</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set of closed terms.</span>
 
 <span class="sd">    Parameters:</span>
-<span class="sd">       objects: KIF objects.</span>
+<span class="sd">       child: Closed term.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">children_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">KIF_Object</span><span class="p">]]</span>
+    <span class="n">children_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">ClosedTerm</span><span class="p">]]</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="s1">&#39;children_class&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">children_class</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;children_class&#39;</span><span class="p">]</span>
-            <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">children_class</span><span class="p">,</span> <span class="n">KIF_Object</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">children_class</span><span class="p">,</span> <span class="n">ClosedTerm</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="KIF_ObjectSet.check">
-<a class="viewcode-back" href="../../../reference/model/set/kif_object_set.html#kif_lib.KIF_ObjectSet.check">[docs]</a>
+<div class="viewcode-block" id="ClosedTermSet.check">
+<a class="viewcode-back" href="../../../reference/model/set/closed_term_set.html#kif_lib.ClosedTermSet.check">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@override</span>
     <span class="k">def</span> <span class="nf">check</span><span class="p">(</span>
@@ -143,9 +153,9 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">arg</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">KIF_Object</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">ClosedTerm</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span>
-                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cast</span><span class="p">(</span><span class="n">_TObj</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">children_class</span><span class="o">.</span><span class="n">check</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cast</span><span class="p">(</span><span class="n">_TClosedTerm</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">children_class</span><span class="o">.</span><span class="n">check</span><span class="p">(</span>
                     <span class="n">x</span><span class="p">,</span> <span class="n">function</span> <span class="ow">or</span> <span class="bp">cls</span><span class="o">.</span><span class="n">check</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)),</span> <span class="n">arg</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_check_error</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span></div>
@@ -155,7 +165,7 @@
         <span class="s1">&#39;_frozenset&#39;</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">_frozenset</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="n">_TObj</span><span class="p">]</span>
+    <span class="n">_frozenset</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="n">_TClosedTerm</span><span class="p">]</span>
 
     <span class="nd">@override</span>
     <span class="k">def</span> <span class="nf">_set_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -172,76 +182,54 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="KIF_ObjectSet.union">
-<a class="viewcode-back" href="../../../reference/model/set/kif_object_set.html#kif_lib.KIF_ObjectSet.union">[docs]</a>
+<div class="viewcode-block" id="ClosedTermSet.union">
+<a class="viewcode-back" href="../../../reference/model/set/closed_term_set.html#kif_lib.ClosedTermSet.union">[docs]</a>
     <span class="k">def</span> <span class="nf">union</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">:</span> <span class="n">Self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes the union of self and `others`.</span>
 
 <span class="sd">        Parameters:</span>
-<span class="sd">           others: KIF object sets.</span>
+<span class="sd">           others: Closed-term sets.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">           The resulting KIF object set.</span>
+<span class="sd">           The resulting closed-term set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_frozenset</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_frozenset</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="o">*</span><span class="nb">map</span><span class="p">(</span>
             <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">_frozenset</span><span class="p">,</span> <span class="n">others</span><span class="p">)))</span></div>
 </div>
 
 
 
-<div class="viewcode-block" id="ValueSet">
-<a class="viewcode-back" href="../../../reference/model/set/kif_object_set.html#kif_lib.ValueSet">[docs]</a>
-<span class="k">class</span> <span class="nc">ValueSet</span><span class="p">(</span><span class="n">KIF_ObjectSet</span><span class="p">[</span><span class="n">Value</span><span class="p">],</span> <span class="n">children_class</span><span class="o">=</span><span class="n">Value</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set of values.</span>
+<div class="viewcode-block" id="SnakSetVariable">
+<a class="viewcode-back" href="../../../reference/model/set/snak_set.html#kif_lib.SnakSetVariable">[docs]</a>
+<span class="k">class</span> <span class="nc">SnakSetVariable</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Snak set variable.</span>
 
 <span class="sd">    Parameters:</span>
-<span class="sd">       values: Values.</span>
+<span class="sd">       name: Name.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">children_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Value</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
-
-<div class="viewcode-block" id="ValueSet.__init__">
-<a class="viewcode-back" href="../../../reference/model/set/kif_object_set.html#kif_lib.ValueSet.__init__">[docs]</a>
-    <span class="nd">@override</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">values</span><span class="p">:</span> <span class="n">TValue</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">values</span><span class="p">)</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="TextSet">
-<a class="viewcode-back" href="../../../reference/model/set/kif_object_set.html#kif_lib.TextSet">[docs]</a>
-<span class="k">class</span> <span class="nc">TextSet</span><span class="p">(</span><span class="n">ValueSet</span><span class="p">,</span> <span class="n">children_class</span><span class="o">=</span><span class="n">Text</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set of texts.</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">       texts: Texts.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">children_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Text</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
-
-<div class="viewcode-block" id="TextSet.__init__">
-<a class="viewcode-back" href="../../../reference/model/set/kif_object_set.html#kif_lib.TextSet.__init__">[docs]</a>
-    <span class="nd">@override</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">texts</span><span class="p">:</span> <span class="n">TText</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">texts</span><span class="p">)</span></div>
-</div>
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">SnakSet</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
 
 
 
 <div class="viewcode-block" id="SnakSet">
-<a class="viewcode-back" href="../../../reference/model/set/kif_object_set.html#kif_lib.SnakSet">[docs]</a>
-<span class="k">class</span> <span class="nc">SnakSet</span><span class="p">(</span><span class="n">KIF_ObjectSet</span><span class="p">[</span><span class="n">Snak</span><span class="p">],</span> <span class="n">children_class</span><span class="o">=</span><span class="n">Snak</span><span class="p">):</span>
+<a class="viewcode-back" href="../../../reference/model/set/snak_set.html#kif_lib.SnakSet">[docs]</a>
+<span class="k">class</span> <span class="nc">SnakSet</span><span class="p">(</span>
+        <span class="n">ClosedTermSet</span><span class="p">[</span><span class="n">Snak</span><span class="p">],</span>
+        <span class="n">children_class</span><span class="o">=</span><span class="n">Snak</span><span class="p">,</span>
+        <span class="n">variable_class</span><span class="o">=</span><span class="n">SnakSetVariable</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set of snaks.</span>
 
 <span class="sd">    Parameters:</span>
 <span class="sd">       snaks: Snaks.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">children_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Snak</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">children_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Snak</span><span class="p">]]</span>            <span class="c1"># pyright: ignore</span>
+    <span class="n">variable_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">SnakSetVariable</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
 <div class="viewcode-block" id="SnakSet.__init__">
-<a class="viewcode-back" href="../../../reference/model/set/kif_object_set.html#kif_lib.SnakSet.__init__">[docs]</a>
+<a class="viewcode-back" href="../../../reference/model/set/snak_set.html#kif_lib.SnakSet.__init__">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">snaks</span><span class="p">:</span> <span class="n">Snak</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">snaks</span><span class="p">)</span></div>
@@ -249,17 +237,36 @@
 
 
 
-<div class="viewcode-block" id="ReferenceRecord">
-<a class="viewcode-back" href="../../../reference/model/annotation/reference_record.html#kif_lib.ReferenceRecord">[docs]</a>
-<span class="k">class</span> <span class="nc">ReferenceRecord</span><span class="p">(</span><span class="n">SnakSet</span><span class="p">,</span> <span class="n">children_class</span><span class="o">=</span><span class="n">Snak</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reference record (set of snaks).</span>
+<div class="viewcode-block" id="QualifierRecordVariable">
+<a class="viewcode-back" href="../../../reference/model/set/qualifier_record.html#kif_lib.QualifierRecordVariable">[docs]</a>
+<span class="k">class</span> <span class="nc">QualifierRecordVariable</span><span class="p">(</span><span class="n">SnakSetVariable</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Qualifier record variable.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">       name: Name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">QualifierRecord</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
+
+
+
+<div class="viewcode-block" id="QualifierRecord">
+<a class="viewcode-back" href="../../../reference/model/set/qualifier_record.html#kif_lib.QualifierRecord">[docs]</a>
+<span class="k">class</span> <span class="nc">QualifierRecord</span><span class="p">(</span>
+        <span class="n">SnakSet</span><span class="p">,</span>
+        <span class="n">children_class</span><span class="o">=</span><span class="n">Snak</span><span class="p">,</span>
+        <span class="n">variable_class</span><span class="o">=</span><span class="n">QualifierRecordVariable</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Qualifier record (set of snaks).</span>
 
 <span class="sd">    Parameters:</span>
 <span class="sd">       snaks: Snaks.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ReferenceRecord.check">
-<a class="viewcode-back" href="../../../reference/model/annotation/reference_record.html#kif_lib.ReferenceRecord.check">[docs]</a>
+    <span class="n">variable_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">QualifierRecordVariable</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+
+<div class="viewcode-block" id="QualifierRecord.check">
+<a class="viewcode-back" href="../../../reference/model/set/qualifier_record.html#kif_lib.QualifierRecord.check">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@override</span>
     <span class="k">def</span> <span class="nf">check</span><span class="p">(</span>
@@ -279,11 +286,71 @@
 
 
 
+<div class="viewcode-block" id="ReferenceRecordVariable">
+<a class="viewcode-back" href="../../../reference/model/set/reference_record.html#kif_lib.ReferenceRecordVariable">[docs]</a>
+<span class="k">class</span> <span class="nc">ReferenceRecordVariable</span><span class="p">(</span><span class="n">SnakSetVariable</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reference record variable.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">       name: Name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">ReferenceRecord</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
+
+
+
+<div class="viewcode-block" id="ReferenceRecord">
+<a class="viewcode-back" href="../../../reference/model/set/reference_record.html#kif_lib.ReferenceRecord">[docs]</a>
+<span class="k">class</span> <span class="nc">ReferenceRecord</span><span class="p">(</span>
+        <span class="n">SnakSet</span><span class="p">,</span>
+        <span class="n">children_class</span><span class="o">=</span><span class="n">Snak</span><span class="p">,</span>
+        <span class="n">variable_class</span><span class="o">=</span><span class="n">ReferenceRecordVariable</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reference record (set of snaks).</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">       snaks: Snaks.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">variable_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">ReferenceRecordVariable</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+
+<div class="viewcode-block" id="ReferenceRecord.check">
+<a class="viewcode-back" href="../../../reference/model/set/reference_record.html#kif_lib.ReferenceRecord.check">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@override</span>
+    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span>
+            <span class="bp">cls</span><span class="p">,</span>
+            <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+            <span class="n">function</span><span class="p">:</span> <span class="n">Location</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">position</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">arg</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">SnakSet</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">class</span> <span class="nc">ReferenceRecordSetVariable</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reference record set variable.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">       name: Name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">ReferenceRecordSet</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+
+
 <div class="viewcode-block" id="ReferenceRecordSet">
-<a class="viewcode-back" href="../../../reference/model/set/kif_object_set.html#kif_lib.ReferenceRecordSet">[docs]</a>
+<a class="viewcode-back" href="../../../reference/model/set/reference_record_set.html#kif_lib.ReferenceRecordSet">[docs]</a>
 <span class="k">class</span> <span class="nc">ReferenceRecordSet</span><span class="p">(</span>
-        <span class="n">KIF_ObjectSet</span><span class="p">[</span><span class="n">ReferenceRecord</span><span class="p">],</span>
-        <span class="n">children_class</span><span class="o">=</span><span class="n">ReferenceRecord</span>
+        <span class="n">ClosedTermSet</span><span class="p">[</span><span class="n">ReferenceRecord</span><span class="p">],</span>
+        <span class="n">children_class</span><span class="o">=</span><span class="n">ReferenceRecord</span><span class="p">,</span>
+        <span class="n">variable_class</span><span class="o">=</span><span class="n">ReferenceRecordSetVariable</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set of reference records.</span>
 
@@ -292,9 +359,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">children_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">ReferenceRecord</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">variable_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span>                   <span class="c1"># pyright: ignore</span>
+        <span class="n">ReferenceRecordSetVariable</span><span class="p">]]</span>
 
 <div class="viewcode-block" id="ReferenceRecordSet.__init__">
-<a class="viewcode-back" href="../../../reference/model/set/kif_object_set.html#kif_lib.ReferenceRecordSet.__init__">[docs]</a>
+<a class="viewcode-back" href="../../../reference/model/set/reference_record_set.html#kif_lib.ReferenceRecordSet.__init__">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">reference_records</span><span class="p">:</span> <span class="n">TReferenceRecord</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">reference_records</span><span class="p">)</span></div>
@@ -309,7 +378,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023-2024, IBM Corp.</p>
+    <p>&#169; Copyright 2023-2025, IBM Corp.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

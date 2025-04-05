@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../../">
 <head>
@@ -5,20 +7,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kif_lib.model.value.lexeme &mdash; kif-lib  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=dd9f1d9b" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="shortcut icon" href="../../../../_static/kif-boxed.svg"/>
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" /> 
@@ -28,16 +28,14 @@
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #009d9aff" >
 
           
           
           <a href="../../../../index.html" class="icon icon-home">
             kif-lib
+              <img src="../../../../_static/kif-boxed.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.4
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -56,13 +54,13 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #009d9aff" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../../index.html">kif-lib</a>
       </nav>
 
       <div class="wy-nav-content">
-        <div class="rst-content">
+        <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
@@ -77,16 +75,33 @@
            <div itemprop="articleBody">
              
   <h1>Source code for kif_lib.model.value.lexeme</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2024 IBM Corp.</span>
+<span></span><span class="c1"># Copyright (C) 2024-2025 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">cast</span><span class="p">,</span>
+    <span class="n">ClassVar</span><span class="p">,</span>
+    <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">override</span><span class="p">,</span>
+    <span class="n">Self</span><span class="p">,</span>
+    <span class="n">TypeAlias</span><span class="p">,</span>
+    <span class="n">TypedDict</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">..term</span> <span class="kn">import</span> <span class="n">Variable</span>
 <span class="kn">from</span> <span class="nn">.entity</span> <span class="kn">import</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">EntityTemplate</span><span class="p">,</span> <span class="n">EntityVariable</span>
 <span class="kn">from</span> <span class="nn">.iri</span> <span class="kn">import</span> <span class="n">IRI_Template</span><span class="p">,</span> <span class="n">T_IRI</span>
+<span class="kn">from</span> <span class="nn">.item</span> <span class="kn">import</span> <span class="n">Item</span><span class="p">,</span> <span class="n">TItem</span>
+<span class="kn">from</span> <span class="nn">.string</span> <span class="kn">import</span> <span class="n">TString</span>
+<span class="kn">from</span> <span class="nn">.text</span> <span class="kn">import</span> <span class="n">Text</span><span class="p">,</span> <span class="n">TText</span>
 <span class="kn">from</span> <span class="nn">.value</span> <span class="kn">import</span> <span class="n">Datatype</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>               <span class="c1"># pragma: no cover</span>
+    <span class="kn">from</span> <span class="nn">...store</span> <span class="kn">import</span> <span class="n">Store</span>
 
 <span class="n">TLexeme</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Lexeme&#39;</span><span class="p">,</span> <span class="n">T_IRI</span><span class="p">]</span>
 <span class="n">VLexeme</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;LexemeTemplate&#39;</span><span class="p">,</span> <span class="s1">&#39;LexemeVariable&#39;</span><span class="p">,</span> <span class="s1">&#39;Lexeme&#39;</span><span class="p">]</span>
@@ -126,10 +141,14 @@
 
 
 
+<div class="viewcode-block" id="LexemeDatatype">
+<a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.LexemeDatatype">[docs]</a>
 <span class="k">class</span> <span class="nc">LexemeDatatype</span><span class="p">(</span><span class="n">Datatype</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Lexeme datatype.&quot;&quot;&quot;</span>
 
-    <span class="n">value_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Lexeme</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">instance</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">LexemeDatatype</span><span class="p">]</span>  <span class="c1"># pyright: ignore</span>
+    <span class="n">value_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Lexeme</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
+
 
 
 <div class="viewcode-block" id="Lexeme">
@@ -151,10 +170,199 @@
     <span class="n">template_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">LexemeTemplate</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
     <span class="n">variable_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">LexemeVariable</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
+<div class="viewcode-block" id="Lexeme.Descriptor">
+<a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.Descriptor">[docs]</a>
+    <span class="k">class</span> <span class="nc">Descriptor</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lexeme descriptor.&quot;&quot;&quot;</span>
+
+        <span class="c1">#: Lemma.</span>
+        <span class="n">lemma</span><span class="p">:</span> <span class="n">Text</span>
+
+        <span class="c1">#: Lexical category.</span>
+        <span class="n">category</span><span class="p">:</span> <span class="n">Item</span>
+
+        <span class="c1">#: Language.</span>
+        <span class="n">language</span><span class="p">:</span> <span class="n">Item</span></div>
+
+
 <div class="viewcode-block" id="Lexeme.__init__">
 <a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iri</span><span class="p">:</span> <span class="n">VTLexemeContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">iri</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Lexeme.display">
+<a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.display">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span> <span class="nf">display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="n">TString</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">display</span><span class="p">(</span><span class="n">language</span><span class="p">)</span>  <span class="c1"># fallback</span></div>
+
+
+<div class="viewcode-block" id="Lexeme.describe">
+<a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.describe">[docs]</a>
+    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">resolver</span><span class="p">:</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Lexeme</span><span class="o">.</span><span class="n">Descriptor</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the descriptor of lexeme in KIF context.</span>
+
+<span class="sd">        If `resolve` is ``True``, resolves property data.</span>
+
+<span class="sd">        If `resolver` is given, uses it to resolve lexeme data.</span>
+<span class="sd">        Otherwise, uses the resolver registered in context (if any).</span>
+
+<span class="sd">        If `force` is given, forces resolution.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           language: Language.</span>
+<span class="sd">           resolve: Whether to resolve descriptor.</span>
+<span class="sd">           resolver: Resolver store.</span>
+<span class="sd">           force: Whether to force resolution.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Lexeme descriptor or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">describe</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="n">resolve</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">resolver</span><span class="p">,</span>
+            <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">describe</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lemma</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The lemma of lexeme in KIF context.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lemma</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Lexeme.get_lemma">
+<a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.get_lemma">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_lemma</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">resolver</span><span class="p">:</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the lemma of lexeme in KIF context.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           resolve: Whether to resolve lemma.</span>
+<span class="sd">           resolver: Resolver store.</span>
+<span class="sd">           force: Whether to force resolution.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Lemma or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_lemma</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="n">resolve</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">resolver</span><span class="p">,</span>
+            <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_lemma</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">category</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The category of lexeme in KIF context.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_category</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Lexeme.get_category">
+<a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.get_category">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_category</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">resolver</span><span class="p">:</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the lexical category of lexeme in KIF context.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           resolve: Whether to resolve lexical category.</span>
+<span class="sd">           resolver: Resolver store.</span>
+<span class="sd">           force: Whether to force resolution.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Lexical category or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_category</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="n">resolve</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">resolver</span><span class="p">,</span>
+            <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_category</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The language of lexeme in KIF context.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_language</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Lexeme.get_language">
+<a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.get_language">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_language</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">resolver</span><span class="p">:</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">force</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the language of lexeme in KIF context.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           resolve: Whether to resolve language.</span>
+<span class="sd">           resolver: Resolver store.</span>
+<span class="sd">           force: Whether to force resolution.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Language or ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">get_language</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="n">resolve</span><span class="p">,</span> <span class="n">resolver</span><span class="o">=</span><span class="n">resolver</span><span class="p">,</span>
+            <span class="n">force</span><span class="o">=</span><span class="n">force</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_language</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Lexeme.register">
+<a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.register">[docs]</a>
+    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">lemma</span><span class="p">:</span> <span class="n">TText</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">category</span><span class="p">:</span> <span class="n">TItem</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">language</span><span class="p">:</span> <span class="n">TItem</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds or updates lexeme data in KIF context.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           lemma: Lemma.</span>
+<span class="sd">           category: Lexical category.</span>
+<span class="sd">           language: Language.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Lexeme.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">Self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">lemma</span><span class="o">=</span><span class="n">lemma</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">category</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">language</span><span class="p">,</span>
+            <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">register</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Lexeme.unregister">
+<a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.unregister">[docs]</a>
+    <span class="k">def</span> <span class="nf">unregister</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">lemma</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">category</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">language</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes lexeme data from KIF context.</span>
+
+<span class="sd">        If called with no arguments, removes all lexeme data.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           lemma: Whether to remove lemma.</span>
+<span class="sd">           category: Whether to remove category.</span>
+<span class="sd">           language: Whether to remove language.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           ``True`` if successful; ``False`` otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">lemma</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">category</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">language</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">unregister</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">unregister</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">unregister</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="n">lemma</span><span class="o">=</span><span class="n">lemma</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">category</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">language</span><span class="p">,</span>
+                <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">unregister</span><span class="p">)</span></div>
 </div>
 
 
@@ -180,7 +388,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023-2024, IBM Corp.</p>
+    <p>&#169; Copyright 2023-2025, IBM Corp.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

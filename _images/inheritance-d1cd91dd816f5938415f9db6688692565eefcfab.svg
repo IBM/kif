@@ -1,0 +1,197 @@
+<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" xmlns:ns1="http://www.w3.org/1999/xlink" width="568pt" height="256pt" viewBox="0.00 0.00 568.00 255.75">
+<ns0:g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 251.75)">
+<ns0:title>inheritancea5339b97d5</ns0:title>
+
+<ns0:g id="node1" class="node">
+<ns0:title>DBpediaRDF_Store</ns0:title>
+<ns0:g id="a_node1"><ns0:a ns1:href="../reference/store/store.html#kif_lib.store.DBpediaRDF_Store" ns1:title="Alias for :class:`RDF_Store` with DBpedia mappings." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="100,-134.25 0,-134.25 0,-113.5 100,-113.5 100,-134.25" />
+<ns0:text text-anchor="middle" x="50" y="-120.75" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">DBpediaRDF_Store</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="node2" class="node">
+<ns0:title>RDF_Store</ns0:title>
+<ns0:g id="a_node2"><ns0:a ns1:href="../reference/store/store.html#kif_lib.store.RDF_Store" ns1:title="RDF store." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="202.25,-191 139.75,-191 139.75,-170.25 202.25,-170.25 202.25,-191" />
+<ns0:text text-anchor="middle" x="171" y="-177.5" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">RDF_Store</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge1" class="edge">
+<ns0:title>RDF_Store-&gt;DBpediaRDF_Store</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M143.44,-167.15C121.6,-157.27 91.51,-143.66 71.45,-134.58" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="143.4,-169.06 148.68,-169.52 144.84,-165.87 143.4,-169.06" />
+</ns0:g>
+
+<ns0:g id="node9" class="node">
+<ns0:title>PubChemRDF_Store</ns0:title>
+<ns0:g id="a_node9"><ns0:a ns1:href="../reference/store/store.html#kif_lib.store.PubChemRDF_Store" ns1:title="Alias for :class:`RDF_Store` with PubChem mappings." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="224,-134.25 118,-134.25 118,-113.5 224,-113.5 224,-134.25" />
+<ns0:text text-anchor="middle" x="171" y="-120.75" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">PubChemRDF_Store</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge5" class="edge">
+<ns0:title>RDF_Store-&gt;PubChemRDF_Store</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M171,-163.46C171,-154.08 171,-142.57 171,-134.58" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="169.25,-164.08 171,-169.08 172.75,-164.08 169.25,-164.08" />
+</ns0:g>
+
+<ns0:g id="node14" class="node">
+<ns0:title>WikidataRDF_Store</ns0:title>
+<ns0:g id="a_node14"><ns0:a ns1:href="../reference/store/store.html#kif_lib.store.WikidataRDF_Store" ns1:title="Alias for :class:`RDF_Store` with Wikidata mappings." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="343.75,-134.25 242.25,-134.25 242.25,-113.5 343.75,-113.5 343.75,-134.25" />
+<ns0:text text-anchor="middle" x="293" y="-120.75" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">WikidataRDF_Store</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge10" class="edge">
+<ns0:title>RDF_Store-&gt;WikidataRDF_Store</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M198.51,-167.28C220.55,-157.39 251.06,-143.7 271.38,-134.58" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="197.35,-165.88 193.5,-169.53 198.78,-169.08 197.35,-165.88" />
+</ns0:g>
+
+<ns0:g id="node3" class="node">
+<ns0:title>DBpediaSPARQL_Store</ns0:title>
+<ns0:g id="a_node3"><ns0:a ns1:href="../reference/store/store.html#kif_lib.store.DBpediaSPARQL_Store" ns1:title="Alias for :class:`SPARQL_Store` with DBpedia mappings." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="283.25,-77.5 166.75,-77.5 166.75,-56.75 283.25,-56.75 283.25,-77.5" />
+<ns0:text text-anchor="middle" x="225" y="-64" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">DBpediaSPARQL_Store</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="node4" class="node">
+<ns0:title>SPARQL_Store</ns0:title>
+<ns0:g id="a_node4"><ns0:a ns1:href="../reference/store/store.html#kif_lib.store.SPARQL_Store" ns1:title="SPARQL store." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="440.5,-134.25 361.5,-134.25 361.5,-113.5 440.5,-113.5 440.5,-134.25" />
+<ns0:text text-anchor="middle" x="401" y="-120.75" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">SPARQL_Store</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge2" class="edge">
+<ns0:title>SPARQL_Store-&gt;DBpediaSPARQL_Store</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M363.35,-111.16C331.52,-101.26 286.44,-87.24 256.49,-77.92" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="363.52,-113.05 368.81,-112.86 364.56,-109.71 363.52,-113.05" />
+</ns0:g>
+
+<ns0:g id="node10" class="node">
+<ns0:title>PubChemSPARQL_Store</ns0:title>
+<ns0:g id="a_node10"><ns0:a ns1:href="../reference/store/store.html#kif_lib.store.PubChemSPARQL_Store" ns1:title="Alias for :class:`SPARQL_Store` with PubChem mappings." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="424.25,-77.5 301.75,-77.5 301.75,-56.75 424.25,-56.75 424.25,-77.5" />
+<ns0:text text-anchor="middle" x="363" y="-64" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">PubChemSPARQL_Store</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge6" class="edge">
+<ns0:title>SPARQL_Store-&gt;PubChemSPARQL_Store</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M390.53,-107.79C383.89,-98.23 375.5,-86.13 369.73,-77.83" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="389.49,-109.36 393.77,-112.47 392.36,-107.36 389.49,-109.36" />
+</ns0:g>
+
+<ns0:g id="node13" class="node">
+<ns0:title>WikidataSPARQL_Store</ns0:title>
+<ns0:g id="a_node13"><ns0:a ns1:href="../reference/store/store.html#kif_lib.store.WikidataSPARQL_Store" ns1:title="Alias for :class:`SPARQL_Store` with Wikidata mappings." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="560,-77.5 442,-77.5 442,-56.75 560,-56.75 560,-77.5" />
+<ns0:text text-anchor="middle" x="501" y="-64" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">WikidataSPARQL_Store</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge11" class="edge">
+<ns0:title>SPARQL_Store-&gt;WikidataSPARQL_Store</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M424.24,-110.15C442.25,-100.29 466.83,-86.83 483.28,-77.83" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="423.09,-108.79 419.54,-112.72 424.77,-111.86 423.09,-108.79" />
+</ns0:g>
+
+<ns0:g id="node5" class="node">
+<ns0:title>EmptyStore</ns0:title>
+<ns0:g id="a_node5"><ns0:a ns1:href="../reference/store/store.html#kif_lib.store.EmptyStore" ns1:title="Empty store." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="351,-191 281,-191 281,-170.25 351,-170.25 351,-191" />
+<ns0:text text-anchor="middle" x="316" y="-177.5" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">EmptyStore</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="node6" class="node">
+<ns0:title>Store</ns0:title>
+<ns0:g id="a_node6"><ns0:a ns1:href="../reference/store/store.html#kif_lib.Store" ns1:title="Abstract base class for stores." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="367,-247.75 313,-247.75 313,-227 367,-227 367,-247.75" />
+<ns0:text text-anchor="middle" x="340" y="-234.25" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">Store</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge3" class="edge">
+<ns0:title>Store-&gt;EmptyStore</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M333.15,-220.76C329,-211.28 323.83,-199.48 320.25,-191.33" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="331.8,-222.02 335.41,-225.89 335,-220.61 331.8,-222.02" />
+</ns0:g>
+
+<ns0:g id="node8" class="node">
+<ns0:title>MixerStore</ns0:title>
+<ns0:g id="a_node8"><ns0:a ns1:href="../reference/store/store.html#kif_lib.store.MixerStore" ns1:title="Mixer store." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="433,-191 369,-191 369,-170.25 433,-170.25 433,-191" />
+<ns0:text text-anchor="middle" x="401" y="-177.5" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">MixerStore</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge4" class="edge">
+<ns0:title>Store-&gt;MixerStore</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M355.62,-222.36C366.45,-212.64 380.59,-199.94 390.19,-191.33" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="354.02,-221.44 351.47,-226.08 356.36,-224.04 354.02,-221.44" />
+</ns0:g>
+
+<ns0:g id="node7" class="node">
+<ns0:title>HttpxSPARQL_Store</ns0:title>
+<ns0:g id="a_node7"><ns0:a ns1:href="../reference/store/store.html#kif_lib.store.HttpxSPARQL_Store" ns1:title="SPARQL store with httpx backend." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="536.25,-247.75 431.75,-247.75 431.75,-227 536.25,-227 536.25,-247.75" />
+<ns0:text text-anchor="middle" x="484" y="-234.25" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">HttpxSPARQL_Store</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge8" class="edge">
+<ns0:title>MixerStore-&gt;SPARQL_Store</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M401,-163.46C401,-154.08 401,-142.57 401,-134.58" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="399.25,-164.08 401,-169.08 402.75,-164.08 399.25,-164.08" />
+</ns0:g>
+
+<ns0:g id="node11" class="node">
+<ns0:title>RDFLibSPARQL_Store</ns0:title>
+<ns0:g id="a_node11"><ns0:a ns1:href="../reference/store/store.html#kif_lib.store.RDFLibSPARQL_Store" ns1:title="SPARQL store with RDFLib backend." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="226.25,-247.75 115.75,-247.75 115.75,-227 226.25,-227 226.25,-247.75" />
+<ns0:text text-anchor="middle" x="171" y="-234.25" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">RDFLibSPARQL_Store</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge7" class="edge">
+<ns0:title>RDFLibSPARQL_Store-&gt;RDF_Store</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M171,-220.21C171,-210.83 171,-199.32 171,-191.33" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="169.25,-220.83 171,-225.83 172.75,-220.83 169.25,-220.83" />
+</ns0:g>
+
+<ns0:g id="node12" class="node">
+<ns0:title>WDQS_Store</ns0:title>
+<ns0:g id="a_node12"><ns0:a ns1:href="../reference/store/store.html#kif_lib.store.WDQS_Store" ns1:title="Alias for :class:`WikidataSPARQL_Store` with stricter mappings." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="537.5,-20.75 464.5,-20.75 464.5,0 537.5,0 537.5,-20.75" />
+<ns0:text text-anchor="middle" x="501" y="-7.25" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">WDQS_Store</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge9" class="edge">
+<ns0:title>WikidataSPARQL_Store-&gt;WDQS_Store</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M501,-49.96C501,-40.58 501,-29.07 501,-21.08" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="499.25,-50.58 501,-55.58 502.75,-50.58 499.25,-50.58" />
+</ns0:g>
+</ns0:g>
+</ns0:svg>

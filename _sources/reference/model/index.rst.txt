@@ -11,8 +11,7 @@ Model
    Value
    Snak
    Statement
-   AnnotationRecord
-   Descriptor
+   Filter
    :top-classes: kif_lib.model.kif_object.KIF_Object
    :parts: 1
    :caption: Model classes.
@@ -24,7 +23,7 @@ Model
    term/index
    value/index
    snak/index
-   statement/index
-   annotation/index
-   descriptor/index
    set/index
+   statement/index
+   rank/index
+   filter/index

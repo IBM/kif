@@ -6,13 +6,12 @@ Set
 
 .. inheritance-diagram::
    KIF_Object
-   KIF_ObjectSet
-   ValueSet
-   TextSet
+   ClosedTermSet
    SnakSet
+   QualifierRecord
    ReferenceRecord
    ReferenceRecordSet
-   AnnotationRecordSet
+   Graph
    :top-classes: kif_lib.model.kif_object.KIF_Object
    :parts: 1
    :caption: Set classes.
@@ -20,13 +19,19 @@ Set
 .. toctree::
    :hidden:
 
-   kif_object_set
+   closed_term_set
+   qualifier_record
+   reference_record
+   reference_record_set
+   snak_set
+   graph
 
 .. autosummary::
    :nosignatures:
 
-   KIF_ObjectSet
-   ValueSet
+   ClosedTermSet
    SnakSet
+   QualifierRecord
+   ReferenceRecord
    ReferenceRecordSet
-   AnnotationRecordSet
+   Graph

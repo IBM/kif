@@ -12,3 +12,6 @@ Property
 
 .. autoclass:: PropertyVariable
    :members:
+
+.. autoclass:: PropertyDatatype
+   :members:

@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
@@ -6,20 +8,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KIF_Object &mdash; kif-lib  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=dd9f1d9b" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="shortcut icon" href="../../../_static/kif-boxed.svg"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -31,16 +31,14 @@
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #009d9aff" >
 
           
           
           <a href="../../../index.html" class="icon icon-home">
             kif-lib
+              <img src="../../../_static/kif-boxed.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.4
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -60,10 +58,10 @@
 <li class="toctree-l3"><a class="reference internal" href="../term/index.html">Term</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../value/index.html">Value</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../snak/index.html">Snak</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../statement/index.html">Statement</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../annotation/index.html">Annotation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../descriptor/index.html">Descriptor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../set/index.html">Set</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../statement/index.html">Statement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../rank/index.html">Rank</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filter/index.html">Filter</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../store/index.html">Store</a></li>
@@ -76,13 +74,13 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #009d9aff" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">kif-lib</a>
       </nav>
 
       <div class="wy-nav-content">
-        <div class="rst-content">
+        <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
@@ -133,10 +131,27 @@
 <dd class="field-odd"><p><strong>kwargs</strong> – Options to SPARQL decoder.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Object.</p>
+<dd class="field-even"><p>KIF object.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>DecoderError</strong> – Decoder error.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.KIF_Object.to_dot">
+<span class="sig-name descname"><span class="pre">to_dot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/kif_object.html#KIF_Object.to_dot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.KIF_Object.to_dot" title="Link to this definition"></a></dt>
+<dd><p>Encodes object using Dot encoder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – Options to Dot encoder.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>String.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>EncoderError</strong> – Encoder error.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -154,6 +169,37 @@
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>EncoderError</strong> – Encoder error.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.KIF_Object.to_rdf">
+<span class="sig-name descname"><span class="pre">to_rdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/kif_object.html#KIF_Object.to_rdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.KIF_Object.to_rdf" title="Link to this definition"></a></dt>
+<dd><p>Encodes object using RDF encoder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – Options to RDF encoder.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>String.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>EncoderError</strong> – Encoder error.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.KIF_Object.substitute">
+<span class="sig-name descname"><span class="pre">substitute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/kif_object.html#KIF_Object.substitute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.KIF_Object.substitute" title="Link to this definition"></a></dt>
+<dd><p>Applies substitution <cite>sigma</cite> to KIF object’s arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sigma</strong> – Substitution.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>KIF object.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -182,6 +228,19 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/object.html#Object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.model.object.Object" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></p>
 <p>Abstract base class for syntactical objects.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="kif_lib.model.object.Object.NilType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">NilType</span></span><a class="reference internal" href="../../../_modules/kif_lib/model/object.html#Object.NilType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.model.object.Object.NilType" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Type for absence of value distinct from <code class="docutils literal notranslate"><span class="pre">NoneType</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.model.object.Object.Nil">
+<span class="sig-name descname"><span class="pre">Nil</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#kif_lib.model.object.Object.NilType" title="kif_lib.model.object.Object.NilType"><span class="pre">NilType</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;kif_lib.model.object.Object.NilType</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#kif_lib.model.object.Object.Nil" title="Link to this definition"></a></dt>
+<dd><p>Absence of value distinct from <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd></dl>
+
 <dl class="py exception">
 <dt class="sig sig-object py" id="kif_lib.model.object.Object.Error">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Error</span></span><a class="reference internal" href="../../../_modules/kif_lib/model/object.html#Object.Error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.model.object.Object.Error" title="Link to this definition"></a></dt>
@@ -308,21 +367,37 @@
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="kif_lib.model.object.Object.KEEP">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KEEP</span></span><a class="reference internal" href="../../../_modules/kif_lib/model/object.html#Object.KEEP"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.model.object.Object.KEEP" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="kif_lib.model.object.Object.KeepType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">KeepType</span></span><a class="reference internal" href="../../../_modules/kif_lib/model/object.html#Object.KeepType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.model.object.Object.KeepType" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>See <a class="reference internal" href="#kif_lib.model.object.Object.replace" title="kif_lib.model.object.Object.replace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Object.replace()</span></code></a>.</p>
+<p>Type for the sentinel of <a class="reference internal" href="#kif_lib.model.object.Object.replace" title="kif_lib.model.object.Object.replace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Object.replace()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.model.object.Object.TKEEP">
+<span class="sig-name descname"><span class="pre">TKEEP</span></span><a class="headerlink" href="#kif_lib.model.object.Object.TKEEP" title="Link to this definition"></a></dt>
+<dd><p>Type alias for <a class="reference internal" href="#kif_lib.model.object.Object.KeepType" title="kif_lib.model.object.Object.KeepType"><code class="xref py py-class docutils literal notranslate"><span class="pre">KeepType</span></code></a>.</p>
+<p>alias of <a class="reference internal" href="#kif_lib.model.object.Object.KeepType" title="kif_lib.model.object.Object.KeepType"><code class="xref py py-class docutils literal notranslate"><span class="pre">KeepType</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.model.object.Object.KEEP">
+<span class="sig-name descname"><span class="pre">KEEP</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#kif_lib.model.object.Object.KeepType" title="kif_lib.model.object.Object.KeepType"><span class="pre">KeepType</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;kif_lib.model.object.Object.KeepType</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#kif_lib.model.object.Object.KEEP" title="Link to this definition"></a></dt>
+<dd><p>Sentinel for <a class="reference internal" href="#kif_lib.model.object.Object.replace" title="kif_lib.model.object.Object.replace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Object.replace()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="kif_lib.model.object.Object.replace">
-<span class="sig-name descname"><span class="pre">replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/object.html#Object.replace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.model.object.Object.replace" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/object.html#Object.replace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.model.object.Object.replace" title="Link to this definition"></a></dt>
 <dd><p>Shallow-copies object overwriting its arguments.</p>
 <p>If argument is <a class="reference internal" href="#kif_lib.model.object.Object.KEEP" title="kif_lib.model.object.Object.KEEP"><code class="xref py py-class docutils literal notranslate"><span class="pre">Object.KEEP</span></code></a> in <cite>args</cite>, keeps the value of
 the corresponding argument in the resulting object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>args</strong> – Arguments.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – Arguments.</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments (ignored).</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A shallow copy of object.</p>
@@ -538,7 +613,7 @@ the corresponding argument in the resulting object.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023-2024, IBM Corp.</p>
+    <p>&#169; Copyright 2023-2025, IBM Corp.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

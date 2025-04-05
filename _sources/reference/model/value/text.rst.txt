@@ -12,3 +12,6 @@ Text
 
 .. autoclass:: TextVariable
    :members:
+
+.. autoclass:: TextDatatype
+   :members:

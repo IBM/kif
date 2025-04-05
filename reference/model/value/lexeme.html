@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
@@ -6,20 +8,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lexeme &mdash; kif-lib  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=dd9f1d9b" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="shortcut icon" href="../../../_static/kif-boxed.svg"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -31,16 +31,14 @@
   <div class="wy-grid-for-nav">
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search"  style="background: #009d9aff" >
 
           
           
           <a href="../../../index.html" class="icon icon-home">
             kif-lib
+              <img src="../../../_static/kif-boxed.svg" class="logo" alt="Logo"/>
           </a>
-              <div class="version">
-                0.4
-              </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
@@ -56,6 +54,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../kif_object/index.html">KIF Object</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../term/index.html">Term</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="index.html">Value</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="datatype.html">Datatype</a></li>
 <li class="toctree-l4"><a class="reference internal" href="value.html">Value</a></li>
 <li class="toctree-l4"><a class="reference internal" href="entity.html">Entity</a></li>
 <li class="toctree-l4"><a class="reference internal" href="item.html">Item</a></li>
@@ -73,10 +72,10 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../snak/index.html">Snak</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../statement/index.html">Statement</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../annotation/index.html">Annotation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../descriptor/index.html">Descriptor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../set/index.html">Set</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../statement/index.html">Statement</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../rank/index.html">Rank</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filter/index.html">Filter</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../store/index.html">Store</a></li>
@@ -89,13 +88,13 @@
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #009d9aff" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">kif-lib</a>
       </nav>
 
       <div class="wy-nav-content">
-        <div class="rst-content">
+        <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
@@ -127,12 +126,12 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="kif_lib.Lexeme.datatype_class">
 <span class="sig-name descname"><span class="pre">datatype_class</span></span><a class="headerlink" href="#kif_lib.Lexeme.datatype_class" title="Link to this definition"></a></dt>
-<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">LexemeDatatype</span></code></p>
+<dd><p>alias of <a class="reference internal" href="#kif_lib.LexemeDatatype" title="kif_lib.model.value.lexeme.LexemeDatatype"><code class="xref py py-class docutils literal notranslate"><span class="pre">LexemeDatatype</span></code></a></p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="kif_lib.Lexeme.datatype">
-<span class="sig-name descname"><span class="pre">datatype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">LexemeDatatype</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">LexemeDatatype()</span></em><a class="headerlink" href="#kif_lib.Lexeme.datatype" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">datatype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#kif_lib.LexemeDatatype" title="kif_lib.LexemeDatatype"><span class="pre">LexemeDatatype</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">LexemeDatatype()</span></em><a class="headerlink" href="#kif_lib.Lexeme.datatype" title="Link to this definition"></a></dt>
 <dd><p>Datatype associated with this value class.</p>
 </dd></dl>
 
@@ -148,10 +147,181 @@
 <dd><p>alias of <a class="reference internal" href="#kif_lib.LexemeVariable" title="kif_lib.model.value.lexeme.LexemeVariable"><code class="xref py py-class docutils literal notranslate"><span class="pre">LexemeVariable</span></code></a></p>
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="kif_lib.Lexeme.Descriptor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Descriptor</span></span><a class="reference internal" href="../../../_modules/kif_lib/model/value/lexeme.html#Lexeme.Descriptor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.Lexeme.Descriptor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TypedDict</span></code></p>
+<p>Lexeme descriptor.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.Lexeme.Descriptor.lemma">
+<span class="sig-name descname"><span class="pre">lemma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="text.html#kif_lib.Text" title="kif_lib.model.value.text.Text"><span class="pre">Text</span></a></em><a class="headerlink" href="#kif_lib.Lexeme.Descriptor.lemma" title="Link to this definition"></a></dt>
+<dd><p>Lemma.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.Lexeme.Descriptor.category">
+<span class="sig-name descname"><span class="pre">category</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="item.html#kif_lib.Item" title="kif_lib.model.value.item.Item"><span class="pre">Item</span></a></em><a class="headerlink" href="#kif_lib.Lexeme.Descriptor.category" title="Link to this definition"></a></dt>
+<dd><p>Lexical category.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.Lexeme.Descriptor.language">
+<span class="sig-name descname"><span class="pre">language</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="item.html#kif_lib.Item" title="kif_lib.model.value.item.Item"><span class="pre">Item</span></a></em><a class="headerlink" href="#kif_lib.Lexeme.Descriptor.language" title="Link to this definition"></a></dt>
+<dd><p>Language.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="kif_lib.Lexeme.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iri</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTLexemeContent</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/value/lexeme.html#Lexeme.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.Lexeme.__init__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.Lexeme.display">
+<span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TString</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/value/lexeme.html#Lexeme.display"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.Lexeme.display" title="Link to this definition"></a></dt>
+<dd><p>Gets the display-name of entity in KIF context.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>language</strong> – Language.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Display name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.Lexeme.describe">
+<span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolve</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../store/store.html#kif_lib.Store" title="kif_lib.Store"><span class="pre">Store</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kif_lib.Lexeme.Descriptor" title="kif_lib.Lexeme.Descriptor"><span class="pre">Lexeme.Descriptor</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/value/lexeme.html#Lexeme.describe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.Lexeme.describe" title="Link to this definition"></a></dt>
+<dd><p>Gets the descriptor of lexeme in KIF context.</p>
+<p>If <cite>resolve</cite> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, resolves property data.</p>
+<p>If <cite>resolver</cite> is given, uses it to resolve lexeme data.
+Otherwise, uses the resolver registered in context (if any).</p>
+<p>If <cite>force</cite> is given, forces resolution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>language</strong> – Language.</p></li>
+<li><p><strong>resolve</strong> – Whether to resolve descriptor.</p></li>
+<li><p><strong>resolver</strong> – Resolver store.</p></li>
+<li><p><strong>force</strong> – Whether to force resolution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lexeme descriptor or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kif_lib.Lexeme.lemma">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lemma</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="text.html#kif_lib.Text" title="kif_lib.model.value.text.Text"><span class="pre">Text</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#kif_lib.Lexeme.lemma" title="Link to this definition"></a></dt>
+<dd><p>The lemma of lexeme in KIF context.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.Lexeme.get_lemma">
+<span class="sig-name descname"><span class="pre">get_lemma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolve</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../store/store.html#kif_lib.Store" title="kif_lib.Store"><span class="pre">Store</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="text.html#kif_lib.Text" title="kif_lib.Text"><span class="pre">Text</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/value/lexeme.html#Lexeme.get_lemma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.Lexeme.get_lemma" title="Link to this definition"></a></dt>
+<dd><p>Gets the lemma of lexeme in KIF context.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resolve</strong> – Whether to resolve lemma.</p></li>
+<li><p><strong>resolver</strong> – Resolver store.</p></li>
+<li><p><strong>force</strong> – Whether to force resolution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lemma or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kif_lib.Lexeme.category">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">category</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="item.html#kif_lib.Item" title="kif_lib.model.value.item.Item"><span class="pre">Item</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#kif_lib.Lexeme.category" title="Link to this definition"></a></dt>
+<dd><p>The category of lexeme in KIF context.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.Lexeme.get_category">
+<span class="sig-name descname"><span class="pre">get_category</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolve</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../store/store.html#kif_lib.Store" title="kif_lib.Store"><span class="pre">Store</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="item.html#kif_lib.Item" title="kif_lib.Item"><span class="pre">Item</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/value/lexeme.html#Lexeme.get_category"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.Lexeme.get_category" title="Link to this definition"></a></dt>
+<dd><p>Gets the lexical category of lexeme in KIF context.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resolve</strong> – Whether to resolve lexical category.</p></li>
+<li><p><strong>resolver</strong> – Resolver store.</p></li>
+<li><p><strong>force</strong> – Whether to force resolution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lexical category or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kif_lib.Lexeme.language">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">language</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="item.html#kif_lib.Item" title="kif_lib.model.value.item.Item"><span class="pre">Item</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#kif_lib.Lexeme.language" title="Link to this definition"></a></dt>
+<dd><p>The language of lexeme in KIF context.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.Lexeme.get_language">
+<span class="sig-name descname"><span class="pre">get_language</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolve</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../store/store.html#kif_lib.Store" title="kif_lib.Store"><span class="pre">Store</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="item.html#kif_lib.Item" title="kif_lib.Item"><span class="pre">Item</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/value/lexeme.html#Lexeme.get_language"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.Lexeme.get_language" title="Link to this definition"></a></dt>
+<dd><p>Gets the language of lexeme in KIF context.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resolve</strong> – Whether to resolve language.</p></li>
+<li><p><strong>resolver</strong> – Resolver store.</p></li>
+<li><p><strong>force</strong> – Whether to force resolution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Language or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.Lexeme.register">
+<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lemma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TText</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TItem</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TItem</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/value/lexeme.html#Lexeme.register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.Lexeme.register" title="Link to this definition"></a></dt>
+<dd><p>Adds or updates lexeme data in KIF context.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lemma</strong> – Lemma.</p></li>
+<li><p><strong>category</strong> – Lexical category.</p></li>
+<li><p><strong>language</strong> – Language.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lexeme.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.Lexeme.unregister">
+<span class="sig-name descname"><span class="pre">unregister</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lemma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/value/lexeme.html#Lexeme.unregister"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.Lexeme.unregister" title="Link to this definition"></a></dt>
+<dd><p>Removes lexeme data from KIF context.</p>
+<p>If called with no arguments, removes all lexeme data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lemma</strong> – Whether to remove lemma.</p></li>
+<li><p><strong>category</strong> – Whether to remove category.</p></li>
+<li><p><strong>language</strong> – Whether to remove language.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if successful; <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -180,7 +350,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="kif_lib.LexemeVariable">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LexemeVariable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../term/term.html#kif_lib.Variable" title="kif_lib.model.term.variable.Variable"><span class="pre">Variable</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../term/term.html#kif_lib.Term" title="kif_lib.model.term.term.Term"><span class="pre">Term</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/value/lexeme.html#LexemeVariable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.LexemeVariable" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LexemeVariable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../term/term.html#kif_lib.Variable" title="kif_lib.model.term.variable.Variable"><span class="pre">Variable</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../term/term.html#kif_lib.Term" title="kif_lib.model.term.term.Term"><span class="pre">Term</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/value/lexeme.html#LexemeVariable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.LexemeVariable" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="entity.html#kif_lib.EntityVariable" title="kif_lib.model.value.entity.EntityVariable"><code class="xref py py-class docutils literal notranslate"><span class="pre">EntityVariable</span></code></a></p>
 <p>Lexeme variable.</p>
 <dl class="field-list simple">
@@ -191,6 +361,25 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="kif_lib.LexemeVariable.object_class">
 <span class="sig-name descname"><span class="pre">object_class</span></span><a class="headerlink" href="#kif_lib.LexemeVariable.object_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#kif_lib.Lexeme" title="kif_lib.model.value.lexeme.Lexeme"><code class="xref py py-class docutils literal notranslate"><span class="pre">Lexeme</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kif_lib.LexemeDatatype">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LexemeDatatype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datatype_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TDatatype</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/value/lexeme.html#LexemeDatatype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.LexemeDatatype" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="datatype.html#kif_lib.Datatype" title="kif_lib.model.value.datatype.Datatype"><code class="xref py py-class docutils literal notranslate"><span class="pre">Datatype</span></code></a></p>
+<p>Lexeme datatype.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.LexemeDatatype.instance">
+<span class="sig-name descname"><span class="pre">instance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#kif_lib.LexemeDatatype" title="kif_lib.LexemeDatatype"><span class="pre">LexemeDatatype</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">LexemeDatatype()</span></em><a class="headerlink" href="#kif_lib.LexemeDatatype.instance" title="Link to this definition"></a></dt>
+<dd><p>Singleton instance of this datatype class.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.LexemeDatatype.value_class">
+<span class="sig-name descname"><span class="pre">value_class</span></span><a class="headerlink" href="#kif_lib.LexemeDatatype.value_class" title="Link to this definition"></a></dt>
 <dd><p>alias of <a class="reference internal" href="#kif_lib.Lexeme" title="kif_lib.model.value.lexeme.Lexeme"><code class="xref py py-class docutils literal notranslate"><span class="pre">Lexeme</span></code></a></p>
 </dd></dl>
 
@@ -209,7 +398,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023-2024, IBM Corp.</p>
+    <p>&#169; Copyright 2023-2025, IBM Corp.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

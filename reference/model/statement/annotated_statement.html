@@ -1,0 +1,378 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AnnotatedStatement &mdash; kif-lib  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=dd9f1d9b" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/kif-boxed.svg"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Rank" href="../rank/index.html" />
+    <link rel="prev" title="Statement" href="statement.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #009d9aff" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            kif-lib
+              <img src="../../../_static/kif-boxed.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Model</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../kif_object/index.html">KIF Object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../term/index.html">Term</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../value/index.html">Value</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../snak/index.html">Snak</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../set/index.html">Set</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Statement</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="statement.html">Statement</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">AnnotatedStatement</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../rank/index.html">Rank</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filter/index.html">Filter</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../store/index.html">Store</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #009d9aff" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">kif-lib</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Model</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Statement</a></li>
+      <li class="breadcrumb-item active">AnnotatedStatement</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/reference/model/statement/annotated_statement.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="annotatedstatement">
+<h1>AnnotatedStatement<a class="headerlink" href="#annotatedstatement" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AnnotatedStatement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/statement.html#AnnotatedStatement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotatedStatement" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="statement.html#kif_lib.Statement" title="kif_lib.model.statement.Statement"><code class="xref py py-class docutils literal notranslate"><span class="pre">Statement</span></code></a></p>
+<p>Annotated statement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entity</strong> – Entity.</p></li>
+<li><p><strong>snak</strong> – Snak.</p></li>
+<li><p><strong>qualifiers</strong> – Qualifier record.</p></li>
+<li><p><strong>references</strong> – Reference record set.</p></li>
+<li><p><strong>rank</strong> – Rank.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatement.template_class">
+<span class="sig-name descname"><span class="pre">template_class</span></span><a class="headerlink" href="#kif_lib.AnnotatedStatement.template_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#kif_lib.AnnotatedStatementTemplate" title="kif_lib.model.statement.AnnotatedStatementTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotatedStatementTemplate</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatement.variable_class">
+<span class="sig-name descname"><span class="pre">variable_class</span></span><a class="headerlink" href="#kif_lib.AnnotatedStatement.variable_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#kif_lib.AnnotatedStatementVariable" title="kif_lib.model.statement.AnnotatedStatementVariable"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotatedStatementVariable</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatement.check">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/statement.html#AnnotatedStatement.check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotatedStatement.check" title="Link to this definition"></a></dt>
+<dd><p>Coerces <cite>arg</cite> into an instance of this class.</p>
+<p>If <cite>arg</cite> cannot be coerced, raises an error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arg</strong> – Value.</p></li>
+<li><p><strong>function</strong> – Function or function name.</p></li>
+<li><p><strong>name</strong> – Argument name.</p></li>
+<li><p><strong>position</strong> – Argument position.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatement.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTEntity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snak</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTSnak</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualifiers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTQualifierRecord</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTReferenceRecordSet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTRank</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/statement.html#AnnotatedStatement.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotatedStatement.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatement.qualifiers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qualifiers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../set/qualifier_record.html#kif_lib.QualifierRecord" title="kif_lib.model.set.QualifierRecord"><span class="pre">QualifierRecord</span></a></em><a class="headerlink" href="#kif_lib.AnnotatedStatement.qualifiers" title="Link to this definition"></a></dt>
+<dd><p>The qualifiers of annotated statement.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatement.get_qualifiers">
+<span class="sig-name descname"><span class="pre">get_qualifiers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../set/qualifier_record.html#kif_lib.QualifierRecord" title="kif_lib.model.set.QualifierRecord"><span class="pre">QualifierRecord</span></a></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/statement.html#AnnotatedStatement.get_qualifiers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotatedStatement.get_qualifiers" title="Link to this definition"></a></dt>
+<dd><p>Gets the qualifiers of annotated statement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Qualifier record.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatement.references">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">references</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../set/reference_record_set.html#kif_lib.ReferenceRecordSet" title="kif_lib.model.set.ReferenceRecordSet"><span class="pre">ReferenceRecordSet</span></a></em><a class="headerlink" href="#kif_lib.AnnotatedStatement.references" title="Link to this definition"></a></dt>
+<dd><p>The references of annotated statement.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatement.get_references">
+<span class="sig-name descname"><span class="pre">get_references</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../set/reference_record_set.html#kif_lib.ReferenceRecordSet" title="kif_lib.model.set.ReferenceRecordSet"><span class="pre">ReferenceRecordSet</span></a></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/statement.html#AnnotatedStatement.get_references"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotatedStatement.get_references" title="Link to this definition"></a></dt>
+<dd><p>Gets the references of annotated statement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Reference record set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatement.rank">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rank</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../rank/rank.html#kif_lib.Rank" title="kif_lib.model.rank.Rank"><span class="pre">Rank</span></a></em><a class="headerlink" href="#kif_lib.AnnotatedStatement.rank" title="Link to this definition"></a></dt>
+<dd><p>The rank of annotated statement.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatement.get_rank">
+<span class="sig-name descname"><span class="pre">get_rank</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../rank/rank.html#kif_lib.Rank" title="kif_lib.model.rank.Rank"><span class="pre">Rank</span></a></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/statement.html#AnnotatedStatement.get_rank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotatedStatement.get_rank" title="Link to this definition"></a></dt>
+<dd><p>Gets the rank of annotated statement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Rank.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatement.annotate">
+<span class="sig-name descname"><span class="pre">annotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qualifiers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTQualifierRecord</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTReferenceRecordSet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTRank</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kif_lib.AnnotatedStatement" title="kif_lib.AnnotatedStatement"><span class="pre">AnnotatedStatement</span></a></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/statement.html#AnnotatedStatement.annotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotatedStatement.annotate" title="Link to this definition"></a></dt>
+<dd><p>Annotates statement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qualifiers</strong> – Qualifier record.</p></li>
+<li><p><strong>references</strong> – Reference record set.</p></li>
+<li><p><strong>rank</strong> – Rank.</p></li>
+<li><p><strong>replace</strong> – Whether to replace existing annotations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Annotated statement.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatementTemplate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AnnotatedStatementTemplate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/statement.html#AnnotatedStatementTemplate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotatedStatementTemplate" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="statement.html#kif_lib.StatementTemplate" title="kif_lib.model.statement.StatementTemplate"><code class="xref py py-class docutils literal notranslate"><span class="pre">StatementTemplate</span></code></a></p>
+<p>Annotated statement template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entity</strong> – Entity.</p></li>
+<li><p><strong>snak</strong> – Snak.</p></li>
+<li><p><strong>qualifiers</strong> – Qualifier record.</p></li>
+<li><p><strong>references</strong> – Reference record set.</p></li>
+<li><p><strong>rank</strong> – Rank.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatementTemplate.object_class">
+<span class="sig-name descname"><span class="pre">object_class</span></span><a class="headerlink" href="#kif_lib.AnnotatedStatementTemplate.object_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#kif_lib.AnnotatedStatement" title="kif_lib.model.statement.AnnotatedStatement"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotatedStatement</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatementTemplate.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTEntity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snak</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTSnak</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualifiers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTQualifierRecord</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTReferenceRecordSet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTRank</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/statement.html#AnnotatedStatementTemplate.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotatedStatementTemplate.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatementTemplate.qualifiers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">qualifiers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../set/qualifier_record.html#kif_lib.QualifierRecordVariable" title="kif_lib.model.set.QualifierRecordVariable"><span class="pre">QualifierRecordVariable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../set/qualifier_record.html#kif_lib.QualifierRecord" title="kif_lib.model.set.QualifierRecord"><span class="pre">QualifierRecord</span></a></em><a class="headerlink" href="#kif_lib.AnnotatedStatementTemplate.qualifiers" title="Link to this definition"></a></dt>
+<dd><p>The qualifiers of annotated statement template.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatementTemplate.get_qualifiers">
+<span class="sig-name descname"><span class="pre">get_qualifiers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../set/qualifier_record.html#kif_lib.QualifierRecordVariable" title="kif_lib.model.set.QualifierRecordVariable"><span class="pre">QualifierRecordVariable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../set/qualifier_record.html#kif_lib.QualifierRecord" title="kif_lib.model.set.QualifierRecord"><span class="pre">QualifierRecord</span></a></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/statement.html#AnnotatedStatementTemplate.get_qualifiers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotatedStatementTemplate.get_qualifiers" title="Link to this definition"></a></dt>
+<dd><p>Gets the qualifiers of annotated statement template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Qualifier record or qualifier record variable.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatementTemplate.references">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">references</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ReferenceRecordSetVariable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../set/reference_record_set.html#kif_lib.ReferenceRecordSet" title="kif_lib.model.set.ReferenceRecordSet"><span class="pre">ReferenceRecordSet</span></a></em><a class="headerlink" href="#kif_lib.AnnotatedStatementTemplate.references" title="Link to this definition"></a></dt>
+<dd><p>The references of annotated statement template.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatementTemplate.get_references">
+<span class="sig-name descname"><span class="pre">get_references</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ReferenceRecordSetVariable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../set/reference_record_set.html#kif_lib.ReferenceRecordSet" title="kif_lib.model.set.ReferenceRecordSet"><span class="pre">ReferenceRecordSet</span></a></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/statement.html#AnnotatedStatementTemplate.get_references"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotatedStatementTemplate.get_references" title="Link to this definition"></a></dt>
+<dd><p>Gets the references of annotated statement template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Reference record set or reference record set variable.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatementTemplate.rank">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rank</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="../rank/rank.html#kif_lib.RankVariable" title="kif_lib.model.rank.RankVariable"><span class="pre">RankVariable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../rank/rank.html#kif_lib.Rank" title="kif_lib.model.rank.Rank"><span class="pre">Rank</span></a></em><a class="headerlink" href="#kif_lib.AnnotatedStatementTemplate.rank" title="Link to this definition"></a></dt>
+<dd><p>The rank of annotated statement template.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatementTemplate.get_rank">
+<span class="sig-name descname"><span class="pre">get_rank</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../rank/rank.html#kif_lib.RankVariable" title="kif_lib.model.rank.RankVariable"><span class="pre">RankVariable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../rank/rank.html#kif_lib.Rank" title="kif_lib.model.rank.Rank"><span class="pre">Rank</span></a></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/statement.html#AnnotatedStatementTemplate.get_rank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotatedStatementTemplate.get_rank" title="Link to this definition"></a></dt>
+<dd><p>Gets the rank of annotated statement template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Rank or rank variable.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatementTemplate.annotate">
+<span class="sig-name descname"><span class="pre">annotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">qualifiers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTQualifierRecord</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">references</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTReferenceRecordSet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">VTRank</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#kif_lib.AnnotatedStatementTemplate" title="kif_lib.AnnotatedStatementTemplate"><span class="pre">AnnotatedStatementTemplate</span></a></span></span><a class="reference internal" href="../../../_modules/kif_lib/model/statement.html#AnnotatedStatementTemplate.annotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotatedStatementTemplate.annotate" title="Link to this definition"></a></dt>
+<dd><p>Annotates statement template.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qualifiers</strong> – Qualifier record.</p></li>
+<li><p><strong>references</strong> – Reference record set.</p></li>
+<li><p><strong>rank</strong> – Rank.</p></li>
+<li><p><strong>replace</strong> – Whether to replace existing annotations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Annotated statement template.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatementVariable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AnnotatedStatementVariable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../term/term.html#kif_lib.Variable" title="kif_lib.model.term.variable.Variable"><span class="pre">Variable</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../term/term.html#kif_lib.Term" title="kif_lib.model.term.term.Term"><span class="pre">Term</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/kif_lib/model/statement.html#AnnotatedStatementVariable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kif_lib.AnnotatedStatementVariable" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="statement.html#kif_lib.StatementVariable" title="kif_lib.model.statement.StatementVariable"><code class="xref py py-class docutils literal notranslate"><span class="pre">StatementVariable</span></code></a></p>
+<p>Annotated statement variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> – Name.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kif_lib.AnnotatedStatementVariable.object_class">
+<span class="sig-name descname"><span class="pre">object_class</span></span><a class="headerlink" href="#kif_lib.AnnotatedStatementVariable.object_class" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#kif_lib.AnnotatedStatement" title="kif_lib.model.statement.AnnotatedStatement"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnnotatedStatement</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="statement.html" class="btn btn-neutral float-left" title="Statement" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../rank/index.html" class="btn btn-neutral float-right" title="Rank" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IBM Corp.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
