@@ -66,7 +66,6 @@ html_logo = '_static/kif-boxed.svg'
 html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'logo_only': False,
-    'style_external_links': True,
     'style_nav_header_background': '#009d9aff',
 }
 
