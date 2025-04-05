@@ -59,10 +59,16 @@ autodoc_default_options = {
     'special-members': '__init__',
 }
 
-html_theme = 'sphinx_rtd_theme'
-# html_theme = 'pydata_sphinx_theme'
-# html_theme = 'sphinx_immaterial'
 html_static_path = ['_static']
+html_css_files = ['custom.css']
+html_favicon = '_static/kif-boxed.svg'
+html_logo = '_static/kif-boxed.svg'
+html_theme = 'sphinx_rtd_theme'
+html_theme_options = {
+    'logo_only': False,
+    'style_external_links': True,
+    'style_nav_header_background': '#009d9aff',
+}
 
 graphviz_output_format = 'svg'
 inheritance_graph_attrs = {
