@@ -18,8 +18,8 @@ class Test(TestCase):
 
     def test__init_flags(self) -> None:
         self.assert_raises_bad_argument(
-            TypeError, None, 'flags', 'cannot coerce dict into Store.Flags',
-            (Store, 'EmptyStore'), 'empty', flags={})
+            TypeError, 1, 'flags', 'cannot coerce dict into Store.Flags',
+            (Store, 'Store.set_flags'), 'empty', flags={})
         kb = Store('empty')
         self.assertEqual(kb.flags, kb.default_flags)
         kb = Store('empty', flags=0)

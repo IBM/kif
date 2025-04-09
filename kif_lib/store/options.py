@@ -7,7 +7,7 @@ import dataclasses
 import sys
 
 from ..context import Section
-from ..model import ReferenceRecordSet, TQuantity, TReferenceRecordSet
+from ..model import Filter, ReferenceRecordSet, TQuantity, TReferenceRecordSet
 from ..typing import Any, ClassVar
 from .abc import Store
 
@@ -17,6 +17,7 @@ class StoreOptions(Section, name='store'):
     """Store options."""
 
     def __init__(self, **kwargs) -> None:
+        self._init_base_filter(kwargs)
         self._init_extra_references(kwargs)
         self._init_flags(kwargs)
         self._init_max_limit(kwargs)
@@ -25,6 +26,42 @@ class StoreOptions(Section, name='store'):
         self._init_page_size(kwargs)
         self._init_max_timeout(kwargs)
         self._init_timeout(kwargs)
+
+    # -- root filter  --
+
+    _base_filter: Filter
+
+    def _init_base_filter(self, kwargs: dict[str, Any]) -> None:
+        self.base_filter = kwargs.get('_base_filter', Filter())
+
+    @property
+    def base_filter(self) -> Filter:
+        """The base filter option."""
+        return self.get_base_filter()
+
+    @base_filter.setter
+    def base_filter(self, base_filter: Filter) -> None:
+        self.set_base_filter(base_filter)
+
+    def get_base_filter(self) -> Filter:
+        """Gets the base filter option.
+
+        Returns:
+           Filter.
+        """
+        return self._base_filter
+
+    def set_base_filter(
+            self,
+            base_filter: Filter
+    ) -> None:
+        """Sets the base filter option.
+
+        Parameters:
+           base_filter: Filter.
+        """
+        self._base_filter = Filter.check(
+            base_filter, self.set_base_filter, 'base_filter', 1)
 
     # -- extra_references --
 

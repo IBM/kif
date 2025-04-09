@@ -33,6 +33,7 @@ from ..typing import (
     TypeVar,
 )
 
+at_property = property
 T = TypeVar('T')
 S = TypeVar('S')
 
@@ -107,6 +108,7 @@ class Store(Set):
 
     __slots__ = (
         '_context',
+        '_base_filter',
         '_extra_references',
         '_flags',
         '_limit',
@@ -117,6 +119,7 @@ class Store(Set):
     def __init__(
             self,
             *args: Any,
+            base_filter: Filter | None = None,
             extra_references: TReferenceRecordSet | None = None,
             flags: TFlags | None = None,
             limit: int | None = None,
@@ -130,6 +133,7 @@ class Store(Set):
         Parameters:
            store_name: Name of the store plugin to instantiate.
            args: Arguments.
+           base_filter: Base filter.
            extra_references: Extra references to attach to statements.
            flags: Store flags.
            limit: Limit (maximum number) of responses.
@@ -137,13 +141,20 @@ class Store(Set):
            timeout: Timeout of responses (in seconds).
            kwargs: Extra keyword arguments.
         """
-        self._init_flags(flags)
-        self._init_extra_references(extra_references)
-        self._init_limit(limit)
-        self._init_page_size(page_size)
-        self._init_timeout(timeout)
+        self._flags = None
+        self.flags = flags      # type: ignore
+        self._base_filter = None
+        self.set_base_filter(base_filter)
+        self._extra_references = None
+        self.set_extra_references(extra_references)
+        self._limit = None
+        self.set_limit(limit)
+        self._page_size = None
+        self.set_page_size(page_size)
+        self._timeout = None
+        self.set_timeout(timeout)
 
-    @property
+    @at_property
     def context(self) -> Context:
         """The current KIF context."""
         return self.get_context()
@@ -158,9 +169,188 @@ class Store(Set):
         """
         return Context.top(context)
 
+# -- Base filter -----------------------------------------------------------
+
+    @at_property
+    def default_base_filter(self) -> Filter:
+        """The default value for :attr:`Store.base_filter`."""
+        return self.get_default_base_filter()
+
+    def get_default_base_filter(self) -> Filter:
+        """Gets the default value for :attr:`Store.base_filter`.
+
+        Returns:
+           Filter.
+        """
+        return self.context.options.store.base_filter
+
+    #: Base filter.
+    _base_filter: Filter | None
+
+    @at_property
+    def base_filter(self) -> Filter:
+        """The base filter of store."""
+        return self.get_base_filter()
+
+    @base_filter.setter
+    def base_filter(self, base_filter: Filter | None = None) -> None:
+        self.set_base_filter(base_filter)
+
+    def get_base_filter(
+            self,
+            default: Filter | None = None
+    ) -> Filter:
+        """Gets the base filter of store.
+
+        If the base filter is ``None``, returns `default`.
+
+        If `default` is ``None``, assumes :attr:`Store.default_base_filter`.
+
+        Parameters:
+           default: Default base filter.
+
+        Returns:
+           Filter.
+        """
+        if self._base_filter is not None:
+            base_filter: Filter = self._base_filter
+        elif default is not None:
+            base_filter = default
+        else:
+            base_filter = self.default_base_filter
+        return base_filter
+
+    def set_base_filter(self, base_filter: Filter | None = None) -> None:
+        """Sets the base filter of store.
+
+        If `filter` is ``None``, resets base filter to
+        :attr:`Store.default_base_filter`.
+
+        Parameters:
+           base_filter: Filter.
+        """
+        base_filter = Filter.check_optional(
+            base_filter, None, self.set_base_filter, 'base_filter', 1)
+        if (base_filter != self._base_filter and self._do_set_base_filter(
+                self._base_filter, base_filter)):
+            self._base_filter = base_filter
+
+    def _do_set_base_filter(
+            self,
+            old: Filter | None,
+            new: Filter | None
+    ) -> bool:
+        return True
+
+    @at_property
+    def subject(self) -> Fingerprint:
+        """The subject fingerprint of base filter of store."""
+        return self.get_subject()
+
+    @subject.setter
+    def subject(self, subject: TFingerprint) -> None:
+        self.set_subject(subject)
+
+    def get_subject(self) -> Fingerprint:
+        """Gets the subject fingerprint of base filter of store.
+
+        Returns:
+           Fingerprint.
+        """
+        return self.base_filter.subject
+
+    def set_subject(self, subject: TFingerprint | None = None) -> None:
+        """Sets the subject fingerprint of base filter of store.
+
+        If `subject` is ``None``, assumes the full fingerprint.
+
+        Parameters:
+           subject: Fingerprint.
+        """
+        self.base_filter = self.base_filter.replace(subject=subject)
+
+    @at_property
+    def property(self) -> Fingerprint:
+        """The property fingerprint of base filter of store."""
+        return self.get_property()
+
+    @property.setter
+    def property(self, property: TFingerprint) -> None:
+        self.set_property(property)
+
+    def get_property(self) -> Fingerprint:
+        """Gets the property fingerprint of base filter of store.
+
+        Returns:
+           Fingerprint.
+        """
+        return self.base_filter.property
+
+    def set_property(self, property: TFingerprint) -> None:
+        """Sets the property fingerprint of base filter of store.
+
+        If `property` is ``None``, assumes the full fingerprint.
+
+        Parameters:
+           property: Fingerprint.
+        """
+        self.base_filter = self.base_filter.replace(property=property)
+
+    @at_property
+    def value(self) -> Fingerprint:
+        """The value fingerprint of base filter of store."""
+        return self.get_value()
+
+    @value.setter
+    def value(self, value: TFingerprint) -> None:
+        self.set_value(value)
+
+    def get_value(self) -> Fingerprint:
+        """Gets the value fingerprint of base filter of store.
+
+        Returns:
+           Fingerprint.
+        """
+        return self.base_filter.value
+
+    def set_value(self, value: TFingerprint) -> None:
+        """Sets the value fingerprint of base filter of store.
+
+        If `value` is ``None``, assumes the full fingerprint.
+
+        Parameters:
+           value: Fingerprint.
+        """
+        self.base_filter = self.base_filter.replace(value=value)
+
+    @at_property
+    def snak_mask(self) -> Filter.SnakMask:
+        """The snak mask of base filter of store."""
+        return self.get_snak_mask()
+
+    @snak_mask.setter
+    def snak_mask(self, snak_mask: Filter.SnakMask) -> None:
+        self.set_snak_mask(snak_mask)
+
+    def get_snak_mask(self) -> Filter.SnakMask:
+        """Gets the snak mask of the base filter of store.
+
+        Returns:
+           Snak mask.
+        """
+        return self.base_filter.snak_mask
+
+    def set_snak_mask(self, snak_mask: Filter.TSnakMask) -> None:
+        """Sets the snak mask of the base filter of store.
+
+        Parameters:
+           snak_mask: Snak mask.
+        """
+        self.base_filter = self.base_filter.replace(snak_mask=snak_mask)
+
 # -- Extra references ------------------------------------------------------
 
-    @property
+    @at_property
     def default_extra_references(self) -> ReferenceRecordSet:
         """The default value for :attr:`Store.extra_references`."""
         return self.get_default_extra_references()
@@ -176,15 +366,9 @@ class Store(Set):
     #: Extra references.
     _extra_references: ReferenceRecordSet | None
 
-    def _init_extra_references(
-            self,
-            extra_references: TReferenceRecordSet | None
-    ) -> None:
-        self.extra_references = extra_references  # type: ignore
-
-    @property
+    @at_property
     def extra_references(self) -> ReferenceRecordSet:
-        """The extra references to attach to statements."""
+        """The extra references of store."""
         return self.get_extra_references()
 
     @extra_references.setter
@@ -198,7 +382,7 @@ class Store(Set):
             self,
             default: ReferenceRecordSet | None = None
     ) -> ReferenceRecordSet:
-        """Gets the extra references to attach to statements.
+        """Gets the extra references of store.
 
         If the extra references is ``None``, returns `default`.
 
@@ -223,18 +407,28 @@ class Store(Set):
             self,
             extra_references: TReferenceRecordSet | None = None
     ) -> None:
-        """Sets the extra references to attach to statements.
+        """Sets the extra references of store.
 
-        If `extra_references` is ``None``,
-        assumes :attr:`Store.default_extra_references`.
+        If `extra_references` is ``None``, resets extra references to
+        :attr:`Store.default_extra_references`.
 
         Parameters:
            references: Reference record set.
         """
-        self._extra_references =\
-            ReferenceRecordSet.check_optional(
-                extra_references, None, self.set_extra_references,
-                'extra_references', 1)
+        extra_references = ReferenceRecordSet.check_optional(
+            extra_references, None, self.set_extra_references,
+            'extra_references', 1)
+        if (extra_references != self._extra_references
+            and self._do_set_extra_references(
+                self._extra_references, extra_references)):
+            self._extra_references = extra_references
+
+    def _do_set_extra_references(
+            self,
+            old: ReferenceRecordSet | None,
+            new: ReferenceRecordSet | None
+    ) -> bool:
+        return True
 
 # -- Flags -----------------------------------------------------------------
 
@@ -282,7 +476,7 @@ class Store(Set):
     #: Type alias for store flags.
     TFlags: TypeAlias = Flags | int
 
-    @property
+    @at_property
     def default_flags(self) -> Flags:
         """The default value for :attr:`Store.flags`."""
         return self.get_default_flags()
@@ -296,35 +490,41 @@ class Store(Set):
         return self.context.options.store.flags
 
     #: Store flags.
-    _flags: Flags
+    _flags: Flags | None
 
-    def _init_flags(self, flags: TFlags | None = None) -> None:
-        flags = self.Flags.check_optional(
-            flags, self.default_flags, type(self), 'flags')
-        assert flags is not None
-        self._flags = flags
-
-    @property
+    @at_property
     def flags(self) -> Flags:
         """The store flags."""
         return self.get_flags()
 
     @flags.setter
-    def flags(self, flags: TFlags) -> None:
-        flags = self.Flags.check(flags, self.set_flags, 'flags', 1)
+    def flags(self, flags: TFlags | None) -> None:
+        flags = self.Flags.check_optional(
+            flags, None, self.set_flags, 'flags', 1)
         if flags != self._flags and self._do_set_flags(self._flags, flags):
             self._flags = flags
 
-    def _do_set_flags(self, old: Flags, new: Flags) -> bool:
+    def _do_set_flags(self, old: Flags | None, new: Flags | None) -> bool:
         return True
 
-    def get_flags(self) -> Flags:
+    def get_flags(self, default: Flags | None = None) -> Flags:
         """Gets the store flags.
+
+        If `default` is ``None``, assumes :attr:`Store.default_flags`.
+
+        Parameters:
+           default: Default flags.
 
         Returns:
            Store flags.
         """
-        return self._flags
+        if self._flags is not None:
+            flags: Store.Flags = self._flags
+        elif default is not None:
+            flags = default
+        else:
+            flags = self.default_flags
+        return flags
 
     def has_flags(self, flags: TFlags) -> bool:
         """Tests whether `flags` are set in store.
@@ -338,14 +538,17 @@ class Store(Set):
         flags = self.Flags.check(flags, self.has_flags, 'flags', 1)
         return bool(self.flags & flags)
 
-    def set_flags(self, flags: TFlags) -> None:
+    def set_flags(self, flags: TFlags | None = None) -> None:
         """Sets `flags` in store.
 
         Parameters:
            flags: Store flags.
         """
-        flags = self.Flags.check(flags, self.set_flags, 'flags', 1)
-        self.flags |= flags
+        if flags is None:
+            self.flags = None   # type: ignore
+        else:
+            self.flags |= self.Flags.check(
+                flags, self.set_flags, 'flags', 1)
 
     def unset_flags(self, flags: TFlags) -> None:
         """Unsets `flags` in store.
@@ -399,7 +602,7 @@ class Store(Set):
         return cls._do_check_optional(
             cls._check_limit, arg, default, function, name, position)
 
-    @property
+    @at_property
     def max_limit(self) -> int:
         """The maximum value for :attr:`Store.limit`."""
         return self.get_max_limit()
@@ -412,7 +615,7 @@ class Store(Set):
         """
         return self.context.options.store.max_limit
 
-    @property
+    @at_property
     def default_limit(self) -> int | None:
         """The default value for :attr:`Store.limit`."""
         return self.get_default_limit()
@@ -428,12 +631,9 @@ class Store(Set):
     #: Limit.
     _limit: int | None
 
-    def _init_limit(self, limit: int | None = None) -> None:
-        self.limit = limit  # type: ignore
-
-    @property
+    @at_property
     def limit(self) -> int | None:
-        """The limit (maximum number) of responses."""
+        """The limit of store (maximum number of responses)."""
         return self.get_limit()
 
     @limit.setter
@@ -444,7 +644,7 @@ class Store(Set):
             self,
             default: int | None = None
     ) -> int | None:
-        """Gets the limit (maximum number) of responses.
+        """Gets the limit of store.
 
         If the limit is ``None``, returns `default`.
 
@@ -471,7 +671,7 @@ class Store(Set):
             self,
             limit: int | None = None
     ) -> None:
-        """Sets the limit (maximum number) of responses.
+        """Sets the limit of store.
 
         If `limit` is negative, assumes zero.
 
@@ -480,8 +680,13 @@ class Store(Set):
         Parameters:
            limit: Limit.
         """
-        self._limit = self._check_optional_limit(
+        limit = self._check_optional_limit(
             limit, None, self.set_limit, 'limit', 1)
+        if (limit != self._limit and self._do_set_limit(self._limit, limit)):
+            self._limit = limit
+
+    def _do_set_limit(self, old: int | None, new: int | None) -> bool:
+        return True
 
 # -- Page size -------------------------------------------------------------
 
@@ -508,7 +713,7 @@ class Store(Set):
         return cls._do_check_optional(
             cls._check_page_size, arg, default, function, name, position)
 
-    @property
+    @at_property
     def max_page_size(self) -> int:
         """The maximum value for :attr:`Store.page_size`."""
         return self.get_max_page_size()
@@ -521,7 +726,7 @@ class Store(Set):
         """
         return self.context.options.store.max_page_size
 
-    @property
+    @at_property
     def default_page_size(self) -> int:
         """The default value for :attr:`Store.page_size`."""
         return self.get_default_page_size()
@@ -537,13 +742,9 @@ class Store(Set):
     #: Page size.
     _page_size: int | None
 
-    def _init_page_size(self, page_size: int | None = None) -> None:
-        self._page_size = self._check_optional_page_size(
-            page_size, None, type(self), 'page_size')
-
-    @property
+    @at_property
     def page_size(self) -> int:
-        """The page size of paginated responses."""
+        """The page size of store (size of response pages)."""
         return self.get_page_size()
 
     @page_size.setter
@@ -554,7 +755,7 @@ class Store(Set):
             self,
             default: int | None = None
     ) -> int:
-        """Gets the page size of paginated responses.
+        """Gets the page size of store.
 
         If the page size is ``None``, returns `default`.
 
@@ -578,7 +779,7 @@ class Store(Set):
             self,
             page_size: int | None = None
     ) -> None:
-        """Sets page size of paginated responses.
+        """Sets page size of store.
 
         If `page_size` is negative, assumes zero.
 
@@ -622,7 +823,7 @@ class Store(Set):
             cls._check_timeout,
             arg, default, function, name, position)
 
-    @property
+    @at_property
     def max_timeout(self) -> float:
         """The maximum value for :attr:`Store.timeout`."""
         return self.get_max_timeout()
@@ -635,7 +836,7 @@ class Store(Set):
         """
         return self.context.options.store.max_timeout
 
-    @property
+    @at_property
     def default_timeout(self) -> float | None:
         """The default value for :attr:`Store.timeout`."""
         return self.get_default_timeout()
@@ -651,12 +852,9 @@ class Store(Set):
     #: Timeout (in seconds).
     _timeout: float | None
 
-    def _init_timeout(self, timeout: float | None = None) -> None:
-        self.timeout = timeout  # type: ignore
-
-    @property
+    @at_property
     def timeout(self) -> float | None:
-        """The timeout of responses (in seconds)."""
+        """The timeout of store (in seconds)."""
         return self.get_timeout()
 
     @timeout.setter
@@ -667,7 +865,7 @@ class Store(Set):
             self,
             default: float | None = None
     ) -> float | None:
-        """Gets the timeout of responses (in seconds).
+        """Gets the timeout of store.
 
         If the timeout is ``None``, returns `default`.
 
@@ -694,7 +892,7 @@ class Store(Set):
             self,
             timeout: float | None = None
     ) -> None:
-        """Sets the timeout of responses (in seconds).
+        """Sets the timeout of store.
 
         If `timeout` is negative, assumes zero.
 
@@ -703,8 +901,14 @@ class Store(Set):
         Parameters:
            timeout: Timeout.
         """
-        self._timeout = self._check_optional_timeout(
+        timeout = self._check_optional_timeout(
             timeout, None, self.set_timeout, 'timeout', 1)
+        if (timeout != self._timeout and self._do_set_timeout(
+                self._timeout, timeout)):
+            self._timeout = timeout
+
+    def _do_set_timeout(self, old: float | None, new: float | None) -> bool:
+        return True
 
 # -- Set interface ---------------------------------------------------------
 

@@ -95,12 +95,16 @@ class MixerStore(
         return self._sync_flags
 
     @override
-    def _do_set_flags(self, old: Store.Flags, new: Store.Flags) -> bool:
+    def _do_set_flags(
+            self,
+            old: Store.Flags | None,
+            new: Store.Flags | None
+    ) -> bool:
         if not super()._do_set_flags(old, new):
             return False
         if self.sync_flags:
             for src in self.sources:
-                src.flags = new
+                src.flags = new  # type: ignore
         return True
 
     @property
