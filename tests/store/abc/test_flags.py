@@ -16,10 +16,7 @@ class Test(TestCase):
             kb.default_flags,
             kb.context.options.store.flags)
 
-    def test__init_flags(self) -> None:
-        self.assert_raises_bad_argument(
-            TypeError, 1, 'flags', 'cannot coerce dict into Store.Flags',
-            (Store, 'Store.set_flags'), 'empty', flags={})
+    def test__init__flags(self) -> None:
         kb = Store('empty')
         self.assertEqual(kb.flags, kb.default_flags)
         kb = Store('empty', flags=0)
@@ -29,17 +26,28 @@ class Test(TestCase):
         kb = Store('empty')
         self.assertEqual(kb.flags, kb.default_flags)
         self.assertEqual(kb.get_flags(), kb.flags)
+        self.assertEqual(kb.get_flags(kb.DEBUG), kb.DEBUG)
         kb = Store('empty', flags=0)
         self.assertEqual(kb.flags, kb.Flags(0))
         self.assertEqual(kb.get_flags(), kb.flags)
+        kb.set_flags(None)
+        self.assertEqual(kb.get_flags(), kb.default_flags)
+        self.assertEqual(kb.get_flags(kb.DEBUG), kb.DEBUG)
 
     def test_set_flags(self) -> None:
+        kb = Store('empty')
+        self.assert_raises_bad_argument(
+            TypeError, 1, 'flags', 'cannot coerce dict into Store.Flags',
+            kb.set_flags, {})
         kb = Store('empty', flags=Store.Flags(0))
         self.assertEqual(kb.flags, kb.Flags(0))
         kb.set_flags(kb.DEBUG)
         self.assertEqual(kb.flags, kb.DEBUG)
         kb.flags |= kb.BEST_RANK
         self.assertEqual(kb.flags, kb.DEBUG | kb.BEST_RANK)
+        kb.flags = None         # type: ignore
+        self.assertEqual(kb.flags, kb.default_flags)
+        self.assertEqual(kb.get_flags(kb.DEBUG), kb.DEBUG)
 
     def test_has_flags(self) -> None:
         kb = Store('empty', flags=Store.Flags(0))

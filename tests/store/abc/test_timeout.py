@@ -21,7 +21,7 @@ class Test(TestCase):
             self.KB.max_timeout,
             self.KB.context.options.store.max_timeout)
 
-    def test__init_timeout(self) -> None:
+    def test__init__timeout(self) -> None:
         kb = Store('empty')
         self.assertEqual(kb.timeout, kb.default_timeout)
         kb = Store('empty', timeout=33)

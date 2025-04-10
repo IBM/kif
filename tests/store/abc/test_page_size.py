@@ -22,7 +22,7 @@ class Test(TestCase):
             kb.max_page_size,
             kb.context.options.store.max_page_size)
 
-    def test__init_page_size(self) -> None:
+    def test__init__page_size(self) -> None:
         kb = Store('empty')
         self.assertEqual(kb.page_size, kb.default_page_size)
         kb = Store('empty', page_size=33)

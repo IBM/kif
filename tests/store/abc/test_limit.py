@@ -19,7 +19,7 @@ class Test(TestCase):
             kb.max_limit,
             kb.context.options.store.max_limit)
 
-    def test__init_limit(self) -> None:
+    def test__init__limit(self) -> None:
         kb = Store('empty')
         self.assertEqual(kb.limit, kb.default_limit)
         kb = Store('empty', limit=33)

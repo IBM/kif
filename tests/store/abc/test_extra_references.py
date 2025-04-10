@@ -27,7 +27,7 @@ class Test(TestCase):
             kb.default_extra_references,
             ReferenceRecordSet())
 
-    def test__init_extra_references(self) -> None:
+    def test__init__extra_references(self) -> None:
         kb = Store('empty')
         self.assertEqual(kb.extra_references, kb.default_extra_references)
         kb = Store('empty', extra_references=list(self.refs))
