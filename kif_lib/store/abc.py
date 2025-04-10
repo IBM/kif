@@ -1263,9 +1263,7 @@ class Store(Set):
         limit = self._check_optional_limit(
             limit, self.limit, self.filter, 'limit', 13)
         if limit is None:
-            limit = self.default_limit
-        if limit is None:
-            limit = self.max_limit
+            limit = self.get_limit(self.max_limit)
         assert limit is not None
         ###
         # FIXME: Move this to an option.
@@ -1402,9 +1400,12 @@ class Store(Set):
         language = String.check(
             language, function, 'language', 9).content\
             if language is not None else None
-        annotated = bool(annotated)
+        if annotated is None:
+            annotated = self.base_filter.annotated
+        else:
+            annotated = bool(annotated)
         if filter is None:
-            filter = Filter(
+            filter = self.base_filter.combine(Filter(
                 subject=subject,
                 property=property,
                 value=value,
@@ -1413,21 +1414,22 @@ class Store(Set):
                 property_mask=property_mask,
                 value_mask=value_mask,
                 rank_mask=rank_mask,
-                language=language,
-                annotated=annotated)
+                language=language)).replace(annotated=annotated)
         else:
             filter = Filter.check(filter, function, 'filter', 12)
-            filter = filter.combine(Filter(
-                subject=subject,
-                property=property,
-                value=value,
-                snak_mask=snak_mask,
-                subject_mask=subject_mask,
-                property_mask=property_mask,
-                value_mask=value_mask,
-                rank_mask=rank_mask,
-                language=language)).replace(
-                    annotated=filter.annotated or annotated)
+            filter = self.base_filter.combine(
+                filter,
+                Filter(
+                    subject=subject,
+                    property=property,
+                    value=value,
+                    snak_mask=snak_mask,
+                    subject_mask=subject_mask,
+                    property_mask=property_mask,
+                    value_mask=value_mask,
+                    rank_mask=rank_mask,
+                    language=language)).replace(
+                        annotated=filter.annotated or annotated)
         if snak is not None:
             filter = filter.combine(Filter.from_snak(None, Snak.check(
                 snak, function, 'snak', 11))).replace(

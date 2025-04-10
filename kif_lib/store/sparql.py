@@ -310,9 +310,9 @@ class _SPARQL_Store(
         super().__init__(**kwargs)
 
     @override
-    def set_timeout(self, timeout: float | None = None) -> None:
-        self.backend._set_timeout(timeout)
-        super().set_timeout(timeout)
+    def _set_timeout(self, old: float | None, new: float | None) -> bool:
+        self.backend._set_timeout(new)
+        return True
 
 # -- Backend ---------------------------------------------------------------
 
