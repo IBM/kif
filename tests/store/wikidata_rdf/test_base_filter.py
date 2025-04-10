@@ -3,7 +3,14 @@
 
 from __future__ import annotations
 
-from kif_lib import AnnotatedStatement, ExternalId, Filter, Preferred, Quantity, Statement, Text, Time
+from kif_lib import (
+    AnnotatedStatement,
+    Filter,
+    Preferred,
+    Statement,
+    Text,
+    Time,
+)
 from kif_lib.vocabulary import wd
 
 from ...tests import StoreTestCase
@@ -69,8 +76,8 @@ class Test(StoreTestCase):
         kb.value_mask = Filter.TIME
         xf, F = self.store_xfilter_assertion(kb)
         xf(F(wd.Brazil), {wd.inception(wd.Brazil, Time(
-                '1822-09-07', Time.DAY, 0,
-                wd.proleptic_Gregorian_calendar))})
+            '1822-09-07', Time.DAY, 0,
+            wd.proleptic_Gregorian_calendar))})
 
     def test_rank_mask(self) -> None:
         raise self.TODO()
