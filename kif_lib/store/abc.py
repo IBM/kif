@@ -18,6 +18,7 @@ from ..model import (
     String,
     TFingerprint,
     TReferenceRecordSet,
+    TTextLanguage,
 )
 from ..model.flags import Flags as KIF_Flags
 from ..typing import (
@@ -244,7 +245,7 @@ class Store(Set):
 
     @at_property
     def subject(self) -> Fingerprint:
-        """The subject fingerprint of base filter of store."""
+        """The subject fingerprint of the base filter of store."""
         return self.get_subject()
 
     @subject.setter
@@ -252,7 +253,7 @@ class Store(Set):
         self.set_subject(subject)
 
     def get_subject(self) -> Fingerprint:
-        """Gets the subject fingerprint of base filter of store.
+        """Gets the subject fingerprint of the base filter of store.
 
         Returns:
            Fingerprint.
@@ -260,7 +261,7 @@ class Store(Set):
         return self.base_filter.subject
 
     def set_subject(self, subject: TFingerprint | None = None) -> None:
-        """Sets the subject fingerprint of base filter of store.
+        """Sets the subject fingerprint of the base filter of store.
 
         If `subject` is ``None``, assumes the full fingerprint.
 
@@ -271,7 +272,7 @@ class Store(Set):
 
     @at_property
     def property(self) -> Fingerprint:
-        """The property fingerprint of base filter of store."""
+        """The property fingerprint of the base filter of store."""
         return self.get_property()
 
     @property.setter
@@ -279,7 +280,7 @@ class Store(Set):
         self.set_property(property)
 
     def get_property(self) -> Fingerprint:
-        """Gets the property fingerprint of base filter of store.
+        """Gets the property fingerprint of the base filter of store.
 
         Returns:
            Fingerprint.
@@ -287,7 +288,7 @@ class Store(Set):
         return self.base_filter.property
 
     def set_property(self, property: TFingerprint) -> None:
-        """Sets the property fingerprint of base filter of store.
+        """Sets the property fingerprint of the base filter of store.
 
         If `property` is ``None``, assumes the full fingerprint.
 
@@ -298,7 +299,7 @@ class Store(Set):
 
     @at_property
     def value(self) -> Fingerprint:
-        """The value fingerprint of base filter of store."""
+        """The value fingerprint of the base filter of store."""
         return self.get_value()
 
     @value.setter
@@ -306,7 +307,7 @@ class Store(Set):
         self.set_value(value)
 
     def get_value(self) -> Fingerprint:
-        """Gets the value fingerprint of base filter of store.
+        """Gets the value fingerprint of the base filter of store.
 
         Returns:
            Fingerprint.
@@ -314,7 +315,7 @@ class Store(Set):
         return self.base_filter.value
 
     def set_value(self, value: TFingerprint) -> None:
-        """Sets the value fingerprint of base filter of store.
+        """Sets the value fingerprint of the base filter of store.
 
         If `value` is ``None``, assumes the full fingerprint.
 
@@ -325,7 +326,7 @@ class Store(Set):
 
     @at_property
     def snak_mask(self) -> Filter.SnakMask:
-        """The snak mask of base filter of store."""
+        """The snak mask of the base filter of store."""
         return self.get_snak_mask()
 
     @snak_mask.setter
@@ -347,6 +348,157 @@ class Store(Set):
            snak_mask: Snak mask.
         """
         self.base_filter = self.base_filter.replace(snak_mask=snak_mask)
+
+    @at_property
+    def subject_mask(self) -> Filter.DatatypeMask:
+        """The subject mask of the base filter of store."""
+        return self.get_subject_mask()
+
+    @subject_mask.setter
+    def subject_mask(self, subject_mask: Filter.DatatypeMask) -> None:
+        self.set_subject_mask(subject_mask)
+
+    def get_subject_mask(self) -> Filter.DatatypeMask:
+        """Gets the subject mask of the base filter of store.
+
+        Returns:
+           Datatype mask.
+        """
+        return self.base_filter.subject_mask
+
+    def set_subject_mask(self, subject_mask: Filter.TDatatypeMask) -> None:
+        """Sets the subject mask of the base filter of store.
+
+        Parameters:
+           subject_mask: Datatype mask.
+        """
+        self.base_filter = self.base_filter.replace(subject_mask=subject_mask)
+
+    @at_property
+    def property_mask(self) -> Filter.DatatypeMask:
+        """The property mask of the base filter of store."""
+        return self.get_property_mask()
+
+    @property_mask.setter
+    def property_mask(self, property_mask: Filter.DatatypeMask) -> None:
+        self.set_property_mask(property_mask)
+
+    def get_property_mask(self) -> Filter.DatatypeMask:
+        """Gets the property mask of the base filter of store.
+
+        Returns:
+           Datatype mask.
+        """
+        return self.base_filter.property_mask
+
+    def set_property_mask(self, property_mask: Filter.TDatatypeMask) -> None:
+        """Sets the property mask of the base filter of store.
+
+        Parameters:
+           property_mask: Datatype mask.
+        """
+        self.base_filter = self.base_filter.replace(
+            property_mask=property_mask)
+
+    @at_property
+    def value_mask(self) -> Filter.DatatypeMask:
+        """The value mask of the base filter of store."""
+        return self.get_value_mask()
+
+    @value_mask.setter
+    def value_mask(self, value_mask: Filter.DatatypeMask) -> None:
+        self.set_value_mask(value_mask)
+
+    def get_value_mask(self) -> Filter.DatatypeMask:
+        """Gets the value mask of the base filter of store.
+
+        Returns:
+           Datatype mask.
+        """
+        return self.base_filter.value_mask
+
+    def set_value_mask(self, value_mask: Filter.TDatatypeMask) -> None:
+        """Sets the value mask of the base filter of store.
+
+        Parameters:
+           value_mask: Datatype mask.
+        """
+        self.base_filter = self.base_filter.replace(value_mask=value_mask)
+
+    @at_property
+    def rank_mask(self) -> Filter.RankMask:
+        """The rank mask of the base filter of store."""
+        return self.get_rank_mask()
+
+    @rank_mask.setter
+    def rank_mask(self, rank_mask: Filter.RankMask) -> None:
+        self.set_rank_mask(rank_mask)
+
+    def get_rank_mask(self) -> Filter.RankMask:
+        """Gets the rank mask of the base filter of store.
+
+        Returns:
+           Datatype mask.
+        """
+        return self.base_filter.rank_mask
+
+    def set_rank_mask(self, rank_mask: Filter.TRankMask) -> None:
+        """Sets the rank mask of the base filter of store.
+
+        Parameters:
+           rank_mask: Datatype mask.
+        """
+        self.base_filter = self.base_filter.replace(rank_mask=rank_mask)
+
+    @at_property
+    def language(self) -> str | None:
+        """The language of the base filter of store."""
+        return self.get_language()
+
+    @language.setter
+    def language(self, language: TTextLanguage | None) -> None:
+        self.set_language(language)
+
+    def get_language(self) -> str | None:
+        """Gets the language of the base filter of store.
+
+        Returns:
+           Language.
+        """
+        return self.base_filter.language
+
+    def set_language(self, language: TTextLanguage | None) -> None:
+        """Sets the language of the base filter of store.
+
+        Parameters:
+           language: Language.
+        """
+        self.base_filter = self.base_filter.replace(language=language)
+
+    @at_property
+    def annotated(self) -> bool:
+        """The annotated flag of the base filter of store."""
+        return self.get_annotated()
+
+    @annotated.setter
+    def annotated(self, annotated: bool) -> None:
+        self.set_annotated(annotated)
+
+    def get_annotated(self) -> bool:
+        """Gets the annotated flag of the base filter of store.
+
+        Returns:
+           Annotated flag.
+        """
+        return self.base_filter.annotated
+
+    def set_annotated(self, annotated: bool) -> None:
+        """Sets the annotated flag of the base filter of store.
+
+        Parameters:
+           annotated: Annotated flag.
+        """
+        self.base_filter = self.base_filter.replace(annotated=annotated)
 
 # -- Extra references ------------------------------------------------------
 
