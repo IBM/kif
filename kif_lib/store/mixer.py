@@ -95,12 +95,12 @@ class MixerStore(
         return self._sync_flags
 
     @override
-    def _do_set_flags(
+    def _set_flags(
             self,
             old: Store.Flags | None,
             new: Store.Flags | None
     ) -> bool:
-        if not super()._do_set_flags(old, new):
+        if not super()._set_flags(old, new):
             return False
         if self.sync_flags:
             for src in self.sources:
@@ -121,8 +121,8 @@ class MixerStore(
         return self._sync_page_size
 
     @override
-    def _do_set_page_size(self, old: int | None, new: int | None) -> bool:
-        if not super()._do_set_page_size(old, new):
+    def _set_page_size(self, old: int | None, new: int | None) -> bool:
+        if not super()._set_page_size(old, new):
             return False
         if self.sync_page_size:
             for src in self.sources:

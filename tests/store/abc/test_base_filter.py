@@ -13,9 +13,9 @@ FP = Fingerprint.check
 
 class Test(TestCase):
 
-    F1 = Filter(Item('x'))
+    F1: Final[Filter] = Filter(Item('x'))
 
-    F2 = Filter(
+    F2: Final[Filter] = Filter(
         Item('x'), Property('y'), Item('z') | Lexeme('w'),
         snak_mask=Filter.VALUE_SNAK,
         subject_mask=Filter.ITEM,
