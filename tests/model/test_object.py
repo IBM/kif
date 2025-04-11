@@ -15,7 +15,7 @@ from unittest import main, TestCase
 class Test(TestCase):
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         import kif_lib.model.object as obj
 
         global Decoder

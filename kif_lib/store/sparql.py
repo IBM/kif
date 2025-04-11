@@ -47,6 +47,7 @@ from ..typing import (
     Union,
 )
 from ..version import __version__
+from . import jena
 from .abc import Store
 from .mixer import MixerStore
 
@@ -203,6 +204,68 @@ class _SPARQL_Store(
         def _set_timeout(self, timeout: float | None = None) -> None:
             if self._client is not None:
                 self._client.timeout = httpx.Timeout(timeout)
+
+    class JenaBackend(Backend):
+        """Jena backend.
+
+        Parameters:
+           store: Parent SPARQL store.
+           args: Input sources, files, paths, strings, or statements.
+           format: Input source format (file extension or media type).
+           location: Relative or absolute URL of the input source.
+           skolemize: Whether to skolemize the resulting graph.
+           kwargs: Other keyword arguments (ignored).
+        """
+
+        __slots__ = (
+            '_jena',
+        )
+
+        #: Type alias for RDFLib backend arguments.
+        Args: TypeAlias = Union[str, pathlib.PurePath]
+
+        #: Jena handle.
+        _jena: jena.Jena
+
+        def __init__(
+                self,
+                store: _SPARQL_Store,
+                *args: Args,
+                format: str | None = None,
+                location: str | None = None,
+                skolemize: bool | None = None,
+                jena_home: T_IRI | None = None,
+                **kwargs
+        ) -> None:
+            super().__init__(store)
+            jena_home = IRI.check_optional(
+                jena_home, None, type(store), 'jena_home')
+            self._jena = jena.Jena(
+                jena_home.content if jena_home is not None else None)
+            _load = functools.partial(self._jena.load, format=format)
+
+            def load(name: str | None, *args, **kwargs) -> None:
+                try:
+                    _load(*args, **kwargs)
+                except Exception as err:
+                    raise KIF_Object._arg_error(
+                        str(err), type(store), name,
+                        exception=store.Error) from err
+            if location is not None:
+                load('location', location)
+            for arg in args:
+                load(None, arg)
+            ###
+            # TODO: Skolemize graph!
+            ###
+
+        @override
+        def _ask(self, query: str) -> SPARQL_ResultsAsk:
+            return {'boolean': cast(bool, self._jena.query(query))}
+
+        @override
+        def _select(self, query: str) -> SPARQL_Results:
+            return cast(SPARQL_Results, self._jena.query(query))
 
     class RDFLibBackend(Backend):
         """RDFLib backend.
@@ -535,6 +598,36 @@ class HttpxSPARQL_Store(
             self.HttpxBackend, iri=iri, headers=headers, **kwargs)
 
 
+# == Jena SPARQL store =====================================================
+
+class JenaSPARQL_Store(
+        _SPARQL_Store,
+        store_name='sparql-jena',
+        store_description='SPARQL store with Jena backend'
+):
+
+    #: Type alias for Jena SPARQL store arguments.
+    Args: TypeAlias = _SPARQL_Store.JenaBackend.Args
+
+    def __init__(
+            self,
+            store_name: str,
+            *args: Args,
+            format: str | None = None,
+            location: str | None = None,
+            skolemize: bool | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            **kwargs: Any
+    ) -> None:
+        assert store_name == self.store_name
+        super().__init__(
+            store_name,
+            (mapping if mapping is not None
+             else self._wikidata_mapping_constructor()),
+            self.JenaBackend, *args, format=format,
+            location=location, skolemize=skolemize, **kwargs)
+
+
 # == RDFLib SPARQL store ===================================================
 
 class RDFLibSPARQL_Store(
@@ -583,8 +676,8 @@ class RDFLibSPARQL_Store(
             (mapping if mapping is not None
              else self._wikidata_mapping_constructor()),
             self.RDFLibBackend, *args, publicID=publicID, format=format,
-            file=file, data=data, graph=graph, rdflib_graph=rdflib_graph,
-            skolemize=skolemize, **kwargs)
+            location=location, file=file, data=data, graph=graph,
+            rdflib_graph=rdflib_graph, skolemize=skolemize, **kwargs)
 
 
 class RDF_Store(
