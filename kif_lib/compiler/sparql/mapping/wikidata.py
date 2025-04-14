@@ -604,6 +604,16 @@ class WikidataMapping(M):
             c.q.triples()((wds, RDF.type, WIKIBASE.BestRank))
         return p_, ps, wds      # type: ignore
 
+    def _ensure_wds_is_bound_fix(self, c: C) -> None:
+        ###
+        # IMPORTANT: Due to the way subqueries are evaluated, when wds is a
+        # variable, make sure we bind it to something (a BNode) otherwise
+        # some SPARQL engines, including RDFLib and Jena, generate spurious
+        # binds.
+        ###
+        if isinstance(self.wds, Var):
+            c.q.bind(c.q.BNODE(), self.wds)
+
     # -- label (pseudo-property) --
 
     @M.register(
@@ -620,6 +630,7 @@ class WikidataMapping(M):
     ) -> None:
         self._start_Q_tail(c, e)
         self._p_text_tail(c, RDFS.label, e, x, y)
+        self._ensure_wds_is_bound_fix(c)
 
     @M.register(
         [Statement(Property(e, d), LabelProperty()(Text(x, y)))],
@@ -637,6 +648,7 @@ class WikidataMapping(M):
     ) -> None:
         self._start_P_tail(c, e, d)
         self._p_text_tail(c, RDFS.label, e, x, y)
+        self._ensure_wds_is_bound_fix(c)
 
     # -- alias (pseudo-property) --
 
@@ -654,6 +666,7 @@ class WikidataMapping(M):
     ) -> None:
         self._start_Q_tail(c, e)
         self._p_text_tail(c, SKOS.altLabel, e, x, y)
+        self._ensure_wds_is_bound_fix(c)
 
     @M.register(
         [Statement(Property(e, d), AliasProperty()(Text(x, y)))],
@@ -671,6 +684,7 @@ class WikidataMapping(M):
     ) -> None:
         self._start_P_tail(c, e, d)
         self._p_text_tail(c, SKOS.altLabel, e, x, y)
+        self._ensure_wds_is_bound_fix(c)
 
     # -- description (pseudo-property) --
 
@@ -688,6 +702,7 @@ class WikidataMapping(M):
     ) -> None:
         self._start_Q_tail(c, e)
         self._p_text_tail(c, SCHEMA.description, e, x, y)
+        self._ensure_wds_is_bound_fix(c)
 
     @M.register(
         [Statement(Property(e, d), DescriptionProperty()(Text(x, y)))],
@@ -705,6 +720,7 @@ class WikidataMapping(M):
     ) -> None:
         self._start_P_tail(c, e, d)
         self._p_text_tail(c, SCHEMA.description, e, x, y)
+        self._ensure_wds_is_bound_fix(c)
 
     # -- lemma, lexical category, language (pseudo-properties) --
 
@@ -722,6 +738,7 @@ class WikidataMapping(M):
     ) -> None:
         self._start_L_tail(c, e)
         self._p_text_tail(c, WIKIBASE.lemma, e, x, y)
+        self._ensure_wds_is_bound_fix(c)
 
     @M.register(
         [Statement(Lexeme(e), LexicalCategoryProperty()(Item(x)))],
@@ -737,6 +754,7 @@ class WikidataMapping(M):
     ) -> None:
         self._start_L_tail(c, e)
         self._p_item_tail(c, WIKIBASE.lexicalCategory, e, x)
+        self._ensure_wds_is_bound_fix(c)
 
     @M.register(
         [Statement(Lexeme(e), LanguageProperty()(Item(x)))],
@@ -752,6 +770,7 @@ class WikidataMapping(M):
     ) -> None:
         self._start_L_tail(c, e)
         self._p_item_tail(c, DCT.language, e, x)
+        self._ensure_wds_is_bound_fix(c)
 
     # -- item --
 

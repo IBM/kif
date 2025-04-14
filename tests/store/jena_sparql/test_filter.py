@@ -32,11 +32,11 @@ class Test(StoreTestCase):
         xf(F(snak_mask=F.SnakMask(0)), ())
 
     def test_full(self) -> None:
-        f, F = self.store_filter_assertion(self.KB())
+        xf, F = self.store_xfilter_assertion(self.KB())
         ###
         # FIXME: xfilter is not working!
         ###
-        f(F(wd.Brazil), {
+        xf(F(wd.Brazil), {
             # Brazil
             wd.alias(wd.Brazil, Text('pindorama', 'pt-BR')),  # FIXME: lang
             wd.alias(wd.Brazil, Text('🇧🇷', 'pt-BR')),         # FIXME: lang

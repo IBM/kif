@@ -82,6 +82,7 @@ class Symbol:
     AS: Final[str] = 'AS'
     ASK: Final[str] = 'ASK'
     BIND: Final[str] = 'BIND'
+    BNODE: Final[str] = 'BNODE'
     BOUND: Final[str] = 'BOUND'
     COMMENT: Final[str] = '#'
     COUNT: Final[str] = 'COUNT'
@@ -460,6 +461,13 @@ class BuiltInCall(Call):
         yield from super().iterencode()
 
 
+class ZeroAryBuiltInCall(BuiltInCall):
+    """Abstract base class for 0-ary built-in calls."""
+
+    def __init__(self) -> None:
+        self.args = ()
+
+
 class UnaryBuiltInCall(BuiltInCall):
     """Abstract base class for 1-ary built-in calls."""
 
@@ -488,6 +496,14 @@ class TernaryBuiltInCall(BuiltInCall):
             Coerce.numeric_expression(arg1),
             Coerce.numeric_expression(arg2),
             Coerce.numeric_expression(arg3))
+
+
+class BNODE(ZeroAryBuiltInCall):
+    """The BNODE built-in.
+
+    See <https://www.w3.org/TR/sparql11-query/#func-bnode>.
+    """
+    operator: str = Symbol.BNODE
 
 
 class BOUND(UnaryBuiltInCall):
@@ -1515,6 +1531,9 @@ class Query(Encodable):
         return Equal(arg1, arg2)
 
 # -- Functions -------------------------------------------------------------
+
+    def BNODE(self) -> BNODE:
+        return BNODE()
 
     def bound(self, arg1: TNumExpr) -> BOUND:
         return BOUND(arg1)

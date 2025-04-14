@@ -111,32 +111,30 @@ class Test(StoreTestCase):
     # -- value fp --
 
     def test_value_fp_subject(self) -> None:
-        f, F = self.store_filter_assertion(self.KB())
-        f(F(subject=wd.benzene),
-          {wd.alias(wd.benzene, 'benzol'),
-           wd.density(
-               wd.benzene, Quantity(
-                   '.88', wd.gram_per_cubic_centimetre, '.87', '.89')),
-           wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N'),
-           wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),
-           wd.label(wd.benzene, 'benzene'),
-           wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton))})
-        ###
-        # FIXME: RDFLib misses some statements when we enable annotations.
-        ###
-        f(F(subject=wd.benzene, annotated=True),
-          {wd.alias(wd.benzene, 'benzol').annotate(),
-           wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),
-           wd.density(
-               wd.benzene, Quantity(
-                   '.88', wd.gram_per_cubic_centimetre, '.87', '.89'),
-               qualifiers=[
-                   wd.temperature(Quantity(20, wd.degree_Celsius, 19, 21)),
-                   wd.phase_of_matter(wd.liquid)],
-               references=[[
-                   wd.HSDB_ID('35#section=TSCA-Test-Submissions'),
-                   wd.stated_in(wd.Q(5687720))]]),
-           wd.label(wd.benzene, 'benzene').annotate()})
+        xf, F = self.store_xfilter_assertion(self.KB())
+        xf(F(subject=wd.benzene),
+           {wd.alias(wd.benzene, 'benzol'),
+            wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),
+            wd.density(
+                wd.benzene, Quantity(
+                    '.88', wd.gram_per_cubic_centimetre, '.87', '.89'),
+                qualifiers=[
+                    wd.temperature(Quantity(20, wd.degree_Celsius, 19, 21)),
+                    wd.phase_of_matter(wd.liquid)],
+                references=[[
+                    wd.HSDB_ID('35#section=TSCA-Test-Submissions'),
+                    wd.stated_in(wd.Q(5687720))]]),
+            wd.InChIKey(wd.benzene, 'UHOVQNZJYSORNB-UHFFFAOYSA-N'),
+            wd.label(wd.benzene, 'benzene'),
+            wd.mass(
+                wd.benzene, Quantity('78.046950192', wd.dalton),
+                references=[[
+                    wd.title('benzene'),
+                    wd.stated_in(wd.PubChem),
+                    wd.language_of_work_or_name(wd.English),
+                    wd.PubChem_CID('241'),
+                    wd.retrieved(Time('2016-10-19', Time.DAY, 0,
+                                      wd.proleptic_Gregorian_calendar))]])})
 
     def test_value_fp_property(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())

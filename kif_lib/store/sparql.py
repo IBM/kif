@@ -255,9 +255,9 @@ class _SPARQL_Store(
                 load('location', location)
             for arg in args:
                 load(None, arg)
-            ###
-            # TODO: Skolemize graph!
-            ###
+            skolemize = skolemize if skolemize is not None else True
+            if skolemize:
+                self._jena.skolemize()
 
         @override
         def _ask(self, query: str) -> SPARQL_ResultsAsk:
