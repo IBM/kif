@@ -24,6 +24,7 @@ setuptools.setup(
     install_requires=[ 'httpx', 'lark', 'more_itertools', 'networkx', 'rdflib', 'types-networkx', 'typing-extensions', ],
     extras_require={
         'docs': [ 'myst_nb', 'sphinx-rtd-theme', ],
+        'extra': [ 'graphviz', 'jpype1', ],
         'tests': ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox'],
     },
     zip_safe=False,
