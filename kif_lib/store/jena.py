@@ -9,7 +9,6 @@
 
 from __future__ import annotations
 
-import functools
 import json
 import os
 import pathlib
@@ -262,7 +261,6 @@ class Jena:
         except self._RiotException as err:
             raise err
 
-    @functools.cache
     def _formats(self) -> tuple[str, ...]:
         return tuple(sorted(map(
             str, (getattr(self._RDFLanguages, lang)

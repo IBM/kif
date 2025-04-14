@@ -33,9 +33,9 @@ from ..model import (
 from ..typing import (
     Any,
     BinaryIO,
+    Callable,
     cast,
     Final,
-    IO,
     Iterable,
     Iterator,
     Location,
@@ -44,12 +44,15 @@ from ..typing import (
     Sequence,
     TextIO,
     TypeAlias,
+    TypeVar,
     Union,
 )
 from ..version import __version__
 from . import jena
 from .abc import Store
 from .mixer import MixerStore
+
+T = TypeVar('T')
 
 LOG = logging.getLogger(__name__)
 
@@ -205,27 +208,26 @@ class _SPARQL_Store(
             if self._client is not None:
                 self._client.timeout = httpx.Timeout(timeout)
 
-    class JenaBackend(Backend):
-        """Jena backend.
+    class LocalBackend(Backend):
+        """Abstract base class for local backends.
 
         Parameters:
            store: Parent SPARQL store.
            args: Input sources, files, paths, strings, or statements.
            format: Input source format (file extension or media type).
            location: Relative or absolute URL of the input source.
+           file: File-like object to be used as input source.
+           data: Data to be used as input source.
+           graph: KIF graph to used as input source.
+           rdflib_graph: RDFLib graph to be used as input source.
            skolemize: Whether to skolemize the resulting graph.
-           kwargs: Other keyword arguments (ignored).
+           kwargs: Other keyword arguments.
         """
 
-        __slots__ = (
-            '_jena',
-        )
-
-        #: Type alias for RDFLib backend arguments.
-        Args: TypeAlias = Union[str, pathlib.PurePath]
-
-        #: Jena handle.
-        _jena: jena.Jena
+        #: Type alias for local backend arguments.
+        Args: TypeAlias = Union[
+            BinaryIO, TextIO, rdflib.InputSource,
+            str, bytes, pathlib.PurePath, Statement]
 
         def __init__(
                 self,
@@ -233,47 +235,114 @@ class _SPARQL_Store(
                 *args: Args,
                 format: str | None = None,
                 location: str | None = None,
+                file: BinaryIO | TextIO | None = None,
+                data: bytes | str | None = None,
+                graph: TGraph | None = None,
+                rdflib_graph: rdflib.Graph | None = None,
                 skolemize: bool | None = None,
-                jena_home: T_IRI | None = None,
-                **kwargs
+                **kwargs: Any
         ) -> None:
             super().__init__(store)
-            jena_home = IRI.check_optional(
-                jena_home, None, type(store), 'jena_home')
-            self._jena = jena.Jena(
-                jena_home.content if jena_home is not None else None)
-            _load = functools.partial(self._jena.load, format=format)
+            self._init(store, **kwargs)
 
-            def load(name: str | None, *args, **kwargs) -> None:
+            def load(name: str | None, f: Callable[[T], None], x: T) -> None:
                 try:
-                    _load(*args, **kwargs)
+                    f(x)
                 except Exception as err:
                     raise KIF_Object._arg_error(
                         str(err), type(store), name,
                         exception=store.Error) from err
+            _load_arg = functools.partial(self._load_arg, format=format)
+            _load_location = functools.partial(
+                self._load_location, format=format)
+            _load_file = functools.partial(self._load_file, format=format)
+            _load_data = functools.partial(self._load_data, format=format)
             if location is not None:
-                load('location', location)
-            for arg in args:
-                load(None, arg)
+                load('location', _load_location, location)
+            if file is not None:
+                load('file', _load_file, file)
+            if data is not None:
+                load('data', _load_data, data)
+            if graph is not None:
+                load('graph', self._load_graph,
+                     Graph.check(graph, type(store), 'graph'))
+            other, stmts = map(list, itertools.partition(
+                lambda s: isinstance(s, Statement), args))
+            if stmts:
+                load('graph', self._load_graph,
+                     Graph(*cast(Iterable[Statement], stmts)))
+            if rdflib_graph is not None:
+                load('rdflib_graph', self._load_rdflib_graph, rdflib_graph)
+            for src in other:
+                load('args', _load_arg, src)
             skolemize = skolemize if skolemize is not None else True
             if skolemize:
-                self._jena.skolemize()
+                self._skolemize()
 
-        @override
-        def _ask(self, query: str) -> SPARQL_ResultsAsk:
-            return {'boolean': cast(bool, self._jena.query(query))}
+        @abc.abstractmethod
+        def _init(self, store: _SPARQL_Store, **kwargs: Any) -> None:
+            raise NotImplementedError
 
-        @override
-        def _select(self, query: str) -> SPARQL_Results:
-            return cast(SPARQL_Results, self._jena.query(query))
+        def _load_arg(self, arg: Args, format: str | None = None) -> None:
+            if isinstance(arg, (pathlib.PurePath, str)):
+                self._load_location(arg, format)
+            elif isinstance(arg, (BinaryIO, TextIO)):
+                self._load_file(arg, format)
+            elif isinstance(arg, bytes):
+                self._load_data(arg, format)
+            elif isinstance(arg, Graph):
+                self._load_graph(arg)
+            elif isinstance(arg, rdflib.Graph):
+                self._load_rdflib_graph(arg)
+            else:
+                self._load_arg_unknown(arg, format)
 
-    class RDFLibBackend(Backend):
-        """RDFLib backend.
+        def _load_arg_unknown(
+                self,
+                arg: Any,
+                format: str | None = None
+        ) -> None:
+            raise TypeError(
+                f'{type(self).__qualname__} does not support '
+                f'{type(arg).__qualname__}')
+
+        def _load_location(
+                self,
+                location: pathlib.PurePath | str,
+                format: str | None = None
+        ) -> None:
+            self._load_arg_unknown(location, format)
+
+        def _load_file(
+                self,
+                file: BinaryIO | TextIO,
+                format: str | None = None
+        ) -> None:
+            self._load_arg_unknown(file, format)
+
+        def _load_data(
+                self,
+                data: bytes | str,
+                format: str | None = None
+        ) -> None:
+            self._load_arg_unknown(data, format)
+
+        def _load_graph(self, graph: Graph) -> None:
+            self._load_data(graph.to_rdf(), 'n3')
+
+        def _load_rdflib_graph(self, rdflib_graph: rdflib.Graph) -> None:
+            self._load_data(rdflib_graph.serialize(), 'n3')
+
+        @abc.abstractmethod
+        def _skolemize(self) -> None:
+            raise NotImplementedError
+
+    class JenaBackend(LocalBackend):
+        """Jena backend.
 
         Parameters:
            store: Parent SPARQL store.
            args: Input sources, files, paths, strings, or statements.
-           publicID: Logical URI to use as the document base.
            format: Input source format (file extension or media type).
            location: Relative or absolute URL of the input source.
            file: File-like object to be used as input source.
@@ -284,10 +353,69 @@ class _SPARQL_Store(
            kwargs: Other keyword arguments (ignored).
         """
 
-        #: Type alias for RDFLib backend arguments.
-        Args: TypeAlias = Union[
-            IO[bytes], TextIO, rdflib.InputSource,
-            str, bytes, pathlib.PurePath, Statement]
+        __slots__ = (
+            '_jena',
+        )
+
+        #: Jena handle.
+        _jena: jena.Jena
+
+        @override
+        def _init(
+                self,
+                store: _SPARQL_Store,
+                **kwargs: Any
+        ) -> None:
+            jena_home = IRI.check_optional(
+                kwargs.get('jena_home'), None, type(store), 'jena_home')
+            self._jena = jena.Jena(
+                jena_home.content if jena_home is not None else None)
+
+        @override
+        def _load_location(
+                self,
+                location: pathlib.PurePath | str,
+                format: str | None = None
+        ) -> None:
+            self._jena.load(location, format)
+
+        @override
+        def _load_data(
+                self,
+                data: bytes | str,
+                format: str | None = None
+        ) -> None:
+            if isinstance(data, bytes):
+                data = data.decode('utf-8')
+            self._jena.loads(data, format)
+
+        @override
+        def _skolemize(self) -> None:
+            self._jena.skolemize()
+
+        @override
+        def _ask(self, query: str) -> SPARQL_ResultsAsk:
+            return {'boolean': cast(bool, self._jena.query(query))}
+
+        @override
+        def _select(self, query: str) -> SPARQL_Results:
+            return cast(SPARQL_Results, self._jena.query(query))
+
+    class RDFLibBackend(LocalBackend):
+        """RDFLib backend.
+
+        Parameters:
+           store: Parent SPARQL store.
+           args: Input sources, files, paths, strings, or statements.
+           format: Input source format (file extension or media type).
+           location: Relative or absolute URL of the input source.
+           file: File-like object to be used as input source.
+           data: Data to be used as input source.
+           graph: KIF graph to used as input source.
+           rdflib_graph: RDFLib graph to be used as input source.
+           skolemize: Whether to skolemize the resulting graph.
+           kwargs: Other keyword arguments (ignored).
+        """
 
         __slots__ = (
             '_rdflib_graph',
@@ -296,60 +424,54 @@ class _SPARQL_Store(
         #: RDFLib graph.
         _rdflib_graph: rdflib.Graph
 
-        def __init__(
+        def _init(
                 self,
                 store: _SPARQL_Store,
-                *args: Args,
-                publicID: str | None = None,
-                format: str | None = None,
-                location: str | None = None,
-                file: BinaryIO | TextIO | None = None,
-                data: str | bytes | None = None,
-                graph: TGraph | None = None,
-                rdflib_graph: rdflib.Graph | None = None,
-                skolemize: bool | None = None,
-                **kwargs
+                **kwargs: Any
         ) -> None:
-            super().__init__(store)
-            if rdflib_graph is None:
-                rdflib_graph = rdflib.Graph()
-            else:
-                rdflib_graph = KIF_Object._check_arg_isinstance(
-                    rdflib_graph, rdflib.Graph, type(store), 'rdflib_graph')
-            assert rdflib_graph is not None
-            _load = functools.partial(
-                rdflib_graph.parse, format=format, publicID=publicID)
+            self._rdflib_graph = rdflib.Graph()
 
-            def load(name: str | None, *args, **kwargs) -> None:
-                try:
-                    _load(*args, **kwargs)
-                except Exception as err:
-                    raise KIF_Object._arg_error(
-                        str(err), type(store), name,
-                        exception=store.Error) from err
-            if location is not None:
-                load('location', location=location)
-            if file is not None:
-                load('file', file=file)
-            if data is not None:
-                load('data', data=data)
-            if graph is not None:
-                graph = Graph.check(graph, type(store), 'graph')
-                load('graph', data=graph.to_rdf())
-            other, stmts = map(list, itertools.partition(
-                lambda s: isinstance(s, Statement), args))
-            if stmts:
-                load(None, data=Graph(*cast(
-                    Iterable[Statement], stmts)).to_rdf())
-            for src in other:
-                load(None, src)
-            skolemize = skolemize if skolemize is not None else True
-            self._rdflib_graph = (
-                rdflib_graph.skolemize() if skolemize else rdflib_graph)
+        @override
+        def _load_arg_unknown(
+                self,
+                arg: Any,
+                format: str | None = None
+        ) -> None:
+            self._rdflib_graph.parse(arg, format=format)  # type: ignore
 
+        @override
+        def _load_location(
+                self,
+                location: pathlib.PurePath | str,
+                format: str | None = None
+        ) -> None:
+            self._rdflib_graph.parse(location=str(location), format=format)
+
+        @override
+        def _load_file(
+                self,
+                file: BinaryIO | TextIO,
+                format: str | None = None
+        ) -> None:
+            self._rdflib_graph.parse(file=file, format=format)
+
+        @override
+        def _load_data(
+                self,
+                data: bytes | str,
+                format: str | None = None
+        ) -> None:
+            self._rdflib_graph.parse(data=data, format=format)
+
+        @override
+        def _skolemize(self) -> None:
+            self._rdflib_graph = self._rdflib_graph.skolemize()
+
+        @override
         def _ask(self, query: str) -> SPARQL_ResultsAsk:
             return cast(SPARQL_ResultsAsk, self._select(query))
 
+        @override
         def _select(self, query: str) -> SPARQL_Results:
             return json.loads(cast(bytes, self._rdflib_graph.query(
                 query).serialize(format='json')))
@@ -605,6 +727,21 @@ class JenaSPARQL_Store(
         store_name='sparql-jena',
         store_description='SPARQL store with Jena backend'
 ):
+    """SPARQL store with Jena backend.
+
+    Parameters:
+       store_name: Name of the store plugin to instantiate.
+       args: Input sources, files, paths, strings, or statements.
+       format: Input source format (file extension or media type).
+       location: Relative or absolute URL of the input source.
+       file: File-like object to be used as input source.
+       data: Data to be used as input source.
+       graph: KIF graph to used as input source.
+       rdflib_graph: RDFLib graph to be used as input source.
+       skolemize: Whether to skolemize the resulting graph.
+       mapping: SPARQL mapping.
+       kwargs: Other keyword arguments.
+    """
 
     #: Type alias for Jena SPARQL store arguments.
     Args: TypeAlias = _SPARQL_Store.JenaBackend.Args
@@ -615,6 +752,10 @@ class JenaSPARQL_Store(
             *args: Args,
             format: str | None = None,
             location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: bytes | str | None = None,
+            graph: TGraph | None = None,
+            rdflib_graph: rdflib.Graph | None = None,
             skolemize: bool | None = None,
             mapping: SPARQL_Mapping | None = None,
             **kwargs: Any
@@ -625,7 +766,8 @@ class JenaSPARQL_Store(
             (mapping if mapping is not None
              else self._wikidata_mapping_constructor()),
             self.JenaBackend, *args, format=format,
-            location=location, skolemize=skolemize, **kwargs)
+            location=location, file=file, data=data, graph=graph,
+            rdflib_graph=rdflib_graph, skolemize=skolemize, **kwargs)
 
 
 # == RDFLib SPARQL store ===================================================
@@ -640,7 +782,6 @@ class RDFLibSPARQL_Store(
     Parameters:
        store_name: Name of the store plugin to instantiate.
        args: Input sources, files, paths, strings, or statements.
-       publicID: Logical URI to use as the document base.
        format: Input source format (file extension or media type).
        location: Relative or absolute URL of the input source.
        file: File-like object to be used as input source.
@@ -649,7 +790,7 @@ class RDFLibSPARQL_Store(
        rdflib_graph: RDFLib graph to be used as input source.
        skolemize: Whether to skolemize the resulting graph.
        mapping: SPARQL mapping.
-       kwargs: Extra keyword arguments.
+       kwargs: Other keyword arguments.
     """
 
     #: Type alias for RDFLib SPARQL store arguments.
@@ -659,11 +800,10 @@ class RDFLibSPARQL_Store(
             self,
             store_name: str,
             *args: Args,
-            publicID: str | None = None,
             format: str | None = None,
             location: str | None = None,
             file: BinaryIO | TextIO | None = None,
-            data: str | bytes | None = None,
+            data: bytes | str | None = None,
             graph: TGraph | None = None,
             rdflib_graph: rdflib.Graph | None = None,
             skolemize: bool | None = None,
@@ -675,7 +815,7 @@ class RDFLibSPARQL_Store(
             store_name,
             (mapping if mapping is not None
              else self._wikidata_mapping_constructor()),
-            self.RDFLibBackend, *args, publicID=publicID, format=format,
+            self.RDFLibBackend, *args, format=format,
             location=location, file=file, data=data, graph=graph,
             rdflib_graph=rdflib_graph, skolemize=skolemize, **kwargs)
 
@@ -690,7 +830,6 @@ class RDF_Store(
     Parameters:
        store_name: Name of the store plugin to instantiate.
        args: Input sources, files, paths, strings, or statements.
-       publicID: Logical URI to use as the document base.
        format: Input source format (file extension or media type).
        location: Relative or absolute URL of the input source.
        file: File-like object to be used as input source.
@@ -714,7 +853,6 @@ class DBpediaRDF_Store(
             self,
             store_name: str,
             *args: RDF_Store.Args,
-            publicID: str | None = None,
             format: str | None = None,
             location: str | None = None,
             file: BinaryIO | TextIO | None = None,
@@ -729,7 +867,7 @@ class DBpediaRDF_Store(
         if mapping is None:
             mapping = _SPARQL_Store._dbpedia_mapping_constructor()
         super().__init__(
-            store_name, *args, publicID=publicID, format=format,
+            store_name, *args, format=format,
             location=location, file=file, data=data, graph=graph,
             rdflib_graph=rdflib_graph, skolemize=skolemize,
             mapping=mapping, **kwargs)
@@ -746,7 +884,6 @@ class PubChemRDF_Store(
             self,
             store_name: str,
             *args: RDF_Store.Args,
-            publicID: str | None = None,
             format: str | None = None,
             location: str | None = None,
             file: BinaryIO | TextIO | None = None,
@@ -763,7 +900,7 @@ class PubChemRDF_Store(
             mapping = _SPARQL_Store._pubchem_mapping_constructor(
                 normalize_casrn=normalize_casrn)
         super().__init__(
-            store_name, *args, publicID=publicID, format=format,
+            store_name, *args, format=format,
             location=location, file=file, data=data, graph=graph,
             rdflib_graph=rdflib_graph, skolemize=skolemize,
             mapping=mapping, **kwargs)
@@ -780,7 +917,6 @@ class WikidataRDF_Store(
             self,
             store_name: str,
             *args: RDF_Store.Args,
-            publicID: str | None = None,
             format: str | None = None,
             location: str | None = None,
             file: BinaryIO | TextIO | None = None,
@@ -800,7 +936,7 @@ class WikidataRDF_Store(
                 strict=strict,
                 truthy=truthy)
         super().__init__(
-            store_name, *args, publicID=publicID, format=format,
+            store_name, *args, format=format,
             location=location, file=file, data=data, graph=graph,
             rdflib_graph=rdflib_graph, skolemize=skolemize,
             mapping=mapping, **kwargs)
@@ -818,7 +954,6 @@ class SPARQL_Store(
     Parameters:
        store_name: Name of the store plugin to instantiate.
        args: IRIs, input sources, files, paths, strings, or statements.
-       publicID: Logical URI to use as the document base.
        format: Input source format (file extension or media type).
        location: Relative or absolute URL of the input source.
        file: File-like object to be used as input source.
@@ -854,7 +989,6 @@ class SPARQL_Store(
             self,
             store_name: str,
             *args: SPARQL_Store.Args,
-            publicID: str | None = None,
             format: str | None = None,
             location: str | None = None,
             file: BinaryIO | TextIO | None = None,
@@ -879,7 +1013,7 @@ class SPARQL_Store(
                     or graph is not None
                     or rdflib_graph is not None):
                 yield Store(
-                    'rdf', *other, publicID=publicID, format=format,
+                    'rdf', *other, format=format,
                     location=location, file=file, data=data, graph=graph,
                     rdflib_graph=rdflib_graph, skolemize=skolemize,
                     mapping=mapping, **kwargs)
@@ -897,7 +1031,6 @@ class DBpediaSPARQL_Store(
             self,
             store_name: str,
             *args: SPARQL_Store.Args,
-            publicID: str | None = None,
             format: str | None = None,
             location: str | None = None,
             file: BinaryIO | TextIO | None = None,
@@ -916,7 +1049,7 @@ class DBpediaSPARQL_Store(
         if mapping is None:
             mapping = _SPARQL_Store._dbpedia_mapping_constructor()
         super().__init__(
-            store_name, *args, publicID=publicID, format=format,
+            store_name, *args, format=format,
             location=location, file=file, data=data, graph=graph,
             rdflib_graph=rdflib_graph, skolemize=skolemize,
             mapping=mapping, **kwargs)
@@ -933,7 +1066,6 @@ class PubChemSPARQL_Store(
             self,
             store_name: str,
             *args: SPARQL_Store.Args,
-            publicID: str | None = None,
             format: str | None = None,
             location: str | None = None,
             file: BinaryIO | TextIO | None = None,
@@ -954,7 +1086,7 @@ class PubChemSPARQL_Store(
             mapping = _SPARQL_Store._pubchem_mapping_constructor(
                 normalize_casrn=normalize_casrn)
         super().__init__(
-            store_name, *args, publicID=publicID, format=format,
+            store_name, *args, format=format,
             location=location, file=file, data=data, graph=graph,
             rdflib_graph=rdflib_graph, skolemize=skolemize,
             mapping=mapping, **kwargs)
@@ -971,7 +1103,6 @@ class WikidataSPARQL_Store(
             self,
             store_name: str,
             *args: SPARQL_Store.Args,
-            publicID: str | None = None,
             format: str | None = None,
             location: str | None = None,
             file: BinaryIO | TextIO | None = None,
@@ -996,7 +1127,7 @@ class WikidataSPARQL_Store(
                 strict=strict,
                 truthy=truthy)
         super().__init__(
-            store_name, *args, publicID=publicID, format=format,
+            store_name, *args, format=format,
             location=location, file=file, data=data, graph=graph,
             rdflib_graph=rdflib_graph, skolemize=skolemize,
             mapping=mapping, **kwargs)
@@ -1013,7 +1144,6 @@ class WDQS_Store(
             self,
             store_name: str,
             *args: SPARQL_Store.Args,
-            publicID: str | None = None,
             format: str | None = None,
             location: str | None = None,
             file: BinaryIO | TextIO | None = None,
@@ -1032,7 +1162,7 @@ class WDQS_Store(
                 strict=True,      # force
                 truthy=truthy)
         super().__init__(
-            store_name, *args, publicID=publicID, format=format,
+            store_name, *args, format=format,
             location=location, file=file, data=data, graph=graph,
             rdflib_graph=rdflib_graph, skolemize=skolemize,
             mapping=mapping, **kwargs)
