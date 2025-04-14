@@ -9,6 +9,7 @@
 
 from __future__ import annotations
 
+import functools
 import json
 import os
 import pathlib
@@ -67,18 +68,20 @@ class Jena:
         except ImportError:
             raise ImportError(
                 'Jena backend requires https://pypi.org/project/jpype1/')
-        if jena_home is None:
-            jena_home = os.getenv('JENA_HOME')
-            if jena_home is None:
-                raise RuntimeError('JENA_HOME is not set')
+        jena_home = cls._find_jena_home(jena_home)
         assert jena_home is not None
         jena_home_lib = pathlib.Path(jena_home) / 'lib'
         if not jena_home_lib.exists():
-            raise FileNotFoundError(str(jena_home_lib))
+            raise FileNotFoundError(
+                f'bad JENA_HOME (no such file "{jena_home_lib}")')
         if not jena_home_lib.is_dir():
-            raise NotADirectoryError(str(jena_home_lib))
-        jpype.startJVM(classpath=list(
-            map(str, pathlib.Path(jena_home_lib).glob('*.jar'))))
+            raise NotADirectoryError(
+                f'bad JENA_HOME (no not a directory "{jena_home_lib}")')
+        try:
+            jpype.startJVM(classpath=list(
+                map(str, pathlib.Path(jena_home_lib).glob('*.jar'))))
+        except BaseException as err:
+            raise RuntimeError('failed to start JPype') from err
         java = jpype.JPackage('java')
         cls._java = java
         cls._ByteArrayInputStream = java.io.ByteArrayInputStream
@@ -104,6 +107,31 @@ class Jena:
         cls._RiotException = jena.riot.RiotException
         cls._Syntax = jena.query.Syntax
         cls._init = True
+
+    @classmethod
+    def _find_jena_home(
+            cls,
+            jena_home: pathlib.PurePath | str | None
+    ) -> pathlib.Path:
+        if jena_home is not None:
+            return pathlib.Path(jena_home)
+        else:
+            jena_home = os.getenv('JENA_HOME')
+            if jena_home:
+                return cls._find_jena_home(jena_home)
+            else:
+                return cls._find_jena_home(cls._find_jena_home_fallback())
+
+    @classmethod
+    @functools.cache
+    def _find_jena_home_fallback(cls) -> str:
+        import subprocess
+        try:
+            out = subprocess.run(
+                ['jena'], stdout=subprocess.PIPE, check=True).stdout
+            return out.decode('utf-8').split('\n')[-2].split(':')[-1].strip()
+        except Exception:
+            raise RuntimeError('cannot find JENA_HOME')
 
     class Lang(Protocol):
         """Interface for jena.riot.Lang."""

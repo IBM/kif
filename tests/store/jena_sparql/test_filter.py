@@ -12,20 +12,16 @@ from ...tests import StoreTestCase
 class Test(StoreTestCase):
 
     @classmethod
-    def setUpClass(cls) -> None:
-        import os
-        super().setUpClass()
-        if not os.getenv('JENA_HOME'):
-            raise cls.SKIP('JENA_HOME is not set')
-
-    @classmethod
     def KB(cls):
-        return cls.S(
-            'sparql-jena',
-            'tests/data/adam.ttl',
-            'tests/data/andar.ttl',
-            'tests/data/benzene.ttl',
-            'tests/data/brazil.ttl')
+        try:
+            return cls.S(
+                'sparql-jena',
+                'tests/data/adam.ttl',
+                'tests/data/andar.ttl',
+                'tests/data/benzene.ttl',
+                'tests/data/brazil.ttl')
+        except cls.S.Error:
+            raise cls.SKIP('Jena not found')
 
     def test_empty(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())
@@ -33,9 +29,6 @@ class Test(StoreTestCase):
 
     def test_full(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())
-        ###
-        # FIXME: xfilter is not working!
-        ###
         xf(F(wd.Brazil), {
             # Brazil
             wd.alias(wd.Brazil, Text('pindorama', 'pt-BR')),  # FIXME: lang

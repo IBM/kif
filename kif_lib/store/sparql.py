@@ -368,8 +368,12 @@ class _SPARQL_Store(
         ) -> None:
             jena_home = IRI.check_optional(
                 kwargs.get('jena_home'), None, type(store), 'jena_home')
-            self._jena = jena.Jena(
-                jena_home.content if jena_home is not None else None)
+            try:
+                self._jena = jena.Jena(
+                    jena_home.content if jena_home is not None else None)
+            except BaseException as err:
+                raise store._error(
+                    f'failed to create Jena backend ({err})') from err
 
         @override
         def _load_location(
