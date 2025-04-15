@@ -46,7 +46,7 @@ class Term(KIF_Object):
                 has_tpl_or_var_arg
                 and hasattr(cls, 'template_class')
                 and cls._is_proper_subclass_of_closed_term(cls)):
-            return cast(Self, cls.template_class(  # type:ignore
+            return cast(Self, cls.template_class(  # type: ignore
                 *args, **kwargs))
         elif (
                 not has_tpl_or_var_arg
@@ -210,7 +210,7 @@ class Term(KIF_Object):
 
         def sigma(x: Any) -> Any:
             if x is None:
-                nonlocal names
+                nonlocal names  # noqa: F824
                 var = Variable(next(names)).rename(exclude, rename)
                 exclude.append(var)
                 return var

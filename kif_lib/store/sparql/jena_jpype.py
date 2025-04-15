@@ -3,7 +3,7 @@
 #
 # $Id$
 #
-# Jpype-based Python bindings for Jena RDF.
+# Python bindings for Jena RDF using JPype.
 #
 # ** KEEP THIS FILE SELF-CONTAINED! **
 
