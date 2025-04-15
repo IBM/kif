@@ -37,7 +37,7 @@ class SPARQL_Store(
     """
 
     #: Type alias for SPARQL Store arguments.
-    Args: TypeAlias = T_IRI | RDF_Store.RDFLibBackend.Args
+    Args: TypeAlias = T_IRI | RDF_Store.Args
 
     @classmethod
     def _is_http_or_https_iri(

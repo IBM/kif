@@ -94,14 +94,14 @@ wd:Q70899
     wikibase:sitelinks [] ;
     rdfs:label "Adam"@en ;
     rdfs:label "Adán"@es ;
-    rdfs:label "Adão"@pt-br ;
+    rdfs:label "Adão"@pt ;
     skos:altLabel "Adánico"@es ;
     skos:altLabel "Adam"@es ;
     skos:altLabel "Adan"@es ;
     skos:altLabel "Adanico"@es ;
     schema:description "first man according to the Abrahamic creation and religions such as Judaism, Christianity, and Islam"@en ;
     schema:description "primer hombre, según la Biblia"@es ;
-    schema:description "figura bíblica do livro de Gênesis"@pt-br ;
+    schema:description "figura bíblica do livro de Gênesis"@pt ;
 
     # family name
     wdt:P734 wdgenid:some_family_name ;

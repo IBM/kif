@@ -54,12 +54,12 @@ class Test(StoreTestCase):
                            'creation and religions such as Judaism, '
                            'Christianity, and Islam'),
             wd.description(wd.Adam, Text(
-                'figura bíblica do livro de Gênesis', 'pt-br')),
+                'figura bíblica do livro de Gênesis', 'pt')),
             wd.description(wd.Adam, Text(
                 'primer hombre, según la Biblia', 'es')),
             wd.label(wd.Adam, 'Adam'),
             wd.label(wd.Adam, Text('Adán', 'es')),
-            wd.label(wd.Adam, Text('Adão', 'pt-br'))})
+            wd.label(wd.Adam, Text('Adão', 'pt'))})
         xf(F(snak_mask=F.SOME_VALUE_SNAK | F.NO_VALUE_SNAK),
            {wd.date_of_birth.no_value(
                wd.Adam, references=[[
@@ -105,6 +105,14 @@ class Test(StoreTestCase):
         xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(snak_mask=F.VALUE_SNAK, value_mask=F.TEXT, language='pt'),
            {wd.lemma(wd.L(46803), Text('andar', 'pt')),
+            wd.label(wd.Adam, Text('Adão', 'pt')),
+            wd.description(wd.Adam, Text(
+                'figura bíblica do livro de Gênesis', 'pt')),
+            wd.description(wd.Brazil, Text(
+                'país na América do Sul', 'pt')),
+            wd.label(wd.Brazil, Text('Brasil', 'pt')),
+            wd.alias(wd.Brazil, Text('🇧🇷', 'pt')),
+            wd.alias(wd.Brazil, Text('pindorama', 'pt')),
             wd.official_name(wd.Brazil, Text(
                 'República Federativa do Brasil', 'pt'))})
 
@@ -241,7 +249,7 @@ class Test(StoreTestCase):
              property=wd.label | wd.mass),
            {wd.label(wd.benzene, 'benzene'),
             wd.label(wd.Brazil, 'Brazil'),
-            wd.label(wd.Brazil, Text('Brasil', 'pt-br')),
+            wd.label(wd.Brazil, Text('Brasil', 'pt')),
             wd.mass(wd.benzene, Quantity('78.046950192', wd.dalton),
                     references=[[
                         wd.title('benzene'),

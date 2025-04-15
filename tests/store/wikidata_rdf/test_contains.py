@@ -23,7 +23,7 @@ class Test(StoreTestCase):
         c(True, wd.alias(wd.Adam, Text('Adánico', 'es')))
         c(False, wd.alias(wd.Adam, Text('Adánico', 'en')))
         c(True, wd.description(wd.Adam, Text(
-            'figura bíblica do livro de Gênesis', 'pt-br')))
+            'figura bíblica do livro de Gênesis', 'pt')))
         c(False, wd.description(wd.Adam, Text(
             'figura bíblica do livro de Gênesis', 'en')))
         c(True, wd.date_of_birth.no_value(wd.Adam))
@@ -55,7 +55,7 @@ class Test(StoreTestCase):
         c(True, wd.alias(wd.Adam, Text('Adánico', 'es')).annotate())
         c(False, wd.alias(wd.Adam, Text('Adánico', 'en')).annotate())
         c(True, wd.description(wd.Adam, Text(
-            'figura bíblica do livro de Gênesis', 'pt-br')).annotate())
+            'figura bíblica do livro de Gênesis', 'pt')).annotate())
         c(False, wd.description(wd.Adam, Text(
             'figura bíblica do livro de Gênesis', 'en')).annotate())
         c(True, wd.date_of_birth.no_value(wd.Adam).annotate(

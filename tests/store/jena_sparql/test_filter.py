@@ -31,16 +31,16 @@ class Test(StoreTestCase):
         xf, F = self.store_xfilter_assertion(self.KB())
         xf(F(wd.Brazil), {
             # Brazil
-            wd.alias(wd.Brazil, Text('pindorama', 'pt-BR')),  # FIXME: lang
-            wd.alias(wd.Brazil, Text('🇧🇷', 'pt-BR')),         # FIXME: lang
+            wd.alias(wd.Brazil, Text('pindorama', 'pt')),  # FIXME: lang
+            wd.alias(wd.Brazil, Text('🇧🇷', 'pt')),         # FIXME: lang
             wd.description(wd.Brazil, 'country in South America'),
             wd.description(wd.Brazil, Text(
-                'país na América do Sul', 'pt-BR')),
+                'país na América do Sul', 'pt')),
             wd.inception(wd.Brazil, Time(
                 '1822-09-07', Time.DAY, 0, wd.proleptic_Gregorian_calendar)),
             wd.instance_of(wd.Brazil, wd.country_),
             wd.label(wd.Brazil, 'Brazil'),
-            wd.label(wd.Brazil, Text('Brasil', 'pt-BR')),  # FIXME: lang
+            wd.label(wd.Brazil, Text('Brasil', 'pt')),  # FIXME: lang
             wd.official_name(wd.Brazil, Text(
                 'República Federativa do Brasil', 'pt')),
             wd.part_of(wd.Brazil, wd.Latin_America),

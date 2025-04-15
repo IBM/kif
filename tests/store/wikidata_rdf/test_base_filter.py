@@ -89,7 +89,14 @@ class Test(StoreTestCase):
         kb.value_mask = Filter.TEXT
         xf, F = self.store_xfilter_assertion(kb)
         xf(F(),
-           {wd.lemma(wd.L(46803), Text('andar', 'pt')),
+           {wd.label(wd.Brazil, Text('Brasil', 'pt')),
+            wd.alias(wd.Brazil, Text('pindorama', 'pt')),
+            wd.alias(wd.Brazil, Text('🇧🇷', 'pt')),
+            wd.description(wd.Brazil, Text('país na América do Sul', 'pt')),
+            wd.label(wd.Adam, Text('Adão', 'pt')),
+            wd.description(wd.Adam, Text(
+                'figura bíblica do livro de Gênesis', 'pt')),
+            wd.lemma(wd.L(46803), Text('andar', 'pt')),
             wd.official_name(wd.Brazil, Text(
                 'República Federativa do Brasil', 'pt'))})
 

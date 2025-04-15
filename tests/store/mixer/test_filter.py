@@ -49,7 +49,7 @@ class Test(StoreTestCase):
           {wd.father.no_value(wd.Adam),
            wd.label(wd.Adam, 'Adam'),
            wd.label(wd.Adam, Text('Adán', 'es')),
-           wd.label(wd.Adam, Text('Adão', 'pt-br')),
+           wd.label(wd.Adam, Text('Adão', 'pt')),
            wd.alias(wd.Adam, Text('Adam', 'es')),
            wd.alias(wd.Adam, Text('Adánico', 'es')),
            wd.alias(wd.Adam, Text('Adanico', 'es')),
@@ -60,7 +60,7 @@ class Test(StoreTestCase):
            wd.description(wd.Adam, Text(
                'primer hombre, según la Biblia', 'es')),
            wd.description(wd.Adam, Text(
-               'figura bíblica do livro de Gênesis', 'pt-br')),
+               'figura bíblica do livro de Gênesis', 'pt')),
            wd.family_name.some_value(wd.Adam),
            wd.date_of_birth.no_value(wd.Adam),
            wd.instance_of(wd.benzene, wd.type_of_a_chemical_entity),

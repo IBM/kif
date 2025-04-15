@@ -46,7 +46,7 @@ class Test(StoreTestCase):
 
     def test_language(self) -> None:
         xc, F = self.store_xcount_assertion(self.KB())
-        xc(2, F(value_mask=F.TEXT, language='pt', snak_mask=F.VALUE_SNAK))
+        xc(8, F(value_mask=F.TEXT, language='pt', snak_mask=F.VALUE_SNAK))
 
     # -- value fp --
 

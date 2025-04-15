@@ -125,11 +125,11 @@ wd:Q155
     # description
     wikibase:sitelinks [] ;
     rdfs:label "Brazil"@en ;
-    rdfs:label "Brasil"@pt-br ;
-    skos:altLabel "🇧🇷"@pt-br ;
-    skos:altLabel "pindorama"@pt-br ;
+    rdfs:label "Brasil"@pt ;
+    skos:altLabel "🇧🇷"@pt ;
+    skos:altLabel "pindorama"@pt ;
     schema:description "country in South America"@en ;
-    schema:description "país na América do Sul"@pt-br ;
+    schema:description "país na América do Sul"@pt ;
 
     # instance of - country
     wdt:P31 wd:Q6256 ;

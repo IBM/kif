@@ -3,16 +3,19 @@
 
 from __future__ import annotations
 
+import os
+
 from ... import rdflib
 from ...compiler.sparql import SPARQL_Mapping
 from ...model import Filter, TGraph
-from ...typing import Any, BinaryIO, TextIO
-from .rdflib import RDFLibSPARQL_Store
+from ...typing import Any, BinaryIO, Optional, TextIO, TypeAlias
+from ..abc import Store
+from ..mixer import MixerStore
 from .sparql_core import _SPARQL_Store
 
 
 class RDF_Store(
-        RDFLibSPARQL_Store,
+        MixerStore,
         store_name='rdf',
         store_description='RDF store'
 ):
@@ -31,6 +34,51 @@ class RDF_Store(
        mapping: SPARQL mapping.
        kwargs: Extra keyword arguments.
     """
+
+    #: Type alias for RDFLib SPARQL store arguments.
+    Args: TypeAlias = _SPARQL_Store.LocalBackend.Args
+
+    def __init__(
+            self,
+            store_name: str,
+            *args: Args,
+            format: str | None = None,
+            location: str | None = None,
+            file: BinaryIO | TextIO | None = None,
+            data: bytes | str | None = None,
+            graph: TGraph | None = None,
+            rdflib_graph: rdflib.Graph | None = None,
+            skolemize: bool | None = None,
+            mapping: SPARQL_Mapping | None = None,
+            backend: str | None = None,
+            **kwargs: Any
+    ) -> None:
+        assert store_name == self.store_name
+
+        def mk_child_store(store_name: str) -> Store:
+            return Store(
+                store_name, *args, format=format, location=location,
+                file=file, data=data, graph=graph,
+                rdflib_graph=rdflib_graph, skolemize=skolemize,
+                mapping=mapping, **kwargs)
+
+        ###
+        # FIXME: Move "backend" to store options.
+        ###
+        child: Optional[Store] = None
+        backend = backend or os.getenv(
+            'KIF_STORE_RDF_BACKEND', 'sparql-jena;sparql-rdflib')
+        assert backend is not None
+        backends = backend.split(';')
+        for i, name in enumerate(backends):
+            try:
+                child = mk_child_store(name)
+                break
+            except Store.Error as err:
+                if i == len(backends) - 1:
+                    raise err
+        assert child is not None
+        super().__init__(store_name, (child,), **kwargs)
 
 
 class DBpediaRDF_Store(
