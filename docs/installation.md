@@ -33,9 +33,10 @@ $ python -c 'import kif_lib; print(kif_lib.Store("sparql-jena"))'
 ```
 
 The above command should succeed as long as a working `jena` command is
-available, e.g.:
+available, e.g.,
 
 ```
+$ jena
 Jena version : 5.3.0
 Jena home    : /usr/local/Cellar/jena/5.3.0/libexec
 ```
