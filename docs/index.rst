@@ -52,5 +52,6 @@ arXiv:2403.10304, 2024.
    :hidden:
 
    quickstart
+   installation
    reference/index
    license

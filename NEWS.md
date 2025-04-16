@@ -1,3 +1,20 @@
+Release v0.7.4
+==============
+
+- Added `sparql-jena` store, a local RDF store that uses Jena to evaluate
+  SPARQL queries.  The `sparql-jena` backend is now used by default by the
+  `rdf` store if Jena is available.
+
+- Added a base filter to `Store` API.  Now every store has a base filter
+  which is &-ed with the filter supplied as an argument to the
+  `Store.filter()` call.
+
+- Fixed a bug that was preventing the `mixer` store to honor
+  `Store.extra_references`.
+
+- Fixed a bug in the SPARQL compiler was causing RDFLib to generate the
+  wrong results in `Store.filter_annotated`.
+
 Release v0.7.3
 ==============
 
