@@ -1,6 +1,9 @@
 Release v0.7.5
 ==============
 
+- Added store-level `Store.distict` flag: analogous to `Store.limit`,
+  `Store.page_size`, etc.
+
 - Fixed a bug in the `mixer` store that was causing timeout of child stores
   not to be properly initialized.
 
