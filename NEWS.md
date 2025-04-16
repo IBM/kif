@@ -1,3 +1,9 @@
+Release v0.7.5
+==============
+
+- Fixed a bug in the `mixer` store that was causing timeout of child stores
+  not to be properly initialized.
+
 Release v0.7.4
 ==============
 

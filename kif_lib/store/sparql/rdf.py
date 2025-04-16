@@ -32,7 +32,7 @@ class RDF_Store(
        rdflib_graph: RDFLib graph to be used as input source.
        skolemize: Whether to skolemize the resulting graph.
        mapping: SPARQL mapping.
-       kwargs: Extra keyword arguments.
+       kwargs: Other keyword arguments.
     """
 
     #: Type alias for RDFLib SPARQL store arguments.

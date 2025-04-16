@@ -422,7 +422,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         Parameters:
            stream: A ``.write()``-supporting file-like object.
            format: Encoding format.
-           kwargs: Encoder options.
+           kwargs: Other keyword arguments.
         """
         enc = Encoder._check_format(format, self.dump, 'format', 2)
         for chunk in enc(**kwargs).iterencode(self):
@@ -433,7 +433,7 @@ class Object(Sequence, metaclass=ObjectMeta):
 
         Parameters:
            format: Encoding format.
-           kwargs: Encoder options.
+           kwargs: Other keyword arguments.
 
         Returns:
            String.
@@ -455,7 +455,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         Parameters:
            stream: A ``.read()``-supporting file-like object.
            format: Decoding format.
-           kwargs: Decoder options.
+           kwargs: Other keyword arguments.
 
         Returns:
            Object.
@@ -474,7 +474,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         Parameters:
            input: String.
            format: Decoding format.
-           kwargs: Options to decoder.
+           kwargs: Other keyword arguments.
 
         Returns:
            Object.
@@ -490,7 +490,7 @@ class Object(Sequence, metaclass=ObjectMeta):
 
         Parameters:
            input: Input string.
-           kwargs: Options to decoder.
+           kwargs: Other keyword arguments.
 
         Returns:
            Object.
@@ -501,7 +501,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         """Encodes object using JSON encoder.
 
         Parameters:
-           kwargs: Options to encoder.
+           kwargs: Other keyword arguments.
 
         Returns:
            String.
@@ -514,7 +514,7 @@ class Object(Sequence, metaclass=ObjectMeta):
 
         Parameters:
            input: Input string.
-           kwargs: Options to decoder.
+           kwargs: Other keyword arguments.
 
         Returns:
            Object.
@@ -525,7 +525,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         """Encodes object using repr encoder.
 
         Parameters:
-           kwargs: Options to encoder.
+           kwargs: Other keyword arguments.
 
         Returns:
            String.
@@ -538,7 +538,7 @@ class Object(Sequence, metaclass=ObjectMeta):
 
         Parameters:
            input: Input string.
-           kwargs: Options to decoder.
+           kwargs: Other keyword arguments.
 
         Returns:
            Object.
@@ -549,7 +549,7 @@ class Object(Sequence, metaclass=ObjectMeta):
         """Encodes object using S-expression encoder.
 
         Parameters:
-           kwargs: Options to encoder.
+           kwargs: Other keyword arguments.
 
         Returns:
            String.

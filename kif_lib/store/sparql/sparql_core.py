@@ -59,8 +59,8 @@ class _SPARQL_Store(
        store_name: Name of the store plugin to instantiate.
        backend: SPARQL store backend.
        mapping: SPARQL mapping.
-       args: Backend arguments.
-       kwargs: Backend keyword arguments.
+       args: Other arguments.
+       kwargs: Other keyword arguments.
     """
 
     class Backend(abc.ABC):

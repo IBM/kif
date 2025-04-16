@@ -48,7 +48,7 @@ class JenaSPARQL_Store(
            graph: KIF graph to used as input source.
            rdflib_graph: RDFLib graph to be used as input source.
            skolemize: Whether to skolemize the resulting graph.
-           kwargs: Other keyword arguments (ignored).
+           kwargs: Other keyword arguments.
         """
 
         __slots__ = (

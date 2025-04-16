@@ -22,7 +22,6 @@ from ...typing import (
     cast,
     Collection,
     Final,
-    Final,
     Iterable,
     Iterator,
     Mapping,

@@ -140,7 +140,7 @@ class Store(Set):
            limit: Limit (maximum number) of responses.
            page_size: Page size of paginated responses.
            timeout: Timeout of responses (in seconds).
-           kwargs: Extra keyword arguments.
+           kwargs: Other keyword arguments.
         """
         self._flags = None
         self.flags = flags      # type: ignore
