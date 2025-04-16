@@ -5,11 +5,11 @@ from __future__ import annotations
 
 import httpx
 
+from ...__version__ import __version__
 from ...compiler.sparql import SPARQL_Mapping
 from ...compiler.sparql.results import SPARQL_Results, SPARQL_ResultsAsk
 from ...model import IRI, KIF_Object, T_IRI
 from ...typing import Any, cast, Final, Mapping, override, TypeAlias
-from ...version import __version__
 from .sparql_core import _SPARQL_Store
 
 

@@ -5,13 +5,15 @@ from __future__ import annotations
 
 import click
 
+from . import __description__, __title__, __version__
 from .store import Store
-from .version import __version__
 
 
 @click.command()
 def main() -> None:
-    click.echo(
-        f'KIF version: {__version__}')
-    click.echo(
-        f'KIF store plugins: {", ".join(sorted(Store.registry.keys()))}')
+    click.echo(f'''\
+KIF __title__       : {__title__}
+KIF __version__     : {__version__}
+KIF __description__ : {__description__}
+KIF store plugins   : {", ".join(sorted(Store.registry.keys()))}
+    ''')
