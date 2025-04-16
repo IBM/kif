@@ -65,9 +65,10 @@ class Jena:
         try:
             import jpype  # type: ignore
             import jpype.imports  # type: ignore
-        except ImportError:
+        except ImportError as err:
             raise ImportError(
-                'Jena backend requires https://pypi.org/project/jpype1/')
+                f'{cls.__qualname__} requires '
+                'https://pypi.org/project/jpype1/') from err
         jena_home = cls._find_jena_home(jena_home)
         assert jena_home is not None
         jena_home_lib = pathlib.Path(jena_home) / 'lib'

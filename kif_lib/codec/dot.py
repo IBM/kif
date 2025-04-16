@@ -28,7 +28,12 @@ class DotEncoder(
 
     @classmethod
     def _to_graphviz(cls, input: Object) -> Any:
-        from graphviz import Digraph  # type: ignore
+        try:
+            from graphviz import Digraph  # type: ignore
+        except ImportError as err:
+            raise ImportError(
+                f'{cls.__qualname__} requires '
+                'https://pypi.org/project/graphviz/') from err
         if isinstance(input, Statement):
             input = Graph(input)
         if not isinstance(input, Graph):
