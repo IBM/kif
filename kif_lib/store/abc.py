@@ -232,8 +232,7 @@ class Store(Set):
         """
         base_filter = Filter.check_optional(
             base_filter, None, self.set_base_filter, 'base_filter', 1)
-        if (base_filter != self._base_filter and self._set_base_filter(
-                self._base_filter, base_filter)):
+        if self._set_base_filter(self._base_filter, base_filter):
             self._base_filter = base_filter
 
     def _set_base_filter(
@@ -570,9 +569,8 @@ class Store(Set):
         extra_references = ReferenceRecordSet.check_optional(
             extra_references, None, self.set_extra_references,
             'extra_references', 1)
-        if (extra_references != self._extra_references
-            and self._set_extra_references(
-                self._extra_references, extra_references)):
+        if self._set_extra_references(
+                self._extra_references, extra_references):
             self._extra_references = extra_references
 
     def _set_extra_references(
@@ -653,7 +651,7 @@ class Store(Set):
     def flags(self, flags: TFlags | None) -> None:
         flags = self.Flags.check_optional(
             flags, None, self.set_flags, 'flags', 1)
-        if flags != self._flags and self._set_flags(self._flags, flags):
+        if self._set_flags(self._flags, flags):
             self._flags = flags
 
     def _set_flags(self, old: Flags | None, new: Flags | None) -> bool:
@@ -834,7 +832,7 @@ class Store(Set):
         """
         limit = self._check_optional_limit(
             limit, None, self.set_limit, 'limit', 1)
-        if (limit != self._limit and self._set_limit(self._limit, limit)):
+        if self._set_limit(self._limit, limit):
             self._limit = limit
 
     def _set_limit(self, old: int | None, new: int | None) -> bool:
@@ -942,8 +940,7 @@ class Store(Set):
         """
         page_size = self._check_optional_page_size(
             page_size, None, self.set_page_size, 'page_size', 1)
-        if (page_size != self._page_size and self._set_page_size(
-                self._page_size, page_size)):
+        if self._set_page_size(self._page_size, page_size):
             self._page_size = page_size
 
     def _set_page_size(self, old: int | None, new: int | None) -> bool:
@@ -1055,8 +1052,7 @@ class Store(Set):
         """
         timeout = self._check_optional_timeout(
             timeout, None, self.set_timeout, 'timeout', 1)
-        if (timeout != self._timeout and self._set_timeout(
-                self._timeout, timeout)):
+        if self._set_timeout(self._timeout, timeout):
             self._timeout = timeout
 
     def _set_timeout(self, old: float | None, new: float | None) -> bool:

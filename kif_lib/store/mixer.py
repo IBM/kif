@@ -31,32 +31,42 @@ class MixerStore(
        store_name: Name of the store plugin to instantiate.
        sources: Sources to mix.
        sync_flags: Whether to sync store flags.
+       sync_limit: Whether to sync store limit.
        sync_page_size: Whether to sync page size.
+       sync_timeout: Whether to sync timeout.
     """
 
     __slots__ = (
         '_sources',
         '_sync_flags',
+        '_sync_limit',
         '_sync_page_size',
+        '_sync_timeout',
     )
 
     _sources: Sequence[Store]
     _sync_flags: bool
+    _sync_limit: bool
     _sync_page_size: bool
+    _sync_timeout: bool
 
     def __init__(
             self,
             store_name: str,
             sources: Iterable[Store] = tuple(),
             sync_flags: bool = True,
+            sync_limit: bool = True,
             sync_page_size: bool = True,
+            sync_timeout: bool = True,
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
-        super().__init__(**kwargs)
         self._init_sources(sources)
-        self._sync_flags = sync_flags
-        self._sync_page_size = sync_page_size
+        self._sync_flags = bool(sync_flags)
+        self._sync_limit = bool(sync_limit)
+        self._sync_page_size = bool(sync_page_size)
+        self._sync_timeout = bool(sync_timeout)
+        super().__init__(**kwargs)
 
     def _init_sources(self, sources: Iterable[Store]) -> None:
         KIF_Object._check_arg_isinstance(
@@ -108,6 +118,28 @@ class MixerStore(
         return True
 
     @property
+    def sync_limit(self) -> bool:
+        """Whether to sync store limit."""
+        return self.get_sync_limit()
+
+    def get_sync_limit(self) -> bool:
+        """Tests whether to sync store limit.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        return self._sync_limit
+
+    @override
+    def _set_limit(self, old: int | None, new: int | None) -> bool:
+        if not super()._set_limit(old, new):
+            return False
+        if self.sync_limit:
+            for src in self.sources:
+                src.set_limit(new)
+        return True
+
+    @property
     def sync_page_size(self) -> bool:
         """Whether to sync store page size."""
         return self.get_sync_flags()
@@ -127,6 +159,28 @@ class MixerStore(
         if self.sync_page_size:
             for src in self.sources:
                 src.set_page_size(new)
+        return True
+
+    @property
+    def sync_timeout(self) -> bool:
+        """Whether to sync store timeout."""
+        return self.get_sync_timeout()
+
+    def get_sync_timeout(self) -> bool:
+        """Tests whether to sync store timeout.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        return self._sync_timeout
+
+    @override
+    def _set_timeout(self, old: float | None, new: float | None) -> bool:
+        if not super()._set_timeout(old, new):
+            return False
+        if self.sync_timeout:
+            for src in self.sources:
+                src.set_timeout(new)
         return True
 
     @override
