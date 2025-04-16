@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kif_lib.model.value.lexeme &mdash; kif-lib  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
@@ -46,6 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../reference/index.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
 </ul>
@@ -78,11 +79,11 @@
 <span></span><span class="c1"># Copyright (C) 2024-2025 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">cast</span><span class="p">,</span>
     <span class="n">ClassVar</span><span class="p">,</span>
     <span class="n">Iterable</span><span class="p">,</span>
@@ -92,16 +93,16 @@
     <span class="n">TypedDict</span><span class="p">,</span>
     <span class="n">Union</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">..term</span> <span class="kn">import</span> <span class="n">Variable</span>
-<span class="kn">from</span> <span class="nn">.entity</span> <span class="kn">import</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">EntityTemplate</span><span class="p">,</span> <span class="n">EntityVariable</span>
-<span class="kn">from</span> <span class="nn">.iri</span> <span class="kn">import</span> <span class="n">IRI_Template</span><span class="p">,</span> <span class="n">T_IRI</span>
-<span class="kn">from</span> <span class="nn">.item</span> <span class="kn">import</span> <span class="n">Item</span><span class="p">,</span> <span class="n">TItem</span>
-<span class="kn">from</span> <span class="nn">.string</span> <span class="kn">import</span> <span class="n">TString</span>
-<span class="kn">from</span> <span class="nn">.text</span> <span class="kn">import</span> <span class="n">Text</span><span class="p">,</span> <span class="n">TText</span>
-<span class="kn">from</span> <span class="nn">.value</span> <span class="kn">import</span> <span class="n">Datatype</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..term</span><span class="w"> </span><span class="kn">import</span> <span class="n">Variable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.entity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">EntityTemplate</span><span class="p">,</span> <span class="n">EntityVariable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.iri</span><span class="w"> </span><span class="kn">import</span> <span class="n">IRI_Template</span><span class="p">,</span> <span class="n">T_IRI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.item</span><span class="w"> </span><span class="kn">import</span> <span class="n">Item</span><span class="p">,</span> <span class="n">TItem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.string</span><span class="w"> </span><span class="kn">import</span> <span class="n">TString</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">Text</span><span class="p">,</span> <span class="n">TText</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.value</span><span class="w"> </span><span class="kn">import</span> <span class="n">Datatype</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>               <span class="c1"># pragma: no cover</span>
-    <span class="kn">from</span> <span class="nn">...store</span> <span class="kn">import</span> <span class="n">Store</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">...store</span><span class="w"> </span><span class="kn">import</span> <span class="n">Store</span>
 
 <span class="n">TLexeme</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Lexeme&#39;</span><span class="p">,</span> <span class="n">T_IRI</span><span class="p">]</span>
 <span class="n">VLexeme</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;LexemeTemplate&#39;</span><span class="p">,</span> <span class="s1">&#39;LexemeVariable&#39;</span><span class="p">,</span> <span class="s1">&#39;Lexeme&#39;</span><span class="p">]</span>
@@ -111,7 +112,7 @@
 
 <div class="viewcode-block" id="LexemeTemplate">
 <a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.LexemeTemplate">[docs]</a>
-<span class="k">class</span> <span class="nc">LexemeTemplate</span><span class="p">(</span><span class="n">EntityTemplate</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LexemeTemplate</span><span class="p">(</span><span class="n">EntityTemplate</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Lexeme template.</span>
 
 <span class="sd">    Parameters:</span>
@@ -122,7 +123,7 @@
 
 <div class="viewcode-block" id="LexemeTemplate.__init__">
 <a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.LexemeTemplate.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iri</span><span class="p">:</span> <span class="n">VTLexemeContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iri</span><span class="p">:</span> <span class="n">VTLexemeContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">iri</span><span class="p">)</span></div>
 </div>
 
@@ -130,7 +131,7 @@
 
 <div class="viewcode-block" id="LexemeVariable">
 <a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.LexemeVariable">[docs]</a>
-<span class="k">class</span> <span class="nc">LexemeVariable</span><span class="p">(</span><span class="n">EntityVariable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LexemeVariable</span><span class="p">(</span><span class="n">EntityVariable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Lexeme variable.</span>
 
 <span class="sd">    Parameters:</span>
@@ -143,7 +144,7 @@
 
 <div class="viewcode-block" id="LexemeDatatype">
 <a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.LexemeDatatype">[docs]</a>
-<span class="k">class</span> <span class="nc">LexemeDatatype</span><span class="p">(</span><span class="n">Datatype</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LexemeDatatype</span><span class="p">(</span><span class="n">Datatype</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Lexeme datatype.&quot;&quot;&quot;</span>
 
     <span class="n">instance</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">LexemeDatatype</span><span class="p">]</span>  <span class="c1"># pyright: ignore</span>
@@ -153,7 +154,7 @@
 
 <div class="viewcode-block" id="Lexeme">
 <a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme">[docs]</a>
-<span class="k">class</span> <span class="nc">Lexeme</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Lexeme</span><span class="p">(</span>
         <span class="n">Entity</span><span class="p">,</span>
         <span class="n">datatype_class</span><span class="o">=</span><span class="n">LexemeDatatype</span><span class="p">,</span>
         <span class="n">template_class</span><span class="o">=</span><span class="n">LexemeTemplate</span><span class="p">,</span>
@@ -172,7 +173,7 @@
 
 <div class="viewcode-block" id="Lexeme.Descriptor">
 <a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.Descriptor">[docs]</a>
-    <span class="k">class</span> <span class="nc">Descriptor</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Descriptor</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Lexeme descriptor.&quot;&quot;&quot;</span>
 
         <span class="c1">#: Lemma.</span>
@@ -187,20 +188,20 @@
 
 <div class="viewcode-block" id="Lexeme.__init__">
 <a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iri</span><span class="p">:</span> <span class="n">VTLexemeContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iri</span><span class="p">:</span> <span class="n">VTLexemeContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">iri</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Lexeme.display">
 <a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.display">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="n">TString</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="n">TString</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">display</span><span class="p">(</span><span class="n">language</span><span class="p">)</span>  <span class="c1"># fallback</span></div>
 
 
 <div class="viewcode-block" id="Lexeme.describe">
 <a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.describe">[docs]</a>
-    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">resolver</span><span class="p">:</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -230,13 +231,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">lemma</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lemma</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The lemma of lexeme in KIF context.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lemma</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Lexeme.get_lemma">
 <a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.get_lemma">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_lemma</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_lemma</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">resolver</span><span class="p">:</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -258,13 +259,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">category</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">category</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The category of lexeme in KIF context.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_category</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Lexeme.get_category">
 <a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.get_category">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_category</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_category</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">resolver</span><span class="p">:</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -286,13 +287,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">language</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Item</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The language of lexeme in KIF context.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_language</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Lexeme.get_language">
 <a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.get_language">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_language</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_language</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">resolver</span><span class="p">:</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -315,7 +316,7 @@
 
 <div class="viewcode-block" id="Lexeme.register">
 <a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.register">[docs]</a>
-    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">lemma</span><span class="p">:</span> <span class="n">TText</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">category</span><span class="p">:</span> <span class="n">TItem</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -338,7 +339,7 @@
 
 <div class="viewcode-block" id="Lexeme.unregister">
 <a class="viewcode-back" href="../../../../reference/model/value/lexeme.html#kif_lib.Lexeme.unregister">[docs]</a>
-    <span class="k">def</span> <span class="nf">unregister</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unregister</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">lemma</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
             <span class="n">category</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -367,7 +368,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">Lexemes</span><span class="p">(</span><span class="n">iri</span><span class="p">:</span> <span class="n">VTLexemeContent</span><span class="p">,</span> <span class="o">*</span><span class="n">iris</span><span class="p">:</span> <span class="n">VTLexemeContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Lexeme</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">Lexemes</span><span class="p">(</span><span class="n">iri</span><span class="p">:</span> <span class="n">VTLexemeContent</span><span class="p">,</span> <span class="o">*</span><span class="n">iris</span><span class="p">:</span> <span class="n">VTLexemeContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Lexeme</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructs one or more lexemes.</span>
 
 <span class="sd">    Parameters:</span>
@@ -377,7 +378,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">       The resulting lexemes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">...</span> <span class="kn">import</span> <span class="n">itertools</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">...</span><span class="w"> </span><span class="kn">import</span> <span class="n">itertools</span>
     <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="n">Lexeme</span><span class="p">,</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">([</span><span class="n">iri</span><span class="p">],</span> <span class="n">iris</span><span class="p">))</span>
 </pre></div>
 

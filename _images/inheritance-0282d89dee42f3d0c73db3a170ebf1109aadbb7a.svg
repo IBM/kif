@@ -1,0 +1,74 @@
+<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" xmlns:ns1="http://www.w3.org/1999/xlink" width="119pt" height="256pt" viewBox="0.00 0.00 119.25 255.75">
+<ns0:g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 251.75)">
+<ns0:title>inheritance75cdf2033e</ns0:title>
+
+<ns0:g id="node1" class="node">
+<ns0:title>AnnotatedStatement</ns0:title>
+<ns0:g id="a_node1"><ns0:a ns1:href="../reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement" ns1:title="Annotated statement." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="111.25,-20.75 0,-20.75 0,0 111.25,0 111.25,-20.75" />
+<ns0:text text-anchor="middle" x="55.62" y="-7.25" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">AnnotatedStatement</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="node2" class="node">
+<ns0:title>Statement</ns0:title>
+<ns0:g id="a_node2"><ns0:a ns1:href="../reference/model/statement/statement.html#kif_lib.Statement" ns1:title="Statement." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="87.62,-77.5 23.62,-77.5 23.62,-56.75 87.62,-56.75 87.62,-77.5" />
+<ns0:text text-anchor="middle" x="55.62" y="-64" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">Statement</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge1" class="edge">
+<ns0:title>Statement-&gt;AnnotatedStatement</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M55.62,-49.96C55.62,-40.58 55.62,-29.07 55.62,-21.08" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="53.88,-50.58 55.63,-55.58 57.38,-50.58 53.88,-50.58" />
+</ns0:g>
+
+<ns0:g id="node3" class="node">
+<ns0:title>ClosedTerm</ns0:title>
+<ns0:g id="a_node3"><ns0:a ns1:href="../reference/model/term/term.html#kif_lib.ClosedTerm" ns1:title="Abstract base class for closed (ground) terms." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="89.12,-134.25 22.12,-134.25 22.12,-113.5 89.12,-113.5 89.12,-134.25" />
+<ns0:text text-anchor="middle" x="55.62" y="-120.75" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">ClosedTerm</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge3" class="edge">
+<ns0:title>ClosedTerm-&gt;Statement</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M55.62,-106.71C55.62,-97.33 55.62,-85.82 55.62,-77.83" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="53.88,-107.33 55.63,-112.33 57.38,-107.33 53.88,-107.33" />
+</ns0:g>
+
+<ns0:g id="node4" class="node">
+<ns0:title>Term</ns0:title>
+<ns0:g id="a_node4"><ns0:a ns1:href="../reference/model/term/term.html#kif_lib.Term" ns1:title="Abstract base class for terms." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="82.62,-191 28.62,-191 28.62,-170.25 82.62,-170.25 82.62,-191" />
+<ns0:text text-anchor="middle" x="55.62" y="-177.5" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">Term</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge2" class="edge">
+<ns0:title>Term-&gt;ClosedTerm</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M55.62,-163.46C55.62,-154.08 55.62,-142.57 55.62,-134.58" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="53.88,-164.08 55.63,-169.08 57.38,-164.08 53.88,-164.08" />
+</ns0:g>
+
+<ns0:g id="node5" class="node">
+<ns0:title>KIF_Object</ns0:title>
+<ns0:g id="a_node5"><ns0:a ns1:href="../reference/model/kif_object/kif_object.html#kif_lib.KIF_Object" ns1:title="Abstract base class for KIF objects." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="87.62,-247.75 23.62,-247.75 23.62,-227 87.62,-227 87.62,-247.75" />
+<ns0:text text-anchor="middle" x="55.62" y="-234.25" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">KIF_Object</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge4" class="edge">
+<ns0:title>KIF_Object-&gt;Term</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M55.62,-220.21C55.62,-210.83 55.62,-199.32 55.62,-191.33" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="53.88,-220.83 55.63,-225.83 57.38,-220.83 53.88,-220.83" />
+</ns0:g>
+</ns0:g>
+</ns0:svg>

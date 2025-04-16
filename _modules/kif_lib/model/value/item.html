@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kif_lib.model.value.item &mdash; kif-lib  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
@@ -46,6 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../reference/index.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
 </ul>
@@ -78,13 +79,13 @@
 <span></span><span class="c1"># Copyright (C) 2024-2025 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">overload</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">overload</span>
 
-<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">cast</span><span class="p">,</span>
     <span class="n">ClassVar</span><span class="p">,</span>
     <span class="n">Iterable</span><span class="p">,</span>
@@ -96,15 +97,15 @@
     <span class="n">TypedDict</span><span class="p">,</span>
     <span class="n">Union</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">..term</span> <span class="kn">import</span> <span class="n">Template</span><span class="p">,</span> <span class="n">Variable</span>
-<span class="kn">from</span> <span class="nn">.entity</span> <span class="kn">import</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">EntityTemplate</span><span class="p">,</span> <span class="n">EntityVariable</span>
-<span class="kn">from</span> <span class="nn">.iri</span> <span class="kn">import</span> <span class="n">IRI_Template</span><span class="p">,</span> <span class="n">T_IRI</span>
-<span class="kn">from</span> <span class="nn">.text</span> <span class="kn">import</span> <span class="n">Text</span><span class="p">,</span> <span class="n">TText</span><span class="p">,</span> <span class="n">TTextLanguage</span><span class="p">,</span> <span class="n">TTextSet</span>
-<span class="kn">from</span> <span class="nn">.value</span> <span class="kn">import</span> <span class="n">Datatype</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..term</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span><span class="p">,</span> <span class="n">Variable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.entity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Entity</span><span class="p">,</span> <span class="n">EntityTemplate</span><span class="p">,</span> <span class="n">EntityVariable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.iri</span><span class="w"> </span><span class="kn">import</span> <span class="n">IRI_Template</span><span class="p">,</span> <span class="n">T_IRI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">Text</span><span class="p">,</span> <span class="n">TText</span><span class="p">,</span> <span class="n">TTextLanguage</span><span class="p">,</span> <span class="n">TTextSet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.value</span><span class="w"> </span><span class="kn">import</span> <span class="n">Datatype</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>               <span class="c1"># pragma: no cover</span>
-    <span class="kn">from</span> <span class="nn">...store</span> <span class="kn">import</span> <span class="n">Store</span>
-    <span class="kn">from</span> <span class="nn">.quantity</span> <span class="kn">import</span> <span class="n">Quantity</span><span class="p">,</span> <span class="n">QuantityTemplate</span><span class="p">,</span> <span class="n">TQuantity</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">...store</span><span class="w"> </span><span class="kn">import</span> <span class="n">Store</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.quantity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Quantity</span><span class="p">,</span> <span class="n">QuantityTemplate</span><span class="p">,</span> <span class="n">TQuantity</span>
 
 <span class="n">TItem</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Item&#39;</span><span class="p">,</span> <span class="n">T_IRI</span><span class="p">]</span>
 <span class="n">VItem</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;ItemTemplate&#39;</span><span class="p">,</span> <span class="s1">&#39;ItemVariable&#39;</span><span class="p">,</span> <span class="s1">&#39;Item&#39;</span><span class="p">]</span>
@@ -114,7 +115,7 @@
 
 <div class="viewcode-block" id="ItemTemplate">
 <a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.ItemTemplate">[docs]</a>
-<span class="k">class</span> <span class="nc">ItemTemplate</span><span class="p">(</span><span class="n">EntityTemplate</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ItemTemplate</span><span class="p">(</span><span class="n">EntityTemplate</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Item template.</span>
 
 <span class="sd">    Parameters:</span>
@@ -125,7 +126,7 @@
 
 <div class="viewcode-block" id="ItemTemplate.__init__">
 <a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.ItemTemplate.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iri</span><span class="p">:</span> <span class="n">VTItemContent</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iri</span><span class="p">:</span> <span class="n">VTItemContent</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">iri</span><span class="p">)</span></div>
 </div>
 
@@ -133,7 +134,7 @@
 
 <div class="viewcode-block" id="ItemVariable">
 <a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.ItemVariable">[docs]</a>
-<span class="k">class</span> <span class="nc">ItemVariable</span><span class="p">(</span><span class="n">EntityVariable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ItemVariable</span><span class="p">(</span><span class="n">EntityVariable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Item variable.</span>
 
 <span class="sd">    Parameters:</span>
@@ -146,7 +147,7 @@
 
 <div class="viewcode-block" id="ItemDatatype">
 <a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.ItemDatatype">[docs]</a>
-<span class="k">class</span> <span class="nc">ItemDatatype</span><span class="p">(</span><span class="n">Datatype</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ItemDatatype</span><span class="p">(</span><span class="n">Datatype</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Item datatype.&quot;&quot;&quot;</span>
 
     <span class="n">instance</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">ItemDatatype</span><span class="p">]</span>  <span class="c1"># pyright: ignore</span>
@@ -156,7 +157,7 @@
 
 <div class="viewcode-block" id="Item">
 <a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item">[docs]</a>
-<span class="k">class</span> <span class="nc">Item</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Item</span><span class="p">(</span>
         <span class="n">Entity</span><span class="p">,</span>
         <span class="n">datatype_class</span><span class="o">=</span><span class="n">ItemDatatype</span><span class="p">,</span>
         <span class="n">template_class</span><span class="o">=</span><span class="n">ItemTemplate</span><span class="p">,</span>
@@ -175,7 +176,7 @@
 
 <div class="viewcode-block" id="Item.Descriptor">
 <a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.Descriptor">[docs]</a>
-    <span class="k">class</span> <span class="nc">Descriptor</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Descriptor</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Item descriptor in KIF context.&quot;&quot;&quot;</span>
 
         <span class="c1">#: Label indexed by language.</span>
@@ -190,12 +191,12 @@
 
 <div class="viewcode-block" id="Item.__init__">
 <a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iri</span><span class="p">:</span> <span class="n">VTItemContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iri</span><span class="p">:</span> <span class="n">VTItemContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">iri</span><span class="p">)</span></div>
 
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__rmatmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">QuantityTemplate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantityTemplate</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rmatmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">QuantityTemplate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantityTemplate</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs quantity template using item as the unit.</span>
 
 <span class="sd">        Parameters:</span>
@@ -207,7 +208,7 @@
         <span class="o">...</span>                     <span class="c1"># pragma: no cover</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span> <span class="fm">__rmatmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TQuantity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rmatmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TQuantity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs quantity using item as the unit.</span>
 
 <span class="sd">        Parameters:</span>
@@ -218,11 +219,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>                     <span class="c1"># pragma: no cover</span>
 
-    <span class="k">def</span> <span class="fm">__rmatmul__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rmatmul__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">other</span><span class="p">:</span> <span class="n">QuantityTemplate</span> <span class="o">|</span> <span class="n">TQuantity</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantityTemplate</span> <span class="o">|</span> <span class="n">Quantity</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">.quantity</span> <span class="kn">import</span> <span class="n">Quantity</span><span class="p">,</span> <span class="n">QuantityTemplate</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.quantity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Quantity</span><span class="p">,</span> <span class="n">QuantityTemplate</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Template</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">QuantityTemplate</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">KEEP</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">KEEP</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">KEEP</span><span class="p">)</span>
@@ -233,7 +234,7 @@
 <div class="viewcode-block" id="Item.display">
 <a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.display">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="n">TTextLanguage</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="p">:</span> <span class="n">TTextLanguage</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_label</span><span class="p">(</span><span class="n">language</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">label</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">label</span><span class="o">.</span><span class="n">content</span>
@@ -243,7 +244,7 @@
 
 <div class="viewcode-block" id="Item.describe">
 <a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.describe">[docs]</a>
-    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">language</span><span class="p">:</span> <span class="n">TTextLanguage</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -277,13 +278,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The label of item in KIF context.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Item.get_label">
 <a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.get_label">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_label</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">language</span><span class="p">:</span> <span class="n">TTextLanguage</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -307,13 +308,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">Text</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">Text</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The aliases of item in KIF context.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_aliases</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Item.get_aliases">
 <a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.get_aliases">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_aliases</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_aliases</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">language</span><span class="p">:</span> <span class="n">TTextLanguage</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -337,13 +338,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Text</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The description of item in KIF context.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_description</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Item.get_description">
 <a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.get_description">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_description</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">language</span><span class="p">:</span> <span class="n">TTextLanguage</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -368,7 +369,7 @@
 
 <div class="viewcode-block" id="Item.register">
 <a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.register">[docs]</a>
-    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">label</span><span class="p">:</span> <span class="n">TText</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">labels</span><span class="p">:</span> <span class="n">TTextSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -398,7 +399,7 @@
 
 <div class="viewcode-block" id="Item.unregister">
 <a class="viewcode-back" href="../../../../reference/model/value/item.html#kif_lib.Item.unregister">[docs]</a>
-    <span class="k">def</span> <span class="nf">unregister</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unregister</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">label</span><span class="p">:</span> <span class="n">TText</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">labels</span><span class="p">:</span> <span class="n">TTextSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -458,7 +459,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">Items</span><span class="p">(</span><span class="n">iri</span><span class="p">:</span> <span class="n">VTItemContent</span><span class="p">,</span> <span class="o">*</span><span class="n">iris</span><span class="p">:</span> <span class="n">VTItemContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Item</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">Items</span><span class="p">(</span><span class="n">iri</span><span class="p">:</span> <span class="n">VTItemContent</span><span class="p">,</span> <span class="o">*</span><span class="n">iris</span><span class="p">:</span> <span class="n">VTItemContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Item</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructs one or more items.</span>
 
 <span class="sd">    Parameters:</span>
@@ -468,7 +469,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">       The resulting items.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">...</span> <span class="kn">import</span> <span class="n">itertools</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">...</span><span class="w"> </span><span class="kn">import</span> <span class="n">itertools</span>
     <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="n">Item</span><span class="p">,</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">((</span><span class="n">iri</span><span class="p">,),</span> <span class="n">iris</span><span class="p">))</span>
 </pre></div>
 

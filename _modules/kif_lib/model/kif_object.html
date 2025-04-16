@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kif_lib.model.kif_object &mdash; kif-lib  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -46,6 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../reference/index.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
 </ul>
@@ -78,16 +79,16 @@
 <span></span><span class="c1"># Copyright (C) 2023-2025 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">decimal</span>
-<span class="kn">import</span> <span class="nn">enum</span>
-<span class="kn">import</span> <span class="nn">functools</span>
-<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">decimal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 
-<span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">Context</span>
-<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..context</span><span class="w"> </span><span class="kn">import</span> <span class="n">Context</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">Callable</span><span class="p">,</span>
     <span class="n">cast</span><span class="p">,</span>
@@ -97,7 +98,7 @@
     <span class="n">Self</span><span class="p">,</span>
     <span class="n">TypeVar</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="nb">object</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="nb">object</span>
 
 <span class="n">Codec</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">Codec</span>
 <span class="n">CodecError</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">Codec</span><span class="o">.</span><span class="n">Error</span>
@@ -114,17 +115,17 @@
 
 <div class="viewcode-block" id="KIF_Object">
 <a class="viewcode-back" href="../../../reference/model/kif_object/kif_object.html#kif_lib.KIF_Object">[docs]</a>
-<span class="k">class</span> <span class="nc">KIF_Object</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">Object</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="nb">object</span><span class="o">.</span><span class="n">ObjectMeta</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KIF_Object</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">Object</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="nb">object</span><span class="o">.</span><span class="n">ObjectMeta</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for KIF objects.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">context</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">context</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The current KIF context.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span>
 
 <div class="viewcode-block" id="KIF_Object.get_context">
 <a class="viewcode-back" href="../../../reference/model/kif_object/kif_object.html#kif_lib.KIF_Object.get_context">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">Context</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">Context</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the current KIF context.</span>
 
 <span class="sd">        If `context` is not ``None``, returns `context`.</span>
@@ -138,7 +139,7 @@
 <div class="viewcode-block" id="KIF_Object.from_sparql">
 <a class="viewcode-back" href="../../../reference/model/kif_object/kif_object.html#kif_lib.KIF_Object.from_sparql">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_sparql</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_sparql</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Decodes string using SPARQL decoder.</span>
 
 <span class="sd">        Parameters:</span>
@@ -155,7 +156,7 @@
 
 <div class="viewcode-block" id="KIF_Object.to_dot">
 <a class="viewcode-back" href="../../../reference/model/kif_object/kif_object.html#kif_lib.KIF_Object.to_dot">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_dot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Encodes object using Dot encoder.</span>
 
 <span class="sd">        Parameters:</span>
@@ -172,7 +173,7 @@
 
 <div class="viewcode-block" id="KIF_Object.to_markdown">
 <a class="viewcode-back" href="../../../reference/model/kif_object/kif_object.html#kif_lib.KIF_Object.to_markdown">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_markdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Encodes object using Markdown encoder.</span>
 
 <span class="sd">        Parameters:</span>
@@ -187,12 +188,12 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="s1">&#39;markdown&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_repr_markdown_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_repr_markdown_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_markdown</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
 
 <div class="viewcode-block" id="KIF_Object.to_rdf">
 <a class="viewcode-back" href="../../../reference/model/kif_object/kif_object.html#kif_lib.KIF_Object.to_rdf">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_rdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Encodes object using RDF encoder.</span>
 
 <span class="sd">        Parameters:</span>
@@ -209,7 +210,7 @@
 
 <div class="viewcode-block" id="KIF_Object.substitute">
 <a class="viewcode-back" href="../../../reference/model/kif_object/kif_object.html#kif_lib.KIF_Object.substitute">[docs]</a>
-    <span class="k">def</span> <span class="nf">substitute</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">substitute</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">sigma</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
@@ -226,7 +227,7 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="k">else</span> <span class="n">sigma</span><span class="p">))</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_substitute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_substitute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
             <span class="n">y</span> <span class="o">=</span> <span class="n">sigma</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">y</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">KIF_Object</span><span class="p">):</span>
@@ -236,7 +237,7 @@
 
 <div class="viewcode-block" id="KIF_Object.traverse">
 <a class="viewcode-back" href="../../../reference/model/kif_object/kif_object.html#kif_lib.KIF_Object.traverse">[docs]</a>
-    <span class="k">def</span> <span class="nf">traverse</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">traverse</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="nb">filter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">visit</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -262,14 +263,14 @@
 
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_traverse_default_filter</span><span class="p">(</span><span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_traverse_default_filter</span><span class="p">(</span><span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_traverse_default_visit</span><span class="p">(</span><span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_traverse_default_visit</span><span class="p">(</span><span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="nf">_traverse</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_traverse</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="nb">filter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">],</span>
             <span class="n">visit</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
@@ -285,18 +286,18 @@
 
 
 
-<span class="k">class</span> <span class="nc">KIF_JSON_Encoder</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KIF_JSON_Encoder</span><span class="p">(</span>
         <span class="nb">object</span><span class="o">.</span><span class="n">JSON_Encoder</span><span class="p">,</span>
         <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;json&#39;</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s1">&#39;JSON encoder&#39;</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;KIF JSON encoder.&quot;&quot;&quot;</span>
 
-    <span class="k">class</span> <span class="nc">Encoder</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">JSON_Encoder</span><span class="o">.</span><span class="n">Encoder</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Encoder</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">JSON_Encoder</span><span class="o">.</span><span class="n">Encoder</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The underlying JSON encoder.&quot;&quot;&quot;</span>
 
         <span class="nd">@override</span>
-        <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">Object</span><span class="p">):</span>
                 <span class="n">obj</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Object</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span>
                 <span class="k">return</span> <span class="p">{</span>
@@ -311,10 +312,10 @@
                 <span class="k">try</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="n">EncoderError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span> <span class="kn">from</span> <span class="kc">None</span>
+                    <span class="k">raise</span> <span class="n">EncoderError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
 
 
-<span class="k">class</span> <span class="nc">KIF_ReprDecoder</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KIF_ReprDecoder</span><span class="p">(</span>
         <span class="nb">object</span><span class="o">.</span><span class="n">ReprDecoder</span><span class="p">,</span>
         <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;repr&#39;</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Repr. decoder&#39;</span>
@@ -323,12 +324,12 @@
 
     <span class="nd">@classmethod</span>
     <span class="nd">@functools</span><span class="o">.</span><span class="n">cache</span>
-    <span class="k">def</span> <span class="nf">_globals</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_globals</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;Decimal&#39;</span><span class="p">:</span> <span class="n">decimal</span><span class="o">.</span><span class="n">Decimal</span><span class="p">,</span> <span class="s1">&#39;datetime&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
                 <span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_globals</span><span class="p">()}</span>
 
 
-<span class="k">class</span> <span class="nc">KIF_ReprEncoder</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KIF_ReprEncoder</span><span class="p">(</span>
         <span class="nb">object</span><span class="o">.</span><span class="n">ReprEncoder</span><span class="p">,</span>
         <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;repr&#39;</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Repr. encoder&#39;</span>
@@ -336,7 +337,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;KIF repr. encoder.&quot;&quot;&quot;</span>
 
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">_iterencode</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_iterencode</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">v</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
             <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -352,7 +353,7 @@
             <span class="k">yield from</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_iterencode</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">indent</span><span class="p">)</span>
 
 
-<span class="k">class</span> <span class="nc">KIF_SExpEncoder</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KIF_SExpEncoder</span><span class="p">(</span>
         <span class="nb">object</span><span class="o">.</span><span class="n">SExpEncoder</span><span class="p">,</span>
         <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;sexp&#39;</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s1">&#39;S-expression encoder&#39;</span>
@@ -360,7 +361,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;KIF S-expression encoder.&quot;&quot;&quot;</span>
 
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">_iterencode</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_iterencode</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">v</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
             <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kif_lib.model.statement &mdash; kif-lib  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -46,6 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../reference/index.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
 </ul>
@@ -78,10 +79,10 @@
 <span></span><span class="c1"># Copyright (C) 2023-2025 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">itertools</span>
-<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..</span><span class="w"> </span><span class="kn">import</span> <span class="n">itertools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">ClassVar</span><span class="p">,</span>
     <span class="n">Location</span><span class="p">,</span>
@@ -91,8 +92,8 @@
     <span class="n">TypedDict</span><span class="p">,</span>
     <span class="n">Union</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.rank</span> <span class="kn">import</span> <span class="n">NormalRank</span><span class="p">,</span> <span class="n">Rank</span><span class="p">,</span> <span class="n">RankVariable</span><span class="p">,</span> <span class="n">TRank</span><span class="p">,</span> <span class="n">VRank</span><span class="p">,</span> <span class="n">VTRank</span>
-<span class="kn">from</span> <span class="nn">.set</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.rank</span><span class="w"> </span><span class="kn">import</span> <span class="n">NormalRank</span><span class="p">,</span> <span class="n">Rank</span><span class="p">,</span> <span class="n">RankVariable</span><span class="p">,</span> <span class="n">TRank</span><span class="p">,</span> <span class="n">VRank</span><span class="p">,</span> <span class="n">VTRank</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.set</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">QualifierRecord</span><span class="p">,</span>
     <span class="n">QualifierRecordVariable</span><span class="p">,</span>
     <span class="n">ReferenceRecordSet</span><span class="p">,</span>
@@ -104,7 +105,7 @@
     <span class="n">VTQualifierRecord</span><span class="p">,</span>
     <span class="n">VTReferenceRecordSet</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.snak</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.snak</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Snak</span><span class="p">,</span>
     <span class="n">SnakTemplate</span><span class="p">,</span>
     <span class="n">SnakVariable</span><span class="p">,</span>
@@ -113,8 +114,8 @@
     <span class="n">VSnak</span><span class="p">,</span>
     <span class="n">VTSnak</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.term</span> <span class="kn">import</span> <span class="n">ClosedTerm</span><span class="p">,</span> <span class="n">Template</span><span class="p">,</span> <span class="n">Variable</span>
-<span class="kn">from</span> <span class="nn">.value</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.term</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClosedTerm</span><span class="p">,</span> <span class="n">Template</span><span class="p">,</span> <span class="n">Variable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.value</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Entity</span><span class="p">,</span>
     <span class="n">EntityTemplate</span><span class="p">,</span>
     <span class="n">EntityVariable</span><span class="p">,</span>
@@ -143,7 +144,7 @@
     <span class="n">Union</span><span class="p">[</span><span class="n">Variable</span><span class="p">,</span> <span class="n">VAnnotatedStatement</span><span class="p">,</span> <span class="n">TAnnotatedStatement</span><span class="p">]</span>
 
 
-<span class="k">class</span> <span class="nc">_Annotation</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Annotation</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Statement annotation.&quot;&quot;&quot;</span>
 
     <span class="n">qualifiers</span><span class="p">:</span> <span class="n">VTQualifierRecord</span> <span class="o">|</span> <span class="kc">None</span>
@@ -154,7 +155,7 @@
 
 <div class="viewcode-block" id="StatementTemplate">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.StatementTemplate">[docs]</a>
-<span class="k">class</span> <span class="nc">StatementTemplate</span><span class="p">(</span><span class="n">Template</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StatementTemplate</span><span class="p">(</span><span class="n">Template</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Statement template.</span>
 
 <span class="sd">    Parameters:</span>
@@ -166,15 +167,15 @@
 
 <div class="viewcode-block" id="StatementTemplate.__init__">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.StatementTemplate.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span> <span class="n">snak</span><span class="p">:</span> <span class="n">VTSnak</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span> <span class="n">snak</span><span class="p">:</span> <span class="n">VTSnak</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">snak</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__matmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">_Annotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnnotatedStatementTemplate</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__matmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">_Annotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnnotatedStatementTemplate</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="o">**</span><span class="n">other</span><span class="p">)</span>
 
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>              <span class="c1"># entity</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">Template</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">EntityTemplate</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
@@ -193,13 +194,13 @@
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">subject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VEntity</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">subject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VEntity</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The subject of statement template.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subject</span><span class="p">()</span>
 
 <div class="viewcode-block" id="StatementTemplate.get_subject">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.StatementTemplate.get_subject">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_subject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VEntity</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_subject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VEntity</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the subject of statement template.</span>
 
 <span class="sd">        Returns:</span>
@@ -209,13 +210,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">snak</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VSnak</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">snak</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VSnak</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The snak of statement template.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_snak</span><span class="p">()</span>
 
 <div class="viewcode-block" id="StatementTemplate.get_snak">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.StatementTemplate.get_snak">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_snak</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VSnak</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_snak</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VSnak</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the snak of statement template.</span>
 
 <span class="sd">        Returns:</span>
@@ -225,13 +226,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">claim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">VEntity</span><span class="p">,</span> <span class="n">VSnak</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">claim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">VEntity</span><span class="p">,</span> <span class="n">VSnak</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The claim of statement template.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_claim</span><span class="p">()</span>
 
 <div class="viewcode-block" id="StatementTemplate.get_claim">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.StatementTemplate.get_claim">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_claim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">VEntity</span><span class="p">,</span> <span class="n">VSnak</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_claim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">VEntity</span><span class="p">,</span> <span class="n">VSnak</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the claim of statement template.</span>
 
 <span class="sd">        Returns:</span>
@@ -242,7 +243,7 @@
 
 <div class="viewcode-block" id="StatementTemplate.annotate">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.StatementTemplate.annotate">[docs]</a>
-    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">annotate</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">qualifiers</span><span class="p">:</span> <span class="n">VTQualifierRecord</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">references</span><span class="p">:</span> <span class="n">VTReferenceRecordSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -266,7 +267,7 @@
 
 <div class="viewcode-block" id="StatementTemplate.unannotate">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.StatementTemplate.unannotate">[docs]</a>
-    <span class="k">def</span> <span class="nf">unannotate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Statement</span> <span class="o">|</span> <span class="n">StatementTemplate</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unannotate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Statement</span> <span class="o">|</span> <span class="n">StatementTemplate</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Unannotates statement template.</span>
 
 <span class="sd">        Returns:</span>
@@ -279,7 +280,7 @@
 
 <div class="viewcode-block" id="StatementVariable">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.StatementVariable">[docs]</a>
-<span class="k">class</span> <span class="nc">StatementVariable</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StatementVariable</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Statement variable.</span>
 
 <span class="sd">    Parameters:</span>
@@ -292,7 +293,7 @@
 
 <div class="viewcode-block" id="Statement">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.Statement">[docs]</a>
-<span class="k">class</span> <span class="nc">Statement</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Statement</span><span class="p">(</span>
         <span class="n">ClosedTerm</span><span class="p">,</span>
         <span class="n">template_class</span><span class="o">=</span><span class="n">StatementTemplate</span><span class="p">,</span>
         <span class="n">variable_class</span><span class="o">=</span><span class="n">StatementVariable</span>
@@ -318,7 +319,7 @@
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.Statement.check">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span>
             <span class="bp">cls</span><span class="p">,</span>
             <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
             <span class="n">function</span><span class="p">:</span> <span class="n">Location</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -343,19 +344,19 @@
 
 <div class="viewcode-block" id="Statement.__init__">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.Statement.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span> <span class="n">snak</span><span class="p">:</span> <span class="n">VTSnak</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span> <span class="n">snak</span><span class="p">:</span> <span class="n">VTSnak</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">snak</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__matmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">_Annotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnnotatedStatement</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__matmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">_Annotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnnotatedStatement</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="o">**</span><span class="n">other</span><span class="p">)</span>
 
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_static_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_static_preprocess_arg</span><span class="p">(</span><span class="n">self_</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_static_preprocess_arg</span><span class="p">(</span><span class="n">self_</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Entity</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">self_</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -364,13 +365,13 @@
             <span class="k">raise</span> <span class="n">self_</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">subject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Entity</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">subject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Entity</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The subject of statement.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subject</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Statement.get_subject">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.Statement.get_subject">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_subject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Entity</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_subject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Entity</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the subject of statement.</span>
 
 <span class="sd">        Returns:</span>
@@ -380,13 +381,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">snak</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Snak</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">snak</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Snak</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The snak of statement.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_snak</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Statement.get_snak">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.Statement.get_snak">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_snak</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Snak</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_snak</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Snak</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the snak of statement.</span>
 
 <span class="sd">        Returns:</span>
@@ -396,13 +397,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">claim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Entity</span><span class="p">,</span> <span class="n">Snak</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">claim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Entity</span><span class="p">,</span> <span class="n">Snak</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The claim of statement.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_claim</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Statement.get_claim">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.Statement.get_claim">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_claim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Entity</span><span class="p">,</span> <span class="n">Snak</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_claim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Entity</span><span class="p">,</span> <span class="n">Snak</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the claim of statement.</span>
 
 <span class="sd">        Returns:</span>
@@ -413,7 +414,7 @@
 
 <div class="viewcode-block" id="Statement.annotate">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.Statement.annotate">[docs]</a>
-    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">annotate</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">qualifiers</span><span class="p">:</span> <span class="n">VTQualifierRecord</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">references</span><span class="p">:</span> <span class="n">VTReferenceRecordSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -437,7 +438,7 @@
 
 <div class="viewcode-block" id="Statement.unannotate">
 <a class="viewcode-back" href="../../../reference/model/statement/statement.html#kif_lib.Statement.unannotate">[docs]</a>
-    <span class="k">def</span> <span class="nf">unannotate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Statement</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unannotate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Statement</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Unannotates statement.</span>
 
 <span class="sd">        Returns:</span>
@@ -450,7 +451,7 @@
 
 <div class="viewcode-block" id="AnnotatedStatementTemplate">
 <a class="viewcode-back" href="../../../reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate">[docs]</a>
-<span class="k">class</span> <span class="nc">AnnotatedStatementTemplate</span><span class="p">(</span><span class="n">StatementTemplate</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnnotatedStatementTemplate</span><span class="p">(</span><span class="n">StatementTemplate</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Annotated statement template.</span>
 
 <span class="sd">    Parameters:</span>
@@ -465,7 +466,7 @@
 
 <div class="viewcode-block" id="AnnotatedStatementTemplate.__init__">
 <a class="viewcode-back" href="../../../reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">entity</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span>
             <span class="n">snak</span><span class="p">:</span> <span class="n">VTSnak</span><span class="p">,</span>
@@ -478,7 +479,7 @@
 
 
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>              <span class="c1"># entity</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">Template</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">EntityTemplate</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
@@ -513,13 +514,13 @@
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">qualifiers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VQualifierRecord</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">qualifiers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VQualifierRecord</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The qualifiers of annotated statement template.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_qualifiers</span><span class="p">()</span>
 
 <div class="viewcode-block" id="AnnotatedStatementTemplate.get_qualifiers">
 <a class="viewcode-back" href="../../../reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate.get_qualifiers">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_qualifiers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VQualifierRecord</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_qualifiers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VQualifierRecord</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the qualifiers of annotated statement template.</span>
 
 <span class="sd">        Returns:</span>
@@ -529,13 +530,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">references</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VReferenceRecordSet</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">references</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VReferenceRecordSet</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The references of annotated statement template.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_references</span><span class="p">()</span>
 
 <div class="viewcode-block" id="AnnotatedStatementTemplate.get_references">
 <a class="viewcode-back" href="../../../reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate.get_references">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_references</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VReferenceRecordSet</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_references</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VReferenceRecordSet</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the references of annotated statement template.</span>
 
 <span class="sd">        Returns:</span>
@@ -545,13 +546,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">rank</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VRank</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rank</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VRank</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The rank of annotated statement template.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span>
 
 <div class="viewcode-block" id="AnnotatedStatementTemplate.get_rank">
 <a class="viewcode-back" href="../../../reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate.get_rank">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_rank</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VRank</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_rank</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VRank</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the rank of annotated statement template.</span>
 
 <span class="sd">        Returns:</span>
@@ -563,7 +564,7 @@
 <div class="viewcode-block" id="AnnotatedStatementTemplate.annotate">
 <a class="viewcode-back" href="../../../reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementTemplate.annotate">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">annotate</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">qualifiers</span><span class="p">:</span> <span class="n">VTQualifierRecord</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">references</span><span class="p">:</span> <span class="n">VTReferenceRecordSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -588,7 +589,7 @@
 
 <div class="viewcode-block" id="AnnotatedStatementVariable">
 <a class="viewcode-back" href="../../../reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatementVariable">[docs]</a>
-<span class="k">class</span> <span class="nc">AnnotatedStatementVariable</span><span class="p">(</span><span class="n">StatementVariable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnnotatedStatementVariable</span><span class="p">(</span><span class="n">StatementVariable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Annotated statement variable.</span>
 
 <span class="sd">    Parameters:</span>
@@ -601,7 +602,7 @@
 
 <div class="viewcode-block" id="AnnotatedStatement">
 <a class="viewcode-back" href="../../../reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement">[docs]</a>
-<span class="k">class</span> <span class="nc">AnnotatedStatement</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnnotatedStatement</span><span class="p">(</span>
         <span class="n">Statement</span><span class="p">,</span>
         <span class="n">template_class</span><span class="o">=</span><span class="n">AnnotatedStatementTemplate</span><span class="p">,</span>
         <span class="n">variable_class</span><span class="o">=</span><span class="n">AnnotatedStatementVariable</span>
@@ -626,7 +627,7 @@
 <a class="viewcode-back" href="../../../reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.check">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span>
             <span class="bp">cls</span><span class="p">,</span>
             <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
             <span class="n">function</span><span class="p">:</span> <span class="n">Location</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -646,7 +647,7 @@
 
 <div class="viewcode-block" id="AnnotatedStatement.__init__">
 <a class="viewcode-back" href="../../../reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">subject</span><span class="p">:</span> <span class="n">VTEntity</span><span class="p">,</span>
             <span class="n">snak</span><span class="p">:</span> <span class="n">VTSnak</span><span class="p">,</span>
@@ -659,11 +660,11 @@
 
 
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_static_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_static_preprocess_arg</span><span class="p">(</span><span class="n">self_</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_static_preprocess_arg</span><span class="p">(</span><span class="n">self_</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Entity</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">self_</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -681,13 +682,13 @@
             <span class="k">raise</span> <span class="n">self_</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">qualifiers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QualifierRecord</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">qualifiers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QualifierRecord</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The qualifiers of annotated statement.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_qualifiers</span><span class="p">()</span>
 
 <div class="viewcode-block" id="AnnotatedStatement.get_qualifiers">
 <a class="viewcode-back" href="../../../reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.get_qualifiers">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_qualifiers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QualifierRecord</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_qualifiers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QualifierRecord</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the qualifiers of annotated statement.</span>
 
 <span class="sd">        Returns:</span>
@@ -697,13 +698,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">references</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReferenceRecordSet</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">references</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReferenceRecordSet</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The references of annotated statement.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_references</span><span class="p">()</span>
 
 <div class="viewcode-block" id="AnnotatedStatement.get_references">
 <a class="viewcode-back" href="../../../reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.get_references">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_references</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReferenceRecordSet</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_references</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReferenceRecordSet</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the references of annotated statement.</span>
 
 <span class="sd">        Returns:</span>
@@ -713,13 +714,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">rank</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Rank</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rank</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Rank</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The rank of annotated statement.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span>
 
 <div class="viewcode-block" id="AnnotatedStatement.get_rank">
 <a class="viewcode-back" href="../../../reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.get_rank">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_rank</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Rank</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_rank</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Rank</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the rank of annotated statement.</span>
 
 <span class="sd">        Returns:</span>
@@ -731,7 +732,7 @@
 <div class="viewcode-block" id="AnnotatedStatement.annotate">
 <a class="viewcode-back" href="../../../reference/model/statement/annotated_statement.html#kif_lib.AnnotatedStatement.annotate">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">annotate</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">qualifiers</span><span class="p">:</span> <span class="n">VTQualifierRecord</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">references</span><span class="p">:</span> <span class="n">VTReferenceRecordSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kif_lib.model.term.template &mdash; kif-lib  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
@@ -46,6 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../reference/index.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
 </ul>
@@ -78,26 +79,26 @@
 <span></span><span class="c1"># Copyright (C) 2024-2025 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">...</span> <span class="kn">import</span> <span class="n">itertools</span>
-<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Location</span><span class="p">,</span> <span class="n">override</span>
-<span class="kn">from</span> <span class="nn">.term</span> <span class="kn">import</span> <span class="n">ClosedTerm</span><span class="p">,</span> <span class="n">OpenTerm</span><span class="p">,</span> <span class="n">Term</span><span class="p">,</span> <span class="n">Theta</span>
-<span class="kn">from</span> <span class="nn">.variable</span> <span class="kn">import</span> <span class="n">Variable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...</span><span class="w"> </span><span class="kn">import</span> <span class="n">itertools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Location</span><span class="p">,</span> <span class="n">override</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.term</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClosedTerm</span><span class="p">,</span> <span class="n">OpenTerm</span><span class="p">,</span> <span class="n">Term</span><span class="p">,</span> <span class="n">Theta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.variable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Variable</span>
 
 
 <div class="viewcode-block" id="Template">
 <a class="viewcode-back" href="../../../../reference/model/term/term.html#kif_lib.Template">[docs]</a>
-<span class="k">class</span> <span class="nc">Template</span><span class="p">(</span><span class="n">OpenTerm</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Template</span><span class="p">(</span><span class="n">OpenTerm</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for templates.&quot;&quot;&quot;</span>
 
     <span class="c1">#: Object class associated with this template class.</span>
     <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">ClosedTerm</span><span class="p">]]</span>
 
-    <span class="k">def</span> <span class="nf">_preprocess_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_preprocess_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_args</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_preprocess_args</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_normalize_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_normalize_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
         <span class="c1">###</span>
         <span class="c1"># A template is *normal* iff for every two variables ``x``, ``y`` in</span>
         <span class="c1"># the template, ``x.name == y.name`` implies ``type(x) == type(y)``.</span>
@@ -135,13 +136,13 @@
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_open</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
 
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">_iterate_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Variable</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_iterate_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Variable</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_traverse</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Variable</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_open</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Template.instantiate">
 <a class="viewcode-back" href="../../../../reference/model/term/term.html#kif_lib.Template.instantiate">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">instantiate</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">instantiate</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">theta</span><span class="p">:</span> <span class="n">Theta</span><span class="p">,</span>
             <span class="n">coerce</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -151,7 +152,7 @@
 
 
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">_instantiate</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_instantiate</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">theta</span><span class="p">:</span> <span class="n">Theta</span><span class="p">,</span>
             <span class="n">coerce</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
@@ -166,7 +167,7 @@
                     <span class="n">theta</span><span class="p">,</span> <span class="n">coerce</span><span class="p">,</span> <span class="n">strict</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">OpenTerm</span><span class="p">)</span> <span class="k">else</span> <span class="n">arg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">InstantiationError</span> <span class="kn">from</span> <span class="nn">err</span></div>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">InstantiationError</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span></div>
 
 </pre></div>
 

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kif_lib.model.rank &mdash; kif-lib  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -46,6 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../reference/index.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
 </ul>
@@ -78,12 +79,12 @@
 <span></span><span class="c1"># Copyright (C) 2024-2025 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 
-<span class="kn">from</span> <span class="nn">..rdflib</span> <span class="kn">import</span> <span class="n">URIRef</span>
-<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..rdflib</span><span class="w"> </span><span class="kn">import</span> <span class="n">URIRef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Any</span><span class="p">,</span>
     <span class="n">cast</span><span class="p">,</span>
     <span class="n">ClassVar</span><span class="p">,</span>
@@ -94,8 +95,8 @@
     <span class="n">TypeAlias</span><span class="p">,</span>
     <span class="n">Union</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.term</span> <span class="kn">import</span> <span class="n">ClosedTerm</span><span class="p">,</span> <span class="n">Term</span><span class="p">,</span> <span class="n">Theta</span><span class="p">,</span> <span class="n">Variable</span>
-<span class="kn">from</span> <span class="nn">.value</span> <span class="kn">import</span> <span class="n">IRI</span><span class="p">,</span> <span class="n">String</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.term</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClosedTerm</span><span class="p">,</span> <span class="n">Term</span><span class="p">,</span> <span class="n">Theta</span><span class="p">,</span> <span class="n">Variable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.value</span><span class="w"> </span><span class="kn">import</span> <span class="n">IRI</span><span class="p">,</span> <span class="n">String</span>
 
 <span class="n">TRank</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Rank&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="s1">&#39;Rank&#39;</span><span class="p">]]</span>
 <span class="n">VRank</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;RankVariable&#39;</span><span class="p">,</span> <span class="s1">&#39;Rank&#39;</span><span class="p">]</span>
@@ -104,7 +105,7 @@
 
 <div class="viewcode-block" id="RankVariable">
 <a class="viewcode-back" href="../../../reference/model/rank/rank.html#kif_lib.RankVariable">[docs]</a>
-<span class="k">class</span> <span class="nc">RankVariable</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RankVariable</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Rank variable.</span>
 
 <span class="sd">    Parameters:</span>
@@ -114,7 +115,7 @@
     <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Rank</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">_instantiate_tail</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_instantiate_tail</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">theta</span><span class="p">:</span> <span class="n">Theta</span><span class="p">,</span>
             <span class="n">coerce</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
@@ -138,7 +139,7 @@
 
 <div class="viewcode-block" id="Rank">
 <a class="viewcode-back" href="../../../reference/model/rank/rank.html#kif_lib.Rank">[docs]</a>
-<span class="k">class</span> <span class="nc">Rank</span><span class="p">(</span><span class="n">ClosedTerm</span><span class="p">,</span> <span class="n">variable_class</span><span class="o">=</span><span class="n">RankVariable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Rank</span><span class="p">(</span><span class="n">ClosedTerm</span><span class="p">,</span> <span class="n">variable_class</span><span class="o">=</span><span class="n">RankVariable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for statement ranks.&quot;&quot;&quot;</span>
 
     <span class="n">variable_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">RankVariable</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
@@ -146,7 +147,7 @@
     <span class="c1">#: Singleton instance of this rank class.</span>
     <span class="n">instance</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Rank</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">rank_class</span><span class="p">:</span> <span class="n">TRank</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">rank_class</span><span class="p">:</span> <span class="n">TRank</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">rank_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="n">Rank</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_check_error</span><span class="p">(</span>
@@ -166,7 +167,7 @@
             <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_check_error</span><span class="p">(</span><span class="n">rank_class</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;rank_class&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">()</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">instance</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
 
@@ -174,7 +175,7 @@
 <a class="viewcode-back" href="../../../reference/model/rank/rank.html#kif_lib.Rank.check">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span>
             <span class="bp">cls</span><span class="p">,</span>
             <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
             <span class="n">function</span><span class="p">:</span> <span class="n">Location</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -193,15 +194,15 @@
                 <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_from_rdflib</span><span class="p">(</span><span class="n">iri</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_check_error</span><span class="p">(</span>
-                    <span class="n">arg</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">err</span>
+                    <span class="n">arg</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">err</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_check_error</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span></div>
 
 
     <span class="nd">@classmethod</span>
     <span class="nd">@functools</span><span class="o">.</span><span class="n">cache</span>
-    <span class="k">def</span> <span class="nf">_from_rdflib</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">uri</span><span class="p">:</span> <span class="n">URIRef</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">..namespace</span> <span class="kn">import</span> <span class="n">Wikidata</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_from_rdflib</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">uri</span><span class="p">:</span> <span class="n">URIRef</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">..namespace</span><span class="w"> </span><span class="kn">import</span> <span class="n">Wikidata</span>
         <span class="k">if</span> <span class="n">Wikidata</span><span class="o">.</span><span class="n">is_wikibase_preferred_rank</span><span class="p">(</span><span class="n">uri</span><span class="p">):</span>
             <span class="n">res</span><span class="p">:</span> <span class="n">Rank</span> <span class="o">=</span> <span class="n">PreferredRank</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">Wikidata</span><span class="o">.</span><span class="n">is_wikibase_normal_rank</span><span class="p">(</span><span class="n">uri</span><span class="p">):</span>
@@ -212,8 +213,8 @@
             <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_check_error</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_from_rdflib</span><span class="p">,</span> <span class="s1">&#39;uri&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_from_rdflib</span><span class="p">,</span> <span class="s1">&#39;uri&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_to_rdflib</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">URIRef</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">..namespace</span> <span class="kn">import</span> <span class="n">Wikidata</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_to_rdflib</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">URIRef</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">..namespace</span><span class="w"> </span><span class="kn">import</span> <span class="n">Wikidata</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">PreferredRank</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">Wikidata</span><span class="o">.</span><span class="n">PREFERRED</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">NormalRank</span><span class="p">):</span>
@@ -225,7 +226,7 @@
 
 <div class="viewcode-block" id="Rank.__init__">
 <a class="viewcode-back" href="../../../reference/model/rank/rank.html#kif_lib.Rank.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank_class</span><span class="p">:</span> <span class="n">TRank</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank_class</span><span class="p">:</span> <span class="n">TRank</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Rank</span> <span class="ow">and</span> <span class="n">rank_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
 </div>
@@ -234,7 +235,7 @@
 
 <div class="viewcode-block" id="PreferredRank">
 <a class="viewcode-back" href="../../../reference/model/rank/preferred_rank.html#kif_lib.PreferredRank">[docs]</a>
-<span class="k">class</span> <span class="nc">PreferredRank</span><span class="p">(</span><span class="n">Rank</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PreferredRank</span><span class="p">(</span><span class="n">Rank</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Most important information.&quot;&quot;&quot;</span>
 
     <span class="n">instance</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">PreferredRank</span><span class="p">]</span>  <span class="c1"># pyright: ignore</span></div>
@@ -243,7 +244,7 @@
 
 <div class="viewcode-block" id="NormalRank">
 <a class="viewcode-back" href="../../../reference/model/rank/normal_rank.html#kif_lib.NormalRank">[docs]</a>
-<span class="k">class</span> <span class="nc">NormalRank</span><span class="p">(</span><span class="n">Rank</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NormalRank</span><span class="p">(</span><span class="n">Rank</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Complementary information.&quot;&quot;&quot;</span>
 
     <span class="n">instance</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">NormalRank</span><span class="p">]</span>  <span class="c1"># pyright: ignore</span></div>
@@ -252,7 +253,7 @@
 
 <div class="viewcode-block" id="DeprecatedRank">
 <a class="viewcode-back" href="../../../reference/model/rank/deprecated_rank.html#kif_lib.DeprecatedRank">[docs]</a>
-<span class="k">class</span> <span class="nc">DeprecatedRank</span><span class="p">(</span><span class="n">Rank</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DeprecatedRank</span><span class="p">(</span><span class="n">Rank</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Unreliable information.&quot;&quot;&quot;</span>
 
     <span class="n">instance</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">DeprecatedRank</span><span class="p">]</span>  <span class="c1"># pyright: ignore</span></div>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kif_lib.model.value.string &mdash; kif-lib  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
@@ -46,6 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../reference/index.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
 </ul>
@@ -78,16 +79,16 @@
 <span></span><span class="c1"># Copyright (C) 2024-2025 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">override</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">..term</span> <span class="kn">import</span> <span class="n">Variable</span>
-<span class="kn">from</span> <span class="nn">.shallow_data_value</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">override</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..term</span><span class="w"> </span><span class="kn">import</span> <span class="n">Variable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.shallow_data_value</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ShallowDataValue</span><span class="p">,</span>
     <span class="n">ShallowDataValueTemplate</span><span class="p">,</span>
     <span class="n">ShallowDataValueVariable</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.value</span> <span class="kn">import</span> <span class="n">Datatype</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.value</span><span class="w"> </span><span class="kn">import</span> <span class="n">Datatype</span>
 
 <span class="n">TString</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;String&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
 <span class="n">VString</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;StringTemplate&#39;</span><span class="p">,</span> <span class="s1">&#39;StringVariable&#39;</span><span class="p">,</span> <span class="s1">&#39;String&#39;</span><span class="p">]</span>
@@ -97,7 +98,7 @@
 
 <div class="viewcode-block" id="StringTemplate">
 <a class="viewcode-back" href="../../../../reference/model/value/string.html#kif_lib.StringTemplate">[docs]</a>
-<span class="k">class</span> <span class="nc">StringTemplate</span><span class="p">(</span><span class="n">ShallowDataValueTemplate</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StringTemplate</span><span class="p">(</span><span class="n">ShallowDataValueTemplate</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;String template.</span>
 
 <span class="sd">    Parameters:</span>
@@ -108,7 +109,7 @@
 
 <div class="viewcode-block" id="StringTemplate.__init__">
 <a class="viewcode-back" href="../../../../reference/model/value/string.html#kif_lib.StringTemplate.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">VTStringContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">VTStringContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div>
 </div>
 
@@ -116,7 +117,7 @@
 
 <div class="viewcode-block" id="StringVariable">
 <a class="viewcode-back" href="../../../../reference/model/value/string.html#kif_lib.StringVariable">[docs]</a>
-<span class="k">class</span> <span class="nc">StringVariable</span><span class="p">(</span><span class="n">ShallowDataValueVariable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StringVariable</span><span class="p">(</span><span class="n">ShallowDataValueVariable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;String variable.</span>
 
 <span class="sd">    Parameters:</span>
@@ -129,7 +130,7 @@
 
 <div class="viewcode-block" id="StringDatatype">
 <a class="viewcode-back" href="../../../../reference/model/value/string.html#kif_lib.StringDatatype">[docs]</a>
-<span class="k">class</span> <span class="nc">StringDatatype</span><span class="p">(</span><span class="n">Datatype</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StringDatatype</span><span class="p">(</span><span class="n">Datatype</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;String datatype.&quot;&quot;&quot;</span>
 
     <span class="n">instance</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">StringDatatype</span><span class="p">]</span>  <span class="c1"># pyright: ignore</span>
@@ -139,7 +140,7 @@
 
 <div class="viewcode-block" id="String">
 <a class="viewcode-back" href="../../../../reference/model/value/string.html#kif_lib.String">[docs]</a>
-<span class="k">class</span> <span class="nc">String</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">String</span><span class="p">(</span>
         <span class="n">ShallowDataValue</span><span class="p">,</span>
         <span class="n">datatype_class</span><span class="o">=</span><span class="n">StringDatatype</span><span class="p">,</span>
         <span class="n">template_class</span><span class="o">=</span><span class="n">StringTemplate</span><span class="p">,</span>
@@ -158,16 +159,16 @@
 
 <div class="viewcode-block" id="String.__init__">
 <a class="viewcode-back" href="../../../../reference/model/value/string.html#kif_lib.String.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">VTStringContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">VTStringContent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div>
 
 
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_static_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_static_preprocess_arg</span><span class="p">(</span><span class="n">self_</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_static_preprocess_arg</span><span class="p">(</span><span class="n">self_</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>              <span class="c1"># content</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">String</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">arg</span><span class="o">.</span><span class="n">content</span>

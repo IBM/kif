@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kif_lib.model.value.deep_data_value &mdash; kif-lib  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
@@ -46,6 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../reference/index.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
 </ul>
@@ -78,15 +79,15 @@
 <span></span><span class="c1"># Copyright (C) 2024-2025 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">ClassVar</span>
-<span class="kn">from</span> <span class="nn">.data_value</span> <span class="kn">import</span> <span class="n">DataValue</span><span class="p">,</span> <span class="n">DataValueTemplate</span><span class="p">,</span> <span class="n">DataValueVariable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassVar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.data_value</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataValue</span><span class="p">,</span> <span class="n">DataValueTemplate</span><span class="p">,</span> <span class="n">DataValueVariable</span>
 
 
 <div class="viewcode-block" id="DeepDataValueTemplate">
 <a class="viewcode-back" href="../../../../reference/model/value/deep_data_value.html#kif_lib.DeepDataValueTemplate">[docs]</a>
-<span class="k">class</span> <span class="nc">DeepDataValueTemplate</span><span class="p">(</span><span class="n">DataValueTemplate</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DeepDataValueTemplate</span><span class="p">(</span><span class="n">DataValueTemplate</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for deep data value templates.&quot;&quot;&quot;</span>
 
     <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">DeepDataValue</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span></div>
@@ -95,7 +96,7 @@
 
 <div class="viewcode-block" id="DeepDataValueVariable">
 <a class="viewcode-back" href="../../../../reference/model/value/deep_data_value.html#kif_lib.DeepDataValueVariable">[docs]</a>
-<span class="k">class</span> <span class="nc">DeepDataValueVariable</span><span class="p">(</span><span class="n">DataValueVariable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DeepDataValueVariable</span><span class="p">(</span><span class="n">DataValueVariable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Deep data value variable.</span>
 
 <span class="sd">    Parameters:</span>
@@ -108,7 +109,7 @@
 
 <div class="viewcode-block" id="DeepDataValue">
 <a class="viewcode-back" href="../../../../reference/model/value/deep_data_value.html#kif_lib.DeepDataValue">[docs]</a>
-<span class="k">class</span> <span class="nc">DeepDataValue</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DeepDataValue</span><span class="p">(</span>
         <span class="n">DataValue</span><span class="p">,</span>
         <span class="n">template_class</span><span class="o">=</span><span class="n">DeepDataValueTemplate</span><span class="p">,</span>
         <span class="n">variable_class</span><span class="o">=</span><span class="n">DeepDataValueVariable</span>

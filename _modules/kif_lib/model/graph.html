@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kif_lib.model.graph &mdash; kif-lib  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
@@ -46,6 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../reference/index.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
 </ul>
@@ -78,12 +79,12 @@
 <span></span><span class="c1"># Copyright (C) 2024-2025 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">override</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">.set</span> <span class="kn">import</span> <span class="n">ClosedTermSet</span>
-<span class="kn">from</span> <span class="nn">.statement</span> <span class="kn">import</span> <span class="n">Statement</span><span class="p">,</span> <span class="n">TStatement</span>
-<span class="kn">from</span> <span class="nn">.term</span> <span class="kn">import</span> <span class="n">Variable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">override</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.set</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClosedTermSet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.statement</span><span class="w"> </span><span class="kn">import</span> <span class="n">Statement</span><span class="p">,</span> <span class="n">TStatement</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.term</span><span class="w"> </span><span class="kn">import</span> <span class="n">Variable</span>
 
 <span class="n">TGraph</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;Graph&#39;</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">TStatement</span><span class="p">]]</span>
 <span class="n">VGraph</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;GraphVariable&#39;</span><span class="p">,</span> <span class="s1">&#39;Graph&#39;</span><span class="p">]</span>
@@ -92,7 +93,7 @@
 
 <div class="viewcode-block" id="GraphVariable">
 <a class="viewcode-back" href="../../../reference/model/set/graph.html#kif_lib.GraphVariable">[docs]</a>
-<span class="k">class</span> <span class="nc">GraphVariable</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GraphVariable</span><span class="p">(</span><span class="n">Variable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Graph variable.</span>
 
 <span class="sd">    Parameters:</span>
@@ -105,7 +106,7 @@
 
 <div class="viewcode-block" id="Graph">
 <a class="viewcode-back" href="../../../reference/model/set/graph.html#kif_lib.Graph">[docs]</a>
-<span class="k">class</span> <span class="nc">Graph</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Graph</span><span class="p">(</span>
         <span class="n">ClosedTermSet</span><span class="p">[</span><span class="n">Statement</span><span class="p">],</span>
         <span class="n">children_class</span><span class="o">=</span><span class="n">Statement</span><span class="p">,</span>
         <span class="n">variable_class</span><span class="o">=</span><span class="n">GraphVariable</span>
@@ -122,19 +123,19 @@
 <div class="viewcode-block" id="Graph.__init__">
 <a class="viewcode-back" href="../../../reference/model/set/graph.html#kif_lib.Graph.__init__">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">statements</span><span class="p">:</span> <span class="n">Statement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">statements</span><span class="p">:</span> <span class="n">Statement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">statements</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Graph.to_graphviz">
 <a class="viewcode-back" href="../../../reference/model/set/graph.html#kif_lib.Graph.to_graphviz">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_graphviz</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_graphviz</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Converts graph to a Graphviz&#39;s graph.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">           Graphviz graph.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">..codec.dot</span> <span class="kn">import</span> <span class="n">DotEncoder</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">..codec.dot</span><span class="w"> </span><span class="kn">import</span> <span class="n">DotEncoder</span>
         <span class="k">return</span> <span class="n">DotEncoder</span><span class="p">()</span><span class="o">.</span><span class="n">_to_graphviz</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 </div>
 

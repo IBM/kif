@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kif_lib.model.value.iri &mdash; kif-lib  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
@@ -46,6 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../reference/index.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
 </ul>
@@ -78,22 +79,22 @@
 <span></span><span class="c1"># Copyright (C) 2024-2025 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">override</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">TypedDict</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">..term</span> <span class="kn">import</span> <span class="n">Variable</span>
-<span class="kn">from</span> <span class="nn">.shallow_data_value</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">override</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">TypedDict</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..term</span><span class="w"> </span><span class="kn">import</span> <span class="n">Variable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.shallow_data_value</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ShallowDataValue</span><span class="p">,</span>
     <span class="n">ShallowDataValueTemplate</span><span class="p">,</span>
     <span class="n">ShallowDataValueVariable</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.string</span> <span class="kn">import</span> <span class="n">String</span><span class="p">,</span> <span class="n">TString</span>
-<span class="kn">from</span> <span class="nn">.value</span> <span class="kn">import</span> <span class="n">Datatype</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.string</span><span class="w"> </span><span class="kn">import</span> <span class="n">String</span><span class="p">,</span> <span class="n">TString</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.value</span><span class="w"> </span><span class="kn">import</span> <span class="n">Datatype</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>               <span class="c1"># pragma: no cover</span>
-    <span class="kn">from</span> <span class="nn">...store</span> <span class="kn">import</span> <span class="n">Store</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">...store</span><span class="w"> </span><span class="kn">import</span> <span class="n">Store</span>
 
 <span class="n">T_IRI</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;IRI&#39;</span><span class="p">,</span> <span class="n">TString</span><span class="p">]</span>
 <span class="n">V_IRI</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;IRI_Template&#39;</span><span class="p">,</span> <span class="s1">&#39;IRI_Variable&#39;</span><span class="p">,</span> <span class="s1">&#39;IRI&#39;</span><span class="p">]</span>
@@ -103,7 +104,7 @@
 
 <div class="viewcode-block" id="IRI_Template">
 <a class="viewcode-back" href="../../../../reference/model/value/iri.html#kif_lib.IRI_Template">[docs]</a>
-<span class="k">class</span> <span class="nc">IRI_Template</span><span class="p">(</span><span class="n">ShallowDataValueTemplate</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">IRI_Template</span><span class="p">(</span><span class="n">ShallowDataValueTemplate</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;IRI template.</span>
 
 <span class="sd">    Parameters:</span>
@@ -114,7 +115,7 @@
 
 <div class="viewcode-block" id="IRI_Template.__init__">
 <a class="viewcode-back" href="../../../../reference/model/value/iri.html#kif_lib.IRI_Template.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">VT_IRI_Content</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">VT_IRI_Content</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div>
 </div>
 
@@ -122,7 +123,7 @@
 
 <div class="viewcode-block" id="IRI_Variable">
 <a class="viewcode-back" href="../../../../reference/model/value/iri.html#kif_lib.IRI_Variable">[docs]</a>
-<span class="k">class</span> <span class="nc">IRI_Variable</span><span class="p">(</span><span class="n">ShallowDataValueVariable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">IRI_Variable</span><span class="p">(</span><span class="n">ShallowDataValueVariable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;IRI variable.</span>
 
 <span class="sd">    Parameters:</span>
@@ -135,7 +136,7 @@
 
 <div class="viewcode-block" id="IRI_Datatype">
 <a class="viewcode-back" href="../../../../reference/model/value/iri.html#kif_lib.IRI_Datatype">[docs]</a>
-<span class="k">class</span> <span class="nc">IRI_Datatype</span><span class="p">(</span><span class="n">Datatype</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">IRI_Datatype</span><span class="p">(</span><span class="n">Datatype</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;IRI datatype.&quot;&quot;&quot;</span>
 
     <span class="n">instance</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">IRI_Datatype</span><span class="p">]</span>  <span class="c1"># pyright: ignore</span>
@@ -145,7 +146,7 @@
 
 <div class="viewcode-block" id="IRI">
 <a class="viewcode-back" href="../../../../reference/model/value/iri.html#kif_lib.IRI">[docs]</a>
-<span class="k">class</span> <span class="nc">IRI</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">IRI</span><span class="p">(</span>
         <span class="n">ShallowDataValue</span><span class="p">,</span>
         <span class="n">datatype_class</span><span class="o">=</span><span class="n">IRI_Datatype</span><span class="p">,</span>
         <span class="n">template_class</span><span class="o">=</span><span class="n">IRI_Template</span><span class="p">,</span>
@@ -164,7 +165,7 @@
 
 <div class="viewcode-block" id="IRI.Descriptor">
 <a class="viewcode-back" href="../../../../reference/model/value/iri.html#kif_lib.IRI.Descriptor">[docs]</a>
-    <span class="k">class</span> <span class="nc">Descriptor</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Descriptor</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;IRI descriptor.&quot;&quot;&quot;</span>
 
         <span class="c1">#: Prefix.</span>
@@ -176,16 +177,16 @@
 
 <div class="viewcode-block" id="IRI.__init__">
 <a class="viewcode-back" href="../../../../reference/model/value/iri.html#kif_lib.IRI.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">VT_IRI_Content</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">VT_IRI_Content</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div>
 
 
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_static_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_static_preprocess_arg</span><span class="p">(</span><span class="n">self_</span><span class="p">:</span> <span class="n">IRI</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_static_preprocess_arg</span><span class="p">(</span><span class="n">self_</span><span class="p">:</span> <span class="n">IRI</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>              <span class="c1"># content</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">IRI</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">arg</span><span class="o">.</span><span class="n">content</span>
@@ -196,7 +197,7 @@
 
 <div class="viewcode-block" id="IRI.describe">
 <a class="viewcode-back" href="../../../../reference/model/value/iri.html#kif_lib.IRI.describe">[docs]</a>
-    <span class="k">def</span> <span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IRI</span><span class="o">.</span><span class="n">Descriptor</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IRI</span><span class="o">.</span><span class="n">Descriptor</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the descriptor of IRI in KIF context.</span>
 
 <span class="sd">        Returns:</span>
@@ -206,13 +207,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The prefix of IRI in KIF context.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_prefix</span><span class="p">()</span>
 
 <div class="viewcode-block" id="IRI.get_prefix">
 <a class="viewcode-back" href="../../../../reference/model/value/iri.html#kif_lib.IRI.get_prefix">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the prefix of IRI in KIF context.</span>
 
 <span class="sd">        Returns:</span>
@@ -222,13 +223,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">resolver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The entity resolver of IRI in KIF context.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_resolver</span><span class="p">()</span>
 
 <div class="viewcode-block" id="IRI.get_resolver">
 <a class="viewcode-back" href="../../../../reference/model/value/iri.html#kif_lib.IRI.get_resolver">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_resolver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_resolver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the entity resolver of IRI in KIF context.</span>
 
 <span class="sd">        Returns:</span>
@@ -239,7 +240,7 @@
 
 <div class="viewcode-block" id="IRI.register">
 <a class="viewcode-back" href="../../../../reference/model/value/iri.html#kif_lib.IRI.register">[docs]</a>
-    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">prefix</span><span class="p">:</span> <span class="n">TString</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">resolver</span><span class="p">:</span> <span class="n">Store</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -259,7 +260,7 @@
 
 <div class="viewcode-block" id="IRI.unregister">
 <a class="viewcode-back" href="../../../../reference/model/value/iri.html#kif_lib.IRI.unregister">[docs]</a>
-    <span class="k">def</span> <span class="nf">unregister</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unregister</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">prefix</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
             <span class="n">resolver</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>

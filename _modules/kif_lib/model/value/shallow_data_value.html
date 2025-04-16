@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>kif_lib.model.value.shallow_data_value &mdash; kif-lib  documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
@@ -46,6 +46,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../reference/index.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
 </ul>
@@ -78,40 +79,40 @@
 <span></span><span class="c1"># Copyright (C) 2024-2025 IBM Corp.</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">from</span> <span class="nn">...typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Location</span><span class="p">,</span> <span class="n">override</span><span class="p">,</span> <span class="n">Self</span>
-<span class="kn">from</span> <span class="nn">.data_value</span> <span class="kn">import</span> <span class="n">DataValue</span><span class="p">,</span> <span class="n">DataValueTemplate</span><span class="p">,</span> <span class="n">DataValueVariable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Location</span><span class="p">,</span> <span class="n">override</span><span class="p">,</span> <span class="n">Self</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.data_value</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataValue</span><span class="p">,</span> <span class="n">DataValueTemplate</span><span class="p">,</span> <span class="n">DataValueVariable</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-    <span class="kn">from</span> <span class="nn">.string</span> <span class="kn">import</span> <span class="n">VStringContent</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.string</span><span class="w"> </span><span class="kn">import</span> <span class="n">VStringContent</span>
 
 
 <div class="viewcode-block" id="ShallowDataValueTemplate">
 <a class="viewcode-back" href="../../../../reference/model/value/shallow_data_value.html#kif_lib.ShallowDataValueTemplate">[docs]</a>
-<span class="k">class</span> <span class="nc">ShallowDataValueTemplate</span><span class="p">(</span><span class="n">DataValueTemplate</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ShallowDataValueTemplate</span><span class="p">(</span><span class="n">DataValueTemplate</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for shallow data value templates.&quot;&quot;&quot;</span>
 
     <span class="n">object_class</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">ShallowDataValue</span><span class="p">]]</span>  <span class="c1"># pyright: ignore</span>
 
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">.string</span> <span class="kn">import</span> <span class="n">StringVariable</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_preprocess_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.string</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringVariable</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>              <span class="c1"># content</span>
             <span class="k">return</span> <span class="n">StringVariable</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_not_get_here</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">content</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VStringContent</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">content</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VStringContent</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The content of shallow data value template.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_content</span><span class="p">()</span>
 
 <div class="viewcode-block" id="ShallowDataValueTemplate.get_content">
 <a class="viewcode-back" href="../../../../reference/model/value/shallow_data_value.html#kif_lib.ShallowDataValueTemplate.get_content">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_content</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VStringContent</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_content</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VStringContent</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the content of shallow data value.</span>
 
 <span class="sd">        Returns:</span>
@@ -124,7 +125,7 @@
 
 <div class="viewcode-block" id="ShallowDataValueVariable">
 <a class="viewcode-back" href="../../../../reference/model/value/shallow_data_value.html#kif_lib.ShallowDataValueVariable">[docs]</a>
-<span class="k">class</span> <span class="nc">ShallowDataValueVariable</span><span class="p">(</span><span class="n">DataValueVariable</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ShallowDataValueVariable</span><span class="p">(</span><span class="n">DataValueVariable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Shallow data value variable.</span>
 
 <span class="sd">    Parameters:</span>
@@ -137,7 +138,7 @@
 
 <div class="viewcode-block" id="ShallowDataValue">
 <a class="viewcode-back" href="../../../../reference/model/value/shallow_data_value.html#kif_lib.ShallowDataValue">[docs]</a>
-<span class="k">class</span> <span class="nc">ShallowDataValue</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ShallowDataValue</span><span class="p">(</span>
         <span class="n">DataValue</span><span class="p">,</span>
         <span class="n">template_class</span><span class="o">=</span><span class="n">ShallowDataValueTemplate</span><span class="p">,</span>
         <span class="n">variable_class</span><span class="o">=</span><span class="n">ShallowDataValueVariable</span>
@@ -151,14 +152,14 @@
 <a class="viewcode-back" href="../../../../reference/model/value/shallow_data_value.html#kif_lib.ShallowDataValue.check">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@override</span>
-    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span>
             <span class="bp">cls</span><span class="p">,</span>
             <span class="n">arg</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
             <span class="n">function</span><span class="p">:</span> <span class="n">Location</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">position</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">.string</span> <span class="kn">import</span> <span class="n">String</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.string</span><span class="w"> </span><span class="kn">import</span> <span class="n">String</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">arg</span>
         <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="n">ShallowDataValue</span><span class="p">:</span>
@@ -173,13 +174,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">content</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">content</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The content of shallow data value.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_content</span><span class="p">()</span>
 
 <div class="viewcode-block" id="ShallowDataValue.get_content">
 <a class="viewcode-back" href="../../../../reference/model/value/shallow_data_value.html#kif_lib.ShallowDataValue.get_content">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_content</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_content</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the content of shallow data value.</span>
 
 <span class="sd">        Returns:</span>

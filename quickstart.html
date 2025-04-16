@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quickstart &mdash; kif-lib  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -23,7 +23,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API Reference" href="reference/index.html" />
+    <link rel="next" title="Installation" href="installation.html" />
     <link rel="prev" title="KIF" href="index.html" /> 
 </head>
 
@@ -58,6 +58,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#final-remarks">Final remarks</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference/index.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 </ul>
@@ -95,7 +96,7 @@
 <p>We start by importing the <code class="docutils literal notranslate"><span class="pre">kif_lib</span></code> namespace:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kif_lib</span> <span class="kn">import</span> <span class="o">*</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kif_lib</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 </pre></div>
 </div>
 </div>
@@ -103,7 +104,7 @@
 <p>We’ll also need the Wikidata vocabulary module <code class="docutils literal notranslate"><span class="pre">wd</span></code>:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kif_lib.vocabulary</span> <span class="kn">import</span> <span class="n">wd</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">kif_lib.vocabulary</span><span class="w"> </span><span class="kn">import</span> <span class="n">wd</span>
 </pre></div>
 </div>
 </div>
@@ -130,9 +131,9 @@ use it, for example, to fetch from Wikidata three statements about Brazil:</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> <strong>AliasProperty</strong> “🇧🇷”&#64;mul))</p>
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> <strong>AliasProperty</strong> “Repubblica Federativa del Brasile”&#64;it))</p>
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> <strong>AliasProperty</strong> “Republica Federativa di u Brasile”&#64;co))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> <strong>AliasProperty</strong> “البرازيلي”&#64;ar))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> <strong>AliasProperty</strong> “البرازیل”&#64;ar))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> <strong>AliasProperty</strong> “الجمهورية البرازيلية”&#64;ar))</p>
 </div>
 </div>
 </section>
@@ -156,7 +157,7 @@ restrictions <code class="docutils literal notranslate"><span class="pre">...</s
 </div>
 </div>
 <div class="cell_output docutils container">
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> <strong>AliasProperty</strong> “🇧🇷”&#64;mul))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> <strong>AliasProperty</strong> “Repubblica Federativa del Brasile”&#64;it))</p>
 </div>
 </div>
 <p>If no <code class="docutils literal notranslate"><span class="pre">limit</span></code> argument is given to <code class="docutils literal notranslate"><span class="pre">kb.filter()</span></code>, the returned iterator
@@ -175,7 +176,7 @@ contains all matching statements.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<p>(<strong>Statement</strong> (<strong>Lexeme</strong> <a class="reference external" href="http://www.wikidata.org/entity/L485">wd:L485</a>) (<strong>ValueSnak</strong> <strong>LexicalCategoryProperty</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q468801">personal pronoun</a>)))</p>
+<p>(<strong>Statement</strong> (<strong>Lexeme</strong> <a class="reference external" href="http://www.wikidata.org/entity/L278658">wd:L278658</a>) (<strong>ValueSnak</strong> <strong>LanguageProperty</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q397">Latin</a>)))</p>
 </div>
 </div>
 <p><em>match statements with subject “Brazil” and property “official website”</em></p>
@@ -273,7 +274,7 @@ indirectly by giving not its id but a property it satisfies.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q186486">Hachikō</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P127">owned by</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q933532">Hidesaburō Ueno</a>)))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155695">Blondi</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P127">owned by</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q352">Adolf Hitler</a>)))</p>
 </div>
 </div>
 <p>Properties themselves can also be specified using fingerprints:</p>
@@ -298,7 +299,7 @@ property used in the fingerprint:</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q18">South America</a>) (<strong>ValueSnak</strong> <strong>AliasProperty</strong> “جنوبی امریکا”&#64;pnb))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q18">South America</a>) (<strong>ValueSnak</strong> <strong>AliasProperty</strong> “América meridional”&#64;es))</p>
 </div>
 </div>
 </section>
@@ -346,9 +347,254 @@ property used in the fingerprint:</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P206">located in or next to body of water</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q3783">Amazon</a>)))</p>
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P206">located in or next to body of water</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q127892">Paraná River</a>)))</p>
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P206">located in or next to body of water</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q142148">São Francisco River</a>)))</p>
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">ReadTimeout</span><span class="g g-Whitespace">                               </span>Traceback (most recent call last)
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpx/_transports/default.py:101,</span> in <span class="ni">map_httpcore_exceptions</span><span class="nt">()</span>
+<span class="g g-Whitespace">    </span><span class="mi">100</span> <span class="k">try</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">101</span>     <span class="k">yield</span>
+<span class="g g-Whitespace">    </span><span class="mi">102</span> <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpx/_transports/default.py:250,</span> in <span class="ni">HTTPTransport.handle_request</span><span class="nt">(self, request)</span>
+<span class="g g-Whitespace">    </span><span class="mi">249</span> <span class="k">with</span> <span class="n">map_httpcore_exceptions</span><span class="p">():</span>
+<span class="ne">--&gt; </span><span class="mi">250</span>     <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="o">.</span><span class="n">handle_request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">252</span> <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterable</span><span class="p">)</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpcore/_sync/connection_pool.py:256,</span> in <span class="ni">ConnectionPool.handle_request</span><span class="nt">(self, request)</span>
+<span class="g g-Whitespace">    </span><span class="mi">255</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_close_connections</span><span class="p">(</span><span class="n">closing</span><span class="p">)</span>
+<span class="ne">--&gt; </span><span class="mi">256</span>     <span class="k">raise</span> <span class="n">exc</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+<span class="g g-Whitespace">    </span><span class="mi">258</span> <span class="c1"># Return the response. Note that in this case we still have to manage</span>
+<span class="g g-Whitespace">    </span><span class="mi">259</span> <span class="c1"># the point at which the response is closed.</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpcore/_sync/connection_pool.py:236,</span> in <span class="ni">ConnectionPool.handle_request</span><span class="nt">(self, request)</span>
+<span class="g g-Whitespace">    </span><span class="mi">234</span> <span class="k">try</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">235</span>     <span class="c1"># Send the request on the assigned connection.</span>
+<span class="ne">--&gt; </span><span class="mi">236</span>     <span class="n">response</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">handle_request</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">237</span>         <span class="n">pool_request</span><span class="o">.</span><span class="n">request</span>
+<span class="g g-Whitespace">    </span><span class="mi">238</span>     <span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">239</span> <span class="k">except</span> <span class="n">ConnectionNotAvailable</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">240</span>     <span class="c1"># In some cases a connection may initially be available to</span>
+<span class="g g-Whitespace">    </span><span class="mi">241</span>     <span class="c1"># handle a request, but then become unavailable.</span>
+<span class="g g-Whitespace">    </span><span class="mi">242</span>     <span class="c1">#</span>
+<span class="g g-Whitespace">    </span><span class="mi">243</span>     <span class="c1"># In this case we clear the connection and try again.</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpcore/_sync/connection.py:103,</span> in <span class="ni">HTTPConnection.handle_request</span><span class="nt">(self, request)</span>
+<span class="g g-Whitespace">    </span><span class="mi">101</span>     <span class="k">raise</span> <span class="n">exc</span>
+<span class="ne">--&gt; </span><span class="mi">103</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connection</span><span class="o">.</span><span class="n">handle_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpcore/_sync/http11.py:136,</span> in <span class="ni">HTTP11Connection.handle_request</span><span class="nt">(self, request)</span>
+<span class="g g-Whitespace">    </span><span class="mi">135</span>         <span class="bp">self</span><span class="o">.</span><span class="n">_response_closed</span><span class="p">()</span>
+<span class="ne">--&gt; </span><span class="mi">136</span> <span class="k">raise</span> <span class="n">exc</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpcore/_sync/http11.py:106,</span> in <span class="ni">HTTP11Connection.handle_request</span><span class="nt">(self, request)</span>
+<span class="g g-Whitespace">     </span><span class="mi">97</span> <span class="k">with</span> <span class="n">Trace</span><span class="p">(</span>
+<span class="g g-Whitespace">     </span><span class="mi">98</span>     <span class="s2">&quot;receive_response_headers&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">kwargs</span>
+<span class="g g-Whitespace">     </span><span class="mi">99</span> <span class="p">)</span> <span class="k">as</span> <span class="n">trace</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">100</span>     <span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">101</span>         <span class="n">http_version</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">102</span>         <span class="n">status</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">103</span>         <span class="n">reason_phrase</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">104</span>         <span class="n">headers</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">105</span>         <span class="n">trailing_data</span><span class="p">,</span>
+<span class="ne">--&gt; </span><span class="mi">106</span>     <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_receive_response_headers</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">107</span>     <span class="n">trace</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">108</span>         <span class="n">http_version</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">109</span>         <span class="n">status</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">110</span>         <span class="n">reason_phrase</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">111</span>         <span class="n">headers</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">112</span>     <span class="p">)</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpcore/_sync/http11.py:177,</span> in <span class="ni">HTTP11Connection._receive_response_headers</span><span class="nt">(self, request)</span>
+<span class="g g-Whitespace">    </span><span class="mi">176</span> <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">177</span>     <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_receive_event</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">178</span>     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">h11</span><span class="o">.</span><span class="n">Response</span><span class="p">):</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpcore/_sync/http11.py:217,</span> in <span class="ni">HTTP11Connection._receive_event</span><span class="nt">(self, timeout)</span>
+<span class="g g-Whitespace">    </span><span class="mi">216</span> <span class="k">if</span> <span class="n">event</span> <span class="ow">is</span> <span class="n">h11</span><span class="o">.</span><span class="n">NEED_DATA</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">217</span>     <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_network_stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">218</span>         <span class="bp">self</span><span class="o">.</span><span class="n">READ_NUM_BYTES</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span>
+<span class="g g-Whitespace">    </span><span class="mi">219</span>     <span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">221</span>     <span class="c1"># If we feed this case through h11 we&#39;ll raise an exception like:</span>
+<span class="g g-Whitespace">    </span><span class="mi">222</span>     <span class="c1">#</span>
+<span class="g g-Whitespace">    </span><span class="mi">223</span>     <span class="c1">#     httpcore.RemoteProtocolError: can&#39;t handle event type</span>
+   <span class="p">(</span><span class="o">...</span><span class="p">)</span>    <span class="mi">227</span>     <span class="c1"># perspective. Instead we handle this case distinctly and treat</span>
+<span class="g g-Whitespace">    </span><span class="mi">228</span>     <span class="c1"># it as a ConnectError.</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpcore/_backends/sync.py:126,</span> in <span class="ni">SyncStream.read</span><span class="nt">(self, max_bytes, timeout)</span>
+<span class="g g-Whitespace">    </span><span class="mi">125</span> <span class="n">exc_map</span><span class="p">:</span> <span class="n">ExceptionMapping</span> <span class="o">=</span> <span class="p">{</span><span class="n">socket</span><span class="o">.</span><span class="n">timeout</span><span class="p">:</span> <span class="n">ReadTimeout</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">:</span> <span class="n">ReadError</span><span class="p">}</span>
+<span class="ne">--&gt; </span><span class="mi">126</span> <span class="k">with</span> <span class="n">map_exceptions</span><span class="p">(</span><span class="n">exc_map</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">127</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_sock</span><span class="o">.</span><span class="n">settimeout</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+
+<span class="nn">File /usr/local/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py:162,</span> in <span class="ni">_GeneratorContextManager.__exit__</span><span class="nt">(self, typ, value, traceback)</span>
+<span class="g g-Whitespace">    </span><span class="mi">161</span> <span class="k">try</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">162</span>     <span class="bp">self</span><span class="o">.</span><span class="n">gen</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">163</span> <span class="k">except</span> <span class="ne">StopIteration</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">164</span>     <span class="c1"># Suppress StopIteration *unless* it&#39;s the same exception that</span>
+<span class="g g-Whitespace">    </span><span class="mi">165</span>     <span class="c1"># was passed to throw().  This prevents a StopIteration</span>
+<span class="g g-Whitespace">    </span><span class="mi">166</span>     <span class="c1"># raised inside the &quot;with&quot; statement from being suppressed.</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpcore/_exceptions.py:14,</span> in <span class="ni">map_exceptions</span><span class="nt">(map)</span>
+<span class="g g-Whitespace">     </span><span class="mi">13</span>     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">from_exc</span><span class="p">):</span>
+<span class="ne">---&gt; </span><span class="mi">14</span>         <span class="k">raise</span> <span class="n">to_exc</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+<span class="g g-Whitespace">     </span><span class="mi">15</span> <span class="k">raise</span>
+
+<span class="ne">ReadTimeout</span>: The read operation timed out
+
+<span class="n">The</span> <span class="n">above</span> <span class="n">exception</span> <span class="n">was</span> <span class="n">the</span> <span class="n">direct</span> <span class="n">cause</span> <span class="n">of</span> <span class="n">the</span> <span class="n">following</span> <span class="n">exception</span><span class="p">:</span>
+
+<span class="ne">ReadTimeout</span><span class="g g-Whitespace">                               </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">19</span><span class="p">],</span> <span class="n">line</span> <span class="mi">5</span>
+<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="n">it</span> <span class="o">=</span> <span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+<span class="g g-Whitespace">      </span><span class="mi">2</span>         <span class="n">subject</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">continent</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">South_America</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">wd</span><span class="o">.</span><span class="n">official_language</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">Portuguese</span><span class="p">),</span>
+<span class="g g-Whitespace">      </span><span class="mi">3</span>         <span class="n">value</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">river</span><span class="p">)</span> <span class="o">|</span> <span class="n">wd</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">mountain</span><span class="p">),</span>
+<span class="g g-Whitespace">      </span><span class="mi">4</span>         <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="ne">----&gt; </span><span class="mi">5</span> <span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+<span class="g g-Whitespace">      </span><span class="mi">6</span>     <span class="n">display</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+
+<span class="nn">File ~/src/kif/kif_lib/store/mixer.py:158,</span> in <span class="ni">MixerStore._filter</span><span class="nt">(self, filter, limit, distinct)</span>
+<span class="g g-Whitespace">    </span><span class="mi">156</span> <span class="k">if</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">exausted</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">157</span>     <span class="k">continue</span>    <span class="c1"># skip source</span>
+<span class="ne">--&gt; </span><span class="mi">158</span> <span class="n">stmt</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">159</span> <span class="k">if</span> <span class="n">distinct</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">160</span>     <span class="k">if</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+
+<span class="nn">File ~/src/kif/kif_lib/store/sparql/sparql_core.py:419,</span> in <span class="ni">_SPARQL_Store._filter</span><span class="nt">(self, filter, limit, distinct)</span>
+<span class="g g-Whitespace">    </span><span class="mi">417</span> <span class="k">if</span> <span class="n">query</span><span class="o">.</span><span class="n">where_is_empty</span><span class="p">():</span>
+<span class="g g-Whitespace">    </span><span class="mi">418</span>     <span class="k">break</span>           <span class="c1"># nothing to do</span>
+<span class="ne">--&gt; </span><span class="mi">419</span> <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+<span class="g g-Whitespace">    </span><span class="mi">420</span> <span class="k">if</span> <span class="s1">&#39;results&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">res</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">421</span>     <span class="k">break</span>           <span class="c1"># nothing to do</span>
+
+<span class="nn">File ~/src/kif/kif_lib/store/sparql/sparql_core.py:108,</span> in <span class="ni">_SPARQL_Store.Backend.select</span><span class="nt">(self, query)</span>
+<span class="g g-Whitespace">     </span><span class="mi">99</span><span class="w"> </span><span class="sd">&quot;&quot;&quot;Evaluates select query over back-end.</span>
+<span class="g g-Whitespace">    </span><span class="mi">100</span><span class="sd"> </span>
+<span class="g g-Whitespace">    </span><span class="mi">101</span><span class="sd"> Parameters:</span>
+<span class="sd">   (...)    105    Select query results.</span>
+<span class="g g-Whitespace">    </span><span class="mi">106</span><span class="sd"> &quot;&quot;&quot;</span>
+<span class="g g-Whitespace">    </span><span class="mi">107</span> <span class="n">LOG</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">()</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="o">.</span><span class="vm">__qualname__</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+<span class="ne">--&gt; </span><span class="mi">108</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_select</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+<span class="nn">File ~/src/kif/kif_lib/store/sparql/httpx.py:98,</span> in <span class="ni">HttpxSPARQL_Store.HttpxBackend._select</span><span class="nt">(self, query)</span>
+<span class="g g-Whitespace">     </span><span class="mi">96</span> <span class="nd">@override</span>
+<span class="g g-Whitespace">     </span><span class="mi">97</span> <span class="k">def</span><span class="w"> </span><span class="nf">_select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SPARQL_Results</span><span class="p">:</span>
+<span class="ne">---&gt; </span><span class="mi">98</span>     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http_post</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+<span class="nn">File ~/src/kif/kif_lib/store/sparql/httpx.py:108,</span> in <span class="ni">HttpxSPARQL_Store.HttpxBackend._http_post</span><span class="nt">(self, text)</span>
+<span class="g g-Whitespace">    </span><span class="mi">106</span>     <span class="k">return</span> <span class="n">res</span>
+<span class="g g-Whitespace">    </span><span class="mi">107</span> <span class="k">except</span> <span class="n">httpx</span><span class="o">.</span><span class="n">RequestError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">108</span>     <span class="k">raise</span> <span class="n">err</span>
+
+<span class="nn">File ~/src/kif/kif_lib/store/sparql/httpx.py:103,</span> in <span class="ni">HttpxSPARQL_Store.HttpxBackend._http_post</span><span class="nt">(self, text)</span>
+<span class="g g-Whitespace">    </span><span class="mi">101</span> <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<span class="g g-Whitespace">    </span><span class="mi">102</span> <span class="k">try</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">103</span>     <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">104</span>         <span class="bp">self</span><span class="o">.</span><span class="n">_iri</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+<span class="g g-Whitespace">    </span><span class="mi">105</span>     <span class="n">res</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+<span class="g g-Whitespace">    </span><span class="mi">106</span>     <span class="k">return</span> <span class="n">res</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpx/_client.py:1144,</span> in <span class="ni">Client.post</span><span class="nt">(self, url, content, data, files, json, params, headers, cookies, auth, follow_redirects, timeout, extensions)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1123</span> <span class="k">def</span><span class="w"> </span><span class="nf">post</span><span class="p">(</span>
+<span class="g g-Whitespace">   </span><span class="mi">1124</span>     <span class="bp">self</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1125</span>     <span class="n">url</span><span class="p">:</span> <span class="n">URL</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+   <span class="p">(</span><span class="o">...</span><span class="p">)</span>   <span class="mi">1137</span>     <span class="n">extensions</span><span class="p">:</span> <span class="n">RequestExtensions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1138</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+<span class="g g-Whitespace">   </span><span class="mi">1139</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="g g-Whitespace">   </span><span class="mi">1140</span><span class="sd">     Send a `POST` request.</span>
+<span class="g g-Whitespace">   </span><span class="mi">1141</span><span class="sd"> </span>
+<span class="g g-Whitespace">   </span><span class="mi">1142</span><span class="sd">     **Parameters**: See `httpx.request`.</span>
+<span class="g g-Whitespace">   </span><span class="mi">1143</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">-&gt; </span><span class="mi">1144</span>     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">(</span>
+<span class="g g-Whitespace">   </span><span class="mi">1145</span>         <span class="s2">&quot;POST&quot;</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1146</span>         <span class="n">url</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1147</span>         <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1148</span>         <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1149</span>         <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1150</span>         <span class="n">json</span><span class="o">=</span><span class="n">json</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1151</span>         <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1152</span>         <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1153</span>         <span class="n">cookies</span><span class="o">=</span><span class="n">cookies</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1154</span>         <span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1155</span>         <span class="n">follow_redirects</span><span class="o">=</span><span class="n">follow_redirects</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1156</span>         <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1157</span>         <span class="n">extensions</span><span class="o">=</span><span class="n">extensions</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1158</span>     <span class="p">)</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpx/_client.py:825,</span> in <span class="ni">Client.request</span><span class="nt">(self, method, url, content, data, files, json, params, headers, cookies, auth, follow_redirects, timeout, extensions)</span>
+<span class="g g-Whitespace">    </span><span class="mi">810</span>     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">812</span> <span class="n">request</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_request</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">813</span>     <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">814</span>     <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+   <span class="p">(</span><span class="o">...</span><span class="p">)</span>    <span class="mi">823</span>     <span class="n">extensions</span><span class="o">=</span><span class="n">extensions</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">824</span> <span class="p">)</span>
+<span class="ne">--&gt; </span><span class="mi">825</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="p">,</span> <span class="n">follow_redirects</span><span class="o">=</span><span class="n">follow_redirects</span><span class="p">)</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpx/_client.py:914,</span> in <span class="ni">Client.send</span><span class="nt">(self, request, stream, auth, follow_redirects)</span>
+<span class="g g-Whitespace">    </span><span class="mi">910</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_timeout</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">912</span> <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_request_auth</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">auth</span><span class="p">)</span>
+<span class="ne">--&gt; </span><span class="mi">914</span> <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_send_handling_auth</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">915</span>     <span class="n">request</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">916</span>     <span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">917</span>     <span class="n">follow_redirects</span><span class="o">=</span><span class="n">follow_redirects</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">918</span>     <span class="n">history</span><span class="o">=</span><span class="p">[],</span>
+<span class="g g-Whitespace">    </span><span class="mi">919</span> <span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">920</span> <span class="k">try</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">921</span>     <span class="k">if</span> <span class="ow">not</span> <span class="n">stream</span><span class="p">:</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpx/_client.py:942,</span> in <span class="ni">Client._send_handling_auth</span><span class="nt">(self, request, auth, follow_redirects, history)</span>
+<span class="g g-Whitespace">    </span><span class="mi">939</span> <span class="n">request</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">auth_flow</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">941</span> <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">942</span>     <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_send_handling_redirects</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">943</span>         <span class="n">request</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">944</span>         <span class="n">follow_redirects</span><span class="o">=</span><span class="n">follow_redirects</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">945</span>         <span class="n">history</span><span class="o">=</span><span class="n">history</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">946</span>     <span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">947</span>     <span class="k">try</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">948</span>         <span class="k">try</span><span class="p">:</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpx/_client.py:979,</span> in <span class="ni">Client._send_handling_redirects</span><span class="nt">(self, request, follow_redirects, history)</span>
+<span class="g g-Whitespace">    </span><span class="mi">976</span> <span class="k">for</span> <span class="n">hook</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_hooks</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]:</span>
+<span class="g g-Whitespace">    </span><span class="mi">977</span>     <span class="n">hook</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+<span class="ne">--&gt; </span><span class="mi">979</span> <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_send_single_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">980</span> <span class="k">try</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">981</span>     <span class="k">for</span> <span class="n">hook</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_hooks</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]:</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpx/_client.py:1014,</span> in <span class="ni">Client._send_single_request</span><span class="nt">(self, request)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1009</span>     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+<span class="g g-Whitespace">   </span><span class="mi">1010</span>         <span class="s2">&quot;Attempted to send an async request with a sync Client instance.&quot;</span>
+<span class="g g-Whitespace">   </span><span class="mi">1011</span>     <span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1013</span> <span class="k">with</span> <span class="n">request_context</span><span class="p">(</span><span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">):</span>
+<span class="ne">-&gt; </span><span class="mi">1014</span>     <span class="n">response</span> <span class="o">=</span> <span class="n">transport</span><span class="o">.</span><span class="n">handle_request</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1016</span> <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="n">SyncByteStream</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1018</span> <span class="n">response</span><span class="o">.</span><span class="n">request</span> <span class="o">=</span> <span class="n">request</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpx/_transports/default.py:249,</span> in <span class="ni">HTTPTransport.handle_request</span><span class="nt">(self, request)</span>
+<span class="g g-Whitespace">    </span><span class="mi">235</span> <span class="kn">import</span><span class="w"> </span><span class="nn">httpcore</span>
+<span class="g g-Whitespace">    </span><span class="mi">237</span> <span class="n">req</span> <span class="o">=</span> <span class="n">httpcore</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">238</span>     <span class="n">method</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">239</span>     <span class="n">url</span><span class="o">=</span><span class="n">httpcore</span><span class="o">.</span><span class="n">URL</span><span class="p">(</span>
+   <span class="p">(</span><span class="o">...</span><span class="p">)</span>    <span class="mi">247</span>     <span class="n">extensions</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">extensions</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">248</span> <span class="p">)</span>
+<span class="ne">--&gt; </span><span class="mi">249</span> <span class="k">with</span> <span class="n">map_httpcore_exceptions</span><span class="p">():</span>
+<span class="g g-Whitespace">    </span><span class="mi">250</span>     <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pool</span><span class="o">.</span><span class="n">handle_request</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">252</span> <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Iterable</span><span class="p">)</span>
+
+<span class="nn">File /usr/local/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py:162,</span> in <span class="ni">_GeneratorContextManager.__exit__</span><span class="nt">(self, typ, value, traceback)</span>
+<span class="g g-Whitespace">    </span><span class="mi">160</span>     <span class="n">value</span> <span class="o">=</span> <span class="n">typ</span><span class="p">()</span>
+<span class="g g-Whitespace">    </span><span class="mi">161</span> <span class="k">try</span><span class="p">:</span>
+<span class="ne">--&gt; </span><span class="mi">162</span>     <span class="bp">self</span><span class="o">.</span><span class="n">gen</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">163</span> <span class="k">except</span> <span class="ne">StopIteration</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">164</span>     <span class="c1"># Suppress StopIteration *unless* it&#39;s the same exception that</span>
+<span class="g g-Whitespace">    </span><span class="mi">165</span>     <span class="c1"># was passed to throw().  This prevents a StopIteration</span>
+<span class="g g-Whitespace">    </span><span class="mi">166</span>     <span class="c1"># raised inside the &quot;with&quot; statement from being suppressed.</span>
+<span class="g g-Whitespace">    </span><span class="mi">167</span>     <span class="k">return</span> <span class="n">exc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">value</span>
+
+<span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/httpx/_transports/default.py:118,</span> in <span class="ni">map_httpcore_exceptions</span><span class="nt">()</span>
+<span class="g g-Whitespace">    </span><span class="mi">115</span>     <span class="k">raise</span>
+<span class="g g-Whitespace">    </span><span class="mi">117</span> <span class="n">message</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+<span class="ne">--&gt; </span><span class="mi">118</span> <span class="k">raise</span> <span class="n">mapped_exc</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+<span class="ne">ReadTimeout</span>: The read operation timed out
+</pre></div>
+</div>
 </div>
 </div>
 <p><em>match three statements such that:</em></p>
@@ -369,11 +615,6 @@ property used in the fingerprint:</p>
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q235725">Brooke Smith</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P106">occupation</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q10800557">film actor</a>)))</p>
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q235725">Brooke Smith</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P106">occupation</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q10798782">television actor</a>)))</p>
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q235725">Brooke Smith</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P106">occupation</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q33999">actor</a>)))</p>
-</div>
 </div>
 </section>
 <section id="count-and-contains">
@@ -386,11 +627,6 @@ statements, counts the number of statements matching restrictions <code class="d
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2
-</pre></div>
-</div>
-</div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">kb.contains()</span></code> call tests whether a given statement occurs in <code class="docutils literal notranslate"><span class="pre">kb</span></code>.</p>
 <div class="cell docutils container">
@@ -400,21 +636,11 @@ statements, counts the number of statements matching restrictions <code class="d
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
-</pre></div>
-</div>
-</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stmt2</span> <span class="o">=</span> <span class="n">wd</span><span class="o">.</span><span class="n">official_language</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">Brazil</span><span class="p">,</span> <span class="n">wd</span><span class="o">.</span><span class="n">Spanish</span><span class="p">)</span>
 <span class="n">kb</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">stmt2</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>False
 </pre></div>
 </div>
 </div>
@@ -433,7 +659,7 @@ see, the <a class="reference internal" href="reference/index.html"><span class="
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="KIF" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="reference/index.html" class="btn btn-neutral float-right" title="API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

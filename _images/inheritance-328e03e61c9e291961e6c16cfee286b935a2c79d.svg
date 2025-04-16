@@ -1,0 +1,104 @@
+<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" xmlns:ns1="http://www.w3.org/1999/xlink" width="269pt" height="256pt" viewBox="0.00 0.00 268.50 255.75">
+<ns0:g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 251.75)">
+<ns0:title>inheritancecbbfc555da</ns0:title>
+
+<ns0:g id="node1" class="node">
+<ns0:title>ClosedTerm</ns0:title>
+<ns0:g id="a_node1"><ns0:a ns1:href="../reference/model/term/term.html#kif_lib.ClosedTerm" ns1:title="Abstract base class for closed (ground) terms." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="169.75,-134.25 102.75,-134.25 102.75,-113.5 169.75,-113.5 169.75,-134.25" />
+<ns0:text text-anchor="middle" x="136.25" y="-120.75" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">ClosedTerm</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="node5" class="node">
+<ns0:title>Snak</ns0:title>
+<ns0:g id="a_node5"><ns0:a ns1:href="../reference/model/snak/snak.html#kif_lib.Snak" ns1:title="Abstract base class for snaks." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="163.25,-77.5 109.25,-77.5 109.25,-56.75 163.25,-56.75 163.25,-77.5" />
+<ns0:text text-anchor="middle" x="136.25" y="-64" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">Snak</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge3" class="edge">
+<ns0:title>ClosedTerm-&gt;Snak</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M136.25,-106.71C136.25,-97.33 136.25,-85.82 136.25,-77.83" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="134.5,-107.33 136.25,-112.33 138,-107.33 134.5,-107.33" />
+</ns0:g>
+
+<ns0:g id="node2" class="node">
+<ns0:title>Term</ns0:title>
+<ns0:g id="a_node2"><ns0:a ns1:href="../reference/model/term/term.html#kif_lib.Term" ns1:title="Abstract base class for terms." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="163.25,-191 109.25,-191 109.25,-170.25 163.25,-170.25 163.25,-191" />
+<ns0:text text-anchor="middle" x="136.25" y="-177.5" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">Term</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge1" class="edge">
+<ns0:title>Term-&gt;ClosedTerm</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M136.25,-163.46C136.25,-154.08 136.25,-142.57 136.25,-134.58" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="134.5,-164.08 136.25,-169.08 138,-164.08 134.5,-164.08" />
+</ns0:g>
+
+<ns0:g id="node3" class="node">
+<ns0:title>KIF_Object</ns0:title>
+<ns0:g id="a_node3"><ns0:a ns1:href="../reference/model/kif_object/kif_object.html#kif_lib.KIF_Object" ns1:title="Abstract base class for KIF objects." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="168.25,-247.75 104.25,-247.75 104.25,-227 168.25,-227 168.25,-247.75" />
+<ns0:text text-anchor="middle" x="136.25" y="-234.25" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">KIF_Object</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge5" class="edge">
+<ns0:title>KIF_Object-&gt;Term</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M136.25,-220.21C136.25,-210.83 136.25,-199.32 136.25,-191.33" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="134.5,-220.83 136.25,-225.83 138,-220.83 134.5,-220.83" />
+</ns0:g>
+
+<ns0:g id="node4" class="node">
+<ns0:title>NoValueSnak</ns0:title>
+<ns0:g id="a_node4"><ns0:a ns1:href="../reference/model/snak/no_value_snak.html#kif_lib.NoValueSnak" ns1:title="No-value snak." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="74.5,-20.75 0,-20.75 0,0 74.5,0 74.5,-20.75" />
+<ns0:text text-anchor="middle" x="37.25" y="-7.25" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">NoValueSnak</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge2" class="edge">
+<ns0:title>Snak-&gt;NoValueSnak</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M113.24,-53.4C95.41,-43.54 71.08,-30.08 54.8,-21.08" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="112.67,-55.08 117.89,-55.97 114.36,-52.02 112.67,-55.08" />
+</ns0:g>
+
+<ns0:g id="node6" class="node">
+<ns0:title>SomeValueSnak</ns0:title>
+<ns0:g id="a_node6"><ns0:a ns1:href="../reference/model/snak/some_value_snak.html#kif_lib.SomeValueSnak" ns1:title="Some-value snak." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="180.25,-20.75 92.25,-20.75 92.25,0 180.25,0 180.25,-20.75" />
+<ns0:text text-anchor="middle" x="136.25" y="-7.25" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">SomeValueSnak</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge4" class="edge">
+<ns0:title>Snak-&gt;SomeValueSnak</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M136.25,-49.96C136.25,-40.58 136.25,-29.07 136.25,-21.08" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="134.5,-50.58 136.25,-55.58 138,-50.58 134.5,-50.58" />
+</ns0:g>
+
+<ns0:g id="node7" class="node">
+<ns0:title>ValueSnak</ns0:title>
+<ns0:g id="a_node7"><ns0:a ns1:href="../reference/model/snak/value_snak.html#kif_lib.ValueSnak" ns1:title="Value snak." target="_top">
+<ns0:polygon fill="lightgray" stroke="black" points="260.5,-20.75 198,-20.75 198,0 260.5,0 260.5,-20.75" />
+<ns0:text text-anchor="middle" x="229.25" y="-7.25" font-family="Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans" font-size="10.00">ValueSnak</ns0:text>
+</ns0:a>
+</ns0:g>
+</ns0:g>
+
+<ns0:g id="edge6" class="edge">
+<ns0:title>Snak-&gt;ValueSnak</ns0:title>
+<ns0:path fill="none" stroke="black" stroke-width="0.5" d="M158.3,-53.14C175.01,-43.31 197.61,-30 212.77,-21.08" />
+<ns0:polygon fill="black" stroke="black" stroke-width="0.5" points="156.95,-51.91 153.53,-55.95 158.73,-54.92 156.95,-51.91" />
+</ns0:g>
+</ns0:g>
+</ns0:svg>
