@@ -14,6 +14,6 @@ class EmptyStore(Store, store_name='empty', store_description='Empty store'):
        store_name: Name of the store plugin to instantiate.
     """
 
-    def __init__(self, store_name: str, *args, **kwargs: Any) -> None:
+    def __init__(self, store_name: str, *args: Any, **kwargs: Any) -> None:
         assert store_name == self.store_name
         super().__init__(*args, **kwargs)

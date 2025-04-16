@@ -18,6 +18,7 @@ class StoreOptions(Section, name='store'):
 
     def __init__(self, **kwargs) -> None:
         self._init_base_filter(kwargs)
+        self._init_distinct(kwargs)
         self._init_extra_references(kwargs)
         self._init_flags(kwargs)
         self._init_max_limit(kwargs)
@@ -27,7 +28,7 @@ class StoreOptions(Section, name='store'):
         self._init_max_timeout(kwargs)
         self._init_timeout(kwargs)
 
-    # -- root filter  --
+    # -- base filter  --
 
     _base_filter: Filter
 
@@ -62,6 +63,42 @@ class StoreOptions(Section, name='store'):
         """
         self._base_filter = Filter.check(
             base_filter, self.set_base_filter, 'base_filter', 1)
+
+    # -- distinct --
+
+    _v_distinct: ClassVar[tuple[str, bool]] =\
+        ('KIF_STORE_DISTINCT', True)
+
+    _distinct: bool
+
+    def _init_distinct(self, kwargs: dict[str, Any]) -> None:
+        self.distinct = kwargs.get(
+            '_distinct', self.getenv(*self._v_distinct))
+
+    @property
+    def distinct(self) -> bool:
+        """The distinct flag."""
+        return self.get_distinct()
+
+    @distinct.setter
+    def distinct(self, distinct: bool) -> None:
+        self.set_distinct(distinct)
+
+    def get_distinct(self) -> bool:
+        """Gets the distinct flag.
+
+        Returns:
+           Distinct flag.
+        """
+        return self._distinct
+
+    def set_distinct(self, distinct: bool) -> None:
+        """Sets the distinct flag.
+
+        Parameters:
+           distinct: Distinct flag.
+        """
+        self._distinct = bool(distinct)
 
     # -- extra_references --
 

@@ -39,7 +39,7 @@ class Term(KIF_Object):
     class InstantiationError(ValueError):
         """Bad instantiation attempt."""
 
-    def __new__(cls, *args, **kwargs) -> Self:
+    def __new__(cls, *args: Any, **kwargs: Any) -> Self:
         has_tpl_or_var_arg = any(map(
             cls.is_open, itertools.chain(args, kwargs.values())))
         if (

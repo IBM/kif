@@ -110,6 +110,7 @@ class Store(Set):
     __slots__ = (
         '_context',
         '_base_filter',
+        '_distinct',
         '_extra_references',
         '_flags',
         '_limit',
@@ -121,6 +122,7 @@ class Store(Set):
             self,
             *args: Any,
             base_filter: Filter | None = None,
+            distinct: bool | None = None,
             extra_references: TReferenceRecordSet | None = None,
             flags: TFlags | None = None,
             limit: int | None = None,
@@ -146,6 +148,8 @@ class Store(Set):
         self.flags = flags      # type: ignore
         self._base_filter = None
         self.set_base_filter(base_filter)
+        self._distinct = None
+        self.set_distinct(distinct)
         self._extra_references = None
         self.set_extra_references(extra_references)
         self._limit = None
@@ -498,6 +502,75 @@ class Store(Set):
            annotated: Annotated flag.
         """
         self.base_filter = self.base_filter.replace(annotated=annotated)
+
+# -- Distinct --------------------------------------------------------------
+
+    @at_property
+    def default_distinct(self) -> bool:
+        """The default value for :attr:`Store.distinct`."""
+        return self.get_default_distinct()
+
+    def get_default_distinct(self) -> bool:
+        """Gets the default value for :attr:`Store.distinct`.
+
+        Returns:
+           Default distinct flag.
+        """
+        return self.context.options.store.distinct
+
+    #: Distinct flag.
+    _distinct: bool | None
+
+    @at_property
+    def distinct(self) -> bool:
+        """The distinct flag of store (whether to suppress duplicates)."""
+        return self.get_distinct()
+
+    @distinct.setter
+    def distinct(self, distinct: bool | None = None) -> None:
+        self.set_distinct(distinct)
+
+    def get_distinct(
+            self,
+            default: bool | None = None
+    ) -> bool:
+        """Gets the distinct flag of store.
+
+        If the distinct flag is ``None``, returns `default`.
+
+        If `default` is ``None``, assumes :attr:`Store.default_distinct`.
+
+        Parameters:
+           default: Default distinct flag.
+
+        Returns:
+           Distinct flag.
+        """
+        if self._distinct is not None:
+            distinct: bool = self._distinct
+        elif default is not None:
+            distinct = default
+        else:
+            distinct = self.default_distinct
+        return distinct
+
+    def set_distinct(
+            self,
+            distinct: bool | None = None
+    ) -> None:
+        """Sets distinct flag of store.
+
+        If `distinct` is ``None``, assumes :attr:`Store.default_distinct`.
+
+        Parameters:
+           distinct: Distinct flag.
+        """
+        distinct = bool(distinct) if distinct is not None else None
+        if self._set_distinct(self._distinct, distinct):
+            self._distinct = distinct
+
+    def _set_distinct(self, old: bool | None, new: bool | None) -> bool:
+        return True
 
 # -- Extra references ------------------------------------------------------
 
@@ -1256,16 +1329,13 @@ class Store(Set):
         Returns:
            An iterator of statements matching filter.
         """
+        distinct = bool(distinct) if distinct is not None else self.distinct
+        assert distinct is not None
         limit = self._check_optional_limit(
             limit, self.limit, self.filter, 'limit', 13)
         if limit is None:
             limit = self.get_limit(self.max_limit)
         assert limit is not None
-        ###
-        # FIXME: Move this to an option.
-        ###
-        distinct = distinct if distinct is not None else True
-        assert distinct is not None
         return self._filter_tail(
             self._check_filter(
                 subject=subject,
