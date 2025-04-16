@@ -92,6 +92,7 @@ PYTHON?= python
 PYUPGRADE?= ${PYTHON} -m pyupgrade
 PYUPGRADE_OPTIONS?= --exit-zero-even-if-changed --py39-plus
 SETUP_PY?= setup.py
+SETUP_PY_ENTRY_POINTS?= {}
 SETUP_PY_EXTRAS_REQUIRE_DOCS?= []
 SETUP_PY_EXTRAS_REQUIRE_EXTRA?= []
 SETUP_PY_EXTRAS_REQUIRE_TESTS?= ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox']
@@ -449,6 +450,7 @@ gen-setup-py:
 	$P "        'extra': ${SETUP_PY_EXTRAS_REQUIRE_EXTRA}," >>${SETUP_PY}
 	$P "        'tests': ${SETUP_PY_EXTRAS_REQUIRE_TESTS}," >>${SETUP_PY}
 	$P '    },' >>${SETUP_PY}
+	$P "    entry_points=${SETUP_PY_ENTRY_POINTS}," >>${SETUP_PY}
 	$P "    zip_safe=${SETUP_PY_ZIP_SAFE}," >>${SETUP_PY}
 	$P ')' >>${SETUP_PY}
 
