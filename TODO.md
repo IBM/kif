@@ -28,13 +28,19 @@
 
 ### Filter
 
-- BUG: pseudo-properties should not match snak fingerprints.
+- BUG: Pseudo-properties should not match snak fingerprints.
 
 - Add support for pseudo-property flag in `property_mask`.
 
 - Add support for "negation".  We can compile the negation of an atomic `v`,
   i.e., `~v`, as `FILTER(?x != v)`.  And we can compile the negation of a
   snak `S`, i.e., `~S`, as a `FILTER NOT EXISTS`.
+
+- Add support for compound filters.  E.g., we could add a FilterUnion to
+  represent the union of two or more filters.  If no snak sets occur in the
+  child patterns, then each child pattern becomes an entry in the VALUES
+  clause of filter.  Otherwise, each child pattern becomes a separate call
+  to filter() and these calls are merged by the union.
 
 ### Fingerprint
 
@@ -76,10 +82,17 @@
 
 - Replace `eval()` by a proper parser (via lark).
 
+### JSON
+
+- Add support for generating JSON in standard Wikidata format.
+
 ## Store
 
 - BUG: Bad bindings should be ignored when producing query results.  That
   is, they should be skipped with a warning.
+
+- Add support for matching annotations (qualifiers, references, rank) in
+  `Store.filter()` and `Store.filter_annotated()`.
 
 - Add async API for Store.
 
@@ -91,6 +104,9 @@
   value carry an extra (normalized) value or value set.
 
 - Add support for testing whether a given statement is best-ranked.
+
+- Add support for pagination, projection, etc., via an explicit "results"
+  object.  Given the results, one can skip pages, apply a projection, etc.
 
 ### Mixer
 
