@@ -86,6 +86,17 @@
 - Add `Store.multifilter(subject, p1, p2, ...pn)` which returns a table
   whose lines are matching subjects and columns are the desired properties.
 
+- Add support for obtaining normalized values.  Some possibilities: (i) make
+  `Statement` carry an extra (normalized) value or value set; (ii) make
+  value carry an extra (normalized) value or value set.
+
+- Add support for testing whether a given statement is best-ranked.
+
 ### Mixer
+
+- Add support for entity unification: When a fingerprint is used with an
+  identifier property (external id) we could ask the mixer to perform entity
+  unification, i.e., use one of the underlying stores as the source of
+  canonical entity ids.
 
 - Revise the "sync" options.
