@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-from kif_lib import Entity
 from kif_lib.vocabulary import db
 
 from ...tests import StoreTestCase
