@@ -193,13 +193,14 @@ class PubChemMapping(M):
         {x: CheckCompound()},
         rank=Normal)
     def wd_alias_compound(self, c: C, x: V_URI, y: VLiteral) -> None:
-        chebi_ty = c.bnode()
         with c.q.union():
             with c.q.group():
+                chebi_ty = c.bnode()
                 c.q.triples()(
                     (x, RDF.type, chebi_ty),
                     (chebi_ty, GO.hasExactSynonym, y))
             with c.q.group():
+                chebi_ty = c.bnode()
                 c.q.triples()(
                     (x, RDF.type, chebi_ty),
                     (chebi_ty, GO.hasRelatedSynonym, y))
