@@ -69,6 +69,15 @@ class Test(ClosedTermSetTestCase):
         self.assertNotIn(
             NoValueSnak(Property('p')), SnakSet(NoValueSnak(Property('q'))))
 
+    def test_issubset(self) -> None:
+        raise self.TODO()
+
+    def test_issuperset(self) -> None:
+        raise self.TODO()
+
+    def test_intersection(self) -> None:
+        raise self.TODO()
+
     def test_union(self) -> None:
         assert_type(SnakSet().union(), SnakSet)
         self.assert_snak_set(SnakSet().union(SnakSet(), SnakSet()))

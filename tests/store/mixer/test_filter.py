@@ -171,6 +171,23 @@ class Test(StoreTestCase):
     def test_or_fp_value(self) -> None:
         raise self.TODO()
 
+    # -- corner cases --
+
+    def test_extra_references(self) -> None:
+        ##
+        # Make sure `extra_references` are preserved.
+        ##
+        child = self.S('wikidata-rdf', 'tests/data/benzene.ttl')
+        child.set_extra_references([[wd.stated_in(wd.Wikidata)]])
+        stmt = next(child.filter_annotated())
+        self.assertTrue(stmt.references.issuperset(child.extra_references))
+        mixer1 = self.S('mixer', [child])
+        stmt = next(mixer1.filter_annotated())
+        self.assertTrue(stmt.references.issuperset(child.extra_references))
+        mixer2 = self.S('mixer', [mixer1])
+        stmt = next(mixer2.filter_annotated())
+        self.assertTrue(stmt.references.issuperset(child.extra_references))
+
 
 if __name__ == '__main__':
     Test.main()

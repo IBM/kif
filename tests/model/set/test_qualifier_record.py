@@ -100,6 +100,15 @@ class Test(ClosedTermSetTestCase):
             NoValueSnak(Property('p')),
             QualifierRecord(NoValueSnak(Property('q'))))
 
+    def test_issubset(self) -> None:
+        raise self.TODO()
+
+    def test_issuperset(self) -> None:
+        raise self.TODO()
+
+    def test_intersection(self) -> None:
+        raise self.TODO()
+
     def test_union(self) -> None:
         assert_type(QualifierRecord().union(), QualifierRecord)
         self.assert_snak_set(QualifierRecord().union(

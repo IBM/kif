@@ -100,6 +100,40 @@ class ClosedTermSet(ClosedTerm, Generic[_TClosedTerm]):
         else:
             return False
 
+    def issubset(self, other: Self) -> bool:
+        """Tests whether self is a subset of `other`.
+
+        Parameters:
+           other: Closed-term set.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        return self._frozenset.issubset(other._frozenset)
+
+    def issuperset(self, other: Self) -> bool:
+        """Tests whether self is a superset of `other`.
+
+        Parameters:
+           other: Closed-term set.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        return self._frozenset.issuperset(other._frozenset)
+
+    def intersection(self, *others: Self) -> Self:
+        """Computes the intersection of self and `others`.
+
+        Parameters:
+           others: Closed-term sets.
+
+        Returns:
+           Closed-term set.
+        """
+        return type(self)(*self._frozenset.intersection(*map(
+            lambda x: x._frozenset, others)))
+
     def union(self, *others: Self) -> Self:
         """Computes the union of self and `others`.
 
@@ -107,7 +141,7 @@ class ClosedTermSet(ClosedTerm, Generic[_TClosedTerm]):
            others: Closed-term sets.
 
         Returns:
-           The resulting closed-term set.
+           Closed-term set.
         """
         return type(self)(*self._frozenset.union(*map(
             lambda x: x._frozenset, others)))

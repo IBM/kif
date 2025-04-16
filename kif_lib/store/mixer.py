@@ -144,8 +144,8 @@ class MixerStore(
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
-        its: list[Iterator[Statement]] = list(map(
-            lambda kb: kb._filter(filter, limit, distinct), self._sources))
+        its: list[Iterator[Statement]] = list(map(lambda kb: kb._filter_tail(
+            filter, limit, distinct), self._sources))
         cyc = itertools.cycle(its)
         exausted: set[Iterator[Statement]] = set()
         seen: set[Statement] = set()

@@ -94,6 +94,15 @@ class Test(ClosedTermSetTestCase):
             ReferenceRecord(NoValueSnak(Property('p'))),
             ReferenceRecordSet(ReferenceRecord(NoValueSnak(Property('q')))))
 
+    def test_issubset(self) -> None:
+        raise self.TODO()
+
+    def test_issuperset(self) -> None:
+        raise self.TODO()
+
+    def test_intersection(self) -> None:
+        raise self.TODO()
+
     def test_union(self) -> None:
         assert_type(ReferenceRecordSet().union(), ReferenceRecordSet)
         self.assert_reference_record_set(

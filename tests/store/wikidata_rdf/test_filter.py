@@ -309,10 +309,10 @@ class Test(StoreTestCase):
         ###
         # FIXME: Store.count() is still returning the wrong number of
         # statements.  The quick fix of using a blank node for wds does not
-        # work for count queries even when COUNT(DISTINCT *) is used - at
-        # least in RDFLib.  The correct approach is to replace "*" by an
-        # explicit list of variables, derived from the variables occurring
-        # in the target patterns.
+        # work for count queries even when COUNT(DISTINCT *) is used.  The
+        # correct approach is to replace "*" by an explicit list of
+        # variables, derived from the variables occurring in the target
+        # patterns.
         ###
         self.assertEqual(kb.count(wd.benzene, wd.density), 10)
 
