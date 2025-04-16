@@ -22,6 +22,7 @@ from ...typing import (
     cast,
     Collection,
     Final,
+    Final,
     Iterable,
     Iterator,
     Mapping,
@@ -33,10 +34,10 @@ from ...typing import (
 )
 from .prelude import _get_item_cache, _get_property_cache
 
-LOG = logging.getLogger(__name__)
-
 QueryResults: TypeAlias = dict[str, Any]
 T = TypeVar('T')
+
+_logger: Final[logging.Logger] = logging.getLogger(__name__)
 
 
 class ItemEntry(TypedDict):
@@ -326,16 +327,16 @@ class Downloader:
             for i, page in enumerate(pages, 0):
                 if isinstance(page, httpx.RequestError):
                     offset = offsets[i]
-                    LOG.warning('request with offset %d failed', offset)
+                    _logger.warning('request with offset %d failed', offset)
                     if str(page):
-                        LOG.warning(str(page))
+                        _logger.warning(str(page))
                     if offset not in retries:
                         retries[offset] = 0
                     retries[offset] += 1
                     if retries[offset] > max_retries:
                         raise page  # too many retries
                     offsets_it = itertools.chain((offset,), offsets_it)
-                    LOG.info(
+                    _logger.info(
                         'scheduling retry #%d for request with offset %d',
                         retries[offset], offset)
                     retry_pushed = True
@@ -377,7 +378,7 @@ class Downloader:
         assert 'page_size' in self.options
         query = query.select(offset=offset, limit=self.options['page_size'])
         query_text = str(query)
-        LOG.debug(
+        _logger.debug(
             '%s():\n%s',
             self._do_eval_query_helper_async.__qualname__, query_text)
         try:

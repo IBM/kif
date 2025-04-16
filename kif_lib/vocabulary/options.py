@@ -101,7 +101,7 @@ class WikidataOptions(_CommonOptions, name='wd'):
 
     _v_item_cache: ClassVar[tuple[str, pathlib.Path | None]] =\
         ('KIF_VOCABULARY_WD_ITEM_CACHE',
-         pathlib.Path('wikidata_properties.tsv'))
+         pathlib.Path('wikidata_items.tsv'))
 
     _item_cache: pathlib.Path | None
 

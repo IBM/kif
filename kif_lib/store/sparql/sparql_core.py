@@ -29,6 +29,7 @@ from ...typing import (
     BinaryIO,
     Callable,
     cast,
+    Final,
     Iterable,
     Iterator,
     Location,
@@ -44,7 +45,7 @@ from ..abc import Store
 
 T = TypeVar('T')
 
-LOG = logging.getLogger(__name__)
+_logger: Final[logging.Logger] = logging.getLogger(__name__)
 
 
 class _SPARQL_Store(
@@ -88,7 +89,7 @@ class _SPARQL_Store(
             Returns:
                Ask query results.
             """
-            LOG.debug('%s()\n%s', self.ask.__qualname__, query)
+            _logger.debug('%s()\n%s', self.ask.__qualname__, query)
             return self._ask(query)
 
         @abc.abstractmethod
@@ -104,7 +105,7 @@ class _SPARQL_Store(
             Returns:
                Select query results.
             """
-            LOG.debug('%s()\n%s', self.select.__qualname__, query)
+            _logger.debug('%s()\n%s', self.select.__qualname__, query)
             return self._select(query)
 
         @abc.abstractmethod
