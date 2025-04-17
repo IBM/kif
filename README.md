@@ -1,4 +1,4 @@
-<img src="docs/_static/kif-boxed.svg" width="96">
+<img src="https://raw.githubusercontent.com/IBM/kif/refs/heads/main/docs/_static/kif-boxed.svg" width="96">
 
 # Knowledge Integration Framework #
 
