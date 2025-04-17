@@ -424,7 +424,7 @@ gen-setup-py:
 	$P '# ** GENERATED FILE, DO NOT EDIT! **' >${SETUP_PY}
 	$P 'import re' >>${SETUP_PY}
 	$P 'import setuptools' >>${SETUP_PY}
-	$P "with open('${PACKAGE}/version.py', 'r') as fp:" >>${SETUP_PY}
+	$P "with open('${PACKAGE}/__version__.py', 'r') as fp:" >>${SETUP_PY}
 	$P '    text = fp.read()' >>${SETUP_PY}
 	$P "    VERSION, = re.findall(r\"__version__\s*=\s*'(.*)'\", text)" >>${SETUP_PY}
 	$P "with open('README.md', 'r') as fp:" >>${SETUP_PY}

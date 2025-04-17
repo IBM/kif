@@ -1,7 +1,7 @@
 # ** GENERATED FILE, DO NOT EDIT! **
 import re
 import setuptools
-with open('kif_lib/version.py', 'r') as fp:
+with open('kif_lib/__version__.py', 'r') as fp:
     text = fp.read()
     VERSION, = re.findall(r"__version__\s*=\s*'(.*)'", text)
 with open('README.md', 'r') as fp:
@@ -21,7 +21,7 @@ setuptools.setup(
     package_data={ 'kif_lib': ['py.typed'], 'kif_lib.vocabulary.wd': ['wikidata_properties.tsv'], },
     include_package_data=True,
     package_dir={'kif_lib': 'kif_lib'},
-    install_requires=[ 'httpx', 'lark', 'more_itertools', 'networkx', 'rdflib', 'types-networkx', 'typing-extensions', ],
+    install_requires=[ 'click', 'httpx', 'lark', 'more_itertools', 'networkx', 'rdflib', 'types-networkx', 'typing-extensions', ],
     extras_require={
         'docs': [ 'myst_nb', 'sphinx-rtd-theme', ],
         'extra': [ 'graphviz', 'jpype1', ],
