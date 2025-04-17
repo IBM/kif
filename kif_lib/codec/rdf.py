@@ -28,7 +28,15 @@ from ..model import (
 from ..model.kif_object import Encoder, Object
 from ..namespace import ONTOLEX, PROV, RDF, WIKIBASE, Wikidata
 from ..rdflib import BNode, Literal, URIRef
-from ..typing import cast, Iterator, override, TypeAlias, TypedDict, Union
+from ..typing import (
+    Callable,
+    cast,
+    Iterator,
+    override,
+    TypeAlias,
+    TypedDict,
+    Union,
+)
 
 TSubject: TypeAlias = Union[URIRef, BNode]
 TPredicate: TypeAlias = URIRef
@@ -54,13 +62,31 @@ class RDF_Encoder(
         wdno: URIRef
         wdt: URIRef
 
+    @classmethod
+    def _default_gen_wdref(cls, reference: ReferenceRecord) -> str:
+        return reference.digest
+
+    @classmethod
+    def _default_gen_wds(cls, statement: Statement) -> str:
+        return statement.digest
+
+    @classmethod
+    def _default_gen_wdv(cls, value: Value) -> str:
+        return value.digest
+
     __slots__ = (
+        '_gen_wdref',
+        '_gen_wds',
+        '_gen_wdv',
         '_property_schema_table',
         '_seen_deep_data_value',
         '_seen_entity',
         '_seen_reference_record',
     )
 
+    _gen_wdref: Callable[[ReferenceRecord], str]
+    _gen_wds: Callable[[Statement], str]
+    _gen_wdv: Callable[[Value], str]
     _property_schema_table: dict[Property, RDF_Encoder.PropertySchema]
     _seen_deep_data_value: dict[DeepDataValue, URIRef]
     _seen_entity: dict[Entity, URIRef]
@@ -68,8 +94,23 @@ class RDF_Encoder(
 
     def __init__(
             self,
-            schema: dict[Property, RDF_Encoder.PropertySchema] | None = None
+            schema: dict[Property, RDF_Encoder.PropertySchema] | None = None,
+            gen_wdref: Callable[[ReferenceRecord], str] | None = None,
+            gen_wds: Callable[[Statement], str] | None = None,
+            gen_wdv: Callable[[Value], str] | None = None,
     ) -> None:
+        if gen_wdref:
+            self._gen_wdref = lambda x: str(gen_wdref(x))
+        else:
+            self._gen_wdref = self._default_gen_wdref
+        if gen_wds:
+            self._gen_wds = lambda x: str(gen_wds(x))
+        else:
+            self._gen_wds = self._default_gen_wds
+        if gen_wdv:
+            self._gen_wdv = lambda x: str(gen_wdv(x))
+        else:
+            self._gen_wdv = self._default_gen_wdv
         self._property_schema_table = {}
         for prop, t in (schema or {}).items():
             self._property_schema_table[prop] = cast(
@@ -139,7 +180,7 @@ class RDF_Encoder(
                  stmt.snak.value._to_rdflib()))
         else:
             schema = self._get_property_schema(stmt.snak.property)
-            wds = Wikidata.WDS[stmt.digest]
+            wds = Wikidata.WDS[self._gen_wds(stmt)]
             # property definition
             yield from self._do_iterencode_property(stmt.snak.property, True)
             # subject
@@ -269,7 +310,7 @@ class RDF_Encoder(
     ) -> Iterator[str]:
         if value in self._seen_deep_data_value:
             return              # nothing to do
-        wdv = Wikidata.WDV[value.digest]
+        wdv = Wikidata.WDV[self._gen_wdv(value)]
         self._seen_deep_data_value[value] = wdv
         if isinstance(value, Quantity):
             yield from self._tr(
@@ -314,7 +355,7 @@ class RDF_Encoder(
     ) -> Iterator[str]:
         if ref in self._seen_reference_record:
             return              # nothing to do
-        wdref = Wikidata.WDREF[ref.digest]
+        wdref = Wikidata.WDREF[self._gen_wdref(ref)]
         self._seen_reference_record[ref] = wdref
         for snak in ref:
             if isinstance(snak.property, PseudoProperty):
