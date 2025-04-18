@@ -21,7 +21,7 @@ Jena](https://jena.apache.org/) installed.  Then all you need to do is
 install [JPype](https://jpype.readthedocs.io/en/latest/):
 
 ```
-$ pip install jype1
+$ pip install jpype1
 ```
 
 To check whether the `sparql-jena` store is available and working, run the
