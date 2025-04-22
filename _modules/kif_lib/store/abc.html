@@ -193,6 +193,7 @@
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s1">&#39;_context&#39;</span><span class="p">,</span>
         <span class="s1">&#39;_base_filter&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;_distinct&#39;</span><span class="p">,</span>
         <span class="s1">&#39;_extra_references&#39;</span><span class="p">,</span>
         <span class="s1">&#39;_flags&#39;</span><span class="p">,</span>
         <span class="s1">&#39;_limit&#39;</span><span class="p">,</span>
@@ -206,6 +207,7 @@
             <span class="bp">self</span><span class="p">,</span>
             <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
             <span class="n">base_filter</span><span class="p">:</span> <span class="n">Filter</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">distinct</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">extra_references</span><span class="p">:</span> <span class="n">TReferenceRecordSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">flags</span><span class="p">:</span> <span class="n">TFlags</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -225,12 +227,14 @@
 <span class="sd">           limit: Limit (maximum number) of responses.</span>
 <span class="sd">           page_size: Page size of paginated responses.</span>
 <span class="sd">           timeout: Timeout of responses (in seconds).</span>
-<span class="sd">           kwargs: Extra keyword arguments.</span>
+<span class="sd">           kwargs: Other keyword arguments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_flags</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="n">flags</span>      <span class="c1"># type: ignore</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_filter</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_base_filter</span><span class="p">(</span><span class="n">base_filter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_distinct</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_distinct</span><span class="p">(</span><span class="n">distinct</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_extra_references</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_extra_references</span><span class="p">(</span><span class="n">extra_references</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_limit</span> <span class="o">=</span> <span class="kc">None</span>
@@ -330,8 +334,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">base_filter</span> <span class="o">=</span> <span class="n">Filter</span><span class="o">.</span><span class="n">check_optional</span><span class="p">(</span>
             <span class="n">base_filter</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_base_filter</span><span class="p">,</span> <span class="s1">&#39;base_filter&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">base_filter</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_filter</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_base_filter</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_base_filter</span><span class="p">,</span> <span class="n">base_filter</span><span class="p">)):</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_base_filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_filter</span><span class="p">,</span> <span class="n">base_filter</span><span class="p">):</span></div>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_base_filter</span> <span class="o">=</span> <span class="n">base_filter</span>
 
@@ -660,21 +663,100 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">base_filter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_filter</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">annotated</span><span class="o">=</span><span class="n">annotated</span><span class="p">)</span>
 
 
+<span class="c1"># -- Distinct --------------------------------------------------------------</span>
+
+    <span class="nd">@at_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default_distinct</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The default value for :attr:`Store.distinct`.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Store.get_default_distinct">
+<a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.get_default_distinct">[docs]</a>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_distinct</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_distinct</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the default value for :attr:`Store.distinct`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Default distinct flag.</span></div>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">distinct</span>
+
+    <span class="c1">#: Distinct flag.</span>
+    <span class="n">_distinct</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span>
+
+    <span class="nd">@at_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">distinct</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The distinct flag of store (whether to suppress duplicates).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_distinct</span><span class="p">()</span>
+
+    <span class="nd">@distinct</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">distinct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distinct</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Store.get_distinct">
+<a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.get_distinct">[docs]</a>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_distinct</span><span class="p">(</span><span class="n">distinct</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_distinct</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the distinct flag of store.</span>
+
+<span class="sd">        If the distinct flag is ``None``, returns `default`.</span>
+
+<span class="sd">        If `default` is ``None``, assumes :attr:`Store.default_distinct`.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           default: Default distinct flag.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           Distinct flag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distinct</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">distinct</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distinct</span>
+        <span class="k">elif</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">distinct</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="k">else</span><span class="p">:</span></div>
+
+            <span class="n">distinct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_distinct</span>
+<div class="viewcode-block" id="Store.set_distinct">
+<a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.set_distinct">[docs]</a>
+        <span class="k">return</span> <span class="n">distinct</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_distinct</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">distinct</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets distinct flag of store.</span>
+
+<span class="sd">        If `distinct` is ``None``, assumes :attr:`Store.default_distinct`.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">           distinct: Distinct flag.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">distinct</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">distinct</span><span class="p">)</span> <span class="k">if</span> <span class="n">distinct</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_distinct</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_distinct</span><span class="p">,</span> <span class="n">distinct</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_distinct</span> <span class="o">=</span> <span class="n">distinct</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_distinct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">new</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+
 <span class="c1"># -- Extra references ------------------------------------------------------</span>
 
     <span class="nd">@at_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">default_extra_references</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReferenceRecordSet</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The default value for :attr:`Store.extra_references`.&quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Store.get_default_extra_references">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.get_default_extra_references">[docs]</a>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The default value for :attr:`Store.extra_references`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_extra_references</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_default_extra_references</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReferenceRecordSet</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the default value for :attr:`Store.extra_references`.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">           Reference record set.</span></div>
+<span class="sd">        Returns:</span></div>
 
+<span class="sd">           Reference record set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">extra_references</span>
 
@@ -690,9 +772,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">extra_references</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">references</span><span class="p">:</span> <span class="n">TReferenceRecordSet</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <div class="viewcode-block" id="Store.get_extra_references">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.get_extra_references">[docs]</a>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_extra_references</span><span class="p">(</span><span class="n">references</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_extra_references</span><span class="p">(</span>
@@ -715,12 +797,12 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_references</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">extra_references</span><span class="p">:</span> <span class="n">ReferenceRecordSet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_references</span>
         <span class="k">elif</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">extra_references</span> <span class="o">=</span> <span class="n">default</span>
-        <span class="k">else</span><span class="p">:</span></div>
+            <span class="n">extra_references</span> <span class="o">=</span> <span class="n">default</span></div>
 
-            <span class="n">extra_references</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_extra_references</span>
+        <span class="k">else</span><span class="p">:</span>
 <div class="viewcode-block" id="Store.set_extra_references">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.set_extra_references">[docs]</a>
+            <span class="n">extra_references</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_extra_references</span>
         <span class="k">return</span> <span class="n">extra_references</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">set_extra_references</span><span class="p">(</span>
@@ -737,11 +819,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">extra_references</span> <span class="o">=</span> <span class="n">ReferenceRecordSet</span><span class="o">.</span><span class="n">check_optional</span><span class="p">(</span>
             <span class="n">extra_references</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_extra_references</span><span class="p">,</span>
-            <span class="s1">&#39;extra_references&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">extra_references</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_references</span>
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_extra_references</span><span class="p">(</span></div>
+            <span class="s1">&#39;extra_references&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_extra_references</span><span class="p">,</span> <span class="n">extra_references</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_extra_references</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_extra_references</span><span class="p">,</span> <span class="n">extra_references</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_extra_references</span> <span class="o">=</span> <span class="n">extra_references</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_extra_references</span><span class="p">(</span>
@@ -750,9 +831,9 @@
             <span class="n">new</span><span class="p">:</span> <span class="n">ReferenceRecordSet</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
-
 <div class="viewcode-block" id="Store.Flags">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.Flags">[docs]</a>
+
 
 <span class="c1"># -- Flags -----------------------------------------------------------------</span>
 
@@ -776,9 +857,9 @@
 
         <span class="c1">#: All flags.</span>
         <span class="n">ALL</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">DEBUG</span>
-            <span class="o">|</span> <span class="n">BEST_RANK</span></div>
+            <span class="n">DEBUG</span></div>
 
+            <span class="o">|</span> <span class="n">BEST_RANK</span>
             <span class="o">|</span> <span class="n">VALUE_SNAK</span>
             <span class="o">|</span> <span class="n">SOME_VALUE_SNAK</span>
             <span class="o">|</span> <span class="n">NO_VALUE_SNAK</span><span class="p">)</span>
@@ -802,17 +883,17 @@
     <span class="n">TFlags</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Flags</span> <span class="o">|</span> <span class="nb">int</span>
 
     <span class="nd">@at_property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">default_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flags</span><span class="p">:</span>
 <div class="viewcode-block" id="Store.get_default_flags">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.get_default_flags">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">default_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flags</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The default value for :attr:`Store.flags`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_flags</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_default_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flags</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the default value for :attr:`Store.flags`.</span>
+</div>
 
-<span class="sd">        Returns:</span></div>
-
+<span class="sd">        Returns:</span>
 <span class="sd">           Default store flags.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">flags</span>
@@ -829,11 +910,11 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">TFlags</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Flags</span><span class="o">.</span><span class="n">check_optional</span><span class="p">(</span>
             <span class="n">flags</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_flags</span><span class="p">,</span> <span class="s1">&#39;flags&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">flags</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flags</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_flags</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_flags</span><span class="p">,</span> <span class="n">flags</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_flags</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_flags</span><span class="p">,</span> <span class="n">flags</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_flags</span> <span class="o">=</span> <span class="n">flags</span>
-
 <div class="viewcode-block" id="Store.get_flags">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.get_flags">[docs]</a>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old</span><span class="p">:</span> <span class="n">Flags</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">new</span><span class="p">:</span> <span class="n">Flags</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
 
@@ -850,12 +931,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flags</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">flags</span><span class="p">:</span> <span class="n">Store</span><span class="o">.</span><span class="n">Flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flags</span>
-        <span class="k">elif</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">flags</span> <span class="o">=</span> <span class="n">default</span></div>
+        <span class="k">elif</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span></div>
 
-        <span class="k">else</span><span class="p">:</span>
+            <span class="n">flags</span> <span class="o">=</span> <span class="n">default</span>
 <div class="viewcode-block" id="Store.has_flags">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.has_flags">[docs]</a>
+        <span class="k">else</span><span class="p">:</span>
             <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_flags</span>
         <span class="k">return</span> <span class="n">flags</span>
 
@@ -865,12 +946,12 @@
 <span class="sd">        Parameters:</span>
 <span class="sd">           flags: Store flags.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">           ``True`` if successful; ``False`` otherwise.</span></div>
+<span class="sd">        Returns:</span></div>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">           ``True`` if successful; ``False`` otherwise.</span>
 <div class="viewcode-block" id="Store.set_flags">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.set_flags">[docs]</a>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Flags</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">flags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_flags</span><span class="p">,</span> <span class="s1">&#39;flags&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">flags</span><span class="p">)</span>
 
@@ -880,21 +961,21 @@
 <span class="sd">        Parameters:</span>
 <span class="sd">           flags: Store flags.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">flags</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="kc">None</span>   <span class="c1"># type: ignore</span></div>
+        <span class="k">if</span> <span class="n">flags</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span></div>
 
-        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="kc">None</span>   <span class="c1"># type: ignore</span>
 <div class="viewcode-block" id="Store.unset_flags">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.unset_flags">[docs]</a>
+        <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">|=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Flags</span><span class="o">.</span><span class="n">check</span><span class="p">(</span>
                 <span class="n">flags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_flags</span><span class="p">,</span> <span class="s1">&#39;flags&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">unset_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flags</span><span class="p">:</span> <span class="n">TFlags</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Unsets `flags` in store.</span>
 
-<span class="sd">        Parameters:</span>
-<span class="sd">           flags: Store flags.</span></div>
+<span class="sd">        Parameters:</span></div>
 
+<span class="sd">           flags: Store flags.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Flags</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">flags</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unset_flags</span><span class="p">,</span> <span class="s1">&#39;flags&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">flags</span>
@@ -943,32 +1024,32 @@
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_do_check_optional</span><span class="p">(</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_check_limit</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span>
 
-    <span class="nd">@at_property</span>
 <div class="viewcode-block" id="Store.get_max_limit">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.get_max_limit">[docs]</a>
+    <span class="nd">@at_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">max_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The maximum value for :attr:`Store.limit`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_limit</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_max_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the maximum value for :attr:`Store.limit`.</span>
-</div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the maximum value for :attr:`Store.limit`.</span></div>
+
 
 <span class="sd">        Returns:</span>
 <span class="sd">           Maximum limit.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">max_limit</span>
 
-    <span class="nd">@at_property</span>
 <div class="viewcode-block" id="Store.get_default_limit">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.get_default_limit">[docs]</a>
+    <span class="nd">@at_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">default_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The default value for :attr:`Store.limit`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_limit</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_default_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the default value for :attr:`Store.limit`.</span>
-</div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the default value for :attr:`Store.limit`.</span></div>
+
 
 <span class="sd">        Returns:</span>
 <span class="sd">           Default limit or ``None``.</span>
@@ -982,9 +1063,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">limit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The limit of store (maximum number of responses).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_limit</span><span class="p">()</span>
-
 <div class="viewcode-block" id="Store.get_limit">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.get_limit">[docs]</a>
+
     <span class="nd">@limit</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_limit</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span>
@@ -1009,12 +1090,12 @@
             <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limit</span>
         <span class="k">elif</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">limit</span> <span class="o">=</span> <span class="n">default</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_limit</span></div>
+        <span class="k">else</span><span class="p">:</span></div>
 
-        <span class="k">if</span> <span class="n">limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_limit</span>
 <div class="viewcode-block" id="Store.set_limit">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.set_limit">[docs]</a>
+        <span class="k">if</span> <span class="n">limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">limit</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_limit</span><span class="p">)</span>
@@ -1030,12 +1111,12 @@
 <span class="sd">        If `limit` is ``None``, assumes :attr:`Store.default_limit`.</span>
 
 <span class="sd">        Parameters:</span>
-<span class="sd">           limit: Limit.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">           limit: Limit.</span></div>
 
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_optional_limit</span><span class="p">(</span>
             <span class="n">limit</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_limit</span><span class="p">,</span> <span class="s1">&#39;limit&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">limit</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limit</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_limit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_limit</span><span class="p">,</span> <span class="n">limit</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_limit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_limit</span><span class="p">,</span> <span class="n">limit</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_limit</span> <span class="o">=</span> <span class="n">limit</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">new</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1066,33 +1147,33 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_do_check_optional</span><span class="p">(</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_check_page_size</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span>
-
 <div class="viewcode-block" id="Store.get_max_page_size">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.get_max_page_size">[docs]</a>
+
     <span class="nd">@at_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">max_page_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The maximum value for :attr:`Store.page_size`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_page_size</span><span class="p">()</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_max_page_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the maximum value for :attr:`Store.page_size`.</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_max_page_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span></div>
 
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the maximum value for :attr:`Store.page_size`.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">           Maximum page size.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">max_page_size</span>
-
 <div class="viewcode-block" id="Store.get_default_page_size">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.get_default_page_size">[docs]</a>
+
     <span class="nd">@at_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">default_page_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The default value for :attr:`Store.page_size`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_page_size</span><span class="p">()</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_page_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the default value for :attr:`Store.page_size`.</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_page_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span></div>
 
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the default value for :attr:`Store.page_size`.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">           Default page size.</span>
@@ -1105,9 +1186,9 @@
     <span class="nd">@at_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">page_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The page size of store (size of response pages).&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_page_size</span><span class="p">()</span>
 <div class="viewcode-block" id="Store.get_page_size">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.get_page_size">[docs]</a>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_page_size</span><span class="p">()</span>
 
     <span class="nd">@page_size</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">page_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1129,12 +1210,12 @@
 <span class="sd">        Returns:</span>
 <span class="sd">           Page size.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_page_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_page_size</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_page_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span></div>
 
-        <span class="k">elif</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_page_size</span>
 <div class="viewcode-block" id="Store.set_page_size">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.set_page_size">[docs]</a>
+        <span class="k">elif</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">page_size</span> <span class="o">=</span> <span class="n">default</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">page_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_page_size</span>
@@ -1150,14 +1231,13 @@
 
 <span class="sd">        If `page_size` is ``None``, assumes :attr:`Store.default_page_size`.</span>
 
-<span class="sd">        Parameters:</span>
-<span class="sd">           page_size: Page size.</span>
-<span class="sd">        &quot;&quot;&quot;</span></div>
+<span class="sd">        Parameters:</span></div>
 
+<span class="sd">           page_size: Page size.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">page_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_optional_page_size</span><span class="p">(</span>
             <span class="n">page_size</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_page_size</span><span class="p">,</span> <span class="s1">&#39;page_size&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">page_size</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_page_size</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_page_size</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_page_size</span><span class="p">,</span> <span class="n">page_size</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_page_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_page_size</span><span class="p">,</span> <span class="n">page_size</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_page_size</span> <span class="o">=</span> <span class="n">page_size</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_page_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">new</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1188,33 +1268,33 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_do_check_optional</span><span class="p">(</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_check_timeout</span><span class="p">,</span>
-            <span class="n">arg</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span>
 <div class="viewcode-block" id="Store.get_max_timeout">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.get_max_timeout">[docs]</a>
+            <span class="n">arg</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span>
 
     <span class="nd">@at_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">max_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The maximum value for :attr:`Store.timeout`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_max_timeout</span><span class="p">()</span>
+</div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_max_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span></div>
-
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_max_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the maximum value for :attr:`Store.timeout`.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">           Maximum timeout (in seconds).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">max_timeout</span>
 <div class="viewcode-block" id="Store.get_default_timeout">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.get_default_timeout">[docs]</a>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">max_timeout</span>
 
     <span class="nd">@at_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">default_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The default value for :attr:`Store.timeout`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_timeout</span><span class="p">()</span>
+</div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span></div>
-
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the default value for :attr:`Store.timeout`.</span>
 
 <span class="sd">        Returns:</span>
@@ -1227,9 +1307,9 @@
 
     <span class="nd">@at_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The timeout of store (in seconds).&quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Store.get_timeout">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.get_timeout">[docs]</a>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The timeout of store (in seconds).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_timeout</span><span class="p">()</span>
 
     <span class="nd">@timeout</span><span class="o">.</span><span class="n">setter</span>
@@ -1254,12 +1334,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span>
-        <span class="k">elif</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">timeout</span> <span class="o">=</span> <span class="n">default</span></div>
+        <span class="k">elif</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span></div>
 
-        <span class="k">else</span><span class="p">:</span>
+            <span class="n">timeout</span> <span class="o">=</span> <span class="n">default</span>
 <div class="viewcode-block" id="Store.set_timeout">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.set_timeout">[docs]</a>
+        <span class="k">else</span><span class="p">:</span>
             <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_timeout</span>
         <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">timeout</span>
@@ -1275,15 +1355,14 @@
 <span class="sd">        If `timeout` is negative, assumes zero.</span>
 
 <span class="sd">        If `timeout` is ``None``, assumes :attr:`Store.default_timeout`.</span>
+</div>
 
 <span class="sd">        Parameters:</span>
-<span class="sd">           timeout: Timeout.</span></div>
-
+<span class="sd">           timeout: Timeout.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_optional_timeout</span><span class="p">(</span>
             <span class="n">timeout</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_timeout</span><span class="p">,</span> <span class="s1">&#39;timeout&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">timeout</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_timeout</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_timeout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="o">=</span> <span class="n">timeout</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">new</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1304,9 +1383,9 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contains</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Statement</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Statement</span><span class="p">]:</span>
 <div class="viewcode-block" id="Store.ask">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.ask">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Statement</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -1354,9 +1433,9 @@
                 <span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span>
                 <span class="nb">property</span><span class="o">=</span><span class="nb">property</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
-                <span class="n">snak_mask</span><span class="o">=</span><span class="n">snak_mask</span><span class="p">,</span>
-                <span class="n">subject_mask</span><span class="o">=</span><span class="n">subject_mask</span><span class="p">,</span></div>
+                <span class="n">snak_mask</span><span class="o">=</span><span class="n">snak_mask</span><span class="p">,</span></div>
 
+                <span class="n">subject_mask</span><span class="o">=</span><span class="n">subject_mask</span><span class="p">,</span>
                 <span class="n">property_mask</span><span class="o">=</span><span class="n">property_mask</span><span class="p">,</span>
                 <span class="n">value_mask</span><span class="o">=</span><span class="n">value_mask</span><span class="p">,</span>
                 <span class="n">rank_mask</span><span class="o">=</span><span class="n">rank_mask</span><span class="p">,</span>
@@ -1366,9 +1445,9 @@
                 <span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">,</span>
                 <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ask</span><span class="p">))</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_ask_tail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <div class="viewcode-block" id="Store.contains">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.contains">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ask_tail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">filter</span><span class="o">.</span><span class="n">is_nonempty</span><span class="p">():</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ask</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1378,8 +1457,8 @@
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter</span><span class="p">(</span><span class="nb">filter</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="kc">False</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stmt</span><span class="p">:</span> <span class="n">Statement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests whether statement occurs in store.</span>
-</div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests whether statement occurs in store.</span></div>
+
 
 <span class="sd">        Parameters:</span>
 <span class="sd">           stmt: Statement.</span>
@@ -1389,9 +1468,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">Statement</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">stmt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">contains</span><span class="p">,</span> <span class="s1">&#39;stmt&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contains</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
-
 <div class="viewcode-block" id="Store.count">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.count">[docs]</a>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stmt</span><span class="p">:</span> <span class="n">Statement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="nb">filter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_filter</span><span class="p">(</span><span class="n">Filter</span><span class="o">.</span><span class="n">from_statement</span><span class="p">(</span><span class="n">stmt</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">filter</span><span class="o">.</span><span class="n">is_nonempty</span><span class="p">():</span>
@@ -1439,9 +1518,9 @@
                 <span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span>
                 <span class="nb">property</span><span class="o">=</span><span class="nb">property</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
-                <span class="n">snak_mask</span><span class="o">=</span><span class="n">snak_mask</span><span class="p">,</span>
-                <span class="n">subject_mask</span><span class="o">=</span><span class="n">subject_mask</span><span class="p">,</span></div>
+                <span class="n">snak_mask</span><span class="o">=</span><span class="n">snak_mask</span><span class="p">,</span></div>
 
+                <span class="n">subject_mask</span><span class="o">=</span><span class="n">subject_mask</span><span class="p">,</span>
                 <span class="n">property_mask</span><span class="o">=</span><span class="n">property_mask</span><span class="p">,</span>
                 <span class="n">value_mask</span><span class="o">=</span><span class="n">value_mask</span><span class="p">,</span>
                 <span class="n">rank_mask</span><span class="o">=</span><span class="n">rank_mask</span><span class="p">,</span>
@@ -1451,9 +1530,9 @@
                 <span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">,</span>
                 <span class="n">function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">))</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_count_tail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <div class="viewcode-block" id="Store.filter">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.filter">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_count_tail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">filter</span><span class="o">.</span><span class="n">is_nonempty</span><span class="p">():</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_count</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1500,25 +1579,22 @@
 <span class="sd">        Returns:</span>
 <span class="sd">           An iterator of statements matching filter.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">distinct</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">distinct</span><span class="p">)</span> <span class="k">if</span> <span class="n">distinct</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">distinct</span>
+        <span class="k">assert</span> <span class="n">distinct</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_optional_limit</span><span class="p">(</span>
             <span class="n">limit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">,</span> <span class="s1">&#39;limit&#39;</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_limit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_limit</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">limit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="c1">###</span>
-        <span class="c1"># FIXME: Move this to an option.</span>
-        <span class="c1">###</span>
-        <span class="n">distinct</span> <span class="o">=</span> <span class="n">distinct</span> <span class="k">if</span> <span class="n">distinct</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">True</span>
-        <span class="k">assert</span> <span class="n">distinct</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_tail</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_check_filter</span><span class="p">(</span>
                 <span class="n">subject</span><span class="o">=</span><span class="n">subject</span><span class="p">,</span>
                 <span class="nb">property</span><span class="o">=</span><span class="nb">property</span><span class="p">,</span>
                 <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
                 <span class="n">snak_mask</span><span class="o">=</span><span class="n">snak_mask</span><span class="p">,</span>
-                <span class="n">subject_mask</span><span class="o">=</span><span class="n">subject_mask</span><span class="p">,</span>
-                <span class="n">property_mask</span><span class="o">=</span><span class="n">property_mask</span><span class="p">,</span></div>
+                <span class="n">subject_mask</span><span class="o">=</span><span class="n">subject_mask</span><span class="p">,</span></div>
 
+                <span class="n">property_mask</span><span class="o">=</span><span class="n">property_mask</span><span class="p">,</span>
                 <span class="n">value_mask</span><span class="o">=</span><span class="n">value_mask</span><span class="p">,</span>
                 <span class="n">rank_mask</span><span class="o">=</span><span class="n">rank_mask</span><span class="p">,</span>
                 <span class="n">language</span><span class="o">=</span><span class="n">language</span><span class="p">,</span>
@@ -1543,9 +1619,9 @@
                 <span class="k">return</span> <span class="n">stmts</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">iter</span><span class="p">(())</span>
-
 <div class="viewcode-block" id="Store.filter_annotated">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.Store.filter_annotated">[docs]</a>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_filter</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span><span class="p">,</span>
@@ -1597,9 +1673,9 @@
             <span class="nb">property</span><span class="o">=</span><span class="nb">property</span><span class="p">,</span>
             <span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
             <span class="n">snak_mask</span><span class="o">=</span><span class="n">snak_mask</span><span class="p">,</span>
-            <span class="n">subject_mask</span><span class="o">=</span><span class="n">subject_mask</span><span class="p">,</span>
-            <span class="n">property_mask</span><span class="o">=</span><span class="n">property_mask</span><span class="p">,</span></div>
+            <span class="n">subject_mask</span><span class="o">=</span><span class="n">subject_mask</span><span class="p">,</span></div>
 
+            <span class="n">property_mask</span><span class="o">=</span><span class="n">property_mask</span><span class="p">,</span>
             <span class="n">value_mask</span><span class="o">=</span><span class="n">value_mask</span><span class="p">,</span>
             <span class="n">rank_mask</span><span class="o">=</span><span class="n">rank_mask</span><span class="p">,</span>
             <span class="n">language</span><span class="o">=</span><span class="n">language</span><span class="p">,</span>
@@ -1684,9 +1760,9 @@
             <span class="bp">self</span><span class="p">,</span>
             <span class="nb">filter</span><span class="p">:</span> <span class="n">Filter</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Filter</span><span class="p">:</span>
-        <span class="n">store_snak_mask</span> <span class="o">=</span> <span class="n">Filter</span><span class="o">.</span><span class="n">SnakMask</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_flags</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">VALUE_SNAK</span><span class="p">):</span></div>
+        <span class="n">store_snak_mask</span> <span class="o">=</span> <span class="n">Filter</span><span class="o">.</span><span class="n">SnakMask</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_flags</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">VALUE_SNAK</span><span class="p">):</span>
             <span class="n">store_snak_mask</span> <span class="o">|=</span> <span class="n">Filter</span><span class="o">.</span><span class="n">VALUE_SNAK</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_flags</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SOME_VALUE_SNAK</span><span class="p">):</span>
             <span class="n">store_snak_mask</span> <span class="o">|=</span> <span class="n">Filter</span><span class="o">.</span><span class="n">SOME_VALUE_SNAK</span>

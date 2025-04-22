@@ -550,7 +550,7 @@
 <span class="sd">        Parameters:</span>
 <span class="sd">           stream: A ``.write()``-supporting file-like object.</span>
 <span class="sd">           format: Encoding format.</span>
-<span class="sd">           kwargs: Encoder options.</span></div>
+<span class="sd">           kwargs: Other keyword arguments.</span></div>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="Object.dumps">
@@ -564,7 +564,7 @@
 
 <span class="sd">        Parameters:</span>
 <span class="sd">           format: Encoding format.</span>
-<span class="sd">           kwargs: Encoder options.</span>
+<span class="sd">           kwargs: Other keyword arguments.</span>
 
 <span class="sd">        Returns:</span></div>
 
@@ -590,7 +590,7 @@
 <span class="sd">        Parameters:</span>
 <span class="sd">           stream: A ``.read()``-supporting file-like object.</span>
 <span class="sd">           format: Decoding format.</span>
-<span class="sd">           kwargs: Decoder options.</span></div>
+<span class="sd">           kwargs: Other keyword arguments.</span></div>
 
 
 <div class="viewcode-block" id="Object.loads">
@@ -612,7 +612,7 @@
 <span class="sd">        Parameters:</span>
 <span class="sd">           input: String.</span>
 <span class="sd">           format: Decoding format.</span>
-<span class="sd">           kwargs: Options to decoder.</span>
+<span class="sd">           kwargs: Other keyword arguments.</span>
 </div>
 
 <span class="sd">        Returns:</span>
@@ -633,7 +633,7 @@
 <span class="sd">        Parameters:</span>
 <span class="sd">           input: Input string.</span></div>
 
-<span class="sd">           kwargs: Options to decoder.</span>
+<span class="sd">           kwargs: Other keyword arguments.</span>
 <div class="viewcode-block" id="Object.to_json">
 <a class="viewcode-back" href="../../../reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.to_json">[docs]</a>
 
@@ -647,7 +647,7 @@
 
 <span class="sd">        Parameters:</span></div>
 
-<span class="sd">           kwargs: Options to encoder.</span>
+<span class="sd">           kwargs: Other keyword arguments.</span>
 <div class="viewcode-block" id="Object.from_repr">
 <a class="viewcode-back" href="../../../reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.from_repr">[docs]</a>
 
@@ -663,7 +663,7 @@
 <span class="sd">        Parameters:</span>
 <span class="sd">           input: Input string.</span></div>
 
-<span class="sd">           kwargs: Options to decoder.</span>
+<span class="sd">           kwargs: Other keyword arguments.</span>
 <div class="viewcode-block" id="Object.to_repr">
 <a class="viewcode-back" href="../../../reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.to_repr">[docs]</a>
 
@@ -677,7 +677,7 @@
 
 <span class="sd">        Parameters:</span></div>
 
-<span class="sd">           kwargs: Options to encoder.</span>
+<span class="sd">           kwargs: Other keyword arguments.</span>
 <div class="viewcode-block" id="Object.from_sexp">
 <a class="viewcode-back" href="../../../reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.from_sexp">[docs]</a>
 
@@ -693,7 +693,7 @@
 <span class="sd">        Parameters:</span>
 <span class="sd">           input: Input string.</span></div>
 
-<span class="sd">           kwargs: Options to decoder.</span>
+<span class="sd">           kwargs: Other keyword arguments.</span>
 <div class="viewcode-block" id="Object.to_sexp">
 <a class="viewcode-back" href="../../../reference/model/kif_object/kif_object.html#kif_lib.model.object.Object.to_sexp">[docs]</a>
 
@@ -707,7 +707,7 @@
 
 <span class="sd">        Parameters:</span></div>
 
-<span class="sd">           kwargs: Options to encoder.</span>
+<span class="sd">           kwargs: Other keyword arguments.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">           String.</span>
@@ -1360,7 +1360,8 @@
     <span class="nd">@classmethod</span>
     <span class="nd">@functools</span><span class="o">.</span><span class="n">cache</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_globals</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="n">ObjectMeta</span><span class="o">.</span><span class="n">_object_subclasses</span>
+        <span class="k">return</span> <span class="p">{</span><span class="o">**</span><span class="n">ObjectMeta</span><span class="o">.</span><span class="n">_object_subclasses</span><span class="p">,</span> <span class="s1">&#39;__builtins__&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;set&#39;</span><span class="p">:</span> <span class="nb">set</span><span class="p">}}</span>
 
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Object</span><span class="p">:</span>

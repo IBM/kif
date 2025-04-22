@@ -111,18 +111,24 @@
 <span class="sd">       store_name: Name of the store plugin to instantiate.</span>
 <span class="sd">       sources: Sources to mix.</span>
 <span class="sd">       sync_flags: Whether to sync store flags.</span>
+<span class="sd">       sync_limit: Whether to sync store limit.</span>
 <span class="sd">       sync_page_size: Whether to sync page size.</span>
+<span class="sd">       sync_timeout: Whether to sync timeout.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s1">&#39;_sources&#39;</span><span class="p">,</span>
         <span class="s1">&#39;_sync_flags&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;_sync_limit&#39;</span><span class="p">,</span>
         <span class="s1">&#39;_sync_page_size&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;_sync_timeout&#39;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">_sources</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Store</span><span class="p">]</span>
     <span class="n">_sync_flags</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">_sync_limit</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="n">_sync_page_size</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">_sync_timeout</span><span class="p">:</span> <span class="nb">bool</span>
 
 <div class="viewcode-block" id="MixerStore.__init__">
 <a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.store.MixerStore.__init__">[docs]</a>
@@ -131,14 +137,18 @@
             <span class="n">store_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">sources</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Store</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(),</span>
             <span class="n">sync_flags</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">sync_limit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
             <span class="n">sync_page_size</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">sync_timeout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">assert</span> <span class="n">store_name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">store_name</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_sources</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_flags</span> <span class="o">=</span> <span class="n">sync_flags</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_page_size</span> <span class="o">=</span> <span class="n">sync_page_size</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_flags</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">sync_flags</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_limit</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">sync_limit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_page_size</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">sync_page_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sync_timeout</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">sync_timeout</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_init_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Store</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -197,6 +207,31 @@
         <span class="k">return</span> <span class="kc">True</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sync_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether to sync store limit.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sync_limit</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MixerStore.get_sync_limit">
+<a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.store.MixerStore.get_sync_limit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_sync_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests whether to sync store limit.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           ``True`` if successful; ``False`` otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sync_limit</span></div>
+
+
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">new</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_limit</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_limit</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span>
+                <span class="n">src</span><span class="o">.</span><span class="n">set_limit</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sync_page_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether to sync store page size.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sync_flags</span><span class="p">()</span>
@@ -219,6 +254,31 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_page_size</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span>
                 <span class="n">src</span><span class="o">.</span><span class="n">set_page_size</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sync_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether to sync store timeout.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sync_timeout</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MixerStore.get_sync_timeout">
+<a class="viewcode-back" href="../../../reference/store/store.html#kif_lib.store.MixerStore.get_sync_timeout">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_sync_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests whether to sync store timeout.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           ``True`` if successful; ``False`` otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sync_timeout</span></div>
+
+
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">new</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_set_timeout</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_timeout</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">:</span>
+                <span class="n">src</span><span class="o">.</span><span class="n">set_timeout</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span>
 
     <span class="nd">@override</span>
