@@ -27,6 +27,6 @@ setuptools.setup(
         'extra': [ 'graphviz', 'jpype1', ],
         'tests': ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox'],
     },
-    entry_points={'console_scripts': ['kif = kif_lib.main:cli'], },
+    entry_points={'console_scripts': ['kif = kif_lib.cli:cli'], },
     zip_safe=False,
 )
