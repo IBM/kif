@@ -1193,7 +1193,7 @@ class ReprDecoder(Decoder, format='repr', description='Repr. decoder'):
     @classmethod
     @functools.cache
     def _globals(cls) -> dict[str, Any]:
-        return ObjectMeta._object_subclasses
+        return {**ObjectMeta._object_subclasses, '__builtins__': {}}
 
     @override
     def decode(self, input: str) -> Object:
