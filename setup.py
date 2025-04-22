@@ -21,10 +21,10 @@ setuptools.setup(
     package_data={ 'kif_lib': ['py.typed'], 'kif_lib.vocabulary.wd': ['wikidata_properties.tsv'], },
     include_package_data=True,
     package_dir={'kif_lib': 'kif_lib'},
-    install_requires=[ 'click', 'httpx', 'lark', 'more_itertools', 'networkx', 'rdflib', 'types-networkx', 'typing-extensions', ],
+    install_requires=[ 'httpx', 'lark', 'more_itertools', 'networkx', 'rdflib', 'types-networkx', 'typing-extensions', ],
     extras_require={
         'docs': [ 'myst_nb', 'sphinx-rtd-theme', ],
-        'extra': [ 'graphviz', 'jpype1', 'rich', ],
+        'extra': [ 'click', 'graphviz', 'jpype1', 'rich', ],
         'tests': ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox'],
     },
     entry_points={'console_scripts': ['kif = kif_lib.cli:cli'], },
