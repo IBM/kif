@@ -131,9 +131,9 @@ use it, for example, to fetch from Wikidata three statements about Brazil:</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> <strong>LabelProperty</strong> “巴西”&#64;zh-sg))</p>
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> <strong>LabelProperty</strong> “巴西”&#64;zh-cn))</p>
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> <strong>LabelProperty</strong> “巴西”&#64;zh-my))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P11810">Mastodon instance URL</a>) <a class="reference external" href="https://mastodon.com.br">https://mastodon.com.br</a>))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P11810">Mastodon instance URL</a>) <a class="reference external" href="https://masto.donte.com.br">https://masto.donte.com.br</a>))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P1325">external data available at URL</a>) <a class="reference external" href="http://dados.gov.br">http://dados.gov.br</a>))</p>
 </div>
 </div>
 </section>
@@ -157,7 +157,7 @@ restrictions <code class="docutils literal notranslate"><span class="pre">...</s
 </div>
 </div>
 <div class="cell_output docutils container">
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> <strong>LabelProperty</strong> “Бразили”&#64;os))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> <strong>LabelProperty</strong> “巴西”&#64;zh-sg))</p>
 </div>
 </div>
 <p>If no <code class="docutils literal notranslate"><span class="pre">limit</span></code> argument is given to <code class="docutils literal notranslate"><span class="pre">kb.filter()</span></code>, the returned iterator
@@ -176,7 +176,7 @@ contains all matching statements.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q891">Nizhny Novgorod</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P6">head of government</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q94647269">Yury Shalabayev</a>)))</p>
+<p>(<strong>Statement</strong> (<strong>Lexeme</strong> <a class="reference external" href="http://www.wikidata.org/entity/L691226">wd:L691226</a>) (<strong>ValueSnak</strong> <strong>LanguageProperty</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q5287">Japanese</a>)))</p>
 </div>
 </div>
 <p><em>match statements with subject “Brazil” and property “official website”</em></p>
@@ -220,7 +220,7 @@ contains all matching statements.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q7262">Emperor Gengshi of Han</a>) (<strong>SomeValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P569">date of birth</a>)))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q8797">Aemilius Macer</a>) (<strong>SomeValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P569">date of birth</a>)))</p>
 </div>
 </div>
 <p>Or <em>no</em> value:</p>
@@ -274,7 +274,7 @@ indirectly by giving not its id but a property it satisfies.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q1577420">Lump</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P127">owned by</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q934820">David Douglas Duncan</a>)))</p>
+<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q131351004">Decoy Ohtani</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P127">owned by</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q4391858">Shohei Ohtani</a>)))</p>
 </div>
 </div>
 <p>Properties themselves can also be specified using fingerprints:</p>
@@ -286,76 +286,10 @@ indirectly by giving not its id but a property it satisfies.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q52156214">Roger Noble Burnham</a>) (<strong>NoValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P2067">mass</a>)))</p>
-</div>
-</div>
-<p>The <code class="docutils literal notranslate"><span class="pre">-</span></code> (unary minus) operator can be used to invert the direction of the
-property used in the fingerprint:</p>
-<p><em>match statements whose subject is “the continent of Brazil”</em></p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">next</span><span class="p">(</span><span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">subject</span><span class="o">=-</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">continent</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">Brazil</span><span class="p">))))</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q18">South America</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P1748">NCI Thesaurus ID</a>) “C26277”))</p>
-</div>
-</div>
-</section>
-<section id="and-ing-and-or-ing-fingeprints">
-<h2>And-ing and or-ing fingeprints<a class="headerlink" href="#and-ing-and-or-ing-fingeprints" title="Link to this heading"></a></h2>
-<p>Entity ids and fingerpints can be combined using the operators <code class="docutils literal notranslate"><span class="pre">&amp;</span></code> (and) and
-<code class="docutils literal notranslate"><span class="pre">|</span></code> (or).</p>
-<p>For example:</p>
-<p><em>match three statements such that:</em></p>
-<ul class="simple">
-<li><p><em>subject is “Brazil” or “Argentina”</em></p></li>
-<li><p><em>property is “continent” or “highest point”</em></p></li>
-</ul>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">it</span> <span class="o">=</span> <span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-        <span class="n">subject</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">Brazil</span> <span class="o">|</span> <span class="n">wd</span><span class="o">.</span><span class="n">Argentina</span><span class="p">,</span>
-        <span class="nb">property</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">continent</span> <span class="o">|</span> <span class="n">wd</span><span class="o">.</span><span class="n">highest_point</span><span class="p">,</span>
-        <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
-    <span class="n">display</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q414">Argentina</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P30">continent</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q18">South America</a>)))</p>
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P610">highest point</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q739484">Pico da Neblina</a>)))</p>
-<p>(<strong>Statement</strong> (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q155">Brazil</a>) (<strong>ValueSnak</strong> (<strong>Property</strong> <a class="reference external" href="http://www.wikidata.org/entity/P30">continent</a>) (<strong>Item</strong> <a class="reference external" href="http://www.wikidata.org/entity/Q18">South America</a>)))</p>
-</div>
-</div>
-<p><em>match three statements such that:</em></p>
-<ul class="simple">
-<li><p><em>subject “has continent South America” and “official language is Portuguese”</em></p></li>
-<li><p><em>value “is a river” or “is a mountain”</em></p></li>
-</ul>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">it</span> <span class="o">=</span> <span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-        <span class="n">subject</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">continent</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">South_America</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">wd</span><span class="o">.</span><span class="n">official_language</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">Portuguese</span><span class="p">),</span>
-        <span class="n">value</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">river</span><span class="p">)</span> <span class="o">|</span> <span class="n">wd</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">mountain</span><span class="p">),</span>
-        <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
-    <span class="n">display</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
 <div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
 <span class="ne">KeyboardInterrupt</span><span class="g g-Whitespace">                         </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">19</span><span class="p">],</span> <span class="n">line</span> <span class="mi">5</span>
-<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="n">it</span> <span class="o">=</span> <span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-<span class="g g-Whitespace">      </span><span class="mi">2</span>         <span class="n">subject</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">continent</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">South_America</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">wd</span><span class="o">.</span><span class="n">official_language</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">Portuguese</span><span class="p">),</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span>         <span class="n">value</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">river</span><span class="p">)</span> <span class="o">|</span> <span class="n">wd</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">mountain</span><span class="p">),</span>
-<span class="g g-Whitespace">      </span><span class="mi">4</span>         <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="ne">----&gt; </span><span class="mi">5</span> <span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
-<span class="g g-Whitespace">      </span><span class="mi">6</span>     <span class="n">display</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">16</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
+<span class="ne">----&gt; </span><span class="mi">1</span> <span class="nb">next</span><span class="p">(</span><span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">property</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">equivalent_property</span><span class="p">(</span><span class="s1">&#39;https://schema.org/weight&#39;</span><span class="p">)))</span>
 
 <span class="nn">File ~/Downloads/venv313/lib/python3.13/site-packages/kif_lib/store/mixer.py:212,</span> in <span class="ni">MixerStore._filter</span><span class="nt">(self, filter, limit, distinct)</span>
 <span class="g g-Whitespace">    </span><span class="mi">210</span> <span class="k">if</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">exausted</span><span class="p">:</span>
@@ -578,6 +512,56 @@ property used in the fingerprint:</p>
 <span class="g g-Whitespace">   </span><span class="mi">1142</span>     <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">SSL_ERROR_EOF</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">suppress_ragged_eofs</span><span class="p">:</span>
 
 <span class="ne">KeyboardInterrupt</span>: 
+</pre></div>
+</div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">-</span></code> (unary minus) operator can be used to invert the direction of the
+property used in the fingerprint:</p>
+<p><em>match statements whose subject is “the continent of Brazil”</em></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">next</span><span class="p">(</span><span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">subject</span><span class="o">=-</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">continent</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">Brazil</span><span class="p">))))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="and-ing-and-or-ing-fingeprints">
+<h2>And-ing and or-ing fingeprints<a class="headerlink" href="#and-ing-and-or-ing-fingeprints" title="Link to this heading"></a></h2>
+<p>Entity ids and fingerpints can be combined using the operators <code class="docutils literal notranslate"><span class="pre">&amp;</span></code> (and) and
+<code class="docutils literal notranslate"><span class="pre">|</span></code> (or).</p>
+<p>For example:</p>
+<p><em>match three statements such that:</em></p>
+<ul class="simple">
+<li><p><em>subject is “Brazil” or “Argentina”</em></p></li>
+<li><p><em>property is “continent” or “highest point”</em></p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">it</span> <span class="o">=</span> <span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">subject</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">Brazil</span> <span class="o">|</span> <span class="n">wd</span><span class="o">.</span><span class="n">Argentina</span><span class="p">,</span>
+        <span class="nb">property</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">continent</span> <span class="o">|</span> <span class="n">wd</span><span class="o">.</span><span class="n">highest_point</span><span class="p">,</span>
+        <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p><em>match three statements such that:</em></p>
+<ul class="simple">
+<li><p><em>subject “has continent South America” and “official language is Portuguese”</em></p></li>
+<li><p><em>value “is a river” or “is a mountain”</em></p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">it</span> <span class="o">=</span> <span class="n">kb</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">subject</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">continent</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">South_America</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">wd</span><span class="o">.</span><span class="n">official_language</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">Portuguese</span><span class="p">),</span>
+        <span class="n">value</span><span class="o">=</span><span class="n">wd</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">river</span><span class="p">)</span> <span class="o">|</span> <span class="n">wd</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">wd</span><span class="o">.</span><span class="n">mountain</span><span class="p">),</span>
+        <span class="n">limit</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">stmt</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+    <span class="n">display</span><span class="p">(</span><span class="n">stmt</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
