@@ -6,7 +6,7 @@
 $ pip install kif-lib
 ```
 
-## From the sources
+## Sources
 
 ```
 $ git clone https://github.com/IBM/kif.git
