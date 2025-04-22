@@ -24,7 +24,7 @@ setuptools.setup(
     install_requires=[ 'click', 'httpx', 'lark', 'more_itertools', 'networkx', 'rdflib', 'types-networkx', 'typing-extensions', ],
     extras_require={
         'docs': [ 'myst_nb', 'sphinx-rtd-theme', ],
-        'extra': [ 'graphviz', 'jpype1', ],
+        'extra': [ 'graphviz', 'jpype1', 'rich', ],
         'tests': ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox'],
     },
     entry_points={'console_scripts': ['kif = kif_lib.cli:cli'], },
