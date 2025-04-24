@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import functools
 import re
+import textwrap
 
 try:
     import click
@@ -476,9 +477,10 @@ def filter(
             target.filter(filter=fr), target.page_size)
         for pageno, batch in enumerate(batches):
             resolved_batch = context.resolve(batch, label=True, language='en')
-            it = (f'{(pageno * target.page_size) + i}. {stmt.to_markdown()}'
+            it = (f'{(pageno * target.page_size) + i}. ' +
+                  textwrap.indent(stmt.to_markdown(), ' ' * 4).lstrip()
                   for i, stmt in enumerate(resolved_batch, 1))
-            console.print(Markdown('\n'.join(it)))
+            console.print(Markdown('\n\n'.join(it)))
 
 
 if __name__ == '__main__':

@@ -144,7 +144,19 @@ class MarkdownEncoder(
                 value = getattr(obj, name)
                 yield from self._iterencode(value, indent + 1)
             yield sep
-            yield f'`{bin(obj.snak_mask.value)}`'
+            yield f'**:snak_mask** `{obj.snak_mask}`'
+            yield sep
+            yield f'**:subject_mask** `{obj.subject_mask}`'
+            yield sep
+            yield f'**:property_mask** `{obj.property_mask}`'
+            yield sep
+            yield f'**:value_mask** `{obj.value_mask}`'
+            yield sep
+            yield f'**:rank_mask** `{obj.rank_mask}`'
+            yield sep
+            yield f'**:language** `{obj.language}`'
+            yield sep
+            yield f'**:annotated** `{obj.annotated}`'
             yield ''
             yield from self._iterencode_kif_object_end(obj)
         elif isinstance(obj, ClosedTermSet):
@@ -217,7 +229,7 @@ class MarkdownEncoder(
             m = _re.match(type(obj).__qualname__)
             assert m is not None
             ty = m.group(1)
-            yield f'*?{obj.name}: {ty}*'
+            yield f'(?{obj.name} : **{ty}**)'
 
     def _escape_md(self, text: str, escape_chars=r'_*`[') -> str:
         return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', text)
