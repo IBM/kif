@@ -7,8 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## 0.7.7 (2025-04-24)
 
 - Added support for registering property schemas for whole IRI namespaces.
-  See `IRI.register`.  Updated the RDF encoder to use try to use the
-  registered schema when no schema is provided for a given property.
+  See `IRI.register`.  Updated the RDF encoder use the registered schema
+  when no schema is provided for a given property.
 
 - Added CLI tool (kif) with support for the filter call.
 
