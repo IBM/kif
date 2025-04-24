@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import functools
 import re
+import sys
 import textwrap
 
 try:
@@ -262,162 +263,370 @@ class RankMaskParamType(KIF_ObjectParamType):
             Filter.RankMask, value, param, ctx)  # type: ignore
 
 
+class FilterParam:
+    """Common stuff for filter-like commands."""
+
+    subject = click.argument(
+        'subject',
+        type=FingerprintParamType.get_instance(),
+        required=False,
+        envvar='SUBJECT')
+
+    property = click.argument(
+        'property',
+        type=FingerprintParamType.get_instance(),
+        required=False,
+        envvar='PROPERTY')
+
+    value = click.argument(
+        'value',
+        type=FingerprintParamType.get_instance(),
+        required=False,
+        envvar='VALUE')
+
+    annotated = click.option(
+        '--annotated',
+        '-a',
+        'annotated',
+        is_flag=True,
+        default=False,
+        help='Fetch annotations.',
+        envvar='ANNOTATED')
+
+    dry_run = click.option(
+        '--dry-run',
+        'dry_run',
+        is_flag=True,
+        default=False,
+        help='Dry run.',
+        envvar='DRY_RUN')
+
+    language = click.option(
+        '--language',
+        'language',
+        type=str,
+        required=False,
+        help='Language tag.',
+        envvar='LANGUAGE')
+
+    limit = click.option(
+        '--limit',
+        'limit',
+        type=int,
+        default=10,
+        show_default=True,
+        help='Maximum number of results.',
+        envvar='LIMIT')
+
+    distinct = click.option(
+        '--no-distinct',
+        'distinct',
+        is_flag=True,
+        default=True,
+        help='Do not suppress duplicates.',
+        envvar='DISTINCT')
+
+    resolve = click.option(
+        '--no-resolve',
+        'resolve',
+        is_flag=True,
+        default=True,
+        help='Do not resolve entity labels.',
+        envvar='RESOLVE')
+
+    page_size = click.option(
+        '--page-size',
+        'page_size',
+        type=int,
+        required=False,
+        help='Size of response pages.',
+        envvar='PAGE_SIZE')
+
+    property_option = click.option(
+        '--property',
+        'property_option',
+        type=FingerprintParamType.get_instance(),
+        required=False,
+        help='Property fingerprint.',
+        envvar='PROPERTY')
+
+    property_mask = click.option(
+        '--property-mask',
+        'property_mask',
+        type=DatatypeMaskParamType.get_instance(),
+        required=False,
+        help='Property datatype mask.',
+        envvar='PROPERTY_MASK')
+
+    rank_mask = click.option(
+        '--rank-mask',
+        'rank_mask',
+        type=RankMaskParamType.get_instance(),
+        required=False,
+        help='Rank mask.',
+        envvar='RANK_MASK')
+
+    snak_mask = click.option(
+        '--snak-mask',
+        'snak_mask',
+        type=SnakMaskParamType.get_instance(),
+        required=False,
+        help='Snak mask.',
+        envvar='SNAK_MASK')
+
+    store = click.option(
+        '--store',
+        '-s',
+        'store',
+        type=StoreParamType.get_instance(),
+        multiple=True,
+        help='Target store.',
+        envvar='STORE')
+
+    subject_option = click.option(
+        '--subject',
+        'subject_option',
+        type=FingerprintParamType.get_instance(),
+        required=False,
+        help='Subject fingerprint.')
+
+    subject_mask = click.option(
+        '--subject-mask',
+        'subject_mask',
+        type=DatatypeMaskParamType.get_instance(),
+        required=False,
+        help='Subject datatype mask.',
+        envvar='SUBJECT_MASK')
+
+    timeout = click.option(
+        '--timeout',
+        'timeout',
+        type=float,
+        required=False,
+        help='Timeout in seconds.',
+        envvar='TIMEOUT')
+
+    value_option = click.option(
+        '--value',
+        'value_option',
+        type=FingerprintParamType.get_instance(),
+        required=False,
+        help='Value fingerprint.',
+        envvar='VALUE')
+
+    value_mask = click.option(
+        '--value-mask',
+        'value_mask',
+        type=DatatypeMaskParamType.get_instance(),
+        required=False,
+        help='Value datatype mask.',
+        envvar='VALUE_MASK')
+
+    @classmethod
+    def make_context(
+            cls,
+            resolve: bool | None = None
+    ) -> Context:
+        context = Context.top()
+        if resolve is not None:
+            context.options.entities.resolve = bool(resolve)
+        return context
+
+    @classmethod
+    def make_filter(
+            cls,
+            subject: Fingerprint | None = None,
+            subject_option: Fingerprint | None = None,
+            property: Fingerprint | None = None,
+            property_option: Fingerprint | None = None,
+            value: Fingerprint | None = None,
+            value_option: Fingerprint | None = None,
+            snak_mask: Filter.SnakMask | None = None,
+            subject_mask: Filter.DatatypeMask | None = None,
+            property_mask: Filter.DatatypeMask | None = None,
+            value_mask: Filter.DatatypeMask | None = None,
+            rank_mask: Filter.RankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            dry_run: bool | None = None,
+            console: Console | None = None
+    ) -> Filter:
+        fr = Filter(
+            subject=And(subject, subject_option),
+            property=And(property, property_option),
+            value=And(value, value_option),
+            snak_mask=snak_mask,
+            subject_mask=subject_mask,
+            property_mask=property_mask,
+            value_mask=value_mask,
+            rank_mask=rank_mask,
+            language=language,
+            annotated=annotated,
+        ).normalize()
+        if dry_run:
+            (console or Console()).print(Markdown(fr.to_markdown()))
+            sys.exit(0)
+
+    @classmethod
+    def make_store(
+            cls,
+            store: Sequence[Store],
+            distinct: bool | None = None,
+            limit: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None
+    ) -> Store:
+        target: Store
+        if len(store) == 0:
+            target = Store('wdqs')
+        elif len(store) == 1:
+            target = store[0]
+        else:
+            target = Store('mixer', store)
+        if distinct is not None:
+            target.set_distinct(distinct)
+        if limit is not None:
+            target.set_limit(limit)
+        if page_size is not None:
+            target.set_page_size(page_size)
+        if timeout is not None:
+            target.set_timeout(timeout)
+        return target
+
+
+@cli.command(help='Tests whether some statement matches filter.')
+@FilterParam.subject
+@FilterParam.property
+@FilterParam.value
+@FilterParam.dry_run
+@FilterParam.property_option
+@FilterParam.property_mask
+@FilterParam.rank_mask
+@FilterParam.snak_mask
+@FilterParam.store
+@FilterParam.subject_option
+@FilterParam.subject_mask
+@FilterParam.timeout
+@FilterParam.value_option
+@FilterParam.value_mask
+def ask(
+        store: Sequence[Store],
+        subject: Fingerprint | None = None,
+        subject_option: Fingerprint | None = None,
+        property: Fingerprint | None = None,
+        property_option: Fingerprint | None = None,
+        value: Fingerprint | None = None,
+        value_option: Fingerprint | None = None,
+        snak_mask: Filter.SnakMask | None = None,
+        subject_mask: Filter.DatatypeMask | None = None,
+        property_mask: Filter.DatatypeMask | None = None,
+        value_mask: Filter.DatatypeMask | None = None,
+        rank_mask: Filter.RankMask | None = None,
+        language: str | None = None,
+        distinct: bool | None = None,
+        timeout: float | None = None,
+        dry_run: bool | None = None
+) -> None:
+    fr = FilterParam.make_filter(
+        subject=subject,
+        subject_option=subject_option,
+        property=property,
+        property_option=property_option,
+        value=value,
+        value_option=value_option,
+        snak_mask=snak_mask,
+        subject_mask=subject_mask,
+        property_mask=property_mask,
+        value_mask=value_mask,
+        rank_mask=rank_mask,
+        language=language,
+        dry_run=dry_run)
+    target = FilterParam.make_store(
+        store=store,
+        distinct=distinct,
+        timeout=timeout)
+    sys.exit(int(not target.ask(filter=fr)))
+
+
+@cli.command(help='Counts the number of statements matching filter.')
+@FilterParam.subject
+@FilterParam.property
+@FilterParam.value
+@FilterParam.annotated
+@FilterParam.dry_run
+@FilterParam.language
+@FilterParam.distinct
+@FilterParam.property_option
+@FilterParam.property_mask
+@FilterParam.rank_mask
+@FilterParam.snak_mask
+@FilterParam.store
+@FilterParam.subject_option
+@FilterParam.subject_mask
+@FilterParam.timeout
+@FilterParam.value_option
+@FilterParam.value_mask
+def count(
+        store: Sequence[Store],
+        subject: Fingerprint | None = None,
+        subject_option: Fingerprint | None = None,
+        property: Fingerprint | None = None,
+        property_option: Fingerprint | None = None,
+        value: Fingerprint | None = None,
+        value_option: Fingerprint | None = None,
+        snak_mask: Filter.SnakMask | None = None,
+        subject_mask: Filter.DatatypeMask | None = None,
+        property_mask: Filter.DatatypeMask | None = None,
+        value_mask: Filter.DatatypeMask | None = None,
+        rank_mask: Filter.RankMask | None = None,
+        language: str | None = None,
+        annotated: bool | None = None,
+        distinct: bool | None = None,
+        timeout: float | None = None,
+        dry_run: bool | None = None
+) -> None:
+    fr = FilterParam.make_filter(
+        subject=subject,
+        subject_option=subject_option,
+        property=property,
+        property_option=property_option,
+        value=value,
+        value_option=value_option,
+        snak_mask=snak_mask,
+        subject_mask=subject_mask,
+        property_mask=property_mask,
+        value_mask=value_mask,
+        rank_mask=rank_mask,
+        language=language,
+        dry_run=dry_run)
+    target = FilterParam.make_store(
+        store=store,
+        distinct=distinct,
+        timeout=timeout)
+    click.echo(target.count(filter=fr))
+
+
 @cli.command(help='Searches for statements matching filter.')
-@click.argument(
-    'subject',
-    type=FingerprintParamType.get_instance(),
-    required=False,
-    envvar='SUBJECT',
-)
-@click.argument(
-    'property',
-    type=FingerprintParamType.get_instance(),
-    required=False,
-    envvar='PROPERTY',
-)
-@click.argument(
-    'value',
-    type=FingerprintParamType.get_instance(),
-    required=False,
-    envvar='VALUE',
-)
-@click.option(
-    '--annotated',
-    '-a',
-    'annotated',
-    is_flag=True,
-    default=False,
-    help='Fetch annotations.',
-    envvar='ANNOTATED',
-)
-@click.option(
-    '--dry-run',
-    'dry_run',
-    is_flag=True,
-    default=False,
-    help='Dry run.',
-)
-@click.option(
-    '--language',
-    'language',
-    type=str,
-    required=False,
-    help='Language tag.',
-    envvar='LANGUAGE',
-)
-@click.option(
-    '--limit',
-    'limit',
-    type=int,
-    default=10,
-    show_default=True,
-    help='Maximum number of results.',
-    envvar='LIMIT',
-)
-@click.option(
-    '--no-distinct',
-    'distinct',
-    is_flag=True,
-    default=True,
-    help='Do not suppress duplicates.',
-    envvar='DISTINCT',
-)
-@click.option(
-    '--no-resolve',
-    'resolve',
-    is_flag=True,
-    default=True,
-    help='Do not resolve entity labels.',
-    envvar='RESOLVE',
-)
-@click.option(
-    '--page-size',
-    'page_size',
-    type=int,
-    required=False,
-    help='Size of response pages.',
-    envvar='PAGE_SIZE',
-)
-@click.option(
-    '--property',
-    'property_option',
-    type=FingerprintParamType.get_instance(),
-    required=False,
-    help='Property fingerprint.',
-    envvar='PROPERTY',
-)
-@click.option(
-    '--property-mask',
-    'property_mask',
-    type=DatatypeMaskParamType.get_instance(),
-    required=False,
-    help='Property datatype mask.',
-    envvar='PROPERTY_MASK',
-)
-@click.option(
-    '--rank-mask',
-    'rank_mask',
-    type=RankMaskParamType.get_instance(),
-    required=False,
-    help='Rank mask.',
-    envvar='RANK_MASK',
-)
-@click.option(
-    '--store',
-    '-s',
-    'store',
-    type=StoreParamType.get_instance(),
-    multiple=True,
-    help='Target store.',
-    envvar='STORE',
-)
-@click.option(
-    '--snak-mask',
-    'snak_mask',
-    type=SnakMaskParamType.get_instance(),
-    required=False,
-    help='Snak mask.',
-    envvar='SNAK_MASK',
-)
-@click.option(
-    '--subject',
-    'subject_option',
-    type=FingerprintParamType.get_instance(),
-    required=False,
-    help='Subject fingerprint.',
-)
-@click.option(
-    '--subject-mask',
-    'subject_mask',
-    type=DatatypeMaskParamType.get_instance(),
-    required=False,
-    help='Subject datatype mask.',
-    envvar='SUBJECT_MASK',
-)
-@click.option(
-    '--timeout',
-    'timeout',
-    type=float,
-    required=False,
-    help='Timeout in seconds.',
-    envvar='TIMEOUT',
-)
-@click.option(
-    '--value',
-    'value_option',
-    type=FingerprintParamType.get_instance(),
-    required=False,
-    help='Value fingerprint.',
-    envvar='VALUE',
-)
-@click.option(
-    '--value-mask',
-    'value_mask',
-    type=DatatypeMaskParamType.get_instance(),
-    required=False,
-    help='Value datatype mask.',
-    envvar='VALUE_MASK',
-)
+@FilterParam.subject
+@FilterParam.property
+@FilterParam.value
+@FilterParam.annotated
+@FilterParam.dry_run
+@FilterParam.language
+@FilterParam.limit
+@FilterParam.distinct
+@FilterParam.resolve
+@FilterParam.page_size
+@FilterParam.property_option
+@FilterParam.property_mask
+@FilterParam.rank_mask
+@FilterParam.snak_mask
+@FilterParam.store
+@FilterParam.subject_option
+@FilterParam.subject_mask
+@FilterParam.timeout
+@FilterParam.value_option
+@FilterParam.value_mask
 def filter(
         store: Sequence[Store],
         subject: Fingerprint | None = None,
@@ -441,12 +650,14 @@ def filter(
         dry_run: bool | None = None
 ) -> None:
     console = Console()
-    context = Context.top()
-    context.options.entities.resolve = bool(resolve)
-    fr = Filter(
-        subject=And(subject, subject_option),
-        property=And(property, property_option),
-        value=And(value, value_option),
+    context = FilterParam.make_context(resolve)
+    fr = FilterParam.make_filter(
+        subject=subject,
+        subject_option=subject_option,
+        property=property,
+        property_option=property_option,
+        value=value,
+        value_option=value_option,
         snak_mask=snak_mask,
         subject_mask=subject_mask,
         property_mask=property_mask,
@@ -454,33 +665,22 @@ def filter(
         rank_mask=rank_mask,
         language=language,
         annotated=annotated,
-    ).normalize()
-    if dry_run:
-        console.print(Markdown(fr.to_markdown()))
-    else:
-        target: Store
-        if len(store) == 0:
-            target = Store('wdqs')
-        elif len(store) == 1:
-            target = store[0]
-        else:
-            target = Store('mixer', store)
-        if distinct is not None:
-            target.set_distinct(distinct)
-        if limit is not None:
-            target.set_limit(limit)
-        if page_size is not None:
-            target.set_page_size(page_size)
-        if timeout is not None:
-            target.set_timeout(timeout)
-        batches = itertools.batched(
-            target.filter(filter=fr), target.page_size)
-        for pageno, batch in enumerate(batches):
-            resolved_batch = context.resolve(batch, label=True, language='en')
-            it = (f'{(pageno * target.page_size) + i}. ' +
-                  textwrap.indent(stmt.to_markdown(), ' ' * 4).lstrip()
-                  for i, stmt in enumerate(resolved_batch, 1))
-            console.print(Markdown('\n\n'.join(it)))
+        dry_run=dry_run,
+        console=console)
+    target = FilterParam.make_store(
+        store=store,
+        distinct=distinct,
+        limit=limit,
+        page_size=page_size,
+        timeout=timeout)
+    batches = itertools.batched(
+        target.filter(filter=fr), target.page_size)
+    for pageno, batch in enumerate(batches):
+        resolved_batch = context.resolve(batch, label=True, language='en')
+        it = (f'{(pageno * target.page_size) + i}. ' +
+              textwrap.indent(stmt.to_markdown(), ' ' * 4).lstrip()
+              for i, stmt in enumerate(resolved_batch, 1))
+        console.print(Markdown('\n\n'.join(it)))
 
 
 if __name__ == '__main__':
