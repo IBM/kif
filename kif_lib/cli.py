@@ -466,6 +466,7 @@ class FilterParam:
         if dry_run:
             (console or Console()).print(Markdown(fr.to_markdown()))
             sys.exit(0)
+        return fr
 
     @classmethod
     def make_store(
