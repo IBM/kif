@@ -172,7 +172,7 @@ class StoreParamType(KIF_ParamType):
     ) -> Store:
         if isinstance(value, str):
             for store_name in Store.registry.keys():
-                m = re.match(f'^{store_name}(@(.*))$', value)
+                m = re.match(f'^{store_name}(@(.*))?$', value)
                 if m is not None:
                     input_source = m.group(2)
                     if input_source:
