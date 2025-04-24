@@ -11,6 +11,7 @@ from kif_lib import (
     IRI_Template,
     IRI_Variable,
     Item,
+    Property,
     Store,
     String,
     StringVariable,
@@ -127,6 +128,41 @@ class Test(ShallowDataValueTestCase):
             self.assertEqual(IRI('x').resolver, kb2)
         self.assertIsNone(IRI('x').resolver)
 
+    def test_get_schema(self) -> None:
+        with Context():
+            assert_type(IRI('x').get_schema(), Optional[Property.Schema])
+            sc1 = {
+                'p': IRI('http://sc1/p/'),
+                'pq': IRI('http://sc1/pq/'),
+                'pqv': IRI('http://sc1/pqv/'),
+                'pr': IRI('http://sc1/pr/'),
+                'prv': IRI('http://sc1/prv/'),
+                'ps': IRI('http://sc1/ps/'),
+                'psv': IRI('http://sc1/psv/'),
+                'wdno': IRI('http://sc1/wdno/'),
+                'wdt': IRI('http://sc1/wdt/'),
+            }
+            sc2 = {
+                'p': IRI('http://sc2/p/'),
+                'pq': IRI('http://sc2/pq/'),
+                'pqv': IRI('http://sc2/pqv/'),
+                'pr': IRI('http://sc2/pr/'),
+                'prv': IRI('http://sc2/prv/'),
+                'ps': IRI('http://sc2/ps/'),
+                'psv': IRI('http://sc2/psv/'),
+                'wdno': IRI('http://sc2/wdno/'),
+                'wdt': IRI('http://sc2/wdt/'),
+            }
+            self.assertIsNone(IRI('x').get_schema())
+            self.assert_register(IRI('x'), schema=sc1)
+            self.assertEqual(IRI('x').get_schema(), sc1)
+            self.assertEqual(IRI('x').schema, sc1)
+            self.assert_unregister(IRI('x'))
+            self.assertIsNone(IRI('x').schema)
+            self.assert_register(IRI('x'), schema=sc2)
+            self.assertEqual(IRI('x').schema, sc2)
+        self.assertIsNone(IRI('x').schema)
+
     def test_register(self) -> None:
         self.assert_raises_bad_argument(
             TypeError, None, 'prefix', 'cannot coerce int into String',
@@ -139,12 +175,26 @@ class Test(ShallowDataValueTestCase):
             self.assertEqual(IRI('x').register(), IRI('x'))
             self.assertIsNone(IRI('x').describe())
             kb = Store('empty')
-            self.assert_register(IRI('x'), prefix=String('y'), resolver=kb)
+            sc = {
+                'p': IRI('http://sc/p/'),
+                'pq': IRI('http://sc/pq/'),
+                'pqv': IRI('http://sc/pqv/'),
+                'pr': IRI('http://sc/pr/'),
+                'prv': IRI('http://sc/prv/'),
+                'ps': IRI('http://sc/ps/'),
+                'psv': IRI('http://sc/psv/'),
+                'wdno': IRI('http://sc/wdno/'),
+                'wdt': IRI('http://sc/wdt/'),
+            }
+            self.assert_register(
+                IRI('x'), prefix=String('y'), resolver=kb, schema=sc)
             self.assertEqual(
-                IRI('x').describe(), {'prefix': 'y', 'resolver': kb})
+                IRI('x').describe(),
+                {'prefix': 'y', 'resolver': kb, 'schema': sc})
             self.assert_register(IRI('x'), prefix='z')
             self.assertEqual(
-                IRI('x').describe(), {'prefix': 'z', 'resolver': kb})
+                IRI('x').describe(),
+                {'prefix': 'z', 'resolver': kb, 'schema': sc})
         self.assertIsNone(IRI('x').describe())
 
     def test_unregister(self) -> None:
@@ -152,9 +202,23 @@ class Test(ShallowDataValueTestCase):
             assert_type(IRI('x').unregister(), bool)
             self.assertIsNone(IRI('x').describe())
             kb = Store('empty')
-            self.assert_register(IRI('x'), prefix='y', resolver=kb)
+            sc = {
+                'p': IRI('http://sc/p/'),
+                'pq': IRI('http://sc/pq/'),
+                'pqv': IRI('http://sc/pqv/'),
+                'pr': IRI('http://sc/pr/'),
+                'prv': IRI('http://sc/prv/'),
+                'ps': IRI('http://sc/ps/'),
+                'psv': IRI('http://sc/psv/'),
+                'wdno': IRI('http://sc/wdno/'),
+                'wdt': IRI('http://sc/wdt/'),
+            }
+            self.assert_register(
+                IRI('x'), prefix='y', resolver=kb, schema=sc)
             self.assert_unregister(IRI('x'), prefix=True)
-            self.assertEqual(IRI('x').describe(), {'resolver': kb})
+            self.assertEqual(
+                IRI('x').describe(),
+                {'resolver': kb, 'schema': sc})
             self.assertTrue(IRI('x').unregister())
             self.assertIsNone(IRI('x').describe())
             self.assert_register(IRI('x'), prefix='y', resolver=kb)

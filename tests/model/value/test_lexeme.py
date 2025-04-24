@@ -6,6 +6,7 @@ from __future__ import annotations
 from kif_lib import (
     Context,
     ExternalId,
+    IRI,
     Item,
     Lexeme,
     LexemeDatatype,
@@ -13,6 +14,7 @@ from kif_lib import (
     LexemeTemplate,
     LexemeVariable,
     Property,
+    Store,
     Term,
     Text,
     Theta,
@@ -137,6 +139,26 @@ class Test(EntityTestCase):
             self.assert_register(Lexeme('x'), language=Item('z'))
             self.assertEqual(Lexeme('x').language, Item('z'))
         self.assertIsNone(Lexeme('x').language)
+
+    def test_get_resolver(self) -> None:
+        with Context():
+            kb1, kb2 = Store('empty'), Store('empty')
+            ns1, ns2 = IRI('http://x#'), IRI('http://y#')
+            l1, l2 = Item('http://x#l1'), Item('http://y#l2')
+            assert_type(l1.get_resolver(), Optional[Store])
+            self.assertIsNone(l1.get_resolver())
+            self.assertIsNone(l2.resolver)
+            ns1.register(resolver=kb1)
+            ns2.register(resolver=kb2)
+            self.assertEqual(l1.get_resolver(), kb1)
+            self.assertEqual(l2.resolver, kb2)
+            ns1.unregister()
+            self.assertIsNone(l1.resolver)
+            self.assertEqual(l2.resolver, kb2)
+            ns2.unregister()
+            self.assertIsNone(l1.resolver)
+            self.assertIsNone(l2.resolver)
+        self.assertIsNone(Item('x').resolver)
 
     def test_register(self) -> None:
         self.assert_raises_bad_argument(

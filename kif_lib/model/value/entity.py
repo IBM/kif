@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import abc
+from typing import TYPE_CHECKING
 
 from ...typing import Any, ClassVar, Location, override, Self, TypeAlias, Union
 from ..term import Template, Variable
@@ -14,6 +15,9 @@ from .value import Value, ValueTemplate, ValueVariable
 TEntity: TypeAlias = Union['Entity', T_IRI]
 VEntity: TypeAlias = Union['EntityTemplate', 'EntityVariable', 'Entity']
 VTEntity: TypeAlias = Union[Variable, VEntity, TEntity]
+
+if TYPE_CHECKING:               # pragma: no cover
+    from ...store import Store
 
 
 class EntityTemplate(ValueTemplate):
@@ -108,6 +112,19 @@ class Entity(
            IRI.
         """
         return self.args[0]
+
+    @property
+    def resolver(self) -> Store | None:
+        """The resolver of entity in KIF context."""
+        return self.get_resolver()
+
+    def get_resolver(self) -> Store | None:
+        """Gets the resolver of entity in KIF context.
+
+        Returns:
+           Store or ``None``.
+        """
+        return self.context.get_resolver(self, function=self.get_resolver)
 
     @abc.abstractmethod
     def display(self, language: TString | None = None) -> str:

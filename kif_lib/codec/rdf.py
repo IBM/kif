@@ -9,6 +9,7 @@ from ..model import (
     DeepDataValue,
     Entity,
     Graph,
+    IRI,
     Item,
     KIF_Object,
     Lexeme,
@@ -27,7 +28,7 @@ from ..model import (
 )
 from ..model.kif_object import Encoder, Object
 from ..namespace import ONTOLEX, PROV, RDF, WIKIBASE, Wikidata
-from ..rdflib import BNode, Literal, URIRef
+from ..rdflib import BNode, Literal, split_uri, URIRef
 from ..typing import (
     Callable,
     cast,
@@ -130,24 +131,15 @@ class RDF_Encoder(
         if property.range is None:
             raise self._error(f'no datatype for property: {property}')
         assert property.range is not None
-        try:
-            name = Wikidata.get_wikidata_name(property.iri.content)
-            schema: RDF_Encoder.PropertySchema = {
-                'p': Wikidata.P[name],
-                'pq': Wikidata.PQ[name],
-                'pqv': Wikidata.PQV[name],
-                'pr': Wikidata.PR[name],
-                'prv': Wikidata.PRV[name],
-                'ps': Wikidata.PS[name],
-                'psv': Wikidata.PSV[name],
-                'wdno': Wikidata.WDNO[name],
-                'wdt': Wikidata.WDT[name],
-            }
+        if property.schema is None:
+            raise self._error(f'no schema for property: {property}')
+        else:
+            _, name = split_uri(property.iri.content)
+            schema = cast(RDF_Encoder.PropertySchema, {
+                k: URIRef(cast(IRI, v).content + name)
+                for k, v in property.schema.items()})
             self._property_schema_table[property] = schema
             return schema
-        except ValueError as err:
-            raise self._error(
-                f'no schema for property: {property}') from err
 
     @override
     def iterencode(self, input: Object) -> Iterator[str]:

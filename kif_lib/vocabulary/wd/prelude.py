@@ -108,6 +108,21 @@ def _install_resolver(context: Context | None = None) -> None:
         ctx.iris.register(IRI(NS.WD), resolver=Store('wdqs', resolver_iri))
 
 
+def _install_schema(context: Context | None = None) -> None:
+    ctx = Context.top(context)
+    ctx.iris.register(IRI(NS.WD), schema={
+        'p': NS.P,
+        'pq': NS.PQ,
+        'pqv': NS.PQV,
+        'pr': NS.PR,
+        'prv': NS.PRV,
+        'ps': NS.PS,
+        'psv': NS.PSV,
+        'wdno': NS.WDNO,
+        'wdt': NS.WDT,
+    })
+
+
 def P(
         name: int | str,
         label: TText | None = None,
@@ -206,6 +221,7 @@ language = LanguageProperty()
 def reload(
         load_property_cache: bool = True,
         install_resolver: bool = True,
+        install_schema: bool = True,
         force: bool = True,
         context: Context | None = None
 ) -> None:
@@ -219,6 +235,8 @@ def reload(
         _load_property_cache(context=context)
     if install_resolver:
         _install_resolver(context=context)
+    if install_schema:
+        _install_schema(context=context)
     if force:
         import importlib
 

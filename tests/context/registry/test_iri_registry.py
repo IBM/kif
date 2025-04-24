@@ -86,7 +86,6 @@ class Test(TestCase):
         self.assert_register(r, IRI('a/'), resolver=s1)
         self.assertEqual(r.lookup_resolver(IRI('a/')), s1)
         self.assertEqual(r.lookup_resolver(IRI('a/b')), s1)
-        self.assertEqual(r.lookup_resolver(IRI('a/b/c')), s1)
         self.assert_register(r, IRI('b#'), resolver=s2)
         self.assertEqual(r.lookup_resolver(IRI('b#')), s2)
         self.assertEqual(r.lookup_resolver(IRI('b#c')), s2)
@@ -102,6 +101,52 @@ class Test(TestCase):
             self.assertEqual(r.lookup_resolver(e('b#d')), s2)
             self.assertIsNone(r.lookup_resolver(e('c#e')))
 
+    def test_lookup_schema(self) -> None:
+        r = IRI_Registry()
+        self.assert_raises_bad_argument(
+            TypeError, None, 'iri', 'cannot coerce int into IRI',
+            r.lookup_schema, 0)
+        sc1 = {
+            'p': IRI('http://sc1/p/'),
+            'pq': IRI('http://sc1/pq/'),
+            'pqv': IRI('http://sc1/pqv/'),
+            'pr': IRI('http://sc1/pr/'),
+            'prv': IRI('http://sc1/prv/'),
+            'ps': IRI('http://sc1/ps/'),
+            'psv': IRI('http://sc1/psv/'),
+            'wdno': IRI('http://sc1/wdno/'),
+            'wdt': IRI('http://sc1/wdt/'),
+        }
+        sc2 = {
+            'p': IRI('http://sc2/p/'),
+            'pq': IRI('http://sc2/pq/'),
+            'pqv': IRI('http://sc2/pqv/'),
+            'pr': IRI('http://sc2/pr/'),
+            'prv': IRI('http://sc2/prv/'),
+            'ps': IRI('http://sc2/ps/'),
+            'psv': IRI('http://sc2/psv/'),
+            'wdno': IRI('http://sc2/wdno/'),
+            'wdt': IRI('http://sc2/wdt/'),
+        }
+        # iri
+        self.assertIsNone(r.lookup_schema(IRI('a/')))
+        self.assert_register(r, IRI('a/'), schema=sc1)
+        self.assertEqual(r.lookup_schema(IRI('a/')), sc1)
+        self.assertEqual(r.lookup_schema(IRI('a/b')), sc1)
+        self.assert_register(r, IRI('b#'), schema=sc2)
+        self.assertEqual(r.lookup_schema(IRI('b#')), sc2)
+        self.assertEqual(r.lookup_schema(IRI('b#c')), sc2)
+        self.assertIsNone(r.lookup_schema(IRI('c#d')))
+        # property
+        self.assertIsNone(r.lookup_schema(Property('a')))
+        self.assertEqual(r.lookup_schema(Property('a/b')), sc1)
+        self.assertEqual(r.lookup_schema(Property('a/c')), sc1)
+        self.assertIsNone(r.lookup_schema(Property('b/c')))
+        self.assertIsNone(r.lookup_schema(Property('b')))
+        self.assertEqual(r.lookup_schema(Property('b#c')), sc2)
+        self.assertEqual(r.lookup_schema(Property('b#d')), sc2)
+        self.assertIsNone(r.lookup_schema(Property('c#e')))
+
     def test_describe(self) -> None:
         r = IRI_Registry()
         self.assert_raises_bad_argument(
@@ -109,9 +154,29 @@ class Test(TestCase):
             r.describe, Property('x'))
         self.assertIsNone(r.describe(IRI('x')))
         s = Store('rdf', data='')
-        self.assert_register(r, IRI('x'), prefix='y', resolver=s)
+        self.assert_register(r, IRI('x'), prefix='y', resolver=s, schema={
+            'p': ('http://sc/p/'),
+            'pq': ('http://sc/pq/'),
+            'pqv': ('http://sc/pqv/'),
+            'pr': ('http://sc/pr/'),
+            'prv': ('http://sc/prv/'),
+            'ps': ('http://sc/ps/'),
+            'psv': ('http://sc/psv/'),
+            'wdno': ('http://sc/wdno/'),
+            'wdt': ('http://sc/wdt/'),
+        })
         self.assertEqual(
-            r.describe(IRI('x')), {'prefix': 'y', 'resolver': s})
+            r.describe(IRI('x')), {'prefix': 'y', 'resolver': s, 'schema': {
+                'p': IRI('http://sc/p/'),
+                'pq': IRI('http://sc/pq/'),
+                'pqv': IRI('http://sc/pqv/'),
+                'pr': IRI('http://sc/pr/'),
+                'prv': IRI('http://sc/prv/'),
+                'ps': IRI('http://sc/ps/'),
+                'psv': IRI('http://sc/psv/'),
+                'wdno': IRI('http://sc/wdno/'),
+                'wdt': IRI('http://sc/wdt/'),
+            }})
 
     def test_get_prefix(self) -> None:
         r = IRI_Registry()
@@ -131,6 +196,26 @@ class Test(TestCase):
         s = Store('rdf')
         self.assert_register(r, IRI('x'), resolver=s)
         self.assertEqual(r.get_resolver(IRI('x')), s)
+
+    def test_get_schema(self) -> None:
+        r = IRI_Registry()
+        self.assert_raises_bad_argument(
+            TypeError, None, 'iri', 'cannot coerce Item into IRI',
+            r.get_schema, Item('x'))
+        self.assertIsNone(r.get_schema(IRI('x')))
+        sc = {
+            'p': IRI('http://sc/p/'),
+            'pq': IRI('http://sc/pq/'),
+            'pqv': IRI('http://sc/pqv/'),
+            'pr': IRI('http://sc/pr/'),
+            'prv': IRI('http://sc/prv/'),
+            'ps': IRI('http://sc/ps/'),
+            'psv': IRI('http://sc/psv/'),
+            'wdno': IRI('http://sc/wdno/'),
+            'wdt': IRI('http://sc/wdt/'),
+        }
+        self.assert_register(r, IRI('x'), schema=sc)
+        self.assertEqual(r.get_schema(IRI('x')), sc)
 
     def test_register(self) -> None:
         r = IRI_Registry()
@@ -161,6 +246,39 @@ class Test(TestCase):
         self.assertIsNone(r.get_resolver(IRI('z')))
         self.assert_register(r, IRI('x'), resolver=s2)
         self.assertEqual(r.get_resolver(IRI('x')), s2)
+        # schema
+        sc1 = {
+            'p': 'http://sc1/p/',
+            'pq': 'http://sc1/pq/',
+            'pqv': 'http://sc1/pqv/',
+            'pr': 'http://sc1/pr/',
+            'prv': 'http://sc1/prv/',
+            'ps': 'http://sc1/ps/',
+            'psv': 'http://sc1/psv/',
+            'wdno': 'http://sc1/wdno/',
+            'wdt': 'http://sc1/wdt/',
+        }
+        sc2 = {
+            'p': 'http://sc2/p/',
+            'pq': 'http://sc2/pq/',
+            'pqv': 'http://sc2/pqv/',
+            'pr': 'http://sc2/pr/',
+            'prv': 'http://sc2/prv/',
+            'ps': 'http://sc2/ps/',
+            'psv': 'http://sc2/psv/',
+            'wdno': 'http://sc2/wdno/',
+            'wdt': 'http://sc2/wdt/',
+        }
+        self.assert_register(r, IRI('x'), schema=sc1)
+        self.assert_register(r, IRI('y'), schema=sc2)
+        self.assertEqual(
+            r.get_schema(IRI('x')), {k: IRI(v) for k, v in sc1.items()})
+        self.assertEqual(
+            r.get_schema(IRI('y')), {k: IRI(v) for k, v in sc2.items()})
+        self.assertIsNone(r.get_schema(IRI('z')))
+        self.assert_register(r, IRI('x'), schema=sc2)
+        self.assertEqual(
+            r.get_schema(IRI('x')), {k: IRI(v) for k, v in sc2.items()})
 
     def test_unregister(self) -> None:
         r = IRI_Registry()
@@ -192,8 +310,25 @@ class Test(TestCase):
         self.assertEqual(r.get_resolver(IRI('x')), s)
         self.assert_unregister(r, IRI('x'), resolver=True)
         self.assertIsNone(r.get_resolver(IRI('x')))
+        # schema
+        sc = {
+            'p': 'http://sc/p/',
+            'pq': 'http://sc/pq/',
+            'pqv': 'http://sc/pqv/',
+            'pr': 'http://sc/pr/',
+            'prv': 'http://sc/prv/',
+            'ps': 'http://sc/ps/',
+            'psv': 'http://sc/psv/',
+            'wdno': 'http://sc/wdno/',
+            'wdt': 'http://sc/wdt/',
+        }
+        self.assert_register(r, IRI('x'), schema=sc)
+        self.assertEqual(
+            r.get_schema(IRI('x')), {k: IRI(v) for k, v in sc.items()})
+        self.assert_unregister(r, IRI('x'), schema=True)
+        self.assertIsNone(r.get_schema(IRI('x')))
         # all
-        self.assert_register(r, IRI('x'), prefix='a', resolver=s)
+        self.assert_register(r, IRI('x'), prefix='a', resolver=s, schema=sc)
         self.assertIsNotNone(r.describe(IRI('x')))
         self.assert_unregister(r, IRI('x'), all=True)
         self.assertIsNone(r.describe(IRI('x')))

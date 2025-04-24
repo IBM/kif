@@ -26,6 +26,7 @@ from ..typing import (
 if TYPE_CHECKING:  # pragma: no cover
     from ..model import (
         Datatype,
+        Entity,
         IRI,
         Item,
         Lexeme,
@@ -244,7 +245,7 @@ class Context:
     @overload
     def describe(
             self,
-            value: IRI,
+            value: T_IRI,
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
@@ -557,7 +558,7 @@ class Context:
 
     def get_prefix(
             self,
-            iri: IRI,
+            iri: T_IRI,
             function: Location | None = None
     ) -> str | None:
         """Gets the prefix of IRI in registry.
@@ -573,10 +574,10 @@ class Context:
 
     def get_resolver(
             self,
-            iri: IRI,
+            iri: T_IRI | Entity,
             function: Location | None = None
     ) -> Store | None:
-        """Gets the entity resolver of IRI in registry.
+        """Gets the entity resolver of IRI or entity in registry.
 
         Parameters:
            iri: IRI.
@@ -585,7 +586,23 @@ class Context:
         Returns:
            Store or ``None``.
         """
-        return self.iris.get_resolver(iri, function)
+        return self.iris.lookup_resolver(iri, function)
+
+    def get_schema(
+            self,
+            iri: T_IRI | Property,
+            function: Location | None = None
+    ) -> Property.Schema | None:
+        """Gets the property schema of IRI or property in registry.
+
+        Parameters:
+           iri: IRI.
+           function: Function or function name.
+
+        Returns:
+           Property schema or ``None``.
+        """
+        return self.iris.lookup_schema(iri, function)
 
     def resolve(
             self,

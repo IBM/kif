@@ -31,6 +31,7 @@ from kif_lib import (
     ReferenceRecordSet,
     SomeValueSnak,
     Statement,
+    Store,
     String,
     StringDatatype,
     Term,
@@ -389,6 +390,49 @@ class Test(EntityTestCase):
             self.assert_register(Property('x'), inverse=Property('z'))
             self.assertEqual(Property('x').inverse, Property('z'))
         self.assertIsNone(Property('x').inverse)
+
+    def test_get_resolver(self) -> None:
+        with Context():
+            kb1, kb2 = Store('empty'), Store('empty')
+            ns1, ns2 = IRI('http://x#'), IRI('http://y#')
+            p1, p2 = Property('http://x#p1'), Property('http://y#p2')
+            assert_type(p1.get_resolver(), Optional[Store])
+            self.assertIsNone(p1.get_resolver())
+            self.assertIsNone(p2.resolver)
+            ns1.register(resolver=kb1)
+            ns2.register(resolver=kb2)
+            self.assertEqual(p1.get_resolver(), kb1)
+            self.assertEqual(p2.resolver, kb2)
+            ns1.unregister()
+            self.assertIsNone(p1.resolver)
+            self.assertEqual(p2.resolver, kb2)
+            ns2.unregister()
+            self.assertIsNone(p1.resolver)
+            self.assertIsNone(p2.resolver)
+        self.assertIsNone(Property('x').resolver)
+
+    def test_get_schema(self) -> None:
+        with Context():
+            assert_type(Property('x').get_schema(), Optional[Property.Schema])
+            self.assertIsNone(Property('http://x#p1').get_schema())
+            self.assertIsNone(Property('http://x#p2').schema)
+            sc = cast(Property.Schema, {
+                'p': IRI('http://sc/p/'),
+                'pq': IRI('http://sc/pq/'),
+                'pqv': IRI('http://sc/pqv/'),
+                'pr': IRI('http://sc/pr/'),
+                'prv': IRI('http://sc/prv/'),
+                'ps': IRI('http://sc/ps/'),
+                'psv': IRI('http://sc/psv/'),
+                'wdno': IRI('http://sc/wdno/'),
+                'wdt': IRI('http://sc/wdt/'),
+            })
+            IRI('http://x#').register(schema=sc)
+            self.assertEqual(Property('http://x#p1').schema, sc)
+            self.assertEqual(Property('http://x#p2').schema, sc)
+            IRI('http://x#').unregister(schema=True)
+            self.assertIsNone(Property('http://x#p1').schema)
+            self.assertIsNone(Property('http://x#p2').schema)
 
     def test_register(self) -> None:
         self.assert_raises_bad_argument(

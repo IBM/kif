@@ -38,7 +38,7 @@ from ..model import (
     TTextLanguage,
     ValueSnak,
 )
-from ..rdflib import Graph, NamespaceManager
+from ..rdflib import Graph, NamespaceManager, split_uri
 from ..store import Store
 from ..typing import (
     Any,
@@ -1134,12 +1134,44 @@ class IRI_Registry(Registry):
             iri = iri.iri
         else:
             iri = IRI.check(iri, function, 'iri')
-        resolver = self.get_resolver(iri)
-        if resolver is None:
-            for k, v in self._cache.items():
-                if 'resolver' in v and iri.content.startswith(cast(str, k)):
-                    return v['resolver']
-        return resolver
+        resolver = self.get_resolver(iri, function)
+        if resolver is not None:
+            return resolver
+        try:
+            ns, _ = split_uri(iri.content)
+        except ValueError:
+            return None
+        else:
+            return self.get_resolver(ns, function)
+
+    def lookup_schema(
+            self,
+            iri: T_IRI | Property,
+            function: Location | None = None
+    ) -> Property.Schema | None:
+        """Searches for property schema for IRI.
+
+        Parameters:
+           iri: IRI.
+           function: Function or function name.
+
+        Returns:
+           Property schema or ``None``.
+        """
+        function = function or self.lookup_schema
+        if isinstance(iri, Property):
+            iri = iri.iri
+        else:
+            iri = IRI.check(iri, function, 'iri')
+        schema = self.get_schema(iri, function)
+        if schema is not None:
+            return schema
+        try:
+            ns, _ = split_uri(iri.content)
+        except ValueError:
+            return None
+        else:
+            return self.get_schema(ns, function)
 
     def describe(
             self,
@@ -1193,11 +1225,29 @@ class IRI_Registry(Registry):
         iri = IRI.check(iri, function or self.get_resolver, 'iri')
         return self.get(iri, 'resolver')
 
+    def get_schema(
+            self,
+            iri: T_IRI,
+            function: Location | None = None
+    ) -> Property.Schema | None:
+        """Gets the IRI property schema.
+
+        Parameters:
+           iri: IRI.
+           function: Function or function name.
+
+        Returns:
+           Property schema or ``None``.
+        """
+        iri = IRI.check(iri, function or self.get_schema, 'iri')
+        return self.get(iri, 'schema')
+
     def register(
             self,
             iri: T_IRI,
             prefix: TString | None = None,
             resolver: Store | None = None,
+            schema: Property.TSchema | None = None,
             function: Location | None = None
     ) -> IRI:
         """Adds or updates IRI data.
@@ -1206,6 +1256,7 @@ class IRI_Registry(Registry):
            iri: IRI.
            prefix: Prefix.
            resolver: Resolver store.
+           schema: Property schema.
            function: Function or function name.
 
         Returns:
@@ -1217,18 +1268,24 @@ class IRI_Registry(Registry):
             prefix=(String.check(prefix, function, 'prefix').content
                     if prefix is not None else None),
             resolver=KIF_Object._check_optional_arg_isinstance(
-                resolver, Store, None, function, 'resolver'))
+                resolver, Store, None, function, 'resolver'),
+            schema=cast(Property.Schema, {
+                k: IRI.check(v, function, 'schema')
+                for k, v in schema.items()}) if schema else None)
 
     def _register(
             self,
             iri: IRI,
             prefix: Prefix | None,
-            resolver: Store | None
+            resolver: Store | None,
+            schema: Property.Schema | None
     ) -> IRI:
         if prefix is not None:
             self._add_prefix(iri, prefix)
         if resolver is not None:
             self._add_resolver(iri, resolver)
+        if schema is not None:
+            self._add_schema(iri, schema)
         return iri
 
     def unregister(
@@ -1236,6 +1293,7 @@ class IRI_Registry(Registry):
             iri: T_IRI,
             prefix: bool = False,
             resolver: bool = False,
+            schema: bool = False,
             all: bool = False,
             function: Location | None = None
     ) -> bool:
@@ -1245,6 +1303,7 @@ class IRI_Registry(Registry):
            iri: IRI.
            prefix: Whether to remove prefix.
            resolver: Whether to remove resolver.
+           schema: Whether to remove property schema.
            all: Whether to remove all data.
            function: Function or function name.
 
@@ -1256,6 +1315,7 @@ class IRI_Registry(Registry):
             iri=IRI.check(iri, function, 'iri'),
             prefix=bool(prefix),
             resolver=bool(resolver),
+            schema=bool(schema),
             all=bool(all))
 
     def _unregister(
@@ -1263,6 +1323,7 @@ class IRI_Registry(Registry):
             iri: IRI,
             prefix: bool = False,
             resolver: bool = False,
+            schema: bool = False,
             all: bool = False
     ) -> bool:
         status: bool = False
@@ -1270,6 +1331,8 @@ class IRI_Registry(Registry):
             status |= self._remove_prefix(iri) is not None
         if resolver:
             status |= self._remove_resolver(iri) is not None
+        if schema:
+            status |= self._remove_schema(iri) is not None
         if all:
             status |= self.unset(iri) is not None
         if status:
@@ -1288,3 +1351,13 @@ class IRI_Registry(Registry):
 
     def _remove_resolver(self, iri: IRI) -> Store | None:
         return self.unset(iri, 'resolver')
+
+    def _add_schema(
+            self,
+            iri: IRI,
+            schema: Property.Schema
+    ) -> Property.Schema:
+        return self.set(iri, 'schema', schema)
+
+    def _remove_schema(self, iri: IRI) -> Property.Schema | None:
+        return self.unset(iri, 'schema')

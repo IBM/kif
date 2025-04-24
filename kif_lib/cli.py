@@ -48,6 +48,7 @@ from .model import (
 )
 from .store import Store
 from .typing import Any, ClassVar, Iterable, override, Self, Sequence, TypeVar
+from .vocabulary import db, pc, wd
 
 TObj = TypeVar('TObj', bound=KIF_Object)
 
@@ -98,7 +99,6 @@ class KIF_ParamType(click.ParamType):
     @classmethod
     @functools.cache
     def globals(cls) -> dict[str, Any]:
-        from kif_lib.vocabulary import db, pc, wd
         return {
             'DATA_VALUE': Filter.DATA_VALUE,
             'DEEP_DATA_VALUE': Filter.DEEP_DATA_VALUE,
@@ -475,8 +475,9 @@ def filter(
         batches = itertools.batched(
             target.filter(filter=fr), target.page_size)
         for pageno, batch in enumerate(batches):
+            resolved_batch = context.resolve(batch, label=True, language='en')
             it = (f'{(pageno * target.page_size) + i}. {stmt.to_markdown()}'
-                  for i, stmt in enumerate(batch, 1))
+                  for i, stmt in enumerate(resolved_batch, 1))
             console.print(Markdown('\n'.join(it)))
 
 

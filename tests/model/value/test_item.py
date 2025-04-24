@@ -8,6 +8,7 @@ import decimal
 from kif_lib import (
     Context,
     ExternalId,
+    IRI,
     Item,
     ItemDatatype,
     Items,
@@ -18,6 +19,7 @@ from kif_lib import (
     Quantity,
     QuantityTemplate,
     QuantityVariable,
+    Store,
     Term,
     Text,
     Theta,
@@ -187,6 +189,26 @@ class Test(EntityTestCase):
             self.assertEqual(Item('x').get_description(), Text('abc'))
             self.assertEqual(Item('x').description, Text('abc'))
         self.assertIsNone(Item('x').description)
+
+    def test_get_resolver(self) -> None:
+        with Context():
+            kb1, kb2 = Store('empty'), Store('empty')
+            ns1, ns2 = IRI('http://x#'), IRI('http://y#')
+            i1, i2 = Item('http://x#i1'), Item('http://y#i2')
+            assert_type(i1.get_resolver(), Optional[Store])
+            self.assertIsNone(i1.get_resolver())
+            self.assertIsNone(i2.resolver)
+            ns1.register(resolver=kb1)
+            ns2.register(resolver=kb2)
+            self.assertEqual(i1.get_resolver(), kb1)
+            self.assertEqual(i2.resolver, kb2)
+            ns1.unregister()
+            self.assertIsNone(i1.resolver)
+            self.assertEqual(i2.resolver, kb2)
+            ns2.unregister()
+            self.assertIsNone(i1.resolver)
+            self.assertIsNone(i2.resolver)
+        self.assertIsNone(Item('x').resolver)
 
     def test_register(self) -> None:
         self.assert_raises_bad_argument(

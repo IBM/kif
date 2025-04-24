@@ -17,6 +17,7 @@ from .value import Datatype
 
 if TYPE_CHECKING:               # pragma: no cover
     from ...store import Store
+    from .property import Property
 
 T_IRI: TypeAlias = Union['IRI', TString]
 V_IRI: TypeAlias = Union['IRI_Template', 'IRI_Variable', 'IRI']
@@ -131,27 +132,47 @@ class IRI(
         """
         return self.context.get_resolver(self, function=self.get_resolver)
 
+    @property
+    def schema(self) -> Property.Schema | None:
+        """The property schema of IRI in KIF context."""
+        return self.get_schema()
+
+    def get_schema(self) -> Property.Schema | None:
+        """Gets the property schema of IRI in KIF context.
+
+        Returns:
+           Property schema or ``None``.
+        """
+        return self.context.get_schema(self, function=self.get_schema)
+
     def register(
             self,
             prefix: TString | None = None,
-            resolver: Store | None = None
+            resolver: Store | None = None,
+            schema: Property.TSchema | None = None
     ) -> IRI:
         """Adds or updates IRI data in KIF context.
 
         Parameters:
            prefix: Prefix.
            resolver: Resolver store.
+           schema: Property schema.
 
         Returns:
            IRI.
         """
         return self.context.iris.register(
-            self, prefix=prefix, resolver=resolver, function=self.register)
+            self,
+            prefix=prefix,
+            resolver=resolver,
+            schema=schema,
+            function=self.register)
 
     def unregister(
             self,
             prefix: bool = False,
-            resolver: bool = False
+            resolver: bool = False,
+            schema: bool = False
     ) -> bool:
         """Remove IRI data from KIF context.
 
@@ -160,12 +181,16 @@ class IRI(
         Parameters:
            prefix: Whether to remove prefix.
            resolver: Whether to remove resolver.
+           schema: Whether to remove property schema.
            all: Whether to remove all data.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
         return self.context.iris.unregister(
-            self, prefix=prefix, resolver=resolver,
-            all=(not (prefix or resolver)),
+            self,
+            prefix=prefix,
+            resolver=resolver,
+            schema=schema,
+            all=(not (prefix or resolver or schema)),
             function=self.unregister)

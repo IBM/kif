@@ -29,7 +29,7 @@ from .datatype import (
     VTDatatype,
 )
 from .entity import Entity, EntityTemplate, EntityVariable, VTEntity
-from .iri import IRI_Template, T_IRI, VT_IRI
+from .iri import IRI, IRI_Template, T_IRI, VT_IRI
 from .string import TString
 from .text import Text, TText, TTextLanguage, TTextSet
 from .value import VTValue
@@ -445,6 +445,34 @@ class Property(
     template_class: ClassVar[type[PropertyTemplate]]  # pyright: ignore
     variable_class: ClassVar[type[PropertyVariable]]  # pyright: ignore
 
+    class Schema(TypedDict):
+        """Property schema."""
+
+        p: IRI
+        pq: IRI
+        pqv: IRI
+        pr: IRI
+        prv: IRI
+        ps: IRI
+        psv: IRI
+        wdno: IRI
+        wdt: IRI
+
+    class _TSchema(TypedDict):
+        """Property schema (coercion type)."""
+
+        p: T_IRI
+        pq: T_IRI
+        pqv: T_IRI
+        pr: T_IRI
+        prv: T_IRI
+        ps: T_IRI
+        psv: T_IRI
+        wdno: T_IRI
+        wdt: T_IRI
+
+    TSchema: TypeAlias = Union[Schema, _TSchema]
+
     class Descriptor(TypedDict, total=False):
         """Property descriptor."""
 
@@ -821,6 +849,19 @@ class Property(
         return self.context.get_inverse(
             self, resolve=resolve, resolver=resolver,
             force=force, function=self.get_inverse)
+
+    @property
+    def schema(self) -> Property.Schema | None:
+        """The schema of property in KIF context."""
+        return self.get_schema()
+
+    def get_schema(self) -> Property.Schema | None:
+        """Gets the schema of property in KIF context.
+
+        Returns:
+           Property schema or ``None``.
+        """
+        return self.context.get_schema(self, function=self.get_schema)
 
     def register(
             self,
