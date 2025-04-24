@@ -255,14 +255,26 @@ class Test(TestCase):
 - (**FullFingerprint**)
 - (**FullFingerprint**)
 - (**FullFingerprint**)
-- `0b111`)''')
+- **:snak_mask** `SnakMask.ALL`
+- **:subject_mask** `DatatypeMask.ENTITY`
+- **:property_mask** `DatatypeMask.PROPERTY`
+- **:value_mask** `DatatypeMask.VALUE`
+- **:rank_mask** `RankMask.ALL`
+- **:language** `None`
+- **:annotated** `False`)''')
         f = Filter(wd.benzene)
         self.assert_to_markdown(f, '''\
 (**Filter**
 - (**ValueFingerprint** (**Item** [benzene](http://www.wikidata.org/entity/Q2270)))
 - (**FullFingerprint**)
 - (**FullFingerprint**)
-- `0b111`)''')  # noqa: E501
+- **:snak_mask** `SnakMask.ALL`
+- **:subject_mask** `DatatypeMask.ENTITY`
+- **:property_mask** `DatatypeMask.PROPERTY`
+- **:value_mask** `DatatypeMask.VALUE`
+- **:rank_mask** `RankMask.ALL`
+- **:language** `None`
+- **:annotated** `False`)''')  # noqa: E501
         f = Filter(
             None,
             None,
@@ -277,7 +289,13 @@ class Test(TestCase):
 - (**AndFingerprint**
   - (**SnakFingerprint** (**ValueSnak** (**Property** [country](http://www.wikidata.org/entity/P17)) (**Item** [Brazil](http://www.wikidata.org/entity/Q155))))
   - (**SnakFingerprint** (**NoValueSnak** (**Property** [date of birth](http://www.wikidata.org/entity/P569)))))
-- `0b100`)''')  # noqa: E501
+- **:snak_mask** `SnakMask.NO_VALUE_SNAK`
+- **:subject_mask** `DatatypeMask.ENTITY`
+- **:property_mask** `DatatypeMask.PROPERTY`
+- **:value_mask** `DatatypeMask.VALUE`
+- **:rank_mask** `RankMask.ALL`
+- **:language** `None`
+- **:annotated** `False`)''')  # noqa: E501
 
     def test_snak_set_to_markdown(self) -> None:
         s = SnakSet()
