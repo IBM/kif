@@ -1299,7 +1299,7 @@ class Store(Set):
 
     async def _count_async(self, filter: Filter) -> int:
         n = 0
-        async for s in self._filter_async(filter, self.max_limit, True):
+        async for _ in self._filter_async(filter, self.max_limit, True):
             n += 1
         return n
 
