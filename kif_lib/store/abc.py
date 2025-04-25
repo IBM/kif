@@ -23,6 +23,7 @@ from ..model import (
 from ..model.flags import Flags as KIF_Flags
 from ..typing import (
     Any,
+    AsyncIterator,
     Callable,
     cast,
     ClassVar,
@@ -1376,6 +1377,15 @@ class Store(Set):
             distinct: bool
     ) -> Iterator[Statement]:
         return iter(())
+
+    async def _filter_async(
+            self,
+            filter: Filter,
+            limit: int,
+            distinct: bool
+    ) -> AsyncIterator[Statement]:
+        return                  # empty async generator
+        yield
 
     def filter_annotated(
             self,

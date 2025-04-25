@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import abc
+import asyncio
 import functools
 import logging
 import pathlib
@@ -26,6 +27,7 @@ from ...model import (
 )
 from ...typing import (
     Any,
+    AsyncIterator,
     BinaryIO,
     Callable,
     cast,
@@ -46,6 +48,7 @@ from ..abc import Store
 T = TypeVar('T')
 
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
+_py_filter = filter
 
 
 class _SPARQL_Store(
@@ -80,6 +83,23 @@ class _SPARQL_Store(
         def __init__(self, store: _SPARQL_Store) -> None:
             self._store = store
 
+        def __del__(self) -> None:
+            self.close()
+
+        def close(self) -> None:
+            """Closes backend."""
+            self._close()
+
+        def _close(self) -> None:
+            pass
+
+        async def close_async(self) -> None:
+            """Async version of :meth:`_SPARQL_Store.Backend.close()`."""
+            await self._close_async()
+
+        async def _close_async(self) -> None:
+            pass
+
         def ask(self, query: str) -> SPARQL_ResultsAsk:
             """Evaluates ask query over back-end.
 
@@ -110,6 +130,15 @@ class _SPARQL_Store(
 
         @abc.abstractmethod
         def _select(self, query: str) -> SPARQL_Results:
+            raise NotImplementedError
+
+        async def select_async(self, query: str) -> SPARQL_Results:
+            """Async version of :meth:`_SPARQL_Store.Backend.select`."""
+            _logger.debug('%s()\n%s', self.select_async.__qualname__, query)
+            return await self._select_async(query)
+
+        @abc.abstractmethod
+        async def _select_async(self, query: str) -> SPARQL_Results:
             raise NotImplementedError
 
         def _set_timeout(self, timeout: float | None = None) -> None:
@@ -380,14 +409,15 @@ class _SPARQL_Store(
 
     @override
     def _ask(self, filter: Filter) -> bool:
-        compiler = self._compile_filter(filter)
+        compiler, _, _ = self._compile_filter(filter)
         res = self.backend.ask(str(compiler.query.ask()))
         assert 'boolean' in res
         return res['boolean']
 
     @override
     def _count(self, filter: Filter) -> int:
-        compiler = self._compile_filter(filter.replace(annotated=False))
+        compiler, _, _ = self._compile_filter(
+            filter.replace(annotated=False))
         q = compiler.query
         q.order_by = None
         count = q.fresh_var()
@@ -404,43 +434,64 @@ class _SPARQL_Store(
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
-        compiler = self._compile_filter(filter)
-        assert isinstance(compiler.pattern, VariablePattern)
-        assert isinstance(compiler.pattern.variable, StatementVariable)
-        assert limit >= 0
-        page_size = min(self.page_size, limit)
-        offset, count = 0, 0
-        while count <= limit:
-            query = compiler.build_query(
-                limit=page_size, offset=offset, distinct=distinct)
-            assert isinstance(compiler.pattern, VariablePattern)
-            assert isinstance(compiler.pattern.variable, StatementVariable)
-            if query.where_is_empty():
-                break           # nothing to do
-            res = self.backend.select(str(query))
-            if 'results' not in res:
-                break           # nothing to do
-            bindings = res['results']['bindings']
-            if not bindings:
-                break           # done
-            push = compiler.build_results()
-            bindings_it: Iterator[SPARQL_ResultsBinding] =\
-                itertools.chain(bindings, ({},))  # {} is the sentinel
-            for binding in bindings_it:
+        compiler, _, variable = self._compile_filter(filter)
+        push = compiler.build_results()
+        query_stream = self._build_query_stream(compiler, distinct, limit)
+        count = 0
+        for query in query_stream:
+            bindings = list(self._build_result_binding_stream((
+                self.backend.select(str(query)),)))
+            for binding in itertools.chain(bindings, ({},)):
+                if not bindings:
+                    return      # done
                 thetas = push(binding)
                 if thetas is None:
                     continue    # push more results
                 for theta in thetas:
-                    stmt = compiler.pattern.variable.instantiate(theta)
+                    stmt = variable.instantiate(theta)
                     assert isinstance(stmt, Statement), stmt
                     yield stmt
                     count += 1
-            assert count <= limit, (count, limit)
-            if count < page_size or count == limit:
+                    assert count <= limit, (count, limit)
+                    if count == limit:
+                        return  # done
+            if count < self.page_size:
                 break           # done
-            offset += page_size
 
-    def _compile_filter(self, filter: Filter) -> SPARQL_FilterCompiler:
+    async def _filter_async(
+            self,
+            filter: Filter,
+            limit: int,
+            distinct: bool
+    ) -> AsyncIterator[Statement]:
+        compiler, _, variable = self._compile_filter(filter)
+        push = compiler.build_results()
+        query_stream = self._build_query_stream(compiler, distinct, limit)
+        count = 0
+        async_page_lookahead = 2  # TODO: Make this into an option.
+        for batch in itertools.batched(query_stream, async_page_lookahead):
+            tasks = (
+                asyncio.ensure_future(self.backend.select_async(str(q)))
+                for q in batch)
+            bindings = self._build_result_binding_stream(
+                await asyncio.gather(*tasks))
+            for binding in itertools.chain(bindings, ({},)):
+                if not bindings:
+                    continue    # get more results
+                thetas = push(binding)
+                if thetas is None:
+                    continue    # push more results
+                for theta in thetas:
+                    stmt = variable.instantiate(theta)
+                    assert isinstance(stmt, Statement), stmt
+                    yield stmt
+                    count += 1
+                    assert count <= limit, (count, limit)
+                    if count == limit:
+                        return  # done
+
+    def _compile_filter(self, filter: Filter) -> tuple[
+            SPARQL_FilterCompiler, VariablePattern, StatementVariable]:
         compiler = SPARQL_FilterCompiler(
             filter, self.mapping, SPARQL_FilterCompiler.default_flags)
         if self.has_flags(self.DEBUG):
@@ -452,4 +503,44 @@ class _SPARQL_Store(
         else:
             compiler.unset_flags(compiler.BEST_RANK)
         compiler.compile()
-        return compiler
+        assert isinstance(compiler.pattern, VariablePattern)
+        assert isinstance(compiler.pattern.variable, StatementVariable)
+        return compiler, compiler.pattern, compiler.pattern.variable
+
+    def _build_query_stream(
+            self,
+            compiler: SPARQL_FilterCompiler,
+            distinct: bool,
+            limit: int
+    ) -> Iterator[SPARQL_FilterCompiler.Query]:
+        return filter(
+            SPARQL_FilterCompiler.Query.where_is_nonempty,
+            self._build_query_stream_tail(compiler, distinct, limit))
+
+    def _build_query_stream_tail(
+            self,
+            compiler: SPARQL_FilterCompiler,
+            distinct: bool,
+            limit: int
+    ) -> Iterator[SPARQL_FilterCompiler.Query]:
+        assert limit >= 0
+        if limit > 0:
+            page_size = min(self.page_size, limit)
+            for offset in range(0, limit, page_size):
+                remaining = limit - offset
+                if remaining < page_size:
+                    yield compiler.build_query(
+                        distinct=distinct, limit=remaining, offset=offset)
+                    break
+                yield compiler.build_query(
+                    distinct=distinct, limit=page_size, offset=offset)
+
+    def _build_result_binding_stream(
+            self,
+            results: Iterable[SPARQL_Results]
+    ) -> Iterable[SPARQL_ResultsBinding]:
+        for result in results:
+            try:
+                yield from result['results']['bindings']  # type: ignore
+            except KeyError:
+                pass

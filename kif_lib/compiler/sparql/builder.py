@@ -1423,6 +1423,14 @@ class Query(Encodable):
         """
         assert isinstance(self.where.root, GroupGraphPattern)
         return not bool(self.where.root.children)
+
+    def where_is_nonempty(self) -> bool:
+        """Tests whether the WHERE clause of query is nonempty.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        return not self.where_is_empty()
 
 # -- Stashing --------------------------------------------------------------
 

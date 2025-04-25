@@ -110,6 +110,10 @@ class RDFLibSPARQL_Store(
             return json.loads(cast(bytes, self._rdflib_graph.query(
                 query).serialize(format='json')))
 
+        @override
+        async def _select_async(self, query: str) -> SPARQL_Results:
+            raise NotImplementedError
+
     #: Type alias for RDFLib SPARQL store arguments.
     Args: TypeAlias = RDFLibBackend.Args
 

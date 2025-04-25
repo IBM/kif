@@ -51,12 +51,16 @@ class HttpxSPARQL_Store(
 
         __slots__ = (
             '_client',
+            '_client_async',
             '_headers',
             '_iri',
         )
 
         #: HTTP client.
         _client: httpx.Client | None
+
+        #: HTTP async client.
+        _client_async: httpx.AsyncClient | None
 
         #: HTTP headers.
         _headers: HTTP_Headers
@@ -74,6 +78,7 @@ class HttpxSPARQL_Store(
         ) -> None:
             super().__init__(store)
             self._client = None
+            self._client_async = None
             self._iri = IRI.check(iri, type(store), 'iri')
             try:
                 self._headers = cast(
@@ -83,11 +88,36 @@ class HttpxSPARQL_Store(
             except Exception as err:
                 raise KIF_Object._arg_error(
                     str(err), type(store), 'headers', exception=store.Error)
-            self._client = httpx.Client(headers=self._headers)
 
-        def __del__(self) -> None:
+        @property
+        def client(self) -> httpx.Client:
+            return self.get_client()
+
+        def get_client(self) -> httpx.Client:
+            if self._client is None:
+                self._client = httpx.Client(headers=self._headers)
+            return self._client
+
+        @property
+        def client_async(self) -> httpx.AsyncClient:
+            return self.get_client_async()
+
+        def get_client_async(self) -> httpx.AsyncClient:
+            if self._client_async is None:
+                self._client_async = httpx.AsyncClient(headers=self._headers)
+            return self._client_async
+
+        @override
+        def _close(self) -> None:
             if self._client is not None:
                 self._client.close()
+                self._client = None
+
+        @override
+        async def _close_async(self) -> None:
+            if self._client_async is not None:
+                await self._client_async.aclose()
+                self._client_async = None
 
         @override
         def _ask(self, query: str) -> SPARQL_ResultsAsk:
@@ -98,19 +128,30 @@ class HttpxSPARQL_Store(
             return self._http_post(query).json()
 
         def _http_post(self, text: str) -> httpx.Response:
-            assert self._client is not None
             try:
-                res = self._client.post(
-                    self._iri.content, content=text.encode('utf-8'))
+                res = self.client.post(
+                    self._iri.content,
+                    content=text.encode('utf-8'),
+                    timeout=httpx.Timeout(self._store.timeout))
                 res.raise_for_status()
                 return res
             except httpx.RequestError as err:
                 raise err
 
         @override
-        def _set_timeout(self, timeout: float | None = None) -> None:
-            if self._client is not None:
-                self._client.timeout = httpx.Timeout(timeout)
+        async def _select_async(self, query: str) -> SPARQL_Results:
+            return (await self._http_post_async(query)).json()
+
+        async def _http_post_async(self, text: str) -> httpx.Response:
+            try:
+                res = await self.client_async.post(
+                    self._iri.content,
+                    content=text.encode('utf-8'),
+                    timeout=httpx.Timeout(self._store.timeout))
+                res.raise_for_status()
+                return res
+            except httpx.RequestError as err:
+                raise err
 
     def __init__(
             self,

@@ -103,6 +103,10 @@ class JenaSPARQL_Store(
         def _select(self, query: str) -> SPARQL_Results:
             return cast(SPARQL_Results, self._jena.query(query))
 
+        @override
+        async def _select_async(self, query: str) -> SPARQL_Results:
+            raise NotImplementedError
+
     #: Type alias for Jena SPARQL store arguments.
     Args: TypeAlias = JenaBackend.Args
 

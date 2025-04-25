@@ -820,7 +820,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             distinct: bool | None = None,
             limit: int | None = None,
             offset: int | None = None
-    ) -> Query:
+    ) -> SPARQL_FilterCompiler.Query:
         """Constructs a filter query.
 
         Parameters:
