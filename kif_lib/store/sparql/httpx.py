@@ -7,7 +7,7 @@ import httpx
 
 from ...__version__ import __version__
 from ...compiler.sparql import SPARQL_Mapping
-from ...compiler.sparql.results import SPARQL_Results, SPARQL_ResultsAsk
+from ...compiler.sparql.results import SPARQL_Results
 from ...model import IRI, KIF_Object, T_IRI
 from ...typing import Any, cast, Final, Mapping, override, TypeAlias
 from .sparql_core import _SPARQL_Store
@@ -118,10 +118,6 @@ class HttpxSPARQL_Store(
             if self._client_async is not None:
                 await self._client_async.aclose()
                 self._client_async = None
-
-        @override
-        def _ask(self, query: str) -> SPARQL_ResultsAsk:
-            return cast(SPARQL_ResultsAsk, self._select(query))
 
         @override
         def _select(self, query: str) -> SPARQL_Results:

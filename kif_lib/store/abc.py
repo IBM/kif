@@ -1213,6 +1213,11 @@ class Store(Set):
     def _ask(self, filter: Filter) -> bool:
         return bool(next(self._filter(filter, 1, False), False))
 
+    async def _ask_async(self, filter: Filter) -> bool:
+        async for _ in self._filter_async(filter, self.max_limit, True):
+            return True
+        return False
+
     def contains(self, stmt: Statement) -> bool:
         """Tests whether statement occurs in store.
 
@@ -1291,6 +1296,12 @@ class Store(Set):
 
     def _count(self, filter: Filter) -> int:
         return sum(1 for _ in self._filter(filter, self.max_limit, True))
+
+    async def _count_async(self, filter: Filter) -> int:
+        n = 0
+        async for s in self._filter_async(filter, self.max_limit, True):
+            n += 1
+        return n
 
     def filter(
             self,

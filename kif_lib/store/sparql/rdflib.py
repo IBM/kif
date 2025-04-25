@@ -8,7 +8,7 @@ import pathlib
 
 from ... import rdflib
 from ...compiler.sparql import SPARQL_Mapping
-from ...compiler.sparql.results import SPARQL_Results, SPARQL_ResultsAsk
+from ...compiler.sparql.results import SPARQL_Results
 from ...model import TGraph
 from ...typing import Any, BinaryIO, cast, override, TextIO, TypeAlias
 from .sparql_core import _SPARQL_Store
@@ -100,10 +100,6 @@ class RDFLibSPARQL_Store(
         @override
         def _skolemize(self) -> None:
             self._rdflib_graph = self._rdflib_graph.skolemize()
-
-        @override
-        def _ask(self, query: str) -> SPARQL_ResultsAsk:
-            return cast(SPARQL_ResultsAsk, self._select(query))
 
         @override
         def _select(self, query: str) -> SPARQL_Results:

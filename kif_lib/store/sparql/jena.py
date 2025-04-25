@@ -100,6 +100,10 @@ class JenaSPARQL_Store(
             return {'boolean': cast(bool, self._jena.query(query))}
 
         @override
+        async def _ask_async(self, query: str) -> SPARQL_ResultsAsk:
+            raise NotImplementedError
+
+        @override
         def _select(self, query: str) -> SPARQL_Results:
             return cast(SPARQL_Results, self._jena.query(query))
 
