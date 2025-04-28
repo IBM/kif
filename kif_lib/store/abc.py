@@ -1144,7 +1144,7 @@ class Store(Set):
             return NotImplemented
 
     def __contains__(self, v: Any) -> bool:
-        return self._contains(v) if isinstance(v, Statement) else False
+        return self._contains_tail(v) if isinstance(v, Statement) else False
 
     def __iter__(self) -> Iterator[Statement]:
         return self.filter()
@@ -1228,15 +1228,28 @@ class Store(Set):
            ``True`` if successful; ``False`` otherwise.
         """
         Statement.check(stmt, self.contains, 'stmt', 1)
-        return self._contains(stmt)
+        return self._contains_tail(stmt)
 
-    def _contains(self, stmt: Statement) -> bool:
+    def _contains_tail(self, stmt: Statement) -> bool:
         filter = self._normalize_filter(Filter.from_statement(stmt))
         if filter.is_nonempty():
-            annotated = isinstance(stmt, AnnotatedStatement)
-            return stmt in self.filter(filter=filter, annotated=annotated)
+            if isinstance(stmt, AnnotatedStatement):
+                filter = filter.replace(annotated=True)
+            return self._contains(stmt, filter)
         else:
             return False
+
+    def _contains(self, stmt: Statement, filter: Filter) -> bool:
+        return stmt in self._filter(filter, self.max_limit, True)
+
+    async def _contains_async(self, stmt: Statement) -> bool:
+        filter = self._normalize_filter(Filter.from_statement(stmt))
+        if isinstance(stmt, AnnotatedStatement):
+            filter = filter.replace(annotated=True)
+        async for other in self._filter_async(filter, self.max_limit, True):
+            if stmt == other:
+                return True
+        return False
 
     def count(
             self,
