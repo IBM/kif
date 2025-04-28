@@ -3,10 +3,10 @@
 
 from __future__ import annotations
 
-from .. import itertools
 from ..model import Filter, KIF_Object, Statement
 from ..typing import (
     Any,
+    AsyncIterator,
     Collection,
     Iterable,
     Iterator,
@@ -198,24 +198,44 @@ class MixerStore(
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
-        its: list[Iterator[Statement]] = list(map(lambda kb: kb._filter_tail(
-            filter, limit, distinct), self._sources))
-        cyc = itertools.cycle(its)
-        exausted: set[Iterator[Statement]] = set()
+        its: list[Iterator[Statement]] = [kb._filter_tail(
+            filter, limit, distinct) for kb in self._sources]
+        count = 0
         seen: set[Statement] = set()
-        while limit > 0 and len(exausted) < len(its):
-            src: Iterator[Statement] | None = None
-            try:
-                src = next(cyc)
-                if src in exausted:
-                    continue    # skip source
-                stmt = next(src)
-                if distinct:
-                    if stmt in seen:
-                        continue  # skip statement
-                    seen.add(stmt)
-                yield stmt
-                limit -= 1
-            except StopIteration:
-                assert src is not None
-                exausted.add(src)
+        exausted: set[Iterator[Statement]] = set()
+        while count < limit and its:
+            for it in its:
+                try:
+                    stmt = next(it)
+                    if stmt not in seen:
+                        yield stmt
+                        seen.add(stmt)
+                        count += 1
+                except StopIteration:
+                    exausted.add(it)
+                    continue
+            while exausted:
+                its.remove(exausted.pop())
+
+    @override
+    async def _afilter(
+            self,
+            filter: Filter,
+            limit: int,
+            distinct: bool
+    ) -> AsyncIterator[Statement]:
+        its: list[AsyncIterator[Statement]] = [kb._afilter_tail(
+            filter, limit, distinct) for kb in self._sources]
+        count = 0
+        exausted: set[AsyncIterator[Statement]] = set()
+        while count < limit and its:
+            for it in its:
+                try:
+                    stmt = await it.__anext__()
+                    yield stmt
+                    count += 1
+                except StopAsyncIteration:
+                    exausted.add(it)
+                    continue
+            while exausted:
+                its.remove(exausted.pop())
