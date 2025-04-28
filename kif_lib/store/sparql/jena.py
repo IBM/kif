@@ -79,7 +79,8 @@ class JenaSPARQL_Store(
                 location: pathlib.PurePath | str,
                 format: str | None = None
         ) -> None:
-            self._jena.load(location, format)
+            with self._lock:
+                self._jena.load(location, format)
 
         @override
         def _load_data(
@@ -89,27 +90,22 @@ class JenaSPARQL_Store(
         ) -> None:
             if isinstance(data, bytes):
                 data = data.decode('utf-8')
-            self._jena.loads(data, format)
+            with self._lock:
+                self._jena.loads(data, format)
 
         @override
         def _skolemize(self) -> None:
-            self._jena.skolemize()
+            with self._lock:
+                self._jena.skolemize()
 
         @override
         def _ask(self, query: str) -> SPARQL_ResultsAsk:
-            return {'boolean': cast(bool, self._jena.query(query))}
-
-        @override
-        async def _aask(self, query: str) -> SPARQL_ResultsAsk:
-            raise NotImplementedError
+            return {'boolean': cast(bool, self._select(query))}
 
         @override
         def _select(self, query: str) -> SPARQL_Results:
-            return cast(SPARQL_Results, self._jena.query(query))
-
-        @override
-        async def _aselect(self, query: str) -> SPARQL_Results:
-            raise NotImplementedError
+            with self._lock:
+                return cast(SPARQL_Results, self._jena.query(query))
 
     #: Type alias for Jena SPARQL store arguments.
     Args: TypeAlias = JenaBackend.Args

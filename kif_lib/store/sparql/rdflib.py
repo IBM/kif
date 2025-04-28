@@ -71,7 +71,8 @@ class RDFLibSPARQL_Store(
                 arg: Any,
                 format: str | None = None
         ) -> None:
-            self._rdflib_graph.parse(arg, format=format)  # type: ignore
+            with self._lock:
+                self._rdflib_graph.parse(arg, format=format)  # type: ignore
 
         @override
         def _load_location(
@@ -79,7 +80,9 @@ class RDFLibSPARQL_Store(
                 location: pathlib.PurePath | str,
                 format: str | None = None
         ) -> None:
-            self._rdflib_graph.parse(location=str(location), format=format)
+            with self._lock:
+                self._rdflib_graph.parse(
+                    location=str(location), format=format)
 
         @override
         def _load_file(
@@ -87,7 +90,8 @@ class RDFLibSPARQL_Store(
                 file: BinaryIO | TextIO,
                 format: str | None = None
         ) -> None:
-            self._rdflib_graph.parse(file=file, format=format)
+            with self._lock:
+                self._rdflib_graph.parse(file=file, format=format)
 
         @override
         def _load_data(
@@ -95,20 +99,19 @@ class RDFLibSPARQL_Store(
                 data: bytes | str,
                 format: str | None = None
         ) -> None:
-            self._rdflib_graph.parse(data=data, format=format)
+            with self._lock:
+                self._rdflib_graph.parse(data=data, format=format)
 
         @override
         def _skolemize(self) -> None:
-            self._rdflib_graph = self._rdflib_graph.skolemize()
+            with self._lock:
+                self._rdflib_graph = self._rdflib_graph.skolemize()
 
         @override
         def _select(self, query: str) -> SPARQL_Results:
-            return json.loads(cast(bytes, self._rdflib_graph.query(
-                query).serialize(format='json')))
-
-        @override
-        async def _aselect(self, query: str) -> SPARQL_Results:
-            raise NotImplementedError
+            with self._lock:
+                res = self._rdflib_graph.query(query)
+            return json.loads(cast(bytes, res.serialize(format='json')))
 
     #: Type alias for RDFLib SPARQL store arguments.
     Args: TypeAlias = RDFLibBackend.Args

@@ -8,6 +8,7 @@ import asyncio
 import functools
 import logging
 import pathlib
+import threading
 
 from ... import itertools, rdflib
 from ...compiler.sparql import SPARQL_FilterCompiler, SPARQL_Mapping
@@ -118,7 +119,8 @@ class _SPARQL_Store(
             return await self._aask(query)
 
         async def _aask(self, query: str) -> SPARQL_ResultsAsk:
-            return await self._aselect(query)  # type: ignore
+            return await asyncio.create_task(asyncio.to_thread(
+                lambda: self._ask(query)))
 
         def select(self, query: str) -> SPARQL_Results:
             """Evaluates select query over back-end.
@@ -141,9 +143,9 @@ class _SPARQL_Store(
             _logger.debug('%s()\n%s', self.aselect.__qualname__, query)
             return await self._aselect(query)
 
-        @abc.abstractmethod
         async def _aselect(self, query: str) -> SPARQL_Results:
-            raise NotImplementedError
+            return await asyncio.create_task(asyncio.to_thread(
+                lambda: self._select(query)))
 
         def _set_timeout(self, timeout: float | None = None) -> None:
             pass
@@ -169,6 +171,13 @@ class _SPARQL_Store(
             BinaryIO, TextIO, rdflib.InputSource,
             str, bytes, pathlib.PurePath, Statement]
 
+        __slots__ = (
+            '_lock',
+        )
+
+        #: Reentrant lock to sync access shared resources.
+        _lock: threading.RLock
+
         def __init__(
                 self,
                 store: _SPARQL_Store,
@@ -183,6 +192,7 @@ class _SPARQL_Store(
                 **kwargs: Any
         ) -> None:
             super().__init__(store)
+            self._lock = threading.RLock()
             self._init(store, **kwargs)
 
             def load(name: str | None, f: Callable[[T], None], x: T) -> None:
