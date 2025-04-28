@@ -551,8 +551,6 @@ class _SPARQL_Store(
             if not bindings:
                 break           # done
             for binding in itertools.chain(bindings, ({},)):
-                if not binding:
-                    break       # done
                 thetas = push(binding)
                 if thetas is None:
                     continue    # push more results

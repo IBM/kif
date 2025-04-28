@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import datetime
 import decimal
 import functools
@@ -173,7 +174,7 @@ _TClosedTerm = TypeVar('_TClosedTerm', bound=ClosedTerm)
 
 # == Test case =============================================================
 
-class TestCase(unittest.TestCase):
+class TestCase(unittest.IsolatedAsyncioTestCase):
     """Base class for KIF test cases."""
 
     ALL_KIF_OBJECT_CLASSES: ClassVar[Set[type[KIF_Object]]] =\
@@ -1400,6 +1401,24 @@ class StoreTestCase(TestCase):
             set(store.filter_annotated(filter=filter)),
             set(self._assert_store_xfilter_annotate(expected)),
             '*** XFILTER: ANNOTATED FILTER FAILED ***')
+
+        loop = asyncio.get_event_loop()
+
+        async def f():
+            return {stmt async for stmt in store.afilter(
+                filter=filter.replace(annotated=False))}
+        self.assertEqual(
+            loop.run_until_complete(f()),
+            set(map(Statement.unannotate, expected)),
+            '*** ASYNC XFILTER: PLAIN FILTER FAILED ***')
+
+        async def fa():
+            return {stmt async for stmt in store.afilter_annotated(
+                filter=filter)}
+        self.assertEqual(
+            loop.run_until_complete(fa()),
+            set(self._assert_store_xfilter_annotate(expected)),
+            '*** ASYNC XFILTER: ANNOTATED FILTER FAILED ***')
 
     def _assert_store_xfilter_annotate(
             self,
