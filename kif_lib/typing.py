@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from collections.abc import (
+    AsyncIterable,
     AsyncIterator,
     Awaitable,
     Callable,
@@ -53,6 +54,7 @@ Location: TypeAlias = Union[Callable[..., Any], str]
 __all__ = (
     'Any',
     'assert_type',
+    'AsyncIterable',
     'AsyncIterator',
     'Awaitable',
     'BinaryIO',

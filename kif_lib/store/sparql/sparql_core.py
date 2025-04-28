@@ -422,13 +422,20 @@ class _SPARQL_Store(
     @override
     def _ask(self, filter: Filter) -> bool:
         query = self._build_ask_query_from_filter(filter)
-        return self._parse_ask_results(self.backend.ask(str(query.ask())))
+        if query.where_is_nonempty():
+            return self._parse_ask_results(
+                self.backend.ask(str(query.ask())))
+        else:
+            return False
 
     @override
     async def _aask(self, filter: Filter) -> bool:
         query = self._build_ask_query_from_filter(filter)
-        return self._parse_ask_results(
-            await self.backend.aask(str(query.ask())))
+        if query.where_is_nonempty():
+            return self._parse_ask_results(
+                await self.backend.aask(str(query.ask())))
+        else:
+            return False
 
     def _build_ask_query_from_filter(
             self,
@@ -444,14 +451,20 @@ class _SPARQL_Store(
     @override
     def _count(self, filter: Filter) -> int:
         count, query = self._build_count_query_from_filter(filter)
-        return self._parse_count_results(
-            count, self.backend.select(str(query)))
+        if query.where_is_nonempty():
+            return self._parse_count_results(
+                count, self.backend.select(str(query)))
+        else:
+            return 0
 
     @override
     async def _acount(self, filter: Filter) -> int:
         count, query = self._build_count_query_from_filter(filter)
-        return self._parse_count_results(
-            count, await self.backend.aselect(str(query)))
+        if query.where_is_nonempty():
+            return self._parse_count_results(
+                count, await self.backend.aselect(str(query)))
+        else:
+            return 0
 
     def _build_count_query_from_filter(
             self,
@@ -567,9 +580,12 @@ class _SPARQL_Store(
             distinct: bool,
             limit: int
     ) -> Iterator[SPARQL_FilterCompiler.Query]:
-        return filter(
-            SPARQL_FilterCompiler.Query.where_is_nonempty,
-            self._build_filter_query_stream_tail(compiler, distinct, limit))
+        query_stream = self._build_filter_query_stream_tail(
+            compiler, distinct, limit)
+        for query in query_stream:
+            if query.where_is_empty():
+                break
+            yield query
 
     def _build_filter_query_stream_tail(
             self,
