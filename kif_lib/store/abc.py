@@ -160,6 +160,23 @@ class Store(Set):
         self._timeout = None
         self.set_timeout(timeout)
 
+    def __del__(self) -> None:
+        self._close()
+
+    def close(self) -> None:
+        """Closes store."""
+        self._close()
+
+    def _close(self) -> None:
+        pass
+
+    async def aclose(self) -> None:
+        """Async version of :meth:`Store.close`."""
+        await self._aclose()
+
+    async def _aclose(self) -> None:
+        pass
+
     @at_property
     def context(self) -> Context:
         """The current KIF context."""
@@ -1213,8 +1230,63 @@ class Store(Set):
     def _ask(self, filter: Filter) -> bool:
         return bool(next(self._filter(filter, 1, False), False))
 
-    async def _ask_async(self, filter: Filter) -> bool:
-        async for _ in self._filter_async(filter, self.max_limit, True):
+    async def aask(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None
+    ) -> bool:
+        """Async version of :meth:`Store.ask`.
+
+        Parameters:
+           subject: Entity.
+           property: Property.
+           value: Value.
+           snak_mask: Snak mask.
+           subject_mask: Datatype mask.
+           property_mask: Datatype mask.
+           value_mask: Datatype mask.
+           rank_mask: Rank mask.
+           language: Language.
+           annotated: Annotated flag.
+           snak: Snak.
+           filter: Filter.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise."""
+        return await self._aask_tail(
+            self._check_filter(
+                subject=subject,
+                property=property,
+                value=value,
+                snak_mask=snak_mask,
+                subject_mask=subject_mask,
+                property_mask=property_mask,
+                value_mask=value_mask,
+                rank_mask=rank_mask,
+                language=language,
+                annotated=annotated,
+                snak=snak,
+                filter=filter,
+                function=self.aask))
+
+    async def _aask_tail(self, filter: Filter) -> bool:
+        if filter.is_nonempty():
+            return await self._aask(filter)
+        else:
+            return False
+
+    async def _aask(self, filter: Filter) -> bool:
+        async for _ in self._afilter(filter, self.max_limit, True):
             return True
         return False
 
@@ -1231,22 +1303,43 @@ class Store(Set):
         return self._contains_tail(stmt)
 
     def _contains_tail(self, stmt: Statement) -> bool:
-        filter = self._normalize_filter(Filter.from_statement(stmt))
+        filter = self._xcontains_filter_from_statement(stmt)
         if filter.is_nonempty():
-            if isinstance(stmt, AnnotatedStatement):
-                filter = filter.replace(annotated=True)
             return self._contains(stmt, filter)
         else:
             return False
 
+    def _xcontains_filter_from_statement(self, stmt: Statement) -> Filter:
+        filter = self._normalize_filter(Filter.from_statement(stmt))
+        if isinstance(stmt, AnnotatedStatement):
+            return filter.replace(annotated=True)
+        else:
+            return filter
+
     def _contains(self, stmt: Statement, filter: Filter) -> bool:
         return stmt in self._filter(filter, self.max_limit, True)
 
-    async def _contains_async(self, stmt: Statement) -> bool:
-        filter = self._normalize_filter(Filter.from_statement(stmt))
-        if isinstance(stmt, AnnotatedStatement):
-            filter = filter.replace(annotated=True)
-        async for other in self._filter_async(filter, self.max_limit, True):
+    async def acontains(self, stmt: Statement) -> bool:
+        """Async version of :meth:`Store.contains`.
+
+        Parameters:
+           stmt: Statement.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        Statement.check(stmt, self.acontains, 'stmt', 1)
+        return await self._acontains_tail(stmt)
+
+    async def _acontains_tail(self, stmt: Statement) -> bool:
+        filter = self._xcontains_filter_from_statement(stmt)
+        if filter.is_nonempty():
+            return await self._acontains(stmt, filter)
+        else:
+            return False
+
+    async def _acontains(self, stmt: Statement, filter: Filter) -> bool:
+        async for other in self._afilter(filter, self.max_limit, True):
             if stmt == other:
                 return True
         return False
@@ -1310,9 +1403,65 @@ class Store(Set):
     def _count(self, filter: Filter) -> int:
         return sum(1 for _ in self._filter(filter, self.max_limit, True))
 
-    async def _count_async(self, filter: Filter) -> int:
+    async def acount(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None
+    ) -> int:
+        """Async version of :meth:`Store.count`.
+
+        Parameters:
+           subject: Entity.
+           property: Property.
+           value: Value.
+           snak_mask: Snak mask.
+           subject_mask: Datatype mask.
+           property_mask: Datatype mask.
+           value_mask: Datatype mask.
+           rank_mask: Rank mask.
+           language: Language.
+           annotated: Annotated flag.
+           snak: Snak.
+           filter: Filter.
+
+        Returns:
+           The number of statements matching filter.
+        """
+        return await self._acount_tail(
+            self._check_filter(
+                subject=subject,
+                property=property,
+                value=value,
+                snak_mask=snak_mask,
+                subject_mask=subject_mask,
+                property_mask=property_mask,
+                value_mask=value_mask,
+                rank_mask=rank_mask,
+                language=language,
+                annotated=annotated,
+                snak=snak,
+                filter=filter,
+                function=self.acount))
+
+    async def _acount_tail(self, filter: Filter) -> int:
+        if filter.is_nonempty():
+            return await self._acount(filter)
+        else:
+            return 0
+
+    async def _acount(self, filter: Filter) -> int:
         n = 0
-        async for _ in self._filter_async(filter, self.max_limit, True):
+        async for _ in self._afilter(filter, self.max_limit, True):
             n += 1
         return n
 
@@ -1354,13 +1503,8 @@ class Store(Set):
         Returns:
            An iterator of statements matching filter.
         """
-        distinct = bool(distinct) if distinct is not None else self.distinct
-        assert distinct is not None
-        limit = self._check_optional_limit(
-            limit, self.limit, self.filter, 'limit', 13)
-        if limit is None:
-            limit = self.get_limit(self.max_limit)
-        assert limit is not None
+        limit, distinct = self._xfilter_get_limit_and_distinct(
+            limit, distinct, self.filter)
         return self._filter_tail(
             self._check_filter(
                 subject=subject,
@@ -1377,6 +1521,21 @@ class Store(Set):
                 filter=filter,
                 function=self.filter),
             limit, distinct)
+
+    def _xfilter_get_limit_and_distinct(
+            self,
+            limit: int | None = None,
+            distinct: bool | None = None,
+            function: Location | None = None
+    ) -> tuple[int, bool]:
+        distinct = bool(distinct) if distinct is not None else self.distinct
+        assert distinct is not None
+        limit = self._check_optional_limit(
+            limit, self.limit, function, 'limit')
+        if limit is None:
+            limit = self.get_limit(self.max_limit)
+        assert limit is not None
+        return limit, distinct
 
     def _filter_tail(
             self,
@@ -1402,13 +1561,86 @@ class Store(Set):
     ) -> Iterator[Statement]:
         return iter(())
 
-    async def _filter_async(
+    def afilter(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            limit: int | None = None,
+            distinct: bool | None = None
+    ) -> AsyncIterator[Statement]:
+        """Async version of :meth:`Store.filter`.
+
+        Parameters:
+           subject: Entity.
+           property: Property.
+           value: Value.
+           snak_mask: Snak mask.
+           subject_mask: Datatype mask.
+           property_mask: Datatype mask.
+           value_mask: Datatype mask.
+           rank_mask: Rank mask.
+           language: Language.
+           annotated: Annotated flag.
+           snak: Snak.
+           filter: Filter filter.
+           limit: Limit (maximum number) of statements to return.
+           distinct: Whether to skip duplicated matches.
+
+        Returns:
+           An iterator of statements matching filter.
+        """
+        limit, distinct = self._xfilter_get_limit_and_distinct(
+            limit, distinct, self.afilter)
+        return self._afilter_tail(
+            self._check_filter(
+                subject=subject,
+                property=property,
+                value=value,
+                snak_mask=snak_mask,
+                subject_mask=subject_mask,
+                property_mask=property_mask,
+                value_mask=value_mask,
+                rank_mask=rank_mask,
+                language=language,
+                annotated=annotated,
+                snak=snak,
+                filter=filter,
+                function=self.afilter),
+            limit, distinct)
+
+    async def _afilter_tail(
             self,
             filter: Filter,
             limit: int,
             distinct: bool
     ) -> AsyncIterator[Statement]:
-        return                  # empty async generator
+        if limit > 0 and filter.is_nonempty():
+            async for stmt in self._afilter(filter, limit, distinct):
+                if filter.annotated and self.extra_references:
+                    yield stmt.annotate(references=self.extra_references)
+                else:
+                    yield stmt
+        else:
+            return              # empty async iterator
+            yield
+
+    async def _afilter(
+            self,
+            filter: Filter,
+            limit: int,
+            distinct: bool
+    ) -> AsyncIterator[Statement]:
+        return                  # empty async iterator
         yield
 
     def filter_annotated(
@@ -1450,6 +1682,60 @@ class Store(Set):
            An iterator of annotated statements matching filter.
         """
         return cast(Iterator[AnnotatedStatement], self.filter(
+            subject=subject,
+            property=property,
+            value=value,
+            snak_mask=snak_mask,
+            subject_mask=subject_mask,
+            property_mask=property_mask,
+            value_mask=value_mask,
+            rank_mask=rank_mask,
+            language=language,
+            annotated=True,     # force
+            snak=snak,
+            filter=filter,
+            limit=limit,
+            distinct=distinct))
+
+    def afilter_annotated(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            limit: int | None = None,
+            distinct: bool | None = None
+    ) -> AsyncIterator[AnnotatedStatement]:
+        """:meth:`Store.afilter` with annotations.
+
+        Parameters:
+           subject: Entity.
+           property: Property.
+           value: Value.
+           snak_mask: Snak mask.
+           subject_mask: Datatype mask.
+           property_mask: Datatype mask.
+           value_mask: Datatype mask.
+           rank_mask: Rank mask.
+           language: Language.
+           annotated: Annotated flag (ignored).
+           snak: Snak.
+           filter: Filter.
+           limit: Limit (maximum number) of statements to return.
+           distinct: Whether to skip duplicated matches.
+
+        Returns:
+           An iterator of annotated statements matching filter.
+        """
+        return cast(AsyncIterator[AnnotatedStatement], self.afilter(
             subject=subject,
             property=property,
             value=value,

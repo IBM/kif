@@ -83,9 +83,6 @@ class _SPARQL_Store(
         def __init__(self, store: _SPARQL_Store) -> None:
             self._store = store
 
-        def __del__(self) -> None:
-            self.close()
-
         def close(self) -> None:
             """Closes backend."""
             self._close()
@@ -93,11 +90,11 @@ class _SPARQL_Store(
         def _close(self) -> None:
             pass
 
-        async def close_async(self) -> None:
+        async def aclose(self) -> None:
             """Async version of :meth:`_SPARQL_Store.Backend.close()`."""
-            await self._close_async()
+            await self._aclose()
 
-        async def _close_async(self) -> None:
+        async def _aclose(self) -> None:
             pass
 
         def ask(self, query: str) -> SPARQL_ResultsAsk:
@@ -115,13 +112,13 @@ class _SPARQL_Store(
         def _ask(self, query: str) -> SPARQL_ResultsAsk:
             return cast(SPARQL_ResultsAsk, self._select(query))
 
-        async def ask_async(self, query: str) -> SPARQL_ResultsAsk:
+        async def aask(self, query: str) -> SPARQL_ResultsAsk:
             """Async version of :meth:`_SPARQL_Store.Backend.ask`."""
-            _logger.debug('%s()\n%s', self.ask_async.__qualname__, query)
-            return await self._ask_async(query)
+            _logger.debug('%s()\n%s', self.aask.__qualname__, query)
+            return await self._aask(query)
 
-        async def _ask_async(self, query: str) -> SPARQL_ResultsAsk:
-            return await self._select_async(query)  # type: ignore
+        async def _aask(self, query: str) -> SPARQL_ResultsAsk:
+            return await self._aselect(query)  # type: ignore
 
         def select(self, query: str) -> SPARQL_Results:
             """Evaluates select query over back-end.
@@ -139,13 +136,13 @@ class _SPARQL_Store(
         def _select(self, query: str) -> SPARQL_Results:
             raise NotImplementedError
 
-        async def select_async(self, query: str) -> SPARQL_Results:
+        async def aselect(self, query: str) -> SPARQL_Results:
             """Async version of :meth:`_SPARQL_Store.Backend.select`."""
-            _logger.debug('%s()\n%s', self.select_async.__qualname__, query)
-            return await self._select_async(query)
+            _logger.debug('%s()\n%s', self.aselect.__qualname__, query)
+            return await self._aselect(query)
 
         @abc.abstractmethod
-        async def _select_async(self, query: str) -> SPARQL_Results:
+        async def _aselect(self, query: str) -> SPARQL_Results:
             raise NotImplementedError
 
         def _set_timeout(self, timeout: float | None = None) -> None:
@@ -299,6 +296,14 @@ class _SPARQL_Store(
         super().__init__(**kwargs)
 
     @override
+    def _close(self) -> None:
+        self.backend.close()
+
+    @override
+    async def _aclose(self) -> None:
+        await self.backend.aclose()
+
+    @override
     def _set_timeout(self, old: float | None, new: float | None) -> bool:
         self.backend._set_timeout(new)
         return True
@@ -420,10 +425,10 @@ class _SPARQL_Store(
         return self._parse_ask_results(self.backend.ask(str(query.ask())))
 
     @override
-    async def _ask_async(self, filter: Filter) -> bool:
+    async def _aask(self, filter: Filter) -> bool:
         query = self._build_ask_query_from_filter(filter)
         return self._parse_ask_results(
-            await self.backend.ask_async(str(query.ask())))
+            await self.backend.aask(str(query.ask())))
 
     def _build_ask_query_from_filter(
             self,
@@ -443,10 +448,10 @@ class _SPARQL_Store(
             count, self.backend.select(str(query)))
 
     @override
-    async def _count_async(self, filter: Filter) -> int:
+    async def _acount(self, filter: Filter) -> int:
         count, query = self._build_count_query_from_filter(filter)
         return self._parse_count_results(
-            count, await self.backend.select_async(str(query)))
+            count, await self.backend.aselect(str(query)))
 
     def _build_count_query_from_filter(
             self,
@@ -502,7 +507,7 @@ class _SPARQL_Store(
                 break           # done
 
     @override
-    async def _filter_async(
+    async def _afilter(
             self,
             filter: Filter,
             limit: int,
@@ -516,7 +521,7 @@ class _SPARQL_Store(
         async_page_lookahead = 2  # TODO: Make this into an option.
         for batch in itertools.batched(query_stream, async_page_lookahead):
             tasks = (
-                asyncio.ensure_future(self.backend.select_async(str(q)))
+                asyncio.ensure_future(self.backend.aselect(str(q)))
                 for q in batch)
             bindings = list(self._build_filter_result_binding_stream(
                 await asyncio.gather(*tasks)))

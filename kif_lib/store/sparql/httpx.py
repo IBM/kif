@@ -50,8 +50,8 @@ class HttpxSPARQL_Store(
         }
 
         __slots__ = (
+            '_aclient',
             '_client',
-            '_client_async',
             '_headers',
             '_iri',
         )
@@ -59,8 +59,8 @@ class HttpxSPARQL_Store(
         #: HTTP client.
         _client: httpx.Client | None
 
-        #: HTTP async client.
-        _client_async: httpx.AsyncClient | None
+        #: Async HTTP client.
+        _aclient: httpx.AsyncClient | None
 
         #: HTTP headers.
         _headers: HTTP_Headers
@@ -78,7 +78,7 @@ class HttpxSPARQL_Store(
         ) -> None:
             super().__init__(store)
             self._client = None
-            self._client_async = None
+            self._aclient = None
             self._iri = IRI.check(iri, type(store), 'iri')
             try:
                 self._headers = cast(
@@ -90,6 +90,15 @@ class HttpxSPARQL_Store(
                     str(err), type(store), 'headers', exception=store.Error)
 
         @property
+        def aclient(self) -> httpx.AsyncClient:
+            return self.get_aclient()
+
+        def get_aclient(self) -> httpx.AsyncClient:
+            if self._aclient is None:
+                self._aclient = httpx.AsyncClient(headers=self._headers)
+            return self._aclient
+
+        @property
         def client(self) -> httpx.Client:
             return self.get_client()
 
@@ -98,15 +107,6 @@ class HttpxSPARQL_Store(
                 self._client = httpx.Client(headers=self._headers)
             return self._client
 
-        @property
-        def client_async(self) -> httpx.AsyncClient:
-            return self.get_client_async()
-
-        def get_client_async(self) -> httpx.AsyncClient:
-            if self._client_async is None:
-                self._client_async = httpx.AsyncClient(headers=self._headers)
-            return self._client_async
-
         @override
         def _close(self) -> None:
             if self._client is not None:
@@ -114,10 +114,10 @@ class HttpxSPARQL_Store(
                 self._client = None
 
         @override
-        async def _close_async(self) -> None:
-            if self._client_async is not None:
-                await self._client_async.aclose()
-                self._client_async = None
+        async def _aclose(self) -> None:
+            if self._aclient is not None:
+                await self._aclient.aclose()
+                self._aclient = None
 
         @override
         def _select(self, query: str) -> SPARQL_Results:
@@ -135,12 +135,12 @@ class HttpxSPARQL_Store(
                 raise err
 
         @override
-        async def _select_async(self, query: str) -> SPARQL_Results:
-            return (await self._http_post_async(query)).json()
+        async def _aselect(self, query: str) -> SPARQL_Results:
+            return (await self._http_apost(query)).json()
 
-        async def _http_post_async(self, text: str) -> httpx.Response:
+        async def _http_apost(self, text: str) -> httpx.Response:
             try:
-                res = await self.client_async.post(
+                res = await self.aclient.post(
                     self._iri.content,
                     content=text.encode('utf-8'),
                     timeout=httpx.Timeout(self._store.timeout))

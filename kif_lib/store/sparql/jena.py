@@ -100,7 +100,7 @@ class JenaSPARQL_Store(
             return {'boolean': cast(bool, self._jena.query(query))}
 
         @override
-        async def _ask_async(self, query: str) -> SPARQL_ResultsAsk:
+        async def _aask(self, query: str) -> SPARQL_ResultsAsk:
             raise NotImplementedError
 
         @override
@@ -108,7 +108,7 @@ class JenaSPARQL_Store(
             return cast(SPARQL_Results, self._jena.query(query))
 
         @override
-        async def _select_async(self, query: str) -> SPARQL_Results:
+        async def _aselect(self, query: str) -> SPARQL_Results:
             raise NotImplementedError
 
     #: Type alias for Jena SPARQL store arguments.
