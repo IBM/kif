@@ -23,6 +23,7 @@ class StoreOptions(Section, name='store'):
         self._init_flags(kwargs)
         self._init_max_limit(kwargs)
         self._init_limit(kwargs)
+        self._init_lookahead(kwargs)
         self._init_max_page_size(kwargs)
         self._init_page_size(kwargs)
         self._init_max_timeout(kwargs)
@@ -250,6 +251,45 @@ class StoreOptions(Section, name='store'):
         """
         self._limit = Store._check_optional_limit(
             limit, None, self.set_limit, 'limit', 1)
+
+    # -- lookahead --
+
+    _v_lookahead: ClassVar[tuple[str, int]] =\
+        ('KIF_STORE_LOOKAHEAD', 2)
+
+    _lookahead: int
+
+    def _init_lookahead(self, kwargs: dict[str, Any]) -> None:
+        self.lookahead = kwargs.get(
+            '_lookahead', self.getenv(*self._v_lookahead))
+
+    @property
+    def lookahead(self) -> int:
+        """The lookahead option."""
+        return self.get_lookahead()
+
+    @lookahead.setter
+    def lookahead(self, lookahead: TQuantity) -> None:
+        self.set_lookahead(lookahead)
+
+    def get_lookahead(self) -> int:
+        """Gets the lookahead option.
+
+        Returns:
+           Lookahead.
+        """
+        return self._lookahead
+
+    def set_lookahead(self, lookahead: TQuantity) -> None:
+        """Sets the lookahead option.
+
+        If `lookahead` is zero or negative, assumes 1.
+
+        Parameters:
+           lookahead: Integer quantity.
+        """
+        self._lookahead = Store._check_lookahead(
+            lookahead, self.set_lookahead, 'lookahead', 1)
 
     # -- max_page_size --
 

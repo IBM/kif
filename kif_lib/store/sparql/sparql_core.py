@@ -541,8 +541,7 @@ class _SPARQL_Store(
         query_stream = self._build_filter_query_stream(
             compiler, distinct, limit)
         count = 0
-        async_page_lookahead = 2  # TODO: Make this into an option.
-        for batch in itertools.batched(query_stream, async_page_lookahead):
+        for batch in itertools.batched(query_stream, self.lookahead):
             tasks = (
                 asyncio.ensure_future(self.backend.aselect(str(q)))
                 for q in batch)

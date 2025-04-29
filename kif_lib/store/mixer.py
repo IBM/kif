@@ -35,6 +35,7 @@ class MixerStore(
        sources: Sources to mix.
        sync_flags: Whether to sync store flags.
        sync_limit: Whether to sync store limit.
+       sync_lookahead: Whether to sync store lookahead.
        sync_page_size: Whether to sync page size.
        sync_timeout: Whether to sync timeout.
     """
@@ -43,6 +44,7 @@ class MixerStore(
         '_sources',
         '_sync_flags',
         '_sync_limit',
+        '_sync_lookahead',
         '_sync_page_size',
         '_sync_timeout',
     )
@@ -50,6 +52,7 @@ class MixerStore(
     _sources: Sequence[Store]
     _sync_flags: bool
     _sync_limit: bool
+    _sync_lookahead: bool
     _sync_page_size: bool
     _sync_timeout: bool
 
@@ -59,6 +62,7 @@ class MixerStore(
             sources: Iterable[Store] = tuple(),
             sync_flags: bool = True,
             sync_limit: bool = True,
+            sync_lookahead: bool = True,
             sync_page_size: bool = True,
             sync_timeout: bool = True,
             **kwargs: Any
@@ -67,6 +71,7 @@ class MixerStore(
         self._init_sources(sources)
         self._sync_flags = bool(sync_flags)
         self._sync_limit = bool(sync_limit)
+        self._sync_lookahead = bool(sync_lookahead)
         self._sync_page_size = bool(sync_page_size)
         self._sync_timeout = bool(sync_timeout)
         super().__init__(**kwargs)
@@ -140,6 +145,28 @@ class MixerStore(
         if self.sync_limit:
             for src in self.sources:
                 src.set_limit(new)
+        return True
+
+    @property
+    def sync_lookahead(self) -> bool:
+        """Whether to sync store lookahead."""
+        return self.get_sync_flags()
+
+    def get_sync_lookahead(self) -> bool:
+        """Tests whether to sync store lookahead.
+
+        Returns:
+           ``True`` if successful; ``False`` otherwise.
+        """
+        return self._sync_lookahead
+
+    @override
+    def _set_lookahead(self, old: int | None, new: int | None) -> bool:
+        if not super()._set_lookahead(old, new):
+            return False
+        if self.sync_lookahead:
+            for src in self.sources:
+                src.set_lookahead(new)
         return True
 
     @property

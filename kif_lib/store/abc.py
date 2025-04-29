@@ -109,12 +109,13 @@ class Store(Set):
         return KIF_Object._should_not_get_here(details)
 
     __slots__ = (
-        '_context',
         '_base_filter',
+        '_context',
         '_distinct',
         '_extra_references',
         '_flags',
         '_limit',
+        '_lookahead',
         '_page_size',
         '_timeout',
     )
@@ -127,6 +128,7 @@ class Store(Set):
             extra_references: TReferenceRecordSet | None = None,
             flags: TFlags | None = None,
             limit: int | None = None,
+            lookahead: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
@@ -141,6 +143,7 @@ class Store(Set):
            extra_references: Extra references to attach to statements.
            flags: Store flags.
            limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
            page_size: Page size of paginated responses.
            timeout: Timeout of responses (in seconds).
            kwargs: Other keyword arguments.
@@ -155,6 +158,8 @@ class Store(Set):
         self.set_extra_references(extra_references)
         self._limit = None
         self.set_limit(limit)
+        self._lookahead = None
+        self.set_lookahead(lookahead)
         self._page_size = None
         self.set_page_size(page_size)
         self._timeout = None
@@ -927,6 +932,101 @@ class Store(Set):
             self._limit = limit
 
     def _set_limit(self, old: int | None, new: int | None) -> bool:
+        return True
+
+# -- Lookahead -------------------------------------------------------------
+
+    @classmethod
+    def _check_lookahead(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int:
+        return max(int(Quantity.check(
+            arg, function, name, position).amount), 1)
+
+    @classmethod
+    def _check_optional_lookahead(
+            cls,
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int | None:
+        return cls._do_check_optional(
+            cls._check_lookahead, arg, default, function, name, position)
+
+    @at_property
+    def default_lookahead(self) -> int:
+        """The default value for :attr:`Store.lookahead`."""
+        return self.get_default_lookahead()
+
+    def get_default_lookahead(self) -> int:
+        """Gets the default value for :attr:`Store.lookahead`.
+
+        Returns:
+           Default lookahead value.
+        """
+        return self.context.options.store.lookahead
+
+    #: Lookahead.
+    _lookahead: int | None
+
+    @at_property
+    def lookahead(self) -> int:
+        """The lookahead of store."""
+        return self.get_lookahead()
+
+    @lookahead.setter
+    def lookahead(self, lookahead: int | None = None) -> None:
+        self.set_lookahead(lookahead)
+
+    def get_lookahead(
+            self,
+            default: int | None = None
+    ) -> int:
+        """Gets the lookahead of store.
+
+        If the lookhead is ``None``, returns `default`.
+
+        If `default` is ``None``, assumes :attr:`Store.default_lookahead`.
+
+        Parameters:
+           default: Default lookahead.
+
+        Returns:
+           Lookahead.
+        """
+        if self._lookahead is not None:
+            lookahead: int = self._lookahead
+        elif default is not None:
+            lookahead = default
+        else:
+            lookahead = self.default_lookahead
+        return lookahead
+
+    def set_lookahead(
+            self,
+            lookahead: int | None = None
+    ) -> None:
+        """Sets lookhead of store.
+
+        If `lookahead` is negative, assumes zero.
+
+        If `lookahead` is ``None``, assumes :attr:`Store.default_lookahead`.
+
+        Parameters:
+           lookahead: Lookahead.
+        """
+        lookahead = self._check_optional_lookahead(
+            lookahead, None, self.set_lookahead, 'lookahead', 1)
+        if self._set_lookahead(self._lookahead, lookahead):
+            self._lookahead = lookahead
+
+    def _set_lookahead(self, old: int | None, new: int | None) -> bool:
         return True
 
 # -- Page size -------------------------------------------------------------
