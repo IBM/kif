@@ -185,7 +185,7 @@ class StoreParamType(KIF_ParamType):
             return self.fail(str(err), param, ctx)
 
     @override
-    def split_envvar_value(self, rv: str) -> Sequence[str]:
+    def split_envvar_value(self, rv: str) -> Sequence[str]:  # type: ignore
         return (rv or '').split(';')
 
 
