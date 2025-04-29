@@ -84,6 +84,7 @@ PYRIGHTCONFIG_OPTIONS?= --warnings
 PYRIGHTCONFIG_REPORT_MISSING_IMPORTS?= true
 PYRIGHTCONFIG_REPORT_MISSING_TYPE_STUBS?= true
 PYTEST?= ${PYTHON} -m pytest
+PYTEST_ASYNCIO_DEFAULT_FIXTURE_LOOP_SCOPE?= "class"
 PYTEST_COV_OPTIONS?= --cov=${PACKAGE} --cov-report=html
 PYTEST_INI?= pytest.ini
 PYTEST_OPTIONS?= -ra
@@ -95,7 +96,7 @@ SETUP_PY?= setup.py
 SETUP_PY_ENTRY_POINTS?= {}
 SETUP_PY_EXTRAS_REQUIRE_DOCS?= []
 SETUP_PY_EXTRAS_REQUIRE_EXTRA?= []
-SETUP_PY_EXTRAS_REQUIRE_TESTS?= ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox']
+SETUP_PY_EXTRAS_REQUIRE_TESTS?= ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox']
 SETUP_PY_FIND_PACKAGES_EXCLUDE?= ['tests', 'tests.*']
 SETUP_PY_INCLUDE_PACKAGE_DATA?= True
 SETUP_PY_INSTALL_REQUIRES?= []
@@ -413,6 +414,7 @@ gen-pytest-ini:
 	$P 'generating ${PYTEST_INI}'
 	$P '[pytest]' >${PYTEST_INI}
 	$P 'addopts = ${PYTEST_OPTIONS} ${PYTEST_COV_OPTIONS}' >>${PYTEST_INI}
+	$P 'asyncio_default_fixture_loop_scope = ${PYTEST_ASYNCIO_DEFAULT_FIXTURE_LOOP_SCOPE}' >>${PYTEST_INI}
 	$P 'testpaths = ${TESTS}' >>${PYTEST_INI}
 
 GEN_ALL_TARGETS+= gen-setup-py

@@ -25,7 +25,7 @@ setuptools.setup(
     extras_require={
         'docs': [ 'myst_nb', 'sphinx-rtd-theme', ],
         'extra': [ 'click', 'graphviz', 'jpype1', 'rich', ],
-        'tests': ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox'],
+        'tests': ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox'],
     },
     entry_points={'console_scripts': ['kif = kif_lib.cli:cli'], },
     zip_safe=False,
