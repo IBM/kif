@@ -309,11 +309,13 @@ class _SPARQL_Store(
 
     @override
     def _close(self) -> None:
-        self.backend.close()
+        if self._backend is not None:
+            self.backend.close()
 
     @override
     async def _aclose(self) -> None:
-        await self.backend.aclose()
+        if self._backend is not None:
+            await self.backend.aclose()
 
     @override
     def _set_timeout(self, old: float | None, new: float | None) -> bool:

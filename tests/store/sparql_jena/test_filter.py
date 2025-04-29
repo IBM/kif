@@ -20,8 +20,8 @@ class Test(StoreTestCase):
                 'tests/data/andar.ttl',
                 'tests/data/benzene.ttl',
                 'tests/data/brazil.ttl')
-        except cls.S.Error:
-            raise cls.SKIP('Jena not found')
+        except cls.S.Error as err:
+            raise cls.SKIP(f'Jena not found ({err})')
 
     def test(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())
