@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.7.8 (2025-04-29)
+
+- Added async support to the Store API.  Now there are async versions of the
+  core methods: `acontains()`, `aask()`, `acount()`, `afilter()`.
+
+- Added the `Store.lookahead` option to determine the number of non-blocking
+  requests done in parallel by `afilter()` when advancing its results.
+
+- Added the convenience methods `Store.mix` and `Store.amix` to mix the
+  results of multiple filter evaluations.
+
 ## 0.7.7 (2025-04-24)
 
 - Added support for registering property schemas for whole IRI namespaces.
