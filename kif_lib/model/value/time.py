@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import datetime
 import enum
+import sys
 
 from ...typing import Any, ClassVar, Location, override, Self, TypeAlias, Union
 from ..term import Template, Variable
@@ -336,6 +337,13 @@ class Time(
                 # sign used by Wikidata at the start of date-time literals.
                 ###
                 arg = arg[1:] if arg[0] == '+' or arg[0] == '-' else arg
+                if arg[-1] == 'Z' and sys.version_info < (3, 11):
+                    ###
+                    # FIXME: Python < 3.11's fromisoformat() does not
+                    # support the trailing "Z".  Move this hack to a
+                    # separate module.
+                    ###
+                    arg = arg[:-1]
                 try:
                     dt = datetime.datetime.fromisoformat(arg)
                 except ValueError as err:
