@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from itertools import (
     chain,
     count,
@@ -16,12 +17,28 @@ from itertools import (
     tee,
 )
 
-from more_itertools import batched, partition, take, unique_everseen
+from more_itertools import (
+    batched,
+    partition,
+    roundrobin,
+    take,
+    unique_everseen,
+)
 
-from .typing import AsyncIterator, cast, ClassVar, Final, TypeAlias, TypeVar
+from .typing import (
+    Any,
+    AsyncIterator,
+    cast,
+    Final,
+    Iterable,
+    Iterator,
+    TypeVar,
+)
 
 __all__ = (
+    'aenumerate',
     'anext',
+    'aroundrobin',
     'batched',
     'chain',
     'count',
@@ -32,6 +49,7 @@ __all__ = (
     'permutations',
     'product',
     'repeat',
+    'roundrobin',
     'starmap',
     'take',
     'tee',
@@ -41,25 +59,32 @@ __all__ = (
 T = TypeVar('T')
 
 
-class _SentinelType:
-    Sentinel: ClassVar[_SentinelType | None] = None
+class _Sentinel:
 
-    def __new__(cls):
-        if cls.Sentinel is None:
-            cls.Sentinel = super().__new__(cls)
-        return cls.Sentinel
+    __slots__ = (
+        'payload',
+    )
 
-    def __call__(self) -> _SentinelType:
-        return self
+    def __init__(self, payload: Any = None) -> None:
+        self.payload = payload
 
 
-_T_SENTINEL: TypeAlias = _SentinelType
-_SENTINEL: Final[_SentinelType] = _SentinelType()
+_SENTINEL: Final[_Sentinel] = _Sentinel()
+
+
+async def aenumerate(
+        it: AsyncIterator[T],
+        start: int = 0
+) -> AsyncIterator[tuple[int, T]]:
+    """Async version of :func:`enumerate`."""
+    async for x in it:
+        yield start, x
+        start += 1
 
 
 async def anext(
         it: AsyncIterator[T],
-        default: T | _T_SENTINEL = _SENTINEL
+        default: T | _Sentinel = _SENTINEL
 ) -> T:
     """Async version of :func:`next'."""
     try:
@@ -68,3 +93,40 @@ async def anext(
         if default is _SENTINEL:
             raise
         return cast(T, default)
+
+
+async def aroundrobin(*its: AsyncIterator[T]) -> AsyncIterator[T]:
+    """Async version of :func:`roundrobin`."""
+    its_ = list(its)
+    while its_:
+        tasks = (asyncio.ensure_future(
+            anext(it, _Sentinel(it))) for it in its_)
+        for x in await asyncio.gather(*tasks):
+            if isinstance(x, _Sentinel):
+                its_.remove(x.payload)  # type: ignore
+            else:
+                yield x
+
+
+def uniq(it: Iterable[T]) -> Iterator[T]:
+    """Yields unique elements, preserves order.
+
+    it: Iterable of hashable elements.
+
+    Returns:
+       An corresponding iterator without duplicates.
+    """
+    seen: set[T] = set()
+    for x in it:
+        if x not in seen:
+            yield x
+            seen.add(x)
+
+
+async def auniq(it: AsyncIterator[T]) -> AsyncIterator[T]:
+    """Async version of :func:`uniq`."""
+    seen: set[T] = set()
+    async for x in it:
+        if x not in seen:
+            yield x
+            seen.add(x)

@@ -10,7 +10,6 @@ from ..model import Filter, KIF_Object, Statement
 from ..typing import (
     Any,
     AsyncIterator,
-    cast,
     Collection,
     Iterable,
     Iterator,
@@ -216,24 +215,10 @@ class MixerStore(
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
-        its: list[Iterator[Statement]] = [src._filter_tail(
-            filter, limit, distinct) for src in self._sources]
-        count = 0
-        seen: set[Statement] = set()
-        exausted: set[Iterator[Statement]] = set()
-        while count < limit and its:
-            for it in its:
-                try:
-                    stmt = next(it)
-                    if stmt not in seen:
-                        yield stmt
-                        seen.add(stmt)
-                        count += 1
-                except StopIteration:
-                    exausted.add(it)
-                    continue
-            while exausted:
-                its.remove(exausted.pop())
+        it: Iterator[Statement] = itertools.roundrobin(*map(
+            lambda src: src._filter_tail(filter, limit, distinct),
+            self._sources))
+        return itertools.islice(itertools.uniq(it) if distinct else it, limit)
 
     @override
     async def _afilter(
@@ -242,20 +227,29 @@ class MixerStore(
             limit: int,
             distinct: bool
     ) -> AsyncIterator[Statement]:
-        its: list[AsyncIterator[Statement]] = [src._afilter_tail(
-            filter, limit, distinct) for src in self._sources]
-        count = 0
-        seen: set[Statement] = set()
-        while count < limit and its:
-            tasks = (
-                asyncio.ensure_future(itertools.anext(it, it))
-                for it in its)
-            for stmt in await asyncio.gather(*tasks):
-                if isinstance(stmt, Statement):
-                    if stmt not in seen:
-                        yield stmt
-                        seen.add(stmt)
-                        count += 1
-                else:
-                    exausted_it = cast(AsyncIterator[Statement], stmt)
-                    its.remove(exausted_it)
+        # its: list[AsyncIterator[Statement]] = [src._afilter_tail(
+        #     filter, limit, distinct) for src in self._sources]
+        # count = 0
+        # seen: set[Statement] = set()
+        # while count < limit and its:
+        #     tasks = (
+        #         asyncio.ensure_future(itertools.anext(it, it))
+        #         for it in its)
+        #     for stmt in await asyncio.gather(*tasks):
+        #         if isinstance(stmt, Statement):
+        #             if stmt not in seen:
+        #                 yield stmt
+        #                 seen.add(stmt)
+        #                 count += 1
+        #         else:
+        #             # exausted_it = cast(AsyncIterator[Statement], stmt)
+        #             its.remove(stmt)  # type: ignore
+        it: AsyncIterator[Statement] = itertools.aroundrobin(
+            *(src._afilter_tail(filter, limit, distinct)
+              for src in self._sources))
+        if distinct:
+            it = itertools.auniq(it)
+        async for i, stmt in itertools.aenumerate(it, 1):
+            yield stmt
+            if i >= limit:
+                break
