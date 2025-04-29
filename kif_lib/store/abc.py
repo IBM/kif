@@ -3,6 +3,9 @@
 
 from __future__ import annotations
 
+import functools
+
+from .. import itertools
 from ..context import Context
 from ..error import Error as KIF_Error
 from ..error import ShouldNotGetHere
@@ -23,11 +26,13 @@ from ..model import (
 from ..model.flags import Flags as KIF_Flags
 from ..typing import (
     Any,
+    AsyncIterable,
     AsyncIterator,
     Callable,
     cast,
     ClassVar,
     Final,
+    Iterable,
     Iterator,
     Location,
     Set,
@@ -1697,7 +1702,7 @@ class Store(Set):
            distinct: Whether to skip duplicated matches.
 
         Returns:
-           An iterator of statements matching filter.
+           An async iterator of statements matching filter.
         """
         limit, distinct = self._xfilter_get_limit_and_distinct(
             limit, distinct, self.afilter)
@@ -1833,7 +1838,7 @@ class Store(Set):
            distinct: Whether to skip duplicated matches.
 
         Returns:
-           An iterator of annotated statements matching filter.
+           An async iterator of annotated statements matching filter.
         """
         return cast(AsyncIterator[AnnotatedStatement], self.afilter(
             subject=subject,
@@ -1936,3 +1941,57 @@ class Store(Set):
         return filter.normalize().replace(
             filter.KEEP, filter.KEEP, filter.KEEP,
             filter.snak_mask & store_snak_mask)
+
+    def mix(
+            self,
+            *sources: Filter | Iterable[Statement],
+            limit: int | None = None,
+            distinct: bool | None = None
+    ) -> Iterator[Statement]:
+        """Mixes sources of statement.
+
+        If source is a :class:`Filter`, evaluates it over store it to obtain
+        a statement iterator.
+
+        Parameters:
+           sources: Sources to mix.
+           limit: Limit (maximum number) of statements to yield.
+           distinct: Whether to skip duplicates.
+
+        Returns:
+           An iterator of statements.
+        """
+        limit, distinct = self._xfilter_get_limit_and_distinct(
+            limit, distinct, self.mix)
+        f = functools.partial(self.filter, limit=limit, distinct=distinct)
+        return itertools.mix(
+            *map(lambda src: f(filter=src)
+                 if isinstance(src, Filter) else src, sources),
+            limit=limit, distinct=distinct)
+
+    async def amix(
+            self,
+            *sources: Filter | AsyncIterable[Statement],
+            limit: int | None = None,
+            distinct: bool | None = None
+    ) -> AsyncIterator[Statement]:
+        """Async version of :meth:`Store.mix`.
+
+        If source is a :class:`Filter`, evaluates it over store it to obtain
+        a statement iterator.
+
+        Parameters:
+           sources: Sources to mix.
+           limit: Limit (maximum number) of statements to yield.
+           distinct: Whether to skip duplicates.
+
+        Returns:
+           An async iterator of statements.
+        """
+        limit, distinct = self._xfilter_get_limit_and_distinct(
+            limit, distinct, self.amix)
+        f = functools.partial(self.afilter, limit=limit, distinct=distinct)
+        its = map(lambda src: f(filter=src)
+                  if isinstance(src, Filter) else src, sources)
+        async for stmt in itertools.amix(*its, limit=limit, distinct=distinct):
+            yield stmt

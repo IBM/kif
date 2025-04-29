@@ -242,10 +242,9 @@ class MixerStore(
             limit: int,
             distinct: bool
     ) -> Iterator[Statement]:
-        it: Iterator[Statement] = itertools.roundrobin(*map(
-            lambda src: src._filter_tail(filter, limit, distinct),
-            self._sources))
-        return itertools.islice(itertools.uniq(it) if distinct else it, limit)
+        return itertools.mix(
+            *(src._filter_tail(filter, limit, distinct)
+              for src in self._sources), limit=limit, distinct=distinct)
 
     @override
     async def _afilter(
@@ -254,29 +253,7 @@ class MixerStore(
             limit: int,
             distinct: bool
     ) -> AsyncIterator[Statement]:
-        # its: list[AsyncIterator[Statement]] = [src._afilter_tail(
-        #     filter, limit, distinct) for src in self._sources]
-        # count = 0
-        # seen: set[Statement] = set()
-        # while count < limit and its:
-        #     tasks = (
-        #         asyncio.ensure_future(itertools.anext(it, it))
-        #         for it in its)
-        #     for stmt in await asyncio.gather(*tasks):
-        #         if isinstance(stmt, Statement):
-        #             if stmt not in seen:
-        #                 yield stmt
-        #                 seen.add(stmt)
-        #                 count += 1
-        #         else:
-        #             # exausted_it = cast(AsyncIterator[Statement], stmt)
-        #             its.remove(stmt)  # type: ignore
-        it: AsyncIterator[Statement] = itertools.aroundrobin(
+        async for stmt in itertools.amix(
             *(src._afilter_tail(filter, limit, distinct)
-              for src in self._sources))
-        if distinct:
-            it = itertools.auniq(it)
-        async for i, stmt in itertools.aenumerate(it, 1):
+              for src in self._sources), limit=limit, distinct=distinct):
             yield stmt
-            if i >= limit:
-                break

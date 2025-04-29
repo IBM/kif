@@ -40,6 +40,7 @@ from .typing import (
 
 __all__ = (
     'aenumerate',
+    'amix',
     'anext',
     'aroundrobin',
     'auniq',
@@ -49,6 +50,7 @@ __all__ = (
     'cycle',
     'groupby',
     'islice',
+    'mix',
     'partition',
     'permutations',
     'product',
@@ -93,6 +95,51 @@ if sys.version_info < (3, 10):
         """Async version of :func:`iter`."""
         return it.__aiter__()
 
+
+def mix(
+        *its: Iterable[H],
+        limit: int | None = None,
+        distinct: bool | None = None
+) -> Iterator[H]:
+    """Yields interleaved elements, preserving order.
+
+    Parameters:
+       its: Iterables of hashable elements.
+       limit: Limit (maximum number) of elements to yield.
+       distinct: Whether to skip duplicates.
+
+    Returns:
+       Iterator.
+    """
+    it = roundrobin(*its)
+    if distinct:
+        it = uniq(it)
+    if limit is not None:
+        it = islice(it, max(limit, 0))
+    return it
+
+
+async def amix(
+        *its: AsyncIterable[H],
+        limit: int | None = None,
+        distinct: bool | None = None
+) -> AsyncIterator[H]:
+    """Async version of :func:`mix`."""
+    it = aroundrobin(*its)
+    if distinct:
+        it = auniq(it)
+    if limit is None:
+        async for x in it:
+            yield x
+    else:
+        limit = max(limit, 0)
+        async for i, x in aenumerate(it, 1):
+            yield x
+            if i >= limit:
+                break
+
+
+if sys.version_info < (3, 10):
     async def anext(
             it: AsyncIterator[T],
             default: T | _Sentinel = _SENTINEL
@@ -128,7 +175,7 @@ def uniq(it: Iterable[H], _key=lambda x: x) -> Iterator[H]:
        it: Iterable of hashable elements.
 
     Returns:
-       An corresponding iterator without duplicates.
+       The resulting iterator.
     """
     return unique_everseen(it, key=_key)
 

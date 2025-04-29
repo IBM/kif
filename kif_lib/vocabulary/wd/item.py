@@ -158,6 +158,7 @@ Spanish = Q(1321, 'Spanish')
 subcutaneous_injection = Q(2035485, 'subcutaneous injection')
 summit = Q(207326, 'summit')
 Supercalifragilisticexpialidocious = Q(103, 'Supercalifragilisticexpialidocious')
+Suriname = Q(730, 'Suriname')
 system_software = Q(676202, 'system software')
 type_of_a_chemical_entity = Q(113145171, 'type of a chemical entity')
 unit_of_mass = Q(3647172, 'unit of mass')
@@ -328,6 +329,7 @@ __all__ = (
     'subcutaneous_injection',
     'summit',
     'Supercalifragilisticexpialidocious',
+    'Suriname',
     'system_software',
     'type_of_a_chemical_entity',
     'unit_of_mass',
