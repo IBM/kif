@@ -222,7 +222,7 @@ class CompoundFingerprint(Fingerprint):
             return FullFingerprint()
         if len(self.args) == 1:  # 1-ary compound
             return self.args[0]._normalize(datatype_mask)
-        args = list(itertools.unique_everseen(
+        args = list(itertools.uniq(
             self._normalize_args(datatype_mask, iter(self.args))))
         assert len(args) >= 1
         if len(args) == 1:

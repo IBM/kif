@@ -30,6 +30,7 @@ from .typing import (
     AsyncIterator,
     cast,
     Final,
+    Hashable,
     Iterable,
     Iterator,
     TypeVar,
@@ -39,6 +40,7 @@ __all__ = (
     'aenumerate',
     'anext',
     'aroundrobin',
+    'auniq',
     'batched',
     'chain',
     'count',
@@ -53,11 +55,11 @@ __all__ = (
     'starmap',
     'take',
     'tee',
-    'unique_everseen',
+    'uniq',
 )
 
 T = TypeVar('T')
-
+H = TypeVar('H', bound=Hashable)
 
 class _Sentinel:
 
@@ -108,24 +110,22 @@ async def aroundrobin(*its: AsyncIterator[T]) -> AsyncIterator[T]:
                 yield x
 
 
-def uniq(it: Iterable[T]) -> Iterator[T]:
+def uniq(it: Iterable[H], _key=lambda x: x) -> Iterator[H]:
     """Yields unique elements, preserves order.
+
+    This is a hashable-only version of `more_itertools.unique_everseen`.
 
     it: Iterable of hashable elements.
 
     Returns:
        An corresponding iterator without duplicates.
     """
-    seen: set[T] = set()
-    for x in it:
-        if x not in seen:
-            yield x
-            seen.add(x)
+    return unique_everseen(it, key=_key)
 
 
-async def auniq(it: AsyncIterator[T]) -> AsyncIterator[T]:
+async def auniq(it: AsyncIterator[H]) -> AsyncIterator[H]:
     """Async version of :func:`uniq`."""
-    seen: set[T] = set()
+    seen: set[H] = set()
     async for x in it:
         if x not in seen:
             yield x
