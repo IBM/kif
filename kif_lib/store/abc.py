@@ -38,6 +38,7 @@ from ..typing import (
     Set,
     TypeAlias,
     TypeVar,
+    Union,
 )
 
 at_property = property
@@ -725,7 +726,7 @@ class Store(Set):
     NO_VALUE_SNAK: Final[Flags] = Flags.NO_VALUE_SNAK
 
     #: Type alias for store flags.
-    TFlags: TypeAlias = Flags | int
+    TFlags: TypeAlias = Union[Flags, int]
 
     @at_property
     def default_flags(self) -> Flags:

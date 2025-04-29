@@ -70,6 +70,7 @@ from ....typing import (
     Optional,
     override,
     TypeAlias,
+    Union,
 )
 from ..filter_compiler import SPARQL_FilterCompiler as C
 from ..results import SPARQL_ResultsBinding
@@ -93,7 +94,7 @@ V_URI: TypeAlias = C.Query.V_URI
 Var: TypeAlias = C.Query.Variable
 Var3: TypeAlias = tuple[Var, Var, Var]
 
-T_WDS: TypeAlias = BNode | Var
+T_WDS: TypeAlias = Union[BNode, Var]
 
 #: Variables used in register patterns.
 d, e, p, r, w, x, y, z = Variables(*'deprwxyz')

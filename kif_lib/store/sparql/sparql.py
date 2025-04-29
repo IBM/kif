@@ -8,7 +8,7 @@ import re
 from ... import itertools, rdflib
 from ...compiler.sparql import SPARQL_Mapping
 from ...model import Filter, IRI, T_IRI, TGraph
-from ...typing import Any, BinaryIO, Iterator, TextIO, TypeAlias
+from ...typing import Any, BinaryIO, Iterator, TextIO, TypeAlias, Union
 from ..abc import Store
 from ..mixer import MixerStore
 from .rdf import RDF_Store
@@ -37,7 +37,7 @@ class SPARQL_Store(
     """
 
     #: Type alias for SPARQL Store arguments.
-    Args: TypeAlias = T_IRI | RDF_Store.Args
+    Args: TypeAlias = Union[T_IRI, RDF_Store.Args]
 
     @classmethod
     def _is_http_or_https_iri(

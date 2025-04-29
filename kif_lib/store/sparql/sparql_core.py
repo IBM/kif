@@ -301,7 +301,9 @@ class _SPARQL_Store(
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
+        self._mapping = None
         self._init_mapping(mapping, type(self), 'mapping')
+        self._backend = None
         self._init_backend(backend, args, kwargs, type(self), 'backend')
         super().__init__(**kwargs)
 
@@ -321,7 +323,7 @@ class _SPARQL_Store(
 # -- Backend ---------------------------------------------------------------
 
     #: SPARQL store backend.
-    _backend: _SPARQL_Store.Backend
+    _backend: _SPARQL_Store.Backend | None
 
     def _init_backend(
             self,
@@ -347,6 +349,7 @@ class _SPARQL_Store(
         Returns:
            SPARQL store backend.
         """
+        assert self._backend is not None
         return self._backend
 
 # -- SPARQL mapping --------------------------------------------------------
@@ -402,7 +405,7 @@ class _SPARQL_Store(
         return WikidataMapping(*args, **kwargs)
 
     #: SPARQL mapping.
-    _mapping: SPARQL_Mapping
+    _mapping: SPARQL_Mapping | None
 
     def _init_mapping(
             self,
@@ -425,6 +428,7 @@ class _SPARQL_Store(
         Returns:
            SPARQL mapping.
         """
+        assert self._mapping is not None
         return self._mapping
 
 # -- Statements ------------------------------------------------------------

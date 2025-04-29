@@ -91,7 +91,7 @@ async def aenumerate(
         start += 1
 
 if sys.version_info < (3, 10):
-    async def aiter(it: AsyncIterable[T]) -> AsyncIterator[T]:
+    def aiter(it: AsyncIterable[T]) -> AsyncIterator[T]:
         """Async version of :func:`iter`."""
         return it.__aiter__()
 
@@ -154,7 +154,7 @@ if sys.version_info < (3, 10):
 
 
 async def aroundrobin(*its: AsyncIterable[T]) -> AsyncIterator[T]:
-    """Async version of :func:`roundrobin`."""
+    """Async version of :func:`more_itertools.roundrobin`."""
     its_ = list(its)
     while its_:
         tasks = (asyncio.ensure_future(
