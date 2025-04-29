@@ -161,7 +161,7 @@ class Store(Set):
         self.set_timeout(timeout)
 
     def __del__(self) -> None:
-        self._close()
+        self.close()
 
     def close(self) -> None:
         """Closes store."""

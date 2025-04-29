@@ -1237,7 +1237,18 @@ class StoreTestCase(TestCase):
            filter: Filter.
         """
         assert isinstance(expected, bool)
-        self.assertEqual(expected, store.ask(filter=filter))
+        self.assertEqual(
+            expected,
+            store.ask(filter=filter),
+            '*** ASK: FAILED ***')
+        loop = asyncio.get_event_loop()
+
+        async def a():
+            return await store.aask(filter=filter)
+        self.assertEqual(
+            expected,
+            loop.run_until_complete(a()),
+            '*** ASYNC ASK: FAILED ***')
 
     def store_contains_assertion(
             self,
@@ -1269,7 +1280,14 @@ class StoreTestCase(TestCase):
         assert isinstance(expected, bool)
         (self.assertTrue if expected else self.assertFalse)(
             store.contains(statement),
-            f'*** CONTAINS FAILED FOR STATEMENT ***\n{statement}')
+            f'*** CONTAINS: FAILED FOR STATEMENT ***\n{statement}')
+        loop = asyncio.get_event_loop()
+
+        async def c():
+            return await store.acontains(statement)
+        (self.assertTrue if expected else self.assertFalse)(
+            loop.run_until_complete(c()),
+            f'*** ASYNC CONTAINS: FAILED FOR STATEMENT ***\n{statement}')
 
     def store_count_assertion(
             self,
@@ -1299,7 +1317,18 @@ class StoreTestCase(TestCase):
            filter: Filter.
         """
         assert isinstance(expected, int) and expected >= 0
-        self.assertEqual(expected, store.count(filter=filter))
+        self.assertEqual(
+            expected,
+            store.count(filter=filter),
+            '*** COUNT: FAILED ***')
+        loop = asyncio.get_event_loop()
+
+        async def c():
+            return await store.acount(filter=filter)
+        self.assertEqual(
+            expected,
+            loop.run_until_complete(c()),
+            '*** ASYNC COUNT: FAILED ***')
 
     def store_xcount_assertion(
             self,
@@ -1360,7 +1389,18 @@ class StoreTestCase(TestCase):
         if filter.annotated:
             expected = map(lambda s: s if isinstance(
                 expected, AnnotatedStatement) else s.annotate(), expected)
-        self.assertEqual(set(store.filter(filter=filter)), set(expected))
+        self.assertEqual(
+            set(store.filter(filter=filter)),
+            set(expected),
+            '*** FILTER: FAILED ***')
+        loop = asyncio.get_event_loop()
+
+        async def f():
+            return {stmt async for stmt in store.afilter(filter=filter)}
+        self.assertEqual(
+            loop.run_until_complete(f()),
+            set(map(Statement.unannotate, expected)),
+            '*** ASYNC FILTER: FAILED ***')
 
     def store_xfilter_assertion(
             self,
@@ -1401,7 +1441,6 @@ class StoreTestCase(TestCase):
             set(store.filter_annotated(filter=filter)),
             set(self._assert_store_xfilter_annotate(expected)),
             '*** XFILTER: ANNOTATED FILTER FAILED ***')
-
         loop = asyncio.get_event_loop()
 
         async def f():
