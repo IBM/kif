@@ -75,6 +75,12 @@ def list_encoders() -> None:
         ((k, v.description) for k, v in Encoder.registry.items()))
 
 
+@cli.command(help='Show KIF context options and exit.')
+def list_options() -> None:
+    from .context import Context
+    click.echo(Context.top().options)
+
+
 @cli.command(help='Show the available stores and exit.')
 def list_stores() -> None:
     _list_name_description_pairs(
