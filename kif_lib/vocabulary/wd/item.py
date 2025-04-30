@@ -162,6 +162,7 @@ Suriname = Q(730, 'Suriname')
 system_software = Q(676202, 'system software')
 type_of_a_chemical_entity = Q(113145171, 'type of a chemical entity')
 unit_of_mass = Q(3647172, 'unit of mass')
+United_Kingdom = Q(145, 'United Kingdom')
 United_States_of_America = Q(30, 'United States of America')
 Uruguay = Q(77, 'Uruguay')
 vendor = Q(1762621, 'vendor')
@@ -333,6 +334,7 @@ __all__ = (
     'system_software',
     'type_of_a_chemical_entity',
     'unit_of_mass',
+    'United_Kingdom',
     'United_States_of_America',
     'Uruguay',
     'vendor',
