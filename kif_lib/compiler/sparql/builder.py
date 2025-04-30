@@ -295,9 +295,12 @@ class LogicExpression(BooleanExpression):
         self.args = (arg, *args)
 
     def __eq__(self, other: Any) -> bool:
-        return (type(self) is type(other)
-                and self.operator == other.operator
-                and self.args == other.args)
+        if isinstance(other, LogicExpression):
+            return (type(self) is type(other)
+                    and self.operator == other.operator
+                    and self.args == other.args)
+        else:
+            return NotImplemented
 
     @override
     def iterencode(self) -> Iterator[str]:
@@ -350,9 +353,12 @@ class RelationalExpression(BooleanExpression):
             Coerce.numeric_expression(arg2))
 
     def __eq__(self, other: Any) -> bool:
-        return (type(self) is type(other)
-                and self.operator == other.operator
-                and self.args == other.args)
+        if isinstance(other, RelationalExpression):
+            return (type(self) is type(other)
+                    and self.operator == other.operator
+                    and self.args == other.args)
+        else:
+            return NotImplemented
 
     @override
     def iterencode(self) -> Iterator[str]:
@@ -410,7 +416,10 @@ class NumericLiteral(NumericExpression):
         self.value = Coerce.numeric_literal_content(value)
 
     def __eq__(self, other: Any) -> bool:
-        return (type(self) is type(other) and self.value == other.value)
+        if isinstance(other, NumericLiteral):
+            return (type(self) is type(other) and self.value == other.value)
+        else:
+            return NotImplemented
 
     @override
     def iterencode(self) -> Iterator[str]:
@@ -424,9 +433,12 @@ class Call(NumericExpression):
     args: Sequence[NumericExpression]
 
     def __eq__(self, other: Any) -> bool:
-        return (type(self) is type(other)
-                and self.operator == other.operator
-                and self.args == other.args)
+        if isinstance(other, Call):
+            return (type(self) is type(other)
+                    and self.operator == other.operator
+                    and self.args == other.args)
+        else:
+            return NotImplemented
 
     @override
     def iterencode(self) -> Iterator[str]:
