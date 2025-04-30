@@ -6,7 +6,7 @@ from __future__ import annotations
 import os
 
 from . import codec  # noqa: F401
-from .__version__ import __description__, __title__, __version__
+from .__version__ import __description__, __title__, __version__  # noqa: F401
 from .context import Context
 from .error import Error
 from .model import (
@@ -132,10 +132,6 @@ from .model import (
 from .store import Store
 
 __all__ = (
-    '__description__',
-    '__title__',
-    '__version__',
-
     # context
     'Context',
 
