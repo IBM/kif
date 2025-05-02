@@ -33,7 +33,7 @@ class EntityRegistryOptions(Section, name='entities'):
 
     def _init_resolve(self, kwargs: dict[str, Any] = {}) -> None:
         self.resolve = bool(kwargs.get(
-            '_resolve', self.getenv(*self._v_resolve)))
+            '_resolve', self.getenv_bool(*self._v_resolve)))
 
     @property
     def resolve(self) -> bool:

@@ -18,14 +18,14 @@ class PubChemMappingOptions(Section, name='pubchem'):
 
     # -- normalize_casrn --
 
-    _v_normalize_casrn: ClassVar[tuple[str, bool | None]] =\
+    _v_normalize_casrn: ClassVar[tuple[str, bool]] =\
         ('KIF_COMPILER_SPARQL_MAPPING_PUBCHEM_NORMALIZE_CASRN', False)
 
-    _normalize_casrn: bool | None
+    _normalize_casrn: bool
 
     def _init_normalize_casrn(self, kwargs: dict[str, Any]) -> None:
         self.normalize_casrn = kwargs.get(
-            '_normalize_casrn', self.getenv(*self._v_normalize_casrn))
+            '_normalize_casrn', self.getenv_bool(*self._v_normalize_casrn))
 
     @property
     def normalize_casrn(self) -> bool:
@@ -33,7 +33,7 @@ class PubChemMappingOptions(Section, name='pubchem'):
         return self.get_normalize_casrn()
 
     @normalize_casrn.setter
-    def normalize_casrn(self, normalize_casrn: bool | None) -> None:
+    def normalize_casrn(self, normalize_casrn: bool) -> None:
         self.set_normalize_casrn(normalize_casrn)
 
     def get_normalize_casrn(self) -> bool:
@@ -42,9 +42,9 @@ class PubChemMappingOptions(Section, name='pubchem'):
         Returns:
            Normalize CAS-RN flag.
         """
-        return bool(self._normalize_casrn)
+        return self._normalize_casrn
 
-    def set_normalize_casrn(self, normalize_casrn: bool | None) -> None:
+    def set_normalize_casrn(self, normalize_casrn: bool) -> None:
         """Sets the value of the "normalize CAS-RN" flag.
 
         Parameters:

@@ -3,17 +3,34 @@
 
 from __future__ import annotations
 
+import ast
 import dataclasses
+import logging
 import os
+import pathlib
 
-from ..typing import Any, ClassVar, Iterable, Iterator, Self
+from ..typing import (
+    Any,
+    Callable,
+    cast,
+    ClassVar,
+    Final,
+    Iterable,
+    Iterator,
+    Self,
+    TypeVar,
+)
+
+T = TypeVar('T')
+
+_logger: Final[logging.Logger] = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
 class Section:
     """Section in KIF options."""
 
-    #: Name of this section.
+    #: The name of this section.
     name: ClassVar[str]
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
@@ -23,25 +40,175 @@ class Section:
     def getenv(
             cls,
             vars: str | Iterable[str],
-            default: Any | None = None
-    ) -> Any:
-        """Gets the value of the first non-empty variable in `vars`.
+            default: T,
+            parse: Callable[[str], T] | None = None,
+            _empty_returns_none: bool = False
+    ) -> T:
+        """Gets the value of the environment variable.
+
+        If `vars` is an iterable, gets the value of the first non-empty
+        environment variable in `vars`.
+
+        If variable is not set, returns `default`.
 
         Parameters:
            vars: Variable or variables.
            default: Default value.
+           parse: Value parsing function.
 
         Returns:
            Value or `default`.
         """
         if isinstance(vars, str):
-            return os.getenv(vars, default)
-        else:
-            for var in vars:
-                value = os.getenv(var)
-                if value is not None:
-                    return value
-            return default
+            vars = (vars,)
+        for var in vars:
+            value = os.getenv(var)
+            if value is None:
+                continue
+            if not value:
+                if _empty_returns_none:
+                    return None  # type: ignore
+                continue
+            try:
+                if parse is not None:
+                    return parse(value)
+                else:
+                    return cast(T, value)
+            except BaseException:
+                _logger.warning(
+                    'bad value (%s) for environment variable %s',
+                    value, var)
+        return default
+
+    @classmethod
+    def getenv_optional(
+            cls,
+            vars: str | Iterable[str],
+            default: T | None = None,
+            parse: Callable[[str], T] | None = None
+    ) -> T | None:
+        """Gets the value of environment variable.
+
+        If `vars` is an iterable, gets the value of the first non-empty
+        environment variable in `vars`.
+
+        If variable is empty or not set, returns `default`.
+
+        Parameters:
+           vars: Variable or variables.
+           default: Default value.
+           parse: Value parsing function.
+
+        Returns:
+           Value or `default`.
+        """
+        return cls.getenv(vars, default, parse, True)  # type: ignore
+
+    @classmethod
+    def getenv_bool(
+            cls,
+            vars: str | Iterable[str],
+            default: bool
+    ) -> bool:
+        """:meth:`Section.getenv` for boolean variables."""
+        return cls.getenv(vars, default, cls._getenv_bool_parse)
+
+    @classmethod
+    def getenv_optional_bool(
+            cls,
+            vars: str | Iterable[str],
+            default: bool | None = None
+    ) -> bool | None:
+        """:meth:`Section.getenv_optional` for boolean variables."""
+        return cls.getenv_optional(vars, default, cls._getenv_bool_parse)
+
+    @classmethod
+    def _getenv_bool_parse(cls, v: str) -> bool:
+        return bool(ast.literal_eval(v))
+
+    @classmethod
+    def getenv_float(
+            cls,
+            vars: str | Iterable[str],
+            default: float
+    ) -> float:
+        """:meth:`Section.getenv` for float variables."""
+        return cls.getenv(vars, default, cls._getenv_float_parse)
+
+    @classmethod
+    def getenv_optional_float(
+            cls,
+            vars: str | Iterable[str],
+            default: float | None
+    ) -> float | None:
+        """:meth:`Section.getenv_optional` for float variables."""
+        return cls.getenv_optional(vars, default, cls._getenv_float_parse)
+
+    @classmethod
+    def _getenv_float_parse(cls, v: str) -> float:
+        return float(ast.literal_eval(v))
+
+    @classmethod
+    def getenv_int(
+            cls,
+            vars: str | Iterable[str],
+            default: int
+    ) -> int:
+        """:meth:`Section.getenv` for int variables."""
+        return cls.getenv(vars, default, cls._getenv_int_parse)
+
+    @classmethod
+    def getenv_optional_int(
+            cls,
+            vars: str | Iterable[str],
+            default: int | None
+    ) -> int | None:
+        """:meth:`Section.getenv_optional` for int variables."""
+        return cls.getenv_optional(vars, default, cls._getenv_int_parse)
+
+    @classmethod
+    def _getenv_int_parse(cls, v: str) -> int:
+        return int(ast.literal_eval(v))
+
+    @classmethod
+    def getenv_str(
+            cls,
+            vars: str | Iterable[str],
+            default: str
+    ) -> str:
+        """:meth:`Section.getenv` for string variables."""
+        return cls.getenv(vars, default)
+
+    @classmethod
+    def getenv_optional_str(
+            cls,
+            vars: str | Iterable[str],
+            default: str | None = None
+    ) -> str | None:
+        """:meth:`Section.getenv_optional` for string variables."""
+        return cls.getenv_optional(vars, default)
+
+    @classmethod
+    def getenv_path(
+            cls,
+            vars: str | Iterable[str],
+            default: pathlib.Path
+    ) -> pathlib.Path:
+        """:meth:`Section.getenv` for path variables."""
+        return cls.getenv(vars, default, cls._getenv_path_parse)
+
+    @classmethod
+    def getenv_optional_path(
+            cls,
+            vars: str | Iterable[str],
+            default: pathlib.Path | None = None
+    ) -> pathlib.Path | None:
+        """:meth:`Section.getenv_optional` for path variables."""
+        return cls.getenv_optional(vars, default, cls._getenv_path_parse)
+
+    @classmethod
+    def _getenv_path_parse(cls, v: str) -> pathlib.Path:
+        return pathlib.Path(v)
 
     @classmethod
     def from_ast(cls, ast: dict[str, Any]) -> Self:

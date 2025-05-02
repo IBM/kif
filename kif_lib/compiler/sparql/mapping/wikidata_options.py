@@ -21,14 +21,14 @@ class WikidataMappingOptions(Section, name='wikidata'):
 
     # -- blazegraph --
 
-    _v_blazegraph: ClassVar[tuple[str, bool | None]] =\
-        ('KIF_COMPILER_SPARQL_MAPPING_WIKIDATA_BLAZEGRAPH', None)
+    _v_blazegraph: ClassVar[tuple[str, bool]] =\
+        ('KIF_COMPILER_SPARQL_MAPPING_WIKIDATA_BLAZEGRAPH', False)
 
-    _blazegraph: bool | None
+    _blazegraph: bool
 
     def _init_blazegraph(self, kwargs: dict[str, Any]) -> None:
         self.blazegraph = kwargs.get(
-            '_blazegraph', self.getenv(*self._v_blazegraph))
+            '_blazegraph', self.getenv_bool(*self._v_blazegraph))
 
     @property
     def blazegraph(self) -> bool:
@@ -36,7 +36,7 @@ class WikidataMappingOptions(Section, name='wikidata'):
         return self.get_blazegraph()
 
     @blazegraph.setter
-    def blazegraph(self, blazegraph: bool | None) -> None:
+    def blazegraph(self, blazegraph: bool) -> None:
         self.set_blazegraph(blazegraph)
 
     def get_blazegraph(self) -> bool:
@@ -45,25 +45,26 @@ class WikidataMappingOptions(Section, name='wikidata'):
         Returns:
            Blazegraph flag value.
         """
-        return bool(self._blazegraph)
+        return self._blazegraph
 
-    def set_blazegraph(self, blazegraph: bool | None) -> None:
+    def set_blazegraph(self, blazegraph: bool) -> None:
         """Sets the value of the blazegraph flag.
 
         Parameters:
-           blazegraph: Blazegraph flag value or ``None``.
+           blazegraph: Blazegraph flag value.
         """
         self._blazegraph = bool(blazegraph)
 
     # -- strict --
 
-    _v_strict: ClassVar[tuple[str, bool | None]] =\
-        ('KIF_COMPILER_SPARQL_MAPPING_WIKIDATA_STRICT', None)
+    _v_strict: ClassVar[tuple[str, bool]] =\
+        ('KIF_COMPILER_SPARQL_MAPPING_WIKIDATA_STRICT', False)
 
-    _strict: bool | None
+    _strict: bool
 
     def _init_strict(self, kwargs: dict[str, Any]) -> None:
-        self.strict = kwargs.get('_strict', self.getenv(*self._v_strict))
+        self.strict = kwargs.get(
+            '_strict', self.getenv_bool(*self._v_strict))
 
     @property
     def strict(self) -> bool:
@@ -71,7 +72,7 @@ class WikidataMappingOptions(Section, name='wikidata'):
         return self.get_strict()
 
     @strict.setter
-    def strict(self, strict: bool | None) -> None:
+    def strict(self, strict: bool) -> None:
         self.set_strict(strict)
 
     @property
@@ -87,7 +88,7 @@ class WikidataMappingOptions(Section, name='wikidata'):
         """
         return bool(self._strict)
 
-    def set_strict(self, strict: bool | None) -> None:
+    def set_strict(self, strict: bool) -> None:
         """Sets the value of the strict flag.
 
         Parameters:
@@ -105,8 +106,8 @@ class WikidataMappingOptions(Section, name='wikidata'):
 
     def _init_truthy(self, kwargs: dict[str, Any]) -> None:
         self.truthy = kwargs.get(
-            '_truthy', int(self.getenv(
-                self._v_truthy[0], self._v_truthy[1].value)))
+            '_truthy', self.getenv_int(
+                self._v_truthy[0], self._v_truthy[1].value))
 
     @property
     def truthy(self) -> Filter.DatatypeMask:

@@ -32,7 +32,9 @@ class Test(TestCase):
 
     def test_getenv(self) -> None:
         import os
-        self.assertEqual(os.getenv('PWD'), Section.getenv('PWD'))
+        self.assertEqual(os.getenv('PWD', 'x'), Section.getenv('PWD', 'x'))
+        self.assertEqual(os.getenv('X', 'x'), Section.getenv('X', 'x'))
+        self.assertEqual(os.getenv('PWD'), Section.getenv_optional('PWD'))
 
     def test__init__(self) -> None:
         a = A(x='abc', y=0)

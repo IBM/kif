@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 0.7.9 (?)
 
-- Added list-options command to the KIF CLI tool.
+- Added `list-options` command to the KIF CLI tool.
 
 ## 0.7.8 (2025-04-29)
 

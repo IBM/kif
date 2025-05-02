@@ -29,8 +29,8 @@ class _CommonOptions(Section):
         self._init_resolver(kwargs)
 
     def _init_resolver(self, kwargs: dict[str, Any]) -> None:
-        resolver = kwargs.get('_resolver', self.getenv(*self._v_resolver))
-        self.resolver = resolver if bool(resolver) else None
+        self.resolver = kwargs.get(
+            '_resolver', self.getenv_optional_str(*self._v_resolver))
 
     @property
     def resolver(self) -> IRI | None:
@@ -99,7 +99,7 @@ class WikidataOptions(_CommonOptions, name='wd'):
 
     # -- item_cache --
 
-    _v_item_cache: ClassVar[tuple[str, pathlib.Path | None]] =\
+    _v_item_cache: ClassVar[tuple[str, pathlib.Path]] =\
         ('KIF_VOCABULARY_WD_ITEM_CACHE',
          pathlib.Path('wikidata_items.tsv'))
 
@@ -107,7 +107,7 @@ class WikidataOptions(_CommonOptions, name='wd'):
 
     def _init_item_cache(self, kwargs: dict[str, Any]) -> None:
         self.item_cache = kwargs.get(
-            '_item_cache', self.getenv(*self._v_item_cache))
+            '_item_cache', self.getenv_optional_path(*self._v_item_cache))
 
     @property
     def item_cache(self) -> pathlib.Path | None:
@@ -148,7 +148,8 @@ class WikidataOptions(_CommonOptions, name='wd'):
 
     def _init_property_cache(self, kwargs: dict[str, Any]) -> None:
         self.property_cache = kwargs.get(
-            '_property_cache', self.getenv(*self._v_property_cache))
+            '_property_cache',
+            self.getenv_optional_path(*self._v_property_cache))
 
     @property
     def property_cache(self) -> pathlib.Path | None:

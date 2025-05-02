@@ -74,7 +74,7 @@ class StoreOptions(Section, name='store'):
 
     def _init_distinct(self, kwargs: dict[str, Any]) -> None:
         self.distinct = kwargs.get(
-            '_distinct', self.getenv(*self._v_distinct))
+            '_distinct', self.getenv_bool(*self._v_distinct))
 
     @property
     def distinct(self) -> bool:
@@ -148,8 +148,8 @@ class StoreOptions(Section, name='store'):
 
     def _init_flags(self, kwargs: dict[str, Any]) -> None:
         self.flags = kwargs.get(
-            '_flags', int(self.getenv(
-                self._v_flags[0], self._v_flags[1].value)))
+            '_flags', self.getenv_int(
+                self._v_flags[0], self._v_flags[1].value))
 
     @property
     def flags(self) -> Store.Flags:
@@ -185,7 +185,7 @@ class StoreOptions(Section, name='store'):
 
     def _init_max_limit(self, kwargs: dict[str, Any]) -> None:
         self.max_limit = kwargs.get(
-            '_max_limit', self.getenv(*self._v_max_limit))
+            '_max_limit', self.getenv_int(*self._v_max_limit))
 
     @property
     def max_limit(self) -> int:
@@ -222,7 +222,8 @@ class StoreOptions(Section, name='store'):
     _limit: int | None
 
     def _init_limit(self, kwargs: dict[str, Any]) -> None:
-        self.limit = kwargs.get('_limit', self.getenv(*self._v_limit))
+        self.limit = kwargs.get(
+            '_limit', self.getenv_optional_int(*self._v_limit))
 
     @property
     def limit(self) -> int | None:
@@ -261,7 +262,7 @@ class StoreOptions(Section, name='store'):
 
     def _init_lookahead(self, kwargs: dict[str, Any]) -> None:
         self.lookahead = kwargs.get(
-            '_lookahead', self.getenv(*self._v_lookahead))
+            '_lookahead', self.getenv_int(*self._v_lookahead))
 
     @property
     def lookahead(self) -> int:
@@ -300,7 +301,7 @@ class StoreOptions(Section, name='store'):
 
     def _init_max_page_size(self, kwargs: dict[str, Any]) -> None:
         self.max_page_size = kwargs.get(
-            '_max_page_size', self.getenv(*self._v_max_page_size))
+            '_max_page_size', self.getenv_int(*self._v_max_page_size))
 
     @property
     def max_page_size(self) -> int:
@@ -339,7 +340,7 @@ class StoreOptions(Section, name='store'):
 
     def _init_page_size(self, kwargs: dict[str, Any]) -> None:
         self.page_size = kwargs.get(
-            '_page_size', self.getenv(*self._v_page_size))
+            '_page_size', self.getenv_int(*self._v_page_size))
 
     @property
     def page_size(self) -> int:
@@ -378,7 +379,7 @@ class StoreOptions(Section, name='store'):
 
     def _init_max_timeout(self, kwargs: dict[str, Any]) -> None:
         self.max_timeout = kwargs.get(
-            '_max_timeout', self.getenv(*self._v_max_timeout))
+            '_max_timeout', self.getenv_float(*self._v_max_timeout))
 
     @property
     def max_timeout(self) -> float:
@@ -416,7 +417,8 @@ class StoreOptions(Section, name='store'):
     _timeout: float | None
 
     def _init_timeout(self, kwargs: dict[str, Any]) -> None:
-        self.timeout = kwargs.get('_timeout', self.getenv(*self._v_timeout))
+        self.timeout = kwargs.get(
+            '_timeout', self.getenv_optional_float(*self._v_timeout))
 
     @property
     def timeout(self) -> float | None:

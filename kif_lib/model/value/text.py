@@ -48,7 +48,8 @@ class TextOptions(Section, name='text'):
     _language: str
 
     def _init_language(self, kwargs: dict[str, Any] = {}) -> None:
-        self.language = kwargs.get('_language', self.getenv(*self._v_language))
+        self.language = kwargs.get(
+            '_language', self.getenv_str(*self._v_language))
 
     @property
     def language(self) -> str:
