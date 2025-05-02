@@ -348,7 +348,7 @@ class WikidataMapping(M):
                             c.q.triples()(
                                 (wdv, WIKIBASE.timeCalendarModel,
                                  v('_tm_calendar')))
-        with c.q.group():  # qualifiers - no value
+        with c.q.group():  # no value
             c.q.triples()(
                 (self.wds, WIKIBASE.rank, v('_rank')))
             if references:
@@ -357,6 +357,23 @@ class WikidataMapping(M):
                 (wds, RDF.type, v('_xnovalue')),
                 (v('_xprop'), WIKIBASE.novalue, v('_xnovalue')),
                 (v('_xprop'), WIKIBASE.propertyType, v('_xprop_dt')))
+            ###
+            # In May 2025, we observed inconsistencies in WDQS, cases where
+            # the same statement was being assigned both "no-value" and
+            # "some-value".  This was causing Store.filter_annotated() to
+            # return the "some-value" version qualified the "no-value" snak.
+            # One way to "fix" this is to filter this qualifier out
+            # (checking whether its property coincides with the main snak
+            # property).  E.g.,
+            #
+            #       (v('_prop'), WIKIBASE.claim, v('_claim'))
+            #       (c.bnode(), v('_claim'), wds)
+            #     c.q.filter(~c.q.eq(v('_xprop'), v('_prop')))
+            #
+            # However, we decided not to do that because it will add an
+            # overhead to handle a cause that shouldn't exist in the first
+            # place.
+            ###
 
     @override
     def build_query(

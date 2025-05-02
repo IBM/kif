@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import ExternalId, Preferred, Quantity, Text, Time
+from kif_lib import ExternalId, Graph, Preferred, Quantity, Text, Time
 from kif_lib.vocabulary import wd
 
 from ...tests import StoreTestCase
@@ -315,6 +315,61 @@ class Test(StoreTestCase):
         # patterns.
         ###
         self.assertEqual(kb.count(wd.benzene, wd.density), 10)
+
+    def test_no_and_some_value_at_the_same_time(self) -> None:
+        kb = self.S(
+            'wikidata-rdf',
+            wd.shares_border_with.some_value(wd.Brazil),
+            wd.shares_border_with.no_value(wd.Brazil))
+        self.assertEqual(
+            set(kb.filter()),
+            {wd.shares_border_with.some_value(wd.Brazil),
+             wd.shares_border_with.no_value(wd.Brazil)})
+        self.assertEqual(
+            set(kb.filter_annotated()),
+            {wd.shares_border_with.some_value(wd.Brazil).annotate(),
+             wd.shares_border_with.no_value(wd.Brazil).annotate()})
+        ###
+        # In May 2025, we observed inconsistencies in WDQS, cases where the
+        # same statement is assigned both "no-value" and "some-value".  This
+        # was causing KIF return different results for Store.filter() and
+        # Store.filter_annotated().  We're documenting this behavior here.
+        # Right now there is no simple way to fix this on KIF's side.
+        ###
+        kb = self.S(
+            'wikidata-rdf',
+            data=Graph(
+                wd.shares_border_with.some_value(wd.Brazil).annotate(),
+                wd.shares_border_with.no_value(wd.Brazil).annotate()).to_rdf(
+                    gen_wds=lambda x: 0))
+        self.assertEqual(
+            set(kb.filter()),
+            {wd.shares_border_with.some_value(wd.Brazil),
+             wd.shares_border_with.no_value(wd.Brazil)})
+        ###
+        # In the annotated case, the "no-value" is being interpreted as a
+        # qualifier of the statement.  We could "fix" this case by filtering
+        # the qualifier out since its property is the same as the
+        # statement's main snak property.  But we think that the current
+        # behavior is justifiable.
+        ###
+        self.assertEqual(
+            set(kb.filter_annotated()),
+            {wd.shares_border_with.some_value(wd.Brazil).annotate(
+                qualifiers=[wd.shares_border_with.no_value()])})
+        ###
+        # A final sanity check: In the case where the main snak is a no
+        # value and the statement is a qualified with the same snak than the
+        # qualifier should be suppressed.
+        ###
+        kb = self.S(
+            'wikidata-rdf',
+            data=Graph(
+                wd.shares_border_with.no_value(wd.Brazil).annotate(
+                    qualifiers=[wd.shares_border_with.no_value()])).to_rdf())
+        self.assertEqual(
+            set(kb.filter_annotated()),
+            {wd.shares_border_with.no_value(wd.Brazil).annotate()})
 
 
 if __name__ == '__main__':
