@@ -80,10 +80,10 @@ class Test(TestCase):
     def test_max_page_size(self) -> None:
         with Context() as ctx:
             opts = ctx.options.store
-            os.environ[opts._v_max_page_size[0]] = '33'
+            os.environ['KIF_STORE_MAX_PAGE_SIZE'] = '33'
             opts = StoreOptions()
             self.assertEqual(opts.max_page_size, 33)
-            del os.environ[opts._v_max_page_size[0]]
+            del os.environ['KIF_STORE_MAX_PAGE_SIZE']
         with Context() as ctx:
             opts = ctx.options.store
             self.assert_raises_bad_argument(
@@ -104,10 +104,10 @@ class Test(TestCase):
     def test_page_size(self) -> None:
         with Context() as ctx:
             opts = ctx.options.store
-            os.environ[opts._v_page_size[0]] = '33'
+            os.environ['KIF_STORE_PAGE_SIZE'] = '33'
             opts = StoreOptions()
             self.assertEqual(opts.page_size, 33)
-            del os.environ[opts._v_page_size[0]]
+            del os.environ['KIF_STORE_PAGE_SIZE']
         with Context() as ctx:
             opts = ctx.options.store
             self.assert_raises_bad_argument(
@@ -126,10 +126,10 @@ class Test(TestCase):
     def test_max_timeout(self) -> None:
         with Context() as ctx:
             opts = ctx.options.store
-            os.environ[opts._v_max_timeout[0]] = '1000'
+            os.environ['KIF_STORE_MAX_TIMEOUT'] = '1000'
             opts = StoreOptions()
             self.assertEqual(opts.max_timeout, 1000.)
-            del os.environ[opts._v_max_timeout[0]]
+            del os.environ['KIF_STORE_MAX_TIMEOUT']
         with Context() as ctx:
             opts = ctx.options.store
             self.assert_raises_bad_argument(
@@ -150,10 +150,10 @@ class Test(TestCase):
     def test_timeout(self) -> None:
         with Context() as ctx:
             opts = ctx.options.store
-            os.environ[opts._v_timeout[0]] = '33'
+            os.environ['KIF_STORE_TIMEOUT'] = '33'
             opts = StoreOptions()
             self.assertEqual(opts.timeout, 33.)
-            del os.environ[opts._v_timeout[0]]
+            del os.environ['KIF_STORE_TIMEOUT']
         with Context() as ctx:
             opts = ctx.options.store
             self.assert_raises_bad_argument(

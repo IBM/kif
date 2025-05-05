@@ -8,6 +8,7 @@ import dataclasses
 import logging
 import os
 import pathlib
+from typing import TYPE_CHECKING
 
 from ..typing import (
     Any,
@@ -25,6 +26,9 @@ T = TypeVar('T')
 
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
 
+if TYPE_CHECKING:  # pragma: no cover
+    from .context import Context
+
 
 @dataclasses.dataclass
 class Section:
@@ -35,6 +39,11 @@ class Section:
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         cls.name = kwargs.get('name', cls.__qualname__)
+
+    @classmethod
+    def get_context(cls, context: Context | None = None) -> Context:
+        from .context import Context
+        return Context.top(context)
 
     @classmethod
     def getenv(

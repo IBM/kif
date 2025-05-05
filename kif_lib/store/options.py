@@ -8,15 +8,26 @@ import sys
 
 from ..context import Section
 from ..model import Filter, ReferenceRecordSet, TQuantity, TReferenceRecordSet
-from ..typing import Any, ClassVar
+from ..typing import Any, ClassVar, Final, Iterable, Optional, override
 from .abc import Store
+
+DEFAULT_BASE_FILTER: Final[Filter] = Filter()
+DEFAULT_DISTINCT: Final[bool] = True
+DEFAULT_EXTRA_REFERENCES: Final[ReferenceRecordSet] = ReferenceRecordSet()
+DEFAULT_MAX_LIMIT: Final[int] = sys.maxsize
+DEFAULT_LIMIT: Final[Optional[int]] = None
+DEFAULT_LOOKAHEAD: Final[int] = 2
+DEFAULT_MAX_PAGE_SIZE: Final[int] = sys.maxsize
+DEFAULT_PAGE_SIZE: Final[int] = 100
+DEFAULT_MAX_TIMEOUT: Final[float] = float(sys.maxsize)
+DEFAULT_TIMEOUT: Final[Optional[int]] = None
 
 
 @dataclasses.dataclass
-class StoreOptions(Section, name='store'):
-    """Store options."""
+class _StoreOptions(Section):
+    """Common store options."""
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self._init_base_filter(kwargs)
         self._init_distinct(kwargs)
         self._init_extra_references(kwargs)
@@ -29,12 +40,12 @@ class StoreOptions(Section, name='store'):
         self._init_max_timeout(kwargs)
         self._init_timeout(kwargs)
 
-    # -- base filter  --
+    # -- base_filter  --
 
-    _base_filter: Filter
+    _base_filter: Filter | None
 
     def _init_base_filter(self, kwargs: dict[str, Any]) -> None:
-        self.base_filter = kwargs.get('_base_filter', Filter())
+        self.base_filter = kwargs.get('_base_filter', DEFAULT_BASE_FILTER)
 
     @property
     def base_filter(self) -> Filter:
@@ -51,6 +62,7 @@ class StoreOptions(Section, name='store'):
         Returns:
            Filter.
         """
+        assert self._base_filter is not None
         return self._base_filter
 
     def set_base_filter(
@@ -67,14 +79,14 @@ class StoreOptions(Section, name='store'):
 
     # -- distinct --
 
-    _v_distinct: ClassVar[tuple[str, bool]] =\
-        ('KIF_STORE_DISTINCT', True)
+    _v_distinct: ClassVar[tuple[Iterable[str], bool | None]] =\
+        (('KIF_EMPTY_STORE_DISTINCT',), DEFAULT_DISTINCT)
 
-    _distinct: bool
+    _distinct: bool | None
 
     def _init_distinct(self, kwargs: dict[str, Any]) -> None:
         self.distinct = kwargs.get(
-            '_distinct', self.getenv_bool(*self._v_distinct))
+            '_distinct', self.getenv_optional_bool(*self._v_distinct))
 
     @property
     def distinct(self) -> bool:
@@ -91,6 +103,7 @@ class StoreOptions(Section, name='store'):
         Returns:
            Distinct flag.
         """
+        assert self._distinct is not None
         return self._distinct
 
     def set_distinct(self, distinct: bool) -> None:
@@ -103,11 +116,11 @@ class StoreOptions(Section, name='store'):
 
     # -- extra_references --
 
-    _extra_references: ReferenceRecordSet
+    _extra_references: ReferenceRecordSet | None
 
     def _init_extra_references(self, kwargs: dict[str, Any]) -> None:
         self.extra_references = kwargs.get(
-            '_extra_references', ReferenceRecordSet())
+            '_extra_references', DEFAULT_EXTRA_REFERENCES)
 
     @property
     def extra_references(self) -> ReferenceRecordSet:
@@ -124,6 +137,7 @@ class StoreOptions(Section, name='store'):
         Returns:
            Reference record set.
         """
+        assert self._extra_references is not None
         return self._extra_references
 
     def set_extra_references(
@@ -178,14 +192,14 @@ class StoreOptions(Section, name='store'):
 
     # -- max_limit --
 
-    _v_max_limit: ClassVar[tuple[str, int]] =\
-        ('KIF_STORE_MAX_LIMIT', sys.maxsize)
+    _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_STORE_MAX_LIMIT',), DEFAULT_MAX_LIMIT)
 
-    _max_limit: int
+    _max_limit: int | None
 
     def _init_max_limit(self, kwargs: dict[str, Any]) -> None:
         self.max_limit = kwargs.get(
-            '_max_limit', self.getenv_int(*self._v_max_limit))
+            '_max_limit', self.getenv_optional_int(*self._v_max_limit))
 
     @property
     def max_limit(self) -> int:
@@ -202,6 +216,7 @@ class StoreOptions(Section, name='store'):
         Returns:
            Limit.
         """
+        assert self._max_limit is not None
         return self._max_limit
 
     def set_max_limit(self, max_limit: TQuantity) -> None:
@@ -217,7 +232,8 @@ class StoreOptions(Section, name='store'):
 
     # -- limit --
 
-    _v_limit: ClassVar[tuple[str, int | None]] = ('KIF_STORE_LIMIT', None)
+    _v_limit: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_STORE_LIMIT',), DEFAULT_LIMIT)
 
     _limit: int | None
 
@@ -255,14 +271,14 @@ class StoreOptions(Section, name='store'):
 
     # -- lookahead --
 
-    _v_lookahead: ClassVar[tuple[str, int]] =\
-        ('KIF_STORE_LOOKAHEAD', 2)
+    _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_STORE_LOOKAHEAD',), 2)
 
-    _lookahead: int
+    _lookahead: int | None
 
     def _init_lookahead(self, kwargs: dict[str, Any]) -> None:
         self.lookahead = kwargs.get(
-            '_lookahead', self.getenv_int(*self._v_lookahead))
+            '_lookahead', self.getenv_optional_int(*self._v_lookahead))
 
     @property
     def lookahead(self) -> int:
@@ -279,6 +295,7 @@ class StoreOptions(Section, name='store'):
         Returns:
            Lookahead.
         """
+        assert self._lookahead is not None
         return self._lookahead
 
     def set_lookahead(self, lookahead: TQuantity) -> None:
@@ -294,14 +311,15 @@ class StoreOptions(Section, name='store'):
 
     # -- max_page_size --
 
-    _v_max_page_size: ClassVar[tuple[str, int]] =\
-        ('KIF_STORE_MAX_PAGE_SIZE', sys.maxsize)
+    _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_STORE_MAX_PAGE_SIZE',), DEFAULT_MAX_PAGE_SIZE)
 
-    _max_page_size: int
+    _max_page_size: int | None
 
     def _init_max_page_size(self, kwargs: dict[str, Any]) -> None:
         self.max_page_size = kwargs.get(
-            '_max_page_size', self.getenv_int(*self._v_max_page_size))
+            '_max_page_size', self.getenv_optional_int(
+                *self._v_max_page_size))
 
     @property
     def max_page_size(self) -> int:
@@ -318,6 +336,7 @@ class StoreOptions(Section, name='store'):
         Returns:
            Page size.
         """
+        assert self._max_page_size is not None
         return self._max_page_size
 
     def set_max_page_size(self, max_page_size: TQuantity) -> None:
@@ -333,14 +352,14 @@ class StoreOptions(Section, name='store'):
 
     # -- page_size --
 
-    _v_page_size: ClassVar[tuple[str, int]] =\
-        ('KIF_STORE_PAGE_SIZE', 100)
+    _v_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_STORE_PAGE_SIZE',), DEFAULT_PAGE_SIZE)
 
-    _page_size: int
+    _page_size: int | None
 
     def _init_page_size(self, kwargs: dict[str, Any]) -> None:
         self.page_size = kwargs.get(
-            '_page_size', self.getenv_int(*self._v_page_size))
+            '_page_size', self.getenv_optional_int(*self._v_page_size))
 
     @property
     def page_size(self) -> int:
@@ -357,6 +376,7 @@ class StoreOptions(Section, name='store'):
         Returns:
            Page size.
         """
+        assert self._page_size is not None
         return self._page_size
 
     def set_page_size(self, page_size: TQuantity) -> None:
@@ -372,14 +392,14 @@ class StoreOptions(Section, name='store'):
 
     # -- max_timeout --
 
-    _v_max_timeout: ClassVar[tuple[str, float]] =\
-        ('KIF_STORE_MAX_TIMEOUT', float(sys.maxsize))
+    _v_max_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+        (('KIF_STORE_MAX_TIMEOUT',), DEFAULT_MAX_TIMEOUT)
 
-    _max_timeout: float
+    _max_timeout: float | None
 
     def _init_max_timeout(self, kwargs: dict[str, Any]) -> None:
         self.max_timeout = kwargs.get(
-            '_max_timeout', self.getenv_float(*self._v_max_timeout))
+            '_max_timeout', self.getenv_optional_float(*self._v_max_timeout))
 
     @property
     def max_timeout(self) -> float:
@@ -396,6 +416,7 @@ class StoreOptions(Section, name='store'):
         Returns:
            Timeout.
         """
+        assert self._max_timeout is not None
         return self._max_timeout
 
     def set_max_timeout(self, max_timeout: TQuantity) -> None:
@@ -411,8 +432,8 @@ class StoreOptions(Section, name='store'):
 
     # -- timeout --
 
-    _v_timeout: ClassVar[tuple[str, float | None]] =\
-        ('KIF_STORE_TIMEOUT', None)
+    _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+        (('KIF_STORE_TIMEOUT',), None)
 
     _timeout: float | None
 
@@ -447,3 +468,203 @@ class StoreOptions(Section, name='store'):
         """
         self._timeout = Store._check_optional_timeout(
             timeout, None, self.set_timeout, 'timeout', 1)
+
+
+class _StoreOptionsOverride(_StoreOptions):
+
+    # -- base_filter --
+
+    def _init_base_filter(self, kwargs: dict[str, Any]) -> None:
+        self.base_filter = kwargs.get('_base_filter', None)  # pyright: ignore
+
+    @override
+    def get_base_filter(self) -> Filter:
+        if self._base_filter is None:
+            return self.get_context().options.store.base_filter
+        else:
+            return super().get_base_filter()
+
+    @override
+    def set_base_filter(self, base_filter: Filter | None) -> None:
+        if base_filter is None:
+            self._base_filter = None
+        else:
+            super().set_base_filter(base_filter)
+
+    # -- distinct --
+
+    @override
+    def get_distinct(self) -> bool:
+        if self._distinct is None:
+            return self.get_context().options.store.distinct
+        else:
+            return super().get_distinct()
+
+    @override
+    def set_distinct(self, distinct: bool | None) -> None:
+        if distinct is None:
+            self._distinct = None
+        else:
+            super().set_distinct(distinct)
+
+    # -- extra_references --
+
+    @override
+    def _init_extra_references(self, kwargs: dict[str, Any]) -> None:
+        self.extra_references = kwargs.get(
+            '_extra_references', None)  # pyright: ignore
+
+    @override
+    def get_extra_references(self) -> ReferenceRecordSet:
+        if self._extra_references is None:
+            return self.get_context().options.store.extra_references
+        else:
+            return super().get_extra_references()
+
+    @override
+    def set_extra_references(
+            self,
+            extra_references: TReferenceRecordSet | None
+    ) -> None:
+        if extra_references is None:
+            self._extra_references = None
+        else:
+            super().set_extra_references(extra_references)
+
+    # -- max_limit --
+
+    @override
+    def get_max_limit(self) -> int:
+        if self._max_limit is None:
+            return self.get_context().options.store.max_limit
+        else:
+            return super().get_max_limit()
+
+    @override
+    def set_max_limit(self, max_limit: TQuantity | None) -> None:
+        if max_limit is None:
+            self._max_limit = None
+        else:
+            super().set_max_limit(max_limit)
+
+    # -- limit --
+
+    @override
+    def get_limit(self) -> int | None:
+        if self._limit is None:
+            return self.get_context().options.store.limit
+        else:
+            return super().get_limit()
+
+    # -- lookahead -
+
+    @override
+    def get_lookahead(self) -> int:
+        if self._lookahead is None:
+            return self.get_context().options.store.lookahead
+        else:
+            return super().get_lookahead()
+
+    @override
+    def set_lookahead(self, lookahead: TQuantity | None) -> None:
+        if lookahead is None:
+            self._lookahead = None
+        else:
+            super().set_lookahead(lookahead)
+
+    # -- max_page_size --
+
+    @override
+    def get_max_page_size(self) -> int:
+        if self._max_page_size is None:
+            return self.get_context().options.store.max_page_size
+        else:
+            return super().get_max_page_size()
+
+    @override
+    def set_max_page_size(self, max_page_size: TQuantity | None) -> None:
+        if max_page_size is None:
+            self._max_page_size = None
+        else:
+            super().set_max_page_size(max_page_size)
+
+    # -- page_size --
+
+    @override
+    def get_page_size(self) -> int:
+        if self._page_size is None:
+            return self.get_context().options.store.page_size
+        else:
+            return super().get_page_size()
+
+    @override
+    def set_page_size(self, page_size: TQuantity | None) -> None:
+        if page_size is None:
+            self._page_size = None
+        else:
+            super().set_page_size(page_size)
+
+    # -- max_timeout --
+
+    @override
+    def get_max_timeout(self) -> float:
+        if self._max_timeout is None:
+            return self.get_context().options.store.max_timeout
+        else:
+            return super().get_max_timeout()
+
+    @override
+    def set_max_timeout(self, max_timeout: TQuantity | None) -> None:
+        if max_timeout is None:
+            self._max_timeout = None
+        else:
+            super().set_max_timeout(max_timeout)
+
+    # -- timeout --
+
+    @override
+    def get_timeout(self) -> float | None:
+        if self._timeout is None:
+            return self.get_context().options.store.timeout
+        else:
+            return super().get_timeout()
+
+
+class EmptyStoreOptions(_StoreOptionsOverride, name='empty'):
+    """Empty store options."""
+
+    _v_distinct: ClassVar[tuple[Iterable[str], bool | None]] =\
+        (('KIF_EMPTY_STORE_DISTINCT',), None)
+
+    _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_EMPTY_STORE_MAX_LIMIT',), None)
+
+    _v_limit: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_EMPTY_STORE_LIMIT',), None)
+
+    _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_EMPTY_STORE_LOOKAHEAD',), None)
+
+    _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_EMPTY_STORE_MAX_PAGE_SIZE',), None)
+
+    _v_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_EMPTY_STORE_PAGE_SIZE',), None)
+
+    _v_max_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+        (('KIF_EMPTY_STORE_MAX_TIMEOUT',), None)
+
+    _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+        (('KIF_EMPTY_STORE_TIMEOUT',), None)
+
+
+@dataclasses.dataclass
+class StoreOptions(_StoreOptions, name='store'):
+    """Common store options."""
+
+    empty: EmptyStoreOptions = dataclasses.field(
+        default_factory=EmptyStoreOptions)
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.empty = EmptyStoreOptions()

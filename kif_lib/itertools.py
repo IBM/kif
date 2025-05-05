@@ -38,10 +38,9 @@ from .typing import (
     TypeVar,
 )
 
-__all__ = (
+__all__ = [
     'aenumerate',
     'amix',
-    'anext',
     'aroundrobin',
     'auniq',
     'batched',
@@ -60,7 +59,7 @@ __all__ = (
     'take',
     'tee',
     'uniq',
-)
+]
 
 T = TypeVar('T')
 H = TypeVar('H', bound=Hashable)
@@ -91,6 +90,8 @@ async def aenumerate(
         start += 1
 
 if sys.version_info < (3, 10):
+    __all__.append('aiter')
+
     def aiter(it: AsyncIterable[T]) -> AsyncIterator[T]:
         """Async version of :func:`iter`."""
         return it.__aiter__()
@@ -140,6 +141,8 @@ async def amix(
 
 
 if sys.version_info < (3, 10):
+    __all__.append('anext')
+
     async def anext(
             it: AsyncIterator[T],
             default: T | _Sentinel = _SENTINEL

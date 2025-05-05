@@ -17,7 +17,7 @@ if TYPE_CHECKING:               # pragma: no cover
 
 
 @dataclasses.dataclass
-class _CommonOptions(Section):
+class _VocabularyOptions(Section):
     """Common vocabulary options."""
 
     _v_resolver: ClassVar[tuple[Iterable[str], str | None]]
@@ -61,7 +61,7 @@ class _CommonOptions(Section):
 
 
 @dataclasses.dataclass
-class DBpediaOptions(_CommonOptions, name='db'):
+class DBpediaOptions(_VocabularyOptions, name='db'):
     """PubChem vocabulary options."""
 
     _v_resolver: ClassVar[tuple[Iterable[str], str | None]] =\
@@ -73,7 +73,7 @@ class DBpediaOptions(_CommonOptions, name='db'):
 
 
 @dataclasses.dataclass
-class PubChemOptions(_CommonOptions, name='pc'):
+class PubChemOptions(_VocabularyOptions, name='pc'):
     """PubChem vocabulary options."""
 
     _v_resolver: ClassVar[tuple[Iterable[str], str | None]] =\
@@ -85,7 +85,7 @@ class PubChemOptions(_CommonOptions, name='pc'):
 
 
 @dataclasses.dataclass
-class WikidataOptions(_CommonOptions, name='wd'):
+class WikidataOptions(_VocabularyOptions, name='wd'):
     """Wikidata vocabulary options."""
 
     _v_resolver: ClassVar[tuple[Iterable[str], str | None]] =\
