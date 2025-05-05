@@ -18,7 +18,7 @@ if TYPE_CHECKING:               # pragma: no cover
 
 @dataclasses.dataclass
 class _CommonOptions(Section):
-    """PubChem vocabulary options."""
+    """Common vocabulary options."""
 
     _v_resolver: ClassVar[tuple[Iterable[str], str | None]]
 
