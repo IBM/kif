@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from kif_lib import Preferred, Text, Time
+from kif_lib.typing import Any
 from kif_lib.vocabulary import wd
 
 from ...tests import StoreTestCase
@@ -12,13 +13,13 @@ from ...tests import StoreTestCase
 class Test(StoreTestCase):
 
     @classmethod
-    def KB(cls):
+    def KB(cls, **kwargs: Any):
         import os
         wdqs = os.getenv('WIKIDATA', os.getenv('WDQS'))
         if not wdqs:
             raise cls.SKIP('WIKIDATA is not set')
         else:
-            return cls.S('wdqs', wdqs)
+            return cls.S('wdqs', wdqs, **kwargs)
 
     def test_empty(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())
