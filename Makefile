@@ -94,6 +94,7 @@ PYUPGRADE?= ${PYTHON} -m pyupgrade
 PYUPGRADE_OPTIONS?= --exit-zero-even-if-changed --py39-plus
 SETUP_PY?= setup.py
 SETUP_PY_ENTRY_POINTS?= {}
+SETUP_PY_EXTRAS_REQUIRE_ALL?= [*${SETUP_PY_EXTRAS_REQUIRE_DOCS},*${SETUP_PY_EXTRAS_REQUIRE_EXTRA},*${SETUP_PY_EXTRAS_REQUIRE_TESTS}]
 SETUP_PY_EXTRAS_REQUIRE_DOCS?= []
 SETUP_PY_EXTRAS_REQUIRE_EXTRA?= []
 SETUP_PY_EXTRAS_REQUIRE_TESTS?= ['flake8', 'isort', 'mypy', 'pylint', 'pyright', 'pytest', 'pytest-asyncio', 'pytest-cov', 'pytest-mypy', 'pyupgrade', 'setuptools', 'tox']
@@ -108,7 +109,7 @@ TESTS?= tests
 TOX?= tox
 TOX_INI?= tox.ini
 TOX_INI_ENVLIST?= mypy, py{39,310,311,312,313}
-TOX_INI_EXTRAS?= tests
+TOX_INI_EXTRAS?=
 TOX_INI_PASSENV?=
 TOX_INI_SKIP_MISSING_INTERPRETERS?= true
 TOX_OPTIONS?=
@@ -448,6 +449,7 @@ gen-setup-py:
 	$P "    package_dir=${SETUP_PY_PACKAGE_DIR}," >>${SETUP_PY}
 	$P "    install_requires=${SETUP_PY_INSTALL_REQUIRES}," >>${SETUP_PY}
 	$P '    extras_require={' >>${SETUP_PY}
+	$P "        'all': ${SETUP_PY_EXTRAS_REQUIRE_ALL}," >>${SETUP_PY}
 	$P "        'docs': ${SETUP_PY_EXTRAS_REQUIRE_DOCS}," >>${SETUP_PY}
 	$P "        'extra': ${SETUP_PY_EXTRAS_REQUIRE_EXTRA}," >>${SETUP_PY}
 	$P "        'tests': ${SETUP_PY_EXTRAS_REQUIRE_TESTS}," >>${SETUP_PY}
