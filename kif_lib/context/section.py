@@ -272,3 +272,15 @@ class Section:
                 else:
                     type_name = str(field.type)
                 yield f'{name}: {type_name} = {value}'
+
+    def replace(self, *args: Any, **kwargs: Any) -> Self:
+        """Shallow-copies section replacing its arguments.
+
+        Parameters:
+           args: Arguments.
+           kwargs: Keyword arguments.
+
+        Returns:
+           A shallow copy of section.
+        """
+        return dataclasses.replace(self, *args, **kwargs)

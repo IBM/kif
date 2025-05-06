@@ -8,7 +8,7 @@ import sys
 
 from ..context import Section
 from ..model import Filter, ReferenceRecordSet, TQuantity, TReferenceRecordSet
-from ..typing import Any, ClassVar, Final, Iterable, Optional, override
+from ..typing import Any, ClassVar, Final, Iterable, Optional, override, Self
 from .abc import Store
 
 DEFAULT_BASE_FILTER: Final[Filter] = Filter()
@@ -27,7 +27,7 @@ DEFAULT_TIMEOUT: Final[Optional[int]] = None
 class _StoreOptions(Section):
     """Common store options."""
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         self._init_base_filter(kwargs)
         self._init_distinct(kwargs)
         self._init_extra_references(kwargs)
@@ -472,6 +472,22 @@ class _StoreOptions(Section):
 
 class _StoreOptionsOverride(_StoreOptions):
 
+    def __init__(self, **kwargs: Any) -> None:
+        self._init_parent_callback(kwargs)
+        super().__init__(**kwargs)
+
+    def _init_parent_callback(self, kwargs) -> None:
+        self._parent_callback = kwargs.get(
+            '_parent_callback', self._get_parent_callback)
+
+    def _get_parent_callback(self) -> _StoreOptions:
+        return self.get_context().options.store
+
+    @property
+    def parent(self) -> Self:
+        """The parent options."""
+        return self._parent_callback()
+
     # -- base_filter --
 
     def _init_base_filter(self, kwargs: dict[str, Any]) -> None:
@@ -480,7 +496,7 @@ class _StoreOptionsOverride(_StoreOptions):
     @override
     def get_base_filter(self) -> Filter:
         if self._base_filter is None:
-            return self.get_context().options.store.base_filter
+            return self.parent.base_filter
         else:
             return super().get_base_filter()
 
@@ -496,7 +512,7 @@ class _StoreOptionsOverride(_StoreOptions):
     @override
     def get_distinct(self) -> bool:
         if self._distinct is None:
-            return self.get_context().options.store.distinct
+            return self.parent.distinct
         else:
             return super().get_distinct()
 
@@ -517,7 +533,7 @@ class _StoreOptionsOverride(_StoreOptions):
     @override
     def get_extra_references(self) -> ReferenceRecordSet:
         if self._extra_references is None:
-            return self.get_context().options.store.extra_references
+            return self.parent.extra_references
         else:
             return super().get_extra_references()
 
@@ -536,7 +552,7 @@ class _StoreOptionsOverride(_StoreOptions):
     @override
     def get_max_limit(self) -> int:
         if self._max_limit is None:
-            return self.get_context().options.store.max_limit
+            return self.parent.max_limit
         else:
             return super().get_max_limit()
 
@@ -552,7 +568,7 @@ class _StoreOptionsOverride(_StoreOptions):
     @override
     def get_limit(self) -> int | None:
         if self._limit is None:
-            return self.get_context().options.store.limit
+            return self.parent.limit
         else:
             return super().get_limit()
 
@@ -561,7 +577,7 @@ class _StoreOptionsOverride(_StoreOptions):
     @override
     def get_lookahead(self) -> int:
         if self._lookahead is None:
-            return self.get_context().options.store.lookahead
+            return self.parent.lookahead
         else:
             return super().get_lookahead()
 
@@ -577,7 +593,7 @@ class _StoreOptionsOverride(_StoreOptions):
     @override
     def get_max_page_size(self) -> int:
         if self._max_page_size is None:
-            return self.get_context().options.store.max_page_size
+            return self.parent.max_page_size
         else:
             return super().get_max_page_size()
 
@@ -593,7 +609,7 @@ class _StoreOptionsOverride(_StoreOptions):
     @override
     def get_page_size(self) -> int:
         if self._page_size is None:
-            return self.get_context().options.store.page_size
+            return self.parent.page_size
         else:
             return super().get_page_size()
 
@@ -609,7 +625,7 @@ class _StoreOptionsOverride(_StoreOptions):
     @override
     def get_max_timeout(self) -> float:
         if self._max_timeout is None:
-            return self.get_context().options.store.max_timeout
+            return self.parent.max_timeout
         else:
             return super().get_max_timeout()
 
@@ -625,11 +641,12 @@ class _StoreOptionsOverride(_StoreOptions):
     @override
     def get_timeout(self) -> float | None:
         if self._timeout is None:
-            return self.get_context().options.store.timeout
+            return self.parent.timeout
         else:
             return super().get_timeout()
 
 
+@dataclasses.dataclass
 class EmptyStoreOptions(_StoreOptionsOverride, name='empty'):
     """Empty store options."""
 
@@ -657,6 +674,83 @@ class EmptyStoreOptions(_StoreOptionsOverride, name='empty'):
     _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
         (('KIF_EMPTY_STORE_TIMEOUT',), None)
 
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+
+DEFAULT_SYNC_DISTINCT: Final[bool] = True
+
+
+@dataclasses.dataclass
+class MixerStoreOptions(_StoreOptionsOverride, name='mixer'):
+    """Mixer store options."""
+
+    _v_distinct: ClassVar[tuple[Iterable[str], bool | None]] =\
+        (('KIF_MIXER_STORE_DISTINCT',), None)
+
+    _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_MAX_LIMIT',), None)
+
+    _v_limit: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_LIMIT',), None)
+
+    _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_LOOKAHEAD',), None)
+
+    _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_MAX_PAGE_SIZE',), None)
+
+    _v_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_PAGE_SIZE',), None)
+
+    _v_max_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+        (('KIF_MIXER_STORE_MAX_TIMEOUT',), None)
+
+    _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+        (('KIF_MIXER_STORE_TIMEOUT',), None)
+
+    def __init__(self, **kwargs: Any) -> None:
+        self._init_sync_distinct(kwargs)
+        super().__init__(**kwargs)
+
+    # -- sync_distinct --
+
+    _v_sync_distinct: ClassVar[tuple[Iterable[str], bool | None]] =\
+        (('KIF_MIXER_STORE_SYNC_DISTINCT',), DEFAULT_SYNC_DISTINCT)
+
+    _sync_distinct: bool | None
+
+    def _init_sync_distinct(self, kwargs: dict[str, Any]) -> None:
+        self.sync_distinct = kwargs.get(
+            '_sync_distinct', self.getenv_optional_bool(
+                *self._v_sync_distinct))
+
+    @property
+    def sync_distinct(self) -> bool:
+        """The sync distinct flag."""
+        return self.get_sync_distinct()
+
+    @sync_distinct.setter
+    def sync_distinct(self, sync_distinct: bool) -> None:
+        self.set_sync_distinct(sync_distinct)
+
+    def get_sync_distinct(self) -> bool:
+        """Gets the sync distinct flag.
+
+        Returns:
+           Sync distinct flag.
+        """
+        assert self._sync_distinct is not None
+        return self._sync_distinct
+
+    def set_sync_distinct(self, sync_distinct: bool) -> None:
+        """Sets the sync distinct flag.
+
+        Parameters:
+           sync_distinct: Sync Distinct flag.
+        """
+        self._sync_distinct = bool(sync_distinct)
+
 
 @dataclasses.dataclass
 class StoreOptions(_StoreOptions, name='store'):
@@ -665,6 +759,10 @@ class StoreOptions(_StoreOptions, name='store'):
     empty: EmptyStoreOptions = dataclasses.field(
         default_factory=EmptyStoreOptions)
 
+    mixer: MixerStoreOptions = dataclasses.field(
+        default_factory=MixerStoreOptions)
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.empty = EmptyStoreOptions()
+        self.mixer = MixerStoreOptions()

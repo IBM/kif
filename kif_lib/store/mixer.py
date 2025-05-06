@@ -76,6 +76,10 @@ class MixerStore(
         self._sync_timeout = bool(sync_timeout)
         super().__init__(**kwargs)
 
+    @override
+    def _get_default_options(self) -> Store.Options:
+        return self.context.options.store.mixer
+
     def _init_sources(self, sources: Iterable[Store]) -> None:
         KIF_Object._check_arg_isinstance(
             sources, Iterable, type(self), 'sources', 2)

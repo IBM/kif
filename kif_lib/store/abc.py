@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
+import contextlib
 import functools
+from typing import TYPE_CHECKING
 
 from .. import itertools
 from ..context import Context
@@ -32,6 +34,7 @@ from ..typing import (
     cast,
     ClassVar,
     Final,
+    Generator,
     Iterable,
     Iterator,
     Location,
@@ -40,6 +43,11 @@ from ..typing import (
     TypeVar,
     Union,
 )
+
+if TYPE_CHECKING:                     # pragma: no cover
+    from .options import _StoreOptions
+else:
+    _StoreOptions = object
 
 at_property = property
 T = TypeVar('T')
@@ -116,12 +124,12 @@ class Store(Set):
 
     __slots__ = (
         '_base_filter',
-        '_context',
         '_distinct',
         '_extra_references',
         '_flags',
         '_limit',
         '_lookahead',
+        '_options',
         '_page_size',
         '_timeout',
     )
@@ -170,6 +178,9 @@ class Store(Set):
         self.set_page_size(page_size)
         self._timeout = None
         self.set_timeout(timeout)
+        # ---
+        options = self._get_default_options()
+        self._options = options.replace(_callback_parent=lambda: options)
 
     def __del__(self) -> None:
         self.close()
@@ -202,6 +213,44 @@ class Store(Set):
            Context.
         """
         return Context.top(context)
+
+    #: Type alias for store options.
+    Options: TypeAlias = _StoreOptions
+
+    def _get_default_options(self) -> Options:
+        return self.context.options.store.empty
+
+    @at_property
+    def options(self) -> Options:
+        """The store options."""
+        return self.get_options()
+
+    def get_options(self) -> Options:
+        """Gets store options.
+
+        Returns:
+           Store options.
+        """
+        return self._options
+
+    def _set_options(self, options: Options, **kwargs: Any) -> Options:
+        options.limit = kwargs.get('limit')
+        return options
+
+    @contextlib.contextmanager
+    def __call__(self, **kwargs: Any) -> Generator[Options, None, None]:
+        yield self._set_options(self._push_options(), **kwargs)
+        self._pop_options()
+
+    def _push_options(self) -> Options:
+        parent = self._options
+        self._options = parent.replace(_parent_callback=lambda: parent)
+        return self._options
+
+    def _pop_options(self) -> Options:
+        assert self._options != self.context.options.store.empty
+        self._options = self._options.parent  # type: ignore
+        return self._options.parent           # type: ignore
 
 # -- Base filter -----------------------------------------------------------
 
