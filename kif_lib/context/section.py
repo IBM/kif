@@ -18,6 +18,7 @@ from ..typing import (
     Final,
     Iterable,
     Iterator,
+    Location,
     Self,
     TypeVar,
 )
@@ -27,6 +28,7 @@ T = TypeVar('T')
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
 
 if TYPE_CHECKING:  # pragma: no cover
+    from ..model import Quantity
     from .context import Context
 
 
@@ -44,6 +46,91 @@ class Section:
     def get_context(cls, context: Context | None = None) -> Context:
         from .context import Context
         return Context.top(context)
+
+    @classmethod
+    def _check_float(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> float:
+        return float(cls._check_quantity(arg, function, name, position).amount)
+
+    @classmethod
+    def _check_optional_float(
+            cls,
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> float | None:
+        return cls._do_check_optional(
+            cls._check_float, arg, default, function, name, position)
+
+    @classmethod
+    def _check_int(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int:
+        return int(cls._check_quantity(arg, function, name, position).amount)
+
+    @classmethod
+    def _check_optional_int(
+            cls,
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int | None:
+        return cls._do_check_optional(
+            cls._check_int, arg, default, function, name, position)
+
+    @classmethod
+    def _check_quantity(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Quantity:
+        from ..model import Quantity
+        return Quantity.check(arg, function, name, position)
+
+    @classmethod
+    def _check_optional_quantity(
+            cls,
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Quantity | None:
+        return cls._do_check_optional(
+            cls._check_quantity, arg, default, function, name, position)
+
+    @classmethod
+    def _do_check_optional(
+            cls,
+            check: Callable[
+                [Any, Location | None, str | None, int | None], T],
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> T | None:
+        if arg is None:
+            arg = default
+        if arg is None:
+            return default
+        else:
+            return check(arg, function, name, position)
 
     @classmethod
     def getenv(

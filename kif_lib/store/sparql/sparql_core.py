@@ -318,8 +318,8 @@ class _SPARQL_Store(
             await self.backend.aclose()
 
     @override
-    def _set_timeout(self, old: float | None, new: float | None) -> bool:
-        self.backend._set_timeout(new)
+    def _set_timeout(self, timeout: float | None) -> bool:
+        self.backend._set_timeout(timeout)
         return True
 
 # -- Backend ---------------------------------------------------------------

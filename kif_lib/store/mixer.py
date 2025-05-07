@@ -117,16 +117,12 @@ class MixerStore(
         return self._sync_flags
 
     @override
-    def _set_flags(
-            self,
-            old: Store.Flags | None,
-            new: Store.Flags | None
-    ) -> bool:
-        if not super()._set_flags(old, new):
+    def _set_flags(self, flags: Store.Flags) -> bool:
+        if not super()._set_flags(flags):
             return False
         if self.sync_flags:
             for src in self.sources:
-                src.flags = new  # type: ignore
+                src.flags = flags  # type: ignore
         return True
 
     @property
@@ -143,12 +139,12 @@ class MixerStore(
         return self._sync_limit
 
     @override
-    def _set_limit(self, old: int | None, new: int | None) -> bool:
-        if not super()._set_limit(old, new):
+    def _set_limit(self, limit: int | None) -> bool:
+        if not super()._set_limit(limit):
             return False
         if self.sync_limit:
             for src in self.sources:
-                src.set_limit(new)
+                src.set_limit(limit)
         return True
 
     @property
@@ -165,12 +161,12 @@ class MixerStore(
         return self._sync_lookahead
 
     @override
-    def _set_lookahead(self, old: int | None, new: int | None) -> bool:
-        if not super()._set_lookahead(old, new):
+    def _set_lookahead(self, lookahead: int) -> bool:
+        if not super()._set_lookahead(lookahead):
             return False
         if self.sync_lookahead:
             for src in self.sources:
-                src.set_lookahead(new)
+                src.set_lookahead(lookahead)
         return True
 
     @property
@@ -187,12 +183,12 @@ class MixerStore(
         return self._sync_page_size
 
     @override
-    def _set_page_size(self, old: int | None, new: int | None) -> bool:
-        if not super()._set_page_size(old, new):
+    def _set_page_size(self, page_size: int) -> bool:
+        if not super()._set_page_size(page_size):
             return False
         if self.sync_page_size:
             for src in self.sources:
-                src.set_page_size(new)
+                src.set_page_size(page_size)
         return True
 
     @property
@@ -209,12 +205,12 @@ class MixerStore(
         return self._sync_timeout
 
     @override
-    def _set_timeout(self, old: float | None, new: float | None) -> bool:
-        if not super()._set_timeout(old, new):
+    def _set_timeout(self, timeout: float | None) -> bool:
+        if not super()._set_timeout(timeout):
             return False
         if self.sync_timeout:
             for src in self.sources:
-                src.set_timeout(new)
+                src.set_timeout(timeout)
         return True
 
     @override

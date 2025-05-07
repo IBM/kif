@@ -34,11 +34,10 @@ class Test(TestCase):
     def test_get_lookahead(self) -> None:
         kb = Store('empty')
         self.assertEqual(kb.get_lookahead(), kb.default_lookahead)
-        self.assertEqual(kb.get_lookahead(5), 5)
         kb = Store('empty', lookahead=0)
-        self.assertEqual(kb.get_lookahead(5), 1)
+        self.assertEqual(kb.get_lookahead(), 1)
         kb = Store('empty', lookahead=-8)
-        self.assertEqual(kb.get_lookahead(5), 1)
+        self.assertEqual(kb.get_lookahead(), 1)
         kb = Store('empty', lookahead=None)
         self.assertEqual(kb.get_lookahead(), kb.default_lookahead)
 

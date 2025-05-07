@@ -8,8 +8,20 @@ import sys
 
 from ..context import Section
 from ..model import Filter, ReferenceRecordSet, TQuantity, TReferenceRecordSet
-from ..typing import Any, ClassVar, Final, Iterable, Optional, override, Self
+from ..typing import (
+    Any,
+    ClassVar,
+    Final,
+    Iterable,
+    Location,
+    Optional,
+    override,
+    Self,
+    TypeVar,
+)
 from .abc import Store
+
+T = TypeVar('T')
 
 DEFAULT_BASE_FILTER: Final[Filter] = Filter()
 DEFAULT_DISTINCT: Final[bool] = True
@@ -227,10 +239,32 @@ class _StoreOptions(Section):
         Parameters:
            max_limit: Integer quantity.
         """
-        self._max_limit = Store._check_limit(
+        self._max_limit = self._check_limit(
             max_limit, self.set_max_limit, 'max_limit', 1)
 
     # -- limit --
+
+    @classmethod
+    def _check_limit(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int:
+        return max(cls._check_int(arg), 0)
+
+    @classmethod
+    def _check_optional_limit(
+            cls,
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int | None:
+        return cls._do_check_optional(
+            cls._check_limit, arg, default, function, name, position)
 
     _v_limit: ClassVar[tuple[Iterable[str], int | None]] =\
         (('KIF_STORE_LIMIT',), DEFAULT_LIMIT)
@@ -266,10 +300,32 @@ class _StoreOptions(Section):
         Parameters:
            limit: Integer quantity or ``None``.
         """
-        self._limit = Store._check_optional_limit(
+        self._limit = self._check_optional_limit(
             limit, None, self.set_limit, 'limit', 1)
 
     # -- lookahead --
+
+    @classmethod
+    def _check_lookahead(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int:
+        return max(cls._check_int(arg, function, name, position), 1)
+
+    @classmethod
+    def _check_optional_lookahead(
+            cls,
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int | None:
+        return cls._do_check_optional(
+            cls._check_lookahead, arg, default, function, name, position)
 
     _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
         (('KIF_STORE_LOOKAHEAD',), 2)
@@ -306,7 +362,7 @@ class _StoreOptions(Section):
         Parameters:
            lookahead: Integer quantity.
         """
-        self._lookahead = Store._check_lookahead(
+        self._lookahead = self._check_lookahead(
             lookahead, self.set_lookahead, 'lookahead', 1)
 
     # -- max_page_size --
@@ -347,10 +403,32 @@ class _StoreOptions(Section):
         Parameters:
            max_page_size: Integer quantity.
         """
-        self._max_page_size = Store._check_page_size(
+        self._max_page_size = self._check_page_size(
             max_page_size, self.set_max_page_size, 'max_page_size', 1)
 
     # -- page_size --
+
+    @classmethod
+    def _check_page_size(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int:
+        return max(cls._check_int(arg), 0)
+
+    @classmethod
+    def _check_optional_page_size(
+            cls,
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> int | None:
+        return cls._do_check_optional(
+            cls._check_page_size, arg, default, function, name, position)
 
     _v_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
         (('KIF_STORE_PAGE_SIZE',), DEFAULT_PAGE_SIZE)
@@ -387,7 +465,7 @@ class _StoreOptions(Section):
         Parameters:
            page_size: Integer quantity.
         """
-        self._page_size = Store._check_page_size(
+        self._page_size = self._check_page_size(
             page_size, self.set_page_size, 'page_size', 1)
 
     # -- max_timeout --
@@ -427,10 +505,32 @@ class _StoreOptions(Section):
         Parameters:
            max_timeout: Quantity.
         """
-        self._max_timeout = Store._check_timeout(
+        self._max_timeout = self._check_timeout(
             max_timeout, self.set_max_timeout, 'max_timeout', 1)
 
     # -- timeout --
+
+    @classmethod
+    def _check_timeout(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> float:
+        return max(cls._check_float(arg), 0.)
+
+    @classmethod
+    def _check_optional_timeout(
+            cls,
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> float | None:
+        return cls._do_check_optional(
+            cls._check_timeout, arg, default, function, name, position)
 
     _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
         (('KIF_STORE_TIMEOUT',), None)
@@ -466,7 +566,7 @@ class _StoreOptions(Section):
         Parameters:
            timeout: Quantity or ``None``.
         """
-        self._timeout = Store._check_optional_timeout(
+        self._timeout = self._check_optional_timeout(
             timeout, None, self.set_timeout, 'timeout', 1)
 
 

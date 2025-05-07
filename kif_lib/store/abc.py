@@ -45,9 +45,9 @@ from ..typing import (
 )
 
 if TYPE_CHECKING:                     # pragma: no cover
-    from .options import _StoreOptions
+    from .options import _StoreOptionsOverride
 else:
-    _StoreOptions = object
+    _StoreOptionsOverride = object
 
 at_property = property
 T = TypeVar('T')
@@ -123,15 +123,8 @@ class Store(Set):
         return KIF_Object._should_not_get_here(details)
 
     __slots__ = (
-        '_base_filter',
-        '_distinct',
-        '_extra_references',
         '_flags',
-        '_limit',
-        '_lookahead',
         '_options',
-        '_page_size',
-        '_timeout',
     )
 
     def __init__(
@@ -154,6 +147,7 @@ class Store(Set):
            store_name: Name of the store plugin to instantiate.
            args: Arguments.
            base_filter: Base filter.
+           distinct: Whether to suppress duplicates.
            extra_references: Extra references to attach to statements.
            flags: Store flags.
            limit: Limit (maximum number) of responses.
@@ -162,25 +156,19 @@ class Store(Set):
            timeout: Timeout of responses (in seconds).
            kwargs: Other keyword arguments.
         """
+        self._options = self._default_options
+        self._push_options()
+        self._update_options(
+            base_filter=base_filter,
+            distinct=distinct,
+            extra_references=extra_references,
+            limit=limit,
+            lookahead=lookahead,
+            page_size=page_size,
+            timeout=timeout)
+        # --
         self._flags = None
         self.flags = flags      # type: ignore
-        self._base_filter = None
-        self.set_base_filter(base_filter)
-        self._distinct = None
-        self.set_distinct(distinct)
-        self._extra_references = None
-        self.set_extra_references(extra_references)
-        self._limit = None
-        self.set_limit(limit)
-        self._lookahead = None
-        self.set_lookahead(lookahead)
-        self._page_size = None
-        self.set_page_size(page_size)
-        self._timeout = None
-        self.set_timeout(timeout)
-        # ---
-        options = self._get_default_options()
-        self._options = options.replace(_callback_parent=lambda: options)
 
     def __del__(self) -> None:
         self.close()
@@ -215,32 +203,51 @@ class Store(Set):
         return Context.top(context)
 
     #: Type alias for store options.
-    Options: TypeAlias = _StoreOptions
+    Options: TypeAlias = _StoreOptionsOverride
+
+    @at_property
+    def _default_options(self) -> Options:
+        return self._get_default_options()
 
     def _get_default_options(self) -> Options:
         return self.context.options.store.empty
 
-    @at_property
-    def options(self) -> Options:
-        """The store options."""
-        return self.get_options()
+    def _update_options(self, **kwargs: Any) -> None:
+        if 'base_filter' in kwargs:
+            self.set_base_filter(kwargs['base_filter'])
+        if 'distinct' in kwargs:
+            self.set_distinct(kwargs['distinct'])
+        if 'extra_references' in kwargs:
+            self.set_extra_references(kwargs['extra_references'])
+        if 'limit' in kwargs:
+            self.set_limit(kwargs['limit'])
+        if 'lookahead' in kwargs:
+            self.set_lookahead(kwargs['lookahead'])
+        if 'page_size' in kwargs:
+            self.set_page_size(kwargs['page_size'])
+        if 'timeout' in kwargs:
+            self.set_timeout(kwargs['timeout'])
 
-    def get_options(self) -> Options:
-        """Gets store options.
-
-        Returns:
-           Store options.
-        """
-        return self._options
-
-    def _set_options(self, options: Options, **kwargs: Any) -> Options:
-        options.limit = kwargs.get('limit')
-        return options
+    def _set_option_with_hooks(
+            self,
+            value: T | None,
+            get_fn: Callable[[], T | None],
+            set_fn: Callable[[T | None], None],
+            hook_fn: Callable[[T | None, T | None], bool]
+    ) -> None:
+        old = get_fn()
+        set_fn(value)
+        new = get_fn()
+        if not hook_fn(new):
+            set_fn(old)         # revert
 
     @contextlib.contextmanager
     def __call__(self, **kwargs: Any) -> Generator[Options, None, None]:
-        yield self._set_options(self._push_options(), **kwargs)
+        self._push_options()
+        self._update_options(**kwargs)
+        yield self._options
         self._pop_options()
+        self._update_options(**{k: getattr(self._options, k) for k in kwargs})
 
     def _push_options(self) -> Options:
         parent = self._options
@@ -248,9 +255,8 @@ class Store(Set):
         return self._options
 
     def _pop_options(self) -> Options:
-        assert self._options != self.context.options.store.empty
-        self._options = self._options.parent  # type: ignore
-        return self._options.parent           # type: ignore
+        self._options = self._options.parent
+        return self._options.parent
 
 # -- Base filter -----------------------------------------------------------
 
@@ -265,10 +271,7 @@ class Store(Set):
         Returns:
            Filter.
         """
-        return self.context.options.store.base_filter
-
-    #: Base filter.
-    _base_filter: Filter | None
+        return self._default_options.base_filter
 
     @at_property
     def base_filter(self) -> Filter:
@@ -279,49 +282,29 @@ class Store(Set):
     def base_filter(self, base_filter: Filter | None = None) -> None:
         self.set_base_filter(base_filter)
 
-    def get_base_filter(
-            self,
-            default: Filter | None = None
-    ) -> Filter:
+    def get_base_filter(self) -> Filter:
         """Gets the base filter of store.
-
-        If the base filter is ``None``, returns `default`.
-
-        If `default` is ``None``, assumes :attr:`Store.default_base_filter`.
-
-        Parameters:
-           default: Default base filter.
 
         Returns:
            Filter.
         """
-        if self._base_filter is not None:
-            base_filter: Filter = self._base_filter
-        elif default is not None:
-            base_filter = default
-        else:
-            base_filter = self.default_base_filter
-        return base_filter
+        return self._options.base_filter
 
     def set_base_filter(self, base_filter: Filter | None = None) -> None:
         """Sets the base filter of store.
 
-        If `filter` is ``None``, resets base filter to
-        :attr:`Store.default_base_filter`.
+        If `filter` is ``None``, resets it to the default.
 
         Parameters:
            base_filter: Filter.
         """
-        base_filter = Filter.check_optional(
-            base_filter, None, self.set_base_filter, 'base_filter', 1)
-        if self._set_base_filter(self._base_filter, base_filter):
-            self._base_filter = base_filter
+        self._set_option_with_hooks(
+            base_filter,
+            self._options.get_base_filter,
+            self._options.set_base_filter,
+            self._set_base_filter)
 
-    def _set_base_filter(
-            self,
-            old: Filter | None,
-            new: Filter | None
-    ) -> bool:
+    def _set_base_filter(self, base_filter: Filter) -> bool:
         return True
 
     @at_property
@@ -594,10 +577,7 @@ class Store(Set):
         Returns:
            Default distinct flag.
         """
-        return self.context.options.store.distinct
-
-    #: Distinct flag.
-    _distinct: bool | None
+        return self._default_options.distinct
 
     @at_property
     def distinct(self) -> bool:
@@ -608,46 +588,29 @@ class Store(Set):
     def distinct(self, distinct: bool | None = None) -> None:
         self.set_distinct(distinct)
 
-    def get_distinct(
-            self,
-            default: bool | None = None
-    ) -> bool:
+    def get_distinct(self, default: bool | None = None) -> bool:
         """Gets the distinct flag of store.
-
-        If the distinct flag is ``None``, returns `default`.
-
-        If `default` is ``None``, assumes :attr:`Store.default_distinct`.
-
-        Parameters:
-           default: Default distinct flag.
 
         Returns:
            Distinct flag.
         """
-        if self._distinct is not None:
-            distinct: bool = self._distinct
-        elif default is not None:
-            distinct = default
-        else:
-            distinct = self.default_distinct
-        return distinct
+        return self._options.distinct
 
-    def set_distinct(
-            self,
-            distinct: bool | None = None
-    ) -> None:
+    def set_distinct(self, distinct: bool | None = None) -> None:
         """Sets distinct flag of store.
 
-        If `distinct` is ``None``, assumes :attr:`Store.default_distinct`.
+        If `distinct` is ``None``, resets it to the default.
 
         Parameters:
            distinct: Distinct flag.
         """
-        distinct = bool(distinct) if distinct is not None else None
-        if self._set_distinct(self._distinct, distinct):
-            self._distinct = distinct
+        self._set_option_with_hooks(
+            distinct,
+            self._options.get_distinct,
+            self._options.set_distinct,
+            self._set_distinct)
 
-    def _set_distinct(self, old: bool | None, new: bool | None) -> bool:
+    def _set_distinct(self, distinct: bool) -> bool:
         return True
 
 # -- Extra references ------------------------------------------------------
@@ -663,10 +626,7 @@ class Store(Set):
         Returns:
            Reference record set.
         """
-        return self.context.options.store.extra_references
-
-    #: Extra references.
-    _extra_references: ReferenceRecordSet | None
+        return self._default_options.extra_references
 
     @at_property
     def extra_references(self) -> ReferenceRecordSet:
@@ -680,30 +640,13 @@ class Store(Set):
     ) -> None:
         self.set_extra_references(references)
 
-    def get_extra_references(
-            self,
-            default: ReferenceRecordSet | None = None
-    ) -> ReferenceRecordSet:
+    def get_extra_references(self) -> ReferenceRecordSet:
         """Gets the extra references of store.
-
-        If the extra references is ``None``, returns `default`.
-
-        If `default` is ``None``,
-        assumes :attr:`Store.default_extra_references`.
-
-        Parameters:
-           default: Default reference record set.
 
         Returns:
            Reference record set.
         """
-        if self._extra_references is not None:
-            extra_references: ReferenceRecordSet = self._extra_references
-        elif default is not None:
-            extra_references = default
-        else:
-            extra_references = self.default_extra_references
-        return extra_references
+        return self._options.extra_references
 
     def set_extra_references(
             self,
@@ -711,23 +654,20 @@ class Store(Set):
     ) -> None:
         """Sets the extra references of store.
 
-        If `extra_references` is ``None``, resets extra references to
-        :attr:`Store.default_extra_references`.
+        If `extra_references` is ``None``, resets it to the default.
 
         Parameters:
            references: Reference record set.
         """
-        extra_references = ReferenceRecordSet.check_optional(
-            extra_references, None, self.set_extra_references,
-            'extra_references', 1)
-        if self._set_extra_references(
-                self._extra_references, extra_references):
-            self._extra_references = extra_references
+        self._set_option_with_hooks(
+            extra_references,
+            self._options.get_extra_references,
+            self._options.set_extra_references,
+            self._set_extra_references)
 
     def _set_extra_references(
             self,
-            old: ReferenceRecordSet | None,
-            new: ReferenceRecordSet | None
+            extra_references: ReferenceRecordSet
     ) -> bool:
         return True
 
@@ -802,10 +742,10 @@ class Store(Set):
     def flags(self, flags: TFlags | None) -> None:
         flags = self.Flags.check_optional(
             flags, None, self.set_flags, 'flags', 1)
-        if self._set_flags(self._flags, flags):
+        if self._set_flags(flags):
             self._flags = flags
 
-    def _set_flags(self, old: Flags | None, new: Flags | None) -> bool:
+    def _set_flags(self, flags: Flags) -> bool:
         return True
 
     def get_flags(self, default: Flags | None = None) -> Flags:
@@ -862,47 +802,6 @@ class Store(Set):
 
 # -- Limit -----------------------------------------------------------------
 
-    @classmethod
-    def _check_limit(
-            cls,
-            arg: Any,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> int:
-        return max(int(Quantity.check(
-            arg, function, name, position).amount), 0)
-
-    @classmethod
-    def _do_check_optional(
-            cls,
-            check: Callable[
-                [Any, Location | None, str | None, int | None], T],
-            arg: Any | None,
-            default: Any | None = None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> T | None:
-        if arg is None:
-            arg = default
-        if arg is None:
-            return default
-        else:
-            return check(arg, function, name, position)
-
-    @classmethod
-    def _check_optional_limit(
-            cls,
-            arg: Any | None,
-            default: Any | None = None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> int | None:
-        return cls._do_check_optional(
-            cls._check_limit, arg, default, function, name, position)
-
     @at_property
     def max_limit(self) -> int:
         """The maximum value for :attr:`Store.limit`."""
@@ -914,7 +813,7 @@ class Store(Set):
         Returns:
            Maximum limit.
         """
-        return self.context.options.store.max_limit
+        return self._options.max_limit
 
     @at_property
     def default_limit(self) -> int | None:
@@ -927,24 +826,18 @@ class Store(Set):
         Returns:
            Default limit or ``None``.
         """
-        return self.context.options.store.limit
-
-    #: Limit.
-    _limit: int | None
+        return self._default_options.limit
 
     @at_property
     def limit(self) -> int | None:
         """The limit of store (maximum number of responses)."""
-        return self.get_limit()
+        return self._options.limit
 
     @limit.setter
     def limit(self, limit: int | None = None) -> None:
         self.set_limit(limit)
 
-    def get_limit(
-            self,
-            default: int | None = None
-    ) -> int | None:
+    def get_limit(self, default: int | None = None) -> int | None:
         """Gets the limit of store.
 
         If the limit is ``None``, returns `default`.
@@ -957,62 +850,34 @@ class Store(Set):
         Returns:
            Limit or ``None``.
         """
-        if self._limit is not None:
-            limit: int | None = self._limit
-        elif default is not None:
-            limit = default
-        else:
-            limit = self.default_limit
+        limit = self._options.limit
         if limit is None:
-            return limit
+            limit = default
+        if limit is None:
+            return None
         else:
             return min(limit, self.max_limit)
 
-    def set_limit(
-            self,
-            limit: int | None = None
-    ) -> None:
+    def set_limit(self, limit: int | None = None) -> None:
         """Sets the limit of store.
 
         If `limit` is negative, assumes zero.
 
-        If `limit` is ``None``, assumes :attr:`Store.default_limit`.
+        If `limit` is ``None``, resets it to the default.
 
         Parameters:
            limit: Limit.
         """
-        limit = self._check_optional_limit(
-            limit, None, self.set_limit, 'limit', 1)
-        if self._set_limit(self._limit, limit):
-            self._limit = limit
+        self._set_option_with_hooks(
+            limit,
+            self._options.get_limit,
+            self._options.set_limit,
+            self._set_limit)
 
-    def _set_limit(self, old: int | None, new: int | None) -> bool:
+    def _set_limit(self, limit: int | None) -> bool:
         return True
 
 # -- Lookahead -------------------------------------------------------------
-
-    @classmethod
-    def _check_lookahead(
-            cls,
-            arg: Any,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> int:
-        return max(int(Quantity.check(
-            arg, function, name, position).amount), 1)
-
-    @classmethod
-    def _check_optional_lookahead(
-            cls,
-            arg: Any | None,
-            default: Any | None = None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> int | None:
-        return cls._do_check_optional(
-            cls._check_lookahead, arg, default, function, name, position)
 
     @at_property
     def default_lookahead(self) -> int:
@@ -1025,10 +890,7 @@ class Store(Set):
         Returns:
            Default lookahead value.
         """
-        return self.context.options.store.lookahead
-
-    #: Lookahead.
-    _lookahead: int | None
+        return self._default_options.lookahead
 
     @at_property
     def lookahead(self) -> int:
@@ -1039,75 +901,34 @@ class Store(Set):
     def lookahead(self, lookahead: int | None = None) -> None:
         self.set_lookahead(lookahead)
 
-    def get_lookahead(
-            self,
-            default: int | None = None
-    ) -> int:
+    def get_lookahead(self) -> int:
         """Gets the lookahead of store.
-
-        If the lookhead is ``None``, returns `default`.
-
-        If `default` is ``None``, assumes :attr:`Store.default_lookahead`.
-
-        Parameters:
-           default: Default lookahead.
 
         Returns:
            Lookahead.
         """
-        if self._lookahead is not None:
-            lookahead: int = self._lookahead
-        elif default is not None:
-            lookahead = default
-        else:
-            lookahead = self.default_lookahead
-        return lookahead
+        return self._options.lookahead
 
-    def set_lookahead(
-            self,
-            lookahead: int | None = None
-    ) -> None:
+    def set_lookahead(self, lookahead: int | None = None) -> None:
         """Sets lookhead of store.
 
-        If `lookahead` is negative, assumes zero.
+        If `lookahead` is negative, assumes one.
 
-        If `lookahead` is ``None``, assumes :attr:`Store.default_lookahead`.
+        If `lookahead` is ``None``, resets it to the default.
 
         Parameters:
            lookahead: Lookahead.
         """
-        lookahead = self._check_optional_lookahead(
-            lookahead, None, self.set_lookahead, 'lookahead', 1)
-        if self._set_lookahead(self._lookahead, lookahead):
-            self._lookahead = lookahead
+        self._set_option_with_hooks(
+            lookahead,
+            self._options.get_lookahead,
+            self._options.set_lookahead,
+            self._set_lookahead)
 
-    def _set_lookahead(self, old: int | None, new: int | None) -> bool:
+    def _set_lookahead(self, lookahead: int) -> bool:
         return True
 
 # -- Page size -------------------------------------------------------------
-
-    @classmethod
-    def _check_page_size(
-            cls,
-            arg: Any,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> int:
-        return max(int(Quantity.check(
-            arg, function, name, position).amount), 0)
-
-    @classmethod
-    def _check_optional_page_size(
-            cls,
-            arg: Any | None,
-            default: Any | None = None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> int | None:
-        return cls._do_check_optional(
-            cls._check_page_size, arg, default, function, name, position)
 
     @at_property
     def max_page_size(self) -> int:
@@ -1120,7 +941,7 @@ class Store(Set):
         Returns:
            Maximum page size.
         """
-        return self.context.options.store.max_page_size
+        return self._default_options.max_page_size
 
     @at_property
     def default_page_size(self) -> int:
@@ -1133,10 +954,7 @@ class Store(Set):
         Returns:
            Default page size.
         """
-        return self.context.options.store.page_size
-
-    #: Page size.
-    _page_size: int | None
+        return self._default_options.page_size
 
     @at_property
     def page_size(self) -> int:
@@ -1147,76 +965,34 @@ class Store(Set):
     def page_size(self, page_size: int | None = None) -> None:
         self.set_page_size(page_size)
 
-    def get_page_size(
-            self,
-            default: int | None = None
-    ) -> int:
+    def get_page_size(self) -> int:
         """Gets the page size of store.
-
-        If the page size is ``None``, returns `default`.
-
-        If `default` is ``None``, assumes :attr:`Store.default_page_size`.
-
-        Parameters:
-           default: Default page size.
 
         Returns:
            Page size.
         """
-        if self._page_size is not None:
-            page_size: int = self._page_size
-        elif default is not None:
-            page_size = default
-        else:
-            page_size = self.default_page_size
-        return min(page_size, self.max_page_size)
+        return min(self._options.page_size, self.max_page_size)
 
-    def set_page_size(
-            self,
-            page_size: int | None = None
-    ) -> None:
+    def set_page_size(self, page_size: int | None = None) -> None:
         """Sets page size of store.
 
         If `page_size` is negative, assumes zero.
 
-        If `page_size` is ``None``, assumes :attr:`Store.default_page_size`.
+        If `page_size` is ``None``, resets it to the default.
 
         Parameters:
            page_size: Page size.
         """
-        page_size = self._check_optional_page_size(
-            page_size, None, self.set_page_size, 'page_size', 1)
-        if self._set_page_size(self._page_size, page_size):
-            self._page_size = page_size
+        self._set_option_with_hooks(
+            page_size,
+            self._options.get_page_size,
+            self._options.set_page_size,
+            self._set_page_size)
 
-    def _set_page_size(self, old: int | None, new: int | None) -> bool:
+    def _set_page_size(self, page_size: int) -> bool:
         return True
 
 # -- Timeout ---------------------------------------------------------------
-
-    @classmethod
-    def _check_timeout(
-            cls,
-            arg: Any,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> float:
-        return max(float(Quantity.check(
-            arg, function, name, position).amount), 0.)
-
-    @classmethod
-    def _check_optional_timeout(
-            cls,
-            arg: Any | None,
-            default: Any | None = None,
-            function: Location | None = None,
-            name: str | None = None,
-            position: int | None = None
-    ) -> float | None:
-        return cls._do_check_optional(
-            cls._check_timeout,
-            arg, default, function, name, position)
 
     @at_property
     def max_timeout(self) -> float:
@@ -1229,7 +1005,7 @@ class Store(Set):
         Returns:
            Maximum timeout (in seconds).
         """
-        return self.context.options.store.max_timeout
+        return self._default_options.max_timeout
 
     @at_property
     def default_timeout(self) -> float | None:
@@ -1242,10 +1018,7 @@ class Store(Set):
         Returns:
            Timeout or ``None``.
         """
-        return self.context.options.store.timeout
-
-    #: Timeout (in seconds).
-    _timeout: float | None
+        return self._default_options.timeout
 
     @at_property
     def timeout(self) -> float | None:
@@ -1256,10 +1029,7 @@ class Store(Set):
     def timeout(self, timeout: float | None = None) -> None:
         self.set_timeout(timeout)
 
-    def get_timeout(
-            self,
-            default: float | None = None
-    ) -> float | None:
+    def get_timeout(self, default: float | None = None) -> float | None:
         """Gets the timeout of store.
 
         If the timeout is ``None``, returns `default`.
@@ -1272,36 +1042,31 @@ class Store(Set):
         Returns:
            Timeout or ``None``.
         """
-        if self._timeout is not None:
-            timeout: float | None = self._timeout
-        elif default is not None:
-            timeout = default
-        else:
-            timeout = self.default_timeout
+        timeout = self._options.timeout
         if timeout is None:
-            return timeout
+            timeout = default
+        if timeout is None:
+            return None
         else:
             return min(timeout, self.max_timeout)
 
-    def set_timeout(
-            self,
-            timeout: float | None = None
-    ) -> None:
+    def set_timeout(self, timeout: float | None = None) -> None:
         """Sets the timeout of store.
 
         If `timeout` is negative, assumes zero.
 
-        If `timeout` is ``None``, assumes :attr:`Store.default_timeout`.
+        If `timeout` is ``None``, resets it to the default.
 
         Parameters:
            timeout: Timeout.
         """
-        timeout = self._check_optional_timeout(
-            timeout, None, self.set_timeout, 'timeout', 1)
-        if self._set_timeout(self._timeout, timeout):
-            self._timeout = timeout
+        self._set_option_with_hooks(
+            timeout,
+            self._options.get_timeout,
+            self._options.set_timeout,
+            self._set_timeout)
 
-    def _set_timeout(self, old: float | None, new: float | None) -> bool:
+    def _set_timeout(self, timeout: float | None) -> bool:
         return True
 
 # -- Set interface ---------------------------------------------------------
@@ -1685,7 +1450,7 @@ class Store(Set):
     ) -> tuple[int, bool]:
         distinct = bool(distinct) if distinct is not None else self.distinct
         assert distinct is not None
-        limit = self._check_optional_limit(
+        limit = self._options._check_optional_limit(
             limit, self.limit, function, 'limit')
         if limit is None:
             limit = self.get_limit(self.max_limit)
