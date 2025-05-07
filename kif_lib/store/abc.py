@@ -16,7 +16,6 @@ from ..model import (
     Filter,
     Fingerprint,
     KIF_Object,
-    Quantity,
     ReferenceRecordSet,
     Snak,
     Statement,
@@ -231,9 +230,9 @@ class Store(Set):
     def _set_option_with_hooks(
             self,
             value: T | None,
-            get_fn: Callable[[], T | None],
-            set_fn: Callable[[T | None], None],
-            hook_fn: Callable[[T | None, T | None], bool]
+            get_fn: Callable[[], S],
+            set_fn: Callable[[S | T | None], None],
+            hook_fn: Callable[[S], bool]
     ) -> None:
         old = get_fn()
         set_fn(value)
@@ -301,7 +300,11 @@ class Store(Set):
         self._set_option_with_hooks(
             base_filter,
             self._options.get_base_filter,
-            self._options.set_base_filter,
+            functools.partial(
+                self._options.set_base_filter,
+                function=self.set_base_filter,
+                name='base_filter',
+                position=1),
             self._set_base_filter)
 
     def _set_base_filter(self, base_filter: Filter) -> bool:
@@ -588,7 +591,7 @@ class Store(Set):
     def distinct(self, distinct: bool | None = None) -> None:
         self.set_distinct(distinct)
 
-    def get_distinct(self, default: bool | None = None) -> bool:
+    def get_distinct(self) -> bool:
         """Gets the distinct flag of store.
 
         Returns:
@@ -607,7 +610,11 @@ class Store(Set):
         self._set_option_with_hooks(
             distinct,
             self._options.get_distinct,
-            self._options.set_distinct,
+            functools.partial(
+                self._options.set_distinct,
+                function=self.set_distinct,
+                name='distinct',
+                position=1),
             self._set_distinct)
 
     def _set_distinct(self, distinct: bool) -> bool:
@@ -662,7 +669,11 @@ class Store(Set):
         self._set_option_with_hooks(
             extra_references,
             self._options.get_extra_references,
-            self._options.set_extra_references,
+            functools.partial(
+                self._options.set_extra_references,
+                function=self.set_extra_references,
+                name='extra_references',
+                position=1),
             self._set_extra_references)
 
     def _set_extra_references(
@@ -741,7 +752,8 @@ class Store(Set):
     @flags.setter
     def flags(self, flags: TFlags | None) -> None:
         flags = self.Flags.check_optional(
-            flags, None, self.set_flags, 'flags', 1)
+            flags, self.default_flags, self.set_flags, 'flags', 1)
+        assert flags is not None
         if self._set_flags(flags):
             self._flags = flags
 
@@ -831,7 +843,7 @@ class Store(Set):
     @at_property
     def limit(self) -> int | None:
         """The limit of store (maximum number of responses)."""
-        return self._options.limit
+        return self.get_limit()
 
     @limit.setter
     def limit(self, limit: int | None = None) -> None:
@@ -858,7 +870,13 @@ class Store(Set):
         else:
             return min(limit, self.max_limit)
 
-    def set_limit(self, limit: int | None = None) -> None:
+    def set_limit(
+            self,
+            limit: int | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         """Sets the limit of store.
 
         If `limit` is negative, assumes zero.
@@ -867,11 +885,18 @@ class Store(Set):
 
         Parameters:
            limit: Limit.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
         self._set_option_with_hooks(
             limit,
             self._options.get_limit,
-            self._options.set_limit,
+            functools.partial(
+                self._options.set_limit,
+                function=self.set_limit,
+                name='limit',
+                position=1),
             self._set_limit)
 
     def _set_limit(self, limit: int | None) -> bool:
@@ -922,7 +947,11 @@ class Store(Set):
         self._set_option_with_hooks(
             lookahead,
             self._options.get_lookahead,
-            self._options.set_lookahead,
+            functools.partial(
+                self._options.set_lookahead,
+                function=self.set_lookahead,
+                name='lookahead',
+                position=1),
             self._set_lookahead)
 
     def _set_lookahead(self, lookahead: int) -> bool:
@@ -973,7 +1002,13 @@ class Store(Set):
         """
         return min(self._options.page_size, self.max_page_size)
 
-    def set_page_size(self, page_size: int | None = None) -> None:
+    def set_page_size(
+            self,
+            page_size: int | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         """Sets page size of store.
 
         If `page_size` is negative, assumes zero.
@@ -982,11 +1017,18 @@ class Store(Set):
 
         Parameters:
            page_size: Page size.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
         self._set_option_with_hooks(
             page_size,
             self._options.get_page_size,
-            self._options.set_page_size,
+            functools.partial(
+                self._options.set_page_size,
+                function=self.set_page_size,
+                name='page_size',
+                position=1),
             self._set_page_size)
 
     def _set_page_size(self, page_size: int) -> bool:
@@ -1050,7 +1092,10 @@ class Store(Set):
         else:
             return min(timeout, self.max_timeout)
 
-    def set_timeout(self, timeout: float | None = None) -> None:
+    def set_timeout(
+            self,
+            timeout: float | None = None
+    ) -> None:
         """Sets the timeout of store.
 
         If `timeout` is negative, assumes zero.
@@ -1063,7 +1108,11 @@ class Store(Set):
         self._set_option_with_hooks(
             timeout,
             self._options.get_timeout,
-            self._options.set_timeout,
+            functools.partial(
+                self._options.set_timeout,
+                function=self.set_timeout,
+                name='timeout',
+                position=1),
             self._set_timeout)
 
     def _set_timeout(self, timeout: float | None) -> bool:

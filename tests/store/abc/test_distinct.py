@@ -30,11 +30,10 @@ class Test(TestCase):
     def test_get_distinct(self) -> None:
         kb = Store('empty')
         self.assertEqual(kb.get_distinct(), kb.default_distinct)
-        self.assertEqual(kb.get_distinct(False), False)
         kb = Store('empty', distinct=True)
-        self.assertEqual(kb.get_distinct(False), True)
+        self.assertEqual(kb.get_distinct(), True)
         kb = Store('empty', distinct=False)
-        self.assertEqual(kb.get_distinct(True), False)
+        self.assertEqual(kb.get_distinct(), False)
         kb = Store('empty', distinct=None)
         self.assertEqual(kb.get_distinct(), kb.default_distinct)
 

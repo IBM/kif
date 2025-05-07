@@ -79,15 +79,24 @@ class _StoreOptions(Section):
 
     def set_base_filter(
             self,
-            base_filter: Filter
+            base_filter: Filter,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> None:
         """Sets the base filter option.
 
         Parameters:
            base_filter: Filter.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
         self._base_filter = Filter.check(
-            base_filter, self.set_base_filter, 'base_filter', 1)
+            base_filter,
+            function if function is not None else self.set_base_filter,
+            name if name is not None else 'base_filter',
+            position if position is not None else 1)
 
     # -- distinct --
 
@@ -118,11 +127,20 @@ class _StoreOptions(Section):
         assert self._distinct is not None
         return self._distinct
 
-    def set_distinct(self, distinct: bool) -> None:
+    def set_distinct(
+            self,
+            distinct: bool,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         """Sets the distinct flag.
 
         Parameters:
            distinct: Distinct flag.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
         self._distinct = bool(distinct)
 
@@ -154,16 +172,24 @@ class _StoreOptions(Section):
 
     def set_extra_references(
             self,
-            extra_references: TReferenceRecordSet
+            extra_references: TReferenceRecordSet,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> None:
         """Sets the extra-references option.
 
         Parameters:
            extra_references: Reference record set.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
         self._extra_references = ReferenceRecordSet.check(
-            extra_references, self.set_extra_references,
-            'extra_references', 1)
+            extra_references,
+            function if function is not None else self.set_extra_references,
+            name if name is not None else 'extra_references',
+            position if position is not None else 1)
 
     # -- flags --
 
@@ -231,16 +257,28 @@ class _StoreOptions(Section):
         assert self._max_limit is not None
         return self._max_limit
 
-    def set_max_limit(self, max_limit: TQuantity) -> None:
+    def set_max_limit(
+            self,
+            max_limit: TQuantity,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         """Sets the maximum limit option.
 
         If `max_limit` is negative, assumes zero.
 
         Parameters:
            max_limit: Integer quantity.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
         self._max_limit = self._check_limit(
-            max_limit, self.set_max_limit, 'max_limit', 1)
+            max_limit,
+            function if function is not None else self.set_max_limit,
+            name if name is not None else 'max_limit',
+            position if position is not None else 1)
 
     # -- limit --
 
@@ -252,7 +290,7 @@ class _StoreOptions(Section):
             name: str | None = None,
             position: int | None = None
     ) -> int:
-        return max(cls._check_int(arg), 0)
+        return max(cls._check_int(arg, function, name, position), 0)
 
     @classmethod
     def _check_optional_limit(
@@ -292,16 +330,30 @@ class _StoreOptions(Section):
         """
         return self._limit
 
-    def set_limit(self, limit: TQuantity | None) -> None:
+    def set_limit(
+            self,
+            limit: TQuantity | None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         """Sets the limit option.
 
         If `limit` is negative, assumes zero.
 
+        If `limit` is ``None``, assumes no limit.
+
         Parameters:
            limit: Integer quantity or ``None``.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
         self._limit = self._check_optional_limit(
-            limit, None, self.set_limit, 'limit', 1)
+            limit, None,
+            function if function is not None else self.set_limit,
+            name if name is not None else 'limit',
+            position if position is not None else 1)
 
     # -- lookahead --
 
@@ -354,16 +406,28 @@ class _StoreOptions(Section):
         assert self._lookahead is not None
         return self._lookahead
 
-    def set_lookahead(self, lookahead: TQuantity) -> None:
+    def set_lookahead(
+            self,
+            lookahead: TQuantity,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         """Sets the lookahead option.
 
         If `lookahead` is zero or negative, assumes 1.
 
         Parameters:
            lookahead: Integer quantity.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
         self._lookahead = self._check_lookahead(
-            lookahead, self.set_lookahead, 'lookahead', 1)
+            lookahead,
+            function if function is not None else self.set_lookahead,
+            name if name is not None else 'lookahead',
+            position if position is not None else 1)
 
     # -- max_page_size --
 
@@ -416,7 +480,7 @@ class _StoreOptions(Section):
             name: str | None = None,
             position: int | None = None
     ) -> int:
-        return max(cls._check_int(arg), 0)
+        return max(cls._check_int(arg, function, name, position), 0)
 
     @classmethod
     def _check_optional_page_size(
@@ -457,16 +521,28 @@ class _StoreOptions(Section):
         assert self._page_size is not None
         return self._page_size
 
-    def set_page_size(self, page_size: TQuantity) -> None:
+    def set_page_size(
+            self,
+            page_size: TQuantity,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         """Sets the page size option.
 
         If `page_size` is negative, assumes zero.
 
         Parameters:
            page_size: Integer quantity.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
         self._page_size = self._check_page_size(
-            page_size, self.set_page_size, 'page_size', 1)
+            page_size,
+            function if function is not None else self.set_page_size,
+            name if name is not None else 'page_size',
+            position if position is not None else 1)
 
     # -- max_timeout --
 
@@ -518,7 +594,7 @@ class _StoreOptions(Section):
             name: str | None = None,
             position: int | None = None
     ) -> float:
-        return max(cls._check_float(arg), 0.)
+        return max(cls._check_float(arg, function, name, position), 0.)
 
     @classmethod
     def _check_optional_timeout(
@@ -558,16 +634,28 @@ class _StoreOptions(Section):
         """
         return self._timeout
 
-    def set_timeout(self, timeout: TQuantity | None) -> None:
+    def set_timeout(
+            self,
+            timeout: TQuantity | None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         """Sets the timeout option.
 
         If `timeout` is negative, assumes zero.
 
         Parameters:
            timeout: Quantity or ``None``.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
         self._timeout = self._check_optional_timeout(
-            timeout, None, self.set_timeout, 'timeout', 1)
+            timeout, None,
+            function if function is not None else self.set_timeout,
+            name if name is not None else 'timeout',
+            position if position is not None else 1)
 
 
 class _StoreOptionsOverride(_StoreOptions):
@@ -601,11 +689,17 @@ class _StoreOptionsOverride(_StoreOptions):
             return super().get_base_filter()
 
     @override
-    def set_base_filter(self, base_filter: Filter | None) -> None:
+    def set_base_filter(
+            self,
+            base_filter: Filter | None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         if base_filter is None:
             self._base_filter = None
         else:
-            super().set_base_filter(base_filter)
+            super().set_base_filter(base_filter, function, name, position)
 
     # -- distinct --
 
@@ -617,11 +711,17 @@ class _StoreOptionsOverride(_StoreOptions):
             return super().get_distinct()
 
     @override
-    def set_distinct(self, distinct: bool | None) -> None:
+    def set_distinct(
+            self,
+            distinct: bool | None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         if distinct is None:
             self._distinct = None
         else:
-            super().set_distinct(distinct)
+            super().set_distinct(distinct, function, name, position)
 
     # -- extra_references --
 
@@ -640,12 +740,16 @@ class _StoreOptionsOverride(_StoreOptions):
     @override
     def set_extra_references(
             self,
-            extra_references: TReferenceRecordSet | None
+            extra_references: TReferenceRecordSet | None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
     ) -> None:
         if extra_references is None:
             self._extra_references = None
         else:
-            super().set_extra_references(extra_references)
+            super().set_extra_references(
+                extra_references, function, name, position)
 
     # -- max_limit --
 
@@ -657,11 +761,17 @@ class _StoreOptionsOverride(_StoreOptions):
             return super().get_max_limit()
 
     @override
-    def set_max_limit(self, max_limit: TQuantity | None) -> None:
+    def set_max_limit(
+            self,
+            max_limit: TQuantity | None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         if max_limit is None:
             self._max_limit = None
         else:
-            super().set_max_limit(max_limit)
+            super().set_max_limit(max_limit, function, name, position)
 
     # -- limit --
 
@@ -682,11 +792,17 @@ class _StoreOptionsOverride(_StoreOptions):
             return super().get_lookahead()
 
     @override
-    def set_lookahead(self, lookahead: TQuantity | None) -> None:
+    def set_lookahead(
+            self,
+            lookahead: TQuantity | None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         if lookahead is None:
             self._lookahead = None
         else:
-            super().set_lookahead(lookahead)
+            super().set_lookahead(lookahead, function, name, position)
 
     # -- max_page_size --
 
@@ -714,11 +830,17 @@ class _StoreOptionsOverride(_StoreOptions):
             return super().get_page_size()
 
     @override
-    def set_page_size(self, page_size: TQuantity | None) -> None:
+    def set_page_size(
+            self,
+            page_size: TQuantity | None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         if page_size is None:
             self._page_size = None
         else:
-            super().set_page_size(page_size)
+            super().set_page_size(page_size, function, name, position)
 
     # -- max_timeout --
 

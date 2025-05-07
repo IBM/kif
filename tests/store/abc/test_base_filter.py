@@ -41,11 +41,10 @@ class Test(TestCase):
         kb = Store('empty')
         self.assertEqual(kb.base_filter, kb.default_base_filter)
         self.assertEqual(kb.get_base_filter(), kb.default_base_filter)
-        self.assertEqual(kb.get_base_filter(self.F1), self.F1)
         kb = Store('empty', base_filter=self.F2)
         self.assertEqual(kb.base_filter, self.F2)
         self.assertEqual(kb.get_base_filter(), self.F2)
-        self.assertEqual(kb.get_base_filter(self.F1), self.F2)
+        self.assertEqual(kb.get_base_filter(), self.F2)
 
     def test_set_base_filter(self) -> None:
         kb = Store('empty')
@@ -57,11 +56,10 @@ class Test(TestCase):
         self.assertEqual(kb.base_filter, self.F1)
         kb.base_filter = None   # type: ignore
         self.assertEqual(kb.get_base_filter(), kb.default_base_filter)
-        self.assertEqual(kb.get_base_filter(self.F2), self.F2)
         kb.base_filter = self.F1
-        self.assertEqual(kb.get_base_filter(self.F2), self.F1)
+        self.assertEqual(kb.get_base_filter(), self.F1)
         kb.base_filter = Filter()
-        self.assertEqual(kb.get_base_filter(self.F2), Filter())
+        self.assertEqual(kb.get_base_filter(), Filter())
         kb.base_filter = None  # type: ignore
         self.assertEqual(kb.get_base_filter(), kb.default_base_filter)
         self.assertEqual(kb.base_filter, kb.default_base_filter)

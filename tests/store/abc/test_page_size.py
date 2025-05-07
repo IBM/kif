@@ -37,16 +37,12 @@ class Test(TestCase):
     def test_get_page_size(self) -> None:
         kb = Store('empty')
         self.assertEqual(kb.get_page_size(), kb.default_page_size)
-        self.assertEqual(kb.get_page_size(5), 5)
         kb = Store('empty', page_size=0)
-        self.assertEqual(kb.get_page_size(5), 0)
+        self.assertEqual(kb.get_page_size(), 0)
         kb = Store('empty', page_size=-8)
-        self.assertEqual(kb.get_page_size(5), 0)
+        self.assertEqual(kb.get_page_size(), 0)
         kb = Store('empty', page_size=None)
         self.assertEqual(kb.get_page_size(), kb.default_page_size)
-        kb = Store('empty', page_size=None)
-        self.assertEqual(
-            kb.get_page_size(kb.max_page_size + 10), kb.max_page_size)
 
     def test_set_page_size(self) -> None:
         kb = Store('empty')

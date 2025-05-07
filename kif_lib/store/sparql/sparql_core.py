@@ -380,6 +380,24 @@ class _SPARQL_Store(
             cls._check_mapping, arg, default, function, name, position)
 
     @classmethod
+    def _do_check_optional(
+            cls,
+            check: Callable[
+                [Any, Location | None, str | None, int | None], T],
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> T | None:
+        if arg is None:
+            arg = default
+        if arg is None:
+            return default
+        else:
+            return check(arg, function, name, position)
+
+    @classmethod
     def _dbpedia_mapping_constructor(
             cls,
             *args: Any,

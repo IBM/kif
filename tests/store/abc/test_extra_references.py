@@ -41,15 +41,13 @@ class Test(TestCase):
         kb = Store('empty')
         self.assertEqual(
             kb.get_extra_references(), kb.default_extra_references)
-        self.assertEqual(kb.get_extra_references(self.refs), self.refs)
         kb = Store('empty', extra_references=ReferenceRecordSet())
-        self.assertEqual(
-            kb.get_extra_references(self.refs), ReferenceRecordSet())
+        self.assertEqual(kb.get_extra_references(), ReferenceRecordSet())
         kb = Store('empty', extra_references=None)
-        self.assertEqual(kb.get_extra_references(self.refs), self.refs)
-        kb = Store('empty', extra_references=self.refs)
         self.assertEqual(
-            kb.get_extra_references(ReferenceRecordSet()), self.refs)
+            kb.get_extra_references(), kb.default_extra_references)
+        kb = Store('empty', extra_references=self.refs)
+        self.assertEqual(kb.get_extra_references(), self.refs)
 
     def test_set_extra_references(self) -> None:
         kb = Store('empty')
