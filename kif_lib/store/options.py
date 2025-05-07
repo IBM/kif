@@ -101,7 +101,7 @@ class _StoreOptions(Section):
     # -- distinct --
 
     _v_distinct: ClassVar[tuple[Iterable[str], bool | None]] =\
-        (('KIF_EMPTY_STORE_DISTINCT',), DEFAULT_DISTINCT)
+        (('KIF_STORE_DISTINCT',), DEFAULT_DISTINCT)
 
     _distinct: bool | None
 
