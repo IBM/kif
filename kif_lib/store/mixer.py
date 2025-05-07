@@ -4,23 +4,185 @@
 from __future__ import annotations
 
 import asyncio
+import dataclasses
+import functools
 
 from .. import itertools
 from ..model import Filter, KIF_Object, Statement
+from ..model.flags import Flags as KIF_Flags
 from ..typing import (
     Any,
     AsyncIterator,
+    Callable,
+    cast,
+    ClassVar,
     Collection,
+    Final,
     Iterable,
     Iterator,
+    Location,
     override,
     Sequence,
+    TypeAlias,
     TypeVar,
+    Union,
 )
 from .abc import Store
+from .options_ import _StoreOptionsOverride
 
 T = TypeVar('T')
 S = TypeVar('S')
+
+
+class SyncFlags(KIF_Flags):
+    """Sync flags."""
+
+    #: Whether to propagate changes in base filter option.
+    BASE_FILTER = KIF_Flags.auto()
+
+    #: Whether to propagate changes in best-ranked option.
+    BEST_RANKED = KIF_Flags.auto()
+
+    #: Whether to propagate changes in distinct option.
+    DISTINCT = KIF_Flags.auto()
+
+    #: Whether to propagate changes in limit option.
+    LIMIT = KIF_Flags.auto()
+
+    #: Whether to propagate changes in lookahead option.
+    LOOKAHEAD = KIF_Flags.auto()
+
+    #: Whether to propagate changes in page size option.
+    PAGE_SIZE = KIF_Flags.auto()
+
+    #: Whether to propagate changes in timeout option.
+    TIMEOUT = KIF_Flags.auto()
+
+    #: All sync flags.
+    ALL = (
+        BASE_FILTER
+        | BEST_RANKED
+        | DISTINCT
+        | LIMIT
+        | LOOKAHEAD
+        | PAGE_SIZE
+        | TIMEOUT)
+
+
+#: Type alias for types coercible to :class:`SyncFlags`.
+TSyncFlags: TypeAlias = Union[SyncFlags, int]
+
+
+@dataclasses.dataclass
+class _MixerStoreOptions(_StoreOptionsOverride):
+
+    _v_best_ranked: ClassVar[tuple[Iterable[str], bool | None]] =\
+        (('KIF_MIXER_STORE_BEST_RANKED',), None)
+
+    _v_distinct: ClassVar[tuple[Iterable[str], bool | None]] =\
+        (('KIF_MIXER_STORE_DISTINCT',), None)
+
+    _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_MAX_LIMIT',), None)
+
+    _v_limit: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_LIMIT',), None)
+
+    _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_LOOKAHEAD',), None)
+
+    _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_MAX_PAGE_SIZE',), None)
+
+    _v_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+        (('KIF_MIXER_STORE_PAGE_SIZE',), None)
+
+    _v_max_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+        (('KIF_MIXER_STORE_MAX_TIMEOUT',), None)
+
+    _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+        (('KIF_MIXER_STORE_TIMEOUT',), None)
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self._init_sync_flags(kwargs)
+
+    # -- sync_flags --
+
+    _v_sync_flags: ClassVar[tuple[Iterable[str], SyncFlags]] =\
+        (('KIF_MIXER_STORE_SYNC_FLAGS',), SyncFlags.ALL)
+
+    _sync_flags: SyncFlags | None
+
+    def _init_sync_flags(self, kwargs: dict[str, Any]) -> None:
+        self.sync_flags = kwargs.get(
+            '_sync_flags', self.getenv_int(
+                self._v_sync_flags[0], self._v_sync_flags[1].value))
+
+    @property
+    def sync_flags(self) -> SyncFlags:
+        """The sync flags option."""
+        return self.get_sync_flags()
+
+    @sync_flags.setter
+    def sync_flags(self, sync_flags: TSyncFlags) -> None:
+        self.set_sync_flags(sync_flags)
+
+    def get_sync_flags(self) -> SyncFlags:
+        """Gets the sync flags option.
+
+        Returns:
+           Sync flags.
+        """
+        assert self._sync_flags is not None
+        return self._sync_flags
+
+    def set_sync_flags(
+            self,
+            sync_flags: TSyncFlags,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        """Sets the sync flags option.
+
+        Parameters:
+           sync_flags: Sync flags.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
+        """
+        self._sync_flags = SyncFlags.check(
+            sync_flags,
+            function if function is not None else self.set_sync_flags,
+            name if name is not None else 'sync_flags',
+            position if position is not None else 1)
+
+
+@dataclasses.dataclass
+class MixerStoreOptions(_MixerStoreOptions, name='mixer'):
+    """Mixer store options."""
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+    def get_sync_flags(self) -> SyncFlags:
+        if self._sync_flags is None:
+            return self.parent.sync_flags
+        else:
+            return super().get_sync_flags()
+
+    def set_sync_flags(
+            self,
+            sync_flags: TSyncFlags | None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        if sync_flags is None:
+            self._sync_flags = None
+        else:
+            super().set_sync_flags(sync_flags, function, name, position)
 
 
 class MixerStore(
@@ -33,52 +195,36 @@ class MixerStore(
     Parameters:
        store_name: Name of the store plugin to instantiate.
        sources: Sources to mix.
-       sync_flags: Whether to sync store flags.
-       sync_limit: Whether to sync store limit.
-       sync_lookahead: Whether to sync store lookahead.
-       sync_page_size: Whether to sync page size.
-       sync_timeout: Whether to sync timeout.
+       sync_flags: Sync flags.
     """
 
     __slots__ = (
         '_sources',
-        '_sync_flags',
-        '_sync_limit',
-        '_sync_lookahead',
-        '_sync_page_size',
-        '_sync_timeout',
     )
 
     _sources: Sequence[Store]
-    _sync_flags: bool
-    _sync_limit: bool
-    _sync_lookahead: bool
-    _sync_page_size: bool
-    _sync_timeout: bool
 
     def __init__(
             self,
             store_name: str,
             sources: Iterable[Store] = tuple(),
-            sync_flags: bool = True,
-            sync_limit: bool = True,
-            sync_lookahead: bool = True,
-            sync_page_size: bool = True,
-            sync_timeout: bool = True,
+            sync_flags: TSyncFlags | None = None,
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
         self._init_sources(sources)
-        self._sync_flags = bool(sync_flags)
-        self._sync_limit = bool(sync_limit)
-        self._sync_lookahead = bool(sync_lookahead)
-        self._sync_page_size = bool(sync_page_size)
-        self._sync_timeout = bool(sync_timeout)
         super().__init__(**kwargs)
 
     @override
-    def _get_default_options(self) -> Store.Options:
+    def _get_default_options(self) -> MixerStoreOptions:
         return self.context.options.store.mixer
+
+    def _get_options(self) -> MixerStoreOptions:
+        return cast(MixerStoreOptions, self._options)
+
+    def _update_options(self, **kwargs: Any) -> None:
+        if 'sync_flags' in kwargs:
+            self.set_sync_flags(kwargs['sync_flags'])
 
     def _init_sources(self, sources: Iterable[Store]) -> None:
         KIF_Object._check_arg_isinstance(
@@ -102,116 +248,123 @@ class MixerStore(
            Mixed sources.
         """
         return self._sources
+
+# -- Sync flags ------------------------------------------------------------
+
+    #: Whether to propagate changes in base filter option.
+    BASE_FILTER: Final[SyncFlags] = SyncFlags.BASE_FILTER
+
+    #: Whether to propagate changes in best-ranked option.
+    BEST_RANKED: Final[SyncFlags] = SyncFlags.BEST_RANKED
+
+    #: Whether to propagate changes in distinct option.
+    DISTINCT: Final[SyncFlags] = SyncFlags.DISTINCT
+
+    #: Whether to propagate changes in limit option.
+    LIMIT: Final[SyncFlags] = SyncFlags.LIMIT
+
+    #: Whether to propagate changes in lookahead option.
+    LOOKAHEAD: Final[SyncFlags] = SyncFlags.LOOKAHEAD
+
+    #: Whether to propagate changes in page size option.
+    PAGE_SIZE: Final[SyncFlags] = SyncFlags.PAGE_SIZE
+
+    #: Whether to propagate changes in timeout option.
+    TIMEOUT: Final[SyncFlags] = SyncFlags.TIMEOUT
 
     @property
-    def sync_flags(self) -> bool:
-        """Whether to sync store flags."""
+    def default_sync_flags(self) -> SyncFlags:
+        """The default value for :attr:`MixerStore.sync_flags`."""
+        return self.get_default_sync_flags()
+
+    def get_default_sync_flags(self) -> SyncFlags:
+        """Gets the default value for :attr:`MixerStore.sync_flags`.
+
+        Returns:
+           Default sync flags.
+        """
+        return self._get_default_options().sync_flags
+
+    @property
+    def sync_flags(self) -> SyncFlags:
+        """The sync flags of mixer."""
         return self.get_sync_flags()
 
-    def get_sync_flags(self) -> bool:
-        """Tests whether to sync store flags.
+    @sync_flags.setter
+    def sync_flags(self, sync_flags: TSyncFlags | None = None) -> None:
+        self.set_sync_flags(sync_flags)
+
+    def get_sync_flags(self) -> SyncFlags:
+        """Gets the sync flags of mixer.
 
         Returns:
-           ``True`` if successful; ``False`` otherwise.
+           Sync flags.
         """
-        return self._sync_flags
+        return self._get_options().sync_flags
 
-    @override
-    def _set_flags(self, flags: Store.Flags) -> bool:
-        if not super()._set_flags(flags):
-            return False
-        if self.sync_flags:
-            for src in self.sources:
-                src.flags = flags  # type: ignore
+    def set_sync_flags(self, sync_flags: TSyncFlags | None = None) -> None:
+        """Sets the sync flags of mixer.
+
+        If `sync_flags` is ``None``, resets it to the default.
+
+        Parameters:
+           sync_flags: Sync flags.
+        """
+        self._set_option_with_hooks(
+            sync_flags,
+            self._get_options().get_sync_flags,
+            functools.partial(
+                self._get_options().set_sync_flags,
+                function=self.set_sync_flags,
+                name='sync_flags',
+                position=1),
+            self._set_sync_flags)
+
+    def _set_sync_flags(self, sync_flags: SyncFlags) -> bool:
         return True
 
-    @property
-    def sync_limit(self) -> bool:
-        """Whether to sync store limit."""
-        return self.get_sync_limit()
+    @override
+    def _set_base_filter(self, base_filter: Filter) -> bool:
+        return self._set_x(
+            Store.set_base_filter, base_filter, self.BASE_FILTER)
 
-    def get_sync_limit(self) -> bool:
-        """Tests whether to sync store limit.
+    @override
+    def _set_best_ranked(self, best_ranked: bool) -> bool:
+        return self._set_x(
+            Store.set_best_ranked, best_ranked, self.BEST_RANKED)
 
-        Returns:
-           ``True`` if successful; ``False`` otherwise.
-        """
-        return self._sync_limit
+    @override
+    def _set_distinct(self, distinct: bool) -> bool:
+        return self._set_x(Store.set_distinct, distinct, self.DISTINCT)
 
     @override
     def _set_limit(self, limit: int | None) -> bool:
-        if not super()._set_limit(limit):
-            return False
-        if self.sync_limit:
-            for src in self.sources:
-                src.set_limit(limit)
-        return True
-
-    @property
-    def sync_lookahead(self) -> bool:
-        """Whether to sync store lookahead."""
-        return self.get_sync_flags()
-
-    def get_sync_lookahead(self) -> bool:
-        """Tests whether to sync store lookahead.
-
-        Returns:
-           ``True`` if successful; ``False`` otherwise.
-        """
-        return self._sync_lookahead
+        return self._set_x(Store.set_limit, limit, self.LIMIT)
 
     @override
     def _set_lookahead(self, lookahead: int) -> bool:
-        if not super()._set_lookahead(lookahead):
-            return False
-        if self.sync_lookahead:
-            for src in self.sources:
-                src.set_lookahead(lookahead)
-        return True
-
-    @property
-    def sync_page_size(self) -> bool:
-        """Whether to sync store page size."""
-        return self.get_sync_flags()
-
-    def get_sync_page_size(self) -> bool:
-        """Tests whether to sync store page size.
-
-        Returns:
-           ``True`` if successful; ``False`` otherwise.
-        """
-        return self._sync_page_size
+        return self._set_x(Store.set_lookahead, lookahead, self.LOOKAHEAD)
 
     @override
     def _set_page_size(self, page_size: int) -> bool:
-        if not super()._set_page_size(page_size):
-            return False
-        if self.sync_page_size:
-            for src in self.sources:
-                src.set_page_size(page_size)
-        return True
-
-    @property
-    def sync_timeout(self) -> bool:
-        """Whether to sync store timeout."""
-        return self.get_sync_timeout()
-
-    def get_sync_timeout(self) -> bool:
-        """Tests whether to sync store timeout.
-
-        Returns:
-           ``True`` if successful; ``False`` otherwise.
-        """
-        return self._sync_timeout
+        return self._set_x(Store.set_page_size, page_size, self.PAGE_SIZE)
 
     @override
     def _set_timeout(self, timeout: float | None) -> bool:
-        if not super()._set_timeout(timeout):
-            return False
-        if self.sync_timeout:
+        return self._set_x(Store.set_timeout, timeout, self.TIMEOUT)
+
+    def _set_x(
+            self,
+            set_fn: Callable[[Store, T], None],
+            value: T,
+            sync_flag: SyncFlags
+    ) -> bool:
+        if self.sync_flags & sync_flag:
             for src in self.sources:
-                src.set_timeout(timeout)
+                set_fn(src, value)
         return True
+
+# -- Statements ------------------------------------------------------------
 
     @override
     def _ask(self, filter: Filter) -> bool:

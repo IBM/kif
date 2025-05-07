@@ -36,7 +36,7 @@ class Test(StoreTestCase):
 
     def test_snak_mask(self) -> None:
         kb = self.S('rdf', 'tests/data/adam.ttl')
-        kb.unset_flags(kb.BEST_RANK)
+        kb.best_ranked = False
         xf, F = self.store_xfilter_assertion(kb)
         xf(F(snak_mask=F.VALUE_SNAK),
            {wd.alias(wd.Adam, Text('Adam', 'es')),

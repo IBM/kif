@@ -4,7 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 0.7.9 (?)
+## 0.8.0 (?)
+
+- Re-implemented store options using the option infrastructure.  Now the
+  store options are kept in a stack, which allows the current options to be
+  temporarily overriden using a `with` clause.
+
+- Removed the legacy `Store.Flags` (superseded by options).
 
 - Added `list-options` command to the KIF CLI tool.
 

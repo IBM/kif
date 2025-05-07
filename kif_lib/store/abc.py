@@ -24,7 +24,6 @@ from ..model import (
     TReferenceRecordSet,
     TTextLanguage,
 )
-from ..model.flags import Flags as KIF_Flags
 from ..typing import (
     Any,
     AsyncIterable,
@@ -40,11 +39,10 @@ from ..typing import (
     Set,
     TypeAlias,
     TypeVar,
-    Union,
 )
 
 if TYPE_CHECKING:                     # pragma: no cover
-    from .options import _StoreOptionsOverride
+    from .options_ import _StoreOptionsOverride
 else:
     _StoreOptionsOverride = object
 
@@ -122,7 +120,6 @@ class Store(Set):
         return KIF_Object._should_not_get_here(details)
 
     __slots__ = (
-        '_flags',
         '_options',
     )
 
@@ -130,9 +127,9 @@ class Store(Set):
             self,
             *args: Any,
             base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
             distinct: bool | None = None,
             extra_references: TReferenceRecordSet | None = None,
-            flags: TFlags | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
             page_size: int | None = None,
@@ -146,9 +143,9 @@ class Store(Set):
            store_name: Name of the store plugin to instantiate.
            args: Arguments.
            base_filter: Base filter.
+           best_ranked: Whether to consider only best-ranked statements.
            distinct: Whether to suppress duplicates.
            extra_references: Extra references to attach to statements.
-           flags: Store flags.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
            page_size: Page size of paginated responses.
@@ -159,15 +156,13 @@ class Store(Set):
         self._push_options()
         self._update_options(
             base_filter=base_filter,
+            best_ranked=best_ranked,
             distinct=distinct,
             extra_references=extra_references,
             limit=limit,
             lookahead=lookahead,
             page_size=page_size,
             timeout=timeout)
-        # --
-        self._flags = None
-        self.flags = flags      # type: ignore
 
     def __del__(self) -> None:
         self.close()
@@ -204,6 +199,9 @@ class Store(Set):
     #: Type alias for store options.
     Options: TypeAlias = _StoreOptionsOverride
 
+    #: Store options.
+    _options: Options
+
     @at_property
     def _default_options(self) -> Options:
         return self._get_default_options()
@@ -214,6 +212,8 @@ class Store(Set):
     def _update_options(self, **kwargs: Any) -> None:
         if 'base_filter' in kwargs:
             self.set_base_filter(kwargs['base_filter'])
+        if 'best_ranked' in kwargs:
+            self.set_best_ranked(kwargs['best_ranked'])
         if 'distinct' in kwargs:
             self.set_distinct(kwargs['distinct'])
         if 'extra_references' in kwargs:
@@ -567,6 +567,59 @@ class Store(Set):
         """
         self.base_filter = self.base_filter.replace(annotated=annotated)
 
+# -- Best-ranked -----------------------------------------------------------
+
+    @at_property
+    def default_best_ranked(self) -> bool:
+        """The default value for :attr:`Store.best_ranked`."""
+        return self.get_default_best_ranked()
+
+    def get_default_best_ranked(self) -> bool:
+        """Gets the default value for :attr:`Store.best_ranked`.
+
+        Returns:
+           Default best_ranked flag.
+        """
+        return self._default_options.best_ranked
+
+    @at_property
+    def best_ranked(self) -> bool:
+        """The best-ranked flag of store."""
+        return self.get_best_ranked()
+
+    @best_ranked.setter
+    def best_ranked(self, best_ranked: bool | None = None) -> None:
+        self.set_best_ranked(best_ranked)
+
+    def get_best_ranked(self) -> bool:
+        """Gets the best-ranked flag of store.
+
+        Returns:
+           Best-ranked flag.
+        """
+        return self._options.best_ranked
+
+    def set_best_ranked(self, best_ranked: bool | None = None) -> None:
+        """Sets the best-ranked flag of store.
+
+        If `best_ranked` is ``None``, resets it to the default.
+
+        Parameters:
+           best_ranked: Best-ranked flag.
+        """
+        self._set_option_with_hooks(
+            best_ranked,
+            self._options.get_best_ranked,
+            functools.partial(
+                self._options.set_best_ranked,
+                function=self.set_best_ranked,
+                name='best_ranked',
+                position=1),
+            self._set_best_ranked)
+
+    def _set_best_ranked(self, best_ranked: bool) -> bool:
+        return True
+
 # -- Distinct --------------------------------------------------------------
 
     @at_property
@@ -600,7 +653,7 @@ class Store(Set):
         return self._options.distinct
 
     def set_distinct(self, distinct: bool | None = None) -> None:
-        """Sets distinct flag of store.
+        """Sets the distinct flag of store.
 
         If `distinct` is ``None``, resets it to the default.
 
@@ -681,136 +734,6 @@ class Store(Set):
             extra_references: ReferenceRecordSet
     ) -> bool:
         return True
-
-# -- Flags -----------------------------------------------------------------
-
-    class Flags(KIF_Flags):
-        """Store flags."""
-
-        #: Whether to enable debugging.
-        DEBUG = KIF_Flags.auto()
-
-        #: Whether to fetch only the best ranked statements.
-        BEST_RANK = KIF_Flags.auto()
-
-        #: Whether to fetch value snaks.
-        VALUE_SNAK = KIF_Flags.auto()
-
-        #: Whether to fetch some-value snaks.
-        SOME_VALUE_SNAK = KIF_Flags.auto()
-
-        #: Whether to fetch no-value snaks.
-        NO_VALUE_SNAK = KIF_Flags.auto()
-
-        #: All flags.
-        ALL = (
-            DEBUG
-            | BEST_RANK
-            | VALUE_SNAK
-            | SOME_VALUE_SNAK
-            | NO_VALUE_SNAK)
-
-    #: Whether to enable debugging.
-    DEBUG: Final[Flags] = Flags.DEBUG
-
-    #: Whether to fetch only the best ranked statements.
-    BEST_RANK: Final[Flags] = Flags.BEST_RANK
-
-    #: Whether to fetch value snaks.
-    VALUE_SNAK: Final[Flags] = Flags.VALUE_SNAK
-
-    #: Whether to fetch some-value snaks.
-    SOME_VALUE_SNAK: Final[Flags] = Flags.SOME_VALUE_SNAK
-
-    #: Whether to fetch no-value snaks.
-    NO_VALUE_SNAK: Final[Flags] = Flags.NO_VALUE_SNAK
-
-    #: Type alias for store flags.
-    TFlags: TypeAlias = Union[Flags, int]
-
-    @at_property
-    def default_flags(self) -> Flags:
-        """The default value for :attr:`Store.flags`."""
-        return self.get_default_flags()
-
-    def get_default_flags(self) -> Flags:
-        """Gets the default value for :attr:`Store.flags`.
-
-        Returns:
-           Default store flags.
-        """
-        return self.context.options.store.flags
-
-    #: Store flags.
-    _flags: Flags | None
-
-    @at_property
-    def flags(self) -> Flags:
-        """The store flags."""
-        return self.get_flags()
-
-    @flags.setter
-    def flags(self, flags: TFlags | None) -> None:
-        flags = self.Flags.check_optional(
-            flags, self.default_flags, self.set_flags, 'flags', 1)
-        assert flags is not None
-        if self._set_flags(flags):
-            self._flags = flags
-
-    def _set_flags(self, flags: Flags) -> bool:
-        return True
-
-    def get_flags(self, default: Flags | None = None) -> Flags:
-        """Gets the store flags.
-
-        If `default` is ``None``, assumes :attr:`Store.default_flags`.
-
-        Parameters:
-           default: Default flags.
-
-        Returns:
-           Store flags.
-        """
-        if self._flags is not None:
-            flags: Store.Flags = self._flags
-        elif default is not None:
-            flags = default
-        else:
-            flags = self.default_flags
-        return flags
-
-    def has_flags(self, flags: TFlags) -> bool:
-        """Tests whether `flags` are set in store.
-
-        Parameters:
-           flags: Store flags.
-
-        Returns:
-           ``True`` if successful; ``False`` otherwise.
-        """
-        flags = self.Flags.check(flags, self.has_flags, 'flags', 1)
-        return bool(self.flags & flags)
-
-    def set_flags(self, flags: TFlags | None = None) -> None:
-        """Sets `flags` in store.
-
-        Parameters:
-           flags: Store flags.
-        """
-        if flags is None:
-            self.flags = None   # type: ignore
-        else:
-            self.flags |= self.Flags.check(
-                flags, self.set_flags, 'flags', 1)
-
-    def unset_flags(self, flags: TFlags) -> None:
-        """Unsets `flags` in store.
-
-        Parameters:
-           flags: Store flags.
-        """
-        flags = self.Flags.check(flags, self.unset_flags, 'flags', 1)
-        self.flags &= ~flags
 
 # -- Limit -----------------------------------------------------------------
 
@@ -935,7 +858,7 @@ class Store(Set):
         return self._options.lookahead
 
     def set_lookahead(self, lookahead: int | None = None) -> None:
-        """Sets lookhead of store.
+        """Sets the lookhead of store.
 
         If `lookahead` is negative, assumes one.
 
@@ -1009,7 +932,7 @@ class Store(Set):
             name: str | None = None,
             position: int | None = None
     ) -> None:
-        """Sets page size of store.
+        """Sets the page size of store.
 
         If `page_size` is negative, assumes zero.
 
@@ -1796,15 +1719,14 @@ class Store(Set):
             filter: Filter
     ) -> Filter:
         store_snak_mask = Filter.SnakMask(0)
-        if self.has_flags(self.VALUE_SNAK):
+        if self.snak_mask & Filter.VALUE_SNAK:
             store_snak_mask |= Filter.VALUE_SNAK
-        if self.has_flags(self.SOME_VALUE_SNAK):
+        if self.snak_mask & Filter.SOME_VALUE_SNAK:
             store_snak_mask |= Filter.SOME_VALUE_SNAK
-        if self.has_flags(self.NO_VALUE_SNAK):
+        if self.snak_mask & Filter.NO_VALUE_SNAK:
             store_snak_mask |= Filter.NO_VALUE_SNAK
         return filter.normalize().replace(
-            filter.KEEP, filter.KEEP, filter.KEEP,
-            filter.snak_mask & store_snak_mask)
+            snak_mask=filter.snak_mask & store_snak_mask)
 
     def mix(
             self,

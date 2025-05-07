@@ -5,13 +5,7 @@ from __future__ import annotations
 
 import os
 
-from kif_lib import (
-    Context,
-    Property,
-    ReferenceRecord,
-    ReferenceRecordSet,
-    Store,
-)
+from kif_lib import Context, Property, ReferenceRecord, ReferenceRecordSet
 from kif_lib.store.options import StoreOptions
 from kif_lib.typing import assert_type, Optional
 
@@ -27,9 +21,6 @@ class Test(TestCase):
             # extra_references
             assert_type(opts.extra_references, ReferenceRecordSet)
             self.assertEqual(opts.extra_references, ReferenceRecordSet())
-            # flags
-            assert_type(opts.flags, Store.Flags)
-            self.assertEqual(opts.flags, opts._v_flags[1])
             # max_page_size
             assert_type(opts.max_page_size, int)
             self.assertEqual(opts.max_page_size, opts._v_max_page_size[1])
@@ -59,23 +50,6 @@ class Test(TestCase):
             opts.extra_references = [
                 ReferenceRecord(Property('p').no_value())]  # type: ignore
             self.assertEqual(opts.extra_references, refs)
-
-    def test_flags(self) -> None:
-        with Context() as ctx:
-            opts = ctx.options.store
-            os.environ[opts._v_flags[0]] = str(Store.Flags.ALL.value)
-            opts = StoreOptions()
-            self.assertEqual(opts.flags, Store.Flags.ALL)
-            del os.environ[opts._v_flags[0]]
-        with Context() as ctx:
-            opts = ctx.options.store
-            self.assert_raises_bad_argument(
-                TypeError, 1, 'flags', 'cannot coerce dict into Store.Flags',
-                opts.set_flags, {})
-            opts.flags = Store.Flags.ALL
-            self.assertEqual(opts.flags, Store.Flags.ALL)
-            opts.flags = 0  # type: ignore
-            self.assertEqual(opts.flags, Store.Flags(0))
 
     def test_max_page_size(self) -> None:
         with Context() as ctx:

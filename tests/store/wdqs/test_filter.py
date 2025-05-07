@@ -29,7 +29,7 @@ class Test(StoreTestCase):
 
     def test_snak_mask(self) -> None:
         kb = self.KB()
-        kb.unset_flags(kb.BEST_RANK)
+        kb.best_ranked = False
         xf, F = self.store_xfilter_assertion(kb)
         xf(F(subject=wd.Adam,
              property=wd.date_of_birth,
@@ -95,7 +95,7 @@ class Test(StoreTestCase):
 
     def test_language(self) -> None:
         kb = self.KB()
-        kb.unset_flags(kb.BEST_RANK)
+        kb.best_ranked = False
         xf, F = self.store_xfilter_assertion(kb)
         xf(F(subject=wd.Brazil, property=wd.official_name,
            snak_mask=F.VALUE_SNAK, value_mask=F.TEXT, language='fr'),
