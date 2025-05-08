@@ -1242,35 +1242,35 @@ list: "[" value* "]" -> list_
             super().__init__()
 
         @lark.v_args(inline=True)
-        def sexp(self, cls, *args):
+        def sexp(self, cls, *args: Any) -> None:
             return cls(*args)
 
         @lark.v_args(inline=True)
-        def cls(self, s):
+        def cls(self, s) -> type[Object]:
             return Decoder._check_object_class(s)
 
         @lark.v_args(inline=True)
-        def true(self):
+        def true(self) -> bool:
             return True
 
         @lark.v_args(inline=True)
-        def false(self):
+        def false(self) -> bool:
             return False
 
         @lark.v_args(inline=True)
-        def int_(self, s):
+        def int_(self, s: str) -> int:
             return int(s)
 
         @lark.v_args(inline=True)
-        def float_(self, s):
+        def float_(self, s: str) -> float:
             return float(s)
 
         @lark.v_args(inline=True)
-        def str_(self, s):
+        def str_(self, s: str) -> str:
             return s[1:-1]
 
         @lark.v_args(inline=True)
-        def list_(self, *args):
+        def list_(self, *args: Any) -> list[Any]:
             return list(args)
 
     def __init__(self) -> None:

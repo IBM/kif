@@ -44,7 +44,7 @@ class ItemTemplate(EntityTemplate):
 
     object_class: ClassVar[type[Item]]  # pyright: ignore
 
-    def __init__(self, iri: VTItemContent):
+    def __init__(self, iri: VTItemContent) -> None:
         super().__init__(iri)
 
 

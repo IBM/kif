@@ -42,6 +42,9 @@ class SyncFlags(KIF_Flags):
     #: Whether to propagate changes in best-ranked option.
     BEST_RANKED = KIF_Flags.auto()
 
+    #: Whether to propagate changes in debug option.
+    DEBUG = KIF_Flags.auto()
+
     #: Whether to propagate changes in distinct option.
     DISTINCT = KIF_Flags.auto()
 
@@ -61,6 +64,7 @@ class SyncFlags(KIF_Flags):
     ALL = (
         BASE_FILTER
         | BEST_RANKED
+        | DEBUG
         | DISTINCT
         | LIMIT
         | LOOKAHEAD
@@ -77,6 +81,9 @@ class _MixerStoreOptions(StoreOptions):
 
     _v_best_ranked: ClassVar[tuple[Iterable[str], bool | None]] =\
         (('KIF_MIXER_STORE_BEST_RANKED',), None)
+
+    _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
+        (('KIF_MIXER_STORE_DISTINCT',), None)
 
     _v_distinct: ClassVar[tuple[Iterable[str], bool | None]] =\
         (('KIF_MIXER_STORE_DISTINCT',), None)
@@ -260,6 +267,9 @@ class MixerStore(
 
     #: Whether to propagate changes in best-ranked option.
     BEST_RANKED: Final[SyncFlags] = SyncFlags.BEST_RANKED
+
+    #: Whether to propagate changes in debug option.
+    DEBUG: Final[SyncFlags] = SyncFlags.DISTINCT
 
     #: Whether to propagate changes in distinct option.
     DISTINCT: Final[SyncFlags] = SyncFlags.DISTINCT

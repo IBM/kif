@@ -592,11 +592,8 @@ class _SPARQL_Store(
             SPARQL_FilterCompiler, VariablePattern, StatementVariable]:
         compiler = SPARQL_FilterCompiler(
             filter, self.mapping, SPARQL_FilterCompiler.default_flags)
-        ###
-        # TODO: Control this via store option.
-        ###
-        # compiler.set_flags(compiler.DEBUG)
-        ###
+        if self.debug:
+            compiler.set_flags(compiler.DEBUG)
         if self.best_ranked:
             compiler.set_flags(compiler.BEST_RANK)
         else:

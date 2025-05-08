@@ -17,6 +17,9 @@ class EmptyStoreOptions(StoreOptions, name='empty'):
     _v_best_ranked: ClassVar[tuple[Iterable[str], bool | None]] =\
         (('KIF_EMPTY_STORE_BEST_RANKED',), None)
 
+    _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
+        (('KIF_EMPTY_STORE_DEBUG',), None)
+
     _v_distinct: ClassVar[tuple[Iterable[str], bool | None]] =\
         (('KIF_EMPTY_STORE_DISTINCT',), None)
 

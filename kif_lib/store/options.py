@@ -21,7 +21,7 @@ from ..typing import (
 
 @dataclasses.dataclass
 class _StoreOptions(Section):
-    """Base store options."""
+    """Store options."""
 
     def __init__(self, **kwargs: Any) -> None:
         self._init_base_filter(kwargs)
@@ -797,6 +797,26 @@ class StoreOptions(_StoreOptions):
             self._best_ranked = None
         else:
             super().set_best_ranked(best_ranked, function, name, position)
+
+    @override
+    def get_debug(self) -> bool:
+        if self._debug is None:
+            return self.parent.debug
+        else:
+            return super().get_debug()
+
+    @override
+    def set_debug(
+            self,
+            debug: bool | None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        if debug is None:
+            self._debug = None
+        else:
+            super().set_debug(debug, function, name, position)
 
     @override
     def get_distinct(self) -> bool:

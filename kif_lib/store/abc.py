@@ -229,6 +229,8 @@ class Store(Set):
             self.set_base_filter(kwargs['base_filter'])
         if 'best_ranked' in kwargs:
             self.set_best_ranked(kwargs['best_ranked'])
+        if 'debug' in kwargs:
+            self.set_debug(kwargs['debug'])
         if 'distinct' in kwargs:
             self.set_distinct(kwargs['distinct'])
         if 'extra_references' in kwargs:
@@ -633,6 +635,59 @@ class Store(Set):
             self._set_best_ranked)
 
     def _set_best_ranked(self, best_ranked: bool) -> bool:
+        return True
+
+# -- Debug -----------------------------------------------------------------
+
+    @at_property
+    def default_debug(self) -> bool:
+        """The default value for :attr:`Store.debug`."""
+        return self.get_default_debug()
+
+    def get_default_debug(self) -> bool:
+        """Gets the default value for :attr:`Store.debug`.
+
+        Returns:
+           Default debug flag.
+        """
+        return self.default_options.debug
+
+    @at_property
+    def debug(self) -> bool:
+        """The debug flag of store (whether to enable debugging mode)."""
+        return self.get_debug()
+
+    @debug.setter
+    def debug(self, debug: bool | None = None) -> None:
+        self.set_debug(debug)
+
+    def get_debug(self) -> bool:
+        """Gets the debug flag of store.
+
+        Returns:
+           Debug flag.
+        """
+        return self.options.debug
+
+    def set_debug(self, debug: bool | None = None) -> None:
+        """Sets the debug flag of store.
+
+        If `debug` is ``None``, resets it to the default.
+
+        Parameters:
+           debug: Debug flag.
+        """
+        self._set_option_with_hooks(
+            debug,
+            self.options.get_debug,
+            functools.partial(
+                self.options.set_debug,
+                function=self.set_debug,
+                name='debug',
+                position=1),
+            self._set_debug)
+
+    def _set_debug(self, debug: bool) -> bool:
         return True
 
 # -- Distinct --------------------------------------------------------------

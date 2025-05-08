@@ -53,15 +53,22 @@ class DBpediaMapping(M):
     CheckWikidataProperty: Final[M.EntryCallbackArgProcessorAlias] =\
         functools.partial(M.CheckURI, match=WikidataMapping._re_property_uri)
 
-    def _start_r(self, c: C, x: V_URI, *xs: V_URI):
+    def _start_r(self, c: C, x: V_URI, *xs: V_URI) -> None:
         c.q.triples()(*map(
             lambda y: (y, RDF.type, OWL.Thing), itertools.chain((x,), xs)))
 
-    def _start_op(self, c: C, x: V_URI, *xs: V_URI):
+    def _start_op(self, c: C, x: V_URI, *xs: V_URI) -> None:
         c.q.triples()(*map(
             lambda y: (y, RDF.type, RDF.Property), itertools.chain((x,), xs)))
 
-    def _p_text(self, c: C, e: V_URI, p: V_URI, x: VLiteral, y: VLiteral):
+    def _p_text(
+            self,
+            c: C,
+            e: V_URI,
+            p: V_URI,
+            x: VLiteral,
+            y: VLiteral
+    ) -> None:
         if isinstance(y, Var):
             c.q.triples()((e, p, x))
             c.q.bind(c.q.lang(x), y)
@@ -75,7 +82,7 @@ class DBpediaMapping(M):
         [wd.label(Item(e), Text(x, y))],
         {e: CheckResource()},
         rank=Normal)
-    def wd_label(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
+    def wd_label(self, c: C, e: V_URI, x: VLiteral, y: VLiteral) -> None:
         self._start_r(c, e)
         self._p_text(c, e, RDFS.label, x, y)
 
@@ -83,7 +90,7 @@ class DBpediaMapping(M):
         [wd.label(Property(e), Text(x, y))],
         {e: CheckOntology()},
         rank=Normal)
-    def wd_label_op(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
+    def wd_label_op(self, c: C, e: V_URI, x: VLiteral, y: VLiteral) -> None:
         self._start_op(c, e)
         self._p_text(c, e, RDFS.label, x, y)
 
@@ -91,7 +98,7 @@ class DBpediaMapping(M):
         [wd.description(Item(e), Text(x, y))],
         {e: CheckResource()},
         rank=Normal)
-    def wd_description(self, c: C, e: V_URI, x: VLiteral, y: VLiteral):
+    def wd_description(self, c: C, e: V_URI, x: VLiteral, y: VLiteral) -> None:
         self._start_r(c, e)
         self._p_text(c, e, RDFS.comment, x, y)
 
@@ -101,7 +108,7 @@ class DBpediaMapping(M):
          x: CheckResource(),
          y: CheckResource()},
         rank=Normal)
-    def op_r_r(self, c: C, p: V_URI, x: V_URI, y: V_URI):
+    def op_r_r(self, c: C, p: V_URI, x: V_URI, y: V_URI) -> None:
         self._start_r(c, x, y)
         self._start_op(c, p)
         b = c.bnode()
@@ -116,7 +123,7 @@ class DBpediaMapping(M):
          x: CheckResource(),
          y: CheckResource()},
         rank=Normal)
-    def p_r_r(self, c: C, p: V_URI, x: V_URI, y: V_URI):
+    def p_r_r(self, c: C, p: V_URI, x: V_URI, y: V_URI) -> None:
         dbp = c.fresh_qvar()
         c.q.triples()((dbp, OWL.equivalentProperty, p))
         self.op_r_r(c, dbp, x, y)
@@ -130,7 +137,7 @@ class DBpediaMapping(M):
         {x: CheckResource(),
          y: CheckWikidataItem()},
         rank=Normal)
-    def wd_said_to_be_the_same_as(self, c: C, x: V_URI, y: V_URI):
+    def wd_said_to_be_the_same_as(self, c: C, x: V_URI, y: V_URI) -> None:
         self._start_r(c, x)
         c.q.triples()((x, OWL.sameAs, y))
         if isinstance(y, Var):
