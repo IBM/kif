@@ -34,7 +34,11 @@ S = TypeVar('S')
 
 
 class SyncFlags(KIF_Flags):
-    """Sync flags."""
+    """Sync flags.
+
+    The mixer's sync flags determine the option changes that are propagated
+    to the children stores.  By default, most option changes are propagated.
+    """
 
     #: Whether to propagate changes in base filter option.
     BASE_FILTER = KIF_Flags.auto()
@@ -159,10 +163,7 @@ class _MixerStoreOptions(StoreOptions):
            position: Argument position.
         """
         self._sync_flags = SyncFlags.check(
-            sync_flags,
-            function if function is not None else self.set_sync_flags,
-            name if name is not None else 'sync_flags',
-            position if position is not None else 1)
+            sync_flags, function, name, position)
 
 
 @dataclasses.dataclass
@@ -173,10 +174,7 @@ class MixerStoreOptions(_MixerStoreOptions, name='mixer'):
         super().__init__(**kwargs)
 
     def get_sync_flags(self) -> SyncFlags:
-        if self._sync_flags is None:
-            return self.parent.sync_flags
-        else:
-            return super().get_sync_flags()
+        return self._do_get('_sync_flags', super().get_sync_flags)
 
     def set_sync_flags(
             self,
@@ -185,10 +183,9 @@ class MixerStoreOptions(_MixerStoreOptions, name='mixer'):
             name: str | None = None,
             position: int | None = None
     ) -> None:
-        if sync_flags is None:
-            self._sync_flags = None
-        else:
-            super().set_sync_flags(sync_flags, function, name, position)
+        self._do_set(sync_flags, '_sync_flags', functools.partial(
+            super().set_sync_flags,
+            function=function, name=name, position=position))
 
 
 class MixerStore(
@@ -234,6 +231,7 @@ class MixerStore(
         return super().options  # type: ignore
 
     def _update_options(self, **kwargs: Any) -> None:
+        super()._update_options(**kwargs)
         if 'sync_flags' in kwargs:
             self.set_sync_flags(kwargs['sync_flags'])
 

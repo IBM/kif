@@ -37,10 +37,7 @@ class Test(TestCase):
     def test_extra_references(self) -> None:
         with Context() as ctx:
             opts = ctx.options.store
-            self.assert_raises_bad_argument(
-                TypeError, 1, 'extra_references',
-                'cannot coerce str into Snak',
-                opts.set_extra_references, 'abc')
+            self.assertRaises(TypeError, opts.set_extra_references, 'abc')
             refs = ReferenceRecordSet(ReferenceRecord(
                 Property('p').no_value()))
             opts.extra_references = refs
@@ -60,14 +57,8 @@ class Test(TestCase):
             del os.environ['KIF_STORE_MAX_PAGE_SIZE']
         with Context() as ctx:
             opts = ctx.options.store
-            self.assert_raises_bad_argument(
-                TypeError, 1, 'max_page_size',
-                'cannot coerce dict into Quantity',
-                opts.set_max_page_size, {})
-            self.assert_raises_bad_argument(
-                ValueError, 1, 'max_page_size',
-                'cannot coerce str into Quantity',
-                opts.set_max_page_size, 'abc')
+            self.assertRaises(TypeError, opts.set_max_page_size, {})
+            self.assertRaises(ValueError, opts.set_max_page_size, 'abc')
             opts.max_page_size = 44
             self.assertEqual(opts.max_page_size, 44)
             opts.max_page_size = 0
@@ -84,12 +75,8 @@ class Test(TestCase):
             del os.environ['KIF_STORE_PAGE_SIZE']
         with Context() as ctx:
             opts = ctx.options.store
-            self.assert_raises_bad_argument(
-                TypeError, 1, 'page_size', 'cannot coerce dict into Quantity',
-                opts.set_page_size, {})
-            self.assert_raises_bad_argument(
-                ValueError, 1, 'page_size', 'cannot coerce str into Quantity',
-                opts.set_page_size, 'abc')
+            self.assertRaises(TypeError, opts.set_page_size, {})
+            self.assertRaises(ValueError, opts.set_page_size, 'abc')
             opts.page_size = 44
             self.assertEqual(opts.page_size, 44)
             opts.page_size = 0
@@ -106,14 +93,8 @@ class Test(TestCase):
             del os.environ['KIF_STORE_MAX_TIMEOUT']
         with Context() as ctx:
             opts = ctx.options.store
-            self.assert_raises_bad_argument(
-                TypeError, 1, 'max_timeout',
-                'cannot coerce dict into Quantity',
-                opts.set_max_timeout, {})
-            self.assert_raises_bad_argument(
-                ValueError, 1, 'max_timeout',
-                'cannot coerce str into Quantity',
-                opts.set_max_timeout, 'abc')
+            self.assertRaises(TypeError, opts.set_max_timeout, {})
+            self.assertRaises(ValueError, opts.set_max_timeout, 'abc')
             opts.max_timeout = 44.
             self.assertEqual(opts.max_timeout, 44.)
             opts.max_timeout = 0.
@@ -130,12 +111,8 @@ class Test(TestCase):
             del os.environ['KIF_STORE_TIMEOUT']
         with Context() as ctx:
             opts = ctx.options.store
-            self.assert_raises_bad_argument(
-                TypeError, 1, 'timeout', 'cannot coerce dict into Quantity',
-                opts.set_timeout, {})
-            self.assert_raises_bad_argument(
-                ValueError, 1, 'timeout', 'cannot coerce str into Quantity',
-                opts.set_timeout, 'abc')
+            self.assertRaises(TypeError, opts.set_timeout, {})
+            self.assertRaises(ValueError, opts.set_timeout, 'abc')
             opts.timeout = 44.
             self.assertEqual(opts.timeout, 44.)
             opts.timeout = 0.
