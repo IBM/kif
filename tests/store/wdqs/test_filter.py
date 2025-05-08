@@ -27,7 +27,7 @@ class Test(StoreTestCase):
 
     # -- masks --
 
-    def test_snak_mask(self) -> None:
+    def test_snak_mask_value_snak(self) -> None:
         kb = self.KB()
         kb.best_ranked = False
         xf, F = self.store_xfilter_assertion(kb)
@@ -41,22 +41,36 @@ class Test(StoreTestCase):
                qualifiers=[wd.statement_supported_by(wd.Q(746069))],
                references=[[wd.reference_URL(
                    'https://amazingbibletimeline.com/timeline_online/')]])})
-        xf(F(subject=wd.Adam, snak_mask=F.SOME_VALUE_SNAK | F.NO_VALUE_SNAK),
+
+    def test_snak_mask_some_value_snak(self) -> None:
+        kb = self.KB()
+        kb.best_ranked = False
+        xf, F = self.store_xfilter_assertion(kb)
+        xf(F(subject=wd.Adam, snak_mask=F.SOME_VALUE_SNAK),
            {wd.date_of_birth.some_value(
                wd.Adam, references=[[
                    wd.reference_URL('http://islamqa.info/ar/20907')]],
                rank=Preferred),
             wd.date_of_death.some_value(
-                wd.Adam, references=[[
+                wd.Adam,
+                qualifiers=[
+                    wd.age_of_subject_at_event(930@wd.Q(24564698))],
+                references=[[
                     wd.reference_URL('http://islamqa.info/ar/20907')]],
                 rank=Preferred),
             wd.family_name.some_value(wd.Adam),
-            wd.family_name.no_value(wd.Adam),
-            wd.father.no_value(wd.Adam),
-            wd.mother.no_value(wd.Adam),
             wd.name_in_native_language.some_value(
                 wd.Adam, qualifiers=[
-                    wd.statement_is_subject_of(wd.Q(351633))])})
+                    wd.language_of_work_or_name(wd.Q(351633))])})
+
+    def test_snak_mask_no_value_snak(self) -> None:
+        kb = self.KB()
+        kb.best_ranked = False
+        xf, F = self.store_xfilter_assertion(kb)
+        xf(F(subject=wd.Adam, snak_mask=F.NO_VALUE_SNAK),
+           {wd.family_name.no_value(wd.Adam),
+            wd.father.no_value(wd.Adam),
+            wd.mother.no_value(wd.Adam)})
 
     def test_subject_mask(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())

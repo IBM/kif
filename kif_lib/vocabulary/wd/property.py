@@ -6,6 +6,7 @@ from __future__ import annotations
 from .prelude import P
 
 afflicts = P(689)
+age_of_subject_at_event = P(3629)
 anatomical_location = P(927)
 applies_to_part = P(518)
 applies_to_taxon = P(2352)
@@ -206,6 +207,7 @@ service_provided = product_or_material_produced_or_service_provided
 
 __all__ = (
     'afflicts',
+    'age_of_subject_at_event',
     'anatomical_location',
     'applies_to_part',
     'applies_to_taxon',
