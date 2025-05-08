@@ -7,11 +7,11 @@ import dataclasses
 
 from ..typing import Any, ClassVar, Iterable
 from .abc import Store
-from .options_ import _StoreOptionsOverride
+from .options import StoreOptions
 
 
 @dataclasses.dataclass
-class EmptyStoreOptions(_StoreOptionsOverride, name='empty'):
+class EmptyStoreOptions(StoreOptions, name='empty'):
     """Empty store options."""
 
     _v_best_ranked: ClassVar[tuple[Iterable[str], bool | None]] =\

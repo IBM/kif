@@ -6,7 +6,7 @@ from __future__ import annotations
 import os
 
 from kif_lib import Context, Property, ReferenceRecord, ReferenceRecordSet
-from kif_lib.store.options import StoreOptions
+from kif_lib.store.options_root import StoreOptionsRoot
 from kif_lib.typing import assert_type, Optional
 
 from ..tests import TestCase
@@ -17,7 +17,7 @@ class Test(TestCase):
     def test_options(self) -> None:
         with Context() as ctx:
             opts = ctx.options.store
-            assert_type(opts, StoreOptions)
+            assert_type(opts, StoreOptionsRoot)
             # extra_references
             assert_type(opts.extra_references, ReferenceRecordSet)
             self.assertEqual(opts.extra_references, ReferenceRecordSet())
@@ -55,7 +55,7 @@ class Test(TestCase):
         with Context() as ctx:
             opts = ctx.options.store
             os.environ['KIF_STORE_MAX_PAGE_SIZE'] = '33'
-            opts = StoreOptions()
+            opts = StoreOptionsRoot()
             self.assertEqual(opts.max_page_size, 33)
             del os.environ['KIF_STORE_MAX_PAGE_SIZE']
         with Context() as ctx:
@@ -79,7 +79,7 @@ class Test(TestCase):
         with Context() as ctx:
             opts = ctx.options.store
             os.environ['KIF_STORE_PAGE_SIZE'] = '33'
-            opts = StoreOptions()
+            opts = StoreOptionsRoot()
             self.assertEqual(opts.page_size, 33)
             del os.environ['KIF_STORE_PAGE_SIZE']
         with Context() as ctx:
@@ -101,7 +101,7 @@ class Test(TestCase):
         with Context() as ctx:
             opts = ctx.options.store
             os.environ['KIF_STORE_MAX_TIMEOUT'] = '1000'
-            opts = StoreOptions()
+            opts = StoreOptionsRoot()
             self.assertEqual(opts.max_timeout, 1000.)
             del os.environ['KIF_STORE_MAX_TIMEOUT']
         with Context() as ctx:
@@ -125,7 +125,7 @@ class Test(TestCase):
         with Context() as ctx:
             opts = ctx.options.store
             os.environ['KIF_STORE_TIMEOUT'] = '33'
-            opts = StoreOptions()
+            opts = StoreOptionsRoot()
             self.assertEqual(opts.timeout, 33.)
             del os.environ['KIF_STORE_TIMEOUT']
         with Context() as ctx:

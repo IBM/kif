@@ -37,14 +37,13 @@ from ..typing import (
     Iterator,
     Location,
     Set,
-    TypeAlias,
     TypeVar,
 )
 
 if TYPE_CHECKING:                     # pragma: no cover
-    from .options_ import _StoreOptionsOverride
+    from .options import StoreOptions
 else:
-    _StoreOptionsOverride = object
+    StoreOptions = object
 
 at_property = property
 T = TypeVar('T')
@@ -152,7 +151,7 @@ class Store(Set):
            timeout: Timeout of responses (in seconds).
            kwargs: Other keyword arguments.
         """
-        self._options = self._default_options
+        self._options = self.default_options
         self._push_options()
         self._update_options(
             base_filter=base_filter,
@@ -196,18 +195,34 @@ class Store(Set):
         """
         return Context.top(context)
 
-    #: Type alias for store options.
-    Options: TypeAlias = _StoreOptionsOverride
-
     #: Store options.
-    _options: Options
+    _options: StoreOptions
 
     @at_property
-    def _default_options(self) -> Options:
-        return self._get_default_options()
+    def default_options(self) -> StoreOptions:
+        """The default options of store."""
+        return self.get_default_options()
 
-    def _get_default_options(self) -> Options:
+    def get_default_options(self) -> StoreOptions:
+        """Gets the default options of store.
+
+        Returns:
+           Store options.
+        """
         return self.context.options.store.empty
+
+    @at_property
+    def options(self) -> StoreOptions:
+        """The options of store."""
+        return self.get_options()
+
+    def get_options(self) -> StoreOptions:
+        """Gets the options of store.
+
+        Returns:
+           Store options.
+        """
+        return self._options
 
     def _update_options(self, **kwargs: Any) -> None:
         if 'base_filter' in kwargs:
@@ -241,19 +256,19 @@ class Store(Set):
             set_fn(old)         # revert
 
     @contextlib.contextmanager
-    def __call__(self, **kwargs: Any) -> Generator[Options, None, None]:
+    def __call__(self, **kwargs: Any) -> Generator[StoreOptions, None, None]:
         self._push_options()
         self._update_options(**kwargs)
         yield self._options
         self._pop_options()
         self._update_options(**{k: getattr(self._options, k) for k in kwargs})
 
-    def _push_options(self) -> Options:
+    def _push_options(self) -> StoreOptions:
         parent = self._options
         self._options = parent.replace(_parent_callback=lambda: parent)
         return self._options
 
-    def _pop_options(self) -> Options:
+    def _pop_options(self) -> StoreOptions:
         self._options = self._options.parent
         return self._options.parent
 
@@ -270,7 +285,7 @@ class Store(Set):
         Returns:
            Filter.
         """
-        return self._default_options.base_filter
+        return self.default_options.base_filter
 
     @at_property
     def base_filter(self) -> Filter:
@@ -287,7 +302,7 @@ class Store(Set):
         Returns:
            Filter.
         """
-        return self._options.base_filter
+        return self.options.base_filter
 
     def set_base_filter(self, base_filter: Filter | None = None) -> None:
         """Sets the base filter of store.
@@ -299,9 +314,9 @@ class Store(Set):
         """
         self._set_option_with_hooks(
             base_filter,
-            self._options.get_base_filter,
+            self.options.get_base_filter,
             functools.partial(
-                self._options.set_base_filter,
+                self.options.set_base_filter,
                 function=self.set_base_filter,
                 name='base_filter',
                 position=1),
@@ -580,7 +595,7 @@ class Store(Set):
         Returns:
            Default best_ranked flag.
         """
-        return self._default_options.best_ranked
+        return self.default_options.best_ranked
 
     @at_property
     def best_ranked(self) -> bool:
@@ -597,7 +612,7 @@ class Store(Set):
         Returns:
            Best-ranked flag.
         """
-        return self._options.best_ranked
+        return self.options.best_ranked
 
     def set_best_ranked(self, best_ranked: bool | None = None) -> None:
         """Sets the best-ranked flag of store.
@@ -609,9 +624,9 @@ class Store(Set):
         """
         self._set_option_with_hooks(
             best_ranked,
-            self._options.get_best_ranked,
+            self.options.get_best_ranked,
             functools.partial(
-                self._options.set_best_ranked,
+                self.options.set_best_ranked,
                 function=self.set_best_ranked,
                 name='best_ranked',
                 position=1),
@@ -633,7 +648,7 @@ class Store(Set):
         Returns:
            Default distinct flag.
         """
-        return self._default_options.distinct
+        return self.default_options.distinct
 
     @at_property
     def distinct(self) -> bool:
@@ -650,7 +665,7 @@ class Store(Set):
         Returns:
            Distinct flag.
         """
-        return self._options.distinct
+        return self.options.distinct
 
     def set_distinct(self, distinct: bool | None = None) -> None:
         """Sets the distinct flag of store.
@@ -662,9 +677,9 @@ class Store(Set):
         """
         self._set_option_with_hooks(
             distinct,
-            self._options.get_distinct,
+            self.options.get_distinct,
             functools.partial(
-                self._options.set_distinct,
+                self.options.set_distinct,
                 function=self.set_distinct,
                 name='distinct',
                 position=1),
@@ -686,7 +701,7 @@ class Store(Set):
         Returns:
            Reference record set.
         """
-        return self._default_options.extra_references
+        return self.default_options.extra_references
 
     @at_property
     def extra_references(self) -> ReferenceRecordSet:
@@ -706,7 +721,7 @@ class Store(Set):
         Returns:
            Reference record set.
         """
-        return self._options.extra_references
+        return self.options.extra_references
 
     def set_extra_references(
             self,
@@ -721,9 +736,9 @@ class Store(Set):
         """
         self._set_option_with_hooks(
             extra_references,
-            self._options.get_extra_references,
+            self.options.get_extra_references,
             functools.partial(
-                self._options.set_extra_references,
+                self.options.set_extra_references,
                 function=self.set_extra_references,
                 name='extra_references',
                 position=1),
@@ -748,7 +763,7 @@ class Store(Set):
         Returns:
            Maximum limit.
         """
-        return self._options.max_limit
+        return self.options.max_limit
 
     @at_property
     def default_limit(self) -> int | None:
@@ -761,7 +776,7 @@ class Store(Set):
         Returns:
            Default limit or ``None``.
         """
-        return self._default_options.limit
+        return self.default_options.limit
 
     @at_property
     def limit(self) -> int | None:
@@ -785,7 +800,7 @@ class Store(Set):
         Returns:
            Limit or ``None``.
         """
-        limit = self._options.limit
+        limit = self.options.limit
         if limit is None:
             limit = default
         if limit is None:
@@ -814,9 +829,9 @@ class Store(Set):
         """
         self._set_option_with_hooks(
             limit,
-            self._options.get_limit,
+            self.options.get_limit,
             functools.partial(
-                self._options.set_limit,
+                self.options.set_limit,
                 function=self.set_limit,
                 name='limit',
                 position=1),
@@ -838,7 +853,7 @@ class Store(Set):
         Returns:
            Default lookahead value.
         """
-        return self._default_options.lookahead
+        return self.default_options.lookahead
 
     @at_property
     def lookahead(self) -> int:
@@ -855,7 +870,7 @@ class Store(Set):
         Returns:
            Lookahead.
         """
-        return self._options.lookahead
+        return self.options.lookahead
 
     def set_lookahead(self, lookahead: int | None = None) -> None:
         """Sets the lookhead of store.
@@ -869,9 +884,9 @@ class Store(Set):
         """
         self._set_option_with_hooks(
             lookahead,
-            self._options.get_lookahead,
+            self.options.get_lookahead,
             functools.partial(
-                self._options.set_lookahead,
+                self.options.set_lookahead,
                 function=self.set_lookahead,
                 name='lookahead',
                 position=1),
@@ -893,7 +908,7 @@ class Store(Set):
         Returns:
            Maximum page size.
         """
-        return self._default_options.max_page_size
+        return self.default_options.max_page_size
 
     @at_property
     def default_page_size(self) -> int:
@@ -906,7 +921,7 @@ class Store(Set):
         Returns:
            Default page size.
         """
-        return self._default_options.page_size
+        return self.default_options.page_size
 
     @at_property
     def page_size(self) -> int:
@@ -923,7 +938,7 @@ class Store(Set):
         Returns:
            Page size.
         """
-        return min(self._options.page_size, self.max_page_size)
+        return min(self.options.page_size, self.max_page_size)
 
     def set_page_size(
             self,
@@ -946,9 +961,9 @@ class Store(Set):
         """
         self._set_option_with_hooks(
             page_size,
-            self._options.get_page_size,
+            self.options.get_page_size,
             functools.partial(
-                self._options.set_page_size,
+                self.options.set_page_size,
                 function=self.set_page_size,
                 name='page_size',
                 position=1),
@@ -970,7 +985,7 @@ class Store(Set):
         Returns:
            Maximum timeout (in seconds).
         """
-        return self._default_options.max_timeout
+        return self.default_options.max_timeout
 
     @at_property
     def default_timeout(self) -> float | None:
@@ -983,7 +998,7 @@ class Store(Set):
         Returns:
            Timeout or ``None``.
         """
-        return self._default_options.timeout
+        return self.default_options.timeout
 
     @at_property
     def timeout(self) -> float | None:
@@ -1007,7 +1022,7 @@ class Store(Set):
         Returns:
            Timeout or ``None``.
         """
-        timeout = self._options.timeout
+        timeout = self.options.timeout
         if timeout is None:
             timeout = default
         if timeout is None:
@@ -1030,9 +1045,9 @@ class Store(Set):
         """
         self._set_option_with_hooks(
             timeout,
-            self._options.get_timeout,
+            self.options.get_timeout,
             functools.partial(
-                self._options.set_timeout,
+                self.options.set_timeout,
                 function=self.set_timeout,
                 name='timeout',
                 position=1),
@@ -1422,7 +1437,7 @@ class Store(Set):
     ) -> tuple[int, bool]:
         distinct = bool(distinct) if distinct is not None else self.distinct
         assert distinct is not None
-        limit = self._options._check_optional_limit(
+        limit = self.options._check_optional_limit(
             limit, self.limit, function, 'limit')
         if limit is None:
             limit = self.get_limit(self.max_limit)

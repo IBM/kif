@@ -14,7 +14,6 @@ from ..typing import (
     Any,
     AsyncIterator,
     Callable,
-    cast,
     ClassVar,
     Collection,
     Final,
@@ -28,7 +27,7 @@ from ..typing import (
     Union,
 )
 from .abc import Store
-from .options_ import _StoreOptionsOverride
+from .options import StoreOptions
 
 T = TypeVar('T')
 S = TypeVar('S')
@@ -74,7 +73,7 @@ TSyncFlags: TypeAlias = Union[SyncFlags, int]
 
 
 @dataclasses.dataclass
-class _MixerStoreOptions(_StoreOptionsOverride):
+class _MixerStoreOptions(StoreOptions):
 
     _v_best_ranked: ClassVar[tuple[Iterable[str], bool | None]] =\
         (('KIF_MIXER_STORE_BEST_RANKED',), None)
@@ -215,12 +214,17 @@ class MixerStore(
         self._init_sources(sources)
         super().__init__(**kwargs)
 
+    @property
+    def default_options(self) -> MixerStoreOptions:
+        return super().default_options  # type: ignore
+
     @override
-    def _get_default_options(self) -> MixerStoreOptions:
+    def get_default_options(self) -> MixerStoreOptions:
         return self.context.options.store.mixer
 
-    def _get_options(self) -> MixerStoreOptions:
-        return cast(MixerStoreOptions, self._options)
+    @property
+    def options(self) -> MixerStoreOptions:
+        return super().options  # type: ignore
 
     def _update_options(self, **kwargs: Any) -> None:
         if 'sync_flags' in kwargs:
@@ -283,7 +287,7 @@ class MixerStore(
         Returns:
            Default sync flags.
         """
-        return self._get_default_options().sync_flags
+        return self.default_options.sync_flags
 
     @property
     def sync_flags(self) -> SyncFlags:
@@ -300,7 +304,7 @@ class MixerStore(
         Returns:
            Sync flags.
         """
-        return self._get_options().sync_flags
+        return self.options.sync_flags
 
     def set_sync_flags(self, sync_flags: TSyncFlags | None = None) -> None:
         """Sets the sync flags of mixer.
@@ -312,9 +316,9 @@ class MixerStore(
         """
         self._set_option_with_hooks(
             sync_flags,
-            self._get_options().get_sync_flags,
+            self.options.get_sync_flags,
             functools.partial(
-                self._get_options().set_sync_flags,
+                self.options.set_sync_flags,
                 function=self.set_sync_flags,
                 name='sync_flags',
                 position=1),
