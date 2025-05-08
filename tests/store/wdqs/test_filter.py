@@ -58,7 +58,6 @@ class Test(StoreTestCase):
                 references=[[
                     wd.reference_URL('http://islamqa.info/ar/20907')]],
                 rank=Preferred),
-            wd.family_name.some_value(wd.Adam),
             wd.name_in_native_language.some_value(
                 wd.Adam, qualifiers=[
                     wd.language_of_work_or_name(wd.Q(351633))])})
