@@ -6,8 +6,8 @@ from __future__ import annotations
 import dataclasses
 
 from ..typing import Any
-from .empty import EmptyStoreOptions
-from .mixer import MixerStoreOptions
+from .empty import EmptyStore
+from .mixer import MixerStore
 from .options import _StoreOptions
 
 
@@ -15,13 +15,13 @@ from .options import _StoreOptions
 class StoreOptionsRoot(_StoreOptions, name='store'):
     """Store options."""
 
-    empty: EmptyStoreOptions = dataclasses.field(
-        default_factory=EmptyStoreOptions)
+    empty: EmptyStore.Options = dataclasses.field(
+        default_factory=EmptyStore.Options)
 
-    mixer: MixerStoreOptions = dataclasses.field(
-        default_factory=MixerStoreOptions)
+    mixer: MixerStore.Options = dataclasses.field(
+        default_factory=MixerStore.Options)
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self.empty = EmptyStoreOptions()
-        self.mixer = MixerStoreOptions()
+        self.empty = EmptyStore.Options()
+        self.mixer = MixerStore.Options()
