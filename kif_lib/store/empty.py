@@ -7,7 +7,6 @@ import dataclasses
 
 from ..typing import Any, ClassVar, Iterable
 from .abc import Store
-from .options import StoreOptions
 
 
 class EmptyStore(Store, store_name='empty', store_description='Empty store'):
@@ -18,7 +17,7 @@ class EmptyStore(Store, store_name='empty', store_description='Empty store'):
     """
 
     @dataclasses.dataclass
-    class Options(StoreOptions, name='empty'):
+    class Options(Store.Options, name='empty'):
         """Empty store options."""
 
         _v_best_ranked: ClassVar[tuple[Iterable[str], bool | None]] =\

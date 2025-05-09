@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from ..compiler.options import CompilerOptions
 from ..model.options import ModelOptions
-from ..store.options_root import StoreOptionsRoot
+from ..store.options import StoreOptions
 from ..typing import Any, ClassVar, Iterable
 from ..vocabulary.options import VocabularyOptions
 from .section import Section
@@ -80,8 +80,7 @@ class Options(Section, name='kif'):
     model: ModelOptions = dataclasses.field(default_factory=ModelOptions)
 
     #: Store options.
-    store: StoreOptionsRoot = dataclasses.field(
-        default_factory=StoreOptionsRoot)
+    store: StoreOptions = dataclasses.field(default_factory=StoreOptions)
 
     #: Vocabulary options.
     vocabulary: VocabularyOptions = dataclasses.field(

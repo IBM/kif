@@ -27,7 +27,6 @@ from ..typing import (
     Union,
 )
 from .abc import Store
-from .options import StoreOptions
 
 T = TypeVar('T')
 S = TypeVar('S')
@@ -116,7 +115,7 @@ class MixerStore(
     TSyncFlags: TypeAlias = Union[SyncFlags, int]
 
     @dataclasses.dataclass
-    class _Options(StoreOptions):
+    class _Options(Store.Options):
 
         _v_best_ranked: ClassVar[tuple[Iterable[str], bool | None]] =\
             (('KIF_MIXER_STORE_BEST_RANKED',), None)
@@ -276,7 +275,7 @@ class MixerStore(
         """
         return self._sources
 
-# -- Options ---------------------------------------------------------------
+# -- Sync flags ------------------------------------------------------------
 
     @property
     def default_sync_flags(self) -> SyncFlags:
