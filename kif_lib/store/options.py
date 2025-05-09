@@ -739,6 +739,7 @@ class _StoreOptions(Section):
 
 # == Store options =========================================================
 
+@dataclasses.dataclass
 class StoreOptions(_StoreOptions):
     """Store options (overriden)."""
 
