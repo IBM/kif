@@ -522,16 +522,12 @@ class _SPARQL_Store(
         return int(results['results']['bindings'][0][str(count)]['value'])
 
     @override
-    def _filter(
-            self,
-            filter: Filter,
-            limit: int,
-            distinct: bool
-    ) -> Iterator[Statement]:
+    def _filter(self, filter: Filter) -> Iterator[Statement]:
         compiler, _, variable = self._compile_filter(filter)
         push = compiler.build_results()
+        limit = self.limit if self.limit is not None else self.max_limit
         query_stream = self._build_filter_query_stream(
-            compiler, distinct, limit)
+            compiler, self.distinct, limit)
         count = 0
         for query in query_stream:
             bindings = list(self._build_filter_result_binding_stream((
@@ -554,16 +550,12 @@ class _SPARQL_Store(
                 break           # done
 
     @override
-    async def _afilter(
-            self,
-            filter: Filter,
-            limit: int,
-            distinct: bool
-    ) -> AsyncIterator[Statement]:
+    async def _afilter(self, filter: Filter) -> AsyncIterator[Statement]:
         compiler, _, variable = self._compile_filter(filter)
         push = compiler.build_results()
+        limit = self.limit if self.limit is not None else self.max_limit
         query_stream = self._build_filter_query_stream(
-            compiler, distinct, limit)
+            compiler, self.distinct, limit)
         count = 0
         for batch in itertools.batched(query_stream, self.lookahead):
             tasks = (

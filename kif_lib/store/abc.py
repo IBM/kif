@@ -2138,7 +2138,8 @@ class Store(Set):
             return False
 
     def _ask(self, filter: Filter) -> bool:
-        return bool(next(self._filter(filter, 1, False), False))
+        with self(distinct=False, limit=1):
+            return bool(next(self._filter(filter), False))
 
     async def aask(
             self,
@@ -2196,9 +2197,10 @@ class Store(Set):
             return False
 
     async def _aask(self, filter: Filter) -> bool:
-        async for _ in self._afilter(filter, self.max_limit, True):
-            return True
-        return False
+        with self(distinct=True, limit=self.max_limit):
+            async for _ in self._afilter(filter):
+                return True
+            return False
 
     def contains(self, stmt: Statement) -> bool:
         """Tests whether statement occurs in store.
@@ -2227,7 +2229,8 @@ class Store(Set):
             return filter
 
     def _contains(self, stmt: Statement, filter: Filter) -> bool:
-        return stmt in self._filter(filter, self.max_limit, True)
+        with self(distinct=True, limit=self.max_limit):
+            return stmt in self._filter(filter)
 
     async def acontains(self, stmt: Statement) -> bool:
         """Async version of :meth:`Store.contains`.
@@ -2249,10 +2252,11 @@ class Store(Set):
             return False
 
     async def _acontains(self, stmt: Statement, filter: Filter) -> bool:
-        async for other in self._afilter(filter, self.max_limit, True):
-            if stmt == other:
-                return True
-        return False
+        with self(distinct=True, limit=self.max_limit):
+            async for other in self._afilter(filter):
+                if stmt == other:
+                    return True
+            return False
 
     def count(
             self,
@@ -2311,7 +2315,8 @@ class Store(Set):
             return 0
 
     def _count(self, filter: Filter) -> int:
-        return sum(1 for _ in self._filter(filter, self.max_limit, True))
+        with self(distinct=True, limit=self.max_limit):
+            return sum(1 for _ in self._filter(filter))
 
     async def acount(
             self,
@@ -2370,10 +2375,11 @@ class Store(Set):
             return 0
 
     async def _acount(self, filter: Filter) -> int:
-        n = 0
-        async for _ in self._afilter(filter, self.max_limit, True):
-            n += 1
-        return n
+        with self(distinct=True, limit=self.max_limit):
+            n = 0
+            async for _ in self._afilter(filter):
+                n += 1
+            return n
 
     def filter(
             self,
@@ -2389,8 +2395,8 @@ class Store(Set):
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
-            limit: int | None = None,
-            distinct: bool | None = None
+            distinct: bool | None = None,
+            limit: int | None = None
     ) -> Iterator[Statement]:
         """Searches for statements matching filter.
 
@@ -2407,30 +2413,28 @@ class Store(Set):
            annotated: Annotated flag.
            snak: Snak.
            filter: Filter filter.
-           limit: Limit (maximum number) of statements to return.
            distinct: Whether to skip duplicated matches.
+           limit: Limit (maximum number) of statements to return.
 
         Returns:
            An iterator of statements matching filter.
         """
-        limit, distinct = self._xfilter_get_limit_and_distinct(
-            limit, distinct, self.filter)
-        return self._filter_tail(
-            self._check_filter(
-                subject=subject,
-                property=property,
-                value=value,
-                snak_mask=snak_mask,
-                subject_mask=subject_mask,
-                property_mask=property_mask,
-                value_mask=value_mask,
-                rank_mask=rank_mask,
-                language=language,
-                annotated=annotated,
-                snak=snak,
-                filter=filter,
-                function=self.filter),
-            limit, distinct)
+        with self(distinct=distinct, limit=limit):
+            return self._filter_tail(
+                self._check_filter(
+                    subject=subject,
+                    property=property,
+                    value=value,
+                    snak_mask=snak_mask,
+                    subject_mask=subject_mask,
+                    property_mask=property_mask,
+                    value_mask=value_mask,
+                    rank_mask=rank_mask,
+                    language=language,
+                    annotated=annotated,
+                    snak=snak,
+                    filter=filter,
+                    function=self.filter))
 
     def _xfilter_get_limit_and_distinct(
             self,
@@ -2447,14 +2451,9 @@ class Store(Set):
         assert limit is not None
         return limit, distinct
 
-    def _filter_tail(
-            self,
-            filter: Filter,
-            limit: int,
-            distinct: bool
-    ) -> Iterator[Statement]:
-        if limit > 0 and filter.is_nonempty():
-            stmts = self._filter(filter, limit, distinct)
+    def _filter_tail(self, filter: Filter) -> Iterator[Statement]:
+        if (self.limit is None or self.limit > 0) and filter.is_nonempty():
+            stmts = self._filter(filter)
             if filter.annotated and self.extra_references:
                 return map(lambda s: s.annotate(
                     references=self.extra_references), stmts)
@@ -2463,12 +2462,7 @@ class Store(Set):
         else:
             return iter(())
 
-    def _filter(
-            self,
-            filter: Filter,
-            limit: int,
-            distinct: bool
-    ) -> Iterator[Statement]:
+    def _filter(self, filter: Filter) -> Iterator[Statement]:
         return iter(())
 
     def afilter(
@@ -2485,8 +2479,8 @@ class Store(Set):
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
-            limit: int | None = None,
-            distinct: bool | None = None
+            distinct: bool | None = None,
+            limit: int | None = None
     ) -> AsyncIterator[Statement]:
         """Async version of :meth:`Store.filter`.
 
@@ -2503,39 +2497,32 @@ class Store(Set):
            annotated: Annotated flag.
            snak: Snak.
            filter: Filter filter.
-           limit: Limit (maximum number) of statements to return.
            distinct: Whether to skip duplicated matches.
+           limit: Limit (maximum number) of statements to return.
 
         Returns:
            An async iterator of statements matching filter.
         """
-        limit, distinct = self._xfilter_get_limit_and_distinct(
-            limit, distinct, self.afilter)
-        return self._afilter_tail(
-            self._check_filter(
-                subject=subject,
-                property=property,
-                value=value,
-                snak_mask=snak_mask,
-                subject_mask=subject_mask,
-                property_mask=property_mask,
-                value_mask=value_mask,
-                rank_mask=rank_mask,
-                language=language,
-                annotated=annotated,
-                snak=snak,
-                filter=filter,
-                function=self.afilter),
-            limit, distinct)
+        with self(distinct=distinct, limit=limit):
+            return self._afilter_tail(
+                self._check_filter(
+                    subject=subject,
+                    property=property,
+                    value=value,
+                    snak_mask=snak_mask,
+                    subject_mask=subject_mask,
+                    property_mask=property_mask,
+                    value_mask=value_mask,
+                    rank_mask=rank_mask,
+                    language=language,
+                    annotated=annotated,
+                    snak=snak,
+                    filter=filter,
+                    function=self.afilter))
 
-    async def _afilter_tail(
-            self,
-            filter: Filter,
-            limit: int,
-            distinct: bool
-    ) -> AsyncIterator[Statement]:
-        if limit > 0 and filter.is_nonempty():
-            async for stmt in self._afilter(filter, limit, distinct):
+    async def _afilter_tail(self, filter: Filter) -> AsyncIterator[Statement]:
+        if (self.limit is None or self.limit > 0) and filter.is_nonempty():
+            async for stmt in self._afilter(filter):
                 if filter.annotated and self.extra_references:
                     yield stmt.annotate(references=self.extra_references)
                 else:
@@ -2544,12 +2531,7 @@ class Store(Set):
             return              # empty async iterator
             yield
 
-    async def _afilter(
-            self,
-            filter: Filter,
-            limit: int,
-            distinct: bool
-    ) -> AsyncIterator[Statement]:
+    async def _afilter(self, filter: Filter) -> AsyncIterator[Statement]:
         return                  # empty async iterator
         yield
 
