@@ -3,12 +3,25 @@
 
 from __future__ import annotations
 
+import dataclasses
+import functools
 import re
 
 from ... import itertools, rdflib
 from ...compiler.sparql import SPARQL_Mapping
 from ...model import Filter, IRI, T_IRI, TGraph
-from ...typing import Any, BinaryIO, Iterator, TextIO, TypeAlias, Union
+from ...typing import (
+    Any,
+    BinaryIO,
+    ClassVar,
+    Iterable,
+    Iterator,
+    Location,
+    override,
+    TextIO,
+    TypeAlias,
+    Union,
+)
 from ..abc import Store
 from ..mixer import MixerStore
 from .rdf import RDF_Store
@@ -35,6 +48,123 @@ class SPARQL_Store(
        mapping: SPARQL mapping.
        kwargs: Other keyword arguments.
     """
+
+    @dataclasses.dataclass
+    class _Options(MixerStore.Options):
+
+        _v_best_ranked: ClassVar[tuple[Iterable[str], bool | None]] =\
+            (('KIF_SPARQL_STORE_BEST_RANKED',), None)
+
+        _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
+            (('KIF_SPARQL_STORE_DISTINCT',), None)
+
+        _v_distinct: ClassVar[tuple[Iterable[str], bool | None]] =\
+            (('KIF_SPARQL_STORE_DISTINCT',), None)
+
+        _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
+            (('KIF_SPARQL_STORE_MAX_LIMIT',), None)
+
+        _v_limit: ClassVar[tuple[Iterable[str], int | None]] =\
+            (('KIF_SPARQL_STORE_LIMIT',), None)
+
+        _v_lookahead: ClassVar[tuple[Iterable[str], int | None]] =\
+            (('KIF_SPARQL_STORE_LOOKAHEAD',), None)
+
+        _v_max_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+            (('KIF_SPARQL_STORE_MAX_PAGE_SIZE',), None)
+
+        _v_page_size: ClassVar[tuple[Iterable[str], int | None]] =\
+            (('KIF_SPARQL_STORE_PAGE_SIZE',), None)
+
+        _v_max_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+            (('KIF_SPARQL_STORE_MAX_TIMEOUT',), None)
+
+        _v_timeout: ClassVar[tuple[Iterable[str], float | None]] =\
+            (('KIF_SPARQL_STORE_TIMEOUT',), None)
+
+        def __init__(self, **kwargs: Any) -> None:
+            super().__init__(**kwargs)
+            self._init_skolemize(kwargs)
+
+        # -- skolemize --
+
+        #: Default value for the skolemize option.
+        DEFAULT_SKOLEMIZE: ClassVar[bool] = True
+
+        _v_skolemize: ClassVar[tuple[Iterable[str], bool | None]] =\
+            (('KIF_SPARQL_STORE_SKOLEMIZE',), DEFAULT_SKOLEMIZE)
+
+        _skolemize: bool | None
+
+        def _init_skolemize(self, kwargs: dict[str, Any]) -> None:
+            self.skolemize = kwargs.get(
+                '_skolemize', self.getenv_optional_bool(*self._v_skolemize))
+
+        @property
+        def skolemize(self) -> bool:
+            """The skolemize flag."""
+            return self.get_skolemize()
+
+        @skolemize.setter
+        def skolemize(self, skolemize: bool) -> None:
+            self.set_skolemize(skolemize)
+
+        def get_skolemize(self) -> bool:
+            """Gets the skolemize flag.
+
+            Returns:
+               Skolemize flag.
+            """
+            assert self._skolemize is not None
+            return self._skolemize
+
+        def set_skolemize(
+                self,
+                skolemize: bool,
+                function: Location | None = None,
+                name: str | None = None,
+                position: int | None = None
+        ) -> None:
+            """Sets the skolemize flag.
+
+            Parameters:
+               skolemize: Skolemize flag.
+               function: Function or function name.
+               name: Argument name.
+               position: Argument position.
+            """
+            self._skolemize = bool(skolemize)
+
+    @dataclasses.dataclass
+    class Options(_Options, name='sparql'):
+        """SPARQL store options."""
+
+        def __init__(self, **kwargs: Any) -> None:
+            super().__init__(**kwargs)
+
+        @override
+        def _get_parent_callback(self) -> MixerStore.Options:
+            return self.get_context().options.store.mixer
+
+        @override
+        def _init_sync_flags(self, kwargs: dict[str, Any]) -> None:
+            self.set_sync_flags(kwargs.get('_sync_flags'))
+
+        @override
+        def get_skolemize(self) -> bool:
+            return self._do_get('_skolemize', super().get_skolemize)
+
+        @override
+        def set_skolemize(
+                self,
+                skolemize: bool | None,
+                function: Location | None = None,
+                name: str | None = None,
+                position: int | None = None
+        ) -> None:
+            self._do_set(skolemize, '_skolemize', functools.partial(
+                super().set_skolemize,
+                function=function, name=name, position=position))
 
     #: Type alias for SPARQL Store arguments.
     Args: TypeAlias = Union[T_IRI, RDF_Store.Args]
@@ -89,6 +219,74 @@ class SPARQL_Store(
                     rdflib_graph=rdflib_graph, skolemize=skolemize,
                     mapping=mapping, **kwargs)
         super().__init__(store_name, list(it()), **kwargs)
+
+    @property
+    def default_options(self) -> Options:
+        return super().default_options  # type: ignore
+
+    @override
+    def get_default_options(self) -> Options:
+        return self.context.options.store.sparql
+
+    @property
+    def options(self) -> Options:
+        return super().options  # type: ignore
+
+    def _update_options(self, **kwargs: Any) -> None:
+        super()._update_options(**kwargs)
+        if 'skolemize' in kwargs:
+            self.set_skolemize(kwargs['skolemize'])
+
+    @property
+    def default_skolemize(self) -> bool:
+        """The default value for :attr:`SPARQL_Store.skolemize`."""
+        return self.get_default_skolemize()
+
+    def get_default_skolemize(self) -> bool:
+        """Gets the default value for :attr:`SPARQL_Store.skolemize`.
+
+        Returns:
+           Default skolemize flag.
+        """
+        return self.default_options.skolemize
+
+    @property
+    def skolemize(self) -> bool:
+        """The skolemize flag of mixer."""
+        return self.get_skolemize()
+
+    @skolemize.setter
+    def skolemize(self, skolemize: bool | None = None) -> None:
+        self.set_skolemize(skolemize)
+
+    def get_skolemize(self) -> bool:
+        """Gets the skolemize flag of mixer.
+
+        Returns:
+           skolemize flag.
+        """
+        return self.options.skolemize
+
+    def set_skolemize(self, skolemize: bool | None = None) -> None:
+        """Sets the skolemize flag of mixer.
+
+        If `skolemize` is ``None``, resets it to the default.
+
+        Parameters:
+           skolemize: skolemize flag.
+        """
+        self._set_option_with_hooks(
+            skolemize,
+            self.options.get_skolemize,
+            functools.partial(
+                self.options.set_skolemize,
+                function=self.set_skolemize,
+                name='skolemize',
+                position=1),
+            self._set_skolemize)
+
+    def _set_skolemize(self, skolemize: bool) -> bool:
+        return True
 
 
 class DBpediaSPARQL_Store(

@@ -157,9 +157,7 @@ class MixerStore(
 
         def _init_sync_flags(self, kwargs: dict[str, Any]) -> None:
             self.sync_flags = kwargs.get(
-                '_sync_flags', self.getenv_int(
-                    ('KIF_MIXER_STORE_SYNC_FLAGS',),
-                    MixerStore.SyncFlags.ALL.value))
+                '_sync_flags', MixerStore.SyncFlags.ALL)
 
         @property
         def sync_flags(self) -> MixerStore.SyncFlags:
@@ -204,9 +202,11 @@ class MixerStore(
         def __init__(self, **kwargs: Any) -> None:
             super().__init__(**kwargs)
 
+        @override
         def get_sync_flags(self) -> MixerStore.SyncFlags:
             return self._do_get('_sync_flags', super().get_sync_flags)
 
+        @override
         def set_sync_flags(
                 self,
                 sync_flags: MixerStore.TSyncFlags | None,
