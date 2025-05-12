@@ -6,6 +6,7 @@ from __future__ import annotations
 from .abc import Store
 from .empty import EmptyStore
 from .mixer import MixerStore
+from .reader import Reader
 from .sparql import (
     DBpediaRDF_Store,
     DBpediaSPARQL_Store,
@@ -30,6 +31,7 @@ __all__ = (
     'PubChemSPARQL_Store',
     'RDF_Store',
     'RDFLibSPARQL_Store',
+    'Reader',
     'SPARQL_Store',
     'Store',
     'WDQS_Store',

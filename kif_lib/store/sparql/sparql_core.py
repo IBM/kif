@@ -305,7 +305,7 @@ class _SPARQL_Store(
         self._init_mapping(mapping, type(self), 'mapping')
         self._backend = None
         self._init_backend(backend, args, kwargs, type(self), 'backend')
-        super().__init__(**kwargs)
+        super().__init__(store_name, **kwargs)
 
     @override
     def _close(self) -> None:

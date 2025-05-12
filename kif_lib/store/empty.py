@@ -9,7 +9,11 @@ from ..typing import Any, ClassVar, Iterable
 from .abc import Store
 
 
-class EmptyStore(Store, store_name='empty', store_description='Empty store'):
+class EmptyStore(
+        Store,
+        store_name='empty',
+        store_description='Empty store'
+):
     """Empty store.
 
     Parameters:
