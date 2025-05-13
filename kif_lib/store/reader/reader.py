@@ -80,25 +80,25 @@ class Reader(
         Union[BinaryIO, TextIO, str, bytes, pathlib.PurePath, Statement]
 
     #: Type alias for input parsing function.
-    ParseFunction: TypeAlias = Callable[[str], Iterable[Statement]]
+    ParseFunction: TypeAlias = Callable[[T], Iterable[Statement]]
 
     #: Type alias for input reading function.
-    ReadFunction: TypeAlias = Callable[[Input], Iterable[str | Statement]]
+    ReadFunction: TypeAlias = Callable[[Input], Iterable[T | Statement]]
 
     __slots__ = (
         '_input',
-        '_parse',
-        '_read',
+        '_parse_fn',
+        '_read_fn',
     )
 
     #: Input queue.
     _input: collections.deque[Input]
 
     #: Input parsing function.
-    _parse: ParseFunction
+    _parse_fn: ParseFunction
 
     #: Input reading function.
-    _read: ReadFunction
+    _read_fn: ReadFunction
 
     def __init__(
             self,
@@ -140,13 +140,13 @@ class Reader(
         for src in other:
             put('args', self._put_arg, src)
         if parse is None:
-            self._parse = self._default_parse
+            self._parse_fn = self._parse
         else:
-            self._parse = parse
+            self._parse_fn = parse
         if read is None:
-            self._read = self._default_read
+            self._read_fn = self._read
         else:
-            self._read = read
+            self._read_fn = read
 
     def _put_arg(self, arg: Any) -> None:
         if isinstance(arg, (pathlib.PurePath, str)):
@@ -177,38 +177,54 @@ class Reader(
     def _put_graph(self, graph: Graph) -> None:
         self._input.append(self.GraphInput(graph))
 
-    @classmethod
-    def _default_parse(cls, input: str) -> Iterable[Statement]:
+    def _parse(self, input: str) -> Iterable[Statement]:
         yield Statement.from_json(input)
 
-    @classmethod
-    def _default_read(cls, input: Input) -> Iterable[str | Statement]:
-        if isinstance(input, cls.LocationInput):
+    def _read(self, input: Input) -> Iterable[str | Statement]:
+        if isinstance(input, self.LocationInput):
             with open(input.location, encoding='utf-8') as fp:
                 yield from fp
-        elif isinstance(input, cls.FileInput):
+        elif isinstance(input, self.FileInput):
             if isinstance(input.file, TextIO):
                 yield from input.file
             else:
                 import io
                 yield from io.TextIOWrapper(input.file, encoding='utf-8')
-        elif isinstance(input, cls.DataInput):
+        elif isinstance(input, self.DataInput):
             if isinstance(input.data, bytes):
                 data: str = input.data.decode('utf-8')
             else:
                 data = input.data
             yield from data.splitlines()
-        elif isinstance(input, cls.GraphInput):
+        elif isinstance(input, self.GraphInput):
             yield from input.graph
         else:
-            raise cls._should_not_get_here()
+            raise self._should_not_get_here()
 
     @override
     def _filter(self, filter: Filter) -> Iterator[Statement]:
+        it = self._iterate_input()
+        if self.distinct:
+            it = itertools.uniq(it)
+        limit = self.get_limit(self.max_limit)
+        assert limit is not None
+        count = 0
+        while count < limit:
+            try:
+                stmt = next(it)
+                if self.annotated:
+                    yield stmt.annotate()
+                else:
+                    yield stmt
+                count += 1
+            except StopIteration:
+                break
+
+    def _iterate_input(self) -> Iterator[Statement]:
         while self._input:
-            input = self._input.pop()
+            input = self._input.popleft()
             for chunk in self._read(input):
                 if isinstance(chunk, Statement):
-                    yield from chunk
+                    yield chunk
                 else:
                     yield from self._parse(chunk)
