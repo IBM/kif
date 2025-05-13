@@ -16,6 +16,7 @@ from ...typing import (
     BinaryIO,
     Callable,
     cast,
+    IO,
     Iterable,
     Iterator,
     override,
@@ -86,13 +87,21 @@ class Reader(
     ReadFunction: TypeAlias = Callable[[Input], Iterable[T]]
 
     __slots__ = (
+        '_cleanup',
         '_input',
+        '_kwargs',
         '_parse_fn',
         '_read_fn',
     )
 
+    #: File handles that need to be closed.
+    _cleanup: list[IO]
+
     #: Input queue.
     _input: collections.deque[Input]
+
+    #: Other keyword arguments.
+    _kwargs: Any
 
     #: Input parsing function.
     _parse_fn: ParseFunction
@@ -114,7 +123,9 @@ class Reader(
     ) -> None:
         assert store_name == self.store_name
         super().__init__(store_name)
+        self._cleanup = []
         self._input = collections.deque()
+        self._kwargs = kwargs
 
         def put(name: str | None, f: Callable[[T], None], x: T) -> None:
             try:
@@ -177,6 +188,11 @@ class Reader(
     def _put_graph(self, graph: Graph) -> None:
         self._input.append(self.GraphInput(graph))
 
+    @override
+    def _close(self) -> None:
+        for fp in self._cleanup:
+            fp.close()
+
     def _parse(self, input: T) -> Iterable[Statement]:
         assert isinstance(input, str)
         yield Statement.from_json(input)
@@ -184,8 +200,8 @@ class Reader(
     def _read(self, input: Input) -> Iterable[T]:
         it: Iterator[str]
         if isinstance(input, self.LocationInput):
-            with open(input.location, encoding='utf-8') as fp:
-                it = fp
+            it = open(input.location, encoding='utf-8')
+            self._cleanup.append(it)
         elif isinstance(input, self.FileInput):
             if isinstance(input.file, TextIO):
                 it = input.file

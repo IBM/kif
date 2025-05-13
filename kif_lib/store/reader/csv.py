@@ -31,14 +31,7 @@ class CSV_Reader(
     __slots__ = (
         '_cleanup',
         '_fieldnames',
-        '_kwargs',
     )
-
-    #: File handles that need to be closed.
-    _cleanup: list[IO]
-
-    #: Other keyword arguments.
-    _kwargs: Any
 
     def __init__(
             self,
@@ -52,17 +45,10 @@ class CSV_Reader(
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
-        self._cleanup = []
-        self._kwargs = kwargs
         super().__init__(
             store_name, *args,
             location=location, file=file, data=data, graph=graph,
-            parse=parse)
-
-    @override
-    def _close(self) -> None:
-        for fp in self._cleanup:
-            fp.close()
+            parse=parse, **kwargs)
 
     @override
     def _parse(self, input: dict[str, Any]) -> Iterable[Statement]:
