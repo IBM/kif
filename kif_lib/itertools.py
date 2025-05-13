@@ -30,12 +30,15 @@ from .typing import (
     Any,
     AsyncIterable,
     AsyncIterator,
+    Callable,
     cast,
     Final,
     Hashable,
     Iterable,
     Iterator,
+    TypeAlias,
     TypeVar,
+    Union,
 )
 
 __all__ = [
@@ -61,8 +64,11 @@ __all__ = [
     'uniq',
 ]
 
-T = TypeVar('T')
 H = TypeVar('H', bound=Hashable)
+R = TypeVar('R')
+T = TypeVar('T')
+
+AnyIterable: TypeAlias = Union[Iterable[T], AsyncIterable[T]]
 
 
 class _Sentinel:
@@ -95,6 +101,20 @@ if sys.version_info < (3, 10):
     def aiter(it: AsyncIterable[T]) -> AsyncIterator[T]:
         """Async version of :func:`iter`."""
         return it.__aiter__()
+
+
+async def amap(
+        f: Callable[..., R],
+        *args: AnyIterable[Any]
+) -> AsyncIterable[R]:
+    """Async version of :func:`map`."""
+    for it in args:
+        if hasattr(it, '__aiter__'):
+            async for x in cast(AsyncIterable[Any], it):
+                yield f(x)
+        else:
+            for x in cast(Iterable[Any], it):
+                yield f(x)
 
 
 def mix(

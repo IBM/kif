@@ -202,17 +202,23 @@ class Reader(
             raise self._should_not_get_here()
 
     @override
-    def _filter(self, filter: Filter) -> Iterator[Statement]:
+    def _filter(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[Statement]:
         it = self._iterate_input()
-        if self.distinct:
+        if options.distinct:
             it = itertools.uniq(it)
-        limit = self.get_limit(self.max_limit)
-        assert limit is not None
+        if options.limit is not None:
+            limit = options.limit
+        else:
+            limit = options.max_limit
         count = 0
         while count < limit:
             try:
                 stmt = next(it)
-                if self.annotated:
+                if filter.annotated:
                     yield stmt.annotate()
                 else:
                     yield stmt

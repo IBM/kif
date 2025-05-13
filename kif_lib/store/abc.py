@@ -2139,7 +2139,7 @@ class Store(Set):
 
     def _ask(self, filter: Filter) -> bool:
         with self(distinct=False, limit=1):
-            return bool(next(self._filter(filter), False))
+            return bool(next(self._filter(filter, self.options), False))
 
     async def aask(
             self,
@@ -2198,7 +2198,7 @@ class Store(Set):
 
     async def _aask(self, filter: Filter) -> bool:
         with self(distinct=True, limit=self.max_limit):
-            async for _ in self._afilter(filter):
+            async for _ in self._afilter(filter, self.options):
                 return True
             return False
 
@@ -2230,7 +2230,7 @@ class Store(Set):
 
     def _contains(self, stmt: Statement, filter: Filter) -> bool:
         with self(distinct=True, limit=self.max_limit):
-            return stmt in self._filter(filter)
+            return stmt in self._filter(filter, self.options)
 
     async def acontains(self, stmt: Statement) -> bool:
         """Async version of :meth:`Store.contains`.
@@ -2253,7 +2253,7 @@ class Store(Set):
 
     async def _acontains(self, stmt: Statement, filter: Filter) -> bool:
         with self(distinct=True, limit=self.max_limit):
-            async for other in self._afilter(filter):
+            async for other in self._afilter(filter, self.options):
                 if stmt == other:
                     return True
             return False
@@ -2316,7 +2316,7 @@ class Store(Set):
 
     def _count(self, filter: Filter) -> int:
         with self(distinct=True, limit=self.max_limit):
-            return sum(1 for _ in self._filter(filter))
+            return sum(1 for _ in self._filter(filter, self.options))
 
     async def acount(
             self,
@@ -2377,7 +2377,7 @@ class Store(Set):
     async def _acount(self, filter: Filter) -> int:
         with self(distinct=True, limit=self.max_limit):
             n = 0
-            async for _ in self._afilter(filter):
+            async for _ in self._afilter(filter, self.options):
                 n += 1
             return n
 
@@ -2434,7 +2434,7 @@ class Store(Set):
                     annotated=annotated,
                     snak=snak,
                     filter=filter,
-                    function=self.filter))
+                    function=self.filter), self.options)
 
     def _xfilter_get_limit_and_distinct(
             self,
@@ -2451,18 +2451,27 @@ class Store(Set):
         assert limit is not None
         return limit, distinct
 
-    def _filter_tail(self, filter: Filter) -> Iterator[Statement]:
-        if (self.limit is None or self.limit > 0) and filter.is_nonempty():
-            stmts = self._filter(filter)
-            if filter.annotated and self.extra_references:
+    def _filter_tail(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[Statement]:
+        if ((options.limit is None or options.limit > 0)
+                and filter.is_nonempty()):
+            stmts = self._filter(filter, options)
+            if filter.annotated and options.extra_references:
                 return map(lambda s: s.annotate(
-                    references=self.extra_references), stmts)
+                    references=options.extra_references), stmts)
             else:
                 return stmts
         else:
             return iter(())
 
-    def _filter(self, filter: Filter) -> Iterator[Statement]:
+    def _filter(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[Statement]:
         return iter(())
 
     def afilter(
@@ -2518,20 +2527,29 @@ class Store(Set):
                     annotated=annotated,
                     snak=snak,
                     filter=filter,
-                    function=self.afilter))
+                    function=self.afilter), self.options)
 
-    async def _afilter_tail(self, filter: Filter) -> AsyncIterator[Statement]:
-        if (self.limit is None or self.limit > 0) and filter.is_nonempty():
-            async for stmt in self._afilter(filter):
-                if filter.annotated and self.extra_references:
-                    yield stmt.annotate(references=self.extra_references)
+    async def _afilter_tail(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[Statement]:
+        if ((options.limit is None or options.limit > 0)
+                and filter.is_nonempty()):
+            async for stmt in self._afilter(filter, options):
+                if filter.annotated and options.extra_references:
+                    yield stmt.annotate(references=options.extra_references)
                 else:
                     yield stmt
         else:
             return              # empty async iterator
             yield
 
-    async def _afilter(self, filter: Filter) -> AsyncIterator[Statement]:
+    async def _afilter(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[Statement]:
         return                  # empty async iterator
         yield
 
@@ -2731,8 +2749,8 @@ class Store(Set):
     def mix(
             self,
             *sources: Filter | Iterable[Statement],
-            limit: int | None = None,
-            distinct: bool | None = None
+            distinct: bool | None = None,
+            limit: int | None = None
     ) -> Iterator[Statement]:
         """Mixes sources of statement.
 
@@ -2741,25 +2759,27 @@ class Store(Set):
 
         Parameters:
            sources: Sources to mix.
-           limit: Limit (maximum number) of statements to yield.
            distinct: Whether to skip duplicates.
+           limit: Limit (maximum number) of statements to yield.
 
         Returns:
            An iterator of statements.
         """
-        limit, distinct = self._xfilter_get_limit_and_distinct(
-            limit, distinct, self.mix)
-        f = functools.partial(self.filter, limit=limit, distinct=distinct)
-        return itertools.mix(
-            *map(lambda src: f(filter=src)
-                 if isinstance(src, Filter) else src, sources),
-            limit=limit, distinct=distinct)
+        with self(distinct=distinct, limit=limit):
+            filter_fn = functools.partial(self._filter, options=self.options)
+            passthrough_fn = functools.partial(
+                Statement.check, function=self.mix, name='sources')
+            return itertools.mix(
+                *map(lambda src: filter_fn(filter=src)
+                     if isinstance(src, Filter)
+                     else map(passthrough_fn, src), sources),
+                limit=self.limit, distinct=self.distinct)
 
     async def amix(
             self,
-            *sources: Filter | AsyncIterable[Statement],
-            limit: int | None = None,
-            distinct: bool | None = None
+            *sources: Filter | Iterable | AsyncIterable[Statement],
+            distinct: bool | None = None,
+            limit: int | None = None
     ) -> AsyncIterator[Statement]:
         """Async version of :meth:`Store.mix`.
 
@@ -2768,16 +2788,20 @@ class Store(Set):
 
         Parameters:
            sources: Sources to mix.
-           limit: Limit (maximum number) of statements to yield.
            distinct: Whether to skip duplicates.
+           limit: Limit (maximum number) of statements to yield.
 
         Returns:
            An async iterator of statements.
         """
-        limit, distinct = self._xfilter_get_limit_and_distinct(
-            limit, distinct, self.amix)
-        f = functools.partial(self.afilter, limit=limit, distinct=distinct)
-        its = map(lambda src: f(filter=src)
-                  if isinstance(src, Filter) else src, sources)
-        async for stmt in itertools.amix(*its, limit=limit, distinct=distinct):
-            yield stmt
+        with self(distinct=distinct, limit=limit):
+            afilter_fn = functools.partial(
+                self._afilter, options=self.options)
+            passthrough_fn = functools.partial(
+                Statement.check, function=self.amix, name='sources')
+            its = map(lambda src: afilter_fn(filter=src)
+                      if isinstance(src, Filter)
+                      else itertools.amap(passthrough_fn, src), sources)
+            async for stmt in itertools.amix(
+                    *its, limit=self.limit, distinct=self.distinct):
+                yield stmt

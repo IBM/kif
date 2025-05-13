@@ -522,12 +522,19 @@ class _SPARQL_Store(
         return int(results['results']['bindings'][0][str(count)]['value'])
 
     @override
-    def _filter(self, filter: Filter) -> Iterator[Statement]:
+    def _filter(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[Statement]:
         compiler, _, variable = self._compile_filter(filter)
         push = compiler.build_results()
-        limit = self.limit if self.limit is not None else self.max_limit
+        if options.limit is not None:
+            limit = options.limit
+        else:
+            limit = options.max_limit
         query_stream = self._build_filter_query_stream(
-            compiler, self.distinct, limit)
+            compiler, options.distinct, limit, options.page_size)
         count = 0
         for query in query_stream:
             bindings = list(self._build_filter_result_binding_stream((
@@ -546,16 +553,23 @@ class _SPARQL_Store(
                     assert count <= limit, (count, limit)
                     if count == limit:
                         return  # done
-            if count < self.page_size:
+            if count < options.page_size:
                 break           # done
 
     @override
-    async def _afilter(self, filter: Filter) -> AsyncIterator[Statement]:
+    async def _afilter(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[Statement]:
         compiler, _, variable = self._compile_filter(filter)
         push = compiler.build_results()
-        limit = self.limit if self.limit is not None else self.max_limit
+        if options.limit is not None:
+            limit = options.limit
+        else:
+            limit = options.max_limit
         query_stream = self._build_filter_query_stream(
-            compiler, self.distinct, limit)
+            compiler, options.distinct, limit, options.page_size)
         count = 0
         for batch in itertools.batched(query_stream, self.lookahead):
             tasks = (
@@ -599,10 +613,11 @@ class _SPARQL_Store(
             self,
             compiler: SPARQL_FilterCompiler,
             distinct: bool,
-            limit: int
+            limit: int,
+            page_size: int
     ) -> Iterator[SPARQL_FilterCompiler.Query]:
         query_stream = self._build_filter_query_stream_tail(
-            compiler, distinct, limit)
+            compiler, distinct, limit, page_size)
         for query in query_stream:
             if query.where_is_empty():
                 break
@@ -612,11 +627,12 @@ class _SPARQL_Store(
             self,
             compiler: SPARQL_FilterCompiler,
             distinct: bool,
-            limit: int
+            limit: int,
+            page_size: int
     ) -> Iterator[SPARQL_FilterCompiler.Query]:
         assert limit >= 0
         if limit > 0:
-            page_size = min(self.page_size, limit)
+            page_size = min(page_size, limit)
             for offset in range(0, limit, page_size):
                 remaining = limit - offset
                 if remaining < page_size:

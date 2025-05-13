@@ -394,12 +394,22 @@ class MixerStore(
         return sum(await asyncio.gather(*tasks))
 
     @override
-    def _filter(self, filter: Filter) -> Iterator[Statement]:
+    def _filter(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[Statement]:
         return itertools.mix(
-            *(src._filter_tail(filter) for src in self._sources))
+            *(src._filter_tail(filter, src.options) for src in self._sources),
+            limit=options.limit, distinct=options.distinct)
 
     @override
-    async def _afilter(self, filter: Filter) -> AsyncIterator[Statement]:
-        it = (src._afilter_tail(filter) for src in self._sources)
-        async for stmt in itertools.amix(*it):
+    async def _afilter(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[Statement]:
+        it = (src._afilter_tail(filter, src.options) for src in self._sources)
+        async for stmt in itertools.amix(
+                *it, limit=options.limit, distinct=options.distinct):
             yield stmt
