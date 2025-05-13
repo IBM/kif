@@ -1,0 +1,13 @@
+subject,property,value
+Item(IRI('http://www.wikidata.org/entity/Q2270')),"Property(IRI('http://www.wikidata.org/entity/P31'), ItemDatatype())",Item(IRI('http://www.wikidata.org/entity/Q113145171'))
+"Property(IRI('http://www.wikidata.org/entity/P235'), ExternalIdDatatype())","Property(IRI('http://www.wikidata.org/entity/P31'), ItemDatatype())",Item(IRI('http://www.wikidata.org/entity/Q19833835'))
+"Property(IRI('http://www.wikidata.org/entity/P235'), ExternalIdDatatype())","Property(IRI('http://www.wikidata.org/entity/P1659'), PropertyDatatype())","Property(IRI('http://www.wikidata.org/entity/P234'), ExternalIdDatatype())"
+Item(IRI('http://www.wikidata.org/entity/Q2270')),"LabelProperty(IRI('http://www.w3.org/2000/01/rdf-schema#label'), TextDatatype())","Text('benzene', 'en')"
+"Property(IRI('http://www.wikidata.org/entity/P235'), ExternalIdDatatype())","LabelProperty(IRI('http://www.w3.org/2000/01/rdf-schema#label'), TextDatatype())","Text('InChIKey', 'es')"
+"Property(IRI('http://www.wikidata.org/entity/P235'), ExternalIdDatatype())","LabelProperty(IRI('http://www.w3.org/2000/01/rdf-schema#label'), TextDatatype())","Text('InChIKey', 'en')"
+Item(IRI('http://www.wikidata.org/entity/Q2270')),"AliasProperty(IRI('http://www.w3.org/2004/02/skos/core#altLabel'), TextDatatype())","Text('benzol', 'en')"
+"Property(IRI('http://www.wikidata.org/entity/P235'), ExternalIdDatatype())","DescriptionProperty(IRI('http://schema.org/description'), TextDatatype())","Text('A hashed version of the full standard InChI - designed to create an identifier that encodes structural information and can also be practically used in web searching.', 'en')"
+"Property(IRI('http://www.wikidata.org/entity/P235'), ExternalIdDatatype())","DescriptionProperty(IRI('http://schema.org/description'), TextDatatype())","Text('código condensado para la identificación de un compuesto químico', 'es')"
+Item(IRI('http://www.wikidata.org/entity/Q2270')),"Property(IRI('http://www.wikidata.org/entity/P235'), ExternalIdDatatype())",ExternalId('UHOVQNZJYSORNB-UHFFFAOYSA-N')
+Item(IRI('http://www.wikidata.org/entity/Q2270')),"Property(IRI('http://www.wikidata.org/entity/P2054'), QuantityDatatype())","Quantity(Decimal('0.88'), Item(IRI('http://www.wikidata.org/entity/Q13147228')), Decimal('0.87'), Decimal('0.89'))"
+Item(IRI('http://www.wikidata.org/entity/Q2270')),"Property(IRI('http://www.wikidata.org/entity/P2067'), QuantityDatatype())","Quantity(Decimal('78.046950192'), Item(IRI('http://www.wikidata.org/entity/Q483261')), None, None)"

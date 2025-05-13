@@ -6,6 +6,7 @@ from __future__ import annotations
 import abc
 import collections
 import dataclasses
+import io
 import pathlib
 
 from ... import itertools
@@ -20,20 +21,19 @@ from ...typing import (
     override,
     TextIO,
     TypeAlias,
-    TypeVar,
     Union,
 )
 from ..abc import Store
 
-T = TypeVar('T')
+T: TypeAlias = Any
 
 
 class Reader(
         Store,
         store_name='reader',
-        store_description='Statement reader'
+        store_description='Reader'
 ):
-    """Statement reader.
+    """Abstract base class for readers.
 
     Parameters:
        store_name: Name of the store plugin to instantiate.
@@ -83,7 +83,7 @@ class Reader(
     ParseFunction: TypeAlias = Callable[[T], Iterable[Statement]]
 
     #: Type alias for input reading function.
-    ReadFunction: TypeAlias = Callable[[Input], Iterable[T | Statement]]
+    ReadFunction: TypeAlias = Callable[[Input], Iterable[T]]
 
     __slots__ = (
         '_input',
@@ -177,29 +177,28 @@ class Reader(
     def _put_graph(self, graph: Graph) -> None:
         self._input.append(self.GraphInput(graph))
 
-    def _parse(self, input: str) -> Iterable[Statement]:
+    def _parse(self, input: T) -> Iterable[Statement]:
+        assert isinstance(input, str)
         yield Statement.from_json(input)
 
-    def _read(self, input: Input) -> Iterable[str | Statement]:
+    def _read(self, input: Input) -> Iterable[T]:
+        it: Iterator[str]
         if isinstance(input, self.LocationInput):
             with open(input.location, encoding='utf-8') as fp:
-                yield from fp
+                it = fp
         elif isinstance(input, self.FileInput):
             if isinstance(input.file, TextIO):
-                yield from input.file
+                it = input.file
             else:
-                import io
-                yield from io.TextIOWrapper(input.file, encoding='utf-8')
+                it = io.TextIOWrapper(input.file, encoding='utf-8')
         elif isinstance(input, self.DataInput):
             if isinstance(input.data, bytes):
-                data: str = input.data.decode('utf-8')
+                it = io.StringIO(input.data.decode('utf-8'))
             else:
-                data = input.data
-            yield from data.splitlines()
-        elif isinstance(input, self.GraphInput):
-            yield from input.graph
+                it = io.StringIO(input.data)
         else:
             raise self._should_not_get_here()
+        yield from it           # type: ignore
 
     @override
     def _filter(
@@ -229,8 +228,9 @@ class Reader(
     def _iterate_input(self) -> Iterator[Statement]:
         while self._input:
             input = self._input.popleft()
-            for chunk in self._read(input):
-                if isinstance(chunk, Statement):
-                    yield chunk
-                else:
-                    yield from self._parse(chunk)
+            if isinstance(input, self.GraphInput):
+                yield from input.graph
+            else:
+                chunk: T
+                for chunk in self._read_fn(input):
+                    yield from self._parse_fn(chunk)

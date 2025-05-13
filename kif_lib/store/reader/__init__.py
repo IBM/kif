@@ -3,8 +3,10 @@
 
 from __future__ import annotations
 
+from .csv import CSV_Reader
 from .reader import Reader
 
 __all__ = (
+    'CSV_Reader',
     'Reader',
 )
