@@ -4,10 +4,10 @@
 from __future__ import annotations
 
 import csv
-import io
 
-from ...model import Entity, Property, Statement, TGraph, Value
-from ...typing import Any, BinaryIO, IO, Iterable, override, TextIO
+from ... import itertools
+from ...model import Entity, Filter, Property, Statement, TGraph, Value
+from ...typing import Any, BinaryIO, Iterable, Iterator, override, TextIO
 from .reader import Reader
 
 
@@ -26,12 +26,8 @@ class CSV_Reader(
        data: Data to be used as input source.
        graph: KIF graph to used as input source.
        parse: Input parsing function.
-       kwargs: Other keyword arguments."""
-
-    __slots__ = (
-        '_cleanup',
-        '_fieldnames',
-    )
+       kwargs: Other keyword arguments.
+    """
 
     def __init__(
             self,
@@ -41,7 +37,7 @@ class CSV_Reader(
             file: BinaryIO | TextIO | None = None,
             data: bytes | str | None = None,
             graph: TGraph | None = None,
-            parse: Reader.ParseFunction | None = None,
+            parse: Reader.ParseFn | None = None,
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
@@ -57,21 +53,11 @@ class CSV_Reader(
             Value.from_repr(input['value']))
 
     @override
-    def _read(self, input: CSV_Reader.Input) -> Iterable[dict[str, Any]]:
-        fp: TextIO
-        if isinstance(input, self.LocationInput):
-            fp = open(input.location, encoding='utf-8')
-            self._cleanup.append(fp)
-        elif isinstance(input, self.FileInput):
-            if isinstance(input.file, TextIO):
-                fp = input.file
-            else:
-                fp = io.TextIOWrapper(input.file, encoding='utf-8')
-        elif isinstance(input, self.DataInput):
-            if isinstance(input.data, bytes):
-                fp = io.StringIO(input.data.decode('utf-8'))
-            else:
-                fp = io.StringIO(input.data)
-        else:
-            raise self._should_not_get_here()
-        yield from csv.DictReader(fp, **self._kwargs)
+    def _filter_parse(
+            self,
+            filter: Filter,
+            options: Reader.Options,
+            file: TextIO
+    ) -> Iterator[Statement]:
+        return itertools.chain(*map(
+            self._parse_fn, csv.DictReader(file, **self._kwargs)))

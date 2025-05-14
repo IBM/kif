@@ -6,7 +6,7 @@ from __future__ import annotations
 from .abc import Store
 from .empty import EmptyStore
 from .mixer import MixerStore
-from .reader import CSV_Reader, Reader
+from .reader import CSV_Reader, JSONL_Reader, Reader
 from .sparql import (
     DBpediaRDF_Store,
     DBpediaSPARQL_Store,
@@ -27,6 +27,7 @@ __all__ = (
     'DBpediaSPARQL_Store',
     'EmptyStore',
     'HttpxSPARQL_Store',
+    'JSONL_Reader',
     'MixerStore',
     'PubChemRDF_Store',
     'PubChemSPARQL_Store',

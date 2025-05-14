@@ -4,9 +4,10 @@
 from __future__ import annotations
 
 from .csv import CSV_Reader
-from .reader import Reader
+from .reader import JSONL_Reader, Reader
 
 __all__ = (
     'CSV_Reader',
+    'JSONL_Reader',
     'Reader',
 )

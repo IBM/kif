@@ -4,19 +4,21 @@
 from __future__ import annotations
 
 import abc
-import collections
+import asyncio
 import dataclasses
-import io
+import functools
 import pathlib
 
 from ... import itertools
-from ...model import Filter, Graph, KIF_Object, Statement, TGraph
+from ...model import Filter
+from ...model import Graph as KIF_Graph
+from ...model import KIF_Object, Statement, TGraph
 from ...typing import (
     Any,
+    AsyncIterator,
     BinaryIO,
     Callable,
     cast,
-    IO,
     Iterable,
     Iterator,
     override,
@@ -34,7 +36,7 @@ class Reader(
         store_name='reader',
         store_description='Reader'
 ):
-    """Abstract base class for readers.
+    """Base class for readers.
 
     Parameters:
        store_name: Name of the store plugin to instantiate.
@@ -44,70 +46,58 @@ class Reader(
        data: Data to be used as input source.
        graph: KIF graph to used as input source.
        parse: Input parsing function.
-       read: Input reading function.
        kwargs: Other keyword arguments.
     """
 
     @dataclasses.dataclass
-    class Input(abc.ABC):
-        """Abstract base class for input queue data."""
+    class Source(abc.ABC):
+        """Abstract base class for input sources."""
 
     @dataclasses.dataclass
-    class LocationInput(Input):
-        """Location input."""
+    class Location(Source):
+        """Location source."""
 
         location: pathlib.PurePath | str
 
     @dataclasses.dataclass
-    class FileInput(Input):
-        """File input."""
+    class File(Source):
+        """File source."""
 
         file: BinaryIO | TextIO
 
     @dataclasses.dataclass
-    class DataInput(Input):
-        """Data input."""
+    class Data(Source):
+        """Data source."""
 
         data: bytes | str
 
     @dataclasses.dataclass
-    class GraphInput(Input):
-        """Graph input."""
+    class Graph(Source):
+        """Graph source."""
 
-        graph: Graph
+        graph: KIF_Graph
 
     #: Type alias for reader arguments.
     Args: TypeAlias =\
         Union[BinaryIO, TextIO, str, bytes, pathlib.PurePath, Statement]
 
     #: Type alias for input parsing function.
-    ParseFunction: TypeAlias = Callable[[T], Iterable[Statement]]
-
-    #: Type alias for input reading function.
-    ReadFunction: TypeAlias = Callable[[Input], Iterable[T]]
+    ParseFn: TypeAlias = Callable[[T], Iterable[Statement]]
 
     __slots__ = (
-        '_cleanup',
-        '_input',
+        '_args',
         '_kwargs',
         '_parse_fn',
-        '_read_fn',
     )
 
-    #: File handles that need to be closed.
-    _cleanup: list[IO]
-
-    #: Input queue.
-    _input: collections.deque[Input]
+    #: Input sources.
+    _args: list[Source]
 
     #: Other keyword arguments.
     _kwargs: Any
 
-    #: Input parsing function.
-    _parse_fn: ParseFunction
-
-    #: Input reading function.
-    _read_fn: ReadFunction
+    #: Parsing function.
+    _parse_fn: ParseFn
 
     def __init__(
             self,
@@ -117,17 +107,15 @@ class Reader(
             file: BinaryIO | TextIO | None = None,
             data: bytes | str | None = None,
             graph: TGraph | None = None,
-            parse: ParseFunction | None = None,
-            read: ReadFunction | None = None,
+            parse: ParseFn | None = None,
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
         super().__init__(store_name)
-        self._cleanup = []
-        self._input = collections.deque()
+        self._args = []
         self._kwargs = kwargs
 
-        def put(name: str | None, f: Callable[[T], None], x: T) -> None:
+        def push(name: str | None, f: Callable[[T], None], x: T) -> None:
             try:
                 f(x)
             except Exception as err:
@@ -135,86 +123,58 @@ class Reader(
                     str(err), type(self), name,
                     exception=self.Error) from err
         if location is not None:
-            put('location', self._put_location, location)
+            push('location', self._push_location, location)
         if file is not None:
-            put('file', self._put_file, file)
+            push('file', self._push_file, file)
         if data is not None:
-            put('data', self._put_data, data)
+            push('data', self._push_data, data)
         if graph is not None:
-            put('graph', self._put_graph,
-                Graph.check(graph, type(self), 'graph'))
+            push('graph', self._push_graph, KIF_Graph.check(
+                graph, type(self), 'graph'))
         other, stmts = map(list, itertools.partition(
             lambda s: isinstance(s, Statement), args))
         if stmts:
-            put('graph', self._put_graph,
-                Graph(*cast(Iterable[Statement], stmts)))
+            push('graph', self._push_graph, KIF_Graph(
+                *cast(Iterable[Statement], stmts)))
         for src in other:
-            put('args', self._put_arg, src)
+            push('args', self._push_arg, src)
         if parse is None:
             self._parse_fn = self._parse
         else:
             self._parse_fn = parse
-        if read is None:
-            self._read_fn = self._read
-        else:
-            self._read_fn = read
 
-    def _put_arg(self, arg: Any) -> None:
+    def _push_arg(self, arg: Any) -> None:
         if isinstance(arg, (pathlib.PurePath, str)):
-            self._put_location(arg)
+            self._push_location(arg)
         elif isinstance(arg, (BinaryIO, TextIO)):
-            self._put_file(arg)
+            self._push_file(arg)
         elif isinstance(arg, bytes):
-            self._put_data(arg)
-        elif isinstance(arg, Graph):
-            self._put_graph(arg)
+            self._push_data(arg)
+        elif isinstance(arg, KIF_Graph):
+            self._push_graph(arg)
         else:
-            self._put_arg_unknown(arg)
+            self._push_arg_unknown(arg)
 
-    def _put_arg_unknown(self, arg: Any) -> None:
+    def _push_arg_unknown(self, arg: Any) -> None:
         raise TypeError(
             f'{type(self).__qualname__} does not support '
             f'{type(arg).__qualname__}')
 
-    def _put_location(self, location: pathlib.PurePath | str) -> None:
-        self._input.append(self.LocationInput(location))
+    def _push_location(self, location: pathlib.PurePath | str) -> None:
+        self._args.append(self.Location(location))
 
-    def _put_file(self, file: BinaryIO | TextIO) -> None:
-        self._input.append(self.FileInput(file))
+    def _push_file(self, file: BinaryIO | TextIO) -> None:
+        self._args.append(self.File(file))
 
-    def _put_data(self, data: bytes | str) -> None:
-        self._input.append(self.DataInput(data))
+    def _push_data(self, data: bytes | str) -> None:
+        self._args.append(self.Data(data))
 
-    def _put_graph(self, graph: Graph) -> None:
-        self._input.append(self.GraphInput(graph))
-
-    @override
-    def _close(self) -> None:
-        for fp in self._cleanup:
-            fp.close()
+    def _push_graph(self, graph: KIF_Graph) -> None:
+        self._args.append(self.Graph(graph))
 
     def _parse(self, input: T) -> Iterable[Statement]:
         assert isinstance(input, str)
-        yield Statement.from_json(input)
-
-    def _read(self, input: Input) -> Iterable[T]:
-        it: Iterator[str]
-        if isinstance(input, self.LocationInput):
-            it = open(input.location, encoding='utf-8')
-            self._cleanup.append(it)
-        elif isinstance(input, self.FileInput):
-            if isinstance(input.file, TextIO):
-                it = input.file
-            else:
-                it = io.TextIOWrapper(input.file, encoding='utf-8')
-        elif isinstance(input, self.DataInput):
-            if isinstance(input.data, bytes):
-                it = io.StringIO(input.data.decode('utf-8'))
-            else:
-                it = io.StringIO(input.data)
-        else:
-            raise self._should_not_get_here()
-        yield from it           # type: ignore
+        yield Statement.from_json(input, **self._kwargs)
 
     @override
     def _filter(
@@ -222,31 +182,102 @@ class Reader(
             filter: Filter,
             options: Store.Options
     ) -> Iterator[Statement]:
-        it = self._iterate_input()
-        if options.distinct:
-            it = itertools.uniq(it)
+        parse = functools.partial(self._filter_parse_arg, filter, options)
+        it = itertools.chain(*map(parse, self._args))
         if options.limit is not None:
-            limit = options.limit
-        else:
-            limit = options.max_limit
-        count = 0
-        while count < limit:
-            try:
-                stmt = next(it)
-                if filter.annotated:
-                    yield stmt.annotate()
-                else:
-                    yield stmt
-                count += 1
-            except StopIteration:
-                break
+            it = itertools.islice(it, options.limit)  # type: ignore
+        return it
 
-    def _iterate_input(self) -> Iterator[Statement]:
-        while self._input:
-            input = self._input.popleft()
-            if isinstance(input, self.GraphInput):
-                yield from input.graph
+    def _filter_parse_arg(
+            self,
+            filter: Filter,
+            options: Store.Options,
+            arg: Source
+    ) -> Iterator[Statement]:
+        import io
+
+        parse = functools.partial(self._filter_parse, filter, options)
+        wrap = functools.partial(self._filter_parse_wrap, filter, options)
+
+        if isinstance(arg, self.Location):
+            with open(arg.location, encoding='utf-8') as fp:
+                yield from wrap(parse(fp))
+        elif isinstance(arg, self.File):
+            if isinstance(arg.file, TextIO):
+                yield from wrap(parse(arg.file))
             else:
-                chunk: T
-                for chunk in self._read_fn(input):
-                    yield from self._parse_fn(chunk)
+                yield from wrap(parse(io.TextIOWrapper(
+                    arg.file, encoding='utf-8')))
+        elif isinstance(arg, self.Data):
+            if isinstance(arg.data, bytes):
+                yield from wrap(parse(io.StringIO(
+                    arg.data.decode('utf-8'))))
+            else:
+                yield from wrap(parse(io.StringIO(arg.data)))
+        elif isinstance(arg, self.Graph):
+            yield from wrap(iter(arg.graph))
+        else:
+            raise self._should_not_get_here()
+
+    def _filter_parse_wrap(
+            self,
+            filter: Filter,
+            options: Store.Options,
+            it: Iterator[Statement]
+    ) -> Iterator[Statement]:
+        if filter.annotated:
+            it = map(lambda stmt: stmt.annotate(), it)
+        if options.limit is not None:
+            it = itertools.islice(it, options.limit)
+        return it
+
+    def _filter_parse(
+            self,
+            filter: Filter,
+            options: Store.Options,
+            file: TextIO
+    ) -> Iterator[Statement]:
+        return itertools.chain(*map(self._parse_fn, file))
+
+    @override
+    async def _afilter(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[Statement]:
+        limit =\
+            options.limit if options.limit is not None else options.max_limit
+        parse = functools.partial(self._filter_parse_arg, filter, options)
+        count = 0
+
+        async def task(arg):
+            return await asyncio.to_thread(lambda: list(parse(arg)))
+
+        if count < limit:
+            for it in await asyncio.gather(*map(task, self._args)):
+                for stmt in it:
+                    yield stmt
+                    count += 1
+                    if count >= limit:
+                        break
+                if count >= limit:
+                    break
+
+
+class JSONL_Reader(
+        Reader,
+        store_name='jsonl-reader',
+        store_description='JSON lines reader'
+):
+    """JSON lines reader.
+
+    Parameters:
+       store_name: Name of the store plugin to instantiate.
+       args: Input sources.
+       location: Relative or absolute IRI of the input source.
+       file: File-like object to be used as input source.
+       data: Data to be used as input source.
+       graph: KIF graph to used as input source.
+       parse: Input parsing function.
+       kwargs: Other keyword arguments.
+    """
