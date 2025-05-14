@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 0.8.0 (?)
+## 0.8.0 (2025-05-14)
 
 - Re-implemented store options using the option infrastructure.  Now the
   store options are kept in a stack, which allows the current options to be
@@ -12,7 +12,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Removed the legacy `Store.Flags` (superseded by options).
 
-- Added `list-options` command to the KIF CLI tool.
+- Added reader stores: `json-reader`, `jsonl-reader`, and `csv-reader`.
+  These are "pseudo-stores" used to quickly read statements from data files.
+
+- Added `list-options` command to the KIF CLI tool.  Lists the all options
+  in KIF context.
+
+- Added `--module` option to the KIF CLI tool.  Loads module before running
+  the tool.
+
+- Added `--encoder` option to the `filter` command of KIF CLI tool.  Uses
+  encoder to encode the statements before outputting them.
 
 ## 0.7.8 (2025-04-29)
 
