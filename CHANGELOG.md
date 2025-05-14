@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 0.8.1 (?)
 
-- Fixed handling of `--no-resolved`.
+- Fixed handling of `--no-resolved` in KIF CLI.
 
 ## 0.8.0 (2025-05-14)
 
