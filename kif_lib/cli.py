@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import functools
+import os
 import re
 import sys
 import textwrap
@@ -48,29 +49,51 @@ from .model import (
     Value,
     ValueSnak,
 )
+from .model.object import Decoder, Encoder
 from .store import Store
-from .typing import Any, ClassVar, Iterable, override, Self, Sequence, TypeVar
+from .typing import (
+    Any,
+    ClassVar,
+    Final,
+    Iterable,
+    override,
+    Self,
+    Sequence,
+    TypeVar,
+)
 from .vocabulary import db, pc, wd
 
 TObj = TypeVar('TObj', bound=KIF_Object)
 
+#: The globals table to be passed to :func:`eval`.
+_G: Final[dict[str, Any]] = {}
+
 
 @click.group(help=f'KIF: {__description__}.')
 @click.version_option(version=__version__)
-def cli() -> None:
-    pass
+@click.option(
+    '--module',
+    '-m',
+    metavar='MOD',
+    multiple=True,
+    help='Load module MOD.')
+def cli(module: Sequence[str]) -> None:
+    if module:
+        import importlib
+        sys.path.append(os.getcwd())
+        for mod in module:
+            global _G           # noqa: F824
+            _G[mod] = importlib.import_module(mod)
 
 
 @cli.command(help='Show the available decoders and exit.')
 def list_decoders() -> None:
-    from .model.kif_object import Decoder
     _list_name_description_pairs(
         ((k, v.description) for k, v in Decoder.registry.items()))
 
 
 @cli.command(help='Show the available encoders and exit.')
 def list_encoders() -> None:
-    from .model.kif_object import Encoder
     _list_name_description_pairs(
         ((k, v.description) for k, v in Encoder.registry.items()))
 
@@ -107,6 +130,7 @@ class KIF_ParamType(click.ParamType):
     @classmethod
     @functools.cache
     def globals(cls) -> dict[str, Any]:
+        global _G               # noqa: F824
         return {
             'DATA_VALUE': Filter.DATA_VALUE,
             'DEEP_DATA_VALUE': Filter.DEEP_DATA_VALUE,
@@ -152,6 +176,7 @@ class KIF_ParamType(click.ParamType):
             'db': db,
             'pc': pc,
             'wd': wd,
+            **_G
         }
 
     @classmethod
@@ -163,6 +188,26 @@ class KIF_ParamType(click.ParamType):
                 return eval(value, cls.globals(), {})
             except Exception as err:
                 raise ValueError(err) from err
+
+
+class EncoderParamType(KIF_ParamType):
+
+    name: str = 'encoder'
+
+    @override
+    def convert(
+            self,
+            value: Any,
+            param: click.Parameter | None,
+            ctx: click.Context | None
+    ) -> Encoder:
+        if isinstance(value, str):
+            if value in Encoder.registry:
+                return Encoder.registry[value]()  # type: ignore
+        try:
+            return KIF_Object._check_arg_isinstance(self.eval(value), Encoder)
+        except (ValueError, TypeError) as err:
+            return self.fail(str(err), param, ctx)
 
 
 class StoreParamType(KIF_ParamType):
@@ -307,6 +352,13 @@ class FilterParam:
         help='Dry run.',
         envvar='DRY_RUN')
 
+    encoder = click.option(
+        '--encoder',
+        'encoder',
+        type=EncoderParamType.get_instance(),
+        help='Encoder.',
+        envvar='ENCODER')
+
     language = click.option(
         '--language',
         'language',
@@ -319,8 +371,7 @@ class FilterParam:
         '--limit',
         'limit',
         type=int,
-        default=10,
-        show_default=True,
+        required=False,
         help='Maximum number of results.',
         envvar='LIMIT')
 
@@ -619,6 +670,7 @@ def count(
 @FilterParam.value
 @FilterParam.annotated
 @FilterParam.dry_run
+@FilterParam.encoder
 @FilterParam.language
 @FilterParam.limit
 @FilterParam.distinct
@@ -653,8 +705,9 @@ def filter(
         limit: int | None = None,
         page_size: int | None = None,
         timeout: float | None = None,
+        dry_run: bool | None = None,
+        encoder: Encoder | None = None,
         resolve: bool | None = None,
-        dry_run: bool | None = None
 ) -> None:
     console = Console()
     context = FilterParam.make_context(resolve)
@@ -684,10 +737,14 @@ def filter(
         target.filter(filter=fr), target.page_size)
     for pageno, batch in enumerate(batches):
         resolved_batch = context.resolve(batch, label=True, language='en')
-        it = (f'{(pageno * target.page_size) + i}. '
-              + textwrap.indent(stmt.to_markdown(), ' ' * 4).lstrip()
-              for i, stmt in enumerate(resolved_batch, 1))
-        console.print(Markdown('\n\n'.join(it)))
+        if encoder is None:
+            it = (f'{(pageno * target.page_size) + i}. '
+                  + textwrap.indent(stmt.to_markdown(), ' ' * 4).lstrip()
+                  for i, stmt in enumerate(resolved_batch, 1))
+            console.print(Markdown('\n\n'.join(it)))
+        else:
+            for stmt in resolved_batch:
+                print(encoder.encode(stmt), flush=True)
 
 
 if __name__ == '__main__':
