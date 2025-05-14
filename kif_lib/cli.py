@@ -77,7 +77,7 @@ _G: Final[dict[str, Any]] = {}
     metavar='MOD',
     multiple=True,
     help='Load module MOD.')
-def cli(module: Sequence[str]) -> None:
+def cli(module: Sequence[str] = ()) -> None:
     if module:
         import importlib
         sys.path.append(os.getcwd())
@@ -736,7 +736,11 @@ def filter(
     batches = itertools.batched(
         target.filter(filter=fr), target.page_size)
     for pageno, batch in enumerate(batches):
-        resolved_batch = context.resolve(batch, label=True, language='en')
+        if resolve:
+            resolved_batch = context.resolve(
+                batch, label=True, language='en')
+        else:
+            resolved_batch = batch
         if encoder is None:
             it = (f'{(pageno * target.page_size) + i}. '
                   + textwrap.indent(stmt.to_markdown(), ' ' * 4).lstrip()
