@@ -172,6 +172,9 @@ class Reader(
     def _push_graph(self, graph: KIF_Graph) -> None:
         self._args.append(self.Graph(graph))
 
+    def _load(self, file: TextIO) -> Iterable[T]:
+        return file
+
     def _parse(self, input: T) -> Iterable[Statement]:
         assert isinstance(input, str)
         yield Statement.from_json(input, **self._kwargs)
@@ -237,7 +240,7 @@ class Reader(
             options: Store.Options,
             file: TextIO
     ) -> Iterator[Statement]:
-        return itertools.chain(*map(self._parse_fn, file))
+        return itertools.chain(*map(self._parse_fn, self._load(file)))
 
     @override
     async def _afilter(
@@ -259,9 +262,7 @@ class Reader(
                     yield stmt
                     count += 1
                     if count >= limit:
-                        break
-                if count >= limit:
-                    break
+                        return
 
 
 class JSONL_Reader(

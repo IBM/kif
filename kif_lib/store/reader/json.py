@@ -3,17 +3,17 @@
 
 from __future__ import annotations
 
-from ...model import Entity, Property, Statement, Value
+from ...model import Statement
 from ...typing import Any, Iterable, Iterator, override, TextIO
 from .reader import Reader
 
 
-class CSV_Reader(
+class JSON_Reader(
         Reader,
-        store_name='csv-reader',
-        store_description='CSV reader'
+        store_name='json-reader',
+        store_description='JSON reader'
 ):
-    """CSV reader.
+    """JSON reader.
 
     Parameters:
        store_name: Name of the store plugin to instantiate.
@@ -28,11 +28,9 @@ class CSV_Reader(
 
     @override
     def _load(self, file: TextIO) -> Iterator[dict[str, Any]]:
-        import csv
-        return csv.DictReader(file, **self._kwargs)
+        import json
+        return json.load(file, **self._kwargs)
 
     @override
     def _parse(self, input: dict[str, Any]) -> Iterable[Statement]:
-        yield Property.from_repr(input['property'])(
-            Entity.from_repr(input['subject']),
-            Value.from_repr(input['value']))
+        yield Statement.from_ast(input, **self._kwargs)
