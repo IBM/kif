@@ -7,10 +7,13 @@ from kif_lib.context import Context, Section
 from kif_lib.context.options import Options
 from kif_lib.typing import assert_type
 
-from ..tests import TestCase
+from ..tests import OptionsTestCase
 
 
-class Test(TestCase):
+class Test(OptionsTestCase):
+
+    def section(self, ctx: Context) -> Section:
+        return ctx.options
 
     def test_options(self) -> None:
         with Context() as ctx:

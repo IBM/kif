@@ -3,41 +3,21 @@
 
 from __future__ import annotations
 
-import os
+from kif_lib.context import Context, Section
 
-from kif_lib.context import Context
-from kif_lib.model.value.text import TextOptions
-from kif_lib.typing import assert_type
-
-from ...tests import TestCase
+from ...tests import OptionsTestCase
 
 
-class Test(TestCase):
+class Test(OptionsTestCase):
 
-    def test_options(self) -> None:
-        with Context() as ctx:
-            opts = ctx.options.model.value.text
-            assert_type(opts, TextOptions)
-            assert_type(opts.language, str)
-            self.assertEqual(opts.language, opts._v_language[1])
+    def section(self, ctx: Context) -> Section:
+        return ctx.options.model.value.text
 
     def test_language(self) -> None:
-        with Context() as ctx:
-            opts = ctx.options.model.value.text
-            vars = tuple(opts._v_language[0])
-            os.environ[vars[0]] = 'pt'
-            opts = TextOptions()
-            self.assertEqual(opts.language, 'pt')
-            del os.environ[vars[0]]
-        with Context() as ctx:
-            opts = ctx.options.model.value.text
-            opts.language = 'abc'
-            self.assertEqual(opts.language, 'abc')
-            self.assert_raises_bad_argument(
-                TypeError, 1, 'language', 'cannot coerce int into String',
-                opts.set_language, 0)
-            opts.set_language()
-            self.assertEqual(opts.language, opts._v_language[1])
+        self._test_option_str(
+            section=self.section,
+            name='language',
+            envvars=['KIF_MODEL_VALUE_TEXT_LANGUAGE', 'KIF_LANGUAGE'])
 
 
 if __name__ == '__main__':

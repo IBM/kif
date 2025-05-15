@@ -1300,6 +1300,24 @@ class OptionsTestCase(TestCase):
             envvars=envvars,
             type_error={})
 
+    def _test_option_str(
+            self,
+            section: Callable[[Context], Section],
+            name: str,
+            values: Sequence[tuple[Any, float]] = (),
+            envvars: Sequence[str] = (),
+            optional: bool = False
+    ) -> None:
+        self._test_option(
+            section=section,
+            name=name,
+            values=[
+                ('x', 'x'),
+                ('abc', 'abc'),
+                *values] + ([(None, None)] if optional else []),
+            envvars=envvars,
+            type_error={})
+
     def _test_option(
             self,
             section: Callable[[Context], Section],
