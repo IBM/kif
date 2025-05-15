@@ -360,6 +360,23 @@ class Section:
                     type_name = str(field.type)
                 yield f'{name}: {type_name} = {value}'
 
+    def describe(self, name: str | None = None) -> str | None:
+        """Describes section or name within section.
+
+        If `name` is given, returns the doc-string of the attribute with
+        `name` in section.  Otherwise, returns the doc-string of section.
+
+        Parameters:
+           name: Attribute name.
+        """
+        if name is None:
+            return type(self).__doc__
+        else:
+            try:
+                return getattr(type(self), name).__doc__
+            except AttributeError:
+                return getattr(self, name).__doc__
+
     def replace(self, *args: Any, **kwargs: Any) -> Self:
         """Shallow-copies section replacing its arguments.
 

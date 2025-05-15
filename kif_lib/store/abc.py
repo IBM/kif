@@ -204,7 +204,7 @@ class Store(Set):
 
         @property
         def best_ranked(self) -> bool:
-            """The best-ranked flag."""
+            """Whether to consider only the best-ranked statements."""
             return self.get_best_ranked()
 
         @best_ranked.setter
@@ -253,7 +253,7 @@ class Store(Set):
 
         @property
         def debug(self) -> bool:
-            """The debug flag."""
+            """Whether to enable debugging mode."""
             return self.get_debug()
 
         @debug.setter
@@ -302,7 +302,7 @@ class Store(Set):
 
         @property
         def distinct(self) -> bool:
-            """The distinct flag."""
+            """Whether to suppress duplicate results."""
             return self.get_distinct()
 
         @distinct.setter

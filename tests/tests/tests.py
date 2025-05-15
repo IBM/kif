@@ -8,6 +8,7 @@ import datetime
 import decimal
 import functools
 import logging
+import os
 import pathlib
 import re
 import unittest
@@ -19,6 +20,7 @@ from kif_lib import (
     AnnotatedStatementVariable,
     ClosedTerm,
     ClosedTermSet,
+    Context,
     Datatype,
     DatatypeVariable,
     DataValue,
@@ -84,6 +86,7 @@ from kif_lib import (
     ValueSnak,
     Variable,
 )
+from kif_lib.context import Section
 from kif_lib.model import (
     AndFingerprint,
     AtomicFingerprint,
@@ -163,6 +166,7 @@ from kif_lib.typing import (
     Final,
     Iterable,
     Iterator,
+    Sequence,
     Set,
     TypeVar,
 )
@@ -1199,7 +1203,151 @@ class TestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(obj.args[9], bool(annotated))
         self.assertEqual(obj.annotated, bool(annotated))
         self.assertEqual(obj.get_annotated(), bool(annotated))
+
+# == Option test case ======================================================
 
+class OptionsTestCase(TestCase):
+    """Base class for KIF options test cases."""
+
+    def _test_option_bool(
+            self,
+            section: Callable[[Context], Section],
+            name: str,
+            values: Sequence[tuple[Any, bool]] = (),
+            envvars: Sequence[str] = (),
+            optional: bool = False
+    ) -> None:
+        self._test_option(
+            section=section,
+            name=name,
+            values=[
+                (False, False),
+                (True, True),
+                (None, False),
+                (0, False),
+                (1, True),
+                *values] + ([(None, None)] if optional else []),
+            envvars=envvars)
+
+    def _test_option_float(
+            self,
+            section: Callable[[Context], Section],
+            name: str,
+            values: Sequence[tuple[Any, float]] = (),
+            envvars: Sequence[str] = (),
+            lower_bound: float | None = None,
+            upper_bound: float | None = None,
+            optional: bool = False
+    ) -> None:
+        def norm(x: float | None) -> float | None:
+            if x is None:
+                return None
+            assert (
+                lower_bound is None
+                or upper_bound is None
+                or lower_bound < upper_bound)
+            if lower_bound is not None and x < lower_bound:
+                return lower_bound
+            if upper_bound is not None and x > upper_bound:
+                return upper_bound
+            return x
+        self._test_option(
+            section=section,
+            name=name,
+            values=[
+                (0., norm(0.)),
+                (1., norm(1.)),
+                (-33., norm(-33.)),
+                (8., norm(8.)),
+                (42., norm(42.)),
+                *values] + ([(None, None)] if optional else []),
+            envvars=envvars,
+            type_error={})
+
+    def _test_option_int(
+            self,
+            section: Callable[[Context], Section],
+            name: str,
+            values: Sequence[tuple[Any, int]] = (),
+            envvars: Sequence[str] = (),
+            lower_bound: int | None = None,
+            upper_bound: int | None = None,
+            optional: bool = False
+    ) -> None:
+        def norm(x: int | None) -> int | None:
+            if x is None:
+                return None
+            assert (
+                lower_bound is None
+                or upper_bound is None
+                or lower_bound < upper_bound)
+            if lower_bound is not None and x < lower_bound:
+                return lower_bound
+            if upper_bound is not None and x > upper_bound:
+                return upper_bound
+            return x
+        self._test_option(
+            section=section,
+            name=name,
+            values=[
+                (0, norm(0)),
+                (1, norm(1)),
+                (-33, norm(-33)),
+                (8, norm(8)),
+                (42, norm(42)),
+                *values] + ([(None, None)] if optional else []),
+            envvars=envvars,
+            type_error={})
+
+    def _test_option(
+            self,
+            section: Callable[[Context], Section],
+            name: str,
+            values: Sequence[tuple[Any, Any]],
+            envvars: Sequence[str] = (),
+            type_error: Any | None = None,
+            value_error: Any | None = None
+    ) -> None:
+        def get_fn(opts: Section) -> Any:
+            return getattr(opts, name)
+
+        def set_fn(opts: Section, value: Any) -> None:
+            setattr(opts, name, value)
+        default_name = 'DEFAULT_' + name.upper()
+
+        def envvars_it(v):
+            for input, output in values:
+                yield v, (str(input), output)
+        with Context() as ctx:
+            opts = section(ctx)
+            self.assertEqual(get_fn(opts), getattr(opts, default_name))
+        with Context() as ctx:
+            opts = section(ctx)
+            if type_error is not None:
+                self.assertRaises(TypeError, set_fn, opts, type_error)
+            if value_error is not None:
+                self.assertRaises(ValueError, set_fn, opts, value_error)
+            for t in values:
+                input, output = t
+                set_fn(opts, input)
+                self.assertEqual(get_fn(opts), output, t)
+        with Context() as ctx:
+            cleanup: dict[str, str | None] = {}
+            it = list(itertools.chain(*map(envvars_it, envvars)))
+            for t in reversed(it):
+                var, (input, output) = t
+                if var in os.environ:
+                    cleanup[var] = os.environ[var]
+                else:
+                    cleanup[var] = None
+                os.environ[var] = input
+                opts = type(section(ctx))()
+                self.assertEqual(get_fn(opts), output, t)
+            for var, val in cleanup.items():
+                if val is not None:
+                    os.environ[var] = val
+                else:
+                    del os.environ[var]
 
 # == Store test case =======================================================
 

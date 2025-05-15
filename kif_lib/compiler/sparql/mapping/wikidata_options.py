@@ -7,7 +7,7 @@ import dataclasses
 
 from ....context import Section
 from ....model import Filter
-from ....typing import Any, ClassVar
+from ....typing import Any, ClassVar, Location
 
 
 @dataclasses.dataclass
@@ -21,8 +21,12 @@ class WikidataMappingOptions(Section, name='wikidata'):
 
     # -- blazegraph --
 
+    #: The default value for the blazegraph flag option.
+    DEFAULT_BLAZEGRAPH: ClassVar[bool] = False
+
     _v_blazegraph: ClassVar[tuple[str, bool]] =\
-        ('KIF_COMPILER_SPARQL_MAPPING_WIKIDATA_BLAZEGRAPH', False)
+        ('KIF_COMPILER_SPARQL_MAPPING_WIKIDATA_BLAZEGRAPH',
+         DEFAULT_BLAZEGRAPH)
 
     _blazegraph: bool
 
@@ -40,25 +44,37 @@ class WikidataMappingOptions(Section, name='wikidata'):
         self.set_blazegraph(blazegraph)
 
     def get_blazegraph(self) -> bool:
-        """Gets the value of the blazegraph flag.
+        """Gets the blazegraph flag.
 
         Returns:
-           Blazegraph flag value.
+           Blazegraph flag.
         """
         return self._blazegraph
 
-    def set_blazegraph(self, blazegraph: bool) -> None:
-        """Sets the value of the blazegraph flag.
+    def set_blazegraph(
+            self,
+            blazegraph: bool,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        """Sets the blazegraph flag.
 
         Parameters:
-           blazegraph: Blazegraph flag value.
+           blazegraph: Blazegraph flag.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
         self._blazegraph = bool(blazegraph)
 
     # -- strict --
 
+    #: The default value of the strict option.
+    DEFAULT_STRICT: ClassVar[bool] = False
+
     _v_strict: ClassVar[tuple[str, bool]] =\
-        ('KIF_COMPILER_SPARQL_MAPPING_WIKIDATA_STRICT', False)
+        ('KIF_COMPILER_SPARQL_MAPPING_WIKIDATA_STRICT', DEFAULT_STRICT)
 
     _strict: bool
 
@@ -77,41 +93,46 @@ class WikidataMappingOptions(Section, name='wikidata'):
 
     @property
     def relax(self) -> bool:
-        """Whether to assume only standard SPARQL compatibility."""
+        """Whether to assume standard SPARQL compatibility."""
         return not self.strict
 
     def get_strict(self) -> bool:
-        """Gets the value of the strict flag.
+        """Gets the strict flag.
 
         Returns:
-           Strict flag value.
+           Strict flag.
         """
         return bool(self._strict)
 
-    def set_strict(self, strict: bool) -> None:
-        """Sets the value of the strict flag.
+    def set_strict(
+            self,
+            strict: bool,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        """Sets the strict flag.
 
         Parameters:
-           strict: Strict flag value or ``None``.
+           strict: Strict flag.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
         self._strict = bool(strict)
 
     # -- truthy --
 
-    _v_truthy: ClassVar[tuple[str, Filter.DatatypeMask]] =\
-        ('KIF_COMPILER_SPARQL_MAPPING_WIKIDATA_TRUTHY',
-         Filter.DatatypeMask(0))
+    DEFAULT_TRUTHY: ClassVar[Filter.DatatypeMask] = Filter.DatatypeMask(0)
 
     _truthy: Filter.DatatypeMask
 
     def _init_truthy(self, kwargs: dict[str, Any]) -> None:
-        self.truthy = kwargs.get(
-            '_truthy', self.getenv_int(
-                self._v_truthy[0], self._v_truthy[1].value))
+        self.truthy = kwargs.get('_truthy', self.DEFAULT_TRUTHY)
 
     @property
     def truthy(self) -> Filter.DatatypeMask:
-        """The truthy mask for filter compilation phase."""
+        """The truthy mask (used in filter compilation phase)."""
         return self.get_truthy()
 
     @truthy.setter
@@ -119,18 +140,27 @@ class WikidataMappingOptions(Section, name='wikidata'):
         self.set_truthy(truthy)
 
     def get_truthy(self) -> Filter.DatatypeMask:
-        """Gets the truthy mask for the filter compilation phase.
+        """Gets the truthy mask phase.
 
         Returns:
            Datatype mask.
         """
         return self._truthy
 
-    def set_truthy(self, truthy: Filter.TDatatypeMask) -> None:
-        """Sets the truthy mask for the filter compilation phase.
+    def set_truthy(
+            self,
+            truthy: Filter.TDatatypeMask,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        """Sets the truthy mask.
 
         Parameters:
            truthy: Datatype mask.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
         self._truthy = Filter.DatatypeMask.check(
-            truthy, self.set_truthy, 'truthy', 1)
+            truthy, function, name, position)

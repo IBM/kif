@@ -36,7 +36,7 @@ from .model import (
     ValueVariableTestCase,
     VariableTestCase,
 )
-from .tests import StoreTestCase, TestCase
+from .tests import OptionsTestCase, StoreTestCase, TestCase
 
 __all__ = (
     'ClosedTermSetTestCase',
@@ -54,6 +54,7 @@ __all__ = (
     'FingerprintTestCase',
     'KIF_ObjectTestCase',
     'OpenTermTestCase',
+    'OptionsTestCase',
     'RankTestCase',
     'ShallowDataValueTemplateTestCase',
     'ShallowDataValueTestCase',

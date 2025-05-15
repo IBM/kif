@@ -99,9 +99,24 @@ def list_encoders() -> None:
 
 
 @cli.command(help='Show KIF context options and exit.')
-def list_options() -> None:
-    from .context import Context
-    click.echo(Context.top().options)
+@click.argument(
+    'name',
+    type=str,
+    default='kif'
+)
+@click.option(
+    '--describe',
+    '-d',
+    'describe',
+    is_flag=True,
+    default=False,
+    help='Show option description.')
+def list_options(name: str, describe: bool | None = None) -> None:
+    ctx = Context.top()
+    if describe:
+        click.echo(ctx.get_option_description_by_name(name))
+    else:
+        click.echo(ctx.get_option_by_name(name))
 
 
 @cli.command(help='Show the available stores and exit.')
@@ -711,7 +726,7 @@ def filter(
         timeout: float | None = None,
         dry_run: bool | None = None,
         encoder: Encoder | None = None,
-        resolve: bool | None = None,
+        resolve: bool | None = None
 ) -> None:
     console = Console()
     context = FilterParam.make_context(resolve)

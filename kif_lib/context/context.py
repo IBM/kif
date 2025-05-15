@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import collections
 import functools
 from typing import TYPE_CHECKING
 
@@ -17,6 +18,7 @@ from ..typing import (
     Iterable,
     Location,
     Optional,
+    Sequence,
     Set,
     TracebackType,
     TypeVar,
@@ -139,6 +141,64 @@ class Context:
            Options.
         """
         return self._options
+
+    def get_option_by_name(self, name: str | Sequence[str]) -> Any:
+        """Gets option by name.
+
+        Parameters:
+           name: Option name.
+
+        Returns:
+           The option value.
+
+        Raises:
+           `KeyError`: No such option.
+        """
+        if isinstance(name, str):
+            path = collections.deque(name.split('.'))
+        else:
+            path = collections.deque(name)
+        if not path:
+            path = collections.deque((self.options.name,))
+        cur = path.popleft()
+        if cur != self.options.name:
+            raise KeyError(cur)
+        res = self.options
+        while path:
+            cur = path.popleft()
+            if not hasattr(res, cur):
+                raise KeyError(cur)
+            res = getattr(res, cur)
+        return res
+
+    def get_option_description_by_name(self, name: str | Sequence[str]) -> Any:
+        """Gets option description by name.
+
+        Parameters:
+           name: Option name.
+
+        Returns:
+           The option description.
+
+        Raises:
+           `KeyError`: No such option.
+        """
+        if isinstance(name, str):
+            path: tuple[str, ...] = tuple(name.split('.'))
+        else:
+            path = tuple(name)
+        if not path or path == (self.options.name,):
+            return self.options.describe()
+        else:
+            from .options import Section
+            section = self.get_option_by_name(path[:-1])
+            if isinstance(section, Section):
+                try:
+                    return section.describe(path[-1])
+                except AttributeError as err:
+                    raise KeyError('.'.join(path)) from err
+            else:
+                raise KeyError('.'.join(path))
 
     @overload
     def describe(
