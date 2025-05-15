@@ -2436,21 +2436,6 @@ class Store(Set):
                     filter=filter,
                     function=self.filter), self.options)
 
-    def _xfilter_get_limit_and_distinct(
-            self,
-            limit: int | None = None,
-            distinct: bool | None = None,
-            function: Location | None = None
-    ) -> tuple[int, bool]:
-        distinct = bool(distinct) if distinct is not None else self.distinct
-        assert distinct is not None
-        limit = self.options._check_optional_limit(
-            limit, self.limit, function, 'limit')
-        if limit is None:
-            limit = self.get_limit(self.max_limit)
-        assert limit is not None
-        return limit, distinct
-
     def _filter_tail(
             self,
             filter: Filter,
@@ -2773,7 +2758,7 @@ class Store(Set):
                 *map(lambda src: filter_fn(filter=src)
                      if isinstance(src, Filter)
                      else map(passthrough_fn, src), sources),
-                limit=self.limit, distinct=self.distinct)
+                distinct=self.distinct, limit=self.limit)
 
     async def amix(
             self,
@@ -2803,5 +2788,5 @@ class Store(Set):
                       if isinstance(src, Filter)
                       else itertools.amap(passthrough_fn, src), sources)
             async for stmt in itertools.amix(
-                    *its, limit=self.limit, distinct=self.distinct):
+                    *its, distinct=self.distinct, limit=self.limit):
                 yield stmt

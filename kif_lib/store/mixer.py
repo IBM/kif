@@ -401,7 +401,7 @@ class MixerStore(
     ) -> Iterator[Statement]:
         return itertools.mix(
             *(src._filter_tail(filter, src.options) for src in self._sources),
-            limit=options.limit, distinct=options.distinct)
+            distinct=options.distinct, limit=options.limit)
 
     @override
     async def _afilter(
@@ -411,5 +411,5 @@ class MixerStore(
     ) -> AsyncIterator[Statement]:
         it = (src._afilter_tail(filter, src.options) for src in self._sources)
         async for stmt in itertools.amix(
-                *it, limit=options.limit, distinct=options.distinct):
+                *it, distinct=options.distinct, limit=options.limit):
             yield stmt

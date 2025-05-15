@@ -186,10 +186,9 @@ class Reader(
             options: Store.Options
     ) -> Iterator[Statement]:
         parse = functools.partial(self._filter_parse_arg, filter, options)
-        it = itertools.chain(*map(parse, self._args))
-        if options.limit is not None:
-            it = itertools.islice(it, options.limit)  # type: ignore
-        return it
+        return itertools.mix(
+            itertools.chain(*map(parse, self._args)),
+            distinct=options.distinct, limit=options.limit)
 
     def _filter_parse_arg(
             self,
@@ -251,18 +250,14 @@ class Reader(
         limit =\
             options.limit if options.limit is not None else options.max_limit
         parse = functools.partial(self._filter_parse_arg, filter, options)
-        count = 0
 
         async def task(arg):
             return await asyncio.to_thread(lambda: list(parse(arg)))
 
-        if count < limit:
-            for it in await asyncio.gather(*map(task, self._args)):
-                for stmt in it:
-                    yield stmt
-                    count += 1
-                    if count >= limit:
-                        return
+        its = await asyncio.gather(*map(task, self._args))
+        for stmt in itertools.mix(
+                *its, distinct=options.distinct, limit=limit):
+            yield stmt
 
 
 class JSONL_Reader(

@@ -119,15 +119,15 @@ async def amap(
 
 def mix(
         *its: Iterable[H],
-        limit: int | None = None,
-        distinct: bool | None = None
+        distinct: bool | None = None,
+        limit: int | None = None
 ) -> Iterator[H]:
     """Yields interleaved elements, preserving order.
 
     Parameters:
        its: Iterables of hashable elements.
-       limit: Limit (maximum number) of elements to yield.
        distinct: Whether to skip duplicates.
+       limit: Limit (maximum number) of elements to yield.
 
     Returns:
        Iterator.
@@ -142,8 +142,8 @@ def mix(
 
 async def amix(
         *its: AsyncIterable[H],
-        limit: int | None = None,
-        distinct: bool | None = None
+        distinct: bool | None = None,
+        limit: int | None = None
 ) -> AsyncIterator[H]:
     """Async version of :func:`mix`."""
     it = aroundrobin(*its)

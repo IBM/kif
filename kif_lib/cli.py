@@ -752,7 +752,7 @@ def filter(
             console.print(Markdown('\n\n'.join(it)))
         else:
             for stmt in resolved_batch:
-                print(encoder.encode(stmt), flush=True)
+                print(encoder.encode(stmt).rstrip(), flush=True)
 
 
 if __name__ == '__main__':
