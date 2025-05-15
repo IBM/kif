@@ -1363,6 +1363,24 @@ class OptionsTestCase(TestCase):
             type_error: Any | None = None,
             value_error: Any | None = None
     ) -> None:
+        def save_environ() -> dict[str, str]:
+            return {var: os.environ[var]
+                    for var in envvars if var in os.environ}
+
+        def cleanup_environ() -> dict[str, str]:
+            save = save_environ()
+            for var in envvars:
+                if var in os.environ:
+                    del os.environ[var]
+            return save
+
+        def restore_environ(save: dict[str, str]) -> None:
+            for var in envvars:
+                if var in os.environ:
+                    del os.environ[var]
+            for k, v in save.items():
+                os.environ[k] = v
+
         def get_fn(opts: Section) -> Any:
             return getattr(opts, name)
 
@@ -1376,6 +1394,7 @@ class OptionsTestCase(TestCase):
                     yield v, ('', output)
                 elif not isinstance(input, KIF_Object):
                     yield v, (str(input), output)
+        saved_environ = cleanup_environ()
         with Context() as ctx:
             opts = section(ctx)
             value = get_fn(opts)
@@ -1384,6 +1403,7 @@ class OptionsTestCase(TestCase):
                     and isinstance(value, KIF_Object)):
                 default_value = type(value).check(default_value)
             self.assertEqual(value, default_value)
+        restore_environ(saved_environ)
         with Context() as ctx:
             opts = section(ctx)
             if type_error is not None:
@@ -1394,23 +1414,15 @@ class OptionsTestCase(TestCase):
                 input, output = t
                 set_fn(opts, input)
                 self.assertEqual(get_fn(opts), output, t)
+        saved_environ = cleanup_environ()
         with Context() as ctx:
-            cleanup: dict[str, str | None] = {}
             it = list(itertools.chain(*map(envvars_it, envvars)))
             for t in reversed(it):
                 var, (input, output) = t
-                if var in os.environ:
-                    cleanup[var] = os.environ[var]
-                else:
-                    cleanup[var] = None
                 os.environ[var] = input
                 opts = type(section(ctx))()
                 self.assertEqual(get_fn(opts), output, t)
-            for var, val in cleanup.items():
-                if val is not None:
-                    os.environ[var] = val
-                else:
-                    del os.environ[var]
+        restore_environ(saved_environ)
 
 
 # == Store test case =======================================================

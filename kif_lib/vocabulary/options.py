@@ -9,7 +9,7 @@ import pathlib
 from typing import TYPE_CHECKING
 
 from ..context import Section
-from ..model import String, TString
+from ..model import TString
 from ..typing import Any, ClassVar, Iterable, Location
 
 if TYPE_CHECKING:               # pragma: no cover
@@ -78,8 +78,7 @@ class DBpediaOptions(_VocabularyOptions, name='db'):
     DEFAULT_RESOLVER = 'https://dbpedia.org/sparql'
 
     _v_resolver =\
-        (('KIF_VOCABULARY_DB_RESOLVER', 'DBPEDIA'),
-         DEFAULT_RESOLVER)
+        (('KIF_VOCABULARY_DB_RESOLVER', 'DBPEDIA'), DEFAULT_RESOLVER)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -92,8 +91,7 @@ class PubChemOptions(_VocabularyOptions, name='pc'):
     DEFAULT_RESOLVER = 'https://qlever.cs.uni-freiburg.de/api/pubchem'
 
     _v_resolver =\
-        (('KIF_VOCABULARY_PC_RESOLVER', 'PUBCHEM'),
-         DEFAULT_RESOLVER)
+        (('KIF_VOCABULARY_PC_RESOLVER', 'PUBCHEM'), DEFAULT_RESOLVER)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -106,8 +104,7 @@ class WikidataOptions(_VocabularyOptions, name='wd'):
     DEFAULT_RESOLVER = 'https://query.wikidata.org/sparql'
 
     _v_resolver =\
-        (('KIF_VOCABULARY_WD_RESOLVER', 'WIKIDATA'),
-         DEFAULT_RESOLVER)
+        (('KIF_VOCABULARY_WD_RESOLVER', 'WIKIDATA'), DEFAULT_RESOLVER)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)

@@ -34,5 +34,6 @@ class Test(OptionsTestCase):
             envvars=['KIF_VOCABULARY_WD_PROPERTY_CACHE'],
             optional=True)
 
+
 if __name__ == '__main__':
     Test.main()
