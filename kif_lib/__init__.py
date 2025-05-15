@@ -316,4 +316,6 @@ __all__ = (
 
 if os.getenv('KIF_DEBUG'):
     import logging
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig()
+    logging.getLogger('httpx').setLevel(logging.INFO)
+    logging.getLogger('kif_lib').setLevel(logging.DEBUG)
