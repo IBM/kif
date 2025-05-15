@@ -1203,6 +1203,7 @@ class TestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(obj.args[9], bool(annotated))
         self.assertEqual(obj.annotated, bool(annotated))
         self.assertEqual(obj.get_annotated(), bool(annotated))
+
 
 # == Option test case ======================================================
 
@@ -1348,6 +1349,7 @@ class OptionsTestCase(TestCase):
                     os.environ[var] = val
                 else:
                     del os.environ[var]
+
 
 # == Store test case =======================================================
 

@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-from kif_lib import Filter, Item, Property, ReferenceRecord, ReferenceRecordSet
-
 from ....tests import OptionsTestCase
 
 
@@ -15,6 +13,7 @@ class Test(OptionsTestCase):
             section=lambda ctx: ctx.options.compiler.sparql.mapping.pubchem,
             name='normalize_casrn',
             envvars=['KIF_COMPILER_SPARQL_MAPPING_PUBCHEM_NORMALIZE_CASRN'])
+
 
 if __name__ == '__main__':
     Test.main()

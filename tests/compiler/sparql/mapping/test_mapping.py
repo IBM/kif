@@ -16,7 +16,7 @@ from kif_lib.compiler.sparql import SPARQL_Compiler, SPARQL_Mapping
 from kif_lib.model import VStatement
 from kif_lib.typing import Any, assert_type, Callable, Iterator, Sequence
 
-from ...tests import TestCase
+from ....tests import TestCase
 
 
 class Empty(SPARQL_Mapping):

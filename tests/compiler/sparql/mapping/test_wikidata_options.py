@@ -3,9 +3,8 @@
 
 from __future__ import annotations
 
-from kif_lib import Context, Filter, Item, Property
+from kif_lib import Context, Filter, Property
 from kif_lib.context import Section
-from kif_lib.typing import Callable, Final
 
 from ....tests import OptionsTestCase
 
