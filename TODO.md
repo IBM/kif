@@ -28,6 +28,11 @@
   properties.  We could expose this as Property.domain (Item, Property, or
   Lexeme) and then use it to optimize the queries.
 
+### Options
+
+- Allow KIF-object values in environment variables.  For example, one could
+  set `WIKIDATA` to `IRI('https://www.wikidata.org/sparql')`. (?)
+
 ## Model
 
 - Per-class, more convenient version of `KIF_Object.replace()`.

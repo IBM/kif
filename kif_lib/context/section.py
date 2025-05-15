@@ -28,7 +28,7 @@ T = TypeVar('T')
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
 
 if TYPE_CHECKING:  # pragma: no cover
-    from ..model import Quantity
+    from ..model import IRI, Quantity, String
     from .context import Context
 
 
@@ -92,6 +92,54 @@ class Section:
             cls._check_int, arg, default, function, name, position)
 
     @classmethod
+    def _check_iri(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> IRI:
+        from ..model import IRI
+        return IRI.check(arg, function, name, position)
+
+    @classmethod
+    def _check_optional_iri(
+            cls,
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> IRI | None:
+        return cls._do_check_optional(
+            cls._check_iri, arg, default, function, name, position)
+
+    @classmethod
+    def _check_path(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> pathlib.Path:
+        if isinstance(arg, pathlib.PurePath):
+            return pathlib.Path(arg)
+        else:
+            return pathlib.Path(cls._check_str(arg, function, name, position))
+
+    @classmethod
+    def _check_optional_path(
+            cls,
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> pathlib.Path | None:
+        return cls._do_check_optional(
+            cls._check_path, arg, default, function, name, position)
+
+    @classmethod
     def _check_quantity(
             cls,
             arg: Any,
@@ -113,6 +161,51 @@ class Section:
     ) -> Quantity | None:
         return cls._do_check_optional(
             cls._check_quantity, arg, default, function, name, position)
+
+    @classmethod
+    def _check_str(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> str:
+        return cls._check_string(arg, function, name, position).content
+
+    @classmethod
+    def _check_optional_str(
+            cls,
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> str | None:
+        return cls._do_check_optional(
+            cls._check_str, arg, default, function, name, position)
+
+    @classmethod
+    def _check_string(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> String:
+        from ..model import String
+        return String.check(arg, function, name, position)
+
+    @classmethod
+    def _check_optional_string(
+            cls,
+            arg: Any | None,
+            default: Any | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> String | None:
+        return cls._do_check_optional(
+            cls._check_string, arg, default, function, name, position)
 
     @classmethod
     def _do_check_optional(

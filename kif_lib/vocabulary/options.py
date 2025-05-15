@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 from ..context import Section
 from ..model import String, TString
-from ..typing import Any, ClassVar, Iterable
+from ..typing import Any, ClassVar, Iterable, Location
 
 if TYPE_CHECKING:               # pragma: no cover
     from ..model import IRI, T_IRI
@@ -19,6 +19,9 @@ if TYPE_CHECKING:               # pragma: no cover
 @dataclasses.dataclass
 class _VocabularyOptions(Section):
     """Common vocabulary options."""
+
+    #: The default value for the resolver option.
+    DEFAULT_RESOLVER: ClassVar[str | None] = None
 
     _v_resolver: ClassVar[tuple[Iterable[str], str | None]]
 
@@ -49,24 +52,34 @@ class _VocabularyOptions(Section):
         """
         return self._resolver
 
-    def set_resolver(self, iri: T_IRI | None) -> None:
+    def set_resolver(
+            self,
+            iri: T_IRI | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         """Sets the IRI of entity resolver.
 
         Parameters:
            iri: IRI.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
-        from ..model import IRI
-        self._resolver = IRI.check_optional(
-            iri, None, self.set_resolver, 'iri', 1)
+        self._resolver = self._check_optional_iri(
+            iri, None, function, name, position)
 
 
 @dataclasses.dataclass
 class DBpediaOptions(_VocabularyOptions, name='db'):
-    """PubChem vocabulary options."""
+    """DBpedia vocabulary options."""
 
-    _v_resolver: ClassVar[tuple[Iterable[str], str | None]] =\
+    DEFAULT_RESOLVER = 'https://dbpedia.org/sparql'
+
+    _v_resolver =\
         (('KIF_VOCABULARY_DB_RESOLVER', 'DBPEDIA'),
-         'https://dbpedia.org/sparql')
+         DEFAULT_RESOLVER)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -76,9 +89,11 @@ class DBpediaOptions(_VocabularyOptions, name='db'):
 class PubChemOptions(_VocabularyOptions, name='pc'):
     """PubChem vocabulary options."""
 
-    _v_resolver: ClassVar[tuple[Iterable[str], str | None]] =\
+    DEFAULT_RESOLVER = 'https://qlever.cs.uni-freiburg.de/api/pubchem'
+
+    _v_resolver =\
         (('KIF_VOCABULARY_PC_RESOLVER', 'PUBCHEM'),
-         'https://qlever.cs.uni-freiburg.de/api/pubchem')
+         DEFAULT_RESOLVER)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -88,9 +103,11 @@ class PubChemOptions(_VocabularyOptions, name='pc'):
 class WikidataOptions(_VocabularyOptions, name='wd'):
     """Wikidata vocabulary options."""
 
-    _v_resolver: ClassVar[tuple[Iterable[str], str | None]] =\
+    DEFAULT_RESOLVER = 'https://query.wikidata.org/sparql'
+
+    _v_resolver =\
         (('KIF_VOCABULARY_WD_RESOLVER', 'WIKIDATA'),
-         'https://query.wikidata.org/sparql')
+         DEFAULT_RESOLVER)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -99,9 +116,12 @@ class WikidataOptions(_VocabularyOptions, name='wd'):
 
     # -- item_cache --
 
+    #: The default value for the item cache option.
+    DEFAULT_ITEM_CACHE: ClassVar[pathlib.Path] =\
+        pathlib.Path('wikidata_items.tsv')
+
     _v_item_cache: ClassVar[tuple[str, pathlib.Path]] =\
-        ('KIF_VOCABULARY_WD_ITEM_CACHE',
-         pathlib.Path('wikidata_items.tsv'))
+        ('KIF_VOCABULARY_WD_ITEM_CACHE', DEFAULT_ITEM_CACHE)
 
     _item_cache: pathlib.Path | None
 
@@ -126,23 +146,31 @@ class WikidataOptions(_VocabularyOptions, name='wd'):
         """
         return self._item_cache
 
-    def set_item_cache(self, path: pathlib.Path | TString | None) -> None:
+    def set_item_cache(
+            self,
+            path: pathlib.Path | TString | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         """Sets path to Wikidata item cache.
 
         Parameters:
-           path: Path or ``None``.
+           path: Path.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
-        if path is None or isinstance(path, pathlib.Path):
-            self._item_cache = path
-        else:
-            self._item_cache = pathlib.Path(String.check(
-                path, self.set_item_cache, 'path', 1).content)
+        self._item_cache = self._check_optional_path(
+            path, None, function, name, position)
 
     # -- property_cache --
 
+    DEFAULT_PROPERTY_CACHE: ClassVar[pathlib.Path] =\
+        pathlib.Path('wikidata_properties.tsv')
+
     _v_property_cache: ClassVar[tuple[str, pathlib.Path | None]] =\
-        ('KIF_VOCABULARY_WD_PROPERTY_CACHE',
-         pathlib.Path('wikidata_properties.tsv'))
+        ('KIF_VOCABULARY_WD_PROPERTY_CACHE', DEFAULT_PROPERTY_CACHE)
 
     _property_cache: pathlib.Path | None
 
@@ -168,17 +196,23 @@ class WikidataOptions(_VocabularyOptions, name='wd'):
         """
         return self._property_cache
 
-    def set_property_cache(self, path: pathlib.Path | TString | None) -> None:
+    def set_property_cache(
+            self,
+            path: pathlib.Path | TString | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
         """Sets path to Wikidata property cache.
 
         Parameters:
-           path: Path or ``None``.
+           path: Path.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
         """
-        if path is None or isinstance(path, pathlib.Path):
-            self._property_cache = path
-        else:
-            self._property_cache = pathlib.Path(String.check(
-                path, self.set_property_cache, 'path', 1).content)
+        self._property_cache = self._check_optional_path(
+            path, None, function, name, position)
 
 
 @dataclasses.dataclass

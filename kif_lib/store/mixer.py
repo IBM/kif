@@ -161,7 +161,7 @@ class MixerStore(
 
         @property
         def sync_flags(self) -> MixerStore.SyncFlags:
-            """The sync flags option."""
+            """Determines the option changes to propagate to children."""
             return self.get_sync_flags()
 
         @sync_flags.setter

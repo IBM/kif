@@ -1300,11 +1300,47 @@ class OptionsTestCase(TestCase):
             envvars=envvars,
             type_error={})
 
+    def _test_option_iri(
+            self,
+            section: Callable[[Context], Section],
+            name: str,
+            values: Sequence[tuple[Any, IRI]] = (),
+            envvars: Sequence[str] = (),
+            optional: bool = False
+    ) -> None:
+        self._test_option(
+            section=section,
+            name=name,
+            values=[
+                ('x', IRI('x')),
+                (IRI('x'), IRI('x')),
+                *values] + ([(None, None)] if optional else []),
+            envvars=envvars,
+            type_error={})
+
+    def _test_option_path(
+            self,
+            section: Callable[[Context], Section],
+            name: str,
+            values: Sequence[tuple[Any, pathlib.Path]] = (),
+            envvars: Sequence[str] = (),
+            optional: bool = False
+    ) -> None:
+        self._test_option(
+            section=section,
+            name=name,
+            values=[
+                ('x', pathlib.Path('x')),
+                (pathlib.Path('x'), pathlib.Path('x')),
+                *values] + ([(None, None)] if optional else []),
+            envvars=envvars,
+            type_error={})
+
     def _test_option_str(
             self,
             section: Callable[[Context], Section],
             name: str,
-            values: Sequence[tuple[Any, float]] = (),
+            values: Sequence[tuple[Any, str]] = (),
             envvars: Sequence[str] = (),
             optional: bool = False
     ) -> None:
@@ -1336,10 +1372,18 @@ class OptionsTestCase(TestCase):
 
         def envvars_it(v):
             for input, output in values:
-                yield v, (str(input), output)
+                if input is None:
+                    yield v, ('', output)
+                elif not isinstance(input, KIF_Object):
+                    yield v, (str(input), output)
         with Context() as ctx:
             opts = section(ctx)
-            self.assertEqual(get_fn(opts), getattr(opts, default_name))
+            value = get_fn(opts)
+            default_value = getattr(opts, default_name)
+            if (type(value) is not type(default_value)
+                    and isinstance(value, KIF_Object)):
+                default_value = type(value).check(default_value)
+            self.assertEqual(value, default_value)
         with Context() as ctx:
             opts = section(ctx)
             if type_error is not None:

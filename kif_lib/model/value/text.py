@@ -95,8 +95,7 @@ class TextOptions(Section, name='text'):
            name: Argument name.
            position: Argument position.
         """
-        self._language = String.check(
-            language, function, name, position).content
+        self._language = self._check_str(language, function, name, position)
 
 
 class TextTemplate(ShallowDataValueTemplate):

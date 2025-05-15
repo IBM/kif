@@ -123,6 +123,7 @@ class WikidataMappingOptions(Section, name='wikidata'):
 
     # -- truthy --
 
+    #: The default value of the truthy option.
     DEFAULT_TRUTHY: ClassVar[Filter.DatatypeMask] = Filter.DatatypeMask(0)
 
     _truthy: Filter.DatatypeMask
