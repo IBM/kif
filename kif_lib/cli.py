@@ -132,15 +132,19 @@ class KIF_ParamType(click.ParamType):
     def globals(cls) -> dict[str, Any]:
         global _G               # noqa: F824
         return {
+            '__builtins__': {},
             'DATA_VALUE': Filter.DATA_VALUE,
-            'DEEP_DATA_VALUE': Filter.DEEP_DATA_VALUE,
-            'DEPRECATED': Filter.DEPRECATED,
             'DataValue': DataValue,
+            'db': db,
+            'Decoder': Decoder,
+            'DEEP_DATA_VALUE': Filter.DEEP_DATA_VALUE,
             'DeepDataValue': DeepDataValue,
             'Deprecated': Deprecated,
+            'DEPRECATED': Filter.DEPRECATED,
+            'Encoder': Encoder,
+            'Entity': Entity,
             'ENTITY': Filter.ENTITY,
             'EXTERNAL_ID': Filter.EXTERNAL_ID,
-            'Entity': Entity,
             'ExternalId': ExternalId,
             'Filter': Filter,
             'IRI': IRI,
@@ -148,33 +152,31 @@ class KIF_ParamType(click.ParamType):
             'Item': Item,
             'LEXEME': Filter.LEXEME,
             'Lexeme': Lexeme,
-            'NORMAL': Filter.NORMAL,
             'NO_VALUE_SNAK': Filter.NO_VALUE_SNAK,
-            'NoValueSnak': NoValueSnak,
+            'NORMAL': Filter.NORMAL,
             'Normal': Normal,
+            'NoValueSnak': NoValueSnak,
+            'pc': pc,
             'PREFERRED': Filter.PREFERRED,
-            'PROPERTY': Filter.PROPERTY,
             'Preferred': Preferred,
+            'PROPERTY': Filter.PROPERTY,
             'Property': Property,
             'QUANTITY': Filter.QUANTITY,
             'Quantity': Quantity,
             'SHALLOW_DATA_VALUE': Filter.SHALLOW_DATA_VALUE,
-            'SOME_VALUE_SNAK': Filter.SOME_VALUE_SNAK,
-            'STIRNG': Filter.STRING,
-            'STRING': Filter.STRING,
             'ShallowDataValue': ShallowDataValue,
+            'SOME_VALUE_SNAK': Filter.SOME_VALUE_SNAK,
             'SomeValueSnak': SomeValueSnak,
+            'STIRNG': Filter.STRING,
             'Store': Store,
+            'STRING': Filter.STRING,
             'String': String,
             'TEXT': Filter.TEXT,
             'Text': Text,
             'VALUE': Filter.VALUE,
-            'VALUE_SNAK': Filter.VALUE_SNAK,
             'Value': Value,
+            'VALUE_SNAK': Filter.VALUE_SNAK,
             'ValueSnak': ValueSnak,
-            '__builtins__': {},
-            'db': db,
-            'pc': pc,
             'wd': wd,
             **_G
         }
@@ -202,8 +204,10 @@ class EncoderParamType(KIF_ParamType):
             ctx: click.Context | None
     ) -> Encoder:
         if isinstance(value, str):
-            if value in Encoder.registry:
-                return Encoder.registry[value]()  # type: ignore
+            try:
+                return Encoder._check_format(value)()
+            except ValueError:
+                pass
         try:
             return KIF_Object._check_arg_isinstance(self.eval(value), Encoder)
         except (ValueError, TypeError) as err:
@@ -486,7 +490,7 @@ class FilterParam:
     ) -> Context:
         context = Context.top()
         if resolve is not None:
-            context.options.entities.resolve = bool(resolve)
+            context.options.entities.resolve = False
         return context
 
     @classmethod
