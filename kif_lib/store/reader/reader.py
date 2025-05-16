@@ -19,6 +19,7 @@ from ...typing import (
     BinaryIO,
     Callable,
     cast,
+    Coroutine,
     Iterable,
     Iterator,
     override,
@@ -247,17 +248,35 @@ class Reader(
             filter: Filter,
             options: Store.Options
     ) -> AsyncIterator[Statement]:
+        distinct = options.distinct
         limit =\
             options.limit if options.limit is not None else options.max_limit
         parse = functools.partial(self._filter_parse_arg, filter, options)
 
-        async def task(arg):
-            return await asyncio.to_thread(lambda: list(parse(arg)))
+        async def task(
+                it: Iterator[Statement]
+        ) -> tuple[Iterator[Statement], list[Statement]]:
+            # Takes `page_size` statements from `it`.
+            return await asyncio.to_thread(
+                lambda: (it, itertools.take(options.page_size, it)))
 
-        its = await asyncio.gather(*map(task, self._args))
-        for stmt in itertools.mix(
-                *its, distinct=options.distinct, limit=limit):
+        it = self._afilter_helper(list(map(parse, self._args)), task)
+        async for stmt in itertools.amix(it, distinct=distinct, limit=limit):
             yield stmt
+
+    async def _afilter_helper(
+            self,
+            its: list[Iterator[Statement]],
+            task: Callable[[Iterator[Statement]], Coroutine[
+                None, None, tuple[Iterator[Statement], list[Statement]]]]
+    ) -> AsyncIterator[Statement]:
+        while its:
+            for it, batch in await asyncio.gather(*map(task, its)):
+                if batch:
+                    for stmt in batch:
+                        yield stmt
+                else:
+                    its.remove(it)
 
 
 class JSONL_Reader(

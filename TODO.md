@@ -2,14 +2,13 @@
 
 ## CLI
 
-- Add --output-format option.  It should support SVG (mathplotlib/graphviz),
-  KIF JSON, KIF JSONL, markdown (the default), repr, table(?).
+- Add `--set` option to the top-level command set KIF context options.
 
 ## Codec
 
 ### RDF encoder
 
-- BUG: Add an option to escape URLs should (true by default).
+- BUG: Add an option to escape URLs (should be true by default).
 
 ## Compiler
 
