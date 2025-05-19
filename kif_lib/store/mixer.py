@@ -121,7 +121,7 @@ class MixerStore(
             (('KIF_MIXER_STORE_BEST_RANKED',), None)
 
         _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
-            (('KIF_MIXER_STORE_DISTINCT',), None)
+            (('KIF_MIXER_STORE_DEBUG',), None)
 
         _v_distinct: ClassVar[tuple[Iterable[str], bool | None]] =\
             (('KIF_MIXER_STORE_DISTINCT',), None)
@@ -153,11 +153,14 @@ class MixerStore(
 
         # -- sync_flags --
 
+        #: The default value for the sync flags option
+        DEFAULT_SYNC_FLAGS: ClassVar[int] = -1
+
         _sync_flags: MixerStore.SyncFlags | None
 
         def _init_sync_flags(self, kwargs: dict[str, Any]) -> None:
             self.sync_flags = kwargs.get(
-                '_sync_flags', MixerStore.SyncFlags.ALL)
+                '_sync_flags', self.DEFAULT_SYNC_FLAGS)
 
         @property
         def sync_flags(self) -> MixerStore.SyncFlags:

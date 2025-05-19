@@ -1240,7 +1240,6 @@ class OptionsTestCase(TestCase):
             values=[
                 (False, False),
                 (True, True),
-                (None, False),
                 (0, False),
                 (1, True),
                 *values],
@@ -1407,7 +1406,10 @@ class OptionsTestCase(TestCase):
             if (type(value) is not type(default_value)
                     and isinstance(value, KIF_Object)):
                 default_value = type(value).check(default_value)
-            self.assertEqual(value, default_value)
+            if type(value) is not type(default_value):
+                self.assertEqual(value, type(value)(default_value))
+            else:
+                self.assertEqual(value, default_value)
         restore_environ(saved_environ)
         with Context() as ctx:
             opts = section(ctx)

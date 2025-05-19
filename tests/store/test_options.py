@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from kif_lib import Filter, Item, Property, ReferenceRecord, ReferenceRecordSet
 from kif_lib.context import Context, Section
+from kif_lib.typing import Sequence
 
 from ..tests import OptionsTestCase
 
@@ -24,22 +25,40 @@ class Test(OptionsTestCase):
             type_error=0)
 
     def test_best_ranked(self) -> None:
+        self._test_best_ranked()
+
+    def _test_best_ranked(
+            self,
+            envvars: Sequence[str] = ('KIF_STORE_BEST_RANKED',)
+    ) -> None:
         self._test_option_bool(
             section=self.section,
             name='best_ranked',
-            envvars=['KIF_STORE_BEST_RANKED'])
+            envvars=envvars)
 
     def test_debug(self) -> None:
+        self._test_debug()
+
+    def _test_debug(
+            self,
+            envvars: Sequence[str] = ('KIF_STORE_DEBUG',)
+    ) -> None:
         self._test_option_bool(
             section=self.section,
             name='debug',
-            envvars=['KIF_STORE_DEBUG'])
+            envvars=envvars)
 
     def test_distinct(self) -> None:
+        self._test_distinct()
+
+    def _test_distinct(
+            self,
+            envvars: Sequence[str] = ('KIF_STORE_DISTINCT',)
+    ) -> None:
         self._test_option_bool(
             section=self.section,
             name='distinct',
-            envvars=['KIF_STORE_DISTINCT'])
+            envvars=envvars)
 
     def test_extra_references(self) -> None:
         self._test_option(
@@ -52,53 +71,95 @@ class Test(OptionsTestCase):
             type_error=0)
 
     def test_max_limit(self) -> None:
+        self._test_max_limit()
+
+    def _test_max_limit(
+            self,
+            envvars: Sequence[str] = ('KIF_STORE_MAX_LIMIT',)
+    ) -> None:
         self._test_option_int(
             section=self.section,
             name='max_limit',
-            envvars=['KIF_STORE_MAX_LIMIT'],
+            envvars=envvars,
             lower_bound=0)
 
     def test_limit(self) -> None:
+        self._test_limit()
+
+    def _test_limit(
+            self,
+            envvars: Sequence[str] = ('KIF_STORE_LIMIT',)
+    ) -> None:
         self._test_option_int(
             section=self.section,
             name='limit',
-            envvars=['KIF_STORE_LIMIT'],
+            envvars=envvars,
             lower_bound=0,
             optional=True)
 
     def test_lookahead(self) -> None:
+        self._test_lookahead()
+
+    def _test_lookahead(
+            self,
+            envvars: Sequence[str] = ('KIF_STORE_LOOKAHEAD',)
+    ) -> None:
         self._test_option_int(
             section=self.section,
             name='lookahead',
-            envvars=['KIF_STORE_LOOKAHEAD'],
+            envvars=envvars,
             lower_bound=1)
 
     def test_max_page_size(self) -> None:
+        self._test_max_page_size()
+
+    def _test_max_page_size(
+            self,
+            envvars: Sequence[str] = ('KIF_STORE_MAX_PAGE_SIZE',)
+    ) -> None:
         self._test_option_int(
             section=self.section,
             name='max_page_size',
-            envvars=['KIF_STORE_MAX_PAGE_SIZE'],
+            envvars=envvars,
             lower_bound=0)
 
     def test_page_size(self) -> None:
+        self._test_page_size()
+
+    def _test_page_size(
+            self,
+            envvars: Sequence[str] = ('KIF_STORE_PAGE_SIZE',)
+    ) -> None:
         self._test_option_int(
             section=self.section,
             name='page_size',
-            envvars=['KIF_STORE_PAGE_SIZE'],
+            envvars=envvars,
             lower_bound=0)
 
     def test_max_timeout(self) -> None:
+        self._test_max_timeout()
+
+    def _test_max_timeout(
+            self,
+            envvars: Sequence[str] = ('KIF_STORE_MAX_TIMEOUT',)
+    ) -> None:
         self._test_option_float(
             section=self.section,
             name='max_timeout',
-            envvars=['KIF_STORE_MAX_TIMEOUT'],
+            envvars=envvars,
             lower_bound=0.)
 
     def test_timeout(self) -> None:
+        self._test_timeout()
+
+    def _test_timeout(
+            self,
+            envvars: Sequence[str] = ('KIF_STORE_TIMEOUT',)
+    ) -> None:
         self._test_option_float(
             section=self.section,
             name='timeout',
-            envvars=['KIF_STORE_TIMEOUT'],
+            envvars=envvars,
             lower_bound=0.,
             optional=True)
 
