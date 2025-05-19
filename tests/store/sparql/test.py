@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import asyncio
 
+from kif_lib import Store
 from kif_lib.typing import Any
 from kif_lib.vocabulary import wd
 
@@ -14,7 +15,7 @@ from ...tests import StoreTestCase
 class Test(StoreTestCase):
 
     @classmethod
-    def KB(cls, **kwargs: Any):
+    def KB(cls, **kwargs: Any) -> Store:
         from ..wdqs.test_filter import Test as WDQS_TestFilter
         return WDQS_TestFilter.KB(**kwargs)
 

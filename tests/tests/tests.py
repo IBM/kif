@@ -227,6 +227,22 @@ class TestCase(unittest.IsolatedAsyncioTestCase):
     def TODO(cls, message: str | None = None) -> unittest.SkipTest:
         return cls.SKIP(message or 'to-do')
 
+    @classmethod
+    def _clamp(
+            cls,
+            x: T | None,
+            lb: T | None = None,
+            ub: T | None = None
+    ) -> T | None:
+        if x is None:
+            return None
+        assert (lb is None or ub is None or lb < ub)  # type: ignore
+        if lb is not None and x < lb:                 # type: ignore
+            return lb
+        if ub is not None and x > ub:  # type: ignore
+            return ub
+        return x
+
     @property
     def logger(self) -> logging.Logger:
         return logging.getLogger(__name__)
@@ -1227,8 +1243,9 @@ class OptionsTestCase(TestCase):
                 (None, False),
                 (0, False),
                 (1, True),
-                *values] + ([(None, None)] if optional else []),
-            envvars=envvars)
+                *values],
+            envvars=envvars,
+            optional=optional)
 
     def _test_option_float(
             self,
@@ -1240,18 +1257,7 @@ class OptionsTestCase(TestCase):
             upper_bound: float | None = None,
             optional: bool = False
     ) -> None:
-        def norm(x: float | None) -> float | None:
-            if x is None:
-                return None
-            assert (
-                lower_bound is None
-                or upper_bound is None
-                or lower_bound < upper_bound)
-            if lower_bound is not None and x < lower_bound:
-                return lower_bound
-            if upper_bound is not None and x > upper_bound:
-                return upper_bound
-            return x
+        norm = functools.partial(self._clamp, lb=lower_bound, ub=upper_bound)
         self._test_option(
             section=section,
             name=name,
@@ -1261,9 +1267,10 @@ class OptionsTestCase(TestCase):
                 (-33., norm(-33.)),
                 (8., norm(8.)),
                 (42., norm(42.)),
-                *values] + ([(None, None)] if optional else []),
+                *values],
             envvars=envvars,
-            type_error={})
+            type_error={},
+            optional=optional)
 
     def _test_option_int(
             self,
@@ -1275,18 +1282,7 @@ class OptionsTestCase(TestCase):
             upper_bound: int | None = None,
             optional: bool = False
     ) -> None:
-        def norm(x: int | None) -> int | None:
-            if x is None:
-                return None
-            assert (
-                lower_bound is None
-                or upper_bound is None
-                or lower_bound < upper_bound)
-            if lower_bound is not None and x < lower_bound:
-                return lower_bound
-            if upper_bound is not None and x > upper_bound:
-                return upper_bound
-            return x
+        norm = functools.partial(self._clamp, lb=lower_bound, ub=upper_bound)
         self._test_option(
             section=section,
             name=name,
@@ -1296,9 +1292,10 @@ class OptionsTestCase(TestCase):
                 (-33, norm(-33)),
                 (8, norm(8)),
                 (42, norm(42)),
-                *values] + ([(None, None)] if optional else []),
+                *values],
             envvars=envvars,
-            type_error={})
+            type_error={},
+            optional=optional)
 
     def _test_option_iri(
             self,
@@ -1314,9 +1311,10 @@ class OptionsTestCase(TestCase):
             values=[
                 ('x', IRI('x')),
                 (IRI('x'), IRI('x')),
-                *values] + ([(None, None)] if optional else []),
+                *values],
             envvars=envvars,
-            type_error={})
+            type_error={},
+            optional=optional)
 
     def _test_option_path(
             self,
@@ -1332,9 +1330,10 @@ class OptionsTestCase(TestCase):
             values=[
                 ('x', pathlib.Path('x')),
                 (pathlib.Path('x'), pathlib.Path('x')),
-                *values] + ([(None, None)] if optional else []),
+                *values],
             envvars=envvars,
-            type_error={})
+            type_error={},
+            optional=optional)
 
     def _test_option_str(
             self,
@@ -1350,9 +1349,10 @@ class OptionsTestCase(TestCase):
             values=[
                 ('x', 'x'),
                 ('abc', 'abc'),
-                *values] + ([(None, None)] if optional else []),
+                *values],
             envvars=envvars,
-            type_error={})
+            type_error={},
+            optional=optional)
 
     def _test_option(
             self,
@@ -1361,8 +1361,13 @@ class OptionsTestCase(TestCase):
             values: Sequence[tuple[Any, Any]],
             envvars: Sequence[str] = (),
             type_error: Any | None = None,
-            value_error: Any | None = None
+            value_error: Any | None = None,
+            optional: bool = False,
     ) -> None:
+        values = list(values)
+        if optional:
+            values.append((None, None))
+
         def save_environ() -> dict[str, str]:
             return {var: os.environ[var]
                     for var in envvars if var in os.environ}
@@ -1432,6 +1437,149 @@ class StoreTestCase(TestCase):
 
     #: Alias for the store constructor.
     S: ClassVar[type[Store]] = Store
+
+    def _test_option_bool(
+            self,
+            store: Store,
+            name: str,
+            values: Sequence[tuple[Any, bool]] = (),
+            optional: bool = False
+    ) -> None:
+        self._test_option(
+            store=store,
+            name=name,
+            values=[
+                (False, False),
+                (True, True),
+                (0, False),
+                (1, True),
+                *values],
+            optional=optional)
+
+    def _test_option_float(
+            self,
+            store: Store,
+            name: str,
+            values: Sequence[tuple[Any, float]] = (),
+            lower_bound: float | None = None,
+            upper_bound: float | None = None,
+            optional: bool = False
+    ) -> None:
+        norm = functools.partial(self._clamp, lb=lower_bound, ub=upper_bound)
+        self._test_option(
+            store=store,
+            name=name,
+            values=[
+                (0., norm(0.)),
+                (1., norm(1.)),
+                (-33., norm(-33.)),
+                (8., norm(8.)),
+                (42., norm(42.)),
+                *values],
+            type_error={},
+            optional=optional)
+
+    def _test_option_int(
+            self,
+            store: Store,
+            name: str,
+            values: Sequence[tuple[Any, int]] = (),
+            lower_bound: int | None = None,
+            upper_bound: int | None = None,
+            optional: bool = False
+    ) -> None:
+        norm = functools.partial(self._clamp, lb=lower_bound, ub=upper_bound)
+        self._test_option(
+            store=store,
+            name=name,
+            values=[
+                (0, norm(0)),
+                (1, norm(1)),
+                (-33, norm(-33)),
+                (8, norm(8)),
+                (42, norm(42)),
+                *values],
+            type_error={},
+            optional=optional)
+
+    def _test_option(
+            self,
+            store: Store,
+            name: str,
+            values: Sequence[tuple[Any, Any]],
+            type_error: Any | None = None,
+            value_error: Any | None = None,
+            optional: bool = False
+    ) -> None:
+        values = list(values)
+        if optional:
+            values.append((None, None))
+
+        def get_fn() -> Any:
+            return getattr(store, name)
+
+        def set_fn(value: Any) -> None:
+            setattr(store, name, value)
+
+        def _assert_values() -> None:
+            for t in values:
+                input, output = t
+                set_fn(input)
+                self.assertEqual(get_fn(), output, t)
+
+        def _assert_nested_values() -> None:
+            def _assert_nested_values_helper(
+                    vs: Sequence[tuple[Any, Any]]
+            ) -> None:
+                if vs:
+                    saved_value = get_fn()
+                    t = vs[0]
+                    input, output = t
+                    with store(**{name: input}):
+                        if input is not None or not optional:
+                            self.assertEqual(get_fn(), output, t)
+                        _assert_nested_values_helper(vs[1:])
+                    self.assertEqual(get_fn(), saved_value)
+            _assert_nested_values_helper(values)
+
+        default_value = getattr(store.options, name)
+        if type_error is not None:
+            self.assertRaises(TypeError, set_fn, type_error)
+        if value_error is not None:
+            self.assertRaises(ValueError, set_fn, value_error)
+        # one level
+        self.assertEqual(getattr(store.options, name), default_value)
+        self.assertEqual(default_value, get_fn())
+        with store() as options:
+            self.assertEqual(getattr(store.options, name), get_fn())
+            self.assertEqual(getattr(options, name), get_fn())
+            _assert_values()
+        self.assertEqual(default_value, get_fn())
+        # one level overwrite
+        for t in values:
+            input, output = t
+            with store(**{name: input}) as options:
+                self.assertEqual(getattr(options, name), output, t)
+                self.assertEqual(getattr(store.options, name), output, t)
+                self.assertEqual(get_fn(), output, t)
+                _assert_values()
+            self.assertEqual(default_value, get_fn())
+        self.assertEqual(default_value, get_fn())
+        # multiple levels override
+        _assert_nested_values()
+        # resetting
+        for t in values:
+            input, output = t
+            set_fn(input)
+            self.assertEqual(getattr(store.options, name), output, t)
+            self.assertEqual(get_fn(), output, t)
+        set_fn(None)
+        # getter takes an optional argument
+        self.assertEqual(default_value, get_fn())
+        if optional and default_value is None:
+            for _, output in values:
+                self.assertEqual(
+                    getattr(store, 'get_' + name)(output), output)
 
     def store_ask_assertion(
             self,

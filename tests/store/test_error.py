@@ -6,7 +6,7 @@ from __future__ import annotations
 from kif_lib import Store
 from kif_lib.error import ShouldNotGetHere
 
-from ...tests import TestCase
+from ..tests import TestCase
 
 
 class Test(TestCase):
