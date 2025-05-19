@@ -23,7 +23,7 @@
 
 ### Entity registry
 
-- Cache the property-constraint(allowed-entity-types-constraint) of
+- Cache the property-constraint (allowed-entity-types-constraint) of
   properties.  We could expose this as Property.domain (Item, Property, or
   Lexeme) and then use it to optimize the queries.
 
@@ -102,16 +102,13 @@
 
 ## Store
 
-- Sync via async: See Jupyter core's
-  [run_sync()](https://github.com/jupyter/jupyter_core/blob/main/jupyter_core/utils/__init__.py).
-
 - BUG: Bad bindings should be ignored when producing query results.  That
   is, they should be skipped with a warning.
 
-- Remove store flags.
+- Sync via async: See Jupyter core's
+  [run_sync()](https://github.com/jupyter/jupyter_core/blob/main/jupyter_core/utils/__init__.py).
 
-- Implement some notion of option stack.  This way `distinct`, `page_size`,
-  etc., can be temporarily overriden using the context manager mechanism.
+- Remove store flags.
 
 - Add support for matching annotations (qualifiers, references, rank) in
   `Store.filter()` and `Store.filter_annotated()`.
@@ -140,8 +137,6 @@
   identifier property (external id) we could ask the mixer to perform entity
   unification, i.e., use one of the underlying stores as the source of
   canonical entity ids.
-
-- Revise the "sync" options.  Rename them to "propagate". (?)
 
 - Brainstorm: Add some notion of proportion.  For example, for the stores
   `(s1,s2)` we associate the proportion `(4,3)` meaning that at each cycle
