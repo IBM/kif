@@ -7,6 +7,7 @@ import abc
 import asyncio
 import dataclasses
 import functools
+import logging
 import pathlib
 
 from ... import itertools
@@ -20,6 +21,7 @@ from ...typing import (
     Callable,
     cast,
     Coroutine,
+    Final,
     Iterable,
     Iterator,
     override,
@@ -30,6 +32,8 @@ from ...typing import (
 from ..abc import Store
 
 T: TypeAlias = Any
+
+_logger: Final[logging.Logger] = logging.getLogger(__name__)
 
 
 class Reader(
@@ -243,7 +247,7 @@ class Reader(
         return itertools.chain(*map(self._parse_fn, self._load(file)))
 
     @override
-    async def _afilter(
+    def _afilter(
             self,
             filter: Filter,
             options: Store.Options
@@ -256,13 +260,14 @@ class Reader(
         async def task(
                 it: Iterator[Statement]
         ) -> tuple[Iterator[Statement], list[Statement]]:
-            # Takes `page_size` statements from `it`.
+            _logger.debug(
+                '%s():reading %d statements asynchronously',
+                task.__qualname__, options.page_size)
             return await asyncio.to_thread(
                 lambda: (it, itertools.take(options.page_size, it)))
 
         it = self._afilter_helper(list(map(parse, self._args)), task)
-        async for stmt in itertools.amix(it, distinct=distinct, limit=limit):
-            yield stmt
+        return itertools.amix(it, distinct=distinct, limit=limit)
 
     async def _afilter_helper(
             self,

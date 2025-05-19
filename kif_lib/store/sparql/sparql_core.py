@@ -566,9 +566,9 @@ class _SPARQL_Store(
             filter: Filter,
             options: Store.Options
     ) -> AsyncIterator[Statement]:
-        return self._afilter_async(filter, options)
+        return self._afilter_helper(filter, options)
 
-    async def _afilter_async(
+    async def _afilter_helper(
             self,
             filter: Filter,
             options: Store.Options
