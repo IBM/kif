@@ -102,6 +102,9 @@
 
 ## Store
 
+- Sync via async: See Jupyter core's
+  [run_sync()](https://github.com/jupyter/jupyter_core/blob/main/jupyter_core/utils/__init__.py).
+
 - BUG: Bad bindings should be ignored when producing query results.  That
   is, they should be skipped with a warning.
 
