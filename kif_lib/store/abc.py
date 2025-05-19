@@ -2785,33 +2785,29 @@ class Store(Set):
         Returns:
            An iterator of annotated statements matching filter.
         """
-        with self(
-                base_filter=base_filter,
-                best_ranked=best_ranked,
-                debug=debug,
-                distinct=distinct,
-                extra_references=extra_references,
-                limit=limit,
-                lookahead=lookahead,
-                page_size=page_size,
-                timeout=timeout,
-                **kwargs
-        ):
-            return cast(Iterator[AnnotatedStatement], self.filter(
-                subject=subject,
-                property=property,
-                value=value,
-                snak_mask=snak_mask,
-                subject_mask=subject_mask,
-                property_mask=property_mask,
-                value_mask=value_mask,
-                rank_mask=rank_mask,
-                language=language,
-                annotated=True,     # force
-                snak=snak,
-                filter=filter,
-                limit=limit,
-                distinct=distinct))
+        return cast(Iterator[AnnotatedStatement], self.filter(
+            subject=subject,
+            property=property,
+            value=value,
+            snak_mask=snak_mask,
+            subject_mask=subject_mask,
+            property_mask=property_mask,
+            value_mask=value_mask,
+            rank_mask=rank_mask,
+            language=language,
+            annotated=True,     # force
+            snak=snak,
+            filter=filter,
+            base_filter=base_filter,
+            best_ranked=best_ranked,
+            debug=debug,
+            distinct=distinct,
+            extra_references=extra_references,
+            limit=limit,
+            lookahead=lookahead,
+            page_size=page_size,
+            timeout=timeout,
+            **kwargs))
 
     def afilter_annotated(
             self,
@@ -2867,33 +2863,29 @@ class Store(Set):
         Returns:
            An async iterator of annotated statements matching filter.
         """
-        with self(
-                base_filter=base_filter,
-                best_ranked=best_ranked,
-                debug=debug,
-                distinct=distinct,
-                extra_references=extra_references,
-                limit=limit,
-                lookahead=lookahead,
-                page_size=page_size,
-                timeout=timeout,
-                **kwargs
-        ):
-            return cast(AsyncIterator[AnnotatedStatement], self.afilter(
-                subject=subject,
-                property=property,
-                value=value,
-                snak_mask=snak_mask,
-                subject_mask=subject_mask,
-                property_mask=property_mask,
-                value_mask=value_mask,
-                rank_mask=rank_mask,
-                language=language,
-                annotated=True,     # force
-                snak=snak,
-                filter=filter,
-                limit=limit,
-                distinct=distinct))
+        return cast(AsyncIterator[AnnotatedStatement], self.afilter(
+            subject=subject,
+            property=property,
+            value=value,
+            snak_mask=snak_mask,
+            subject_mask=subject_mask,
+            property_mask=property_mask,
+            value_mask=value_mask,
+            rank_mask=rank_mask,
+            language=language,
+            annotated=True,     # force
+            snak=snak,
+            filter=filter,
+            base_filter=base_filter,
+            best_ranked=best_ranked,
+            debug=debug,
+            distinct=distinct,
+            extra_references=extra_references,
+            limit=limit,
+            lookahead=lookahead,
+            page_size=page_size,
+            timeout=timeout,
+            **kwargs))
 
     def _check_filter(
             self,
