@@ -455,7 +455,7 @@ class _SPARQL_Store(
 
     @override
     def _ask(self, filter: Filter) -> bool:
-        query = self._build_ask_query_from_filter(filter)
+        query = self._build_ask_query_from_filter(filter, self.options)
         if query.where_is_nonempty():
             return self._parse_ask_results(
                 self.backend.ask(str(query.ask())))
@@ -464,7 +464,7 @@ class _SPARQL_Store(
 
     @override
     async def _aask(self, filter: Filter) -> bool:
-        query = self._build_ask_query_from_filter(filter)
+        query = self._build_ask_query_from_filter(filter, self.options)
         if query.where_is_nonempty():
             return self._parse_ask_results(
                 await self.backend.aask(str(query.ask())))
@@ -473,9 +473,10 @@ class _SPARQL_Store(
 
     def _build_ask_query_from_filter(
             self,
-            filter: Filter
+            filter: Filter,
+            options: Store.Options
     ) -> SPARQL_FilterCompiler.Query:
-        compiler, _, _ = self._compile_filter(filter)
+        compiler, _, _ = self._compile_filter(filter, options)
         return compiler.query
 
     def _parse_ask_results(self, results: SPARQL_ResultsAsk) -> bool:
@@ -484,7 +485,8 @@ class _SPARQL_Store(
 
     @override
     def _count(self, filter: Filter) -> int:
-        count, query = self._build_count_query_from_filter(filter)
+        count, query = self._build_count_query_from_filter(
+            filter, self.options)
         if query.where_is_nonempty():
             return self._parse_count_results(
                 count, self.backend.select(str(query)))
@@ -493,7 +495,8 @@ class _SPARQL_Store(
 
     @override
     async def _acount(self, filter: Filter) -> int:
-        count, query = self._build_count_query_from_filter(filter)
+        count, query = self._build_count_query_from_filter(
+            filter, self.options)
         if query.where_is_nonempty():
             return self._parse_count_results(
                 count, await self.backend.aselect(str(query)))
@@ -502,11 +505,12 @@ class _SPARQL_Store(
 
     def _build_count_query_from_filter(
             self,
-            filter: Filter
+            filter: Filter,
+            options: Store.Options
     ) -> tuple[SPARQL_FilterCompiler.Query.Variable,
                SPARQL_FilterCompiler.Query]:
         compiler, _, _ = self._compile_filter(
-            filter.replace(annotated=False))
+            filter.replace(annotated=False), options)
         q = compiler.query
         count = q.fresh_var()
         return count, q.select((q.count(), count))  # type: ignore
@@ -527,7 +531,7 @@ class _SPARQL_Store(
             filter: Filter,
             options: Store.Options
     ) -> Iterator[Statement]:
-        compiler, _, variable = self._compile_filter(filter)
+        compiler, _, variable = self._compile_filter(filter, options)
         push = compiler.build_results()
         if options.limit is not None:
             limit = options.limit
@@ -557,12 +561,19 @@ class _SPARQL_Store(
                 break           # done
 
     @override
-    async def _afilter(
+    def _afilter(
             self,
             filter: Filter,
             options: Store.Options
     ) -> AsyncIterator[Statement]:
-        compiler, _, variable = self._compile_filter(filter)
+        return self._afilter_async(filter, options)
+
+    async def _afilter_async(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[Statement]:
+        compiler, _, variable = self._compile_filter(filter, options)
         push = compiler.build_results()
         if options.limit is not None:
             limit = options.limit
@@ -594,13 +605,17 @@ class _SPARQL_Store(
             if count % self.page_size != 0:
                 break           # done
 
-    def _compile_filter(self, filter: Filter) -> tuple[
+    def _compile_filter(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> tuple[
             SPARQL_FilterCompiler, VariablePattern, StatementVariable]:
         compiler = SPARQL_FilterCompiler(
             filter, self.mapping, SPARQL_FilterCompiler.default_flags)
-        if self.debug:
+        if options.debug:
             compiler.set_flags(compiler.DEBUG)
-        if self.best_ranked:
+        if options.best_ranked:
             compiler.set_flags(compiler.BEST_RANK)
         else:
             compiler.unset_flags(compiler.BEST_RANK)

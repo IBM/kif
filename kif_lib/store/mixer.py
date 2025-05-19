@@ -339,6 +339,10 @@ class MixerStore(
             Store.set_best_ranked, best_ranked, self.BEST_RANKED)
 
     @override
+    def _set_debug(self, debug: bool) -> bool:
+        return self._set_x(Store.set_debug, debug, self.DEBUG)
+
+    @override
     def _set_distinct(self, distinct: bool) -> bool:
         return self._set_x(Store.set_distinct, distinct, self.DISTINCT)
 
@@ -400,16 +404,17 @@ class MixerStore(
             options: Store.Options
     ) -> Iterator[Statement]:
         return itertools.mix(
-            *(src._filter_tail(filter, src.options) for src in self._sources),
+            *(src._filter_tail(filter, src.options.copy())
+              for src in self.sources),
             distinct=options.distinct, limit=options.limit)
 
     @override
-    async def _afilter(
+    def _afilter(
             self,
             filter: Filter,
             options: Store.Options
     ) -> AsyncIterator[Statement]:
-        it = (src._afilter_tail(filter, src.options) for src in self._sources)
-        async for stmt in itertools.amix(
-                *it, distinct=options.distinct, limit=options.limit):
-            yield stmt
+        return itertools.amix(
+            *(src._afilter_tail(filter, src.options.copy())
+              for src in self.sources),
+            distinct=options.distinct, limit=options.limit)

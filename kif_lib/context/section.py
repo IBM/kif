@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import ast
+import copy
 import dataclasses
 import logging
 import os
@@ -469,6 +470,14 @@ class Section:
                 return getattr(type(self), name).__doc__
             except AttributeError:
                 return getattr(self, name).__doc__
+
+    def copy(self) -> Self:
+        """Shallow-copies section.
+
+        Returns:
+           A shallow copy of section.
+        """
+        return copy.copy(self)
 
     def replace(self, *args: Any, **kwargs: Any) -> Self:
         """Shallow-copies section replacing its arguments.

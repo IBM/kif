@@ -2094,7 +2094,17 @@ class Store(Set):
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
-            filter: Filter | None = None
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
     ) -> bool:
         """Tests whether some statement matches filter.
 
@@ -2111,25 +2121,47 @@ class Store(Set):
            annotated: Annotated flag.
            snak: Snak.
            filter: Filter.
+           base_filter: Base filter.
+           best_ranked: Whether to consider only best-ranked statements.
+           debug: Whether to enable debugging mode.
+           distinct: Whether to suppress duplicates.
+           extra_references: Extra references to attach to statements.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           kwargs: Other keyword arguments.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
-        return self._ask_tail(
-            self._check_filter(
-                subject=subject,
-                property=property,
-                value=value,
-                snak_mask=snak_mask,
-                subject_mask=subject_mask,
-                property_mask=property_mask,
-                value_mask=value_mask,
-                rank_mask=rank_mask,
-                language=language,
-                annotated=annotated,
-                snak=snak,
-                filter=filter,
-                function=self.ask))
+        with self(
+                base_filter=base_filter,
+                best_ranked=best_ranked,
+                debug=debug,
+                distinct=distinct,
+                extra_references=extra_references,
+                limit=limit,
+                lookahead=lookahead,
+                page_size=page_size,
+                timeout=timeout,
+                **kwargs
+        ):
+            return self._ask_tail(
+                self._check_filter(
+                    subject=subject,
+                    property=property,
+                    value=value,
+                    snak_mask=snak_mask,
+                    subject_mask=subject_mask,
+                    property_mask=property_mask,
+                    value_mask=value_mask,
+                    rank_mask=rank_mask,
+                    language=language,
+                    annotated=annotated,
+                    snak=snak,
+                    filter=filter,
+                    function=self.ask))
 
     def _ask_tail(self, filter: Filter) -> bool:
         if filter.is_nonempty():
@@ -2138,8 +2170,8 @@ class Store(Set):
             return False
 
     def _ask(self, filter: Filter) -> bool:
-        with self(distinct=False, limit=1):
-            return bool(next(self._filter(filter, self.options), False))
+        with self(distinct=False, limit=1) as options:
+            return bool(next(self._filter(filter, options), False))
 
     async def aask(
             self,
@@ -2154,7 +2186,17 @@ class Store(Set):
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
-            filter: Filter | None = None
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
     ) -> bool:
         """Async version of :meth:`Store.ask`.
 
@@ -2171,24 +2213,46 @@ class Store(Set):
            annotated: Annotated flag.
            snak: Snak.
            filter: Filter.
+           base_filter: Base filter.
+           best_ranked: Whether to consider only best-ranked statements.
+           debug: Whether to enable debugging mode.
+           distinct: Whether to suppress duplicates.
+           extra_references: Extra references to attach to statements.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           kwargs: Other keyword arguments.
 
         Returns:
            ``True`` if successful; ``False`` otherwise."""
-        return await self._aask_tail(
-            self._check_filter(
-                subject=subject,
-                property=property,
-                value=value,
-                snak_mask=snak_mask,
-                subject_mask=subject_mask,
-                property_mask=property_mask,
-                value_mask=value_mask,
-                rank_mask=rank_mask,
-                language=language,
-                annotated=annotated,
-                snak=snak,
-                filter=filter,
-                function=self.aask))
+        with self(
+                base_filter=base_filter,
+                best_ranked=best_ranked,
+                debug=debug,
+                distinct=distinct,
+                extra_references=extra_references,
+                limit=limit,
+                lookahead=lookahead,
+                page_size=page_size,
+                timeout=timeout,
+                **kwargs
+        ):
+            return await self._aask_tail(
+                self._check_filter(
+                    subject=subject,
+                    property=property,
+                    value=value,
+                    snak_mask=snak_mask,
+                    subject_mask=subject_mask,
+                    property_mask=property_mask,
+                    value_mask=value_mask,
+                    rank_mask=rank_mask,
+                    language=language,
+                    annotated=annotated,
+                    snak=snak,
+                    filter=filter,
+                    function=self.aask))
 
     async def _aask_tail(self, filter: Filter) -> bool:
         if filter.is_nonempty():
@@ -2197,8 +2261,8 @@ class Store(Set):
             return False
 
     async def _aask(self, filter: Filter) -> bool:
-        with self(distinct=True, limit=self.max_limit):
-            async for _ in self._afilter(filter, self.options):
+        with self(distinct=True, limit=self.max_limit) as options:
+            async for _ in self._afilter(filter, options):
                 return True
             return False
 
@@ -2229,8 +2293,8 @@ class Store(Set):
             return filter
 
     def _contains(self, stmt: Statement, filter: Filter) -> bool:
-        with self(distinct=True, limit=self.max_limit):
-            return stmt in self._filter(filter, self.options)
+        with self(distinct=True, limit=self.max_limit) as options:
+            return stmt in self._filter(filter, options)
 
     async def acontains(self, stmt: Statement) -> bool:
         """Async version of :meth:`Store.contains`.
@@ -2252,8 +2316,8 @@ class Store(Set):
             return False
 
     async def _acontains(self, stmt: Statement, filter: Filter) -> bool:
-        with self(distinct=True, limit=self.max_limit):
-            async for other in self._afilter(filter, self.options):
+        with self(distinct=True, limit=self.max_limit) as options:
+            async for other in self._afilter(filter, options):
                 if stmt == other:
                     return True
             return False
@@ -2271,7 +2335,17 @@ class Store(Set):
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
-            filter: Filter | None = None
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
     ) -> int:
         """Counts statements matching filter.
 
@@ -2288,25 +2362,47 @@ class Store(Set):
            annotated: Annotated flag.
            snak: Snak.
            filter: Filter.
+           base_filter: Base filter.
+           best_ranked: Whether to consider only best-ranked statements.
+           debug: Whether to enable debugging mode.
+           distinct: Whether to suppress duplicates.
+           extra_references: Extra references to attach to statements.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           kwargs: Other keyword arguments.
 
         Returns:
            The number of statements matching filter.
         """
-        return self._count_tail(
-            self._check_filter(
-                subject=subject,
-                property=property,
-                value=value,
-                snak_mask=snak_mask,
-                subject_mask=subject_mask,
-                property_mask=property_mask,
-                value_mask=value_mask,
-                rank_mask=rank_mask,
-                language=language,
-                annotated=annotated,
-                snak=snak,
-                filter=filter,
-                function=self.count))
+        with self(
+                base_filter=base_filter,
+                best_ranked=best_ranked,
+                debug=debug,
+                distinct=distinct,
+                extra_references=extra_references,
+                limit=limit,
+                lookahead=lookahead,
+                page_size=page_size,
+                timeout=timeout,
+                **kwargs
+        ):
+            return self._count_tail(
+                self._check_filter(
+                    subject=subject,
+                    property=property,
+                    value=value,
+                    snak_mask=snak_mask,
+                    subject_mask=subject_mask,
+                    property_mask=property_mask,
+                    value_mask=value_mask,
+                    rank_mask=rank_mask,
+                    language=language,
+                    annotated=annotated,
+                    snak=snak,
+                    filter=filter,
+                    function=self.count))
 
     def _count_tail(self, filter: Filter) -> int:
         if filter.is_nonempty():
@@ -2315,8 +2411,8 @@ class Store(Set):
             return 0
 
     def _count(self, filter: Filter) -> int:
-        with self(distinct=True, limit=self.max_limit):
-            return sum(1 for _ in self._filter(filter, self.options))
+        with self(distinct=True, limit=self.max_limit) as options:
+            return sum(1 for _ in self._filter(filter, options))
 
     async def acount(
             self,
@@ -2331,7 +2427,17 @@ class Store(Set):
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
-            filter: Filter | None = None
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
     ) -> int:
         """Async version of :meth:`Store.count`.
 
@@ -2348,25 +2454,47 @@ class Store(Set):
            annotated: Annotated flag.
            snak: Snak.
            filter: Filter.
+           base_filter: Base filter.
+           best_ranked: Whether to consider only best-ranked statements.
+           debug: Whether to enable debugging mode.
+           distinct: Whether to suppress duplicates.
+           extra_references: Extra references to attach to statements.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           kwargs: Other keyword arguments.
 
         Returns:
            The number of statements matching filter.
         """
-        return await self._acount_tail(
-            self._check_filter(
-                subject=subject,
-                property=property,
-                value=value,
-                snak_mask=snak_mask,
-                subject_mask=subject_mask,
-                property_mask=property_mask,
-                value_mask=value_mask,
-                rank_mask=rank_mask,
-                language=language,
-                annotated=annotated,
-                snak=snak,
-                filter=filter,
-                function=self.acount))
+        with self(
+                base_filter=base_filter,
+                best_ranked=best_ranked,
+                debug=debug,
+                distinct=distinct,
+                extra_references=extra_references,
+                limit=limit,
+                lookahead=lookahead,
+                page_size=page_size,
+                timeout=timeout,
+                **kwargs
+        ):
+            return await self._acount_tail(
+                self._check_filter(
+                    subject=subject,
+                    property=property,
+                    value=value,
+                    snak_mask=snak_mask,
+                    subject_mask=subject_mask,
+                    property_mask=property_mask,
+                    value_mask=value_mask,
+                    rank_mask=rank_mask,
+                    language=language,
+                    annotated=annotated,
+                    snak=snak,
+                    filter=filter,
+                    function=self.acount))
 
     async def _acount_tail(self, filter: Filter) -> int:
         if filter.is_nonempty():
@@ -2395,8 +2523,16 @@ class Store(Set):
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
             distinct: bool | None = None,
-            limit: int | None = None
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
     ) -> Iterator[Statement]:
         """Searches for statements matching filter.
 
@@ -2412,14 +2548,33 @@ class Store(Set):
            language: Language.
            annotated: Annotated flag.
            snak: Snak.
-           filter: Filter filter.
-           distinct: Whether to skip duplicated matches.
-           limit: Limit (maximum number) of statements to return.
+           filter: Filter.
+           base_filter: Base filter.
+           best_ranked: Whether to consider only best-ranked statements.
+           debug: Whether to enable debugging mode.
+           distinct: Whether to suppress duplicates.
+           extra_references: Extra references to attach to statements.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           kwargs: Other keyword arguments.
 
         Returns:
            An iterator of statements matching filter.
         """
-        with self(distinct=distinct, limit=limit):
+        with self(
+                base_filter=base_filter,
+                best_ranked=best_ranked,
+                debug=debug,
+                distinct=distinct,
+                extra_references=extra_references,
+                limit=limit,
+                lookahead=lookahead,
+                page_size=page_size,
+                timeout=timeout,
+                **kwargs
+        ) as options:
             return self._filter_tail(
                 self._check_filter(
                     subject=subject,
@@ -2434,7 +2589,7 @@ class Store(Set):
                     annotated=annotated,
                     snak=snak,
                     filter=filter,
-                    function=self.filter), self.options)
+                    function=self.filter), options)
 
     def _filter_tail(
             self,
@@ -2473,8 +2628,16 @@ class Store(Set):
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
             distinct: bool | None = None,
-            limit: int | None = None
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
     ) -> AsyncIterator[Statement]:
         """Async version of :meth:`Store.filter`.
 
@@ -2491,13 +2654,32 @@ class Store(Set):
            annotated: Annotated flag.
            snak: Snak.
            filter: Filter filter.
-           distinct: Whether to skip duplicated matches.
-           limit: Limit (maximum number) of statements to return.
+           base_filter: Base filter.
+           best_ranked: Whether to consider only best-ranked statements.
+           debug: Whether to enable debugging mode.
+           distinct: Whether to suppress duplicates.
+           extra_references: Extra references to attach to statements.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           kwargs: Other keyword arguments.
 
         Returns:
            An async iterator of statements matching filter.
         """
-        with self(distinct=distinct, limit=limit):
+        with self(
+                base_filter=base_filter,
+                best_ranked=best_ranked,
+                debug=debug,
+                distinct=distinct,
+                extra_references=extra_references,
+                limit=limit,
+                lookahead=lookahead,
+                page_size=page_size,
+                timeout=timeout,
+                **kwargs
+        ) as options:
             return self._afilter_tail(
                 self._check_filter(
                     subject=subject,
@@ -2512,30 +2694,41 @@ class Store(Set):
                     annotated=annotated,
                     snak=snak,
                     filter=filter,
-                    function=self.afilter), self.options)
+                    function=self.afilter), options)
 
-    async def _afilter_tail(
+    def _afilter_tail(
             self,
             filter: Filter,
             options: Options
     ) -> AsyncIterator[Statement]:
         if ((options.limit is None or options.limit > 0)
                 and filter.is_nonempty()):
-            async for stmt in self._afilter(filter, options):
-                if filter.annotated and options.extra_references:
-                    yield stmt.annotate(references=options.extra_references)
-                else:
-                    yield stmt
+            return self._afilter_tail_tail(
+                filter, options, self._afilter(filter, options))
         else:
-            return              # empty async iterator
-            yield
+            return self._afilter_empty_iterator()
 
-    async def _afilter(
+    async def _afilter_tail_tail(
+            self,
+            filter: Filter,
+            options: Options,
+            it: AsyncIterator[Statement]
+    ) -> AsyncIterator[Statement]:
+        async for stmt in it:
+            if filter.annotated and options.extra_references:
+                yield stmt.annotate(references=options.extra_references)
+            else:
+                yield stmt
+
+    def _afilter(
             self,
             filter: Filter,
             options: Options
     ) -> AsyncIterator[Statement]:
-        return                  # empty async iterator
+        return self._afilter_empty_iterator()
+
+    async def _afilter_empty_iterator(self) -> AsyncIterator[Statement]:
+        return
         yield
 
     def filter_annotated(
@@ -2552,8 +2745,16 @@ class Store(Set):
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
-            distinct: bool | None = None
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
     ) -> Iterator[AnnotatedStatement]:
         """:meth:`Store.filter` with annotations.
 
@@ -2570,27 +2771,47 @@ class Store(Set):
            annotated: Annotated flag (ignored).
            snak: Snak.
            filter: Filter.
-           limit: Limit (maximum number) of statements to return.
-           distinct: Whether to skip duplicated matches.
+           base_filter: Base filter.
+           best_ranked: Whether to consider only best-ranked statements.
+           debug: Whether to enable debugging mode.
+           distinct: Whether to suppress duplicates.
+           extra_references: Extra references to attach to statements.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           kwargs: Other keyword arguments.
 
         Returns:
            An iterator of annotated statements matching filter.
         """
-        return cast(Iterator[AnnotatedStatement], self.filter(
-            subject=subject,
-            property=property,
-            value=value,
-            snak_mask=snak_mask,
-            subject_mask=subject_mask,
-            property_mask=property_mask,
-            value_mask=value_mask,
-            rank_mask=rank_mask,
-            language=language,
-            annotated=True,     # force
-            snak=snak,
-            filter=filter,
-            limit=limit,
-            distinct=distinct))
+        with self(
+                base_filter=base_filter,
+                best_ranked=best_ranked,
+                debug=debug,
+                distinct=distinct,
+                extra_references=extra_references,
+                limit=limit,
+                lookahead=lookahead,
+                page_size=page_size,
+                timeout=timeout,
+                **kwargs
+        ):
+            return cast(Iterator[AnnotatedStatement], self.filter(
+                subject=subject,
+                property=property,
+                value=value,
+                snak_mask=snak_mask,
+                subject_mask=subject_mask,
+                property_mask=property_mask,
+                value_mask=value_mask,
+                rank_mask=rank_mask,
+                language=language,
+                annotated=True,     # force
+                snak=snak,
+                filter=filter,
+                limit=limit,
+                distinct=distinct))
 
     def afilter_annotated(
             self,
@@ -2606,8 +2827,16 @@ class Store(Set):
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
-            distinct: bool | None = None
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
     ) -> AsyncIterator[AnnotatedStatement]:
         """:meth:`Store.afilter` with annotations.
 
@@ -2624,27 +2853,47 @@ class Store(Set):
            annotated: Annotated flag (ignored).
            snak: Snak.
            filter: Filter.
-           limit: Limit (maximum number) of statements to return.
-           distinct: Whether to skip duplicated matches.
+           base_filter: Base filter.
+           best_ranked: Whether to consider only best-ranked statements.
+           debug: Whether to enable debugging mode.
+           distinct: Whether to suppress duplicates.
+           extra_references: Extra references to attach to statements.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           kwargs: Other keyword arguments.
 
         Returns:
            An async iterator of annotated statements matching filter.
         """
-        return cast(AsyncIterator[AnnotatedStatement], self.afilter(
-            subject=subject,
-            property=property,
-            value=value,
-            snak_mask=snak_mask,
-            subject_mask=subject_mask,
-            property_mask=property_mask,
-            value_mask=value_mask,
-            rank_mask=rank_mask,
-            language=language,
-            annotated=True,     # force
-            snak=snak,
-            filter=filter,
-            limit=limit,
-            distinct=distinct))
+        with self(
+                base_filter=base_filter,
+                best_ranked=best_ranked,
+                debug=debug,
+                distinct=distinct,
+                extra_references=extra_references,
+                limit=limit,
+                lookahead=lookahead,
+                page_size=page_size,
+                timeout=timeout,
+                **kwargs
+        ):
+            return cast(AsyncIterator[AnnotatedStatement], self.afilter(
+                subject=subject,
+                property=property,
+                value=value,
+                snak_mask=snak_mask,
+                subject_mask=subject_mask,
+                property_mask=property_mask,
+                value_mask=value_mask,
+                rank_mask=rank_mask,
+                language=language,
+                annotated=True,     # force
+                snak=snak,
+                filter=filter,
+                limit=limit,
+                distinct=distinct))
 
     def _check_filter(
             self,
@@ -2734,8 +2983,16 @@ class Store(Set):
     def mix(
             self,
             *sources: Filter | Iterable[Statement],
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
             distinct: bool | None = None,
-            limit: int | None = None
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
     ) -> Iterator[Statement]:
         """Mixes sources of statement.
 
@@ -2744,27 +3001,54 @@ class Store(Set):
 
         Parameters:
            sources: Sources to mix.
-           distinct: Whether to skip duplicates.
-           limit: Limit (maximum number) of statements to yield.
+           base_filter: Base filter.
+           best_ranked: Whether to consider only best-ranked statements.
+           debug: Whether to enable debugging mode.
+           distinct: Whether to suppress duplicates.
+           extra_references: Extra references to attach to statements.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           kwargs: Other keyword arguments.
 
         Returns:
            An iterator of statements.
         """
-        with self(distinct=distinct, limit=limit):
-            filter_fn = functools.partial(self._filter, options=self.options)
+        with self(
+                base_filter=base_filter,
+                best_ranked=best_ranked,
+                debug=debug,
+                distinct=distinct,
+                extra_references=extra_references,
+                limit=limit,
+                lookahead=lookahead,
+                page_size=page_size,
+                timeout=timeout,
+                **kwargs
+        ) as options:
+            filter_fn = functools.partial(self._filter, options=options)
             passthrough_fn = functools.partial(
                 Statement.check, function=self.mix, name='sources')
             return itertools.mix(
                 *map(lambda src: filter_fn(filter=src)
                      if isinstance(src, Filter)
                      else map(passthrough_fn, src), sources),
-                distinct=self.distinct, limit=self.limit)
+                distinct=options.distinct, limit=options.limit)
 
     async def amix(
             self,
             *sources: Filter | Iterable | AsyncIterable[Statement],
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
             distinct: bool | None = None,
-            limit: int | None = None
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
     ) -> AsyncIterator[Statement]:
         """Async version of :meth:`Store.mix`.
 
@@ -2773,13 +3057,32 @@ class Store(Set):
 
         Parameters:
            sources: Sources to mix.
-           distinct: Whether to skip duplicates.
-           limit: Limit (maximum number) of statements to yield.
+           base_filter: Base filter.
+           best_ranked: Whether to consider only best-ranked statements.
+           debug: Whether to enable debugging mode.
+           distinct: Whether to suppress duplicates.
+           extra_references: Extra references to attach to statements.
+           limit: Limit (maximum number) of responses.
+           lookahead: Number of pages to lookahead asynchronously.
+           page_size: Page size of paginated responses.
+           timeout: Timeout of responses (in seconds).
+           kwargs: Other keyword arguments.
 
         Returns:
            An async iterator of statements.
         """
-        with self(distinct=distinct, limit=limit):
+        with self(
+                base_filter=base_filter,
+                best_ranked=best_ranked,
+                debug=debug,
+                distinct=distinct,
+                extra_references=extra_references,
+                limit=limit,
+                lookahead=lookahead,
+                page_size=page_size,
+                timeout=timeout,
+                **kwargs
+        ) as options:
             afilter_fn = functools.partial(
                 self._afilter, options=self.options)
             passthrough_fn = functools.partial(
@@ -2788,5 +3091,5 @@ class Store(Set):
                       if isinstance(src, Filter)
                       else itertools.amap(passthrough_fn, src), sources)
             async for stmt in itertools.amix(
-                    *its, distinct=self.distinct, limit=self.limit):
+                    *its, distinct=options.distinct, limit=options.limit):
                 yield stmt
