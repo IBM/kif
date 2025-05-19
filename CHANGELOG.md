@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 0.8.2 (?)
 
+- Added support for overriding store options in `Store.ask`, `Store.count`,
+  `Store.filter` and `Store.mix` (plus their async versions).
+
+- Fixed a design issue in the internal Store API: `_afilter()` is no longer
+  marked as `async`.  It returns an async iterator but it might not need to
+  await for anything.
+
 - Added optional `name` argument and `--describe` option to KIF CLI's
   `list-options` command.
 
