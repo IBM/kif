@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 0.8.2 (?)
 
+- Changed KIF CLI to use async calls by default.  Added the `--no-async`
+  option to force it use sycn calls.
+
 - Added support for overriding store options in `Store.ask`, `Store.count`,
   `Store.filter` and `Store.mix` (plus their async versions).
 
