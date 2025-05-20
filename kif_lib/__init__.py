@@ -314,8 +314,15 @@ __all__ = (
     'Store',
 )
 
-if os.getenv('KIF_DEBUG'):
+_KIF_DEBUG = os.getenv('KIF_DEBUG')
+_KIF_INFO = os.getenv('KIF_INFO')
+
+if _KIF_DEBUG or _KIF_INFO:
     import logging
     logging.basicConfig()
+    if _KIF_DEBUG:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
     logging.getLogger('httpx').setLevel(logging.INFO)
-    logging.getLogger('kif_lib').setLevel(logging.DEBUG)
+    logging.getLogger('kif_lib').setLevel(level)

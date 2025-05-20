@@ -189,6 +189,18 @@ async def aroundrobin(*its: AsyncIterable[T]) -> AsyncIterator[T]:
                 yield x
 
 
+async def atake(n: int, it: AsyncIterable[T]) -> list[T]:
+    """Async version of :func:`more_itertools.take`."""
+    it, result = aiter(it), []
+    while n > 0:
+        try:
+            result.append(await it.__anext__())
+            n -= 1
+        except StopAsyncIteration:
+            break
+    return result
+
+
 def uniq(it: Iterable[H], _key=lambda x: x) -> Iterator[H]:
     """Yields unique elements, preserves order.
 

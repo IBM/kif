@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import functools
 import os
 import re
@@ -44,6 +45,7 @@ from .model import (
     Quantity,
     ShallowDataValue,
     SomeValueSnak,
+    Statement,
     String,
     Text,
     Value,
@@ -386,6 +388,14 @@ class FilterParam:
         help='Language tag.',
         envvar='LANGUAGE')
 
+    lookahead = click.option(
+        '--lookahead',
+        'lookahead',
+        type=int,
+        required=False,
+        help='Number of pages to lookahead asynchronously.',
+        envvar='LOOKAHEAD')
+
     limit = click.option(
         '--limit',
         'limit',
@@ -394,7 +404,15 @@ class FilterParam:
         help='Maximum number of results.',
         envvar='LIMIT')
 
-    distinct = click.option(
+    no_async_ = click.option(
+        '--no-async',
+        'async_',
+        is_flag=True,
+        default=True,
+        help='Do not use the asynchronous API.',
+        envvar='ASYNC')
+
+    no_distinct = click.option(
         '--no-distinct',
         'distinct',
         is_flag=True,
@@ -402,7 +420,7 @@ class FilterParam:
         help='Do not suppress duplicates.',
         envvar='DISTINCT')
 
-    resolve = click.option(
+    no_resolve = click.option(
         '--no-resolve',
         'resolve',
         is_flag=True,
@@ -550,6 +568,7 @@ class FilterParam:
             store: Sequence[Store],
             distinct: bool | None = None,
             limit: int | None = None,
+            lookahead: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None
     ) -> Store:
@@ -564,6 +583,8 @@ class FilterParam:
             target.set_distinct(distinct)
         if limit is not None:
             target.set_limit(limit)
+        if lookahead is not None:
+            target.set_lookahead(lookahead)
         if page_size is not None:
             target.set_page_size(page_size)
         if timeout is not None:
@@ -576,6 +597,8 @@ class FilterParam:
 @FilterParam.property
 @FilterParam.value
 @FilterParam.dry_run
+@FilterParam.language
+@FilterParam.no_async_
 @FilterParam.property_option
 @FilterParam.property_mask
 @FilterParam.rank_mask
@@ -600,9 +623,9 @@ def ask(
         value_mask: Filter.DatatypeMask | None = None,
         rank_mask: Filter.RankMask | None = None,
         language: str | None = None,
-        distinct: bool | None = None,
-        timeout: float | None = None,
-        dry_run: bool | None = None
+        async_: bool | None = None,
+        dry_run: bool | None = None,
+        timeout: float | None = None
 ) -> None:
     fr = FilterParam.make_filter(
         subject=subject,
@@ -618,11 +641,15 @@ def ask(
         rank_mask=rank_mask,
         language=language,
         dry_run=dry_run)
-    target = FilterParam.make_store(
-        store=store,
-        distinct=distinct,
-        timeout=timeout)
-    sys.exit(int(not target.ask(filter=fr)))
+    target = FilterParam.make_store(store=store, timeout=timeout)
+    status: bool
+    if async_:
+        async def aask():
+            return await target.aask(filter=fr)
+        status = asyncio.run(aask())
+    else:
+        status = target.ask(filter=fr)
+    sys.exit(int(not status))
 
 
 @cli.command(help='Counts the number of statements matching filter.')
@@ -632,7 +659,8 @@ def ask(
 @FilterParam.annotated
 @FilterParam.dry_run
 @FilterParam.language
-@FilterParam.distinct
+@FilterParam.no_async_
+@FilterParam.no_distinct
 @FilterParam.property_option
 @FilterParam.property_mask
 @FilterParam.rank_mask
@@ -658,9 +686,10 @@ def count(
         rank_mask: Filter.RankMask | None = None,
         language: str | None = None,
         annotated: bool | None = None,
+        async_: bool | None = None,
         distinct: bool | None = None,
-        timeout: float | None = None,
-        dry_run: bool | None = None
+        dry_run: bool | None = None,
+        timeout: float | None = None
 ) -> None:
     fr = FilterParam.make_filter(
         subject=subject,
@@ -680,7 +709,14 @@ def count(
         store=store,
         distinct=distinct,
         timeout=timeout)
-    click.echo(target.count(filter=fr))
+    n: int
+    if async_:
+        async def acount():
+            return await target.acount(filter=fr)
+        n = asyncio.run(acount())
+    else:
+        n = target.count(filter=fr)
+    click.echo(n)
 
 
 @cli.command(help='Searches for statements matching filter.')
@@ -692,8 +728,10 @@ def count(
 @FilterParam.encoder
 @FilterParam.language
 @FilterParam.limit
-@FilterParam.distinct
-@FilterParam.resolve
+@FilterParam.lookahead
+@FilterParam.no_async_
+@FilterParam.no_distinct
+@FilterParam.no_resolve
 @FilterParam.page_size
 @FilterParam.property_option
 @FilterParam.property_mask
@@ -720,13 +758,15 @@ def filter(
         rank_mask: Filter.RankMask | None = None,
         language: str | None = None,
         annotated: bool | None = None,
+        async_: bool | None = None,
         distinct: bool | None = None,
-        limit: int | None = None,
-        page_size: int | None = None,
-        timeout: float | None = None,
         dry_run: bool | None = None,
         encoder: Encoder | None = None,
-        resolve: bool | None = None
+        limit: int | None = None,
+        lookahead: int | None = None,
+        page_size: int | None = None,
+        resolve: bool | None = None,
+        timeout: float | None = None
 ) -> None:
     console = Console()
     context = FilterParam.make_context(resolve)
@@ -750,24 +790,42 @@ def filter(
         store=store,
         distinct=distinct,
         limit=limit,
+        lookahead=lookahead,
         page_size=page_size,
         timeout=timeout)
-    batches = itertools.batched(
-        target.filter(filter=fr), target.page_size)
-    for pageno, batch in enumerate(batches):
+
+    def output(
+            page: Iterable[Statement],
+            pageno: int
+    ) -> None:
         if resolve:
-            resolved_batch = context.resolve(
-                batch, label=True, language='en')
+            resolved_page = context.resolve(
+                page, label=True, language='en')
         else:
-            resolved_batch = batch
+            resolved_page = page
         if encoder is None:
             it = (f'{(pageno * target.page_size) + i}. '
                   + textwrap.indent(stmt.to_markdown(), ' ' * 4).lstrip()
-                  for i, stmt in enumerate(resolved_batch, 1))
+                  for i, stmt in enumerate(resolved_page, 1))
             console.print(Markdown('\n\n'.join(it)))
         else:
-            for stmt in resolved_batch:
+            for stmt in resolved_page:
                 print(encoder.encode(stmt).rstrip(), flush=True)
+    if async_:
+        async def afilter():
+            it, n = target.afilter(filter=fr), 0
+            while True:
+                page = await itertools.atake(target.page_size, it)
+                if not page:
+                    break
+                output(page, n)
+                n += 1
+        asyncio.run(afilter())
+    else:
+        batches = itertools.batched(
+            target.filter(filter=fr), target.page_size)
+        for pageno, page in enumerate(batches):
+            output(page, pageno)
 
 
 if __name__ == '__main__':
