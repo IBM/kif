@@ -234,6 +234,8 @@ class Reader(
     ) -> Iterator[Statement]:
         if filter.annotated:
             it = map(lambda stmt: stmt.annotate(), it)
+        else:
+            it = map(lambda stmt: stmt.unannotate(), it)
         if options.limit is not None:
             it = itertools.islice(it, options.limit)
         return it
