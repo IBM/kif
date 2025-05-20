@@ -1,0 +1,581 @@
+[
+  {
+    "class": "Statement",
+    "args": [
+      {
+        "class": "Property",
+        "args": [
+          {
+            "class": "IRI",
+            "args": [
+              "http://www.wikidata.org/entity/P235"
+            ]
+          },
+          {
+            "class": "ExternalIdDatatype",
+            "args": []
+          }
+        ]
+      },
+      {
+        "class": "ValueSnak",
+        "args": [
+          {
+            "class": "DescriptionProperty",
+            "args": [
+              {
+                "class": "IRI",
+                "args": [
+                  "http://schema.org/description"
+                ]
+              },
+              {
+                "class": "TextDatatype",
+                "args": []
+              }
+            ]
+          },
+          {
+            "class": "Text",
+            "args": [
+              "A hashed version of the full standard InChI - designed to create an identifier that encodes structural information and can also be practically used in web searching.",
+              "en"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class": "Statement",
+    "args": [
+      {
+        "class": "Property",
+        "args": [
+          {
+            "class": "IRI",
+            "args": [
+              "http://www.wikidata.org/entity/P235"
+            ]
+          },
+          {
+            "class": "ExternalIdDatatype",
+            "args": []
+          }
+        ]
+      },
+      {
+        "class": "ValueSnak",
+        "args": [
+          {
+            "class": "LabelProperty",
+            "args": [
+              {
+                "class": "IRI",
+                "args": [
+                  "http://www.w3.org/2000/01/rdf-schema#label"
+                ]
+              },
+              {
+                "class": "TextDatatype",
+                "args": []
+              }
+            ]
+          },
+          {
+            "class": "Text",
+            "args": [
+              "InChIKey",
+              "en"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class": "Statement",
+    "args": [
+      {
+        "class": "Item",
+        "args": [
+          {
+            "class": "IRI",
+            "args": [
+              "http://www.wikidata.org/entity/Q2270"
+            ]
+          }
+        ]
+      },
+      {
+        "class": "ValueSnak",
+        "args": [
+          {
+            "class": "AliasProperty",
+            "args": [
+              {
+                "class": "IRI",
+                "args": [
+                  "http://www.w3.org/2004/02/skos/core#altLabel"
+                ]
+              },
+              {
+                "class": "TextDatatype",
+                "args": []
+              }
+            ]
+          },
+          {
+            "class": "Text",
+            "args": [
+              "benzol",
+              "en"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class": "Statement",
+    "args": [
+      {
+        "class": "Property",
+        "args": [
+          {
+            "class": "IRI",
+            "args": [
+              "http://www.wikidata.org/entity/P235"
+            ]
+          },
+          {
+            "class": "ExternalIdDatatype",
+            "args": []
+          }
+        ]
+      },
+      {
+        "class": "ValueSnak",
+        "args": [
+          {
+            "class": "LabelProperty",
+            "args": [
+              {
+                "class": "IRI",
+                "args": [
+                  "http://www.w3.org/2000/01/rdf-schema#label"
+                ]
+              },
+              {
+                "class": "TextDatatype",
+                "args": []
+              }
+            ]
+          },
+          {
+            "class": "Text",
+            "args": [
+              "InChIKey",
+              "es"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class": "Statement",
+    "args": [
+      {
+        "class": "Property",
+        "args": [
+          {
+            "class": "IRI",
+            "args": [
+              "http://www.wikidata.org/entity/P235"
+            ]
+          },
+          {
+            "class": "ExternalIdDatatype",
+            "args": []
+          }
+        ]
+      },
+      {
+        "class": "ValueSnak",
+        "args": [
+          {
+            "class": "DescriptionProperty",
+            "args": [
+              {
+                "class": "IRI",
+                "args": [
+                  "http://schema.org/description"
+                ]
+              },
+              {
+                "class": "TextDatatype",
+                "args": []
+              }
+            ]
+          },
+          {
+            "class": "Text",
+            "args": [
+              "c\u00f3digo condensado para la identificaci\u00f3n de un compuesto qu\u00edmico",
+              "es"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class": "Statement",
+    "args": [
+      {
+        "class": "Item",
+        "args": [
+          {
+            "class": "IRI",
+            "args": [
+              "http://www.wikidata.org/entity/Q2270"
+            ]
+          }
+        ]
+      },
+      {
+        "class": "ValueSnak",
+        "args": [
+          {
+            "class": "LabelProperty",
+            "args": [
+              {
+                "class": "IRI",
+                "args": [
+                  "http://www.w3.org/2000/01/rdf-schema#label"
+                ]
+              },
+              {
+                "class": "TextDatatype",
+                "args": []
+              }
+            ]
+          },
+          {
+            "class": "Text",
+            "args": [
+              "benzene",
+              "en"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class": "Statement",
+    "args": [
+      {
+        "class": "Item",
+        "args": [
+          {
+            "class": "IRI",
+            "args": [
+              "http://www.wikidata.org/entity/Q2270"
+            ]
+          }
+        ]
+      },
+      {
+        "class": "ValueSnak",
+        "args": [
+          {
+            "class": "Property",
+            "args": [
+              {
+                "class": "IRI",
+                "args": [
+                  "http://www.wikidata.org/entity/P31"
+                ]
+              },
+              {
+                "class": "ItemDatatype",
+                "args": []
+              }
+            ]
+          },
+          {
+            "class": "Item",
+            "args": [
+              {
+                "class": "IRI",
+                "args": [
+                  "http://www.wikidata.org/entity/Q113145171"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class": "Statement",
+    "args": [
+      {
+        "class": "Property",
+        "args": [
+          {
+            "class": "IRI",
+            "args": [
+              "http://www.wikidata.org/entity/P235"
+            ]
+          },
+          {
+            "class": "ExternalIdDatatype",
+            "args": []
+          }
+        ]
+      },
+      {
+        "class": "ValueSnak",
+        "args": [
+          {
+            "class": "Property",
+            "args": [
+              {
+                "class": "IRI",
+                "args": [
+                  "http://www.wikidata.org/entity/P1659"
+                ]
+              },
+              {
+                "class": "PropertyDatatype",
+                "args": []
+              }
+            ]
+          },
+          {
+            "class": "Property",
+            "args": [
+              {
+                "class": "IRI",
+                "args": [
+                  "http://www.wikidata.org/entity/P234"
+                ]
+              },
+              {
+                "class": "ExternalIdDatatype",
+                "args": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class": "Statement",
+    "args": [
+      {
+        "class": "Item",
+        "args": [
+          {
+            "class": "IRI",
+            "args": [
+              "http://www.wikidata.org/entity/Q2270"
+            ]
+          }
+        ]
+      },
+      {
+        "class": "ValueSnak",
+        "args": [
+          {
+            "class": "Property",
+            "args": [
+              {
+                "class": "IRI",
+                "args": [
+                  "http://www.wikidata.org/entity/P2067"
+                ]
+              },
+              {
+                "class": "QuantityDatatype",
+                "args": []
+              }
+            ]
+          },
+          {
+            "class": "Quantity",
+            "args": [
+              "78.046950192",
+              {
+                "class": "Item",
+                "args": [
+                  {
+                    "class": "IRI",
+                    "args": [
+                      "http://www.wikidata.org/entity/Q483261"
+                    ]
+                  }
+                ]
+              },
+              null,
+              null
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class": "Statement",
+    "args": [
+      {
+        "class": "Item",
+        "args": [
+          {
+            "class": "IRI",
+            "args": [
+              "http://www.wikidata.org/entity/Q2270"
+            ]
+          }
+        ]
+      },
+      {
+        "class": "ValueSnak",
+        "args": [
+          {
+            "class": "Property",
+            "args": [
+              {
+                "class": "IRI",
+                "args": [
+                  "http://www.wikidata.org/entity/P235"
+                ]
+              },
+              {
+                "class": "ExternalIdDatatype",
+                "args": []
+              }
+            ]
+          },
+          {
+            "class": "ExternalId",
+            "args": [
+              "UHOVQNZJYSORNB-UHFFFAOYSA-N"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class": "Statement",
+    "args": [
+      {
+        "class": "Item",
+        "args": [
+          {
+            "class": "IRI",
+            "args": [
+              "http://www.wikidata.org/entity/Q2270"
+            ]
+          }
+        ]
+      },
+      {
+        "class": "ValueSnak",
+        "args": [
+          {
+            "class": "Property",
+            "args": [
+              {
+                "class": "IRI",
+                "args": [
+                  "http://www.wikidata.org/entity/P2054"
+                ]
+              },
+              {
+                "class": "QuantityDatatype",
+                "args": []
+              }
+            ]
+          },
+          {
+            "class": "Quantity",
+            "args": [
+              "0.88",
+              {
+                "class": "Item",
+                "args": [
+                  {
+                    "class": "IRI",
+                    "args": [
+                      "http://www.wikidata.org/entity/Q13147228"
+                    ]
+                  }
+                ]
+              },
+              "0.87",
+              "0.89"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "class": "Statement",
+    "args": [
+      {
+        "class": "Property",
+        "args": [
+          {
+            "class": "IRI",
+            "args": [
+              "http://www.wikidata.org/entity/P235"
+            ]
+          },
+          {
+            "class": "ExternalIdDatatype",
+            "args": []
+          }
+        ]
+      },
+      {
+        "class": "ValueSnak",
+        "args": [
+          {
+            "class": "Property",
+            "args": [
+              {
+                "class": "IRI",
+                "args": [
+                  "http://www.wikidata.org/entity/P31"
+                ]
+              },
+              {
+                "class": "ItemDatatype",
+                "args": []
+              }
+            ]
+          },
+          {
+            "class": "Item",
+            "args": [
+              {
+                "class": "IRI",
+                "args": [
+                  "http://www.wikidata.org/entity/Q19833835"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
