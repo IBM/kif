@@ -11,8 +11,8 @@ from .rdf import (
     RDF_Store,
     WikidataRDF_Store,
 )
-from .rdfox import RDFoxSPARQL_Store
 from .rdflib import RDFLibSPARQL_Store
+from .rdfox import RDFoxSPARQL_Store
 from .sparql import (
     DBpediaSPARQL_Store,
     PubChemSPARQL_Store,

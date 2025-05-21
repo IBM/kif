@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import io
 import logging
+import os
 import pathlib
 import queue
 import re
@@ -63,8 +64,9 @@ class RDFox:
             self,
             path: pathlib.PurePath | str | None = None,
     ) -> None:
+        self._process = None
         if path is None:
-            path = shutil.which('RDFox')
+            path = shutil.which(os.getenv('RDFOX', 'RDFox'))
             if path is None:
                 raise RuntimeError('RDFox executable not found')
         self._path = pathlib.PurePath(path)

@@ -3,26 +3,16 @@
 
 from __future__ import annotations
 
-import contextlib
 import pathlib
 
 from ... import rdflib
 from ...compiler.sparql import SPARQL_Mapping
 from ...compiler.sparql.results import SPARQL_Results, SPARQL_ResultsAsk
-from ...model import IRI, TGraph
-from ...typing import (
-    Any,
-    BinaryIO,
-    cast,
-    ClassVar,
-    Generator,
-    override,
-    TextIO,
-    TypeAlias,
-)
+from ...model import TGraph
+from ...typing import Any, BinaryIO, ClassVar, override, TextIO, TypeAlias
 from . import rdfox_pipe
 from .httpx import HttpxSPARQL_Store
-from .sparql_core import _SPARQL_Store, Store
+from .sparql_core import _SPARQL_Store
 
 
 class RDFoxSPARQL_Store(
