@@ -18,7 +18,11 @@ from typing_extensions import Any, ClassVar, Protocol
 
 
 class Jena:
-    """Jpype-based Python bindings for Jena RDF."""
+    """Jpype-based Python bindings for Jena RDF.
+
+    Parameters:
+       jena_home: Jena's home directory.
+    """
 
     #: Whether JPype was initialized.
     _init: ClassVar[bool] = False
@@ -60,7 +64,7 @@ class Jena:
         ``JENA_HOME`` environment variable.
 
         Parameters:
-           jena_java_dir: Path to the directory containing Jena's JARs.
+           jena_home: Jena's home directory.
         """
         try:
             import jpype  # type: ignore

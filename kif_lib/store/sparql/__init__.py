@@ -11,6 +11,7 @@ from .rdf import (
     RDF_Store,
     WikidataRDF_Store,
 )
+from .rdfox import RDFoxSPARQL_Store
 from .rdflib import RDFLibSPARQL_Store
 from .sparql import (
     DBpediaSPARQL_Store,
@@ -29,6 +30,7 @@ __all__ = (
     'PubChemSPARQL_Store',
     'RDF_Store',
     'RDFLibSPARQL_Store',
+    'RDFoxSPARQL_Store',
     'SPARQL_Store',
     'WDQS_Store',
     'WikidataRDF_Store',
