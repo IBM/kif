@@ -142,6 +142,7 @@ class RDFox:
            name: Data store name.
         """
         status = self.push(f'dstore create {name}')
+        _logger.debug('%s()\n%s', self.dstore_create.__qualname__, status)
         if status != f"A new data store '{name}' was created and initialized.":
             raise self.Error(status)
 
@@ -165,16 +166,30 @@ class RDFox:
             status = self.push(f'active {name}')
         else:
             status = self.push('active')
+        _logger.debug('%s()\n%s', self.active.__qualname__, status)
         m = _re.match(status)
         if not m:
             raise self.Error(status)
         return m.group(1)
 
-    def import_file(self, path: pathlib.PurePath | str) -> None:
-        """Import RDF data from file.
+    def clear(self, target: str | None = None) -> None:
+        """Clears target.
+
+        If `target` is not given, clears everything.
 
         Parameters:
-           path: File or IRI.
+           target: Target.
+        """
+        status = self.push(f'clear {target or ""} force')
+        _logger.debug('%s()\n%s', self.clear.__qualname__, status)
+        if not status.endswith('has been cleared as specified.'):
+            raise self.Error(status)
+
+    def import_file(self, path: pathlib.PurePath | str) -> None:
+        """Imports RDF data from file.
+
+        Parameters:
+           path: File path or IRI.
         """
         status = self.push(f'import {str(path)}')
         _logger.debug('%s()\n%s', self.import_file.__qualname__, status)
@@ -182,25 +197,54 @@ class RDFox:
             raise self.Error(status)
 
     def import_data(self, data: str) -> None:
-        """Import RDF data from string.
+        """Imports RDF data from string.
 
         Parameters:
            data: String.
         """
-        status = self.push(f'import ! {data}')
-        _logger.debug('%s()\n%s', self.import_data.__qualname__, status)
-        if not status.startswith('Adding data.'):
+        import tempfile
+        with tempfile.NamedTemporaryFile(
+                prefix='rdfox_pipe_', mode='w', delete=True) as temp:
+            temp.write(data)
+            temp.flush()
+            self.import_file(temp.name)
+
+    def export(
+            self,
+            path: pathlib.Path | str,
+            format: str | None = None,
+            **kwargs: str
+    ) -> None:
+        """Exports RDF data to file.
+
+        If `format` is not given, assumes "text/turtle".
+
+        Parameters:
+           path: File path.
+           format: Name of RDF serialization format.
+           kwargs: Other keyword arguments.
+        """
+        cmd = f'export {str(path)}'
+        if format is not None:
+            cmd += f' {format}'
+        if kwargs:
+            cmd += ' '.join(*(f'{k} {v}' for k, v in kwargs.items()))
+        status = self.push(cmd)
+        _logger.debug('%s()\n%s', self.export.__qualname__, status)
+        if not status.startswith('Exporting data into file'):
             raise self.Error(status)
 
     def endpoint_start(self) -> None:
         """Starts the RDFox endpoint."""
         status = self.push('endpoint start')
+        _logger.debug('%s()\n%s', self.endpoint_start.__qualname__, status)
         if not status.startswith('The REST endpoint was successfully started'):
             raise self.Error(status)
 
     def endpoint_stop(self) -> None:
         """Stops the RDFox endpoint."""
         status = self.push('endpoint stop')
+        _logger.debug('%s()\n%s', self.endpoint_stop.__qualname__, status)
         if status != 'The REST endpoint was successfully stopped.':
             raise self.Error(status)
 
@@ -220,6 +264,7 @@ class RDFox:
             status = self.push(f'set {variable} {value}')
         else:
             status = self.push(f'set {variable}')
+        _logger.debug('%s()\n%s', self.set.__qualname__, status)
         m = re.match(f'^{variable} = "([^"]+)"', status)
         if not m:
             raise self.Error(status)

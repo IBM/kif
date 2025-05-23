@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import pathlib
+import re
+import tempfile
 
 from ... import rdflib
 from ...compiler.sparql import SPARQL_Mapping
@@ -122,9 +124,39 @@ class RDFoxSPARQL_Store(
         @override
         def _skolemize(self) -> None:
             ###
-            # TODO: Add support for skolemization.
+            # TODO: Find a better way to do this.
             ###
-            pass
+            with tempfile.NamedTemporaryFile(
+                    prefix='rdfox_', suffix='.n3',
+                    mode='w', delete=True) as temp:
+                with self._lock:
+                    self.rdfox.export(temp.name, 'application/n-triples')
+                with tempfile.NamedTemporaryFile(
+                        prefix='rdfox_skolemized_', suffix='.n3',
+                        mode='w', delete=True) as temp_skolemized:
+                    with open(temp.name) as fp:
+                        for line in map(self._skolemize_n3_line, fp):
+                            temp_skolemized.write(line)
+                    temp_skolemized.flush()
+                    with self._lock:
+                        self.rdfox.clear()
+                        self.rdfox.import_file(temp_skolemized.name)
+
+        def _skolemize_n3_line(
+                self,
+                line: str,
+                _re_start: re.Pattern = re.compile(r'^_:(\w+)( .*)$'),
+                _re_end: re.Pattern = re.compile(r'^(.* )_:(\w+) \.$')
+        ) -> str:
+            m = _re_start.match(line)
+            if m:
+                s, po = m.groups()
+                line = f'<{rdflib.BNode(s).skolemize()}>' + po + '\n'
+            m = _re_end.match(line)
+            if m:
+                sp, o = m.groups()
+                line = sp + f'<{rdflib.BNode(o).skolemize()}>' + ' .\n'
+            return line
 
         @override
         def _close(self) -> None:
