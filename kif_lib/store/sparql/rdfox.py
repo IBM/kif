@@ -161,6 +161,8 @@ class RDFoxSPARQL_Store(
         @override
         def _close(self) -> None:
             self._httpx_backend.close()
+            with self._lock:
+                self.rdfox.dstore_delete(self._name)
 
         @override
         async def _aclose(self) -> None:

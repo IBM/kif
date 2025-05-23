@@ -9,15 +9,14 @@
 
 from __future__ import annotations
 
+import fcntl
 import io
 import logging
 import os
 import pathlib
-import queue
 import re
 import shutil
 import subprocess
-import threading
 
 from typing_extensions import Final
 
@@ -34,31 +33,16 @@ class RDFox:
     class Error(Exception):
         """Base class for RDFox errors."""
 
+    #: The path to the RDFox executable.
+    _path: pathlib.PurePath
+
     #: The underlying RDFox process.
     _process: subprocess.Popen | None
-
-    #: Message queue.
-    _queue: queue.Queue
 
     __slots__ = (
         '_path',
         '_process',
-        '_queue',
     )
-
-    @classmethod
-    def _read_thread(
-            cls,
-            output: io.TextIOWrapper,
-            queue: queue.Queue
-    ) -> None:
-        try:
-            while True:
-                queue.put(output.readline())
-        except Exception:
-            pass
-        finally:
-            output.close()
 
     def __init__(
             self,
@@ -73,15 +57,16 @@ class RDFox:
         self._process = subprocess.Popen(
             [self._path, 'sandbox'],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
-        self._queue = queue.Queue()
         ###
-        # TODO: Replace daemon thread by non-blocking reads with explicit
-        # join in __del__().
+        # TODO: There must be a better way to do this.
         ###
-        threading.Thread(
-            target=RDFox._read_thread,
-            args=(self.process.stdout, self._queue),
-            daemon=True).start()
+        assert self._process.stdout is not None
+        flags = fcntl.fcntl(
+            self._process.stdout,  # type: ignore
+            fcntl.F_GETFL)
+        fcntl.fcntl(
+            self._process.stdout,  # type: ignore
+            fcntl.F_SETFL, flags | os.O_NONBLOCK)
         self.push()             # discard startup message
 
     @property
@@ -99,7 +84,7 @@ class RDFox:
     def push(
             self,
             input: str | None = None,
-            sentinel: str = '__EOF__'
+            sentinel: str = '__EOF__\n'
     ) -> str:
         """Pushes input to RDFox process.
 
@@ -112,27 +97,24 @@ class RDFox:
         """
         if input is not None:
             self._write(input)
-        self._write(f'echo {sentinel}')
+        self._write(f'echo {sentinel}', end='')
         output = ''
         while True:
-            line = self._read()
-            if line == f'{sentinel}\n':
+            output += self._read()
+            if output.endswith(sentinel):
                 break
-            output += line
-        return output.rstrip()
+        return output[:-len(sentinel)].rstrip()
 
     def _read(self) -> str:
+        assert self.process.stdout is not None
         while True:
-            buf = None
-            try:
-                buf = self._queue.get_nowait()
-            except queue.Empty:
-                continue
-            return buf
+            buf = self.process.stdout.read(io.DEFAULT_BUFFER_SIZE)
+            if buf:
+                return buf
 
-    def _write(self, line: str) -> None:
+    def _write(self, line: str, end: str | None = None) -> None:
         assert self.process.stdin is not None
-        print(line, file=self.process.stdin)
+        print(line, file=self.process.stdin, end=end)
         self.process.stdin.flush()
 
     def dstore_create(self, name: str) -> None:
@@ -144,6 +126,17 @@ class RDFox:
         status = self.push(f'dstore create {name}')
         _logger.debug('%s()\n%s', self.dstore_create.__qualname__, status)
         if status != f"A new data store '{name}' was created and initialized.":
+            raise self.Error(status)
+
+    def dstore_delete(self, name: str) -> None:
+        """Deletes data store.
+
+        Parameters:
+           name: Data store name.
+        """
+        status = self.push(f'dstore delete {name} force')
+        _logger.debug('%s()\n%s', self.dstore_delete.__qualname__, status)
+        if status != f"The data store '{name}' was deleted.":
             raise self.Error(status)
 
     def active(
@@ -212,8 +205,7 @@ class RDFox:
     def export(
             self,
             path: pathlib.Path | str,
-            format: str | None = None,
-            **kwargs: str
+            format: str | None = None
     ) -> None:
         """Exports RDF data to file.
 
@@ -222,13 +214,10 @@ class RDFox:
         Parameters:
            path: File path.
            format: Name of RDF serialization format.
-           kwargs: Other keyword arguments.
         """
         cmd = f'export {str(path)}'
         if format is not None:
             cmd += f' {format}'
-        if kwargs:
-            cmd += ' '.join(*(f'{k} {v}' for k, v in kwargs.items()))
         status = self.push(cmd)
         _logger.debug('%s()\n%s', self.export.__qualname__, status)
         if not status.startswith('Exporting data into file'):
