@@ -689,7 +689,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
         sub: tuple[re.Pattern, str] | None
 
         #: Character translation table.
-        tr: Mapping[str, str]
+        tr: Mapping[str, str] | None
 
         def __init__(
                 self,
@@ -762,7 +762,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
                     arg = type(arg)(match.expand(self.sub[1]))
             if self.tr is not None:
                 arg = type(arg)(''.join(
-                    map(lambda c: self.tr.get(c, c), arg)))
+                    map(lambda c: self.tr.get(c, c), arg)))  # type: ignore
             return arg
 
     class CheckLiteral(CheckStr):
