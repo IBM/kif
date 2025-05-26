@@ -393,7 +393,7 @@ class PubChemMapping(M):
         c.q.triples()(
             (x, SIO.has_attribute, attr),
             (attr, RDF.type, CHEMINF.
-             molecular_weight_calculated_by_the_pubchem_software_library),
+             exact_mass_calculated_by_pubchem_software_library),
             (attr, SIO.has_value, y))
 
     @M.register(
