@@ -30,7 +30,7 @@ class Test(StoreTestCase):
              wd.instance_of(pc.IUPAC_name,
                             wd.Wikidata_property_related_to_chemistry),
              wd.label(pc.IUPAC_name, 'IUPAC name'),
-             wd.mass(pc.CID(241), '78.11'@wd.gram_per_mole)})
+             wd.mass(pc.CID(241), '78.047'@wd.dalton)})
 
 
 if __name__ == '__main__':

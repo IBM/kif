@@ -6,8 +6,8 @@ cid:CID241 semsci:SIO_000008 [
         a semsci:CHEMINF_000140 ;
         ] .
 
-# mass - 78.11 gram per mole
+# mass - 78.047 dalton
 cid:CID241 semsci:SIO_000008 [
-        a semsci:CHEMINF_000334 ;
-        semsci:SIO_000300 "78.11" ;
+        a semsci:CHEMINF_000338 ;
+        semsci:SIO_000300 "78.047" ;
         ] .
