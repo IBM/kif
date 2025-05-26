@@ -271,7 +271,30 @@ class PubChemMapping(M):
     @M.register(
         [wd.chemical_formula(Item(x), String(y))],
         {x: CheckCompound(),
-         y: M.CheckLiteral(set_language='en')},
+         y: M.CheckLiteral(tr={
+             '₀': '0',
+             '₁': '1',
+             '₂': '2',
+             '₃': '3',
+             '₄': '4',
+             '₅': '5',
+             '₆': '6',
+             '₇': '7',
+             '₈': '8',
+             '₉': '9',
+         }, set_language='en')},
+        {y: M.CheckLiteral(tr={
+            '0': '₀',
+            '1': '₁',
+            '2': '₂',
+            '3': '₃',
+            '4': '₄',
+            '5': '₅',
+            '6': '₆',
+            '7': '₇',
+            '8': '₈',
+            '9': '₉',
+        })},  # post
         rank=Normal)
     def wd_chemical_formula(self, c: C, x: V_URI, y: VLiteral) -> None:
         attr = c.bnode()

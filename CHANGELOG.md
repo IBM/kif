@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 0.8.2 (?)
 
+- Fixed the mapping of `wd.chemical_formula` in the SPARQL mapping of
+  PubChem.  Now we pre/post process the chemical formula strings to
+  substitute 0-9 by their UTF-8 subscript counterparts, ₀₋₉.
+
+- Fixed the mapping of `wd.mass` in the SPARQL mapping of PubChem.  Now
+  `wd.mass` is mapped to "exact mass" whose unit is dalton (Da).
+
+- Added `sparql-rdfox` store, a local RDF store that uses RDFox to evaluate
+  SPARQL queries.  The `sparql-rdfox` backend in now used by default by the
+  `rdf` store if a working `RDFox` command is available.
+
 - Changed KIF CLI to use async calls by default.  Added the `--no-async`
   option to force it use sycn calls.
 

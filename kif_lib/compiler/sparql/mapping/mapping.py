@@ -658,6 +658,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
             'replace_suffix',
             'match',
             'sub',
+            'tr',
         )
 
         #: Expected subclass.
@@ -687,6 +688,9 @@ class SPARQL_Mapping(Sequence[_Entry]):
         #: Regex to match and template to substitute.
         sub: tuple[re.Pattern, str] | None
 
+        #: Character translation table.
+        tr: Mapping[str, str]
+
         def __init__(
                 self,
                 subclass: type[str] | None = None,
@@ -697,7 +701,8 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 replace_prefix: tuple[str, str] | None = None,
                 replace_suffix: tuple[str, str] | None = None,
                 match: str | re.Pattern | None = None,
-                sub: tuple[str | re.Pattern, str] | None = None
+                sub: tuple[str | re.Pattern, str] | None = None,
+                tr: Mapping[str, str] | None = None
         ) -> None:
             self.subclass = subclass or str
             self.optional = optional if optional is not None else False
@@ -714,6 +719,10 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 self.sub = (re.compile(sub[0]), sub[1])
             else:
                 self.sub = None
+            if tr is not None:
+                self.tr = tr
+            else:
+                self.tr = None
 
         @override
         def __call__(
@@ -751,6 +760,9 @@ class SPARQL_Mapping(Sequence[_Entry]):
                     raise m.Skip
                 else:
                     arg = type(arg)(match.expand(self.sub[1]))
+            if self.tr is not None:
+                arg = type(arg)(''.join(
+                    map(lambda c: self.tr.get(c, c), arg)))
             return arg
 
     class CheckLiteral(CheckStr):
@@ -777,6 +789,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 replace_suffix: tuple[str, str] | None = None,
                 match: str | re.Pattern | None = None,
                 sub: tuple[str | re.Pattern, str] | None = None,
+                tr: Mapping[str, str] | None = None,
                 set_language: str | None = None,
                 set_datatype: str | None = None
         ) -> None:
@@ -790,7 +803,8 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 replace_prefix=replace_prefix,
                 replace_suffix=replace_suffix,
                 match=match,
-                sub=sub)
+                sub=sub,
+                tr=tr)
             self.set_language = set_language
             self.set_datatype = set_datatype
 
@@ -838,7 +852,8 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 replace_prefix: tuple[str, str] | None = None,
                 replace_suffix: tuple[str, str] | None = None,
                 match: str | re.Pattern | None = None,
-                sub: tuple[str | re.Pattern, str] | None = None
+                sub: tuple[str | re.Pattern, str] | None = None,
+                tr: Mapping[str, str] | None = None
         ) -> None:
             from ..filter_compiler import SPARQL_FilterCompiler
             super().__init__(
@@ -850,7 +865,8 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 replace_suffix=replace_suffix,
                 endswith=endswith,
                 match=match,
-                sub=sub)
+                sub=sub,
+                tr=tr)
 
 # -- Methods ---------------------------------------------------------------
 
