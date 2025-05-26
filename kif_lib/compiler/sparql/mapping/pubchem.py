@@ -384,7 +384,7 @@ class PubChemMapping(M):
             (x, RO.has_role, PubChem.VOCABULARY.FDAApprovedDrugs))
 
     @M.register(
-        [wd.mass(Item(x), Quantity(y, wd.gram_per_mole))],
+        [wd.mass(Item(x), Quantity(y, wd.dalton))],
         {x: CheckCompound(),
          y: M.CheckLiteral(set_datatype=XSD.float)},
         rank=Normal)
