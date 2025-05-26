@@ -246,9 +246,9 @@ class StoreParamType(KIF_ParamType):
             for store_name in Store.registry.keys():
                 m = re.match(f'^{store_name}(@(.*))?$', value)
                 if m is not None:
-                    input_source = m.group(2)
-                    if input_source:
-                        return Store(store_name, input_source)
+                    input_sources = m.group(2)
+                    if input_sources:
+                        return Store(store_name, *input_sources.split(';'))
                     else:
                         return Store(store_name)
         try:

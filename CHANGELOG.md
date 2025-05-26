@@ -27,6 +27,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   marked as `async`.  It returns an async iterator but it might not need to
   await for anything.
 
+- Added support for multiple names (separated by ";") in KIF CLI's `--store`
+  option.
+
 - Added optional `name` argument and `--describe` option to KIF CLI's
   `list-options` command.
 

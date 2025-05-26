@@ -30,6 +30,8 @@ Brazilian_Sign_Language = Q(3436689, 'Brazilian Sign Language')
 bridge = Q(12280, 'bridge')
 business = Q(4830453, 'business')
 caffeine = Q(60235, 'caffeine')
+carbon = Q(623, 'carbon')
+carbonic_acid = Q(104334, 'carbonic acid')
 CAS_Common_Chemistry = Q(18907859, 'CAS Common Chemistry')
 characterization = Q(2165586, 'characterization')
 chemical_compound = Q(11173, 'chemical compound')
@@ -88,6 +90,7 @@ height_ = Q(208826, 'height')
 house_cat = Q(146, 'house cat')
 human = Q(5, 'human')
 human_biblical_figure = Q(20643955, 'human biblical figure')
+hydrogen = Q(556, 'hydrogen')
 IBM = Q(37156, 'IBM')
 IBM_AIX = Q(269856, 'IBM_AIX')
 infant = Q(998, 'infant')
@@ -202,6 +205,8 @@ __all__ = (
     'bridge',
     'business',
     'caffeine',
+    'carbon',
+    'carbonic_acid',
     'CAS_Common_Chemistry',
     'characterization',
     'chemical_compound',
@@ -260,6 +265,7 @@ __all__ = (
     'house_cat',
     'human',
     'human_biblical_figure',
+    'hydrogen',
     'IBM',
     'IBM_AIX',
     'infant',

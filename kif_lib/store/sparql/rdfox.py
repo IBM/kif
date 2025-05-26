@@ -130,7 +130,9 @@ class RDFoxSPARQL_Store(
                     prefix='rdfox_', suffix='.n3',
                     mode='w', delete=True) as temp:
                 with self._lock:
-                    self.rdfox.export(temp.name, 'application/n-triples')
+                    self.rdfox.export(
+                        temp.name, 'application/n-triples',
+                        'fact-domain', 'all')
                 with tempfile.NamedTemporaryFile(
                         prefix='rdfox_skolemized_', suffix='.n3',
                         mode='w', delete=True) as temp_skolemized:

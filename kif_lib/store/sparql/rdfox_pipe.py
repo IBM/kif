@@ -184,7 +184,7 @@ class RDFox:
         Parameters:
            path: File path or IRI.
         """
-        status = self.push(f'import {str(path)}')
+        status = self.push(f'import "{str(path)}"')
         _logger.debug('%s()\n%s', self.import_file.__qualname__, status)
         if not status.startswith(f"Adding data in file '{str(path)}'."):
             raise self.Error(status)
@@ -202,22 +202,18 @@ class RDFox:
             temp.flush()
             self.import_file(temp.name)
 
-    def export(
-            self,
-            path: pathlib.Path | str,
-            format: str | None = None
-    ) -> None:
+    def export(self, path: pathlib.Path | str, *args: str) -> None:
         """Exports RDF data to file.
 
         If `format` is not given, assumes "text/turtle".
 
         Parameters:
            path: File path.
-           format: Name of RDF serialization format.
+           args: Other arguments.
         """
-        cmd = f'export {str(path)}'
-        if format is not None:
-            cmd += f' {format}'
+        cmd = f'export "{str(path)}"'
+        if args is not None:
+            cmd += ' ' + ' '.join(args)
         status = self.push(cmd)
         _logger.debug('%s()\n%s', self.export.__qualname__, status)
         if not status.startswith('Exporting data into file'):

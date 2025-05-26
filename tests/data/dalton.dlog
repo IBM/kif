@@ -1,0 +1,48 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix p: <http://www.wikidata.org/prop/> .
+@prefix pq: <http://www.wikidata.org/prop/qualifier/> .
+@prefix pqn: <http://www.wikidata.org/prop/qualifier/value-normalized/> .
+@prefix pqv: <http://www.wikidata.org/prop/qualifier/value/> .
+@prefix pr: <http://www.wikidata.org/prop/reference/> .
+@prefix prn: <http://www.wikidata.org/prop/reference/value-normalized/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix prv: <http://www.wikidata.org/prop/reference/value/> .
+@prefix ps: <http://www.wikidata.org/prop/statement/> .
+@prefix psn: <http://www.wikidata.org/prop/statement/value-normalized/> .
+@prefix psv: <http://www.wikidata.org/prop/statement/value/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix wd: <http://www.wikidata.org/entity/> .
+@prefix wdata: <http://www.wikidata.org/wiki/Special:EntityData/> .
+@prefix wdno: <http://www.wikidata.org/prop/novalue/> .
+@prefix wdref: <http://www.wikidata.org/reference/> .
+@prefix wds: <http://www.wikidata.org/entity/statement/> .
+@prefix wdt: <http://www.wikidata.org/prop/direct/> .
+@prefix wdv: <http://www.wikidata.org/value/> .
+@prefix wikibase: <http://wikiba.se/ontology#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# from dalton to kb/mol (best-ranked only)
+[?x, wdt:P2067, ?kg_per_mole],
+[?x, p:P2067, ?wds1],
+[?wds1, wikibase:rank, ?rank],
+[?wds1, rdf:type, wikibase:BestRank],
+[?wds1, ps:P2067, ?kg_per_mole],
+[?wds1, psv:P2067, ?wdv1],
+[?wdv1, rdf:type, wikibase:QuantityValue],
+[?wdv1, wikibase:quantityAmount, ?kg_per_mole],
+[?wdv1, wikibase:quantityUnit, wd:Q28924753] :-
+  [?x, wdt:P2067, ?dalton],
+  [?x, p:P2067, ?wds],
+  [?wds, rdf:type, wikibase:BestRank],
+  [?wds, wikibase:rank, ?rank],
+  [?wds, ps:P2067, ?dalton],
+  [?wds, psv:P2067, ?wdv],
+  [?wdv, rdf:type, wikibase:QuantityValue],
+  [?wdv, wikibase:quantityAmount, ?dalton],
+  [?wdv, wikibase:quantityUnit, wd:Q483261],
+  BIND((0.001 * ?dalton) AS ?kg_per_mole),
+  SKOLEM(?wds, ?wds1),
+  SKOLEM(?wdv, ?wdv1).
