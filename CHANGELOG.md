@@ -4,7 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 0.8.2 (?)
+## 0.8.2 (2025-05-27)
+
+- Added `sparql-rdfox` store, a local RDF store that uses RDFox to evaluate
+  SPARQL queries.  The `sparql-rdfox` backend in now used by default by the
+  `rdf` store if a working `RDFox` command is available.
+
+- Fixed a design issue in the internal Store API: `_afilter()` is no longer
+  marked as `async`.  It returns an async iterator but it might not need to
+  await for anything.
 
 - Fixed the mapping of `wd.chemical_formula` in the SPARQL mapping of
   PubChem.  Now we pre/post process the chemical formula strings to
@@ -13,19 +21,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fixed the mapping of `wd.mass` in the SPARQL mapping of PubChem.  Now
   `wd.mass` is mapped to "exact mass" whose unit is dalton (Da).
 
-- Added `sparql-rdfox` store, a local RDF store that uses RDFox to evaluate
-  SPARQL queries.  The `sparql-rdfox` backend in now used by default by the
-  `rdf` store if a working `RDFox` command is available.
-
-- Changed KIF CLI to use async calls by default.  Added the `--no-async`
-  option to force it use sycn calls.
-
 - Added support for overriding store options in `Store.ask`, `Store.count`,
   `Store.filter` and `Store.mix` (plus their async versions).
 
-- Fixed a design issue in the internal Store API: `_afilter()` is no longer
-  marked as `async`.  It returns an async iterator but it might not need to
-  await for anything.
+- Changed KIF CLI to use async calls by default.  Added the `--no-async`
+  option to force it use sycn calls.
 
 - Added support for multiple names (separated by ";") in KIF CLI's `--store`
   option.
