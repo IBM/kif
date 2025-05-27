@@ -60,7 +60,7 @@ class Test(StoreTestCase):
         f(F(subject=s, annotated=True),
           {pc.isotope_atom_count(s, 4),
            wd.canonical_SMILES(s, 'C1=CC=CC=C1'),
-           wd.chemical_formula(s, 'C6H6'),
+           wd.chemical_formula(s, 'C₆H₆'),
            wd.described_by_source(s, pc.patent('BR-PI0720756-A2')),
            wd.described_by_source(s, pc.patent('CN-104250332-B')),
            wd.described_by_source(s, pc.patent('CN-104640922-B')),
@@ -83,7 +83,7 @@ class Test(StoreTestCase):
            wd.InChIKey(s, 'UHOVQNZJYSORNB-RHQRLBAQSA-N'),
            wd.instance_of(s, wd.type_of_a_chemical_entity),
            wd.isomeric_SMILES(s, '[2H]C1=CC=C(C(=C1[2H])[2H])[2H]'),
-           wd.mass(s, '82.14'@wd.gram_per_mole),
+           wd.mass(s, '82.0721'@wd.dalton),
            wd.part_of(s, pc.CID(139250633)),
            wd.partition_coefficient_water_octanol(s, '2.1'),
            wd.PubChem_CID(s, '12196274')})

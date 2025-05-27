@@ -6,12 +6,18 @@ from __future__ import annotations
 import datetime
 
 from kif_lib import (
+    AliasProperty,
+    DescriptionProperty,
     Filter,
     IRI,
     Item,
     Items,
     ItemTemplate,
+    LabelProperty,
+    LanguageProperty,
+    LemmaProperty,
     Lexeme,
+    LexicalCategoryProperty,
     NoValueSnak,
     Property,
     Quantity,
@@ -371,6 +377,22 @@ class Test(KIF_ObjectTestCase):
         self.assertFalse(Filter(
             value=Time('2024-07-11', None, 0, Item('x'))).match(
                 (x, p, Time('2024-07-11', None, None, y))))
+
+    def test_match_pseudo_properties(self) -> None:
+        f, x = Filter(property=Property('x')(0)), Item('x')
+        self.assertFalse(f.match((x, LabelProperty(), 'abc')))
+        self.assertFalse(f.match((x, AliasProperty(), 'abc')))
+        self.assertFalse(f.match((x, DescriptionProperty(), 'abc')))
+        self.assertFalse(f.match((x, LemmaProperty(), 'abc')))
+        self.assertFalse(f.match((x, LexicalCategoryProperty(), Item('y'))))
+        self.assertFalse(f.match((x, LanguageProperty(), 'en')))
+        f = Filter(property=LabelProperty() | AliasProperty())
+        self.assertTrue(f.match((x, LabelProperty(), 'abc')))
+        self.assertTrue(f.match((x, AliasProperty(), 'abc')))
+        self.assertFalse(f.match((x, DescriptionProperty(), 'abc')))
+        self.assertFalse(f.match((x, LemmaProperty(), 'abc')))
+        self.assertFalse(f.match((x, LexicalCategoryProperty(), Item('y'))))
+        self.assertFalse(f.match((x, LanguageProperty(), 'en')))
 
 
 if __name__ == '__main__':

@@ -40,8 +40,6 @@
 
 ### Filter
 
-- BUG: Pseudo-properties should not match snak fingerprints.
-
 - Add support for pseudo-property flag in `property_mask`.
 
 - Add support for "negation".  We can compile the negation of an atomic `v`,
