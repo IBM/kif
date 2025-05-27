@@ -25,7 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `Store.filter` and `Store.mix` (plus their async versions).
 
 - Changed KIF CLI to use async calls by default.  Added the `--no-async`
-  option to force it use sycn calls.
+  option to force it to use sync calls.
 
 - Added support for multiple names (separated by ";") in KIF CLI's `--store`
   option.
