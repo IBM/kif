@@ -1,7 +1,7 @@
 # Copyright (C) 2025 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 #
-# $Id: e2aeae285a946e14ad80b86947d342f1b0be53b4 $
+# $Id$
 #
 # Python bindings for RDFox using OS pipes.
 #
