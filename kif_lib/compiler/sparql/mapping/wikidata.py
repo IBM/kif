@@ -445,7 +445,10 @@ class WikidataMapping(M):
             self.cur_wds = binding[str(mapping.wds)]['value']
             self.cur_qualifiers = []
             self.cur_references = {}
-            self.cur_rank = binding['_rank']['value']
+            if '_rank' in binding:
+                self.cur_rank = binding['_rank']['value']
+            else:
+                self.cur_rank = None
 
         def _push_annotated(
                 self,
