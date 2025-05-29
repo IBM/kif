@@ -14,6 +14,7 @@ Adam = Q(70899, 'Adam')
 Adam_and_Eve = Q(58701, 'Adam and Eve')
 Africa = Q(15, 'Africa')
 Alan_Turing = Q(7251, 'Alan Turing')
+algorithm = Q(8366, 'algorithm')
 Amazonas = Q(40040, 'Amazonas')
 Americas = Q(828, 'Americas')
 Argentina = Q(414, 'Argentina')
@@ -189,6 +190,7 @@ __all__ = (
     'Adam_and_Eve',
     'Africa',
     'Alan_Turing',
+    'algorithm',
     'Amazonas',
     'Americas',
     'Argentina',
