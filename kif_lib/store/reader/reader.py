@@ -246,7 +246,8 @@ class Reader(
             options: Store.Options,
             file: TextIO
     ) -> Iterator[Statement]:
-        return itertools.chain(*map(self._parse_fn, self._load(file)))
+        for t in self._load(file):
+            yield from self._parse_fn(t)
 
     @override
     def _afilter(
