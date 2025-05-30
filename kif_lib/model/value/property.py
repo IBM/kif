@@ -491,6 +491,32 @@ class Property(
         #: Inverse property.
         inverse: Property
 
+    @classmethod
+    def descriptor_to_snaks(
+            cls,
+            descriptor: Descriptor,
+    ) -> Iterable[ValueSnak]:
+        """Converts property descriptor to (value) snaks.
+
+        Parameters:
+           descriptor: Property descriptor.
+
+        Returns:
+           (Value) snaks.
+        """
+        if 'labels' in descriptor:
+            from .pseudo_property import LabelProperty
+            for label in descriptor['labels'].values():
+                yield LabelProperty()(label)
+        if 'aliases' in descriptor:
+            from .pseudo_property import AliasProperty
+            for aliases in descriptor['aliases'].values():
+                yield from map(AliasProperty(), aliases)
+        if 'description' in descriptor:
+            from .pseudo_property import DescriptionProperty
+            for description in descriptor['descriptions'].values():
+                yield DescriptionProperty()(description)
+
     def __init__(
             self,
             iri: VTPropertyContent,

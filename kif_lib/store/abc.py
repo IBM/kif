@@ -63,7 +63,7 @@ class Store(Set):
     store_description: ClassVar[str]
 
     @classmethod
-    def _register(
+    def _register_store(
             cls,
             store: type[Store],
             store_name: str,
@@ -79,7 +79,7 @@ class Store(Set):
             store_name: str,
             store_description: str
     ) -> None:
-        Store._register(cls, store_name, store_description)
+        Store._register_store(cls, store_name, store_description)
 
     def __new__(cls, store_name: str, *args: Any, **kwargs: Any):
         KIF_Object._check_arg(

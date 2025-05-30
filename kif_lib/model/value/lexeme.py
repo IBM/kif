@@ -25,6 +25,7 @@ from .value import Datatype
 
 if TYPE_CHECKING:               # pragma: no cover
     from ...store import Store
+    from ..snak import ValueSnak
 
 TLexeme: TypeAlias = Union['Lexeme', T_IRI]
 VLexeme: TypeAlias = Union['LexemeTemplate', 'LexemeVariable', 'Lexeme']
@@ -90,6 +91,29 @@ class Lexeme(
 
         #: Language.
         language: Item
+
+    @classmethod
+    def descriptor_to_snaks(
+            cls,
+            descriptor: Descriptor,
+    ) -> Iterable[ValueSnak]:
+        """Converts lexeme descriptor to (value) snaks.
+
+        Parameters:
+           descriptor: Lexeme descriptor.
+
+        Returns:
+           (Value) snaks.
+        """
+        if 'lemma' in descriptor:
+            from .pseudo_property import LemmaProperty
+            yield LemmaProperty()(descriptor['lemma'])
+        if 'category' in descriptor:
+            from .pseudo_property import LexicalCategoryProperty
+            yield LexicalCategoryProperty()(descriptor['category'])
+        if 'language' in descriptor:
+            from .pseudo_property import LanguageProperty
+            yield LanguageProperty()(descriptor['language'])
 
     def __init__(self, iri: VTLexemeContent) -> None:
         super().__init__(iri)

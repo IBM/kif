@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.3 (?)
+
+- Added convenience methods (preamble, postamble, describe, and register) to
+  the base reader store.  These allow for a fine-grained control of
+  statement generation.
+
+- Fixed a bug in Wikidata mappings which was causing a runtime error when
+  fetching annotations of statements with pseudo-property.
+
+- Fixed bug in reader base store which was causing the greedy evaluation of
+  filters.
+
 ## 0.8.2 (2025-05-27)
 
 - Added `sparql-rdfox` store, a local RDF store that uses RDFox to evaluate

@@ -36,12 +36,14 @@ from .typing import (
     Hashable,
     Iterable,
     Iterator,
+    Literal,
     TypeAlias,
     TypeVar,
     Union,
 )
 
 __all__ = [
+    'achain',
     'aenumerate',
     'amix',
     'aroundrobin',
@@ -86,6 +88,13 @@ class _Sentinel:
 _SENTINEL: Final[_Sentinel] = _Sentinel()
 
 
+async def achain(*its: AsyncIterable[T]) -> AsyncIterator[T]:
+    """Async version of :func:`itertools.chain`."""
+    for it in its:
+        async for x in it:
+            yield x
+
+
 async def aenumerate(
         it: AsyncIterable[T],
         start: int = 0
@@ -94,6 +103,7 @@ async def aenumerate(
     async for x in aiter(it):
         yield start, x
         start += 1
+
 
 if sys.version_info < (3, 10):
     __all__.append('aiter')
@@ -120,19 +130,26 @@ async def amap(
 def mix(
         *its: Iterable[H],
         distinct: bool | None = None,
-        limit: int | None = None
+        limit: int | None = None,
+        method: Literal['chain'] | Literal['roundrobin'] = 'roundrobin'
 ) -> Iterator[H]:
-    """Yields interleaved elements, preserving order.
+    """Yields mixed elements.
 
     Parameters:
        its: Iterables of hashable elements.
        distinct: Whether to skip duplicates.
        limit: Limit (maximum number) of elements to yield.
+       method: Mixing method.
 
     Returns:
        Iterator.
     """
-    it = roundrobin(*its)
+    if method == 'roundrobin':
+        it = roundrobin(*its)
+    elif method == 'chain':
+        it = chain(*its)
+    else:
+        raise ValueError(method)
     if distinct:
         it = uniq(it)
     if limit is not None:
@@ -143,10 +160,16 @@ def mix(
 async def amix(
         *its: AsyncIterable[H],
         distinct: bool | None = None,
-        limit: int | None = None
+        limit: int | None = None,
+        method: Literal['chain'] | Literal['roundrobin'] = 'roundrobin'
 ) -> AsyncIterator[H]:
     """Async version of :func:`mix`."""
-    it = aroundrobin(*its)
+    if method == 'roundrobin':
+        it = aroundrobin(*its)
+    elif method == 'chain':
+        it = achain(*its)
+    else:
+        raise ValueError(method)
     if distinct:
         it = auniq(it)
     if limit is None:

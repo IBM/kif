@@ -27,6 +27,7 @@ from .value import Datatype
 
 if TYPE_CHECKING:               # pragma: no cover
     from ...store import Store
+    from ..snak import ValueSnak
     from .quantity import Quantity, QuantityTemplate, TQuantity
 
 TItem: TypeAlias = Union['Item', T_IRI]
@@ -93,6 +94,32 @@ class Item(
 
         #: Description indexed by language.
         descriptions: Mapping[str, Text]
+
+    @classmethod
+    def descriptor_to_snaks(
+            cls,
+            descriptor: Descriptor
+    ) -> Iterable[ValueSnak]:
+        """Converts item descriptor to (value) snaks.
+
+        Parameters:
+           descriptor: Item descriptor.
+
+        Returns:
+           (Value) snaks.
+        """
+        if 'labels' in descriptor:
+            from .pseudo_property import LabelProperty
+            for label in descriptor['labels'].values():
+                yield LabelProperty()(label)
+        if 'aliases' in descriptor:
+            from .pseudo_property import AliasProperty
+            for aliases in descriptor['aliases'].values():
+                yield from map(AliasProperty(), aliases)
+        if 'description' in descriptor:
+            from .pseudo_property import DescriptionProperty
+            for description in descriptor['descriptions'].values():
+                yield DescriptionProperty()(description)
 
     def __init__(self, iri: VTItemContent) -> None:
         super().__init__(iri)
