@@ -247,7 +247,7 @@ class RDF_Encoder(
             psv: URIRef,
             wdno: URIRef
     ) -> Iterator[str]:
-        yield from self._do_iterencode_property(snak.property, True)
+        yield from self._do_iterencode_property(snak.property)
         if isinstance(snak, ValueSnak):
             yield from self._do_iterencode_value(snak.value, wds, ps, psv)
         elif isinstance(snak, SomeValueSnak):
@@ -278,7 +278,7 @@ class RDF_Encoder(
     def _do_iterencode_property(
             self,
             property: Property,
-            define: bool = False
+            define: bool = True
     ) -> Iterator[str]:
         if property in self._seen_entity:
             return              # nothing to do
