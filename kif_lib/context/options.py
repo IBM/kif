@@ -6,6 +6,7 @@ from __future__ import annotations
 import dataclasses
 from typing import TYPE_CHECKING
 
+from ..codec.options import CodecOptions
 from ..compiler.options import CompilerOptions
 from ..model.options import ModelOptions
 from ..store.options import StoreOptions
@@ -67,6 +68,9 @@ class EntityRegistryOptions(Section, name='entities'):
 @dataclasses.dataclass
 class Options(Section, name='kif'):
     """KIF options."""
+
+    #: Codec options.
+    codec: CodecOptions = dataclasses.field(default_factory=CodecOptions)
 
     #: Compiler options.
     compiler: CompilerOptions = dataclasses.field(

@@ -110,17 +110,8 @@ def _install_resolver(context: Context | None = None) -> None:
 
 def _install_schema(context: Context | None = None) -> None:
     ctx = Context.top(context)
-    ctx.iris.register(IRI(NS.WD), schema={
-        'p': NS.P,
-        'pq': NS.PQ,
-        'pqv': NS.PQV,
-        'pr': NS.PR,
-        'prv': NS.PRV,
-        'ps': NS.PS,
-        'psv': NS.PSV,
-        'wdno': NS.WDNO,
-        'wdt': NS.WDT,
-    })
+    ctx.iris.register(IRI(NS.WD), schema=cast(Property.Schema, {
+        k: IRI(str(v)) for k, v in NS.Wikidata.prefixes.items()}))
 
 
 def P(

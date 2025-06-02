@@ -3,11 +3,11 @@
 
 from __future__ import annotations
 
-import dataclasses
 import functools
 import re
 from typing import TYPE_CHECKING
 
+from ....context import Context
 from ....model import (
     ExternalId,
     IRI,
@@ -50,7 +50,18 @@ x, y, z = Variables(*'xyz')
 
 
 class PubChemMapping(M):
-    """PubChem SPARQL mapping."""
+    """PubChem SPARQL mapping.
+
+    Parameters:
+       normalize_casrn: Whether to normalize the returned CAS-RNs.
+    """
+
+    @classmethod
+    def _get_context_options(
+            cls,
+            context: Context | None = None
+    ) -> PubChemMappingOptions:
+        return Context.top(context).options.compiler.sparql.mapping.pubchem
 
 # -- Checks ----------------------------------------------------------------
 
@@ -140,10 +151,11 @@ class PubChemMapping(M):
 
     def __init__(
             self,
-            normalize_casrn: bool | None = None
+            normalize_casrn: bool | None = None,
+            context: Context | None = None
     ) -> None:
-        self._options = dataclasses.replace(
-            self.context.options.compiler.sparql.mapping.pubchem)
+        super().__init__()
+        self._options = self._get_context_options(context).copy()
         if normalize_casrn is not None:
             self.options.set_normalize_casrn(normalize_casrn)
 

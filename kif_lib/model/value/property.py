@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import functools
 from typing import TYPE_CHECKING
 
 from typing_extensions import overload
@@ -12,6 +13,7 @@ from ...typing import (
     cast,
     ClassVar,
     Iterable,
+    Location,
     Mapping,
     override,
     Self,
@@ -472,6 +474,51 @@ class Property(
         wdt: T_IRI
 
     TSchema: TypeAlias = Union[Schema, _TSchema]
+
+    @classmethod
+    def _check_schema(
+            cls,
+            schema: Property.TSchema,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Property.Schema:
+        schema = cls._check_arg_isinstance(
+            schema, Mapping, function, name, position)
+        f = functools.partial(
+            IRI.check, function=function, name=name, position=position)
+        try:
+            return {
+                'p': f(schema['p']),
+                'pq': f(schema['pq']),
+                'pqv': f(schema['pqv']),
+                'pr': f(schema['pr']),
+                'prv': f(schema['prv']),
+                'ps': f(schema['ps']),
+                'psv': f(schema['psv']),
+                'wdno': f(schema['wdno']),
+                'wdt': f(schema['wdt']),
+            }
+        except KeyError as err:
+            raise cls._arg_error(
+                f'property schema misses key {err}',
+                function, name, position) from err
+
+    @classmethod
+    def _check_optional_schema(
+            cls,
+            schema: Property.TSchema | None,
+            default: Property.Schema | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Property.Schema | None:
+        if schema is None:
+            schema = default
+        if schema is None:
+            return schema
+        else:
+            return cls._check_schema(schema, function, name, position)
 
     class Descriptor(TypedDict, total=False):
         """Property descriptor."""

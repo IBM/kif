@@ -58,6 +58,18 @@ class Wikidata:
         str(WDV): WDV,
     }
 
+    schema: Final[dict[str, Namespace]] = {
+        'p': P,
+        'pq': PQ,
+        'pqv': PQV,
+        'pr': PR,
+        'prv': PRV,
+        'ps': PS,
+        'psv': PSV,
+        'wdno': WDNO,
+        'wdt': WDT,
+    }
+
     prefixes: Final[dict[str, Namespace]] = {
         'wikidata': WIKIDATA,
         'p': P,

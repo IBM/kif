@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 0.8.3 (?)
 
+- Added a default RDF schema to RDF encoder.  Properties without schema are
+  now serialized using the Wikidata RDF schema by default.  The default
+  schema can be changed via `kif.codec.rdf.encoder.schema` or overriden via
+  the parameter `schema` of `KIF_Object.to_rdf()`.  Note that this changes
+  the meaning of parameter `schema`, which breaks compatibility with
+  previous versions.
+
 - Added convenience methods (preamble, postamble, describe, and register) to
   the base reader store.  These allow for a fine-grained control of
   statement generation.

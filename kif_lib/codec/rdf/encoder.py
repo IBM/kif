@@ -1,10 +1,11 @@
-# Copyright (C) 2024-2025 IBM Corp.
+# Copyright (C) 2025 IBM Corp.
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
-from .. import itertools
-from ..model import (
+from ... import itertools
+from ...context import Context
+from ...model import (
     AnnotatedStatement,
     DeepDataValue,
     Entity,
@@ -26,10 +27,10 @@ from ..model import (
     Value,
     ValueSnak,
 )
-from ..model.kif_object import Encoder, Object
-from ..namespace import ONTOLEX, PROV, RDF, WIKIBASE, Wikidata
-from ..rdflib import BNode, Literal, split_uri, URIRef
-from ..typing import (
+from ...model.kif_object import Encoder, Object
+from ...namespace import ONTOLEX, PROV, RDF, WIKIBASE, Wikidata
+from ...rdflib import BNode, Literal, split_uri, URIRef
+from ...typing import (
     Callable,
     cast,
     Iterator,
@@ -38,6 +39,7 @@ from ..typing import (
     TypedDict,
     Union,
 )
+from .options import RDF_EncoderOptions
 
 TSubject: TypeAlias = Union[URIRef, BNode]
 TPredicate: TypeAlias = URIRef
@@ -52,7 +54,9 @@ class RDF_Encoder(
 ):
     """RDF encoder."""
 
-    class PropertySchema(TypedDict):
+    class AbsoluteSchema(TypedDict):
+        """Property schema with absolute URIs."""
+
         p: URIRef
         pq: URIRef
         pqv: URIRef
@@ -62,6 +66,13 @@ class RDF_Encoder(
         psv: URIRef
         wdno: URIRef
         wdt: URIRef
+
+    @classmethod
+    def _get_context_options(
+            cls,
+            context: Context | None = None
+    ) -> RDF_EncoderOptions:
+        return Context.top(context).options.codec.rdf.encoder
 
     @classmethod
     def _default_gen_wdref(cls, reference: ReferenceRecord) -> str:
@@ -79,26 +90,48 @@ class RDF_Encoder(
         '_gen_wdref',
         '_gen_wds',
         '_gen_wdv',
-        '_property_schema_table',
+        '_options',
+        '_schema',
+        '_seen_absolute_schemas',
         '_seen_deep_data_value',
         '_seen_entity',
         '_seen_reference_record',
     )
 
+    #: Callback to use to generate WDREF IRIs.
     _gen_wdref: Callable[[ReferenceRecord], str]
+
+    #: Callback to use to generate WDS IRIs.
     _gen_wds: Callable[[Statement], str]
+
+    #: Callback to use to generate WDV IRIs.
     _gen_wdv: Callable[[Value], str]
-    _property_schema_table: dict[Property, RDF_Encoder.PropertySchema]
+
+    #: RDF encoder options.
+    _options: RDF_EncoderOptions
+
+    #: Default property schema.
+    _schema: Property.Schema | None
+
+    #: Cached absolute schemas.
+    _seen_absolute_schemas: dict[Property, RDF_Encoder.AbsoluteSchema]
+
+    #: Cached deep data values.
     _seen_deep_data_value: dict[DeepDataValue, URIRef]
+
+    #: Cached entities.
     _seen_entity: dict[Entity, URIRef]
+
+    #: Cached reference records.
     _seen_reference_record: dict[ReferenceRecord, URIRef]
 
     def __init__(
             self,
-            schema: dict[Property, RDF_Encoder.PropertySchema] | None = None,
+            schema: Property.TSchema | None = None,
             gen_wdref: Callable[[ReferenceRecord], str] | None = None,
             gen_wds: Callable[[Statement], str] | None = None,
             gen_wdv: Callable[[Value], str] | None = None,
+            context: Context | None = None
     ) -> None:
         if gen_wdref:
             self._gen_wdref = lambda x: str(gen_wdref(x))
@@ -112,34 +145,34 @@ class RDF_Encoder(
             self._gen_wdv = lambda x: str(gen_wdv(x))
         else:
             self._gen_wdv = self._default_gen_wdv
-        self._property_schema_table = {}
-        for prop, t in (schema or {}).items():
-            self._property_schema_table[prop] = cast(
-                RDF_Encoder.PropertySchema,
-                {k: URIRef(v) for k, v in t.items()})  # type: ignore
+        self._options = self._get_context_options(context).copy()
+        if schema is not None:
+            self._options.set_schema(schema, type(self), 'schema', 1)
+        self._seen_absolute_schemas = {}
         self._seen_deep_data_value = {}
         self._seen_entity = {}
         self._seen_reference_record = {}
 
-    def _get_property_schema(
+    def _get_absolute_schema(
             self,
             property: Property
-    ) -> RDF_Encoder.PropertySchema:
+    ) -> RDF_Encoder.AbsoluteSchema:
         assert not isinstance(property, PseudoProperty)
-        if property in self._property_schema_table:
-            return self._property_schema_table[property]
+        if property in self._seen_absolute_schemas:
+            return self._seen_absolute_schemas[property]
         if property.range is None:
             raise self._error(f'no datatype for property: {property}')
         assert property.range is not None
-        if property.schema is None:
-            raise self._error(f'no schema for property: {property}')
-        else:
+        schema = property.schema or self._options.schema
+        if schema is not None:
             _, name = split_uri(property.iri.content)
-            schema = cast(RDF_Encoder.PropertySchema, {
+            absolute_schema = cast(RDF_Encoder.AbsoluteSchema, {
                 k: URIRef(cast(IRI, v).content + name)
-                for k, v in property.schema.items()})
-            self._property_schema_table[property] = schema
-            return schema
+                for k, v in schema.items()})
+            self._seen_absolute_schemas[property] = absolute_schema
+            return absolute_schema
+        else:
+            raise self._error(f'no schema for property: {property}')
 
     @override
     def iterencode(self, input: Object) -> Iterator[str]:
@@ -171,7 +204,7 @@ class RDF_Encoder(
                 (subject, cast(URIRef, stmt.snak.property._to_rdflib()),
                  stmt.snak.value._to_rdflib()))
         else:
-            schema = self._get_property_schema(stmt.snak.property)
+            schema = self._get_absolute_schema(stmt.snak.property)
             wds = Wikidata.WDS[self._gen_wds(stmt)]
             # property definition
             yield from self._do_iterencode_property(stmt.snak.property, True)
@@ -193,7 +226,7 @@ class RDF_Encoder(
             for qsnak in stmt.qualifiers:
                 if isinstance(qsnak.property, PseudoProperty):
                     continue    # skip
-                qschema = self._get_property_schema(qsnak.property)
+                qschema = self._get_absolute_schema(qsnak.property)
                 yield from self._do_iterencode_snak(
                     qsnak, wds, qschema['pq'], qschema['pqv'], qschema['wdno'])
             # references
@@ -256,7 +289,7 @@ class RDF_Encoder(
             dt_uri = property.range._to_rdflib()
             yield from self._tr((uri, WIKIBASE.propertyType, dt_uri))
         if define:
-            schema = self._get_property_schema(property)
+            schema = self._get_absolute_schema(property)
             assert property.range is not None
             yield from self._tr(
                 (uri, WIKIBASE.claim, schema['p']),
@@ -352,7 +385,7 @@ class RDF_Encoder(
         for snak in ref:
             if isinstance(snak.property, PseudoProperty):
                 continue        # skip
-            schema = self._get_property_schema(snak.property)
+            schema = self._get_absolute_schema(snak.property)
             yield from self._do_iterencode_snak(
                 snak, wdref, schema['pr'], schema['prv'], schema['wdno'])
 

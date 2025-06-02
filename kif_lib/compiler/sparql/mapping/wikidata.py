@@ -3,10 +3,10 @@
 
 from __future__ import annotations
 
-import dataclasses
 import functools
 import re
 
+from ....context import Context
 from ....model import (
     AliasProperty,
     AnnotatedStatement,
@@ -110,6 +110,13 @@ class WikidataMapping(M):
        truthy: Truthy mask to be used in the filter compilation phase.
     """
 
+    @classmethod
+    def _get_context_options(
+            cls,
+            context: Context | None = None
+    ) -> WikidataMappingOptions:
+        return Context.top(context).options.compiler.sparql.mapping.wikidata
+
     _re_item_uri: Final[re.Pattern] = re.compile(
         f'^{re.escape(Wikidata.WD)}Q[1-9][0-9]*$')
 
@@ -176,11 +183,11 @@ class WikidataMapping(M):
             self,
             blazegraph: bool | None = None,
             strict: bool | None = None,
-            truthy: Filter.TDatatypeMask | None = None
+            truthy: Filter.TDatatypeMask | None = None,
+            context: Context | None = None
     ) -> None:
         super().__init__()
-        self._options = dataclasses.replace(
-            self.context.options.compiler.sparql.mapping.wikidata)
+        self._options = self._get_context_options(context).copy()
         if blazegraph is not None:
             self.options.set_blazegraph(blazegraph)
         if strict is not None:

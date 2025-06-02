@@ -27,7 +27,16 @@ from .fingerprint import (
     ValueFingerprint,
 )
 from .graph import Graph, GraphVariable, TGraph, VGraph, VTGraph
-from .kif_object import KIF_Object
+from .kif_object import (
+    Codec,
+    CodecError,
+    Decoder,
+    DecoderError,
+    Encoder,
+    EncoderError,
+    Error,
+    KIF_Object,
+)
 from .pattern import (
     ClosedPattern,
     OpenPattern,
@@ -222,6 +231,13 @@ from .value import (
 __all__ = (
 
     # kif_object
+    'Codec',
+    'CodecError',
+    'Decoder',
+    'DecoderError',
+    'Encoder',
+    'EncoderError',
+    'Error',
     'KIF_Object',
 
     # term

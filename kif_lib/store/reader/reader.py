@@ -118,6 +118,7 @@ class Reader(
         '_parse_fn',
         '_registered',
         '_registry',
+        '_scheduled',
     )
 
     #: Input sources.
@@ -134,6 +135,9 @@ class Reader(
 
     #: Entity registry.
     _registry: EntityRegistry
+
+    #: Scheduled statements.
+    _scheduled: set[Statement]
 
     def __init__(
             self,
@@ -182,6 +186,7 @@ class Reader(
             self._parse_fn = parse
         self._registered = set()
         self._registry = EntityRegistry()
+        self._scheduled = set()
 
     def _push_arg(self, arg: Any) -> None:
         if isinstance(arg, (pathlib.PurePath, str)):
@@ -325,6 +330,9 @@ class Reader(
                     self._register(entity, language=l['language'])
         return entity           # type: ignore
 
+    def _schedule(self, statement: Statement) -> None:
+        self._scheduled.add(statement)
+
     def _load(self, file: TextIO) -> Iterable[T]:
         return file
 
@@ -374,6 +382,7 @@ class Reader(
                 it = entity.descriptor_to_snaks(  # type: ignore
                     self._registry.describe(entity))  # type: ignore
                 yield from wrap(map(f, it))
+            yield from wrap(iter(self._scheduled))
             yield from wrap(iter(self._postamble()))
         elif isinstance(arg, self.Location):
             with open(arg.location, encoding='utf-8') as fp:

@@ -3,19 +3,40 @@
 
 from __future__ import annotations
 
-from kif_lib import Graph
+import copy
+
+from kif_lib import Context, Graph, Item
 from kif_lib import namespace as NS
-from kif_lib import Normal, Preferred, Store
-from kif_lib.vocabulary import wd
+from kif_lib import Normal, Preferred, Property, Store
+from kif_lib.model import EncoderError
+from kif_lib.rdflib import split_uri
+from kif_lib.typing import Any
+from kif_lib.vocabulary import pc, wd
 
 from ..tests import TestCase
 
 
 class Test(TestCase):
 
-    def assert_to_rdf(self, input: Graph) -> None:
-        output = Graph(*Store('rdf', data=input.to_rdf()).filter_annotated())
-        self.assertEqual(output, input)
+    def assert_to_rdf(self, input: Graph, **kwargs: Any) -> None:
+        output = Graph(*Store('rdf', data=input.to_rdf(
+            **kwargs)).filter_annotated())
+        self.assertEqual(output, Graph(*map(lambda s: s.annotate(), input)))
+
+    def assert_to_rdf_schema(
+            self,
+            input: Graph,
+            input_schema: Property.TSchema,
+            *args: Property,
+            **kwargs: Any,
+    ) -> None:
+        schema = Property._check_schema(input_schema)
+        kb = Store('rdf', data=input.to_rdf(**kwargs))
+        for prop in args:
+            p = schema['p'].content + split_uri(prop.iri.content)[1]
+            status = kb._sources[0].backend._ask(  # type: ignore
+                f'ASK {{_:b <{p}> ?wds. ?wds <{NS.WIKIBASE.rank}> _:b2}}')
+            self.assertTrue(status['boolean'])
 
     def test_to_rdf(self) -> None:
         # TODO: Check some-value and no-value in qualifiers & references.
@@ -36,6 +57,40 @@ class Test(TestCase):
                     rank=Preferred,
                 )
             ))
+
+    def test_schema(self) -> None:
+        stmt = pc.isotope_atom_count(pc.CID(241), 0)
+        self.assertRaises(TypeError, stmt.to_rdf, schema=0)
+        self.assertRaises(ValueError, stmt.to_rdf, schema={})
+        with Context() as ctx:
+            ctx.options.codec.rdf.encoder.schema = None
+            self.assertRaises(EncoderError, stmt.to_rdf)
+        with Context() as ctx:
+            if ctx.options.codec.rdf.encoder.DEFAULT_SCHEMA is not None:
+                self.assert_to_rdf_schema(
+                    Graph(stmt),
+                    ctx.options.codec.rdf.encoder.DEFAULT_SCHEMA,
+                    pc.isotope_atom_count)
+            schema: Property._TSchema = {
+                'p': 'http://p/',
+                'pq': 'http://pq/',
+                'pqv': 'http://pqv/',
+                'pr': 'http://pr/',
+                'prv': 'http://prv/',
+                'ps': 'http://ps/',
+                'psv': 'http://psv/',
+                'wdno': 'http://wdno/',
+                'wdt': 'http://wdno/',
+            }
+            ctx.options.codec.rdf.encoder.set_schema(schema)
+            self.assert_to_rdf_schema(
+                Graph(stmt), schema, pc.isotope_atom_count)
+            schema1 = copy.copy(schema)
+            schema1['p'] = 'http://p1'
+            self.assert_to_rdf_schema(
+                Graph(stmt), schema1, pc.isotope_atom_count, schema=schema1)
+        self.assert_to_rdf(Graph(
+            Property('http://x')(Item('http://y'), Item('http://z'))))
 
     def test_gen_wdref(self) -> None:
         stmt = wd.mass(

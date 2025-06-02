@@ -29,6 +29,7 @@ DecoderError = object.Decoder.Error
 Encoder = object.Encoder
 EncoderError = object.Encoder.Error
 Error = object.Object.Error
+
 Object = object.Object
 ShouldNotGetHere = object.Object.ShouldNotGetHere
 
