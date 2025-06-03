@@ -45,11 +45,13 @@ Chile = Q(298, 'Chile')
 coffee = Q(8486, 'coffee')
 Colombia = Q(739, 'Colombia')
 comma_separated_values = Q(935809, 'comma-separated values')
+CompTox_Chemistry_Dashboard = Q(26998510, 'CompTox Chemistry Dashboard')
 continent_ = Q(5107, 'continent')
 copyrighted = Q(50423863, 'copyrighted')
 country_ = Q(6256, 'country')
 dalton = Q(483261, 'dalton')
 data_set = Q(1172284, 'data set')
+day = Q(573, 'day')
 degree_Celsius = Q(25267, 'degree Celsius')
 degree_Fahrenheit = Q(42289, 'degree Fahrenheit')
 dog = Q(144, 'dog')
@@ -221,11 +223,13 @@ __all__ = (
     'coffee',
     'Colombia',
     'comma_separated_values',
+    'CompTox_Chemistry_Dashboard',
     'continent_',
     'copyrighted',
     'country_',
     'dalton',
     'data_set',
+    'day',
     'degree_Celsius',
     'degree_Fahrenheit',
     'dog',
