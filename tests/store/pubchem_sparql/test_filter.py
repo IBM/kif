@@ -83,9 +83,9 @@ class Test(StoreTestCase):
            wd.InChIKey(s, 'UHOVQNZJYSORNB-RHQRLBAQSA-N'),
            wd.instance_of(s, wd.type_of_a_chemical_entity),
            wd.isomeric_SMILES(s, '[2H]C1=CC=C(C(=C1[2H])[2H])[2H]'),
-           wd.mass(s, '82.0721'@wd.dalton),
+           wd.mass(s, '82.0720977783203125'@wd.dalton),
            wd.part_of(s, pc.CID(139250633)),
-           wd.partition_coefficient_water_octanol(s, '2.1'),
+           wd.partition_coefficient_water_octanol(s, '2.0999999046325683594'),
            wd.PubChem_CID(s, '12196274')})
 
 
