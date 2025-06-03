@@ -8,7 +8,6 @@ import functools
 import os
 import re
 import sys
-import textwrap
 
 try:
     import click
