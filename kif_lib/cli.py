@@ -804,9 +804,14 @@ def filter(
         else:
             resolved_page = page
         if encoder is None:
-            it = (f'{(pageno * target.page_size) + i}. '
-                  + textwrap.indent(stmt.to_markdown(), ' ' * 4).lstrip()
-                  for i, stmt in enumerate(resolved_page, 1))
+            ###
+            # FIXME: This is not working!
+            ###
+            # it = (f'{(pageno * target.page_size) + i}.\t'
+            #       + textwrap.indent(stmt.to_markdown(), '\t').lstrip()
+            #       for i, stmt in enumerate(resolved_page, 1))
+            ###
+            it = map(Statement.to_markdown, resolved_page)
             console.print(Markdown('\n\n'.join(it)))
         else:
             for stmt in resolved_page:
