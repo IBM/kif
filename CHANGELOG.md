@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 0.8.3 (?)
+## 0.9.0 (2025-06-03)
 
 - Added a default RDF schema to RDF encoder.  Properties without schema are
   now serialized using the Wikidata RDF schema by default.  The default
@@ -20,7 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fixed a bug in Wikidata mappings which was causing a runtime error when
   fetching annotations of statements with pseudo-property.
 
-- Fixed bug in reader base store which was causing the greedy evaluation of
+- Fixed bug in reader base store which was causing the eager evaluation of
   filters.
 
 ## 0.8.2 (2025-05-27)
