@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.9.1 (?)
+
+- Updated SPARQL filter compiler to honor fine-grained subject mask
+  settings.
+
 ## 0.9.0 (2025-06-03)
 
 - Added a default RDF schema to RDF encoder.  Properties without schema are
@@ -174,7 +179,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `SPARQL_Store`.  Now the query no longer assumes that properties occurring
   in qualifier and reference snaks adopt the Wikidata RDF schema.
 
-## v0.4
+## 0.4
 
 - Added a new `range` field (datatype) to `Property`.  This information is
   now being retrieved automatically by most stores.
