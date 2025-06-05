@@ -73,6 +73,7 @@ GHS_precautionary_statement = P(5042)
 GHS_signal_word = P(1033)
 grammatical_gender = P(5185)
 grammatical_person = P(11053)
+habitat = P(2974)
 half_life = P(2114)
 half_maximal_effective_concentration = P(4269)
 has_active_ingredient = P(3781)
@@ -277,6 +278,7 @@ __all__ = (
     'GHS_signal_word',
     'grammatical_gender',
     'grammatical_person',
+    'habitat',
     'half_life',
     'half_maximal_effective_concentration',
     'has_active_ingredient',

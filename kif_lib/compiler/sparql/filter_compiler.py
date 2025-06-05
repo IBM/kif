@@ -930,17 +930,16 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             filter: Filter
     ) -> Iterator[SPARQL_Mapping.EntryPattern]:
         if isinstance(filter.subject, ValueFingerprint):
-            subject: VEntity = cast(Entity, filter.subject.value)
-        elif filter.subject_mask == filter.ITEM:
-            subject = self._fresh_item_variable()
-        elif filter.subject_mask == filter.PROPERTY:
-            subject = self._fresh_property_variable()
-        elif filter.subject_mask == filter.LEXEME:
-            subject = self._fresh_lexeme_variable()
-        elif filter.subject_mask & filter.ENTITY:
-            subject = self._fresh_entity_variable()
+            subjects: list[VEntity] = [cast(Entity, filter.subject.value)]
         else:
-            raise self._should_not_get_here()
+            subjects = []
+            if filter.subject_mask & filter.ITEM:
+                subjects.append(self._fresh_item_variable())
+            if filter.subject_mask & filter.PROPERTY:
+                subjects.append(self._fresh_property_variable())
+            if filter.subject_mask & filter.LEXEME:
+                subjects.append(self._fresh_lexeme_variable())
+        assert subjects
         if isinstance(filter.property, ValueFingerprint):
             property: VProperty = cast(Property, filter.property.value)
         else:
@@ -949,39 +948,45 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             assert bool(filter.value_mask)
             value_mask = (
                 filter.value_mask & filter.property.range_datatype_mask)
-            mk_pat = (lambda v: self._filter_to_patterns_tail(
-                Statement(subject, ValueSnak(property, v))))
+
+            def mk_pats(
+                    value: VValue
+            ) -> Iterable[SPARQL_Mapping.EntryPattern]:
+                yield from map(
+                    lambda subject: self._filter_to_patterns_tail(
+                        Statement(subject, ValueSnak(property, value))),
+                    subjects)
             if isinstance(filter.value, ValueFingerprint):
-                yield mk_pat(cast(Value, filter.value.value))
+                yield from mk_pats(cast(Value, filter.value.value))
             else:
                 if value_mask & filter.ITEM:
-                    yield mk_pat(self._fresh_item_variable())
+                    yield from mk_pats(self._fresh_item_variable())
                 if value_mask & filter.PROPERTY:
-                    yield mk_pat(self._fresh_property_variable())
+                    yield from mk_pats(self._fresh_property_variable())
                 if value_mask & filter.LEXEME:
-                    yield mk_pat(self._fresh_lexeme_variable())
+                    yield from mk_pats(self._fresh_lexeme_variable())
                 if value_mask & filter.IRI:
-                    yield mk_pat(self._fresh_iri_variable())
+                    yield from mk_pats(self._fresh_iri_variable())
                 if value_mask & filter.TEXT:
                     if filter.language is None:
-                        yield mk_pat(self._fresh_text_variable())
+                        yield from mk_pats(self._fresh_text_variable())
                     else:
-                        yield mk_pat(Text(
+                        yield from mk_pats(Text(
                             self._fresh_string_variable(), filter.language))
                 if value_mask & filter.STRING:
-                    yield mk_pat(self._fresh_string_variable())
+                    yield from mk_pats(self._fresh_string_variable())
                 elif value_mask & filter.EXTERNAL_ID:
-                    yield mk_pat(self._fresh_external_id_variable())
+                    yield from mk_pats(self._fresh_external_id_variable())
                 if value_mask & filter.QUANTITY:
-                    yield mk_pat(self._fresh_quantity_variable())
+                    yield from mk_pats(self._fresh_quantity_variable())
                 if value_mask & filter.TIME:
-                    yield mk_pat(self._fresh_time_variable())
+                    yield from mk_pats(self._fresh_time_variable())
         if filter.snak_mask & filter.SOME_VALUE_SNAK:
-            yield self._filter_to_patterns_tail(
-                Statement(subject, SomeValueSnak(property)))
+            yield from map(lambda subject: self._filter_to_patterns_tail(
+                Statement(subject, SomeValueSnak(property))), subjects)
         if filter.snak_mask & filter.NO_VALUE_SNAK:
-            yield self._filter_to_patterns_tail(
-                Statement(subject, NoValueSnak(property)))
+            yield from map(lambda subject: self._filter_to_patterns_tail(
+                Statement(subject, NoValueSnak(property))), subjects)
 
     def _filter_to_patterns_tail(
             self,
