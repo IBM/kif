@@ -9,13 +9,11 @@
 
 from __future__ import annotations
 
-import fcntl
 import io
 import logging
 import os
 import pathlib
 import re
-import shutil
 import subprocess
 
 from typing_extensions import Final
@@ -48,6 +46,8 @@ class RDFox:
             self,
             path: pathlib.PurePath | str | None = None,
     ) -> None:
+        import fcntl
+        import shutil
         self._process = None
         if path is None:
             path = shutil.which(os.getenv('RDFOX', 'RDFox'))
