@@ -620,7 +620,22 @@ class WikidataMapping(M):
 
     def _start_any(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> Var3:
         wds = self.wds
-        p_, ps = c.fresh_qvars(2)
+        p_: V_URI = c.fresh_qvar()
+        ps: V_URI = c.fresh_qvar()
+        if isinstance(p, URI):
+            ###
+            # Try to use property schema to determine "p:" and "ps:".
+            #
+            # TODO: Revise this optimization.
+            # TODO: This function should return a tuple[V_URI,V_URI,V_URI].
+            # TODO: Add an option to enable/disable this.
+            ###
+            schema = Property(p).schema
+            if schema:
+                from .... import rdflib
+                _, name = rdflib.split_uri(p)
+                p_ = URI(schema['p'].content + name)
+                ps = URI(schema['ps'].content + name)
         c.q.triples()(
             (e, p_, wds),
             (p, RDF.type, WIKIBASE.Property),
