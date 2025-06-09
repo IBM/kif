@@ -383,6 +383,7 @@ class WikidataSPARQL_Store(
             blazegraph: bool | None = None,
             strict: bool | None = None,
             truthy: Filter.TDatatypeMask | None = None,
+            use_schema: bool | None = None,
             **kwargs: Any
     ) -> None:
         assert store_name == self.store_name
@@ -394,7 +395,8 @@ class WikidataSPARQL_Store(
             mapping = _SPARQL_Store._wikidata_mapping_constructor(
                 blazegraph=blazegraph,
                 strict=strict,
-                truthy=truthy)
+                truthy=truthy,
+                use_schema=use_schema)
         super().__init__(
             store_name, *args, format=format,
             location=location, file=file, data=data, graph=graph,

@@ -468,6 +468,30 @@ class FilterParam:
         help='Rank mask.',
         envvar='RANK_MASK')
 
+    snak_is_no_value = click.option(
+        '--snak-is-no-value',
+        'snak_is_no_value',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-mask=NO_VALUE_SNAK.',
+        envvar='SNAK_IS_NO_VALUE')
+
+    snak_is_some_value = click.option(
+        '--snak-is-some-value',
+        'snak_is_some_value',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-mask=SOME_VALUE_SNAK.',
+        envvar='SNAK_IS_SOME_VALUE')
+
+    snak_is_value = click.option(
+        '--snak-is-value',
+        'snak_is_value',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-mask=VALUE_SNAK.',
+        envvar='SNAK_IS_VALUE')
+
     snak_mask = click.option(
         '--snak-mask',
         'snak_mask',
@@ -492,6 +516,30 @@ class FilterParam:
         required=False,
         help='Subject fingerprint.')
 
+    subject_is_item = click.option(
+        '--subject-is-item',
+        'subject_is_item',
+        is_flag=True,
+        default=False,
+        help='Alias: --subject-mask=ITEM.',
+        envvar='SUBJECT_IS_ITEM')
+
+    subject_is_property = click.option(
+        '--subject-is-property',
+        'subject_is_property',
+        is_flag=True,
+        default=False,
+        help='Alias: --subject-mask=PROPERTY.',
+        envvar='SUBJECT_IS_PROPERTY')
+
+    subject_is_lexeme = click.option(
+        '--subject-is-lexeme',
+        'subject_is_lexeme',
+        is_flag=True,
+        default=False,
+        help='Alias: --subject-mask=LEXEME.',
+        envvar='SUBJECT_IS_LEXEME')
+
     subject_mask = click.option(
         '--subject-mask',
         'subject_mask',
@@ -515,6 +563,94 @@ class FilterParam:
         required=False,
         help='Value fingerprint.',
         envvar='VALUE')
+
+    value_is_data_value = click.option(
+        '--value-is-data-value',
+        'value_is_data_value',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-is-value --value-mask=DATA_VALUE.',
+        envvar='VALUE_IS_DATA_VALUE')
+
+    value_is_deep_data_value = click.option(
+        '--value-is-deep-data-value',
+        'value_is_deep_data_value',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-is-value --value-mask=DEEP_DATA_VALUE.',
+        envvar='VALUE_IS_DEEP_DATA_VALUE')
+
+    value_is_entity = click.option(
+        '--value-is-entity',
+        'value_is_entity',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-is-value --value-mask=ENTITY.',
+        envvar='VALUE_IS_ENTITY')
+
+    value_is_external_id = click.option(
+        '--value-is-external-id',
+        'value_is_external_id',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-is-value --value-mask=EXTERNAL_ID.',
+        envvar='VALUE_IS_EXTERNAL_ID')
+
+    value_is_iri = click.option(
+        '--value-is-iri',
+        'value_is_iri',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-is-value --value-mask=IRI.',
+        envvar='VALUE_IS_IRI')
+
+    value_is_item = click.option(
+        '--value-is-item',
+        'value_is_item',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-is-value --value-mask=ITEM.',
+        envvar='VALUE_IS_ITEM')
+
+    value_is_lexeme = click.option(
+        '--value-is-lexeme',
+        'value_is_lexeme',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-is-value --value-mask=LEXEME.',
+        envvar='VALUE_IS_LEXEME')
+
+    value_is_property = click.option(
+        '--value-is-property',
+        'value_is_property',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-is-value --value-mask=PROPERTY.',
+        envvar='VALUE_IS_PROPERTY')
+
+    value_is_shallow_data_value = click.option(
+        '--value-is-shallow-data-value',
+        'value_is_shallow_data_value',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-is-value --value-mask=SHALLOW_DATA_VALUE.',
+        envvar='VALUE_IS_SHALLOW_DATA_VALUE')
+
+    value_is_string = click.option(
+        '--value-is-string',
+        'value_is_string',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-is-value --value-mask=STRING.',
+        envvar='VALUE_IS_STRING')
+
+    value_is_text = click.option(
+        '--value-is-text',
+        'value_is_text',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-is-value --value-mask=TEXT.',
+        envvar='VALUE_IS_TEXT')
 
     value_mask = click.option(
         '--value-mask',
@@ -543,9 +679,26 @@ class FilterParam:
             property_option: Fingerprint | None = None,
             value: Fingerprint | None = None,
             value_option: Fingerprint | None = None,
+            snak_is_no_value: bool | None = None,
+            snak_is_some_value: bool | None = None,
+            snak_is_value: bool | None = None,
             snak_mask: Filter.SnakMask | None = None,
+            subject_is_item: bool | None = None,
+            subject_is_lexeme: bool | None = None,
+            subject_is_property: bool | None = None,
             subject_mask: Filter.DatatypeMask | None = None,
             property_mask: Filter.DatatypeMask | None = None,
+            value_is_data_value: bool | None = None,
+            value_is_deep_data_value: bool | None = None,
+            value_is_entity: bool | None = None,
+            value_is_external_id: bool | None = None,
+            value_is_iri: bool | None = None,
+            value_is_item: bool | None = None,
+            value_is_lexeme: bool | None = None,
+            value_is_property: bool | None = None,
+            value_is_shallow_data_value: bool | None = None,
+            value_is_string: bool | None = None,
+            value_is_text: bool | None = None,
             value_mask: Filter.DatatypeMask | None = None,
             rank_mask: Filter.RankMask | None = None,
             language: str | None = None,
@@ -553,6 +706,65 @@ class FilterParam:
             dry_run: bool | None = None,
             console: Console | None = None
     ) -> Filter:
+        if snak_mask is None and (
+                snak_is_no_value
+                or snak_is_some_value
+                or snak_is_value):
+            snak_mask = Filter.SnakMask(0)
+            if snak_is_no_value:
+                snak_mask |= Filter.NO_VALUE_SNAK
+            if snak_is_some_value:
+                snak_mask |= Filter.SOME_VALUE_SNAK
+            if snak_is_value:
+                snak_mask |= Filter.VALUE_SNAK
+        if subject_mask is None and (
+                subject_is_item
+                or subject_is_lexeme
+                or subject_is_property):
+            subject_mask = Filter.DatatypeMask(0)
+            if subject_is_item:
+                subject_mask |= Filter.ITEM
+            if subject_is_lexeme:
+                subject_mask |= Filter.LEXEME
+            if subject_is_property:
+                subject_mask |= Filter.PROPERTY
+        if value_mask is None and (
+                value_is_data_value
+                or value_is_deep_data_value
+                or value_is_entity
+                or value_is_external_id
+                or value_is_iri
+                or value_is_item
+                or value_is_lexeme
+                or value_is_property
+                or value_is_shallow_data_value
+                or value_is_string
+                or value_is_text):
+            if snak_mask is None:
+                snak_mask = Filter.VALUE_SNAK
+            value_mask = Filter.DatatypeMask(0)
+            if value_is_data_value:
+                value_mask |= Filter.DATA_VALUE
+            if value_is_deep_data_value:
+                value_mask |= Filter.DEEP_DATA_VALUE
+            if value_is_entity:
+                value_mask |= Filter.ENTITY
+            if value_is_external_id:
+                value_mask |= Filter.EXTERNAL_ID
+            if value_is_iri:
+                value_mask |= Filter.IRI
+            if value_is_item:
+                value_mask |= Filter.ITEM
+            if value_is_lexeme:
+                value_mask |= Filter.LEXEME
+            if value_is_property:
+                value_mask |= Filter.PROPERTY
+            if value_is_shallow_data_value:
+                value_mask |= Filter.SHALLOW_DATA_VALUE
+            if value_is_string:
+                value_mask |= Filter.STRING
+            if value_is_text:
+                value_mask |= Filter.TEXT
         fr = Filter(
             subject=And(subject, subject_option),
             property=And(property, property_option),
@@ -616,12 +828,29 @@ class FilterParam:
 @FilterParam.property_option
 @FilterParam.property_mask
 @FilterParam.rank_mask
+@FilterParam.snak_is_no_value
+@FilterParam.snak_is_some_value
+@FilterParam.snak_is_value
 @FilterParam.snak_mask
 @FilterParam.store
 @FilterParam.subject_option
+@FilterParam.subject_is_item
+@FilterParam.subject_is_lexeme
+@FilterParam.subject_is_property
 @FilterParam.subject_mask
 @FilterParam.timeout
 @FilterParam.value_option
+@FilterParam.value_is_data_value
+@FilterParam.value_is_deep_data_value
+@FilterParam.value_is_entity
+@FilterParam.value_is_external_id
+@FilterParam.value_is_iri
+@FilterParam.value_is_item
+@FilterParam.value_is_lexeme
+@FilterParam.value_is_property
+@FilterParam.value_is_shallow_data_value
+@FilterParam.value_is_string
+@FilterParam.value_is_text
 @FilterParam.value_mask
 def ask(
         store: Sequence[Store],
@@ -631,9 +860,26 @@ def ask(
         property_option: Fingerprint | None = None,
         value: Fingerprint | None = None,
         value_option: Fingerprint | None = None,
+        snak_is_no_value: bool | None = None,
+        snak_is_some_value: bool | None = None,
+        snak_is_value: bool | None = None,
         snak_mask: Filter.SnakMask | None = None,
+        subject_is_item: bool | None = None,
+        subject_is_lexeme: bool | None = None,
+        subject_is_property: bool | None = None,
         subject_mask: Filter.DatatypeMask | None = None,
         property_mask: Filter.DatatypeMask | None = None,
+        value_is_data_value: bool | None = None,
+        value_is_deep_data_value: bool | None = None,
+        value_is_entity: bool | None = None,
+        value_is_external_id: bool | None = None,
+        value_is_iri: bool | None = None,
+        value_is_item: bool | None = None,
+        value_is_lexeme: bool | None = None,
+        value_is_property: bool | None = None,
+        value_is_shallow_data_value: bool | None = None,
+        value_is_string: bool | None = None,
+        value_is_text: bool | None = None,
         value_mask: Filter.DatatypeMask | None = None,
         rank_mask: Filter.RankMask | None = None,
         language: str | None = None,
@@ -651,9 +897,26 @@ def ask(
         property_option=property_option,
         value=value,
         value_option=value_option,
+        snak_is_no_value=snak_is_no_value,
+        snak_is_some_value=snak_is_some_value,
+        snak_is_value=snak_is_value,
         snak_mask=snak_mask,
+        subject_is_item=subject_is_item,
+        subject_is_lexeme=subject_is_lexeme,
+        subject_is_property=subject_is_property,
         subject_mask=subject_mask,
         property_mask=property_mask,
+        value_is_data_value=value_is_data_value,
+        value_is_deep_data_value=value_is_deep_data_value,
+        value_is_entity=value_is_entity,
+        value_is_external_id=value_is_external_id,
+        value_is_iri=value_is_iri,
+        value_is_item=value_is_item,
+        value_is_lexeme=value_is_lexeme,
+        value_is_property=value_is_property,
+        value_is_shallow_data_value=value_is_shallow_data_value,
+        value_is_string=value_is_string,
+        value_is_text=value_is_text,
         value_mask=value_mask,
         rank_mask=rank_mask,
         language=language,
@@ -687,12 +950,29 @@ def ask(
 @FilterParam.property_option
 @FilterParam.property_mask
 @FilterParam.rank_mask
+@FilterParam.snak_is_no_value
+@FilterParam.snak_is_some_value
+@FilterParam.snak_is_value
 @FilterParam.snak_mask
 @FilterParam.store
 @FilterParam.subject_option
+@FilterParam.subject_is_item
+@FilterParam.subject_is_lexeme
+@FilterParam.subject_is_property
 @FilterParam.subject_mask
 @FilterParam.timeout
 @FilterParam.value_option
+@FilterParam.value_is_data_value
+@FilterParam.value_is_deep_data_value
+@FilterParam.value_is_entity
+@FilterParam.value_is_external_id
+@FilterParam.value_is_iri
+@FilterParam.value_is_item
+@FilterParam.value_is_lexeme
+@FilterParam.value_is_property
+@FilterParam.value_is_shallow_data_value
+@FilterParam.value_is_string
+@FilterParam.value_is_text
 @FilterParam.value_mask
 def count(
         store: Sequence[Store],
@@ -702,9 +982,26 @@ def count(
         property_option: Fingerprint | None = None,
         value: Fingerprint | None = None,
         value_option: Fingerprint | None = None,
+        snak_is_no_value: bool | None = None,
+        snak_is_some_value: bool | None = None,
+        snak_is_value: bool | None = None,
         snak_mask: Filter.SnakMask | None = None,
+        subject_is_item: bool | None = None,
+        subject_is_lexeme: bool | None = None,
+        subject_is_property: bool | None = None,
         subject_mask: Filter.DatatypeMask | None = None,
         property_mask: Filter.DatatypeMask | None = None,
+        value_is_data_value: bool | None = None,
+        value_is_deep_data_value: bool | None = None,
+        value_is_entity: bool | None = None,
+        value_is_external_id: bool | None = None,
+        value_is_iri: bool | None = None,
+        value_is_item: bool | None = None,
+        value_is_lexeme: bool | None = None,
+        value_is_property: bool | None = None,
+        value_is_shallow_data_value: bool | None = None,
+        value_is_string: bool | None = None,
+        value_is_text: bool | None = None,
         value_mask: Filter.DatatypeMask | None = None,
         rank_mask: Filter.RankMask | None = None,
         language: str | None = None,
@@ -723,9 +1020,26 @@ def count(
         property_option=property_option,
         value=value,
         value_option=value_option,
+        snak_is_no_value=snak_is_no_value,
+        snak_is_some_value=snak_is_some_value,
+        snak_is_value=snak_is_value,
         snak_mask=snak_mask,
+        subject_is_item=subject_is_item,
+        subject_is_lexeme=subject_is_lexeme,
+        subject_is_property=subject_is_property,
         subject_mask=subject_mask,
         property_mask=property_mask,
+        value_is_data_value=value_is_data_value,
+        value_is_deep_data_value=value_is_deep_data_value,
+        value_is_entity=value_is_entity,
+        value_is_external_id=value_is_external_id,
+        value_is_iri=value_is_iri,
+        value_is_item=value_is_item,
+        value_is_lexeme=value_is_lexeme,
+        value_is_property=value_is_property,
+        value_is_shallow_data_value=value_is_shallow_data_value,
+        value_is_string=value_is_string,
+        value_is_text=value_is_text,
         value_mask=value_mask,
         rank_mask=rank_mask,
         language=language,
@@ -763,12 +1077,29 @@ def count(
 @FilterParam.property_option
 @FilterParam.property_mask
 @FilterParam.rank_mask
+@FilterParam.snak_is_no_value
+@FilterParam.snak_is_some_value
+@FilterParam.snak_is_value
 @FilterParam.snak_mask
 @FilterParam.store
 @FilterParam.subject_option
+@FilterParam.subject_is_item
+@FilterParam.subject_is_lexeme
+@FilterParam.subject_is_property
 @FilterParam.subject_mask
 @FilterParam.timeout
 @FilterParam.value_option
+@FilterParam.value_is_data_value
+@FilterParam.value_is_deep_data_value
+@FilterParam.value_is_entity
+@FilterParam.value_is_external_id
+@FilterParam.value_is_iri
+@FilterParam.value_is_item
+@FilterParam.value_is_lexeme
+@FilterParam.value_is_property
+@FilterParam.value_is_shallow_data_value
+@FilterParam.value_is_string
+@FilterParam.value_is_text
 @FilterParam.value_mask
 def filter(
         store: Sequence[Store],
@@ -778,9 +1109,26 @@ def filter(
         property_option: Fingerprint | None = None,
         value: Fingerprint | None = None,
         value_option: Fingerprint | None = None,
+        snak_is_no_value: bool | None = None,
+        snak_is_some_value: bool | None = None,
+        snak_is_value: bool | None = None,
         snak_mask: Filter.SnakMask | None = None,
+        subject_is_item: bool | None = None,
+        subject_is_lexeme: bool | None = None,
+        subject_is_property: bool | None = None,
         subject_mask: Filter.DatatypeMask | None = None,
         property_mask: Filter.DatatypeMask | None = None,
+        value_is_data_value: bool | None = None,
+        value_is_deep_data_value: bool | None = None,
+        value_is_entity: bool | None = None,
+        value_is_external_id: bool | None = None,
+        value_is_iri: bool | None = None,
+        value_is_item: bool | None = None,
+        value_is_lexeme: bool | None = None,
+        value_is_property: bool | None = None,
+        value_is_shallow_data_value: bool | None = None,
+        value_is_string: bool | None = None,
+        value_is_text: bool | None = None,
         value_mask: Filter.DatatypeMask | None = None,
         rank_mask: Filter.RankMask | None = None,
         language: str | None = None,
@@ -805,9 +1153,26 @@ def filter(
         property_option=property_option,
         value=value,
         value_option=value_option,
+        snak_is_no_value=snak_is_no_value,
+        snak_is_some_value=snak_is_some_value,
+        snak_is_value=snak_is_value,
         snak_mask=snak_mask,
+        subject_is_item=subject_is_item,
+        subject_is_lexeme=subject_is_lexeme,
+        subject_is_property=subject_is_property,
         subject_mask=subject_mask,
         property_mask=property_mask,
+        value_is_data_value=value_is_data_value,
+        value_is_deep_data_value=value_is_deep_data_value,
+        value_is_entity=value_is_entity,
+        value_is_external_id=value_is_external_id,
+        value_is_iri=value_is_iri,
+        value_is_item=value_is_item,
+        value_is_lexeme=value_is_lexeme,
+        value_is_property=value_is_property,
+        value_is_shallow_data_value=value_is_shallow_data_value,
+        value_is_string=value_is_string,
+        value_is_text=value_is_text,
         value_mask=value_mask,
         rank_mask=rank_mask,
         language=language,
