@@ -96,7 +96,7 @@
 
 ### JSON
 
-- Add support for generating JSON in standard Wikidata format.  See
+- Add support for generating JSON in standard Wikidata format.
 
 ## Store
 
@@ -105,8 +105,6 @@
 
 - Sync via async: See Jupyter core's
   [run_sync()](https://github.com/jupyter/jupyter_core/blob/main/jupyter_core/utils/__init__.py).
-
-- Remove store flags.
 
 - Add support for matching annotations (qualifiers, references, rank) in
   `Store.filter()` and `Store.filter_annotated()`.
