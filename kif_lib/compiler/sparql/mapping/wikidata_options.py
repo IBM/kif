@@ -18,6 +18,7 @@ class WikidataMappingOptions(Section, name='wikidata'):
         self._init_blazegraph(kwargs)
         self._init_strict(kwargs)
         self._init_truthy(kwargs)
+        self._init_use_schema(kwargs)
 
     # -- blazegraph --
 
@@ -165,3 +166,52 @@ class WikidataMappingOptions(Section, name='wikidata'):
         """
         self._truthy = Filter.DatatypeMask.check(
             truthy, function, name, position)
+
+    # -- use_schema --
+
+    #: The default value of the use-schema option.
+    DEFAULT_USE_SCHEMA: ClassVar[bool] = True
+
+    _v_use_schema: ClassVar[tuple[str, bool]] =\
+        ('KIF_COMPILER_SPARQL_MAPPING_WIKIDATA_USE_SCHEMA',
+         DEFAULT_USE_SCHEMA)
+
+    _use_schema: bool
+
+    def _init_use_schema(self, kwargs: dict[str, Any]) -> None:
+        self.use_schema = kwargs.get(
+            '_use_schema', self.getenv_bool(*self._v_use_schema))
+
+    @property
+    def use_schema(self) -> bool:
+        """Whether to use the registered property schemas."""
+        return self.get_use_schema()
+
+    @use_schema.setter
+    def use_schema(self, use_schema: bool) -> None:
+        self.set_use_schema(use_schema)
+
+    def get_use_schema(self) -> bool:
+        """Gets the use-schema flag.
+
+        Returns:
+           Use-schema flag.
+        """
+        return bool(self._use_schema)
+
+    def set_use_schema(
+            self,
+            use_schema: bool,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        """Sets the use-schema flag.
+
+        Parameters:
+           use_schema: Use-schema flag.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
+        """
+        self._use_schema = bool(use_schema)

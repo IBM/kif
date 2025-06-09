@@ -197,6 +197,7 @@ class WikidataMapping(M):
             blazegraph: bool | None = None,
             strict: bool | None = None,
             truthy: Filter.TDatatypeMask | None = None,
+            use_schema: bool | None = None,
             context: Context | None = None
     ) -> None:
         super().__init__(context)
@@ -207,6 +208,8 @@ class WikidataMapping(M):
             self.options.set_strict(strict)
         if truthy is not None:
             self.options.set_truthy(truthy)
+        if use_schema is not None:
+            self.options.set_use_schema(use_schema)
         self._uri_schema = {}
         self._wds = []
 
@@ -242,6 +245,8 @@ class WikidataMapping(M):
         Returns:
            Resolved URI schema or ``None``.
         """
+        if not self.options.use_schema:
+            return None         # nothing to do
         if isinstance(target, Property):
             property = target
             uri = URI(target.iri.content)
