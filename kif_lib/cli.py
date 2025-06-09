@@ -411,6 +411,15 @@ class FilterParam:
         help='Do not use the asynchronous API.',
         envvar='ASYNC')
 
+    no_best_ranked = click.option(
+        '--no-best-ranked',
+        'best_ranked',
+        is_flag=True,
+        default=True,
+        help='Do not suppress non-best ranked statements.',
+        envvar='BEST_RANKED',
+    )
+
     no_distinct = click.option(
         '--no-distinct',
         'distinct',
@@ -565,6 +574,7 @@ class FilterParam:
     def make_store(
             cls,
             store: Sequence[Store],
+            best_ranked: bool | None = None,
             distinct: bool | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
@@ -578,6 +588,8 @@ class FilterParam:
             target = store[0]
         else:
             target = Store('mixer', store)
+        if best_ranked is not None:
+            target.set_best_ranked(best_ranked)
         if distinct is not None:
             target.set_distinct(distinct)
         if limit is not None:
@@ -598,6 +610,9 @@ class FilterParam:
 @FilterParam.dry_run
 @FilterParam.language
 @FilterParam.no_async_
+@FilterParam.no_best_ranked
+@FilterParam.no_distinct
+@FilterParam.no_resolve
 @FilterParam.property_option
 @FilterParam.property_mask
 @FilterParam.rank_mask
@@ -623,7 +638,10 @@ def ask(
         rank_mask: Filter.RankMask | None = None,
         language: str | None = None,
         async_: bool | None = None,
+        best_ranked: bool | None = None,
+        distinct: bool | None = None,
         dry_run: bool | None = None,
+        resolve: bool | None = None,
         timeout: float | None = None
 ) -> None:
     fr = FilterParam.make_filter(
@@ -640,7 +658,11 @@ def ask(
         rank_mask=rank_mask,
         language=language,
         dry_run=dry_run)
-    target = FilterParam.make_store(store=store, timeout=timeout)
+    target = FilterParam.make_store(
+        store,
+        best_ranked=best_ranked,
+        distinct=distinct,
+        timeout=timeout)
     status: bool
     if async_:
         async def aask():
@@ -659,7 +681,9 @@ def ask(
 @FilterParam.dry_run
 @FilterParam.language
 @FilterParam.no_async_
+@FilterParam.no_best_ranked
 @FilterParam.no_distinct
+@FilterParam.no_resolve
 @FilterParam.property_option
 @FilterParam.property_mask
 @FilterParam.rank_mask
@@ -686,8 +710,10 @@ def count(
         language: str | None = None,
         annotated: bool | None = None,
         async_: bool | None = None,
+        best_ranked: bool | None = None,
         distinct: bool | None = None,
         dry_run: bool | None = None,
+        resolve: bool | None = None,
         timeout: float | None = None
 ) -> None:
     fr = FilterParam.make_filter(
@@ -705,7 +731,8 @@ def count(
         language=language,
         dry_run=dry_run)
     target = FilterParam.make_store(
-        store=store,
+        store,
+        best_ranked=best_ranked,
         distinct=distinct,
         timeout=timeout)
     n: int
@@ -729,6 +756,7 @@ def count(
 @FilterParam.limit
 @FilterParam.lookahead
 @FilterParam.no_async_
+@FilterParam.no_best_ranked
 @FilterParam.no_distinct
 @FilterParam.no_resolve
 @FilterParam.page_size
@@ -758,6 +786,7 @@ def filter(
         language: str | None = None,
         annotated: bool | None = None,
         async_: bool | None = None,
+        best_ranked: bool | None = None,
         distinct: bool | None = None,
         dry_run: bool | None = None,
         encoder: Encoder | None = None,
@@ -786,7 +815,8 @@ def filter(
         dry_run=dry_run,
         console=console)
     target = FilterParam.make_store(
-        store=store,
+        store,
+        best_ranked=best_ranked,
         distinct=distinct,
         limit=limit,
         lookahead=lookahead,

@@ -17,7 +17,7 @@
 ### PubChem mapping
 
 - Add support for the use of QIDs as compound identifiers in subjects and
-  values.
+  values. (?)
 
 ## Context
 

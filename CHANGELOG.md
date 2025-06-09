@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   schema is available, we use it to resolve "p:", "ps:", etc., which avoid
   an extra indirection in the query.
 
+- Added the `--no-best-ranked` option to KIF CLI to make it consider
+  non-best ranked statements.
+
 ## 0.9.1 (2025-06-06)
 
 - Moved fcntl import to the RDFox store constructor. (Windows doesn't have
