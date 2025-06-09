@@ -63,6 +63,7 @@ from ....namespace import (
     Wikidata,
 )
 from ....typing import (
+    Any,
     cast,
     Final,
     Iterable,
@@ -70,6 +71,7 @@ from ....typing import (
     Optional,
     override,
     TypeAlias,
+    TypedDict,
     Union,
 )
 from ..filter_compiler import SPARQL_FilterCompiler as C
@@ -90,9 +92,9 @@ VLiteral: TypeAlias = C.Query.VLiteral
 
 URI: TypeAlias = C.Query.URI
 V_URI: TypeAlias = C.Query.V_URI
+V_URI3: TypeAlias = tuple[V_URI, V_URI, V_URI]
 
 Var: TypeAlias = C.Query.Variable
-Var3: TypeAlias = tuple[Var, Var, Var]
 
 T_WDS: TypeAlias = Union[BNode, Var]
 
@@ -109,13 +111,6 @@ class WikidataMapping(M):
        strict: Whether to be strict (assume full Wikidata compatibility).
        truthy: Truthy mask to be used in the filter compilation phase.
     """
-
-    @classmethod
-    def _get_context_options(
-            cls,
-            context: Context | None = None
-    ) -> WikidataMappingOptions:
-        return Context.top(context).options.compiler.sparql.mapping.wikidata
 
     _re_item_uri: Final[re.Pattern] = re.compile(
         f'^{re.escape(Wikidata.WD)}Q[1-9][0-9]*$')
@@ -168,15 +163,33 @@ class WikidataMapping(M):
         def __call__(self, m: M, c: C, arg: Arg) -> Arg:
             return URI(str(super().__call__(m, c, arg)))
 
+    class URI_Schema(TypedDict):
+        """Resolved property schema with URI values."""
+
+        p: URI
+        pq: URI
+        pqv: URI
+        pr: URI
+        prv: URI
+        ps: URI
+        psv: URI
+        wdno: URI
+        wdt: URI
+
     __slots__ = (
+        '_context',
         '_options',
+        '_uri_schema',
         '_wds',
     )
 
     #: Wikidata SPARQL mapping options.
     _options: WikidataMappingOptions
 
-    #: Current wds.
+    #: Resolved property URI schema indexed by property URI.
+    _uri_schema: dict[URI, URI_Schema]
+
+    #: Current wds (stack).
     _wds: list[T_WDS]
 
     def __init__(
@@ -186,15 +199,19 @@ class WikidataMapping(M):
             truthy: Filter.TDatatypeMask | None = None,
             context: Context | None = None
     ) -> None:
-        super().__init__()
-        self._options = self._get_context_options(context).copy()
+        super().__init__(context)
+        self._options = self._get_context_options().copy()
         if blazegraph is not None:
             self.options.set_blazegraph(blazegraph)
         if strict is not None:
             self.options.set_strict(strict)
         if truthy is not None:
             self.options.set_truthy(truthy)
+        self._uri_schema = {}
         self._wds = []
+
+    def _get_context_options(self) -> WikidataMappingOptions:
+        return self.context.options.compiler.sparql.mapping.wikidata
 
     @property
     def options(self) -> WikidataMappingOptions:
@@ -208,6 +225,43 @@ class WikidataMapping(M):
            Wikidata SPARQL mapping options.
         """
         return self._options
+
+    def get_uri_schema(
+            self,
+            target: Any
+    ) -> URI_Schema | None:
+        """Gets the resolved property URI schema of target.
+
+        If `target` cannot be coerced to URI, returns ``None``.
+
+        If `target` has no property schema, returns ``None``.
+
+        Parameters:
+           target: URI.
+
+        Returns:
+           Resolved URI schema or ``None``.
+        """
+        if isinstance(target, Property):
+            property = target
+            uri = URI(target.iri.content)
+        elif isinstance(target, IRI):
+            property = Property(target)
+            uri = URI(target.content)
+        elif isinstance(target, URI):
+            property = Property(target)
+            uri = target
+        else:
+            return None         # cannot coerce target to URI
+        if uri not in self._uri_schema:
+            with self.context:
+                schema = property.schema
+                if schema is not None:
+                    self._uri_schema[uri] = cast(
+                        WikidataMapping.URI_Schema,
+                        {k: URI(cast(IRI, v).content)
+                         for k, v in schema.items()})
+        return self._uri_schema.get(uri)
 
     @property
     def wds(self) -> T_WDS:
@@ -368,18 +422,17 @@ class WikidataMapping(M):
             # In May 2025, we observed inconsistencies in WDQS, cases where
             # the same statement was being assigned both "no-value" and
             # "some-value".  This was causing Store.filter_annotated() to
-            # return the "some-value" version qualified the "no-value" snak.
-            # One way to "fix" this is to filter this qualifier out
-            # (checking whether its property coincides with the main snak
-            # property).  E.g.,
+            # return the "some-value" version qualified with the "no-value"
+            # snak.  One way to "fix" this is to filter this qualifier out
+            # (checking whether its property coincides with that of the main
+            # snak).  E.g.,
             #
             #       (v('_prop'), WIKIBASE.claim, v('_claim'))
             #       (c.bnode(), v('_claim'), wds)
             #     c.q.filter(~c.q.eq(v('_xprop'), v('_prop')))
             #
-            # However, we decided not to do that because it will add an
-            # overhead to handle a cause that shouldn't exist in the first
-            # place.
+            # However, we decided not to do that because it adds an overhead
+            # to handle a cause that shouldn't exist in the first place.
             ###
 
     @override
@@ -582,7 +635,7 @@ class WikidataMapping(M):
             theta[pat.variable] = stmt.instantiate(theta)
             return theta
 
-    def _start_Q(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> Var3:
+    def _start_Q(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> V_URI3:
         t = self._start_any(c, e, p, dt)
         self._start_Q_tail(c, e)
         return t
@@ -591,7 +644,7 @@ class WikidataMapping(M):
         if c.is_compiling_filter():
             c.q.triples()((e, WIKIBASE.sitelinks, c.q.bnode()))
 
-    def _start_L(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> Var3:
+    def _start_L(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> V_URI3:
         t = self._start_any(c, e, p, dt)
         self._start_L_tail(c, e)
         return t
@@ -607,7 +660,7 @@ class WikidataMapping(M):
             edt: V_URI,
             p: V_URI,
             pdt: V_URI
-    ) -> Var3:
+    ) -> V_URI3:
         t = self._start_any(c, e, p, pdt)
         self._start_P_tail(c, e, edt)
         return t
@@ -618,34 +671,34 @@ class WikidataMapping(M):
                 (e, RDF.type, WIKIBASE.Property),
                 (e, WIKIBASE.propertyType, edt))
 
-    def _start_any(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> Var3:
-        wds = self.wds
-        p_: V_URI = c.fresh_qvar()
-        ps: V_URI = c.fresh_qvar()
-        if isinstance(p, URI):
-            ###
-            # Try to use property schema to determine "p:" and "ps:".
-            #
-            # TODO: Revise this optimization.
-            # TODO: This function should return a tuple[V_URI,V_URI,V_URI].
-            # TODO: Add an option to enable/disable this.
-            ###
-            schema = Property(p).schema
-            if schema:
-                from .... import rdflib
-                _, name = rdflib.split_uri(p)
-                p_ = URI(schema['p'].content + name)
-                ps = URI(schema['ps'].content + name)
+    def _start_any(self, c: C, e: V_URI, p: V_URI, dt: V_URI) -> V_URI3:
+        wds = cast(V_URI, self.wds)
+        p_: V_URI = self._get_schema_uri_or_fresh_qvar(c, p, 'p')
+        ps: V_URI = self._get_schema_uri_or_fresh_qvar(c, p, 'ps')
         c.q.triples()(
             (e, p_, wds),
             (p, RDF.type, WIKIBASE.Property),
-            (p, WIKIBASE.claim, p_),
             (p, WIKIBASE.propertyType, dt),
-            (p, WIKIBASE.statementProperty, ps),
             (wds, WIKIBASE.rank, c.bnode()))
+        if isinstance(p_, Var):
+            c.q.triples()((p, WIKIBASE.claim, p_))
+        if isinstance(ps, Var):
+            c.q.triples()((p, WIKIBASE.statementProperty, ps))
         if c.has_flags(c.BEST_RANK):
             c.q.triples()((wds, RDF.type, WIKIBASE.BestRank))
-        return p_, ps, wds      # type: ignore
+        return p_, ps, wds
+
+    def _get_schema_uri_or_fresh_qvar(
+            self,
+            c: C,
+            p: V_URI,
+            name: str
+    ) -> V_URI:
+        schema = self.get_uri_schema(p)
+        if schema is not None:
+            if name in schema:
+                return schema[name]  # type: ignore
+        return c.fresh_qvar()
 
     def _ensure_wds_is_bound_fix(self, c: C) -> None:
         ###
@@ -867,8 +920,8 @@ class WikidataMapping(M):
     ) -> None:
         self._p_item(c, p, x, self._start_P(c, e, d, p, WIKIBASE.WikibaseItem))
 
-    def _p_item(self, c: C, p: V_URI, x: V_URI, var3: Var3) -> None:
-        _, ps, wds = var3
+    def _p_item(self, c: C, p: V_URI, x: V_URI, t: V_URI3) -> None:
+        _, ps, wds = t
         self._p_item_tail(c, ps, wds, x)
 
     def _p_item_tail(self, c: C, ps: V_URI, wds: V_URI, x: V_URI) -> None:
@@ -945,9 +998,9 @@ class WikidataMapping(M):
             p: V_URI,
             x: V_URI,
             y: V_URI,
-            var3: Var3
+            t: V_URI3
     ) -> None:
-        _, ps, wds = var3
+        _, ps, wds = t
         c.q.triples()(
             (wds, ps, x),
             (x, RDF.type, WIKIBASE.Property),
@@ -1014,9 +1067,9 @@ class WikidataMapping(M):
             c: C,
             p: V_URI,
             x: V_URI,
-            var3: Var3
+            t: V_URI3
     ) -> None:
-        _, ps, wds = var3
+        _, ps, wds = t
         c.q.triples()(
             (wds, ps, x),
             (x, RDF.type, ONTOLEX.LexicalEntry))
@@ -1073,8 +1126,8 @@ class WikidataMapping(M):
     ) -> None:
         self._p_iri(c, p, x, self._start_P(c, e, d, p, WIKIBASE.Url))
 
-    def _p_iri(self, c: C, p: V_URI, x: V_URI, var3: Var3) -> None:
-        _, ps, wds = var3
+    def _p_iri(self, c: C, p: V_URI, x: V_URI, t: V_URI3) -> None:
+        _, ps, wds = t
         c.q.triples()((wds, ps, x))
         if isinstance(x, Var):
             c.q.filter(c.q.is_uri(x) & ~self._is_some_value(c, x))
@@ -1141,9 +1194,9 @@ class WikidataMapping(M):
             p: V_URI,
             x: VLiteral,
             y: VLiteral,
-            var3: Var3
+            t: V_URI3
     ) -> None:
-        _, ps, wds = var3
+        _, ps, wds = t
         self._p_text_tail(c, ps, wds, x, y)
 
     def _p_text_tail(
@@ -1215,8 +1268,8 @@ class WikidataMapping(M):
     ) -> None:
         self._p_string(c, p, x, self._start_P(c, e, d, p, WIKIBASE.String))
 
-    def _p_string(self, c: C, p: V_URI, x: VLiteral, var3: Var3) -> None:
-        _, ps, wds = var3
+    def _p_string(self, c: C, p: V_URI, x: VLiteral, t: V_URI3) -> None:
+        _, ps, wds = t
         c.q.triples()((wds, ps, x))
         c.q.filter(c.q.is_literal(x))
 
@@ -1346,13 +1399,15 @@ class WikidataMapping(M):
             y: V_URI,
             z: VLiteral,
             w: VLiteral,
-            var3: Var3
+            t: V_URI3
     ) -> None:
-        _, ps, wds = var3
-        psv, wdv = c.fresh_qvars(2)
+        _, ps, wds = t
+        psv = self._get_schema_uri_or_fresh_qvar(c, p, 'psv')
+        wdv = c.fresh_qvar()
+        if isinstance(psv, Var):
+            c.q.triples()((p, WIKIBASE.statementValue, psv))
         c.q.triples()(
             (wds, ps, x),
-            (p, WIKIBASE.statementValue, psv),
             (wds, psv, wdv),
             (wdv, RDF.type, WIKIBASE.QuantityValue),
             (wdv, WIKIBASE.quantityAmount, x))
@@ -1458,13 +1513,15 @@ class WikidataMapping(M):
             y: VLiteral,
             z: VLiteral,
             w: V_URI,
-            var3: Var3
+            t: V_URI3
     ) -> None:
-        _, ps, wds = var3
-        psv, wdv = c.fresh_qvars(2)
+        _, ps, wds = t
+        psv = self._get_schema_uri_or_fresh_qvar(c, p, 'psv')
+        wdv = c.fresh_qvar()
+        if isinstance(psv, Var):
+            c.q.triples()((p, WIKIBASE.statementValue, psv))
         c.q.triples()(
             (wds, ps, x),
-            (p, WIKIBASE.statementValue, psv),
             (wds, psv, wdv),
             (wdv, RDF.type, WIKIBASE.TimeValue),
             (wdv, WIKIBASE.timeValue, x))
@@ -1542,8 +1599,8 @@ class WikidataMapping(M):
     ) -> None:
         self._p_some_value(c, self._start_P(c, e, d, x, y))
 
-    def _p_some_value(self, c: C, var3: Var3) -> None:
-        _, ps, wds = var3
+    def _p_some_value(self, c: C, t: V_URI3) -> None:
+        _, ps, wds = t
         some = c.fresh_qvar()
         c.q.triples()((wds, ps, some))
         c.q.filter(self._is_some_value(c, some))
@@ -1611,10 +1668,11 @@ class WikidataMapping(M):
     ) -> None:
         self._p_no_value(c, x, y, self._start_P(c, e, d, x, y))
 
-    def _p_no_value(self, c: C, x: V_URI, y: V_URI, var3: Var3) -> None:
-        _, ps, wds = var3
-        wdno = c.fresh_qvar()
+    def _p_no_value(self, c: C, x: V_URI, y: V_URI, t: V_URI3) -> None:
+        _, _, wds = t
+        wdno = self._get_schema_uri_or_fresh_qvar(c, x, 'wdno')
+        if isinstance(wdno, Var):
+            c.q.triples()((x, WIKIBASE.novalue, wdno))
         c.q.triples()(
-            (x, WIKIBASE.novalue, wdno),
             (x, WIKIBASE.propertyType, y),
             (wds, RDF.type, wdno))

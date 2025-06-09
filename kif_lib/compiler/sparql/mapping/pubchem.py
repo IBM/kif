@@ -55,13 +55,6 @@ class PubChemMapping(M):
     Parameters:
        normalize_casrn: Whether to normalize the returned CAS-RNs.
     """
-
-    @classmethod
-    def _get_context_options(
-            cls,
-            context: Context | None = None
-    ) -> PubChemMappingOptions:
-        return Context.top(context).options.compiler.sparql.mapping.pubchem
 
 # -- Checks ----------------------------------------------------------------
 
@@ -154,10 +147,13 @@ class PubChemMapping(M):
             normalize_casrn: bool | None = None,
             context: Context | None = None
     ) -> None:
-        super().__init__()
-        self._options = self._get_context_options(context).copy()
+        super().__init__(context)
+        self._options = self._get_context_options().copy()
         if normalize_casrn is not None:
             self.options.set_normalize_casrn(normalize_casrn)
+
+    def _get_context_options(self) -> PubChemMappingOptions:
+        return self.context.options.compiler.sparql.mapping.pubchem
 
     @property
     def options(self) -> PubChemMappingOptions:

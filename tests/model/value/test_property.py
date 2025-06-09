@@ -416,23 +416,35 @@ class Test(EntityTestCase):
             assert_type(Property('x').get_schema(), Optional[Property.Schema])
             self.assertIsNone(Property('http://x#p1').get_schema())
             self.assertIsNone(Property('http://x#p2').schema)
-            sc = cast(Property.Schema, {
-                'p': IRI('http://sc/p/'),
-                'pq': IRI('http://sc/pq/'),
-                'pqv': IRI('http://sc/pqv/'),
-                'pr': IRI('http://sc/pr/'),
-                'prv': IRI('http://sc/prv/'),
-                'ps': IRI('http://sc/ps/'),
-                'psv': IRI('http://sc/psv/'),
-                'wdno': IRI('http://sc/wdno/'),
-                'wdt': IRI('http://sc/wdt/'),
-            })
+
+            def mk_sc(*names: str) -> Iterable[Property.Schema]:
+                for name in names:
+                    yield cast(Property.Schema, {
+                        'p': IRI('http://sc/p/' + name),
+                        'pq': IRI('http://sc/pq/' + name),
+                        'pqv': IRI('http://sc/pqv/' + name),
+                        'pr': IRI('http://sc/pr/' + name),
+                        'prv': IRI('http://sc/prv/' + name),
+                        'ps': IRI('http://sc/ps/' + name),
+                        'psv': IRI('http://sc/psv/' + name),
+                        'wdno': IRI('http://sc/wdno/' + name),
+                        'wdt': IRI('http://sc/wdt/' + name),
+                    })
+            sc, sc1, sc2 = mk_sc('', 'p1', 'p2')
             IRI('http://x#').register(schema=sc)
-            self.assertEqual(Property('http://x#p1').schema, sc)
-            self.assertEqual(Property('http://x#p2').schema, sc)
+            self.assertEqual(
+                Property('http://x#p1').get_schema(resolve=False), sc)
+            self.assertEqual(
+                Property('http://x#p2').get_schema(resolve=False), sc)
+            self.assertEqual(Property('http://x#p1').schema, sc1)
+            self.assertEqual(Property('http://x#p2').schema, sc2)
             IRI('http://x#').unregister(schema=True)
             self.assertIsNone(Property('http://x#p1').schema)
             self.assertIsNone(Property('http://x#p2').schema)
+            self.assertEqual(
+                Property('http://x#p1').get_schema(default=sc), sc1)
+            self.assertEqual(
+                Property('http://x#p2').get_schema(default=sc), sc2)
 
     def test_register(self) -> None:
         self.assert_raises_bad_argument(

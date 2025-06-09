@@ -870,20 +870,28 @@ class SPARQL_Mapping(Sequence[_Entry]):
 
 # -- Methods ---------------------------------------------------------------
 
+    __slots__ = (
+        '_context',
+    )
+
+    def __init__(
+            self,
+            context: Context | None = None
+    ) -> None:
+        self._context = Context.top(context)
+
     @property
     def context(self) -> Context:
         """The current KIF context."""
         return self.get_context()
 
-    def get_context(self, context: Context | None = None) -> Context:
-        """Gets the current KIF context.
-
-        If `context` is not ``None``, returns `context`.
+    def get_context(self) -> Context:
+        """Gets the KIF context of SPARQL mapping.
 
         Returns:
            Context.
         """
-        return Context.top(context)
+        return self._context
 
     @overload
     def __getitem__(self, k: int) -> _Entry:

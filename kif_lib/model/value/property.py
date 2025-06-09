@@ -925,16 +925,42 @@ class Property(
 
     @property
     def schema(self) -> Property.Schema | None:
-        """The schema of property in KIF context."""
+        """The resolved schema of property in KIF context."""
         return self.get_schema()
 
-    def get_schema(self) -> Property.Schema | None:
+    def get_schema(
+            self,
+            default: Property.Schema | None = None,
+            resolve: bool = True
+    ) -> Property.Schema | None:
         """Gets the schema of property in KIF context.
+
+        If property has no associated schema, assumes `default`.
+
+        If `resolve` is ``True``, returns a resolved schema, i.e., one in
+        which namespaces are resolved into absolute IRIs by concatenating
+        the namespace IRI with the name part of property IRI.
+
+        Parameters:
+           default: Default schema.
+           resolve: Whether to resolve the returned schema.
 
         Returns:
            Property schema or ``None``.
+
         """
-        return self.context.get_schema(self, function=self.get_schema)
+        schema = self.context.get_schema(self, function=self.get_schema)
+        if schema is None:
+            schema = default
+        if schema is not None:
+            if resolve:
+                from ... import rdflib
+                _, name = rdflib.split_uri(self.iri.content)
+                schema = cast(
+                    Property.Schema,
+                    {k: IRI(cast(IRI, v).content + name)
+                     for k, v in schema.items()})
+        return schema
 
     def register(
             self,

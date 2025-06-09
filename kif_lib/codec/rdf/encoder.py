@@ -29,7 +29,7 @@ from ...model import (
 )
 from ...model.kif_object import Encoder, Object
 from ...namespace import ONTOLEX, PROV, RDF, WIKIBASE, Wikidata
-from ...rdflib import BNode, Literal, split_uri, URIRef
+from ...rdflib import BNode, Literal, URIRef
 from ...typing import (
     Callable,
     cast,
@@ -163,11 +163,10 @@ class RDF_Encoder(
         if property.range is None:
             raise self._error(f'no datatype for property: {property}')
         assert property.range is not None
-        schema = property.schema or self._options.schema
+        schema = property.get_schema(self._options.schema)
         if schema is not None:
-            _, name = split_uri(property.iri.content)
             absolute_schema = cast(RDF_Encoder.AbsoluteSchema, {
-                k: URIRef(cast(IRI, v).content + name)
+                k: URIRef(cast(IRI, v).content)
                 for k, v in schema.items()})
             self._seen_absolute_schemas[property] = absolute_schema
             return absolute_schema
