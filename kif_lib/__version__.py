@@ -5,4 +5,4 @@ from __future__ import annotations
 
 __description__ = 'A knowledge integration framework based on Wikidata'
 __title__ = 'kif_lib'
-__version__ = '0.9.1'
+__version__ = '0.9.2'
