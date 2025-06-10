@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import networkx as nx
 
+from ... import itertools
 from ...model import Template, Term, Variable
 from ...typing import (
     Any,
@@ -13,6 +14,7 @@ from ...typing import (
     Mapping,
     MutableMapping,
     Sequence,
+    Set,
     TypeVar,
 )
 from .builder import Query
@@ -125,7 +127,7 @@ class Substitution(Mapping):
 
     def add_default(
             self,
-            var: Variable,
+            variable: Variable,
             value: Term | None
     ) -> Variable:
         """Associates default `value` to variable in substitution.
@@ -137,8 +139,29 @@ class Substitution(Mapping):
         Returns:
            The given `variable`.
         """
-        self._defaults[var] = value
-        return var
+        self._defaults[variable] = value
+        return variable
+
+    def ancestors(self, variable: Variable) -> Set[Variable]:
+        """Gets the variables on which `variable` depends.
+
+        Returns:
+           Set of variables.
+        """
+        return set(itertools.chain(*map(
+            lambda v: self._name_map[v],
+            nx.ancestors(self._G, variable.name))))
+
+    def ancestor_qvars(self, variable: Variable) -> Set[Query.Variable]:
+        """Gets the query variables on which `variable` depends.
+
+        Returns:
+           Query variables.
+        """
+        it = itertools.chain(
+            (self._map[variable],),
+            map(lambda a: self._map[a], self.ancestors(variable)))
+        return {v for v in it if isinstance(v, Query.Variable)}
 
     def _topsorted_G(self) -> list[str]:
         if self._cached_topsorted_G is None:

@@ -992,8 +992,27 @@ class SPARQL_Mapping(Sequence[_Entry]):
         Returns:
            Filter query.
         """
-        return compiler.q.select(    # type: ignore
+        vars = self._build_query_get_target_variables(compiler)
+        return compiler.q.select(  # type: ignore
+            compiler._entry_id_qvar, *vars,
             distinct=distinct, limit=limit, offset=offset)
+
+    def _build_query_get_target_variables(
+            self,
+            compiler: Compiler
+    ) -> Set[Compiler.Query.Variable]:
+        return functools.reduce(
+            lambda x, y: x | y,
+            self._build_query_get_target_variables_tail(compiler), set())
+
+    def _build_query_get_target_variables_tail(
+            self,
+            compiler: Compiler
+    ) -> Iterator[Set[Compiler.Query.Variable]]:
+        for id, targets in compiler._entry_targets.items():
+            yield from map(
+                compiler._entry_subst[id].ancestor_qvars,
+                itertools.chain(*map(lambda s: s.variables, targets)))
 
     def build_results(
             self,
