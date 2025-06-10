@@ -358,7 +358,9 @@ class Reader(
         parse = functools.partial(self._filter_parse_arg, filter, options)
         return itertools.mix(
             itertools.chain(*map(parse, self._args)),
-            distinct=options.distinct, limit=options.limit)
+            distinct=options.distinct,
+            distinct_window_size=options.distinct_window_size,
+            limit=options.limit)
 
     def _filter_parse_arg(
             self,
@@ -433,7 +435,6 @@ class Reader(
             filter: Filter,
             options: Store.Options
     ) -> AsyncIterator[Statement]:
-        distinct = options.distinct
         limit =\
             options.limit if options.limit is not None else options.max_limit
         parse = functools.partial(self._filter_parse_arg, filter, options)
@@ -452,7 +453,9 @@ class Reader(
         f = (lambda it: self._afilter_helper(list(map(parse, it)), task))
         return itertools.amix(
             f(pre), f(mid), f(pos),
-            distinct=distinct, limit=limit, method='chain')
+            distinct=options.distinct,
+            distinct_window_size=options.distinct_window_size,
+            limit=limit, method='chain')
 
     async def _afilter_helper(
             self,

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import asyncio
+import collections
 import sys
 from itertools import (
     chain,
@@ -24,6 +25,7 @@ from more_itertools import (
     roundrobin,
     take,
     unique_everseen,
+    unique_in_window,
 )
 
 from .typing import (
@@ -130,6 +132,8 @@ async def amap(
 def mix(
         *its: Iterable[H],
         distinct: bool | None = None,
+        distinct_window_size: int | None = None,
+        distinct_key: Callable[[H], H] | None = None,
         limit: int | None = None,
         method: Literal['chain'] | Literal['roundrobin'] = 'roundrobin'
 ) -> Iterator[H]:
@@ -138,6 +142,8 @@ def mix(
     Parameters:
        its: Iterables of hashable elements.
        distinct: Whether to skip duplicates.
+       distinct_window_size: Distinct look-back window size.
+       distinct_key: Key function (used to compare elements).
        limit: Limit (maximum number) of elements to yield.
        method: Mixing method.
 
@@ -151,7 +157,7 @@ def mix(
     else:
         raise ValueError(method)
     if distinct:
-        it = uniq(it)
+        it = uniq(it, distinct_window_size, distinct_key)
     if limit is not None:
         it = islice(it, max(limit, 0))
     return it
@@ -160,6 +166,8 @@ def mix(
 async def amix(
         *its: AsyncIterable[H],
         distinct: bool | None = None,
+        distinct_window_size: int | None = None,
+        distinct_key: Callable[[H], H] | None = None,
         limit: int | None = None,
         method: Literal['chain'] | Literal['roundrobin'] = 'roundrobin'
 ) -> AsyncIterator[H]:
@@ -171,7 +179,7 @@ async def amix(
     else:
         raise ValueError(method)
     if distinct:
-        it = auniq(it)
+        it = auniq(it, distinct_window_size, distinct_key)
     if limit is None:
         async for x in it:
             yield x
@@ -224,24 +232,59 @@ async def atake(n: int, it: AsyncIterable[T]) -> list[T]:
     return result
 
 
-def uniq(it: Iterable[H], _key=lambda x: x) -> Iterator[H]:
+def uniq(
+        it: Iterable[H],
+        n: int | None = None,
+        key: Callable[[H], H] | None = None,
+        _default_key: Callable[[H], H] = lambda x: x
+) -> Iterator[H]:
     """Yields unique elements, preserves order.
 
     This is a hashable-only version of `more_itertools.unique_everseen`.
 
     Parameters:
        it: Iterable of hashable elements.
+       n: Look-back window size.
+       key: Key function (used to compare elements).
 
     Returns:
        The resulting iterator.
     """
-    return unique_everseen(it, key=_key)
+    key = key or _default_key
+    if n is None:
+        return unique_everseen(it, key)
+    else:
+        return unique_in_window(it, n, key)
 
 
-async def auniq(it: AsyncIterable[H]) -> AsyncIterator[H]:
+async def auniq(
+        it: AsyncIterable[H],
+        n: int | None = None,
+        key: Callable[[H], H] | None = None,
+        _default_key: Callable[[H], H] = lambda x: x
+) -> AsyncIterator[H]:
     """Async version of :func:`uniq`."""
-    seen: set[H] = set()
-    async for x in aiter(it):
-        if x not in seen:
-            yield x
-            seen.add(x)
+    key = key or _default_key
+    if n is None:
+        seen: set[H] = set()
+        async for x in aiter(it):
+            k = key(x)
+            if k not in seen:
+                yield x
+                seen.add(k)
+    else:
+        assert n > 0
+        window: collections.deque[H] = collections.deque(maxlen=n)
+        counts: dict[H, int] = collections.defaultdict(int)
+        async for x in aiter(it):
+            if len(window) == n:
+                to_discard = window[0]
+                if counts[to_discard] == 1:
+                    del counts[to_discard]
+                else:
+                    counts[to_discard] -= 1
+            k = key(x)
+            if k not in counts:
+                yield x
+            counts[k] += 1
+            window.append(k)

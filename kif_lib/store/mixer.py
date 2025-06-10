@@ -409,7 +409,9 @@ class MixerStore(
         return itertools.mix(
             *(src._filter_tail(filter, src.options.copy())
               for src in self.sources),
-            distinct=options.distinct, limit=options.limit)
+            distinct=options.distinct,
+            distinct_window_size=options.distinct_window_size,
+            limit=options.limit)
 
     @override
     def _afilter(
@@ -420,4 +422,6 @@ class MixerStore(
         return itertools.amix(
             *(src._afilter_tail(filter, src.options.copy())
               for src in self.sources),
-            distinct=options.distinct, limit=options.limit)
+            distinct=options.distinct,
+            distinct_window_size=options.distinct_window_size,
+            limit=options.limit)

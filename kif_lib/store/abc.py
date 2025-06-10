@@ -131,6 +131,8 @@ class Store(Set):
             self._init_best_ranked(kwargs)
             self._init_debug(kwargs)
             self._init_distinct(kwargs)
+            self._init_distinct_window_size(kwargs)
+            self._init_max_distinct_window_size(kwargs)
             self._init_extra_references(kwargs)
             self._init_max_limit(kwargs)
             self._init_limit(kwargs)
@@ -334,6 +336,148 @@ class Store(Set):
                position: Argument position.
             """
             self._distinct = bool(distinct)
+
+        # -- max_distinct_window_size -- #
+
+        #: The default value for the max. distinct window-size option.
+        DEFAULT_MAX_DISTINCT_WINDOW_SIZE: ClassVar[int] = sys.maxsize
+
+        _v_max_distinct_window_size: ClassVar[
+            tuple[Iterable[str], int | None]] = (
+                ('KIF_STORE_MAX_DISTINCT_WINDOW_SIZE',),
+                DEFAULT_MAX_DISTINCT_WINDOW_SIZE)
+
+        _max_distinct_window_size: int | None
+
+        def _init_max_distinct_window_size(
+                self,
+                kwargs: dict[str, Any]
+        ) -> None:
+            self.max_distinct_window_size = kwargs.get(
+                '_max_distinct_window_size', self.getenv_optional_int(
+                    *self._v_max_distinct_window_size))
+
+        @property
+        def max_distinct_window_size(self) -> int:
+            """The maximum distinct window-size option."""
+            return self.get_max_distinct_window_size()
+
+        @max_distinct_window_size.setter
+        def max_distinct_window_size(
+                self, max_distinct_window_size: TQuantity
+        ) -> None:
+            self.set_max_distinct_window_size(max_distinct_window_size)
+
+        def get_max_distinct_window_size(self) -> int:
+            """Gets the maximum distinct window-size option.
+
+            Returns:
+               Distinct window-size.
+            """
+            assert self._max_distinct_window_size is not None
+            return self._max_distinct_window_size
+
+        def set_max_distinct_window_size(
+                self,
+                max_distinct_window_size: TQuantity,
+                function: Location | None = None,
+                name: str | None = None,
+                position: int | None = None
+        ) -> None:
+            """Sets the maximum distinct window-size option.
+
+            If `max_distinct_window_size` is negative, assumes zero.
+
+            Parameters:
+               max_distinct_window_size: Max. distinct window-size.
+               function: Function or function name.
+               name: Argument name.
+               position: Argument position.
+            """
+            self._max_distinct_window_size =\
+                self._check_distinct_window_size(
+                    max_distinct_window_size, function, name, position)
+
+        # -- distinct_window_size --
+
+        @classmethod
+        def _check_distinct_window_size(
+                cls,
+                arg: Any,
+                function: Location | None = None,
+                name: str | None = None,
+                position: int | None = None
+        ) -> int:
+            return max(cls._check_int(arg, function, name, position), 1)
+
+        @classmethod
+        def _check_optional_distinct_window_size(
+                cls,
+                arg: Any | None,
+                default: Any | None = None,
+                function: Location | None = None,
+                name: str | None = None,
+                position: int | None = None
+        ) -> int | None:
+            return cls._do_check_optional(
+                cls._check_distinct_window_size,
+                arg, default, function, name, position)
+
+        #: The default value for the distinct window-size option.
+        DEFAULT_DISTINCT_WINDOW_SIZE: ClassVar[int] = 10000
+
+        _v_distinct_window_size: ClassVar[
+            tuple[Iterable[str], int | None]] = (
+                ('KIF_STORE_DISTINCT_WINDOW_SIZE',),
+                DEFAULT_DISTINCT_WINDOW_SIZE)
+
+        _distinct_window_size: int | None
+
+        def _init_distinct_window_size(self, kwargs: dict[str, Any]) -> None:
+            self.distinct_window_size = kwargs.get(
+                '_distinct_window_size', self.getenv_optional_int(
+                    *self._v_distinct_window_size))
+
+        @property
+        def distinct_window_size(self) -> int:
+            """The distinct window-size option."""
+            return self.get_distinct_window_size()
+
+        @distinct_window_size.setter
+        def distinct_window_size(
+                self,
+                distinct_window_size: TQuantity
+        ) -> None:
+            self.set_distinct_window_size(distinct_window_size)
+
+        def get_distinct_window_size(self) -> int:
+            """Gets the distinct window-size option.
+
+            Returns:
+               Distinct window-size.
+            """
+            assert self._distinct_window_size is not None
+            return self._distinct_window_size
+
+        def set_distinct_window_size(
+                self,
+                distinct_window_size: TQuantity,
+                function: Location | None = None,
+                name: str | None = None,
+                position: int | None = None
+        ) -> None:
+            """Sets the distinct window-size option.
+
+            If `distinct_window_size` is negative, assumes zero.
+
+            Parameters:
+               distinct_window_size: Distinct window-size.
+               function: Function or function name.
+               name: Argument name.
+               position: Argument position.
+            """
+            self._distinct_window_size = self._check_distinct_window_size(
+                distinct_window_size, function, name, position)
 
         # -- extra_references --
 
@@ -952,6 +1096,45 @@ class Store(Set):
                 function=function, name=name, position=position))
 
         @override
+        def get_max_distinct_window_size(self) -> int:
+            return self._do_get(
+                '_max_distinct_window_size',
+                super().get_max_distinct_window_size)
+
+        @override
+        def set_max_distinct_window_size(
+                self,
+                max_distinct_window_size: TQuantity | None,
+                function: Location | None = None,
+                name: str | None = None,
+                position: int | None = None
+        ) -> None:
+            self._do_set(
+                max_distinct_window_size,
+                '_max_distinct_window_size', functools.partial(
+                    super().set_max_distinct_window_size,
+                    function=function, name=name, position=position))
+
+        @override
+        def get_distinct_window_size(self) -> int:
+            return self._do_get(
+                '_distinct_window_size', super().get_distinct_window_size)
+
+        @override
+        def set_distinct_window_size(
+                self,
+                distinct_window_size: TQuantity | None,
+                function: Location | None = None,
+                name: str | None = None,
+                position: int | None = None
+        ) -> None:
+            self._do_set(
+                distinct_window_size,
+                '_distinct_window_size', functools.partial(
+                    super().set_distinct_window_size,
+                    function=function, name=name, position=position))
+
+        @override
         def _init_extra_references(self, kwargs: dict[str, Any]) -> None:
             self.set_extra_references(kwargs.get('_extra_references'))
 
@@ -1181,6 +1364,8 @@ class Store(Set):
             self.set_debug(kwargs['debug'])
         if 'distinct' in kwargs:
             self.set_distinct(kwargs['distinct'])
+        if 'distinct_window_size' in kwargs:
+            self.set_distinct_window_size(kwargs['distinct_window_size'])
         if 'extra_references' in kwargs:
             self.set_extra_references(kwargs['extra_references'])
         if 'limit' in kwargs:
@@ -1689,6 +1874,88 @@ class Store(Set):
             self._set_distinct)
 
     def _set_distinct(self, distinct: bool) -> bool:
+        return True
+
+# -- Distinct window size --------------------------------------------------
+
+    @at_property
+    def max_distinct_window_size(self) -> int:
+        """The maximum value for :attr:`Store.distinct_window_size`."""
+        return self.get_max_distinct_window_size()
+
+    def get_max_distinct_window_size(self) -> int:
+        """Gets the maximum value for :attr:`Store.distinct_window_size`.
+
+        Returns:
+           Maximum distinct window-size.
+        """
+        return self.default_options.max_distinct_window_size
+
+    @at_property
+    def default_distinct_window_size(self) -> int:
+        """The default value for :attr:`Store.distinct_window_size`."""
+        return self.get_default_distinct_window_size()
+
+    def get_default_distinct_window_size(self) -> int:
+        """Gets the default value for :attr:`Store.distinct_window_size`.
+
+        Returns:
+           Default distinct window-size.
+        """
+        return self.default_options.distinct_window_size
+
+    @at_property
+    def distinct_window_size(self) -> int:
+        """The distinct window-size of store."""
+        return self.get_distinct_window_size()
+
+    @distinct_window_size.setter
+    def distinct_window_size(
+            self,
+            distinct_window_size: int | None = None
+    ) -> None:
+        self.set_distinct_window_size(distinct_window_size)
+
+    def get_distinct_window_size(self) -> int:
+        """Gets the distinct window-size of store.
+
+        Returns:
+           Page size.
+        """
+        return min(
+            self.options.distinct_window_size,
+            self.max_distinct_window_size)
+
+    def set_distinct_window_size(
+            self,
+            distinct_window_size: int | None = None,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        """Sets the page size of store.
+
+        If `distinct_window_size` is negative or zero, assumes 1.
+
+        If `distinct_window_size` is ``None``, resets it to the default.
+
+        Parameters:
+           distinct_window_size: Page size.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
+        """
+        self._set_option_with_hooks(
+            distinct_window_size,
+            self.options.get_distinct_window_size,
+            functools.partial(
+                self.options.set_distinct_window_size,
+                function=self.set_distinct_window_size,
+                name='distinct_window_size',
+                position=1),
+            self._set_distinct_window_size)
+
+    def _set_distinct_window_size(self, distinct_window_size: int) -> bool:
         return True
 
 # -- Extra references ------------------------------------------------------
@@ -2527,6 +2794,7 @@ class Store(Set):
             best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
+            distinct_window_size: int | None = None,
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
@@ -2553,6 +2821,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
+           distinct_window_size: Distinct look-back window size.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -2568,6 +2837,7 @@ class Store(Set):
                 best_ranked=best_ranked,
                 debug=debug,
                 distinct=distinct,
+                distinct_window_size=distinct_window_size,
                 extra_references=extra_references,
                 limit=limit,
                 lookahead=lookahead,
@@ -2632,6 +2902,7 @@ class Store(Set):
             best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
+            distinct_window_size: int | None = None,
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
@@ -2658,6 +2929,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
+           distinct_window_size: Distinct look-back window size.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -2673,6 +2945,7 @@ class Store(Set):
                 best_ranked=best_ranked,
                 debug=debug,
                 distinct=distinct,
+                distinct_window_size=distinct_window_size,
                 extra_references=extra_references,
                 limit=limit,
                 lookahead=lookahead,
@@ -2749,6 +3022,7 @@ class Store(Set):
             best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
+            distinct_window_size: int | None = None,
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
@@ -2775,6 +3049,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
+           distinct_window_size: Distinct look-back window size.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -2802,6 +3077,7 @@ class Store(Set):
             best_ranked=best_ranked,
             debug=debug,
             distinct=distinct,
+            distinct_window_size=distinct_window_size,
             extra_references=extra_references,
             limit=limit,
             lookahead=lookahead,
@@ -2827,6 +3103,7 @@ class Store(Set):
             best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
+            distinct_window_size: int | None = None,
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
@@ -2853,6 +3130,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
+           distinct_window_size: Distinct look-back window size.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -2880,6 +3158,7 @@ class Store(Set):
             best_ranked=best_ranked,
             debug=debug,
             distinct=distinct,
+            distinct_window_size=distinct_window_size,
             extra_references=extra_references,
             limit=limit,
             lookahead=lookahead,
@@ -2979,6 +3258,7 @@ class Store(Set):
             best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
+            distinct_window_size: int | None = None,
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
@@ -2997,6 +3277,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
+           distinct_window_size: Distinct look-back window size.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -3012,6 +3293,7 @@ class Store(Set):
                 best_ranked=best_ranked,
                 debug=debug,
                 distinct=distinct,
+                distinct_window_size=distinct_window_size,
                 extra_references=extra_references,
                 limit=limit,
                 lookahead=lookahead,
@@ -3026,7 +3308,9 @@ class Store(Set):
                 *map(lambda src: filter_fn(filter=src)
                      if isinstance(src, Filter)
                      else map(passthrough_fn, src), sources),
-                distinct=options.distinct, limit=options.limit)
+                distinct=options.distinct,
+                distinct_window_size=options.distinct_window_size,
+                limit=options.limit)
 
     async def amix(
             self,
@@ -3035,6 +3319,7 @@ class Store(Set):
             best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
+            distinct_window_size: int | None = None,
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
@@ -3053,6 +3338,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
+           distinct_window_size: Distinct look-back window size.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -3068,6 +3354,7 @@ class Store(Set):
                 best_ranked=best_ranked,
                 debug=debug,
                 distinct=distinct,
+                distinct_window_size=distinct_window_size,
                 extra_references=extra_references,
                 limit=limit,
                 lookahead=lookahead,
@@ -3083,5 +3370,8 @@ class Store(Set):
                       if isinstance(src, Filter)
                       else itertools.amap(passthrough_fn, src), sources)
             async for stmt in itertools.amix(
-                    *its, distinct=options.distinct, limit=options.limit):
+                    *its,
+                    distinct=options.distinct,
+                    distinct_window_size=options.distinct_window_size,
+                    limit=options.limit):
                 yield stmt
