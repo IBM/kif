@@ -22,7 +22,7 @@ except ImportError as err:
     raise ImportError(
         f'{__name__} requires https://pypi.org/project/rich/') from err
 
-from . import __description__, __version__, itertools
+from . import __description__, __version__, _reset_logging, itertools
 from .context import Context
 from .model import (
     And,
@@ -73,12 +73,34 @@ _G: Final[dict[str, Any]] = {}
 @click.group(help=f'KIF: {__description__}.')
 @click.version_option(version=__version__)
 @click.option(
+    '--debug',
+    '-d',
+    is_flag=True,
+    default=False,
+    help='Enable debug logging.',
+    envvar='DEBUG')
+@click.option(
+    '--info',
+    '-i',
+    is_flag=True,
+    default=False,
+    help='Enable info logging.',
+    envvar='INFO')
+@click.option(
     '--module',
     '-m',
     metavar='MOD',
     multiple=True,
     help='Load module MOD.')
-def cli(module: Sequence[str] = ()) -> None:
+def cli(
+        debug: bool | None = None,
+        info: bool | None = None,
+        module: Sequence[str] = ()
+) -> None:
+    if debug or info:
+        ctx = Context.top()
+        ctx.options.store.debug = bool(debug)
+        _reset_logging(debug=bool(debug), info=bool(info))
     if module:
         import importlib
         sys.path.append(os.getcwd())
@@ -411,15 +433,6 @@ class FilterParam:
         help='Do not use the asynchronous API.',
         envvar='ASYNC')
 
-    no_best_ranked = click.option(
-        '--no-best-ranked',
-        'best_ranked',
-        is_flag=True,
-        default=True,
-        help='Do not suppress non-best ranked statements.',
-        envvar='BEST_RANKED',
-    )
-
     no_distinct = click.option(
         '--no-distinct',
         'distinct',
@@ -435,6 +448,15 @@ class FilterParam:
         default=True,
         help='Do not resolve entity labels.',
         envvar='RESOLVE')
+
+    non_best_ranked = click.option(
+        '--non-best-ranked',
+        'best_ranked',
+        is_flag=True,
+        default=True,
+        help='Match non-best ranked statements.',
+        envvar='BEST_RANKED',
+    )
 
     page_size = click.option(
         '--page-size',
@@ -628,6 +650,14 @@ class FilterParam:
         help='Alias: --snak-is-value --value-mask=PROPERTY.',
         envvar='VALUE_IS_PROPERTY')
 
+    value_is_quantity = click.option(
+        '--value-is-quantity',
+        'value_is_quantity',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-is-value --value-mask=QUANTITY.',
+        envvar='VALUE_IS_QUANTITY')
+
     value_is_shallow_data_value = click.option(
         '--value-is-shallow-data-value',
         'value_is_shallow_data_value',
@@ -651,6 +681,22 @@ class FilterParam:
         default=False,
         help='Alias: --snak-is-value --value-mask=TEXT.',
         envvar='VALUE_IS_TEXT')
+
+    value_is_time = click.option(
+        '--value-is-time',
+        'value_is_time',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-is-value --value-mask=TIME.',
+        envvar='VALUE_IS_TIME')
+
+    value_is_value = click.option(
+        '--value-is-value',
+        'value_is_value',
+        is_flag=True,
+        default=False,
+        help='Alias: --snak-is-value --value-mask=VALUE.',
+        envvar='VALUE_IS_VALUE')
 
     value_mask = click.option(
         '--value-mask',
@@ -696,9 +742,12 @@ class FilterParam:
             value_is_item: bool | None = None,
             value_is_lexeme: bool | None = None,
             value_is_property: bool | None = None,
+            value_is_quantity: bool | None = None,
             value_is_shallow_data_value: bool | None = None,
             value_is_string: bool | None = None,
             value_is_text: bool | None = None,
+            value_is_time: bool | None = None,
+            value_is_value: bool | None = None,
             value_mask: Filter.DatatypeMask | None = None,
             rank_mask: Filter.RankMask | None = None,
             language: str | None = None,
@@ -737,9 +786,12 @@ class FilterParam:
                 or value_is_item
                 or value_is_lexeme
                 or value_is_property
+                or value_is_quantity
                 or value_is_shallow_data_value
                 or value_is_string
-                or value_is_text):
+                or value_is_text
+                or value_is_time
+                or value_is_value):
             if snak_mask is None:
                 snak_mask = Filter.VALUE_SNAK
             value_mask = Filter.DatatypeMask(0)
@@ -759,12 +811,18 @@ class FilterParam:
                 value_mask |= Filter.LEXEME
             if value_is_property:
                 value_mask |= Filter.PROPERTY
+            if value_is_quantity:
+                value_mask |= Filter.QUANTITY
             if value_is_shallow_data_value:
                 value_mask |= Filter.SHALLOW_DATA_VALUE
             if value_is_string:
                 value_mask |= Filter.STRING
             if value_is_text:
                 value_mask |= Filter.TEXT
+            if value_is_time:
+                value_mask |= Filter.TIME
+            if value_is_value:
+                value_mask |= Filter.VALUE
         fr = Filter(
             subject=And(subject, subject_option),
             property=And(property, property_option),
@@ -822,9 +880,9 @@ class FilterParam:
 @FilterParam.dry_run
 @FilterParam.language
 @FilterParam.no_async_
-@FilterParam.no_best_ranked
 @FilterParam.no_distinct
 @FilterParam.no_resolve
+@FilterParam.non_best_ranked
 @FilterParam.property_option
 @FilterParam.property_mask
 @FilterParam.rank_mask
@@ -848,9 +906,12 @@ class FilterParam:
 @FilterParam.value_is_item
 @FilterParam.value_is_lexeme
 @FilterParam.value_is_property
+@FilterParam.value_is_quantity
 @FilterParam.value_is_shallow_data_value
 @FilterParam.value_is_string
 @FilterParam.value_is_text
+@FilterParam.value_is_time
+@FilterParam.value_is_value
 @FilterParam.value_mask
 def ask(
         store: Sequence[Store],
@@ -877,9 +938,12 @@ def ask(
         value_is_item: bool | None = None,
         value_is_lexeme: bool | None = None,
         value_is_property: bool | None = None,
+        value_is_quantity: bool | None = None,
         value_is_shallow_data_value: bool | None = None,
         value_is_string: bool | None = None,
         value_is_text: bool | None = None,
+        value_is_time: bool | None = None,
+        value_is_value: bool | None = None,
         value_mask: Filter.DatatypeMask | None = None,
         rank_mask: Filter.RankMask | None = None,
         language: str | None = None,
@@ -914,9 +978,12 @@ def ask(
         value_is_item=value_is_item,
         value_is_lexeme=value_is_lexeme,
         value_is_property=value_is_property,
+        value_is_quantity=value_is_quantity,
         value_is_shallow_data_value=value_is_shallow_data_value,
         value_is_string=value_is_string,
         value_is_text=value_is_text,
+        value_is_time=value_is_time,
+        value_is_value=value_is_value,
         value_mask=value_mask,
         rank_mask=rank_mask,
         language=language,
@@ -944,9 +1011,9 @@ def ask(
 @FilterParam.dry_run
 @FilterParam.language
 @FilterParam.no_async_
-@FilterParam.no_best_ranked
 @FilterParam.no_distinct
 @FilterParam.no_resolve
+@FilterParam.non_best_ranked
 @FilterParam.property_option
 @FilterParam.property_mask
 @FilterParam.rank_mask
@@ -970,9 +1037,12 @@ def ask(
 @FilterParam.value_is_item
 @FilterParam.value_is_lexeme
 @FilterParam.value_is_property
+@FilterParam.value_is_quantity
 @FilterParam.value_is_shallow_data_value
 @FilterParam.value_is_string
 @FilterParam.value_is_text
+@FilterParam.value_is_time
+@FilterParam.value_is_value
 @FilterParam.value_mask
 def count(
         store: Sequence[Store],
@@ -999,9 +1069,12 @@ def count(
         value_is_item: bool | None = None,
         value_is_lexeme: bool | None = None,
         value_is_property: bool | None = None,
+        value_is_quantity: bool | None = None,
         value_is_shallow_data_value: bool | None = None,
         value_is_string: bool | None = None,
         value_is_text: bool | None = None,
+        value_is_time: bool | None = None,
+        value_is_value: bool | None = None,
         value_mask: Filter.DatatypeMask | None = None,
         rank_mask: Filter.RankMask | None = None,
         language: str | None = None,
@@ -1037,9 +1110,12 @@ def count(
         value_is_item=value_is_item,
         value_is_lexeme=value_is_lexeme,
         value_is_property=value_is_property,
+        value_is_quantity=value_is_quantity,
         value_is_shallow_data_value=value_is_shallow_data_value,
         value_is_string=value_is_string,
         value_is_text=value_is_text,
+        value_is_time=value_is_time,
+        value_is_value=value_is_value,
         value_mask=value_mask,
         rank_mask=rank_mask,
         language=language,
@@ -1070,9 +1146,9 @@ def count(
 @FilterParam.limit
 @FilterParam.lookahead
 @FilterParam.no_async_
-@FilterParam.no_best_ranked
 @FilterParam.no_distinct
 @FilterParam.no_resolve
+@FilterParam.non_best_ranked
 @FilterParam.page_size
 @FilterParam.property_option
 @FilterParam.property_mask
@@ -1097,9 +1173,12 @@ def count(
 @FilterParam.value_is_item
 @FilterParam.value_is_lexeme
 @FilterParam.value_is_property
+@FilterParam.value_is_quantity
 @FilterParam.value_is_shallow_data_value
 @FilterParam.value_is_string
 @FilterParam.value_is_text
+@FilterParam.value_is_time
+@FilterParam.value_is_value
 @FilterParam.value_mask
 def filter(
         store: Sequence[Store],
@@ -1126,9 +1205,12 @@ def filter(
         value_is_item: bool | None = None,
         value_is_lexeme: bool | None = None,
         value_is_property: bool | None = None,
+        value_is_quantity: bool | None = None,
         value_is_shallow_data_value: bool | None = None,
         value_is_string: bool | None = None,
         value_is_text: bool | None = None,
+        value_is_time: bool | None = None,
+        value_is_value: bool | None = None,
         value_mask: Filter.DatatypeMask | None = None,
         rank_mask: Filter.RankMask | None = None,
         language: str | None = None,
@@ -1170,9 +1252,12 @@ def filter(
         value_is_item=value_is_item,
         value_is_lexeme=value_is_lexeme,
         value_is_property=value_is_property,
+        value_is_quantity=value_is_quantity,
         value_is_shallow_data_value=value_is_shallow_data_value,
         value_is_string=value_is_string,
         value_is_text=value_is_text,
+        value_is_time=value_is_time,
+        value_is_value=value_is_value,
         value_mask=value_mask,
         rank_mask=rank_mask,
         language=language,

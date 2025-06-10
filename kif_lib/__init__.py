@@ -314,15 +314,20 @@ __all__ = (
     'Store',
 )
 
-_KIF_DEBUG = os.getenv('KIF_DEBUG')
-_KIF_INFO = os.getenv('KIF_INFO')
 
-if _KIF_DEBUG or _KIF_INFO:
-    import logging
-    logging.basicConfig()
-    if _KIF_DEBUG:
-        level = logging.DEBUG
-    else:
-        level = logging.INFO
-    logging.getLogger('httpx').setLevel(logging.INFO)
-    logging.getLogger('kif_lib').setLevel(level)
+def _reset_logging(
+        debug: bool | None = bool(os.getenv('KIF_DEBUG')),
+        info: bool | None = bool(os.getenv('KIF_INFO'))
+) -> None:
+    if debug or info:
+        import logging
+        logging.basicConfig()
+        if debug:
+            level = logging.DEBUG
+        else:
+            level = logging.INFO
+        logging.getLogger('httpx').setLevel(logging.INFO)
+        logging.getLogger('kif_lib').setLevel(level)
+
+
+_reset_logging()
