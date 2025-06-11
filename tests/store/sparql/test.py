@@ -21,9 +21,9 @@ class Test(StoreTestCase):
 
     def test_afilter_httpx_2959_issue(self) -> None:
         ###
-        # Tests the use of async requests in multiple event loop.  For this
-        # to work, we must use the header {'Connection': 'close'}, which
-        # makes httpx not to store the underlying connection in the
+        # Tests the use of async requests with multiple event loops.  For
+        # this to work, we must use the header {'Connection': 'close'},
+        # which makes httpx not to store the underlying connection in the
         # connection pool.  See
         # <https://github.com/encode/httpx/discussions/2959>.
         ###

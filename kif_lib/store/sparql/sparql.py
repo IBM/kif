@@ -56,10 +56,18 @@ class SPARQL_Store(
             (('KIF_SPARQL_STORE_BEST_RANKED',), None)
 
         _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
-            (('KIF_SPARQL_STORE_DISTINCT',), None)
+            (('KIF_SPARQL_STORE_DEBUG',), None)
 
         _v_distinct: ClassVar[tuple[Iterable[str], bool | None]] =\
             (('KIF_SPARQL_STORE_DISTINCT',), None)
+
+        _v_max_distinct_window_size: ClassVar[
+            tuple[Iterable[str], int | None]] = (
+                (('KIF_SPARQL_STORE_MAX_DISTINCT_WINDOW_SIZE',), None))
+
+        _v_distinct_window_size: ClassVar[
+            tuple[Iterable[str], int | None]] = (
+                (('KIF_SPARQL_STORE_DISTINCT_WINDOW_SIZE',), None))
 
         _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
             (('KIF_SPARQL_STORE_MAX_LIMIT',), None)

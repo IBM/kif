@@ -60,6 +60,32 @@ class Test(OptionsTestCase):
             name='distinct',
             envvars=envvars)
 
+    def test_max_distinct_window_size(self) -> None:
+        self._test_max_distinct_window_size()
+
+    def _test_max_distinct_window_size(
+            self,
+            envvars: Sequence[str] = ('KIF_STORE_MAX_DISTINCT_WINDOW_SIZE',)
+    ) -> None:
+        self._test_option_int(
+            section=self.section,
+            name='max_distinct_window_size',
+            envvars=envvars,
+            lower_bound=1)
+
+    def test_distinct_window_size(self) -> None:
+        self._test_distinct_window_size()
+
+    def _test_distinct_window_size(
+            self,
+            envvars: Sequence[str] = ('KIF_STORE_DISTINCT_WINDOW_SIZE',)
+    ) -> None:
+        self._test_option_int(
+            section=self.section,
+            name='distinct_window_size',
+            envvars=envvars,
+            lower_bound=1)
+
     def test_extra_references(self) -> None:
         self._test_option(
             section=self.section,

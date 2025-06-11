@@ -70,6 +70,10 @@ class Test(StoreTestCase):
     def test_distinct(self) -> None:
         self._test_option_bool(self.KB(), 'distinct')
 
+    def test_distinct_window_size(self) -> None:
+        self._test_option_int(
+            self.KB(), 'distinct_window_size', lower_bound=1)
+
     def test_extra_references(self) -> None:
         ref1: Final[ReferenceRecord] = ReferenceRecord(
             Property('p')('abc'),

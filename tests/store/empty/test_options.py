@@ -28,6 +28,16 @@ class Test(_Test):
         self._test_distinct(['KIF_EMPTY_STORE_DISTINCT'])
 
     @override
+    def test_max_distinct_window_size(self) -> None:
+        self._test_max_distinct_window_size(
+            ['KIF_EMPTY_STORE_MAX_DISTINCT_WINDOW_SIZE'])
+
+    @override
+    def test_distinct_window_size(self) -> None:
+        self._test_distinct_window_size(
+            ['KIF_EMPTY_STORE_DISTINCT_WINDOW_SIZE'])
+
+    @override
     def test_max_limit(self) -> None:
         self._test_max_limit(['KIF_EMPTY_STORE_MAX_LIMIT'])
 

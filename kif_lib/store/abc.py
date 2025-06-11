@@ -386,7 +386,7 @@ class Store(Set):
         ) -> None:
             """Sets the maximum distinct window-size option.
 
-            If `max_distinct_window_size` is negative, assumes zero.
+            If `max_distinct_window_size` is negative or zero, assumes 1.
 
             Parameters:
                max_distinct_window_size: Max. distinct window-size.

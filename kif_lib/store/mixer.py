@@ -64,6 +64,9 @@ class MixerStore(
         #: Whether to propagate changes in distinct option.
         DISTINCT = KIF_Flags.auto()
 
+        #: Whether to propagate changes in distinct window-size option.
+        DISTINCT_WINDOW_SIZE = KIF_Flags.auto()
+
         #: Whether to propagate changes in limit option.
         LIMIT = KIF_Flags.auto()
 
@@ -82,6 +85,7 @@ class MixerStore(
             | BEST_RANKED
             | DEBUG
             | DISTINCT
+            | DISTINCT_WINDOW_SIZE
             | LIMIT
             | LOOKAHEAD
             | PAGE_SIZE
@@ -98,6 +102,9 @@ class MixerStore(
 
     #: Whether to propagate changes in distinct option.
     DISTINCT: Final[SyncFlags] = SyncFlags.DISTINCT
+
+    #: Whether to propagate changes in distinct window-size option.
+    DISTINCT_WINDOW_SIZE: Final[SyncFlags] = SyncFlags.DISTINCT
 
     #: Whether to propagate changes in limit option.
     LIMIT: Final[SyncFlags] = SyncFlags.LIMIT
@@ -125,6 +132,14 @@ class MixerStore(
 
         _v_distinct: ClassVar[tuple[Iterable[str], bool | None]] =\
             (('KIF_MIXER_STORE_DISTINCT',), None)
+
+        _v_max_distinct_window_size: ClassVar[
+            tuple[Iterable[str], int | None]] = (
+                (('KIF_MIXER_STORE_MAX_DISTINCT_WINDOW_SIZE',), None))
+
+        _v_distinct_window_size: ClassVar[
+            tuple[Iterable[str], int | None]] = (
+                (('KIF_MIXER_STORE_DISTINCT_WINDOW_SIZE',), None))
 
         _v_max_limit: ClassVar[tuple[Iterable[str], int | None]] =\
             (('KIF_MIXER_STORE_MAX_LIMIT',), None)
@@ -348,6 +363,12 @@ class MixerStore(
     @override
     def _set_distinct(self, distinct: bool) -> bool:
         return self._set_x(Store.set_distinct, distinct, self.DISTINCT)
+
+    @override
+    def _set_distinct_window_size(self, distinct_window_size: int) -> bool:
+        return self._set_x(
+            Store.set_distinct_window_size,
+            distinct_window_size, self.DISTINCT_WINDOW_SIZE)
 
     @override
     def _set_limit(self, limit: int | None) -> bool:
