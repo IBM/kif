@@ -69,7 +69,6 @@ __all__ = [
 ]
 
 H = TypeVar('H', bound=Hashable)
-H_ = TypeVar('H_', bound=Hashable)
 R = TypeVar('R')
 T = TypeVar('T')
 
@@ -134,7 +133,7 @@ def mix(
         *its: Iterable[H],
         distinct: bool | None = None,
         distinct_window_size: int | None = None,
-        distinct_key: Callable[[H], H_] | None = None,
+        distinct_key: Callable[[H], Hashable] | None = None,
         limit: int | None = None,
         method: Literal['chain'] | Literal['roundrobin'] = 'roundrobin'
 ) -> Iterator[H]:
@@ -168,7 +167,7 @@ async def amix(
         *its: AsyncIterable[H],
         distinct: bool | None = None,
         distinct_window_size: int | None = None,
-        distinct_key: Callable[[H], H_] | None = None,
+        distinct_key: Callable[[H], Hashable] | None = None,
         limit: int | None = None,
         method: Literal['chain'] | Literal['roundrobin'] = 'roundrobin'
 ) -> AsyncIterator[H]:
@@ -236,8 +235,8 @@ async def atake(n: int, it: AsyncIterable[T]) -> list[T]:
 def uniq(
         it: Iterable[H],
         n: int | None = None,
-        key: Callable[[H], H_] | None = None,
-        _default_key: Callable[[H], H_] = lambda x: x
+        key: Callable[[H], Hashable] | None = None,
+        _default_key: Callable[[H], Hashable] = lambda x: x
 ) -> Iterator[H]:
     """Yields unique elements, preserves order.
 
@@ -261,13 +260,13 @@ def uniq(
 async def auniq(
         it: AsyncIterable[H],
         n: int | None = None,
-        key: Callable[[H], H_] | None = None,
-        _default_key: Callable[[H], H_] = lambda x: x
+        key: Callable[[H], Hashable] | None = None,
+        _default_key: Callable[[H], Hashable] = lambda x: x
 ) -> AsyncIterator[H]:
     """Async version of :func:`uniq`."""
     key = key or _default_key
     if n is None:
-        seen: set[H] = set()
+        seen: set[Hashable] = set()
         async for x in aiter(it):
             k = key(x)
             if k not in seen:
@@ -275,8 +274,8 @@ async def auniq(
                 seen.add(k)
     else:
         assert n > 0
-        window: collections.deque[H] = collections.deque(maxlen=n)
-        counts: dict[H, int] = collections.defaultdict(int)
+        window: collections.deque[Hashable] = collections.deque(maxlen=n)
+        counts: dict[Hashable, int] = collections.defaultdict(int)
         async for x in aiter(it):
             if len(window) == n:
                 to_discard = window[0]
