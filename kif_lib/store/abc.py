@@ -1876,7 +1876,7 @@ class Store(Set):
     def _set_distinct(self, distinct: bool) -> bool:
         return True
 
-# -- Distinct window size --------------------------------------------------
+# -- Distinct window-size --------------------------------------------------
 
     @at_property
     def max_distinct_window_size(self) -> int:
@@ -2821,7 +2821,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
-           distinct_window_size: Distinct look-back window size.
+           distinct_window_size: Size of distinct look-back window.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -2929,7 +2929,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
-           distinct_window_size: Distinct look-back window size.
+           distinct_window_size: Size of distinct look-back window.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -3049,7 +3049,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
-           distinct_window_size: Distinct look-back window size.
+           distinct_window_size: Size of distinct look-back window.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -3130,7 +3130,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
-           distinct_window_size: Distinct look-back window size.
+           distinct_window_size: Size of distinct look-back window.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -3277,7 +3277,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
-           distinct_window_size: Distinct look-back window size.
+           distinct_window_size: Size of distinct look-back window.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -3338,7 +3338,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
-           distinct_window_size: Distinct look-back window size.
+           distinct_window_size: Size of distinct look-back window.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.

@@ -69,6 +69,7 @@ __all__ = [
 ]
 
 H = TypeVar('H', bound=Hashable)
+H_ = TypeVar('H_', bound=Hashable)
 R = TypeVar('R')
 T = TypeVar('T')
 
@@ -133,7 +134,7 @@ def mix(
         *its: Iterable[H],
         distinct: bool | None = None,
         distinct_window_size: int | None = None,
-        distinct_key: Callable[[H], H] | None = None,
+        distinct_key: Callable[[H], H_] | None = None,
         limit: int | None = None,
         method: Literal['chain'] | Literal['roundrobin'] = 'roundrobin'
 ) -> Iterator[H]:
@@ -142,7 +143,7 @@ def mix(
     Parameters:
        its: Iterables of hashable elements.
        distinct: Whether to skip duplicates.
-       distinct_window_size: Distinct look-back window size.
+       distinct_window_size: Size of distinct look-back window.
        distinct_key: Key function (used to compare elements).
        limit: Limit (maximum number) of elements to yield.
        method: Mixing method.
@@ -167,7 +168,7 @@ async def amix(
         *its: AsyncIterable[H],
         distinct: bool | None = None,
         distinct_window_size: int | None = None,
-        distinct_key: Callable[[H], H] | None = None,
+        distinct_key: Callable[[H], H_] | None = None,
         limit: int | None = None,
         method: Literal['chain'] | Literal['roundrobin'] = 'roundrobin'
 ) -> AsyncIterator[H]:
@@ -235,8 +236,8 @@ async def atake(n: int, it: AsyncIterable[T]) -> list[T]:
 def uniq(
         it: Iterable[H],
         n: int | None = None,
-        key: Callable[[H], H] | None = None,
-        _default_key: Callable[[H], H] = lambda x: x
+        key: Callable[[H], H_] | None = None,
+        _default_key: Callable[[H], H_] = lambda x: x
 ) -> Iterator[H]:
     """Yields unique elements, preserves order.
 
@@ -244,7 +245,7 @@ def uniq(
 
     Parameters:
        it: Iterable of hashable elements.
-       n: Look-back window size.
+       n: Size of look-back window.
        key: Key function (used to compare elements).
 
     Returns:
@@ -260,8 +261,8 @@ def uniq(
 async def auniq(
         it: AsyncIterable[H],
         n: int | None = None,
-        key: Callable[[H], H] | None = None,
-        _default_key: Callable[[H], H] = lambda x: x
+        key: Callable[[H], H_] | None = None,
+        _default_key: Callable[[H], H_] = lambda x: x
 ) -> AsyncIterator[H]:
     """Async version of :func:`uniq`."""
     key = key or _default_key
