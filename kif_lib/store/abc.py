@@ -14,6 +14,7 @@ from ..error import Error as KIF_Error
 from ..error import ShouldNotGetHere
 from ..model import (
     AnnotatedStatement,
+    Entity,
     Filter,
     Fingerprint,
     KIF_Object,
@@ -1257,6 +1258,7 @@ class Store(Set):
             best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
+            distinct_window_size: int | None = None,
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
@@ -1274,6 +1276,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
+           distinct_window_size: Size of distinct look-back window.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -1288,6 +1291,7 @@ class Store(Set):
             best_ranked=best_ranked,
             debug=debug,
             distinct=distinct,
+            distinct_window_size=distinct_window_size,
             extra_references=extra_references,
             limit=limit,
             lookahead=lookahead,
@@ -2366,6 +2370,7 @@ class Store(Set):
             best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
+            distinct_window_size: int | None = None,
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
@@ -2392,6 +2397,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
+           distinct_window_size: Size of distinct look-back window.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -2407,6 +2413,7 @@ class Store(Set):
                 best_ranked=best_ranked,
                 debug=debug,
                 distinct=distinct,
+                distinct_window_size=distinct_window_size,
                 extra_references=extra_references,
                 limit=limit,
                 lookahead=lookahead,
@@ -2458,6 +2465,7 @@ class Store(Set):
             best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
+            distinct_window_size: int | None = None,
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
@@ -2484,6 +2492,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
+           distinct_window_size: Size of distinct look-back window.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -2498,6 +2507,7 @@ class Store(Set):
                 best_ranked=best_ranked,
                 debug=debug,
                 distinct=distinct,
+                distinct_window_size=distinct_window_size,
                 extra_references=extra_references,
                 limit=limit,
                 lookahead=lookahead,
@@ -2607,6 +2617,7 @@ class Store(Set):
             best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
+            distinct_window_size: int | None = None,
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
@@ -2633,6 +2644,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
+           distinct_window_size: Size of distinct look-back window.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -2648,6 +2660,7 @@ class Store(Set):
                 best_ranked=best_ranked,
                 debug=debug,
                 distinct=distinct,
+                distinct_window_size=distinct_window_size,
                 extra_references=extra_references,
                 limit=limit,
                 lookahead=lookahead,
@@ -2699,6 +2712,7 @@ class Store(Set):
             best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
+            distinct_window_size: int | None = None,
             extra_references: TReferenceRecordSet | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
@@ -2725,6 +2739,7 @@ class Store(Set):
            best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
+           distinct_window_size: Size of distinct look-back window.
            extra_references: Extra references to attach to statements.
            limit: Limit (maximum number) of responses.
            lookahead: Number of pages to lookahead asynchronously.
@@ -2740,6 +2755,7 @@ class Store(Set):
                 best_ranked=best_ranked,
                 debug=debug,
                 distinct=distinct,
+                distinct_window_size=distinct_window_size,
                 extra_references=extra_references,
                 limit=limit,
                 lookahead=lookahead,
@@ -2883,6 +2899,81 @@ class Store(Set):
             options: Options
     ) -> Iterator[Statement]:
         return iter(())
+
+    def filter_s(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> Iterator[Entity]:
+        """meth:`Store.filter` with projection on subject."""
+        with self(
+                base_filter=base_filter,
+                best_ranked=best_ranked,
+                debug=debug,
+                distinct=distinct,
+                distinct_window_size=distinct_window_size,
+                extra_references=extra_references,
+                limit=limit,
+                lookahead=lookahead,
+                page_size=page_size,
+                timeout=timeout,
+                **kwargs
+        ) as options:
+            return self._filter_x_tail(
+                self._check_filter(
+                    subject=subject,
+                    property=property,
+                    value=value,
+                    snak_mask=snak_mask,
+                    subject_mask=subject_mask,
+                    property_mask=property_mask,
+                    value_mask=value_mask,
+                    rank_mask=rank_mask,
+                    language=language,
+                    annotated=annotated,
+                    snak=snak,
+                    filter=filter,
+                    function=self.filter), options, self._filter_s)
+
+    def _filter_x_tail(
+            self,
+            filter: Filter,
+            options: Options,
+            filter_x_fn: Callable[[Filter, Options], Iterator[T]]
+    ) -> Iterator[T]:
+        if ((options.limit is None or options.limit > 0)
+                and filter.is_nonempty()):
+            return filter_x_fn(filter, options)
+        else:
+            return iter(())
+
+    def _filter_s(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[Entity]:
+        return map(lambda s: s.subject, self._filter(filter, options))
 
     def afilter(
             self,
