@@ -38,6 +38,7 @@ from ....model import (
     ReferenceRecordSet,
     Snak,
     Statement,
+    StatementTemplate,
     StatementVariable,
     String,
     StringDatatype,
@@ -70,6 +71,7 @@ from ....typing import (
     Iterator,
     Optional,
     override,
+    Set,
     TypeAlias,
     TypedDict,
     Union,
@@ -454,10 +456,20 @@ class WikidataMapping(M):
             assert len(compiler.q.where.subselect_blocks) == 1
             sb = compiler.q.where.subselect_blocks[0]
             sb.query = sb.query.select(
+                compiler._entry_id_qvar, self.wds,
+                *self._build_query_get_target_variables(
+                    compiler, self._build_query_get_entry_pattern_variables),
                 distinct=distinct, limit=limit, offset=offset)
             return compiler.q.select(  # type: ignore
                 distinct=distinct, limit=None, offset=None,
                 order_by=self.wds)
+
+    def _build_query_get_entry_pattern_variables(
+            self,
+            target: M.EntryPattern
+    ) -> Set[Variable]:
+        assert isinstance(target, (Statement, StatementTemplate))
+        return target.unannotate().variables
 
     class ResultBuilder(M.ResultBuilder):
 

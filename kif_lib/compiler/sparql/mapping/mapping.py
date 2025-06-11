@@ -999,20 +999,26 @@ class SPARQL_Mapping(Sequence[_Entry]):
 
     def _build_query_get_target_variables(
             self,
-            compiler: Compiler
+            compiler: Compiler,
+            get_entry_pattern_variables:
+            Callable[[SPARQL_Mapping.EntryPattern], Set[Variable]] = (
+                lambda p: p.variables)
     ) -> Set[Compiler.Query.Variable]:
         return functools.reduce(
             lambda x, y: x | y,
-            self._build_query_get_target_variables_tail(compiler), set())
+            self._build_query_get_target_variables_tail(
+                compiler, get_entry_pattern_variables), set())
 
     def _build_query_get_target_variables_tail(
             self,
-            compiler: Compiler
+            compiler: Compiler,
+            get_entry_pattern_variables:
+            Callable[[SPARQL_Mapping.EntryPattern], Set[Variable]]
     ) -> Iterator[Set[Compiler.Query.Variable]]:
         for id, targets in compiler._entry_targets.items():
             yield from map(
                 compiler._entry_subst[id].ancestor_qvars,
-                itertools.chain(*map(lambda s: s.variables, targets)))
+                itertools.chain(*map(get_entry_pattern_variables, targets)))
 
     def build_results(
             self,
