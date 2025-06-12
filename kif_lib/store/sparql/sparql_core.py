@@ -454,8 +454,8 @@ class _SPARQL_Store(
 # -- Statements ------------------------------------------------------------
 
     @override
-    def _ask(self, filter: Filter) -> bool:
-        query = self._build_ask_query_from_filter(filter, self.options)
+    def _ask(self, filter: Filter, options: Store.Options) -> bool:
+        query = self._build_ask_query_from_filter(filter, options)
         if query.where_is_nonempty():
             return self._parse_ask_results(
                 self.backend.ask(str(query.ask())))
@@ -463,8 +463,8 @@ class _SPARQL_Store(
             return False
 
     @override
-    async def _aask(self, filter: Filter) -> bool:
-        query = self._build_ask_query_from_filter(filter, self.options)
+    async def _aask(self, filter: Filter, options: Store.Options) -> bool:
+        query = self._build_ask_query_from_filter(filter, options)
         if query.where_is_nonempty():
             return self._parse_ask_results(
                 await self.backend.aask(str(query.ask())))
@@ -484,9 +484,9 @@ class _SPARQL_Store(
         return results['boolean']
 
     @override
-    def _count(self, filter: Filter) -> int:
+    def _count(self, filter: Filter, options: Store.Options) -> int:
         count, query = self._build_count_query_from_filter(
-            filter, self.options)
+            filter, options)
         if query.where_is_nonempty():
             return self._parse_count_results(
                 count, self.backend.select(str(query)))
@@ -494,9 +494,9 @@ class _SPARQL_Store(
             return 0
 
     @override
-    async def _acount(self, filter: Filter) -> int:
+    async def _acount(self, filter: Filter, options: Store.Options) -> int:
         count, query = self._build_count_query_from_filter(
-            filter, self.options)
+            filter, options)
         if query.where_is_nonempty():
             return self._parse_count_results(
                 count, await self.backend.aselect(str(query)))

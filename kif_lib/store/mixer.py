@@ -400,24 +400,25 @@ class MixerStore(
 # -- Statements ------------------------------------------------------------
 
     @override
-    def _ask(self, filter: Filter) -> bool:
-        return any(map(lambda src: src._ask(filter), self._sources))
+    def _ask(self, filter: Filter, options: Store.Options) -> bool:
+        return any(map(lambda src: src._ask(filter, options), self._sources))
 
     @override
-    async def _aask(self, filter: Filter) -> bool:
+    async def _aask(self, filter: Filter, options: Store.Options) -> bool:
         tasks = (
-            asyncio.ensure_future(src._aask(filter))
+            asyncio.ensure_future(src._aask(filter, options))
             for src in self._sources)
         return any(await asyncio.gather(*tasks))
 
     @override
-    def _count(self, filter: Filter) -> int:
-        return sum(map(lambda src: src._count(filter), self._sources))
+    def _count(self, filter: Filter, options: Store.Options) -> int:
+        return sum(map(
+            lambda src: src._count(filter, options), self._sources))
 
     @override
-    async def _acount(self, filter: Filter) -> int:
+    async def _acount(self, filter: Filter, options: Store.Options) -> int:
         tasks = (
-            asyncio.ensure_future(src._acount(filter))
+            asyncio.ensure_future(src._acount(filter, options))
             for src in self._sources)
         return sum(await asyncio.gather(*tasks))
 

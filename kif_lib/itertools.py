@@ -118,7 +118,7 @@ if sys.version_info < (3, 10):
 async def amap(
         f: Callable[..., R],
         *args: AnyIterable[Any]
-) -> AsyncIterable[R]:
+) -> AsyncIterator[R]:
     """Async version of :func:`map`."""
     for it in args:
         if hasattr(it, '__aiter__'):
