@@ -38,7 +38,6 @@ from ....model import (
     ReferenceRecordSet,
     Snak,
     Statement,
-    StatementTemplate,
     StatementVariable,
     String,
     StringDatatype,
@@ -71,7 +70,6 @@ from ....typing import (
     Iterator,
     Optional,
     override,
-    Set,
     TypeAlias,
     TypedDict,
     Union,
@@ -446,30 +444,24 @@ class WikidataMapping(M):
     def build_query(
             self,
             compiler: C,
+            projection: C.Projection | None = None,
             distinct: bool | None = None,
             limit: int | None = None,
             offset: int | None = None
     ) -> C.Query:
         if not compiler.q.where.subselect_blocks:
-            return super().build_query(compiler, distinct, limit, offset)
+            return super().build_query(
+                compiler, projection, distinct, limit, offset)
         else:
             assert len(compiler.q.where.subselect_blocks) == 1
             sb = compiler.q.where.subselect_blocks[0]
             sb.query = sb.query.select(
                 compiler._entry_id_qvar, self.wds,
-                *self._build_query_get_target_variables(
-                    compiler, self._build_query_get_entry_pattern_variables),
+                *self._build_query_get_target_variables(compiler, projection),
                 distinct=distinct, limit=limit, offset=offset)
             return compiler.q.select(  # type: ignore
                 distinct=distinct, limit=None, offset=None,
                 order_by=self.wds)
-
-    def _build_query_get_entry_pattern_variables(
-            self,
-            target: M.EntryPattern
-    ) -> Set[Variable]:
-        assert isinstance(target, (Statement, StatementTemplate))
-        return target.unannotate().variables
 
     class ResultBuilder(M.ResultBuilder):
 
@@ -503,14 +495,43 @@ class WikidataMapping(M):
                 assert isinstance(pat, VariablePattern)
                 assert isinstance(pat.variable, StatementVariable)
                 thetas = list(super().push(binding))
-                if all(map(Term.is_closed, map(
-                        lambda t: t[pat.variable], thetas))):
+                ###
+                # If the statements resulting from pushing the binding,
+                # (i.e., the content of theta[pat.variable] for theta in
+                # thetas) does not contain an open annotation (i.e., a
+                # variable occurring in qualifier, reference, or rank
+                # position) then there is nothing left to do: we can simply
+                # yield the obtained thetas.  Otherwise, we must call
+                # _push_annotated() to update the query to get the desired
+                # annotations.
+                ###
+                if not any(map(
+                        lambda s:
+                        isinstance(s, AnnotatedStatementTemplate)
+                        and Term.is_open(s.qualifiers)
+                        and Term.is_open(s.references)
+                        and Term.is_open(s.rank),
+                        map(lambda t: t[pat.variable], thetas))):
                     yield from thetas
                 else:
                     self._push_new_cur(binding, thetas)
                     yield from self._push_annotated(binding)
             else:
                 yield from self._push_annotated(binding)
+
+        def _push_some_pat_variable_has_an_open_annotation(
+                self,
+                variable: Variable,
+                thetas: Iterable[Theta]
+        ) -> bool:
+            for theta in thetas:
+                stmt = theta[variable]
+                if isinstance(stmt, AnnotatedStatementTemplate):
+                    return (
+                        Term.is_open(stmt.qualifiers)
+                        or Term.is_open(stmt.references)
+                        or Term.is_open(stmt.rank))
+            return False
 
         def _push_new_cur(
                 self,

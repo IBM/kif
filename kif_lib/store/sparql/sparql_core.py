@@ -18,11 +18,15 @@ from ...compiler.sparql.results import (
     SPARQL_ResultsBinding,
 )
 from ...model import (
+    ClosedTerm,
+    Entity,
     Filter,
     Graph,
     KIF_Object,
     Statement,
+    StatementTemplate,
     StatementVariable,
+    Term,
     TGraph,
     VariablePattern,
 )
@@ -531,6 +535,25 @@ class _SPARQL_Store(
             filter: Filter,
             options: Store.Options
     ) -> Iterator[Statement]:
+        return cast(Iterator[Statement], self._filter_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.ALL))
+
+    @override
+    def _filter_s(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[Entity]:
+        return cast(Iterator[Entity], self._filter_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.SUBJECT))
+
+    def _filter_with_projection(
+            self,
+            filter: Filter,
+            options: Store.Options,
+            projection: SPARQL_FilterCompiler.Projection
+    ) -> Iterator[ClosedTerm]:
+        assert projection.value != 0
         compiler, _, variable = self._compile_filter(filter, options)
         push = compiler.build_results()
         if options.limit is not None:
@@ -538,7 +561,7 @@ class _SPARQL_Store(
         else:
             limit = options.max_limit
         query_stream = self._build_filter_query_stream(
-            compiler, options.distinct, limit, options.page_size)
+            compiler, projection, options.distinct, limit, options.page_size)
         count = 0
         for query in query_stream:
             bindings = list(self._build_filter_result_binding_stream((
@@ -551,8 +574,15 @@ class _SPARQL_Store(
                     continue    # push more results
                 for theta in thetas:
                     stmt = variable.instantiate(theta)
-                    assert isinstance(stmt, Statement), stmt
-                    yield stmt
+                    assert isinstance(stmt, (Statement, StatementTemplate))
+                    if projection == compiler.Projection.ALL:
+                        term: Term = stmt
+                    elif projection == compiler.Projection.SUBJECT:
+                        term = stmt.subject
+                    else:
+                        raise self._should_not_get_here()
+                    assert isinstance(term, ClosedTerm), term
+                    yield term
                     count += 1
                     assert count <= limit, (count, limit)
                     if count == limit:
@@ -580,7 +610,8 @@ class _SPARQL_Store(
         else:
             limit = options.max_limit
         query_stream = self._build_filter_query_stream(
-            compiler, options.distinct, limit, options.page_size)
+            compiler, compiler.Projection.ALL,
+            options.distinct, limit, options.page_size)
         count = 0
         for batch in itertools.batched(query_stream, self.lookahead):
             tasks = (
@@ -627,12 +658,13 @@ class _SPARQL_Store(
     def _build_filter_query_stream(
             self,
             compiler: SPARQL_FilterCompiler,
+            projection: SPARQL_FilterCompiler.Projection,
             distinct: bool,
             limit: int,
             page_size: int
     ) -> Iterator[SPARQL_FilterCompiler.Query]:
         query_stream = self._build_filter_query_stream_tail(
-            compiler, distinct, limit, page_size)
+            compiler, projection, distinct, limit, page_size)
         for query in query_stream:
             if query.where_is_empty():
                 break
@@ -641,6 +673,7 @@ class _SPARQL_Store(
     def _build_filter_query_stream_tail(
             self,
             compiler: SPARQL_FilterCompiler,
+            projection: SPARQL_FilterCompiler.Projection,
             distinct: bool,
             limit: int,
             page_size: int
@@ -652,10 +685,16 @@ class _SPARQL_Store(
                 remaining = limit - offset
                 if remaining < page_size:
                     yield compiler.build_query(
-                        distinct=distinct, limit=remaining, offset=offset)
+                        projection=projection,
+                        distinct=distinct,
+                        limit=remaining,
+                        offset=offset)
                     break
                 yield compiler.build_query(
-                    distinct=distinct, limit=page_size, offset=offset)
+                    projection=projection,
+                    distinct=distinct,
+                    limit=page_size,
+                    offset=offset)
 
     def _build_filter_result_binding_stream(
             self,

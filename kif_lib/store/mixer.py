@@ -8,7 +8,7 @@ import dataclasses
 import functools
 
 from .. import itertools
-from ..model import Filter, KIF_Object, Statement
+from ..model import Entity, Filter, KIF_Object, Statement
 from ..model.flags import Flags as KIF_Flags
 from ..typing import (
     Any,
@@ -430,6 +430,30 @@ class MixerStore(
     ) -> Iterator[Statement]:
         return itertools.mix(
             *(src._filter_tail(filter, src.options.copy())
+              for src in self.sources),
+            distinct=options.distinct,
+            distinct_window_size=options.distinct_window_size,
+            limit=options.limit)
+
+    @override
+    def _filter_s(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[Entity]:
+        return self._filter_x_mix_sources(
+            lambda s: s._filter_s, filter, options)
+
+    def _filter_x_mix_sources(
+            self,
+            get_filter_x_fn: Callable[
+                [Store], Callable[[Filter, Store.Options], Iterator[T]]],
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[T]:
+        return itertools.mix(
+            *(src._filter_x_tail(
+                get_filter_x_fn(src), filter, src.options.copy())
               for src in self.sources),
             distinct=options.distinct,
             distinct_window_size=options.distinct_window_size,

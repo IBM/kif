@@ -2809,7 +2809,7 @@ class Store(Set):
         if ((options.limit is None or options.limit > 0)
                 and filter.is_nonempty()):
             return itertools.mix(
-                filter_x_fn(filter, options),
+                filter_x_fn(filter.replace(annotated=False), options),
                 distinct=options.distinct,
                 distinct_window_size=options.distinct_window_size,
                 limit=options.limit)

@@ -44,8 +44,8 @@ from .model import (
     Quantity,
     ShallowDataValue,
     SomeValueSnak,
-    Statement,
     String,
+    Term,
     Text,
     Value,
     ValueSnak,
@@ -54,9 +54,11 @@ from .model.object import Decoder, Encoder
 from .store import Store
 from .typing import (
     Any,
+    Callable,
     ClassVar,
     Final,
     Iterable,
+    Iterator,
     override,
     Self,
     Sequence,
@@ -490,6 +492,14 @@ class FilterParam:
         help='Rank mask.',
         envvar='RANK_MASK')
 
+    select = click.option(
+        '--select',
+        'select',
+        type=click.Choice(['s', 'sp', 'sv', 'p', 'pv', 'spv']),
+        default='spv',
+        help='Projection specification.',
+        envvar='SELECT')
+
     snak_is_no_value = click.option(
         '--snak-is-no-value',
         'snak_is_no_value',
@@ -694,7 +704,6 @@ class FilterParam:
         '--value-is-value',
         'value_is_value',
         is_flag=True,
-        default=False,
         help='Alias: --snak-is-value --value-mask=VALUE.',
         envvar='VALUE_IS_VALUE')
 
@@ -1153,6 +1162,7 @@ def count(
 @FilterParam.property_option
 @FilterParam.property_mask
 @FilterParam.rank_mask
+@FilterParam.select
 @FilterParam.snak_is_no_value
 @FilterParam.snak_is_some_value
 @FilterParam.snak_is_value
@@ -1224,6 +1234,7 @@ def filter(
         lookahead: int | None = None,
         page_size: int | None = None,
         resolve: bool | None = None,
+        select: str | None = None,
         timeout: float | None = None
 ) -> None:
     console = Console()
@@ -1274,7 +1285,7 @@ def filter(
         timeout=timeout)
 
     def output(
-            page: Iterable[Statement],
+            page: Iterable[Term],
             pageno: int
     ) -> None:
         if resolve:
@@ -1283,18 +1294,11 @@ def filter(
         else:
             resolved_page = page
         if encoder is None:
-            ###
-            # FIXME: This is not working!
-            ###
-            # it = (f'{(pageno * target.page_size) + i}.\t'
-            #       + textwrap.indent(stmt.to_markdown(), '\t').lstrip()
-            #       for i, stmt in enumerate(resolved_page, 1))
-            ###
-            it = map(Statement.to_markdown, resolved_page)
+            it = map(Term.to_markdown, resolved_page)
             console.print(Markdown('\n\n'.join(it)))
         else:
-            for stmt in resolved_page:
-                print(encoder.encode(stmt).rstrip(), flush=True)
+            for term in resolved_page:
+                print(encoder.encode(term).rstrip(), flush=True)
     if async_:
         async def afilter():
             it, n = target.afilter(filter=fr), 0
@@ -1306,8 +1310,14 @@ def filter(
                 n += 1
         asyncio.run(afilter())
     else:
-        batches = itertools.batched(
-            target.filter(filter=fr), target.page_size)
+        f: Callable[[], Iterator[Term]]
+        if select == 's':
+            f = (lambda: target.filter_s(filter=fr))
+        elif select == 'spv':
+            f = (lambda: target.filter(filter=fr))
+        else:
+            raise KIF_Object._should_not_get_here()
+        batches = itertools.batched(f(), target.page_size)
         for pageno, page in enumerate(batches):
             output(page, pageno)
 

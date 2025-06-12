@@ -18,6 +18,8 @@ from ....model import (
     QualifierRecord,
     Rank,
     ReferenceRecordSet,
+    Snak,
+    SnakTemplate,
     Statement,
     StatementTemplate,
     StatementVariable,
@@ -27,6 +29,8 @@ from ....model import (
     TQualifierRecord,
     TRank,
     TReferenceRecordSet,
+    ValueSnak,
+    ValueSnakTemplate,
     Variable,
     VStatement,
     VTStatement,
@@ -977,6 +981,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
     def build_query(
             self,
             compiler: Compiler,
+            projection: Compiler.Projection | None = None,
             distinct: bool | None = None,
             limit: int | None = None,
             offset: int | None = None
@@ -985,6 +990,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
 
         Parameters:
            compiler: SPARQL compiler.
+           projection: Projection mask.
            distinct: Whether to enable the distinct modifier.
            limit: Limit.
            offset: Offset.
@@ -992,7 +998,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
         Returns:
            Filter query.
         """
-        vars = self._build_query_get_target_variables(compiler)
+        vars = self._build_query_get_target_variables(compiler, projection)
         return compiler.q.select(  # type: ignore
             compiler._entry_id_qvar, *vars,
             distinct=distinct, limit=limit, offset=offset)
@@ -1000,25 +1006,47 @@ class SPARQL_Mapping(Sequence[_Entry]):
     def _build_query_get_target_variables(
             self,
             compiler: Compiler,
-            get_entry_pattern_variables:
-            Callable[[SPARQL_Mapping.EntryPattern], Set[Variable]] = (
-                lambda p: p.variables)
+            projection: Compiler.Projection | None = None
     ) -> Set[Compiler.Query.Variable]:
         return functools.reduce(
             lambda x, y: x | y,
             self._build_query_get_target_variables_tail(
-                compiler, get_entry_pattern_variables), set())
+                compiler, projection), set())
 
     def _build_query_get_target_variables_tail(
             self,
             compiler: Compiler,
-            get_entry_pattern_variables:
-            Callable[[SPARQL_Mapping.EntryPattern], Set[Variable]]
+            projection: Compiler.Projection | None = None
     ) -> Iterator[Set[Compiler.Query.Variable]]:
+        get_entry_pattern_variables = functools.partial(
+            self._build_query_get_entry_pattern_variables,
+            compiler=compiler, projection=projection)
         for id, targets in compiler._entry_targets.items():
             yield from map(
                 compiler._entry_subst[id].ancestor_qvars,
                 itertools.chain(*map(get_entry_pattern_variables, targets)))
+
+    def _build_query_get_entry_pattern_variables(
+            self,
+            pattern: SPARQL_Mapping.EntryPattern,
+            compiler: Compiler,
+            projection: Compiler.Projection | None = None
+    ) -> Set[Variable]:
+        assert projection is None or projection.value != 0
+        assert isinstance(pattern, (Statement, StatementTemplate))
+        pat = pattern.unannotate()
+        assert isinstance(pat.snak, (Snak, SnakTemplate))
+        if projection is None:
+            return pat.variables  # no projection
+        else:
+            vars: set[Variable] = set()
+            if projection & compiler.Projection.SUBJECT:
+                vars.update(pat.subject.variables)
+            if projection & compiler.Projection.PROPERTY:
+                vars.update(pat.snak.property.variables)
+            if isinstance(pat.snak, (ValueSnak, ValueSnakTemplate)):
+                vars.update(pat.snak.value.variables)
+            return vars
 
     def build_results(
             self,

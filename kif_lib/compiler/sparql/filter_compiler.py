@@ -815,8 +815,24 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         vals = map(lambda line: tuple(map(lambda k: line[k], vars)), lines)
         self.q.values(*vars)(*vals)
 
+    class Projection(enum.Flag):
+        """Statement projection mask."""
+
+        #: Mask for projection on subject.
+        SUBJECT = enum.auto()
+
+        #: Mask for projection on property.
+        PROPERTY = enum.auto()
+
+        #: Mask for projection on value.
+        VALUE = enum.auto()
+
+        #: Mask for projection on subject, property, and value.
+        ALL = SUBJECT | PROPERTY | VALUE
+
     def build_query(
             self,
+            projection: Projection | None = None,
             distinct: bool | None = None,
             limit: int | None = None,
             offset: int | None = None
@@ -824,6 +840,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         """Constructs a filter query.
 
         Parameters:
+           projection: Projection mask.
            distinct: Whether to enable the distinct modifier.
            limit: Limit.
            offset: Offset.
@@ -833,7 +850,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         """
         assert self.frame['phase'] == self.DONE
         return self.mapping.build_query(
-            self, distinct, limit, offset)
+            self, projection, distinct, limit, offset)
 
     def build_results(
             self
