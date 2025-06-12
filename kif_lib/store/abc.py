@@ -18,6 +18,7 @@ from ..model import (
     Filter,
     Fingerprint,
     KIF_Object,
+    Property,
     ReferenceRecordSet,
     Snak,
     Statement,
@@ -26,6 +27,8 @@ from ..model import (
     TQuantity,
     TReferenceRecordSet,
     TTextLanguage,
+    Value,
+    ValueSnak,
 )
 from ..typing import (
     Any,
@@ -45,9 +48,10 @@ from ..typing import (
     TypeVar,
 )
 
+_py_filter = filter
 at_property = property
-T = TypeVar('T')
 S = TypeVar('S')
+T = TypeVar('T')
 
 
 class Store(Set):
@@ -2822,6 +2826,105 @@ class Store(Set):
             options: Options
     ) -> Iterator[Entity]:
         return map(Statement.get_subject, self._filter(filter, options))
+
+    def filter_sp(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> Iterator[tuple[Entity, Property]]:
+        """meth:`Store.filter` with projection on subject and property."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._filter_x_tail, self._filter_sp),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.filter_sp)
+
+    def _filter_sp(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[tuple[Entity, Property]]:
+        return map(
+            lambda s: (s.subject, s.snak.property),
+            self._filter(filter, options))
+
+    def filter_sv(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> Iterator[tuple[Entity, Value]]:
+        """meth:`Store.filter` with projection on subject and property."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._filter_x_tail, self._filter_sv),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.filter_sv)
+
+    def _filter_sv(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[tuple[Entity, Value]]:
+        return map(
+            lambda s: (s.subject, s.snak.value),
+            _py_filter(
+                lambda s: isinstance(s.snak, ValueSnak),
+                self._filter(
+                    filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
 
     def afilter(
             self,
