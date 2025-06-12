@@ -35,6 +35,7 @@ from ..typing import (
     AsyncIterable,
     AsyncIterator,
     Callable,
+    cast,
     ClassVar,
     Final,
     Generator,
@@ -2920,7 +2921,7 @@ class Store(Set):
             options: Options
     ) -> Iterator[tuple[Entity, Value]]:
         return map(
-            lambda s: (s.subject, s.snak.value),
+            lambda s: (s.subject, cast(ValueSnak, s.snak).value),
             _py_filter(
                 lambda s: isinstance(s.snak, ValueSnak),
                 self._filter(
@@ -3000,7 +3001,7 @@ class Store(Set):
     ) -> AsyncIterator[Statement]:
         return self._afilter_empty_iterator()
 
-    async def _afilter_empty_iterator(self) -> AsyncIterator[T]:
+    async def _afilter_empty_iterator(self) -> AsyncIterator[Any]:
         return
         yield
 
