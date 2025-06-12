@@ -556,6 +556,8 @@ class _SPARQL_Store(
         assert projection.value != 0
         compiler, _, variable = self._compile_filter(filter, options)
         push = compiler.build_results()
+        select = functools.partial(
+            self._filter_with_projection_select, compiler, projection)
         if options.limit is not None:
             limit = options.limit
         else:
@@ -575,14 +577,7 @@ class _SPARQL_Store(
                 for theta in thetas:
                     stmt = variable.instantiate(theta)
                     assert isinstance(stmt, (Statement, StatementTemplate))
-                    if projection == compiler.Projection.ALL:
-                        term: Term = stmt
-                    elif projection == compiler.Projection.SUBJECT:
-                        term = stmt.subject
-                    else:
-                        raise self._should_not_get_here()
-                    assert isinstance(term, ClosedTerm), term
-                    yield term
+                    yield select(stmt)
                     count += 1
                     assert count <= limit, (count, limit)
                     if count == limit:
@@ -590,28 +585,56 @@ class _SPARQL_Store(
             if count < options.page_size:
                 break           # done
 
+    def _filter_with_projection_select(
+            self,
+            compiler: SPARQL_FilterCompiler,
+            projection: SPARQL_FilterCompiler.Projection,
+            stmt: Statement | StatementTemplate,
+    ) -> ClosedTerm:
+        if projection == compiler.Projection.ALL:
+            term: Term = stmt
+        elif projection == compiler.Projection.SUBJECT:
+            term = stmt.subject
+        else:
+            raise self._should_not_get_here()
+        assert isinstance(term, ClosedTerm), term
+        return term
+
     @override
     def _afilter(
             self,
             filter: Filter,
             options: Store.Options
     ) -> AsyncIterator[Statement]:
-        return self._afilter_helper(filter, options)
+        return cast(AsyncIterator[Statement], self._afilter_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.ALL))
 
-    async def _afilter_helper(
+    @override
+    def _afilter_s(
             self,
             filter: Filter,
             options: Store.Options
-    ) -> AsyncIterator[Statement]:
+    ) -> AsyncIterator[Entity]:
+        return cast(AsyncIterator[Entity], self._afilter_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.SUBJECT))
+
+    async def _afilter_with_projection(
+            self,
+            filter: Filter,
+            options: Store.Options,
+            projection: SPARQL_FilterCompiler.Projection
+    ) -> AsyncIterator[ClosedTerm]:
+        assert projection.value != 0
         compiler, _, variable = self._compile_filter(filter, options)
         push = compiler.build_results()
+        select = functools.partial(
+            self._filter_with_projection_select, compiler, projection)
         if options.limit is not None:
             limit = options.limit
         else:
             limit = options.max_limit
         query_stream = self._build_filter_query_stream(
-            compiler, compiler.Projection.ALL,
-            options.distinct, limit, options.page_size)
+            compiler, projection, options.distinct, limit, options.page_size)
         count = 0
         for batch in itertools.batched(query_stream, self.lookahead):
             tasks = (
@@ -627,8 +650,8 @@ class _SPARQL_Store(
                     continue    # push more results
                 for theta in thetas:
                     stmt = variable.instantiate(theta)
-                    assert isinstance(stmt, Statement), stmt
-                    yield stmt
+                    assert isinstance(stmt, (Statement, StatementTemplate))
+                    yield select(stmt)
                     count += 1
                     assert count <= limit, (count, limit)
                     if count == limit:

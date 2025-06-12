@@ -54,6 +54,7 @@ from .model.object import Decoder, Encoder
 from .store import Store
 from .typing import (
     Any,
+    AsyncIterator,
     Callable,
     ClassVar,
     Final,
@@ -1300,8 +1301,16 @@ def filter(
             for term in resolved_page:
                 print(encoder.encode(term).rstrip(), flush=True)
     if async_:
+        af: Callable[[], AsyncIterator[Term]]
+        if select == 's':
+            af = (lambda: target.afilter_s(filter=fr))
+        elif select == 'spv':
+            af = (lambda: target.afilter(filter=fr))
+        else:
+            raise KIF_Object._should_not_get_here()
+
         async def afilter():
-            it, n = target.afilter(filter=fr), 0
+            it, n = af(), 0
             while True:
                 page = await itertools.atake(target.page_size, it)
                 if not page:

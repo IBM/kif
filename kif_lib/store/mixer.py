@@ -471,3 +471,27 @@ class MixerStore(
             distinct=options.distinct,
             distinct_window_size=options.distinct_window_size,
             limit=options.limit)
+
+    @override
+    def _afilter_s(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[Entity]:
+        return self._afilter_x_mix_sources(
+            lambda s: s._afilter_s, filter, options)
+
+    def _afilter_x_mix_sources(
+            self,
+            get_afilter_x_fn: Callable[
+                [Store], Callable[[Filter, Store.Options], AsyncIterator[T]]],
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[T]:
+        return itertools.amix(
+            *(src._afilter_x_tail(
+                get_afilter_x_fn(src), filter, src.options.copy())
+              for src in self.sources),
+            distinct=options.distinct,
+            distinct_window_size=options.distinct_window_size,
+            limit=options.limit)

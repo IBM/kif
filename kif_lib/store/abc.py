@@ -2869,8 +2869,12 @@ class Store(Set):
     ) -> AsyncIterator[Statement]:
         if ((options.limit is None or options.limit > 0)
                 and filter.is_nonempty()):
-            return self._afilter_tail_tail(
-                filter, options, self._afilter(filter, options))
+            return itertools.amix(
+                self._afilter_tail_tail(
+                    filter, options, self._afilter(filter, options)),
+                distinct=options.distinct,
+                distinct_window_size=options.distinct_window_size,
+                limit=options.limit)
         else:
             return self._afilter_empty_iterator()
 
@@ -2893,9 +2897,72 @@ class Store(Set):
     ) -> AsyncIterator[Statement]:
         return self._afilter_empty_iterator()
 
-    async def _afilter_empty_iterator(self) -> AsyncIterator[Statement]:
+    async def _afilter_empty_iterator(self) -> AsyncIterator[T]:
         return
         yield
+
+    def afilter_s(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> AsyncIterator[Entity]:
+        """meth:`Store.afilter` with projection on subject."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._afilter_x_tail, self._afilter_s),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.afilter_s)
+
+    def _afilter_x_tail(
+            self,
+            afilter_x_fn: Callable[[Filter, Options], AsyncIterator[T]],
+            filter: Filter,
+            options: Options,
+    ) -> AsyncIterator[T]:
+        if ((options.limit is None or options.limit > 0)
+                and filter.is_nonempty()):
+            return itertools.amix(
+                afilter_x_fn(filter.replace(annotated=False), options),
+                distinct=options.distinct,
+                distinct_window_size=options.distinct_window_size,
+                limit=options.limit)
+        else:
+            return self._afilter_empty_iterator()
+
+    def _afilter_s(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[Entity]:
+        return itertools.amap(
+            Statement.get_subject, self._afilter(filter, options))
 
     def filter_annotated(
             self,
