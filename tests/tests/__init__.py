@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from .model import (
+    ClosedTermPairTestCase,
     ClosedTermSetTestCase,
     ClosedTermTestCase,
     DatatypeTestCase,
@@ -39,6 +40,7 @@ from .model import (
 from .tests import OptionsTestCase, StoreTestCase, TestCase
 
 __all__ = (
+    'ClosedTermPairTestCase',
     'ClosedTermSetTestCase',
     'ClosedTermTestCase',
     'DatatypeTestCase',

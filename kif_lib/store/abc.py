@@ -28,6 +28,7 @@ from ..model import (
     TReferenceRecordSet,
     TTextLanguage,
     Value,
+    ValuePair,
     ValueSnak,
 )
 from ..typing import (
@@ -2826,7 +2827,7 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> Iterator[Entity]:
-        return map(Statement.get_subject, self._filter(filter, options))
+        return map(lambda s: s.subject, self._filter(filter, options))
 
     def filter_sp(
             self,
@@ -2853,7 +2854,7 @@ class Store(Set):
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
-    ) -> Iterator[tuple[Entity, Property]]:
+    ) -> Iterator[ValuePair[Entity, Property]]:
         """meth:`Store.filter` with projection on subject and property."""
         return self._check_filter_with_options_and_run(
             functools.partial(self._filter_x_tail, self._filter_sp),
@@ -2871,9 +2872,9 @@ class Store(Set):
             self,
             filter: Filter,
             options: Options
-    ) -> Iterator[tuple[Entity, Property]]:
+    ) -> Iterator[ValuePair[Entity, Property]]:
         return map(
-            lambda s: (s.subject, s.snak.property),
+            lambda s: ValuePair(s.subject, s.snak.property),
             self._filter(filter, options))
 
     def filter_sv(
@@ -2901,8 +2902,8 @@ class Store(Set):
             page_size: int | None = None,
             timeout: float | None = None,
             **kwargs: Any
-    ) -> Iterator[tuple[Entity, Value]]:
-        """meth:`Store.filter` with projection on subject and property."""
+    ) -> Iterator[ValuePair[Entity, Value]]:
+        """meth:`Store.filter` with projection on subject and value."""
         return self._check_filter_with_options_and_run(
             functools.partial(self._filter_x_tail, self._filter_sv),
             # filter
@@ -2919,9 +2920,157 @@ class Store(Set):
             self,
             filter: Filter,
             options: Options
-    ) -> Iterator[tuple[Entity, Value]]:
+    ) -> Iterator[ValuePair[Entity, Value]]:
         return map(
-            lambda s: (s.subject, cast(ValueSnak, s.snak).value),
+            lambda s: ValuePair(s.subject, cast(ValueSnak, s.snak).value),
+            _py_filter(
+                lambda s: isinstance(s.snak, ValueSnak),
+                self._filter(
+                    filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
+
+    def filter_p(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> Iterator[Property]:
+        """meth:`Store.filter` with projection on property."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._filter_x_tail, self._filter_p),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.filter_p)
+
+    def _filter_p(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[Property]:
+        return map(lambda s: s.snak.property, self._filter(filter, options))
+
+    def filter_pv(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> Iterator[ValueSnak]:
+        """meth:`Store.filter` with projection on property and value."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._filter_x_tail, self._filter_pv),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.filter_pv)
+
+    def _filter_pv(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[ValueSnak]:
+        return map(
+            lambda s: cast(ValueSnak, s.snak),
+            _py_filter(
+                lambda s: isinstance(s.snak, ValueSnak),
+                self._filter(
+                    filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
+
+    def filter_v(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> Iterator[Value]:
+        """meth:`Store.filter` with projection on value."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._filter_x_tail, self._filter_v),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.filter_v)
+
+    def _filter_v(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[Value]:
+        return map(
+            lambda s: cast(ValueSnak, s.snak).value,
             _py_filter(
                 lambda s: isinstance(s.snak, ValueSnak),
                 self._filter(

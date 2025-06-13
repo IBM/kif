@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from .fingerprint import FingerprintTestCase
 from .kif_object import KIF_ObjectTestCase
+from .pair import ClosedTermPairTestCase
 from .rank import RankTestCase
 from .set import ClosedTermSetTestCase
 from .snak import SnakTemplateTestCase, SnakTestCase, SnakVariableTestCase
@@ -93,6 +94,9 @@ __all__ = (
 
     # fingerprint
     'FingerprintTestCase',
+
+    # pair
+    'ClosedTermPairTestCase',
 
     # set
     'ClosedTermSetTestCase',

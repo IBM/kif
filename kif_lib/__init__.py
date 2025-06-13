@@ -17,6 +17,7 @@ from .model import (
     AnnotatedStatementVariable,
     ClosedPattern,
     ClosedTerm,
+    ClosedTermPair,
     ClosedTermSet,
     Constraint,
     Datatype,
@@ -120,6 +121,8 @@ from .model import (
     TimeTemplate,
     TimeVariable,
     Value,
+    ValuePair,
+    ValuePairVariable,
     ValueSnak,
     ValueSnakTemplate,
     ValueSnakVariable,
@@ -274,6 +277,11 @@ __all__ = (
     'PreferredRank',
     'Rank',
     'RankVariable',
+
+    # model.pair
+    'ClosedTermPair',
+    'ValuePair',
+    'ValuePairVariable',
 
     # model.set
     'ClosedTermSet',

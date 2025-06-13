@@ -83,6 +83,7 @@ from kif_lib import (
     Time,
     TimeDatatype,
     Value,
+    ValuePairVariable,
     ValueSnak,
     Variable,
 )
@@ -915,6 +916,14 @@ class TestCase(unittest.IsolatedAsyncioTestCase):
     def assert_time_variable(self, obj: Variable, name: str) -> None:
         self.assert_deep_data_value_variable(obj, name)
         self.assertIsInstance(obj, TimeVariable)
+
+    def assert_value_pair_variable(
+            self,
+            obj: Variable,
+            name: str
+    ) -> None:
+        self.assert_variable(obj, name)
+        self.assertIsInstance(obj, ValuePairVariable)
 
     def assert_snak_variable(self, obj: Variable, name: str) -> None:
         self.assert_variable(obj, name)

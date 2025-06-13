@@ -1322,6 +1322,14 @@ def filter(
         f: Callable[[], Iterator[Term]]
         if select == 's':
             f = (lambda: target.filter_s(filter=fr))
+        elif select == 'sp':
+            f = (lambda: target.filter_sp(filter=fr))
+        elif select == 'sv':
+            f = (lambda: target.filter_sv(filter=fr))
+        elif select == 'p':
+            f = (lambda: target.filter_p(filter=fr))
+        elif select == 'pv':
+            f = (lambda: target.filter_pv(filter=fr))
         elif select == 'spv':
             f = (lambda: target.filter(filter=fr))
         else:

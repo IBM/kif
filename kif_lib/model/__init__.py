@@ -37,6 +37,14 @@ from .kif_object import (
     Error,
     KIF_Object,
 )
+from .pair import (
+    ClosedTermPair,
+    TValuePair,
+    ValuePair,
+    ValuePairVariable,
+    VTValuePair,
+    VValuePair,
+)
 from .pattern import (
     ClosedPattern,
     OpenPattern,
@@ -422,6 +430,14 @@ __all__ = (
     'TRank',
     'VRank',
     'VTRank',
+
+    # pair
+    'ClosedTermPair',
+    'TValuePair',
+    'ValuePair',
+    'ValuePairVariable',
+    'VTValuePair',
+    'VValuePair',
 
     # set
     'ClosedTermSet',
