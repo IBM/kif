@@ -1044,7 +1044,8 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 vars.update(pat.subject.variables)
             if projection & compiler.Projection.PROPERTY:
                 vars.update(pat.snak.property.variables)
-            if isinstance(pat.snak, (ValueSnak, ValueSnakTemplate)):
+            if (isinstance(pat.snak, (ValueSnak, ValueSnakTemplate))
+                    and projection & compiler.Projection.VALUE):
                 vars.update(pat.snak.value.variables)
             return vars
 
