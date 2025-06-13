@@ -428,12 +428,41 @@ class MixerStore(
             filter: Filter,
             options: Store.Options
     ) -> Iterator[Statement]:
+        get_synced_options = functools.partial(
+            self._filter_get_synced_source_options, options)
         return itertools.mix(
-            *(src._filter_tail(filter, src.options.copy())
+            *(src._filter_tail(filter, get_synced_options(src))
               for src in self.sources),
             distinct=options.distinct,
             distinct_window_size=options.distinct_window_size,
             limit=options.limit)
+
+    def _filter_get_synced_source_options(
+            self,
+            options: Store.Options,
+            source: Store
+    ) -> Store.Options:
+        source_options = source.options.copy()
+        if self.sync_flags & self.BASE_FILTER:
+            source_options.base_filter = options.base_filter
+        if self.sync_flags & self.BEST_RANKED:
+            source_options.best_ranked = options.best_ranked
+        if self.sync_flags & self.DEBUG:
+            source_options.debug = options.debug
+        if self.sync_flags & self.DISTINCT:
+            source_options.distinct = options.distinct
+        if self.sync_flags & self.DISTINCT_WINDOW_SIZE:
+            source_options.distinct_window_size =\
+                options.distinct_window_size
+        if self.sync_flags & self.LIMIT:
+            source_options.limit = options.limit
+        if self.sync_flags & self.LOOKAHEAD:
+            source_options.lookahead = options.lookahead
+        if self.sync_flags & self.PAGE_SIZE:
+            source_options.page_size = options.page_size
+        if self.sync_flags & self.TIMEOUT:
+            source_options.timeout = options.timeout
+        return source_options
 
     @override
     def _filter_s(

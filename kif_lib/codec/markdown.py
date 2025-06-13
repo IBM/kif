@@ -8,6 +8,7 @@ import re
 
 from ..model import (
     AnnotatedStatement,
+    ClosedTermPair,
     ClosedTermSet,
     CompoundFingerprint,
     Datatype,
@@ -158,6 +159,12 @@ class MarkdownEncoder(
             yield sep
             yield f'**:annotated** `{obj.annotated}`'
             yield ''
+            yield from self._iterencode_kif_object_end(obj)
+        elif isinstance(obj, ClosedTermPair):
+            yield from self._iterencode_kif_object_start(obj)
+            yield from self._iterencode(obj.left, indent)
+            yield SP
+            yield from self._iterencode(obj.right, indent)
             yield from self._iterencode_kif_object_end(obj)
         elif isinstance(obj, ClosedTermSet):
             yield from self._iterencode_kif_object_start(obj, '')

@@ -2827,6 +2827,26 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> Iterator[Entity]:
+        return self._filter_x_fallback_overriding_limit(
+            self._filter_s_fallback, filter, options)
+
+    def _filter_x_fallback_overriding_limit(
+            self,
+            filter_x_fn: Callable[[Filter, Options], Iterator[T]],
+            filter: Filter,
+            options: Options
+    ) -> Iterator[T]:
+        saved_limit = options.limit
+        options.limit = options.max_limit
+        return itertools.mix(
+            filter_x_fn(filter, options),
+            distinct=options.distinct, limit=saved_limit)
+
+    def _filter_s_fallback(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[Entity]:
         return map(lambda s: s.subject, self._filter(filter, options))
 
     def filter_sp(
@@ -2869,6 +2889,14 @@ class Store(Set):
             self.filter_sp)
 
     def _filter_sp(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[ValuePair[Entity, Property]]:
+        return self._filter_x_fallback_overriding_limit(
+            self._filter_sp_fallback, filter, options)
+
+    def _filter_sp_fallback(
             self,
             filter: Filter,
             options: Options
@@ -2917,6 +2945,14 @@ class Store(Set):
             self.filter_sv)
 
     def _filter_sv(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[ValuePair[Entity, Value]]:
+        return self._filter_x_fallback_overriding_limit(
+            self._filter_sv_fallback, filter, options)
+
+    def _filter_sv_fallback(
             self,
             filter: Filter,
             options: Options
@@ -2972,6 +3008,14 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> Iterator[Property]:
+        return self._filter_x_fallback_overriding_limit(
+            self._filter_p_fallback, filter, options)
+
+    def _filter_p_fallback(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[Property]:
         return map(lambda s: s.snak.property, self._filter(filter, options))
 
     def filter_pv(
@@ -3014,6 +3058,14 @@ class Store(Set):
             self.filter_pv)
 
     def _filter_pv(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[ValueSnak]:
+        return self._filter_x_fallback_overriding_limit(
+            self._filter_pv_fallback, filter, options)
+
+    def _filter_pv_fallback(
             self,
             filter: Filter,
             options: Options
@@ -3065,6 +3117,14 @@ class Store(Set):
             self.filter_v)
 
     def _filter_v(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[Value]:
+        return self._filter_x_fallback_overriding_limit(
+            self._filter_v_fallback, filter, options)
+
+    def _filter_v_fallback(
             self,
             filter: Filter,
             options: Options
