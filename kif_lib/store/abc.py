@@ -2849,6 +2849,119 @@ class Store(Set):
     ) -> Iterator[Entity]:
         return map(lambda s: s.subject, self._filter(filter, options))
 
+    def filter_p(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> Iterator[Property]:
+        """meth:`Store.filter` with projection on property."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._filter_x_tail, self._filter_p),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.filter_p)
+
+    def _filter_p(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[Property]:
+        return self._filter_x_fallback_overriding_limit(
+            self._filter_p_fallback, filter, options)
+
+    def _filter_p_fallback(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[Property]:
+        return map(lambda s: s.snak.property, self._filter(filter, options))
+
+    def filter_v(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> Iterator[Value]:
+        """meth:`Store.filter` with projection on value."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._filter_x_tail, self._filter_v),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.filter_v)
+
+    def _filter_v(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[Value]:
+        return self._filter_x_fallback_overriding_limit(
+            self._filter_v_fallback, filter, options)
+
+    def _filter_v_fallback(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> Iterator[Value]:
+        return map(
+            lambda s: cast(ValueSnak, s.snak).value,
+            _py_filter(
+                lambda s: isinstance(s.snak, ValueSnak),
+                self._filter(
+                    filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
+
     def filter_sp(
             self,
             subject: TFingerprint | None = None,
@@ -2964,60 +3077,6 @@ class Store(Set):
                 self._filter(
                     filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
 
-    def filter_p(
-            self,
-            subject: TFingerprint | None = None,
-            property: TFingerprint | None = None,
-            value: TFingerprint | None = None,
-            snak_mask: Filter.TSnakMask | None = None,
-            subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
-            value_mask: Filter.TDatatypeMask | None = None,
-            rank_mask: Filter.TRankMask | None = None,
-            language: str | None = None,
-            annotated: bool | None = None,
-            snak: Snak | None = None,
-            filter: Filter | None = None,
-            base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
-            debug: bool | None = None,
-            distinct: bool | None = None,
-            distinct_window_size: int | None = None,
-            extra_references: TReferenceRecordSet | None = None,
-            limit: int | None = None,
-            lookahead: int | None = None,
-            page_size: int | None = None,
-            timeout: float | None = None,
-            **kwargs: Any
-    ) -> Iterator[Property]:
-        """meth:`Store.filter` with projection on property."""
-        return self._check_filter_with_options_and_run(
-            functools.partial(self._filter_x_tail, self._filter_p),
-            # filter
-            subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
-            # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
-            # function
-            self.filter_p)
-
-    def _filter_p(
-            self,
-            filter: Filter,
-            options: Options
-    ) -> Iterator[Property]:
-        return self._filter_x_fallback_overriding_limit(
-            self._filter_p_fallback, filter, options)
-
-    def _filter_p_fallback(
-            self,
-            filter: Filter,
-            options: Options
-    ) -> Iterator[Property]:
-        return map(lambda s: s.snak.property, self._filter(filter, options))
-
     def filter_pv(
             self,
             subject: TFingerprint | None = None,
@@ -3072,65 +3131,6 @@ class Store(Set):
     ) -> Iterator[ValueSnak]:
         return map(
             lambda s: cast(ValueSnak, s.snak),
-            _py_filter(
-                lambda s: isinstance(s.snak, ValueSnak),
-                self._filter(
-                    filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
-
-    def filter_v(
-            self,
-            subject: TFingerprint | None = None,
-            property: TFingerprint | None = None,
-            value: TFingerprint | None = None,
-            snak_mask: Filter.TSnakMask | None = None,
-            subject_mask: Filter.TDatatypeMask | None = None,
-            property_mask: Filter.TDatatypeMask | None = None,
-            value_mask: Filter.TDatatypeMask | None = None,
-            rank_mask: Filter.TRankMask | None = None,
-            language: str | None = None,
-            annotated: bool | None = None,
-            snak: Snak | None = None,
-            filter: Filter | None = None,
-            base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
-            debug: bool | None = None,
-            distinct: bool | None = None,
-            distinct_window_size: int | None = None,
-            extra_references: TReferenceRecordSet | None = None,
-            limit: int | None = None,
-            lookahead: int | None = None,
-            page_size: int | None = None,
-            timeout: float | None = None,
-            **kwargs: Any
-    ) -> Iterator[Value]:
-        """meth:`Store.filter` with projection on value."""
-        return self._check_filter_with_options_and_run(
-            functools.partial(self._filter_x_tail, self._filter_v),
-            # filter
-            subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
-            # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
-            extra_references, limit, lookahead, page_size, timeout,
-            # function
-            self.filter_v)
-
-    def _filter_v(
-            self,
-            filter: Filter,
-            options: Options
-    ) -> Iterator[Value]:
-        return self._filter_x_fallback_overriding_limit(
-            self._filter_v_fallback, filter, options)
-
-    def _filter_v_fallback(
-            self,
-            filter: Filter,
-            options: Options
-    ) -> Iterator[Value]:
-        return map(
-            lambda s: cast(ValueSnak, s.snak).value,
             _py_filter(
                 lambda s: isinstance(s.snak, ValueSnak),
                 self._filter(

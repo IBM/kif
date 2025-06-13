@@ -397,7 +397,7 @@ class MixerStore(
                 set_fn(src, value)
         return True
 
-# -- Statements ------------------------------------------------------------
+# -- Ask -------------------------------------------------------------------
 
     @override
     def _ask(self, filter: Filter, options: Store.Options) -> bool:
@@ -409,6 +409,8 @@ class MixerStore(
             asyncio.ensure_future(src._aask(filter, options))
             for src in self._sources)
         return any(await asyncio.gather(*tasks))
+
+# -- Count -----------------------------------------------------------------
 
     @override
     def _count(self, filter: Filter, options: Store.Options) -> int:
@@ -421,6 +423,8 @@ class MixerStore(
             asyncio.ensure_future(src._acount(filter, options))
             for src in self._sources)
         return sum(await asyncio.gather(*tasks))
+
+# -- Filter ----------------------------------------------------------------
 
     @override
     def _filter(
