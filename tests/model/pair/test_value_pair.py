@@ -38,7 +38,7 @@ class Test(ClosedTermPairTestCase):
             success=[
                 (ValuePair(Quantity(0), Quantity(1)),
                  ValuePair(Quantity(0), Quantity(1))),
-                ([Quantity(0), Item('x')],
+                ([Quantity(0), String('x')],
                  ValuePair(Quantity(0), String('x'))),
                 ((Item('x'), datetime.datetime(
                     2025, 6, 13, tzinfo=datetime.timezone.utc)),
