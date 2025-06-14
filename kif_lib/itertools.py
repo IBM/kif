@@ -47,6 +47,7 @@ from .typing import (
 __all__ = [
     'achain',
     'aenumerate',
+    'afilter',
     'amix',
     'aroundrobin',
     'auniq',
@@ -54,8 +55,10 @@ __all__ = [
     'chain',
     'count',
     'cycle',
+    'filter',
     'groupby',
     'islice',
+    'map',
     'mix',
     'partition',
     'permutations',
@@ -73,6 +76,9 @@ R = TypeVar('R')
 T = TypeVar('T')
 
 AnyIterable: TypeAlias = Union[Iterable[T], AsyncIterable[T]]
+
+filter = filter
+map = map
 
 
 class _Sentinel:
@@ -105,6 +111,16 @@ async def aenumerate(
     async for x in aiter(it):
         yield start, x
         start += 1
+
+
+async def afilter(
+        f: Callable[[T], Any],
+        it: AsyncIterable[T]
+) -> AsyncIterator[T]:
+    """Async version of :func:`filter`."""
+    async for x in aiter(it):
+        if bool(f(x)):
+            yield x
 
 
 if sys.version_info < (3, 10):

@@ -50,7 +50,6 @@ from ..typing import (
     TypeVar,
 )
 
-_py_filter = filter
 at_property = property
 S = TypeVar('S')
 T = TypeVar('T')
@@ -2957,7 +2956,7 @@ class Store(Set):
     ) -> Iterator[Value]:
         return map(
             lambda s: cast(ValueSnak, s.snak).value,
-            _py_filter(
+            itertools.filter(
                 lambda s: isinstance(s.snak, ValueSnak),
                 self._filter(
                     filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
@@ -3072,7 +3071,7 @@ class Store(Set):
     ) -> Iterator[ValuePair[Entity, Value]]:
         return map(
             lambda s: ValuePair(s.subject, cast(ValueSnak, s.snak).value),
-            _py_filter(
+            itertools.filter(
                 lambda s: isinstance(s.snak, ValueSnak),
                 self._filter(
                     filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
@@ -3131,7 +3130,7 @@ class Store(Set):
     ) -> Iterator[ValueSnak]:
         return map(
             lambda s: cast(ValueSnak, s.snak),
-            _py_filter(
+            itertools.filter(
                 lambda s: isinstance(s.snak, ValueSnak),
                 self._filter(
                     filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
@@ -3274,8 +3273,316 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> AsyncIterator[Entity]:
+        return self._afilter_x_fallback_overriding_limit(
+            self._afilter_s_fallback, filter, options)
+
+    def _afilter_x_fallback_overriding_limit(
+            self,
+            afilter_x_fn: Callable[[Filter, Options], AsyncIterator[T]],
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[T]:
+        saved_limit = options.limit
+        options.limit = options.max_limit
+        return itertools.amix(
+            afilter_x_fn(filter, options),
+            distinct=options.distinct, limit=saved_limit)
+
+    def _afilter_s_fallback(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[Entity]:
         return itertools.amap(
-            Statement.get_subject, self._afilter(filter, options))
+            lambda s: s.subject, self._afilter(filter, options))
+
+    def afilter_p(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> AsyncIterator[Property]:
+        """meth:`Store.afilter` with projection on property."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._afilter_x_tail, self._afilter_p),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.afilter_p)
+
+    def _afilter_p(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[Property]:
+        return self._afilter_x_fallback_overriding_limit(
+            self._afilter_p_fallback, filter, options)
+
+    def _afilter_p_fallback(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[Property]:
+        return itertools.amap(
+            lambda s: s.snak.property, self._afilter(filter, options))
+
+    def afilter_v(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> AsyncIterator[Value]:
+        """meth:`Store.afilter` with projection on value."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._afilter_x_tail, self._afilter_v),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.afilter_v)
+
+    def _afilter_v(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[Value]:
+        return self._afilter_x_fallback_overriding_limit(
+            self._afilter_v_fallback, filter, options)
+
+    def _afilter_v_fallback(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[Value]:
+        return itertools.amap(
+            lambda s: cast(ValueSnak, s.snak).value,
+            itertools.afilter(
+                lambda s: isinstance(s.snak, ValueSnak),
+                self._afilter(
+                    filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
+
+    def afilter_sp(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> AsyncIterator[ValuePair[Entity, Property]]:
+        """meth:`Store.afilter` with projection on subject and property."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._afilter_x_tail, self._afilter_sp),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.afilter_sp)
+
+    def _afilter_sp(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[ValuePair[Entity, Property]]:
+        return self._afilter_x_fallback_overriding_limit(
+            self._afilter_sp_fallback, filter, options)
+
+    def _afilter_sp_fallback(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[ValuePair[Entity, Property]]:
+        return itertools.amap(
+            lambda s: ValuePair(s.subject, s.snak.property),
+            self._afilter(filter, options))
+
+    def afilter_sv(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> AsyncIterator[ValuePair[Entity, Value]]:
+        """meth:`Store.afilter` with projection on subject and value."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._afilter_x_tail, self._afilter_sv),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.afilter_sv)
+
+    def _afilter_sv(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[ValuePair[Entity, Value]]:
+        return self._afilter_x_fallback_overriding_limit(
+            self._afilter_sv_fallback, filter, options)
+
+    def _afilter_sv_fallback(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[ValuePair[Entity, Value]]:
+        return itertools.amap(
+            lambda s: ValuePair(s.subject, cast(ValueSnak, s.snak).value),
+            itertools.afilter(
+                lambda s: isinstance(s.snak, ValueSnak),
+                self._afilter(
+                    filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
+
+    def afilter_pv(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> AsyncIterator[ValueSnak]:
+        """meth:`Store.afilter` with projection on property and value."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._afilter_x_tail, self._afilter_pv),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.afilter_pv)
+
+    def _afilter_pv(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[ValueSnak]:
+        return self._afilter_x_fallback_overriding_limit(
+            self._afilter_pv_fallback, filter, options)
+
+    def _afilter_pv_fallback(
+            self,
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[ValueSnak]:
+        return itertools.amap(
+            lambda s: cast(ValueSnak, s.snak),
+            itertools.afilter(
+                lambda s: isinstance(s.snak, ValueSnak),
+                self._afilter(
+                    filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
 
     def filter_annotated(
             self,

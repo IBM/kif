@@ -1301,16 +1301,18 @@ def filter(
             for term in resolved_page:
                 print(encoder.encode(term).rstrip(), flush=True)
     if async_:
-        af: Callable[[], AsyncIterator[Term]]
-        if select == 's':
-            af = (lambda: target.afilter_s(filter=fr))
-        elif select == 'spv':
-            af = (lambda: target.afilter(filter=fr))
-        else:
-            raise KIF_Object._should_not_get_here()
+        af: dict[str, Callable[[], AsyncIterator[Term]]] = {
+            's': (lambda: target.afilter_s(filter=fr)),
+            'p': (lambda: target.afilter_p(filter=fr)),
+            'v': (lambda: target.afilter_v(filter=fr)),
+            'sp': (lambda: target.afilter_sp(filter=fr)),
+            'sv': (lambda: target.afilter_sv(filter=fr)),
+            'pv': (lambda: target.afilter_pv(filter=fr)),
+            'spv': (lambda: target.afilter(filter=fr))}
 
         async def afilter():
-            it, n = af(), 0
+            assert select is not None
+            it, n = af[select](), 0
             while True:
                 page = await itertools.atake(target.page_size, it)
                 if not page:
@@ -1319,24 +1321,16 @@ def filter(
                 n += 1
         asyncio.run(afilter())
     else:
-        f: Callable[[], Iterator[Term]]
-        if select == 's':
-            f = (lambda: target.filter_s(filter=fr))
-        elif select == 'p':
-            f = (lambda: target.filter_p(filter=fr))
-        elif select == 'v':
-            f = (lambda: target.filter_v(filter=fr))
-        elif select == 'sp':
-            f = (lambda: target.filter_sp(filter=fr))
-        elif select == 'sv':
-            f = (lambda: target.filter_sv(filter=fr))
-        elif select == 'pv':
-            f = (lambda: target.filter_pv(filter=fr))
-        elif select == 'spv':
-            f = (lambda: target.filter(filter=fr))
-        else:
-            raise KIF_Object._should_not_get_here()
-        batches = itertools.batched(f(), target.page_size)
+        f: dict[str, Callable[[], Iterator[Term]]] = {
+            's': (lambda: target.filter_s(filter=fr)),
+            'p': (lambda: target.filter_p(filter=fr)),
+            'v': (lambda: target.filter_v(filter=fr)),
+            'sp': (lambda: target.filter_sp(filter=fr)),
+            'sv': (lambda: target.filter_sv(filter=fr)),
+            'pv': (lambda: target.filter_pv(filter=fr)),
+            'spv': (lambda: target.filter(filter=fr))}
+        assert select is not None
+        batches = itertools.batched(f[select](), target.page_size)
         for pageno, page in enumerate(batches):
             output(page, pageno)
 
