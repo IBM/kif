@@ -83,6 +83,7 @@ from kif_lib import (
     Time,
     TimeDatatype,
     Value,
+    ValuePair,
     ValuePairVariable,
     ValueSnak,
     Variable,
@@ -163,16 +164,18 @@ from kif_lib.namespace import XSD
 from kif_lib.typing import (
     Any,
     Callable,
+    cast,
     ClassVar,
     Final,
     Iterable,
     Iterator,
+    Literal,
     Sequence,
     Set,
+    TypeAlias,
     TypeVar,
 )
 
-TESTS_TESTS_DIR: Final[pathlib.Path] = pathlib.Path(__file__).parent
 T = TypeVar('T')
 _TClosedTerm = TypeVar('_TClosedTerm', bound=ClosedTerm)
 
@@ -1756,11 +1759,18 @@ class StoreTestCase(TestCase):
         """
         return functools.partial(self.assert_store_filter, store), Filter
 
+    _TAssertStoreFilterSelect: TypeAlias = Iterable[Literal[
+        's', 'p', 'v', 'sp', 'sv', 'pv', 'spv']]
+
+    _assert_store_filter_select: Final[_TAssertStoreFilterSelect] = (
+        's', 'p', 'v', 'sp', 'sv', 'pv', 'spv')
+
     def assert_store_filter(
             self,
             store: Store,
             filter: Filter,
-            expected: Iterable[Statement]
+            expected: Iterable[Statement],
+            select: _TAssertStoreFilterSelect = _assert_store_filter_select
     ) -> None:
         """:meth:`Store.filter` assertion.
 
@@ -1768,24 +1778,137 @@ class StoreTestCase(TestCase):
            store: Store.
            filter: Filter.
            expected: Expected statements.
+           select: Projections to test.
         """
         if filter.annotated:
             expected = set(map(lambda s: s if isinstance(
                 expected, AnnotatedStatement) else s.annotate(), expected))
         else:
             expected = set(expected)
-        self.assertEqual(
-            set(store.filter(filter=filter)),
-            expected,
-            '*** FILTER: FAILED ***')
+        for spec in select:
+            if spec == 's':
+                self.assertEqual(
+                    set(store.filter_s(filter=filter)),
+                    set(self._assert_store_filter_s(expected)),
+                    '*** FILTER_S: FAILED ***')
+            elif spec == 'p':
+                self.assertEqual(
+                    set(store.filter_p(filter=filter)),
+                    set(self._assert_store_filter_p(expected)),
+                    '*** FILTER_P: FAILED ***')
+            elif spec == 'v':
+                self.assertEqual(
+                    set(store.filter_v(filter=filter)),
+                    set(self._assert_store_filter_v(expected)),
+                    '*** FILTER_V: FAILED ***')
+            elif spec == 'sp':
+                self.assertEqual(
+                    set(store.filter_sp(filter=filter)),
+                    set(self._assert_store_filter_sp(expected)),
+                    '*** FILTER_SP: FAILED ***')
+            elif spec == 'sv':
+                self.assertEqual(
+                    set(store.filter_sv(filter=filter)),
+                    set(self._assert_store_filter_sv(expected)),
+                    '*** FILTER_SV: FAILED ***')
+            elif spec == 'pv':
+                self.assertEqual(
+                    set(store.filter_pv(filter=filter)),
+                    set(self._assert_store_filter_pv(expected)),
+                    '*** FILTER_PV: FAILED ***')
+            elif spec == 'spv':
+                self.assertEqual(
+                    set(store.filter(filter=filter)),
+                    expected,
+                    '*** FILTER: FAILED ***')
+            else:
+                raise ValueError(spec)
         loop = asyncio.get_event_loop()
 
         async def f():
-            return {stmt async for stmt in store.afilter(filter=filter)}
-        self.assertEqual(
-            loop.run_until_complete(f()),
-            expected,
-            '*** ASYNC FILTER: FAILED ***')
+            for spec in select:
+                if spec == 's':
+                    self.assertEqual(
+                        {x async for x in store.afilter_s(filter=filter)},
+                        set(self._assert_store_filter_s(expected)),
+                        '*** FILTER_S: FAILED ***')
+                elif spec == 'p':
+                    self.assertEqual(
+                        {x async for x in store.afilter_p(filter=filter)},
+                        set(self._assert_store_filter_p(expected)),
+                        '*** FILTER_P: FAILED ***')
+                elif spec == 'v':
+                    self.assertEqual(
+                        {x async for x in store.afilter_v(filter=filter)},
+                        set(self._assert_store_filter_v(expected)),
+                        '*** FILTER_V: FAILED ***')
+                elif spec == 'sp':
+                    self.assertEqual(
+                        {x async for x in store.afilter_sp(filter=filter)},
+                        set(self._assert_store_filter_sp(expected)),
+                        '*** FILTER_SP: FAILED ***')
+                elif spec == 'sv':
+                    self.assertEqual(
+                        {x async for x in store.afilter_sv(filter=filter)},
+                        set(self._assert_store_filter_sv(expected)),
+                        '*** FILTER_SV: FAILED ***')
+                elif spec == 'pv':
+                    self.assertEqual(
+                        {x async for x in store.afilter_pv(filter=filter)},
+                        set(self._assert_store_filter_pv(expected)),
+                        '*** FILTER_PV: FAILED ***')
+                elif spec == 'spv':
+                    self.assertEqual(
+                        {x async for x in store.afilter(filter=filter)},
+                        expected,
+                        '*** ASYNC FILTER: FAILED ***')
+                else:
+                    raise ValueError(spec)
+        loop.run_until_complete(f())
+
+    def _assert_store_filter_s(
+            self,
+            stmts: Iterable[Statement]
+    ) -> Iterator[Entity]:
+        return map(lambda s: s.subject, stmts)
+
+    def _assert_store_filter_p(
+            self,
+            stmts: Iterable[Statement]
+    ) -> Iterator[Property]:
+        return map(lambda s: s.snak.property, stmts)
+
+    def _assert_store_filter_v(
+            self,
+            stmts: Iterable[Statement]
+    ) -> Iterator[Value]:
+        return map(
+            lambda s: cast(ValueSnak, s.snak).value,
+            itertools.filter(lambda s: isinstance(
+                s.snak, ValueSnak), stmts))
+
+    def _assert_store_filter_sp(
+            self,
+            stmts: Iterable[Statement]
+    ) -> Iterator[ValuePair[Entity, Property]]:
+        return map(lambda s: ValuePair(s.subject, s.snak.property), stmts)
+
+    def _assert_store_filter_sv(
+            self,
+            stmts: Iterable[Statement]
+    ) -> Iterator[ValuePair[Entity, Value]]:
+        return map(
+            lambda s: ValuePair(s.subject, cast(ValueSnak, s.snak).value),
+            itertools.filter(lambda s: isinstance(s.snak, ValueSnak), stmts))
+
+    def _assert_store_filter_pv(
+            self,
+            stmts: Iterable[Statement]
+    ) -> Iterator[ValueSnak]:
+        return map(
+            lambda s: cast(ValueSnak, s.snak),
+            itertools.filter(lambda s: isinstance(
+                s.snak, ValueSnak), stmts))
 
     def store_xfilter_assertion(
             self,
@@ -1805,7 +1928,8 @@ class StoreTestCase(TestCase):
             self,
             store: Store,
             filter: Filter,
-            expected: Iterable[Statement]
+            expected: Iterable[Statement],
+            select: _TAssertStoreFilterSelect = _assert_store_filter_select
     ) -> None:
         """Extended :meth:`Store.filter` assertion.
 
@@ -1817,24 +1941,17 @@ class StoreTestCase(TestCase):
            store: Store.
            filter: Filter.
            expected: Expected (annotated) statements.
+           select: Projections to test.
         """
-        self.assertEqual(
-            set(store.filter(filter=filter.replace(annotated=False))),
-            set(map(Statement.unannotate, expected)),
-            '*** XFILTER: PLAIN FILTER FAILED ***')
+        self.assert_store_filter(
+            store,
+            filter.replace(annotated=False),
+            set(map(Statement.unannotate, expected)), select)
         self.assertEqual(
             set(store.filter_annotated(filter=filter)),
             set(self._assert_store_xfilter_annotate(expected)),
             '*** XFILTER: ANNOTATED FILTER FAILED ***')
         loop = asyncio.get_event_loop()
-
-        async def f():
-            return {stmt async for stmt in store.afilter(
-                filter=filter.replace(annotated=False))}
-        self.assertEqual(
-            loop.run_until_complete(f()),
-            set(map(Statement.unannotate, expected)),
-            '*** ASYNC XFILTER: PLAIN FILTER FAILED ***')
 
         async def fa():
             return {stmt async for stmt in store.afilter_annotated(

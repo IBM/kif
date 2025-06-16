@@ -2954,12 +2954,13 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> Iterator[Value]:
+        filter = filter.replace(
+            snak_mask=filter.snak_mask & Filter.VALUE_SNAK)
         return map(
             lambda s: cast(ValueSnak, s.snak).value,
             itertools.filter(
                 lambda s: isinstance(s.snak, ValueSnak),
-                self._filter(
-                    filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
+                self._filter(filter, options)))
 
     def filter_sp(
             self,
@@ -3069,12 +3070,13 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> Iterator[ValuePair[Entity, Value]]:
+        filter = filter.replace(
+            snak_mask=filter.snak_mask & Filter.VALUE_SNAK)
         return map(
             lambda s: ValuePair(s.subject, cast(ValueSnak, s.snak).value),
             itertools.filter(
                 lambda s: isinstance(s.snak, ValueSnak),
-                self._filter(
-                    filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
+                self._filter(filter, options)))
 
     def filter_pv(
             self,
@@ -3128,12 +3130,13 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> Iterator[ValueSnak]:
+        filter = filter.replace(
+            snak_mask=filter.snak_mask & Filter.VALUE_SNAK)
         return map(
             lambda s: cast(ValueSnak, s.snak),
             itertools.filter(
                 lambda s: isinstance(s.snak, ValueSnak),
-                self._filter(
-                    filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
+                self._filter(filter, options)))
 
     def afilter(
             self,
@@ -3403,12 +3406,13 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> AsyncIterator[Value]:
+        filter = filter.replace(
+            snak_mask=filter.snak_mask & Filter.VALUE_SNAK)
         return itertools.amap(
             lambda s: cast(ValueSnak, s.snak).value,
             itertools.afilter(
                 lambda s: isinstance(s.snak, ValueSnak),
-                self._afilter(
-                    filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
+                self._afilter(filter, options)))
 
     def afilter_sp(
             self,
@@ -3518,12 +3522,13 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> AsyncIterator[ValuePair[Entity, Value]]:
+        filter = filter.replace(
+            snak_mask=filter.snak_mask & Filter.VALUE_SNAK)
         return itertools.amap(
             lambda s: ValuePair(s.subject, cast(ValueSnak, s.snak).value),
             itertools.afilter(
                 lambda s: isinstance(s.snak, ValueSnak),
-                self._afilter(
-                    filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
+                self._afilter(filter, options)))
 
     def afilter_pv(
             self,
@@ -3577,12 +3582,13 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> AsyncIterator[ValueSnak]:
+        filter = filter.replace(
+            snak_mask=filter.snak_mask & Filter.VALUE_SNAK)
         return itertools.amap(
             lambda s: cast(ValueSnak, s.snak),
             itertools.afilter(
                 lambda s: isinstance(s.snak, ValueSnak),
-                self._afilter(
-                    filter.replace(snak_mask=Filter.VALUE_SNAK), options)))
+                self._afilter(filter, options)))
 
     def filter_annotated(
             self,

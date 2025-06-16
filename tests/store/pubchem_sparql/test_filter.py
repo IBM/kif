@@ -47,17 +47,17 @@ class Test(StoreTestCase):
         f, F = self.store_filter_assertion(self.KB())
         # pc.isotope_atom_count
         s: Entity = pc.isotope_atom_count
-        f(F(subject=s, annotated=True),
+        f(F(subject=s),
           {wd.instance_of(s, wd.Wikidata_property_related_to_chemistry),
            wd.label(s, 'isotope atom count')})
         # pc.IUPAC_name
         s = pc.IUPAC_name
-        f(F(subject=s, annotated=True),
+        f(F(subject=s),
           {wd.instance_of(s, wd.Wikidata_property_related_to_chemistry),
            wd.label(s, 'IUPAC name')})
         # compound
         s = pc.CID(12196274)
-        f(F(subject=s, annotated=True),
+        f(F(subject=s),
           {pc.isotope_atom_count(s, 4),
            wd.canonical_SMILES(s, 'C1=CC=CC=C1'),
            wd.chemical_formula(s, 'C₆H₆'),
