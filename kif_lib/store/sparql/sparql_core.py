@@ -591,6 +591,7 @@ class _SPARQL_Store(
                 filter, options,
                 SPARQL_FilterCompiler.Projection.SUBJECT
                 | SPARQL_FilterCompiler.Projection.PROPERTY))
+
     @override
     def _filter_sv(
             self,
@@ -673,11 +674,17 @@ class _SPARQL_Store(
             term = stmt.snak.value
         elif projection == (
                 compiler.Projection.SUBJECT | compiler.Projection.PROPERTY):
+            assert isinstance(stmt.subject, Entity), stmt.subject
+            assert isinstance(stmt.snak, (Snak, SnakTemplate))
+            assert isinstance(
+                stmt.snak.property, Property), stmt.snak.property
             term = ValuePair(stmt.subject, stmt.snak.property)
         elif projection == (
                 compiler.Projection.SUBJECT | compiler.Projection.VALUE):
             assert isinstance(
                 stmt.snak, (ValueSnak, ValueSnakTemplate)), stmt.snak
+            assert isinstance(stmt.subject, Entity)
+            assert isinstance(stmt.snak.value, Value)
             term = ValuePair(stmt.subject, stmt.snak.value)
         elif projection == (
                 compiler.Projection.PROPERTY | compiler.Projection.VALUE):
