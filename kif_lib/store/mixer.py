@@ -8,7 +8,16 @@ import dataclasses
 import functools
 
 from .. import itertools
-from ..model import Entity, Filter, KIF_Object, Property, Statement, Value
+from ..model import (
+    Entity,
+    Filter,
+    KIF_Object,
+    Property,
+    Statement,
+    Value,
+    ValuePair,
+    ValueSnak,
+)
 from ..model.flags import Flags as KIF_Flags
 from ..typing import (
     Any,
@@ -495,6 +504,33 @@ class MixerStore(
         return self._filter_x_mix_sources(
             lambda s: s._filter_v, filter, options)
 
+    @override
+    def _filter_sp(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[ValuePair[Entity, Property]]:
+        return self._filter_x_mix_sources(
+            lambda s: s._filter_sp, filter, options)
+
+    @override
+    def _filter_sv(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[ValuePair[Entity, Value]]:
+        return self._filter_x_mix_sources(
+            lambda s: s._filter_sv, filter, options)
+
+    @override
+    def _filter_pv(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[ValueSnak]:
+        return self._filter_x_mix_sources(
+            lambda s: s._filter_pv, filter, options)
+
     def _filter_x_mix_sources(
             self,
             get_filter_x_fn: Callable[
@@ -549,6 +585,33 @@ class MixerStore(
     ) -> AsyncIterator[Value]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter_v, filter, options)
+
+    @override
+    def _afilter_sp(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[ValuePair[Entity, Property]]:
+        return self._afilter_x_mix_sources(
+            lambda s: s._afilter_sp, filter, options)
+
+    @override
+    def _afilter_sv(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[ValuePair[Entity, Value]]:
+        return self._afilter_x_mix_sources(
+            lambda s: s._afilter_sv, filter, options)
+
+    @override
+    def _afilter_pv(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[ValueSnak]:
+        return self._afilter_x_mix_sources(
+            lambda s: s._afilter_pv, filter, options)
 
     def _afilter_x_mix_sources(
             self,

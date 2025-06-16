@@ -58,4 +58,4 @@ class SPARQL_Results(TypedDict):
 
 
 class SPARQL_ResultsAsk(TypedDict):
-    boolean: NotRequired[Literal[True] | Literal[False]]
+    boolean: NotRequired[Literal[True, False]]

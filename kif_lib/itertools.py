@@ -151,7 +151,7 @@ def mix(
         distinct_window_size: int | None = None,
         distinct_key: Callable[[H], Hashable] | None = None,
         limit: int | None = None,
-        method: Literal['chain'] | Literal['roundrobin'] = 'roundrobin'
+        method: Literal['chain', 'roundrobin'] = 'roundrobin'
 ) -> Iterator[H]:
     """Yields mixed elements.
 
@@ -185,7 +185,7 @@ async def amix(
         distinct_window_size: int | None = None,
         distinct_key: Callable[[H], Hashable] | None = None,
         limit: int | None = None,
-        method: Literal['chain'] | Literal['roundrobin'] = 'roundrobin'
+        method: Literal['chain', 'roundrobin'] = 'roundrobin'
 ) -> AsyncIterator[H]:
     """Async version of :func:`mix`."""
     if method == 'roundrobin':

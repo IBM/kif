@@ -750,7 +750,7 @@ class Filter(KObj):
     def combine(
             self,
             *others: Filter,
-            operator: Literal['and'] | Literal['or'] = 'and'
+            operator: Literal['and', 'or'] = 'and'
     ) -> Filter:
         """Combines filter with `others`.
 

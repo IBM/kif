@@ -32,6 +32,7 @@ from ...model import (
     Term,
     TGraph,
     Value,
+    ValuePair,
     ValueSnak,
     ValueSnakTemplate,
     VariablePattern,
@@ -462,7 +463,7 @@ class _SPARQL_Store(
         assert self._mapping is not None
         return self._mapping
 
-# -- Statements ------------------------------------------------------------
+# -- Ask -------------------------------------------------------------------
 
     @override
     def _ask(self, filter: Filter, options: Store.Options) -> bool:
@@ -494,6 +495,8 @@ class _SPARQL_Store(
     def _parse_ask_results(self, results: SPARQL_ResultsAsk) -> bool:
         assert 'boolean' in results
         return results['boolean']
+
+# -- Count -----------------------------------------------------------------
 
     @override
     def _count(self, filter: Filter, options: Store.Options) -> int:
@@ -537,6 +540,8 @@ class _SPARQL_Store(
         assert 'bindings' in results['results']
         assert len(results['results']['bindings']) == 1
         return int(results['results']['bindings'][0][str(count)]['value'])
+
+# -- Filter ----------------------------------------------------------------
 
     @override
     def _filter(
@@ -573,6 +578,42 @@ class _SPARQL_Store(
     ) -> Iterator[Value]:
         return cast(Iterator[Value], self._filter_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.VALUE))
+
+    @override
+    def _filter_sp(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[ValuePair[Entity, Property]]:
+        return cast(
+            Iterator[ValuePair[Entity, Property]],
+            self._filter_with_projection(
+                filter, options,
+                SPARQL_FilterCompiler.Projection.SUBJECT
+                | SPARQL_FilterCompiler.Projection.PROPERTY))
+    @override
+    def _filter_sv(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[ValuePair[Entity, Value]]:
+        return cast(
+            Iterator[ValuePair[Entity, Value]],
+            self._filter_with_projection(
+                filter, options,
+                SPARQL_FilterCompiler.Projection.SUBJECT
+                | SPARQL_FilterCompiler.Projection.VALUE))
+
+    @override
+    def _filter_pv(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[ValueSnak]:
+        return cast(Iterator[ValueSnak], self._filter_with_projection(
+            filter, options,
+            SPARQL_FilterCompiler.Projection.PROPERTY
+            | SPARQL_FilterCompiler.Projection.VALUE))
 
     def _filter_with_projection(
             self,
@@ -630,6 +671,19 @@ class _SPARQL_Store(
             assert isinstance(
                 stmt.snak, (ValueSnak, ValueSnakTemplate)), stmt.snak
             term = stmt.snak.value
+        elif projection == (
+                compiler.Projection.SUBJECT | compiler.Projection.PROPERTY):
+            term = ValuePair(stmt.subject, stmt.snak.property)
+        elif projection == (
+                compiler.Projection.SUBJECT | compiler.Projection.VALUE):
+            assert isinstance(
+                stmt.snak, (ValueSnak, ValueSnakTemplate)), stmt.snak
+            term = ValuePair(stmt.subject, stmt.snak.value)
+        elif projection == (
+                compiler.Projection.PROPERTY | compiler.Projection.VALUE):
+            assert isinstance(
+                stmt.snak, (ValueSnak, ValueSnakTemplate)), stmt.snak
+            term = stmt.snak
         else:
             raise self._should_not_get_here()
         assert isinstance(term, ClosedTerm), term
@@ -670,6 +724,45 @@ class _SPARQL_Store(
     ) -> AsyncIterator[Value]:
         return cast(AsyncIterator[Value], self._afilter_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.VALUE))
+
+    @override
+    def _afilter_sp(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[ValuePair[Entity, Property]]:
+        return cast(
+            AsyncIterator[ValuePair[Entity, Property]],
+            self._afilter_with_projection(
+                filter, options,
+                SPARQL_FilterCompiler.Projection.SUBJECT
+                | SPARQL_FilterCompiler.Projection.PROPERTY))
+
+    @override
+    def _afilter_sv(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[ValuePair[Entity, Value]]:
+        return cast(
+            AsyncIterator[ValuePair[Entity, Value]],
+            self._afilter_with_projection(
+                filter, options,
+                SPARQL_FilterCompiler.Projection.SUBJECT
+                | SPARQL_FilterCompiler.Projection.VALUE))
+
+    @override
+    def _afilter_pv(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[ValueSnak]:
+        return cast(
+            AsyncIterator[ValueSnak],
+            self._afilter_with_projection(
+                filter, options,
+                SPARQL_FilterCompiler.Projection.PROPERTY
+                | SPARQL_FilterCompiler.Projection.VALUE))
 
     async def _afilter_with_projection(
             self,
@@ -719,10 +812,10 @@ class _SPARQL_Store(
             projection: SPARQL_FilterCompiler.Projection,
             _projection_v_sv_pv: Set[SPARQL_FilterCompiler.Projection] = {
                 SPARQL_FilterCompiler.Projection.VALUE,
-                (SPARQL_FilterCompiler.Projection.SUBJECT |
-                 SPARQL_FilterCompiler.Projection.VALUE),
-                (SPARQL_FilterCompiler.Projection.PROPERTY |
-                 SPARQL_FilterCompiler.Projection.VALUE),
+                (SPARQL_FilterCompiler.Projection.SUBJECT
+                 | SPARQL_FilterCompiler.Projection.VALUE),
+                (SPARQL_FilterCompiler.Projection.PROPERTY
+                 | SPARQL_FilterCompiler.Projection.VALUE),
             }
     ) -> tuple[
             SPARQL_FilterCompiler, VariablePattern, StatementVariable]:
