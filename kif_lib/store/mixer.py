@@ -8,7 +8,7 @@ import dataclasses
 import functools
 
 from .. import itertools
-from ..model import Entity, Filter, KIF_Object, Statement
+from ..model import Entity, Filter, KIF_Object, Property, Statement, Value
 from ..model.flags import Flags as KIF_Flags
 from ..typing import (
     Any,
@@ -477,6 +477,24 @@ class MixerStore(
         return self._filter_x_mix_sources(
             lambda s: s._filter_s, filter, options)
 
+    @override
+    def _filter_p(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[Property]:
+        return self._filter_x_mix_sources(
+            lambda s: s._filter_p, filter, options)
+
+    @override
+    def _filter_v(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[Value]:
+        return self._filter_x_mix_sources(
+            lambda s: s._filter_v, filter, options)
+
     def _filter_x_mix_sources(
             self,
             get_filter_x_fn: Callable[
@@ -513,6 +531,24 @@ class MixerStore(
     ) -> AsyncIterator[Entity]:
         return self._afilter_x_mix_sources(
             lambda s: s._afilter_s, filter, options)
+
+    @override
+    def _afilter_p(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[Property]:
+        return self._afilter_x_mix_sources(
+            lambda s: s._afilter_p, filter, options)
+
+    @override
+    def _afilter_v(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[Value]:
+        return self._afilter_x_mix_sources(
+            lambda s: s._afilter_v, filter, options)
 
     def _afilter_x_mix_sources(
             self,

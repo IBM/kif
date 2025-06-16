@@ -2809,17 +2809,20 @@ class Store(Set):
             self,
             filter_x_fn: Callable[[Filter, Options], Iterator[T]],
             filter: Filter,
-            options: Options,
+            options: Options
     ) -> Iterator[T]:
-        if ((options.limit is None or options.limit > 0)
-                and filter.is_nonempty()):
+        if ((options.limit is not None and options.limit <= 0)
+            or filter.is_empty()
+            or ((not filter.snak_mask & Filter.VALUE_SNAK) and (
+                (filter_x_fn in (
+                    self._filter_v, self._filter_sv, self._filter_pv))))):
+            return iter(())  # nothing to do
+        else:
             return itertools.mix(
                 filter_x_fn(filter.replace(annotated=False), options),
                 distinct=options.distinct,
                 distinct_window_size=options.distinct_window_size,
                 limit=options.limit)
-        else:
-            return iter(())
 
     def _filter_s(
             self,
@@ -2954,8 +2957,6 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> Iterator[Value]:
-        filter = filter.replace(
-            snak_mask=filter.snak_mask & Filter.VALUE_SNAK)
         return map(
             lambda s: cast(ValueSnak, s.snak).value,
             itertools.filter(
@@ -3070,8 +3071,6 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> Iterator[ValuePair[Entity, Value]]:
-        filter = filter.replace(
-            snak_mask=filter.snak_mask & Filter.VALUE_SNAK)
         return map(
             lambda s: ValuePair(s.subject, cast(ValueSnak, s.snak).value),
             itertools.filter(
@@ -3130,8 +3129,6 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> Iterator[ValueSnak]:
-        filter = filter.replace(
-            snak_mask=filter.snak_mask & Filter.VALUE_SNAK)
         return map(
             lambda s: cast(ValueSnak, s.snak),
             itertools.filter(
@@ -3259,17 +3256,20 @@ class Store(Set):
             self,
             afilter_x_fn: Callable[[Filter, Options], AsyncIterator[T]],
             filter: Filter,
-            options: Options,
+            options: Options
     ) -> AsyncIterator[T]:
-        if ((options.limit is None or options.limit > 0)
-                and filter.is_nonempty()):
+        if ((options.limit is not None and options.limit <= 0)
+            or filter.is_empty()
+            or ((not filter.snak_mask & Filter.VALUE_SNAK) and (
+                (afilter_x_fn in (
+                    self._afilter_v, self._afilter_sv, self._afilter_pv))))):
+            return self._afilter_empty_iterator()  # nothing to do
+        else:
             return itertools.amix(
                 afilter_x_fn(filter.replace(annotated=False), options),
                 distinct=options.distinct,
                 distinct_window_size=options.distinct_window_size,
                 limit=options.limit)
-        else:
-            return self._afilter_empty_iterator()
 
     def _afilter_s(
             self,
@@ -3406,8 +3406,6 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> AsyncIterator[Value]:
-        filter = filter.replace(
-            snak_mask=filter.snak_mask & Filter.VALUE_SNAK)
         return itertools.amap(
             lambda s: cast(ValueSnak, s.snak).value,
             itertools.afilter(
@@ -3522,8 +3520,6 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> AsyncIterator[ValuePair[Entity, Value]]:
-        filter = filter.replace(
-            snak_mask=filter.snak_mask & Filter.VALUE_SNAK)
         return itertools.amap(
             lambda s: ValuePair(s.subject, cast(ValueSnak, s.snak).value),
             itertools.afilter(
@@ -3582,8 +3578,6 @@ class Store(Set):
             filter: Filter,
             options: Options
     ) -> AsyncIterator[ValueSnak]:
-        filter = filter.replace(
-            snak_mask=filter.snak_mask & Filter.VALUE_SNAK)
         return itertools.amap(
             lambda s: cast(ValueSnak, s.snak),
             itertools.afilter(

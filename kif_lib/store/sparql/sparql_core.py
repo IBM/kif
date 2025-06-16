@@ -23,11 +23,17 @@ from ...model import (
     Filter,
     Graph,
     KIF_Object,
+    Property,
+    Snak,
+    SnakTemplate,
     Statement,
     StatementTemplate,
     StatementVariable,
     Term,
     TGraph,
+    Value,
+    ValueSnak,
+    ValueSnakTemplate,
     VariablePattern,
 )
 from ...typing import (
@@ -43,6 +49,7 @@ from ...typing import (
     Mapping,
     override,
     Sequence,
+    Set,
     TextIO,
     TypeAlias,
     TypeVar,
@@ -480,7 +487,8 @@ class _SPARQL_Store(
             filter: Filter,
             options: Store.Options
     ) -> SPARQL_FilterCompiler.Query:
-        compiler, _, _ = self._compile_filter(filter, options)
+        compiler, _, _ = self._compile_filter(
+            filter, options, SPARQL_FilterCompiler.Projection.ALL)
         return compiler.query
 
     def _parse_ask_results(self, results: SPARQL_ResultsAsk) -> bool:
@@ -514,7 +522,8 @@ class _SPARQL_Store(
     ) -> tuple[SPARQL_FilterCompiler.Query.Variable,
                SPARQL_FilterCompiler.Query]:
         compiler, _, _ = self._compile_filter(
-            filter.replace(annotated=False), options)
+            filter.replace(annotated=False), options,
+            SPARQL_FilterCompiler.Projection.ALL)
         q = compiler.query
         count = q.fresh_var()
         return count, q.select((q.count(), count))  # type: ignore
@@ -547,14 +556,32 @@ class _SPARQL_Store(
         return cast(Iterator[Entity], self._filter_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.SUBJECT))
 
+    @override
+    def _filter_p(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[Property]:
+        return cast(Iterator[Property], self._filter_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.PROPERTY))
+
+    @override
+    def _filter_v(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> Iterator[Value]:
+        return cast(Iterator[Value], self._filter_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.VALUE))
+
     def _filter_with_projection(
             self,
             filter: Filter,
             options: Store.Options,
             projection: SPARQL_FilterCompiler.Projection
     ) -> Iterator[ClosedTerm]:
-        assert projection.value != 0
-        compiler, _, variable = self._compile_filter(filter, options)
+        compiler, _, variable = self._compile_filter(
+            filter, options, projection)
         push = compiler.build_results()
         select = functools.partial(
             self._filter_with_projection_select, compiler, projection)
@@ -595,6 +622,14 @@ class _SPARQL_Store(
             term: Term = stmt
         elif projection == compiler.Projection.SUBJECT:
             term = stmt.subject
+        elif projection == compiler.Projection.PROPERTY:
+            assert isinstance(
+                stmt.snak, (Snak, SnakTemplate)), stmt.snak
+            term = stmt.snak.property
+        elif projection == compiler.Projection.VALUE:
+            assert isinstance(
+                stmt.snak, (ValueSnak, ValueSnakTemplate)), stmt.snak
+            term = stmt.snak.value
         else:
             raise self._should_not_get_here()
         assert isinstance(term, ClosedTerm), term
@@ -618,14 +653,32 @@ class _SPARQL_Store(
         return cast(AsyncIterator[Entity], self._afilter_with_projection(
             filter, options, SPARQL_FilterCompiler.Projection.SUBJECT))
 
+    @override
+    def _afilter_p(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[Property]:
+        return cast(AsyncIterator[Property], self._afilter_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.PROPERTY))
+
+    @override
+    def _afilter_v(
+            self,
+            filter: Filter,
+            options: Store.Options
+    ) -> AsyncIterator[Value]:
+        return cast(AsyncIterator[Value], self._afilter_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.VALUE))
+
     async def _afilter_with_projection(
             self,
             filter: Filter,
             options: Store.Options,
             projection: SPARQL_FilterCompiler.Projection
     ) -> AsyncIterator[ClosedTerm]:
-        assert projection.value != 0
-        compiler, _, variable = self._compile_filter(filter, options)
+        compiler, _, variable = self._compile_filter(
+            filter, options, projection)
         push = compiler.build_results()
         select = functools.partial(
             self._filter_with_projection_select, compiler, projection)
@@ -662,9 +715,25 @@ class _SPARQL_Store(
     def _compile_filter(
             self,
             filter: Filter,
-            options: Store.Options
+            options: Store.Options,
+            projection: SPARQL_FilterCompiler.Projection,
+            _projection_v_sv_pv: Set[SPARQL_FilterCompiler.Projection] = {
+                SPARQL_FilterCompiler.Projection.VALUE,
+                (SPARQL_FilterCompiler.Projection.SUBJECT |
+                 SPARQL_FilterCompiler.Projection.VALUE),
+                (SPARQL_FilterCompiler.Projection.PROPERTY |
+                 SPARQL_FilterCompiler.Projection.VALUE),
+            }
     ) -> tuple[
             SPARQL_FilterCompiler, VariablePattern, StatementVariable]:
+        assert projection.value != 0
+        if projection in _projection_v_sv_pv:
+            ###
+            # If we're projecting on value, there's no need to consider
+            # some- or no-value snaks.
+            ###
+            assert filter.snak_mask & Filter.VALUE_SNAK
+            filter = filter.replace(snak_mask=Filter.VALUE_SNAK)
         compiler = SPARQL_FilterCompiler(
             filter, self.mapping, SPARQL_FilterCompiler.default_flags)
         if options.debug:
