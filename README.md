@@ -26,6 +26,11 @@ guide](https://ibm.github.io/kif/quickstart.html).
   and [PubChem RDF](https://pubchem.ncbi.nlm.nih.gov/docs/rdf).  Other
   mappings can be added programmatically.
 
+* KIF has full support for
+  [asyncio](https://docs.python.org/3/library/asyncio.html).  KIF async API
+  can be used run queries asynchronously, without blocking waiting for their
+  results.
+
 ## Installation
 
 Latest release:

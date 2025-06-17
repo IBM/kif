@@ -35,6 +35,7 @@ from ..typing import (
     Any,
     AsyncIterable,
     AsyncIterator,
+    Awaitable,
     Callable,
     cast,
     ClassVar,
@@ -2615,10 +2616,291 @@ class Store(Set):
             return 0
 
     def _count(self, filter: Filter, options: Options) -> int:
+        return self._count_x_fallback_overriding_distinct_and_limit(
+            self._filter, filter, options)
+
+    def count_s(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> int:
+        """:meth:`Store.count` with projection on subject."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._count_x_tail, self._count_s),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.count_s)
+
+    def _count_x_tail(
+            self,
+            count_x_fn: Callable[[Filter, Options], int],
+            filter: Filter,
+            options: Options
+    ) -> int:
+        if (filter.is_empty()
+            or ((not filter.snak_mask & Filter.VALUE_SNAK) and (
+                (count_x_fn in (
+                    self._count_v, self._count_sv, self._count_pv))))):
+            return 0            # nothing to do
+        else:
+            return count_x_fn(filter, options)
+
+    def _count_s(self, filter: Filter, options: Options) -> int:
+        return self._count_x_fallback_overriding_distinct_and_limit(
+            self._filter_s, filter, options)
+
+    def _count_x_fallback_overriding_distinct_and_limit(
+            self,
+            filter_x_fn: Callable[[Filter, Options], Iterator[Any]],
+            filter: Filter,
+            options: Options
+    ) -> int:
         options.distinct = True
         options.limit = options.max_limit
-        return sum(1 for _ in self._filter(
+        return sum(1 for _ in filter_x_fn(
             filter.replace(annotated=False), options))
+
+    def count_p(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> int:
+        """:meth:`Store.count` with projection on property."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._count_x_tail, self._count_p),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.count_p)
+
+    def _count_p(self, filter: Filter, options: Options) -> int:
+        return self._count_x_fallback_overriding_distinct_and_limit(
+            self._filter_p, filter, options)
+
+    def count_v(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> int:
+        """:meth:`Store.count` with projection on value."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._count_x_tail, self._count_v),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.count_v)
+
+    def _count_v(self, filter: Filter, options: Options) -> int:
+        return self._count_x_fallback_overriding_distinct_and_limit(
+            self._filter_v, filter, options)
+
+    def count_sp(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> int:
+        """:meth:`Store.count` with projection on subject and property."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._count_x_tail, self._count_sp),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.count_sp)
+
+    def _count_sp(self, filter: Filter, options: Options) -> int:
+        return self._count_x_fallback_overriding_distinct_and_limit(
+            self._filter_sp, filter, options)
+
+    def count_sv(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> int:
+        """:meth:`Store.count` with projection on subject and value."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._count_x_tail, self._count_sv),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.count_sv)
+
+    def _count_sv(self, filter: Filter, options: Options) -> int:
+        return self._count_x_fallback_overriding_distinct_and_limit(
+            self._filter_sv, filter, options)
+
+    def count_pv(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> int:
+        """:meth:`Store.count` with projection on subject and value."""
+        return self._check_filter_with_options_and_run(
+            functools.partial(self._count_x_tail, self._count_pv),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.count_pv)
+
+    def _count_pv(self, filter: Filter, options: Options) -> int:
+        return self._count_x_fallback_overriding_distinct_and_limit(
+            self._filter_pv, filter, options)
 
     async def acount(
             self,
@@ -2666,12 +2948,293 @@ class Store(Set):
             return 0
 
     async def _acount(self, filter: Filter, options: Options) -> int:
+        return await self._acount_x_fallback_overriding_distinct_and_limit(
+            self._afilter, filter, options)
+
+    async def acount_s(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> int:
+        """:meth:`Store.acount` with projection on subject."""
+        return await self._check_filter_with_options_and_run(
+            functools.partial(self._acount_x_tail, self._acount_s),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.acount_s)
+
+    async def _acount_x_tail(
+            self,
+            acount_x_fn: Callable[[Filter, Options], Awaitable[int]],
+            filter: Filter,
+            options: Options
+    ) -> int:
+        if (filter.is_empty()
+           or ((not filter.snak_mask & Filter.VALUE_SNAK) and (
+               (acount_x_fn in (
+                   self._acount_v, self._acount_sv, self._acount_pv))))):
+            return 0            # nothing to do
+        else:
+            return await acount_x_fn(filter, options)
+
+    async def _acount_s(self, filter: Filter, options: Options) -> int:
+        return await self._acount_x_fallback_overriding_distinct_and_limit(
+            self._afilter_s, filter, options)
+
+    async def _acount_x_fallback_overriding_distinct_and_limit(
+            self,
+            filter_x_fn: Callable[[Filter, Options], AsyncIterator[Any]],
+            filter: Filter,
+            options: Options
+    ) -> int:
         options.distinct = True
         options.limit = options.max_limit
         n = 0
-        async for _ in self._afilter(filter, options):
+        async for _ in filter_x_fn(filter.replace(annotated=False), options):
             n += 1
         return n
+
+    async def acount_p(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> int:
+        """:meth:`Store.acount` with projection on property."""
+        return await self._check_filter_with_options_and_run(
+            functools.partial(self._acount_x_tail, self._acount_p),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.acount_p)
+
+    async def _acount_p(self, filter: Filter, options: Options) -> int:
+        return await self._acount_x_fallback_overriding_distinct_and_limit(
+            self._afilter_p, filter, options)
+
+    async def acount_v(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> int:
+        """:meth:`Store.acount` with projection on value."""
+        return await self._check_filter_with_options_and_run(
+            functools.partial(self._acount_x_tail, self._acount_v),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.acount_v)
+
+    async def _acount_v(self, filter: Filter, options: Options) -> int:
+        return await self._acount_x_fallback_overriding_distinct_and_limit(
+            self._afilter_v, filter, options)
+
+    async def acount_sp(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> int:
+        """:meth:`Store.acount` with projection on subject and property."""
+        return await self._check_filter_with_options_and_run(
+            functools.partial(self._acount_x_tail, self._acount_sp),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.acount_sp)
+
+    async def _acount_sp(self, filter: Filter, options: Options) -> int:
+        return await self._acount_x_fallback_overriding_distinct_and_limit(
+            self._afilter_sp, filter, options)
+
+    async def acount_sv(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> int:
+        """:meth:`Store.acount` with projection on subject and value."""
+        return await self._check_filter_with_options_and_run(
+            functools.partial(self._acount_x_tail, self._acount_sv),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.acount_sv)
+
+    async def _acount_sv(self, filter: Filter, options: Options) -> int:
+        return await self._acount_x_fallback_overriding_distinct_and_limit(
+            self._afilter_sv, filter, options)
+
+    async def acount_pv(
+            self,
+            subject: TFingerprint | None = None,
+            property: TFingerprint | None = None,
+            value: TFingerprint | None = None,
+            snak_mask: Filter.TSnakMask | None = None,
+            subject_mask: Filter.TDatatypeMask | None = None,
+            property_mask: Filter.TDatatypeMask | None = None,
+            value_mask: Filter.TDatatypeMask | None = None,
+            rank_mask: Filter.TRankMask | None = None,
+            language: str | None = None,
+            annotated: bool | None = None,
+            snak: Snak | None = None,
+            filter: Filter | None = None,
+            base_filter: Filter | None = None,
+            best_ranked: bool | None = None,
+            debug: bool | None = None,
+            distinct: bool | None = None,
+            distinct_window_size: int | None = None,
+            extra_references: TReferenceRecordSet | None = None,
+            limit: int | None = None,
+            lookahead: int | None = None,
+            page_size: int | None = None,
+            timeout: float | None = None,
+            **kwargs: Any
+    ) -> int:
+        """:meth:`Store.acount` with projection on property and value."""
+        return await self._check_filter_with_options_and_run(
+            functools.partial(self._acount_x_tail, self._acount_pv),
+            # filter
+            subject, property, value,
+            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
+            language, annotated, snak, filter,
+            # options
+            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            extra_references, limit, lookahead, page_size, timeout,
+            # function
+            self.acount_pv)
+
+    async def _acount_pv(self, filter: Filter, options: Options) -> int:
+        return await self._acount_x_fallback_overriding_distinct_and_limit(
+            self._afilter_pv, filter, options)
 
 # -- Filter ----------------------------------------------------------------
 
@@ -2792,7 +3355,7 @@ class Store(Set):
             timeout: float | None = None,
             **kwargs: Any
     ) -> Iterator[Entity]:
-        """meth:`Store.filter` with projection on subject."""
+        """:meth:`Store.filter` with projection on subject."""
         return self._check_filter_with_options_and_run(
             functools.partial(self._filter_x_tail, self._filter_s),
             # filter
@@ -2877,7 +3440,7 @@ class Store(Set):
             timeout: float | None = None,
             **kwargs: Any
     ) -> Iterator[Property]:
-        """meth:`Store.filter` with projection on property."""
+        """:meth:`Store.filter` with projection on property."""
         return self._check_filter_with_options_and_run(
             functools.partial(self._filter_x_tail, self._filter_p),
             # filter
@@ -2931,7 +3494,7 @@ class Store(Set):
             timeout: float | None = None,
             **kwargs: Any
     ) -> Iterator[Value]:
-        """meth:`Store.filter` with projection on value."""
+        """:meth:`Store.filter` with projection on value."""
         return self._check_filter_with_options_and_run(
             functools.partial(self._filter_x_tail, self._filter_v),
             # filter
@@ -2989,7 +3552,7 @@ class Store(Set):
             timeout: float | None = None,
             **kwargs: Any
     ) -> Iterator[ValuePair[Entity, Property]]:
-        """meth:`Store.filter` with projection on subject and property."""
+        """:meth:`Store.filter` with projection on subject and property."""
         return self._check_filter_with_options_and_run(
             functools.partial(self._filter_x_tail, self._filter_sp),
             # filter
@@ -3045,7 +3608,7 @@ class Store(Set):
             timeout: float | None = None,
             **kwargs: Any
     ) -> Iterator[ValuePair[Entity, Value]]:
-        """meth:`Store.filter` with projection on subject and value."""
+        """:meth:`Store.filter` with projection on subject and value."""
         return self._check_filter_with_options_and_run(
             functools.partial(self._filter_x_tail, self._filter_sv),
             # filter
@@ -3103,7 +3666,7 @@ class Store(Set):
             timeout: float | None = None,
             **kwargs: Any
     ) -> Iterator[ValueSnak]:
-        """meth:`Store.filter` with projection on property and value."""
+        """:meth:`Store.filter` with projection on property and value."""
         return self._check_filter_with_options_and_run(
             functools.partial(self._filter_x_tail, self._filter_pv),
             # filter
@@ -3239,7 +3802,7 @@ class Store(Set):
             timeout: float | None = None,
             **kwargs: Any
     ) -> AsyncIterator[Entity]:
-        """meth:`Store.afilter` with projection on subject."""
+        """:meth:`Store.afilter` with projection on subject."""
         return self._check_filter_with_options_and_run(
             functools.partial(self._afilter_x_tail, self._afilter_s),
             # filter
@@ -3325,7 +3888,7 @@ class Store(Set):
             timeout: float | None = None,
             **kwargs: Any
     ) -> AsyncIterator[Property]:
-        """meth:`Store.afilter` with projection on property."""
+        """:meth:`Store.afilter` with projection on property."""
         return self._check_filter_with_options_and_run(
             functools.partial(self._afilter_x_tail, self._afilter_p),
             # filter
@@ -3380,7 +3943,7 @@ class Store(Set):
             timeout: float | None = None,
             **kwargs: Any
     ) -> AsyncIterator[Value]:
-        """meth:`Store.afilter` with projection on value."""
+        """:meth:`Store.afilter` with projection on value."""
         return self._check_filter_with_options_and_run(
             functools.partial(self._afilter_x_tail, self._afilter_v),
             # filter
@@ -3438,7 +4001,7 @@ class Store(Set):
             timeout: float | None = None,
             **kwargs: Any
     ) -> AsyncIterator[ValuePair[Entity, Property]]:
-        """meth:`Store.afilter` with projection on subject and property."""
+        """:meth:`Store.afilter` with projection on subject and property."""
         return self._check_filter_with_options_and_run(
             functools.partial(self._afilter_x_tail, self._afilter_sp),
             # filter
@@ -3494,7 +4057,7 @@ class Store(Set):
             timeout: float | None = None,
             **kwargs: Any
     ) -> AsyncIterator[ValuePair[Entity, Value]]:
-        """meth:`Store.afilter` with projection on subject and value."""
+        """:meth:`Store.afilter` with projection on subject and value."""
         return self._check_filter_with_options_and_run(
             functools.partial(self._afilter_x_tail, self._afilter_sv),
             # filter
@@ -3552,7 +4115,7 @@ class Store(Set):
             timeout: float | None = None,
             **kwargs: Any
     ) -> AsyncIterator[ValueSnak]:
-        """meth:`Store.afilter` with projection on property and value."""
+        """:meth:`Store.afilter` with projection on property and value."""
         return self._check_filter_with_options_and_run(
             functools.partial(self._afilter_x_tail, self._afilter_pv),
             # filter
