@@ -2,10 +2,11 @@
 
 # Knowledge Integration Framework
 
-KIF is a knowledge integration framework from [IBM Research](https://research.ibm.com/).
+KIF is a knowledge integration framework from [IBM
+Research](https://research.ibm.com/).
 
-It is based on [Wikidata](https://www.wikidata.org/) and licensed
-under the [Apache-2.0 license](./LICENSE).
+It is based on [Wikidata](https://www.wikidata.org/) and licensed under the
+[Apache-2.0 license](./LICENSE).
 
 First time here? Check out the [quickstart
 guide](https://ibm.github.io/kif/quickstart.html).
@@ -14,8 +15,9 @@ guide](https://ibm.github.io/kif/quickstart.html).
 
 * KIF is an interface to query knowledge sources as if they were Wikidata.
 
-* KIF queries are written as simple, high-level filters using entities of the
-  [Wikidata data model](https://www.wikidata.org/wiki/Wikidata:Data_model).
+* KIF queries are written as simple, high-level filters using entities of
+  the [Wikidata data
+  model](https://www.wikidata.org/wiki/Wikidata:Data_model).
 
 * KIF can be used to query Wikidata itself or other knowledge sources,
   provided proper mappings are given.
@@ -33,6 +35,7 @@ $ pip install kif-lib
 ```
 
 Development version:
+
 ```shell
 $ pip install kif-lib@git+https://github.com/IBM/kif.git
 ```
@@ -47,12 +50,14 @@ See [documentation](https://ibm.github.io/kif/) and [examples](./examples).
 
 #### (1)
 
-Gets from [Wikidata](https://www.wikidata.org/) all statements with property [shares border with (P47)](http://www.wikidata.org/entity/P47) and value [Brazil (Q155)](http://www.wikidata.org/entity/Q155).
+Gets from [Wikidata](https://www.wikidata.org/) all statements with property
+[shares border with (P47)](http://www.wikidata.org/entity/P47) and value
+[Brazil (Q155)](http://www.wikidata.org/entity/Q155).
 
 Using the `kif` command-line utility:
 
 ```shell
-kif filter -s wdqs@https://query.wikidata.org/sparql --property=wd.shares_border_with --value='wd.Q(155)'
+kif filter -s wdqs --property=wd.shares_border_with --value='wd.Q(155)'
 ```
 
 > (**Statement** (**Item** [Argentina](http://www.wikidata.org/entity/Q414)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Brazil](http://www.wikidata.org/entity/Q155)))) <br/>
@@ -78,7 +83,9 @@ for stmt in kb.filter(property=wd.shares_border_with, value=wd.Q(155)):
 
 #### (2)
 
-Gets from [Wikidata](https://www.wikidata.org/) and [PubChem RDF](https://qlever.cs.uni-freiburg.de/api/pubchem) the IRI and molecular mass of all chemicals whose formula is H₂O.
+Gets from [Wikidata](https://www.wikidata.org/) and [PubChem
+RDF](https://qlever.cs.uni-freiburg.de/api/pubchem) the IRI and molecular
+mass of all chemicals whose formula is H₂O.
 
 Using the `kif` command-line utility:
 
@@ -94,9 +101,10 @@ $ kif filter -s wdqs -s pubchem-sparql --select sv --subject='wd.chemical_formul
 Using the KIF API:
 
 ```python
-# Create a mixer store combining two other stores:
+# Create a mixer store combining:
 # • wdqs: A SPARQL store loaded with Wikidata mappings optimized for WDQS.
 # • pubchem-sparql: A SPARQL store loaded with PubChem RDF mappings.
+
 kb = Store('mixer', [
     Store('wdqs', 'https://query.wikidata.org/sparql'),
     Store('pubchem-sparql', 'https://qlever.cs.uni-freiburg.de/api/pubchem')])
@@ -104,8 +112,9 @@ kb = Store('mixer', [
 # Filter the subject and value (sv) of all statements where:
 # • subject has chemical formula (P274) H₂O.
 # • property is mass (P2067).
+
 it = kb.filter_sv(subject=wd.chemical_formula('H₂O'), property=wd.mass)
-for (chem, mass) in it:
+for chem, mass in it:
     print(chem, mass)
 ```
 
