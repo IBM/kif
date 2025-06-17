@@ -1,10 +1,10 @@
 <img src="https://raw.githubusercontent.com/IBM/kif/refs/heads/main/docs/_static/kif-boxed.svg" width="96">
 
-# Knowledge Integration Framework #
+# Knowledge Integration Framework
 
 KIF is a knowledge integration framework from [IBM Research](https://research.ibm.com/).
 
-KIF is based on [Wikidata](https://www.wikidata.org/) and it's licensed
+It is based on [Wikidata](https://www.wikidata.org/) and licensed
 under the [Apache-2.0 license](./LICENSE).
 
 First time here? Check out the [quickstart
@@ -14,73 +14,102 @@ guide](https://ibm.github.io/kif/quickstart.html).
 
 * KIF is an interface to query knowledge sources as if they were Wikidata.
 
-* KIF queries are written in the KIF pattern language, which is based on
-  [Wikidata's data model](https://www.wikidata.org/wiki/Wikidata:Data_model).
+* KIF queries are written as simple, high-level filters using entities of the
+  [Wikidata data model](https://www.wikidata.org/wiki/Wikidata:Data_model).
 
 * KIF can be used to query Wikidata itself or other knowledge sources,
-  provided proper SPARQL mappings are given.
+  provided proper mappings are given.
 
 * KIF comes with built-in mappings for [DBpedia](https://www.dbpedia.org/)
   and [PubChem RDF](https://pubchem.ncbi.nlm.nih.gov/docs/rdf).  Other
   mappings can be added programmatically.
 
-## Installation ##
+## Installation
+
+Latest release:
 
 ```shell
 $ pip install kif-lib
 ```
 
-## Documentation ##
+Development version:
+```shell
+$ pip install kif-lib@git+https://github.com/IBM/kif.git
+```
+
+## Documentation
 
 See [documentation](https://ibm.github.io/kif/) and [examples](./examples).
 
-### Hello world! ###
+### Hello world!
 
-#### A simple filter ###
+<hr/>
 
-Gets from [Wikidata](https://www.wikidata.org/) all statements
-with property [shares border with (P47)](http://www.wikidata.org/entity/P47)
-and value [Brazil (Q155)](http://www.wikidata.org/entity/Q155):
+#### (1)
+
+Gets from [Wikidata](https://www.wikidata.org/) all statements with property [shares border with (P47)](http://www.wikidata.org/entity/P47) and value [Brazil (Q155)](http://www.wikidata.org/entity/Q155).
+
+Using the `kif` command-line utility:
+
+```shell
+kif filter -s wdqs@https://query.wikidata.org/sparql --property=wd.shares_border_with --value='wd.Q(155)'
+```
+
+> (**Statement** (**Item** [Argentina](http://www.wikidata.org/entity/Q414)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Brazil](http://www.wikidata.org/entity/Q155)))) <br/>
+> (**Statement** (**Item** [Peru](http://www.wikidata.org/entity/Q419)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Brazil](http://www.wikidata.org/entity/Q155)))) <br/>
+> (**Statement** (**Item** [Paraguay](http://www.wikidata.org/entity/Q733)) (**ValueSnak** (**Property** [shares border with](http://www.wikidata.org/entity/P47)) (**Item** [Brazil](http://www.wikidata.org/entity/Q155)))) <br/>
+> ⋮
+
+Using the KIF API:
 
 ```python
-from kif_lib import *
-from kif_lib.vocabulary import wd
-kb = Store('wdqs')
+from kif_lib import *               # import the KIF namespace
+from kif_lib.vocabulary import wd   # import the Wikidata vocabulary module
+
+# Create a SPARQL store loaded with Wikidata mappings and optimized for WDQS.
+kb = Store('wdqs', 'https://query.wikidata.org/sparql')
+
+# Filter all statements with the given property and value.
 for stmt in kb.filter(property=wd.shares_border_with, value=wd.Q(155)):
     print(stmt)
 ```
 
-Alternatively, using the `kif` command-line utility:
+<hr/>
+
+#### (2)
+
+Gets from [Wikidata](https://www.wikidata.org/) and [PubChem RDF](https://qlever.cs.uni-freiburg.de/api/pubchem) the IRI and molecular mass of all chemicals whose formula is H₂O.
+
+Using the `kif` command-line utility:
 
 ```shell
-$ kif filter -s wdqs --property=wd.shares_border_with --value='wd.Q(155)'
+$ kif filter -s wdqs -s pubchem-sparql --select sv --subject='wd.chemical_formula("H₂O")' --property=wd.mass
 ```
 
-#### A more complex filter ####
+> (**Item** [hydrogen tritium oxide](http://www.wikidata.org/entity/Q106010186)) (**Quantity** 20.01878893 (**Item** [dalton](http://www.wikidata.org/entity/Q483261))) <br/>
+> (**Item** [oxygen-15 atom](http://rdf.ncbi.nlm.nih.gov/pubchem/compound/CID10129877)) (**Quantity** 17.0187 (**Item** [dalton](http://www.wikidata.org/entity/Q483261))) <br/>
+> (**Item** [diprotium oxide](http://www.wikidata.org/entity/Q106010185)) (**Quantity** 18.010564684 (**Item** [dalton](http://www.wikidata.org/entity/Q483261))) <br/>
+> ⋮
 
-Gets from [Wikidata](https://www.wikidata.org/) and
-[PubChem RDF](https://qlever.cs.uni-freiburg.de/api/pubchem) the IRI and
-mass value of all chemicals whose formula is H₂O.
+Using the KIF API:
 
 ```python
-kb = Store('mixer', [           # Mixes stmts from:
-    Store('wdqs'),              # - Wikidata (WDQS)
-    Store('pubchem-sparql')     # - PubChem RDF (QLever's public endpoint)
-])
-it = kb.filter_sv(                       # Get subject-value of stmts where:
-    subject=wd.chemical_formula('H₂O'),  # - subject has chem. formula H₂O
-    property=wd.mass)                    # - property is mass (P2067)
+# Create a mixer store combining two other stores:
+# • wdqs: A SPARQL store loaded with Wikidata mappings optimized for WDQS.
+# • pubchem-sparql: A SPARQL store loaded with PubChem RDF mappings.
+kb = Store('mixer', [
+    Store('wdqs', 'https://query.wikidata.org/sparql'),
+    Store('pubchem-sparql', 'https://qlever.cs.uni-freiburg.de/api/pubchem')])
+
+# Filter the subject and value (sv) of all statements where:
+# • subject has chemical formula (P274) H₂O.
+# • property is mass (P2067).
+it = kb.filter_sv(subject=wd.chemical_formula('H₂O'), property=wd.mass)
 for (chem, mass) in it:
-    print(chem.iri.content, mass.amount)
+    print(chem, mass)
 ```
 
-Alternatively, using the `kif` command-line utility:
-
-```shell
-$ kif filter -s wdqs -s pubchem-sparql  'wd.chemical_formula("H₂O")' wd.mass --select sv
-```
-
-## Citation ##
+## Citation
 
 Guilherme Lima, João M. B. Rodrigues, Marcelo Machado, Elton Soares, Sandro
 R. Fiorini, Raphael Thiago, Leonardo G. Azevedo, Viviane T. da Silva, Renato
@@ -88,7 +117,6 @@ Cerqueira. ["KIF: A Wikidata-Based Framework for Integrating Heterogeneous
 Knowledge Sources"](https://arxiv.org/abs/2403.10304), arXiv:2403.10304,
 2024.
 
-
-## License ##
+## License
 
 Released under the [Apache-2.0 license](./LICENSE).
