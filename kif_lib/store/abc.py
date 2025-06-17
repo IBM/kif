@@ -3316,7 +3316,7 @@ class Store(Set):
                 limit=options.limit)
             if filter_x_fn == self._filter:
                 return cast(
-                    Iterator[T],  mix(self._filter_with_extra_references(
+                    Iterator[T], mix(self._filter_with_extra_references(
                         filter, options)))
             else:
                 return mix(filter_x_fn(
