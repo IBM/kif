@@ -55,6 +55,7 @@ from .store import Store
 from .typing import (
     Any,
     AsyncIterator,
+    Awaitable,
     Callable,
     ClassVar,
     Final,
@@ -1027,6 +1028,7 @@ def ask(
 @FilterParam.property_option
 @FilterParam.property_mask
 @FilterParam.rank_mask
+@FilterParam.select
 @FilterParam.snak_is_no_value
 @FilterParam.snak_is_some_value
 @FilterParam.snak_is_value
@@ -1094,6 +1096,7 @@ def count(
         distinct: bool | None = None,
         dry_run: bool | None = None,
         resolve: bool | None = None,
+        select: str | None = None,
         timeout: float | None = None
 ) -> None:
     fr = FilterParam.make_filter(
@@ -1137,11 +1140,30 @@ def count(
         timeout=timeout)
     n: int
     if async_:
+        ac: dict[str, Callable[[], Awaitable[int]]] = {
+            's': (lambda: target.acount_s(filter=fr)),
+            'p': (lambda: target.acount_p(filter=fr)),
+            'v': (lambda: target.acount_v(filter=fr)),
+            'sp': (lambda: target.acount_sp(filter=fr)),
+            'sv': (lambda: target.acount_sv(filter=fr)),
+            'pv': (lambda: target.acount_pv(filter=fr)),
+            'spv': (lambda: target.acount(filter=fr))}
+
         async def acount():
-            return await target.acount(filter=fr)
+            assert select is not None
+            return await ac[select]()
         n = asyncio.run(acount())
     else:
-        n = target.count(filter=fr)
+        c: dict[str, Callable[[], int]] = {
+            's': (lambda: target.count_s(filter=fr)),
+            'p': (lambda: target.count_p(filter=fr)),
+            'v': (lambda: target.count_v(filter=fr)),
+            'sp': (lambda: target.count_sp(filter=fr)),
+            'sv': (lambda: target.count_sv(filter=fr)),
+            'pv': (lambda: target.count_pv(filter=fr)),
+            'spv': (lambda: target.count(filter=fr))}
+        assert select is not None
+        n = c[select]()
     click.echo(n)
 
 
