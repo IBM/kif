@@ -2598,7 +2598,7 @@ class Store(Set):
            The number of statements matching filter.
         """
         return self._check_filter_with_options_and_run(
-            self._count_tail,
+            functools.partial(self._count_x_tail, self._count),
             # filter
             subject, property, value,
             snak_mask, subject_mask, property_mask, value_mask, rank_mask,
@@ -2609,11 +2609,19 @@ class Store(Set):
             # function
             self.count)
 
-    def _count_tail(self, filter: Filter, options: Options) -> int:
-        if filter.is_nonempty():
-            return self._count(filter, options)
+    def _count_x_tail(
+            self,
+            count_x_fn: Callable[[Filter, Options], int],
+            filter: Filter,
+            options: Options
+    ) -> int:
+        if (filter.is_empty()
+            or ((not filter.snak_mask & Filter.VALUE_SNAK) and (
+                (count_x_fn in (
+                    self._count_v, self._count_sv, self._count_pv))))):
+            return 0            # nothing to do
         else:
-            return 0
+            return count_x_fn(filter.replace(annotated=False), options)
 
     def _count(self, filter: Filter, options: Options) -> int:
         return self._count_x_fallback_overriding_distinct_and_limit(
@@ -2658,20 +2666,6 @@ class Store(Set):
             # function
             self.count_s)
 
-    def _count_x_tail(
-            self,
-            count_x_fn: Callable[[Filter, Options], int],
-            filter: Filter,
-            options: Options
-    ) -> int:
-        if (filter.is_empty()
-            or ((not filter.snak_mask & Filter.VALUE_SNAK) and (
-                (count_x_fn in (
-                    self._count_v, self._count_sv, self._count_pv))))):
-            return 0            # nothing to do
-        else:
-            return count_x_fn(filter, options)
-
     def _count_s(self, filter: Filter, options: Options) -> int:
         return self._count_x_fallback_overriding_distinct_and_limit(
             self._filter_s, filter, options)
@@ -2684,8 +2678,8 @@ class Store(Set):
     ) -> int:
         options.distinct = True
         options.limit = options.max_limit
-        return sum(1 for _ in filter_x_fn(
-            filter.replace(annotated=False), options))
+        return sum(1 for _ in self._filter_x_tail(
+            filter_x_fn, filter.replace(annotated=False), options))
 
     def count_p(
             self,
@@ -2930,7 +2924,7 @@ class Store(Set):
     ) -> int:
         """Async version of :meth:`Store.count`."""
         return await self._check_filter_with_options_and_run(
-            self._acount_tail,
+            functools.partial(self._acount_x_tail, self._acount),
             # filter
             subject, property, value,
             snak_mask, subject_mask, property_mask, value_mask, rank_mask,
@@ -2941,11 +2935,20 @@ class Store(Set):
             # function
             self.acount)
 
-    async def _acount_tail(self, filter: Filter, options: Options) -> int:
-        if filter.is_nonempty():
-            return await self._acount(filter, options)
+    async def _acount_x_tail(
+            self,
+            acount_x_fn: Callable[[Filter, Options], Awaitable[int]],
+            filter: Filter,
+            options: Options
+    ) -> int:
+        if (filter.is_empty()
+           or ((not filter.snak_mask & Filter.VALUE_SNAK) and (
+               (acount_x_fn in (
+                   self._acount_v, self._acount_sv, self._acount_pv))))):
+            return 0            # nothing to do
         else:
-            return 0
+            return await acount_x_fn(
+                filter.replace(annotated=False), options)
 
     async def _acount(self, filter: Filter, options: Options) -> int:
         return await self._acount_x_fallback_overriding_distinct_and_limit(
@@ -2990,20 +2993,6 @@ class Store(Set):
             # function
             self.acount_s)
 
-    async def _acount_x_tail(
-            self,
-            acount_x_fn: Callable[[Filter, Options], Awaitable[int]],
-            filter: Filter,
-            options: Options
-    ) -> int:
-        if (filter.is_empty()
-           or ((not filter.snak_mask & Filter.VALUE_SNAK) and (
-               (acount_x_fn in (
-                   self._acount_v, self._acount_sv, self._acount_pv))))):
-            return 0            # nothing to do
-        else:
-            return await acount_x_fn(filter, options)
-
     async def _acount_s(self, filter: Filter, options: Options) -> int:
         return await self._acount_x_fallback_overriding_distinct_and_limit(
             self._afilter_s, filter, options)
@@ -3017,7 +3006,8 @@ class Store(Set):
         options.distinct = True
         options.limit = options.max_limit
         n = 0
-        async for _ in filter_x_fn(filter.replace(annotated=False), options):
+        async for _ in self._afilter_x_tail(
+                filter_x_fn, filter.replace(annotated=False), options):
             n += 1
         return n
 
@@ -3295,7 +3285,7 @@ class Store(Set):
            An iterator of statements matching filter.
         """
         return self._check_filter_with_options_and_run(
-            self._filter_tail,
+            functools.partial(self._filter_x_tail, self._filter),
             # filter
             subject, property, value,
             snak_mask, subject_mask, property_mask, value_mask, rank_mask,
@@ -3306,21 +3296,43 @@ class Store(Set):
             # function
             self.filter)
 
-    def _filter_tail(
+    def _filter_x_tail(
+            self,
+            filter_x_fn: Callable[[Filter, Options], Iterator[T]],
+            filter: Filter,
+            options: Options
+    ) -> Iterator[T]:
+        if ((options.limit is not None and options.limit <= 0)
+            or filter.is_empty()
+            or ((not filter.snak_mask & Filter.VALUE_SNAK) and (
+                (filter_x_fn in (
+                    self._filter_v, self._filter_sv, self._filter_pv))))):
+            return iter(())  # nothing to do
+        else:
+            mix = functools.partial(
+                itertools.mix,
+                distinct=options.distinct,
+                distinct_window_size=options.distinct_window_size,
+                limit=options.limit)
+            if filter_x_fn == self._filter:
+                return cast(
+                    Iterator[T],  mix(self._filter_with_extra_references(
+                        filter, options)))
+            else:
+                return mix(filter_x_fn(
+                    filter.replace(annotated=False), options))
+
+    def _filter_with_extra_references(
             self,
             filter: Filter,
             options: Options
     ) -> Iterator[Statement]:
-        if ((options.limit is None or options.limit > 0)
-                and filter.is_nonempty()):
-            stmts = self._filter(filter, options)
-            if filter.annotated and options.extra_references:
-                return map(lambda s: s.annotate(
-                    references=options.extra_references), stmts)
-            else:
-                return stmts
+        it = self._filter(filter, options)
+        if filter.annotated and options.extra_references:
+            return map(lambda s: s.annotate(
+                references=options.extra_references), it)
         else:
-            return iter(())
+            return it
 
     def _filter(
             self,
@@ -3367,25 +3379,6 @@ class Store(Set):
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.filter_s)
-
-    def _filter_x_tail(
-            self,
-            filter_x_fn: Callable[[Filter, Options], Iterator[T]],
-            filter: Filter,
-            options: Options
-    ) -> Iterator[T]:
-        if ((options.limit is not None and options.limit <= 0)
-            or filter.is_empty()
-            or ((not filter.snak_mask & Filter.VALUE_SNAK) and (
-                (filter_x_fn in (
-                    self._filter_v, self._filter_sv, self._filter_pv))))):
-            return iter(())  # nothing to do
-        else:
-            return itertools.mix(
-                filter_x_fn(filter.replace(annotated=False), options),
-                distinct=options.distinct,
-                distinct_window_size=options.distinct_window_size,
-                limit=options.limit)
 
     def _filter_s(
             self,
@@ -3726,7 +3719,7 @@ class Store(Set):
     ) -> AsyncIterator[Statement]:
         """Async version of :meth:`Store.filter`."""
         return self._check_filter_with_options_and_run(
-            self._afilter_tail,
+            functools.partial(self._afilter_x_tail, self._afilter),
             # filter
             subject, property, value,
             snak_mask, subject_mask, property_mask, value_mask, rank_mask,
@@ -3737,33 +3730,43 @@ class Store(Set):
             # function
             self.afilter)
 
-    def _afilter_tail(
+    def _afilter_x_tail(
+            self,
+            afilter_x_fn: Callable[[Filter, Options], AsyncIterator[T]],
+            filter: Filter,
+            options: Options
+    ) -> AsyncIterator[T]:
+        if ((options.limit is not None and options.limit <= 0)
+            or filter.is_empty()
+            or ((not filter.snak_mask & Filter.VALUE_SNAK) and (
+                (afilter_x_fn in (
+                    self._afilter_v, self._afilter_sv, self._afilter_pv))))):
+            return self._afilter_empty_iterator()  # nothing to do
+        else:
+            amix = functools.partial(
+                itertools.amix,
+                distinct=options.distinct,
+                distinct_window_size=options.distinct_window_size,
+                limit=options.limit)
+            if afilter_x_fn == self._afilter:
+                return cast(
+                    AsyncIterator[T], amix(self._afilter_with_extra_references(
+                        filter, options)))
+            else:
+                return amix(afilter_x_fn(
+                    filter.replace(annotated=False), options))
+
+    def _afilter_with_extra_references(
             self,
             filter: Filter,
             options: Options
     ) -> AsyncIterator[Statement]:
-        if ((options.limit is None or options.limit > 0)
-                and filter.is_nonempty()):
-            return itertools.amix(
-                self._afilter_tail_tail(
-                    filter, options, self._afilter(filter, options)),
-                distinct=options.distinct,
-                distinct_window_size=options.distinct_window_size,
-                limit=options.limit)
+        it = self._afilter(filter, options)
+        if filter.annotated and options.extra_references:
+            return itertools.amap(lambda s: s.annotate(
+                references=options.extra_references), it)
         else:
-            return self._afilter_empty_iterator()
-
-    async def _afilter_tail_tail(
-            self,
-            filter: Filter,
-            options: Options,
-            it: AsyncIterator[Statement]
-    ) -> AsyncIterator[Statement]:
-        async for stmt in it:
-            if filter.annotated and options.extra_references:
-                yield stmt.annotate(references=options.extra_references)
-            else:
-                yield stmt
+            return it
 
     def _afilter(
             self,
@@ -3814,25 +3817,6 @@ class Store(Set):
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.afilter_s)
-
-    def _afilter_x_tail(
-            self,
-            afilter_x_fn: Callable[[Filter, Options], AsyncIterator[T]],
-            filter: Filter,
-            options: Options
-    ) -> AsyncIterator[T]:
-        if ((options.limit is not None and options.limit <= 0)
-            or filter.is_empty()
-            or ((not filter.snak_mask & Filter.VALUE_SNAK) and (
-                (afilter_x_fn in (
-                    self._afilter_v, self._afilter_sv, self._afilter_pv))))):
-            return self._afilter_empty_iterator()  # nothing to do
-        else:
-            return itertools.amix(
-                afilter_x_fn(filter.replace(annotated=False), options),
-                distinct=options.distinct,
-                distinct_window_size=options.distinct_window_size,
-                limit=options.limit)
 
     def _afilter_s(
             self,

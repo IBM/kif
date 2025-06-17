@@ -22,6 +22,7 @@ from ..model.flags import Flags as KIF_Flags
 from ..typing import (
     Any,
     AsyncIterator,
+    Awaitable,
     Callable,
     ClassVar,
     Collection,
@@ -423,13 +424,100 @@ class MixerStore(
 
     @override
     def _count(self, filter: Filter, options: Store.Options) -> int:
+        return self._count_x_mix_sources(
+            lambda s: s._count, filter, options)
+
+    @override
+    def _count_s(self, filter: Filter, options: Store.Options) -> int:
+        return self._count_x_mix_sources(
+            lambda s: s._count_s, filter, options)
+
+    @override
+    def _count_p(self, filter: Filter, options: Store.Options) -> int:
+        return self._count_x_mix_sources(
+            lambda s: s._count_p, filter, options)
+
+    @override
+    def _count_v(self, filter: Filter, options: Store.Options) -> int:
+        return self._count_x_mix_sources(
+            lambda s: s._count_v, filter, options)
+
+    @override
+    def _count_sp(self, filter: Filter, options: Store.Options) -> int:
+        return self._count_x_mix_sources(
+            lambda s: s._count_sp, filter, options)
+
+    @override
+    def _count_sv(self, filter: Filter, options: Store.Options) -> int:
+        return self._count_x_mix_sources(
+            lambda s: s._count_sv, filter, options)
+
+    @override
+    def _count_pv(self, filter: Filter, options: Store.Options) -> int:
+        return self._count_x_mix_sources(
+            lambda s: s._count_pv, filter, options)
+
+    def _count_x_mix_sources(
+            self,
+            get_count_x_fn: Callable[
+                [Store], Callable[[Filter, Store.Options], int]],
+            filter: Filter,
+            options: Store.Options
+    ) -> int:
+        get_synced_options = functools.partial(
+            self._filter_get_synced_source_options, options)
         return sum(map(
-            lambda src: src._count(filter, options), self._sources))
+            lambda src: src._count_x_tail(
+                get_count_x_fn(src), filter, get_synced_options(src)),
+            self.sources))
 
     @override
     async def _acount(self, filter: Filter, options: Store.Options) -> int:
+        return await self._acount_x_mix_sources(
+            lambda s: s._acount, filter, options)
+
+    @override
+    async def _acount_s(self, filter: Filter, options: Store.Options) -> int:
+        return await self._acount_x_mix_sources(
+            lambda s: s._acount_s, filter, options)
+
+    @override
+    async def _acount_p(self, filter: Filter, options: Store.Options) -> int:
+        return await self._acount_x_mix_sources(
+            lambda s: s._acount_p, filter, options)
+
+    @override
+    async def _acount_v(self, filter: Filter, options: Store.Options) -> int:
+        return await self._acount_x_mix_sources(
+            lambda s: s._acount_v, filter, options)
+
+    @override
+    async def _acount_sp(self, filter: Filter, options: Store.Options) -> int:
+        return await self._acount_x_mix_sources(
+            lambda s: s._acount_sp, filter, options)
+
+    @override
+    async def _acount_sv(self, filter: Filter, options: Store.Options) -> int:
+        return await self._acount_x_mix_sources(
+            lambda s: s._acount_sv, filter, options)
+
+    @override
+    async def _acount_pv(self, filter: Filter, options: Store.Options) -> int:
+        return await self._acount_x_mix_sources(
+            lambda s: s._acount_pv, filter, options)
+
+    async def _acount_x_mix_sources(
+            self,
+            get_acount_x_fn: Callable[
+                [Store], Callable[[Filter, Store.Options], Awaitable[int]]],
+            filter: Filter,
+            options: Store.Options
+    ) -> int:
+        get_synced_options = functools.partial(
+            self._filter_get_synced_source_options, options)
         tasks = (
-            asyncio.ensure_future(src._acount(filter, options))
+            asyncio.ensure_future(src._acount_x_tail(
+                get_acount_x_fn(src), filter, get_synced_options(src)))
             for src in self._sources)
         return sum(await asyncio.gather(*tasks))
 
@@ -441,41 +529,8 @@ class MixerStore(
             filter: Filter,
             options: Store.Options
     ) -> Iterator[Statement]:
-        get_synced_options = functools.partial(
-            self._filter_get_synced_source_options, options)
-        return itertools.mix(
-            *(src._filter_tail(filter, get_synced_options(src))
-              for src in self.sources),
-            distinct=options.distinct,
-            distinct_window_size=options.distinct_window_size,
-            limit=options.limit)
-
-    def _filter_get_synced_source_options(
-            self,
-            options: Store.Options,
-            source: Store
-    ) -> Store.Options:
-        source_options = source.options.copy()
-        if self.sync_flags & self.BASE_FILTER:
-            source_options.base_filter = options.base_filter
-        if self.sync_flags & self.BEST_RANKED:
-            source_options.best_ranked = options.best_ranked
-        if self.sync_flags & self.DEBUG:
-            source_options.debug = options.debug
-        if self.sync_flags & self.DISTINCT:
-            source_options.distinct = options.distinct
-        if self.sync_flags & self.DISTINCT_WINDOW_SIZE:
-            source_options.distinct_window_size =\
-                options.distinct_window_size
-        if self.sync_flags & self.LIMIT:
-            source_options.limit = options.limit
-        if self.sync_flags & self.LOOKAHEAD:
-            source_options.lookahead = options.lookahead
-        if self.sync_flags & self.PAGE_SIZE:
-            source_options.page_size = options.page_size
-        if self.sync_flags & self.TIMEOUT:
-            source_options.timeout = options.timeout
-        return source_options
+        return self._filter_x_mix_sources(
+            lambda s: s._filter, filter, options)
 
     @override
     def _filter_s(
@@ -538,13 +593,42 @@ class MixerStore(
             filter: Filter,
             options: Store.Options
     ) -> Iterator[T]:
+        get_synced_options = functools.partial(
+            self._filter_get_synced_source_options, options)
         return itertools.mix(
             *(src._filter_x_tail(
-                get_filter_x_fn(src), filter, src.options.copy())
+                get_filter_x_fn(src), filter, get_synced_options(src))
               for src in self.sources),
             distinct=options.distinct,
             distinct_window_size=options.distinct_window_size,
             limit=options.limit)
+
+    def _filter_get_synced_source_options(
+            self,
+            options: Store.Options,
+            source: Store
+    ) -> Store.Options:
+        source_options = source.options.copy()
+        if self.sync_flags & self.BASE_FILTER:
+            source_options.base_filter = options.base_filter
+        if self.sync_flags & self.BEST_RANKED:
+            source_options.best_ranked = options.best_ranked
+        if self.sync_flags & self.DEBUG:
+            source_options.debug = options.debug
+        if self.sync_flags & self.DISTINCT:
+            source_options.distinct = options.distinct
+        if self.sync_flags & self.DISTINCT_WINDOW_SIZE:
+            source_options.distinct_window_size =\
+                options.distinct_window_size
+        if self.sync_flags & self.LIMIT:
+            source_options.limit = options.limit
+        if self.sync_flags & self.LOOKAHEAD:
+            source_options.lookahead = options.lookahead
+        if self.sync_flags & self.PAGE_SIZE:
+            source_options.page_size = options.page_size
+        if self.sync_flags & self.TIMEOUT:
+            source_options.timeout = options.timeout
+        return source_options
 
     @override
     def _afilter(
@@ -552,12 +636,8 @@ class MixerStore(
             filter: Filter,
             options: Store.Options
     ) -> AsyncIterator[Statement]:
-        return itertools.amix(
-            *(src._afilter_tail(filter, src.options.copy())
-              for src in self.sources),
-            distinct=options.distinct,
-            distinct_window_size=options.distinct_window_size,
-            limit=options.limit)
+        return self._afilter_x_mix_sources(
+            lambda s: s._afilter, filter, options)
 
     @override
     def _afilter_s(
@@ -620,9 +700,11 @@ class MixerStore(
             filter: Filter,
             options: Store.Options
     ) -> AsyncIterator[T]:
+        get_synced_options = functools.partial(
+            self._filter_get_synced_source_options, options)
         return itertools.amix(
             *(src._afilter_x_tail(
-                get_afilter_x_fn(src), filter, src.options.copy())
+                get_afilter_x_fn(src), filter, get_synced_options(src))
               for src in self.sources),
             distinct=options.distinct,
             distinct_window_size=options.distinct_window_size,
