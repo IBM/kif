@@ -306,15 +306,7 @@ class Test(StoreTestCase):
             {wd.mass(wd.benzene, 0).annotate(),
              *(wd.density(wd.benzene, 0, qualifiers=[wd.temperature(i)])
                for i in range(10))})
-        ###
-        # FIXME: Store.count() is still returning the wrong number of
-        # statements.  The quick fix of using a blank node for wds does not
-        # work for count queries even when COUNT(DISTINCT *) is used.  The
-        # correct approach is to replace "*" by an explicit list of
-        # variables, derived from the variables occurring in the target
-        # patterns.
-        ###
-        self.assertEqual(kb.count(wd.benzene, wd.density), 10)
+        self.assertEqual(kb.count(wd.benzene, wd.density), 1)
 
     def test_no_and_some_value_at_the_same_time(self) -> None:
         kb = self.S(

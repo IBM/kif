@@ -25,7 +25,9 @@ URI: TypeAlias = C.Query.URI
 V_URI: TypeAlias = C.Query.V_URI
 Var: TypeAlias = C.Query.Variable
 VLiteral: TypeAlias = C.Query.VLiteral
-e, p, q, x, y, z = Variables(*'epqxyz')
+
+#: Variables used in register patterns.
+s, p, v, v0 = Variables('s', 'p', 'v', 'v0')
 
 
 class DBpediaMapping(M):
@@ -64,81 +66,87 @@ class DBpediaMapping(M):
     def _p_text(
             self,
             c: C,
-            e: V_URI,
+            s: V_URI,
             p: V_URI,
-            x: VLiteral,
-            y: VLiteral
+            v: VLiteral,
+            v0: VLiteral
     ) -> None:
-        if isinstance(y, Var):
-            c.q.triples()((e, p, x))
-            c.q.bind(c.q.lang(x), y)
-        elif isinstance(x, Var):
-            c.q.triples()((e, p, x))
-            c.q.filter(c.q.eq(c.q.lang(x), y))
+        if isinstance(v0, Var):
+            c.q.triples()((s, p, v))
+            c.q.bind(c.q.lang(v), v0)
+        elif isinstance(v, Var):
+            c.q.triples()((s, p, v))
+            c.q.filter(c.q.eq(c.q.lang(v), v0))
         else:
-            c.q.triples()((e, p, c.q.Literal(x, y)))
+            c.q.triples()((s, p, c.q.Literal(v, v0)))
 
     @M.register(
-        [wd.label(Item(e), Text(x, y))],
-        {e: CheckResource()},
+        [wd.label(Item(s), Text(v, v0))],
+        {s: CheckResource()},
         rank=Normal)
-    def wd_label(self, c: C, e: V_URI, x: VLiteral, y: VLiteral) -> None:
-        self._start_r(c, e)
-        self._p_text(c, e, RDFS.label, x, y)
+    def wd_label(self, c: C, s: V_URI, v: VLiteral, v0: VLiteral) -> None:
+        self._start_r(c, s)
+        self._p_text(c, s, RDFS.label, v, v0)
 
     @M.register(
-        [wd.label(Property(e), Text(x, y))],
-        {e: CheckOntology()},
+        [wd.label(Property(s), Text(v, v0))],
+        {s: CheckOntology()},
         rank=Normal)
-    def wd_label_op(self, c: C, e: V_URI, x: VLiteral, y: VLiteral) -> None:
-        self._start_op(c, e)
-        self._p_text(c, e, RDFS.label, x, y)
+    def wd_label_op(self, c: C, s: V_URI, v: VLiteral, v0: VLiteral) -> None:
+        self._start_op(c, s)
+        self._p_text(c, s, RDFS.label, v, v0)
 
     @M.register(
-        [wd.description(Item(e), Text(x, y))],
-        {e: CheckResource()},
+        [wd.description(Item(s), Text(v, v0))],
+        {s: CheckResource()},
         rank=Normal)
-    def wd_description(self, c: C, e: V_URI, x: VLiteral, y: VLiteral) -> None:
-        self._start_r(c, e)
-        self._p_text(c, e, RDFS.comment, x, y)
+    def wd_description(
+            self,
+            c: C,
+            s: V_URI,
+            v: VLiteral,
+            v0: VLiteral
+    ) -> None:
+        self._start_r(c, s)
+        self._p_text(c, s, RDFS.comment, v, v0)
 
     @M.register(
-        [Property(p)(Item(x), Item(y))],
+        [Property(p)(Item(s), Item(v))],
         {p: CheckOntology(),
-         x: CheckResource(),
-         y: CheckResource()},
+         s: CheckResource(),
+         v: CheckResource()},
         rank=Normal)
-    def op_r_r(self, c: C, p: V_URI, x: V_URI, y: V_URI) -> None:
-        self._start_r(c, x, y)
+    def op_r_r(self, c: C, p: V_URI, s: V_URI, v: V_URI) -> None:
+        self._start_r(c, s, v)
         self._start_op(c, p)
         b = c.bnode()
         c.q.triples()(
-            (x, p, y),
+            (s, p, v),
             (p, RDFS.range, b),
             (b, RDF.type, OWL.Class))
 
     @M.register(
-        [Property(p)(Item(x), Item(y))],
+        [Property(p)(Item(s), Item(v))],
         {p: CheckWikidataProperty(),
-         x: CheckResource(),
-         y: CheckResource()},
+         s: CheckResource(),
+         v: CheckResource()},
         rank=Normal)
-    def p_r_r(self, c: C, p: V_URI, x: V_URI, y: V_URI) -> None:
+    def p_r_r(self, c: C, p: V_URI, s: V_URI, v: V_URI) -> None:
         dbp = c.fresh_qvar()
         c.q.triples()((dbp, OWL.equivalentProperty, p))
-        self.op_r_r(c, dbp, x, y)
+        self.op_r_r(c, dbp, s, v)
         if isinstance(p, Var):
             c.q.filter(c.q.strstarts(c.q.str(p), str(Wikidata.WD)))
         elif str(p) == wd.said_to_be_the_same_as.iri.content:
             raise self.Skip
 
     @M.register(
-        [wd.said_to_be_the_same_as(Item(x), Item(y))],
-        {x: CheckResource(),
-         y: CheckWikidataItem()},
+        [wd.said_to_be_the_same_as(Item(s), Item(v))],
+        {s: CheckResource(),
+         v: CheckWikidataItem()},
         rank=Normal)
-    def wd_said_to_be_the_same_as(self, c: C, x: V_URI, y: V_URI) -> None:
-        self._start_r(c, x)
-        c.q.triples()((x, OWL.sameAs, y))
-        if isinstance(y, Var):
-            c.q.filter(c.q.strstarts(c.q.str(y), str(Wikidata.WD)))
+    def wd_said_to_be_the_same_as(self, c: C, s: V_URI, v: V_URI) -> None:
+        self._start_r(c, s)
+        c.q.triples()((s, OWL.sameAs, v))
+        if isinstance(v, Var):
+            c.q.filter(c.q.strstarts(c.q.str(v), str(Wikidata.WD)))

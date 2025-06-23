@@ -500,8 +500,53 @@ class _SPARQL_Store(
 
     @override
     def _count(self, filter: Filter, options: Store.Options) -> int:
+        return self._count_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.ALL)
+
+    @override
+    def _count_s(self, filter: Filter, options: Store.Options) -> int:
+        return self._count_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.SUBJECT)
+
+    @override
+    def _count_p(self, filter: Filter, options: Store.Options) -> int:
+        return self._count_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.PROPERTY)
+
+    @override
+    def _count_v(self, filter: Filter, options: Store.Options) -> int:
+        return self._count_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.VALUE)
+
+    @override
+    def _count_sp(self, filter: Filter, options: Store.Options) -> int:
+        return self._count_with_projection(
+            filter, options,
+            SPARQL_FilterCompiler.Projection.SUBJECT
+            | SPARQL_FilterCompiler.Projection.PROPERTY)
+
+    @override
+    def _count_sv(self, filter: Filter, options: Store.Options) -> int:
+        return self._count_with_projection(
+            filter, options,
+            SPARQL_FilterCompiler.Projection.SUBJECT
+            | SPARQL_FilterCompiler.Projection.VALUE)
+
+    @override
+    def _count_pv(self, filter: Filter, options: Store.Options) -> int:
+        return self._count_with_projection(
+            filter, options,
+            SPARQL_FilterCompiler.Projection.PROPERTY
+            | SPARQL_FilterCompiler.Projection.VALUE)
+
+    def _count_with_projection(
+            self,
+            filter: Filter,
+            options: Store.Options,
+            projection: SPARQL_FilterCompiler.Projection
+    ) -> int:
         count, query = self._build_count_query_from_filter(
-            filter, options)
+            filter, options, projection)
         if query.where_is_nonempty():
             return self._parse_count_results(
                 count, self.backend.select(str(query)))
@@ -510,8 +555,53 @@ class _SPARQL_Store(
 
     @override
     async def _acount(self, filter: Filter, options: Store.Options) -> int:
+        return await self._acount_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.ALL)
+
+    @override
+    async def _acount_s(self, filter: Filter, options: Store.Options) -> int:
+        return await self._acount_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.SUBJECT)
+
+    @override
+    async def _acount_p(self, filter: Filter, options: Store.Options) -> int:
+        return await self._acount_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.PROPERTY)
+
+    @override
+    async def _acount_v(self, filter: Filter, options: Store.Options) -> int:
+        return await self._acount_with_projection(
+            filter, options, SPARQL_FilterCompiler.Projection.VALUE)
+
+    @override
+    async def _acount_sp(self, filter: Filter, options: Store.Options) -> int:
+        return await self._acount_with_projection(
+            filter, options,
+            SPARQL_FilterCompiler.Projection.SUBJECT
+            | SPARQL_FilterCompiler.Projection.PROPERTY)
+
+    @override
+    async def _acount_sv(self, filter: Filter, options: Store.Options) -> int:
+        return await self._acount_with_projection(
+            filter, options,
+            SPARQL_FilterCompiler.Projection.SUBJECT
+            | SPARQL_FilterCompiler.Projection.VALUE)
+
+    @override
+    async def _acount_pv(self, filter: Filter, options: Store.Options) -> int:
+        return await self._acount_with_projection(
+            filter, options,
+            SPARQL_FilterCompiler.Projection.PROPERTY
+            | SPARQL_FilterCompiler.Projection.VALUE)
+
+    async def _acount_with_projection(
+            self,
+            filter: Filter,
+            options: Store.Options,
+            projection: SPARQL_FilterCompiler.Projection
+    ) -> int:
         count, query = self._build_count_query_from_filter(
-            filter, options)
+            filter, options, projection)
         if query.where_is_nonempty():
             return self._parse_count_results(
                 count, await self.backend.aselect(str(query)))
@@ -521,15 +611,23 @@ class _SPARQL_Store(
     def _build_count_query_from_filter(
             self,
             filter: Filter,
-            options: Store.Options
+            options: Store.Options,
+            projection: SPARQL_FilterCompiler.Projection
     ) -> tuple[SPARQL_FilterCompiler.Query.Variable,
                SPARQL_FilterCompiler.Query]:
         compiler, _, _ = self._compile_filter(
-            filter.replace(annotated=False), options,
-            SPARQL_FilterCompiler.Projection.ALL)
-        q = compiler.query
+            filter.replace(annotated=False), options, projection)
+        q = next(self._build_filter_query_stream(
+            compiler, projection, True, 1, 1))
+        q.set_limit(None)
+        q.set_offset(None)
         count = q.fresh_var()
-        return count, q.select((q.count(), count))  # type: ignore
+        if q.where_is_nonempty():
+            query = compiler.Query()
+            query.subquery(q)()
+        else:
+            query = q
+        return count, query.select((q.count(), count))  # type: ignore
 
     def _parse_count_results(
             self,
