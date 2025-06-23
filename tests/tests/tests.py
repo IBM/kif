@@ -1452,6 +1452,14 @@ class StoreTestCase(TestCase):
     #: Alias for the store constructor.
     S: ClassVar[type[Store]] = Store
 
+    #: Alias for the type of select specifications.
+    _TAssertStoreSelect: TypeAlias = Iterable[Literal[
+        's', 'p', 'v', 'sp', 'sv', 'pv', 'spv']]
+
+    #: All valid select specifications.
+    _assert_store_select: Final[_TAssertStoreSelect] = (
+        's', 'p', 'v', 'sp', 'sv', 'pv', 'spv')
+
     def _test_option_bool(
             self,
             store: Store,
@@ -1693,7 +1701,8 @@ class StoreTestCase(TestCase):
             self,
             store: Store,
             expected: int,
-            filter: Filter
+            filter: Filter,
+            select: _TAssertStoreSelect = ('spv',)
     ) -> None:
         """:meth:`Store.count` assertion.
 
@@ -1701,20 +1710,89 @@ class StoreTestCase(TestCase):
            store: Store.
            expected: Expected count.
            filter: Filter.
+           select: Projections to test.
         """
         assert isinstance(expected, int) and expected >= 0
-        self.assertEqual(
-            expected,
-            store.count(filter=filter),
-            '*** COUNT: FAILED ***')
+        for spec in select:
+            if spec == 's':
+                self.assertEqual(
+                    expected,
+                    store.count_s(filter=filter),
+                    '*** COUNT_S: FAILED ***')
+            elif spec == 'p':
+                self.assertEqual(
+                    expected,
+                    store.count_p(filter=filter),
+                    '*** COUNT_P: FAILED ***')
+            elif spec == 'v':
+                self.assertEqual(
+                    expected,
+                    store.count_v(filter=filter),
+                    '*** COUNT_V: FAILED ***')
+            elif spec == 'sp':
+                self.assertEqual(
+                    expected,
+                    store.count_sp(filter=filter),
+                    '*** COUNT_SP: FAILED ***')
+            elif spec == 'sv':
+                self.assertEqual(
+                    expected,
+                    store.count_sv(filter=filter),
+                    '*** COUNT_SV: FAILED ***')
+            elif spec == 'pv':
+                self.assertEqual(
+                    expected,
+                    store.count_pv(filter=filter),
+                    '*** COUNT_PV: FAILED ***')
+            elif spec == 'spv':
+                self.assertEqual(
+                    expected,
+                    store.count(filter=filter),
+                    '*** COUNT: FAILED ***')
+            else:
+                raise ValueError('spec')
         loop = asyncio.get_event_loop()
 
         async def c():
-            return await store.acount(filter=filter)
-        self.assertEqual(
-            expected,
-            loop.run_until_complete(c()),
-            '*** ASYNC COUNT: FAILED ***')
+            for spec in select:
+                if spec == 's':
+                    self.assertEqual(
+                        expected,
+                        await store.acount_s(filter=filter),
+                        '*** ACOUNT_S: FAILED ***')
+                elif spec == 'p':
+                    self.assertEqual(
+                        expected,
+                        await store.acount_p(filter=filter),
+                        '*** ACOUNT_P: FAILED ***')
+                elif spec == 'v':
+                    self.assertEqual(
+                        expected,
+                        await store.acount_v(filter=filter),
+                        '*** ACOUNT_V: FAILED ***')
+                elif spec == 'sp':
+                    self.assertEqual(
+                        expected,
+                        await store.acount_sp(filter=filter),
+                        '*** ACOUNT_SP: FAILED ***')
+                elif spec == 'sv':
+                    self.assertEqual(
+                        expected,
+                        await store.acount_sv(filter=filter),
+                        '*** ACOUNT_SV: FAILED ***')
+                elif spec == 'pv':
+                    self.assertEqual(
+                        expected,
+                        await store.acount_pv(filter=filter),
+                        '*** ACOUNT_PV: FAILED ***')
+                elif spec == 'spv':
+                    self.assertEqual(
+                        expected,
+                        await store.acount(filter=filter),
+                        '*** ACOUNT: FAILED ***')
+                else:
+                    raise ValueError(spec)
+        loop.run_until_complete(c())
 
     def store_xcount_assertion(
             self,
@@ -1730,19 +1808,58 @@ class StoreTestCase(TestCase):
         """
         return functools.partial(self.assert_store_xcount, store), Filter
 
+    def store_xcount_assertion_with_projection(
+            self,
+            store: Store
+    ) -> tuple[
+        Callable[[int, Filter], None],
+        Callable[[int, Filter], None],
+        Callable[[int, Filter], None],
+        Callable[[int, Filter], None],
+        Callable[[int, Filter], None],
+        Callable[[int, Filter], None],
+        Callable[[int, Filter], None],
+        type[Filter]
+    ]:
+        """Constructs extended :meth:`Store.count_*` assertion callbacks.
+
+        Parameters:
+           store: Store.
+
+        Returns:
+           Assertion callbacks plus alias for filter class.
+        """
+        xc = functools.partial(self.assert_store_xcount, store)
+        return (
+            xc,
+            functools.partial(xc, select=('s',)),
+            functools.partial(xc, select=('p',)),
+            functools.partial(xc, select=('v',)),
+            functools.partial(xc, select=('sp',)),
+            functools.partial(xc, select=('sv',)),
+            functools.partial(xc, select=('pv',)),
+            Filter)
+
     def assert_store_xcount(
             self,
             store: Store,
             expected: int,
-            filter: Filter
+            filter: Filter,
+            select: _TAssertStoreSelect = ('spv',)
     ) -> None:
         """Extended :meth:`Store.count` assertion.
 
         This function applies :meth:`Store.count` followed by
         :meth:`Store.ask` and checks the results of both calls against the
-        `exepected` results.
+        `expected` results.
+
+        Parameters:
+           store: Store.
+           filter: Filter.
+           expected: Expected count.
+           select: Projections to test.
         """
-        self.assert_store_count(store, expected, filter)
+        self.assert_store_count(store, expected, filter, select)
         self.assert_store_ask(store, expected > 0, filter)
 
     def store_filter_assertion(
@@ -1759,18 +1876,12 @@ class StoreTestCase(TestCase):
         """
         return functools.partial(self.assert_store_filter, store), Filter
 
-    _TAssertStoreFilterSelect: TypeAlias = Iterable[Literal[
-        's', 'p', 'v', 'sp', 'sv', 'pv', 'spv']]
-
-    _assert_store_filter_select: Final[_TAssertStoreFilterSelect] = (
-        's', 'p', 'v', 'sp', 'sv', 'pv', 'spv')
-
     def assert_store_filter(
             self,
             store: Store,
             filter: Filter,
             expected: Iterable[Statement],
-            select: _TAssertStoreFilterSelect = _assert_store_filter_select
+            select: _TAssertStoreSelect = _assert_store_select
     ) -> None:
         """:meth:`Store.filter` assertion.
 
@@ -1929,7 +2040,7 @@ class StoreTestCase(TestCase):
             store: Store,
             filter: Filter,
             expected: Iterable[Statement],
-            select: _TAssertStoreFilterSelect = _assert_store_filter_select
+            select: _TAssertStoreSelect = _assert_store_select
     ) -> None:
         """Extended :meth:`Store.filter` assertion.
 

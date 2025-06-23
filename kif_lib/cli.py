@@ -889,6 +889,7 @@ class FilterParam:
 @FilterParam.property
 @FilterParam.value
 @FilterParam.dry_run
+@FilterParam.encoder
 @FilterParam.language
 @FilterParam.no_async_
 @FilterParam.no_distinct
@@ -962,6 +963,7 @@ def ask(
         best_ranked: bool | None = None,
         distinct: bool | None = None,
         dry_run: bool | None = None,
+        encoder: Encoder | None = None,
         resolve: bool | None = None,
         timeout: float | None = None
 ) -> None:
@@ -1020,6 +1022,7 @@ def ask(
 @FilterParam.value
 @FilterParam.annotated
 @FilterParam.dry_run
+@FilterParam.encoder
 @FilterParam.language
 @FilterParam.no_async_
 @FilterParam.no_distinct
@@ -1095,6 +1098,7 @@ def count(
         best_ranked: bool | None = None,
         distinct: bool | None = None,
         dry_run: bool | None = None,
+        encoder: Encoder | None = None,
         resolve: bool | None = None,
         select: str | None = None,
         timeout: float | None = None
