@@ -1697,6 +1697,38 @@ class StoreTestCase(TestCase):
         """
         return functools.partial(self.assert_store_count, store), Filter
 
+    def store_count_assertion_with_projection(
+            self,
+            store: Store
+    ) -> tuple[
+        Callable[[int, Filter], None],
+        Callable[[int, Filter], None],
+        Callable[[int, Filter], None],
+        Callable[[int, Filter], None],
+        Callable[[int, Filter], None],
+        Callable[[int, Filter], None],
+        Callable[[int, Filter], None],
+        type[Filter]
+    ]:
+        """Constructs a :meth:`Store.count_*` assertion callback.
+
+        Parameters:
+           store: Store.
+
+        Returns:
+           Assertion callback plus alias for filter class.
+        """
+        c = functools.partial(self.assert_store_count, store)
+        return (
+            c,
+            functools.partial(c, select=('s',)),
+            functools.partial(c, select=('p',)),
+            functools.partial(c, select=('v',)),
+            functools.partial(c, select=('sp',)),
+            functools.partial(c, select=('sv',)),
+            functools.partial(c, select=('pv',)),
+            Filter)
+
     def assert_store_count(
             self,
             store: Store,
@@ -1793,74 +1825,6 @@ class StoreTestCase(TestCase):
                 else:
                     raise ValueError(spec)
         loop.run_until_complete(c())
-
-    def store_xcount_assertion(
-            self,
-            store: Store
-    ) -> tuple[Callable[[int, Filter], None], type[Filter]]:
-        """Constructs an extended :meth:`Store.count` assertion callback.
-
-        Parameters:
-           store: Store.
-
-        Returns:
-           Assertion callback plus alias for filter class.
-        """
-        return functools.partial(self.assert_store_xcount, store), Filter
-
-    def store_xcount_assertion_with_projection(
-            self,
-            store: Store
-    ) -> tuple[
-        Callable[[int, Filter], None],
-        Callable[[int, Filter], None],
-        Callable[[int, Filter], None],
-        Callable[[int, Filter], None],
-        Callable[[int, Filter], None],
-        Callable[[int, Filter], None],
-        Callable[[int, Filter], None],
-        type[Filter]
-    ]:
-        """Constructs extended :meth:`Store.count_*` assertion callbacks.
-
-        Parameters:
-           store: Store.
-
-        Returns:
-           Assertion callbacks plus alias for filter class.
-        """
-        xc = functools.partial(self.assert_store_xcount, store)
-        return (
-            xc,
-            functools.partial(xc, select=('s',)),
-            functools.partial(xc, select=('p',)),
-            functools.partial(xc, select=('v',)),
-            functools.partial(xc, select=('sp',)),
-            functools.partial(xc, select=('sv',)),
-            functools.partial(xc, select=('pv',)),
-            Filter)
-
-    def assert_store_xcount(
-            self,
-            store: Store,
-            expected: int,
-            filter: Filter,
-            select: _TAssertStoreSelect = ('spv',)
-    ) -> None:
-        """Extended :meth:`Store.count` assertion.
-
-        This function applies :meth:`Store.count` followed by
-        :meth:`Store.ask` and checks the results of both calls against the
-        `expected` results.
-
-        Parameters:
-           store: Store.
-           filter: Filter.
-           expected: Expected count.
-           select: Projections to test.
-        """
-        self.assert_store_count(store, expected, filter, select)
-        self.assert_store_ask(store, expected > 0, filter)
 
     def store_filter_assertion(
             self,

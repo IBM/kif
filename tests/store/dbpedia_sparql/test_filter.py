@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from kif_lib import Store
 from kif_lib.vocabulary import db
 
 from ...tests import StoreTestCase
@@ -11,7 +12,7 @@ from ...tests import StoreTestCase
 class Test(StoreTestCase):
 
     @classmethod
-    def KB(cls):
+    def KB(cls) -> Store:
         import os
         dbpedia = os.getenv('DBPEDIA')
         if not dbpedia:

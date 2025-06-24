@@ -19,7 +19,7 @@ class PubChemMappingOptions(Section, name='pubchem'):
     # -- normalize_casrn --
 
     #: The default value for the normalize CAS-RN option.
-    DEFAULT_NORMALIZE_CASRN: ClassVar[bool] = False
+    DEFAULT_NORMALIZE_CASRN: ClassVar[bool] = True
 
     _v_normalize_casrn: ClassVar[tuple[str, bool]] =\
         ('KIF_COMPILER_SPARQL_MAPPING_PUBCHEM_NORMALIZE_CASRN',

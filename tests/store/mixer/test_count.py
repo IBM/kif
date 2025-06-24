@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from kif_lib import Store
 from kif_lib.vocabulary import wd
 
 from ...tests import StoreTestCase
@@ -11,24 +12,24 @@ from ...tests import StoreTestCase
 class Test(StoreTestCase):
 
     @classmethod
-    def KB(cls):
+    def KB(cls) -> Store:
         from .test_filter import Test as TestFilter
         return TestFilter.KB()
 
     def test_empty(self) -> None:
-        xc, F = self.store_count_assertion(self.KB())
-        xc(0, F(snak_mask=F.SnakMask(0)))
+        c, F = self.store_count_assertion(self.KB())
+        c(0, F(snak_mask=F.SnakMask(0)))
 
     def test_full(self) -> None:
-        xc, F = self.store_xcount_assertion(self.KB())
-        xc(25, F())
+        c, F = self.store_count_assertion(self.KB())
+        c(25, F())
 
     # -- masks --
 
     def test_snak_mask(self) -> None:
-        xc, F = self.store_xcount_assertion(self.KB())
-        xc(2, F(snak_mask=F.SOME_VALUE_SNAK))
-        xc(3, F(snak_mask=F.NO_VALUE_SNAK))
+        c, F = self.store_count_assertion(self.KB())
+        c(2, F(snak_mask=F.SOME_VALUE_SNAK))
+        c(3, F(snak_mask=F.NO_VALUE_SNAK))
 
     def test_subject_mask(self) -> None:
         raise self.TODO()
@@ -40,8 +41,8 @@ class Test(StoreTestCase):
         raise self.TODO()
 
     def test_language(self) -> None:
-        xc, F = self.store_xcount_assertion(self.KB())
-        xc(4, F(property=wd.alias, language='es'))
+        c, F = self.store_count_assertion(self.KB())
+        c(4, F(property=wd.alias, language='es'))
 
     # -- value fp --
 

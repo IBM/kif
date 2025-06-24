@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import Text, Time
+from kif_lib import Store, Text, Time
 from kif_lib.vocabulary import wd
 
 from ...tests import StoreTestCase
@@ -12,7 +12,7 @@ from ...tests import StoreTestCase
 class Test(StoreTestCase):
 
     @classmethod
-    def KB(cls):
+    def KB(cls) -> Store:
         try:
             return cls.S(
                 'sparql-rdfox',

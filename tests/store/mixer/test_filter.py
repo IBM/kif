@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import Deprecated, Preferred, Quantity, Text, Time
+from kif_lib import Deprecated, Preferred, Quantity, Store, Text, Time
 from kif_lib.vocabulary import wd
 
 from ...tests import StoreTestCase
@@ -12,7 +12,7 @@ from ...tests import StoreTestCase
 class Test(StoreTestCase):
 
     @classmethod
-    def KB(cls):
+    def KB(cls) -> Store:
         return cls.S('mixer', [
             cls.S('wikidata-rdf', 'tests/data/adam.ttl'),
             cls.S('empty'),

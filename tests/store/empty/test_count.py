@@ -3,18 +3,20 @@
 
 from __future__ import annotations
 
+from kif_lib import Store
+
 from ...tests import StoreTestCase
 
 
 class Test(StoreTestCase):
 
     @classmethod
-    def KB(cls):
+    def KB(cls) -> Store:
         return cls.S('empty')
 
     def test_count(self) -> None:
-        xc, F = self.store_xcount_assertion(self.KB())
-        xc(0, F())
+        c, F = self.store_count_assertion(self.KB())
+        c(0, F())
 
 
 if __name__ == '__main__':

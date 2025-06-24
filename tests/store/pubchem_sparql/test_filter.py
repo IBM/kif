@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from kif_lib import Entity
+from kif_lib import Entity, Store
 from kif_lib.vocabulary import pc, wd
 
 from ...tests import StoreTestCase
@@ -12,7 +12,7 @@ from ...tests import StoreTestCase
 class Test(StoreTestCase):
 
     @classmethod
-    def KB(cls):
+    def KB(cls) -> Store:
         import os
         pubchem = os.getenv('PUBCHEM')
         if not pubchem:

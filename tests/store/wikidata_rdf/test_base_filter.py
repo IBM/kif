@@ -8,6 +8,7 @@ from kif_lib import (
     Filter,
     Preferred,
     Statement,
+    Store,
     Text,
     Time,
 )
@@ -19,7 +20,7 @@ from ...tests import StoreTestCase
 class Test(StoreTestCase):
 
     @classmethod
-    def KB(cls):
+    def KB(cls) -> Store:
         return cls.S(
             'wikidata-rdf',
             'tests/data/adam.ttl',
@@ -29,21 +30,21 @@ class Test(StoreTestCase):
 
     def test_subject(self) -> None:
         kb = self.KB()
-        kb.subject = wd.Brazil
+        kb.set_subject(wd.Brazil)
         xf, F = self.store_xfilter_assertion(kb)
         xf(F(property=wd.instance_of),
            {wd.instance_of(wd.Brazil, wd.country_)})
 
     def test_property(self) -> None:
         kb = self.KB()
-        kb.property = wd.instance_of
+        kb.set_property(wd.instance_of)
         xf, F = self.store_xfilter_assertion(kb)
         xf(F(subject=wd.Brazil),
            {wd.instance_of(wd.Brazil, wd.country_)})
 
     def test_value(self) -> None:
         kb = self.KB()
-        kb.value = wd.country_
+        kb.set_value(wd.country_)
         xf, F = self.store_xfilter_assertion(kb)
         xf(F(subject=wd.Brazil),
            {wd.instance_of(wd.Brazil, wd.country_)})

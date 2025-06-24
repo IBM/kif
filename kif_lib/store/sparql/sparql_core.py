@@ -617,8 +617,11 @@ class _SPARQL_Store(
                SPARQL_FilterCompiler.Query]:
         compiler, _, _ = self._compile_filter(
             filter.replace(annotated=False), options, projection)
-        q = next(self._build_filter_query_stream(
-            compiler, projection, True, 1, 1))
+        try:
+            q = next(self._build_filter_query_stream(
+                compiler, projection, True, 1, 1))
+        except StopIteration:
+            q = compiler.Query()
         q.set_limit(None)
         q.set_offset(None)
         count = q.fresh_var()
