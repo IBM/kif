@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from kif_lib import Entity, Store
+from kif_lib.typing import Any
 from kif_lib.vocabulary import pc, wd
 
 from ...tests import StoreTestCase
@@ -12,13 +13,13 @@ from ...tests import StoreTestCase
 class Test(StoreTestCase):
 
     @classmethod
-    def KB(cls) -> Store:
+    def KB(cls, **kwargs: Any) -> Store:
         import os
         pubchem = os.getenv('PUBCHEM')
         if not pubchem:
             raise cls.SKIP('PUBCHEM is not set')
         else:
-            return cls.S('pubchem-sparql', pubchem)
+            return cls.S('pubchem-sparql', pubchem, **kwargs)
 
     def test_empty(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())
