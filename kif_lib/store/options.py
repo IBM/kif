@@ -8,6 +8,7 @@ import dataclasses
 from ..typing import Any
 from .abc import Store
 from .empty import EmptyStore
+from .memory import MemoryStore
 from .mixer import MixerStore
 from .sparql import SPARQL_Store
 
@@ -19,6 +20,9 @@ class StoreOptions(Store._Options, name='store'):
     empty: EmptyStore.Options = dataclasses.field(
         default_factory=EmptyStore.Options)
 
+    memory: MemoryStore.Options = dataclasses.field(
+        default_factory=MemoryStore.Options)
+
     mixer: MixerStore.Options = dataclasses.field(
         default_factory=MixerStore.Options)
 
@@ -28,5 +32,6 @@ class StoreOptions(Store._Options, name='store'):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.empty = EmptyStore.Options()
+        self.memory = MemoryStore.Options()
         self.mixer = MixerStore.Options()
         self.sparql = SPARQL_Store.Options()

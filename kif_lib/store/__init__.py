@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from .abc import Store
 from .empty import EmptyStore
+from .memory import MemoryStore
 from .mixer import MixerStore
 from .reader import CSV_Reader, JSON_Reader, JSONL_Reader, Reader
 from .sparql import (
@@ -30,6 +31,7 @@ __all__ = (
     'HttpxSPARQL_Store',
     'JSON_Reader',
     'JSONL_Reader',
+    'MemoryStore',
     'MixerStore',
     'PubChemRDF_Store',
     'PubChemSPARQL_Store',

@@ -1906,37 +1906,37 @@ class StoreTestCase(TestCase):
                     self.assertEqual(
                         {x async for x in store.afilter_s(filter=filter)},
                         set(self._assert_store_filter_s(expected)),
-                        '*** FILTER_S: FAILED ***')
+                        '*** AFILTER_S: FAILED ***')
                 elif spec == 'p':
                     self.assertEqual(
                         {x async for x in store.afilter_p(filter=filter)},
                         set(self._assert_store_filter_p(expected)),
-                        '*** FILTER_P: FAILED ***')
+                        '*** AFILTER_P: FAILED ***')
                 elif spec == 'v':
                     self.assertEqual(
                         {x async for x in store.afilter_v(filter=filter)},
                         set(self._assert_store_filter_v(expected)),
-                        '*** FILTER_V: FAILED ***')
+                        '*** AFILTER_V: FAILED ***')
                 elif spec == 'sp':
                     self.assertEqual(
                         {x async for x in store.afilter_sp(filter=filter)},
                         set(self._assert_store_filter_sp(expected)),
-                        '*** FILTER_SP: FAILED ***')
+                        '*** AFILTER_SP: FAILED ***')
                 elif spec == 'sv':
                     self.assertEqual(
                         {x async for x in store.afilter_sv(filter=filter)},
                         set(self._assert_store_filter_sv(expected)),
-                        '*** FILTER_SV: FAILED ***')
+                        '*** AFILTER_SV: FAILED ***')
                 elif spec == 'pv':
                     self.assertEqual(
                         {x async for x in store.afilter_pv(filter=filter)},
                         set(self._assert_store_filter_pv(expected)),
-                        '*** FILTER_PV: FAILED ***')
+                        '*** AFILTER_PV: FAILED ***')
                 elif spec == 'spv':
                     self.assertEqual(
                         {x async for x in store.afilter(filter=filter)},
                         expected,
-                        '*** ASYNC FILTER: FAILED ***')
+                        '*** AFILTER: FAILED ***')
                 else:
                     raise ValueError(spec)
         loop.run_until_complete(f())
