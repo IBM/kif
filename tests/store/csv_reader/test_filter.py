@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from kif_lib import Store
+from kif_lib.vocabulary import wd
 
 from ...tests import StoreTestCase
 
@@ -11,9 +12,11 @@ from ...tests import StoreTestCase
 class Test(StoreTestCase):
 
     def test(self) -> None:
-        kb = Store('csv-reader', 'tests/data/benzene.csv')
-        f, F = self.store_filter_assertion(kb)
-        f(F(), set(Store('rdf', 'tests/data/benzene.ttl').filter()))
+        rdf = Store('rdf', 'tests/data/benzene.ttl')
+        f, F = self.store_filter_assertion(
+            Store('csv-reader', 'tests/data/benzene.csv'))
+        f(F(), set(rdf.filter()))
+        f(F(subject_mask=F.PROPERTY), set(rdf.filter(subject=wd.InChIKey)))
 
 
 if __name__ == '__main__':

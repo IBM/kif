@@ -11,9 +11,11 @@ from ...tests import StoreTestCase
 class Test(StoreTestCase):
 
     def test(self) -> None:
-        kb = Store('json-reader', 'tests/data/benzene.json')
-        f, F = self.store_filter_assertion(kb)
-        f(F(), set(Store('rdf', 'tests/data/benzene.ttl').filter()))
+        rdf = Store('rdf', 'tests/data/benzene.ttl')
+        f, F = self.store_filter_assertion(
+            Store('json-reader', 'tests/data/benzene.json'))
+        f(F(), set(rdf.filter()))
+        f(F(value_mask=F.STRING), set(rdf.filter(value_mask=F.STRING)))
 
 
 if __name__ == '__main__':

@@ -418,7 +418,7 @@ class Reader(
             it = map(lambda stmt: stmt.unannotate(), it)
         if options.limit is not None:
             it = itertools.islice(it, options.limit)
-        return it
+        return itertools.filter(filter.match, it)
 
     def _filter_parse(
             self,

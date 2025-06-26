@@ -22,7 +22,7 @@ from .flags import Flags
 from .kif_object import KIF_Object as KObj
 from .rank import DeprecatedRank, NormalRank, PreferredRank, Rank, TRank
 from .snak import NoValueSnak, Snak, SomeValueSnak, TSnak, ValueSnak
-from .statement import Statement, TStatement
+from .statement import AnnotatedStatement, Statement, TStatement
 from .value import (
     Datatype,
     DataValue,
@@ -825,15 +825,29 @@ class Filter(KObj):
            ``True`` if successful; ``False`` otherwise.
         """
         stmt = Statement.check(stmt, self.match, 'stmt', 1)
+        if self.annotated:
+            if not isinstance(stmt, AnnotatedStatement):
+                return False    # annotated statement mismatch
+            assert isinstance(stmt, AnnotatedStatement)
+            if not self.rank_mask.match(stmt.rank):
+                return False    # rank mask mismatch
         if not bool(self.snak_mask & self.SnakMask.check(stmt.snak)):
             return False        # snak mask mismatch
+        if not self.subject_mask.match(type(stmt.subject)):
+            return False        # subject mask mismatch
         if not self.subject.match(stmt.subject):
             return False        # subject mismatch
+        if not self.property_mask.match(type(stmt.snak.property)):
+            return False        # property mask mismatch
         if not self.property.match(stmt.snak.property):
             return False        # property mismatch
         if isinstance(stmt.snak, ValueSnak):
             if self.value.is_empty():
                 return False    # snak mismatch
+            if ((not (self.value_mask & self.STRING
+                      and type(stmt.snak.value) is ExternalId))
+                    and not self.value_mask.match(type(stmt.snak.value))):
+                return False    # value mask mismatch
             if not self.value.match(stmt.snak.value):
                 return False    # value mismatch
         else:

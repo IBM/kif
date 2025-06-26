@@ -7,7 +7,9 @@ import datetime
 
 from kif_lib import (
     AliasProperty,
+    Deprecated,
     DescriptionProperty,
+    ExternalId,
     Filter,
     IRI,
     Item,
@@ -18,6 +20,7 @@ from kif_lib import (
     LemmaProperty,
     Lexeme,
     LexicalCategoryProperty,
+    Normal,
     NoValueSnak,
     Property,
     Quantity,
@@ -326,6 +329,8 @@ class Test(KIF_ObjectTestCase):
         p = Property('p')
         self.assertFalse(
             Filter(snak_mask=Filter.NO_VALUE_SNAK).match(p(x, 'y')))
+        self.assertFalse(
+            Filter(subject_mask=Filter.PROPERTY).match(p(x, 'y')))
         self.assertFalse(Filter(Item('y')).match(p(x, 'y')))
         self.assertTrue(Filter(property=p).match(p(x, x)))
         self.assertTrue(Filter(property=p).match(
@@ -338,6 +343,7 @@ class Test(KIF_ObjectTestCase):
             p(x, x)))
         self.assertFalse(Filter(value=EmptyFingerprint()).match((x, p, p)))
         self.assertFalse(Filter(value=x).match((x, SomeValueSnak(p))))
+        self.assertFalse(Filter(value_mask=Filter.STRING).match((x, p, p)))
         self.assertFalse(Filter(value=x).match((x, p, p)))
         self.assertFalse(Filter(value=Quantity(0)).match((x, p, x)))
         self.assertFalse(Filter(value=x).match((x, p, Quantity(0))))
@@ -377,6 +383,31 @@ class Test(KIF_ObjectTestCase):
         self.assertFalse(Filter(
             value=Time('2024-07-11', None, 0, Item('x'))).match(
                 (x, p, Time('2024-07-11', None, None, y))))
+
+    def test_match_value_mask_string(self) -> None:
+        self.assertTrue(Filter(value_mask=Filter.STRING).match(
+            Property('p')(Item('x'), String('y'))))
+        self.assertTrue(Filter(value_mask=Filter.EXTERNAL_ID).match(
+            Property('p')(Item('x'), ExternalId('y'))))
+        # A STRING value mask should match an external id value.
+        self.assertTrue(Filter(value_mask=Filter.STRING).match(
+            Property('p')(Item('x'), ExternalId('y'))))
+        # But a EXTERNAL_ID value mask should not match a string.
+        self.assertFalse(Filter(value_mask=Filter.EXTERNAL_ID).match(
+            Property('p')(Item('x'), String('y'))))
+
+    def test_match_annotated_statement(self) -> None:
+        x, p = Item('x'), Property('p')
+        self.assertFalse(Filter(annotated=True).match(p(x, 'y')))
+        self.assertTrue(Filter(annotated=True).match(p(x, 'y').annotate()))
+        self.assertFalse(Filter(
+            annotated=True, rank_mask=Filter.DEPRECATED).match(
+                p(x, 'y', rank=Normal)))
+        self.assertTrue(Filter(
+            subject_mask=Filter.ITEM,
+            annotated=True,
+            rank_mask=Filter.DEPRECATED | Filter.NORMAL,
+        ).match(p(x, 'y', rank=Deprecated)))
 
     def test_match_pseudo_properties(self) -> None:
         f, x = Filter(property=Property('x')(0)), Item('x')
