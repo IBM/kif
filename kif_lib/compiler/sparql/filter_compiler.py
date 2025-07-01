@@ -675,9 +675,14 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         snaks, values = map(list, itertools.partition(
             lambda x: isinstance(x, ValueFingerprint), atoms))
         if isinstance(fp, AndFingerprint):
-            assert not values
             for child in itertools.chain(snaks, comps):
                 self._push_fp(entry, child, value)
+            if values:
+                try:
+                    with self.q.group():
+                        self._push_value_fps(entry, values, value)
+                except SPARQL_Mapping.Skip:
+                    pass
         elif isinstance(fp, OrFingerprint):
             with self.q.union() as cup:
                 if isinstance(value, (Entity, EntityTemplate, EntityVariable)):
