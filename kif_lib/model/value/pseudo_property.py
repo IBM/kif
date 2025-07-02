@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import abc
 
-from ...namespace import DCT, RDFS, SCHEMA, SKOS, WIKIBASE
+from ...namespace import DCT, RDF, RDFS, SCHEMA, SKOS, WIKIBASE
 from ...typing import Any, cast, ClassVar, Location, override, Self, TypeAlias
 from .datatype import Datatype, VTDatatype
 from .iri import IRI
@@ -84,6 +84,34 @@ class PseudoProperty(Property):
                 type(self), None, 2)
         else:
             raise self._should_not_get_here()
+
+
+class TypeProperty(PseudoProperty):
+    """The "type" pseudo-property."""
+
+    expected_iri = IRI(RDF.type)
+    expected_range = ItemDatatype()
+
+    def __init__(
+            self,
+            iri: VTPseudoPropertyContent | None = None,
+            range: VTDatatype | None = None
+    ) -> None:
+        super().__init__(iri, range)
+
+
+class SubtypeProperty(PseudoProperty):
+    """The "type" pseudo-property."""
+
+    expected_iri = IRI(RDFS.subClassOf)
+    expected_range = ItemDatatype()
+
+    def __init__(
+            self,
+            iri: VTPseudoPropertyContent | None = None,
+            range: VTDatatype | None = None
+    ) -> None:
+        super().__init__(iri, range)
 
 
 class LabelProperty(PseudoProperty):

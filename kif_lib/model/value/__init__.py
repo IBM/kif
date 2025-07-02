@@ -78,6 +78,8 @@ from .pseudo_property import (
     LemmaProperty,
     LexicalCategoryProperty,
     PseudoProperty,
+    SubtypeProperty,
+    TypeProperty,
 )
 from .quantity import (
     Quantity,
@@ -175,6 +177,8 @@ __all__ = (
     'LemmaProperty',
     'LexicalCategoryProperty',
     'PseudoProperty',
+    'SubtypeProperty',
+    'TypeProperty',
 
     # lexeme
     'Lexeme',

@@ -41,12 +41,14 @@ from ....model import (
     StatementVariable,
     String,
     StringDatatype,
+    SubtypeProperty,
     Term,
     Text,
     TextDatatype,
     Theta,
     Time,
     TimeDatatype,
+    TypeProperty,
     Variable,
     VariablePattern,
     Variables,
@@ -749,6 +751,32 @@ class WikidataMapping(M):
         ###
         if isinstance(self.wds, Var):
             c.q.bind(c.q.BNODE(), self.wds)
+
+    # -- type (pseudo-property) --
+
+    @M.register(
+        [Statement(Item(s), TypeProperty()(Item(v)))],
+        {s: CheckItem(),
+         v: CheckItem()},
+        rank=Normal)
+    def p_item_type(self, c: C, s: V_URI, v: V_URI, **kwargs) -> None:
+        self._start_Q_tail(c, s)
+        ty = Wikidata.WDT.P31 / (Wikidata.WDT.P279 * '*')  # type: ignore
+        self._p_item_tail(c, ty, s, v)
+        self._ensure_wds_is_bound_fix(c)
+
+    # -- subtype (pseudo-property) --
+
+    @M.register(
+        [Statement(Item(s), SubtypeProperty()(Item(v)))],
+        {s: CheckItem(),
+         v: CheckItem()},
+        rank=Normal)
+    def p_item_subtype(self, c: C, s: V_URI, v: V_URI, **kwargs) -> None:
+        self._start_Q_tail(c, s)
+        subtype = Wikidata.WDT.P279 * '+'  # type: ignore
+        self._p_item_tail(c, subtype, s, v)
+        self._ensure_wds_is_bound_fix(c)
 
     # -- label (pseudo-property) --
 

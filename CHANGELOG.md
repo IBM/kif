@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 0.10.1 (?)
 
+- Added support for the pseudo-properties `TypeProperty()` and
+  `SubtypeProperty()`, with aliases `wd.type` / `wd.a` and `wd.subtype`.
+  These correspond to the primitive ontological relations of class
+  membership (∈) and (proper) containment (⊊) taking into account the
+  transitivity of the later.  The expression `wd.type(x)` compiles to the
+  restriction "an instance of some subclass of `x`", while the expression
+  `wd.subtype` compiles to the restriction "some subclass of `x`".
+
 - Added `memory` store.  Keeps a set of statements in memory and uses
   shallow-matching to implement `filter()`.
 

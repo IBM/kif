@@ -46,12 +46,14 @@ from ...model import (
     StatementVariable,
     String,
     StringVariable,
+    SubtypeProperty,
     Term,
     Text,
     TextVariable,
     Theta,
     Time,
     TimeVariable,
+    TypeProperty,
     Value,
     ValueFingerprint,
     ValueSnak,
@@ -502,6 +504,12 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                         # TODO: Add an option to split targets.
                         ###
                         for target in targets:
+                            if self._skip_if_filter_property_is_full(
+                                    filter, target):
+                                ###
+                                # FIXME: Find a less ad-hoc way to do this.
+                                ###
+                                continue
                             push((target,))
                     else:
                         push(targets)
@@ -510,6 +518,20 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             self._q = self.Query()  # empty query
         self.frame['phase'] = self.DONE
         self.mapping.postamble(self, all_targets)
+
+    def _skip_if_filter_property_is_full(
+            self,
+            filter: Filter,
+            target: SPARQL_Mapping.EntryPattern,
+            blacklist: frozenset[Property] = frozenset({
+                TypeProperty(), SubtypeProperty()})
+    ) -> bool:
+        return (
+            filter.property.is_full()
+            and isinstance(target, (Statement, StatementTemplate))
+            and isinstance(target.snak, (Snak, SnakTemplate))
+            and isinstance(target.snak.property, Property)
+            and target.snak.property in blacklist)
 
     def _fresh_name_generator(self) -> Callable[[str], Iterator[str]]:
         return (lambda _: map(

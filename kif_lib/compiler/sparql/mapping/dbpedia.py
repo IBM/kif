@@ -59,6 +59,10 @@ class DBpediaMapping(M):
         c.q.triples()(*map(
             lambda y: (y, RDF.type, OWL.Thing), itertools.chain((x,), xs)))
 
+    def _start_oc(self, c: C, x: V_URI, *xs: V_URI) -> None:
+        c.q.triples()(*map(
+            lambda y: (y, RDF.type, OWL.Class), itertools.chain((x,), xs)))
+
     def _start_op(self, c: C, x: V_URI, *xs: V_URI) -> None:
         c.q.triples()(*map(
             lambda y: (y, RDF.type, RDF.Property), itertools.chain((x,), xs)))
@@ -79,6 +83,27 @@ class DBpediaMapping(M):
             c.q.filter(c.q.eq(c.q.lang(v), v0))
         else:
             c.q.triples()((s, p, c.q.Literal(v, v0)))
+
+    # -- pseudo-properties --
+
+    @M.register(
+        [wd.type(Item(s), Item(v))],
+        {s: CheckResource()},
+        rank=Normal)
+    def wd_type(self, c: C, s: V_URI, v: V_URI) -> None:
+        self._start_r(c, s)
+        ty = RDF.type / (RDFS.subClassOf * '*')  # type: ignore
+        c.q.triples()((s, ty, v))
+
+    @M.register(
+        [wd.subtype(Item(s), Item(v))],
+        {s: CheckOntology(),
+         v: CheckOntology()},
+        rank=Normal)
+    def wd_subtype(self, c: C, s: V_URI, v: V_URI) -> None:
+        self._start_oc(c, s)
+        subtype = RDFS.subClassOf * '+'  # type: ignore
+        c.q.triples()((s, subtype, v))
 
     @M.register(
         [wd.label(Item(s), Text(v, v0))],

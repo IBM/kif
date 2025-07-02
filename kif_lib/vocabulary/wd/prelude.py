@@ -19,15 +19,18 @@ from ...model import (
     Lexeme,
     LexicalCategoryProperty,
     Property,
+    SubtypeProperty,
     TDatatype,
     TItem,
     TProperty,
     TText,
     TTextSet,
+    TypeProperty,
 )
 from ...typing import cast
 
 __all__ = (
+    'a',
     'alias',
     'description',
     'L',
@@ -38,6 +41,8 @@ __all__ = (
     'P',
     'Q',
     'reload',
+    'subtype',
+    'type',
 )
 
 
@@ -201,12 +206,17 @@ def L(
 
 
 # Aliases for pseudo-properties.
-label = LabelProperty()
+a = TypeProperty()
+subtype = SubtypeProperty()
+type = TypeProperty()
+
 alias = AliasProperty()
 description = DescriptionProperty()
+label = LabelProperty()
+
+language = LanguageProperty()
 lemma = LemmaProperty()
 lexical_category = LexicalCategoryProperty()
-language = LanguageProperty()
 
 
 def reload(

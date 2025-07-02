@@ -64,6 +64,7 @@ electronvolt = Q(83327, 'electronvolt')
 Endicott = Q(3459600, 'Endicott')
 English = Q(1860, 'English')
 English_Wikipedia = Q(328, 'English Wikipedia')
+entity = Q(35120, 'entity')
 Europe = Q(46, 'Europe')
 Eve = Q(830183, 'Eve')
 exact_match_ = Q(39893449, 'exact match')
@@ -157,11 +158,14 @@ river = Q(4022, 'river')
 scholarly_article = Q(13442814, 'scholarly article')
 scientist = Q(901, 'scientist')
 second = Q(11574, 'second')
+seculararchy = Q(859563, 'seculararchy')
 skin_absorption = Q(4669896, 'skin absorption')
 slope = Q(944588, 'slope')
 sodium_bicarbonate = Q(179731, 'sodium bicarbonate')
 South_America = Q(18, 'South America')
+sovereign_state = Q(3624078, 'sovereign_state')
 Spanish = Q(1321, 'Spanish')
+state = Q(7275, 'state')
 subcutaneous_injection = Q(2035485, 'subcutaneous injection')
 summit = Q(207326, 'summit')
 Supercalifragilisticexpialidocious = Q(103, 'Supercalifragilisticexpialidocious')
@@ -243,6 +247,7 @@ __all__ = (
     'Endicott',
     'English',
     'English_Wikipedia',
+    'entity',
     'Europe',
     'Eve',
     'exact_match_',
@@ -336,11 +341,14 @@ __all__ = (
     'scholarly_article',
     'scientist',
     'second',
+    'seculararchy',
     'skin_absorption',
     'slope',
     'sodium_bicarbonate',
     'South_America',
+    'sovereign_state',
     'Spanish',
+    'state',
     'subcutaneous_injection',
     'summit',
     'Supercalifragilisticexpialidocious',

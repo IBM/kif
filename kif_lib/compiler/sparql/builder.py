@@ -19,6 +19,7 @@ from types import TracebackType
 from typing import Callable, cast, Final, Optional, Union
 
 from rdflib import BNode, Literal, URIRef, Variable
+from rdflib.paths import Path
 from typing_extensions import Any, override, Self, TypeAlias, TypeVar
 
 _str = str
@@ -40,7 +41,7 @@ TExpression: TypeAlias = Union['Expression', TNumericExpression]
 TComment: TypeAlias = Union['Comment', str]
 
 TSubject: TypeAlias = Union[URIRef, BNode, Variable]
-TPredicate: TypeAlias = TSubject
+TPredicate: TypeAlias = Union[TSubject, Path]
 TObject: TypeAlias = Union[TSubject, Literal]
 TTriple: TypeAlias = Union['Triple', tuple[TSubject, TPredicate, TObject]]
 
@@ -58,7 +59,7 @@ class Encodable(ABC):
     """Abstract base class for "encodable" objects."""
 
     @classmethod
-    def _n3(cls, v: URIRef | BNode | Literal | Variable) -> str:
+    def _n3(cls, v: URIRef | BNode | Literal | Path | Variable) -> str:
         if isinstance(v, Literal):
             return v._literal_n3(use_plain=True)
         else:
@@ -203,7 +204,7 @@ class Coerce:
 
     @classmethod
     def predicate(cls, v: TPredicate) -> TPredicate:
-        return cls.subject(v)
+        return cls._check(v, (URIRef, BNode, Variable, Path))
 
     @classmethod
     def object(cls, v: TObject) -> TObject:

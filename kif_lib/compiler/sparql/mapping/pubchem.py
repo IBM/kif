@@ -173,9 +173,10 @@ class PubChemMapping(M):
 # -- Pseudo-entries --------------------------------------------------------
 
     @M.register(
-        [wd.instance_of(
+        list(map(lambda p: p(
             pc.isotope_atom_count,
-            wd.Wikidata_property_related_to_chemistry)],
+            wd.Wikidata_property_related_to_chemistry), (
+                wd.instance_of, wd.type))),
         rank=Normal)
     def wd_instance_of_pc_isotope_atom_count(self, c: C) -> None:
         pass
@@ -187,9 +188,10 @@ class PubChemMapping(M):
         pass
 
     @M.register(
-        [wd.instance_of(
+        list(map(lambda p: p(
             pc.IUPAC_name,
-            wd.Wikidata_property_related_to_chemistry)],
+            wd.Wikidata_property_related_to_chemistry), (
+                wd.instance_of, wd.type))),
         rank=Normal)
     def wd_instance_of_pc_IUPAC_name(self, c: C) -> None:
         pass
@@ -370,7 +372,8 @@ class PubChemMapping(M):
             (attr, SIO.has_value, v))
 
     @M.register(
-        [wd.instance_of(Item(s), wd.type_of_a_chemical_entity)],
+        list(map(lambda p: p(Item(s), wd.type_of_a_chemical_entity), (
+            wd.instance_of, wd.type))),
         {s: CheckCompound()},
         rank=Normal)
     def wd_instance_of_type_of_a_chemical_entity(
@@ -532,7 +535,7 @@ class PubChemMapping(M):
             (vcard, VCARD.fn, v))
 
     @M.register(
-        [wd.instance_of(Item(s), wd.patent)],
+        list(map(lambda p: p(Item(s), wd.patent), (wd.instance_of, wd.type))),
         {s: CheckPatent()},
         rank=Normal)
     def wd_instance_of_patent(self, c: C, s: V_URI) -> None:
@@ -604,7 +607,7 @@ class PubChemMapping(M):
             (s, DCT.alternative, v))
 
     @M.register(
-        [wd.instance_of(Item(s), wd.vendor)],
+        list(map(lambda p: p(Item(s), wd.vendor), (wd.instance_of, wd.type))),
         {s: CheckSource()},
         rank=Normal)
     def wd_instance_of_vendor(self, c: C, s: V_URI) -> None:

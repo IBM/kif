@@ -108,6 +108,7 @@ from .model import (
     StringDatatype,
     StringTemplate,
     StringVariable,
+    SubtypeProperty,
     Template,
     TemplatePattern,
     Term,
@@ -120,6 +121,7 @@ from .model import (
     TimeDatatype,
     TimeTemplate,
     TimeVariable,
+    TypeProperty,
     Value,
     ValuePair,
     ValuePairVariable,
@@ -187,6 +189,8 @@ __all__ = (
     'PropertyTemplate',
     'PropertyVariable',
     'PseudoProperty',
+    'SubtypeProperty',
+    'TypeProperty',
 
     # model.value.lexeme
     'Lexeme',

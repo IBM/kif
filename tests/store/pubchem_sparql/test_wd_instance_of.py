@@ -32,8 +32,8 @@ class Test(StoreTestCase):
             | pc.IUPAC_name
             | pc.patent('AR-033431-A1')
             | pc.source('ID25790'),
-            wd.instance_of),
-           {wd.instance_of(pc.CID(241), wd.type_of_a_chemical_entity),
+            wd.instance_of | wd.a),
+           ({wd.instance_of(pc.CID(241), wd.type_of_a_chemical_entity),
             wd.instance_of(
                 pc.isotope_atom_count,
                 wd.Wikidata_property_related_to_chemistry),
@@ -41,7 +41,14 @@ class Test(StoreTestCase):
                 pc.IUPAC_name,
                 wd.Wikidata_property_related_to_chemistry),
             wd.instance_of(pc.patent('AR-033431-A1'), wd.patent),
-            wd.instance_of(pc.source('ID25790'), wd.vendor)})
+            wd.instance_of(pc.source('ID25790'), wd.vendor)}
+            | {wd.a(pc.CID(241), wd.type_of_a_chemical_entity),
+               wd.a(pc.isotope_atom_count,
+                    wd.Wikidata_property_related_to_chemistry),
+               wd.a(pc.IUPAC_name,
+                    wd.Wikidata_property_related_to_chemistry),
+               wd.a(pc.patent('AR-033431-A1'), wd.patent),
+               wd.a(pc.source('ID25790'), wd.vendor)}))
 
 
 if __name__ == '__main__':
