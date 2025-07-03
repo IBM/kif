@@ -21,7 +21,8 @@ from ..typing import (
     Union,
 )
 from .kif_object import KIF_Object
-from .set import SnakSet
+from .path import Path, TPath
+from .set import SnakSet, TSnakSet
 from .snak import Snak, TSnak, ValueSnak
 from .value import (
     DeepDataValue,
@@ -40,9 +41,10 @@ if TYPE_CHECKING:  # pragma: no cover
 TFingerprint: TypeAlias =\
     Union['Fingerprint', 'TCompoundFingerprint', 'TAtomicFingerprint']
 
-TCompoundFingerprint: TypeAlias = Union[
-    'CompoundFingerprint', 'TAndFingerprint', 'TOrFingerprint']
-TAndFingerprint: TypeAlias = Union[list[Snak], Set[Snak], SnakSet]
+TCompoundFingerprint: TypeAlias =\
+    Union['CompoundFingerprint', 'TAndFingerprint', 'TOrFingerprint']
+
+TAndFingerprint: TypeAlias = Union['AndFingerprint', TSnakSet]
 TOrFingerprint: TypeAlias = 'OrFingerprint'
 
 TAtomicFingerprint: TypeAlias =\
@@ -153,13 +155,10 @@ class Fingerprint(KIF_Object):
             self,
             datatype_mask: Filter.TDatatypeMask | None = None
     ) -> Fingerprint:
-        """Reduce fingerprint to a normal form.
+        """Reduces fingerprint to a normal form.
 
         If `datatype_mask` is given, ensures that the resulting fingerprint
         does not match values with a datatype not in `datatype_mask`.
-
-        Parameters:
-           value_class: Value class.
 
         Returns:
            Normal fingerprint.
@@ -194,13 +193,12 @@ class CompoundFingerprint(Fingerprint):
         if isinstance(arg, cls):
             return arg
         else:
-            constr: type[CompoundFingerprint] = cls
-            if cls is CompoundFingerprint:
-                constr = AndFingerprint
-            if isinstance(arg, Set):
-                return cast(Self, constr(*sorted(arg)))
-            if isinstance(arg, (list, SnakSet, tuple)):
-                return cast(Self, constr(*arg))
+            if isinstance(arg, (list, Set, SnakSet, tuple)):
+                it = (sorted(arg) if isinstance(arg, Set) else arg)
+                if cls is CompoundFingerprint:
+                    return cast(Self, AndFingerprint(*it))
+                else:
+                    return cast(Self, cls(*it))
             else:
                 raise cls._check_error(arg, function, name, position)
 
@@ -365,6 +363,98 @@ class AtomicFingerprint(Fingerprint):
             return EmptyFingerprint()
 
 
+class PathFingerprint(AtomicFingerprint):
+    """Path fingerprint expression."""
+
+    @classmethod
+    @override
+    def check(
+            cls,
+            arg: Any,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> Self:
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, tuple) and len(arg) >= 2:
+            return cls(
+                Path.check(arg[0], function or cls.check, name, position),
+                Value.check(arg[1], function or cls.check, name, position))
+        else:
+            raise cls._check_error(arg, function, name, position)
+
+    def __init__(self, path: TPath, value: TValue) -> None:
+        super().__init__(path, value)
+
+    @override
+    def _preprocess_arg(self, arg: Any, i: int) -> Any:
+        if i == 1:              # path
+            return Path.check(arg, type(self), None, i)
+        elif i == 2:            # value
+            return Value.check(arg, type(self), None, i)
+        else:
+            raise self._should_not_get_here()
+
+    @property
+    def path(self) -> Path:
+        """The property path of path fingerprint."""
+        return self.get_path()
+
+    def get_path(self) -> Path:
+        """Gets the property path of fingerprint.
+
+        Returns:
+           Path.
+        """
+        return self.args[0]
+
+    @property
+    def value(self) -> Value:
+        """The value of path fingerprint."""
+        return self.get_value()
+
+    def get_value(self) -> Value:
+        """Gets the value of path fingerprint.
+
+        Returns:
+           Value.
+        """
+        return self.args[1]
+
+    @override
+    def _get_datatype_mask(self, range: bool) -> Filter.DatatypeMask:
+        from .filter import Filter
+        if range:
+            return (self.path.range_datatype_mask
+                    & Filter.DatatypeMask.check(type(self.value)))
+        else:
+            return Filter.ENTITY
+
+    @override
+    def _match(self, value: Value) -> bool:
+        if isinstance(value, PseudoProperty):
+            ###
+            # IMPORTANT: Path fingerprints should not match
+            # pseudo-properties because the latter do not exist as entities
+            # in the graph, and so cannot occur as spv's of statements.
+            ###
+            return False
+        else:
+            return self.datatype_mask.match(type(value))
+
+    @override
+    def _normalize(
+            self,
+            datatype_mask: Filter.DatatypeMask
+    ) -> Fingerprint:
+        fp = super()._normalize(datatype_mask)
+        if fp.is_empty():
+            return fp
+        else:
+            return type(self)(self.path.normalize(), self.value)
+
+
 class SnakFingerprint(AtomicFingerprint):
     """Snak fingerprint expression."""
 
@@ -419,7 +509,7 @@ class SnakFingerprint(AtomicFingerprint):
             ###
             # IMPORTANT: Snak fingerprints should not match
             # pseudo-properties because the latter do not exist as entities
-            # in the graph, and so cannot occur as subjects of statements.
+            # in the graph, and so cannot occur as spv's of statements.
             ###
             return False
         else:

@@ -14,6 +14,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   restriction "an instance of some subclass of `x`", while the expression
   `wd.subtype` compiles to the restriction "some subclass of `x`".
 
+- Added support for basic property path fingerprints — essentially,
+  sequential paths.  For example, the fingerprint
+  `(wd.occupation/wd.a)(wd.musician)` stands for the entities whose
+  occupation is an instance of a subclass of musician.
+
 - Added `memory` store.  Keeps a set of statements in memory and uses
   shallow-matching to implement `filter()`.
 

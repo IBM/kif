@@ -21,7 +21,7 @@ class KIF_ObjectTestCase(TestCase):
         assert issubclass(cls, KIF_Object)
         for v, obj in success:
             self.logger.debug('success: %s %s', v, obj)
-            self.assertEqual(cls.check(v), obj)
+            self.assertEqual(cls.check(v), obj, (v, obj))
         for v in failure:
             self.logger.debug('failure: %s', v)
             self.assertRaisesRegex(TypeError, 'cannot coerce', cls.check, v)

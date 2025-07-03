@@ -13,6 +13,7 @@ from ...typing import (
     cast,
     ClassVar,
     Iterable,
+    Literal,
     Location,
     Mapping,
     override,
@@ -38,6 +39,7 @@ from .value import VTValue
 
 if TYPE_CHECKING:               # pragma: no cover
     from ...store import Store
+    from ..path import Path, SequencePath, TPath
     from ..rank import VTRank
     from ..set import VTQualifierRecord, VTReferenceRecordSet
     from ..snak import (
@@ -635,6 +637,34 @@ class Property(
         else:
             from ..snak import ValueSnak
             return ValueSnak(self, arg1)
+
+    def __truediv__(self, path: TPath | Literal[1]) -> Path:
+        """Constructs a sequence path from property.
+
+        Parameters:
+           path: Path.
+
+        Returns:
+           Sequence path.
+        """
+        if path == 1:
+            from ..path import Path
+            return Path.check(self)
+        else:
+            from ..path import SequencePath, TPath
+            return SequencePath(self, cast(TPath, path))
+
+    def __rtruediv__(self, path: TPath) -> SequencePath:
+        """Constructs a sequence path from property.
+
+        Parameters:
+           path: Path.
+
+        Returns:
+           Sequence path.
+        """
+        from ..path import SequencePath
+        return SequencePath(path, self)
 
     @property
     def range(self) -> Datatype | None:

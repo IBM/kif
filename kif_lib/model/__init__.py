@@ -22,6 +22,7 @@ from .fingerprint import (
     FullFingerprint,
     Or,
     OrFingerprint,
+    PathFingerprint,
     SnakFingerprint,
     TFingerprint,
     ValueFingerprint,
@@ -45,6 +46,7 @@ from .pair import (
     VTValuePair,
     VValuePair,
 )
+from .path import EdgePath, Path, SequencePath, TEdgePath, TPath, TSequencePath
 from .pattern import (
     ClosedPattern,
     OpenPattern,
@@ -473,6 +475,14 @@ __all__ = (
     'VGraph',
     'VTGraph',
 
+    # path
+    'EdgePath',
+    'Path',
+    'SequencePath',
+    'TEdgePath',
+    'TPath',
+    'TSequencePath',
+
     # pattern
     'ClosedPattern',
     'OpenPattern',
@@ -503,6 +513,7 @@ __all__ = (
     'FullFingerprint',
     'Or',
     'OrFingerprint',
+    'PathFingerprint',
     'SnakFingerprint',
     'TFingerprint',
     'ValueFingerprint',

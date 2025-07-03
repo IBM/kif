@@ -18,6 +18,7 @@ algorithm = Q(8366, 'algorithm')
 Amazonas = Q(40040, 'Amazonas')
 Americas = Q(828, 'Americas')
 Argentina = Q(414, 'Argentina')
+aromatic_compound = Q(19834818, 'aromatic compound')
 aromatic_hydrocarbon = Q(230731, 'aromatic hydrocarbon')
 Asia = Q(48, 'Asia')
 Atlantic_Ocean = Q(97, 'Atlantic Ocean')
@@ -129,6 +130,7 @@ minute = Q(7727, 'minute')
 Monte_Pascoal = Q(1499212, 'Monte Pascoal')
 Mount_Everest = Q(513, 'Mount Everest')
 mountain = Q(8502, 'mountain')
+musician = Q(639669, 'musician')
 mythical_character = Q(4271324, 'mythical character')
 Nepal = Q(837, 'Nepal')
 New_York_City = Q(60, 'New York City')
@@ -201,6 +203,7 @@ __all__ = (
     'Amazonas',
     'Americas',
     'Argentina',
+    'aromatic_compound',
     'aromatic_hydrocarbon',
     'Asia',
     'Atlantic_Ocean',
@@ -312,6 +315,7 @@ __all__ = (
     'Monte_Pascoal',
     'Mount_Everest',
     'mountain',
+    'musician',
     'mythical_character',
     'Nepal',
     'New_York_City',

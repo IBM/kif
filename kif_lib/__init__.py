@@ -69,6 +69,7 @@ from .model import (
     OpenPattern,
     OpenTerm,
     Or,
+    Path,
     Pattern,
     Preferred,
     PreferredRank,
@@ -302,6 +303,9 @@ __all__ = (
     'Graph',
     'GraphVariable',
 
+    # model.path
+    'Path',
+
     # model.pattern
     'ClosedPattern',
     'OpenPattern',
@@ -314,10 +318,9 @@ __all__ = (
 
     # model.fingerprint
     'And',
-    'Error',
     'Fingerprint',
     'Or',
-    'Store',
+
 
     # model.filter
     'Filter',

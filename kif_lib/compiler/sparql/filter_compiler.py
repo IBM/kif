@@ -14,6 +14,7 @@ from ...model import (
     Datatype,
     DataValueVariable,
     DeepDataValueVariable,
+    EdgePath,
     Entity,
     EntityTemplate,
     EntityVariable,
@@ -28,6 +29,7 @@ from ...model import (
     LexemeVariable,
     NoValueSnak,
     OrFingerprint,
+    PathFingerprint,
     Pattern,
     Property,
     PropertyVariable,
@@ -36,6 +38,7 @@ from ...model import (
     QuantityVariable,
     RankVariable,
     ReferenceRecordSetVariable,
+    SequencePath,
     ShallowDataValueVariable,
     Snak,
     SnakFingerprint,
@@ -612,11 +615,14 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             targets: Iterable[VStatement]
     ) -> None:
         push = functools.partial(self._do_push_fps, entry, targets)
-        if isinstance(filter.subject, (CompoundFingerprint, SnakFingerprint)):
+        if isinstance(filter.subject, (
+                CompoundFingerprint, PathFingerprint, SnakFingerprint)):
             push(filter.subject, self._push_fps_extract_subject)
-        if isinstance(filter.property, (CompoundFingerprint, SnakFingerprint)):
+        if isinstance(filter.property, (
+                CompoundFingerprint, PathFingerprint, SnakFingerprint)):
             push(filter.property, self._push_fps_extract_property)
-        if isinstance(filter.value, (CompoundFingerprint, SnakFingerprint)):
+        if isinstance(filter.value, (
+                CompoundFingerprint, PathFingerprint, SnakFingerprint)):
             push(filter.value, self._push_fps_extract_value)
 
     def _push_fps_extract_subject(
@@ -647,7 +653,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             self,
             entry: SPARQL_Mapping.Entry,
             targets: Iterable[VStatement],
-            fp: CompoundFingerprint | SnakFingerprint,
+            fp: CompoundFingerprint | PathFingerprint | SnakFingerprint,
             extract: Callable[[Statement | StatementTemplate], VValue]
     ) -> None:
         with self.q.union() as cup:
@@ -673,6 +679,14 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                 if self.has_flags(self.DEBUG):
                     self.q.comments()(f'{value} =~ {fp}')
                 self._push_compound_fp(entry, fp, value)
+        elif isinstance(fp, PathFingerprint):
+            if isinstance(value, (Entity, EntityTemplate, EntityVariable)):
+                with self.q.group():
+                    if self.has_flags(self.DEBUG):
+                        self.q.comments()(f'{value} =~ {fp}')
+                    self._push_path_fp(entry, fp, value)
+            else:
+                raise SPARQL_Mapping.Skip
         elif isinstance(fp, SnakFingerprint):
             if isinstance(value, (Entity, EntityTemplate, EntityVariable)):
                 with self.q.group():
@@ -682,7 +696,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             else:
                 raise SPARQL_Mapping.Skip
         elif isinstance(fp, FullFingerprint):
-            pass
+            pass                # nothing to do
         else:
             raise self._should_not_get_here()
 
@@ -734,6 +748,31 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         else:
             raise self._should_not_get_here()
 
+    def _push_path_fp(
+            self,
+            entry: SPARQL_Mapping.Entry,
+            fp: PathFingerprint,
+            entity: VEntity
+    ) -> None:
+        if isinstance(fp.path, EdgePath):
+            self._push_snak_fp(
+                entry, SnakFingerprint(fp.path.property(fp.value)), entity)
+        elif isinstance(fp.path, SequencePath):
+            push = functools.partial(self._push_snak_fp_tail, entry)
+            source: VEntity = entity
+            for p in fp.path[:-1]:
+                if p.property.range is not None:
+                    var: Variable = self._fresh_variable(
+                        p.property.range.value_class.variable_class)
+                else:
+                    var = self._fresh_entity_variable()
+                assert isinstance(var, EntityVariable), var
+                push(source, p.property(source, var))
+                source = var
+            push(source, fp.path[-1].property(source, fp.value))
+        else:
+            raise self._should_not_get_here()
+
     def _push_snak_fp(
             self,
             entry: SPARQL_Mapping.Entry,
@@ -744,18 +783,26 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             assert isinstance(fp.snak, ValueSnak)
             assert isinstance(fp.snak.value, Entity)
             try:
-                source = fp.snak.property(fp.snak.value, entity)
+                stmt = fp.snak.property(fp.snak.value, entity)
             except (TypeError, ValueError) as err:
                 raise self.mapping.Skip from err
         else:
-            source = Statement(entity, fp.snak)
-        source = source.generalize(rename=self._fresh_name_generator())
+            stmt = Statement(entity, fp.snak)
+        return self._push_snak_fp_tail(entry, entity, stmt)
+
+    def _push_snak_fp_tail(
+            self,
+            entry: SPARQL_Mapping.Entry,
+            entity: VEntity,
+            stmt: Statement | StatementTemplate
+    ) -> None:
+        stmt = stmt.generalize(rename=self._fresh_name_generator())
         with self.q.union() as cup:
             for target_entry in self.mapping:
                 target_entry = target_entry.rename(
                     rename=self._fresh_name_generator())
                 matches = target_entry.match_and_preprocess(
-                    self.mapping, self, source, self._term2arg)
+                    self.mapping, self, stmt, self._term2arg)
                 if not matches:
                     continue  # nothing to do
                 targets, _, kwargs = matches
@@ -764,7 +811,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                 assert targets
                 if kwargs:
                     ###
-                    # HACK: Here we monkey-patch `kwargs` so that the source
+                    # HACK: Here we monkey-patch `kwargs` so that the stmt
                     # variable (from snak fingerprint) is replaced by the
                     # correct target variable (from filter).  Is this the
                     # best way to do this?
@@ -774,6 +821,22 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                     assert isinstance(kwargs[src], Query.Variable)
                     tgt = next(entity._iterate_variables()).name
                     kwargs[src] = Query.Variable(tgt)  # type: ignore
+                if isinstance(stmt.snak, ValueSnakTemplate):
+                    ###
+                    # HACK: Here we monkey-patch `kwargs` so that the
+                    # source/target variables of property chains are matched
+                    # correctly.  Is this the best way to to this?
+                    ###
+                    assert isinstance(stmt.snak.value, EntityVariable)
+                    src = stmt.snak.value.name
+                    target = next(iter(targets))
+                    assert isinstance(target, StatementTemplate)
+                    assert isinstance(target.snak, ValueSnakTemplate)
+                    assert len(target.snak.value.variables) == 1
+                    tgt = next(iter(target.snak.value.variables)).name
+                    # print('>>>', src, tgt)
+                    # print('>>>', kwargs)
+                    kwargs[tgt] = Query.Variable(src)  # type: ignore
                 self.push_frame(
                     phase=self.COMPILING_FINGERPRINT,
                     entry=target_entry,
