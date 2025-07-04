@@ -821,21 +821,19 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                     assert isinstance(kwargs[src], Query.Variable)
                     tgt = next(entity._iterate_variables()).name
                     kwargs[src] = Query.Variable(tgt)  # type: ignore
-                if isinstance(stmt.snak, ValueSnakTemplate):
+                if (isinstance(stmt.snak, ValueSnakTemplate)
+                        and isinstance(stmt.snak.value, EntityVariable)):
                     ###
                     # HACK: Here we monkey-patch `kwargs` so that the
                     # source/target variables of property chains are matched
                     # correctly.  Is this the best way to to this?
                     ###
-                    assert isinstance(stmt.snak.value, EntityVariable)
                     src = stmt.snak.value.name
                     target = next(iter(targets))
                     assert isinstance(target, StatementTemplate)
                     assert isinstance(target.snak, ValueSnakTemplate)
                     assert len(target.snak.value.variables) == 1
                     tgt = next(iter(target.snak.value.variables)).name
-                    # print('>>>', src, tgt)
-                    # print('>>>', kwargs)
                     kwargs[tgt] = Query.Variable(src)  # type: ignore
                 self.push_frame(
                     phase=self.COMPILING_FINGERPRINT,

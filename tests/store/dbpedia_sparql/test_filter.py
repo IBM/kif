@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from kif_lib import Store
-from kif_lib.vocabulary import db
 
 from ...tests import StoreTestCase
 

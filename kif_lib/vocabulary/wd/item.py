@@ -59,6 +59,7 @@ degree_Celsius = Q(25267, 'degree Celsius')
 degree_Fahrenheit = Q(42289, 'degree Fahrenheit')
 dog = Q(144, 'dog')
 dopamine = Q(170304, 'dopamine')
+drama_film = Q(130232, 'drama film')
 Easter = Q(21196, 'Easter')
 ECHA_Substance_Infocard_database = Q(59911453, 'ECHA Substance Infocard database')
 El_Capitan = Q(1124852, 'El Capitan')
@@ -77,6 +78,7 @@ female_given_name = Q(11879590, 'female given name')
 female_human = Q(84048852, 'female human')
 feminine = Q(1775415, 'feminine')
 flame_retardant = Q(902863, 'flame retardant')
+flying_saucer = Q(5401971, 'flying saucer')
 France = Q(142, 'France')
 French_Guiana = Q(3769, 'French Guiana')
 frog = Q(3116510, 'frog')
@@ -253,6 +255,7 @@ __all__ = (
     'degree_Fahrenheit',
     'dog',
     'dopamine',
+    'drama_film',
     'Easter',
     'ECHA_Substance_Infocard_database',
     'El_Capitan',
@@ -271,6 +274,7 @@ __all__ = (
     'female_human',
     'feminine',
     'flame_retardant',
+    'flying_saucer',
     'France',
     'French_Guiana',
     'frog',
