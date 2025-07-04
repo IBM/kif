@@ -118,44 +118,6 @@ class Test(StoreTestCase):
                    wd.reference_URL('http://cnig.gouv.fr/wp-content/'
                                     'uploads/2020/02/CNT-PVM_r%C3%A9vis'
                                     '%C3%A9_2020-01-27-1.pdf')]])})
-
-    # -- value fp --
-
-    def test_value_fp_subject(self) -> None:
-        kb = self.KB()
-        kb.page_size = 2
-        xf, F = self.store_xfilter_assertion(kb)
-        s = wd.Ginga
-        xf(F(subject=s, snak_mask=F.VALUE_SNAK, value_mask=F.ITEM),
-           {wd.copyright_license(s, wd.GNU_General_Public_License),
-            wd.copyright_status(s, wd.copyrighted),
-            wd.country_of_origin(s, wd.Brazil),
-            wd.different_from(s, wd.Q(1411420)),
-            wd.instance_of(s, wd.system_software),
-            wd.named_after(s, wd.Q(1411420)),
-            wd.subclass_of(s, wd.middleware)})
-
-    def test_value_fp_property(self) -> None:
-        raise self.TODO()
-
-    def test_value_fp_iri(self) -> None:
-        raise self.TODO()
-
-    def test_value_fp_text(self) -> None:
-        raise self.TODO()
-
-    def test_value_fp_string(self) -> None:
-        raise self.TODO()
-
-    def test_value_fp_external_id(self) -> None:
-        raise self.TODO()
-
-    def test_value_fp_quantity(self) -> None:
-        raise self.TODO()
-
-    def test_value_fp_time(self):
-        raise self.TODO()
-
     # -- snak fp --
 
     def test_snak_fp_subject(self) -> None:

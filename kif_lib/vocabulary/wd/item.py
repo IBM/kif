@@ -12,6 +12,7 @@ _1 = Q(199, '1')
 acetone = Q(49546, 'acetone')
 Adam = Q(70899, 'Adam')
 Adam_and_Eve = Q(58701, 'Adam and Eve')
+administrative_territorial_entity_of_Brazil = Q(10374536, 'administrative territorial entity of Brazil')
 Africa = Q(15, 'Africa')
 Alan_Turing = Q(7251, 'Alan Turing')
 algorithm = Q(8366, 'algorithm')
@@ -41,7 +42,7 @@ chemical_entity = Q(43460564, 'chemical entity')
 ChemIDplus = Q(20593, 'ChemIDplus')
 chemistry = Q(2329, 'chemistry')
 ChemSpider = Q(2311683, 'ChemSpider')
-child = Q(7569, 'child')
+child_ = Q(7569, 'child')
 Chile = Q(298, 'Chile')
 coffee = Q(8486, 'coffee')
 Colombia = Q(739, 'Colombia')
@@ -82,6 +83,7 @@ frog = Q(3116510, 'frog')
 Garden_of_Eden = Q(19014, 'Garden of Eden')
 Garden_of_Eden = Q(19014, 'Garden of Eden')
 Germany = Q(183, 'Germany')
+ginga = Q(1411420, 'ginga')
 Ginga = Q(5563000, 'Ginga')
 Global_Substance_Registration_System = Q(116031405, 'Global Substance Registration System')
 GNU_General_Public_License = Q(7603, 'GNU General Public License')
@@ -153,10 +155,13 @@ proleptic_Julian_calendar = Q(1985786, 'proleptic Julian calendar')
 protoplast = Q(4349921, 'protoplast')
 PubChem = Q(278487, 'PubChem')
 rabbit = Q(9394, 'rabbit')
+Raul = Q(13415699, 'Raul')
+Raul_Seixas = Q(1392583, 'Raul Seixas')
 rectal_administration = Q(419892, 'rectal administration')
 report = Q(10870555, 'report')
 Rio_de_Janeiro = Q(8678, 'Rio de Janeiro')
 river = Q(4022, 'river')
+Salvador = Q(36947, 'Salvador')
 scholarly_article = Q(13442814, 'scholarly article')
 scientist = Q(901, 'scientist')
 second = Q(11574, 'second')
@@ -184,8 +189,10 @@ verb = Q(24905, 'verb')
 water = Q(283, 'water')
 Watson = Q(12253, 'Watson')
 Wikidata = Q(2013, 'Wikidata')
+Wikidata_property_for_an_identifier = Q(19847637, 'Wikidata property for an identifier')
 Wikidata_property_for_physical_quantities = Q(21077852, 'Wikidata property for physical quantities')
 Wikidata_property_related_to_animals_and_zoology = Q(57633168, 'Wikidata property related to animals and zoology')
+Wikidata_property_related_to_biology = Q(22988603, 'Wikidata property related to biology')
 Wikidata_property_related_to_chemistry = Q(21294996, 'Wikidata property related to chemistry')
 Wikidata_property_related_to_medicine = Q(19887775, 'Wikidata property related to medicine')
 Wikidata_property_to_identify_substances = Q(19833835, 'Wikidata property to identify substances')
@@ -197,6 +204,7 @@ __all__ = (
     'acetone',
     'Adam',
     'Adam_and_Eve',
+    'administrative_territorial_entity_of_Brazil',
     'Africa',
     'Alan_Turing',
     'algorithm',
@@ -226,7 +234,7 @@ __all__ = (
     'ChemIDplus',
     'chemistry',
     'ChemSpider',
-    'child',
+    'child_',
     'Chile',
     'coffee',
     'Colombia',
@@ -267,6 +275,7 @@ __all__ = (
     'Garden_of_Eden',
     'Garden_of_Eden',
     'Germany',
+    'ginga',
     'Ginga',
     'Global_Substance_Registration_System',
     'GNU_General_Public_License',
@@ -338,10 +347,13 @@ __all__ = (
     'protoplast',
     'PubChem',
     'rabbit',
+    'Raul',
+    'Raul_Seixas',
     'rectal_administration',
     'report',
     'Rio_de_Janeiro',
     'river',
+    'Salvador',
     'scholarly_article',
     'scientist',
     'second',
@@ -369,8 +381,10 @@ __all__ = (
     'water',
     'Watson',
     'Wikidata',
+    'Wikidata_property_for_an_identifier',
     'Wikidata_property_for_physical_quantities',
     'Wikidata_property_related_to_animals_and_zoology',
+    'Wikidata_property_related_to_biology',
     'Wikidata_property_related_to_chemistry',
     'Wikidata_property_related_to_medicine',
     'Wikidata_property_to_identify_substances',
