@@ -20,11 +20,6 @@ class Test(StoreTestCase):
         else:
             return cls.S('dbpedia-sparql', dbpedia)
 
-    def test(self) -> None:
-        xf, F = self.store_xfilter_assertion(self.KB())
-        xf(F(db.r('Alan_Turing'), db.op('birthPlace')),
-           {db.op('birthPlace')(db.r('Alan_Turing'), db.r('Maida_Vale'))})
-
 
 if __name__ == '__main__':
     Test.main()

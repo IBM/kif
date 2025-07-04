@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from kif_lib import Store
+from kif_lib.vocabulary import db
 
 from ....tests import StoreTestCase
 
@@ -16,30 +17,11 @@ class Test(StoreTestCase):
         return TestFilter.KB()
 
     def test_item(self) -> None:
-        raise self.TODO()
+        xf, F = self.store_xfilter_assertion(self.KB())
+        xf(F(db.Alan_Turing, db.birthPlace),
+           {db.birthPlace(db.Alan_Turing, db.Maida_Vale)})
 
     def test_property(self) -> None:
-        raise self.TODO()
-
-    def test_lexeme(self) -> None:
-        raise self.TODO()
-
-    def test_iri(self) -> None:
-        raise self.TODO()
-
-    def test_text(self) -> None:
-        raise self.TODO()
-
-    def test_string(self) -> None:
-        raise self.TODO()
-
-    def test_external_id(self) -> None:
-        raise self.TODO()
-
-    def test_quantity(self) -> None:
-        raise self.TODO()
-
-    def test_time(self):
         raise self.TODO()
 
 

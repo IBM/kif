@@ -765,6 +765,36 @@ class WikidataMapping(M):
         self._p_item_tail(c, ty, s, v)
         self._ensure_wds_is_bound_fix(c)
 
+    @M.register(
+        [Statement(Property(s, s0), TypeProperty()(Item(v)))],
+        {s: CheckProperty(),
+         s0: CheckDatatype(),
+         v: CheckItem()},
+        rank=Normal)
+    def p_property_type(
+            self,
+            c: C,
+            s: V_URI,
+            s0: V_URI,
+            v: V_URI,
+            **kwargs
+    ) -> None:
+        self._start_P_tail(c, s, s0)
+        ty = Wikidata.WDT.P31 / (Wikidata.WDT.P279 * '*')  # type: ignore
+        self._p_item_tail(c, ty, s, v)
+        self._ensure_wds_is_bound_fix(c)
+
+    @M.register(
+        [Statement(Lexeme(s), TypeProperty()(Item(v)))],
+        {s: CheckLexeme(),
+         v: CheckItem()},
+        rank=Normal)
+    def p_lexeme_type(self, c: C, s: V_URI, v: V_URI, **kwargs) -> None:
+        self._start_L_tail(c, s)
+        ty = Wikidata.WDT.P31 / (Wikidata.WDT.P279 * '*')  # type: ignore
+        self._p_item_tail(c, ty, s, v)
+        self._ensure_wds_is_bound_fix(c)
+
     # -- subtype (pseudo-property) --
 
     @M.register(

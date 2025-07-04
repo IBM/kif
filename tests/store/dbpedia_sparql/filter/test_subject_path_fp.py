@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from kif_lib import Store, Time
-from kif_lib.vocabulary import wd
+from kif_lib import Store
+from kif_lib.vocabulary import db
 
 from ....tests import StoreTestCase
 
@@ -18,16 +18,9 @@ class Test(StoreTestCase):
 
     def test_item(self) -> None:
         xf, F = self.store_xfilter_assertion(self.KB())
-        xf(F(
-            (wd.instance_of/wd.subclass_of)(
-                wd.administrative_territorial_entity_of_Brazil),
-            wd.inception, '1549-01-01'),
-           {wd.inception(
-               wd.Salvador,
-               Time('1549-01-01', 9, 0, wd.proleptic_Julian_calendar),
-               qualifiers=[wd.statement_is_subject_of(wd.Q(107575514))],
-               references=[[
-                   wd.imported_from_Wikimedia_project(wd.Q(206855))]])})
+        xf(F((db.almaMater/db.city)(db.Cambridge), db.doctoralAdvisor,
+             db.Alonzo_Church),
+           {db.doctoralAdvisor(db.Alan_Turing, db.Alonzo_Church)})
 
     def test_property(self) -> None:
         raise self.TODO()

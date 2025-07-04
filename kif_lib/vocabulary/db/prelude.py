@@ -3,14 +3,15 @@
 
 from __future__ import annotations
 
-from ..context import Context
-from ..model import Item, Property, TDatatype, TProperty, TText, TTextSet
-from ..namespace.dbpedia import DBpedia
+from ...context import Context
+from ...model import Item, Property, TDatatype, TProperty, TText, TTextSet
+from ...namespace.dbpedia import DBpedia
 
 __all__ = (
     'oc',
     'op',
     'r',
+    'reload',
 )
 
 
@@ -104,7 +105,7 @@ def reload(force: bool = True, context: Context | None = None) -> None:
     ctx.iris.register(DBpedia.RESOURCE, prefix='dbr')
     resolver_iri = ctx.options.vocabulary.db.resolver
     if resolver_iri is not None:
-        from ..store import Store
+        from ...store import Store
         kb = Store('dbpedia-sparql', resolver_iri)
         ctx.iris.register(DBpedia.ONTOLOGY, resolver=kb)
         ctx.iris.register(DBpedia.PROPERTY, resolver=kb)
@@ -112,8 +113,9 @@ def reload(force: bool = True, context: Context | None = None) -> None:
     if force:
         import importlib
 
-        from . import db
-        importlib.reload(db)
+        from . import item, property
+        importlib.reload(item)
+        importlib.reload(property)
 
 
 reload(force=False)

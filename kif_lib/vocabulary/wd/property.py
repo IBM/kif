@@ -74,12 +74,15 @@ element_symbol = P(246)
 elevation_above_sea_level = P(2044)
 end_time = P(582)
 endemic_to = P(183)
+equivalent_class = P(1709)
 equivalent_property = P(1628)
 ethnic_group = P(172)
 EU_Transparency_Register_ID = P(2657)
 exact_match = P(2888)
 executive_producer = P(1431)
 external_data_available_at_URL = P(1325)
+external_subproperty = P(2236)
+external_superproperty = P(2235)
 family = P(53)
 family_name = P(734)
 father = P(22)
@@ -89,6 +92,7 @@ file_format = P(2701)
 film_editor = P(1040)
 followed_by = P(156)
 follows = P(155)
+formatter_URI_for_RDF_resource = P(1921)
 found_in_taxon = P(703)
 founded_by = P(112)
 Free_Software_Directory_entry = P(2537)
@@ -96,6 +100,7 @@ Freebase_ID = P(646)
 game_mode = P(404)
 gender_of_a_scientific_name_of_a_genus = P(2433)
 genre = P(136)
+GeoNames_feature_code = P(2452)
 GHS_hazard_pictogram = P(5040)
 GHS_hazard_statement = P(5041)
 GHS_precautionary_statement = P(5042)
@@ -144,6 +149,7 @@ lyrics_by = P(676)
 made_from_material = P(186)
 main_subject = P(921)
 manufacturer = P(176)
+mapping_relation_type = P(4390)
 mass = P(2067)
 Mastodon_instance_URL = P(11810)
 measured_physical_quantity = P(111)
@@ -159,6 +165,7 @@ mouth_of_the_watercourse = P(403)
 movement = P(135)
 name_in_native_language = P(1559)
 named_after = P(138)
+narrower_external_class = P(3950)
 native_label = P(1705)
 negates_property = P(11317)
 notable_work = P(800)
@@ -343,12 +350,15 @@ __all__ = (
     'elevation_above_sea_level',
     'end_time',
     'endemic_to',
+    'equivalent_class',
     'equivalent_property',
     'ethnic_group',
     'EU_Transparency_Register_ID',
     'exact_match',
     'executive_producer',
     'external_data_available_at_URL',
+    'external_subproperty',
+    'external_superproperty',
     'family',
     'family_name',
     'father',
@@ -358,6 +368,7 @@ __all__ = (
     'film_editor',
     'followed_by',
     'follows',
+    'formatter_URI_for_RDF_resource',
     'found_in_taxon',
     'founded_by',
     'Free_Software_Directory_entry',
@@ -365,6 +376,7 @@ __all__ = (
     'game_mode',
     'gender_of_a_scientific_name_of_a_genus',
     'genre',
+    'GeoNames_feature_code',
     'GHS_hazard_pictogram',
     'GHS_hazard_statement',
     'GHS_precautionary_statement',
@@ -415,6 +427,7 @@ __all__ = (
     'made_from_material',
     'main_subject',
     'manufacturer',
+    'mapping_relation_type',
     'mass',
     'Mastodon_instance_URL',
     'material_produced',
@@ -431,6 +444,7 @@ __all__ = (
     'movement',
     'name_in_native_language',
     'named_after',
+    'narrower_external_class',
     'native_label',
     'negates_property',
     'notable_work',

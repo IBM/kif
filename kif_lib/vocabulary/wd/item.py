@@ -189,7 +189,9 @@ verb = Q(24905, 'verb')
 water = Q(283, 'water')
 Watson = Q(12253, 'Watson')
 Wikidata = Q(2013, 'Wikidata')
+Wikidata_metaproperty_for_ontology_mapping = Q(42842547, 'Wikidata metaproperty for ontology mapping')
 Wikidata_property_for_an_identifier = Q(19847637, 'Wikidata property for an identifier')
+Wikidata_property_for_ontology_mapping = Q(30249126, 'Wikidata property for ontology mapping')
 Wikidata_property_for_physical_quantities = Q(21077852, 'Wikidata property for physical quantities')
 Wikidata_property_related_to_animals_and_zoology = Q(57633168, 'Wikidata property related to animals and zoology')
 Wikidata_property_related_to_biology = Q(22988603, 'Wikidata property related to biology')
@@ -381,7 +383,9 @@ __all__ = (
     'water',
     'Watson',
     'Wikidata',
+    'Wikidata_metaproperty_for_ontology_mapping',
     'Wikidata_property_for_an_identifier',
+    'Wikidata_property_for_ontology_mapping',
     'Wikidata_property_for_physical_quantities',
     'Wikidata_property_related_to_animals_and_zoology',
     'Wikidata_property_related_to_biology',
