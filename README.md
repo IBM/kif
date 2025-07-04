@@ -28,7 +28,7 @@ guide](https://ibm.github.io/kif/quickstart.html).
 
 * KIF has full support for
   [asyncio](https://docs.python.org/3/library/asyncio.html).  KIF async API
-  can be used run queries asynchronously, without blocking waiting for their
+  can be used run queries asynchronously, without blocking waiting on their
   results.
 
 ## Installation
@@ -98,9 +98,9 @@ Using the `kif` command-line utility:
 $ kif filter -s wdqs -s pubchem-sparql --select sv --subject='wd.chemical_formula("H₂O")' --property=wd.mass
 ```
 
-> (**Item** [hydrogen tritium oxide](http://www.wikidata.org/entity/Q106010186)) (**Quantity** 20.01878893 (**Item** [dalton](http://www.wikidata.org/entity/Q483261))) <br/>
-> (**Item** [oxygen-15 atom](http://rdf.ncbi.nlm.nih.gov/pubchem/compound/CID10129877)) (**Quantity** 17.0187 (**Item** [dalton](http://www.wikidata.org/entity/Q483261))) <br/>
-> (**Item** [diprotium oxide](http://www.wikidata.org/entity/Q106010185)) (**Quantity** 18.010564684 (**Item** [dalton](http://www.wikidata.org/entity/Q483261))) <br/>
+> (**Item** [hydrogen tritium oxide](http://www.wikidata.org/entity/Q106010186)) 20.01878893 [dalton](http://www.wikidata.org/entity/Q483261) <br/>
+> (**Item** [oxygen-15 atom](http://rdf.ncbi.nlm.nih.gov/pubchem/compound/CID10129877)) 17.0187 [dalton](http://www.wikidata.org/entity/Q483261) <br/>
+> (**Item** [diprotium oxide](http://www.wikidata.org/entity/Q106010185)) 18.010564684 [dalton](http://www.wikidata.org/entity/Q483261) <br/>
 > ⋮
 
 Using the KIF API:

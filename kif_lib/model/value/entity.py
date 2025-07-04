@@ -3,13 +3,13 @@
 
 from __future__ import annotations
 
-import abc
 from typing import TYPE_CHECKING
 
+from ...context import Context
 from ...typing import Any, ClassVar, Location, override, Self, TypeAlias, Union
 from ..term import Template, Variable
 from .iri import IRI, IRI_Template, IRI_Variable, T_IRI, V_IRI
-from .string import TString
+from .text import TTextLanguage
 from .value import Value, ValueTemplate, ValueVariable
 
 TEntity: TypeAlias = Union['Entity', T_IRI]
@@ -126,16 +126,18 @@ class Entity(
         """
         return self.context.get_resolver(self, function=self.get_resolver)
 
-    @abc.abstractmethod
-    def display(self, language: TString | None = None) -> str:
-        """Gets the display-name of entity in KIF context.
-
-        Parameters:
-           language: Language.
-
-        Returns:
-           Display name.
-        """
-        return (
-            self.context.iris.curie(self.iri, self.display)
-            or self.iri.content)
+    @override
+    def _display(
+            self,
+            language: TTextLanguage | None = None,
+            markdown: bool | None = None,
+            context: Context | None = None
+    ) -> str:
+        curie = self.get_context(context).iris.curie(self.iri, self.display)
+        if curie:
+            if markdown:
+                return f'[{curie}]({self.iri.content})'
+            else:
+                return curie
+        else:
+            return self.iri.content

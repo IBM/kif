@@ -5,11 +5,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ...context import Context
 from ...typing import Any, cast, ClassVar, Location, override, Self
 from .data_value import DataValue, DataValueTemplate, DataValueVariable
 
 if TYPE_CHECKING:  # pragma: no cover
     from .string import VStringContent
+    from .text import TTextLanguage
 
 
 class ShallowDataValueTemplate(DataValueTemplate):
@@ -93,3 +95,12 @@ class ShallowDataValue(
            String content.
         """
         return self.args[0]
+
+    @override
+    def _display(
+            self,
+            language: TTextLanguage | None = None,
+            markdown: bool | None = None,
+            context: Context | None = None
+    ) -> str:
+        return self.content

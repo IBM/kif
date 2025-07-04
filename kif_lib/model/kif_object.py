@@ -49,6 +49,9 @@ class KIF_Object(object.Object, metaclass=object.ObjectMeta):
 
         If `context` is not ``None``, returns `context`.
 
+        Parameters:
+           context: Context.
+
         Returns:
            Context.
         """

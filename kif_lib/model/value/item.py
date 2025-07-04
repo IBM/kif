@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import overload
 
+from ...context import Context
 from ...typing import (
     cast,
     ClassVar,
@@ -161,19 +162,28 @@ class Item(
                 self.KEEP, self, self.KEEP, self.KEEP)
 
     @override
-    def display(self, language: TTextLanguage | None = None) -> str:
-        label = self.get_label(language)
+    def _display(
+            self,
+            language: TTextLanguage | None = None,
+            markdown: bool | None = None,
+            context: Context | None = None
+    ) -> str:
+        label = self.get_label(language=language, context=context)
         if label:
-            return label.content
+            if markdown:
+                return f'[{label.content}]({self.iri.content})'
+            else:
+                return label.content
         else:
-            return super().display(language)  # fallback
+            return super()._display(language, markdown, context)  # fallback
 
     def describe(
             self,
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool | None = None
+            force: bool | None = None,
+            context: Context | None = None
     ) -> Item.Descriptor | None:
         """Gets the descriptor of item in KIF context.
 
@@ -192,11 +202,12 @@ class Item(
            resolve: Whether to resolve descriptor.
            resolver: Resolver store.
            force: Whether to force resolution.
+           context: Context.
 
         Returns:
            Item descriptor or ``None``.
         """
-        return self.context.describe(
+        return self.get_context(context).describe(
             self, language=language, resolve=resolve, resolver=resolver,
             force=force, function=self.describe)
 
@@ -210,7 +221,8 @@ class Item(
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool | None = None
+            force: bool | None = None,
+            context: Context | None = None
     ) -> Text | None:
         """Gets the label of item in KIF context.
 
@@ -219,11 +231,12 @@ class Item(
            resolve: Whether to resolve label.
            resolver: Resolver store.
            force: Whether to force resolution.
+           context: Context.
 
         Returns:
            Label or ``None``.
         """
-        return self.context.get_label(
+        return self.get_context(context).get_label(
             self, language=language, resolve=resolve, resolver=resolver,
             force=force, function=self.get_label)
 
@@ -237,7 +250,8 @@ class Item(
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool | None = None
+            force: bool | None = None,
+            context: Context | None = None
     ) -> Set[Text] | None:
         """Gets the aliases of item in KIF context.
 
@@ -246,11 +260,12 @@ class Item(
            resolve: Whether to resolve aliases.
            resolver: Resolver store.
            force: Whether to force resolution.
+           context: Context.
 
         Returns:
            Aliases or ``None``.
         """
-        return self.context.get_aliases(
+        return self.get_context(context).get_aliases(
             self, language=language, resolve=resolve, resolver=resolver,
             force=force, function=self.get_aliases)
 
@@ -264,7 +279,8 @@ class Item(
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool | None = None
+            force: bool | None = None,
+            context: Context | None = None
     ) -> Text | None:
         """Gets the description of item in KIF context.
 
@@ -273,11 +289,12 @@ class Item(
            resolve: Whether to resolve description.
            resolver: Resolver store.
            force: Whether to force resolution.
+           context: Context.
 
         Returns:
            Description or ``None``.
         """
-        return self.context.get_description(
+        return self.get_context(context).get_description(
             self, language=language, resolve=resolve, resolver=resolver,
             force=force, function=self.get_description)
 
@@ -288,7 +305,8 @@ class Item(
             alias: TText | None = None,
             aliases: TTextSet | None = None,
             description: TText | None = None,
-            descriptions: TTextSet | None = None
+            descriptions: TTextSet | None = None,
+            context: Context | None = None
     ) -> Self:
         """Adds or updates item data in KIF context.
 
@@ -299,11 +317,12 @@ class Item(
            aliases: Aliases.
            description: Description.
            descriptions: Descriptions.
+           context: Context.
 
         Returns:
            Item.
         """
-        return cast(Self, self.context.entities.register(
+        return cast(Self, self.get_context(context).entities.register(
             self, label=label, labels=labels, alias=alias, aliases=aliases,
             description=description, descriptions=descriptions,
             function=self.register))
@@ -321,7 +340,8 @@ class Item(
             description_language: TTextLanguage | None = None,
             all_labels: bool = False,
             all_aliases: bool = False,
-            all_descriptions: bool = False
+            all_descriptions: bool = False,
+            context: Context | None = None
     ) -> bool:
         """Removes item data from KIF context.
 
@@ -340,6 +360,7 @@ class Item(
            all_labels: Whether to remove all labels.
            all_aliases: Whether to remove all aliases.
            all_descriptions: Whether to remove all descriptions.
+           context: Context.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
@@ -353,10 +374,10 @@ class Item(
                 and all_labels is False
                 and all_aliases is False
                 and all_descriptions is False):
-            return self.context.entities.unregister(
+            return self.get_context(context).entities.unregister(
                 self, all=True, function=self.unregister)
         else:
-            return self.context.entities.unregister(
+            return self.get_context(context).entities.unregister(
                 self, label=label, labels=labels,
                 alias=alias, aliases=aliases,
                 description=description, descriptions=descriptions,

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ...context import Context
 from ...typing import (
     cast,
     ClassVar,
@@ -19,8 +20,7 @@ from ..term import Variable
 from .entity import Entity, EntityTemplate, EntityVariable
 from .iri import IRI_Template, T_IRI
 from .item import Item, TItem
-from .string import TString
-from .text import Text, TText
+from .text import Text, TText, TTextLanguage
 from .value import Datatype
 
 if TYPE_CHECKING:               # pragma: no cover
@@ -119,14 +119,32 @@ class Lexeme(
         super().__init__(iri)
 
     @override
-    def display(self, language: TString | None = None) -> str:
-        return super().display(language)  # fallback
+    def _display(
+            self,
+            language: TTextLanguage | None = None,
+            markdown: bool | None = None,
+            context: Context | None = None
+    ) -> str:
+        lem = self.get_lemma(context=context)
+        cat = self.get_category(context=context)
+        lan = self.get_language(context=context)
+        if lem and cat and lan:
+            dlem = lem._display(language, markdown, context)
+            dcat = cat._display(language, markdown, context)
+            dlan = lan._display(language, markdown, context)
+            if markdown:
+                return f'[{dlem}]({self.iri.content}) ({dlan} {dcat})'
+            else:
+                return f'{dlem} ({dlan} {dcat})'
+        else:
+            return super()._display(language, markdown, context)  # fallback
 
     def describe(
             self,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool | None = None
+            force: bool | None = None,
+            context: Context | None = None
     ) -> Lexeme.Descriptor | None:
         """Gets the descriptor of lexeme in KIF context.
 
@@ -142,11 +160,12 @@ class Lexeme(
            resolve: Whether to resolve descriptor.
            resolver: Resolver store.
            force: Whether to force resolution.
+           context: Context.
 
         Returns:
            Lexeme descriptor or ``None``.
         """
-        return self.context.describe(
+        return self.get_context(context).describe(
             self, resolve=resolve, resolver=resolver,
             force=force, function=self.describe)
 
@@ -159,7 +178,8 @@ class Lexeme(
             self,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool | None = None
+            force: bool | None = None,
+            context: Context | None = None
     ) -> Text | None:
         """Gets the lemma of lexeme in KIF context.
 
@@ -167,11 +187,12 @@ class Lexeme(
            resolve: Whether to resolve lemma.
            resolver: Resolver store.
            force: Whether to force resolution.
+           context: Context.
 
         Returns:
            Lemma or ``None``.
         """
-        return self.context.get_lemma(
+        return self.get_context(context).get_lemma(
             self, resolve=resolve, resolver=resolver,
             force=force, function=self.get_lemma)
 
@@ -184,7 +205,8 @@ class Lexeme(
             self,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool | None = None
+            force: bool | None = None,
+            context: Context | None = None
     ) -> Item | None:
         """Gets the lexical category of lexeme in KIF context.
 
@@ -192,11 +214,12 @@ class Lexeme(
            resolve: Whether to resolve lexical category.
            resolver: Resolver store.
            force: Whether to force resolution.
+           context: Context.
 
         Returns:
            Lexical category or ``None``.
         """
-        return self.context.get_category(
+        return self.get_context(context).get_category(
             self, resolve=resolve, resolver=resolver,
             force=force, function=self.get_category)
 
@@ -209,7 +232,8 @@ class Lexeme(
             self,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool | None = None
+            force: bool | None = None,
+            context: Context | None = None
     ) -> Item | None:
         """Gets the language of lexeme in KIF context.
 
@@ -217,11 +241,12 @@ class Lexeme(
            resolve: Whether to resolve language.
            resolver: Resolver store.
            force: Whether to force resolution.
+           context: Context.
 
         Returns:
            Language or ``None``.
         """
-        return self.context.get_language(
+        return self.get_context(context).get_language(
             self, resolve=resolve, resolver=resolver,
             force=force, function=self.get_language)
 
@@ -230,6 +255,7 @@ class Lexeme(
             lemma: TText | None = None,
             category: TItem | None = None,
             language: TItem | None = None,
+            context: Context | None = None
     ) -> Self:
         """Adds or updates lexeme data in KIF context.
 
@@ -237,11 +263,12 @@ class Lexeme(
            lemma: Lemma.
            category: Lexical category.
            language: Language.
+           context: Context.
 
         Returns:
            Lexeme.
         """
-        return cast(Self, self.context.entities.register(
+        return cast(Self, self.get_context(context).entities.register(
             self, lemma=lemma, category=category, language=language,
             function=self.register))
 
@@ -249,7 +276,8 @@ class Lexeme(
             self,
             lemma: bool = False,
             category: bool = False,
-            language: bool = False
+            language: bool = False,
+            context: Context | None = None
     ) -> bool:
         """Removes lexeme data from KIF context.
 
@@ -259,15 +287,16 @@ class Lexeme(
            lemma: Whether to remove lemma.
            category: Whether to remove category.
            language: Whether to remove language.
+           context: Context.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
         """
         if lemma is False and category is False and language is False:
-            return self.context.entities.unregister(
+            return self.get_context(context).entities.unregister(
                 self, all=True, function=self.unregister)
         else:
-            return self.context.entities.unregister(
+            return self.get_context(context).entities.unregister(
                 self, lemma=lemma, category=category, language=language,
                 function=self.unregister)
 

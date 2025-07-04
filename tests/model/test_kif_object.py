@@ -43,8 +43,7 @@ class Test(TestCase):
             ItemTemplate(iri=IRI_Variable('x')), ItemTemplate)
 
     def test__repr_markdown_(self) -> None:
-        self.assertEqual(
-            Item('x')._repr_markdown_(), '(**Item** [x](x))')
+        self.assertEqual(Item('x')._repr_markdown_(), '(**Item** x)')
 
     def test_traverse(self) -> None:
         obj = Variable('p')(Item('x'), Quantity(5, Item('u')))

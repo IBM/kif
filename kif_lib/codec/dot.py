@@ -6,13 +6,12 @@ from __future__ import annotations
 from ..model import (
     Entity,
     Graph,
-    IRI,
     KIF_Object,
     NoValueSnak,
-    Quantity,
     SomeValueSnak,
     Statement,
-    Time,
+    String,
+    Text,
     ValueSnak,
 )
 from ..model.kif_object import Encoder, Object
@@ -54,16 +53,10 @@ class DotEncoder(
                 label: str
                 if isinstance(v, Entity):
                     label = v.display()
-                elif isinstance(v, IRI):
-                    label = f'<{v.content}>'
-                elif isinstance(v, Quantity):
-                    label = str(v.amount)
-                    if v.unit:
-                        label += ' ' + v.unit.display()
-                elif isinstance(v, Time):
-                    label = str(v.time)
-                else:
+                elif isinstance(v, (Text, String)):
                     label = v.to_markdown()
+                else:
+                    label = v.display()
                 g.node(name=v.digest, label=label)
                 g.edge(s.digest, v.digest, label=p.display())
             elif isinstance(stmt.snak, SomeValueSnak):

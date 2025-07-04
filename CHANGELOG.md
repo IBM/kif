@@ -22,6 +22,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added `memory` store.  Keeps a set of statements in memory and uses
   shallow-matching to implement `filter()`.
 
+- Added `Value.display()` method to pretty-print any value, not only
+  entities.
+
 ## 0.10.0 (2025-06-26)
 
 - Added projected variants of `count()` and `filter()` to the Store API,

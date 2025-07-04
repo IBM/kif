@@ -3,12 +3,14 @@
 
 from __future__ import annotations
 
+import abc
 import datetime
 import decimal
 import enum
 from typing import TYPE_CHECKING
 
 from ... import namespace as NS
+from ...context import Context
 from ...rdflib import Literal, URIRef
 from ...typing import (
     Any,
@@ -27,6 +29,7 @@ from .datatype import Datatype
 if TYPE_CHECKING:  # pragma: no cover
     from ..fingerprint import AndFingerprint, OrFingerprint, TFingerprint
     from .quantity import TDecimal  # noqa: F401
+    from .text import TTextLanguage
     from .time import TDatetime  # noqa: F401
 
 TValue: TypeAlias = Union['Value', 'TDatetime', 'TDecimal', str]
@@ -112,6 +115,33 @@ class Value(
     def __ror__(self, other: TFingerprint) -> OrFingerprint:
         from ..fingerprint import OrFingerprint
         return OrFingerprint(self, other)
+
+    def display(
+            self,
+            language: TTextLanguage | None = None,
+            markdown: bool | None = None,
+            context: Context | None = None
+    ) -> str:
+        """Gets a human-readable representation of value in KIF context.
+
+        Parameters:
+           language: Language.
+           markdown: Whether to use markdown notation.
+           context: Context.
+
+        Returns:
+           Human-readable representation.
+        """
+        return self._display(language, markdown, context)
+
+    @abc.abstractmethod
+    def _display(
+            self,
+            language: TTextLanguage | None = None,
+            markdown: bool | None = None,
+            context: Context | None = None
+    ) -> str:
+        raise NotImplementedError
 
     def n3(self) -> str:
         """Gets the simple value of value in N3 format.

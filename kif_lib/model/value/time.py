@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import datetime
 import enum
+import math
 import sys
 
+from ...context import Context
 from ...typing import Any, ClassVar, Location, override, Self, TypeAlias, Union
 from ..term import Template, Variable
 from .deep_data_value import (
@@ -17,6 +19,7 @@ from .deep_data_value import (
 from .item import Item, ItemTemplate, ItemVariable, VItem, VTItem
 from .quantity import Quantity, QuantityVariable, TQuantity, VTQuantityContent
 from .string import String
+from .text import TTextLanguage
 from .value import Datatype
 
 TDatetime: TypeAlias = Union[datetime.datetime, datetime.date, str]
@@ -450,3 +453,40 @@ class Time(
            Calendar model.
         """
         return self.get(3, default)
+
+    @override
+    def _display(
+            self,
+            language: TTextLanguage | None = None,
+            markdown: bool | None = None,
+            context: Context | None = None
+    ) -> str:
+        if (self.precision is None
+                or self.precision == self.Precision.BILLION_YEARS
+                or self.precision == self.Precision.HUNDRED_MILLION_YEARS
+                or self.precision == self.Precision.TEN_MILLION_YEARS
+                or self.precision == self.Precision.MILLION_YEARS
+                or self.precision == self.Precision.HUNDRED_THOUSAND_YEARS
+                or self.precision == self.Precision.TEN_THOUSAND_YEARS):
+            return self.time.strftime('%Y-%m-%d')
+        if self.precision == self.Precision.MILLENNIA:
+            return f'{math.ceil(self.time.year / 1000)}. millennium'
+        elif self.precision == self.Precision.CENTURY:
+            return f'{math.ceil(self.time.year / 100)}. century'
+        elif self.precision == self.Precision.DECADE:
+            return self.time.strftime('%Y')[:-1] + '0s'
+        elif self.precision == self.Precision.YEAR:
+            return self.time.strftime('%Y')
+        elif self.precision == self.Precision.MONTH:
+            return self.time.strftime('%B %Y')
+        else:
+            day = f'{self.time.day} {self.time.strftime("%B %Y")}'
+            if self.precision == self.Precision.DAY:
+                return day
+            elif (self.precision == self.Precision.HOUR
+                    or self.precision == self.Precision.MINUTE):
+                return f'{day} at {self.time.strftime("%H:%M")}'
+            elif (self.precision == self.Precision.SECOND):
+                return f'{day} at {self.time.strftime("%H:%M:%S")}'
+            else:
+                raise self._should_not_get_here()

@@ -6,6 +6,8 @@ from __future__ import annotations
 import decimal
 import enum
 
+from ...context import Context
+from ...namespace import Wikidata
 from ...typing import Any, ClassVar, Location, override, Self, TypeAlias, Union
 from ..term import Template, Variable
 from .deep_data_value import (
@@ -15,6 +17,7 @@ from .deep_data_value import (
 )
 from .item import Item, ItemTemplate, ItemVariable, VItem, VTItem
 from .string import String, TString
+from .text import TTextLanguage
 from .value import Datatype
 
 TDecimal: TypeAlias = Union[decimal.Decimal, float, int, enum.Enum, TString]
@@ -314,3 +317,29 @@ class Quantity(
            Upper bound.
         """
         return self.get(3, default)
+
+    @override
+    def _display(
+            self,
+            language: TTextLanguage | None = None,
+            markdown: bool | None = None,
+            context: Context | None = None
+    ) -> str:
+        if self.lower_bound is not None or self.upper_bound is not None:
+            val: str | None = None
+            if self.lower_bound is not None and self.upper_bound is not None:
+                n, lb, ub = self.amount, self.lower_bound, self.upper_bound
+                if (ub + lb) / 2 == n:
+                    val = f'{n} ±{ub - n}'
+            if not val:
+                lbs = (str(self.lower_bound)
+                       if self.lower_bound is not None else '-∞')
+                ubs = (str(self.upper_bound)
+                       if self.upper_bound is not None else '+∞')
+                val = f'{self.amount} [{lbs},{ubs}]'
+        else:
+            val = str(self.amount)
+        if self.unit and self.unit != Item(Wikidata.WD['Q199']):
+            return val + ' ' + self.unit.display(language, markdown, context)
+        else:
+            return val

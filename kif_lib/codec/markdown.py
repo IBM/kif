@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import decimal
 import re
 
 from ..model import (
@@ -17,7 +16,6 @@ from ..model import (
     Fingerprint,
     IRI,
     KIF_Object,
-    Property,
     PseudoProperty,
     Quantity,
     Rank,
@@ -58,39 +56,18 @@ class MarkdownEncoder(
             yield self._encode_kif_object_name(obj)
         elif isinstance(obj, Entity):
             yield from self._iterencode_kif_object_start(obj)
-            ###
-            # FIXME: For now, ignore property datatype.
-            ###
-            if isinstance(obj, Property):
-                obj = obj.replace(obj.iri, None)
-            yield f'[{obj.display()}]({obj.iri.content})'
+            yield obj.display(markdown=True)
             yield from self._iterencode_kif_object_end(obj)
         elif isinstance(obj, IRI):
-            try:
-                curie = obj.context.iris.curie(obj) or obj.content
-                yield f'[{curie}]({obj.content})'
-            except KeyError:
-                yield from self._iterencode_iri_fallback(obj)
-            except ValueError:
-                yield from self._iterencode_iri_fallback(obj)
+            yield self._escape_md(obj.display(markdown=True))
         elif isinstance(obj, Text):
-            yield f'"{self._escape_md(obj.content)}"@{obj.language}'
+            yield f'"{self._escape_md(obj.display())}"@{obj.language}'
         elif isinstance(obj, String):
-            yield f'"{self._escape_md(obj.content)}"'
+            yield f'"{self._escape_md(obj.display())}"'
         elif isinstance(obj, Quantity):
-            yield from self._iterencode_kif_object_start(obj)
-            yield from self._iterencode_quantity(obj)
-            yield from self._iterencode_kif_object_end(obj)
+            yield obj.display(markdown=True)
         elif isinstance(obj, Time):
-            ###
-            # TODO: Convert timezone and calendar model.
-            ###
-            yield from self._iterencode_kif_object_start(obj)
-            if obj.precision is None or obj.precision.value <= 11:
-                yield obj.time.date().isoformat()
-            else:
-                yield obj.time.replace().isoformat()
-            yield from self._iterencode_kif_object_end(obj)
+            yield obj.display(markdown=True)
         elif isinstance(obj, Snak):
             yield from self._iterencode_kif_object_start(obj)
             yield from self._iterencode(obj.property, indent)
@@ -188,42 +165,6 @@ class MarkdownEncoder(
 
     def _iterencode_kif_object_end(self, obj: KIF_Object) -> Iterator[str]:
         yield ')'
-
-    def _iterencode_iri_fallback(
-            self,
-            iri: IRI,
-            default_scheme: str = 'http'
-    ) -> Iterator[str]:
-        from urllib.parse import urlparse
-        val = iri.content
-        if not urlparse(val).scheme:
-            yield f'[{val}]({default_scheme}://{val})'
-        else:
-            yield f'[{val}]({val})'
-
-    def _iterencode_quantity(self, qt: Quantity) -> Iterator[str]:
-        if qt.lower_bound is not None or qt.upper_bound is not None:
-            val: str | None = None
-            if qt.lower_bound is not None and qt.upper_bound is not None:
-                n = decimal.Decimal(qt.amount)
-                lb = decimal.Decimal(qt.lower_bound)
-                ub = decimal.Decimal(qt.upper_bound)
-                if (ub + lb) / 2 == n:
-                    val = f'{n} ±{ub - n}'
-            if not val:
-                lbs = (str(qt.lower_bound)
-                       if qt.lower_bound is not None else '-∞')
-                ubs = (str(qt.upper_bound)
-                       if qt.upper_bound is not None else '∞')
-                val = f'{qt.amount} [{lbs},{ubs}]'
-        else:
-            val = str(qt.amount)
-        if qt.unit:
-            unit = self.encode(qt.unit)
-            unit = f' {unit}'
-        else:
-            unit = ''
-        yield f'{val}{unit}'
 
     def _iterencode_variable(
             self,

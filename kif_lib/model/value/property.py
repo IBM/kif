@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import overload
 
+from ...context import Context
 from ...typing import (
     Any,
     cast,
@@ -33,7 +34,6 @@ from .datatype import (
 )
 from .entity import Entity, EntityTemplate, EntityVariable, VTEntity
 from .iri import IRI, IRI_Template, T_IRI, VT_IRI
-from .string import TString
 from .text import Text, TText, TTextLanguage, TTextSet
 from .value import VTValue
 
@@ -783,19 +783,28 @@ class Property(
                 return stmt.annotate(qualifiers, references, rank)
 
     @override
-    def display(self, language: TString | None = None) -> str:
-        label = self.get_label(language)
+    def _display(
+            self,
+            language: TTextLanguage | None = None,
+            markdown: bool | None = None,
+            context: Context | None = None
+    ) -> str:
+        label = self.get_label(language=language, context=context)
         if label:
-            return label.content
+            if markdown:
+                return f'[{label.content}]({self.iri.content})'
+            else:
+                return label.content
         else:
-            return super().display(language)  # fallback
+            return super()._display(language, markdown, context)  # fallback
 
     def describe(
             self,
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool | None = None
+            force: bool | None = None,
+            context: Context | None = None
     ) -> Property.Descriptor | None:
         """Gets the descriptor of property in KIF context.
 
@@ -814,11 +823,12 @@ class Property(
            resolve: Whether to resolve descriptor.
            resolver: Resolver store.
            force: Whether to force resolution.
+           context: Context.
 
         Returns:
            Property descriptor or ``None``.
         """
-        return self.context.describe(
+        return self.get_context(context).describe(
             self, language=language, resolve=resolve, resolver=resolver,
             force=force, function=self.describe)
 
@@ -832,7 +842,8 @@ class Property(
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool | None = None
+            force: bool | None = None,
+            context: Context | None = None
     ) -> Text | None:
         """Gets the label of property in KIF context.
 
@@ -841,11 +852,12 @@ class Property(
            resolve: Whether to resolve label.
            resolver: Resolver store.
            force: Whether to force resolution.
+           context: Context.
 
         Returns:
            Label or ``None``.
         """
-        return self.context.get_label(
+        return self.get_context(context).get_label(
             self, language=language, resolve=resolve, resolver=resolver,
             force=force, function=self.get_label)
 
@@ -859,7 +871,8 @@ class Property(
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool | None = None
+            force: bool | None = None,
+            context: Context | None = None
     ) -> Set[Text] | None:
         """Gets the aliases of property in KIF context.
 
@@ -868,11 +881,12 @@ class Property(
            resolve: Whether to resolve aliases.
            resolver: Resolver store.
            force: Whether to force resolution.
+           context: Context.
 
         Returns:
            Aliases or ``None``.
         """
-        return self.context.get_aliases(
+        return self.get_context(context).get_aliases(
             self, language=language, resolve=resolve, resolver=resolver,
             force=force, function=self.get_aliases)
 
@@ -886,7 +900,8 @@ class Property(
             language: TTextLanguage | None = None,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool | None = None
+            force: bool | None = None,
+            context: Context | None = None
     ) -> Text | None:
         """Gets the description of property in KIF context.
 
@@ -895,11 +910,12 @@ class Property(
            resolve: Whether to resolve description.
            resolver: Resolver store.
            force: Whether to force resolution.
+           context: Context.
 
         Returns:
            Description or ``None``.
         """
-        return self.context.get_description(
+        return self.get_context(context).get_description(
             self, language=language, resolve=resolve, resolver=resolver,
             force=force, function=self.get_description)
 
@@ -912,7 +928,8 @@ class Property(
             self,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool | None = None
+            force: bool | None = None,
+            context: Context | None = None
     ) -> Datatype | None:
         """Gets the range of property in KIF context.
 
@@ -920,11 +937,12 @@ class Property(
            resolve: Whether to resolve range.
            resolver: Resolver store.
            force: Whether to force resolution.
+           context: Context.
 
         Returns:
            Range or ``None``.
         """
-        return self.context.get_range(
+        return self.get_context(context).get_range(
             self, resolve=resolve, resolver=resolver,
             force=force, function=self.get_range)
 
@@ -937,7 +955,8 @@ class Property(
             self,
             resolve: bool | None = None,
             resolver: Store | None = None,
-            force: bool | None = None
+            force: bool | None = None,
+            context: Context | None = None
     ) -> Property | None:
         """Gets the inverse of property in KIF context.
 
@@ -945,11 +964,12 @@ class Property(
            resolve: Whether to resolve inverse.
            resolver: Resolver store.
            force: Whether to force resolution.
+           context: Context.
 
         Returns:
            Property or ``None``.
         """
-        return self.context.get_inverse(
+        return self.get_context(context).get_inverse(
             self, resolve=resolve, resolver=resolver,
             force=force, function=self.get_inverse)
 
@@ -961,7 +981,8 @@ class Property(
     def get_schema(
             self,
             default: Property.Schema | None = None,
-            resolve: bool = True
+            resolve: bool = True,
+            context: Context | None = None
     ) -> Property.Schema | None:
         """Gets the schema of property in KIF context.
 
@@ -974,12 +995,13 @@ class Property(
         Parameters:
            default: Default schema.
            resolve: Whether to resolve the returned schema.
+           context: Context.
 
         Returns:
            Property schema or ``None``.
-
         """
-        schema = self.context.get_schema(self, function=self.get_schema)
+        schema = self.get_context(context).get_schema(
+            self, function=self.get_schema)
         if schema is None:
             schema = default
         if schema is not None:
@@ -1001,7 +1023,8 @@ class Property(
             description: TText | None = None,
             descriptions: TTextSet | None = None,
             range: TDatatype | None = None,
-            inverse: TProperty | None = None
+            inverse: TProperty | None = None,
+            context: Context | None = None
     ) -> Self:
         """Adds or updates property data in KIF context.
 
@@ -1014,11 +1037,12 @@ class Property(
            descriptions: Descriptions.
            range: Range.
            inverse: Inverse property.
+           context: Context.
 
         Returns:
            Property.
         """
-        return cast(Self, self.context.entities.register(
+        return cast(Self, self.get_context(context).entities.register(
             self, label=label, labels=labels, alias=alias, aliases=aliases,
             description=description, descriptions=descriptions,
             range=range, inverse=inverse, function=self.register))
@@ -1038,7 +1062,8 @@ class Property(
             all_aliases: bool = False,
             all_descriptions: bool = False,
             range: bool = False,
-            inverse: bool = False
+            inverse: bool = False,
+            context: Context | None = None
     ) -> bool:
         """Removes property data from KIF context.
 
@@ -1059,6 +1084,7 @@ class Property(
            all_descriptions: Whether to remove all descriptions.
            range: Whether to remove range.
            inverse: Whether to remove inverse.
+           context: Context.
 
         Returns:
            ``True`` if successful; ``False`` otherwise.
@@ -1074,10 +1100,10 @@ class Property(
                 and all_descriptions is False
                 and range is False
                 and inverse is False):
-            return self.context.entities.unregister(
+            return self.get_context(context).entities.unregister(
                 self, all=True, function=self.unregister)
         else:
-            return self.context.entities.unregister(
+            return self.get_context(context).entities.unregister(
                 self, label=label, labels=labels,
                 alias=alias, aliases=aliases,
                 description=description, descriptions=descriptions,
