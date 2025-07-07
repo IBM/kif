@@ -6,31 +6,34 @@
 
 ## Codec
 
-### RDF encoder
+- JSON codec: for generating JSON in standard Wikidata format.
 
-- BUG: Add an option to escape URLs (should be true by default).
+- RDF encoder: BUG: Add an option to escape URLs (should be true by
+  default).
+
+- Repr decoder: Replace `eval()` by a proper parser (via lark).
 
 ## Compiler
 
-### SPARQL
+- PubChem mapping: Add support for the use of QIDs as compound identifiers
+  in subjects and values. (?)
 
-### PubChem mapping
+- Filter compiler: Aggregate snaks with the same property (optimization).
 
-- Add support for the use of QIDs as compound identifiers in subjects and
-  values. (?)
+- Filter compiler: Use subqueries to implement fingerprints. (?)
+
+- Filter compiler: Make the compiler return a stream of queries to be
+  executed in parallel.
 
 ## Context
 
-### Entity registry
+- Entity registry: Cache the property-constraint
+  (allowed-entity-types-constraint) of properties.  We could expose this as
+  Property.domain (Item, Property, or Lexeme) and then use it to optimize
+  the queries.
 
-- Cache the property-constraint (allowed-entity-types-constraint) of
-  properties.  We could expose this as Property.domain (Item, Property, or
-  Lexeme) and then use it to optimize the queries.
-
-### Options
-
-- Allow KIF-object values in environment variables.  For example, one could
-  set `WIKIDATA` to `IRI('https://www.wikidata.org/sparql')`. (?)
+- Options: Allow KIF-object values in environment variables.  For example,
+  one could set `WIKIDATA` to `IRI('https://www.wikidata.org/sparql')`. (?)
 
 ## Model
 
@@ -38,65 +41,42 @@
 
 - Add `context` argument to model classes. (?)
 
-### Filter
+- Filter: Add "normalized" flag to instruct KIF to obtain the normalized
+  value (when it exists).
 
-- Add support for pseudo-property flag in `property_mask`.
+- Filter: Add support for pseudo-property flag in `property_mask`.
 
-- Add support for "negation".  We can compile the negation of an atomic `v`,
-  i.e., `~v`, as `FILTER(?x != v)`.  And we can compile the negation of a
-  snak `S`, i.e., `~S`, as a `FILTER NOT EXISTS`.
+- Filter: Add support for "negation".  We can compile the negation of an
+  atomic `v`, i.e., `~v`, as `FILTER(?x != v)`.  And we can compile the
+  negation of a snak `S`, i.e., `~S`, as a `FILTER NOT EXISTS`.
 
-- Add support for compound filters.  E.g., we could add a FilterUnion to
-  represent the union of two or more filters.  If no snak sets occur in the
-  child patterns, then each child pattern becomes an entry in the VALUES
-  clause of filter.  Otherwise, each child pattern becomes a separate call
-  to filter() and these calls are merged by the union.
+- Filter: Add support for compound filters.  E.g., we could add a
+  FilterUnion to represent the union of two or more filters.  If no snak
+  sets occur in the child patterns, then each child pattern becomes an entry
+  in the VALUES clause of filter.  Otherwise, each child pattern becomes a
+  separate call to filter() and these calls are merged by the union.
 
-### Fingerprint
+- Fingerprint: Normalization: We can use the distributive laws to decompose
+  complex fingerprints.  E.g., `𝜂[A∧(B∨(C∧(D∨E)))]` ⤳
+  `𝜂[A∧B]∨𝜂[A∧(C∧(D∨E))]` ⤳ `(A∧B)∨𝜂[(X≔A∧C)∧(D∨E)]` ⤳ `(A∧B)∨𝜂[X∧(D∨E)]` ⤳
+  `(A∧B)∨𝜂[X∧D]∨𝜂[X∧E]` ⤳ `(A∧B)∨(A∧C∧D)∨(A∧C∧E)`. Now we know that the
+  value mask of the original formula is equal to the mask of `(A∧B) |
+  (A∧C∧D) | (A∧C∧E)`; also we can break the original query into three
+  queries (executed in parallel).  We should restrict this type of
+  normalization to non-VALUES clauses.  One possible way to do this is to
+  introduce a new kind of fingerprint ValuesFingerprint/OneOfFingepprint
+  which behaves as `|` but aggregates only or-ed value fingerprints.
 
-- Normalization: We can use the distributive laws to decompose complex
-  fingerprints.  E.g., `𝜂[A∧(B∨(C∧(D∨E)))]` ⤳ `𝜂[A∧B]∨𝜂[A∧(C∧(D∨E))]` ⤳
-  `(A∧B)∨𝜂[(X≔A∧C)∧(D∨E)]` ⤳ `(A∧B)∨𝜂[X∧(D∨E)]` ⤳ `(A∧B)∨𝜂[X∧D]∨𝜂[X∧E]` ⤳
-  `(A∧B)∨(A∧C∧D)∨(A∧C∧E)`. Now we know that the value mask of the original
-  formula is equal to the mask of `(A∧B) | (A∧C∧D) | (A∧C∧E)`; also we can
-  break the original query into three queries (executed in parallel).  We
-  should restrict this type of normalization to non-VALUES clauses.  One
-  possible way to do this is to introduce a new kind of fingerprint
-  ValuesFingerprint/OneOfFingepprint which behaves as `|` but aggregates
-  only or-ed value fingerprints.
-
-### Text
-
-- Revise the use of `TTextLanguage`.  Maybe we should create an alias
+- Text: Revise the use of `TTextLanguage`.  Maybe we should create an alias
   `Text.Language` for `String`.
 
-### Time
-
-- BUG: Fix the internal representation of dates and times.  Find an
+- Time: BUG: Fix the internal representation of dates and times.  Find an
   alternative to Python's datetime or add a new field to the time values to
   store the `+` or `-` sign of Wikidata datetime strings.
 
-- Time values with no month or day should default to `01-01`.
+- Time: Time values with no month or day should default to `01-01`.
 
-- `Time()` should default to `now()`.
-
-## Compiler
-
-- Filter compiler [optimization]: Aggregate snaks with the same property.
-
-- Filter compiler: Use subqueries to implement fingerprints. (?)
-
-- Make the compiler return a stream of queries to be executed in parallel.
-
-## Codec
-
-### Repr
-
-- Replace `eval()` by a proper parser (via lark).
-
-### JSON
-
-- Add support for generating JSON in standard Wikidata format.
+- Time: `Time()` should default to `now()`.
 
 ## Store
 
@@ -114,30 +94,28 @@
 
 - Add support for obtaining normalized values.  Some possibilities: (i) make
   `Statement` carry an extra (normalized) value or value set; (ii) make
-  value carry an extra (normalized) value or value set.
+  value carry an extra (normalized) value or value set.  See comment about
+  adding a "normalized" flag to `Filter`.
 
 - Add support for testing whether a given statement is best-ranked.
 
 - Add support for pagination, projection, etc., via an explicit "results"
   object.  Given the results, one can skip pages, apply a projection, etc.
 
-### CSV
+- CSV store: Add support for a CSV store using the local SPARQL backend.
+  One of the columns of the CSV should be used for the subject; the
+  remaining columns should be used for properties.
 
-- Add support for a CSV store using the local SPARQL backend.  One of the
-  columns of the CSV should be used for the subject; the remaining columns
-  should be used for properties.
+- Mixer: Add support for entity unification: When a fingerprint is used with
+  an identifier property (external id) we could ask the mixer to perform
+  entity unification, i.e., use one of the underlying stores as the source
+  of canonical entity ids.
 
-### Mixer
+- Mixer: Brainstorm: Add some notion of proportion.  For example, for the
+  stores `(s1,s2)` we associate the proportion `(4,3)` meaning that at each
+  cycle the mixer will return 4 statements from `s1` and 3 statements from
+  `s2`.  Note that this is equivalent to using `(s1,s1,s1,s2,s2,s2)` as
+  children.
 
-- Add support for entity unification: When a fingerprint is used with an
-  identifier property (external id) we could ask the mixer to perform entity
-  unification, i.e., use one of the underlying stores as the source of
-  canonical entity ids.
-
-- Brainstorm: Add some notion of proportion.  For example, for the stores
-  `(s1,s2)` we associate the proportion `(4,3)` meaning that at each cycle
-  the mixer will return 4 statements from `s1` and 3 statements from `s2`.
-  Note that this is equivalent to using `(s1,s1,s1,s2,s2,s2)` as children.
-
-- Brainstorm: Exploit SPARQL federation in cases where children support the
-  SPARQL protocol.
+- Mixer: Brainstorm: Exploit SPARQL federation in cases where children
+  support the SPARQL protocol.
