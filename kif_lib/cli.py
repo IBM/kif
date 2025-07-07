@@ -73,6 +73,9 @@ TObj = TypeVar('TObj', bound=KIF_Object)
 #: The globals table to be passed to :func:`eval`.
 _G: Final[dict[str, Any]] = {}
 
+#: Whether to profile the current command.
+_PROFILE: bool = False
+
 
 @click.group(help=f'KIF: {__description__}.')
 @click.version_option(version=__version__)
@@ -96,10 +99,16 @@ _G: Final[dict[str, Any]] = {}
     metavar='MOD',
     multiple=True,
     help='Load module MOD.')
+@click.option(
+    '--profile',
+    is_flag=True,
+    default=False,
+    help='Profile command using kcachegrind.')
 def cli(
         debug: bool | None = None,
         info: bool | None = None,
-        module: Sequence[str] = ()
+        module: Sequence[str] = (),
+        profile: bool | None = None
 ) -> None:
     if debug or info:
         ctx = Context.top()
@@ -111,18 +120,44 @@ def cli(
         for mod in module:
             global _G           # noqa: F824
             _G[mod] = importlib.import_module(mod)
+    if profile:
+        global _PROFILE
+        _PROFILE = True
+
+
+def _run(command: Callable[[], None]) -> None:
+    if _PROFILE:
+        import cProfile
+        import pathlib
+        import shutil
+        import subprocess
+        import tempfile
+        prof = cProfile.Profile()
+        prof.runcall(command)
+        tmpdir = pathlib.Path(tempfile.mkdtemp())
+        prof_file, cgraph_file = tmpdir / 'profile', tmpdir / 'callgraph'
+        prof.dump_stats(prof_file)
+        subprocess.run(['pyprof2calltree', '-k', '-i', prof_file,
+                        '-o', cgraph_file], check=True)
+        shutil.rmtree(tmpdir)
+    else:
+        command()
 
 
 @cli.command(help='Show the available decoders and exit.')
 def list_decoders() -> None:
-    _list_name_description_pairs(
-        ((k, v.description) for k, v in Decoder.registry.items()))
+    def _list_decoders() -> None:
+        _list_name_description_pairs(
+            ((k, v.description) for k, v in Decoder.registry.items()))
+    _run(_list_decoders)
 
 
 @cli.command(help='Show the available encoders and exit.')
 def list_encoders() -> None:
-    _list_name_description_pairs(
-        ((k, v.description) for k, v in Encoder.registry.items()))
+    def _list_encoders() -> None:
+        _list_name_description_pairs(
+            ((k, v.description) for k, v in Encoder.registry.items()))
+    _run(_list_encoders)
 
 
 @cli.command(help='Show KIF context options and exit.')
@@ -139,17 +174,21 @@ def list_encoders() -> None:
     default=False,
     help='Show option description.')
 def list_options(name: str, describe: bool | None = None) -> None:
-    ctx = Context.top()
-    if describe:
-        click.echo(ctx.get_option_description_by_name(name))
-    else:
-        click.echo(ctx.get_option_by_name(name))
+    def _list_options() -> None:
+        ctx = Context.top()
+        if describe:
+            click.echo(ctx.get_option_description_by_name(name))
+        else:
+            click.echo(ctx.get_option_by_name(name))
+    _run(_list_options)
 
 
 @cli.command(help='Show the available stores and exit.')
 def list_stores() -> None:
-    _list_name_description_pairs(
-        ((k, v.store_description) for k, v in Store.registry.items()))
+    def _list_stores() -> None:
+        _list_name_description_pairs(
+            ((k, v.store_description) for k, v in Store.registry.items()))
+    _run(list_stores)
 
 
 def _list_name_description_pairs(pairs: Iterable[tuple[str, str]]) -> None:
@@ -967,53 +1006,58 @@ def ask(
         resolve: bool | None = None,
         timeout: float | None = None
 ) -> None:
-    fr = FilterParam.make_filter(
-        subject=subject,
-        subject_option=subject_option,
-        property=property,
-        property_option=property_option,
-        value=value,
-        value_option=value_option,
-        snak_is_no_value=snak_is_no_value,
-        snak_is_some_value=snak_is_some_value,
-        snak_is_value=snak_is_value,
-        snak_mask=snak_mask,
-        subject_is_item=subject_is_item,
-        subject_is_lexeme=subject_is_lexeme,
-        subject_is_property=subject_is_property,
-        subject_mask=subject_mask,
-        property_mask=property_mask,
-        value_is_data_value=value_is_data_value,
-        value_is_deep_data_value=value_is_deep_data_value,
-        value_is_entity=value_is_entity,
-        value_is_external_id=value_is_external_id,
-        value_is_iri=value_is_iri,
-        value_is_item=value_is_item,
-        value_is_lexeme=value_is_lexeme,
-        value_is_property=value_is_property,
-        value_is_quantity=value_is_quantity,
-        value_is_shallow_data_value=value_is_shallow_data_value,
-        value_is_string=value_is_string,
-        value_is_text=value_is_text,
-        value_is_time=value_is_time,
-        value_is_value=value_is_value,
-        value_mask=value_mask,
-        rank_mask=rank_mask,
-        language=language,
-        dry_run=dry_run)
-    target = FilterParam.make_store(
-        store,
-        best_ranked=best_ranked,
-        distinct=distinct,
-        timeout=timeout)
-    status: bool
-    if async_:
-        async def aask():
-            return await target.aask(filter=fr)
-        status = asyncio.run(aask())
-    else:
-        status = target.ask(filter=fr)
-    sys.exit(int(not status))
+    def _ask() -> None:
+        fr = FilterParam.make_filter(
+            subject=subject,
+            subject_option=subject_option,
+            property=property,
+            property_option=property_option,
+            value=value,
+            value_option=value_option,
+            snak_is_no_value=snak_is_no_value,
+            snak_is_some_value=snak_is_some_value,
+            snak_is_value=snak_is_value,
+            snak_mask=snak_mask,
+            subject_is_item=subject_is_item,
+            subject_is_lexeme=subject_is_lexeme,
+            subject_is_property=subject_is_property,
+            subject_mask=subject_mask,
+            property_mask=property_mask,
+            value_is_data_value=value_is_data_value,
+            value_is_deep_data_value=value_is_deep_data_value,
+            value_is_entity=value_is_entity,
+            value_is_external_id=value_is_external_id,
+            value_is_iri=value_is_iri,
+            value_is_item=value_is_item,
+            value_is_lexeme=value_is_lexeme,
+            value_is_property=value_is_property,
+            value_is_quantity=value_is_quantity,
+            value_is_shallow_data_value=value_is_shallow_data_value,
+            value_is_string=value_is_string,
+            value_is_text=value_is_text,
+            value_is_time=value_is_time,
+            value_is_value=value_is_value,
+            value_mask=value_mask,
+            rank_mask=rank_mask,
+            language=language,
+            dry_run=dry_run)
+        target = FilterParam.make_store(
+            store,
+            best_ranked=best_ranked,
+            distinct=distinct,
+            timeout=timeout)
+        status: bool
+        if async_:
+            async def aask():
+                return await target.aask(filter=fr)
+            status = asyncio.run(aask())
+        else:
+            status = target.ask(filter=fr)
+        if _PROFILE:
+            click.echo(status)
+        else:
+            sys.exit(int(not status))
+    _run(_ask)
 
 
 @cli.command(help='Counts the number of statements matching filter.')
@@ -1103,72 +1147,74 @@ def count(
         select: str | None = None,
         timeout: float | None = None
 ) -> None:
-    fr = FilterParam.make_filter(
-        subject=subject,
-        subject_option=subject_option,
-        property=property,
-        property_option=property_option,
-        value=value,
-        value_option=value_option,
-        snak_is_no_value=snak_is_no_value,
-        snak_is_some_value=snak_is_some_value,
-        snak_is_value=snak_is_value,
-        snak_mask=snak_mask,
-        subject_is_item=subject_is_item,
-        subject_is_lexeme=subject_is_lexeme,
-        subject_is_property=subject_is_property,
-        subject_mask=subject_mask,
-        property_mask=property_mask,
-        value_is_data_value=value_is_data_value,
-        value_is_deep_data_value=value_is_deep_data_value,
-        value_is_entity=value_is_entity,
-        value_is_external_id=value_is_external_id,
-        value_is_iri=value_is_iri,
-        value_is_item=value_is_item,
-        value_is_lexeme=value_is_lexeme,
-        value_is_property=value_is_property,
-        value_is_quantity=value_is_quantity,
-        value_is_shallow_data_value=value_is_shallow_data_value,
-        value_is_string=value_is_string,
-        value_is_text=value_is_text,
-        value_is_time=value_is_time,
-        value_is_value=value_is_value,
-        value_mask=value_mask,
-        rank_mask=rank_mask,
-        language=language,
-        dry_run=dry_run)
-    target = FilterParam.make_store(
-        store,
-        best_ranked=best_ranked,
-        distinct=distinct,
-        timeout=timeout)
-    n: int
-    if async_:
-        ac: dict[str, Callable[[], Awaitable[int]]] = {
-            's': (lambda: target.acount_s(filter=fr)),
-            'p': (lambda: target.acount_p(filter=fr)),
-            'v': (lambda: target.acount_v(filter=fr)),
-            'sp': (lambda: target.acount_sp(filter=fr)),
-            'sv': (lambda: target.acount_sv(filter=fr)),
-            'pv': (lambda: target.acount_pv(filter=fr)),
-            'spv': (lambda: target.acount(filter=fr))}
+    def _count() -> None:
+        fr = FilterParam.make_filter(
+            subject=subject,
+            subject_option=subject_option,
+            property=property,
+            property_option=property_option,
+            value=value,
+            value_option=value_option,
+            snak_is_no_value=snak_is_no_value,
+            snak_is_some_value=snak_is_some_value,
+            snak_is_value=snak_is_value,
+            snak_mask=snak_mask,
+            subject_is_item=subject_is_item,
+            subject_is_lexeme=subject_is_lexeme,
+            subject_is_property=subject_is_property,
+            subject_mask=subject_mask,
+            property_mask=property_mask,
+            value_is_data_value=value_is_data_value,
+            value_is_deep_data_value=value_is_deep_data_value,
+            value_is_entity=value_is_entity,
+            value_is_external_id=value_is_external_id,
+            value_is_iri=value_is_iri,
+            value_is_item=value_is_item,
+            value_is_lexeme=value_is_lexeme,
+            value_is_property=value_is_property,
+            value_is_quantity=value_is_quantity,
+            value_is_shallow_data_value=value_is_shallow_data_value,
+            value_is_string=value_is_string,
+            value_is_text=value_is_text,
+            value_is_time=value_is_time,
+            value_is_value=value_is_value,
+            value_mask=value_mask,
+            rank_mask=rank_mask,
+            language=language,
+            dry_run=dry_run)
+        target = FilterParam.make_store(
+            store,
+            best_ranked=best_ranked,
+            distinct=distinct,
+            timeout=timeout)
+        n: int
+        if async_:
+            ac: dict[str, Callable[[], Awaitable[int]]] = {
+                's': (lambda: target.acount_s(filter=fr)),
+                'p': (lambda: target.acount_p(filter=fr)),
+                'v': (lambda: target.acount_v(filter=fr)),
+                'sp': (lambda: target.acount_sp(filter=fr)),
+                'sv': (lambda: target.acount_sv(filter=fr)),
+                'pv': (lambda: target.acount_pv(filter=fr)),
+                'spv': (lambda: target.acount(filter=fr))}
 
-        async def acount():
+            async def acount():
+                assert select is not None
+                return await ac[select]()
+            n = asyncio.run(acount())
+        else:
+            c: dict[str, Callable[[], int]] = {
+                's': (lambda: target.count_s(filter=fr)),
+                'p': (lambda: target.count_p(filter=fr)),
+                'v': (lambda: target.count_v(filter=fr)),
+                'sp': (lambda: target.count_sp(filter=fr)),
+                'sv': (lambda: target.count_sv(filter=fr)),
+                'pv': (lambda: target.count_pv(filter=fr)),
+                'spv': (lambda: target.count(filter=fr))}
             assert select is not None
-            return await ac[select]()
-        n = asyncio.run(acount())
-    else:
-        c: dict[str, Callable[[], int]] = {
-            's': (lambda: target.count_s(filter=fr)),
-            'p': (lambda: target.count_p(filter=fr)),
-            'v': (lambda: target.count_v(filter=fr)),
-            'sp': (lambda: target.count_sp(filter=fr)),
-            'sv': (lambda: target.count_sv(filter=fr)),
-            'pv': (lambda: target.count_pv(filter=fr)),
-            'spv': (lambda: target.count(filter=fr))}
-        assert select is not None
-        n = c[select]()
-    click.echo(n)
+            n = c[select]()
+        click.echo(n)
+    _run(_count)
 
 
 @cli.command(help='Searches for statements matching filter.')
@@ -1264,101 +1310,103 @@ def filter(
         select: str | None = None,
         timeout: float | None = None
 ) -> None:
-    console = Console()
-    context = FilterParam.make_context(resolve)
-    fr = FilterParam.make_filter(
-        subject=subject,
-        subject_option=subject_option,
-        property=property,
-        property_option=property_option,
-        value=value,
-        value_option=value_option,
-        snak_is_no_value=snak_is_no_value,
-        snak_is_some_value=snak_is_some_value,
-        snak_is_value=snak_is_value,
-        snak_mask=snak_mask,
-        subject_is_item=subject_is_item,
-        subject_is_lexeme=subject_is_lexeme,
-        subject_is_property=subject_is_property,
-        subject_mask=subject_mask,
-        property_mask=property_mask,
-        value_is_data_value=value_is_data_value,
-        value_is_deep_data_value=value_is_deep_data_value,
-        value_is_entity=value_is_entity,
-        value_is_external_id=value_is_external_id,
-        value_is_iri=value_is_iri,
-        value_is_item=value_is_item,
-        value_is_lexeme=value_is_lexeme,
-        value_is_property=value_is_property,
-        value_is_quantity=value_is_quantity,
-        value_is_shallow_data_value=value_is_shallow_data_value,
-        value_is_string=value_is_string,
-        value_is_text=value_is_text,
-        value_is_time=value_is_time,
-        value_is_value=value_is_value,
-        value_mask=value_mask,
-        rank_mask=rank_mask,
-        language=language,
-        annotated=annotated,
-        dry_run=dry_run,
-        console=console)
-    target = FilterParam.make_store(
-        store,
-        best_ranked=best_ranked,
-        distinct=distinct,
-        limit=limit,
-        lookahead=lookahead,
-        page_size=page_size,
-        timeout=timeout)
+    def _filter() -> None:
+        console = Console()
+        context = FilterParam.make_context(resolve)
+        fr = FilterParam.make_filter(
+            subject=subject,
+            subject_option=subject_option,
+            property=property,
+            property_option=property_option,
+            value=value,
+            value_option=value_option,
+            snak_is_no_value=snak_is_no_value,
+            snak_is_some_value=snak_is_some_value,
+            snak_is_value=snak_is_value,
+            snak_mask=snak_mask,
+            subject_is_item=subject_is_item,
+            subject_is_lexeme=subject_is_lexeme,
+            subject_is_property=subject_is_property,
+            subject_mask=subject_mask,
+            property_mask=property_mask,
+            value_is_data_value=value_is_data_value,
+            value_is_deep_data_value=value_is_deep_data_value,
+            value_is_entity=value_is_entity,
+            value_is_external_id=value_is_external_id,
+            value_is_iri=value_is_iri,
+            value_is_item=value_is_item,
+            value_is_lexeme=value_is_lexeme,
+            value_is_property=value_is_property,
+            value_is_quantity=value_is_quantity,
+            value_is_shallow_data_value=value_is_shallow_data_value,
+            value_is_string=value_is_string,
+            value_is_text=value_is_text,
+            value_is_time=value_is_time,
+            value_is_value=value_is_value,
+            value_mask=value_mask,
+            rank_mask=rank_mask,
+            language=language,
+            annotated=annotated,
+            dry_run=dry_run,
+            console=console)
+        target = FilterParam.make_store(
+            store,
+            best_ranked=best_ranked,
+            distinct=distinct,
+            limit=limit,
+            lookahead=lookahead,
+            page_size=page_size,
+            timeout=timeout)
 
-    def output(
-            page: Iterable[Term],
-            pageno: int
-    ) -> None:
-        if resolve:
-            resolved_page = context.resolve(
-                page, label=True, language='en')
-        else:
-            resolved_page = page
-        if encoder is None:
-            it = map(Term.to_markdown, resolved_page)
-            console.print(Markdown('\n\n'.join(it)))
-        else:
-            for term in resolved_page:
-                print(encoder.encode(term).rstrip(), flush=True)
-    if async_:
-        af: dict[str, Callable[[], AsyncIterator[Term]]] = {
-            's': (lambda: target.afilter_s(filter=fr)),
-            'p': (lambda: target.afilter_p(filter=fr)),
-            'v': (lambda: target.afilter_v(filter=fr)),
-            'sp': (lambda: target.afilter_sp(filter=fr)),
-            'sv': (lambda: target.afilter_sv(filter=fr)),
-            'pv': (lambda: target.afilter_pv(filter=fr)),
-            'spv': (lambda: target.afilter(filter=fr))}
+        def output(
+                page: Iterable[Term],
+                pageno: int
+        ) -> None:
+            if resolve:
+                resolved_page = context.resolve(
+                    page, label=True, language='en')
+            else:
+                resolved_page = page
+            if encoder is None:
+                it = map(Term.to_markdown, resolved_page)
+                console.print(Markdown('\n\n'.join(it)))
+            else:
+                for term in resolved_page:
+                    print(encoder.encode(term).rstrip(), flush=True)
+        if async_:
+            af: dict[str, Callable[[], AsyncIterator[Term]]] = {
+                's': (lambda: target.afilter_s(filter=fr)),
+                'p': (lambda: target.afilter_p(filter=fr)),
+                'v': (lambda: target.afilter_v(filter=fr)),
+                'sp': (lambda: target.afilter_sp(filter=fr)),
+                'sv': (lambda: target.afilter_sv(filter=fr)),
+                'pv': (lambda: target.afilter_pv(filter=fr)),
+                'spv': (lambda: target.afilter(filter=fr))}
 
-        async def afilter():
+            async def afilter():
+                assert select is not None
+                it, n = af[select](), 0
+                while True:
+                    page = await itertools.atake(target.page_size, it)
+                    if not page:
+                        break
+                    output(page, n)
+                    n += 1
+            asyncio.run(afilter())
+        else:
+            f: dict[str, Callable[[], Iterator[Term]]] = {
+                's': (lambda: target.filter_s(filter=fr)),
+                'p': (lambda: target.filter_p(filter=fr)),
+                'v': (lambda: target.filter_v(filter=fr)),
+                'sp': (lambda: target.filter_sp(filter=fr)),
+                'sv': (lambda: target.filter_sv(filter=fr)),
+                'pv': (lambda: target.filter_pv(filter=fr)),
+                'spv': (lambda: target.filter(filter=fr))}
             assert select is not None
-            it, n = af[select](), 0
-            while True:
-                page = await itertools.atake(target.page_size, it)
-                if not page:
-                    break
-                output(page, n)
-                n += 1
-        asyncio.run(afilter())
-    else:
-        f: dict[str, Callable[[], Iterator[Term]]] = {
-            's': (lambda: target.filter_s(filter=fr)),
-            'p': (lambda: target.filter_p(filter=fr)),
-            'v': (lambda: target.filter_v(filter=fr)),
-            'sp': (lambda: target.filter_sp(filter=fr)),
-            'sv': (lambda: target.filter_sv(filter=fr)),
-            'pv': (lambda: target.filter_pv(filter=fr)),
-            'spv': (lambda: target.filter(filter=fr))}
-        assert select is not None
-        batches = itertools.batched(f[select](), target.page_size)
-        for pageno, page in enumerate(batches):
-            output(page, pageno)
+            batches = itertools.batched(f[select](), target.page_size)
+            for pageno, page in enumerate(batches):
+                output(page, pageno)
+    _run(_filter)
 
 
 if __name__ == '__main__':
