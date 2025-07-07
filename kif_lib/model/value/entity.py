@@ -130,14 +130,10 @@ class Entity(
     def _display(
             self,
             language: TTextLanguage | None = None,
-            markdown: bool | None = None,
+            format: Value.TDisplayFormat | None = None,
             context: Context | None = None
     ) -> str:
-        curie = self.get_context(context).iris.curie(self.iri, self.display)
-        if curie:
-            if markdown:
-                return f'[{curie}]({self.iri.content})'
-            else:
-                return curie
-        else:
-            return self.iri.content
+        return self._display_as_link(
+            self.iri.content,
+            self.get_context(context).iris.curie(self.iri, self.display),
+            format)

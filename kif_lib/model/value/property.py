@@ -786,17 +786,15 @@ class Property(
     def _display(
             self,
             language: TTextLanguage | None = None,
-            markdown: bool | None = None,
+            format: Entity.TDisplayFormat | None = None,
             context: Context | None = None
     ) -> str:
         label = self.get_label(language=language, context=context)
         if label:
-            if markdown:
-                return f'[{label.content}]({self.iri.content})'
-            else:
-                return label.content
+            return self._display_as_link(
+                self.iri.content, label.content, format)
         else:
-            return super()._display(language, markdown, context)  # fallback
+            return super()._display(language, format, context)  # fallback
 
     def describe(
             self,

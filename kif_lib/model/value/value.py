@@ -10,6 +10,7 @@ import enum
 from typing import TYPE_CHECKING
 
 from ... import namespace as NS
+from ... import typing as ty
 from ...context import Context
 from ...rdflib import Literal, URIRef
 from ...typing import (
@@ -116,32 +117,49 @@ class Value(
         from ..fingerprint import OrFingerprint
         return OrFingerprint(self, other)
 
+    #: Supported display formats.
+    TDisplayFormat: TypeAlias = ty.Literal['html', 'markdown']
+
     def display(
             self,
             language: TTextLanguage | None = None,
-            markdown: bool | None = None,
+            format: TDisplayFormat | None = None,
             context: Context | None = None
     ) -> str:
         """Gets a human-readable representation of value in KIF context.
 
         Parameters:
            language: Language.
-           markdown: Whether to use markdown notation.
+           format: Format.
            context: Context.
 
         Returns:
            Human-readable representation.
         """
-        return self._display(language, markdown, context)
+        return self._display(language, format, context)
 
     @abc.abstractmethod
     def _display(
             self,
             language: TTextLanguage | None = None,
-            markdown: bool | None = None,
+            format: TDisplayFormat | None = None,
             context: Context | None = None
     ) -> str:
         raise NotImplementedError
+
+    @classmethod
+    def _display_as_link(
+            cls,
+            url: str,
+            text: str | None = None,
+            format: TDisplayFormat | None = None,
+    ) -> str:
+        if format == 'html':
+            return f'<a href="{url}">{text if text else url}</a>'
+        elif format == 'markdown':
+            return f'[{text}]({url})' if text else url
+        else:
+            return text if text else url
 
     def n3(self) -> str:
         """Gets the simple value of value in N3 format.

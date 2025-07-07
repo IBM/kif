@@ -458,7 +458,7 @@ class Time(
     def _display(
             self,
             language: TTextLanguage | None = None,
-            markdown: bool | None = None,
+            format: DeepDataValue.TDisplayFormat | None = None,
             context: Context | None = None
     ) -> str:
         if (self.precision is None

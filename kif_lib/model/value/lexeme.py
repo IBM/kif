@@ -122,22 +122,20 @@ class Lexeme(
     def _display(
             self,
             language: TTextLanguage | None = None,
-            markdown: bool | None = None,
+            format: Entity.TDisplayFormat | None = None,
             context: Context | None = None
     ) -> str:
         lem = self.get_lemma(context=context)
         cat = self.get_category(context=context)
         lan = self.get_language(context=context)
         if lem and cat and lan:
-            dlem = lem._display(language, markdown, context)
-            dcat = cat._display(language, markdown, context)
-            dlan = lan._display(language, markdown, context)
-            if markdown:
-                return f'[{dlem}]({self.iri.content}) ({dlan} {dcat})'
-            else:
-                return f'{dlem} ({dlan} {dcat})'
+            dlem = lem._display(language, format, context)
+            dcat = cat._display(language, format, context)
+            dlan = lan._display(language, format, context)
+            return (self._display_as_link(self.iri.content, dlem, format)
+                    + f' ({dlan} {dcat})')
         else:
-            return super()._display(language, markdown, context)  # fallback
+            return super()._display(language, format, context)  # fallback
 
     def describe(
             self,

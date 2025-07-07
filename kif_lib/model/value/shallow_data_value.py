@@ -100,7 +100,7 @@ class ShallowDataValue(
     def _display(
             self,
             language: TTextLanguage | None = None,
-            markdown: bool | None = None,
+            format: DataValue.TDisplayFormat | None = None,
             context: Context | None = None
     ) -> str:
         return self.content

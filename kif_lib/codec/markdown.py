@@ -56,18 +56,18 @@ class MarkdownEncoder(
             yield self._encode_kif_object_name(obj)
         elif isinstance(obj, Entity):
             yield from self._iterencode_kif_object_start(obj)
-            yield obj.display(markdown=True)
+            yield obj.display(format='markdown')
             yield from self._iterencode_kif_object_end(obj)
         elif isinstance(obj, IRI):
-            yield self._escape_md(obj.display(markdown=True))
+            yield self._escape_md(obj.display(format='markdown'))
         elif isinstance(obj, Text):
             yield f'"{self._escape_md(obj.display())}"@{obj.language}'
         elif isinstance(obj, String):
             yield f'"{self._escape_md(obj.display())}"'
         elif isinstance(obj, Quantity):
-            yield obj.display(markdown=True)
+            yield obj.display(format='markdown')
         elif isinstance(obj, Time):
-            yield obj.display(markdown=True)
+            yield obj.display(format='markdown')
         elif isinstance(obj, Snak):
             yield from self._iterencode_kif_object_start(obj)
             yield from self._iterencode(obj.property, indent)

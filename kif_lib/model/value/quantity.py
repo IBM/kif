@@ -322,7 +322,7 @@ class Quantity(
     def _display(
             self,
             language: TTextLanguage | None = None,
-            markdown: bool | None = None,
+            format: DeepDataValue.TDisplayFormat | None = None,
             context: Context | None = None
     ) -> str:
         if self.lower_bound is not None or self.upper_bound is not None:
@@ -340,6 +340,6 @@ class Quantity(
         else:
             val = str(self.amount)
         if self.unit and self.unit != Item(Wikidata.WD['Q199']):
-            return val + ' ' + self.unit.display(language, markdown, context)
+            return val + ' ' + self.unit.display(language, format, context)
         else:
             return val
