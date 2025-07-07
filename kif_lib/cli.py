@@ -103,7 +103,7 @@ _PROFILE: bool = False
     '--profile',
     is_flag=True,
     default=False,
-    help='Profile command using kcachegrind.')
+    help='Profile command using cProfile.')
 def cli(
         debug: bool | None = None,
         info: bool | None = None,
