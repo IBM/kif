@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import abc
 import asyncio
+import contextlib
 import dataclasses
 import functools
+import io
 import logging
 import pathlib
 
@@ -18,7 +20,6 @@ from ...model import Entity, Filter
 from ...model import Graph as KIF_Graph
 from ...model import (
     Item,
-    KIF_Object,
     Lexeme,
     Property,
     Statement,
@@ -34,8 +35,10 @@ from ...typing import (
     BinaryIO,
     Callable,
     cast,
+    ContextManager,
     Coroutine,
     Final,
+    Generator,
     Iterable,
     Iterator,
     override,
@@ -47,9 +50,14 @@ from ...typing import (
 from ..abc import Store
 
 E = TypeVar('E', bound=Entity)
+S = TypeVar('S')
 T: TypeAlias = Any
 
 _logger: Final[logging.Logger] = logging.getLogger(__name__)
+
+TData: TypeAlias = bytes | str
+TFile: TypeAlias = BinaryIO | TextIO
+TLocation: TypeAlias = pathlib.PurePath | str
 
 
 class Reader(
@@ -106,8 +114,7 @@ class Reader(
         graph: KIF_Graph
 
     #: Type alias for reader arguments.
-    Args: TypeAlias =\
-        Union[BinaryIO, TextIO, str, bytes, pathlib.PurePath, Statement]
+    Args: TypeAlias = Any
 
     #: Type alias for input parsing function.
     ParseFn: TypeAlias = Callable[[T], Iterable[Statement]]
@@ -143,9 +150,9 @@ class Reader(
             self,
             store_name: str,
             *args: Args,
-            location: str | None = None,
-            file: BinaryIO | TextIO | None = None,
-            data: bytes | str | None = None,
+            location: TLocation | None = None,
+            file: TFile | None = None,
+            data: TData | None = None,
             graph: TGraph | None = None,
             parse: ParseFn | None = None,
             **kwargs: Any
@@ -155,73 +162,51 @@ class Reader(
         self._args = []
         self._kwargs = kwargs
 
-        def push(name: str | None, f: Callable[[T], None], x: T) -> None:
-            try:
-                f(x)
-            except Exception as err:
-                raise KIF_Object._arg_error(
-                    str(err), type(self), name,
-                    exception=self.Error) from err
-        self._push_preamble()
+        def push(src: Reader.Source) -> None:
+            self._args.append(src)
+        push(self.Preamble())
         if location is not None:
-            push('location', self._push_location, location)
+            push(self.Location(location))
         if file is not None:
-            push('file', self._push_file, file)
+            push(self.File(file))
         if data is not None:
-            push('data', self._push_data, data)
+            push(self.Data(data))
         if graph is not None:
-            push('graph', self._push_graph, KIF_Graph.check(
-                graph, type(self), 'graph'))
+            push(self.Graph(KIF_Graph.check(graph, type(self), 'graph')))
         other, stmts = map(list, itertools.partition(
-            lambda s: isinstance(s, Statement), args))
+            lambda s: isinstance(s, Statement),
+            self._preprocess_args(*args)))
         if stmts:
-            push('graph', self._push_graph, KIF_Graph(
-                *cast(Iterable[Statement], stmts)))
+            push(self.Graph(KIF_Graph(*cast(Iterable[Statement], stmts))))
         for src in other:
-            push('args', self._push_arg, src)
-        self._push_postamble()
-        if parse is None:
-            self._parse_fn = self._parse
-        else:
-            self._parse_fn = parse
+            push(self._check_arg(src))
+        push(self.Postamble())
+        self._parse_fn = parse if parse is not None else self._parse
         self._registered = set()
         self._registry = EntityRegistry()
         self._scheduled = set()
 
-    def _push_arg(self, arg: Any) -> None:
-        if isinstance(arg, (pathlib.PurePath, str)):
-            self._push_location(arg)
-        elif isinstance(arg, (BinaryIO, TextIO)):
-            self._push_file(arg)
-        elif isinstance(arg, bytes):
-            self._push_data(arg)
-        elif isinstance(arg, KIF_Graph):
-            self._push_graph(arg)
-        else:
-            self._push_arg_unknown(arg)
+    def _preprocess_args(self, *args: Any) -> Iterator[Any]:
+        yield from args
 
-    def _push_arg_unknown(self, arg: Any) -> None:
+    def _check_arg(self, arg: Any) -> Source:
+        if isinstance(arg, self.Source):
+            return arg
+        if isinstance(arg, (pathlib.PurePath, str)):
+            return self.Location(arg)
+        elif isinstance(arg, (BinaryIO, TextIO, io.TextIOBase)):
+            return self.File(cast(TFile, arg))
+        elif isinstance(arg, bytes):
+            return self.Data(arg)
+        elif isinstance(arg, KIF_Graph):
+            return self.Graph(arg)
+        else:
+            return self._check_unknown_arg(arg)
+
+    def _check_unknown_arg(self, arg: Any) -> Source:
         raise TypeError(
             f'{type(self).__qualname__} does not support '
             f'{type(arg).__qualname__}')
-
-    def _push_preamble(self) -> None:
-        self._args.append(self.Preamble())
-
-    def _push_postamble(self) -> None:
-        self._args.append(self.Postamble())
-
-    def _push_location(self, location: pathlib.PurePath | str) -> None:
-        self._args.append(self.Location(location))
-
-    def _push_file(self, file: BinaryIO | TextIO) -> None:
-        self._args.append(self.File(file))
-
-    def _push_data(self, data: bytes | str) -> None:
-        self._args.append(self.Data(data))
-
-    def _push_graph(self, graph: KIF_Graph) -> None:
-        self._args.append(self.Graph(graph))
 
     @overload
     def _register(self, entity: Item, **kwargs: Any) -> Item:
@@ -333,6 +318,33 @@ class Reader(
     def _schedule(self, statement: Statement) -> None:
         self._scheduled.add(statement)
 
+    @contextlib.contextmanager
+    def _load_location(
+            self,
+            location: TLocation
+    ) -> Generator[Iterable[T], None, None]:
+        fp = open(location, encoding='utf-8')
+        yield iter(self._load(fp))
+        fp.close()
+
+    @contextlib.contextmanager
+    def _load_file(
+            self,
+            file: TFile
+    ) -> Generator[Iterable[T], None, None]:
+        if not isinstance(file, (TextIO, io.TextIOBase)):
+            file = io.TextIOWrapper(file, encoding='utf-8')
+        yield iter(self._load(file))
+
+    @contextlib.contextmanager
+    def _load_data(
+            self,
+            data: TData
+    ) -> Generator[Iterable[T], None, None]:
+        if not isinstance(data, str):
+            data = data.decode('utf-8')
+        yield iter(self._load(io.StringIO(data)))
+
     def _load(self, file: TextIO) -> Iterable[T]:
         return file
 
@@ -368,11 +380,7 @@ class Reader(
             options: Store.Options,
             arg: Source
     ) -> Iterator[Statement]:
-        import io
-
-        parse = functools.partial(self._filter_parse, filter, options)
         wrap = functools.partial(self._filter_parse_wrap, filter, options)
-
         if isinstance(arg, self.Preamble):
             yield from wrap(iter(self._preamble()))
             for entity in self._describe():
@@ -387,24 +395,27 @@ class Reader(
             yield from wrap(iter(self._scheduled))
             yield from wrap(iter(self._postamble()))
         elif isinstance(arg, self.Location):
-            with open(arg.location, encoding='utf-8') as fp:
-                yield from wrap(parse(fp))
+            yield from wrap(self._filter_parse_location(
+                filter, options, arg.location))
         elif isinstance(arg, self.File):
-            if isinstance(arg.file, TextIO):
-                yield from wrap(parse(arg.file))
-            else:
-                yield from wrap(parse(io.TextIOWrapper(
-                    arg.file, encoding='utf-8')))
+            yield from wrap(self._filter_parse_file(
+                filter, options, arg.file))
         elif isinstance(arg, self.Data):
-            if isinstance(arg.data, bytes):
-                yield from wrap(parse(io.StringIO(
-                    arg.data.decode('utf-8'))))
-            else:
-                yield from wrap(parse(io.StringIO(arg.data)))
+            yield from wrap(self._filter_parse_data(
+                filter, options, arg.data))
         elif isinstance(arg, self.Graph):
             yield from wrap(iter(arg.graph))
         else:
-            raise self._should_not_get_here()
+            yield from wrap(self._filter_parse_unknown_arg(
+                filter, options, arg))
+
+    def _filter_parse_unknown_arg(
+            self,
+            filter: Filter,
+            options: Store.Options,
+            arg: Source
+    ) -> Iterator[Statement]:
+        return iter(())
 
     def _filter_parse_wrap(
             self,
@@ -420,14 +431,40 @@ class Reader(
             it = itertools.islice(it, options.limit)
         return itertools.filter(filter.match, it)
 
+    def _filter_parse_location(
+            self,
+            filter: Filter,
+            options: Store.Options,
+            location: TLocation
+    ) -> Iterator[Statement]:
+        return self._filter_parse(
+            filter, options, self._load_location, location)
+
+    def _filter_parse_file(
+            self,
+            filter: Filter,
+            options: Store.Options,
+            file: TFile
+    ) -> Iterator[Statement]:
+        return self._filter_parse(filter, options, self._load_file, file)
+
+    def _filter_parse_data(
+            self,
+            filter: Filter,
+            options: Store.Options,
+            data: TData
+    ) -> Iterator[Statement]:
+        return self._filter_parse(filter, options, self._load_data, data)
+
     def _filter_parse(
             self,
             filter: Filter,
             options: Store.Options,
-            file: TextIO
+            load_fn: Callable[[S], ContextManager[T]],
+            arg: S
     ) -> Iterator[Statement]:
-        for t in self._load(file):
-            yield from self._parse_fn(t)
+        with load_fn(arg) as it:
+            return itertools.chain(*map(self._parse_fn, it))
 
     @override
     def _afilter(

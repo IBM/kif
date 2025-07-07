@@ -38,6 +38,7 @@ from typing import (
 from typing_extensions import (
     Any,
     assert_type,
+    ContextManager,
     Literal,
     NotRequired,
     overload,
@@ -63,6 +64,7 @@ __all__ = (
     'cast',
     'ClassVar',
     'Collection',
+    'ContextManager',
     'Coroutine',
     'Final',
     'Generator',

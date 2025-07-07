@@ -20,7 +20,7 @@ try:
     from rich.markdown import Markdown
 except ImportError as err:
     raise ImportError(
-        f'{__name__} requires https://pypi.org/project/rich/') from err
+        f'{__name__} requires https://github.com/Textualize/rich/') from err
 
 from . import __description__, __version__, _reset_logging, itertools
 from .context import Context
