@@ -1272,6 +1272,7 @@ class Store(Set):
             lookahead: int | None = None,
             page_size: int | None = None,
             timeout: float | None = None,
+            context: Context | None = None,
             **kwargs: Any
     ) -> None:
         """
@@ -1290,9 +1291,10 @@ class Store(Set):
            lookahead: Number of pages to lookahead asynchronously.
            page_size: Page size of paginated responses.
            timeout: Timeout of responses (in seconds).
+           context: Context.
            kwargs: Other keyword arguments.
         """
-        self._options = self.default_options
+        self._options = self.get_default_options(context)
         self._push_options()
         self._update_options(
             base_filter=base_filter,
@@ -1333,6 +1335,9 @@ class Store(Set):
 
         If `context` is not ``None``, returns `context`.
 
+        Parameters:
+           context: Context.
+
         Returns:
            Context.
         """
@@ -1343,13 +1348,16 @@ class Store(Set):
         """The default options of store."""
         return self.get_default_options()
 
-    def get_default_options(self) -> Options:
+    def get_default_options(self, context: Context | None = None) -> Options:
         """Gets the default options of store.
+
+        Parameters:
+           context: Context.
 
         Returns:
            Store options.
         """
-        return self.context.options.store.empty
+        return self.get_context(context).options.store.empty
 
     @at_property
     def options(self) -> Options:

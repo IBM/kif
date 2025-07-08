@@ -6,6 +6,7 @@ from __future__ import annotations
 import abc
 
 from ... import itertools
+from ...context import Context
 from ...model import (
     DatatypeVariable,
     IRI_Variable,
@@ -18,6 +19,7 @@ from ...model.flags import Flags as KIF_Flags
 from ...typing import Final, Iterator
 from ..compiler import Compiler
 from .builder import SelectQuery
+from .options import SPARQL_CompilerOptions as Options
 
 
 class SPARQL_Compiler(Compiler):
@@ -64,22 +66,49 @@ class SPARQL_Compiler(Compiler):
     __slots__ = (
         '_q',
         '_flags',
+        '_debug',
     )
 
     #: The compiled query.
     _q: SPARQL_Compiler.Query
 
+    #: Whether to enable debugging.
+    _debug: bool
+
     #: The compilation flags.
     _flags: SPARQL_Compiler.Flags
 
     @abc.abstractmethod
-    def __init__(self, flags: Flags | None = None) -> None:
-        super().__init__()
+    def __init__(
+            self,
+            debug: bool | None = None,
+            flags: Flags | None = None,
+            context: Context | None = None
+    ) -> None:
         self._q = self.Query()
+        self._debug = bool(
+            self.get_default_options(context).debug
+            if debug is None else debug)
         if flags is None:
             self._flags = self.default_flags
         else:
             self._flags = self.Flags(flags)
+
+    @property
+    def default_options(self) -> Options:
+        """The default options of compiler."""
+        return self.get_default_options()
+
+    def get_default_options(self, context: Context | None = None) -> Options:
+        """Gets the default options of compiler.
+
+        Parameters:
+           context: Context.
+
+        Returns:
+           Compiler options.
+        """
+        return self.get_context(context).options.compiler.sparql
 
     @property
     def flags(self) -> Flags:

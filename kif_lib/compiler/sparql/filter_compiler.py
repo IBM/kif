@@ -171,9 +171,10 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             self,
             filter: Filter,
             mapping: SPARQL_Mapping,
+            debug: bool | None = None,
             flags: SPARQL_FilterCompiler.Flags | None = None
     ) -> None:
-        super().__init__(flags)
+        super().__init__(debug, flags)
         self._filter = filter
         self._mapping = mapping
         self._pattern = Pattern.check(Variable('_', Statement))
@@ -479,12 +480,16 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
 
     @override
     def compile(self) -> Self:
-        filter = self._filter.normalize()
-        if not filter.is_empty():
-            self._push_filter(filter)
+        if not self.is_done():
+            assert self.is_ready(), self.phase
+            self._push_filter(self._filter.normalize())
+            assert self.is_done(), self.phase
         return self
 
     def _push_filter(self, filter: Filter) -> None:
+        if self.filter.is_empty():
+            self.frame['phase'] = self.DONE
+            return              # nothing to do
         sources = list(self.mapping.preamble(
             self, self._filter_to_patterns(filter)))
         all_targets: list[SPARQL_Mapping.EntryPattern] = []

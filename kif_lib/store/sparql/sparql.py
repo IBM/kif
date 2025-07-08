@@ -9,6 +9,7 @@ import re
 
 from ... import itertools, rdflib
 from ...compiler.sparql import SPARQL_Mapping
+from ...context import Context
 from ...model import Filter, IRI, T_IRI, TGraph
 from ...typing import (
     Any,
@@ -233,8 +234,8 @@ class SPARQL_Store(
         return super().default_options  # type: ignore
 
     @override
-    def get_default_options(self) -> Options:
-        return self.context.options.store.sparql
+    def get_default_options(self, context: Context | None = None) -> Options:
+        return self.get_context(context).options.store.sparql
 
     @property
     def options(self) -> Options:

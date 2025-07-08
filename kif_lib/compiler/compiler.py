@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import abc
 
+from ..context import Context
 from ..model.kif_object import KIF_Object
 from ..typing import Self
 
@@ -21,11 +22,29 @@ class Compiler(abc.ABC):
     def _should_not_get_here(self) -> KIF_Object.ShouldNotGetHere:
         return KIF_Object._should_not_get_here()
 
+    @property
+    def context(self) -> Context:
+        """The current KIF context."""
+        return self.get_context()
+
+    def get_context(self, context: Context | None = None) -> Context:
+        """Gets the current KIF context.
+
+        If `context` is not ``None``, returns `context`.
+
+        Parameters:
+           context: Context.
+
+        Returns:
+           Context.
+        """
+        return Context.top(context)
+
     @abc.abstractmethod
     def compile(self) -> Self:
         """Run compiler.
 
         Returns:
-           The (finished) compiler.
+           Compiler.
         """
         raise NotImplementedError

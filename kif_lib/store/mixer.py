@@ -8,6 +8,7 @@ import dataclasses
 import functools
 
 from .. import itertools
+from ..context import Context
 from ..model import (
     Entity,
     Filter,
@@ -268,8 +269,8 @@ class MixerStore(
         return super().default_options  # type: ignore
 
     @override
-    def get_default_options(self) -> Options:
-        return self.context.options.store.mixer
+    def get_default_options(self, context: Context | None = None) -> Options:
+        return self.get_context(context).options.store.mixer
 
     @property
     def options(self) -> Options:

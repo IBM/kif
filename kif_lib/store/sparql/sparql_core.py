@@ -936,7 +936,8 @@ class _SPARQL_Store(
             assert filter.snak_mask & Filter.VALUE_SNAK
             filter = filter.replace(snak_mask=Filter.VALUE_SNAK)
         compiler = SPARQL_FilterCompiler(
-            filter, self.mapping, SPARQL_FilterCompiler.default_flags)
+            filter, self.mapping, options.debug,
+            SPARQL_FilterCompiler.default_flags)
         if options.debug:
             compiler.set_flags(compiler.DEBUG)
         if options.best_ranked:

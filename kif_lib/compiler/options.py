@@ -6,11 +6,12 @@ from __future__ import annotations
 import dataclasses
 
 from ..context import Section
-from .sparql.options import SPARQL_Options
+from .sparql.options import SPARQL_CompilerOptions
 
 
 @dataclasses.dataclass
 class CompilerOptions(Section, name='compiler'):
     """Compiler options."""
 
-    sparql: SPARQL_Options = dataclasses.field(default_factory=SPARQL_Options)
+    sparql: SPARQL_CompilerOptions = dataclasses.field(
+        default_factory=SPARQL_CompilerOptions)

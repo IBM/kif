@@ -25,8 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added `Value.display()` method to pretty-print any value, not only
   entities.
 
-- Added `--profile` option to KIF CLI.  Profile the command to be executed
-  using cProfile.
+- Added `--profile` option to KIF CLI.  Profile the command using cProfile.
 
 ## 0.10.0 (2025-06-26)
 
