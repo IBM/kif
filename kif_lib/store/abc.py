@@ -261,7 +261,7 @@ class Store(Set):
 
         @property
         def debug(self) -> bool:
-            """Whether to enable debugging mode."""
+            """Whether debugging is enabled."""
             return self.get_debug()
 
         @debug.setter
@@ -1804,7 +1804,7 @@ class Store(Set):
 
     @at_property
     def debug(self) -> bool:
-        """The debug flag of store (whether to enable debugging mode)."""
+        """The debug flag of store (whether debugging is enabled)."""
         return self.get_debug()
 
     @debug.setter

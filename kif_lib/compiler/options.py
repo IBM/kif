@@ -13,5 +13,6 @@ from .sparql.options import SPARQL_CompilerOptions
 class CompilerOptions(Section, name='compiler'):
     """Compiler options."""
 
+    #: SPARQL compiler options.
     sparql: SPARQL_CompilerOptions = dataclasses.field(
         default_factory=SPARQL_CompilerOptions)

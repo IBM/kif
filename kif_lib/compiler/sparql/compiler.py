@@ -31,37 +31,13 @@ class SPARQL_Compiler(Compiler):
     class Flags(KIF_Flags):
         """Compilation flags."""
 
-        #: Whether to generate debugging information.
-        DEBUG = KIF_Flags.auto()
-
         #: Whether to match only the best ranked statements.
         BEST_RANK = KIF_Flags.auto()
 
-        #: Whether to match value snaks.
-        VALUE_SNAK = KIF_Flags.auto()
-
-        #: Whether to match some-value snaks.
-        SOME_VALUE_SNAK = KIF_Flags.auto()
-
-        #: Whether to match no-value snaks.
-        NO_VALUE_SNAK = KIF_Flags.auto()
-
-        #: All flags.
-        ALL = (
-            DEBUG
-            | BEST_RANK
-            | VALUE_SNAK
-            | SOME_VALUE_SNAK
-            | NO_VALUE_SNAK)
-
     #: The default flags.
-    default_flags: Final[Flags] = (Flags.ALL & ~Flags.DEBUG)
+    default_flags: Final[Flags] = (Flags.BEST_RANK)
 
-    DEBUG = Flags.DEBUG
     BEST_RANK = Flags.BEST_RANK
-    VALUE_SNAK = Flags.VALUE_SNAK
-    SOME_VALUE_SNAK = Flags.SOME_VALUE_SNAK
-    NO_VALUE_SNAK = Flags.NO_VALUE_SNAK
 
     __slots__ = (
         '_q',
@@ -86,9 +62,7 @@ class SPARQL_Compiler(Compiler):
             context: Context | None = None
     ) -> None:
         self._q = self.Query()
-        self._debug = bool(
-            self.get_default_options(context).debug
-            if debug is None else debug)
+        self._debug = debug or False
         if flags is None:
             self._flags = self.default_flags
         else:
@@ -109,6 +83,19 @@ class SPARQL_Compiler(Compiler):
            Compiler options.
         """
         return self.get_context(context).options.compiler.sparql
+
+    @property
+    def debug(self) -> bool:
+        """Whether debugging is enabled."""
+        return self.get_debug()
+
+    def get_debug(self) -> bool:
+        """Gets the debug flag.
+
+        Returns:
+           Debug flag.
+        """
+        return self._debug
 
     @property
     def flags(self) -> Flags:

@@ -69,6 +69,7 @@ from ...model import (
     VValue,
 )
 from ...typing import (
+    Any,
     Callable,
     cast,
     Final,
@@ -171,10 +172,10 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             self,
             filter: Filter,
             mapping: SPARQL_Mapping,
-            debug: bool | None = None,
-            flags: SPARQL_FilterCompiler.Flags | None = None
+            *args: Any,
+            **kwargs: Any
     ) -> None:
-        super().__init__(debug, flags)
+        super().__init__(**kwargs)
         self._filter = filter
         self._mapping = mapping
         self._pattern = Pattern.check(Variable('_', Statement))
@@ -362,7 +363,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         Returns:
            Value.
         """
-        if self.has_flags(self.DEBUG):
+        if self.debug:
             self.q.comments()(
                 f'{variable} := {Substitution._dump_value(value)}')
         return self.theta.add(variable, value)
@@ -590,7 +591,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             self.theta_add_default(var, val)
         try:
             with self.q.group():
-                if self.has_flags(self.DEBUG):
+                if self.debug:
                     self.q.comments()(*map(str, targets))
                 self.q.bind(entry.id, self._entry_id_qvar)
                 for var, val in theta.items():
@@ -681,13 +682,13 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             raise SPARQL_Mapping.Skip
         if isinstance(fp, CompoundFingerprint):
             with self.q.group():
-                if self.has_flags(self.DEBUG):
+                if self.debug:
                     self.q.comments()(f'{value} =~ {fp}')
                 self._push_compound_fp(entry, fp, value)
         elif isinstance(fp, PathFingerprint):
             if isinstance(value, (Entity, EntityTemplate, EntityVariable)):
                 with self.q.group():
-                    if self.has_flags(self.DEBUG):
+                    if self.debug:
                         self.q.comments()(f'{value} =~ {fp}')
                     self._push_path_fp(entry, fp, value)
             else:
@@ -695,7 +696,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         elif isinstance(fp, SnakFingerprint):
             if isinstance(value, (Entity, EntityTemplate, EntityVariable)):
                 with self.q.group():
-                    if self.has_flags(self.DEBUG):
+                    if self.debug:
                         self.q.comments()(f'{value} =~ {fp}')
                     self._push_snak_fp(entry, fp, value)
             else:
