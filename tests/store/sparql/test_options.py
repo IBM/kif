@@ -16,10 +16,6 @@ class Test(_Test):
         return ctx.options.store.sparql
 
     @override
-    def test_best_ranked(self) -> None:
-        self._test_best_ranked(['KIF_SPARQL_STORE_BEST_RANKED'])
-
-    @override
     def test_debug(self) -> None:
         self._test_debug(['KIF_SPARQL_STORE_DEBUG'])
 

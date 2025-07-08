@@ -132,6 +132,8 @@ class MarkdownEncoder(
             yield sep
             yield f'**:rank_mask** `{obj.rank_mask}`'
             yield sep
+            yield f'**:best_ranked** `{obj.best_ranked}`'
+            yield sep
             yield f'**:language** `{obj.language}`'
             yield sep
             yield f'**:annotated** `{obj.annotated}`'

@@ -17,10 +17,6 @@ class Test(_Test):
         return ctx.options.store.mixer
 
     @override
-    def test_best_ranked(self) -> None:
-        self._test_best_ranked(['KIF_MIXER_STORE_BEST_RANKED'])
-
-    @override
     def test_debug(self) -> None:
         self._test_debug(['KIF_MIXER_STORE_DEBUG'])
 

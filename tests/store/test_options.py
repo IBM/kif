@@ -24,18 +24,6 @@ class Test(OptionsTestCase):
                 (Filter(None, Property('y')), Filter(None, Property('y')))],
             type_error=0)
 
-    def test_best_ranked(self) -> None:
-        self._test_best_ranked()
-
-    def _test_best_ranked(
-            self,
-            envvars: Sequence[str] = ('KIF_STORE_BEST_RANKED',)
-    ) -> None:
-        self._test_option_bool(
-            section=self.section,
-            name='best_ranked',
-            envvars=envvars)
-
     def test_debug(self) -> None:
         self._test_debug()
 

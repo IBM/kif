@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 0.10.1 (?)
+## 0.11.0 (?)
 
 - Added support for the pseudo-properties `TypeProperty()` and
   `SubtypeProperty()`, with aliases `wd.type` / `wd.a` and `wd.subtype`.
@@ -26,6 +26,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   entities.
 
 - Added `--profile` option to KIF CLI.  Profile the command using cProfile.
+
+- Moved `best_ranked` flag from store API to filter object.
 
 ## 0.10.0 (2025-06-26)
 

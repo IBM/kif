@@ -61,9 +61,6 @@ class Test(StoreTestCase):
         _test_option_proxy('language')
         _test_option_proxy('annotated')
 
-    def test_best_ranked(self) -> None:
-        self._test_option_bool(self.KB(), 'best_ranked')
-
     def test_debug(self) -> None:
         self._test_option_bool(self.KB(), 'debug')
 

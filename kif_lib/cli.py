@@ -800,6 +800,7 @@ class FilterParam:
             value_is_value: bool | None = None,
             value_mask: Filter.DatatypeMask | None = None,
             rank_mask: Filter.RankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             dry_run: bool | None = None,
@@ -882,6 +883,7 @@ class FilterParam:
             property_mask=property_mask,
             value_mask=value_mask,
             rank_mask=rank_mask,
+            best_ranked=best_ranked,
             language=language,
             annotated=annotated,
         ).normalize()
@@ -894,7 +896,6 @@ class FilterParam:
     def make_store(
             cls,
             store: Sequence[Store],
-            best_ranked: bool | None = None,
             distinct: bool | None = None,
             limit: int | None = None,
             lookahead: int | None = None,
@@ -908,8 +909,6 @@ class FilterParam:
             target = store[0]
         else:
             target = Store('mixer', store)
-        if best_ranked is not None:
-            target.set_best_ranked(best_ranked)
         if distinct is not None:
             target.set_distinct(distinct)
         if limit is not None:
@@ -997,9 +996,9 @@ def ask(
         value_is_value: bool | None = None,
         value_mask: Filter.DatatypeMask | None = None,
         rank_mask: Filter.RankMask | None = None,
+        best_ranked: bool | None = None,
         language: str | None = None,
         async_: bool | None = None,
-        best_ranked: bool | None = None,
         distinct: bool | None = None,
         dry_run: bool | None = None,
         encoder: Encoder | None = None,
@@ -1039,11 +1038,11 @@ def ask(
             value_is_value=value_is_value,
             value_mask=value_mask,
             rank_mask=rank_mask,
+            best_ranked=best_ranked,
             language=language,
             dry_run=dry_run)
         target = FilterParam.make_store(
             store,
-            best_ranked=best_ranked,
             distinct=distinct,
             timeout=timeout)
         status: bool
@@ -1136,10 +1135,10 @@ def count(
         value_is_value: bool | None = None,
         value_mask: Filter.DatatypeMask | None = None,
         rank_mask: Filter.RankMask | None = None,
+        best_ranked: bool | None = None,
         language: str | None = None,
         annotated: bool | None = None,
         async_: bool | None = None,
-        best_ranked: bool | None = None,
         distinct: bool | None = None,
         dry_run: bool | None = None,
         encoder: Encoder | None = None,
@@ -1180,11 +1179,11 @@ def count(
             value_is_value=value_is_value,
             value_mask=value_mask,
             rank_mask=rank_mask,
+            best_ranked=best_ranked,
             language=language,
             dry_run=dry_run)
         target = FilterParam.make_store(
             store,
-            best_ranked=best_ranked,
             distinct=distinct,
             timeout=timeout)
         n: int
@@ -1296,10 +1295,10 @@ def filter(
         value_is_value: bool | None = None,
         value_mask: Filter.DatatypeMask | None = None,
         rank_mask: Filter.RankMask | None = None,
+        best_ranked: bool | None = None,
         language: str | None = None,
         annotated: bool | None = None,
         async_: bool | None = None,
-        best_ranked: bool | None = None,
         distinct: bool | None = None,
         dry_run: bool | None = None,
         encoder: Encoder | None = None,
@@ -1345,13 +1344,13 @@ def filter(
             value_is_value=value_is_value,
             value_mask=value_mask,
             rank_mask=rank_mask,
+            best_ranked=best_ranked,
             language=language,
             annotated=annotated,
             dry_run=dry_run,
             console=console)
         target = FilterParam.make_store(
             store,
-            best_ranked=best_ranked,
             distinct=distinct,
             limit=limit,
             lookahead=lookahead,

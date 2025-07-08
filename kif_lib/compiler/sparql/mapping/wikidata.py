@@ -726,7 +726,7 @@ class WikidataMapping(M):
             c.q.triples()((p, WIKIBASE.claim, p_))
         if isinstance(ps, Var):
             c.q.triples()((p, WIKIBASE.statementProperty, ps))
-        if c.has_flags(c.BEST_RANK):
+        if c.filter.best_ranked:
             c.q.triples()((wds, RDF.type, WIKIBASE.BestRank))
         return p_, ps, wds
 

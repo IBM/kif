@@ -15,7 +15,6 @@ from ...model import (
     TimeVariable,
     Variable,
 )
-from ...model.flags import Flags as KIF_Flags
 from ...typing import Final, Iterator
 from ..compiler import Compiler
 from .builder import SelectQuery
@@ -28,20 +27,8 @@ class SPARQL_Compiler(Compiler):
     class Query(SelectQuery):
         """Compiled SPARQL query."""
 
-    class Flags(KIF_Flags):
-        """Compilation flags."""
-
-        #: Whether to match only the best ranked statements.
-        BEST_RANK = KIF_Flags.auto()
-
-    #: The default flags.
-    default_flags: Final[Flags] = (Flags.BEST_RANK)
-
-    BEST_RANK = Flags.BEST_RANK
-
     __slots__ = (
         '_q',
-        '_flags',
         '_debug',
     )
 
@@ -51,22 +38,14 @@ class SPARQL_Compiler(Compiler):
     #: Whether to enable debugging.
     _debug: bool
 
-    #: The compilation flags.
-    _flags: SPARQL_Compiler.Flags
-
     @abc.abstractmethod
     def __init__(
             self,
             debug: bool | None = None,
-            flags: Flags | None = None,
             context: Context | None = None
     ) -> None:
         self._q = self.Query()
         self._debug = debug or False
-        if flags is None:
-            self._flags = self.default_flags
-        else:
-            self._flags = self.Flags(flags)
 
     @property
     def default_options(self) -> Options:
@@ -96,51 +75,6 @@ class SPARQL_Compiler(Compiler):
            Debug flag.
         """
         return self._debug
-
-    @property
-    def flags(self) -> Flags:
-        """The flags set in compiler."""
-        return self.get_flags()
-
-    @flags.setter
-    def flags(self, flags: Flags) -> None:
-        if flags != self._flags:
-            self._flags = self.Flags(flags)
-
-    def get_flags(self) -> Flags:
-        """Gets the flags set in compiler.
-
-        Returns:
-           Compiler flags.
-        """
-        return self._flags
-
-    def has_flags(self, flags: Flags) -> bool:
-        """Tests whether `flags` are set in compiler.
-
-        Parameters:
-           flags: Compiler flags.
-
-        Returns:
-           ``True`` if successful; ``False`` otherwise.
-        """
-        return bool(self.flags & flags)
-
-    def set_flags(self, flags: Flags) -> None:
-        """Sets `flags` in compiler.
-
-        Parameters:
-           flags: Compiler flags.
-        """
-        self.flags |= flags
-
-    def unset_flags(self, flags: Flags) -> None:
-        """Unsets `flags` in compiler.
-
-        Parameters:
-           flags: Compiler flags.
-        """
-        self.flags &= ~flags
 
     @property
     def q(self) -> Query:

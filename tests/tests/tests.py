@@ -1191,6 +1191,7 @@ class TestCase(unittest.IsolatedAsyncioTestCase):
             property_mask: Filter.DatatypeMask = Filter.DatatypeMask.PROPERTY,
             value_mask: Filter.DatatypeMask = Filter.DatatypeMask.VALUE,
             rank_mask: Filter.RankMask = Filter.RankMask.ALL,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None
     ) -> None:
@@ -1225,10 +1226,15 @@ class TestCase(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(Filter.RankMask(obj.args[7]), rank_mask)
         self.assertEqual(obj.rank_mask, rank_mask)
         self.assertEqual(obj.get_rank_mask(), rank_mask)
-        self.assertEqual(obj.args[8], language)
+        if best_ranked is None:
+            best_ranked = True
+        self.assertEqual(obj.args[8], bool(best_ranked))
+        self.assertEqual(obj.best_ranked, bool(best_ranked))
+        self.assertEqual(obj.get_best_ranked(), bool(best_ranked))
+        self.assertEqual(obj.args[9], language)
         self.assertEqual(obj.language, language)
         self.assertEqual(obj.get_language(), language)
-        self.assertEqual(obj.args[9], bool(annotated))
+        self.assertEqual(obj.args[10], bool(annotated))
         self.assertEqual(obj.annotated, bool(annotated))
         self.assertEqual(obj.get_annotated(), bool(annotated))
 

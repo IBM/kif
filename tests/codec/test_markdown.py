@@ -298,6 +298,7 @@ class Test(TestCase):
 - **:property_mask** `DatatypeMask.PROPERTY`
 - **:value_mask** `DatatypeMask.VALUE`
 - **:rank_mask** `RankMask.ALL`
+- **:best_ranked** `True`
 - **:language** `None`
 - **:annotated** `False`)''')
         f = Filter(wd.benzene)
@@ -311,6 +312,7 @@ class Test(TestCase):
 - **:property_mask** `DatatypeMask.PROPERTY`
 - **:value_mask** `DatatypeMask.VALUE`
 - **:rank_mask** `RankMask.ALL`
+- **:best_ranked** `True`
 - **:language** `None`
 - **:annotated** `False`)''')  # noqa: E501
         f = Filter(
@@ -332,6 +334,7 @@ class Test(TestCase):
 - **:property_mask** `DatatypeMask.PROPERTY`
 - **:value_mask** `DatatypeMask.VALUE`
 - **:rank_mask** `RankMask.ALL`
+- **:best_ranked** `True`
 - **:language** `None`
 - **:annotated** `False`)''')  # noqa: E501
 

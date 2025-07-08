@@ -79,6 +79,7 @@ class Filter(KObj):
        property_mask: Datatype mask.
        value_mask: Datatype mask.
        rank_mask: Rank mask.
+       best_ranked: Best-ranked flag.
        language: Language.
        annotated: Annotated flag.
     """
@@ -504,13 +505,14 @@ class Filter(KObj):
             property_mask: TDatatypeMask | None = None,
             value_mask: TDatatypeMask | None = None,
             rank_mask: TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: TTextLanguage | None = None,
             annotated: bool | None = None
     ) -> None:
         super().__init__(
             subject, property, value, snak_mask,
             subject_mask, property_mask, value_mask,
-            rank_mask, language, annotated)
+            rank_mask, best_ranked, language, annotated)
 
     @override
     def _preprocess_arg(self, arg: Any, i: int) -> Any:
@@ -531,11 +533,13 @@ class Filter(KObj):
         elif i == 8:            # rank mask
             return self.RankMask.check_optional(
                 arg, self.RankMask.ALL, type(self), None, i)
-        elif i == 9:            # language
+        elif i == 9:            # best-ranked
+            return True if arg is None else bool(arg)
+        elif i == 10:            # language
             arg = String.check_optional(
                 arg, None, type(self), None, i)
             return arg.content if arg is not None else arg
-        elif i == 10:           # annotated
+        elif i == 11:           # annotated
             return bool(arg)
         else:
             raise self._should_not_get_here()
@@ -561,13 +565,14 @@ class Filter(KObj):
             property_mask: TDatatypeMask | KObj.TKEEP | None = KObj.KEEP,
             value_mask: TDatatypeMask | KObj.TKEEP | None = KObj.KEEP,
             rank_mask: TRankMask | KObj.TKEEP | None = KObj.KEEP,
+            best_ranked: bool | KObj.TKEEP | None = KObj.KEEP,
             language: TTextLanguage | KObj.TKEEP | None = KObj.KEEP,
             annotated: bool | KObj.TKEEP | None = KObj.KEEP
     ) -> Self:
         return super().replace(
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated)
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated)
 
     @at_property
     def subject(self) -> Fingerprint:
@@ -674,6 +679,21 @@ class Filter(KObj):
         return self.args[7]
 
     @at_property
+    def best_ranked(self) -> bool:
+        """The best-ranked flag of filter."""
+        return self.get_best_ranked()
+
+    def get_best_ranked(self) -> bool:
+        """Gets the best-ranked flag of filter.
+
+        Whether to match best-ranked statements.
+
+        Returns:
+           Annotated flag.
+        """
+        return self.args[8]
+
+    @at_property
     def language(self) -> str | None:
         """The language criterion of filter."""
         return self.get_language()
@@ -684,7 +704,7 @@ class Filter(KObj):
         Returns:
            Language.
         """
-        return self.args[8]
+        return self.args[9]
 
     @at_property
     def annotated(self) -> bool:
@@ -694,12 +714,12 @@ class Filter(KObj):
     def get_annotated(self) -> bool:
         """Gets the annotated flag of filter.
 
-        This flag determines whether to fetch statement annotations.
+        Whether to fetch statement annotations.
 
         Returns:
            Annotated flag.
         """
-        return self.args[9]
+        return self.args[10]
 
     def is_full(self) -> bool:
         """Tests whether filter is full.
@@ -784,6 +804,7 @@ class Filter(KObj):
             f1.property_mask | f2.property_mask,
             f1.value_mask | f2.value_mask,
             f1.rank_mask | f2.rank_mask,
+            f1.best_ranked or f2.best_ranked,
             f1.language if f1.language == f2.language else None,
             f1.annotated or f2.annotated).normalize()
 
@@ -798,6 +819,7 @@ class Filter(KObj):
         property_mask = f1.property_mask & f2.property_mask
         value_mask = f1.value_mask & f2.value_mask
         rank_mask = f1.rank_mask & f2.rank_mask
+        best_ranked = f1.best_ranked and f2.best_ranked
         if f1.language is None:
             language: Optional[str] = f2.language
         elif f2.language is None:
@@ -812,8 +834,8 @@ class Filter(KObj):
         annotated = f1.annotated and f2.annotated
         return type(f1)(
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated).normalize()
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated).normalize()
 
     def match(self, stmt: TStatement) -> bool:
         """Tests whether filter shallow-matches statement.
@@ -880,4 +902,4 @@ class Filter(KObj):
         return Filter(
             subject, property, value, snak_mask,
             subject_mask, property_mask, value_mask,
-            self.rank_mask, self.language, self.annotated)
+            self.rank_mask, self.best_ranked, self.language, self.annotated)

@@ -134,7 +134,6 @@ class Store(Set):
 
         def __init__(self, **kwargs: Any) -> None:
             self._init_base_filter(kwargs)
-            self._init_best_ranked(kwargs)
             self._init_debug(kwargs)
             self._init_distinct(kwargs)
             self._init_distinct_window_size(kwargs)
@@ -194,56 +193,6 @@ class Store(Set):
             """
             self._base_filter = Filter.check(
                 base_filter, function, name, position)
-
-        # -- best_ranked --
-
-        #: The default value for the best ranked option.
-        DEFAULT_BEST_RANKED: ClassVar[bool] = True
-
-        _v_best_ranked: ClassVar[tuple[Iterable[str], bool | None]] =\
-            (('KIF_STORE_BEST_RANKED',), DEFAULT_BEST_RANKED)
-
-        _best_ranked: bool | None
-
-        def _init_best_ranked(self, kwargs: dict[str, Any]) -> None:
-            self.best_ranked = kwargs.get(
-                '_best_ranked',
-                self.getenv_optional_bool(*self._v_best_ranked))
-
-        @property
-        def best_ranked(self) -> bool:
-            """Whether to consider only the best-ranked statements."""
-            return self.get_best_ranked()
-
-        @best_ranked.setter
-        def best_ranked(self, best_ranked: bool) -> None:
-            self.set_best_ranked(best_ranked)
-
-        def get_best_ranked(self) -> bool:
-            """Gets the best-ranked flag.
-
-            Returns:
-               Best-ranked flag.
-            """
-            assert self._best_ranked is not None
-            return self._best_ranked
-
-        def set_best_ranked(
-                self,
-                best_ranked: bool,
-                function: Location | None = None,
-                name: str | None = None,
-                position: int | None = None
-        ) -> None:
-            """Sets the best-ranked flag.
-
-            Parameters:
-               best_ranked: Best-ranked flag.
-               function: Function or function name.
-               name: Argument name.
-               position: Argument position.
-            """
-            self._best_ranked = bool(best_ranked)
 
         # -- debug --
 
@@ -1054,22 +1003,6 @@ class Store(Set):
                 function=function, name=name, position=position))
 
         @override
-        def get_best_ranked(self) -> bool:
-            return self._do_get('_best_ranked', super().get_best_ranked)
-
-        @override
-        def set_best_ranked(
-                self,
-                best_ranked: bool | None,
-                function: Location | None = None,
-                name: str | None = None,
-                position: int | None = None
-        ) -> None:
-            self._do_set(best_ranked, '_best_ranked', functools.partial(
-                super().set_best_ranked,
-                function=function, name=name, position=position))
-
-        @override
         def get_debug(self) -> bool:
             return self._do_get('_debug', super().get_debug)
 
@@ -1263,7 +1196,6 @@ class Store(Set):
             self,
             *args: Any,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -1282,7 +1214,6 @@ class Store(Set):
            store_name: Name of the store plugin to instantiate.
            args: Arguments.
            base_filter: Base filter.
-           best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
            distinct_window_size: Size of distinct look-back window.
@@ -1298,7 +1229,6 @@ class Store(Set):
         self._push_options()
         self._update_options(
             base_filter=base_filter,
-            best_ranked=best_ranked,
             debug=debug,
             distinct=distinct,
             distinct_window_size=distinct_window_size,
@@ -1375,8 +1305,6 @@ class Store(Set):
     def _update_options(self, **kwargs: Any) -> None:
         if 'base_filter' in kwargs:
             self.set_base_filter(kwargs['base_filter'])
-        if 'best_ranked' in kwargs:
-            self.set_best_ranked(kwargs['best_ranked'])
         if 'debug' in kwargs:
             self.set_debug(kwargs['debug'])
         if 'distinct' in kwargs:
@@ -1685,6 +1613,31 @@ class Store(Set):
         self.base_filter = self.base_filter.replace(rank_mask=rank_mask)
 
     @at_property
+    def best_ranked(self) -> bool:
+        """The best-ranked flag of the base filter of store."""
+        return self.get_best_ranked()
+
+    @best_ranked.setter
+    def best_ranked(self, best_ranked: bool) -> None:
+        self.set_best_ranked(best_ranked)
+
+    def get_best_ranked(self) -> bool:
+        """Gets the best-ranked flag of the base filter of store.
+
+        Returns:
+           Best-ranked flag.
+        """
+        return self.base_filter.best_ranked
+
+    def set_best_ranked(self, best_ranked: bool) -> None:
+        """Sets the best-ranked flag of the base filter of store.
+
+        Parameters:
+           best_ranked: Best-ranked flag.
+        """
+        self.base_filter = self.base_filter.replace(best_ranked=best_ranked)
+
+    @at_property
     def language(self) -> str | None:
         """The language of the base filter of store."""
         return self.get_language()
@@ -1733,59 +1686,6 @@ class Store(Set):
            annotated: Annotated flag.
         """
         self.base_filter = self.base_filter.replace(annotated=annotated)
-
-# -- Best-ranked -----------------------------------------------------------
-
-    @at_property
-    def default_best_ranked(self) -> bool:
-        """The default value for :attr:`Store.best_ranked`."""
-        return self.get_default_best_ranked()
-
-    def get_default_best_ranked(self) -> bool:
-        """Gets the default value for :attr:`Store.best_ranked`.
-
-        Returns:
-           Default best_ranked flag.
-        """
-        return self.default_options.best_ranked
-
-    @at_property
-    def best_ranked(self) -> bool:
-        """The best-ranked flag of store."""
-        return self.get_best_ranked()
-
-    @best_ranked.setter
-    def best_ranked(self, best_ranked: bool | None = None) -> None:
-        self.set_best_ranked(best_ranked)
-
-    def get_best_ranked(self) -> bool:
-        """Gets the best-ranked flag of store.
-
-        Returns:
-           Best-ranked flag.
-        """
-        return self.options.best_ranked
-
-    def set_best_ranked(self, best_ranked: bool | None = None) -> None:
-        """Sets the best-ranked flag of store.
-
-        If `best_ranked` is ``None``, resets it to the default.
-
-        Parameters:
-           best_ranked: Best-ranked flag.
-        """
-        self._set_option_with_hooks(
-            best_ranked,
-            self.options.get_best_ranked,
-            functools.partial(
-                self.options.set_best_ranked,
-                function=self.set_best_ranked,
-                name='best_ranked',
-                position=1),
-            self._set_best_ranked)
-
-    def _set_best_ranked(self, best_ranked: bool) -> bool:
-        return True
 
 # -- Debug -----------------------------------------------------------------
 
@@ -2375,12 +2275,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -2402,12 +2302,12 @@ class Store(Set):
            property_mask: Datatype mask.
            value_mask: Datatype mask.
            rank_mask: Rank mask.
+           best_ranked: Best-ranked flag.
            language: Language.
            annotated: Annotated flag.
            snak: Snak.
            filter: Filter.
            base_filter: Base filter.
-           best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
            distinct_window_size: Size of distinct look-back window.
@@ -2425,10 +2325,10 @@ class Store(Set):
             self._ask_tail,
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.ask)
@@ -2454,12 +2354,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -2475,10 +2375,10 @@ class Store(Set):
             self._aask_tail,
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.aask)
@@ -2559,12 +2459,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -2586,12 +2486,12 @@ class Store(Set):
            property_mask: Datatype mask.
            value_mask: Datatype mask.
            rank_mask: Rank mask.
+           best_ranked: Best-ranked flag.
            language: Language.
            annotated: Annotated flag.
            snak: Snak.
            filter: Filter.
            base_filter: Base filter.
-           best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
            distinct_window_size: Size of distinct look-back window.
@@ -2609,10 +2509,10 @@ class Store(Set):
             functools.partial(self._count_x_tail, self._count),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.count)
@@ -2645,12 +2545,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -2666,10 +2566,10 @@ class Store(Set):
             functools.partial(self._count_x_tail, self._count_s),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.count_s)
@@ -2699,12 +2599,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -2720,10 +2620,10 @@ class Store(Set):
             functools.partial(self._count_x_tail, self._count_p),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.count_p)
@@ -2742,12 +2642,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -2763,10 +2663,10 @@ class Store(Set):
             functools.partial(self._count_x_tail, self._count_v),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.count_v)
@@ -2785,12 +2685,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -2806,10 +2706,10 @@ class Store(Set):
             functools.partial(self._count_x_tail, self._count_sp),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.count_sp)
@@ -2828,12 +2728,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -2849,10 +2749,10 @@ class Store(Set):
             functools.partial(self._count_x_tail, self._count_sv),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.count_sv)
@@ -2871,12 +2771,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -2892,10 +2792,10 @@ class Store(Set):
             functools.partial(self._count_x_tail, self._count_pv),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.count_pv)
@@ -2914,12 +2814,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -2935,10 +2835,10 @@ class Store(Set):
             functools.partial(self._acount_x_tail, self._acount),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.acount)
@@ -2972,12 +2872,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -2993,10 +2893,10 @@ class Store(Set):
             functools.partial(self._acount_x_tail, self._acount_s),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.acount_s)
@@ -3029,12 +2929,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3050,10 +2950,10 @@ class Store(Set):
             functools.partial(self._acount_x_tail, self._acount_p),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.acount_p)
@@ -3072,12 +2972,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3093,10 +2993,10 @@ class Store(Set):
             functools.partial(self._acount_x_tail, self._acount_v),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.acount_v)
@@ -3115,12 +3015,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3136,10 +3036,10 @@ class Store(Set):
             functools.partial(self._acount_x_tail, self._acount_sp),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.acount_sp)
@@ -3158,12 +3058,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3179,10 +3079,10 @@ class Store(Set):
             functools.partial(self._acount_x_tail, self._acount_sv),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.acount_sv)
@@ -3201,12 +3101,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3222,10 +3122,10 @@ class Store(Set):
             functools.partial(self._acount_x_tail, self._acount_pv),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.acount_pv)
@@ -3246,12 +3146,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3273,12 +3173,12 @@ class Store(Set):
            property_mask: Datatype mask.
            value_mask: Datatype mask.
            rank_mask: Rank mask.
+           best_ranked: Best-ranked flag.
            language: Language.
            annotated: Annotated flag.
            snak: Snak.
            filter: Filter.
            base_filter: Base filter.
-           best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
            distinct_window_size: Size of distinct look-back window.
@@ -3296,10 +3196,10 @@ class Store(Set):
             functools.partial(self._filter_x_tail, self._filter),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.filter)
@@ -3359,12 +3259,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3380,10 +3280,10 @@ class Store(Set):
             functools.partial(self._filter_x_tail, self._filter_s),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.filter_s)
@@ -3425,12 +3325,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3446,10 +3346,10 @@ class Store(Set):
             functools.partial(self._filter_x_tail, self._filter_p),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.filter_p)
@@ -3479,12 +3379,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3500,10 +3400,10 @@ class Store(Set):
             functools.partial(self._filter_x_tail, self._filter_v),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.filter_v)
@@ -3537,12 +3437,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3558,10 +3458,10 @@ class Store(Set):
             functools.partial(self._filter_x_tail, self._filter_sp),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.filter_sp)
@@ -3593,12 +3493,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3614,10 +3514,10 @@ class Store(Set):
             functools.partial(self._filter_x_tail, self._filter_sv),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.filter_sv)
@@ -3651,12 +3551,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3672,10 +3572,10 @@ class Store(Set):
             functools.partial(self._filter_x_tail, self._filter_pv),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.filter_pv)
@@ -3709,12 +3609,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3730,10 +3630,10 @@ class Store(Set):
             functools.partial(self._afilter_x_tail, self._afilter),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.afilter)
@@ -3797,12 +3697,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3818,10 +3718,10 @@ class Store(Set):
             functools.partial(self._afilter_x_tail, self._afilter_s),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.afilter_s)
@@ -3864,12 +3764,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3885,10 +3785,10 @@ class Store(Set):
             functools.partial(self._afilter_x_tail, self._afilter_p),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.afilter_p)
@@ -3919,12 +3819,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3940,10 +3840,10 @@ class Store(Set):
             functools.partial(self._afilter_x_tail, self._afilter_v),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.afilter_v)
@@ -3977,12 +3877,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -3998,10 +3898,10 @@ class Store(Set):
             functools.partial(self._afilter_x_tail, self._afilter_sp),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.afilter_sp)
@@ -4033,12 +3933,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -4054,10 +3954,10 @@ class Store(Set):
             functools.partial(self._afilter_x_tail, self._afilter_sv),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.afilter_sv)
@@ -4091,12 +3991,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -4112,10 +4012,10 @@ class Store(Set):
             functools.partial(self._afilter_x_tail, self._afilter_pv),
             # filter
             subject, property, value,
-            snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-            language, annotated, snak, filter,
+            snak_mask, subject_mask, property_mask, value_mask,
+            rank_mask, best_ranked, language, annotated, snak, filter,
             # options
-            base_filter, best_ranked, debug, distinct, distinct_window_size,
+            base_filter, debug, distinct, distinct_window_size,
             extra_references, limit, lookahead, page_size, timeout,
             # function
             self.afilter_pv)
@@ -4149,12 +4049,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -4172,10 +4072,9 @@ class Store(Set):
             _annotate,
             self.filter(
                 subject, property, value,
-                snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-                language, True, snak, filter,
-                base_filter, best_ranked, debug,
-                distinct, distinct_window_size,
+                snak_mask, subject_mask, property_mask, value_mask,
+                rank_mask, best_ranked, language, True, snak, filter,
+                base_filter, debug, distinct, distinct_window_size,
                 extra_references, limit, lookahead, page_size, timeout,
                 **kwargs))
 
@@ -4189,12 +4088,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -4212,10 +4111,9 @@ class Store(Set):
             _annotate,
             self.filter(
                 subject, property, value,
-                snak_mask, subject_mask, property_mask, value_mask, rank_mask,
-                language, True, snak, filter,
-                base_filter, best_ranked, debug,
-                distinct, distinct_window_size,
+                snak_mask, subject_mask, property_mask, value_mask,
+                rank_mask, best_ranked, language, True, snak, filter,
+                base_filter, debug, distinct, distinct_window_size,
                 extra_references, limit, lookahead, page_size, timeout,
                 **kwargs))
 
@@ -4230,12 +4128,12 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
             filter: Filter | None = None,
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -4249,7 +4147,6 @@ class Store(Set):
     ) -> T:
         with self(
                 base_filter=base_filter,
-                best_ranked=best_ranked,
                 debug=debug,
                 distinct=distinct,
                 distinct_window_size=distinct_window_size,
@@ -4286,6 +4183,7 @@ class Store(Set):
             property_mask: Filter.TDatatypeMask | None = None,
             value_mask: Filter.TDatatypeMask | None = None,
             rank_mask: Filter.TRankMask | None = None,
+            best_ranked: bool | None = None,
             language: str | None = None,
             annotated: bool | None = None,
             snak: Snak | None = None,
@@ -4308,6 +4206,10 @@ class Store(Set):
             value_mask, Filter.VALUE, function, 'value_mask', 7)
         rank_mask = Filter.RankMask.check_optional(
             rank_mask, Filter.RankMask.ALL, function, 'rank_mask', 8)
+        if best_ranked is None:
+            best_ranked = self.base_filter.best_ranked
+        else:
+            best_ranked = bool(best_ranked)
         language = String.check(
             language, function, 'language', 9).content\
             if language is not None else None
@@ -4325,7 +4227,9 @@ class Store(Set):
                 property_mask=property_mask,
                 value_mask=value_mask,
                 rank_mask=rank_mask,
-                language=language)).replace(annotated=annotated)
+                language=language)).replace(
+                    best_ranked=best_ranked,
+                    annotated=annotated)
         else:
             filter = Filter.check(filter, function, 'filter', 12)
             filter = self.base_filter.combine(
@@ -4340,10 +4244,12 @@ class Store(Set):
                     value_mask=value_mask,
                     rank_mask=rank_mask,
                     language=language)).replace(
+                        best_ranked=filter.best_ranked and best_ranked,
                         annotated=filter.annotated or annotated)
         if snak is not None:
             filter = filter.combine(Filter.from_snak(None, Snak.check(
                 snak, function, 'snak', 11))).replace(
+                    best_ranked=filter.best_ranked and best_ranked,
                     annotated=filter.annotated or annotated)
         return self._normalize_filter(filter)
 
@@ -4367,7 +4273,6 @@ class Store(Set):
             self,
             *sources: Filter | Iterable[Statement],
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -4386,7 +4291,6 @@ class Store(Set):
         Parameters:
            sources: Sources to mix.
            base_filter: Base filter.
-           best_ranked: Whether to consider only best-ranked statements.
            debug: Whether to enable debugging mode.
            distinct: Whether to suppress duplicates.
            distinct_window_size: Size of distinct look-back window.
@@ -4402,7 +4306,6 @@ class Store(Set):
         """
         with self(
                 base_filter=base_filter,
-                best_ranked=best_ranked,
                 debug=debug,
                 distinct=distinct,
                 distinct_window_size=distinct_window_size,
@@ -4428,7 +4331,6 @@ class Store(Set):
             self,
             *sources: Filter | Iterable | AsyncIterable[Statement],
             base_filter: Filter | None = None,
-            best_ranked: bool | None = None,
             debug: bool | None = None,
             distinct: bool | None = None,
             distinct_window_size: int | None = None,
@@ -4442,7 +4344,6 @@ class Store(Set):
         """Async version of :meth:`Store.mix`."""
         with self(
                 base_filter=base_filter,
-                best_ranked=best_ranked,
                 debug=debug,
                 distinct=distinct,
                 distinct_window_size=distinct_window_size,

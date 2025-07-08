@@ -66,9 +66,6 @@ class MixerStore(
         #: Whether to propagate changes in base filter option.
         BASE_FILTER = KIF_Flags.auto()
 
-        #: Whether to propagate changes in best-ranked option.
-        BEST_RANKED = KIF_Flags.auto()
-
         #: Whether to propagate changes in debug option.
         DEBUG = KIF_Flags.auto()
 
@@ -93,7 +90,6 @@ class MixerStore(
         #: All sync flags.
         ALL = (
             BASE_FILTER
-            | BEST_RANKED
             | DEBUG
             | DISTINCT
             | DISTINCT_WINDOW_SIZE
@@ -104,9 +100,6 @@ class MixerStore(
 
     #: Whether to propagate changes in base filter option.
     BASE_FILTER: Final[SyncFlags] = SyncFlags.BASE_FILTER
-
-    #: Whether to propagate changes in best-ranked option.
-    BEST_RANKED: Final[SyncFlags] = SyncFlags.BEST_RANKED
 
     #: Whether to propagate changes in debug option.
     DEBUG: Final[SyncFlags] = SyncFlags.DISTINCT
@@ -134,9 +127,6 @@ class MixerStore(
 
     @dataclasses.dataclass
     class _Options(Store.Options):
-
-        _v_best_ranked: ClassVar[tuple[Iterable[str], bool | None]] =\
-            (('KIF_MIXER_STORE_BEST_RANKED',), None)
 
         _v_debug: ClassVar[tuple[Iterable[str], bool | None]] =\
             (('KIF_MIXER_STORE_DEBUG',), None)
@@ -361,11 +351,6 @@ class MixerStore(
     def _set_base_filter(self, base_filter: Filter) -> bool:
         return self._set_x(
             Store.set_base_filter, base_filter, self.BASE_FILTER)
-
-    @override
-    def _set_best_ranked(self, best_ranked: bool) -> bool:
-        return self._set_x(
-            Store.set_best_ranked, best_ranked, self.BEST_RANKED)
 
     @override
     def _set_debug(self, debug: bool) -> bool:
@@ -612,8 +597,6 @@ class MixerStore(
         source_options = source.options.copy()
         if self.sync_flags & self.BASE_FILTER:
             source_options.base_filter = options.base_filter
-        if self.sync_flags & self.BEST_RANKED:
-            source_options.best_ranked = options.best_ranked
         if self.sync_flags & self.DEBUG:
             source_options.debug = options.debug
         if self.sync_flags & self.DISTINCT:
