@@ -291,7 +291,7 @@ class WikidataMapping(M):
         frame = super().frame_pushed(compiler, frame)
         phase = frame['phase']
         if phase == C.READY:
-            self._wds.append(compiler.fresh_qvar())
+            self._wds.append(compiler.q.fresh_var())
         elif phase == C.COMPILING_FILTER:
             if not compiler.filter.annotated:
                 ###
@@ -740,7 +740,7 @@ class WikidataMapping(M):
         if schema is not None:
             if name in schema:
                 return schema[name]  # type: ignore
-        return c.fresh_qvar()
+        return c.q.fresh_var()
 
     def _ensure_wds_is_bound_fix(self, c: C) -> None:
         ###
@@ -1505,7 +1505,7 @@ class WikidataMapping(M):
     ) -> None:
         _, ps, wds = t
         psv = self._get_schema_uri_or_fresh_qvar(c, p, 'psv')
-        wdv = c.fresh_qvar()
+        wdv = c.q.fresh_var()
         if isinstance(psv, Var):
             c.q.triples()((p, WIKIBASE.statementValue, psv))
         c.q.triples()(
@@ -1622,7 +1622,7 @@ class WikidataMapping(M):
     ) -> None:
         _, ps, wds = t
         psv = self._get_schema_uri_or_fresh_qvar(c, p, 'psv')
-        wdv = c.fresh_qvar()
+        wdv = c.q.fresh_var()
         if isinstance(psv, Var):
             c.q.triples()((p, WIKIBASE.statementValue, psv))
         c.q.triples()(
@@ -1706,7 +1706,7 @@ class WikidataMapping(M):
 
     def _p_some_value(self, c: C, t: V_URI3) -> None:
         _, ps, wds = t
-        some = c.fresh_qvar()
+        some = c.q.fresh_var()
         c.q.triples()((wds, ps, some))
         c.q.filter(self._is_some_value(c, some))
 

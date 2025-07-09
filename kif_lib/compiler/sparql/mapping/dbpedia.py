@@ -157,7 +157,7 @@ class DBpediaMapping(M):
          v: CheckResource()},
         rank=Normal)
     def p_r_r(self, c: C, p: V_URI, s: V_URI, v: V_URI) -> None:
-        dbp = c.fresh_qvar()
+        dbp = c.q.fresh_var()
         c.q.triples()((dbp, OWL.equivalentProperty, p))
         self.op_r_r(c, dbp, s, v)
         if isinstance(p, Var):

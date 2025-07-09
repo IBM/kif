@@ -1465,7 +1465,8 @@ class Query(Encodable):
 
 # -- Term constructors -----------------------------------------------------
 
-    def uri(self, content: T_URI) -> URIRef:
+    @classmethod
+    def uri(cls, content: T_URI) -> URIRef:
         """Constructs :class:`URIRef`.
 
         Parameters:
@@ -1476,7 +1477,8 @@ class Query(Encodable):
         """
         return Coerce.uri(content)
 
-    def bnode(self) -> BNode:
+    @classmethod
+    def bnode(cls) -> BNode:
         """Constructs :class:`BNode`.
 
         Returns:
@@ -1484,8 +1486,9 @@ class Query(Encodable):
         """
         return BNode()
 
+    @classmethod
     def literal(
-            self,
+            cls,
             content: TLiteral,
             language: str | None = None,
             datatype: str | None = None
@@ -1502,7 +1505,8 @@ class Query(Encodable):
         """
         return Coerce.literal(content, language, datatype)
 
-    def var(self, name: TVariable) -> Variable:
+    @classmethod
+    def var(cls, name: TVariable) -> Variable:
         """Constructs :class:`Variable`.
 
         Parameters:
@@ -1513,7 +1517,8 @@ class Query(Encodable):
         """
         return Coerce.variable(name)
 
-    def vars(self, name: TVariable, *names: TVariable) -> Iterator[Variable]:
+    @classmethod
+    def vars(cls, name: TVariable, *names: TVariable) -> Iterator[Variable]:
         """Constructs one or more variables.
 
         Parameter:
@@ -1523,7 +1528,7 @@ class Query(Encodable):
         Returns:
            Iterator of :class:`Variable`.
         """
-        return map(self.var, itertools.chain((name,), names))
+        return map(cls.var, itertools.chain((name,), names))
 
     def fresh_var(self) -> Variable:
         """Constructs fresh variable.

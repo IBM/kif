@@ -176,7 +176,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             **kwargs: Any
     ) -> None:
         super().__init__(**kwargs)
-        self._filter = filter
+        self._filter = filter.normalize()
         self._mapping = mapping
         self._pattern = Pattern.check(Variable('_', Statement))
         self._frame = []
@@ -187,11 +187,11 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
 
     @property
     def filter(self) -> Filter:
-        """The source filter."""
+        """The (normalized) source filter."""
         return self.get_filter()
 
     def get_filter(self) -> Filter:
-        """Gets the source filter.
+        """Gets the (normalized) source filter.
 
         Returns:
            Filter.
@@ -412,7 +412,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
 # -- Fresh variables -------------------------------------------------------
 
     def _fresh_variable(self, variable_class: type[Variable]) -> Variable:
-        return variable_class(str(self.fresh_qvar()))
+        return variable_class(str(self.q.fresh_var()))
 
     def _fresh_variables(
             self,
@@ -420,7 +420,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             n: int
     ) -> Iterator[Variable]:
         return map(
-            lambda qvar: variable_class(str(qvar)), self.fresh_qvars(n))
+            lambda qvar: variable_class(str(qvar)), self.q.fresh_vars(n))
 
     def _fresh_entity_variable(self) -> EntityVariable:
         return cast(EntityVariable, self._fresh_variable(EntityVariable))
@@ -483,23 +483,28 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
     def compile(self) -> Self:
         if not self.is_done():
             assert self.is_ready(), self.phase
-            self._push_filter(self._filter.normalize())
+            self._push_filter()
             assert self.is_done(), self.phase
         return self
 
-    def _push_filter(self, filter: Filter) -> None:
-        if self.filter.is_empty():
+    def _push_filter(self) -> None:
+        if self.filter.is_nonempty():
+            self._push_patterns(list(self.mapping.preamble(
+                self, self._filter_to_patterns(self.filter))))
+        else:
             self.frame['phase'] = self.DONE
-            return              # nothing to do
-        sources = list(self.mapping.preamble(
-            self, self._filter_to_patterns(filter)))
+
+    def _push_patterns(
+            self,
+            patterns: Sequence[SPARQL_Mapping.EntryPattern]
+    ) -> None:
         all_targets: list[SPARQL_Mapping.EntryPattern] = []
         with self.q.union():
-            for source in sources:
-                source = source.generalize(rename=self._fresh_name_generator())
+            for pat in patterns:
+                pat = pat.generalize(rename=self._fresh_name_generator())
                 for entry in self.mapping:
                     matches = entry.match_and_preprocess(
-                        self.mapping, self, source, self._term2arg)
+                        self.mapping, self, pat, self._term2arg)
                     if not matches:
                         continue  # nothing to do
                     targets, theta, kwargs = matches
@@ -507,14 +512,13 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                         continue  # nothing to do
                     push = functools.partial(
                         self._push_filter_push_entry,
-                        filter, entry, theta=theta, kwargs=kwargs)
+                        self.filter, entry, theta=theta, kwargs=kwargs)
                     if True:
                         ###
                         # TODO: Add an option to split targets.
                         ###
                         for target in targets:
-                            if self._skip_if_filter_property_is_full(
-                                    filter, target):
+                            if self._skip_if_filter_property_is_full(target):
                                 ###
                                 # FIXME: Find a less ad-hoc way to do this.
                                 ###
@@ -531,13 +535,12 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
 
     def _skip_if_filter_property_is_full(
             self,
-            filter: Filter,
             target: SPARQL_Mapping.EntryPattern,
             blacklist: frozenset[Property] = frozenset({
                 TypeProperty(), SubtypeProperty()})
     ) -> bool:
         return (
-            filter.property.is_full()
+            self.filter.property.is_full()
             and isinstance(target, (Statement, StatementTemplate))
             and isinstance(target.snak, (Snak, SnakTemplate))
             and isinstance(target.snak.property, Property)
@@ -545,7 +548,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
 
     def _fresh_name_generator(self) -> Callable[[str], Iterator[str]]:
         return (lambda _: map(
-            lambda _: self.fresh_qvar(), itertools.repeat(None)))
+            lambda _: self.q.fresh_var(), itertools.repeat(None)))
 
     def _term2arg(self, term: Term) -> Term | Query.VTerm:
         if isinstance(term, self._primitive_var_classes):
