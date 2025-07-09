@@ -15,7 +15,7 @@ from ...model import (
     TimeVariable,
     Variable,
 )
-from ...typing import Final, Iterator
+from ...typing import cast, Final, Iterator, Sequence
 from ..compiler import Compiler
 from .builder import SelectQuery
 from .options import SPARQL_CompilerOptions as Options
@@ -28,12 +28,12 @@ class SPARQL_Compiler(Compiler):
         """Compiled SPARQL query."""
 
     __slots__ = (
-        '_q',
+        '_query_stack',
         '_debug',
     )
 
-    #: The compiled query.
-    _q: SPARQL_Compiler.Query
+    #: The compiled queries.
+    _query_stack: Sequence[SPARQL_Compiler.Query]
 
     #: Whether to enable debugging.
     _debug: bool
@@ -44,7 +44,7 @@ class SPARQL_Compiler(Compiler):
             debug: bool | None = None,
             context: Context | None = None
     ) -> None:
-        self._q = self.Query()
+        self._query_stack = [self.Query()]
         self._debug = debug or False
 
     @property
@@ -64,6 +64,59 @@ class SPARQL_Compiler(Compiler):
         return self.get_context(context).options.compiler.sparql
 
     @property
+    def query_stack(self) -> Sequence[Query]:
+        """The compiled query stack."""
+        return self.get_query_stack()
+
+    def get_query_stack(self) -> Sequence[Query]:
+        """Get the compiled query stack.
+
+        Returns:
+           Query stack.
+        """
+        return self._query_stack
+
+    def push_query(self, query: Query | None = None) -> Query:
+        """Pushes query onto query stack.
+
+        If `query` is ``None``, pushes an empty query.
+
+        Returns:
+           The pushed query.
+        """
+        query = query or self.Query()
+        cast(list, self._query_stack).append(query)
+        return query
+
+    def pop_query(self) -> Query:
+        """Pops query from query stack.
+
+        Returns:
+           The popped query.
+        """
+        assert self._query_stack
+        return cast(list, self._query_stack).pop()
+
+    @property
+    def q(self) -> Query:
+        """The current query (top of query stack)."""
+        return self.get_query()
+
+    @property
+    def query(self) -> Query:
+        """The current query (top of query stack)."""
+        return self.get_query()
+
+    def get_query(self) -> Query:
+        """Gets the current query (top of query stack).
+
+        Returns:
+           Query.
+        """
+        assert self._query_stack
+        return self._query_stack[-1]
+
+    @property
     def debug(self) -> bool:
         """Whether debugging is enabled."""
         return self.get_debug()
@@ -75,24 +128,6 @@ class SPARQL_Compiler(Compiler):
            Debug flag.
         """
         return self._debug
-
-    @property
-    def q(self) -> Query:
-        """The compiled query."""
-        return self.get_query()
-
-    @property
-    def query(self) -> Query:
-        """The compiled query."""
-        return self.get_query()
-
-    def get_query(self) -> Query:
-        """Gets the compiled query.
-
-        Returns:
-           SPARQL query.
-        """
-        return self._q
 
     def uri(self, content: Query.T_URI) -> Query.URI:
         """Alias of :meth:`Query.uri`."""

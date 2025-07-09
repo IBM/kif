@@ -337,9 +337,9 @@ class WikidataMapping(M):
                 # query into a subquery.  It's not pretty but works.
                 ###
                 v = c.qvar
-                subquery = c._q
-                c._q = c.Query()
-                c._q._fresh_var_counter = subquery._fresh_var_counter
+                subquery = c.pop_query()
+                c.push_query()
+                c.q._fresh_var_counter = subquery._fresh_var_counter
                 if self.options.blazegraph:
                     c.q.named_subquery('Q', subquery)()
                 else:
@@ -1430,7 +1430,8 @@ class WikidataMapping(M):
          Statement(Item(s), Property(p)(Quantity(
              v, v0@Item, v1, v2))).annotate(As, Rs, r)],
         {s: CheckItem(),
-         p: CheckProperty()},
+         p: CheckProperty(),
+         v0: CheckItem()},
         defaults={v0: None, v1: None, v2: None})
     def p_item_quantity(
             self,
@@ -1451,7 +1452,8 @@ class WikidataMapping(M):
          Statement(Lexeme(s), Property(p)(Quantity(
              v, v0@Item, v1, v2))).annotate(As, Rs, r)],
         {s: CheckLexeme(),
-         p: CheckProperty()},
+         p: CheckProperty(),
+         v0: CheckItem()},
         defaults={v0: None, v1: None, v2: None})
     def p_lexeme_quantity(
             self,
@@ -1473,7 +1475,8 @@ class WikidataMapping(M):
              v, v0@Item, v1, v2))).annotate(As, Rs, r)],
         {s: CheckProperty(),
          s0: CheckDatatype(),
-         p: CheckProperty()},
+         p: CheckProperty(),
+         v0: CheckItem()},
         defaults={v0: None, v1: None, v2: None})
     def p_property_quantity(
             self,
@@ -1540,8 +1543,9 @@ class WikidataMapping(M):
         {s: CheckItem(),
          p: CheckProperty(),
          v0: M.CheckInt(),
-         v1: M.CheckInt()},
-        defaults={v0: None, v1: None})
+         v1: M.CheckInt(),
+         v2: CheckItem()},
+        defaults={v0: None, v1: None, v2: None})
     def p_item_time(
             self,
             c: C,
@@ -1563,8 +1567,9 @@ class WikidataMapping(M):
         {s: CheckLexeme(),
          p: CheckProperty(),
          v0: M.CheckInt(),
-         v1: M.CheckInt()},
-        defaults={v0: None, v1: None})
+         v1: M.CheckInt(),
+         v2: CheckItem()},
+        defaults={v0: None, v1: None, v2: None})
     def p_lexeme_time(
             self,
             c: C,
@@ -1587,8 +1592,9 @@ class WikidataMapping(M):
          s0: CheckDatatype(),
          p: CheckProperty(),
          v0: M.CheckInt(),
-         v1: M.CheckInt()},
-        defaults={v0: None, v1: None})
+         v1: M.CheckInt(),
+         v2: CheckItem()},
+        defaults={v0: None, v1: None, v2: None})
     def p_property_time(
             self,
             c: C,

@@ -524,7 +524,8 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                         push(targets)
                     all_targets += targets
         if not self._entry_subst:
-            self._q = self.Query()  # empty query
+            self.pop_query()
+            self.push_query()      # empty query
         self.frame['phase'] = self.DONE
         self.mapping.postamble(self, all_targets)
 

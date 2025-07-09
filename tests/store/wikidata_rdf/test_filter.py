@@ -308,6 +308,18 @@ class Test(StoreTestCase):
                for i in range(10))})
         self.assertEqual(kb.count(wd.benzene, wd.density), 1)
 
+    def test_quantity_without_unit_lower_or_upper_bound(self) -> None:
+        kb = self.S('wikidata-rdf', wd.mass(wd.benzene, 0))
+        self.assertEqual(set(kb.filter()), {wd.mass(wd.benzene, 0)})
+
+    def test_time_without_precision_timezone_or_calendar(self) -> None:
+        kb = self.S(
+            'wikidata-rdf',
+            wd.inception(wd.Brazil, Time('1822-09-07')))
+        self.assertEqual(
+            set(kb.filter()),
+            {wd.inception(wd.Brazil, Time('1822-09-07'))})
+
     def test_no_and_some_value_at_the_same_time(self) -> None:
         kb = self.S(
             'wikidata-rdf',

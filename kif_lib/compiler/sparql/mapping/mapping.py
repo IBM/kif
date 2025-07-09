@@ -735,7 +735,7 @@ class SPARQL_Mapping(Sequence[_Entry]):
                 c: Compiler,
                 arg: SPARQL_Mapping.EntryCallbackArg
         ) -> SPARQL_Mapping.EntryCallbackArg:
-            if (isinstance(arg, c.query.Variable)
+            if (isinstance(arg, (c.query.Variable, Variable))
                     or (arg is None and self.optional)):
                 raise m.Done(arg)
             elif not isinstance(arg, str):
