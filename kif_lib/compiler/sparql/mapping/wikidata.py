@@ -291,7 +291,7 @@ class WikidataMapping(M):
         frame = super().frame_pushed(compiler, frame)
         phase = frame['phase']
         if phase == C.READY:
-            self._wds.append(compiler.q.fresh_var())
+            self._wds.append(compiler.fresh_qvar())
         elif phase == C.COMPILING_FILTER:
             if not compiler.filter.annotated:
                 ###
@@ -339,7 +339,6 @@ class WikidataMapping(M):
                 v = c.qvar
                 subquery = c.pop_query()
                 c.push_query()
-                c.q._fresh_var_counter = subquery._fresh_var_counter
                 if self.options.blazegraph:
                     c.q.named_subquery('Q', subquery)()
                 else:
@@ -740,7 +739,7 @@ class WikidataMapping(M):
         if schema is not None:
             if name in schema:
                 return schema[name]  # type: ignore
-        return c.q.fresh_var()
+        return c.fresh_qvar()
 
     def _ensure_wds_is_bound_fix(self, c: C) -> None:
         ###
@@ -1505,7 +1504,7 @@ class WikidataMapping(M):
     ) -> None:
         _, ps, wds = t
         psv = self._get_schema_uri_or_fresh_qvar(c, p, 'psv')
-        wdv = c.q.fresh_var()
+        wdv = c.fresh_qvar()
         if isinstance(psv, Var):
             c.q.triples()((p, WIKIBASE.statementValue, psv))
         c.q.triples()(
@@ -1519,7 +1518,7 @@ class WikidataMapping(M):
         elif isinstance(v0, ItemVariable):
             if not c.is_compiling_fingerprint():
                 with c.q.optional_if(self.options.relax):
-                    iri = c._fresh_iri_variable()
+                    iri = c.fresh_iri_var()
                     c.theta_add(v0, Item(iri))
                     c.q.triples()(
                         (wdv, WIKIBASE.quantityUnit,
@@ -1622,7 +1621,7 @@ class WikidataMapping(M):
     ) -> None:
         _, ps, wds = t
         psv = self._get_schema_uri_or_fresh_qvar(c, p, 'psv')
-        wdv = c.q.fresh_var()
+        wdv = c.fresh_qvar()
         if isinstance(psv, Var):
             c.q.triples()((p, WIKIBASE.statementValue, psv))
         c.q.triples()(
@@ -1641,7 +1640,7 @@ class WikidataMapping(M):
         elif isinstance(v2, ItemVariable):
             if not c.is_compiling_fingerprint():
                 with c.q.optional_if(self.options.relax):
-                    iri = c._fresh_iri_variable()
+                    iri = c.fresh_iri_var()
                     c.theta_add(v2, Item(iri))
                     c.q.triples()(
                         (wdv, WIKIBASE.timeCalendarModel,
@@ -1706,7 +1705,7 @@ class WikidataMapping(M):
 
     def _p_some_value(self, c: C, t: V_URI3) -> None:
         _, ps, wds = t
-        some = c.q.fresh_var()
+        some = c.fresh_qvar()
         c.q.triples()((wds, ps, some))
         c.q.filter(self._is_some_value(c, some))
 

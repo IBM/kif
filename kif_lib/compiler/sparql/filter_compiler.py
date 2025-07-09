@@ -12,34 +12,22 @@ from ...model import (
     CompoundFingerprint,
     ConverseSnakFingerprint,
     Datatype,
-    DataValueVariable,
-    DeepDataValueVariable,
     EdgePath,
     Entity,
     EntityTemplate,
     EntityVariable,
     ExternalId,
-    ExternalIdVariable,
     Filter,
     Fingerprint,
     FullFingerprint,
     IRI,
-    IRI_Variable,
-    ItemVariable,
-    LexemeVariable,
     NoValueSnak,
     OrFingerprint,
     PathFingerprint,
     Pattern,
     Property,
-    PropertyVariable,
-    QualifierRecordVariable,
     Quantity,
-    QuantityVariable,
-    RankVariable,
-    ReferenceRecordSetVariable,
     SequencePath,
-    ShallowDataValueVariable,
     Snak,
     SnakFingerprint,
     SnakTemplate,
@@ -48,14 +36,11 @@ from ...model import (
     StatementTemplate,
     StatementVariable,
     String,
-    StringVariable,
     SubtypeProperty,
     Term,
     Text,
-    TextVariable,
     Theta,
     Time,
-    TimeVariable,
     TypeProperty,
     Value,
     ValueFingerprint,
@@ -181,7 +166,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         self._pattern = Pattern.check(Variable('_', Statement))
         self._frame = []
         self.push_frame(self.READY)
-        self._entry_id_qvar = self.q.fresh_var()
+        self._entry_id_qvar = self.fresh_qvar()
         self._entry_subst = {}
         self._entry_targets = {}
 
@@ -409,74 +394,6 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         assert self.frame['targets'] is not None
         return self.frame['targets']
 
-# -- Fresh variables -------------------------------------------------------
-
-    def _fresh_variable(self, variable_class: type[Variable]) -> Variable:
-        return variable_class(str(self.q.fresh_var()))
-
-    def _fresh_variables(
-            self,
-            variable_class: type[Variable],
-            n: int
-    ) -> Iterator[Variable]:
-        return map(
-            lambda qvar: variable_class(str(qvar)), self.q.fresh_vars(n))
-
-    def _fresh_entity_variable(self) -> EntityVariable:
-        return cast(EntityVariable, self._fresh_variable(EntityVariable))
-
-    def _fresh_item_variable(self) -> ItemVariable:
-        return cast(ItemVariable, self._fresh_variable(ItemVariable))
-
-    def _fresh_property_variable(self) -> PropertyVariable:
-        return cast(PropertyVariable, self._fresh_variable(PropertyVariable))
-
-    def _fresh_lexeme_variable(self) -> LexemeVariable:
-        return cast(LexemeVariable, self._fresh_variable(LexemeVariable))
-
-    def _fresh_data_value_variable(self) -> DataValueVariable:
-        return cast(DataValueVariable, self._fresh_variable(DataValueVariable))
-
-    def _fresh_shallow_data_value_variable(self) -> ShallowDataValueVariable:
-        return cast(ShallowDataValueVariable, self._fresh_variable(
-            ShallowDataValueVariable))
-
-    def _fresh_iri_variable(self) -> IRI_Variable:
-        return cast(IRI_Variable, self._fresh_variable(IRI_Variable))
-
-    def _fresh_text_variable(self) -> TextVariable:
-        return cast(TextVariable, self._fresh_variable(TextVariable))
-
-    def _fresh_string_variable(self) -> StringVariable:
-        return cast(StringVariable, self._fresh_variable(StringVariable))
-
-    def _fresh_external_id_variable(self) -> ExternalIdVariable:
-        return cast(ExternalIdVariable, self._fresh_variable(
-            ExternalIdVariable))
-
-    def _fresh_deep_data_value_variable(self) -> DeepDataValueVariable:
-        return cast(DeepDataValueVariable, self._fresh_variable(
-            DeepDataValueVariable))
-
-    def _fresh_quantity_variable(self) -> QuantityVariable:
-        return cast(QuantityVariable, self._fresh_variable(QuantityVariable))
-
-    def _fresh_time_variable(self) -> TimeVariable:
-        return cast(TimeVariable, self._fresh_variable(TimeVariable))
-
-    def _fresh_qualifier_record_variable(self) -> QualifierRecordVariable:
-        return cast(QualifierRecordVariable, self._fresh_variable(
-            QualifierRecordVariable))
-
-    def _fresh_reference_record_set_variable(
-            self
-    ) -> ReferenceRecordSetVariable:
-        return cast(ReferenceRecordSetVariable, self._fresh_variable(
-            ReferenceRecordSetVariable))
-
-    def _fresh_rank_variable(self) -> RankVariable:
-        return cast(RankVariable, self._fresh_variable(RankVariable))
-
 # -- Compilation -----------------------------------------------------------
 
     @override
@@ -548,7 +465,7 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
 
     def _fresh_name_generator(self) -> Callable[[str], Iterator[str]]:
         return (lambda _: map(
-            lambda _: self.q.fresh_var(), itertools.repeat(None)))
+            lambda _: self.fresh_qvar(), itertools.repeat(None)))
 
     def _term2arg(self, term: Term) -> Term | Query.VTerm:
         if isinstance(term, self._primitive_var_classes):
@@ -772,10 +689,10 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             source: VEntity = entity
             for p in fp.path[:-1]:
                 if p.property.range is not None:
-                    var: Variable = self._fresh_variable(
+                    var: Variable = self.fresh_var(
                         p.property.range.value_class.variable_class)
                 else:
-                    var = self._fresh_entity_variable()
+                    var = self.fresh_entity_var()
                 assert isinstance(var, EntityVariable), var
                 push(source, p.property(source, var))
                 source = var
@@ -1049,16 +966,16 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
         else:
             subjects = []
             if filter.subject_mask & filter.ITEM:
-                subjects.append(self._fresh_item_variable())
+                subjects.append(self.fresh_item_var())
             if filter.subject_mask & filter.PROPERTY:
-                subjects.append(self._fresh_property_variable())
+                subjects.append(self.fresh_property_var())
             if filter.subject_mask & filter.LEXEME:
-                subjects.append(self._fresh_lexeme_variable())
+                subjects.append(self.fresh_lexeme_var())
         assert subjects
         if isinstance(filter.property, ValueFingerprint):
             property: VProperty = cast(Property, filter.property.value)
         else:
-            property = self._fresh_property_variable()
+            property = self.fresh_property_var()
         if filter.snak_mask & filter.VALUE_SNAK:
             assert bool(filter.value_mask)
             value_mask = (
@@ -1075,27 +992,27 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
                 yield from mk_pats(cast(Value, filter.value.value))
             else:
                 if value_mask & filter.ITEM:
-                    yield from mk_pats(self._fresh_item_variable())
+                    yield from mk_pats(self.fresh_item_var())
                 if value_mask & filter.PROPERTY:
-                    yield from mk_pats(self._fresh_property_variable())
+                    yield from mk_pats(self.fresh_property_var())
                 if value_mask & filter.LEXEME:
-                    yield from mk_pats(self._fresh_lexeme_variable())
+                    yield from mk_pats(self.fresh_lexeme_var())
                 if value_mask & filter.IRI:
-                    yield from mk_pats(self._fresh_iri_variable())
+                    yield from mk_pats(self.fresh_iri_var())
                 if value_mask & filter.TEXT:
                     if filter.language is None:
-                        yield from mk_pats(self._fresh_text_variable())
+                        yield from mk_pats(self.fresh_text_var())
                     else:
                         yield from mk_pats(Text(
-                            self._fresh_string_variable(), filter.language))
+                            self.fresh_string_var(), filter.language))
                 if value_mask & filter.STRING:
-                    yield from mk_pats(self._fresh_string_variable())
+                    yield from mk_pats(self.fresh_string_var())
                 elif value_mask & filter.EXTERNAL_ID:
-                    yield from mk_pats(self._fresh_external_id_variable())
+                    yield from mk_pats(self.fresh_external_id_var())
                 if value_mask & filter.QUANTITY:
-                    yield from mk_pats(self._fresh_quantity_variable())
+                    yield from mk_pats(self.fresh_quantity_var())
                 if value_mask & filter.TIME:
-                    yield from mk_pats(self._fresh_time_variable())
+                    yield from mk_pats(self.fresh_time_var())
         if filter.snak_mask & filter.SOME_VALUE_SNAK:
             yield from map(lambda subject: self._filter_to_patterns_tail(
                 Statement(subject, SomeValueSnak(property))), subjects)
@@ -1109,8 +1026,8 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
     ) -> SPARQL_Mapping.EntryPattern:
         if self.filter.annotated:
             return stmt.annotate(
-                qualifiers=self._fresh_qualifier_record_variable(),
-                references=self._fresh_reference_record_set_variable(),
-                rank=self._fresh_rank_variable())
+                qualifiers=self.fresh_qualifier_record_var(),
+                references=self.fresh_reference_record_set_var(),
+                rank=self.fresh_rank_var())
         else:
             return stmt

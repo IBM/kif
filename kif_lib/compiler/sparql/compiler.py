@@ -9,9 +9,21 @@ from ... import itertools
 from ...context import Context
 from ...model import (
     DatatypeVariable,
+    DataValueVariable,
+    DeepDataValueVariable,
+    EntityVariable,
+    ExternalIdVariable,
     IRI_Variable,
+    ItemVariable,
+    LexemeVariable,
+    PropertyVariable,
+    QualifierRecordVariable,
     QuantityVariable,
+    RankVariable,
+    ReferenceRecordSetVariable,
+    ShallowDataValueVariable,
     StringVariable,
+    TextVariable,
     TimeVariable,
     Variable,
 )
@@ -30,6 +42,7 @@ class SPARQL_Compiler(Compiler):
     __slots__ = (
         '_debug',
         '_omega',
+        '_query_dummy',
         '_query_stack',
     )
 
@@ -38,6 +51,9 @@ class SPARQL_Compiler(Compiler):
 
     #: Maximum number of disjoint queries generate.
     _omega: int
+
+    #: Dummy auery used for generating fresh variables.
+    _query_dummy: SPARQL_Compiler.Query
 
     #: The generated disjoint queries.
     _query_stack: Sequence[SPARQL_Compiler.Query]
@@ -49,9 +65,10 @@ class SPARQL_Compiler(Compiler):
             omega: int | None = None,
             context: Context | None = None
     ) -> None:
-        self._query_stack = [self.Query()]
-        self._omega = max(int(omega), 1) if omega is not None else 1
         self._debug = bool(debug or False)
+        self._omega = max(int(omega), 1) if omega is not None else 1
+        self._query_dummy = self.Query()
+        self._query_stack = [self.Query()]
 
     @property
     def default_options(self) -> Options:
@@ -252,3 +269,180 @@ class SPARQL_Compiler(Compiler):
            Iterator of query variables.
         """
         return map(cls.as_safe_qvar, itertools.chain((var,), vars))
+
+    def fresh_qvar(self) -> Query.Variable:
+        """Constructs a fresh query variable.
+
+        Returns:
+           Query variable.
+        """
+        return self._query_dummy.fresh_var()
+
+    def fresh_qvars(
+            self,
+            n: int
+    ) -> Iterator[Query.Variable]:
+        """Constructs one or more fresh query variables.
+
+        Returns:
+           Iterator of variables.
+        """
+        return (self.fresh_qvar() for _ in range(n))
+
+    def fresh_var(self, variable_class: type[Variable]) -> Variable:
+        """Constructs a fresh variable of the given class.
+
+        Parameters:
+           variable_class: Variable class.
+
+        Returns:
+           Variable.
+        """
+        return variable_class(str(self._query_dummy.fresh_var()))
+
+    def fresh_vars(
+            self,
+            variable_class: type[Variable],
+            n: int
+    ) -> Iterator[Variable]:
+        """Constructs one or more fresh variables of the given class.
+
+        Parameters:
+           variable_class: Variable class.
+
+        Returns:
+           Iterator of variables.
+        """
+        return (self.fresh_var(variable_class) for _ in range(n))
+
+    def fresh_entity_var(self) -> EntityVariable:
+        """Constructs a fresh entity variable.
+
+        Returns:
+           Entity variable.
+        """
+        return cast(EntityVariable, self.fresh_var(EntityVariable))
+
+    def fresh_item_var(self) -> ItemVariable:
+        """Constructs a fresh item variable.
+
+        Returns:
+           Item variable.
+        """
+        return cast(ItemVariable, self.fresh_var(ItemVariable))
+
+    def fresh_property_var(self) -> PropertyVariable:
+        """Constructs a fresh property variable.
+
+        Returns:
+           Property variable.
+        """
+        return cast(PropertyVariable, self.fresh_var(PropertyVariable))
+
+    def fresh_lexeme_var(self) -> LexemeVariable:
+        """Constructs a fresh lexeme variable.
+
+        Returns:
+           Lexeme variable.
+        """
+        return cast(LexemeVariable, self.fresh_var(LexemeVariable))
+
+    def fresh_data_value_var(self) -> DataValueVariable:
+        """Constructs a fresh data-value variable.
+
+        Returns:
+           Data-value variable.
+        """
+        return cast(DataValueVariable, self.fresh_var(DataValueVariable))
+
+    def fresh_shallow_data_value_var(self) -> ShallowDataValueVariable:
+        """Constructs a fresh shallow data-value variable.
+
+        Returns:
+           Shallow data-value variable.
+        """
+        return cast(ShallowDataValueVariable, self.fresh_var(
+            ShallowDataValueVariable))
+
+    def fresh_iri_var(self) -> IRI_Variable:
+        """Constructs a fresh IRI variable.
+
+        Returns:
+           IRI variable.
+        """
+        return cast(IRI_Variable, self.fresh_var(IRI_Variable))
+
+    def fresh_text_var(self) -> TextVariable:
+        """Constructs a fresh text variable.
+
+        Returns:
+           Text variable.
+        """
+        return cast(TextVariable, self.fresh_var(TextVariable))
+
+    def fresh_string_var(self) -> StringVariable:
+        """Constructs a fresh string variable.
+
+        Returns:
+           String variable.
+        """
+        return cast(StringVariable, self.fresh_var(StringVariable))
+
+    def fresh_external_id_var(self) -> ExternalIdVariable:
+        """Constructs a fresh external-id variable.
+
+        Returns:
+           External id variable.
+        """
+        return cast(ExternalIdVariable, self.fresh_var(ExternalIdVariable))
+
+    def fresh_deep_data_value_var(self) -> DeepDataValueVariable:
+        """Constructs a fresh deep data-value variable.
+
+        Returns:
+           Deep data-value variable.
+        """
+        return cast(DeepDataValueVariable, self.fresh_var(
+            DeepDataValueVariable))
+
+    def fresh_quantity_var(self) -> QuantityVariable:
+        """Constructs a fresh quantity variable.
+
+        Returns:
+           Quantity variable.
+        """
+        return cast(QuantityVariable, self.fresh_var(QuantityVariable))
+
+    def fresh_time_var(self) -> TimeVariable:
+        """Constructs a fresh time variable.
+
+        Returns:
+           Time variable.
+        """
+        return cast(TimeVariable, self.fresh_var(TimeVariable))
+
+    def fresh_qualifier_record_var(self) -> QualifierRecordVariable:
+        """Constructs a fresh qualifier record variable.
+
+        Returns:
+           Qualifier record variable.
+        """
+        return cast(QualifierRecordVariable, self.fresh_var(
+            QualifierRecordVariable))
+
+    def fresh_reference_record_set_var(self) -> ReferenceRecordSetVariable:
+        """Constructs a fresh reference record set variable.
+
+        Returns:
+           Reference record set variable.
+        """
+        return cast(ReferenceRecordSetVariable, self.fresh_var(
+            ReferenceRecordSetVariable))
+
+    def fresh_rank_var(self) -> RankVariable:
+        """Constructs a fresh rank variable.
+
+        Returns:
+           Rank variable.
+        """
+        return cast(RankVariable, self.fresh_var(RankVariable))
