@@ -9,6 +9,7 @@ from ...model import (
     AnnotatedStatement,
     DeepDataValue,
     Entity,
+    Filter,
     Graph,
     IRI,
     Item,
@@ -128,6 +129,11 @@ class RDF_Encoder(
     def __init__(
             self,
             schema: Property.TSchema | None = None,
+            define: Filter.TDatatypeMask | None = None,
+            define_entities: bool | None = None,
+            define_items: bool | None = None,
+            define_properties: bool | None = None,
+            define_lexemes: bool | None = None,
             gen_wdref: Callable[[ReferenceRecord], str] | None = None,
             gen_wds: Callable[[Statement], str] | None = None,
             gen_wdv: Callable[[Value], str] | None = None,
@@ -146,12 +152,61 @@ class RDF_Encoder(
         else:
             self._gen_wdv = self._default_gen_wdv
         self._options = self._get_context_options(context).copy()
+        if define is not None:
+            self._options.set_define(define, type(self), 'define')
+        if define_entities is not None:
+            if define_entities:
+                self._options.define |= Filter.ENTITY
+            else:
+                self._options.define |= ~Filter.ENTITY
+        if define_items is not None:
+            if define_items:
+                self._options.define |= Filter.ITEM
+            else:
+                self._options.define &= ~Filter.ITEM
+        if define_properties is not None:
+            if define_properties:
+                self._options.define |= Filter.PROPERTY
+            else:
+                self._options.define &= ~Filter.PROPERTY
+        if define_lexemes is not None:
+            if define_lexemes:
+                self._options.define |= Filter.LEXEME
+            else:
+                self._options.define &= ~Filter.LEXEME
         if schema is not None:
-            self._options.set_schema(schema, type(self), 'schema', 1)
+            self._options.set_schema(schema, type(self), 'schema')
         self._seen_absolute_schemas = {}
         self._seen_deep_data_value = {}
         self._seen_entity = {}
         self._seen_reference_record = {}
+
+    def _define_items(
+            self,
+            define: bool | None = None
+    ) -> bool:
+        if define is None:
+            return bool(self._options.define & Filter.ITEM)
+        else:
+            return bool(define)
+
+    def _define_properties(
+            self,
+            define: bool | None = None
+    ) -> bool:
+        if define is None:
+            return bool(self._options.define & Filter.PROPERTY)
+        else:
+            return bool(define)
+
+    def _define_lexeme(
+            self,
+            define: bool | None = None
+    ) -> bool:
+        if define is None:
+            return bool(self._options.define & Filter.LEXEME)
+        else:
+            return bool(define)
 
     def _get_absolute_schema(
             self,
@@ -206,7 +261,7 @@ class RDF_Encoder(
             schema = self._get_absolute_schema(stmt.snak.property)
             wds = Wikidata.WDS[self._gen_wds(stmt)]
             # property definition
-            yield from self._do_iterencode_property(stmt.snak.property, True)
+            yield from self._do_iterencode_property(stmt.snak.property)
             # subject
             yield from self._do_iterencode_entity(stmt.subject)
             subject = self._seen_entity[stmt.subject]
@@ -267,27 +322,32 @@ class RDF_Encoder(
         else:
             raise KIF_Object._should_not_get_here()
 
-    def _do_iterencode_item(self, item: Item) -> Iterator[str]:
+    def _do_iterencode_item(
+            self,
+            item: Item,
+            define: bool | None = None
+    ) -> Iterator[str]:
         if item in self._seen_entity:
             return              # nothing do do
         uri = cast(URIRef, item._to_rdflib())
         self._seen_entity[item] = uri
-        yield from self._tr((uri, WIKIBASE.sitelinks, Literal(0)))
+        if self._define_items(define):
+            yield from self._tr((uri, WIKIBASE.sitelinks, Literal(0)))
 
     def _do_iterencode_property(
             self,
             property: Property,
-            define: bool = True
+            define: bool | None = None
     ) -> Iterator[str]:
         if property in self._seen_entity:
             return              # nothing to do
         uri = cast(URIRef, property._to_rdflib())
         self._seen_entity[property] = uri
-        yield from self._tr((uri, RDF.type, WIKIBASE.Property))
-        if property.range is not None:
-            dt_uri = property.range._to_rdflib()
-            yield from self._tr((uri, WIKIBASE.propertyType, dt_uri))
-        if define:
+        if self._define_properties(define):
+            yield from self._tr((uri, RDF.type, WIKIBASE.Property))
+            if property.range is not None:
+                dt_uri = property.range._to_rdflib()
+                yield from self._tr((uri, WIKIBASE.propertyType, dt_uri))
             schema = self._get_absolute_schema(property)
             assert property.range is not None
             yield from self._tr(
@@ -301,12 +361,17 @@ class RDF_Encoder(
                 (uri, WIKIBASE.novalue, schema['wdno']),
                 (uri, WIKIBASE.directClaim, schema['wdt']))
 
-    def _do_iterencode_lexeme(self, lexeme: Lexeme) -> Iterator[str]:
+    def _do_iterencode_lexeme(
+            self,
+            lexeme: Lexeme,
+            define: bool | None = None
+    ) -> Iterator[str]:
         if lexeme in self._seen_entity:
             return              # nothing to do
         uri = cast(URIRef, lexeme._to_rdflib())
         self._seen_entity[lexeme] = uri
-        yield from self._tr((uri, RDF.type, ONTOLEX.LexicalEntry))
+        if self._define_lexeme(define):
+            yield from self._tr((uri, RDF.type, ONTOLEX.LexicalEntry))
 
     def _do_iterencode_value(
             self,

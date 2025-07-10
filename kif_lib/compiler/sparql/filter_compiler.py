@@ -415,7 +415,19 @@ class SPARQL_FilterCompiler(SPARQL_Compiler):
             self,
             patterns: Sequence[SPARQL_Mapping.EntryPattern]
     ) -> None:
+        # patterns = (
+        #     pat.generalize(rename=self._fresh_name_generator())
+        #     for pat in patterns)
+        # match_funcs = (
+        #     functools.partial(
+        #         entry.match_and_preprocess, self.mapping, self,
+        #         term2arg=self._term2arg) for entry in self.mapping)
+        # matches = filter(
+        #     lambda t: t and t[0], (f(p) for f, p in itertools.product(
+        #         match_funcs, patterns)))
+        # print('>>>', next(matches))
         all_targets: list[SPARQL_Mapping.EntryPattern] = []
+        self.push_query()
         with self.q.union():
             for pat in patterns:
                 pat = pat.generalize(rename=self._fresh_name_generator())

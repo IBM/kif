@@ -142,7 +142,7 @@ class WikidataMappingOptions(Section, name='wikidata'):
         self.set_truthy(truthy)
 
     def get_truthy(self) -> Filter.DatatypeMask:
-        """Gets the truthy mask phase.
+        """Gets the truthy mask.
 
         Returns:
            Datatype mask.

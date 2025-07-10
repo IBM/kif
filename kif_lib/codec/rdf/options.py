@@ -7,7 +7,7 @@ import dataclasses
 
 from ... import namespace as NS
 from ...context import Section
-from ...model import IRI, Property
+from ...model import Filter, IRI, Property
 from ...typing import Any, cast, ClassVar, Location
 
 
@@ -16,7 +16,53 @@ class RDF_EncoderOptions(Section, name='rdf'):
     """RDF encoder options."""
 
     def __init__(self, **kwargs: Any) -> None:
+        self._init_define(kwargs)
         self._init_schema(kwargs)
+
+    # -- define --
+
+    #: The default value for the define option.
+    DEFAULT_DEFINE: ClassVar[Filter.DatatypeMask] = Filter.ENTITY
+
+    _define: Filter.DatatypeMask
+
+    def _init_define(self, kwargs: dict[str, Any]) -> None:
+        self.define = kwargs.get('_define', self.DEFAULT_DEFINE)
+
+    @property
+    def define(self) -> Filter.DatatypeMask:
+        """The define mask (determine the entities to define)."""
+        return self.get_define()
+
+    @define.setter
+    def define(self, define: Filter.TDatatypeMask) -> None:
+        self.set_define(define)
+
+    def get_define(self) -> Filter.DatatypeMask:
+        """Gets the define mask.
+
+        Returns:
+           Datatype mask.
+        """
+        return self._define
+
+    def set_define(
+            self,
+            define: Filter.TDatatypeMask,
+            function: Location | None = None,
+            name: str | None = None,
+            position: int | None = None
+    ) -> None:
+        """Sets the define mask.
+
+        Parameters:
+           define: Datatype mask.
+           function: Function or function name.
+           name: Argument name.
+           position: Argument position.
+        """
+        self._define = Filter.DatatypeMask.check(
+            define, function, name, position)
 
     # -- schema --
 

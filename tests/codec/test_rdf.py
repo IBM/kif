@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import copy
 
-from kif_lib import Context, Graph, Item
+from kif_lib import Context, Filter, Graph, Item
 from kif_lib import namespace as NS
 from kif_lib import Normal, Preferred, Property, Store
 from kif_lib.model import EncoderError
@@ -57,6 +57,15 @@ class Test(TestCase):
                     rank=Preferred,
                 )
             ))
+
+    def test_define(self) -> None:
+        lines = list(wd.mass(wd.benzene, 0).to_rdf().splitlines())
+        with Context() as ctx:
+            ctx.options.codec.rdf.encoder.set_define(
+                Filter.ENTITY & ~Filter.PROPERTY)
+            self.assertEqual(
+                list(wd.mass(wd.benzene, 0).to_rdf().splitlines()),
+                [s for s in lines if not s.startswith(wd.mass.n3())])
 
     def test_schema(self) -> None:
         stmt = pc.isotope_atom_count(pc.CID(241), 0)

@@ -68,7 +68,7 @@ class SPARQL_Compiler(Compiler):
         self._debug = bool(debug or False)
         self._omega = max(int(omega), 1) if omega is not None else 1
         self._query_dummy = self.Query()
-        self._query_stack = [self.Query()]
+        self._query_stack = []
 
     @property
     def default_options(self) -> Options:
